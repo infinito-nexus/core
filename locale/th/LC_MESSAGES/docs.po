@@ -749,7 +749,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Arch Linux (x86_64)**"
-msgstr "**Linux (x86_64)**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Arch Linux (x86_64)**   Installs `nix` via the system package manager (`pacman`)."
@@ -773,7 +773,7 @@ msgstr "**ระบบของลินุกซ์Name**บทบาทนี�
 
 # translated-by: libretranslate
 msgid "**Arch Linux–Optimized**"
-msgstr "**Arch Linux- Oppimized**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Arch Linux–Optimized**   Leverages Pacman for fast and reliable package management."
@@ -12494,12 +12494,12 @@ msgstr "**galaxy_tags**. ['mastodon'. 'docker'. 'federated'. 'decentralized'. 'm
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**. ['nginx'. 'docker''Regular\\ proxy' 'web'. 'automation'. 'archlinux']"
+msgstr ""
 
 # ppilter 'injection'. 'global']
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**. ['nginx'. 'javascript'. 'csp'2551 – ppilter 'injection'. 'global']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
@@ -14142,7 +14142,7 @@ msgstr ":mod:`utils.i18n.spans` และสะสมทรัพย์สิน
 
 # translated-by: libretranslate
 msgid "<comment-prefix> (noqa|nocheck): <rule>(\\s*,\\s*<rule>)*"
-msgstr "<comment-prefix> (Noqano check). <rule>(/s*, /s*<rule>)*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "<https://gist.github.com/mtigas/565718bbb928ce439e95> — subdomain hidden-service reference"
@@ -14162,7 +14162,7 @@ msgstr "<https://www.w3.org/TR/secure-contexts/> - `.onion` บริบทท�
 
 # translated-by: libretranslate
 msgid "@signalbot:yourdomain.tld"
-msgstr "@ Signalbot:yourdomain.tld"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "@slackbot:yourdomain.tld"
@@ -14170,11 +14170,11 @@ msgstr "@slackbot:yourdomain.tld"
 
 # translated-by: libretranslate
 msgid "@telegrambot:yourdomain.tld"
-msgstr "@ Telegrambt:yourdomain.tld"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr "@sepbbot:yourdomain.tld"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A \"version\" here is a tag of the shape ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, where the numeric part has 1 to 5 dot-separated components, the optional leading ``<channel>-`` is a release line written before the number (e.g. the LiteLLM tag ``main-v1.77.7-stable`` or the Jitsi tag ``stable-9646``), the optional ``<patch>`` is a vendor counter written as a letter and a number (e.g. the Checkmk tag ``2.4.0p32``), and the optional ``-<flavor>`` suffix is an opaque discriminator (e.g. the Docker Official Image tag ``5.4.5-php8.3-apache`` or the npm-style ``1.2.3-alpha``)."
@@ -16076,7 +16076,7 @@ msgstr "โหนด AI"
 
 # translated-by: libretranslate
 msgid "AI Assistance"
-msgstr "AI Asistance"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AI LLM Application extension"
@@ -19032,7 +19032,7 @@ msgstr "อาร์ช"
 
 # translated-by: libretranslate
 msgid "Arch Linux"
-msgstr "Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Arch Linux with Docker, Compose, and NGINX roles pre-installed"
@@ -20432,7 +20432,7 @@ msgstr "สคริปต์ที่ถูกรวมไว้ 🔗"
 
 # translated-by: libretranslate
 msgid "Blacklist Check 🚫"
-msgstr "Check Blacklist 🚫"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Blast radius"
@@ -21457,7 +21457,7 @@ msgstr "CA-ความไว้วางใจและ OIDC-overตัวเ�
 
 # translated-by: libretranslate
 msgid "CA-trust env handlers."
-msgstr "CCA-ULV Affers."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CACHE SEMANTICS"
@@ -21476,7 +21476,7 @@ msgstr "CI"
 
 # translated-by: libretranslate
 msgid "CI & Self-Hosted Runners 🏃"
-msgstr "CI & hostted Runner 🏃"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI & Test Guardrails 🧪"
@@ -21598,7 +21598,7 @@ msgstr "CI จะถูกกระตุ้นโดยอัตโนมัต
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
-msgstr "CI on Tag Press 🤖"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI orchestration and coordination workflows"
@@ -21662,7 +21662,7 @@ msgstr "CI/CD และการเปลี่ยนแปลงการทํ
 
 # translated-by: libretranslate
 msgid "CI/CD, tooling, systemic"
-msgstr "CI/CD, overling, Systemic"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI/CD-friendly shallow clones"
@@ -22170,7 +22170,7 @@ msgstr "การทดสอบหมวดหมู่ 🗂️"
 
 # translated-by: libretranslate
 msgid "Category-tree SPOT."
-msgstr "SPOT."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cause 🔍"
@@ -22202,7 +22202,7 @@ msgstr "CentOS สายน้ํากําลังกลิ้ง; Centos EO
 
 # translated-by: libretranslate
 msgid "CentOS, RHEL, Rocky Linux, AlmaLinux"
-msgstr "Centos, RHEL, Rocky Linux, AlmaLinux"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS/RHEL 7 need EPEL enabled out-of-band."
@@ -22426,7 +22426,7 @@ msgstr "ช่อง 📡"
 
 # translated-by: libretranslate
 msgid "ChatGPT"
-msgstr "ChartGPT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ChatGPT bridge"
@@ -22545,7 +22545,7 @@ msgstr "ตรวจสอบว่าบริการล้างปริม
 
 # translated-by: libretranslate
 msgid "Checks::"
-msgstr "Check:"
+msgstr ""
 
 msgid "Chess Architecture"
 msgstr ""
@@ -25519,7 +25519,7 @@ msgstr "วิธี การ ต่าง ๆ สําหรับ สมา�
 
 # translated-by: libretranslate
 msgid "Credentials in Agent Output 🔐"
-msgstr "Credentials in Agent Express 🔐"
+msgstr ""
 
 msgid "Credentials in argv: [`tasks/01_wait_for_api.yml`](tasks/01_wait_for_api.yml) (\"Wait until Stalwart leaves bootstrap mode\") and [`tasks/11_oidc_restart.yml`](tasks/11_oidc_restart.yml) pass `-u STALWART_ADMIN_USER:STALWART_ADMIN_PASSWORD` to `curl` inside `container exec`, so the recovery admin password sits in the rendered shell command (printed as `cmd` at `-vv` while `MASK_CREDENTIALS_IN_LOGS` is off) and in the process list of the container; [`tasks/jmap_call.yml`](tasks/jmap_call.yml) already feeds the same pair through `curl -K -` on stdin. Option: route both waits through `jmap_call.yml` or the same stdin config pattern."
 msgstr ""
@@ -26575,7 +26575,7 @@ msgstr "Ontharobot แจ้งเตือน ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot PRs"
-msgstr "Montabo Profile"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependabot Security Updates ❌"
@@ -27546,7 +27546,7 @@ msgstr "แยกส่วนการเปลี่ยนแปลงภาย
 
 # translated-by: libretranslate
 msgid "Discourse AI"
-msgstr "Unknown AI"
+msgstr ""
 
 msgid "Discourse Architecture"
 msgstr ""
@@ -27872,7 +27872,7 @@ msgstr "เซิร์ฟเวอร์ดอกเกอร์"
 
 # translated-by: libretranslate
 msgid "Docker Swarm"
-msgstr "Doker Swarm"
+msgstr ""
 
 msgid "Docker Swarm Architecture"
 msgstr ""
@@ -28475,7 +28475,7 @@ msgstr "อี2ทดสอบ E"
 
 # translated-by: libretranslate
 msgid "EMPTY INPUT"
-msgstr "INPUTY"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ENTRYPOINT detection and recovery"
@@ -31160,11 +31160,11 @@ msgstr "เฟโดรา / หมวก แดง / เซน อส ○ `open
 
 # translated-by: libretranslate
 msgid "Fedora/CentOS: `@development-tools`"
-msgstr "Fedora/Centos: `@development-tools`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fedora/CentOS: ``@development-tools``"
-msgstr "Fedora/Centos: ``@development-tools``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fedora: ``libva-intel-media-driver``"
@@ -31239,7 +31239,7 @@ msgstr "แฟ้ม"
 
 # translated-by: libretranslate
 msgid "File Checklist"
-msgstr "Checklist"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "File Format 📋"
@@ -33548,7 +33548,7 @@ msgstr "แฟ้มงานพิมพ์ GitHub 🔄"
 
 # translated-by: libretranslate
 msgid "GitHub-Hosted Runner Specs"
-msgstr "GitHub- Hosted Specs"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "GitHub-hosted DinD"
@@ -33858,11 +33858,11 @@ msgstr "รหัสสถานะ HTTP สําหรับโดเมนท
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (``adapter.upstream_transport: sse``)"
-msgstr "HTTP+SE (``adapter.upstream_transport: sse``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (`adapter.upstream_transport: sse`)"
-msgstr "HTTP+SE (`adapter.upstream_transport: sse`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP/2 support, TLS/SSL integration"
@@ -34523,7 +34523,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Hugo: Administration"
-msgstr "Hugo: Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Human chat UI to models (and MCP client per [025](025-mcp-role-integration.md))"
@@ -34805,7 +34805,7 @@ msgstr "IPV6 ผู้ช่วยเหลือ"
 
 # translated-by: libretranslate
 msgid "IPv6 🔢"
-msgstr "IPV6 🔢"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -36046,7 +36046,7 @@ msgstr "แคชในโพรเซสสําหรับข้อมูล
 
 # translated-by: libretranslate
 msgid "In-repo analogues"
-msgstr "In-repoActions"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In-scope: LDAP scenario MUST be added"
@@ -38114,7 +38114,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JonsonC, ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -38126,11 +38126,11 @@ msgstr "วัตถุ Json ผ่านคํากริยา `--vars`"
 
 # translated-by: libretranslate
 msgid "JSON-RPC: ``initialize``, ``tools/list``, ``tools/call``"
-msgstr "Json-RPC: ``initialize``. ``tools/list``. ``tools/call``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON-RPC: `initialize`, `tools/list`, `tools/call`"
-msgstr "Json-RPC: `initialize`. `tools/list`. `tools/call`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`."
@@ -39435,11 +39435,11 @@ msgstr "ผู้สมัครประตู LiteLLLM"
 
 # translated-by: libretranslate
 msgid "LiteLLM: [litellm.ai](https://www.litellm.ai)"
-msgstr "LiteLLLLM: [litellm.ai](https://www.litellm.ai)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LiteLLM: `litellm.ai <https://www.litellm.ai>`__"
-msgstr "LiteLLLLM: `litellm.ai <https://www.litellm.ai>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Literals rather than an import because the code that reads a generation runs on swarm nodes, the NFS server and bare rescue hosts, which carry a git checkout and no baudolo; this module must stay import-free for that reason. The agreement is enforced by ``tests/lint/repository/dependencies/test_baudolo_pin.py``."
@@ -39462,7 +39462,7 @@ msgstr "LittleJS readME Docs: [กิตติฮับ LittleJS](https://github
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
-msgstr "LittleJS readME Docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Live Review"
@@ -42864,7 +42864,7 @@ msgstr "คําสั่ง OCC"
 
 # translated-by: libretranslate
 msgid "OIDC"
-msgstr "OCDC"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC (native)"
@@ -42880,7 +42880,7 @@ msgstr "OIDC / Keycloak"
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
-msgstr "OIDC / Keycloak. <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC SPOT, defines `OIDC.*`"
@@ -42958,11 +42958,11 @@ msgstr "OIDC ไปยัง Blueskyโบรกเกอร์รหัสผ�
 
 # translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr "OIDC → `web-app-keycloak`. `wp-discourse` ○ `web-app-discourse`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC 🪪"
-msgstr "OCDC 🪪"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC-side counterpart, paired user identifier"
@@ -42995,11 +42995,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: ``debian``, ``ubuntu``, ``archlinux``, ``fedora``, ``centos``."
-msgstr "OS: ``debian``. ``ubuntu``. ``archlinux``. ``fedora``. ``centos``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`."
-msgstr "OS: `debian`. `ubuntu`. `archlinux`. `fedora`. `centos`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Object Classes 🧱"
@@ -43026,7 +43026,7 @@ msgstr "วัดค่าแสง"
 
 # translated-by: libretranslate
 msgid "Odoo ERP"
-msgstr "ODO ERP"
+msgstr ""
 
 msgid "Odoo ERP Architecture"
 msgstr ""
@@ -44952,7 +44952,7 @@ msgstr "ผู้ดูแลแพคเกจ."
 
 # translated-by: libretranslate
 msgid "Package-cache sizing env handlers."
-msgstr "Package-Cache Size Annv Servis."
+msgstr ""
 
 # แผ่นพับเดเบียนและสเปก Fedora *สลับ %s* ถูกสะท้อนจาก CHANGELOG.md
 # โดยไม่ต้องสะดุด crackers พื้นเมืองของพวกเขา — ทุกสายการเปลี่ยนแปลงถูก studed
@@ -45267,7 +45267,7 @@ msgstr "หยุดชั่วคราวและขอให้ผู้ด
 
 # translated-by: libretranslate
 msgid "PayPal"
-msgstr "Perpal"
+msgstr ""
 
 msgid "PeerTube Architecture"
 msgstr ""
@@ -47492,7 +47492,7 @@ msgstr "Python, YAML, เชลล์, pp, InI,"
 
 # translated-by: libretranslate
 msgid "Python-Pip"
-msgstr "Python- Pip"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Python-specific code conventions: unittest import shape, `PROJECT_ROOT` usage, ban on raw `os.walk`/`Path.rglob`/uncached `read_text`, `noqa` marker hygiene, redundant boolean patterns, and self-path-reference avoidance."
@@ -50055,7 +50055,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolve shared-provider roles transitively from role meta/services.yml."
-msgstr "Resolive languages partive from part meta/services.yml."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolve the SSO state for a consumer role."
@@ -54389,7 +54389,7 @@ msgstr "เอส3- เข้ากันได้ API เพื่อควา�
 
 # translated-by: libretranslate
 msgid "SAML"
-msgstr "Sample"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SAML cert lifecycle (rotation, alignment between Friendica SP and Keycloak IdP) is a new maintenance burden — clarify ownership before shipping."
@@ -57430,7 +57430,7 @@ msgstr "ตรวจสอบค่าสถิติของกลุ่ม (Y
 
 # translated-by: libretranslate
 msgid "Static/Classic Website"
-msgstr "Static/ Clastic website"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Statically disabled means: the value is literal ``False``, ``None``, or the string literal ``\"false\"`` (case-insensitive, whitespace trimmed). Everything else is assumed to *possibly* render truthy."
@@ -70823,7 +70823,7 @@ msgstr "การจัดการอิมเมจ Docer แบบไม่�
 
 # translated-by: libretranslate
 msgid "Unified SSO schema: [021](README.md#archive)"
-msgstr "United SSO Chema: [021](README.md#archive)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Unified Service Failure Notifier"
@@ -71212,18 +71212,18 @@ msgstr "Upstream ได้แก้ไขจากแฟ้ม git ของเ�
 
 # translated-by: libretranslate
 msgid "Upstream repo: <https://github.com/Checkmk/checkmk>"
-msgstr "Repo: <https://github.com/Checkmk/checkmk>"
+msgstr ""
 
 msgid "Upstream repo: <https://github.com/koala73/worldmonitor>"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream repo: <https://github.com/openbao/openbao>"
-msgstr "Repo: <https://github.com/openbao/openbao>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream repo: <https://github.com/semaphoreui/semaphore>"
-msgstr "Repo: <https://github.com/semaphoreui/semaphore>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream resolution under swarm goes through the overlay network via the `tasks.<service>` DNS form, returning every healthy task IP. The per-app `upstream` block stays under openresty's control, so HTTP-aware load balancing (`proxy_next_upstream`, future weighting, future sticky sessions) is uniform across both modes."
@@ -72630,7 +72630,7 @@ msgstr "รุ่น 🔢"
 
 # translated-by: libretranslate
 msgid "Vhosts: `next.cloud.{{ DOMAIN_PRIMARY }}` → `next.cloud.<NODE_ONION>.onion`"
-msgstr "Vhosts: `next.cloud.{{ DOMAIN_PRIMARY }}` ○ `next.cloud.<NODE_ONION>.onion`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Video"
@@ -77113,7 +77113,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] OIDC"
-msgstr "[ ] OCDC"
+msgstr ""
 
 # สืบค้นเมื่อ '% 1'.
 # translated-by: libretranslate
@@ -77842,7 +77842,7 @@ msgstr "[ไม่![พาเทรออน](https://img.shields.io/badge/Suppo
 
 # translated-by: libretranslate
 msgid "[**Arch Linux**](https://archlinux.org)"
-msgstr "[**Linux**](https://archlinux.org)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[**CentOS**](https://www.centos.org)"
@@ -77890,7 +77890,7 @@ msgstr "[-- สีขาว \"...\"] [-- อภิสิทธิ์ \"...\"] [�
 
 # translated-by: libretranslate
 msgid "[/sys/health](https://openbao.org/api-docs/system/health/), [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
-msgstr "[/sys/thelp](https://openbao.org/api-docs/system/health/). [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[/sys/metrics](https://openbao.org/api-docs/system/metrics/)"
@@ -78838,7 +78838,7 @@ msgstr "[เจ้าหน้าที่](PULL_REQUEST_TEMPLATE/agents.md) - �
 
 # translated-by: libretranslate
 msgid "[Agile Manifesto](https://agilemanifesto.org/)"
-msgstr "[Agile cragio](https://agilemanifesto.org/)"
+msgstr ""
 
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): Stalwart as the default mail provider in compose and swarm mode, the Tor SMTP gateway, onion mail delivery for every mail-sending role, the Mailu import and the provider resolution"
 msgstr ""
@@ -79206,7 +79206,7 @@ msgstr "[Name=ไดเรกทอรีName Documentation](https://docs.joinbo
 
 # translated-by: libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
-msgstr "[DookWrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Boy Scout Rule](https://en.wikipedia.org/wiki/Leaving_the_world_a_better_place)"
@@ -79273,11 +79273,11 @@ msgstr "[Certbot website อย่างเป็นทางการ](https://
 
 # translated-by: libretranslate
 msgid "[Checkmk Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
-msgstr "[Docer Docer Docords](https://docs.checkmk.com/latest/en/introduction_docker.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)"
-msgstr "[CheckgGitHub Reposition](https://github.com/Checkmk/checkmk)"
+msgstr ""
 
 # 100เปิดแหล่ง %s) เป็นระบบติดตามและโปรแกรม บทบาทนี้ใช้ทั้งหมดอย่างเป็นทางการ
 # `checkmk/check-mk-raw` กล่องข้างหลัง Infinito.Nexus กลับค่าพร็อกซีด้วย
@@ -79686,7 +79686,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Debian Wiki: iptables](https://wiki.debian.org/iptables)"
-msgstr "[Debian Wiki: Ipables](https://wiki.debian.org/iptables)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Debian package: build-essential](https://packages.debian.org/stable/build-essential)"
@@ -79787,7 +79787,7 @@ msgstr "[Doker Swarm](https://docs.docker.com/engine/swarm/) เป็นโห�
 
 # translated-by: libretranslate
 msgid "[Docker Swarm](roles/svc-swarm-node/)"
-msgstr "[Doker Swarm](roles/svc-swarm-node/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Volumes Documentation](https://docs.docker.com/storage/volumes/)"
@@ -79831,7 +79831,7 @@ msgstr "[เปิดใช้การเซ็นเดี่ยว (SSO)](htt
 
 # translated-by: libretranslate
 msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-msgstr "[ISPCRM Documentation](https://docs.espocrm.com/) 📖"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
@@ -79855,7 +79855,7 @@ msgstr "[FV Online DB – เครื่องมือบลูเรย์](h
 
 # translated-by: libretranslate
 msgid "[FastAPI](https://fastapi.tiangolo.com/)"
-msgstr "[astAPI](https://fastapi.tiangolo.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Fediverse (Wikipedia)](https://en.wikipedia.org/wiki/Fediverse)"
@@ -79899,7 +79899,7 @@ msgstr "[แท็กฟลอเรส `flowise@3.1.4`](https://github.com/Flow
 
 # translated-by: libretranslate
 msgid "[Forum HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
-msgstr "[Forum howTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Frappe Framework Documentation](https://docs.frappe.io/)"
@@ -79911,7 +79911,7 @@ msgstr "[กุญแจสําหรับล็อกอินสังค�
 
 # translated-by: libretranslate
 msgid "[Friendica Docker Hub](https://hub.docker.com/_/friendica)"
-msgstr "[Friendica docerh](https://hub.docker.com/_/friendica)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Friendica GitHub Repository](https://github.com/friendica/docker)"
@@ -79931,7 +79931,7 @@ msgstr "[ฟิวชัน Dictory](https://www.fusiondirectory.org/) เป็
 
 # translated-by: libretranslate
 msgid "[Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
-msgstr "[Gist by Marenfresinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)"
@@ -79939,7 +79939,7 @@ msgstr "[การกระทํากับ Githob](https://docs.github.com/en
 
 # translated-by: libretranslate
 msgid "[GitLab Helm charts documentation](https://docs.gitlab.com/charts/)"
-msgstr "[GitLab Helm dictionary](https://docs.gitlab.com/charts/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[GitLab MCP server docs](https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/)"
@@ -80157,7 +80157,7 @@ msgstr "[จูปีเตอร์](https://jupyter.org/) ประมวล�
 
 # translated-by: libretranslate
 msgid "[KISS](https://en.wikipedia.org/wiki/KISS_principle)"
-msgstr "[ISS](https://en.wikipedia.org/wiki/KISS_principle)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[KIX Start website](https://www.kixdesk.com/)"
@@ -80633,7 +80633,7 @@ msgstr "[เซิร์ฟเวอร์เอกสาร LNFFFFE บน Doce
 
 # translated-by: libretranslate
 msgid "[Odoo ERP](roles/web-app-odoo/)"
-msgstr "[ODO ERP](roles/web-app-odoo/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Official Collabora CODE website](https://www.collaboraonline.com/code/)"
@@ -80727,7 +80727,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)"
-msgstr "[OpenResty Docer Humber](https://hub.docker.com/r/openresty/openresty)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[OpenResty Official Documentation](https://openresty.org/)"
@@ -81335,7 +81335,7 @@ msgstr "[คําเติมมัลติไซต์ Documentation](https:/
 
 # translated-by: libretranslate
 msgid "[WordPress Official Website](https://wordpress.org/)"
-msgstr "[WordPrests website](https://wordpress.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WordPress Plugin Repository](https://wordpress.org/plugins/)"
@@ -81395,7 +81395,7 @@ msgstr "[ผู้ส่ง Yoo](https://senders.yahooinc.com/) - ให้ข�
 
 # translated-by: libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
-msgstr "[YouTube Tuble](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
@@ -81901,7 +81901,7 @@ msgstr "[docs/changelog/README.md](../../changelog/README.md) อธิบาย
 
 # translated-by: libretranslate
 msgid "[docs/contributing/](../../)"
-msgstr "[docs/contrituary/](../../)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[docs/contributing/](../../) for workflow and constraints"
@@ -82104,7 +82104,7 @@ msgstr "[nft(8) หน้าคู่มือ](https://www.netfilter.org/projec
 
 # translated-by: libretranslate
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
-msgstr "[Nftables Wiki](https://wiki.nftables.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[nftables](https://www.netfilter.org/projects/nftables/) is the packet filtering framework of the Linux kernel and the successor to `iptables`. Its rules live in memory: a reboot drops them unless something loads them again."
@@ -86106,7 +86106,7 @@ msgstr "``.po`` หรือ ``.pot`` แฟ้ม."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JonsonC, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -91915,11 +91915,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "cdn.<domain>/npm/<package>@<locked-version>/<path>"
-msgstr "cdn.<domain>/ npm/<package>@<locked-version>/<path>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cdn.jsdelivr.net/npm/<package>@<locked-version>/<path>"
-msgstr "cdn.jsdelivr.net/ npm/<package>@<locked-version>/<path>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ceiling for the Tor case, independent of the CI cap."
@@ -97469,7 +97469,7 @@ msgstr "python - m cli.administration.deploy.ci.timings [-- วิ่ง N] [-- 
 
 # translated-by: libretranslate
 msgid "python -m cli.administration.inventory.devices ..."
-msgstr "python - m cli.administration.inventory.devices ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
@@ -97505,7 +97505,7 @@ msgstr "python - m utils.inventory.bundle_apps ชุดการสอน ก�
 
 # translated-by: libretranslate
 msgid "python -m utils.parse_trace <trace.zip>"
-msgstr "python - m utils.parse_trace <trace.zip>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
@@ -98511,7 +98511,7 @@ msgstr "หมายเลขบทบาทที่แยกด้วยช่
 
 # translated-by: libretranslate
 msgid "src"
-msgstr "SSR"
+msgstr ""
 
 msgid "ssh server and the run's authorized key, piped into the running target"
 msgstr ""
@@ -98551,7 +98551,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "str"
-msgstr "Str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC ``initialize``, ``tools/list``, ``tools/call``)"
@@ -102224,7 +102224,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} ค่าปริยาย
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> / tmp/email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
@@ -102543,11 +102543,11 @@ msgstr "💬 [รองรับและติดต่อ](../SUPPORT.md) ธ�
 
 # translated-by: libretranslate
 msgid "💳 **[PayPal](https://s.veen.world/paypaldonate)**"
-msgstr "💳 **[Perpal](https://s.veen.world/paypaldonate)**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "💾 **Postfix Installation on Arch Linux**"
-msgstr "💾 **Postfix IProfile on Arch Linux**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
@@ -102605,7 +102605,7 @@ msgstr "📦 upstream Docerfile: [ดูบน Github](https://github.com/lyqht/
 
 # translated-by: libretranslate
 msgid "📦 Upstream Dockerfile: `View on GitHub <https://github.com/lyqht/mini-qr/blob/main/Dockerfile>`__"
-msgstr "📦 upstream Docerfile: `View on GitHub <https://github.com/lyqht/mini-qr/blob/main/Dockerfile>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "📦 Wait for CI and mirror images to become available in registries"

@@ -17270,7 +17270,7 @@ msgstr "End-to-end avadanlığı üçün plugin davranış və inteqrasiya testl
 
 # translated-by: libretranslate
 msgid "Add-On Integrations"
-msgstr "Додавання інтеграцій"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added ***sys-util-git-pull*** for deterministic shallow Git updates with tag pinning; integrated into ***pkgmgr***."

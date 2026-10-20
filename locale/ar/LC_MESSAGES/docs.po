@@ -115,7 +115,7 @@ msgstr "# تشمل: عندما: IS_SWARM_MODE"
 
 # translated-by: libretranslate
 msgid "# nocheck: pip-version package_name: \"automtu==1.1.1\""
-msgstr "# No check: pip-version package_name: \"automtu==1.1.1\""
+msgstr ""
 
 # translated-by: libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
@@ -862,7 +862,7 @@ msgstr "**النظام القائم على المحفوظات**: The role uses t
 
 # translated-by: libretranslate
 msgid "**Arch Linux–Optimized**"
-msgstr "**Arch Linux-Optimized**"
+msgstr ""
 
 # السريع والموثوق به.
 # translation-refused: libretranslate structure
@@ -1115,7 +1115,7 @@ msgstr "**Automatic HTTPS Certificates:** وتؤمن الشركة إصدار ا�
 
 # translated-by: libretranslate
 msgid "**Automatic Hardware Detection**"
-msgstr "**Automatic hardware Detection**"
+msgstr ""
 
 # سمة مبنية في الكشف الآلي (`0300`) لاختيار السائق الصحيح.
 # translated-by: libretranslate
@@ -2199,7 +2199,7 @@ msgstr "**الموانئ المؤمنة:** يستكشف الطلب من خلال
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**"
-msgstr "**SMTP Settings:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**   Manage email notifications and alerts with customizable SMTP configurations."
@@ -11950,7 +11950,7 @@ msgstr "**Website \" E-Commerce:** بناء وإدارة مواقع شبكية �
 
 # translated-by: libretranslate
 msgid "**Web‑Based LDAP Management:**"
-msgstr "**Web-Based LDAP Management:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Web‑Based LDAP Management:**   Enjoy an intuitive and responsive interface to browse and administer your LDAP directories."
@@ -12364,7 +12364,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**`frappe`** (Gunicorn) — Python web backend"
-msgstr "**`frappe`** (Gunicorn) - Python web backend"
+msgstr ""
 
 msgid "**`getComputedStyle` and visited links.** It reports the unvisited color. A link that looks different in a screenshot is not proven different by the computed value."
 msgstr ""
@@ -14716,7 +14716,7 @@ msgstr "*الدعم*: 3.1.1 إلى 3.1.3"
 
 # translated-by: libretranslate
 msgid "*baudolo*: pinned to 3.4.1"
-msgstr "*baudolo*: 3.4.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*bootstrap*: 5.3.3 to 5.3.8, *@fortawesome/fontawesome-free*: 6.5.1 to 7.3.1"
@@ -14821,7 +14821,7 @@ msgstr "*حاويات قاذفة2-*متفوقة بالأدوار الاحتيا�
 
 # translated-by: libretranslate
 msgid "*svc-bkp-volume-2-local*: newly on alpine 3.24"
-msgstr "*svc-bkp-volume-2-local*: New on alpine 3.24"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*svc-db-elasticsearch*: 9.4.3 to 9.5.2"
@@ -14842,11 +14842,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*svc-db-qdrant*: v1.18.2 to v1.19.0"
-msgstr "*svc-db-qdrant*:1.18.2 to v1.19.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*svc-db-qdrant*: v1.19.0 to v1.19.1"
-msgstr "*svc-db-qdrant*:1.19.0 to v1.19.1"
+msgstr ""
 
 msgid "*svc-db-redis*: 8.10.1-alpine to 8.10.2-alpine"
 msgstr ""
@@ -14879,7 +14879,7 @@ msgstr "*sys-ctl-hlth-csp*: 2.1.2 إلى 2.2.1"
 
 # translated-by: libretranslate
 msgid "*sys-lint* (shfmt): v3.13.1 to v3.14.1"
-msgstr "*sys-lint* (shfm):3.13.1 to v3.14.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*sys-package*, *sys-aur* and *sys-aur-install*, superseded by the distribution-independent package registry."
@@ -14943,7 +14943,7 @@ msgstr "*web-app-bluesky* و *web-app-bridgy-fed*: فوق المسار جيت ي
 
 # translated-by: libretranslate
 msgid "*web-app-bookwyrm*: v0.9.2 to v0.9.3"
-msgstr "*web-app-bookwyrm*:0.9.2 to v0.9.3"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-checkmk*: Checkmk behind oauth2-proxy SSO with LDAP; the SSO variant injects a reachable logout control. See the [web-app-checkmk README](roles/web-app-checkmk/README.md)."
@@ -14973,23 +14973,23 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-erpnext*: v16.23.1 to v16.25.0"
-msgstr "*web-app-erpnext*:16.23.1 to v16.25.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-erpnext*: v16.25.0 to v16.26.2"
-msgstr "*web-app-erpnext*:16.25.0 to v16.26.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-erpnext*: v16.26.2 to v16.32.3"
-msgstr "*web-app-erpnext*:16.26.2 to v16.32.3"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-erpnext*: v16.32.3 to v16.34.2"
-msgstr "*web-app-erpnext*:16.32.3 to v16.34.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-erpnext*: v16.34.2 to v16.35.0"
-msgstr "*web-app-erpnext*:16.34.2 to v16.35.0"
+msgstr ""
 
 msgid "*web-app-erpnext*: v16.35.0 to v16.37.0"
 msgstr ""
@@ -15135,7 +15135,7 @@ msgstr "*web-app-matrix* (العنصر):1.12.26 to v1.12.28"
 
 # translated-by: libretranslate
 msgid "*web-app-matrix* (Synapse): v1.159.0 to v1.160.0"
-msgstr "*web-app-matrix* (Synapse):1.159.0 to v1.160.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-matrix*: Synapse v1.156.0 to v1.159.0, Element v1.12.23 to v1.12.26"
@@ -15215,19 +15215,19 @@ msgstr "*web-app-opencloud*: 7.2.1 إلى 7.2.4"
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2"
-msgstr "*web-app-opentalk* (LiveKit):1.13.1 to v1.13.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.2 to v1.13.3"
-msgstr "*web-app-opentalk* (LiveKit):1.13.2 to v1.13.3"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6"
-msgstr "*web-app-opentalk* (LiveKit):1.13.5 to v1.13.6"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7"
-msgstr "*web-app-opentalk* (LiveKit):1.13.6 to v1.13.7"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5"
@@ -15243,19 +15243,19 @@ msgstr "*web-app-opentalk*: LiveKit v1.13.3 to v1.13.5.. RabbitMQ 4.3.2 إلى 4
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk*: v2.8.1 to v2.9.0"
-msgstr "*web-app-opentalk*:2.8.1 to v2.9.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-peertube*: v8.2.1 to v8.2.2"
-msgstr "*web-app-peertube*:8.2.1 to v8.2.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-peertube*: v8.2.2 to v8.2.4"
-msgstr "*web-app-peertube*:8.2.2 to v8.2.4"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-peertube*: v8.2.4 to v8.3.0"
-msgstr "*web-app-peertube*:8.2.4 to v8.3.0"
+msgstr ""
 
 msgid "*web-app-peertube*: v8.3.0 to v8.3.1"
 msgstr ""
@@ -15306,11 +15306,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-prometheus*: v3.12.0 to v3.13.0"
-msgstr "*web-app-prometheus*:3.12.0 to v3.13.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-prometheus*: v3.13.0 to v3.13.1"
-msgstr "*web-app-prometheus*:3.13.0 to v3.13.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-seaweedfs*: 4.35 to 4.36"
@@ -15345,15 +15345,15 @@ msgstr "*web-app-semaphore*:2.18.16 (دور جديد)"
 
 # translated-by: libretranslate
 msgid "*web-app-semaphore*: v2.18.16 to v2.18.21"
-msgstr "*web-app-semaphore*:2.18.16 to v2.18.21"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-semaphore*: v2.18.25 to v2.19.8"
-msgstr "*web-app-semaphore*:2.18.25 to v2.19.8"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-semaphore*: v2.19.8 to v2.19.14"
-msgstr "*web-app-semaphore*:2.19.8 to v2.19.14"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-shopware*: 6.7.8.2 to 6.7.13.0, OpenSearch 3.7.0 to 3.8.0"
@@ -15544,7 +15544,7 @@ msgstr "015 - KIX تكامل الخدمات الإدارية"
 
 # translated-by: libretranslate
 msgid "015 - OpenCloud and OpenTalk IAM integration"
-msgstr "015 - OpenCloud و OpenTalk IAM integration"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "015: Self-built Moodle image (replaces `bitnamilegacy/moodle`)"
@@ -15809,7 +15809,7 @@ msgstr "2. الأمن 🛡️"
 
 # translated-by: libretranslate
 msgid "3 of 9"
-msgstr "3 of of 9"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "3. Click **Create Token**"
@@ -15975,7 +15975,7 @@ msgstr "8. صورة ميرورينغ 🪞"
 
 # translated-by: libretranslate
 msgid "9 of 9"
-msgstr "9 of of 9"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "9. Deploy Tests 🚀"
@@ -16188,7 +16188,7 @@ msgstr "@telegrambot:yourdomain.tld"
 
 # translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr "@ Whatsappbot:yourdomain.tld"
+msgstr ""
 
 # ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, حيث الجزء العددي 1
 # إلى 5 العناصر المنفصلة عن الجرعة، والمكونات الرائدة الاختيارية
@@ -18335,7 +18335,7 @@ msgstr "محرر الرمز الأول الذي تم تركيبه في مركز 
 
 # translated-by: libretranslate
 msgid "AIEditingAssistant"
-msgstr "AIEditingAsistant"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AOF persistence for cached data."
@@ -18394,7 +18394,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)"
-msgstr "AWS S3 (API background): [aws.amazon.com/3](https://aws.amazon.com/s3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AWS S3 (API background): `aws.amazon.com/s3 <https://aws.amazon.com/s3>`__"
@@ -20131,7 +20131,7 @@ msgstr "الحقول المسموح بها"
 
 # translated-by: libretranslate
 msgid "Allowed Merge Method: Merge ✅"
-msgstr "Merge Method: Merge ✅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Allowed `lifecycle` Values"
@@ -21239,7 +21239,7 @@ msgstr "الإدارة"
 
 # translated-by: libretranslate
 msgid "App Relevant Tables 🗃️"
-msgstr "App relevant Tables 🗃️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "App cannot persist data"
@@ -21645,7 +21645,7 @@ msgstr "الأحكام ⚙️"
 
 # translated-by: libretranslate
 msgid "Artefact Retention 🎞️"
-msgstr "Retention 🎞️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Artefact documentation 🧱"
@@ -22066,7 +22066,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Authentication & Admin Model"
-msgstr "Authentication \" Admin Model"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Authentication (Decision #2)"
@@ -22129,7 +22129,7 @@ msgstr "المراجعة الذاتية: مُتاح عبر `PROXY_AUTOPROVISION_
 
 # translated-by: libretranslate
 msgid "Auto-seal semantics"
-msgstr "Semantics"
+msgstr ""
 
 msgid "Autoformat, then re-stage files it rewrote that were already staged -- only when no unstaged changes were present beforehand."
 msgstr ""
@@ -22247,7 +22247,7 @@ msgstr "مرحلة التشغيل الآلي *sys-service* (وحدات متوق�
 
 # translated-by: libretranslate
 msgid "Automatically Request Copilot Review ✅"
-msgstr "Automaticly Request Copilot Review ✅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Automatically adapts to your inventory names"
@@ -22513,7 +22513,7 @@ msgstr "القاعدة DN المستمدة من `DOMAIN_PRIMARY`"
 
 # translated-by: libretranslate
 msgid "Base Development Toolchain"
-msgstr "Toolchain"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Base URL of the Keycloak instance"
@@ -23069,7 +23069,7 @@ msgstr "النصوص المدمجة 🔗"
 
 # translated-by: libretranslate
 msgid "Blacklist Check 🚫"
-msgstr "Blacklist check 🚫"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Blast radius"
@@ -23176,11 +23176,11 @@ msgstr "رحلة تطويرك مع Giteaوزن خفيف وحماسي Git خدم�
 
 # translated-by: libretranslate
 msgid "Bootstrap"
-msgstr "Butstrap"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap Admin (Django Superuser)"
-msgstr "Butstrap Admin (Django Superuser)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap Commands 📋"
@@ -23195,7 +23195,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap env"
-msgstr "Butstrap env"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
@@ -23213,7 +23213,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstrap 🚀"
-msgstr "Butstrap 🚀"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bootstraps the development environment and starts the stack"
@@ -23757,7 +23757,7 @@ msgstr "التعبئة"
 
 # translated-by: libretranslate
 msgid "Bug Reports and Feature Requests 🐛"
-msgstr "Bug Reports and Feature requests 🐛"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bug discussions that do not involve security vulnerabilities"
@@ -24095,11 +24095,11 @@ msgstr "النشر"
 
 # translated-by: libretranslate
 msgid "Bundle redeploy"
-msgstr "Bundle reploy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bundles Deploy Flows 📦"
-msgstr "Bndles Deploy Flows 📦"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -24225,11 +24225,11 @@ msgstr "CI"
 
 # translated-by: libretranslate
 msgid "CI & Self-Hosted Runners 🏃"
-msgstr "CI \" Self-Hosted Runners 🏃"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI & Test Guardrails 🧪"
-msgstr "CI \" Test Guardrails 🧪"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI / E2E"
@@ -24399,7 +24399,7 @@ msgstr "CI runner"
 
 # translated-by: libretranslate
 msgid "CI runs ✓"
-msgstr "CI Run ✓"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI runtime detection env handlers."
@@ -24411,7 +24411,7 @@ msgstr "CI signals (`GITHUB_ACTIONS=true`.. `INFINITO_RUNNING_ON_GITHUB=true`.. 
 
 # translated-by: libretranslate
 msgid "CI skipped ✓"
-msgstr "CI ✓"
+msgstr ""
 
 # translated-by: libretranslate
 # validation
@@ -24443,7 +24443,7 @@ msgstr "CI/CD-friendly shallow clones"
 
 # translated-by: libretranslate
 msgid "CI: pilot validation workflow"
-msgstr "CI: pilot validation work flow"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CLI"
@@ -24585,11 +24585,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "CSP & reverse proxy"
-msgstr "CSP \" reverse proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CSP / injectors"
-msgstr "CSP/ injectors"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CSP configuration support"
@@ -25290,7 +25290,7 @@ msgstr "جسر تشاتجي"
 
 # translated-by: libretranslate
 msgid "Cheatsheet 📋"
-msgstr "Sheatsheet 📋"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Check"
@@ -28108,7 +28108,7 @@ msgstr "المبادئ الأساسية"
 
 # translated-by: libretranslate
 msgid "Core developer workflow (`make install`, `make setup`)"
-msgstr "Core developer work flow (`make install`.. `make setup`)"
+msgstr ""
 
 # [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30
 # اللغات التي تم تحويلها برمز اللغة، مفاتيح اسمها، `{placeholder}` فتحات و
@@ -28849,7 +28849,7 @@ msgstr "DOMAIN_PRIMARY (Apex).. defaults_networks.internet.ip4, اختياري d
 
 # translated-by: libretranslate
 msgid "DR drill: backup + restore"
-msgstr "DR drill: supportive + restore"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Daily contact keeps intent aligned."
@@ -29028,11 +29028,11 @@ msgstr "ديبيان/أوبونتو"
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu → ``openssh-client``"
-msgstr "Diian / Ubuntu → ``openssh-client``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu → `openssh-client`"
-msgstr "Diian / Ubuntu → `openssh-client`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debian SHOULD be the preferred distro for that focused workflow iteration unless the failure is clearly distro-specific or the user asked for a different distro."
@@ -29600,7 +29600,7 @@ msgstr "معدلات الفقر حسب الطلب"
 
 # translated-by: libretranslate
 msgid "Dependabot Security Updates ❌"
-msgstr "Updates ❌"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -30436,7 +30436,7 @@ msgstr "دال/٤: *العولمة* 15.15.0 إلى 17.7.0.. *@playwright/test* 1
 
 # translated-by: libretranslate
 msgid "Develop from Source 💻"
-msgstr "Development from Source 💻"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Developed and maintained by **Kevin Veen-Birkenbach**. Learn more at [veen.world](https://www.veen.world). Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
@@ -30996,7 +30996,7 @@ msgstr "اختبارات دوكر 🐳"
 
 # translated-by: libretranslate
 msgid "Docker Volumes Health Check"
-msgstr "Docker Volumes Health check"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker and Docker Compose are available locally."
@@ -31270,7 +31270,7 @@ msgstr "هل يؤثر هذا التغيير على المساهم أو المش�
 
 # translated-by: libretranslate
 msgid "Domain Helpers 🌐"
-msgstr "Domain helpers 🌐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Domain Tests 🌐"
@@ -31467,7 +31467,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-bluray-player Role"
-msgstr "Dsk-bluray-play"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-chromium Role"
@@ -31507,7 +31507,7 @@ msgstr "Dsk-gnome-caffeine Role"
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-extensions Role"
-msgstr "Dsk-gnome-extens Roles"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-terminal Role"
@@ -31659,7 +31659,7 @@ msgstr "هاء2E Tests"
 
 # translated-by: libretranslate
 msgid "EMPTY INPUT"
-msgstr "IMPTY INPUT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ENTRYPOINT detection and recovery"
@@ -32227,7 +32227,7 @@ msgstr "Email Configuration 📬"
 
 # translated-by: libretranslate
 msgid "Email Lookup Plugin 📬"
-msgstr "Email lookup Plugin 📬"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email address"
@@ -32447,7 +32447,7 @@ msgstr "Enabled ***Pkgmgr install infinito*** اختبار"
 
 # translated-by: libretranslate
 msgid "Enabled EPEL for *dev-fakeroot* on CentOS"
-msgstr "Enabled EPEL *dev-fakeroot* on CentOS"
+msgstr ""
 
 msgid "Enabled when"
 msgstr ""
@@ -32766,7 +32766,7 @@ msgstr "إدخال مجموعة تطابق الدخول إلى الفرع الم
 
 # translated-by: libretranslate
 msgid "Entity Purge 🗑️"
-msgstr "Purge 🗑️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Entity purge"
@@ -32936,7 +32936,7 @@ msgstr "بيئات التنمية البيئية"
 
 # translated-by: libretranslate
 msgid "Epson Multiprinter Driver"
-msgstr "Epson Multiprinter driverr"
+msgstr ""
 
 msgid "Epson Multiprinter Driver Architecture"
 msgstr ""
@@ -35547,7 +35547,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "For GHCR authentication configuration see [authentication.md](../ghcr/authentication.md)."
-msgstr "For GHCR authentication formation see [authentication.md](../ghcr/authentication.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "For Humans 👥"
@@ -36383,7 +36383,7 @@ msgstr "Fork PR run under the `pull_request` حدث بدون إذن الخطوا
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
-msgstr "Fork PR 🍴"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fork Pull Requests 🍴"
@@ -37316,7 +37316,7 @@ msgstr "جيد: اختبار يتحقق من مسار الأحذية يخلق ا
 
 # translated-by: libretranslate
 msgid "Google Cloud service account credentials."
-msgstr "Google Cloud service account accreditation."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Grammar"
@@ -37502,7 +37502,7 @@ msgstr "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
-msgstr "HTTP code for a deployed domain."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (``adapter.upstream_transport: sse``)"
@@ -38541,7 +38541,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "IPv4 network in CIDR notation, e.g. ``192.168.24.0/24``."
-msgstr "IPv4 Network in CIDR notation, e.g. ``192.168.24.0/24``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "IPv6 Helpers"
@@ -38670,7 +38670,7 @@ msgstr "الهوية"
 
 # translated-by: libretranslate
 msgid "Identity & Access Integration Tests 🔐"
-msgstr "Identity \" Access Integration Tests 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Identity and Access Management"
@@ -39541,7 +39541,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Implementing PR: _to be linked_."
-msgstr "Implementation PR:  to be linked ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Implementing an existing requirement file end to end"
@@ -40313,7 +40313,7 @@ msgstr "Inspect Live State 🔍"
 
 # translated-by: libretranslate
 msgid "Inspect The Keycloak ↔ LDAP Federation 🩺"
-msgstr "Inspect The Keycloak   LDAP Federation 🩺"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Inspect a consumer ACL user"
@@ -42171,7 +42171,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC,"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -42185,11 +42185,11 @@ msgstr "اعترض المشتركون على ذلك `--vars`"
 
 # translated-by: libretranslate
 msgid "JSON-RPC: ``initialize``, ``tools/list``, ``tools/call``"
-msgstr "JSON-RPC: ``initialize``.. ``tools/list``.. ``tools/call``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON-RPC: `initialize`, `tools/list`, `tools/call`"
-msgstr "JSON-RPC: `initialize`.. `tools/list`.. `tools/call`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`."
@@ -42342,7 +42342,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Joomla 6 Keycloak OIDC SSO plugin (`plg_system_keycloak`)"
-msgstr "Joomla 6 Keycloak OIDC (`plg_system_keycloak`)"
+msgstr ""
 
 msgid "Joomla Architecture"
 msgstr ""
@@ -42380,7 +42380,7 @@ msgstr "KWARGS"
 
 # translated-by: libretranslate
 msgid "Kata & gVisor"
-msgstr "Kata ' gVisor"
+msgstr ""
 
 msgid "Kata & gVisor Architecture"
 msgstr ""
@@ -42882,7 +42882,7 @@ msgstr "LDAP"
 
 # translated-by: libretranslate
 msgid "LDAP & SSO Notes"
-msgstr "LDAP \" SSO Notes"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP (Decision #3)"
@@ -43018,7 +43018,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "LUKS device/image → local backup root"
-msgstr "LUKS tool/image"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Label"
@@ -43026,7 +43026,7 @@ msgstr "Label"
 
 # translated-by: libretranslate
 msgid "Lambda assigned to variable"
-msgstr "Lambda assigned to changing"
+msgstr ""
 
 msgid "Language selection via ``services.libretranslate-engine.load_only``"
 msgstr ""
@@ -43580,7 +43580,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "LiteLLM Admin UI"
-msgstr "LiteLM Admin UI"
+msgstr ""
 
 msgid "LiteLLM Admin UI Architecture"
 msgstr ""
@@ -43628,11 +43628,11 @@ msgstr "LittleJs ساحة اللعب مصممة على أنها خفيفة ال�
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: [GitHub – LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
-msgstr "LittleJS README docs: [GitHub - LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
-msgstr "LittleJS README docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Live Review"
@@ -44401,7 +44401,7 @@ msgstr "MODE_FOO: تعليق حقيقي MODE_BAR: تعليق كاذب MODE_BAZ: 
 
 # translated-by: libretranslate
 msgid "MSI Keyboard Driver"
-msgstr "MSI Keyboard driverr"
+msgstr ""
 
 msgid "MSI Keyboard Driver Architecture"
 msgstr ""
@@ -44823,7 +44823,7 @@ msgstr "كتيب عن وظائف مركز التحقيقات 🎯"
 
 # translated-by: libretranslate
 msgid "Manual Purge via Cloudflare Dashboard"
-msgstr "Purge via Cloudflare Dashboard"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Manual Update"
@@ -44835,7 +44835,7 @@ msgstr "إرسال دليل لجهاز تنسيق كامل لقائمة بيضا
 
 # translated-by: libretranslate
 msgid "Manually re-bootstrap Nexus repos"
-msgstr "Re-bootstrap Nexus repos"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Manually regenerate frontend certs"
@@ -45156,7 +45156,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matomo Token Not Yet Available ⚠️"
-msgstr "Matomo Token Not yet Available ⚠️"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate echo
@@ -45324,7 +45324,7 @@ msgstr "قياس أسرع ظروف عملاء ضد المنتشرين LibreTrans
 
 # translated-by: libretranslate
 msgid "Measured at"
-msgstr "Measured"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mechanism"
@@ -46269,7 +46269,7 @@ msgstr "NFS لقواعد البيانات"
 
 # translated-by: libretranslate
 msgid "NFS mount fstype (nfs4/nfs): {{ lookup('nfs_fstype') }}."
-msgstr "NFS mount fstype (nfs4/ ف): {{ lookup('nfs_fstype') }}."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NFS mount options: {{ lookup('nfs_mount_opts') }}."
@@ -46305,7 +46305,7 @@ msgstr "NGINX Domain Setup"
 
 # translated-by: libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "NGINX Global Matomo ' Theming Modifier Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -46993,7 +46993,7 @@ msgstr "لا يحدث أي تداعيات تلقائية"
 
 # translated-by: libretranslate
 msgid "No automatic queueing"
-msgstr "No automatic queue"
+msgstr ""
 
 msgid "No backend reachable fails loudly"
 msgstr ""
@@ -47288,7 +47288,7 @@ msgstr "المساهمون العاديون يتبعون جميع القواعد
 
 # translated-by: libretranslate
 msgid "Normal prose"
-msgstr "Prose"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Normalise ``--lifecycles`` tokens into a lowercase set, splitting each on commas and whitespace so ``'alpha,beta'`` and ``'alpha beta'`` are equivalent. ``None`` (flag absent) stays ``None`` so the model falls back to its built-in default envelope."
@@ -47434,11 +47434,11 @@ msgstr "OIDC (السكان الأصليون)"
 # translated-by: libretranslate
 # 🎫
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr "OIDC - - RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
-msgstr "OIDC/ Keycloak"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
@@ -47523,7 +47523,7 @@ msgstr "OIDC to Bluesky-سماسرة كلمة المرور الخاصة بشعب
 
 # translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr "OIDC → `web-app-keycloak`.. `wp-discourse` ? `web-app-discourse`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC 🪪"
@@ -47564,11 +47564,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: ``debian``, ``ubuntu``, ``archlinux``, ``fedora``, ``centos``."
-msgstr "OS: ``debian``.. ``ubuntu``.. ``archlinux``.. ``fedora``.. ``centos``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`."
-msgstr "OS: `debian`.. `ubuntu`.. `archlinux`.. `fedora`.. `centos`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Object Classes 🧱"
@@ -50264,7 +50264,7 @@ msgstr "المسبارات الفاخرة: DNS, TCP, TLS handshake, path MTU."
 
 # translated-by: libretranslate
 msgid "Per-manager dispatch for `pacman` / `apt-get` / `dnf` / `yum` / `brew`."
-msgstr "Per-manager sent for `pacman` / `apt-get` / `dnf` / `yum` / `brew`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-pair networks have to replace `kind: mcp_client`, which opens a provider to every client rather than to the admitted one. Either the sidecar joins only the pair network and the provider joins it too, or the isolation check becomes an identity check over the admitted peers rather than a count."
@@ -50316,7 +50316,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role subnet in `meta/server.yml.networks.local.subnet`"
-msgstr "Per-role subnet `meta/server.yml.networks.local.subnet`"
+msgstr ""
 
 # repository-ref updaters now open one withdrawal request per affected role
 # instead of a single combined PR, and they recompute the diff against the
@@ -51725,7 +51725,7 @@ msgstr "يروج لكل حالة عابرة تتسامح خطوة التطبيق
 
 # translated-by: libretranslate
 msgid "Promoting an OIDC User to Admin 🧑‍💼"
-msgstr "Promoting an OIDC User to Admin 🧑💼"
+msgstr ""
 
 msgid "Promotion from `eol` back into the tested envelope is allowed but requires meeting the `alpha` criteria from scratch. Promoting also reverses the storage steps, in this order: change `lifecycle`, set the primary entity's `enabled` and `shared` to the values the role needs, restore the `bond` the primary carried before (`test_disabled_service_bond` is what required dropping it, because the resource model never reads a key on an entry stored off, so the number described a cost nobody paid), restore the consumer flags from their literal `false` to the dynamic form and drop the `# nocheck: dynamic-flag` markers that literal needed, re-add the variant pins the EOL ban removed, then re-run the matrix-deploy. The consumer blocks themselves were never removed, only pinned off, so there is nothing to re-create; the step is the flag value and its marker. Taking the `lifecycle` value off `eol` without the flags leaves the role in the envelope and off on every host, and the deploy matrix picks up a role no inventory enables. Demoting to `eol` runs the same list the other way round: set the primary's `enabled` to a literal `false` and add `# nocheck: playwright-service-flag` above its key, drop the primary's `bond` in the same edit because `test_disabled_service_bond` rejects a weight on an entry stored off, pin every consumer flag to a literal `false` with `# nocheck: dynamic-flag`, remove the variant pins, and add the README banner. The storage delta on a demoted primary is therefore not the flag alone, and it differs per role: `web-app-minio` went from `enabled: true` to `enabled: false` and lost its `bond: 1` (`test_disabled_service_bond`), `web-app-jira` and `web-app-confluence` gained both a stored `enabled: false` and `shared: true` where their primary declared neither before, and `web-app-phpldapadmin` gained the stored `enabled: false` on its own. Examples of `eol` roles at the time of writing include `web-app-confluence`, `web-app-jira`, `web-app-minio`, `web-app-phpldapadmin`."
 msgstr ""
@@ -52087,7 +52087,7 @@ msgstr "الركض يمشي على أي حواف تقارير المصممين `
 
 # translated-by: libretranslate
 msgid "Public API of the credentials CLI."
-msgstr "Public API of the accreditation CLI."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Public API of the inventory validator."
@@ -52460,11 +52460,11 @@ msgstr "قواعد التغليف والإعفاء: `pyproject.toml` التغط�
 
 # translated-by: libretranslate
 msgid "Python virtualenv tools (``python-virtualenv``, ``pyenv``)"
-msgstr "Python virtualenv tools (``python-virtualenv``.. ``pyenv``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Python virtualenv tools (`python-virtualenv`, `pyenv`)"
-msgstr "Python virtualenv tools (`python-virtualenv`.. `pyenv`)"
+msgstr ""
 
 # translated-by: libretranslate
 # not be stored under `scripts/`.
@@ -52685,7 +52685,7 @@ msgstr "RFC 6750 حامل"
 
 # translated-by: libretranslate
 msgid "RFC compliant SAN matching."
-msgstr "RFC compliant SAN  matching."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RHEL-compatible; used in enterprise environments; long support cycles (Stream variant)"
@@ -58235,7 +58235,7 @@ msgstr "الصيانة الروتينية: مطبات المعالين *docker/l
 
 # translated-by: libretranslate
 msgid "Routing & TLS"
-msgstr "Routing \" TLS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routing & TLS (Decision #9)"
@@ -58243,7 +58243,7 @@ msgstr "Routing \" TLS (المقرر9)"
 
 # translated-by: libretranslate
 msgid "Routing, health & networking (`meta/server.yml`)"
-msgstr "Routing, health ' networking (`meta/server.yml`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Rows are the invokable roles inside the tested lifecycle envelope, sorted ascending by name."
@@ -59855,7 +59855,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP & Mail Transfer:"
-msgstr "SMTP \" Mail Transfer:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP (Wikipedia): <https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol>"
@@ -59983,7 +59983,7 @@ msgstr "SSD"
 
 # translated-by: libretranslate
 msgid "SSH Agent"
-msgstr "SSH"
+msgstr ""
 
 msgid "SSH Agent Architecture"
 msgstr ""
@@ -60066,7 +60066,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO / identity consistency"
-msgstr "SSO/ identity consistency"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO / oauth2 + header auth (Decision #3)"
@@ -60214,7 +60214,7 @@ msgstr "Scaffold the role using [`roles/web-app-openproject/`](../../roles/web-a
 
 # translated-by: libretranslate
 msgid "Scaffolding & lint"
-msgstr "Scaffolding \" lint"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Scalars at entry level (numbers, strings, lists) are rejected."
@@ -61130,7 +61130,7 @@ msgstr "Semantics: when the current deployment contains any role whose id matche
 
 # translated-by: libretranslate
 msgid "Semantics::"
-msgstr "Semantics:"
+msgstr ""
 
 msgid "Semaphore UI Architecture"
 msgstr ""
@@ -62597,7 +62597,7 @@ msgstr "السحابة السيادية"
 
 # translated-by: libretranslate
 msgid "Sovereign Cloud Platform"
-msgstr "Sovereign Cloud"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sovereign Cyber Defense Stack"
@@ -64076,7 +64076,7 @@ msgstr "Svc-opt-keyboard-color Role"
 
 # translated-by: libretranslate
 msgid "Svc-opt-ssd-hdd Role"
-msgstr "Svc-opt-sd-hdd Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-opt-swapfile Role"
@@ -64369,7 +64369,7 @@ msgstr "Sys-ctl-alm-telegram Role"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-anon-volumes Role"
-msgstr "Sys-ctl-cln-anon-volume"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-bkps Role"
@@ -64411,7 +64411,7 @@ msgstr "Sys-ctl-hlth-disc-space Role"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-journalctl Role"
-msgstr "Sys-ctl-hlthjournalctl Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-msmtp Role"
@@ -64538,7 +64538,7 @@ msgstr "دور الحلقة الثانية"
 
 # translated-by: libretranslate
 msgid "Sys-stk-front-base Role"
-msgstr "Ss-stk-front-base Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-front-proxy Role"
@@ -64562,7 +64562,7 @@ msgstr "Sys-svc-certbot Role"
 
 # translated-by: libretranslate
 msgid "Sys-svc-certs Role"
-msgstr "Sys-svc-cert Roles"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-cln-domains Role"
@@ -64745,11 +64745,11 @@ msgstr "البرمجيات تم توفيرها \"كما هو\"بلا رحمة ل
 
 # translated-by: libretranslate
 msgid "TLS & Certificate Pipeline 🔐"
-msgstr "TLS Pipeline 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TLS Administration Scripts 🔒"
-msgstr "Scripts 🔒"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TLS certificates (via Let’s Encrypt integration)"
@@ -64788,11 +64788,11 @@ msgstr "TODOS"
 
 # translated-by: libretranslate
 msgid "TODOs"
-msgstr "TODOS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN and STUN listening ports"
-msgstr "TURN and STUN listen ports"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate echo
@@ -69245,7 +69245,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The keys consumers care about:"
-msgstr "The key consumers care about:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The kind is"
@@ -77709,7 +77709,7 @@ msgstr "لأستخدم هذا الكتاب"
 
 # translated-by: libretranslate
 msgid "To utilize this role:"
-msgstr "To use this role:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "To validate a hypothesis without redeploying — e.g. rerun the Playwright image with a patched env or grep — use `make compose-inner-run` (see `make help target=compose-inner-run` for `IMAGE` / `cmd` / `INFINITO_RUN_FLAGS`). You MAY hand-edit `/tmp/test-e2e-playwright/<role>/.env` for the diagnosis run only, but you MUST mirror any fix back into `roles/<role>/templates/playwright.env.j2` before the next deploy."
@@ -78360,7 +78360,7 @@ msgstr "حاول [Infinito.Nexus](https://infinito.nexus). وقّعْ في ثو�
 
 # translated-by: libretranslate
 msgid "Tunable via kwargs: cpu_divisor, hard_cap, ci_cap, per_worker_gb, ram_fraction."
-msgstr "Tunable via kwargs: cpu_divisor.. hard_cap.. ci_cap.. per_worker_gb.. ram_fraction."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Turn a bare list or a spec mapping into a :class:`PackageSpec`."
@@ -78399,7 +78399,7 @@ msgstr "تحول الخدمة ``healthcheck`` الإعلان في كتلة مع�
 
 # translated-by: libretranslate
 msgid "Two Providers, Two Namespaces 🎯"
-msgstr "2 Providers, Two Namespaces 🎯"
+msgstr ""
 
 msgid "Two base commits changed many roles after their last run: `6c2de017f8` split vendor selector lists in role stylesheets, so rules Chromium used to drop now apply, and `63f3631567` changed the colors of the generated logo lockups. Merges of `main` also bumped app images after some runs. A role whose open reason is only such a later change needs one more green run of its complete spec on its final state."
 msgstr ""
@@ -78711,7 +78711,7 @@ msgstr "URLs, domains, and accreditation MUST come from the rendered `.env`. ل�
 
 # translated-by: libretranslate
 msgid "USAGE::"
-msgstr "USAGE:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ubuntu"
@@ -78939,7 +78939,7 @@ msgstr "Update DNS and Mailu الاتحاد"
 
 # translated-by: libretranslate
 msgid "Update Each User"
-msgstr "Update each User"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Update LDAP Sync"
@@ -79112,7 +79112,7 @@ msgstr "Upstream demo / overview video URL."
 
 # translated-by: libretranslate
 msgid "Upstream docs: <https://docs.semaphoreui.com/>"
-msgstr "Docs: <https://docs.semaphoreui.com/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream engine & examples: [KilledByAPixel/LittleJS](https://github.com/KilledByAPixel/LittleJS)"
@@ -79150,7 +79150,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream product docs: <https://docs.frappe.io/erpnext>"
-msgstr "Docs: <https://docs.frappe.io/erpnext>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream project URL: the canonical landing page of the software the role deploys."
@@ -79305,7 +79305,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Usage::"
-msgstr "Usage:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Use"
@@ -80938,7 +80938,7 @@ msgstr "Web-app-bigbluebutton Role"
 
 # translated-by: libretranslate
 msgid "Web-app-bluesky Role"
-msgstr "Web-appbluesky Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-bookwyrm Role"
@@ -80974,7 +80974,7 @@ msgstr "دور الاتصال الشبكي"
 
 # translated-by: libretranslate
 msgid "Web-app-docs Role"
-msgstr "Web-appdocs Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-erpnext Role"
@@ -81062,7 +81062,7 @@ msgstr "دور الإنترنت"
 
 # translated-by: libretranslate
 msgid "Web-app-listmonk Role"
-msgstr "Web-appmonk Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-litellm Role"
@@ -81105,7 +81105,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-mini-qr Role"
-msgstr "Web-appmini-qr Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-minio Role"
@@ -81117,11 +81117,11 @@ msgstr "دور شبكة الإنترنت"
 
 # translated-by: libretranslate
 msgid "Web-app-moodle Role"
-msgstr "Web-appmoodle Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-n8n Role"
-msgstr "Web-appn8n Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-navigator Role"
@@ -81197,11 +81197,11 @@ msgstr "Web-app-pretix Role"
 
 # translated-by: libretranslate
 msgid "Web-app-prometheus Role"
-msgstr "Web-appmetheus Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-roulette-wheel Role"
-msgstr "Web-appulette-wheel Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-seaweedfs Role"
@@ -81267,11 +81267,11 @@ msgstr "أداة الإدارة القائمة على شبكة الإنترنت 
 
 # translated-by: libretranslate
 msgid "Web-opt-rdr-domains Role"
-msgstr "Web-opt-rdr-domains"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-opt-rdr-www Role"
-msgstr "Web-opt-rdr"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-api Role"
@@ -83119,7 +83119,7 @@ msgstr "العمل مع العمل يوميا."
 
 # translated-by: libretranslate
 msgid "Worked Example: `web-app-matomo`"
-msgstr "Example: `web-app-matomo`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Worked Example: an optional external key"
@@ -83430,7 +83430,7 @@ msgstr "كتابة أو تحديث مطياف بلاي رايت `web-*` الدو
 
 # translated-by: libretranslate
 msgid "XMPP"
-msgstr "XM"
+msgstr ""
 
 msgid "XMPP Architecture"
 msgstr ""
@@ -86467,7 +86467,7 @@ msgstr "[- التكتيكات \"arm64\"] [--whitelist \"...\"] [- الأولوي
 
 # translated-by: libretranslate
 msgid "[--branch B] [--minimum N]"
-msgstr "[B] [--minimum N]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[--format json]"
@@ -86726,7 +86726,7 @@ msgstr "[01\"المبني\"](../../../../../tasks/stages/01_constructor.yml)"
 
 # translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
-msgstr "[01install.yml](./01_install.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
@@ -86741,7 +86741,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02BAR ](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -86776,11 +86776,11 @@ msgstr "[03-الثقة](./03_configure.yml)"
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12BAR ](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -87415,7 +87415,7 @@ msgstr "[دليل الأمن](docs/security/administrator.md)"
 # DevDocs](https://developer.adobe.com/commerce/)
 # translated-by: libretranslate
 msgid "[Adobe Commerce DevDocs](https://developer.adobe.com/commerce/)"
-msgstr "[4,000 Commerce DevDocs](https://developer.adobe.com/commerce/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Agent Broker](roles/svc-ai-agent-broker/)"
@@ -87542,7 +87542,7 @@ msgstr "[أرش ويكي: لوح مشبك](https://wiki.archlinux.org/title/Clip
 
 # translated-by: libretranslate
 msgid "[ArchWiki: WireGuard](https://wiki.archlinux.org/index.php/WireGuard)"
-msgstr "[ArWiki: WireGuard](https://wiki.archlinux.org/index.php/WireGuard)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Asset Mirror (Privacy Proxy)](roles/web-svc-mirror/)"
@@ -87932,7 +87932,7 @@ msgstr "[Native GitLab (CNG) الصور](https://gitlab.com/gitlab-org/build/CNG
 
 # translated-by: libretranslate
 msgid "[Cloudflare Dashboard → API Tokens](https://dash.cloudflare.com/profile/api-tokens)"
-msgstr "[Cloudflare Dashboard ? API Tokens](https://dash.cloudflare.com/profile/api-tokens)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Cloudflare Purge Cache Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)"
@@ -88312,7 +88312,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Debian Wiki: iptables](https://wiki.debian.org/iptables)"
-msgstr "[Diian Wiki: iptables](https://wiki.debian.org/iptables)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Debian package: build-essential](https://packages.debian.org/stable/build-essential)"
@@ -88391,7 +88391,7 @@ msgstr "[Docker Hub tags](https://hub.docker.com/r/openbao/openbao)"
 
 # translated-by: libretranslate
 msgid "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
-msgstr "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/).. [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Registry Cache](roles/svc-registry-cache/)"
@@ -88436,7 +88436,7 @@ msgstr "[Docker docs](https://docs.semaphoreui.com/administration-guide/installa
 
 # translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker), [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
-msgstr "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker).. [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Document custom addon development workflow](https://open.project.infinito.nexus/wp/560)"
@@ -88464,7 +88464,7 @@ msgstr "[ERPNext](https://erpnext.com/) هو جناح مفتوح المصدر ل
 
 # translated-by: libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
-msgstr "[Enable single sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
@@ -88528,7 +88528,7 @@ msgstr "[خادم الملف](roles/web-svc-file/).. [Matomo](roles/web-app-mato
 
 # translated-by: libretranslate
 msgid "[Filesystem Hierarchy Standard](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)"
-msgstr "[Vesystem Hierarchy Standard](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Firewall ruleset](roles/svc-net-firewall/)"
@@ -88589,7 +88589,7 @@ msgstr "[وثائق جيت لب هلم](https://docs.gitlab.com/charts/)"
 
 # translated-by: libretranslate
 msgid "[GitLab MCP server docs](https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/)"
-msgstr "[GitLab MCP serverdocs](https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[GitLab Official Website](https://about.gitlab.com/)"
@@ -88597,7 +88597,7 @@ msgstr "[موقع شبكي رسمي](https://about.gitlab.com/)"
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[GtLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -88719,7 +88719,7 @@ msgstr "[اختبارات التكامل](testing/integration.md)"
 
 # translated-by: libretranslate
 msgid "[Intel Media Driver upstream documentation](https://01.org/intel-media-sdk)"
-msgstr "[Intel Media driverr upstream documentation](https://01.org/intel-media-sdk)"
+msgstr ""
 
 msgid "[Internet.nl Email Test](https://internet.nl/test-mail/)"
 msgstr ""
@@ -88730,7 +88730,7 @@ msgstr "[InventoryManager](../../../utils/manager/inventory.py)"
 
 # translated-by: libretranslate
 msgid "[Issue Tracker](https://s.infinito.nexus/issues)"
-msgstr "[Isue Tracker](https://s.infinito.nexus/issues)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[JWT/OIDC auth](https://openbao.org/docs/auth/jwt/)"
@@ -88841,7 +88841,7 @@ msgstr "[وثائق تاسع عشر](https://docs.kixdesk.com/)"
 
 # translated-by: libretranslate
 msgid "[Kata & gVisor](roles/svc-virt-kata/)"
-msgstr "[Kata ' gVisor](roles/svc-virt-kata/)"
+msgstr ""
 
 # الحاويات OCI الذي يبدأ كل حاوية داخل جهاز افتراضي للوزن الخفيف مع عظمته بدلا
 # من تقاسم الكنيل المضيف. [(ز)](https://gvisor.dev/) هو ثانية عزل الجري، شحن
@@ -89013,7 +89013,7 @@ msgstr "[لينكس](platform/linux.md)"
 
 # translated-by: libretranslate
 msgid "[Listmonk GitHub Repository](https://github.com/knadh/listmonk/)"
-msgstr "[Listmonk GitHub Reposory](https://github.com/knadh/listmonk/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Listmonk Installation Documentation](https://listmonk.app/docs/installation/)"
@@ -89025,7 +89025,7 @@ msgstr "[Listmonk Official Website](https://listmonk.app/)"
 
 # translated-by: libretranslate
 msgid "[LiteLLM Admin UI](roles/web-app-litellm/)"
-msgstr "[LiteLM Admin UI](roles/web-app-litellm/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[LiteLLM Gateway](roles/svc-ai-litellm/)"
@@ -89147,7 +89147,7 @@ msgstr "[الموقع الشبكي الرسمي](https://matomo.org/)"
 
 # translated-by: libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr "[Matomo](roles/web-app-matomo/).. [Prometheus](roles/web-app-prometheus/).. [Tor Onion Service](roles/svc-net-tor/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Matrix Documentation](https://matrix.org/docs/)"
@@ -89167,7 +89167,7 @@ msgstr "[Mattermost Docker Install](https://docs.mattermost.com/deployment-guide
 
 # translated-by: libretranslate
 msgid "[Mattermost MCP Server docs](https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md)"
-msgstr "[MCP Server docs](https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
@@ -89421,7 +89421,7 @@ msgstr "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)
 
 # translated-by: libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/), [Keycloak config](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
-msgstr "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/).. [Keycloak config](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[OpenProject MCP Server docs](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
@@ -89595,7 +89595,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
-msgstr "[Prometheus](roles/web-app-prometheus/).. [Tor Onion Service](roles/svc-net-tor/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Proprietary Drivers](roles/drv-non-free/)"
@@ -89647,7 +89647,7 @@ msgstr "[إعادة توجيه](roles/web-opt-rdr-domains/)"
 
 # translated-by: libretranslate
 msgid "[Redis ACL documentation](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
-msgstr "[Reis ACL documentation](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Releases](https://github.com/openbao/openbao/releases)"
@@ -89711,7 +89711,7 @@ msgstr "[SSH (الضمان Shell)](https://en.wikipedia.org/wiki/Secure_Shell) �
 
 # translated-by: libretranslate
 msgid "[SSH Command Restrictions via authorized_keys](https://www.thomas-krenn.com/de/wiki/Ausf%C3%BChrbare_SSH-Kommandos_per_authorized_keys_einschr%C3%A4nken)"
-msgstr "[SSH Command restrictions via authorized_keys](https://www.thomas-krenn.com/de/wiki/Ausf%C3%BChrbare_SSH-Kommandos_per_authorized_keys_einschr%C3%A4nken)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
@@ -89817,7 +89817,7 @@ msgstr "[Shopware Store (Plugins)](https://store.shopware.com/en/)"
 
 # translated-by: libretranslate
 msgid "[Snipe‑IT Official Documentation](https://snipe-it.readme.io/)"
-msgstr "[Snipe-IT Official Documentation](https://snipe-it.readme.io/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Social Home source](https://github.com/social-home-io/socialhome)"
@@ -90050,7 +90050,7 @@ msgstr "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/21
 
 # translated-by: libretranslate
 msgid "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
-msgstr "[WireGuard Permissions isue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
@@ -90090,7 +90090,7 @@ msgstr "[الشبكة العالمية](roles/web-opt-rdr-www/)"
 
 # translated-by: libretranslate
 msgid "[XMPP](roles/web-svc-xmpp/)"
-msgstr "[XM](roles/web-svc-xmpp/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
@@ -90098,7 +90098,7 @@ msgstr "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation
 
 # translated-by: libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
-msgstr "[XWiki GitHub Reposory](https://github.com/xwiki/xwiki-platform)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[XWiki Official Website](https://www.xwiki.org/)"
@@ -90414,7 +90414,7 @@ msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) تشغيل
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
-msgstr "[`remove.sh`](remove.sh) DNS teardown"
+msgstr ""
 
 msgid "[`resolve_site.yml`](../../../roles/sys-front-inj-matomo/tasks/resolve_site.yml) resolves the token, queries `SitesManager.getSitesIdFromSiteUrl`, registers the site when it is unknown, and leaves `matomo_site_id` as the empty string whenever any of those steps cannot complete. An empty token short-circuits the API call, and an API answer that is not a 200 list leaves the id unresolved the same way."
 msgstr ""
@@ -90538,7 +90538,7 @@ msgstr "[applications.py (cache)](../../../utils/cache/applications.py)"
 
 # translated-by: libretranslate
 msgid "[applications.py (cache)](../../../utils/cache/applications.py) `_build_variants`, [inventory/payload.py](../../../cli/administration/deploy/development/inventory/payload.py) `_resolve_variant_payloads`"
-msgstr "[applications.py (cache)](../../../utils/cache/applications.py) `_build_variants`.. [inventory/payload.py](../../../cli/administration/deploy/development/inventory/payload.py) `_resolve_variant_payloads`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[applications.py (lookup)](../../../plugins/lookup/applications.py)"
@@ -90550,7 +90550,7 @@ msgstr "[الطلبات/](applications/README.md) المُساعدون حول ا
 
 # translated-by: libretranslate
 msgid "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
-msgstr "[Apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[apt](https://wiki.debian.org/Apt)"
@@ -90726,7 +90726,7 @@ msgstr "[docs/changelog/README.md](../../changelog/README.md) يصف مخطط د
 
 # translated-by: libretranslate
 msgid "[docs/contributing/](../../)"
-msgstr "[docs/ contributing/](../../)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[docs/contributing/](../../) for workflow and constraints"
@@ -90812,7 +90812,7 @@ msgstr "[كانولنت](https://github.com/hadolint/hadolint)"
 
 # translated-by: libretranslate
 msgid "[i18n/](i18n/)"
-msgstr "[I18n/](i18n/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above. It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
@@ -90951,11 +90951,11 @@ msgstr "[neutralize.yml](./neutralize.yml) يتوقّف ويُقنع الوحد�
 
 # translated-by: libretranslate
 msgid "[nft(8) manual page](https://www.netfilter.org/projects/nftables/manpage.html)"
-msgstr "[nft(8) Page](https://www.netfilter.org/projects/nftables/manpage.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
-msgstr "[Wki](https://wiki.nftables.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[nftables](https://www.netfilter.org/projects/nftables/) is the packet filtering framework of the Linux kernel and the successor to `iptables`. Its rules live in memory: a reboot drops them unless something loads them again."
@@ -92859,7 +92859,7 @@ msgstr "[x] يُعلن حجم الطوفان `nfs: false` مع `# nocheck: nfs-f
 
 # translated-by: libretranslate
 msgid "[x] The role declares menu tags: `design`, `penpot`, `prototyping`, `collaboration`, `ui-ux`, `figma-alternative`."
-msgstr "[x] The role declares menu tags: `design`.. `penpot`.. `prototyping`.. `collaboration`.. `ui-ux`.. `figma-alternative`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] The role emits a `Content-Security-Policy` header on the canonical surface, and the OpenBao UI renders without CSP violations under it. (`test-guest-persona.js` asserts the CSP injections; the UI renders and the in-page `fetch` to `/v1/...` is not blocked.)"
@@ -95543,7 +95543,7 @@ msgstr "``.po`` أو ``.pot`` ملف."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC,)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -101188,7 +101188,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-format
 msgid "an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``)."
-msgstr "ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "an ``ansible_facts`` mapping. task_vars carries bare keys, the setup module returns them ``ansible_``-prefixed."
@@ -101404,7 +101404,7 @@ msgstr "مهام التأهب الملائمة"
 
 # translated-by: libretranslate
 msgid "apt_package: the PGDG package suffix, installed as"
-msgstr "apt_package: PGDG package suffix, installed as"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arch"
@@ -101676,7 +101676,7 @@ msgstr "bool"
 
 # translated-by: libretranslate
 msgid "bool | Jinja"
-msgstr "bool Jinja"
+msgstr ""
 
 msgid "branch the worktree was created for (required)."
 msgstr ""
@@ -101808,11 +101808,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "cdn.<domain>/npm/<package>@<locked-version>/<path>"
-msgstr "cdn.<domain>/pm/<package>@<locked-version>/<path>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cdn.jsdelivr.net/npm/<package>@<locked-version>/<path>"
-msgstr "cdn.jsdelivr.net/pm/<package>@<locked-version>/<path>"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -103342,7 +103342,7 @@ msgstr "مستمدة من نوع النشر وسطل تحميل من اسم ال
 
 # translated-by: libretranslate
 msgid "deriving computed fields for templates,"
-msgstr "deriving computeruted fields for templates,"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "description"
@@ -104012,7 +104012,7 @@ msgstr "القيمة الصريحة؛ ``None`` يقرأ البيئة."
 
 # translated-by: libretranslate
 msgid "export node IP."
-msgstr "IP."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "export node address (inventory host name or IP)."
@@ -104457,7 +104457,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "iFrame Notifier for NGINX"
-msgstr "IFrame Notifier for NGINX"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "identify shared dependencies such as database, proxy, or identity"
@@ -105241,19 +105241,19 @@ msgstr "msmtp"
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: <https://en.wikipedia.org/wiki/Msmtp>"
-msgstr "Msmtp on Wikipedia: <https://en.wikipedia.org/wiki/Msmtp>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: https://en.wikipedia.org/wiki/Msmtp"
-msgstr "Msmtp on Wikipedia: https://en.wikipedia.org/wiki/Msmtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp: <https://marlam.de/msmtp/>"
-msgstr "Msmtp: <https://marlam.de/msmtp/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp: https://marlam.de/msmtp/"
-msgstr "Msmtp: https://marlam.de/msmtp/"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "multiplier applied to the CPU-derived count over Tor."
@@ -105310,7 +105310,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "nfs-server"
-msgstr "Nfs-server"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
@@ -106304,7 +106304,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.canonical\\_domains\\_map module"
-msgstr "plugins.filter.canonical?domains ?map module"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookieالوحدة']
@@ -106935,7 +106935,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.current\\_play\\_redirect\\_domains module"
-msgstr "plugins.lookup.current?play/ redirect domains module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.database module"
@@ -107568,7 +107568,7 @@ msgstr "python3 - م cli.meta.ci.image_ref - البيئة الطبيعية"
 
 # translated-by: libretranslate
 msgid "python3 -m utils.annotations.summarize <logfile> [<title>]"
-msgstr "python3 - م utils.annotations.summarize <logfile> [<title>]"
+msgstr ""
 
 # translated-by: libretranslate
 # <reports-dir> [<context-label>] # No check: self-path-reference
@@ -107784,7 +107784,7 @@ msgstr "قابلة للتكرار"
 
 # translated-by: libretranslate
 msgid "repo-relative dev vars file"
-msgstr "Repo-relative dev vars file"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "repo-wide grep"
@@ -108501,7 +108501,7 @@ msgstr "دليل لإستعادته."
 
 # translated-by: libretranslate
 msgid "snapshot → NFS export subtree"
-msgstr "Subtree"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "snapshot → docker volume"
@@ -108562,7 +108562,7 @@ msgstr "الأدوار المنفصلة عن الفضاء ``__ALL__`` وأي ش�
 
 # translated-by: libretranslate
 msgid "src"
-msgstr "Src"
+msgstr ""
 
 msgid "ssh server and the run's authorized key, piped into the running target"
 msgstr ""
@@ -108606,11 +108606,11 @@ msgstr "str"
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC ``initialize``, ``tools/list``, ``tools/call``)"
-msgstr "HTTP (JSON-RPC ``initialize``.. ``tools/list``.. ``tools/call``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`)"
-msgstr "HTTP (JSON-RPC `initialize`.. `tools/list`.. `tools/call`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "string"
@@ -108680,7 +108680,7 @@ msgstr "sys-svc-container - لمحة عامة عن الملفات"
 
 # translated-by: libretranslate
 msgid "systemd Administration Scripts ⚙️"
-msgstr "Scripts ⚙️"
+msgstr ""
 
 msgid "systemd and an ssh server, nothing else until the deploy lands; a host install also runs there"
 msgstr ""
@@ -108691,7 +108691,7 @@ msgstr "نظام. التمكين ✅"
 
 # translated-by: libretranslate
 msgid "tab ->"
-msgstr "tab - -"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "tag or digest."
@@ -109632,7 +109632,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "the recovery schema"
-msgstr "Schema"
+msgstr ""
 
 msgid "the ref carries a ``version_variants`` suffix rather than the version the service declares, so it is a tag the mirror must carry but never the version a role deploys"
 msgstr ""
@@ -110712,7 +110712,7 @@ msgstr "utils.env.handlers طرد"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.act\\_platform\\_image module"
-msgstr "utils.env.handlers.act# platform # image module"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.docker'] gained=['utils.env.handlers.dockerوحدة']
@@ -110991,7 +110991,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.registry\\_cache\\_max\\_size module"
-msgstr "utils.env.handlers.infinito.registry/ cache/ max size module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue package"
@@ -111524,7 +111524,7 @@ msgstr "utils.nexus طرد"
 
 # translated-by: libretranslate
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
-msgstr "utils.nexus.list?apt ?proxy ?"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.packages package"
@@ -112301,7 +112301,7 @@ msgstr "{{ 30 | curl }} -عفواً 5 - الوقت الأقصى 30 - المحا�
 
 # translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} - >/etc/<software_domain>/ca/root-ca.crt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"
@@ -112313,7 +112313,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} تخلف الطبول {{ lo
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} - /tmp/email_sent"
+msgstr ""
 
 # lookup('domains', application_id) }} - {{ lookup('domains', application_id,
 # default) }} - ♪ Subtree with fallback
@@ -112336,23 +112336,23 @@ msgstr "{{ lookup('sso', application_id) }} full كامل الديكت"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'enabled') }}         → bool"
-msgstr "{{ lookup('sso', application_id, 'enabled') }} → bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'flavor') }}          → str"
-msgstr "{{ lookup('sso', application_id, 'flavor') }} → str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_enabled') }}      → bool"
-msgstr "{{ lookup('sso', application_id, 'is_enabled') }} → bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_oidc_native') }}  → bool"
-msgstr "{{ lookup('sso', application_id, 'is_oidc_native') }} → bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_proxy_gated') }}  → bool"
-msgstr "{{ lookup('sso', application_id, 'is_proxy_gated') }} → bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated"
@@ -112360,7 +112360,7 @@ msgstr "{{ lookup('sso', application_id, 'logout_url') }} → str, oauth2-إغل
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'shared') }}          → bool"
-msgstr "{{ lookup('sso', application_id, 'shared') }} → bool"
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=['168']
 # gained=['"168"']
@@ -112619,7 +112619,7 @@ msgstr "👉 قد لا تتاح للمساهمين إمكانية الاطلاع
 
 # translated-by: libretranslate
 msgid "👉 No automatic upgrade PRs"
-msgstr "👉 No automatic upgrade PR"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "👉 Secrets may accidentally be committed"
@@ -112744,7 +112744,7 @@ msgstr "📨 **Email Backend:** يدعم البرنامج الإنمائي لل�
 
 # translated-by: libretranslate
 msgid "📨 **msmtp Client Configuration**"
-msgstr "📨 **Msmtp Client Configur**"
+msgstr ""
 
 msgid "📬 SMTP integration and Greenlight admin creation: the administrator is verified and active, and its password converges on every deploy"
 msgstr ""

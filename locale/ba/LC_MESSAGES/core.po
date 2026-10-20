@@ -32,7 +32,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr "Servis AI"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -55,12 +55,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr "Administrasiya Tools pa servers"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Agent"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -83,7 +83,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
-msgstr "Pewme"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -97,7 +97,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analitika"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -112,7 +112,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr "Applikasi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -135,12 +135,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
-msgstr "Kedua-lalmoom"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr "Management Asset"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -163,12 +163,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr "Gesavolai & Save & Restore"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr "Servis Hilangan²"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -371,12 +371,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr "Skanalai sesionīem oliki…"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr "Rapeak"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -418,7 +418,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Haze"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -482,17 +482,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr "Comercia"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr "Komunikasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr "Komunita"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -517,12 +517,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr "Orchestration Kontejener"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr "Registries kontainer"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -581,7 +581,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr "Management Kontrol"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -605,7 +605,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
-msgstr "Kontrol"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -656,7 +656,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
-msgstr "Khongying paike sanas teeg yiŋuŋuo."
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -689,7 +689,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr "Kumbuh Rumah"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -703,12 +703,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr "DNS Automasi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNS Resolutors"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -731,12 +731,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
-msgstr "Bazit aplikasyon (DBMS, LDAP, Redis, etc.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr "Bazas"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -804,7 +804,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
-msgstr "Computer"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -835,7 +835,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr "Roles & aplikasi (GNOME, browser, LibreOffice, dll.)"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -876,12 +876,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "Möbiun"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
-msgstr "Desarollopam ja Tegjamjiya"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -940,12 +940,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr "Dokumentasyon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
-msgstr "Buku Panjang dan Aplikasi Wiki"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -960,16 +960,11 @@ msgstr ""
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
-"Mannahin\n"
-" \n"
-"Ngokurika\n"
-" \n"
-"Ngakwakwa"
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr "Educación"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1011,12 +1006,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "Sistem manajemen acara dan tiket"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "Év"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1062,12 +1057,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr "Finans és řízení výnosu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr "Software keuangan dan akuntansi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1126,7 +1121,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr "Ga-me-s"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1139,7 +1134,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr "Ba"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1231,7 +1226,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "Máy giúp việc"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1309,12 +1304,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr "Infrastruktur"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr "Infrastruktur dan alat jaringan"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1337,12 +1332,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
-msgstr "Infrastructure asbuksai like asbuksai"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
-msgstr "Injeksiyonen"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1561,7 +1556,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr "Maintenans"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1608,7 +1603,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "Kontrolés"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1688,9 +1683,6 @@ msgstr ""
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr ""
-"Net\n"
-" \n"
-"Wang"
 
 # translated-by: libretranslate
 # translation-refused: libretranslate damaged-span
@@ -1752,12 +1744,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
-msgstr "Notifiers la eventos sistèmics"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr "OS & pakkuu pandawa"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1789,7 +1781,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
-msgstr "Pagina de desconexió"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
@@ -1992,7 +1984,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
-msgstr "Optimation sirvitsa mejaya systemyo"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2019,7 +2011,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr "Kist Caches"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2148,12 +2140,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "Manajemen Proyek"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr "Managements Tools"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2194,7 +2186,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr "Sistemy Proxy"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
@@ -2239,7 +2231,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr "Répair"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2364,7 +2356,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr "Runtime Sandubi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2860,12 +2852,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr "Administrasi Server"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr "Optimizasyon"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2881,17 +2873,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr "Serviçs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr "Serviçs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr "Kontejner Storage"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2942,13 +2934,13 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr "Siguenjem everywhere."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr "Dihautlen, kecuali {failed} daripada {total} sesebuah jasa."
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "logout:running"
@@ -2976,17 +2968,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr "Sociale Mediac"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr "Instrumentos Social Media"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "Software Desarollopament Utensils"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3000,12 +2992,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr "Stak"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
-msgstr "Nivell level a setup server"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3037,7 +3029,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr "Storja"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:sys:title"
@@ -3047,7 +3039,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr "System Frontend Benders"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3224,7 +3216,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
-msgstr "Máterial"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3238,7 +3230,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr "Mekanisit untuk komunikasi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3261,7 +3253,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr "Kanvese kekumpulan"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3306,7 +3298,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "Güncelas dan Paket Manajemen"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:partial_hint"
@@ -3321,7 +3313,7 @@ msgstr "Исемлектә ҡалған хеҙмәттәрҙән сығыу өс
 # translated-by: libretranslate
 msgctxt "menu:User Management:title"
 msgid "User Management"
-msgstr "Mgmt Usuaris"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:user:description"
@@ -3355,7 +3347,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr "Infrastruktur Web"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3407,7 +3399,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr "Optimizació del servidor Web"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3440,12 +3432,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "Moji ji kanopi naa now."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr "èmahamayuc̆am"
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -3458,26 +3450,26 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr "sakralizāts"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr "killey logout"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr "dulîd"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr "kai batidat"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr "{done} sa {total} saiyi jual"
+msgstr ""
 

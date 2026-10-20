@@ -72,7 +72,7 @@ msgstr "כל שרת דואר Stalwart עם SMTP, IMAP, JMAP, POP3, ManageSieve, 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analytics Analytics"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -1002,9 +1002,6 @@ msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm nod
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
-"Marketing\n"
-"---\n"
-"Marketing"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"

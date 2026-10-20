@@ -19767,11 +19767,11 @@ msgstr "Da dieses Grant nach dem Start des Containers irreversibel ist, laufen d
 
 # translated-by: libretranslate
 msgid "Because the block loads the extension, `MachineTranslation` is listed in `MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK` and the generic loop skips it."
-msgstr "因为块加载了扩展，`MachineTranslation` 在`MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK` 中列出，通用循环跳过它。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because the block loads the extension, ``MachineTranslation`` is listed in ``MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK`` and the generic loop skips it."
-msgstr "因为块加载了扩展，``MachineTranslation`` 在 ``MEDIAWIKI_EXT_LOADED_BY_OWN_BLOCK`` 列出，通用循环跳过它。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because the lookup emits ``$(...)`` shell syntax, callers MUST use the ``ansible.builtin.shell`` module (not ``command``) for the surrounding ``container exec`` invocation. A companion lint rule enforces this."

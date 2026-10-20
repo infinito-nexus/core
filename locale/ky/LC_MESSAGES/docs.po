@@ -13782,17 +13782,17 @@ msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'm
 # 'web', 'automation', 'archlinux']
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**: ['nginx', 'docker'\"Reverse proxy\", 'web', 'automation', 'archlinux']"
+msgstr ""
 
 # filter", 'injection', 'global']
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp'\"sub filter\", 'injection', 'global']"
+msgstr ""
 
 # 'javascript', 'csp'"sub filter"]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp'\"sub filter\"]"
+msgstr ""
 
 # proxy", 'letsencrypt'"өзүн-өзү кол койгон"]
 # translated-by: libretranslate
@@ -13807,7 +13807,7 @@ msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl'\"өзүн-өзү кол койг
 # 'docker'"Reverse proxy"]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr "**galaxy_tags**: ['openresty', 'nginx', 'docker'\"Reverse proxy\"]"
+msgstr ""
 
 # 'docker', 'compose', 'decentralized', 'open-source'"Видео платформа"]
 # translated-by: libretranslate
@@ -14276,7 +14276,7 @@ msgstr "*sys-ctl-hlth-csp*: 2.1.2 үчүн 2.2.1"
 
 # translated-by: libretranslate
 msgid "*sys-lint* (shfmt): v3.13.1 to v3.14.1"
-msgstr "*sys-lint* (Sfmt): v3.13.1 v3.14.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*sys-package*, *sys-aur* and *sys-aur-install*, superseded by the distribution-independent package registry."
@@ -14474,11 +14474,11 @@ msgstr "*web-app-jitsi* (Веб, просодия, jicofo, jvb): турукту�
 
 # translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache"
-msgstr "*web-app-joomla*: 6.1.1-php8.3-apach 6.1.2-php8.3-apache"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache"
-msgstr "*web-app-joomla*: 6.1.2-php8.3-apach 6.1.3-php8.3-apache"
+msgstr ""
 
 msgid "*web-app-joomla*: 6.1.3-php8.3-apache to 6.1.4-php8.3-apache"
 msgstr ""
@@ -14618,19 +14618,19 @@ msgstr "*web-app-opencloud*: 7.2.1 үчүн 7.2.4"
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2"
-msgstr "*web-app-opentalk* (LiveKit): v1.13.1 v1.13.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.2 to v1.13.3"
-msgstr "*web-app-opentalk* (LiveKit): v1.13.2 v1.13.3"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6"
-msgstr "*web-app-opentalk* (LiveKit): v1.13.5 v1.13.6"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7"
-msgstr "*web-app-opentalk* (LiveKit): v1.13.6 v1.13.7"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5"
@@ -14796,7 +14796,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-yourls*: 1.10.4-apache to 1.10.6-apache"
-msgstr "*web-app-yourls*: 1.10.4-apach 1.10.6-apache"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-zammad*: 6.5.0 to 7.1.2"
@@ -15645,7 +15645,7 @@ msgstr "Телеграмбот:yourdomain.tld"
 
 # translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr "@Whatsappbot:yourdomain.tld"
+msgstr ""
 
 # ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, сандык бөлүктүн 1
 # үчүн 5 чекит менен бөлүнгөн компоненттер, факультативдүү алдыңкы
@@ -23514,7 +23514,7 @@ msgstr "CDN жардамчысынын ролу - активдердин дар�
 
 # translated-by: libretranslate
 msgid "CI"
-msgstr "CI CI"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI & Self-Hosted Runners 🏃"
@@ -23526,7 +23526,7 @@ msgstr "CI жана сыноо коргоочу темир жолдор 🧪"
 
 # translated-by: libretranslate
 msgid "CI / E2E"
-msgstr "CI E2E E E"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI Configuration ⚙️"
@@ -23700,7 +23700,7 @@ msgstr "CI иш агымдары толугу менен күзгү-билдир
 
 # translated-by: libretranslate
 msgid "CI 🤖"
-msgstr "CI CI 🤖"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI/CD Path 🤖"
@@ -23716,7 +23716,7 @@ msgstr "CICD, куралдар, системалык"
 
 # translated-by: libretranslate
 msgid "CI/CD-friendly shallow clones"
-msgstr "CI-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-D-"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI: pilot validation workflow"
@@ -23724,7 +23724,7 @@ msgstr "КИ: пилоттук валидациялоо иш агымы"
 
 # translated-by: libretranslate
 msgid "CLI"
-msgstr "CLI CLI"
+msgstr ""
 
 msgid "CLI Commands"
 msgstr ""
@@ -23819,7 +23819,7 @@ msgstr "CLI: `cli/administration/deploy/runner/`"
 
 # translated-by: libretranslate
 msgid "CLI: `python -m cli.meta.ci.roles.runtime <source> [--format ...] [--output ...]`."
-msgstr "CLI: `python -m cli.meta.ci.roles.runtime <source> [--format ...] [--output ...]`...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CLI: `python -m cli.meta.roles.services.called --help`"
@@ -23994,7 +23994,7 @@ msgstr "Бул ролду чакыруу `include_role` Карталарды ж�
 
 # translated-by: libretranslate
 msgid "Callback URL `https://<joomla>/index.php?option=keycloak&task=callback`."
-msgstr "Callback URL `https://<joomla>/index.php?option=keycloak&task=callback`...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Called by the local purge wrapper."
@@ -24262,11 +24262,11 @@ msgstr "Кавеман: символикалык кысуу"
 
 # translated-by: libretranslate
 msgid "CentOS"
-msgstr "Centos Centos"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS / RHEL"
-msgstr "CentOS RHEL"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS Stream 9: ``libva-intel-hybrid-driver`` (via EPEL)"
@@ -27332,7 +27332,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "CoreDNS Sidecar Config 🛰️"
-msgstr "CoreDNS Sidecar Configig 🛰️"
+msgstr ""
 
 msgid "Corner radii"
 msgstr ""
@@ -27991,7 +27991,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "DNS"
-msgstr "DNS DNS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "DNS Helpers"
@@ -29616,7 +29616,7 @@ msgstr "Dev-nix Role"
 
 # translated-by: libretranslate
 msgid "Dev-nodejs Role"
-msgstr "Dev-Nodejs Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev-npm Role"
@@ -30229,7 +30229,7 @@ msgstr "Docker биринчи токтоп калууну токтотот, би
 
 # translated-by: libretranslate
 msgid "Docker docs: <https://docs.checkmk.com/latest/en/introduction_docker.html>"
-msgstr "Docker Docs: <https://docs.checkmk.com/latest/en/introduction_docker.html>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker image builds"
@@ -35832,7 +35832,7 @@ msgstr "GCC"
 
 # translated-by: libretranslate
 msgid "GET"
-msgstr "GET GET"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "GHA-only static-env passthrough: keys from default.env that are only seeded when running on real GitHub Actions."
@@ -36585,11 +36585,11 @@ msgstr "HTTP статусунун коддору."
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (``adapter.upstream_transport: sse``)"
-msgstr "HTTP + SSE (``adapter.upstream_transport: sse``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (`adapter.upstream_transport: sse`)"
-msgstr "HTTP + SSE (`adapter.upstream_transport: sse`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP/2 support, TLS/SSL integration"
@@ -37621,7 +37621,7 @@ msgstr "IPv IPv6 Жардамчылар"
 
 # translated-by: libretranslate
 msgid "IPv6 🔢"
-msgstr "IPv IPv6 🔢"
+msgstr ""
 
 # translation}`` Ар бир тил, жок дегенде, бир билдирүүнү которат.
 # translation-refused: libretranslate stutter
@@ -39056,7 +39056,7 @@ msgstr "Infinito.Nexus"
 
 # translated-by: libretranslate
 msgid "Infinito.Nexus CLI"
-msgstr "Infinito.Nexus CLI CLI"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Infinito.Nexus Community License (Non-Commercial)"
@@ -41082,7 +41082,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC,..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -41114,7 +41114,7 @@ msgstr "JWT жана OIDC <https://openbao.org/docs/auth/jwt/>"
 
 # translated-by: libretranslate
 msgid "Java"
-msgstr "Java Java Java"
+msgstr ""
 
 msgid "Jellyfin Architecture"
 msgstr ""
@@ -41773,7 +41773,7 @@ msgstr "LB стратегиясы"
 
 # translated-by: libretranslate
 msgid "LDAP"
-msgstr "LDAP LDAP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP & SSO Notes"
@@ -41856,7 +41856,7 @@ msgstr "LDAP бир эле брокердик жол менен жүрөт: Keyc
 
 # translated-by: libretranslate
 msgid "LDAP 📒"
-msgstr "LDAP LDAP 📒"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP-bind path. MUST exercise admin AND `biber`."
@@ -42359,7 +42359,7 @@ msgstr "Ansible дарагынын ар бир аталышы бир жерде 
 
 # translated-by: libretranslate
 msgid "Linux"
-msgstr "Linux Linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "List"
@@ -42513,7 +42513,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
-msgstr "LittleJS README & Docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Live Review"
@@ -45116,7 +45116,7 @@ msgstr "Тесттин баштапкы бузулушун жашырбаңыз:
 
 # translated-by: libretranslate
 msgid "NSS"
-msgstr "NSS NSS"
+msgstr ""
 
 # аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты
 # аты аты аты аты аты аты аты аты аты аты аты аты аты аты аты
@@ -47369,7 +47369,7 @@ msgstr "OpenCloud аутентификацияны борбордук орган
 
 # translated-by: libretranslate
 msgid "OpenCloud env"
-msgstr "OpenCloud Env"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenCloud reads users from the central `svc-db-openldap` service."
@@ -47392,7 +47392,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenIDConnect"
-msgstr "OpenIDConect"
+msgstr ""
 
 msgid "OpenLDAP Architecture"
 msgstr ""
@@ -49736,7 +49736,7 @@ msgstr "OpenAI менен шайкеш келген кыймылдуу моде�
 
 # translated-by: libretranslate
 msgid "PluggableAuth"
-msgstr "PluggableAuggable"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Plugin"
@@ -51103,7 +51103,7 @@ msgstr "Python, YAML, JSON жана башка жардамчы файл түр�
 
 # translated-by: libretranslate
 msgid "Python, YAML, shell, conf, INI, …"
-msgstr "Python, YAML, shell, conf, INI,..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Python-Pip"
@@ -51208,7 +51208,7 @@ msgstr "RAM"
 
 # translated-by: libretranslate
 msgid "RBAC"
-msgstr "RBAC RBAC"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC / policies (Decision #6)"
@@ -51261,11 +51261,11 @@ msgstr "RBAC Multisite программасында иерархиялык ык�
 
 # translated-by: libretranslate
 msgid "RBAC 👥"
-msgstr "RBAC RBAC 👥"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC 🛂"
-msgstr "RBAC RBAC 🛂"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "README"
@@ -56752,7 +56752,7 @@ msgstr "Run Run ``gh`` берилген аргументтер менен жан
 
 # translated-by: libretranslate
 msgid "Run ``make compose-deploy mode=reinstall apps=web-app-matrix full_cycle=true variant=0``."
-msgstr "Run Run ``make compose-deploy mode=reinstall apps=web-app-matrix full_cycle=true variant=0``...."
+msgstr ""
 
 msgid "Run `compose-down`, `compose-entity-purge` and `worktree-down` for another worktree with the inherited `INFINITO_*` variables stripped: `env $(printenv | grep -o -E '^INFINITO_[A-Z0-9_]+' | sed 's/^/-u /') make ...`."
 msgstr ""
@@ -56783,7 +56783,7 @@ msgstr "Run Run `make alias` Терминалдык псевдонимдерди
 
 # translated-by: libretranslate
 msgid "Run `make compose-deploy mode=reinstall apps=web-app-matrix full_cycle=true variant=0`."
-msgstr "Run Run `make compose-deploy mode=reinstall apps=web-app-matrix full_cycle=true variant=0`...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run `make compose-playwright role=<role> keep=true`. You MAY pass `pw=\"--grep <pattern>\"` (or any other `npx playwright test` argument). Set `keep=true` on every inner-loop run regardless of the previous result; omit only when the user has explicitly opted out. For the full propagation chain see [Playwright Tests](../../../contributing/actions/testing/playwright.md#artefact-retention-)."
@@ -56791,7 +56791,7 @@ msgstr "Run Run `make compose-playwright role=<role> keep=true`. Сиз өтүп
 
 # translated-by: libretranslate
 msgid "Run `make dotenv`."
-msgstr "Run Run `make dotenv`...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run `make install-alias` to install the aliases into your shell config; afterwards open a new shell or `source ~/.bashrc`."
@@ -57426,7 +57426,7 @@ msgstr "Оюн китебиңизди иштетиңиз. Ansible өзгөрүл
 
 # translated-by: libretranslate
 msgid "Run ✓"
-msgstr "Run Run ✓"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run-Once Flag Tests 🏁"
@@ -58216,7 +58216,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SAML"
-msgstr "SAML SAML"
+msgstr ""
 
 # Friendica SP жана SP Keycloak IdP) жаңы техникалык тейлөө жүктү <unk>
 # кемеден мурун менчикти тактоо.
@@ -58399,7 +58399,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SSD"
-msgstr "SSD SSD"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSH Agent"
@@ -58446,7 +58446,7 @@ msgstr "SSH порту - бул максаттуу хосттун порту."
 
 # translated-by: libretranslate
 msgid "SSO"
-msgstr "SSO SSO"
+msgstr ""
 
 msgid "SSO (Decisions #2 to #4)"
 msgstr ""
@@ -60743,7 +60743,7 @@ msgstr "Тирүү жаңыртуу эскертүүсүн өткөрүп жиб
 
 # translated-by: libretranslate
 msgid "Slack"
-msgstr "Slack Slack"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Slightly more latency for streaming data due to buffering"
@@ -62176,7 +62176,7 @@ msgstr "Бул топтомду колдоо операторлорго туру
 
 # translated-by: libretranslate
 msgid "Supports A/AAAA, CNAME, MX, TXT, SRV"
-msgstr "AAAA, CNAME, MX, TXT, SRV"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Supports Arch, Debian, Ubuntu, Fedora, CentOS Stream"
@@ -76438,7 +76438,7 @@ msgstr "URL, домендер жана күбөлүктөр рендерингд
 
 # translated-by: libretranslate
 msgid "USAGE::"
-msgstr "USAGE:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ubuntu"
@@ -77893,7 +77893,7 @@ msgstr "V V1"
 
 # translated-by: libretranslate
 msgid "V1 (sso)"
-msgstr "V V1 (sso)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` only."
@@ -78954,7 +78954,7 @@ msgstr "Веб-опт-rdr домендеринин ролу"
 
 # translated-by: libretranslate
 msgid "Web-opt-rdr-www Role"
-msgstr "Web-opt-rdr-ww Role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-api Role"
@@ -80491,7 +80491,7 @@ msgstr "Жапайы карта ``ROLE_TYPE_ALL`` Кыйраган кайтал�
 
 # translated-by: libretranslate
 msgid "Windows (WSL2)"
-msgstr "Windows Windows (WSL WSL2)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Wipe local cache state"
@@ -80727,7 +80727,7 @@ msgstr "WordPress колдонушу керек болгон плагиндер 
 
 # translated-by: libretranslate
 msgid "WordPress Plugins"
-msgstr "WordPress Plugin"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "WordPress offers an extensive array of features that make it a robust platform for building and managing digital content:"
@@ -83190,7 +83190,7 @@ msgstr "[ ] Сыналган орнотуу"
 
 # translated-by: libretranslate
 msgid "[ ] LDAP"
-msgstr "[ ] LDAP LDAP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] LDAP- and SSO-bridging addons remain covered by the existing Playwright LDAP/SSO requirements (017/018) without new per-role wiring."
@@ -84049,7 +84049,7 @@ msgstr "[**Arch Linux**](https://archlinux.org)"
 
 # translated-by: libretranslate
 msgid "[**CentOS**](https://www.centos.org)"
-msgstr "[**Centos Centos**](https://www.centos.org)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[**Debian**](https://www.debian.org)"
@@ -84081,7 +84081,7 @@ msgstr "[- B бутагы] [- минималдуу N]"
 
 # translated-by: libretranslate
 msgid "[--format json]"
-msgstr "[- Forformat json]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[--modes auto] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"] [--lifecycles \"...\"]"
@@ -84101,87 +84101,87 @@ msgstr "[Системалар жана көрсөткүчтөр](https://openbao
 
 # translated-by: libretranslate
 msgid "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
-msgstr "[000.001.000- - - -2025- - - -12- - - -09.md](docs/changelog/000.001.000-2025-12-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
-msgstr "[000.001.001- - - -2025- - - -12- - - -10.md](docs/changelog/000.001.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
-msgstr "[000.002.000- - - -2025- - - -12- - - -10.md](docs/changelog/000.002.000-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
-msgstr "[000.002.001- - - -2025- - - -12- - - -10.md](docs/changelog/000.002.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
-msgstr "[000.003.000- - - -2025- - - -12- - - -17.md](docs/changelog/000.003.000-2025-12-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
-msgstr "[000.003.001- - - -2025- - - -12- - - -18.md](docs/changelog/000.003.001-2025-12-18.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
-msgstr "[000.003.002- - - -2025- - - -12- - - -19.md](docs/changelog/000.003.002-2025-12-19.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
-msgstr "[000.003.003- - - -2025- - - -12- - - -21.md](docs/changelog/000.003.003-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
-msgstr "[000.003.004- - - -2025- - - -12- - - -21.md](docs/changelog/000.003.004-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
-msgstr "[000.003.005- - - -2025- - - -12- - - -21.md](docs/changelog/000.003.005-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
-msgstr "[000.004.000- - - -2025- - - -12- - - -29.md](docs/changelog/000.004.000-2025-12-29.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
-msgstr "[000.005.000- - - -2025- - - -12- - - -30.md](docs/changelog/000.005.000-2025-12-30.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
-msgstr "[000.006.000- - - -2025- - - -12- - - -31.md](docs/changelog/000.006.000-2025-12-31.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
-msgstr "[000.007.000- - - -2026- - - -01- - - -05.md](docs/changelog/000.007.000-2026-01-05.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
-msgstr "[000.007.001- - - -2026- - - -01- - - -06.md](docs/changelog/000.007.001-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
-msgstr "[000.007.002- - - -2026- - - -01- - - -06.md](docs/changelog/000.007.002-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
-msgstr "[000.008.000- - - -2026- - - -01- - - -06.md](docs/changelog/000.008.000-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
-msgstr "[000.009.000- - - -2026- - - -01- - - -07.md](docs/changelog/000.009.000-2026-01-07.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
-msgstr "[000.010.000- - - -2026- - - -01- - - -08.md](docs/changelog/000.010.000-2026-01-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
-msgstr "[000.011.000- - - -2026- - - -01- - - -10.md](docs/changelog/000.011.000-2026-01-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
-msgstr "[000.012.000- - - -2026- - - -01- - - -25.md](docs/changelog/000.012.000-2026-01-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) for the distro and filesystem axes this extends."
@@ -84193,55 +84193,55 @@ msgstr "[0001](0001-ci-deploy-matrix-axes.md) Матрицалык саптын 
 
 # translated-by: libretranslate
 msgid "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
-msgstr "[001.000.000- - - -2026- - - -02- - - -03.md](docs/changelog/001.000.000-2026-02-03.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
-msgstr "[002.000.000- - - -2026- - - -02- - - -08.md](docs/changelog/002.000.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
-msgstr "[002.001.000- - - -2026- - - -02- - - -08.md](docs/changelog/002.001.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
-msgstr "[002.001.001- - - -2026- - - -02- - - -08.md](docs/changelog/002.001.001-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
-msgstr "[002.001.002- - - -2026- - - -02- - - -08.md](docs/changelog/002.001.002-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
-msgstr "[002.001.003- - - -2026- - - -02- - - -08.md](docs/changelog/002.001.003-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
-msgstr "[002.001.004- - - -2026- - - -02- - - -08.md](docs/changelog/002.001.004-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
-msgstr "[002.001.005- - - -2026- - - -02- - - -09.md](docs/changelog/002.001.005-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
-msgstr "[002.001.006- - - -2026- - - -02- - - -09.md](docs/changelog/002.001.006-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
-msgstr "[002.001.007- - - -2026- - - -02- - - -09.md](docs/changelog/002.001.007-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
-msgstr "[002.001.008- - - -2026- - - -02- - - -09.md](docs/changelog/002.001.008-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
-msgstr "[002.001.009- - - -2026- - - -02- - - -10.md](docs/changelog/002.001.009-2026-02-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
-msgstr "[003.000.000- - - -2026- - - -02- - - -11.md](docs/changelog/003.000.000-2026-02-11.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004 - Generic RBAC role auto-provisioning](README.md#archive)"
@@ -84249,35 +84249,35 @@ msgstr "[004 - RBAC жалпы ролу автопровизиялоо](README.m
 
 # translated-by: libretranslate
 msgid "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
-msgstr "[004.000.000- - - -2026- - - -02- - - -13.md](docs/changelog/004.000.000-2026-02-13.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
-msgstr "[004.000.001- - - -2026- - - -02- - - -15.md](docs/changelog/004.000.001-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
-msgstr "[004.000.002- - - -2026- - - -02- - - -15.md](docs/changelog/004.000.002-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
-msgstr "[004.000.003- - - -2026- - - -02- - - -16.md](docs/changelog/004.000.003-2026-02-16.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
-msgstr "[004.001.000- - - -2026- - - -02- - - -17.md](docs/changelog/004.001.000-2026-02-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
-msgstr "[005.000.000- - - -2026- - - -02- - - -25.md](docs/changelog/005.000.000-2026-02-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
-msgstr "[005.001.000- - - -2026- - - -02- - - -28.md](docs/changelog/005.001.000-2026-02-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
-msgstr "[005.002.000- - - -2026- - - -03- - - -21.md](docs/changelog/005.002.000-2026-03-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive)"
@@ -84289,31 +84289,31 @@ msgstr "[006 - Кызматка байланышкан Playwright сынооло
 
 # translated-by: libretranslate
 msgid "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
-msgstr "[006.000.000- - - -2026- - - -04- - - -25.md](docs/changelog/006.000.000-2026-04-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
-msgstr "[007.000.000- - - -2026- - - -05- - - -08.md](docs/changelog/007.000.000-2026-05-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
-msgstr "[008.000.000- - - -2026- - - -05- - - -27.md](docs/changelog/008.000.000-2026-05-27.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
-msgstr "[008.000.001- - - -2026- - - -05- - - -28.md](docs/changelog/008.000.001-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
-msgstr "[008.000.002- - - -2026- - - -05- - - -28.md](docs/changelog/008.000.002-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
-msgstr "[008.000.003- - - -2026- - - -05- - - -28.md](docs/changelog/008.000.003-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
-msgstr "[008.000.004- - - -2026- - - -05- - - -28.md](docs/changelog/008.000.004-2026-05-28.md)"
+msgstr ""
 
 # Роль](014-svc-runner-ci.md) <unk> бул жерде колдонулган автономдуу иштөө
 # процедурасынын үлгүсү үчүн шилтеме
@@ -84337,7 +84337,7 @@ msgstr "[01Конструктор.yml](../../../../../tasks/stages/01_constructo
 
 # translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
-msgstr "[01install.yml](./01_install.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
@@ -84352,7 +84352,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02enable.yml](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -84376,15 +84376,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr "[03configure.yml](./03_configure.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12ldap.yml](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -85118,7 +85118,7 @@ msgstr "[Апаче Tika](https://tika.apache.org/) жүктөлгөн файл�
 
 # translated-by: libretranslate
 msgid "[Arch Linux Wiki: Blu-ray Playback](https://wiki.archlinux.org/title/Blu-ray#Using_aacskeys)"
-msgstr "[Arch Linux Wiki: Bluray Playback](https://wiki.archlinux.org/title/Blu-ray#Using_aacskeys)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Arch Linux mhwd Package](https://archlinux.org/packages/?q=manjaro)"
@@ -86168,7 +86168,7 @@ msgstr "[GitLab расмий веб-сайты](https://about.gitlab.com/)"
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[GitLab SSO Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -86559,7 +86559,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Linux](platform/linux.md)"
-msgstr "[Linux Linux](platform/linux.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Listmonk GitHub Repository](https://github.com/knadh/listmonk/)"
@@ -87217,7 +87217,7 @@ msgstr "[Rsync жана sudo интеграциясы](https://askubuntu.com/que
 
 # translated-by: libretranslate
 msgid "[SMART](https://en.wikipedia.org/wiki/SMART_criteria)"
-msgstr "[SART](https://en.wikipedia.org/wiki/SMART_criteria)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SPOT](https://en.wikipedia.org/wiki/Single_source_of_truth)"
@@ -87225,7 +87225,7 @@ msgstr "[Спот](https://en.wikipedia.org/wiki/Single_source_of_truth)"
 
 # translated-by: libretranslate
 msgid "[SRP](https://en.wikipedia.org/wiki/Single-responsibility_principle)"
-msgstr "[SRP SRP](https://en.wikipedia.org/wiki/Single-responsibility_principle)"
+msgstr ""
 
 # Shell)](https://en.wikipedia.org/wiki/Secure_Shell) Криптографиялык
 # тармактык протокол - бул коопсуз эмес тармакта тармактык кызматтарды коопсуз
@@ -87443,7 +87443,7 @@ msgstr "[Системаланган убакыттар Documentation](https://ww
 
 # translated-by: libretranslate
 msgid "[TDD](https://en.wikipedia.org/wiki/Test-driven_development)"
-msgstr "[TDDD](https://en.wikipedia.org/wiki/Test-driven_development)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[TURN REST API credential scheme](https://datatracker.ietf.org/doc/html/draft-uberti-behave-turn-rest-00)"
@@ -87552,7 +87552,7 @@ msgstr "[Жапайы карта күбөлүктөрү (Википедия)](ht
 
 # translated-by: libretranslate
 msgid "[Windows (WSL2)](platform/windows-wsl2.md)"
-msgstr "[Windows Windows (WSL WSL2)](platform/windows-wsl2.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WireGuard Client behind NAT](roles/svc-net-wireguard-firewalled/)"
@@ -87676,11 +87676,11 @@ msgstr "[init py](__init__.py) Ар бир башкаруучу модулду �
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/address/suggest/__main__.py)"
-msgstr "[main py](../../../../cli/contributing/network/address/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
-msgstr "[main py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
@@ -88405,7 +88405,7 @@ msgstr "[n n n8n Докер Documentation](https://docs.n8n.io/hosting/installat
 
 # translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
-msgstr "[n n n8N GitHub](https://github.com/n8n-io/n8n)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n Official Website](https://n8n.io/)"
@@ -88433,7 +88433,7 @@ msgstr "[nft nft(8) Кол менен жазылган баракча](https://w
 
 # translated-by: libretranslate
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
-msgstr "[Nftables Wiki](https://wiki.nftables.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[nftables](https://www.netfilter.org/projects/nftables/) is the packet filtering framework of the Linux kernel and the successor to `iptables`. Its rules live in memory: a reboot drops them unless something loads them again."
@@ -88462,7 +88462,7 @@ msgstr "[Pdsadmin GitHub репозиторийи](https://github.com/lhaig/pdsa
 
 # translated-by: libretranslate
 msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-msgstr "[PgAdmin Documentation](https://www.pgadmin.org/docs/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
@@ -88490,7 +88490,7 @@ msgstr "[драматургдун жаздыруучусу](https://github.com/k
 
 # translated-by: libretranslate
 msgid "[plugin-sso](https://github.com/9p4/jellyfin-plugin-sso)"
-msgstr "[Plugin-sso](https://github.com/9p4/jellyfin-plugin-sso)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[port.md](../../../tools/network/port.md) describes the `cli contributing network ports suggest` helper."
@@ -92498,7 +92498,7 @@ msgstr "`KeePassXC <https://keepassxc.org/>`__ Бул акысыз, ачык б�
 
 # translated-by: libretranslate
 msgid "`LDAP.BIND_CREDENTIAL` (Vault)"
-msgstr "`LDAP.BIND_CREDENTIAL` (Vault Vault)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`LDAP.FILTERS.USERS` provides reusable LDAP search filters:"
@@ -92978,7 +92978,7 @@ msgstr "``\"same-or-above\"`` (дефолт дефолту): жогоруда а
 
 # translated-by: libretranslate
 msgid "``#`` (Python, YAML, shell, conf, INI, …)"
-msgstr "``#`` (Python, YAML, shell, conf, INI,...)"
+msgstr ""
 
 # '""']
 # ""а"" белгиси ролдук идентификатордо да, дисплейдин аталышында да жок,
@@ -93131,7 +93131,7 @@ msgstr "``.po`` же же ``.pot`` файл."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC,...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -96576,7 +96576,7 @@ msgstr "`meta/services.yml` Дельта дельта"
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt"
-msgstr "`meta/services.yml` Excerpt"
+msgstr ""
 
 # жергиликтүү өсүмдүк.2- ыйгарым укуктуу)
 # translation-refused: libretranslate structure
@@ -101858,7 +101858,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "enum"
-msgstr "enum enum"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "env-file (existing)"
@@ -101877,7 +101877,7 @@ msgstr "айлана-чөйрөнү коргоо"
 
 # translated-by: libretranslate
 msgid "eol 🪦"
-msgstr "eol eol 🪦"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ephemeral, re-registers per job"
@@ -105487,7 +105487,7 @@ msgstr "Postgres + 16 -> docker.io/library/postgres:16 Почта жана по�
 
 # translated-by: libretranslate
 msgid "postgresql-<major>-<apt_package>"
-msgstr "Postgresql-<major>- - - -<apt_package>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "posts: search, read, create, update, delete,"
@@ -105495,7 +105495,7 @@ msgstr "кызмат орундары: издөө, окуу, түзүү, жаң�
 
 # translated-by: libretranslate
 msgid "pre-alpha 🧪"
-msgstr "Pre-alpha 🧪"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "pre/post task orchestration."
@@ -105586,7 +105586,7 @@ msgstr "Python -m cli.administration.deploy.ci.timings [- N чуркоо] [- р�
 
 # translated-by: libretranslate
 msgid "python -m cli.administration.inventory.devices ..."
-msgstr "Python -m cli.administration.inventory.devices ........"
+msgstr ""
 
 # кол кол64"]
 # translation-refused: libretranslate stutter
@@ -105617,7 +105617,7 @@ msgstr "Python -m cli.meta.ci.validate [- Ак тизме \"...\"] [- артык
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.roles.applications.role_name <app_id> -r <roles_dir>"
-msgstr "Python -m cli.meta.roles.applications.role_name <app_id> -r <roles_dir>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m utils.inventory.bundle_apps education-suite,startup-essentials"
@@ -105625,7 +105625,7 @@ msgstr "Python -m utils.inventory.bundle_apps билим берүү, башта�
 
 # translated-by: libretranslate
 msgid "python -m utils.parse_trace <trace.zip>"
-msgstr "Python -m utils.parse_trace <trace.zip>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
@@ -105855,7 +105855,7 @@ msgstr "Repo-relative dev vars файлы"
 
 # translated-by: libretranslate
 msgid "repo-wide grep"
-msgstr "Repo-wide grep"
+msgstr ""
 
 # gained=['(', ')', 'Репоname@sha..']
 # (Репо-аты, @sha..) Repo/аты-жөнү -> (Repo (аты-жөнү) "")
@@ -106667,7 +106667,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "sshd"
-msgstr "Sshd"
+msgstr ""
 
 # туруктуу туруктуу туруктуу туруктуу туруктуу туруктуу туруктуу туруктуу
 # туруктуу туруктуу 🟢
@@ -106706,7 +106706,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "str"
-msgstr "Str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC ``initialize``, ``tools/list``, ``tools/call``)"
@@ -108354,7 +108354,7 @@ msgstr "жогорку деңгээлдеги өзгөрмөлүү аталыш�
 
 # translated-by: libretranslate
 msgid "tor"
-msgstr "Tor Tor"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "total tries, including the first."
@@ -110652,7 +110652,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} Топологиялык д
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> tmp/email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
@@ -110679,7 +110679,7 @@ msgstr "{{ lookup('sso', application_id, 'enabled') }} → Буль"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'flavor') }}          → str"
-msgstr "{{ lookup('sso', application_id, 'flavor') }} → str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_enabled') }}      → bool"

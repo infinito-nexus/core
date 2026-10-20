@@ -72,7 +72,7 @@ msgstr "یک سرور ایمیل Stalwart با SMTP، IMAP، JMAP، POP3, مدی
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analytics Analytics"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -267,8 +267,6 @@ msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقداما�
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
-"Cloud\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -463,7 +461,7 @@ msgstr "اتوماسیون DNS Automation"
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNS Resolutionrs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
@@ -569,8 +567,6 @@ msgstr "ویدئو کنفرانس دسکتاپ مشتری را برای جلسا
 msgctxt "menu:Development:title"
 msgid "Development"
 msgstr ""
-"Development\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
@@ -631,10 +627,6 @@ msgstr "رانندگان"
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr ""
-"Education\n"
-"---\n"
-"Taekwondo\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
@@ -1577,7 +1569,7 @@ msgstr "دیوار فدیف خود میزبان برای نشان دادن پس�
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr "Self-hosted GitHub Actions"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"

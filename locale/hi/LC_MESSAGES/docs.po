@@ -90,7 +90,7 @@ msgstr "\"{{ lookup('mcp_credential', 'web-app-gitea') }}\" -> पाठक ट�
 
 # translated-by: libretranslate
 msgid "\"{{ lookup('unit_name', system_service_id, suffix=False) }}\"  # no suffix"
-msgstr "\"{{ lookup('unit_name', system_service_id, suffix=False) }}\" # no suffix"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "# Locally-built image (no registry upstream). {{ lookup('container_image', application_id, 'x', custom=True) }}"
@@ -102,7 +102,7 @@ msgstr "#in-gated: कब: नहीं IS_SWARM_MODE"
 
 # translated-by: libretranslate
 msgid "# nocheck: pip-version package_name: \"automtu==1.1.1\""
-msgstr "# nocheck: pip-version package_name: \"automtu ==1.1.1\""
+msgstr ""
 
 # translated-by: libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
@@ -1859,7 +1859,7 @@ msgstr "**कॉन्फ़िगर करने योग्य पोर्�
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**"
-msgstr "**विन्यास योग्य SMTP सेटिंग:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**   Manage email notifications and alerts with customizable SMTP configurations."
@@ -6969,7 +6969,7 @@ msgstr "**संख्या** यह दस्तावेज़ है `026-un
 
 # translated-by: libretranslate
 msgid "**OAUTH2_PROXY_\\*** env / Jinja vars → **SSO_PROXY_\\***"
-msgstr "**OAUTH2_PROXY_\\*** env / जिन्जा vars → **SSO_PROXY_\\***"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAUTH2_SERVICE_ENABLED** + **OIDC_SERVICE_ENABLED** → single **SSO_SERVICE_ENABLED**"
@@ -7936,7 +7936,7 @@ msgstr "**RBAC समूह मानचित्रण:** Joomla के बि�
 
 # translated-by: libretranslate
 msgid "**RBAC roles are `administrator` / `operator` / `reader`.**"
-msgstr "**RBAC भूमिकाएं हैं `administrator` / `operator` / `reader`।**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**RBAC** via [`meta/rbac.yml`](../contributing/design/iam/rbac.md) + the `rbac_group_path` lookup, so the Keycloak `groups` claim arrives as `/roles/web-app-openbao/<role>` and OpenBao binds those paths to policies."
@@ -8058,7 +8058,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Removed and Renamed**"
-msgstr "**Removed and renamed**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Removed**"
@@ -10622,11 +10622,11 @@ msgstr "**लेखक**Alejandro रोमन Ibanez"
 
 # translated-by: libretranslate
 msgid "**author**: Evangelos Tsakoudis"
-msgstr "**लेखक**Evangelos Tsakoudis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Kevin Veen-Birkenbach"
-msgstr "**लेखक**Kevin Veen-Birkenbach"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Marko Pjevac, Kevin Veen-Birkenbach"
@@ -11930,16 +11930,16 @@ msgstr "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'm
 # gained=["'reverse'"]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**: ['nginx', 'docker', 'reverse' proxy', 'web', 'automation', 'archlinux']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\ filter', 'injection', 'global']"
+msgstr ""
 
 # 'javascript', 'csp', 'sub' filter']
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub' filter']"
+msgstr ""
 
 # proxy', 'letsencrypt''स्वयं \ signed']
 # gained=["'reverse'"]
@@ -11949,13 +11949,13 @@ msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse' proxy', 'letsencrypt'
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
-msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\ signed', 'certificates', 'openssl']"
+msgstr ""
 
 # 'reverse' proxy']
 # gained=["'reverse'"]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse' proxy']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'video platform']"
@@ -12143,7 +12143,7 @@ msgstr "**🧹 हटाना**"
 
 # translated-by: libretranslate
 msgid "*@playwright/test*: ^1.61.1 to ^1.62.1"
-msgstr "*@playwright/test*:1.61.1 to ^1.62.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*Applications*"
@@ -12201,7 +12201,7 @@ msgstr "*प्रवेश* की सूची है ``(version, date, body_m
 
 # translated-by: libretranslate
 msgid "*eslint*: ^10.6.0 to ^10.9.0, *globals*: ^17.7.0 to ^17.9.0"
-msgstr "*eslint*:10.6.0 to ^10.9.0, *वैश्विक*:17.7.0 to ^17.9.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*footer_md* (the archived-releases notice) is folded into this entry's change body — indented like the rest — rather than appended after the trailer, because free text after the final ``--`` line is not valid changelog data and makes ``dpkg-parsechangelog`` warn. The signature time is a placeholder because CHANGELOG.md only carries calendar dates."
@@ -12239,7 +12239,7 @@ msgstr "*पंक्ति* साथ ``services`` इसके वेरिए
 
 # translated-by: libretranslate
 msgid "*ruff* (dev): 0.16.6 to 0.16.7"
-msgstr "*ruff* (देव): 0.16.6 to 0.16.7"
+msgstr ""
 
 msgid "*ruff* (dev): 0.16.7 to 0.16.9"
 msgstr ""
@@ -12384,15 +12384,15 @@ msgstr "*web-app-baserow*: 2.3.3 to 2.3.4"
 
 # translated-by: libretranslate
 msgid "*web-app-bluesky* (git ref): 1.125.0 to 1.126.0"
-msgstr "*web-app-bluesky* (git): 1.125.0 to 1.126.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-bluesky* (git ref): 1.126.0 to 1.127.0"
-msgstr "*web-app-bluesky* (git): 1.126.0 to 1.127.0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-bluesky* (view): 1.131.1 to 1.132.0"
-msgstr "*web-app-bluesky* (दृष्टिकोण): 1.131.1 to 1.132.0"
+msgstr ""
 
 msgid "*web-app-bluesky* (view): 1.132.0 to 1.134.0"
 msgstr ""
@@ -12495,11 +12495,11 @@ msgstr "*web-app-gitea*: 1.27.2 to 1.27.3"
 
 # translated-by: libretranslate
 msgid "*web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2"
-msgstr "*web-app-gitlab* (Webservice, sidekiq, workhorse, gitaly, खोल, रेल): v19.3.0 to v19.3.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0"
-msgstr "*web-app-gitlab*: 19.1.0-0 to 19.1.1-0"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-gitlab*: omnibus *gitlab-ee* 19.1.1 to CNG component images v19.1.2"
@@ -12526,7 +12526,7 @@ msgstr "*web-app-jira*: 11.3.8 to 11.3.10"
 
 # translated-by: libretranslate
 msgid "*web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031"
-msgstr "*web-app-jitsi* (वेब, Proody, jicofo, jvb): स्थिर:9646 to स्थिर11031"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache"
@@ -12541,7 +12541,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4"
-msgstr "*web-app-keycloak*: 26.7.0 to 26.7.2, Oauth2-प्रोक्सी वी7.15.3 to v7.15.4"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.2 to 26.7.3"
@@ -12563,7 +12563,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-magento*: PHP 8.5-fpm to 8.4-fpm"
-msgstr "*web-app-magento*PHP 8.5-Fpm to 8.4-fpm"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-mailu*: 1.5.3 to 1.5.4"
@@ -12951,7 +12951,7 @@ msgstr "006 - सेवा-gated Playwright परीक्षण"
 
 # translated-by: libretranslate
 msgid "007 - WordPress to Discourse post round-trip"
-msgstr "007 - WordPress to Discourse पोस्ट राउंड ट्रिप"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "008 - Role Meta Layout Refactoring"
@@ -13023,7 +13023,7 @@ msgstr "021 SSO फ्लेवर माइग्रेशन (ओउथ2 + oid
 
 # translated-by: libretranslate
 msgid "022 - Zammad Helpdesk Role with OIDC SSO"
-msgstr "022 OIDC SSO के साथ Zammad Helpdesk रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "023 - Docker Swarm Deployment with NFS-backed Shared Volumes"
@@ -13035,7 +13035,7 @@ msgstr "023 - सेटअप Penpot"
 
 # translated-by: libretranslate
 msgid "024 - ERPNext Role with OIDC SSO"
-msgstr "024 - ERPNext OIDC SSO के साथ भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "025 - MCP Role Integration"
@@ -13047,7 +13047,7 @@ msgstr "025 - Matrix रोल Ansible स्वाद (मैट्रिक्
 
 # translated-by: libretranslate
 msgid "026 - Unified Addon Syntax"
-msgstr "026 Unified Addon Syntax"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "027 - Integration Matrix"
@@ -13055,7 +13055,7 @@ msgstr "027 - एकीकरण Matrix"
 
 # translated-by: libretranslate
 msgid "028 - Semaphore UI Role with OIDC SSO + LDAP"
-msgstr "028 - OIDC SSO + LDAP के साथ Semaphore UI रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "028 - atmo.rsvp (AT Protocol Events) Role + Mobilizon/ActivityPub Bridge"
@@ -13067,7 +13067,7 @@ msgstr "029 - Checkmk ओथ के साथ भूमिका2-प्रो�
 
 # translated-by: libretranslate
 msgid "030 - Jellyfin Role with LDAP / OIDC SSO"
-msgstr "030 - Jellyfin LDAP / OIDC SSO के साथ भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "031 - LLM Gateway and Model Backends (LiteLLM)"
@@ -13152,11 +13152,11 @@ msgstr "1. Deploy लक्ष्य"
 
 # translated-by: libretranslate
 msgid "1. Dispatch the CI lane"
-msgstr "1. CI लेन डिस्पैच"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "1. Fork Prerequisites ⏳"
-msgstr "1. Fork Prerequisites"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "1. Free runners"
@@ -13215,7 +13215,7 @@ msgstr "2. मौजूदा Maildir सामग्री की प्रत�
 
 # translated-by: libretranslate
 msgid "2. Create the User in Nextcloud from LDAP"
-msgstr "2. To make a way. User में Nextcloud LDAP से"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "2. Description (required) 📖"
@@ -13393,11 +13393,11 @@ msgstr "7 जीबी"
 
 # translated-by: libretranslate
 msgid "7. Create and Save the Token"
-msgstr "7. Token"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "7. DNS Tests 🌐"
-msgstr "7. DNS टेस्ट 🌐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "7. Further Resources (optional) 🔗"
@@ -13577,7 +13577,7 @@ msgstr ":mod:`utils.i18n.spans` कौन से भागों की रक�
 
 # translated-by: libretranslate
 msgid "<comment-prefix> (noqa|nocheck): <rule>(\\s*,\\s*<rule>)*"
-msgstr "<comment-prefix> (Noqa): <rule>(\\s*,*<rule>)*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "<https://gist.github.com/mtigas/565718bbb928ce439e95> — subdomain hidden-service reference"
@@ -14689,7 +14689,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A regex over dotted octets, e.g. ``192\\.168\\.24\\.\\d+`` for a /24 or ``192\\.168\\.(24|25)\\.\\d+`` for a /23."
-msgstr "dotted octets ``192\\.168\\.24\\.\\d+`` A24 या ``192\\.168\\.(24|25)\\.\\d+`` A23।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A release tag (``vX.Y.Z``) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once."
@@ -15452,11 +15452,11 @@ msgstr "एआई-first कोड संपादक वर्कस्टेश
 
 # translated-by: libretranslate
 msgid "AIEditingAssistant"
-msgstr "AieditingAssistant"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AOF persistence for cached data."
-msgstr "कैश डेटा के लिए AOF दृढ़ता।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "API (STRICT):"
@@ -16185,7 +16185,7 @@ msgstr "एक नया अनुप्रयोग जोड़ना ➕"
 
 # translated-by: libretranslate
 msgid "Adding A Variant ➕"
-msgstr "A Variant जोड़ना ➕"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Adding `kubernetes` MUST be additive — a new render path that consumes the same per-role declarations (`replicas`, `update_config`, `placement`, volumes, networks). It MUST NOT require touching every role."
@@ -16325,7 +16325,7 @@ msgstr "कैश कंट्रोल हेडर जोड़ता है �
 
 # translated-by: libretranslate
 msgid "Adds the OpenResty service"
-msgstr "OpenResty service."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Adjust settings such as SSL options, port numbers, and server credentials through environment variables and templated configuration files."
@@ -17374,7 +17374,7 @@ msgstr "An \"आवेदन भूमिका\" कम से कम एक �
 
 # translated-by: libretranslate
 msgid "An Anthropic key"
-msgstr "Anthropic key"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "An Arch Linux based system; ``package_install`` sets up the unprivileged AUR build environment itself."
@@ -17747,7 +17747,7 @@ msgstr "क्या होना चाहिए?"
 
 # translated-by: libretranslate
 msgid "Ansible default (22)"
-msgstr "Ansible डिफ़ॉल्ट (22)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible filter plugin for retrieving application IDs."
@@ -17845,7 +17845,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible run log -> records."
-msgstr "Ansible run log -> रिकॉर्ड।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ansible searches `library/` for custom modules. In playbooks, call them like built-in modules."
@@ -18101,7 +18101,7 @@ msgstr "आवेदन Glosar"
 
 # translated-by: libretranslate
 msgid "Application ID Tests 🆔"
-msgstr "Application ID Test"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Application Role Tests 📦"
@@ -18691,7 +18691,7 @@ msgstr "एस पर एटलसियन डीसी अटैचमें�
 
 # translated-by: libretranslate
 msgid "Atlassian Intelligence is vendor-hosted"
-msgstr "Atlassian खुफिया विक्रेता-होस्टेड है"
+msgstr ""
 
 msgid "Attachment antivirus, called as an SMTP DATA-stage milter"
 msgstr ""
@@ -19144,7 +19144,7 @@ msgstr "Bakes एक ताजा सूची के साथ `ASYNC_ENABLED=f
 
 # translated-by: libretranslate
 msgid "Band category (`http`, `ssh`, `oauth2`, `relay`, …). Looked up in `PORT_BANDS.<scope>.<category>`."
-msgstr "बैंड श्रेणी (`http`, `ssh`, `oauth2`, `relay`...). To look up in. `PORT_BANDS.<scope>.<category>`।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bare-basename patterns (no slash): match any path component via ``fnmatch``."
@@ -19597,11 +19597,11 @@ msgstr "नीचे प्रविष्टियों पर CRUD के ल
 
 # translated-by: libretranslate
 msgid "Bind DN for `cn=config` schema work"
-msgstr "के लिए बिंदी DN `cn=config` स्कीमा कार्य"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bind DN: `{{ LDAP.DN.ADMINISTRATOR.DATA }}`"
-msgstr "बिंदी DN: `{{ LDAP.DN.ADMINISTRATOR.DATA }}`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bind source for `/etc/pip.conf`. Driver-injected by `make compose-up` under the `cache` profile."
@@ -20350,7 +20350,7 @@ msgstr "किसी भी पक्षकार से पहले पुन:
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Build { app_id: [canonical domains...] }."
-msgstr "निर्माण { app_id: [canonical डोमेन...] }।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Build 🏗️"
@@ -20612,7 +20612,7 @@ msgstr "CI & Self-Hosted धावक 🏃"
 
 # translated-by: libretranslate
 msgid "CI & Test Guardrails 🧪"
-msgstr "CI & टेस्ट रेलिंग 🧪"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI / E2E"
@@ -20620,7 +20620,7 @@ msgstr "CI / E2E"
 
 # translated-by: libretranslate
 msgid "CI Configuration ⚙️"
-msgstr "CI विन्यास ⚙️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI Debugging"
@@ -20708,7 +20708,7 @@ msgstr "प्रत्येक रन पर प्रत्येक घो�
 
 # translated-by: libretranslate
 msgid "CI images 🐳"
-msgstr "CI चित्र 🐳"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI in your fork MUST be green."
@@ -20775,7 +20775,7 @@ msgstr "CI संकेत (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=t
 
 # translated-by: libretranslate
 msgid "CI skipped ✓"
-msgstr "CI छोड़ दिया ✓"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI workflows fully mirror-aware with strict env validation"
@@ -20829,7 +20829,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "CLI Tests 🖥️"
-msgstr "CLI टेस्ट 🖥️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CLI User Management 🛠️"
@@ -20902,7 +20902,7 @@ msgstr "CLI: `cli/administration/deploy/runner/`"
 
 # translated-by: libretranslate
 msgid "CLI: `python -m cli.meta.ci.roles.runtime <source> [--format ...] [--output ...]`."
-msgstr "CLI: `python -m cli.meta.ci.roles.runtime <source> [--format ...] [--output ...]`।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CLI: `python -m cli.meta.roles.services.called --help`"
@@ -21167,11 +21167,11 @@ msgstr "Canonical तैनाती चरण आदेश।"
 
 # translated-by: libretranslate
 msgid "Canonical domain: ``penpot.design.{{ DOMAIN_PRIMARY }}``."
-msgstr "Canonical डोमेन: ``penpot.design.{{ DOMAIN_PRIMARY }}``।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Canonical domain: `penpot.design.{{ DOMAIN_PRIMARY }}`."
-msgstr "Canonical डोमेन: `penpot.design.{{ DOMAIN_PRIMARY }}`।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Canonical domains and aliases come from `roles/*/meta/server.yml`"
@@ -21300,7 +21300,7 @@ msgstr "श्रेणी टेस्ट 🗂️"
 
 # translated-by: libretranslate
 msgid "Category-tree SPOT."
-msgstr "श्रेणी-ट्री SPOT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cause 🔍"
@@ -21320,11 +21320,11 @@ msgstr "CentOS / RHEL"
 
 # translated-by: libretranslate
 msgid "CentOS Stream 9: ``libva-intel-hybrid-driver`` (via EPEL)"
-msgstr "CentOS स्ट्रीम 9: ``libva-intel-hybrid-driver`` (EPEL)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS Stream 9: `libva-intel-hybrid-driver` (via EPEL)"
-msgstr "CentOS स्ट्रीम 9: `libva-intel-hybrid-driver` (EPEL)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CentOS Stream is rolling; classic CentOS EOL; smaller community than Debian/Ubuntu"
@@ -21436,7 +21436,7 @@ msgstr "सेंट्रल सर्विस रियूज: एमडी�
 
 # translated-by: libretranslate
 msgid "Centralized INFINITO_DISTRO / INFINITO_CONTAINER SPOT and moved INFINITO_MAKE_DEPLOY defaults into scripts/meta/env/ci.sh"
-msgstr "केंद्रीकृत INFINITO_DISTRO / INFINITO_CONTAINER SPOT INFINITO_MAKE_DEPLOY में डिफ़ॉल्ट scripts/meta/env/ci.sh"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Centralized and hardened compose wrappers (`compose-base`)"
@@ -21516,7 +21516,7 @@ msgstr "Changelog"
 
 # translated-by: libretranslate
 msgid "Changelog Archive 📚"
-msgstr "Changelog पुरालेख 📚"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Changelog 📜"
@@ -21560,7 +21560,7 @@ msgstr "चैट"
 
 # translated-by: libretranslate
 msgid "ChatGPT bridge"
-msgstr "ChatGPT पुल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cheatsheet 📋"
@@ -21951,7 +21951,7 @@ msgstr "ग्राहक खोज"
 
 # translated-by: libretranslate
 msgid "Client for the LibreTranslate HTTP API."
-msgstr "LibreTranslate HTTP API के लिए क्लाइंट।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Client identifier, defaults to `SOFTWARE_DOMAIN`"
@@ -22796,7 +22796,7 @@ msgstr "अगर यह अस्तित्व में नहीं है 
 
 # translated-by: libretranslate
 msgid "Clones the swapfile creation script from the Git repository."
-msgstr "Git repository से swapfile निर्माण स्क्रिप्ट क्लोन।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cloning the repository from GitHub."
@@ -22867,7 +22867,7 @@ msgstr "क्लाउडफ्लेयर एपीआई Token for Ansible (
 
 # translated-by: libretranslate
 msgid "Cloudflare DNS Records"
-msgstr "Cloudflare DNS रिकॉर्ड"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cloudflare aggressively caches static content by default. Even after you deploy new files or update your proxy configuration, users may continue to see cached versions until the cache expires."
@@ -23164,11 +23164,11 @@ msgstr "Commit 📝"
 
 # translated-by: libretranslate
 msgid "Commit-Time Context Compaction 📦"
-msgstr "Commit-Time Context compaction 📦"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Commits"
-msgstr "Commit"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Commits are persistent and visible to all contributors after push."
@@ -24398,7 +24398,7 @@ msgstr "अपने फोर्क में सही उपसर्ग क�
 
 # translated-by: libretranslate
 msgid "Create a classic PAT 🔑"
-msgstr "क्लासिक PAT 🔑"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Create a fresh inventory and deploy the selected applications against the development stack. Existing container state and shared entities are kept untouched."
@@ -24498,7 +24498,7 @@ msgstr "अंदर एक टाइमटाम्प्ड लॉग फ़�
 
 # translated-by: libretranslate
 msgid "Created in 2023 by [Kevin Veen-Birkenbach](https://www.veen.world/)"
-msgstr "में निर्मित 2023 द्वारा [Kevin Veen-Birkenbach](https://www.veen.world/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Created in 2023 by `Kevin Veen-Birkenbach <https://www.veen.world/>`__"
@@ -25348,7 +25348,7 @@ msgstr "डिफ़ॉल्ट (गैर-variant) मैट्रिक्स
 
 # translated-by: libretranslate
 msgid "Default (unset)"
-msgstr "डिफ़ॉल्ट (unset)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default Mode"
@@ -26390,11 +26390,11 @@ msgstr "देवनिक्स रोल"
 
 # translated-by: libretranslate
 msgid "Dev-nodejs Role"
-msgstr "देव-nodejs भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev-npm Role"
-msgstr "देव-npm रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev-python Role"
@@ -26454,7 +26454,7 @@ msgstr "बिना विकास या परीक्षण वाता�
 
 # translated-by: libretranslate
 msgid "Diagnose CLI orchestration."
-msgstr "CLI orchestration."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Diagnose tool 🕵️"
@@ -26572,7 +26572,7 @@ msgstr "विकलांग *ईमेल* सेवा *web-app-pihole* प�
 
 # translated-by: libretranslate
 msgid "Disables IPv6 for local development."
-msgstr "निष्क्रिय IPv6 स्थानीय विकास के लिए"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Disables body/content filtering and response manipulation"
@@ -26629,11 +26629,11 @@ msgstr "भूमिका-स्थानीय सेवा रजिस्ट
 
 # translated-by: libretranslate
 msgid "Discovers Playwright-enabled roles by scanning ``roles/*/templates/playwright.env.j2``"
-msgstr "स्कैनिंग द्वारा Playwright-enabled भूमिकाओं की खोज ``roles/*/templates/playwright.env.j2``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Discovers Playwright-enabled roles by scanning `roles/*/templates/playwright.env.j2`"
-msgstr "स्कैनिंग द्वारा Playwright-enabled भूमिकाओं की खोज `roles/*/templates/playwright.env.j2`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Discovers all configured domains from the nginx config inside the container"
@@ -26681,7 +26681,7 @@ msgstr "डिस्क स्थान 💾"
 
 # translated-by: libretranslate
 msgid "Dismiss Stale Approvals ✅"
-msgstr "Dismiss Stale स्वीकृति ✅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dispatch *workflow*, carrying *config* (see :func:`config_from_title`) over verbatim. An input left out keeps the workflow's own default."
@@ -26905,7 +26905,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker Registry Cache"
-msgstr "Docker Registry कैश"
+msgstr ""
 
 msgid "Docker Registry Cache Architecture"
 msgstr ""
@@ -27304,7 +27304,7 @@ msgstr "जब per-entity डिफ़ॉल्ट Docker नेटवर्क 
 
 # translated-by: libretranslate
 msgid "Drv-epson-multiprinter Role"
-msgstr "Drv-epson-multiprinter रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Drv-intel Role"
@@ -27312,26 +27312,26 @@ msgstr "डॉव-इंटेल भूमिका"
 
 # translated-by: libretranslate
 msgid "Drv-lid-switch Role"
-msgstr "Drv-lid-switch भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Drv-non-free Role"
-msgstr "Drv-non-free role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-base Role"
-msgstr "Dsk-base"
+msgstr ""
 
 msgid "Dsk-blender Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-bluray-player Role"
-msgstr "Dsk-bluray-player रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-chromium Role"
-msgstr "Dsk-chromium"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-code Role"
@@ -27339,7 +27339,7 @@ msgstr "डस्क-कोड भूमिका"
 
 # translated-by: libretranslate
 msgid "Dsk-copyq Role"
-msgstr "Dsk-copyq भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-docker Role"
@@ -27347,111 +27347,111 @@ msgstr "डस्क-डॉकर रोल"
 
 # translated-by: libretranslate
 msgid "Dsk-dotlinker Role"
-msgstr "Dsk-dotlinker रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-firefox Role"
-msgstr "Dsk-firefox रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-git Role"
-msgstr "Dsk-git रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome Role"
-msgstr "Dsk-gnome"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-caffeine Role"
-msgstr "Dsk-gnome-caffeine रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-extensions Role"
-msgstr "Dsk-gnome-extensions भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-terminal Role"
-msgstr "Dsk-gnome-terminal रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-claude Role"
-msgstr "Dsk-gnt-claude रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-codex Role"
-msgstr "Dsk-gnt-codex रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-cursor Role"
-msgstr "Dsk-gnt-cursor रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-pi Role"
-msgstr "Dsk-gnt-pi रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnucash Role"
-msgstr "Dsk-gnucash रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-jrnl Role"
-msgstr "Dsk-jrnl रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-keepassxc Role"
-msgstr "Dsk-keepassxc रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-laya Role"
-msgstr "Dsk-laya रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-libreoffice Role"
-msgstr "Dsk-libreoffice"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-micro Role"
-msgstr "Dsk-micro रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-neovim Role"
-msgstr "Dsk-neovim भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-nextcloud Role"
-msgstr "Dsk-nextcloud रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-obs Role"
-msgstr "Dsk-obs भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-qbittorrent Role"
-msgstr "Dsk-qbittorrent रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-retroarch Role"
-msgstr "Dsk-retroarch"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-spotify Role"
-msgstr "Dsk-spotify रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-ssh Role"
-msgstr "Dsk-ssh रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-torbrowser Role"
-msgstr "Dsk-torbrowser रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-virtualbox Role"
-msgstr "Dsk-virtualbox भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-zoom Role"
-msgstr "Dsk-zoom रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; distributed backups over onion; transparent full-egress torification (only `.onion`-destination mail egress is in phase 2); migration of existing clearnet nodes."
@@ -28597,7 +28597,7 @@ msgstr "एनवी कुंजी"
 
 # translated-by: libretranslate
 msgid "Env-Var Knobs"
-msgstr "Env-Var knobs"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Env-based trust fallbacks (`SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, …)"
@@ -29432,7 +29432,7 @@ msgstr "Excluded: `web-app-flowise` (सत्र-मिनेटिंग क�
 
 # translated-by: libretranslate
 msgid "Executable Bit 🔑"
-msgstr "Executable बिट 🔑"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Execute (or preview) the remote-device steps; return (exit code, local root)."
@@ -30146,7 +30146,7 @@ msgstr "Fetching repository पृष्ठों, मुद्दे/PR वि�
 
 # translated-by: libretranslate
 msgid "Fetchmail Issues 📨"
-msgstr "Fetchmail मुद्दे 📨"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fetchmail Security Concerns 🔐"
@@ -31692,7 +31692,7 @@ msgstr "फोर्क पीआर के तहत रन `pull_request` ब�
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
-msgstr "कांटा PR 🍴"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fork Pull Requests 🍴"
@@ -31762,7 +31762,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Fragment-based, drops articles"
-msgstr "Fragment-based, ड्रॉप लेख"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Framework 🧰"
@@ -31778,7 +31778,7 @@ msgstr "फ्रेमवर्क-विशिष्ट भूमिकाए�
 
 # translated-by: libretranslate
 msgid "Frappe role"
-msgstr "Frappe भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Frappe ships native OAuth 2.0 / OpenID Connect client support via the built-in **\"Social Login Key\"** record (see [Frappe docs: Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)). The integration uses Frappe's own OIDC client against the Infinito Keycloak IdP — no `oauth2-proxy` sidecar. The role therefore uses the `services.sso.flavor: oidc` schema (post-[021](README.md#archive) unified SSO contract), aligned with [`web-app-odoo`](../../roles/web-app-odoo/meta/services.yml)."
@@ -31855,7 +31855,7 @@ msgstr "फ्रंटेंड सर्विस जांच / लोड स
 
 # translated-by: libretranslate
 msgid "Full CI \"run\" mode:"
-msgstr "पूर्ण CI \"run\" मोड:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Full Cleanup (Reset)"
@@ -32040,7 +32040,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "GNOME Caffeine"
-msgstr "GNOME कैफीन"
+msgstr ""
 
 msgid "GNOME Caffeine Architecture"
 msgstr ""
@@ -32097,7 +32097,7 @@ msgstr "बश के लिए गेट मॉडल 🚦"
 
 # translated-by: libretranslate
 msgid "Gen-hunspell Role"
-msgstr "Gen-hunspell"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "General Connectivity 🔌"
@@ -32667,11 +32667,11 @@ msgstr "HTTP CA ट्रस्ट (infinito-http-ca-trust.php) 🔐"
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
-msgstr "HTTP क्लाइंट के लिए LibreTranslate API।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr "HTTP प्याज (infinito-http-onion-socks.php) 🧅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -32695,11 +32695,11 @@ msgstr "एच.टी. (बंदरगाह 443): एक समर्पित
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
-msgstr "HTTPS OAuth Redirect फिक्स"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS base ready (NGINX, ACME webroot)"
-msgstr "HTTPS बेस तैयार (NGINX, ACME Webroot)"
+msgstr ""
 
 msgid "HTTPS credentials written by git's `store` credential helper."
 msgstr ""
@@ -33371,7 +33371,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "IAM roles"
-msgstr "IAM भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "IAM(Identity and Access Management) is setup via Keycloak and LDAP."
@@ -37027,7 +37027,7 @@ msgstr "परियोजना में शामिल हों 🚀"
 
 # translated-by: libretranslate
 msgid "Joined URL."
-msgstr "शामिल URL."
+msgstr ""
 
 msgid "Joins a repeated `MESSAGE` field into one line before matching."
 msgstr ""
@@ -37527,7 +37527,7 @@ msgstr "LDAP"
 
 # translated-by: libretranslate
 msgid "LDAP & SSO Notes"
-msgstr "LDAP & SSO नोट्स"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP (Decision #3)"
@@ -37547,7 +37547,7 @@ msgstr "LDAP (वी3 संस्करण + V1 दोहरी)"
 
 # translated-by: libretranslate
 msgid "LDAP (native)"
-msgstr "LDAP (मूल)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP Integration (Transitive) 📒"
@@ -37864,7 +37864,7 @@ msgstr "चलो `sys-token-store` दृढ़ता संभालना"
 
 # translated-by: libretranslate
 msgid "Let application roles create tokens"
-msgstr "tokens"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Let self-organizing teams own architecture, requirements, and implementation."
@@ -37954,7 +37954,7 @@ msgstr "लाइफसाइकल"
 
 # translated-by: libretranslate
 msgid "Lifecycle + ordering"
-msgstr "Lifecycle"
+msgstr ""
 
 msgid "Lifecycle envelope: [lifecycle.md](../contributing/design/role/services/lifecycle.md)"
 msgstr ""
@@ -38214,7 +38214,7 @@ msgstr "लिटिलजेएस खेल का मैदान एक ह�
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: [GitHub – LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
-msgstr "LittleJS README & docs: [GitHub - LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
@@ -38369,7 +38369,7 @@ msgstr "स्थानीय तैनाती 🚀"
 
 # translated-by: libretranslate
 msgid "Local Exec Scripts"
-msgstr "स्थानीय Exec स्क्रिप्ट"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Local Inventory Reset"
@@ -38836,7 +38836,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP Client"
-msgstr "MCP क्लाइंट"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP Server"
@@ -38844,7 +38844,7 @@ msgstr "MCP सर्वर"
 
 # translated-by: libretranslate
 msgid "MCP Service Block 🔌"
-msgstr "MCP सेवा ब्लॉक 🔌"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP User Delegation 🪪"
@@ -38856,11 +38856,11 @@ msgstr "MCP भूमिका की HTTP सतह बदलता है, इ
 
 # translated-by: libretranslate
 msgid "MCP client discovery"
-msgstr "MCP क्लाइंट खोज"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP client roles"
-msgstr "MCP क्लाइंट भूमिकाओं"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP client roles connect to enabled MCP servers and present their tools to users through an AI surface."
@@ -38872,7 +38872,7 @@ msgstr "MCP अनुबंध: [025-mcp-role-integration.md](025-mcp-role-integ
 
 # translated-by: libretranslate
 msgid "MCP direction"
-msgstr "MCP दिशा"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP endpoint metadata"
@@ -39317,7 +39317,7 @@ msgstr "CI नौकरियां 🎯"
 
 # translated-by: libretranslate
 msgid "Manual Purge via Cloudflare Dashboard"
-msgstr "Cloudflare Dashboard"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Manual Update"
@@ -39666,7 +39666,7 @@ msgstr "मैट्रिक्स भिन्न गहरे गोता।
 
 # translated-by: libretranslate
 msgid "Matrix: @kevinveenbirkenbach:infinito.nexus"
-msgstr "मैट्रिक्स: @kevinveenbirkenbach:infinito.nexus"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix: `#public:infinito.nexus` - quick chat with the community."
@@ -39823,7 +39823,7 @@ msgstr "Memoised YAML लोड जो किसी भी रूट आका�
 
 # translated-by: libretranslate
 msgid "Memoised multi-document YAML load."
-msgstr "Memoised multidcument YAML लोड।"
+msgstr ""
 
 msgid "Memory budget exemptions"
 msgstr ""
@@ -39961,11 +39961,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "MinIO: [www.min.io](https://www.min.io)"
-msgstr "Minio: [www.min.io](https://www.min.io)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MinIO: `www.min.io <https://www.min.io>`__"
-msgstr "Minio: `www.min.io <https://www.min.io>`__"
+msgstr ""
 
 msgid "Mini-QR Architecture"
 msgstr ""
@@ -40560,7 +40560,7 @@ msgstr "एनएफएस प्रदाता से निर्यात �
 
 # translated-by: libretranslate
 msgid "NFS for databases"
-msgstr "डेटाबेस के लिए NFS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NFS mount fstype (nfs4/nfs): {{ lookup('nfs_fstype') }}."
@@ -40600,7 +40600,7 @@ msgstr "NGINX डोमेन सेटअप"
 
 # translated-by: libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "NGINX Global Matomo & Theming Modifier भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -40612,7 +40612,7 @@ msgstr "NGINX स्थान टेम्पलेट"
 
 # translated-by: libretranslate
 msgid "NGINX Matomo Tracking Role"
-msgstr "NGINX Matomo ट्रैकिंग रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NGINX domain and reverse-proxy configuration"
@@ -40774,7 +40774,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Native auth"
-msgstr "मूल auth"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Native server only with a dedicated least-privilege identity, a verified read-only allowlist, per-consumer grants, and an actual client tool call."
@@ -40786,7 +40786,7 @@ msgstr "मूल सतह"
 
 # translated-by: libretranslate
 msgid "Native-OIDC flavor precedent: [024 ERPNext](024-web-app-erpnext.md)"
-msgstr "मूल-OIDC स्वाद precedent: [024 ERPNext](024-web-app-erpnext.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-docker`` directory."
@@ -41081,7 +41081,7 @@ msgstr "अगली कड़ी वार्ता"
 
 # translated-by: libretranslate
 msgid "Nextcloud config templates"
-msgstr "Nextcloud विन्यास"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence."
@@ -41648,11 +41648,11 @@ msgstr "ओआईडीसी कॉलबैक समापन बिंदु
 
 # translated-by: libretranslate
 msgid "OIDC client ID in the realm."
-msgstr "Realm में OIDC क्लाइंट ID."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC client secret."
-msgstr "OIDC क्लाइंट गुप्त।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC integration follows the variant A+ pattern documented in requirement 013: ``web-app-keycloak``\\ ’s SSO-proxy sidecar is the gate, the in-role login-broker is the session-handoff agent, and the official ``social-app`` web client is the user-facing UI."
@@ -42706,7 +42706,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenLDAP configuration LDIFs"
-msgstr "OpenLDAP विन्यास"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenLDAP group LDIFs"
@@ -43813,7 +43813,7 @@ msgstr "पार्स और ट्रिम ``CHANGELOG.md`` SPOT."
 
 # translated-by: libretranslate
 msgid "Parse argv into ``(args, passthrough, modes_spec)``."
-msgstr "Parse argv में ``(args, passthrough, modes_spec)``।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Parse human-readable memory size strings to bytes."
@@ -44054,7 +44054,7 @@ msgstr "Per-Role Meta लेआउट 🗂️"
 
 # translated-by: libretranslate
 msgid "Per-Role Networks: `meta/server.yml.networks` 🌐"
-msgstr "Per-Role network: `meta/server.yml.networks` 🌐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-addon Playwright specs"
@@ -44204,7 +44204,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role subnet in `meta/server.yml.networks.local.subnet`"
-msgstr "Per-role subnet `meta/server.yml.networks.local.subnet`"
+msgstr ""
 
 # repository-ref updaters अब एक संयुक्त PR के बजाय प्रति प्रभावित भूमिका के
 # लिए एक पुल अनुरोध खोलते हैं, और वे नवीनतम के खिलाफ diff की सिफारिश करते हैं।
@@ -44637,11 +44637,11 @@ msgstr "पिक्सेलफेड एक विकेन्द्रीक�
 
 # translated-by: libretranslate
 msgid "Pkgmgr Role"
-msgstr "Pkgmgr रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pkgmgr-install Role"
-msgstr "Pkgmgr-स्थापित भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Placeholder DN for empty `groupOfNames` groups"
@@ -44742,7 +44742,7 @@ msgstr "प्लेराइट / ई2E: Biber FirstLogin Caveat"
 
 # translated-by: libretranslate
 msgid "Playwright Codegen (built-in) 🔧"
-msgstr "Playwright Codegen (निर्मित) 🔧"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright Failures"
@@ -44768,7 +44768,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright base-dir env handlers."
-msgstr "Playwright बेस-dir env handlers."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright contract: [playwright.specs.js.md](../contributing/artefact/files/role/playwright.specs.js.md) </content>"
@@ -44950,7 +44950,7 @@ msgstr "स्थिति semantics प्रति नियम हैं औ�
 
 # translated-by: libretranslate
 msgid "Position semantics 📍"
-msgstr "स्थिति semantics 📍"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Possible via an upstream plugin/extension"
@@ -45468,7 +45468,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Prometheus Service Tests 📈"
-msgstr "Prometheus सेवा टेस्ट 📈"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Promoted 13 web-app roles from alpha to beta with full per-role baselines: native OIDC for Joomla via plg_system_keycloak, in-role login-broker for Bluesky (variant A+), real OIDC integration for four further roles, and the matching Playwright SSO coverage"
@@ -46258,7 +46258,7 @@ msgstr "RBAC / नीतियां (निर्णय #6)"
 
 # translated-by: libretranslate
 msgid "RBAC Group-Path Tests 🛡️"
-msgstr "RBAC Group-Path Test 🛡️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC declarations (file root IS `applications.<app>.rbac`)."
@@ -46348,11 +46348,11 @@ msgstr "आरएचईएल संगत; उद्यम वातावर�
 
 # translated-by: libretranslate
 msgid "RP-initiated logout against Keycloak."
-msgstr "Keycloak के खिलाफ RP-initiated Logout।"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RP-initiated logout endpoint"
-msgstr "RP-initiated Logout endpoint"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RP-initiated logout endpoint at Keycloak."
@@ -46485,7 +46485,7 @@ msgstr "दर सीमा उनमें से नहीं है। प्
 
 # translated-by: libretranslate
 msgid "Rationale"
-msgstr "Rational"
+msgstr ""
 
 msgid "Raw configuration value."
 msgstr ""
@@ -46936,7 +46936,7 @@ msgstr "ब्रोकर के सेवा खाते का रियल�
 
 # translated-by: libretranslate
 msgid "Realm the client is registered in"
-msgstr "Realm क्लाइंट में पंजीकृत है"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Realm where end-user accounts live (typically same as admin realm)."
@@ -47382,7 +47382,7 @@ msgstr "प्रत्येक तैनात एसएसओ उपभोक
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Registered web-app-{mastodon,friendica,pixelfed} as shared services for the Fediwall aggregator"
-msgstr "पंजीकृत वेब-app-{mastodon,friendica, Pixelfed} के लिए साझा सेवाओं के रूप में Fediwall aggregator"
+msgstr ""
 
 msgid "Registering `/api/mcp` as a platform MCP server."
 msgstr ""
@@ -47557,7 +47557,7 @@ msgstr "रिलीज निर्माण और परिसंपत्त
 
 # translated-by: libretranslate
 msgid "Release maintained by Kevin Veen-Birkenbach, <https://veen.world>."
-msgstr "Kevin Veen-Birkenbach द्वारा जारी, <https://veen.world>।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Release maintained by [Kevin Veen-Birkenbach](https://veen.world)."
@@ -47613,7 +47613,7 @@ msgstr "फ्रंटेंड में Nginx को फिर से लो�
 
 # translated-by: libretranslate
 msgid "Reloading Instructions 🔄"
-msgstr "Reloading निर्देश 🔄"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Reloads and restarts the timer using systemd to ensure that changes take effect."
@@ -47884,7 +47884,7 @@ msgstr "मूल्य के लिए काम की पत्तियो�
 
 # translated-by: libretranslate
 msgid "Renamed *compose.services.desktop* to *compose.services.dashboard*"
-msgstr "नाम दिया *compose.services.desktop* to *compose.services.dashboard*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
@@ -48053,7 +48053,7 @@ msgstr "जब संभव हो तो Ansible templar के माध्य
 
 # translated-by: libretranslate
 msgid "Reordered service lifecycle: *prune → lockdown → reset*"
-msgstr "Reordered service lifecycle: *Prun → lockdown → रीसेट*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Reorganized custom Ansible plugins into the unified *plugins/* layout"
@@ -48153,7 +48153,7 @@ msgstr "रेपो नाम"
 
 # translated-by: libretranslate
 msgid "Report a Vulnerability"
-msgstr "Vulnerability"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Report the slot, path, subnet, bind IP and container name from the target's summary, and hand the operator the `cd <path>` plus `make compose-up` follow-up."
@@ -48200,7 +48200,7 @@ msgstr "Repository Cleanup 🧹"
 
 # translated-by: libretranslate
 msgid "Repository Configuration 🧩"
-msgstr "Repository विन्यास 🧩"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Repository Declaration Tests 📦"
@@ -48386,7 +48386,7 @@ msgstr "Red Hat संगतता सत्यापन के लिए आव
 
 # translated-by: libretranslate
 msgid "Required for Red Hat enterprise compatibility"
-msgstr "Red Hat Enterprise compatibility"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Required for Windows-based developer machines"
@@ -48519,7 +48519,7 @@ msgstr "बचाव-diagnostics env हैंडलर।."
 
 # translated-by: libretranslate
 msgid "Resending Queued Mails ✉️"
-msgstr "Quued Mail ✉️"
+msgstr ""
 
 msgid "Reserved usernames"
 msgstr ""
@@ -48722,7 +48722,7 @@ msgstr "डिस्ट्रो रनों के बीच अधूरे �
 
 # translated-by: libretranslate
 msgid "Resolved Keys 🔑"
-msgstr "Resolved कुंजी 🔑"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolved `DEPLOYMENT_MODE`"
@@ -48911,7 +48911,7 @@ msgstr "प्रतिबंधित निर्माण ❌"
 
 # translated-by: libretranslate
 msgid "Restrict Deletions ✅"
-msgstr "Restrict Deletion ✅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Restrict Updates ✅"
@@ -50553,7 +50553,7 @@ msgstr "साझा करें PostgreSQL प्रदाता"
 
 # translated-by: libretranslate
 msgid "Reuses `devices.yml`."
-msgstr "Reuses `devices.yml`।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Reuses an existing `devices.yml` inventory and redeploys one or more apps quickly."
@@ -50802,7 +50802,7 @@ msgstr "भूमिका डिजाइन 🏗️"
 
 # translated-by: libretranslate
 msgid "Role Hardening & Idempotency 🛠️"
-msgstr "भूमिका Hardening & Idempotency 🛠️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Role Image Configuration 🐳"
@@ -50934,7 +50934,7 @@ msgstr "रोल फिक्स"
 
 # translated-by: libretranslate
 msgid "Role id `web-app-atmo`; canonical host `rsvp.{{ DOMAIN_PRIMARY }}`."
-msgstr "भूमिका `web-app-atmo`; Canonical होस्ट `rsvp.{{ DOMAIN_PRIMARY }}`।."
+msgstr ""
 
 msgid "Role ids for what really failed, exact selections for the rest."
 msgstr ""
@@ -50967,7 +50967,7 @@ msgstr "भूमिका जीवन चक्र 🌱"
 
 # translated-by: libretranslate
 msgid "Role mapping SPOT."
-msgstr "रोल मैपिंग SPOT।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Role meta layout contract: [008](README.md#archive)"
@@ -51279,11 +51279,11 @@ msgstr "रूट सीए प्रमाणपत्र: `{{ CA_ROOT.cert_hos
 
 # translated-by: libretranslate
 msgid "Root CA private key: ``{{ CA_ROOT.key_host }}``"
-msgstr "रूट CA निजी कुंजी: ``{{ CA_ROOT.key_host }}``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Root CA private key: `{{ CA_ROOT.key_host }}`"
-msgstr "रूट CA निजी कुंजी: `{{ CA_ROOT.key_host }}`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Root User"
@@ -51706,7 +51706,7 @@ msgstr "भागो Certbot कमान"
 
 # translated-by: libretranslate
 msgid "Run the Deploy 🛠️"
-msgstr "Deploy 🛠️"
+msgstr ""
 
 msgid "Run the GitHub Actions lint checks."
 msgstr ""
@@ -53014,7 +53014,7 @@ msgstr "साइटमैप (प्रोटोकॉल): https://en.wikipedi
 
 # translated-by: libretranslate
 msgid "SMTP client:"
-msgstr "SMTP क्लाइंट:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP endpoint for the msmtp relay config. Takes the resolved email mapping. Pass in_container=true when the rendered file is mounted into a container instead of being read by the host's own msmtp."
@@ -53025,7 +53025,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP host."
-msgstr "SMTP होस्ट।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP password."
@@ -53033,7 +53033,7 @@ msgstr "SMTP पासवर्ड."
 
 # translated-by: libretranslate
 msgid "SMTP port."
-msgstr "SMTP पोर्ट।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP username."
@@ -53059,7 +53059,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SPOT for development inventory creation."
-msgstr "विकास सूची निर्माण के लिए SPOT।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SPOT for the ``deploy`` subcommand of the development stack helper."
@@ -53099,7 +53099,7 @@ msgstr "SPOT: साझा समय बजट के तहत यादृच�
 
 # translated-by: libretranslate
 msgid "SQL Lints 💾"
-msgstr "SQL लिंट 💾"
+msgstr ""
 
 msgid "SRV"
 msgstr ""
@@ -54706,7 +54706,7 @@ msgstr "साझा MCP सेवा ध्वज"
 
 # translated-by: libretranslate
 msgid "Shared Repository Workflow 🔄"
-msgstr "साझा Repository Workflow 🔄"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shared SPOT for the unified addon contract."
@@ -54931,7 +54931,7 @@ msgstr "शॉर्ट सिंगल-कमांड इनवोकेशं
 
 # translated-by: libretranslate
 msgid "Shortcuts ⌨️"
-msgstr "Shortcuts️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shorten a dev-runtime image to its last two registry segments."
@@ -55649,7 +55649,7 @@ msgstr "स्टैक डोमेन"
 
 # translated-by: libretranslate
 msgid "Stack granularity"
-msgstr "स्टैक granularity"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Stack name"
@@ -56238,7 +56238,7 @@ msgstr "सामरिक योजना और रोडमैप चर्�
 
 # translated-by: libretranslate
 msgid "Streamable HTTP"
-msgstr "स्ट्रीमिंग HTTP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Streamable HTTP (JSON-RPC 2.0 over `POST`)"
@@ -56366,11 +56366,11 @@ msgstr "Subcommand"
 
 # translated-by: libretranslate
 msgid "Subcommands 📋"
-msgstr "Subcommand 📋"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Subcommands 🧭"
-msgstr "Subcommand 🧭"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Subdirectories 📁"
@@ -56746,49 +56746,49 @@ msgstr "Svc Objstore"
 
 # translated-by: libretranslate
 msgid "Svc-ai-agent-broker Role"
-msgstr "Svc-ai-agent-broker रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-jupyter Role"
-msgstr "Svc-ai-jupyter रोल"
+msgstr ""
 
 msgid "Svc-ai-libretranslate-engine Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-litellm Role"
-msgstr "Svc-ai-litellm रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-lmstudio Role"
-msgstr "Svc-ai-lmstudio रोल"
+msgstr ""
 
 msgid "Svc-ai-ltengine Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-mcp-adapter Role"
-msgstr "Svc-ai-mcp-adapter रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-ollama Role"
-msgstr "Svc-ai-ollama रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-robot Role"
-msgstr "Svc-ai-robot रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-s1 Role"
-msgstr "Svc-ai1 भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-searxng Role"
-msgstr "Svc-ai-searxng रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-tika Role"
-msgstr "Svc-ai-tika रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-bkp-local-2-device Role"
@@ -56796,110 +56796,110 @@ msgstr "Svc-bkp-local-2-डिवाइस रोल"
 
 # translated-by: libretranslate
 msgid "Svc-bkp-nfs-2-local Role"
-msgstr "Svc-bkp-nfs-2-स्थानीय भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-bkp-remote-2-local Role"
-msgstr "Svc-bkp-remote-2-स्थानीय भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-bkp-secrets-2-local Role"
-msgstr "Svc-bkp-secrets-2-स्थानीय भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-bkp-volume-2-local Role"
-msgstr "Svc-bkp-volume-2-स्थानीय भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-cache-package Role"
-msgstr "Svc कैश पैकेज रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-elasticsearch Role"
-msgstr "Svc-db-elasticsearch भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-mariadb Role"
-msgstr "Svc-db-mariadb रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-memcached Role"
-msgstr "Svc-db-memcached रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-openldap Role"
-msgstr "Svc-db-openldap रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-postgres Role"
-msgstr "Svc-db-postgres रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-qdrant Role"
-msgstr "Svc-db-qdrant रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-rabbitmq Role"
-msgstr "Svc-db-rabbitmq रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-redis Role"
-msgstr "Svc-db-redis रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-typesense Role"
-msgstr "Svc-db-typesense रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-dns-unbound Role"
-msgstr "Svc-dns-unbound रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-firewall Role"
-msgstr "Svc-net-firewall रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-tor Role"
-msgstr "Svc-net-tor रोल"
+msgstr ""
 
 msgid "Svc-net-tor-smtp Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-wireguard-core Role"
-msgstr "Svc-net-wireguard-core रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-wireguard-firewalled Role"
-msgstr "Svc-net-wireguard-firewalled रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-wireguard-plain Role"
-msgstr "Svc-net-wireguard-plain रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-opt-keyboard-color Role"
-msgstr "Svc-opt-keyboard-color रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-opt-ssd-hdd Role"
-msgstr "Svc-opt-ssd-hdd रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-opt-swapfile Role"
-msgstr "Svc-opt-swapfile रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-prx-openresty Role"
-msgstr "Svc-prx-openresty रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-registry-cache Role"
-msgstr "Svc-registry-cache role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-registry-docker Role"
-msgstr "Svc-registry-docker role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-runner Role"
@@ -56907,23 +56907,23 @@ msgstr "Svc धावक भूमिका"
 
 # translated-by: libretranslate
 msgid "Svc-storage-nfs-client Role"
-msgstr "Svc-storage-nfs-client भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-storage-nfs-server Role"
-msgstr "Svc-storage-nfs-server रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-swarm-manager Role"
-msgstr "Svc-swarm-manager role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-swarm-node Role"
-msgstr "Svc-swarm-node रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-virt-kata Role"
-msgstr "Svc-virt-kata रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Swap is a host-kernel resource; see [svc-opt-swapfile](../../../../../roles/svc-opt-swapfile/) for why the in-stack swap role is intentionally skipped inside containers."
@@ -57129,63 +57129,63 @@ msgstr "सिंटैक्स"
 
 # translated-by: libretranslate
 msgid "Sys-ca-selfsigned Role"
-msgstr "Sys-ca-selfsigned भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-cleanup Role"
-msgstr "Sys-cleanup रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-cli Role"
-msgstr "Sys-cli रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-alm-compose Role"
-msgstr "Sys-ctl-alm-compose role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-alm-email Role"
-msgstr "Sys-ctl-alm-email रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-alm-telegram Role"
-msgstr "Sys-ctl-alm-telegram रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-anon-volumes Role"
-msgstr "Sys-ctl-cln-anon-volumes रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-bkps Role"
-msgstr "Sys-ctl-cln-bkps रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-certs Role"
-msgstr "Sys-ctl-cln-cert रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-disc-space Role"
-msgstr "Sys-ctl-cln-disc-space भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-docker Role"
-msgstr "Sys-ctl-cln-docker रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-faild-bkps Role"
-msgstr "Sys-ctl-cln-faild-bkps रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-btrfs Role"
-msgstr "Sys-ctl-hlth-btrfs रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-container Role"
-msgstr "Sys-ctl-hlth-container रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-csp Role"
-msgstr "Sys-ctl-hlth-csp भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -57196,27 +57196,27 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-journalctl Role"
-msgstr "Sys-ctl-hlth-journalctl रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-msmtp Role"
-msgstr "Sys-ctl-hlth-msmtp भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-volumes Role"
-msgstr "Sys-ctl-hlth-volumes रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-webserver Role"
-msgstr "Sys-ctl-hlth-webserver रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-mtn-cert-deploy Role"
-msgstr "Sys-ctl-mtn-cert-deploy रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-mtn-cert-renew Role"
-msgstr "Sys-ctl-mtn-cert-renew रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-btrfs-balancer Role"
@@ -57224,206 +57224,206 @@ msgstr "Sys-ctl-rpr-btrfs-संतुलन भूमिका"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-container-hard Role"
-msgstr "Sys-ctl-rpr-container-hard रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-container-soft Role"
-msgstr "Sys-ctl-rpr-container-soft रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-daemon Role"
-msgstr "Sys-daemon रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-dns-cloudflare-records Role"
-msgstr "Sys-dns-cloudflare-records भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-dns-hetzner-rdns Role"
-msgstr "Sys-dns-hetzner-rdns रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-dns-wildcards Role"
-msgstr "Sys-dns-wildcards रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-inj-all Role"
-msgstr "Sys-front-inj-all रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-inj-dashboard Role"
-msgstr "Sys-front-inj-dashboard रोल"
+msgstr ""
 
 msgid "Sys-front-inj-design Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-inj-javascript Role"
-msgstr "Sys-front-inj-javascript भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-inj-logout Role"
-msgstr "Sys-front-inj-logout रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-inj-matomo Role"
-msgstr "Sys-front-inj-matomo रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-tls Role"
-msgstr "Sys-front-tls भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-tls-letsencrypt Role"
-msgstr "Sys-front-tls-letsencrypt रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-tls-selfsigned Role"
-msgstr "Sys-front-tls-selfsigned भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-hostname Role"
-msgstr "Sys-hostname भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-lint Role"
-msgstr "Sys-lint भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-lock Role"
-msgstr "Sys-lock रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-openssl Role"
-msgstr "Sys-openssl रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-pip Role"
-msgstr "Sys-pip भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-pip-install Role"
-msgstr "Sys-pip-स्थापित भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-service Role"
-msgstr "Sys-service भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-service-loader Role"
-msgstr "Sys-service-loader रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-service-terminator Role"
-msgstr "Sys-service-terminator भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-backend Role"
-msgstr "Sys-stk-backend रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-front-base Role"
-msgstr "Sys-stk-front-base रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-front-proxy Role"
-msgstr "Sys-stk-front-proxy रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-full Role"
-msgstr "Sys-stk-full रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-sudo Role"
-msgstr "Sys-sudo रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-cdn Role"
-msgstr "Sys-svc-cdn रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-certbot Role"
-msgstr "Sysvc-certbot रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-certs Role"
-msgstr "Sys-svc-cert रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-cln-domains Role"
-msgstr "Sys-svc-cln-domains भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-compose Role"
-msgstr "Sys-svc-compose role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-compose-ca Role"
-msgstr "Sys-svc-compose-ca भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-container Role"
-msgstr "Sys-svc-container रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-dns Role"
-msgstr "Sys-svc-dns"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-engine Role"
-msgstr "Sys-svc-engine रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-journalctl Role"
-msgstr "Sys-svc-journalctl रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mail Role"
-msgstr "Sys-svc-mail रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mail-msmtp Role"
-msgstr "Sys-svc-mail-msmtp भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mail-smtp Role"
-msgstr "Sys-svc-mail-smtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mcp-reconcile Role"
-msgstr "Sys-svc-mcp-reconcile रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-nss Role"
-msgstr "Sys-svc-ns भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-objstore Role"
-msgstr "Sys-svc-objstore रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-proxy Role"
-msgstr "Sys-svc-proxy रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-rdbms Role"
-msgstr "Sysvc-rdbms रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-ssh Role"
-msgstr "Sys-svc-ssh रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-sshd Role"
-msgstr "Sys-svc-sshd रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-webserver-core Role"
-msgstr "Sys-svc-webserver-core रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-webserver-https Role"
-msgstr "Sys-svc-webserver-https रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-timer Role"
@@ -57431,15 +57431,15 @@ msgstr "समकालिक भूमिका"
 
 # translated-by: libretranslate
 msgid "Sys-token-store Role"
-msgstr "Sys-token-store"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-util-git-pull Role"
-msgstr "Sys-util-git-pull रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-version Role"
-msgstr "Sys-version भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "System"
@@ -57574,7 +57574,7 @@ msgstr "TODOS"
 
 # translated-by: libretranslate
 msgid "TODOs"
-msgstr "TODO"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN and STUN listening ports"
@@ -57907,7 +57907,7 @@ msgstr "टेस्ट-बॉडी टेम्पलेट"
 
 # translated-by: libretranslate
 msgid "Test-budget overrides ⏱️"
-msgstr "Test-budget overrides.️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-e2e-cli Role"
@@ -58423,7 +58423,7 @@ msgstr "सीआई परिनियोजित मैट्रिक्स 
 
 # translated-by: libretranslate
 msgid "The CI gate"
-msgstr "CI गेट"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CI image build is one job per architecture plus a merge job. It does not grow in wall clock, because the architectures build in parallel on their own runners, and each keeps its own build cache tag."
@@ -59662,7 +59662,7 @@ msgstr "CLI संग्रह बाइट-idempotent है। इसे प�
 
 # translated-by: libretranslate
 msgid "The argv list, proxy-free."
-msgstr "Argv सूची, प्रॉक्सी मुक्त।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The artefacts (`*.sql.gz`, `*-files.tar`, `*-private-files.tar`) land under `/home/frappe/frappe-bench/sites/next.erp.<DOMAIN_PRIMARY>/private/backups/` inside the backend container."
@@ -67896,7 +67896,7 @@ msgstr "रीप्लेइंग के बिना एक परिकल�
 
 # translated-by: libretranslate
 msgid "To-dos"
-msgstr "To do"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Today every Infinito.Nexus deploy runs `docker compose` against a single host with volumes on the local filesystem. If a service is rescheduled to another host (maintenance, scaling, node failure) the data is unreachable. This requirement introduces two cooperating capabilities:"
@@ -68060,7 +68060,7 @@ msgstr "धर्मशास्त्र"
 
 # translated-by: libretranslate
 msgid "Tor Onion Service"
-msgstr "Tor Onion सेवा"
+msgstr ""
 
 msgid "Tor Onion Service Architecture"
 msgstr ""
@@ -69469,7 +69469,7 @@ msgstr "उदार रूप से नामस्थानों का उ�
 
 # translated-by: libretranslate
 msgid "Use pdsadmin"
-msgstr "Pdsadmin"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Use realistic inputs. Build hypotheses about cross-component behavior before writing assertions."
@@ -70112,7 +70112,7 @@ msgstr "उसी का प्रयोग ``applications_if_group_and_all_deps
 
 # translated-by: libretranslate
 msgid "Using the Token in Ansible"
-msgstr "Token in Ansible"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Usually"
@@ -70148,7 +70148,7 @@ msgstr "वी1"
 
 # translated-by: libretranslate
 msgid "V1 (sso)"
-msgstr "वी1 (Sso)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` only."
@@ -70818,7 +70818,7 @@ msgstr "वेब अनुप्रयोग Chess तैनाती बदल
 
 # translated-by: libretranslate
 msgid "Web-app-akaunting Role"
-msgstr "वेब-app-akaunting रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-baserow Role"
@@ -70830,11 +70830,11 @@ msgstr "वेब अनुप्रयोग-bigbluebutton भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-bluesky Role"
-msgstr "वेब-app-bluesky रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-bookwyrm Role"
-msgstr "वेब-app-bookwyrm रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-bridgy-fed Role"
@@ -70842,7 +70842,7 @@ msgstr "वेब अनुप्रयोग-bridgy-fed रोल"
 
 # translated-by: libretranslate
 msgid "Web-app-checkmk Role"
-msgstr "वेब-app-checkmk रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-chess Role"
@@ -70862,7 +70862,7 @@ msgstr "वेब अनुप्रयोग-decidim भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-discourse Role"
-msgstr "वेब-app-discourse भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-docs Role"
@@ -70870,15 +70870,15 @@ msgstr "वेब ऐप-docs भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-erpnext Role"
-msgstr "वेब-app-erpnext रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-espocrm Role"
-msgstr "वेब-app-espocrm रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-fediwall Role"
-msgstr "वेब-app-fediwall रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-fider Role"
@@ -70894,7 +70894,7 @@ msgstr "वेब-अप-friendica भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-funkwhale Role"
-msgstr "वेब-app-funkwhale रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-fusiondirectory Role"
@@ -70910,15 +70910,15 @@ msgstr "वेब-ऐप-Gitlab रोल"
 
 # translated-by: libretranslate
 msgid "Web-app-hermes Role"
-msgstr "वेब-app-hermes"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-homeassistant Role"
-msgstr "वेब-app-homeassistant रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-hugo Role"
-msgstr "वेब-app-hugo रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-jellyfin Role"
@@ -70938,7 +70938,7 @@ msgstr "वेब अनुप्रयोग-जीत्सी भूमिक
 
 # translated-by: libretranslate
 msgid "Web-app-joomla Role"
-msgstr "वेब-app-joomla रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-keycloak Role"
@@ -70954,15 +70954,15 @@ msgstr "वेब-ऐप-लैम रोल"
 
 # translated-by: libretranslate
 msgid "Web-app-listmonk Role"
-msgstr "वेब-App-listmonk रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-litellm Role"
-msgstr "वेब-app-litellm रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-littlejs Role"
-msgstr "वेब-app-littlejs भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-magento Role"
@@ -70970,15 +70970,15 @@ msgstr "वेब अनुप्रयोग-magento भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-mailu Role"
-msgstr "वेब-app-mailu रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-mastodon Role"
-msgstr "वेब-app-mastodon रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-matomo Role"
-msgstr "वेब-app-matomo रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-matrix Role"
@@ -70986,7 +70986,7 @@ msgstr "वेब-अपमैट्रिक्स भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-mattermost Role"
-msgstr "वेब-app-mattermost रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-mediawiki Role"
@@ -70997,7 +70997,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-mini-qr Role"
-msgstr "वेब-app-mini-qr रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-minio Role"
@@ -71005,11 +71005,11 @@ msgstr "वेब अनुप्रयोग-मिनियो भूमिक
 
 # translated-by: libretranslate
 msgid "Web-app-mobilizon Role"
-msgstr "वेब-app-mobilizon रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-moodle Role"
-msgstr "वेब-app-moodle रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-n8n Role"
@@ -71021,7 +71021,7 @@ msgstr "वेब अनुप्रयोग नेविगेटर भूम
 
 # translated-by: libretranslate
 msgid "Web-app-nextcloud Role"
-msgstr "वेब-app-nextcloud रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-odoo Role"
@@ -71029,15 +71029,15 @@ msgstr "वेब अनुप्रयोग"
 
 # translated-by: libretranslate
 msgid "Web-app-openbao Role"
-msgstr "वेब-app-openbao रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-openclaw Role"
-msgstr "वेब-app-openclaw रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-opencloud Role"
-msgstr "वेब-app-opencloud रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-openproject Role"
@@ -71045,35 +71045,35 @@ msgstr "वेब अनुप्रयोग-openproject भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-opentalk Role"
-msgstr "वेब-app-opentalk भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-openwebui Role"
-msgstr "वेब-app-openwebui रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-peertube Role"
-msgstr "वेब-app-peertube रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-penpot Role"
-msgstr "वेब-app-penpot भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-pgadmin Role"
-msgstr "वेब-app-pgadmin रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-phpldapadmin Role"
-msgstr "वेब-app-phpldapadmin रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-phpmyadmin Role"
-msgstr "वेब-app-phpmyadmin रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-pihole Role"
-msgstr "वेब-app-pihole रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-pixelfed Role"
@@ -71081,11 +71081,11 @@ msgstr "वेब अनुप्रयोग पिक्सेलफेड र
 
 # translated-by: libretranslate
 msgid "Web-app-postmarks Role"
-msgstr "वेब-app-postmarks भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-pretix Role"
-msgstr "वेब-app-pretix रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-prometheus Role"
@@ -71093,15 +71093,15 @@ msgstr "वेब अनुप्रयोग-prometheus भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-roulette-wheel Role"
-msgstr "वेब-app-roulette-wheel रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-seaweedfs Role"
-msgstr "वेब-app-seaweedfs रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-semaphore Role"
-msgstr "वेब-app-semaphore रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-shopware Role"
@@ -71124,7 +71124,7 @@ msgstr "वेब ऐप-suitecrm भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-taiga Role"
-msgstr "वेब-app-taiga रोल"
+msgstr ""
 
 msgid "Web-app-weblate Role"
 msgstr ""
@@ -71143,7 +71143,7 @@ msgstr "वेब-अप-yourls भूमिका"
 
 # translated-by: libretranslate
 msgid "Web-app-zammad Role"
-msgstr "वेब-app-zammad रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
@@ -71159,62 +71159,62 @@ msgstr "MySQL और MySQL के लिए वेब आधारित प्�
 
 # translated-by: libretranslate
 msgid "Web-opt-rdr-domains Role"
-msgstr "वेब-opt-rdr-domains रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-opt-rdr-www Role"
-msgstr "वेब-opt-rdr-www रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-api Role"
-msgstr "वेब-svc-api रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-asset Role"
-msgstr "वेब-svc-asset रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-cdn Role"
-msgstr "वेब-svc-cdn रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-collabora Role"
-msgstr "वेब-svc-collabora रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-coturn Role"
-msgstr "वेब-svc-coturn रोल"
+msgstr ""
 
 msgid "Web-svc-design Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-file Role"
-msgstr "वेब-svc-file रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-html Role"
-msgstr "वेब-svc-html रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-legal Role"
-msgstr "वेब-svc-legal भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-libretranslate Role"
-msgstr "वेब-svc-libretranslate रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-logout Role"
-msgstr "वेब-svc-logout रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-mirror Role"
-msgstr "वेब-svc-mirror रोल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-onlyoffice Role"
-msgstr "वेब-svc-onlyoffice भूमिका"
+msgstr ""
 
 msgid "Web-svc-s1 Role"
 msgstr ""
@@ -71224,14 +71224,14 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-simpleicons Role"
-msgstr "वेब-svc-simpleicons रोल"
+msgstr ""
 
 msgid "Web-svc-translate Role"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-xmpp Role"
-msgstr "वेब-svc-xmpp भूमिका"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "WebSocket connections are routed through port 8072"
@@ -72492,7 +72492,7 @@ msgstr "विकिपीडिया: `Traversal Using Relays around NAT <http
 
 # translated-by: libretranslate
 msgid "Wildcard Certificate Setup with Let's Encrypt"
-msgstr "Let's Encrypt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Wildcard ``ROLE_TYPE_ALL`` collapses repetition: a single entry with ``\"type\": ROLE_TYPE_ALL`` applies to every concrete role type. A concrete-type entry that appears alongside the wildcard MUST take precedence so a contributor can spell out one per-type exception without losing the shared default."
@@ -72500,7 +72500,7 @@ msgstr "वाइल्डकार्ड ``ROLE_TYPE_ALL`` पतन दोह�
 
 # translated-by: libretranslate
 msgid "Windows (WSL2)"
-msgstr "विंडोज (WSL2)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Wipe local cache state"
@@ -73057,14 +73057,14 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "XPI urls (uBlock Origin, KeePassXC)"
-msgstr "XPI url (UBlock Origin, KeePassXC)"
+msgstr ""
 
 msgid "XWiki Architecture"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML & Jinja Lint 📐"
-msgstr "YAML & जिन्जा Lint 📐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML / Jinja patterns: ban on direct `yaml.safe_load` calls outside `utils.cache.yaml`, and ban on hardcoded `http://` / `https://` protocol literals adjacent to a `lookup(...)` call."
@@ -74069,7 +74069,7 @@ msgstr "You MUST use [आरएफसी 2119](https://www.rfc-editor.org/rfc/rf
 
 # translated-by: libretranslate
 msgid "You MUST use [SECURITY.md](../../../SECURITY.md) for vulnerability reporting."
-msgstr "You MUST use [SECURITY.md](../../../SECURITY.md) vulnerability रिपोर्टिंग के लिए।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "You MUST use [SUPPORT.md](../../../SUPPORT.md) for project help and participation."
@@ -75383,7 +75383,7 @@ msgstr "[ ] [web-app-espocrm](../../roles/web-app-espocrm/): बिल्ट-इ
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2-proxy."
-msgstr "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC2-प्रोक्सी।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged."
@@ -75709,7 +75709,7 @@ msgstr "[**फेडोरा**](https://fedoraproject.org)"
 
 # translated-by: libretranslate
 msgid "[**Homebrew**](https://brew.sh) (macOS)"
-msgstr "[**Homebrew**](https://brew.sh) (MacOS)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[**Ubuntu**](https://ubuntu.com)"
@@ -75729,7 +75729,7 @@ msgstr "[-शाखा बी] [- मिनिमम N]"
 
 # translated-by: libretranslate
 msgid "[--format json]"
-msgstr "[-format json]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[--modes auto] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"] [--lifecycles \"...\"]"
@@ -75749,87 +75749,87 @@ msgstr "[/sys/metrics](https://openbao.org/api-docs/system/metrics/)"
 
 # translated-by: libretranslate
 msgid "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
-msgstr "[000.001.000-2025-12-09md](docs/changelog/000.001.000-2025-12-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
-msgstr "[000.001.001-2025-12-10md](docs/changelog/000.001.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
-msgstr "[000.002.000-2025-12-10md](docs/changelog/000.002.000-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
-msgstr "[000.002.001-2025-12-10md](docs/changelog/000.002.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
-msgstr "[000.003.000-2025-12-17md](docs/changelog/000.003.000-2025-12-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
-msgstr "[000.003.001-2025-12-18md](docs/changelog/000.003.001-2025-12-18.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
-msgstr "[000.003.002-2025-12-19md](docs/changelog/000.003.002-2025-12-19.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
-msgstr "[000.003.003-2025-12-21md](docs/changelog/000.003.003-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
-msgstr "[000.003.004-2025-12-21md](docs/changelog/000.003.004-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
-msgstr "[000.003.005-2025-12-21md](docs/changelog/000.003.005-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
-msgstr "[000.004.000-2025-12-29md](docs/changelog/000.004.000-2025-12-29.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
-msgstr "[000.005.000-2025-12-30md](docs/changelog/000.005.000-2025-12-30.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
-msgstr "[000.006.000-2025-12-31md](docs/changelog/000.006.000-2025-12-31.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
-msgstr "[000.007.000-2026-01-05md](docs/changelog/000.007.000-2026-01-05.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
-msgstr "[000.007.001-2026-01-06md](docs/changelog/000.007.001-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
-msgstr "[000.007.002-2026-01-06md](docs/changelog/000.007.002-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
-msgstr "[000.008.000-2026-01-06md](docs/changelog/000.008.000-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
-msgstr "[000.009.000-2026-01-07md](docs/changelog/000.009.000-2026-01-07.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
-msgstr "[000.010.000-2026-01-08md](docs/changelog/000.010.000-2026-01-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
-msgstr "[000.011.000-2026-01-10md](docs/changelog/000.011.000-2026-01-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
-msgstr "[000.012.000-2026-01-25md](docs/changelog/000.012.000-2026-01-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) for the distro and filesystem axes this extends."
@@ -75841,55 +75841,55 @@ msgstr "[0001](0001-ci-deploy-matrix-axes.md) मैट्रिक्स पं
 
 # translated-by: libretranslate
 msgid "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
-msgstr "[001.000.000-2026-02-03md](docs/changelog/001.000.000-2026-02-03.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
-msgstr "[002.000.000-2026-02-08md](docs/changelog/002.000.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
-msgstr "[002.001.000-2026-02-08md](docs/changelog/002.001.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
-msgstr "[002.001.001-2026-02-08md](docs/changelog/002.001.001-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
-msgstr "[002.001.002-2026-02-08md](docs/changelog/002.001.002-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
-msgstr "[002.001.003-2026-02-08md](docs/changelog/002.001.003-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
-msgstr "[002.001.004-2026-02-08md](docs/changelog/002.001.004-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
-msgstr "[002.001.005-2026-02-09md](docs/changelog/002.001.005-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
-msgstr "[002.001.006-2026-02-09md](docs/changelog/002.001.006-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
-msgstr "[002.001.007-2026-02-09md](docs/changelog/002.001.007-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
-msgstr "[002.001.008-2026-02-09md](docs/changelog/002.001.008-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
-msgstr "[002.001.009-2026-02-10md](docs/changelog/002.001.009-2026-02-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
-msgstr "[003.000.000-2026-02-11md](docs/changelog/003.000.000-2026-02-11.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004 - Generic RBAC role auto-provisioning](README.md#archive)"
@@ -75897,35 +75897,35 @@ msgstr "[004 - जेनेरिक RBAC भूमिका ऑटो-संश
 
 # translated-by: libretranslate
 msgid "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
-msgstr "[004.000.000-2026-02-13md](docs/changelog/004.000.000-2026-02-13.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
-msgstr "[004.000.001-2026-02-15md](docs/changelog/004.000.001-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
-msgstr "[004.000.002-2026-02-15md](docs/changelog/004.000.002-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
-msgstr "[004.000.003-2026-02-16md](docs/changelog/004.000.003-2026-02-16.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
-msgstr "[004.001.000-2026-02-17md](docs/changelog/004.001.000-2026-02-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
-msgstr "[005.000.000-2026-02-25md](docs/changelog/005.000.000-2026-02-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
-msgstr "[005.001.000-2026-02-28md](docs/changelog/005.001.000-2026-02-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
-msgstr "[005.002.000-2026-03-21md](docs/changelog/005.002.000-2026-03-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive)"
@@ -75937,31 +75937,31 @@ msgstr "[006 - सेवा-gated Playwright परीक्षण](README.md#ar
 
 # translated-by: libretranslate
 msgid "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
-msgstr "[006.000.000-2026-04-25md](docs/changelog/006.000.000-2026-04-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
-msgstr "[007.000.000-2026-05-08md](docs/changelog/007.000.000-2026-05-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
-msgstr "[008.000.000-2026-05-27md](docs/changelog/008.000.000-2026-05-27.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
-msgstr "[008.000.001-2026-05-28md](docs/changelog/008.000.001-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
-msgstr "[008.000.002-2026-05-28md](docs/changelog/008.000.002-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
-msgstr "[008.000.003-2026-05-28md](docs/changelog/008.000.003-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
-msgstr "[008.000.004-2026-05-28md](docs/changelog/008.000.004-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) — reference for the autonomous-run procedure pattern used here"
@@ -75977,11 +75977,11 @@ msgstr "[018 - Playwright LDAP प्रमाणीकरण कवरेज](0
 
 # translated-by: libretranslate
 msgid "[01_constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
-msgstr "[01constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
-msgstr "[01स्थापित.yml](./01_install.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
@@ -75996,7 +75996,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02enable.yml](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -76020,15 +76020,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr "[03 विन्यास.yml](./03_configure.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12ldap.yml](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -76618,15 +76618,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[AT Protocol Documentation](https://atproto.com/)"
-msgstr "[AT प्रोटोकॉल Documentation](https://atproto.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[AUR package page for Teams](https://aur.archlinux.org/packages?K=teams)"
-msgstr "[टीमों के लिए AUR पैकेज पेज](https://aur.archlinux.org/packages?K=teams)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[AUR package page for Zoom](https://aur.archlinux.org/packages/zoom)"
-msgstr "[AUR पैकेज पेज Zoom](https://aur.archlinux.org/packages/zoom)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)"
@@ -76724,11 +76724,11 @@ msgstr "[Ansible Filter Plugins Documentation](https://docs.ansible.com/ansible/
 
 # translated-by: libretranslate
 msgid "[Ansible Lookup Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
-msgstr "[Ansible lookup plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Ansible Playbooks Lookups](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)"
-msgstr "[Ansible Playbooks lookup](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Ansible Role Directory Structure](https://docs.ansible.com/ansible/latest/user_guide/playbooks_roles.html#role-directory-structure)"
@@ -76740,7 +76740,7 @@ msgstr "[Ansible टेम्पलेट मॉड्यूल](https://docs.an
 
 # translated-by: libretranslate
 msgid "[Ansible community.general.pacman module](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)"
-msgstr "[Ansible community.general.pacman मॉड्यूल](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Ansible handler best practices](https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html)"
@@ -77549,11 +77549,11 @@ msgstr "[गाइड](docs/administration/deploy.md) सूची निर्�
 
 # translated-by: libretranslate
 msgid "[Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
-msgstr "[Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Developing Ansible Lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)"
-msgstr "[Ansible lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Development Hub](https://s.infinito.nexus/development) - general developer discussion and contributor guidance."
@@ -77565,7 +77565,7 @@ msgstr "[उपदेश Documentation](https://meta.discourse.org/t/discourse-s
 
 # translated-by: libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
-msgstr "[GitHub Repository](https://github.com/discourse/discourse_docker.git)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Discourse Meta Forum](https://meta.discourse.org/)"
@@ -77597,7 +77597,7 @@ msgstr "[डॉकर हब](https://hub.docker.com/r/checkmk/check-mk-raw/), [
 
 # translated-by: libretranslate
 msgid "[Docker Registry Cache](roles/svc-registry-cache/)"
-msgstr "[Docker Registry कैश](roles/svc-registry-cache/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Registry](roles/svc-registry-docker/)"
@@ -77625,7 +77625,7 @@ msgstr "[डॉकर वॉल्यूम Documentation](https://docs.docker.c
 
 # translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker)"
-msgstr "[Docker doc](https://docs.semaphoreui.com/administration-guide/installation/docker)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker), [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
@@ -77689,11 +77689,11 @@ msgstr "[फास्ट एपीआई](https://fastapi.tiangolo.com/)"
 
 # translated-by: libretranslate
 msgid "[Fediverse (Wikipedia)](https://en.wikipedia.org/wiki/Fediverse)"
-msgstr "[Fediverse (विकिपीडिया)](https://en.wikipedia.org/wiki/Fediverse)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Fediwall GitHub Repository](https://github.com/defnull/fediwall)"
-msgstr "[Fediwall GitHub भंडार](https://github.com/defnull/fediwall)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Fider GitHub](https://github.com/getfider/fider)"
@@ -77737,7 +77737,7 @@ msgstr "[Frappe फ्रेमवर्क Documentation](https://docs.frappe.i
 
 # translated-by: libretranslate
 msgid "[Frappe Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)"
-msgstr "[Frappe सामाजिक लॉगिन कुंजी](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Friendica Docker Hub](https://hub.docker.com/_/friendica)"
@@ -77781,7 +77781,7 @@ msgstr "[GitLab आधिकारिक वेबसाइट](https://about.gi
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[Gitlab SSO Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -77789,7 +77789,7 @@ msgstr "[Gitea LDAP एकीकरण](https://docs.gitea.com/administration/au
 
 # translated-by: libretranslate
 msgid "[Gitea MCP package](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
-msgstr "[Gitea MCP पैकेज](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea Official Website](https://gitea.io/)"
@@ -77864,7 +77864,7 @@ msgstr "[Infinito.Nexus सामुदायिक लाइसेंस (ग�
 
 # translated-by: libretranslate
 msgid "[Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)"
-msgstr "[Infinito.Nexus GitHub भंडार](https://s.infinito.nexus/code)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Infinito.Nexus Hub](https://hub.infinito.nexus/) - tutorials, FAQs, and community support."
@@ -78205,7 +78205,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[MCP service block](../../docs/contributing/design/role/services/mcp.md)"
-msgstr "[MCP सेवा ब्लॉक](../../docs/contributing/design/role/services/mcp.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[MCP user delegation audit](../../docs/contributing/design/role/services/mcp/delegation.md)"
@@ -78233,19 +78233,19 @@ msgstr "[मेलू सेटअप गाइड](https://mailu.io/2024.06/com
 
 # translated-by: libretranslate
 msgid "[Mailu issue #1171](https://github.com/Mailu/Mailu/issues/1171)"
-msgstr "[Mailu मुद्दे #1171](https://github.com/Mailu/Mailu/issues/1171)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mailu issue #1719](https://github.com/Mailu/Mailu/issues/1719)"
-msgstr "[Mailu मुद्दे #1719](https://github.com/Mailu/Mailu/issues/1719)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mailu issue #2135](https://github.com/Mailu/Mailu/issues/2135)"
-msgstr "[Mailu मुद्दे #2135](https://github.com/Mailu/Mailu/issues/2135)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mailu issue #2827](https://github.com/Mailu/Mailu/issues/2827)"
-msgstr "[Mailu मुद्दे #2827](https://github.com/Mailu/Mailu/issues/2827)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mailu-OIDC](https://github.com/heviat/Mailu-OIDC)"
@@ -78281,7 +78281,7 @@ msgstr "[मस्तूल Documentation](https://docs.joinmastodon.org/)"
 
 # translated-by: libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
-msgstr "[Mastodon GitHub मुद्दे](https://github.com/mastodon/mastodon/issues/7958)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mastodon Official Website](https://joinmastodon.org/)"
@@ -78309,7 +78309,7 @@ msgstr "[मैटरअधिकतर विन्यास सेटिंग
 
 # translated-by: libretranslate
 msgid "[Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)"
-msgstr "[Matermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mattermost MCP Server docs](https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md)"
@@ -78383,7 +78383,7 @@ msgstr "[NGINX आधिकारिक वेबसाइट](https://NGINX.org
 
 # translated-by: libretranslate
 msgid "[NGINX `sub_filter` Module](http://NGINX.org/en/docs/http/ngx_http_sub_module.html)"
-msgstr "[NGINX `sub_filter` मॉड्यूल](http://NGINX.org/en/docs/http/ngx_http_sub_module.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[NGINX documentation](https://nginx.org/en/docs/)"
@@ -78597,7 +78597,7 @@ msgstr "[पैकेज अद्यतन](roles/update/)"
 
 # translated-by: libretranslate
 msgid "[PeerTube GitHub Issues](https://github.com/Chocobozzz/PeerTube/issues/3091)"
-msgstr "[PeerTube GitHub मुद्दे](https://github.com/Chocobozzz/PeerTube/issues/3091)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)"
@@ -78855,7 +78855,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)"
-msgstr "[SeaweedFS विकी](https://github.com/seaweedfs/seaweedfs/wiki)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)"
@@ -78993,7 +78993,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
-msgstr "[Syspass मुद्दे #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
+msgstr ""
 
 msgid "[System One API](roles/web-svc-s1/)"
 msgstr ""
@@ -79046,7 +79046,7 @@ msgstr "[रोबोटिक्स के तीन कानून](https://s
 
 # translated-by: libretranslate
 msgid "[Tor Onion Service](roles/svc-net-tor/)"
-msgstr "[Tor Onion सेवा](roles/svc-net-tor/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Tor Project documentation](https://www.torproject.org/)"
@@ -79121,7 +79121,7 @@ msgstr "[वाइल्डकार्ड प्रमाणपत्र (व�
 
 # translated-by: libretranslate
 msgid "[Windows (WSL2)](platform/windows-wsl2.md)"
-msgstr "[विंडोज (WSL2)](platform/windows-wsl2.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WireGuard Client behind NAT](roles/svc-net-wireguard-firewalled/)"
@@ -79201,7 +79201,7 @@ msgstr "[हिन्दी](https://en.wikipedia.org/wiki/You_aren%27t_gonna_ne
 
 # translated-by: libretranslate
 msgid "[YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)"
-msgstr "[YourLS GitHub Repository](https://github.com/YOURLS/YOURLS)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[YOURLS Official Website](https://yourls.org/)"
@@ -79245,11 +79245,11 @@ msgstr "[ init py](__init__.py) MUST में हर हैंडलर मॉ�
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/address/suggest/__main__.py)"
-msgstr "[ main py](../../../../cli/contributing/network/address/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
-msgstr "[ main py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
@@ -79269,7 +79269,7 @@ msgstr "[`../common.sh`](../common.sh). द्वारा उपयोग क�
 
 # translated-by: libretranslate
 msgid "[`../remove.sh`](../remove.sh). teardown script that undoes the DNS configuration"
-msgstr "[`../remove.sh`](../remove.sh)। फाड़ना स्क्रिप्ट है कि DNS विन्यास undoes"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
@@ -79431,7 +79431,7 @@ msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) रन `rp
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
-msgstr "[`remove.sh`](remove.sh) DNS फाड़ना"
+msgstr ""
 
 msgid "[`resolve_site.yml`](../../../roles/sys-front-inj-matomo/tasks/resolve_site.yml) resolves the token, queries `SitesManager.getSitesIdFromSiteUrl`, registers the site when it is unknown, and leaves `matomo_site_id` as the empty string whenever any of those steps cannot complete. An empty token short-circuits the API call, and an API answer that is not a 200 list leaves the id unresolved the same way."
 msgstr ""
@@ -79551,11 +79551,11 @@ msgstr "[अनुप्रयोग](applications/README.md) केंद्र
 
 # translated-by: libretranslate
 msgid "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
-msgstr "[Apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[apt](https://wiki.debian.org/Apt)"
-msgstr "[Apt](https://wiki.debian.org/Apt)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[atmo.rsvp](https://atmo.rsvp) is an open-source, AT-Protocol-native event platform. Its defining property is that **events live on the user's account, not on the app**: an event is a `community.lexicon.calendar.event` record and an RSVP is a `community.lexicon.calendar.rsvp` record, both stored in the user's Personal Data Server (PDS) repo. The atmo app itself is \"just a view\" (an appview/aggregator) over those records, so RSVPs and events are portable across any app on the open social web."
@@ -79678,7 +79678,7 @@ msgstr "[deployment-modes.md](../../contributing/design/deployment-modes.md) क
 
 # translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
-msgstr "[देव CLI पेड़](../../../cli/administration/deploy/development/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[development/](development/README.md): matrix deploy, include resolution, `disable` and orphan pruning (with diagrams)."
@@ -79864,7 +79864,7 @@ msgstr "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel
 
 # translated-by: libretranslate
 msgid "[macOS](platform/macos.md)"
-msgstr "[MacOS](platform/macos.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[main.yml](../../../../../roles/sys-service-loader/tasks/main.yml) is the single loader entry point for all shared services."
@@ -79888,11 +79888,11 @@ msgstr "[msmtp](https://marlam.de/msmtp/) एक हल्के Sendmail-compat
 
 # translated-by: libretranslate
 msgid "[n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
-msgstr "[n8nick Documentation](https://docs.n8n.io/hosting/installation/docker/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
-msgstr "[n8GitHub](https://github.com/n8n-io/n8n)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n Official Website](https://n8n.io/)"
@@ -79928,7 +79928,7 @@ msgstr "[nftables](https://www.netfilter.org/projects/nftables/) लिनक्
 
 # translated-by: libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[Opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format
@@ -79945,11 +79945,11 @@ msgstr "[pacman](https://wiki.archlinux.org/title/pacman)"
 
 # translated-by: libretranslate
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
-msgstr "[Pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-msgstr "[PgAdmin Documentation](https://www.pgadmin.org/docs/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
@@ -80009,7 +80009,7 @@ msgstr "[probe_auth.py](../../roles/svc-ai-litellm/files/python/probe_auth.py), 
 
 # translated-by: libretranslate
 msgid "[prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)"
-msgstr "[Prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[pull.py](../../../roles/sys-svc-compose/files/python/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set."
@@ -80088,7 +80088,7 @@ msgstr "[सील अवधारणाओं](https://openbao.org/docs/concept
 
 # translated-by: libretranslate
 msgid "[seal stanza](https://openbao.org/docs/configuration/seal/)"
-msgstr "[stanza सील](https://openbao.org/docs/configuration/seal/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[secrets.md](secrets.md): repository secrets that workflows consume, and the failure mode when they are missing."
@@ -82464,7 +82464,7 @@ msgstr "Gap-first: बैंड में सबसे कम अनापसि
 
 # translated-by: libretranslate
 msgid "__Gap-first:__ propose the lowest unoccupied sub-block."
-msgstr "Gap-first:."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "__Increment fallback:__ if all sub-blocks of the active `/24` blocks are used, propose the next `/24` block in the established sequence (currently `192.168.101–105` for `/28`, `192.168.200–203` for `/24`)."
@@ -82635,7 +82635,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "`/opt/data/config.yaml`, owned by uid 10000"
-msgstr "`/opt/data/config.yaml`, uid के स्वामित्व में 10000"
+msgstr ""
 
 msgid "`/register` serves the sign-up form to every visitor because the installer writes `'register_policy' => \\Friendica\\Module\\Register::OPEN` into `config/local.config.php:27` (`bin/console config config register_policy` reports `2`), while upstream's own default in `static/settings.config.php:27` is `CLOSED`; options: set `config.register_policy` to `CLOSED` (or `APPROVE`) from the role through `bin/console config` or a mounted `config/*.config.php`, or make it an inventory switch."
 msgstr ""
@@ -82933,7 +82933,7 @@ msgstr "`GET /v1/sys/metrics?format=prometheus`. आम तौर पर टो�
 
 # translated-by: libretranslate
 msgid "`GH_TOKEN` env var"
-msgstr "`GH_TOKEN` var"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`GH_TOKEN` must be available on the Ansible control node (`delegate_to: localhost`) for the `gh api` registration call to succeed. In CI this is forwarded into the DinD container by `cli/administration/deploy/development/deploy/run.py`."
@@ -83661,7 +83661,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``/opt/data/config.yaml``, owned by uid 10000"
-msgstr "``/opt/data/config.yaml``, uid के स्वामित्व में 10000"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/usr/local/bin`` is NOT bind-mounted, even though MDAD writes a few helper scripts there. The runner’s ``ansible-core`` lives at ``/opt/ansible/bin/`` (out of the way) to keep the option open, but mounting the deploy container’s ``/usr/local/bin`` over the runner causes a Python ABI mismatch segfault (host Python is built differently from ``python:3.13-slim``). MDAD’s host-side helper scripts are not invoked by the deploy flow."
@@ -83748,7 +83748,7 @@ msgstr "``False`` जब कवर किया गया संस्करण 
 
 # translated-by: libretranslate
 msgid "``GH_TOKEN`` env var"
-msgstr "``GH_TOKEN`` var"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``GITLAB_ROOT_PASSWORD`` (```templates/env.j2`` <./templates/env.j2>`__, from ``GITLAB_INIT_ROOT_PASSWORD`` in ```vars/main.yml`` <./vars/main.yml>`__) belongs to GitLab’s built-in ``root`` account, not to the Keycloak ``administrator`` username the persona signs in with, and no GitLab account is provisioned for ``biber`` at all — the OmniAuth sign-in is the only path that would create one. In the ``services.sso.enabled: false`` matrix variants that path is removed, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ renders ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``. The ``guest`` persona and the baseline assertions run unconditionally."
@@ -84015,7 +84015,7 @@ msgstr "``adapter``: एक repository-owned एडाप्टर के immuta
 
 # translated-by: libretranslate
 msgid "``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net"
-msgstr "``aliases``: DNS की सूची डिफ़ॉल्ट: ``[entity_name]`` के लिए shared_net, ``[]`` के लिए default_net"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``allowed`` (default ``True``): the file (or dotted-path entry) MAY be present for a role of this type. Set ``allowed: False`` to forbid the file/entry on roles of this type so the lint layer can surface the offence with a precise reason."
@@ -84294,7 +84294,7 @@ msgstr "``dotlinker_package_name`` (डिफ़ॉल्ट: ``doli``)"
 
 # translated-by: libretranslate
 msgid "``dotlinker_replace`` (default: ``true``): pass ``--replace`` to ``doli add``"
-msgstr "``dotlinker_replace`` (डिफ़ॉल्ट: ``true``): पास ``--replace`` to ``doli add``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``dotlinker_user`` (required): user to run ``doli`` as"
@@ -84370,7 +84370,7 @@ msgstr "``files/configure-auth.sh`` (तैनाती होस्ट पर �
 
 # translated-by: libretranslate
 msgid "``files/playwright.config.js``: shared Playwright configuration"
-msgstr "``files/playwright.config.js``: साझा Playwright विन्यास"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``files/python/policy.py`` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything."
@@ -84684,7 +84684,7 @@ msgstr "``mutating_proofs``: एक बार आवश्यक ``tools.mutatin
 
 # translated-by: libretranslate
 msgid "``name``           the EFFECTIVE docker volume name"
-msgstr "``name`` EFFECTIVE docker Volume name"
+msgstr ""
 
 msgid "``name`` is stripped of the registry so roles can be compared across sources. A probe that passes it on reaches docker.io, where an image published only on ghcr.io or quay.io does not exist, and reads the 404 as an indeterminate answer."
 msgstr ""
@@ -84820,7 +84820,7 @@ msgstr "``priority`` यह नाम क्या विफल रहा है
 
 # translated-by: libretranslate
 msgid "``provider`` / ``provider_key``: for ``onion_sso``, the app whose"
-msgstr "``provider`` / ``provider_key``: ``onion_sso``, app whose"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``provides`` matching runs in both directions, so a provider (e.g. openldap ``provides: ldap``) is picked up even when the consuming flag uses a ``groups[...]`` form the ``group_names`` regex cannot read."
@@ -84934,7 +84934,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``semantic_name``  the YAML key from ``meta/volumes.yml``"
-msgstr "``semantic_name`` YAML कुंजी से ``meta/volumes.yml``"
+msgstr ""
 
 msgid "``service_name`` defaults to the role's entity name."
 msgstr ""
@@ -85415,7 +85415,7 @@ msgstr "`applications['<application_id>'].services.email.<key>`, केवल �
 
 # translated-by: libretranslate
 msgid "`applications_if_group_and_all_deps`. Recursive walk over Ansible meta `dependencies:` plus shared-service deps."
-msgstr "`applications_if_group_and_all_deps`. Recursive walk on Ansible meta `dependencies:` साथ ही साझा सेवा डिप्स।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`applications` lookup 📦"
@@ -85573,7 +85573,7 @@ msgstr "`bridges` (वैकल्पिक) प्रस्तुत करत�
 
 # translated-by: libretranslate
 msgid "`build.extra_hosts` DNS-hijack + frontend HTTP"
-msgstr "`build.extra_hosts` DNS-हिजैक + फ्रंटेंड HTTP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`build_dev_inventory` is the SPOT that turns a `DevInventorySpec` into a fully baked inventory folder via the `infinito administration inventory provision` CLI. `build_dev_inventory_matrix` is the orchestrator: it runs the planner and builds every round's folder."
@@ -85968,7 +85968,7 @@ msgstr "`dotlinker_package_name` (डिफ़ॉल्ट: `doli`)"
 
 # translated-by: libretranslate
 msgid "`dotlinker_replace` (default: `true`): pass `--replace` to `doli add`"
-msgstr "`dotlinker_replace` (डिफ़ॉल्ट: `true`): पास `--replace` to `doli add`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`dotlinker_user` (required): user to run `doli` as"
@@ -86120,7 +86120,7 @@ msgstr "`files/configure-auth.sh` (तैनाती होस्ट पर च
 
 # translated-by: libretranslate
 msgid "`files/playwright.config.js`: shared Playwright configuration"
-msgstr "`files/playwright.config.js`: साझा Playwright विन्यास"
+msgstr ""
 
 msgid "`files/playwright/test-seaweedfs.js` fails on a stack with `seaweedfs` on and `sso` off (measured: `input[type=\"file\"]` never attaches on `/preferences/profile`, 3 of 3 attempts): the action only signs in through Keycloak, so without SSO it stays anonymous and lands on `/login`. Options: sign in through BookWyrm's own `/login` form with the provisioned administrator when `sso` is off, or skip unless `sso` is enabled."
 msgstr ""
@@ -86344,7 +86344,7 @@ msgstr "`infinito meta cache` subcommand - व्युत्पन्न कै
 
 # translated-by: libretranslate
 msgid "`infinito meta env` subcommand -- generate the project's `.env`."
-msgstr "`infinito meta env` subcommand `.env`।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`infinito-nexus/core` in a fork"
@@ -86692,7 +86692,7 @@ msgstr "`meta/services.yml` अंश"
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (native OIDC, no oauth2-proxy)"
-msgstr "`meta/services.yml` अंश (मूल OIDC, कोई oauth2-प्रोक्सी)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (oauth2-proxy flavor, no external DB)"
@@ -88042,7 +88042,7 @@ msgstr "`version` (वैकल्पिक) MUST एक स्ट्रिं�
 
 # translated-by: libretranslate
 msgid "`version` MUST be the tag."
-msgstr "`version` MUST टैग होना चाहिए।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`vlc` (media player with Blu-ray support)"
@@ -88074,7 +88074,7 @@ msgstr "`web-app-funkwhale` - django header / दूरस्थ उपयोग
 
 # translated-by: libretranslate
 msgid "`web-app-hermes/meta/mcp.yml` `direction: client`, held to the 025 schema by the MCP lint suite"
-msgstr "`web-app-hermes/meta/mcp.yml` `direction: client`, 025 MCP लिंट सूट द्वारा स्कीमा"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`web-app-hermes` and `web-app-openclaw` each gain the RBAC role `agent-user` and keep their existing shared instance unchanged."
@@ -88104,7 +88104,7 @@ msgstr "`web-app-keycloak` SSO/OIDC प्रमाणीकरण के लि
 
 # translated-by: libretranslate
 msgid "`web-app-kix` — native OTRS header-auth module"
-msgstr "`web-app-kix` - मूल OTRS header-auth मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`web-app-magento` — custom `Infinito_HeaderSso` module (bypass FPC/Varnish on the handoff route)"
@@ -88662,7 +88662,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-format
 msgid "an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``)."
-msgstr "ASCII फॉर्म (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``)।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "an ``ansible_facts`` mapping. task_vars carries bare keys, the setup module returns them ``ansible_``-prefixed."
@@ -88872,7 +88872,7 @@ msgstr "तैयारी कार्य"
 
 # translated-by: libretranslate
 msgid "apt_package: the PGDG package suffix, installed as"
-msgstr "apt_package: PGDG पैकेज suffix"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arch"
@@ -89117,7 +89117,7 @@ msgstr "बोर"
 
 # translated-by: libretranslate
 msgid "bool | Jinja"
-msgstr "To make a genja."
+msgstr ""
 
 msgid "branch the worktree was created for (required)."
 msgstr ""
@@ -89472,7 +89472,7 @@ msgstr "cli.administration.deploy.development.inventory.builder मॉड्य�
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.development.inventory.legacy\\_resolver module"
-msgstr "cli.administration.deploy.development.inventory.legacy\\ resolver मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.development.inventory.payload module"
@@ -89488,7 +89488,7 @@ msgstr "cli.administration.deploy.development.inventory.spec मॉड्यू�
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.development.log\\_utils module"
-msgstr "cli.administration.deploy.development.log\\ utils मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.development.logs module"
@@ -89531,7 +89531,7 @@ msgstr "cli.administration.deploy.development.up मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.development.variant\\_select module"
-msgstr "cli.administration.deploy.development.variant\\ select मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.deploy.runner package"
@@ -89607,7 +89607,7 @@ msgstr "cli.administration.inventory.provision.cli मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.credentials\\_generator module"
-msgstr "cli.administration.inventory.provision.credentials\\ generator मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.filters module"
@@ -89615,15 +89615,15 @@ msgstr "cli.administration.inventory.provision.filters मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.host\\_vars module"
-msgstr "cli.administration.inventory.provision.host\\ vars मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.inventory\\_generator module"
-msgstr "cli.administration.inventory.provision.inventory\\ generator मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.mirror\\_overrides module"
-msgstr "cli.administration.inventory.provision.mirror\\ overrides मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.passwords module"
@@ -89639,31 +89639,31 @@ msgstr "cli.administration.inventory.provision.reset मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.role\\_resolver module"
-msgstr "cli.administration.inventory.provision.role\\ resolver मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
-msgstr "cli.administration.inventory.provision.ruamel\\ io मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.services\\_disabler module"
-msgstr "cli.administration.inventory.provision.services\\ disabler मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.subprocess\\_runner module"
-msgstr "cli.administration.inventory.provision.subprocess\\ runner मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.tor\\_node module"
-msgstr "cli.administration.inventory.provision.tor\\ node मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.users\\_generator module"
-msgstr "cli.administration.inventory.provision.users\\ generator मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.provision.yaml\\_io module"
-msgstr "cli.administration.inventory.provision.yaml\\ io मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.administration.inventory.validate package"
@@ -89821,15 +89821,15 @@ msgstr "cli.contributing.changelog.archive पैकेज"
 
 # translated-by: libretranslate
 msgid "cli.contributing.changelog.archive.archive\\_dir module"
-msgstr "cli.contributing.changelog.archive.archive\\ dir मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.contributing.changelog.archive.changelog\\_md module"
-msgstr "cli.contributing.changelog.archive.changelog\\ md मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.contributing.changelog.archive.package\\_mirror module"
-msgstr "cli.contributing.changelog.archive.package\\ mirror मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.contributing.changelog.archive.versioning module"
@@ -89921,7 +89921,7 @@ msgstr "cli.contributing.update पैकेज"
 
 # translated-by: libretranslate
 msgid "cli.contributing.update.collection\\_source package"
-msgstr "cli.contributing.update.collection\\ source पैकेज"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.contributing.update.docker package"
@@ -89997,11 +89997,11 @@ msgstr "cli.meta.ci.chunks मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.dev\\_runtime module"
-msgstr "cli.meta.ci.dev\\ runtime मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.image\\_ref module"
-msgstr "cli.meta.ci.image\\ ref मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.logs package"
@@ -90037,7 +90037,7 @@ msgstr "cli.meta.ci.query मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.report\\_failures module"
-msgstr "cli.meta.ci.report\\ failures मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.roles package"
@@ -90077,7 +90077,7 @@ msgstr "cli.meta.ci.slots मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.subset\\_roles module"
-msgstr "cli.meta.ci.subset\\ roles मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.ci.validate module"
@@ -90161,11 +90161,11 @@ msgstr "cli.meta.roles.applications.complexity.render मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.dynamic\\_services module"
-msgstr "cli.meta.roles.applications.dynamic\\ services मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.in\\_group\\_deps package"
-msgstr "cli.meta.roles.applications.in\\ group \\ deps पैकेज"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.invokable package"
@@ -90173,7 +90173,7 @@ msgstr "cli.meta.roles.applications.invokable पैकेज"
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.new\\_in\\_branch module"
-msgstr "cli.meta.roles.applications.new\\ in \\ branch मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.ressources package"
@@ -90189,11 +90189,11 @@ msgstr "cli.meta.roles.applications.ressources.render मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.role\\_name package"
-msgstr "cli.meta.roles.applications.role\\ name पैकेज"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.sufficient\\_storage package"
-msgstr "cli.meta.roles.applications.sufficient\\ storage पैकेज"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.type package"
@@ -90251,7 +90251,7 @@ msgstr "क्लस्टर चौड़ा ``compose`` या ``swarm``।."
 
 # translated-by: libretranslate
 msgid "co-deploy superset, no prune"
-msgstr "co-deploy superset, कोई prune"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "column to wrap long scalars at, None for the PyYAML default."
@@ -90376,7 +90376,7 @@ msgstr "यह तय करने के लिए कि क्या एक �
 
 # translated-by: libretranslate
 msgid "config value accessor."
-msgstr "विन्यास मूल्य accessor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "configure"
@@ -90556,7 +90556,7 @@ msgstr "डेटाबेस"
 
 # translated-by: libretranslate
 msgid "database value accessor."
-msgstr "डेटाबेस मूल्य accessor।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "debian"
@@ -90587,7 +90587,7 @@ msgstr "डिफ़ॉल्ट: पूर्ण खोज रजिस्ट�
 
 # translated-by: libretranslate
 msgid "default_condition (str, default ``service_started``)"
-msgstr "default_condition (str, डिफ़ॉल्ट ``service_started``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "defaults/"
@@ -91110,7 +91110,7 @@ msgstr "डोकर छवियों, वॉल्यूम, बिल्ड 
 
 # translated-by: libretranslate
 msgid "ensure CI vault password file"
-msgstr "CI vault password file"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "entries returned by ``damaged``."
@@ -91144,7 +91144,7 @@ msgstr "पर्यावरण के अनुकूल"
 
 # translated-by: libretranslate
 msgid "eol 🪦"
-msgstr "Eol 🪦"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ephemeral, re-registers per job"
@@ -91338,7 +91338,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "fa-solid fa-graduation-cap"
-msgstr "fa-solid fagraduation-cap"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "failing that, the only value the measurement saw at all, even below the sample minimum."
@@ -91585,7 +91585,7 @@ msgstr "जब फ्लाई पर उत्पन्न होता है 
 
 # translated-by: libretranslate
 msgid "gettext domain."
-msgstr "gettext डोमेन।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "git repository URL (GitHub-style raw path layout)."
@@ -91597,7 +91597,7 @@ msgstr "git repository यूआरएल लाने के लिए ``aliase
 
 # translated-by: libretranslate
 msgid "github"
-msgstr "Github"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "global TLS default, overridden per consumer by ``resolve_enabled``; an .onion domain always resolves to plaintext."
@@ -91731,7 +91731,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "iFrame Notifier for NGINX"
-msgstr "NGINX के लिए iFrame Notifier"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "identify shared dependencies such as database, proxy, or identity"
@@ -91789,7 +91789,7 @@ msgstr "इसमें राउंड के प्राइमरी ऐप �
 
 # translated-by: libretranslate
 msgid "include pruned?"
-msgstr "pruned?"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "include_headless: ``True`` also returns declaring roles without a"
@@ -91800,7 +91800,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "indent (int, default 4)"
-msgstr "इंडेंट (int, डिफ़ॉल्ट 4)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "independent from feature-specific application flows"
@@ -92175,7 +92175,7 @@ msgstr "लूपबैक और क्लाउड-मेटाडाटा �
 
 # translated-by: libretranslate
 msgid "macOS"
-msgstr "MacOS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "macOS-specific steps MUST be guarded by an `uname` or `command -v brew` check before execution."
@@ -92596,7 +92596,7 @@ msgstr "कोई पंक्ति नहीं लेता है प्य�
 
 # translated-by: libretranslate
 msgid "no_cache=True => add '--no-cache' to docker build"
-msgstr "no_cache=True => जोड़ें '--no-cache' docker build"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "node IPs svc-bkp-remote-2-local pulls from, as derived by ``utils.tests.swarm.backup_repos.backup_provider_ips``."
@@ -92987,7 +92987,7 @@ msgstr "वैकल्पिक रूप से एक स्थानीय S
 
 # translated-by: libretranslate
 msgid "or rebase"
-msgstr "या rebase"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "or, through the chain, ``python3 -m cli.administration.recover database <generation> localhost``."
@@ -93392,31 +93392,31 @@ msgstr "plugins.filter पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.active\\_docker module"
-msgstr "plugins.filter.active\\ docker मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.application\\_allowed module"
-msgstr "plugins.filter.application\\ allowed मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.async\\_failures module"
-msgstr "plugins.filter.async\\ failures मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.ca\\_trust\\_paths module"
-msgstr "plugins.filter.ca\\ trust \\ paths मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.canonical\\_domains\\_map module"
-msgstr "plugins.filter.canonical\\ domains \\ map मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.cookie\\_scope module"
-msgstr "plugins.filter.cookie\\ scope मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.csp\\_filters module"
-msgstr "plugins.filter.csp\\ filter मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.curl module"
@@ -93428,15 +93428,15 @@ msgstr "plugins.filter.docker पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.docker.build\\_digest module"
-msgstr "plugins.filter.docker.build\\ digest मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.docker.network\\_noop module"
-msgstr "plugins.filter.docker.network\\ noop मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.docker.service\\_enabled module"
-msgstr "plugins.filter.docker.service\\ enabled मॉड्यूल"
+msgstr ""
 
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainउपकरण']
 # translation-refused: libretranslate protected-span
@@ -93455,11 +93455,11 @@ msgstr "plugins.filter.generate पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.generate.all\\_domains module"
-msgstr "plugins.filter.generate.all\\ domains मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.generate.base\\_sld\\_domains module"
-msgstr "plugins.filter.generate.base\\ sld \\ domains मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get package"
@@ -93471,23 +93471,23 @@ msgstr "plugins.filter.get.all पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.all.application\\_ids module"
-msgstr "plugins.filter.get.all.application\\ ids मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.all.invokable\\_apps module"
-msgstr "plugins.filter.get.all.invokable\\ apps मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.category\\_entries module"
-msgstr "plugins.filter.get.category\\ entries मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
-msgstr "plugins.filter.get.deployment\\ types\\ from \\ groups मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.docker\\_paths module"
-msgstr "plugins.filter.get.docker\\ paths मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.domain module"
@@ -93495,7 +93495,7 @@ msgstr "plugins.filter.get.domain मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.entity\\_name module"
-msgstr "plugins.filter.get.entity\\ name मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.role module"
@@ -93503,7 +93503,7 @@ msgstr "plugins.filter.get.role मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.service\\_script\\_path module"
-msgstr "plugins.filter.get.service\\ script \\ path मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.get.url module"
@@ -93511,7 +93511,7 @@ msgstr "plugins.filter.get.url मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.gitea\\_auth\\_noop module"
-msgstr "plugins.filter.gitea\\ auth \\ noop मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.has package"
@@ -93527,11 +93527,11 @@ msgstr "plugins.filter.has.env मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.invokable\\_paths module"
-msgstr "plugins.filter.invokable\\ paths मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.ldap\\_modify\\_noop module"
-msgstr "plugins.filter.ldap\\ modify \\ noop मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.litellm package"
@@ -93539,7 +93539,7 @@ msgstr "plugins.filter.litellm पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.litellm.model\\_routes module"
-msgstr "plugins.filter.litellm.model\\ routes मॉड्यूल"
+msgstr ""
 
 msgid "plugins.filter.matrix module"
 msgstr ""
@@ -93554,31 +93554,31 @@ msgstr "plugins.filter.merge.mapping मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.merge.with\\_defaults module"
-msgstr "plugins.filter.merge.with\\ defaults मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.mirror\\_filters module"
-msgstr "plugins.filter.mirror\\ filter मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.on\\_off module"
-msgstr "plugins.filter.on\\ off मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.redirect\\_sources module"
-msgstr "plugins.filter.redirect\\ sources मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.reserved\\_users module"
-msgstr "plugins.filter.reserved\\ users मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.resource\\_filter module"
-msgstr "plugins.filter.resource\\ filter मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.role\\_path\\_by\\_app\\_id module"
-msgstr "plugins.filter.role\\ path \\ by \\ app \\ id मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.ruby module"
@@ -93594,11 +93594,11 @@ msgstr "plugins.filter.sed मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.split\\_postgres\\_connections module"
-msgstr "plugins.filter.split\\ postgres \\ connections मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.status\\_codes module"
-msgstr "plugins.filter.status\\ codes मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.swarm package"
@@ -93606,7 +93606,7 @@ msgstr "plugins.filter.swarm पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.filter.swarm.deployed\\_services module"
-msgstr "plugins.filter.swarm.deployed\\ services मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.swarm.restart\\_condition module"
@@ -93614,15 +93614,15 @@ msgstr "plugins.filter.swarm.restart\\ शर्त मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.text\\_filters module"
-msgstr "plugins.filter.text\\ filter मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.timeout\\_start\\_sec\\_for\\_domains module"
-msgstr "plugins.filter.timeout\\ start \\ sec \\ for \\ domains मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.to\\_primary\\_domain module"
-msgstr "plugins.filter.to\\ primary \\ domain मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.url package"
@@ -93634,11 +93634,11 @@ msgstr "plugins.filter.url.join मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.filter.url.to\\_onion module"
-msgstr "plugins.filter.url.to\\ onion मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.value\\_generator module"
-msgstr "plugins.filter.value\\ generator मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup package"
@@ -93646,15 +93646,15 @@ msgstr "plugins.lookup पैकेज"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.active\\_alertmanager\\_channels module"
-msgstr "plugins.lookup.active\\ alertmanager \\ channels मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.addon\\_env\\_flags module"
-msgstr "plugins.lookup.addon\\ env \\ flags मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.alert\\_rule\\_roles module"
-msgstr "plugins.lookup.alert\\ rule \\ roles मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.api module"
@@ -93662,15 +93662,15 @@ msgstr "plugins.lookup.api मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.api\\_enabled module"
-msgstr "plugins.lookup.api\\ enabled मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.application\\_closure module"
-msgstr "plugins.lookup.application\\ closure मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.application\\_gid module"
-msgstr "plugins.lookup.application\\ gid मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.applications module"
@@ -93678,7 +93678,7 @@ msgstr "plugins.lookup.applications मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.applications\\_current\\_play module"
-msgstr "plugins.lookup.applications\\ current \\ play मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.asset module"
@@ -93686,31 +93686,31 @@ msgstr "plugins.lookup.asset मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.asset\\_host module"
-msgstr "plugins.lookup.asset\\ host मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.bounded\\_name module"
-msgstr "plugins.lookup.bounded\\ name मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.ca\\_injected module"
-msgstr "plugins.lookup.ca\\ injected मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.cache\\_records module"
-msgstr "plugins.lookup.cache\\ records मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.cache\\_repos module"
-msgstr "plugins.lookup.cache\\ repos मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.cache\\_upstreams module"
-msgstr "plugins.lookup.cache\\ upstream मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.canonical\\_url module"
-msgstr "plugins.lookup.canonical\\ url मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.cdn module"
@@ -93722,35 +93722,35 @@ msgstr "plugins.lookup.cert मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.command\\_path module"
-msgstr "plugins.lookup.command\\ path मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_external\\_networks module"
-msgstr "plugins.lookup.compose\\ external \\ networks मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_file\\_args module"
-msgstr "plugins.lookup.compose\\ file \\ args मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_networks module"
-msgstr "plugins.lookup.compose\\ networks मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_only module"
-msgstr "plugins.lookup.compose\\ only मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_replicas module"
-msgstr "plugins.lookup.compose\\ replicas मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_restart module"
-msgstr "plugins.lookup.compose\\ restart मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.compose\\_volumes module"
-msgstr "plugins.lookup.compose\\ volumes मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.config module"
@@ -93762,65 +93762,65 @@ msgstr "plugins.lookup.container मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_address module"
-msgstr "plugins.lookup.container\\ address मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_depends\\_on module"
-msgstr "plugins.lookup.container\\ depends \\ on मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_deploy module"
-msgstr "plugins.lookup.container\\ deploy मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_dns module"
-msgstr "plugins.lookup.container\\ dns मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_extra\\_hosts module"
-msgstr "plugins.lookup.container\\ extra \\ hosts मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_healthcheck module"
-msgstr "plugins.lookup.container\\ healthcheck मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_hostname module"
-msgstr "plugins.lookup.container\\ hostname मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_image module"
-msgstr "plugins.lookup.container\\ image मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_mail\\_marker module"
-msgstr "plugins.lookup.container\\ mail \\ marker मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_networks module"
-msgstr "plugins.lookup.container\\ networks मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_ports module"
-msgstr "plugins.lookup.container\\ ports मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_service module"
-msgstr "plugins.lookup.container\\ service मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.container\\_url module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.container\\_volumes module"
-msgstr "plugins.lookup.container\\ volumes मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.cpus module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.current\\_play\\_redirect\\_domains module"
-msgstr "plugins.lookup.current\\ play \\ redirect \\ domains मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.database module"
@@ -93828,11 +93828,11 @@ msgstr "plugins.lookup.database मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.database\\_consumerless\\_volumes module"
-msgstr "plugins.lookup.database\\ conumerless \\ volumes मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.depends\\_on module"
-msgstr "plugins.lookup.depends\\ on मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.deployment module"
@@ -93862,30 +93862,30 @@ msgstr "plugins.lookup.engine मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.fediwall\\_active module"
-msgstr "plugins.lookup.fediwall\\ active मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.gpu module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.group\\_roles module"
-msgstr "plugins.lookup.group\\ roles मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.guide\\_role module"
-msgstr "plugins.lookup.guide\\ role मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.i18n\\_catalogue module"
-msgstr "plugins.lookup.i18n\\ catalogue मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.i18n\\_content module"
-msgstr "plugins.lookup.i18n\\ content मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.i18n\\_sample module"
-msgstr "plugins.lookup.i18n\\ sample मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.image module"
@@ -93893,7 +93893,7 @@ msgstr "plugins.lookup.image मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.local\\_mtime\\_qs module"
-msgstr "plugins.lookup.local\\ mtime \\ qs मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.mail\\_provider module"
 msgstr ""
@@ -93903,18 +93903,18 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.mcp\\_client\\_bearer module"
-msgstr "plugins.lookup.mcp\\ client \\ bearer मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.mcp\\_client\\_login module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.mcp\\_credential module"
-msgstr "plugins.lookup.mcp\\ credential मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.mcp\\_servers module"
-msgstr "plugins.lookup.mcp\\ server मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.minio module"
@@ -93925,7 +93925,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.native\\_metrics\\_apps module"
-msgstr "plugins.lookup.native\\ metrics \\ apps मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.native\\_metrics\\_target module"
 msgstr ""
@@ -93935,27 +93935,27 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_client\\_src module"
-msgstr "plugins.lookup.nfs\\ client \\ src मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_export\\_base module"
-msgstr "plugins.lookup.nfs\\ export \\ base मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_flavor module"
-msgstr "plugins.lookup.nfs\\ flavor मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_fstype module"
-msgstr "plugins.lookup.nfs\\ fstype मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_mount\\_opts module"
-msgstr "plugins.lookup.nfs\\ mount \\ opts मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nfs\\_state\\_path module"
-msgstr "plugins.lookup.nfs\\ state \\ path मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.nginx module"
@@ -93966,7 +93966,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.node\\_max\\_old\\_space\\_size module"
-msgstr "plugins.lookup.node\\ max \\ old \\ space \\ size मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.objstore module"
@@ -93974,38 +93974,38 @@ msgstr "plugins.lookup.objstore मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.objstore\\_consumers module"
-msgstr "plugins.lookup.objstore\\ conumers मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.path\\_absolute module"
-msgstr "plugins.lookup.path\\ absolute मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.playwright\\_workers module"
-msgstr "plugins.lookup.playwright\\ workers मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.postgres\\_libraries module"
-msgstr "plugins.lookup.postgres\\ libraries मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.prometheus\\_integration\\_active module"
-msgstr "plugins.lookup.prometheus\\ integration \\ active मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.proxy\\_excluded\\_hosts module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.proxy\\_pass module"
-msgstr "plugins.lookup.proxy\\ pass मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.rbac\\_group\\_path module"
-msgstr "plugins.lookup.rbac\\ group \\ path मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.redirect\\_uris module"
-msgstr "plugins.lookup.redirect\\ uris मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.resource module"
@@ -94013,27 +94013,27 @@ msgstr "plugins.lookup.resource मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.role\\_subnets module"
-msgstr "plugins.lookup.role\\ subnets मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.role\\_templates\\_expanded module"
-msgstr "plugins.lookup.role\\ templates \\ expanded मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.role\\_tests module"
-msgstr "plugins.lookup.role\\ tests मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.roles\\_with\\_placement module"
-msgstr "plugins.lookup.roles\\ with \\ placement मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.roles\\_with\\_service module"
-msgstr "plugins.lookup.roles\\ with \\ service मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.scrape\\_target module"
-msgstr "plugins.lookup.scrape\\ target मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.service module"
@@ -94041,22 +94041,22 @@ msgstr "plugins.lookup.service मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.service\\_extensions module"
-msgstr "plugins.lookup.service\\ extensions मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.service\\_memory\\_mb module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.service\\_registry module"
-msgstr "plugins.lookup.service\\ registry मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.shared\\_network\\_key module"
-msgstr "plugins.lookup.shared\\ network \\ key मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.smtp\\_host module"
-msgstr "plugins.lookup.smtp\\ host मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.sso module"
@@ -94067,26 +94067,26 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.sso\\_oidc\\_plugin module"
-msgstr "plugins.lookup.sso\\ oidc \\ plugin मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.sso\\_proxy\\_consumers module"
-msgstr "plugins.lookup.sso\\ proxy \\ conumers मॉड्यूल"
+msgstr ""
 
 msgid "plugins.lookup.sso\\_whitelist\\_domains module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.stage\\_groups module"
-msgstr "plugins.lookup.stage\\ groups मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.subnet\\_address\\_regex module"
-msgstr "plugins.lookup.subnet\\ address \\ regex मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.subnet\\_gateway module"
-msgstr "plugins.lookup.subnet\\ gateway मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.timeout module"
@@ -94098,23 +94098,23 @@ msgstr "plugins.lookup.tls मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.tor\\_ports module"
-msgstr "plugins.lookup.tor\\ ports मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.tor\\_reachable module"
-msgstr "plugins.lookup.tor\\ reachable मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.tor\\_socks module"
-msgstr "plugins.lookup.tor\\ socks मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.tor\\_socks\\_proxy module"
-msgstr "plugins.lookup.tor\\ socks \\ proxy मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.unit\\_name module"
-msgstr "plugins.lookup.unit\\ name मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.users module"
@@ -94122,7 +94122,7 @@ msgstr "plugins.lookup.users मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.users\\_non\\_reserved module"
-msgstr "plugins.lookup.users\\ non reserved मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.version module"
@@ -94171,7 +94171,7 @@ msgstr "पोस्टग्रेस + 16 -> docker.io/library/postgres:16 Pos
 
 # translated-by: libretranslate
 msgid "postgresql-<major>-<apt_package>"
-msgstr "Postgresql-<major>-<apt_package>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "posts: search, read, create, update, delete,"
@@ -94263,11 +94263,11 @@ msgstr "python -m cli.administration.deploy.ci.timings [- रन N] [- रेप
 
 # translated-by: libretranslate
 msgid "python -m cli.administration.inventory.devices ..."
-msgstr "python -m cli.administration.inventory.devices ......"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "python -m cli.meta.ci.architectures [\"हिन्दी64 हाथ64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -94283,7 +94283,7 @@ msgstr "python -m cli.meta.ci.query [- मोड \"तैरना मेजब�
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.slots [--matrix] [--format json] [--field <name>]"
-msgstr "python -m cli.meta.ci.slots [-मैट्रिक्स] [-format json] [- क्षेत्र <name>]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.validate [--whitelist \"...\"] [--priority \"...\"]"
@@ -94548,7 +94548,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "repository root holding the ``requirements`` directory."
-msgstr "repository रूट होल्डिंग ``requirements`` निर्देशिका."
+msgstr ""
 
 msgid "repository root the compose files are relative to."
 msgstr ""
@@ -95063,7 +95063,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "secrets through Ansible Vault"
-msgstr "Ansible Vault"
+msgstr ""
 
 msgid "see docs/agents/action/iteration/workflow.md."
 msgstr ""
@@ -95233,7 +95233,7 @@ msgstr "छोटे और अनुकूल"
 
 # translated-by: libretranslate
 msgid "smaller diffs"
-msgstr "छोटे diffs"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "snapshot directory to restore from."
@@ -95346,11 +95346,11 @@ msgstr "स्ट्रीप"
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC ``initialize``, ``tools/list``, ``tools/call``)"
-msgstr "स्ट्रीमिंग HTTP (JSON-RPC ``initialize``, ``tools/list``, ``tools/call``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "streamable HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`)"
-msgstr "स्ट्रीमिंग HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "string"
@@ -95598,14 +95598,14 @@ msgstr "The number of the ``-p`` लक्ष्य ansible-galaxy में स
 
 # translated-by: libretranslate
 msgid "the ``<backups>/<hash>/<repo>/<generation>`` directory."
-msgstr "The number of the ``<backups>/<hash>/<repo>/<generation>`` निर्देशिका."
+msgstr ""
 
 msgid "the ``MAIL_PROVIDER`` value from the inventory."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "the ``administrator`` account"
-msgstr "The number of the ``administrator`` खाता"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the ``applications.<app_id>`` map."
@@ -95635,7 +95635,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "the ``root`` account"
-msgstr "The number of the ``root`` खाता"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the ``storage.backend`` value, e.g. ``local`` or ``nfs``."
@@ -95655,15 +95655,15 @@ msgstr "The number of the ``{\"selected\": ..., \"rejected\": ...}`` परि�
 
 # translated-by: libretranslate
 msgid "the `administrator` account"
-msgstr "The number of the `administrator` खाता"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the `roles:` list is empty, or"
-msgstr "The number of the `roles:` सूची खाली है, या"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the `root` account"
-msgstr "The number of the `root` खाता"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the absolute URL it proxies."
@@ -96027,7 +96027,7 @@ msgstr "नौकरी का शीर्षक, इसके सामने 
 
 # translated-by: libretranslate
 msgid "the key ansible-vault names the snippet after."
-msgstr "कुंजी Ansible-vault नाम के बाद स्निपेट।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the key is declared nowhere. A budget or filter input that     exists in no source must fail loudly, not resolve to ``\"\"``."
@@ -96303,7 +96303,7 @@ msgstr "प्रत्यायित भंडार, नाम द्वा�
 
 # translated-by: libretranslate
 msgid "the qdrant service role id."
-msgstr "qdrant सेवा भूमिका id।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the question is about the storage driver"
@@ -96843,7 +96843,7 @@ msgstr "वेरिएंट इस स्वीप तैनाती, क्�
 
 # translated-by: libretranslate
 msgid "the vault password file."
-msgstr "vault password file."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the version both files pin today."
@@ -96911,7 +96911,7 @@ msgstr "उपलब्ध आदेशों और विकल्पों �
 
 # translated-by: libretranslate
 msgid "to-dos"
-msgstr "to do"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "tokens containing unresolved Jinja (`{{ ... }}`) point at deployment-own domains and are skipped,"
@@ -97009,7 +97009,7 @@ msgstr "प्रकार"
 
 # translated-by: libretranslate
 msgid "ublock-origin"
-msgstr "Ublock-origin"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ubuntu"
@@ -97137,11 +97137,11 @@ msgstr "utils.annotations.suppress मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.annotations.task\\_gate module"
-msgstr "utils.annotations.task\\ gate मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.ansible\\_log module"
-msgstr "utils.ansible\\ log मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cache package"
@@ -97197,7 +97197,7 @@ msgstr "utils.cache.render मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.cache.schema\\_credentials module"
-msgstr "utils.cache.schema\\ credentials मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cache.users package"
@@ -97213,7 +97213,7 @@ msgstr "utils.cache.yaml मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.cert\\_utils module"
-msgstr "utils.cert\\ utils मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.claude package"
@@ -97221,7 +97221,7 @@ msgstr "utils.claude पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.claude.settings\\_sort module"
-msgstr "utils.claude.settings\\ sort मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cleanup package"
@@ -97229,15 +97229,15 @@ msgstr "utils.cleanup पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.cleanup.databases\\_csv module"
-msgstr "utils.cleanup.databases\\ csv मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cleanup.nginx\\_vhosts module"
-msgstr "utils.cleanup.nginx\\ vhosts मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
-msgstr "utils.cleanup.pycache\\ only \\ dirs मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.cleanup.tokens module"
@@ -97315,7 +97315,7 @@ msgstr "utils.docker.mirror मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.docker.paths\\_utils module"
-msgstr "utils.docker.paths\\ utils मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.docker.registry module"
@@ -97327,11 +97327,11 @@ msgstr "utils.domains पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.domains.application\\_domain\\_index module"
-msgstr "utils.domains.application\\ domain \\ index मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.domains.default\\_primary module"
-msgstr "utils.domains.default\\ primary मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.domains.list module"
@@ -97339,7 +97339,7 @@ msgstr "utils.domains.list मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.domains.primary\\_domain module"
-msgstr "utils.domains.primary\\ domain मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env package"
@@ -97355,19 +97355,19 @@ msgstr "utils.env.handlers पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.act\\_platform\\_image module"
-msgstr "utils.env.handlers.act\\ platform \\ image मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.docker\\_platform module"
-msgstr "utils.env.handlers.docker\\ platform मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.gha\\_passthrough module"
-msgstr "utils.env.handlers.gha\\ passthrough मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.github\\_repository\\_owner module"
-msgstr "utils.env.handlers.github\\ repository \\ owner मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito package"
@@ -97379,11 +97379,11 @@ msgstr "utils.env.handlers.infinito.ca पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
-msgstr "utils.env.handlers.infinito.ca.bundle\\ candidates मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.ca.cert\\_host module"
-msgstr "utils.env.handlers.infinito.ca.cert\\ host मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache package"
@@ -97399,7 +97399,7 @@ msgstr "utils.env.handlers.infinito.cache.hosts मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
-msgstr "utils.env.handlers.infinito.cache.http\\ hosts मॉड्यूल"
+msgstr ""
 
 msgid "utils.env.handlers.infinito.cache.paths module"
 msgstr ""
@@ -97437,7 +97437,7 @@ msgstr "utils.env.handlers.infinito.dir.secrets मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.dir.var\\_lib module"
-msgstr "utils.env.handlers.infinito.dir.var\\ lib मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.distros module"
@@ -97466,18 +97466,18 @@ msgstr "utils.env.handlers.infinito.fork.account मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
-msgstr "utils.env.handlers.infinito.fork.repository\\ url मॉड्यूल"
+msgstr ""
 
 msgid "utils.env.handlers.infinito.ghcr\\_mirror module"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.git\\_identity module"
-msgstr "utils.env.handlers.infinito.git\\ identity मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.gpu\\_count module"
-msgstr "utils.env.handlers.infinito.gpu\\ count मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.i18n package"
@@ -97493,7 +97493,7 @@ msgstr "utils.env.handlers.infinito.image मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.image\\_repository module"
-msgstr "utils.env.handlers.infinito.image\\ repository मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.inventory module"
@@ -97501,11 +97501,11 @@ msgstr "utils.env.handlers.infinito.inventory मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ wsl2 मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
-msgstr "utils.env.handlers.infinito.outer\\ network \\ mtu मॉड्यूल"
+msgstr ""
 
 # lost=['utils.env.handlers.infinito.package']
 # gained=['utils.env.handlers.infinito.packageक']
@@ -97519,19 +97519,19 @@ msgstr ""
 # gained=['cache.admin']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
-msgstr "utils.env.handlers.infinito.package\\ cache.admin \\ password मॉड्यूल"
+msgstr ""
 
 # max मॉड्यूल
 # gained=['cache.blobstore']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
-msgstr "utils.env.handlers.infinito.package\\ cache.blobstore \\ max मॉड्यूल"
+msgstr ""
 
 # mem मॉड्यूल
 # gained=['cache.direct']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
-msgstr "utils.env.handlers.infinito.package\\ cache.direct \\ mem मॉड्यूल"
+msgstr ""
 
 # मॉड्यूल
 # gained=['cache.heap']
@@ -97541,7 +97541,7 @@ msgstr "utils.env.handlers.infinito.package\\ cache.heap मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.parent\\_image module"
-msgstr "utils.env.handlers.infinito.parent\\ image मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright package"
@@ -97549,19 +97549,19 @@ msgstr "utils.env.handlers.infinito.playwright पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright.reports\\_base\\_dir module"
-msgstr "utils.env.handlers.infinito.playwright.reports\\ base \\ dir मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.playwright.stage\\_base\\_dir module"
-msgstr "utils.env.handlers.infinito.playwright.stage\\ base \\ dir मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.pull\\_policy module"
-msgstr "utils.env.handlers.infinito.pull\\ policy मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.registry\\_cache\\_max\\_size module"
-msgstr "utils.env.handlers.infinito.registry\\ cache\\ max \\ size मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue package"
@@ -97569,15 +97569,15 @@ msgstr "utils.env.handlers.infinito.rescue पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.diagnostics\\_dir module"
-msgstr "utils.env.handlers.infinito.rescue.diagnostics\\ dir मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.dns53\\_sampler\\_log module"
-msgstr "utils.env.handlers.infinito.rescue.dns53\\ sampler \\ log मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.rescue.local\\_dumps\\_dir module"
-msgstr "utils.env.handlers.infinito.rescue.local\\ dumps \\ dir मॉड्यूल"
+msgstr ""
 
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.runningप']
@@ -97611,13 +97611,13 @@ msgstr ""
 # gained=['nfs.export']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
-msgstr "utils.env.handlers.infinito.swarm\\ nfs.export \\ base मॉड्यूल"
+msgstr ""
 
 # मॉड्यूल
 # gained=['nfs.state']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
-msgstr "utils.env.handlers.infinito.swarm\\ nfs.state \\ path मॉड्यूल"
+msgstr ""
 
 msgid "utils.env.handlers.infinito.tools package"
 msgstr ""
@@ -97639,7 +97639,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
-msgstr "utils.env.handlers.infinito.tor\\ socks \\ port मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.worker package"
@@ -97655,7 +97655,7 @@ msgstr "utils.env.handlers.infinito.worker.fetch मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.nix\\_config module"
-msgstr "utils.env.handlers.nix\\ config मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.passthrough module"
@@ -97679,7 +97679,7 @@ msgstr "utils.env.writer मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.get\\_url module"
-msgstr "utils.get\\ url मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.github package"
@@ -97687,15 +97687,15 @@ msgstr "utils.github पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.github.playwright\\_summary module"
-msgstr "utils.github.playwright\\ summary मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.github.pytest\\_summary module"
-msgstr "utils.github.pytest\\ summary मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.github.run\\_name module"
-msgstr "utils.github.run\\ name मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.github.variant package"
@@ -97813,7 +97813,7 @@ msgstr "utils.install.collections मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.install.github\\_release module"
-msgstr "utils.install.github\\ release मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.interpreters module"
@@ -97865,7 +97865,7 @@ msgstr "utils.install.lint.mbake मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mermaid\\_cli module"
-msgstr "utils.install.lint.mermaid\\ cli मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.packages module"
@@ -97933,7 +97933,7 @@ msgstr "utils.install.ruby मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.install.system\\_pkg module"
-msgstr "utils.install.system\\ pkg मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.inventory package"
@@ -97941,7 +97941,7 @@ msgstr "utils.inventory पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.inventory.bundle\\_apps module"
-msgstr "utils.inventory.bundle\\ apps मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.inventory.groups module"
@@ -97952,7 +97952,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.kcadm\\_json module"
-msgstr "utils.kcadm\\ json मॉड्यूल"
+msgstr ""
 
 msgid "utils.keycloak\\_scopes module"
 msgstr ""
@@ -97969,7 +97969,7 @@ msgstr "utils.manager पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.manager.credential\\_key module"
-msgstr "utils.manager.credential\\ key मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.manager.inventory module"
@@ -97977,7 +97977,7 @@ msgstr "utils.manager.inventory मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.manager.value\\_generator module"
-msgstr "utils.manager.value\\ generator मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.meta package"
@@ -97993,7 +97993,7 @@ msgstr "utils.meta.identity मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.meta.port\\_bands module"
-msgstr "utils.meta.port\\ bands मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.meta.role package"
@@ -98029,7 +98029,7 @@ msgstr "utils.networks.attachments मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.networks.lookup\\_context module"
-msgstr "utils.networks.lookup\\ context मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.networks.proxy module"
@@ -98045,7 +98045,7 @@ msgstr "utils.nexus पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
-msgstr "utils.nexus.list\\ apt \\ proxy \\ repos मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.packages package"
@@ -98081,7 +98081,7 @@ msgstr "utils.packages.sources मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.parse\\_trace module"
-msgstr "utils.parse\\ trace मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.paths module"
@@ -98129,7 +98129,7 @@ msgstr "utils.roles.applications.config मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.roles.applications.in\\_group\\_deps module"
-msgstr "utils.roles.applications.in\\ group \\ deps मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.applications.mcp module"
@@ -98177,7 +98177,7 @@ msgstr "utils.roles.applications.services.sso मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.roles.applications.status\\_codes module"
-msgstr "utils.roles.applications.status\\ codes मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.applications.topics module"
@@ -98200,7 +98200,7 @@ msgstr "utils.roles.credits मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.roles.dependency\\_resolver module"
-msgstr "utils.roles.dependency\\ resolver मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.deploy module"
@@ -98236,7 +98236,7 @@ msgstr "utils.roles.mapping मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.roles.meta\\_lookup module"
-msgstr "utils.roles.meta\\ lookup मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.order module"
@@ -98252,7 +98252,7 @@ msgstr "utils.roles.rbac.scoped मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.roles.required\\_by\\_coverage module"
-msgstr "utils.roles.required\\ by \\ coverage मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.stage module"
@@ -98268,7 +98268,7 @@ msgstr "utils.roles.validation पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.roles.validation.deploy\\_id module"
-msgstr "utils.roles.validation.deploy\\ id मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.roles.validation.invokable module"
@@ -98300,7 +98300,7 @@ msgstr "utils.storage.nfs मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.symbol\\_glossary module"
-msgstr "utils.symbol\\ glossary मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.templating package"
@@ -98322,7 +98322,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.terminal\\_aliases module"
-msgstr "utils.terminal\\ aliases मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tests package"
@@ -98334,19 +98334,19 @@ msgstr "utils.tests.swarm पैकेज"
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.backup\\_repos module"
-msgstr "utils.tests.swarm.backup\\ repos मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.derive\\_includes module"
-msgstr "utils.tests.swarm.derive\\ includes मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.extend\\_inventory module"
-msgstr "utils.tests.swarm.extend\\ inventory मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.force\\_shared\\_db module"
-msgstr "utils.tests.swarm.force\\ shared \\ db मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.matrix module"
@@ -98365,15 +98365,15 @@ msgstr "utils.tests.swarm.write.extras मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.tests.swarm.write.hosts\\_entries module"
-msgstr "utils.tests.swarm.write.hosts\\ entries मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tls\\_common module"
-msgstr "utils.tls\\ common मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.tor\\_onion module"
-msgstr "utils.tor\\ onion मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.update package"
@@ -98392,7 +98392,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.update.collection\\_source module"
-msgstr "utils.update.collection\\ source मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.update.docker module"
@@ -98422,11 +98422,11 @@ msgstr "utils.update.source मॉड्यूल"
 
 # translated-by: libretranslate
 msgid "utils.yaml\\_bootstrap module"
-msgstr "utils.yaml\\ bootstrap मॉड्यूल"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils/env 📐"
-msgstr "Utils/env 📐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils/install"
@@ -98446,7 +98446,7 @@ msgstr "v.2026.7.20"
 
 # translated-by: libretranslate
 msgid "vCPU"
-msgstr "VCPU"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "valid image/version syntax"
@@ -98756,7 +98756,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} -> /etc/<software_domain>/ca/root-ca.crt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"
@@ -98768,7 +98768,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} # टोपोलॉजी 
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> /tmp/email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
@@ -98783,27 +98783,27 @@ msgstr "{{ lookup('role_subnets', 'web-app-bigbluebutton') }} # ['10.7.7.0/24'] 
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id) }}              → full dict"
-msgstr "{{ lookup('sso', application_id) }} → full dict"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'enabled') }}         → bool"
-msgstr "{{ lookup('sso', application_id, 'enabled') }} → Bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'flavor') }}          → str"
-msgstr "{{ lookup('sso', application_id, 'flavor') }} → str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_enabled') }}      → bool"
-msgstr "{{ lookup('sso', application_id, 'is_enabled') }} → Bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_oidc_native') }}  → bool"
-msgstr "{{ lookup('sso', application_id, 'is_oidc_native') }} → Bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_proxy_gated') }}  → bool"
-msgstr "{{ lookup('sso', application_id, 'is_proxy_gated') }} → Bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated"
@@ -98811,7 +98811,7 @@ msgstr "{{ lookup('sso', application_id, 'logout_url') }} → str, oauth2-प्
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'shared') }}          → bool"
-msgstr "{{ lookup('sso', application_id, 'shared') }} → Bool"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('subnet_address_regex') }}          # 192\\.168\\.24\\.\\d+"
@@ -98819,7 +98819,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\168\\24\\d+"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} -> मोज़े5H://tor:<port> (झुंड)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "‍ Author Information"
@@ -99398,7 +99398,7 @@ msgstr "🧩 [Libretro - मॉड्यूलर Emulator फ्रेमवर
 
 # translated-by: libretranslate
 msgid "🧪 Workarounds for known Docker Compose or Etherpad issues"
-msgstr "🧪 ज्ञात के लिए Workaround Docker Compose या Etherpad मुद्दों"
+msgstr ""
 
 msgid "🧪 `test.sh` starts on the stack host"
 msgstr ""

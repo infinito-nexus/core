@@ -121,10 +121,6 @@ msgstr "বিপরীত DNS-র জন্য স্বয়ংক্রি�
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr ""
-"Backup & Restore\n"
-"---\n"
-"\n"
-"Backup and restore"
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
@@ -175,7 +171,7 @@ msgstr "প্যাকেজ বিল্ড করার সময় root- �
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr "CIner"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
@@ -461,7 +457,7 @@ msgstr "DNS স্বয়ংক্রিয়ভাবে সনাক্ত 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNS সার্ভার"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
@@ -1760,7 +1756,7 @@ msgstr "সার্ভার সংক্রান্ত প্রশাসন�
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr "সার্ভিস Operoon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"

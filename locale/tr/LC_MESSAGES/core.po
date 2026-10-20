@@ -73,16 +73,6 @@ msgstr "SMTP, IMAP, JMAP, POP3, YönetmeSieve, CalDAV, CardDAV ve yerleşik spam
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr ""
-"Analytics\n"
-"---\n"
-"আইনি অনুসন্ধান\n"
-"---\n"
-"ইন্টারন্যাশনাল অ্যানালাইসিস কর্মসূচি\n"
-"---\n"
-"ইন্টারন্যাশনাল অ্যানালাইসিস কর্মসূচি\n"
-"আন্তর্জাতিক আইনি সম্প্রদায়\n"
-"---\n"
-"আন্তর্জাতিক আইনি সম্প্রদায়"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -1011,9 +1001,6 @@ msgstr "Bir web yüzeyi olmadan makine çevirisi motoru, onu doğrudan çağıra
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
 msgstr ""
-"---\n"
-"مکافleta\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
@@ -1504,8 +1491,6 @@ msgstr "SMTP ağ geçidi Tor's Seiko dinleyicileri aracılığıyla .onion alıc
 msgctxt "menu:Sales:title"
 msgid "Sales"
 msgstr ""
-"إدارة\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"

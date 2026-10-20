@@ -1166,7 +1166,7 @@ msgstr "مسؤولو الإخطارات عن أحداث النظام"
 # translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr "OS ' package updates"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -1328,7 +1328,7 @@ msgstr "عبر Tor قد يستغرق ذلك وقتًا أطول."
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr "Caches"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -2154,7 +2154,7 @@ msgstr "خدمات الاخطار النظامية الموحدة التي تر�
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "Updates ' Package Management"
+msgstr ""
 
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."

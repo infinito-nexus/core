@@ -257,7 +257,7 @@ msgstr "*(옵션 정보)* **사이트맵** Let’s Encrypt에 대한 기록 (주
 
 # translated-by: libretranslate
 msgid "*(any)*"
-msgstr "any animal *(of )*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*(not set / empty)*"
@@ -930,7 +930,7 @@ msgstr "**다른 비 면제 `whitelist`** (에 의해 `entry-manual-steer.yml` �
 # **소셜 네트워킹**· **전자상거래**, 모든 이음새가 없는 통합.
 # translated-by: libretranslate
 msgid "**Application Ecosystem** 🚀 A curated suite of self-hosted apps, from **project management**, **version control**, and **CI/CD** to **chat**, **video conferencing**, **CMS**, **e-learning**, **social networking**, and **e-commerce**, all seamlessly integrated."
-msgstr "Application Ecosystem **** 🚀** ****** ****** ****** ****** ****** ** **."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Application fixes you will notice.** Nextcloud installs an OnlyOffice release upstream actually published, keeps social login working over tor, and makes its OIDC account an administrator. Element shows invites again through the new room list. Moodle survives the container roll during installation. Mattermost keeps its configuration in Postgres instead of on a shared volume, and its plugin tree is per node. GitLab creates the default organization a headless install never gets. Jellyfin waits for health before driving the setup wizard. Keycloak registers redirect URIs only for the apps a play deploys, keeps the allowed-origins claim out of the access token, and no longer caches LDAP federation past a fresh grant. The platform's own health mail no longer eats the sender quota."
@@ -4130,8 +4130,6 @@ msgstr "**묘사:** 정적 사이트 생성기 HTML을 업스트림에서 Git �
 # translated-by: libretranslate
 msgid "**Description:** System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
-"---\n"
-"**Description:** locale.gen locale.conf"
 
 # translated-by: libretranslate
 msgid "**Description:** System hostname configuration derived from the inventory host entry"
@@ -4595,7 +4593,7 @@ msgstr "**DooD 고립:** Runner 콘테이너는 주인 Docker 소켓을 거치�
 # [compose.yml.md](../artefact/files/compose.yml.md)·.
 # translated-by: libretranslate
 msgid "**Driver-injected** by `make compose-up` and the dev CLI (cache override paths like `INFINITO_CACHE_REGISTRY_PROXY_CONF`, the package-cache config paths, the frontend CA file). See [common.py](../../../cli/administration/deploy/development/common.py) and [compose.yml.md](../artefact/files/compose.yml.md)."
-msgstr "****`make compose-up`by(`INFINITO_CACHE_REGISTRY_PROXY_CONF`, and)[common.py](../../../cli/administration/deploy/development/common.py)[compose.yml.md](../artefact/files/compose.yml.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Drop-in Inclusion:** Ensures that configuration files from `/etc/sudoers.d` are included."
@@ -4608,14 +4606,12 @@ msgstr "**하락에서 포함:** 설정 파일에 대해 ``/etc/sudoers.d`` 있�
 # *.
 # translated-by: libretranslate
 msgid "**Drop-in Purge:** Optionally remove `/etc/systemd/system.conf.d` contents."
-msgstr "**drop-in purge:**optionally remove `/etc/systemd/system.conf.d`."
+msgstr ""
 
 # 이름 *.
 # translated-by: libretranslate
 msgid "**Drop-in Purge:** Optionally remove ``/etc/systemd/system.conf.d`` contents."
 msgstr ""
-"**Purge All:\n"
-"** All items, including ``/etc/systemd/system.conf.d``."
 
 # translated-by: libretranslate
 msgid "**Drop-in sendmail Replacement:** Configures msmtp to serve as the default sendmail command."
@@ -4771,7 +4767,7 @@ msgstr "**이메일 목적지:** 수신자 지정 `lookup('users', 'administrato
 
 # translated-by: libretranslate
 msgid "**Email notifications** via Mailu (optional)."
-msgstr "**Notification service**viaMailu(optional)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Embedded mode:** Roles that opt out of the shared instance run a private storage-only container inside their own compose network."
@@ -5756,11 +5752,11 @@ msgstr "**동적 목록 생성:** Lookups는 종종 inventories, secrets 또는 
 
 # translated-by: libretranslate
 msgid "**Generate** redirect rules via the ``web-opt-rdr-domains`` role"
-msgstr "**Generate** redirect rules via the ``web-opt-rdr-domains``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Generate** redirect rules via the `web-opt-rdr-domains` role"
-msgstr "**Generate** redirect rules via the `web-opt-rdr-domains`."
+msgstr ""
 
 msgid "**Generated credentials**: `meta/secrets.yml` as in [`web-app-openclaw`](../../roles/web-app-openclaw/meta/secrets.yml)."
 msgstr ""
@@ -6099,7 +6095,7 @@ msgstr "**Icon 서버:** SVG와 PNG 아이콘을 확장 Simple Icons 회사 소�
 
 # translated-by: libretranslate
 msgid "**Idempotency**"
-msgstr "**Idempotency는**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Idempotency:** Ensures tasks are executed only once."
@@ -6447,10 +6443,6 @@ msgstr "**내부 루프**: 편집 리런 사이클 `roles/<role>/files/playwrigh
 # translated-by: libretranslate
 msgid "**Input**"
 msgstr ""
-"Input **\n"
-"---\n"
-"\n"
-"Select **"
 
 # 네트워크에서 실행하고 관리자 호스트 이름 만 해결합니다. 그래서 다른 인터페이스가 듣지 않습니다. 각 swarm 노드는 관리자의 신뢰
 # `<host>:5000` 이름 * `daemon.json.insecure-registries`·.
@@ -6696,7 +6688,7 @@ msgstr "**통합:** pkgmgr 역할과 함께 작동하여 전체 시스템 설정
 
 # translated-by: libretranslate
 msgid "**Integrations:** Works seamlessly with Open WebUI and Flowise."
-msgstr "**Integrations:** Works seamlessly with Open WebUI Flowise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Interactive Icons**: Automatic integration of Simple Icons for popular brands and tools."
@@ -9076,11 +9068,11 @@ msgstr "**PKI 엔진은 플래그 뒤에 배, 기본적으로 꺼집니다.** �
 
 # translated-by: libretranslate
 msgid "**Package installation** of `NGINX` and `NGINX-mod-stream`."
-msgstr "**package installation** of `NGINX` and `NGINX-mod-stream`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Package installation** of ``NGINX`` and ``NGINX-mod-stream``."
-msgstr "**Package** installation ``NGINX`` of ``NGINX-mod-stream``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pacman integration:** Installs the ``obs-studio`` package via the standard system package manager."
@@ -12039,13 +12031,13 @@ msgstr "**변환 값:** 필터를 사용하여 변환, 추출, reformat, 또는 
 # ``/v1/languages`` 각 언어가 완료된 방법을 보여줍니다.
 # translated-by: libretranslate
 msgid "**Translated data:** ``lang`` and ``Accept-Language`` translate role descriptions and category texts; ``/v1/catalogs/core/<code>`` returns a whole catalog as JSON and ``/v1/languages`` reports how complete each language is."
-msgstr "**Translated data:** ``lang`` and ``Accept-Language`` report ``/v1/catalogs/core/<code>`` as ``/v1/languages``."
+msgstr ""
 
 # 범주 텍스트를 번역; `/v1/catalogs/core/<code>` JSON으로 전체 카탈로그를 반환하고 `/v1/languages`
 # 각 언어가 완료된 방법을 보여줍니다.
 # translated-by: libretranslate
 msgid "**Translated data:** `lang` and `Accept-Language` translate role descriptions and category texts; `/v1/catalogs/core/<code>` returns a whole catalog as JSON and `/v1/languages` reports how complete each language is."
-msgstr "**Translated data:** `lang` and `Accept-Language` report `/v1/catalogs/core/<code>` as `/v1/languages`."
+msgstr ""
 
 msgid "**Translation memory:** every approved string is reusable by the gateway and by other components."
 msgstr ""
@@ -12218,12 +12210,12 @@ msgstr ""
 # 커뮤니케이션을 위한 그룹.
 # translated-by: libretranslate
 msgid "**User Group Configuration:** Adds the developer to ``uucp`` and ``lock`` groups for serial communication."
-msgstr "**Configuration for** User Group ``uucp`` ``lock``."
+msgstr ""
 
 # 커뮤니케이션을 위한 그룹.
 # translated-by: libretranslate
 msgid "**User Group Configuration:** Adds the developer to `uucp` and `lock` groups for serial communication."
-msgstr "**Configuration for** User Group `uucp` `lock`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**User isolation** one RabbitMQ user per consumer, granted full permissions only on its own vhost."
@@ -13056,15 +13048,11 @@ msgstr ""
 # translated-by: libretranslate
 msgid "**author**: Prageeth Panicker"
 msgstr ""
-"author**: Prageeth Panicker\n"
-"---\n"
-"\n"
-"koauthor**:pragmaetpaniker"
 
 # 제품
 # translated-by: libretranslate
 msgid "**backup-root** (a directory) → discover + recover `nfs → volume → secrets` directly"
-msgstr "**backup-root** (directly) `nfs → volume → secrets`"
+msgstr ""
 
 # (또한 keycloak 작업, n8₢ 킹) tor 분기 전에 빨간색과 범위의 유지; bookwyrm은 그것의 oauth 실패2 신뢰할 수
 # 있는 세션 spec, 그것의 기본을 fider. onion 작업에서 별도로 수정합니다. espocrm은이 목록을 왼쪽 : 그것의 양파
@@ -15946,16 +15934,16 @@ msgstr "**galaxy_tags**:: ['mastodon'· 'docker'· 'federated'· 'decentralized'
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**:: ['nginx'· 'docker', 'reverse\\ proxy', 'web'· 'automation'· 'archlinux']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**:: ['nginx'· 'javascript'· 'csp', 'sub\\ filter', 'injection'· 'global']"
+msgstr ""
 
 # 'javascript'· 'csp', 'sub\ filter'' ,]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr "**galaxy_tags**:: ['nginx'· 'logout'· 'oidc'· 'javascript'· 'csp', 'sub\\ filter'' ,]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
@@ -15963,11 +15951,11 @@ msgstr "**galaxy_tags**:: ['nginx'· 'tls'· 'ssl', 'reverse\\ proxy', 'letsencr
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
-msgstr "**galaxy_tags**:: ['nginx'· 'tls'· 'ssl', 'self\\ signed', 'certificates'· 'openssl']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr "**galaxy_tags**:: ['openresty'· 'nginx'· 'docker', 'reverse\\ proxy'는]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'video platform']"
@@ -16028,8 +16016,6 @@ msgstr "**쿠버네티스** (주요연혁) 세 번째 렌더링 백엔드가 동
 # translated-by: libretranslate
 msgid "**license**: Infinito.Nexus Community License (Non-Commercial)"
 msgstr ""
-"---\n"
-"**License**: Infinito.Nexus Community License (Non-Commercial )"
 
 # translated-by: libretranslate
 msgid "**local green, CI red**: the failure is in the axis the local stack does not have. Read the CI artifact before touching the role."
@@ -16251,7 +16237,7 @@ msgstr "*이 역할은 아래에 라이센스 [Infinito.Nexus 커뮤니티 라�
 # (Non-Commercial) <https://s.infinito.nexus/license>`__이름 * *·*
 # translated-by: libretranslate
 msgid "*This role is licensed under the* `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__\\ *.*"
-msgstr "*This * is `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__ licensed under the * *."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*Toolchain and dependencies*"
@@ -16513,7 +16499,7 @@ msgstr "*web-app-bluesky* (git ref의 특징):: 1.126.0 으로 1.127.0"
 
 # translated-by: libretranslate
 msgid "*web-app-bluesky* (view): 1.131.1 to 1.132.0"
-msgstr "*web-app-bluesky* (view): 1.131.1 1.132.0"
+msgstr ""
 
 msgid "*web-app-bluesky* (view): 1.132.0 to 1.134.0"
 msgstr ""
@@ -17039,7 +17025,7 @@ msgstr "--retry count; --retry-all-errors는 수송 층 재설정을 커버 (오
 # lost=['host.docker.internal'] gained=['*', 'docker.internal']
 # translated-by: libretranslate
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
-msgstr "-> sōkusu5hō://host.docker.internal:<port> (shōzoku)"
+msgstr ""
 
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 msgstr ""
@@ -17137,7 +17123,7 @@ msgstr "015 - - - KIX Service Management 통합"
 
 # translated-by: libretranslate
 msgid "015 - OpenCloud and OpenTalk IAM integration"
-msgstr "015 - OpenCloud and OpenTalk Iam integration"
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -17405,8 +17391,6 @@ msgstr "2. 보안 🛡️"
 # translated-by: libretranslate
 msgid "3 of 9"
 msgstr ""
-"3 of 9\n"
-"---"
 
 # translated-by: libretranslate
 msgid "3. Click **Create Token**"
@@ -17430,7 +17414,7 @@ msgstr "3. 안감 🧹"
 
 # translated-by: libretranslate
 msgid "3. Overview (required) 🗺️"
-msgstr "3. Overview (required )🗺️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "3. Remove old Dovecot index files"
@@ -17780,7 +17764,7 @@ msgstr "@telegrambot:yourdomain.tld"
 
 # translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr "@whatsappbot :yourdomain.tld"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A \"version\" here is a tag of the shape ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, where the numeric part has 1 to 5 dot-separated components, the optional leading ``<channel>-`` is a release line written before the number (e.g. the LiteLLM tag ``main-v1.77.7-stable`` or the Jitsi tag ``stable-9646``), the optional ``<patch>`` is a vendor counter written as a letter and a number (e.g. the Checkmk tag ``2.4.0p32``), and the optional ``-<flavor>`` suffix is an opaque discriminator (e.g. the Docker Official Image tag ``5.4.5-php8.3-apache`` or the npm-style ``1.2.3-alpha``)."
@@ -20147,7 +20131,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "API service (if services.api.enabled) for connect"
-msgstr "( API service services.api.enabled if ) for connect"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "API transport layer over HTTP(S), mainly for network devices."
@@ -20440,7 +20424,7 @@ msgstr "ActivityPub 이벤트 `event.{{ DOMAIN_PRIMARY }}`, Postgres+PostGIS, �
 
 # translated-by: libretranslate
 msgid "ActivityPub 🌍"
-msgstr "활동Pub 🌍"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Acts as the role entry point and includes the main task flow."
@@ -20937,8 +20921,6 @@ msgstr "새로운 업스트림 추가 ➕"
 # translated-by: libretranslate
 msgid "Adding a User Entry ➕"
 msgstr ""
-"Adding a User Entry ➕\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Adding a Variable ➕"
@@ -21063,9 +21045,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Adds `nextcloudQuota` and `nextcloudEnabled`"
 msgstr ""
-"---\n"
-"Adds `nextcloudQuota` and `nextcloudEnabled`\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Adds cache control headers and exposes the upstream cache status."
@@ -21168,8 +21147,6 @@ msgstr "공급 업체"
 # translated-by: libretranslate
 msgid "Affected Documentation"
 msgstr ""
-"Affected Documentation\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Affected Files"
@@ -21322,8 +21299,6 @@ msgstr "당신의 마지막 투입 후에:"
 # translated-by: libretranslate
 msgid "Agent"
 msgstr ""
-"Agent\n"
-" Agent"
 
 # translated-by: libretranslate
 msgid "Agent Broker"
@@ -22309,7 +22284,7 @@ msgstr "OpenAI 키, 배포 및 테스트 경로"
 
 # translated-by: libretranslate
 msgid "An OpenRouter key"
-msgstr "OpenRouter 키"
+msgstr ""
 
 # `version`· `source` (공급 업체)· `registry`· `source_file`·.
 # translation-refused: libretranslate echo
@@ -22322,11 +22297,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "An ``admin`` user authenticated from the ``RABBITMQ_PASSWORD`` credential."
-msgstr "An ``admin`` user authenticated from the ``RABBITMQ_PASSWORD``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "An `admin` user authenticated from the `RABBITMQ_PASSWORD` credential."
-msgstr "An `admin` user authenticated from the `RABBITMQ_PASSWORD`."
+msgstr ""
 
 msgid "An `http_regex` source with a `template` fills it with the pattern's named groups instead of taking the first group, for a tag built from several upstream values:"
 msgstr ""
@@ -23174,12 +23149,12 @@ msgstr "새 변형에 대한 목록 항목을 승인합니다. 모든 동적 서
 # ``/etc/nsswitch.conf``· idempotently
 # translated-by: libretranslate
 msgid "Appends ``myhostname`` to the ``hosts:`` line of ``/etc/nsswitch.conf``, idempotently"
-msgstr "``myhostname`` ``hosts:`` ``/etc/nsswitch.conf`` idempotently"
+msgstr ""
 
 # `/etc/nsswitch.conf`· idempotently
 # translated-by: libretranslate
 msgid "Appends `myhostname` to the `hosts:` line of `/etc/nsswitch.conf`, idempotently"
-msgstr "`myhostname` `hosts:` `/etc/nsswitch.conf` idempotently"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Applicability"
@@ -24685,14 +24660,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
 msgstr ""
-"[AGENTS.md](../../AGENTS.md)\n"
-"[](../agents/action/iteration/compose.md)\n"
-"[](../agents/action/iteration/swarm.md)\n"
-"[deployment-modes.md](../contributing/design/deployment-modes.md)\n"
-"[Playwright ](../contributing/artefact/files/role/playwright.specs.js.md)\n"
-"[common.md](../contributing/design/iam/common.md)\n"
-"[oidc.md](../contributing/design/iam/oidc.md)\n"
-"[rbac.md](../contributing/design/iam/rbac.md)."
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -24837,7 +24804,7 @@ msgstr "공급 능력:"
 
 # translated-by: libretranslate
 msgid "Behavior::"
-msgstr "Behavior ::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Behaviour"
@@ -24954,7 +24921,7 @@ msgstr "아래 항목에서 CRUD에 대한 Bind DN `ROOT`"
 
 # translated-by: libretranslate
 msgid "Bind DN for `cn=config` schema work"
-msgstr "Bind DN 용 `cn=config` schema 일"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bind DN: `{{ LDAP.DN.ADMINISTRATOR.DATA }}`"
@@ -26524,10 +26491,6 @@ msgstr "Cache-stack 경고 및 조사 (레지스트리 캐시, 패키지 캐시,
 # translated-by: libretranslate
 msgid "Cached"
 msgstr ""
-"Cached\n"
-"---\n"
-"\n"
-"Kachin"
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -26659,9 +26622,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Cancellation"
 msgstr ""
-"---\n"
-"Cancellation\n"
-"Translation: Cancellation"
 
 # translated-by: libretranslate
 msgid "Cancellation of in-progress workflow runs on PR-close and branch-delete events."
@@ -26708,18 +26668,11 @@ msgstr "Canonical 재생산 단면도"
 # translated-by: libretranslate
 msgid "Canonical User Key 🔑"
 msgstr ""
-"---\n"
-"Canonical User Key 🔑\n"
-"---\n"
-"\n"
-"Kōbō Chūshū"
 
 # meta/main.yml·.
 # translated-by: libretranslate
 msgid "Canonical ``galaxy_info.platforms`` block for every role's meta/main.yml."
 msgstr ""
-"-\n"
-"Canonical ``galaxy_info.platforms`` block for every role's meta/main.yml."
 
 # translated-by: libretranslate
 msgid "Canonical alias consistency checks"
@@ -26889,8 +26842,6 @@ msgstr "1명2명3명4명5명5명6명7명9명～ 🗂️"
 # translated-by: libretranslate
 msgid "Category"
 msgstr ""
-"Category\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Category Tests 🗂️"
@@ -26903,8 +26854,6 @@ msgstr "카테고리 트리 SPOT."
 # translated-by: libretranslate
 msgid "Cause 🔍"
 msgstr ""
-"Cause 🔍\n"
-"-cause"
 
 # translated-by: libretranslate
 msgid "Caveman: Token Compression"
@@ -27159,7 +27108,7 @@ msgstr "채널 : 📡"
 
 # translated-by: libretranslate
 msgid "ChatGPT"
-msgstr "채팅GPT"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "ChatGPT bridge"
@@ -27550,11 +27499,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Click **New repository variable**."
 msgstr ""
-"---\n"
-"Create **new repository variable**.\n"
-"---\n"
-"\n"
-"### Ko."
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -28853,7 +28797,7 @@ msgstr "모든 runner 인스턴스에 할당된 Comma-separated 라벨."
 
 # translated-by: libretranslate
 msgid "Command"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Command output logging 📜"
@@ -28944,14 +28888,10 @@ msgstr "사용자 입력을 위한 일반적인 검증 또는 변환 기능."
 # translated-by: libretranslate
 msgid "Common 📌"
 msgstr ""
-"Common 📌\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Common 🧭"
 msgstr ""
-"Common 🧭\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Communication is divided into public and internal channels depending on the sensitivity of the topic."
@@ -29765,10 +29705,6 @@ msgstr "웹 사이트, 블로그 및 멀티 사이트 네트워크 구축 및 �
 # translated-by: libretranslate
 msgid "Contents"
 msgstr ""
-"Contents\n"
-"---\n"
-"English\n"
-"Japanese"
 
 # translated-by: libretranslate
 msgid "Contents of the role"
@@ -29792,7 +29728,7 @@ msgstr "Context 우선권:"
 
 # translated-by: libretranslate
 msgid "Context window"
-msgstr "Context 창"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Context 🎯"
@@ -30422,9 +30358,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Creates `/etc/environment` if missing"
 msgstr ""
-"Creates `/etc/environment` if missing\n"
-"\n"
-"---"
 
 # Cloudflare 지역, 선택적으로 proxied.
 # translation-refused: libretranslate echo
@@ -30437,9 +30370,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Creates ``/etc/environment`` if missing"
 msgstr ""
-"Creates ``/etc/environment`` if missing\n"
-"\n"
-"---"
 
 # Cloudflare 지역, 선택적으로 proxied.
 # translation-refused: libretranslate echo
@@ -31176,7 +31106,7 @@ msgstr "관련 링크"
 
 # translated-by: libretranslate
 msgid "Debugging Tips"
-msgstr "Debugging 팁"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debugging a failed Hugo build"
@@ -31607,9 +31537,6 @@ msgstr "완료의 정의"
 # translated-by: libretranslate
 msgid "Definitions"
 msgstr ""
-"Definitions\n"
-"---\n"
-","
 
 # translated-by: libretranslate
 msgid "Delegates installation and configuration of msmtp to ``sys-svc-mail-msmtp``."
@@ -32245,7 +32172,7 @@ msgstr "하나의 실패 모듈 호출을 설명합니다."
 
 # translated-by: libretranslate
 msgid "Description"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Descriptive Role-Level Metadata: `meta/info.yml` 📝"
@@ -32397,8 +32324,6 @@ msgstr "안전한 사용을 위한 상세한 가이드는 여기에서 문서화
 # translated-by: libretranslate
 msgid "Details"
 msgstr ""
-"Details\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Details on specific apps like Cospend, including related SQL queries and debugging tips."
@@ -32590,7 +32515,7 @@ msgstr "Dict 형태는 목록 형태를 표현할 수 없습니다:"
 
 # translated-by: libretranslate
 msgid "Diff Quality 🔍"
-msgstr "Diff 질 🔍"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Diff the CNG repo ``dev/`` config templates (``webservice-config``, ``sidekiq-config``, ``workhorse-config``, ``shell-config``, ``gitaly-config``) between the two tags and mirror schema changes into ``templates/config/``."
@@ -34325,14 +34250,10 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Email"
 msgstr ""
-"Email\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Email (Decision #8 — outbound only in v1)"
 msgstr ""
-"Email (Decision #8 — outbound only in v1)\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Email Configuration 📬"
@@ -34595,7 +34516,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Enabled ***pkgmgr install infinito*** test"
-msgstr "Enabled ***pkgmgr install*** test"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Enabled EPEL for *dev-fakeroot* on CentOS"
@@ -34685,7 +34606,7 @@ msgstr "Endpoint DNS 및 각 클라이언트에서 라우팅, 작곡 및 swarm�
 
 # translated-by: libretranslate
 msgid "Endpoints"
-msgstr "Endpoint"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Enforced by"
@@ -35053,7 +34974,7 @@ msgstr "Env 계약"
 
 # translated-by: libretranslate
 msgid "Env key"
-msgstr "Env 키"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Env-Var Knobs"
@@ -35963,11 +35884,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Example `vars/main.yml` entry:"
 msgstr ""
-"<!-- \n"
-" `vars/main.yml` entry: \n"
-" <!-- \n"
-" -\n"
-" -->"
 
 # translated-by: libretranslate
 msgid "Example image"
@@ -37267,11 +37183,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "First name"
 msgstr ""
-"Name\n"
-"\n"
-"---\n"
-"\n"
-"### End of User Specification"
 
 # translated-by: libretranslate
 msgid "First pull of any image: cache miss, fetched upstream, persisted to disk."
@@ -37537,9 +37448,6 @@ msgstr "맛 파견"
 # translated-by: libretranslate
 msgid "Flavors"
 msgstr ""
-"---\n"
-"Flavors\n"
-"---"
 
 # `meta/services.yml` 리터럴에서 뒤로 `false` 동적인 `'svc-db-openldap' in group_names`
 # 이름 *.
@@ -38881,8 +38789,6 @@ msgstr "공급 업체 🍴"
 # translated-by: libretranslate
 msgid "Form"
 msgstr ""
-"Form\n"
-"---"
 
 # .md](033-web-app-homeassistant.md). Hermes는 가정 조수로 단일 라즈베리 파이에서 실행, 음성 / 채팅에
 # 도달, 호스트 액세스없이 MCP를 통해 홈 장치를 제어.
@@ -39182,12 +39088,6 @@ msgstr "GCC 소개"
 # translated-by: libretranslate
 msgid "GET"
 msgstr ""
-"GET\n"
-"\n"
-"POST\n"
-"---\n"
-"\n"
-"### POST"
 
 # translated-by: libretranslate
 msgid "GHA-only static-env passthrough: keys from default.env that are only seeded when running on real GitHub Actions."
@@ -39222,7 +39122,7 @@ msgstr "GHCR 저장소 거울은 밑에 생활합니다."
 
 # translated-by: libretranslate
 msgid "GHCRProvider 🐳"
-msgstr "GHCR제공자 🐳"
+msgstr ""
 
 msgid "GITEA_INTERNAL_API_URL: \"{{ lookup('container_url', application_id, 'gitea') }}/api/v1\""
 msgstr ""
@@ -39438,7 +39338,7 @@ msgstr "Generic, Cloudflare에 DNS 레코드 관리 (A/AAAA의 이름, MX, TXT, 
 
 # translated-by: libretranslate
 msgid "Get 2 approvals"
-msgstr "Get 2 konsensi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Get CODEOWNER approval (if applicable)"
@@ -39719,10 +39619,6 @@ msgstr "바로가기: [https://dash.cloudflare.com/](https://dash.cloudflare.com
 # translated-by: libretranslate
 msgid "Goal"
 msgstr ""
-"Goal\n"
-"---\n"
-"\n"
-"### Target: Korean"
 
 # translated-by: libretranslate
 msgid "Goal Hardware"
@@ -39731,8 +39627,6 @@ msgstr "Goal 하드웨어"
 # translated-by: libretranslate
 msgid "Goal 🎯"
 msgstr ""
-"Goal 🎯\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Good changes in this area usually make the test experience more:"
@@ -40091,9 +39985,6 @@ msgstr "제품정보 🏷️"
 # translated-by: libretranslate
 msgid "Health"
 msgstr ""
-"Kārzā\n"
-"\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Health & quality"
@@ -40343,9 +40234,6 @@ msgstr "시스템 및 정기 검사를 위한 타이머로 Hooks."
 # translated-by: libretranslate
 msgid "Host"
 msgstr ""
-"Host\n"
-"- En: Host\n"
-"- Ko: Host"
 
 # translated-by: libretranslate
 msgid "Host address that all published ports bind to."
@@ -40430,10 +40318,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Hostname"
 msgstr ""
-"Ihmun\n"
-"\n"
-"---\n"
-"Ihmun"
 
 # translated-by: libretranslate
 msgid "Hostname or container name to dial"
@@ -40997,9 +40881,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Idea"
 msgstr ""
-"Idea\n"
-"---\n"
-"Idea"
 
 # translated-by: libretranslate
 msgid "Ideal for AI stacks: datasets, embeddings, and artifacts"
@@ -41702,12 +41583,6 @@ msgstr "학습 경험을 Ignite `Moodle <https://moodle.org/>`__, 교실을 격�
 # translated-by: libretranslate
 msgid "Image"
 msgstr ""
-"Image\n"
-"---\n"
-"Tếp Chất\n"
-"---\n"
-"\n"
-"###"
 
 # translated-by: libretranslate
 msgid "Image & version policy"
@@ -43177,11 +43052,11 @@ msgstr "설치하기 Zoom 대상 기계에 직접 : 저장소를 복제, OS prer
 
 # translated-by: libretranslate
 msgid "Install a `.service` and `.timer` unit."
-msgstr "Install `.service` and `.timer`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Install a ``.service`` and ``.timer`` unit."
-msgstr "Install a ``.service`` and ``.timer``."
+msgstr ""
 
 msgid "Install act (nektos/act) if missing; provisions the act-based make targets."
 msgstr ""
@@ -44595,7 +44470,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC, ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -44607,11 +44482,11 @@ msgstr "JSON 객체는 verbatim을 `--vars`"
 
 # translated-by: libretranslate
 msgid "JSON-RPC: ``initialize``, ``tools/list``, ``tools/call``"
-msgstr "JSON-RPC: ``initialize``· ``tools/list``· ``tools/call``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON-RPC: `initialize`, `tools/list`, `tools/call`"
-msgstr "JSON-RPC: `initialize`· `tools/list`· `tools/call`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`."
@@ -44623,7 +44498,7 @@ msgstr "JWKS 엔드포인트, 발견과 동일 `jwks_uri`"
 
 # translated-by: libretranslate
 msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
-msgstr "JWT/OIDC 우: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Java"
@@ -44812,7 +44687,7 @@ msgstr "Docker-specific 설명을 유지하고 명령 참조를 유지하십시�
 # ``files/playwright.config.js``)·.
 # translated-by: libretranslate
 msgid "Keep ``package.json`` and ``playwright.config.js`` centralized in ``roles/test-e2e-playwright/`` (``templates/package.json.j2`` and ``files/playwright.config.js``)."
-msgstr "``package.json````playwright.config.js`` centralized in ``roles/test-e2e-playwright/`` (``templates/package.json.j2`` and ``files/playwright.config.js``)."
+msgstr ""
 
 msgid "Keep ``web-app-mailu`` in the host’s groups and add ``web-app-stalwart`` — both MUST be present so Mailu re-renders as a legacy instance (``legacy-mail.<domain>``, no public mail ports) and releases ``mail.<domain>`` to Stalwart."
 msgstr ""
@@ -44821,7 +44696,7 @@ msgstr ""
 # `files/playwright.config.js`)·.
 # translated-by: libretranslate
 msgid "Keep `package.json` and `playwright.config.js` centralized in `roles/test-e2e-playwright/` (`templates/package.json.j2` and `files/playwright.config.js`)."
-msgstr "`package.json``playwright.config.js` centralized in `roles/test-e2e-playwright/` (`templates/package.json.j2` and `files/playwright.config.js`)."
+msgstr ""
 
 msgid "Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart."
 msgstr ""
@@ -45078,14 +44953,10 @@ msgstr "중요한 단면도는 다음을 포함합니다:"
 # translated-by: libretranslate
 msgid "Key settings in ``meta/services.yml`` and ``meta/server.yml``:"
 msgstr ""
-"Key settings in ``meta/services.yml`` and ``meta/server.yml``:\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Key settings in `meta/services.yml` and `meta/server.yml`:"
 msgstr ""
-"Key settings in `meta/services.yml` and `meta/server.yml`:\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Key under which one rendered applications payload stays valid."
@@ -45111,11 +44982,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Key variables (see ``defaults/main.yml``):"
-msgstr "Key variables (see ``defaults/main.yml`` )"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Key variables (see `defaults/main.yml`):"
-msgstr "Key variables (see `defaults/main.yml` )."
+msgstr ""
 
 msgid "Keycloak Architecture"
 msgstr ""
@@ -45228,8 +45099,6 @@ msgstr "열쇠:"
 # translated-by: libretranslate
 msgid "Keyword"
 msgstr ""
-"Keyword\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Keyword Arguments"
@@ -45487,7 +45356,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Last name"
-msgstr "Chang"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Later-bucket dependencies are invalid and fail hard."
@@ -45764,8 +45633,6 @@ msgstr "LibreTranslate 서비스 배포"
 # translated-by: libretranslate
 msgid "License"
 msgstr ""
-"License\n"
-"-------"
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -45804,8 +45671,6 @@ msgstr "Lifecycle은 CI test-deploy discovery 운동을 진행합니다."
 # translated-by: libretranslate
 msgid "Lifetime 🕒"
 msgstr ""
-"Lifetime 🕒\n"
-"---"
 
 # translated-by: libretranslate
 # 있습니다. 긴 라이브 Ansible 프로세스는 매우 다음 읽습니다.
@@ -45925,11 +45790,6 @@ msgstr "리눅스"
 # translated-by: libretranslate
 msgid "List"
 msgstr ""
-"List\n"
-"---\n"
-"- Item 1\n"
-"- Item 2\n"
-"- Item 3"
 
 # translated-by: libretranslate
 msgid "List Users"
@@ -47566,15 +47426,15 @@ msgstr "Materialise 블로그 ``mcp`` 주제는 선언 된 동료로부터 상�
 
 # translated-by: libretranslate
 msgid "Materialised Path"
-msgstr "Materialise"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Materialised Paths 🔗"
-msgstr "Materialise 🔗"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Materialised path"
-msgstr "Materialise"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Materialised path and loader"
@@ -47711,14 +47571,11 @@ msgstr "최대 감소"
 
 # translated-by: libretranslate
 msgid "Meaning"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Means"
 msgstr ""
-"Means\n"
-"---\n"
-"tōshu"
 
 # translated-by: libretranslate
 msgid "Meant to be driven by ``sys-svc-mail``, which decides when to enable this relay."
@@ -48866,8 +48723,6 @@ msgstr "사이트맵"
 # translated-by: libretranslate
 msgid "Name"
 msgstr ""
-"Name\n"
-"---"
 
 # 대한 수정을 검증하는 라인은 합법적 인 선택이며, 녹색 결과가 전체 답처럼 읽기 때문에 침묵하지 않는 라인입니다.
 # translated-by: libretranslate
@@ -48988,7 +48843,7 @@ msgstr "연락처"
 
 # translated-by: libretranslate
 msgid "Native-OIDC flavor precedent: [024 ERPNext](024-web-app-erpnext.md)"
-msgstr "Native-OIDC 맛 precedent: [024 ERPNext](024-web-app-erpnext.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-docker`` directory."
@@ -49173,8 +49028,6 @@ msgstr "절대로, 그리고 사용자 이름과 함께."
 # translated-by: libretranslate
 msgid "Never."
 msgstr ""
-"Never\n"
-"já."
 
 # 로그인 단계가 비어 있는다.
 # translation-refused: libretranslate untranslated
@@ -49186,7 +49039,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Never. Unset leaves the route unpublished."
-msgstr "Never. unpublished."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New *unit_name* lookup plugin for consistent versioned systemd unit generation"
@@ -49447,13 +49300,6 @@ msgstr "Nix 버전은 공식 설치 프로그램을 통해 설치합니다."
 # translated-by: libretranslate
 msgid "No"
 msgstr ""
-"No\n"
-"---\n"
-"\n"
-"### No\n"
-"---\n"
-"\n"
-"### Nō"
 
 msgid "No LTEngine role."
 msgstr ""
@@ -49896,9 +49742,6 @@ msgstr "Lua/JS 내용 주입을 요구하는 시나리오를 위해 적당한"
 # translated-by: libretranslate
 msgid "Note"
 msgstr ""
-"Note\n"
-"---\n"
-"Note"
 
 # translated-by: libretranslate
 msgid "Note: Django superuser enables access to `/admin`. Workspace permissions inside Baserow still need to be configured in Baserow UI/API."
@@ -49914,7 +49757,7 @@ msgstr "참고: 많은 repo 명령 (사이트맵 `make`) repo 루트에서 실�
 
 # translated-by: libretranslate
 msgid "Notes"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Notes / Caveats"
@@ -50098,7 +49941,7 @@ msgstr "OIDC로 Bluesky-PDS 앱 패스워드 브로커 (변종 필요조건에 �
 
 # translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr "OIDC → `web-app-keycloak`· `wp-discourse` · `web-app-discourse`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC 🪪"
@@ -50136,11 +49979,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: ``debian``, ``ubuntu``, ``archlinux``, ``fedora``, ``centos``."
-msgstr "OS: ``debian``· ``ubuntu``· ``archlinux``· ``fedora``· ``centos``·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OS: `debian`, `ubuntu`, `archlinux`, `fedora`, `centos`."
-msgstr "OS: `debian`· `ubuntu`· `archlinux`· `fedora`· `centos`·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Object Classes 🧱"
@@ -50191,10 +50034,6 @@ msgstr "Odoo의 기능은 모듈형 아키텍처를 통해 전달됩니다. 다�
 # translated-by: libretranslate
 msgid "Off"
 msgstr ""
-"Off\n"
-"---\n"
-"\n"
-"On"
 
 # ``web-app-hermes``· ``web-app-openclaw`` 또는 ``web-app-openwebui`` 함께 배포됩니다.
 # translation-refused: libretranslate echo
@@ -50415,16 +50254,6 @@ msgstr "제출"
 # translated-by: libretranslate
 msgid "On"
 msgstr ""
-"On\n"
-"---\n"
-" \n"
-"On\n"
-"---\n"
-" \n"
-"On\n"
-"---\n"
-" \n"
-"On"
 
 # translated-by: libretranslate
 msgid "On Failure"
@@ -52567,11 +52396,6 @@ msgstr "포장 배치"
 # translated-by: libretranslate
 msgid "Page"
 msgstr ""
-"Page\n"
-"---\n"
-"ko\n"
-"é\n"
-"ê"
 
 msgid "Page background"
 msgstr ""
@@ -54315,11 +54139,11 @@ msgstr "1차 CI 및 개발 대상; 클라우드 인프라에 널리 사용됩니
 
 # translated-by: libretranslate
 msgid "Primary `dsk-*` role(s):"
-msgstr "Primary `dsk-*` roles( ):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Primary `web-*` role(s):"
-msgstr "Primary `web-*` roles( ):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Primary email"
@@ -54363,9 +54187,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Principle"
 msgstr ""
-"Principle\n"
-"---\n"
-"ko jive"
 
 # translated-by: libretranslate
 msgid "Principles 📋"
@@ -55361,7 +55182,7 @@ msgstr "Query 냉동을위한 열린 PRs `<branch>`::"
 
 # translated-by: libretranslate
 msgid "Question"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # 허브](https://hub.infinito.nexus). forking와 contributing에 전용 실은 유효합니다 [이름
 # *](https://s.infinito.nexus/forking)·.
@@ -56196,7 +56017,7 @@ msgstr "관련 기사 **라이트 → 전체**"
 
 # translated-by: libretranslate
 msgid "Recommendations"
-msgstr "Recommend"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Reconcile a catalog's live candidates against the declared addons."
@@ -56541,9 +56362,6 @@ msgstr "배포 로그 경로가 실행되면 어떤 anomaly 검토자가 볼 수
 # translated-by: libretranslate
 msgid "References"
 msgstr ""
-"References\n"
-"---\n"
-","
 
 # translation-refused: libretranslate unknown-token
 # nocheck: url
@@ -56740,10 +56558,6 @@ msgstr "관련 분야 📚"
 # translated-by: libretranslate
 msgid "Related Documentation 📚"
 msgstr ""
-"Related Documentation 📚\n"
-"---\n"
-"\n"
-"### Related"
 
 # translated-by: libretranslate
 msgid "Related Files 📁"
@@ -56772,7 +56586,7 @@ msgstr "관련 페이지 🔗"
 # 킹)::
 # translated-by: libretranslate
 msgid "Related `dev-*`, `drv-*`, `user-*`, or `sys-*` role(s):"
-msgstr "Related `dev-*`, `drv-*`, `user-*`, or `sys-*` roles( )."
+msgstr ""
 
 # 프록시, 또는 저장 역할(₢ 킹)::
 # translation-refused: libretranslate lost-token
@@ -56798,8 +56612,6 @@ msgstr "관련 서비스, 타이머, 패키지, 재고, 워크플로우:"
 # translated-by: libretranslate
 msgid "Related 🔗"
 msgstr ""
-"Related 🔗\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Relational databases are regular services:"
@@ -57273,7 +57085,7 @@ msgstr "Pytest junit-xml의 렌더링은 GitHub 단계 기반 섹션으로 보�
 # ``CHANGELOG.md``. 반환 ``""`` 아카이브가 없을 때.
 # translated-by: libretranslate
 msgid "Render the ``## Older Releases`` block for the trimmed ``CHANGELOG.md``. Returns ``\"\"`` when no archives exist."
-msgstr "``## Older Releases`` block rendered for ``CHANGELOG.md``. Returns ``\"\"``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Render the bond matrix as an HTML page, optionally editable."
@@ -57330,10 +57142,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Rendered as"
 msgstr ""
-"Rendered as\n"
-"---\n"
-"\n"
-"---"
 
 # `roles/<role>/templates/<name>.<ext>.j2` 자주 묻는 질문 `lookup('template',
 # '<name>.<ext>.j2')` (inline 값) 또는 `ansible.builtin.template` (파일 배포)·.
@@ -57861,8 +57669,6 @@ msgstr "요구 사항 : Docker, X11 또는 XWayland, `xhost`"
 #, python-brace-format
 msgid "Requires `${INFINITO_INVENTORY_DIR}/devices.yml` and `.password`."
 msgstr ""
-"Requires `${INFINITO_INVENTORY_DIR}/devices.yml` and `.password`.\n"
-"---."
 
 # translated-by: libretranslate
 msgid "Requires `INFINITO_CONTAINER` to be set to the name of the running container."
@@ -58462,10 +58268,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Return (ok, info_string, first_address_or_None)."
 msgstr ""
-"---\n"
-"Return ok, first_address_or_None).\n"
-"---\n"
-"Return (ko, info_string."
 
 # run/job URL.
 # translation-refused: libretranslate echo
@@ -58553,8 +58355,6 @@ msgstr "Docker의 데이터 루트를 로컬 데몬에 의해보고합니다."
 # translated-by: libretranslate
 msgid "Return INFINITO_CONTAINER; raise SystemExit if unset."
 msgstr ""
-"---\n"
-"Return INFINITO_CONTAINER; raise SystemExit if unset. --."
 
 # translation-refused: libretranslate echo
 # nocheck: url
@@ -58634,7 +58434,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Return True iff *rule* appears on any line of *lines*."
-msgstr "*rule* * * True."
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -58645,7 +58445,7 @@ msgstr ""
 # repo-root-relative) 모두 일치 ``patterns``·.
 # translated-by: libretranslate
 msgid "Return True iff ``rel_path`` (POSIX-style, repo-root-relative) is matched by any of ``patterns``."
-msgstr "``rel_path`` (POSIX-style, repo-root-relative) ``patterns``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return True unless the value is statically known to be disabled."
@@ -58698,7 +58498,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Return ``(graph, in_degree, roles)`` over the roles matching *prefixes*."
-msgstr "Return ``(graph, in_degree, roles)`` over the roles matching *-*."
+msgstr ""
 
 # ``(new_text_or_None, actions)`` Return.
 # translation-refused: libretranslate lost-token
@@ -58722,7 +58522,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Return ``({'role': …, 'app': …}, …)`` for *group*, in run_after order."
-msgstr "``({'role': …, 'app': …}, …)`` group* run_after in*."
+msgstr ""
 
 # translation-refused: libretranslate unknown-token
 # nocheck: url
@@ -58829,10 +58629,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Return ``restored`` without the space runs the translator opened."
 msgstr ""
-"---\n"
-"Return \n"
-"---\n"
-"Return ``restored`` without the space."
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -59616,7 +59412,7 @@ msgstr "식별자 반환 ``role_dir`` 업스트림 제품 이름."
 
 # translated-by: libretranslate
 msgid "Return the identity ``.mailmap`` folds ``name``/``email`` into."
-msgstr "Return ``.mailmap`` ``name`` / ``email``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the identity a commit made here right now would carry."
@@ -60539,8 +60335,6 @@ msgstr "로컬 개발 환경 변경을 재생합니다."
 # translated-by: libretranslate
 msgid "Review"
 msgstr ""
-"Review\n"
-"-----"
 
 # translated-by: libretranslate
 msgid "Review Focus"
@@ -61495,8 +61289,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Rules 📏"
 msgstr ""
-"Rules 📏\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Rules:"
@@ -62195,10 +61987,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Run the relevant local checks. See [testing.md](actions/testing.md)."
 msgstr ""
-"---\n"
-"Check [testing.md](actions/testing.md).\n"
-"---\n"
-"OK."
 
 # translated-by: libretranslate
 msgid "Run the role's deployed backup unit against the live data."
@@ -62374,8 +62162,6 @@ msgstr "역할 실행"
 # translated-by: libretranslate
 msgid "Running 🏃"
 msgstr ""
-"Running 🏃\n"
-"---"
 
 # translated-by: libretranslate
 msgid "Runs **once per play** and is safe to include in stacks that roll out many domains."
@@ -63025,7 +62811,7 @@ msgstr "런타임 자동검출"
 
 # translated-by: libretranslate
 msgid "Runtime value retrieval belongs to `plugins/lookup/`."
-msgstr "Runtime 값 retrieval은 `plugins/lookup/`·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Runtime ⚙️"
@@ -63360,11 +63146,11 @@ msgstr "SSO를 통해 Keycloak 사용 방법 GitLab 오아우트2 회사 소개 
 
 # translated-by: libretranslate
 msgid "STUN on Wikipedia: [en.wikipedia.org/wiki/STUN](https://en.wikipedia.org/wiki/STUN)"
-msgstr "Wikipedia의 STUN: [en.wikipedia.org/wiki/STUN](https://en.wikipedia.org/wiki/STUN)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "STUN on Wikipedia: `en.wikipedia.org/wiki/STUN <https://en.wikipedia.org/wiki/STUN>`__"
-msgstr "Wikipedia의 STUN: `en.wikipedia.org/wiki/STUN <https://en.wikipedia.org/wiki/STUN>`__"
+msgstr ""
 
 msgid "SVG document."
 msgstr ""
@@ -63552,8 +63338,6 @@ msgstr "Schema 체재: `meta/secrets.yml` 🗝️"
 # translated-by: libretranslate
 msgid "Schema validation lives in [`tests/lint/ansible/services/test_addons_schema.py`](../../../../../tests/lint/ansible/services/test_addons_schema.py) and bridge resolution / parity in [`test_addons_bridges.py`](../../../../../tests/lint/ansible/services/test_addons_bridges.py). Suppress with `# nocheck: addon-schema` / `# nocheck: addon-bridge` (comment block above the addon key) or `# nocheck: addon-secret` (on a `config` leaf)."
 msgstr ""
-"Schema validation lives in [`tests/lint/ansible/services/test_addons_schema.py`](../../../../../tests/lint/ansible/services/test_addons_schema.py)[`test_addons_bridges.py`](../../../../../tests/lint/ansible/services/test_addons_bridges.py)`# nocheck: addon-schema``# nocheck: addon-bridge`()`# nocheck: addon-secret`(`config`)\n"
-"---."
 
 # translated-by: libretranslate
 msgid "Schema 🗺️"
@@ -64037,7 +63821,7 @@ msgstr ""
 # 위해.
 # translated-by: libretranslate
 msgid "See [entity/README.md](entity/README.md) for the exact scripts."
-msgstr "See [entity/README.md](entity/README.md) for the exact script."
+msgstr ""
 
 # [external.md](../../docs/contributing/actions/testing/external.md) SPOT :
 # 범위, 독립 규칙 및 `make test-external` 사용.
@@ -64064,7 +63848,7 @@ msgstr ""
 # 필요조건, 및 `make test-lint` 사용.
 # translated-by: libretranslate
 msgid "See [lint.md](../../docs/contributing/actions/testing/lint.md) for the SPOT: scope, requirements, and `make test-lint` usage."
-msgstr "See [lint.md](../../docs/contributing/actions/testing/lint.md) for the `make test-lint` usage."
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=['(mirror.md)']
 # gained=['(', ')', 'mirror.md']
@@ -64632,8 +64416,6 @@ msgstr "관련 기사"
 # translated-by: libretranslate
 msgid "Sequence"
 msgstr ""
-"Sequence\n"
-"---"
 
 # 루프 사이에 구동됩니다. `utils.tests.swarm.matrix` (1차 앱의 변형 당 1 라운드). Highlighted 상자
 # (⚡) 백업-executing systemd 단위는 실제로 시작합니다. 이름 * [../README.md](../README.md)
@@ -64850,12 +64632,12 @@ msgstr "Set **Name** to `CI_RUN_ON_MAIN` and **Value** to `true`."
 # **제품정보** 으로 `<owner>/<repo>`·.
 # translated-by: libretranslate
 msgid "Set **Name** to `CI_SYNC_MAIN_SOURCE_REPOSITORY` and **Value** to `<owner>/<repo>`."
-msgstr "Set **\"Name\"** to `CI_SYNC_MAIN_SOURCE_REPOSITORY` and **\"Value\"** to `<owner>/<repo>`."
+msgstr ""
 
 # **제품정보** 으로 `true`·.
 # translated-by: libretranslate
 msgid "Set **Name** to `INFINITO_PLAYWRIGHT_KEEP` and **Value** to `true`."
-msgstr "Set **\"Name\"** to `INFINITO_PLAYWRIGHT_KEEP` and **\"Value\"** to `true`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Set *drv-epson-multiprinter* lifecycle to *pre-alpha*"
@@ -65406,7 +65188,7 @@ msgstr "짧은 단일 합병증 MAY는 의미있는 제어 흐름을 포함하�
 
 # translated-by: libretranslate
 msgid "Shortcuts ⌨️"
-msgstr "Short️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Shorten a dev-runtime image to its last two registry segments."
@@ -65509,7 +65291,7 @@ msgstr "당신의 역할 디렉토리에 템플릿을 통해 간단한 override"
 # 연결하기
 # translated-by: libretranslate
 msgid "Simpleicons service (if services.simpleicons.enabled) for connect"
-msgstr "Simpleicons service (if services.simpleicons.enabled ) for connect"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Simplified CI image publishing workflow Removed the ci-publish workflow to ensure images are always built on version tags, while keeping stable tagging gated on successful checks."
@@ -65814,13 +65596,6 @@ msgstr "Slightly는 버퍼링 때문에 스트리밍 데이터에 대한 대기�
 # translated-by: libretranslate
 msgid "Slot"
 msgstr ""
-"Slot\n"
-"---\n"
-"\n"
-"### Translator:\n"
-"\n"
-"Slot\n"
-"Bingo"
 
 msgid "Slot accepts text only."
 msgstr ""
@@ -66052,7 +65827,7 @@ msgstr "사운드 서브시스템"
 
 # translated-by: libretranslate
 msgid "Source"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Source Of Truth"
@@ -67076,8 +66851,6 @@ msgstr "기타 제품 🗂️"
 # translated-by: libretranslate
 msgid "Subject"
 msgstr ""
-"Subject\n"
-"- -"
 
 # translated-by: libretranslate
 msgid "Submodules"
@@ -67852,7 +67625,7 @@ msgstr "Sync 건너뛰기 ✓"
 
 # translated-by: libretranslate
 msgid "Sync 🔄"
-msgstr "Sync의 🔄"
+msgstr ""
 
 # translation-refused: libretranslate unknown-token
 # nocheck: url
@@ -68364,11 +68137,11 @@ msgstr "TCP 및 UDP를 통한 TURN 및 STUN 지원"
 
 # translated-by: libretranslate
 msgid "TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
-msgstr "Wikipedia의 TURN: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN on Wikipedia: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
-msgstr "Wikipedia의 TURN: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Tag the commit: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
@@ -68571,7 +68344,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Templar and Boolean Coercion 🧪"
-msgstr "Templar와 Boolean Coercion 🧪"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Template"
@@ -68720,7 +68493,7 @@ msgstr "Test-body 템플릿"
 
 # translated-by: libretranslate
 msgid "Test-budget overrides ⏱️"
-msgstr "Test-budget overrides over️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-e2e-cli Role"
@@ -69392,7 +69165,7 @@ msgstr "CI는 matrix를 배치하는 역할 카탈로그를 배치합니다. 각
 
 # translated-by: libretranslate
 msgid "The CI gate"
-msgstr "CI 문"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CI image build is one job per architecture plus a merge job. It does not grow in wall clock, because the architectures build in parallel on their own runners, and each keeps its own build cache tag."
@@ -81739,7 +81512,7 @@ msgstr "최고 수준의 공급자 서비스 키는 각 svc-db-에 의해 선언
 
 # translated-by: libretranslate
 msgid "Topic"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Topology"
@@ -82915,10 +82688,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Update `roles/web-app-hugo/meta/services.yml`:"
 msgstr ""
-"Update `roles/web-app-hugo/meta/services.yml`:\n"
-"---\n"
-"\n"
-"<no update>"
 
 # `meta/services.yml` 더 새로운 MDAD 커밋에.
 # `meta/services.yml` to a newer MDAD commit. --- Update
@@ -82955,8 +82724,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "Update 🔄"
 msgstr ""
-"Update 🔄\n"
-"---"
 
 msgid "Updates"
 msgstr ""
@@ -84172,7 +83939,7 @@ msgstr "사이트맵2"
 
 # translated-by: libretranslate
 msgid "V2 (no auth)"
-msgstr "V 2 (no auth )"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "V3"
@@ -84243,7 +84010,7 @@ msgstr "인증 및 인증"
 
 # translated-by: libretranslate
 msgid "Validation Apps"
-msgstr "Validation 앱"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Validation Commands 🛠️"
@@ -84615,7 +84382,7 @@ msgstr "언어 버전 🔢"
 
 # translated-by: libretranslate
 msgid "Vhosts: `next.cloud.{{ DOMAIN_PRIMARY }}` → `next.cloud.<NODE_ONION>.onion`"
-msgstr "Vhosts: `next.cloud.{{ DOMAIN_PRIMARY }}` · `next.cloud.<NODE_ONION>.onion`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Video"
@@ -84662,7 +84429,7 @@ msgstr "비주얼 스튜디오 Code 선택 가능한 맛의 워크스테이션 �
 
 # translated-by: libretranslate
 msgid "VisualEditorPlus"
-msgstr "VisualEditorPlus는"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Vocabulary of the ``mcp`` block in ``meta/services.yml``."
@@ -86319,8 +86086,6 @@ msgstr "역할이 auth 통합을 가능하게 할 때 (OIDC, 오우스2· LDAP),
 # translated-by: libretranslate
 msgid "Where"
 msgstr ""
-"Where\n"
-"where"
 
 # translated-by: libretranslate
 msgid "Where a retrigger should pick the regular line up again."
@@ -86376,7 +86141,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Whether *pin* names this matrix entry."
-msgstr "* * names this matrix entry."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Whether SMTP auth is required."
@@ -90099,7 +89864,7 @@ msgstr "[ ] Workflow는 포크 또는 동등한 유효성에서 실행됩니다.
 # `meta/addons/` 이름 * `mechanism: extension` 그리고 아니오 `bridges`·.
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
-msgstr "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its `meta/addons/` `mechanism: extension` `bridges`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): OIDC plus LDAP variant."
@@ -90536,87 +90301,87 @@ msgstr "[/sys/미터](https://openbao.org/api-docs/system/metrics/)"
 
 # translated-by: libretranslate
 msgid "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
-msgstr "[000.001.000- - -2025- - -12- - -09· .md](docs/changelog/000.001.000-2025-12-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
-msgstr "[000.001.001- - -2025- - -12- - -10· .md](docs/changelog/000.001.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
-msgstr "[000.002.000- - -2025- - -12- - -10· .md](docs/changelog/000.002.000-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
-msgstr "[000.002.001- - -2025- - -12- - -10· .md](docs/changelog/000.002.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
-msgstr "[000.003.000- - -2025- - -12- - -17· .md](docs/changelog/000.003.000-2025-12-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
-msgstr "[000.003.001- - -2025- - -12- - -18· .md](docs/changelog/000.003.001-2025-12-18.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
-msgstr "[000.003.002- - -2025- - -12- - -19· .md](docs/changelog/000.003.002-2025-12-19.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
-msgstr "[000.003.003- - -2025- - -12- - -21· .md](docs/changelog/000.003.003-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
-msgstr "[000.003.004- - -2025- - -12- - -21· .md](docs/changelog/000.003.004-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
-msgstr "[000.003.005- - -2025- - -12- - -21· .md](docs/changelog/000.003.005-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
-msgstr "[000.004.000- - -2025- - -12- - -29· .md](docs/changelog/000.004.000-2025-12-29.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
-msgstr "[000.005.000- - -2025- - -12- - -30· .md](docs/changelog/000.005.000-2025-12-30.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
-msgstr "[000.006.000- - -2025- - -12- - -31· .md](docs/changelog/000.006.000-2025-12-31.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
-msgstr "[000.007.000- - -2026- - -01- - -05· .md](docs/changelog/000.007.000-2026-01-05.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
-msgstr "[000.007.001- - -2026- - -01- - -06· .md](docs/changelog/000.007.001-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
-msgstr "[000.007.002- - -2026- - -01- - -06· .md](docs/changelog/000.007.002-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
-msgstr "[000.008.000- - -2026- - -01- - -06· .md](docs/changelog/000.008.000-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
-msgstr "[000.009.000- - -2026- - -01- - -07· .md](docs/changelog/000.009.000-2026-01-07.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
-msgstr "[000.010.000- - -2026- - -01- - -08· .md](docs/changelog/000.010.000-2026-01-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
-msgstr "[000.011.000- - -2026- - -01- - -10· .md](docs/changelog/000.011.000-2026-01-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
-msgstr "[000.012.000- - -2026- - -01- - -25· .md](docs/changelog/000.012.000-2026-01-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) for the distro and filesystem axes this extends."
@@ -90628,55 +90393,55 @@ msgstr "[0001](0001-ci-deploy-matrix-axes.md) 매트릭스 행의 배포 및 파
 
 # translated-by: libretranslate
 msgid "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
-msgstr "[001.000.000- - -2026- - -02- - -03· .md](docs/changelog/001.000.000-2026-02-03.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
-msgstr "[002.000.000- - -2026- - -02- - -08· .md](docs/changelog/002.000.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
-msgstr "[002.001.000- - -2026- - -02- - -08· .md](docs/changelog/002.001.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
-msgstr "[002.001.001- - -2026- - -02- - -08· .md](docs/changelog/002.001.001-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
-msgstr "[002.001.002- - -2026- - -02- - -08· .md](docs/changelog/002.001.002-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
-msgstr "[002.001.003- - -2026- - -02- - -08· .md](docs/changelog/002.001.003-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
-msgstr "[002.001.004- - -2026- - -02- - -08· .md](docs/changelog/002.001.004-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
-msgstr "[002.001.005- - -2026- - -02- - -09· .md](docs/changelog/002.001.005-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
-msgstr "[002.001.006- - -2026- - -02- - -09· .md](docs/changelog/002.001.006-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
-msgstr "[002.001.007- - -2026- - -02- - -09· .md](docs/changelog/002.001.007-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
-msgstr "[002.001.008- - -2026- - -02- - -09· .md](docs/changelog/002.001.008-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
-msgstr "[002.001.009- - -2026- - -02- - -10· .md](docs/changelog/002.001.009-2026-02-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
-msgstr "[003.000.000- - -2026- - -02- - -11· .md](docs/changelog/003.000.000-2026-02-11.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004 - Generic RBAC role auto-provisioning](README.md#archive)"
@@ -90684,35 +90449,35 @@ msgstr "[004 - 일반 RBAC 역할 자동 감독](README.md#archive)"
 
 # translated-by: libretranslate
 msgid "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
-msgstr "[004.000.000- - -2026- - -02- - -13· .md](docs/changelog/004.000.000-2026-02-13.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
-msgstr "[004.000.001- - -2026- - -02- - -15· .md](docs/changelog/004.000.001-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
-msgstr "[004.000.002- - -2026- - -02- - -15· .md](docs/changelog/004.000.002-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
-msgstr "[004.000.003- - -2026- - -02- - -16· .md](docs/changelog/004.000.003-2026-02-16.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
-msgstr "[004.001.000- - -2026- - -02- - -17· .md](docs/changelog/004.001.000-2026-02-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
-msgstr "[005.000.000- - -2026- - -02- - -25· .md](docs/changelog/005.000.000-2026-02-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
-msgstr "[005.001.000- - -2026- - -02- - -28· .md](docs/changelog/005.001.000-2026-02-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
-msgstr "[005.002.000- - -2026- - -03- - -21· .md](docs/changelog/005.002.000-2026-03-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive)"
@@ -90731,31 +90496,31 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
-msgstr "[006.000.000- - -2026- - -04- - -25· .md](docs/changelog/006.000.000-2026-04-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
-msgstr "[007.000.000- - -2026- - -05- - -08· .md](docs/changelog/007.000.000-2026-05-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
-msgstr "[008.000.000- - -2026- - -05- - -27· .md](docs/changelog/008.000.000-2026-05-27.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
-msgstr "[008.000.001- - -2026- - -05- - -28· .md](docs/changelog/008.000.001-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
-msgstr "[008.000.002- - -2026- - -05- - -28· .md](docs/changelog/008.000.002-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
-msgstr "[008.000.003- - -2026- - -05- - -28· .md](docs/changelog/008.000.003-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
-msgstr "[008.000.004- - -2026- - -05- - -28· .md](docs/changelog/008.000.004-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) — reference for the autonomous-run procedure pattern used here"
@@ -90818,7 +90583,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr "[03configure.yml의](./03_configure.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
@@ -91867,7 +91632,7 @@ msgstr "[블루스키](https://bsky.social/) 오픈 AT Protocol에서 실행되�
 
 # translated-by: libretranslate
 msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
-msgstr "[도서Wyrm Documentation](https://docs.joinbookwyrm.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
@@ -91932,7 +91697,7 @@ msgstr "[CONTRIBUTING.md](CONTRIBUTING.md) contributor 워크플로우, 코딩 �
 
 # translated-by: libretranslate
 msgid "[CSS on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)"
-msgstr "[MDN에 CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)"
+msgstr ""
 
 msgid "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) styles the user-facing surfaces of web applications across the deployment. This role registers `design` as a canonical service in the deployment's service registry so consumer roles can declare the corporate design as a runtime dependency."
 msgstr ""
@@ -91974,7 +91739,7 @@ msgstr "[Claude 코드](https://code.claude.com/) Anthropic의 끝 기호화 대
 # *](https://gitlab.com/gitlab-org/build/CNG)
 # translated-by: libretranslate
 msgid "[Cloud Native GitLab (CNG) images](https://gitlab.com/gitlab-org/build/CNG)"
-msgstr "[Cloud GitLab Native ( )](https://gitlab.com/gitlab-org/build/CNG)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Cloudflare Dashboard → API Tokens](https://dash.cloudflare.com/profile/api-tokens)"
@@ -92622,7 +92387,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
-msgstr "[Gist 로 marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)"
@@ -92642,7 +92407,7 @@ msgstr "[GitLab 공식 웹사이트](https://about.gitlab.com/)"
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[GitLab SSO에서 Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -93093,7 +92858,7 @@ msgstr "[MCP 사용자 위임 감사](../../docs/contributing/design/role/servic
 
 # translated-by: libretranslate
 msgid "[MXToolbox](https://mxtoolbox.com)"
-msgstr "[MXToolbox는](https://mxtoolbox.com)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Magento Open Source](https://magento.com/)"
@@ -93206,7 +92971,7 @@ msgstr "[Mattermost SSO 통합 가이드](https://docs.mattermost.com/administra
 
 # translated-by: libretranslate
 msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
-msgstr "[미디어Wiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
@@ -93763,7 +93528,7 @@ msgstr "[팟캐스트 다운로드](https://github.com/seaweedfs/seaweedfs/wiki)
 
 # translated-by: libretranslate
 msgid "[SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)"
-msgstr "[GitHub의 SeaweedFS](https://github.com/seaweedfs/seaweedfs)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, and files. It exposes an S3-compatible API, so applications store and retrieve objects with standard S3 SDKs and CLIs."
@@ -94148,7 +93913,7 @@ msgstr "[사이트맵](https://zammad.org/) 오픈 소스 헬프 데스크 및 �
 
 # translated-by: libretranslate
 msgid "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
-msgstr "[Python의 Zen](https://en.wikipedia.org/wiki/Zen_of_Python)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Zoom](https://zoom.us/) is a popular video conferencing application for online meetings, webinars, and collaboration."
@@ -94501,7 +94266,7 @@ msgstr ""
 # `PERSONA_BIBER_BLOCKED=true` 자주 묻는 질문.
 # translated-by: libretranslate
 msgid "[`tasks/01_admin.yml`](./tasks/01_admin.yml) provisions only the administrator in Shopware's user table. [`meta/services.yml`](./meta/services.yml) pins `services.sso.flavor: oidc`, so no oauth2-proxy fronts the role and the storefront carries no authenticated surface at all; the Keycloak login provider that [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) configures covers the administration backend alone. `biber` therefore has no account in any matrix variant and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` unconditionally."
-msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml)Shopware[`meta/services.yml`](./meta/services.yml)`services.sso.flavor: oidc`2Keycloak[`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml)`biber`[`templates/playwright.env.j2`](./templates/playwright.env.j2)`PERSONA_BIBER_BLOCKED=true`."
+msgstr ""
 
 # Magento's admin 테이블 (`bin/magento setup:install --admin-user`, 자격
 # [`templates/env.j2`](./templates/env.j2))· `biber` 자주 묻는 질문2- 프록시 선언
@@ -94512,7 +94277,7 @@ msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml)Shopware[`meta/services.yml`
 # `ADMIN_NATIVE_PASSWORD` 모든 변형에서 실행합니다.
 # translated-by: libretranslate
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr "[`tasks/01_setup.yml`](./tasks/01_setup.yml) Magento's ( admin table `bin/magento setup:install --admin-user`, [`templates/env.j2`](./templates/env.j2)); `biber` 2 [`meta/services.yml`](./meta/services.yml); `services.sso.enabled: false` `biber` [`templates/playwright.env.j2`](./templates/playwright.env.j2) `PERSONA_BIBER_BLOCKED=true`; `administrator``ADMIN_NATIVE_PASSWORD`."
+msgstr ""
 
 # [`tasks/05_administrator.yml`](./tasks/05_administrator.yml) 계정 만들기 `tootctl
 # accounts create` 암호를 설정하거나 캡처하지 마십시오. `ADMIN_PASSWORD` - 한국어 Keycloak 비밀 —
@@ -94561,7 +94326,7 @@ msgstr ""
 # 변형에서 실행합니다.
 # translated-by: libretranslate
 msgid "[`templates/env.j2`](./templates/env.j2) seeds only the administrator into SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` reaches the app through SuiteCRM's own SAML login against Keycloak, where `SAML_AUTO_CREATE` mints the account on first assertion. In the `services.sso.enabled: false` matrix variants there is no SAML entry point and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` for the generic persona journeys (the LDAP spec still signs `biber` in from the directory). The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr "[`templates/env.j2`](./templates/env.j2) SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` SuiteCRM's own Keycloak `SAML_AUTO_CREATE` `services.sso.enabled: false` `biber` [`templates/playwright.env.j2`](./templates/playwright.env.j2) `PERSONA_BIBER_BLOCKED=true` (the `biber` ) `administrator` LDAP `ADMIN_NATIVE_PASSWORD`."
+msgstr ""
 
 # [`templates/playwright.env.j2`](./templates/playwright.env.j2) 이름 *
 # `PERSONA_BIBER_BLOCKED=true` 이름 * `PERSONA_ADMINISTRATOR_BLOCKED=true` 모든 행렬
@@ -94676,7 +94441,7 @@ msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-imag
 # [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml)
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) ko`github.ref` `refs/pull/<n>/merge` `pull_request` `refs/heads/main` `pull_request_target` `ci-orchestrator` `entry-pr-change-orchestrate.yml` `github.event_name == 'pull_request'`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
@@ -94960,7 +94725,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[macOS](platform/macos.md)"
-msgstr "[맥 OS](platform/macos.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[main.yml](../../../../../roles/sys-service-loader/tasks/main.yml) is the single loader entry point for all shared services."
@@ -95040,7 +94805,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[Docker Hub의 opencloudeu/opencloud](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # [packaging/debian/changelog](../../../packaging/debian/changelog) 그리고
 # `%changelog` 이름 *
@@ -95340,7 +95105,7 @@ msgstr "[test_mapping.py](../../../../tests/integration/roles/meta/test_mapping.
 # 역할에 `templates/` 이름 * `vars/`
 # translated-by: libretranslate
 msgid "[test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py), over role `templates/` and `vars/`"
-msgstr "[test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py), role `templates/` `vars/` over"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_names_static.py](test_names_static.py) — a `listen:`-bearing handler entry MUST carry a static name (no Jinja templating)."
@@ -95463,7 +95228,7 @@ msgstr "[web-app-nextcloud](../../roles/web-app-nextcloud/) 자주 묻는 질문
 # [meta/services.yml](../../roles/web-app-odoo/meta/services.yml)·.
 # translated-by: libretranslate
 msgid "[web-app-odoo](../../roles/web-app-odoo/) calls them `modules` (split `core` / `optional`) under `odoo.modules` in [meta/services.yml](../../roles/web-app-odoo/meta/services.yml)."
-msgstr "[web-app-odoo](../../roles/web-app-odoo/) ko `modules` (de `core` `optional`) `odoo.modules` [meta/services.yml](../../roles/web-app-odoo/meta/services.yml)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[web-app-odoo](../../roles/web-app-odoo/): `blocker: unreviewed_third_party`. Self-hostable third-party add-ons exist, but no Odoo Core server has been confirmed. A module MUST pass source, license, maintenance, authentication, and per-model/per-operation review before selection."
@@ -96202,7 +95967,7 @@ msgstr "[₢ 킹] 모든 MCP 서버 역할은 application-scoped를 선언합니
 # 계정. 배포 시간 프로브 인증 *이름 ** 그 소유자는 도구 계약을 제거하기 전에, 그래서 다른 사람에 속하는 토큰은 배포를 실패.
 # translated-by: libretranslate
 msgid "[x] Every MCP server role documents whether calls execute as the requesting user, a service account, or an administrator, and the implementation verifies the real provisioned identity. The lookup named here has since been replaced: `lookup('mcp_credential')` resolves the provider's declared `mcp.credential.owner`, `tests/lint/ansible/services/test_mcp_no_administrator_token.py` forbids that owner from being `administrator` and forbids task code from reading `users.administrator.tokens`, and all 24 server roles declare `auth_subject: service_account` against a role-scoped `mcp-<application_id>` account. The deploy-time probe authenticates *as* that owner before asserting the tool contract, so a token belonging to anyone else fails the deploy."
-msgstr "[x]x`lookup('mcp_credential')`x`mcp.credential.owner`, x`tests/lint/ansible/services/test_mcp_no_administrator_token.py`x`administrator`x`users.administrator.tokens`, x24x`auth_subject: service_account`x`mcp-<application_id>`x*x*."
+msgstr ""
 
 # `services.matrix.plugins.<bridge>` 렌더링 된에서 활성화 된 표시 `vars.yml` 일치 MDAD
 # enable-flag로 (`matrix_mautrix_telegram_enabled: true` 기타), 모든 교량은 `false` 재생
@@ -97119,7 +96884,7 @@ msgstr "[₢ 킹] Logout 패널은 모든 언어의 텍스트 방향을 취합�
 # translated-by: libretranslate
 #, python-brace-format
 msgid "[x] The metrics endpoint is not reachable through `sys-svc-proxy` from outside the role-local docker network. It **was** publicly readable (HTTP 200 through the proxy) until a `location = /v1/sys/metrics { deny all; }` was added in the role's `templates/proxy.conf.j2`; `test-rbac-denial.js` now asserts the endpoint never answers 200 on the public surface."
-msgstr "[] `sys-svc-proxy`**x**x(x200x)x`location = /v1/sys/metrics { deny all; }`x`templates/proxy.conf.j2`; x`test-rbac-denial.js`x200."
+msgstr ""
 
 # `meta/services.yml` 이름 * `direction: server`· `implementation: native`·
 # `transport: streamable_http`, 준수 [025](025-mcp-role-integration.md) 스키마와 린트.
@@ -97652,7 +97417,7 @@ msgstr ""
 # 확장을 선언합니다. `meta/addons/` 이름 * `mechanism: extension` 그리고 아니오 `bridges`·.
 # translated-by: libretranslate
 msgid "[x] [dsk-gnome](../../roles/dsk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
-msgstr "[x] [dsk-gnome](../../roles/dsk-gnome/) ko `meta/addons/` `mechanism: extension` `bridges`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] [layout.md](../contributing/design/role/services/layout.md) and the [plugins README](../../plugins/README.md) cross-reference each other so the Ansible-`plugins/` concept and the application-`addons` concept are not conflated."
@@ -98223,7 +97988,7 @@ msgstr ""
 # `bench --site … restore` + 중앙 -MariaDB 수입 경로)·.
 # translated-by: libretranslate
 msgid "[x] `roles/web-app-erpnext/README.md` documents restore (the inverse `bench --site … restore` + central-MariaDB import path)."
-msgstr "[x] `roles/web-app-erpnext/README.md` ( documents restore `bench --site … restore`the inverse MariaDB + central-)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] `roles/web-app-erpnext/README.md` documents the manual backup command (`bench --site {{ canonical_domain }} backup --with-files`) and the resulting artefacts (`*.sql.gz` + `*-files.tar` + `*-private-files.tar`)."
@@ -99776,7 +99541,7 @@ msgstr "`SSH (Secure Shell) <https://en.wikipedia.org/wiki/Secure_Shell>`__ 네�
 # `restarted`, ...)
 # translated-by: libretranslate
 msgid "`SYS_SERVICE_RUNNER_STATE` (string): desired state (`started`, `restarted`, ...)"
-msgstr "`SYS_SERVICE_RUNNER_STATE` (string): desired state ( `started`, `restarted`, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SearXNG <https://docs.searxng.org/>`__ is a metasearch engine. It forwards a query to other search engines and returns the merged result without an account and without a tracking profile."
@@ -99817,8 +99582,6 @@ msgstr "`TEST_E2E_PLAYWRIGHT_IMAGE_DISTRO` (기본 : `noble`)"
 # translated-by: libretranslate
 msgid "`TEST_E2E_PLAYWRIGHT_IMAGE` (resolved in `vars/main.yml` from `meta/services.yml.playwright.image` + `.version` via `lookup('config', 'test-e2e-playwright', 'services.playwright.image|version')`)"
 msgstr ""
-"---\n"
-"`TEST_E2E_PLAYWRIGHT_IMAGE` (ko `vars/main.yml` from `meta/services.yml.playwright.image` + `.version` via `lookup('config', 'test-e2e-playwright', 'services.playwright.image|version')`)"
 
 # translated-by: libretranslate
 msgid "`TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR` (default: `/var/lib/infinito/logs/test-e2e-playwright`)"
@@ -99935,7 +99698,7 @@ msgstr "``#`` (파이썬, YAML, 쉘, conf, INI, ...)"
 # 디스플레이 이름에 나타나지 않기 때문에 그 중 첫 번째는 솔기입니다.
 # translated-by: libretranslate
 msgid "``#``, ``@``, ``+``, ``%`` and ``/`` introduce an axis and appear in neither a role id nor a display name, so the first of them is the seam."
-msgstr "``#``, ``@``, ``+``, ``%`` and ``/`` define the seam."
+msgstr ""
 
 msgid "``#reciprocal`` resolves to the partner's variant that switches this role back on, so neither side has to track the other's index::"
 msgstr ""
@@ -100104,7 +99867,7 @@ msgstr "``.po`` 또는 ``.pot`` 파일."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -100393,8 +100156,6 @@ msgstr "``TEST_E2E_PLAYWRIGHT_IMAGE_DISTRO`` (기본 : ``noble``)"
 # translated-by: libretranslate
 msgid "``TEST_E2E_PLAYWRIGHT_IMAGE`` (resolved in ``vars/main.yml`` from ``meta/services.yml.playwright.image`` + ``.version`` via ``lookup('config', 'test-e2e-playwright', 'services.playwright.image|version')``)"
 msgstr ""
-"---\n"
-"``TEST_E2E_PLAYWRIGHT_IMAGE`` (ko ``vars/main.yml`` from ``meta/services.yml.playwright.image`` + ``.version`` via ``lookup('config', 'test-e2e-playwright', 'services.playwright.image|version')``)"
 
 # translated-by: libretranslate
 msgid "``TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR`` (default: ``/var/lib/infinito/logs/test-e2e-playwright``)"
@@ -100445,7 +100206,7 @@ msgstr "``[(value, median_seconds, sample_count), ...]``, 가장 싼 첫번째."
 # 모드 (이름 *) 이제는 clearnet 상태를 산출합니다.
 # translated-by: libretranslate
 msgid "``[True, False]`` on a tor-carrying mode under ``auto`` -- a priority row is not sampled, it covers both states in the same sweep. An explicit ``enforced``/``exclusive``/``disabled`` is an operator narrowing and still wins, and a mode that carries no onion axis at all (host) only ever yields the clearnet state."
-msgstr "``[True, False]`` on ``auto`` -- ``enforced`` -- a ``exclusive`` -- ``disabled`` -- ( -- )."
+msgstr ""
 
 # 또는 필드는 1 차체에 복종됩니다.
 # translated-by: libretranslate
@@ -100644,7 +100405,7 @@ msgstr "``backend``:: ``cloud`` 또는 ``chezmoi``"
 
 # translated-by: libretranslate
 msgid "``base_dir`` (string): base directory for CA files"
-msgstr "``base_dir`` ( ): c:\\Windows\\assembly\\config\\file\\default"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``baudolo-restore --empty`` pre-cleans the schema in one psql session and replays the dump in the next, so a consumer that boots in between recreates the schema and the replay dies on its own ``CREATE TABLE``. Hence the refusal while a consumer is up."
@@ -100892,7 +100653,7 @@ msgstr "``dotlinker_replace`` (기본 : ``true``): 패스 ``--replace`` 으로 `
 
 # translated-by: libretranslate
 msgid "``dotlinker_user`` (required): user to run ``doli`` as"
-msgstr "``dotlinker_user`` (ko ): ``doli``"
+msgstr ""
 
 # 없습니다. Cursor는 확장이 아닌 전체 편집기이며, 벤더가 Open VSX에 확장을 게시하지 않기 때문에 설치 할 필요가 없습니다.
 # Code 그들을 위해. 두 에이전트는 자신의 바이너리에서 사용됩니다.
@@ -102242,7 +102003,7 @@ msgstr "`all` (기본 정보)"
 # sandbox MUST 없이 대리인은 일치하지 않는 Bash를 대우합니다 `ask`·.
 # translated-by: libretranslate
 msgid "`allow`: pre-authorized. Additionally, `sandbox.autoAllowBashIfSandboxed: true` pre-authorizes any Bash command that runs sandboxed and matches no `deny`/`ask` rule. Agents without an equivalent OS-level sandbox MUST treat unmatched Bash as `ask`."
-msgstr "`allow`: authorized. `sandbox.autoAllowBashIfSandboxed: true` `deny` `ask` `ask`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`ansible.builtin.package` ships as a documentation-only stub; its logic lives in Ansible's action plugin. The action plugin here executes modules directly, so it must swap this marker for the host's `ansible_facts.pkg_mgr`."
@@ -102448,7 +102209,7 @@ msgstr "`base.yml.j2` 엔진 sidecar 만 포함 `{% if enabled and not shared %}
 
 # translated-by: libretranslate
 msgid "`base_dir` (string): base directory for CA files"
-msgstr "`base_dir` (ko: )"
+msgstr ""
 
 # `compose` 이름 * `swarm` CI가 각 예산에 별도의 작업을 실행할 수 있는 각 다른 독립적입니다.
 # translation-refused: libretranslate untranslated
@@ -103025,7 +102786,7 @@ msgstr "`dotlinker_replace` (기본 : `true`): 패스 `--replace` 으로 `doli a
 
 # translated-by: libretranslate
 msgid "`dotlinker_user` (required): user to run `doli` as"
-msgstr "`dotlinker_user` (ko ): `doli`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`download` accepts conclusion filters (`-s` success, `-f` failed, `-c` cancelled, `-k` skipped; none fetches all), `-d` for the destination, and `-j` for the worker count. The per-job logs carry the real failing task and its error, and the artefacts carry the Playwright `error-context.md`, screenshots, and `playwright-junit.xml`."
@@ -103078,7 +102839,7 @@ msgstr "`enabled` · `shared` 제품정보"
 # 모두 확인 `enabled=false` 이름 * `enabled=true` 국가.
 # translated-by: libretranslate
 msgid "`enabled` MUST default to `false` in role defaults. Integrated roles MUST use variants to verify both `enabled=false` and `enabled=true` states."
-msgstr "`enabled` KANAJANAMI wa `false` ni `enabled=false` na `enabled=true`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`enabled`/`shared` are omitted. [`utils/cache/applications.py`](../../../../../utils/cache/applications.py) derives both from the admitted clients as `\"{{ '<client>' in group_names or … }}\"`, and `false` when no client is admitted, so a surface is reachable exactly while a peer that uses it is deployed. Write either key to override that: a value in `meta/variants.yml` wins over one in `meta/mcp.yml`, and both win over the derivation. Do not hand-write a `group_names` gate: it is a second source for the derived fact and drifts when an edge changes."
@@ -103177,11 +102938,11 @@ msgstr "`false` (또는 `true` 현재 위치 `required: true`)"
 # 것 동등한 것 `tls`
 # translated-by: libretranslate
 msgid "`false` for `external_container` and `localhost`, else equal to `tls`"
-msgstr "`false` for `external_container` and `localhost`, else `tls`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`false` if not `external`, else `TLS_ENABLED`"
-msgstr "`false` if `external`, else `TLS_ENABLED`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`false` while MCP servers are discovered"
@@ -103451,7 +103212,7 @@ msgstr "`include_filter`, 제공될 때, 콜러가 이미 필터링한 역할 �
 # (기본 정보 `auto`)· `tor`· `marker`
 # translated-by: libretranslate
 msgid "`index`, `sweep` (required), `distros` (optional pool), `filesystem` (optional pool), `whitelist` (optional; explicit value wins over diff), `priority`, `lifecycles`, `modes` (default `auto`), `tor`, `marker`"
-msgstr "`index`, `sweep` (required), `distros` (optional ), `filesystem` (optional ), `whitelist` (optional ), `priority`, `lifecycles`, `modes` (default `auto`), `tor`, `marker`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
@@ -103617,7 +103378,7 @@ msgstr "`locale.gen`: uncomment 또는 필요한 로컬 지정"
 # `localhost_container`, 기타 `web-app-mailu` 이름 *
 # translated-by: libretranslate
 msgid "`localhost` for `external_container`, `localhost`, `localhost_container`, else the `web-app-mailu` domain"
-msgstr "`localhost` for `external_container`, `localhost`, `localhost_container`, `web-app-mailu` domain"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`logparse` — Ansible run log -> records (splits by matrix round/pass markers)."
@@ -103769,7 +103530,7 @@ msgstr "`mcp` 서비스 블록: 필드, 허용 값, 엔드포인트 메타데이
 # 그리고 구별된다 `bridges:` 아래 필드.
 # translated-by: libretranslate
 msgid "`mechanism` (required) MUST be one of `addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`. It records the upstream installation mechanism and selects which task path installs the addon. `mechanism: bridge` denotes a network/appservice bridge addon (see Confirmed Decision 13) and is distinct from the `bridges:` field below."
-msgstr "`mechanism` (required) MUST be one of `addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`, `mechanism: bridge`, (13)`bridges:`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`merge_ref.sh` resolves the merge ref used for forked PR workflows"
@@ -103887,7 +103648,7 @@ msgstr "`meta/variants.yml` asible 맛을 연습하는 새로운 변형을 추�
 # `web-app-zammad` 이름 *)::
 # translated-by: libretranslate
 msgid "`meta/variants.yml` defines three variants (mirrors the `web-app-kix` / `web-app-zammad` pattern):"
-msgstr "`meta/variants.yml` defines ( `web-app-kix` / `web-app-zammad`:)"
+msgstr ""
 
 # [`web-app-kix`](../../roles/web-app-kix/meta/variants.yml) ·
 # [`web-app-zammad`](../../roles/web-app-zammad/meta/variants.yml) 패턴 :
@@ -104159,7 +103920,7 @@ msgstr "`plan_dev_inventory_matrix` · `_resolve_round_include` 지원하다 `Co
 # per-deploy 렌더링). 당신은 복제하거나 역할 당 하나 override하지 않습니다.
 # translated-by: libretranslate
 msgid "`playwright.config.js` MUST remain centralized in `roles/test-e2e-playwright/files/` and `package.json` in `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy into the staging dir). You MUST NOT duplicate or override either per role."
-msgstr "`playwright.config.js`ko`roles/test-e2e-playwright/files/`ko`package.json`ko`roles/test-e2e-playwright/templates/package.json.j2`ko(ko)."
+msgstr ""
 
 # per-role. 이름 * [Playwright 테스트 → 롤로컬
 # 파일](../../../actions/testing/playwright.md#role-local-files-)·.
@@ -104464,7 +104225,7 @@ msgstr "`routine.yml`: 즉시 compose-up로 래퍼"
 
 # translated-by: libretranslate
 msgid "`routine/backup/base.sh` (+ per-host routines in [`routine/backup/`](routine/backup/))"
-msgstr "`routine/backup/base.sh` (+ per-host routine [`routine/backup/`](routine/backup/))"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`run_after:` entries are role names, not service keys."
@@ -104727,7 +104488,7 @@ msgstr ""
 # (컴파일/삭제하는 동안 놀이, 예를 들어. Joomla OIDC 플러그인)·.
 # translated-by: libretranslate
 msgid "`source` (required) MUST be one of `upstream` (installed from the app's own registry), `bundled` (ships with the image), `vendored` (committed under `roles/<role>/files/`), or `built` (compiled/zipped during the play, e.g. the Joomla OIDC plugin)."
-msgstr "`source` (is) `upstream`required(for) `bundled`all(apps)but`vendored`not( `roles/<role>/files/`required)for`built` (serverJoomla,)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`sources`  — pick the right loader for a log path, CSV path, or URL."
@@ -105714,8 +105475,6 @@ msgstr "`workflow_dispatch`: GitHub UI 또는 수동 실행 `gh workflow run`, �
 # translated-by: libretranslate
 msgid "`workspace=false` and `chunk_gate=false`."
 msgstr ""
-"---\n"
-"`workspace=false` and `chunk_gate=false`."
 
 msgid "`worldmonitor` (nginx + Node API under supervisord, container port `8080`), `ais-relay` (port `3004`), `redis` (`redis:7-alpine`, `6379`), `redis-rest` (Upstash-compatible REST proxy, port `80`)."
 msgstr ""
@@ -105918,7 +105677,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "a preference"
-msgstr "no preference"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a prometheus.yml.j2 template at roles/<app_id>/templates/"
@@ -106350,7 +106109,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "any"
-msgstr "any - any"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "any listed id is not an existing `roles/<id>` directory."
@@ -106700,8 +106459,6 @@ msgstr "bearer key 서버는 받아들입니다"
 # translated-by: libretranslate
 msgid "behaviour"
 msgstr ""
-"behaviour\n"
-"ko behaviour"
 
 # translated-by: libretranslate
 msgid "best-effort NFS unmount before node removal"
@@ -107952,8 +107709,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "compose"
 msgstr ""
-"compose\n"
-"ko-romja"
 
 # translated-by: libretranslate
 msgid "compose -> map form with explicit ``condition:`` per entry"
@@ -107966,10 +107721,6 @@ msgstr "구성 CI 매트릭스 (`legacy_resolver` 제품 정보)"
 # translated-by: libretranslate
 msgid "compose `initialize` / `reinstall`"
 msgstr ""
-"compose `initialize` / `reinstall`\n"
-"---\n"
-"\n"
-"ko compose /"
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -108390,10 +108141,6 @@ msgstr "글쓰기 땅을 디렉토리."
 # translated-by: libretranslate
 msgid "disabled"
 msgstr ""
-"disabled\n"
-"---\n"
-"nō\n"
-"disabled"
 
 # translated-by: libretranslate
 msgid "discovers provider entries from `services`"
@@ -108621,8 +108368,6 @@ msgstr "결과를 무시하지 않는 `incompatible`"
 # translated-by: libretranslate
 msgid "enabled"
 msgstr ""
-"enabled\n"
-"ko"
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -108882,8 +108627,6 @@ msgstr "ephemeral, 일 당 재등록"
 # translated-by: libretranslate
 msgid "equal to `from`"
 msgstr ""
-"equal to `from`\n"
-"---"
 
 # translated-by: libretranslate
 msgid "eslint preserve-caught-error and no-useless-assignment violations in five Playwright helpers"
@@ -109040,10 +108783,6 @@ msgstr "특정한 역할만 노출"
 # translated-by: libretranslate
 msgid "extension"
 msgstr ""
-"extension\n"
-"---\n"
-"\n"
-"extension"
 
 # translated-by: libretranslate
 msgid "extension name as ``php -m`` reports it."
@@ -109124,8 +108863,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "file"
 msgstr ""
-"file\n"
-"--"
 
 msgid "file that carries the pin."
 msgstr ""
@@ -109293,8 +109030,6 @@ msgstr "제품 정보"
 # translated-by: libretranslate
 msgid "from utils.cache.files import iter_project_files, read_text"
 msgstr ""
-"from utils.cache.files import iter_project_files\n"
-"read_text"
 
 # translated-by: libretranslate
 msgid "full"
@@ -109346,7 +109081,7 @@ msgstr "git 저장소 URL to fetch ``aliases`` 파일 형식."
 
 # translated-by: libretranslate
 msgid "github"
-msgstr "github의"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "global TLS default, overridden per consumer by ``resolve_enabled``; an .onion domain always resolves to plaintext."
@@ -109390,7 +109125,7 @@ msgstr "Jinja 마커가 남아있는 경우 hard-fail"
 
 # translated-by: libretranslate
 msgid "hard_default (mandatory)"
-msgstr "mandatory hard_default (mandatory )"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "hard_default is mandatory (no implicit None)."
@@ -109435,8 +109170,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "host"
 msgstr ""
-"host\n"
-"ko"
 
 msgid "host or docker selected via INFINITO\\_LINT\\_RUNNER; incremental via a per-env stamp."
 msgstr ""
@@ -109806,8 +109539,6 @@ msgstr "lint 시험 수입품 :data:`ROLE_FILES` forbid type-scoped artefacts on
 # translated-by: libretranslate
 msgid "list"
 msgstr ""
-"list\n"
-"ko"
 
 # translated-by: libretranslate
 msgid "list the collected rescue tree so a reader knows what the artifact holds"
@@ -109948,7 +109679,7 @@ msgstr "루프백 및 클라우드-metadata 주소는 거부"
 
 # translated-by: libretranslate
 msgid "macOS"
-msgstr "맥 OS"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "macOS-specific steps MUST be guarded by an `uname` or `command -v brew` check before execution."
@@ -110265,11 +109996,11 @@ msgstr "사이트맵"
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: <https://en.wikipedia.org/wiki/Msmtp>"
-msgstr "msmtp 에 Wikipedia: <https://en.wikipedia.org/wiki/Msmtp>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: https://en.wikipedia.org/wiki/Msmtp"
-msgstr "msmtp 에 Wikipedia: https://en.wikipedia.org/wiki/Msmtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp: <https://marlam.de/msmtp/>"
@@ -110423,8 +110154,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "none"
 msgstr ""
-"none\n"
-"---"
 
 msgid "none (API key is operator-supplied)"
 msgstr ""
@@ -110535,8 +110264,6 @@ msgstr ""
 # translated-by: libretranslate
 msgid "off"
 msgstr ""
-"no\n"
-"---"
 
 # translated-by: libretranslate
 msgid "off          -> no TLS, HTTP only"
@@ -110620,7 +110347,7 @@ msgstr "1개의 기본 호스트"
 
 # translated-by: libretranslate
 msgid "one dict from ``volume['mounts']``."
-msgstr "한 dict에서 ``volume['mounts']``·."
+msgstr ""
 
 msgid "one entity of ``meta/services.yml``."
 msgstr ""
@@ -111209,7 +110936,7 @@ msgstr "phpLDAPadmin는 DN 및 LDAP 바인딩을 인증 OpenLDAP ``administrator
 # `guest` mana와 baseline assertions는 불조건적으로 실행됩니다.
 # translated-by: libretranslate
 msgid "phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP `administrator_database_password`, not with the Keycloak `administrator` username/password pair, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
-msgstr "OpenLDAP `administrator_database_password`, Keycloak `administrator` `administrator` 2, [`meta/services.yml`](./meta/services.yml), `web-app-phpldapadmin`(`sso.oauth2.allowed_groups`, ), `biber`, [`templates/playwright.env.j2`](./templates/playwright.env.j2), `PERSONA_BIBER_BLOCKED=true``PERSONA_ADMINISTRATOR_BLOCKED=true`; `guest`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin is a web‑based LDAP client that provides an intuitive interface for managing LDAP directories. This containerized deployment leverages Docker Compose and Ansible automation to offer a secure, configurable environment for administering and exploring your LDAP configurations."
@@ -111231,7 +110958,7 @@ msgstr "phpMyAdmin 표지판으로 MariaDB ``root`` 계좌 개설 ``PMA_USER`` �
 # assertions는 불조건적으로 실행됩니다.
 # translated-by: libretranslate
 msgid "phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); the Keycloak `administrator` username is not a MariaDB user, so in the `services.sso.enabled: false` matrix variants the `administrator` persona has no native login to drive and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-phpmyadmin` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`) and `biber` carries an empty role list, so `PERSONA_BIBER_BLOCKED=true` holds in every variant. The `guest` persona and the baseline assertions run unconditionally."
-msgstr "MariaDB `root` `PMA_USER` `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2); [`vars/main.yml`](./vars/main.yml))Keycloak`administrator`MariaDB`services.sso.enabled: false``administrator`[`templates/playwright.env.j2`](./templates/playwright.env.j2)`PERSONA_ADMINISTRATOR_BLOCKED=true`[`meta/services.yml`](./meta/services.yml)`web-app-phpmyadmin`2(`sso.oauth2.allowed_groups`)`biber``PERSONA_BIBER_BLOCKED=true``guest`."
+msgstr ""
 
 msgid "phpldapadmin Architecture"
 msgstr ""
@@ -112192,7 +111919,7 @@ msgstr "python -엠 cli.administration.deploy.ci.timings [--런 N] [--repo 소�
 
 # translated-by: libretranslate
 msgid "python -m cli.administration.inventory.devices ..."
-msgstr "python -엠 cli.administration.inventory.devices · ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
@@ -112228,7 +111955,7 @@ msgstr "python -엠 utils.inventory.bundle_apps 교육 스위트,startup-essenti
 
 # translated-by: libretranslate
 msgid "python -m utils.parse_trace <trace.zip>"
-msgstr "python -엠 utils.parse_trace <trace.zip>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
@@ -112334,8 +112061,6 @@ msgstr "모든 클러스터 ID를 통해 왼쪽 클러스터를 제거"
 # translated-by: libretranslate
 msgid "reason"
 msgstr ""
-"reason\n"
-"ko rea shoan"
 
 # translated-by: libretranslate
 msgid "rebuild=False & image missing => build once"
@@ -112439,9 +112164,6 @@ msgstr "앱 당 렌더링 된 변형 구성; 변형이 가장 작은 것일 수 
 # translated-by: libretranslate
 msgid "renders `.env` from `playwright.env.j2`"
 msgstr ""
-"---\n"
-"renders `.env` from `playwright.env.j2`\n"
-"-"
 
 # translated-by: libretranslate
 msgid "renders a Jinja expression string; None disables rendering."
@@ -112531,7 +112253,7 @@ msgstr "서버가 설정된 요청, retries 포함."
 
 # translated-by: libretranslate
 msgid "required"
-msgstr "I can't fulfill this request."
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -112598,8 +112320,6 @@ msgstr "경로/버전 데이터를 해결"
 # translated-by: libretranslate
 msgid "responsibility"
 msgstr ""
-"responsibility\n"
-"---"
 
 # translated-by: libretranslate
 msgid "restored full deployability of the Sphinx app by fixing the application_id scoping bug."
@@ -112660,8 +112380,6 @@ msgstr "재사용할 수 있는, 설명서"
 # translated-by: libretranslate
 msgid "reuse"
 msgstr ""
-"reuse\n"
-"ko"
 
 # translated-by: libretranslate
 msgid "reversible rather than destructive"
@@ -112669,7 +112387,7 @@ msgstr "destructive 보다는 오히려 반전"
 
 # translated-by: libretranslate
 msgid "role"
-msgstr "no role"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "role -> mode -> state, from :func:`parse_role_statuses`."
@@ -113220,7 +112938,7 @@ msgstr "분류, deduplicated 토큰."
 
 # translated-by: libretranslate
 msgid "source"
-msgstr "I can't assist with that request."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "source messages."
@@ -113303,12 +113021,6 @@ msgstr "스트림 가능 HTTP (JSON-RPC의 `initialize`· `tools/list`· `tools/
 # translated-by: libretranslate
 msgid "string"
 msgstr ""
-"string\n"
-"ko\n"
-"string\n"
-"---\n"
-"string\n"
-"---"
 
 # translation-refused: libretranslate unknown-token
 # nocheck: url
@@ -113393,9 +113105,6 @@ msgstr "태그 또는 digest."
 # translated-by: libretranslate
 msgid "tags"
 msgstr ""
-"tags\n"
-"---\n"
-"ko tags"
 
 # translated-by: libretranslate
 msgid "tags were removed"
@@ -113596,7 +113305,7 @@ msgstr "YAML 키, 일치 ``<key>:`` 벗기는 indentation 후에."
 
 # translated-by: libretranslate
 msgid "the ``-p`` target ansible-galaxy installs into."
-msgstr "``-p`` target ansible-galaxy installs into."
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -113694,7 +113403,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "the ``{\"selected\": ..., \"rejected\": ...}`` result."
-msgstr "the ``{\"selected\": ..., \"rejected\": ...}`` result. --."
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -116842,10 +116551,6 @@ msgstr "잘못된 용어 수, 빈 application_id, 또는 dict가 아닌 항목."
 # translated-by: libretranslate
 msgid "yes"
 msgstr ""
-"no\n"
-"---\n"
-"\n"
-"yes"
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -116890,7 +116595,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} # topology 기본 {{ lookup
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> /tmp/email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
@@ -117229,7 +116934,7 @@ msgstr "💙 **[GitHub 스폰서](https://github.com/sponsors/kevinveenbirkenbac
 
 # translated-by: libretranslate
 msgid "💡 **Smart Fallback to Localhost**"
-msgstr "💡 **Smart Fallback로 Localhost**"
+msgstr ""
 
 # 도메인의 인식이 있어야합니다.
 # translated-by: libretranslate
@@ -117476,7 +117181,7 @@ msgstr "🚫 **No Local Mailbox 배송**"
 
 # translated-by: libretranslate
 msgid "🚫 **No duplication** – tasks run once per deployment"
-msgstr "🚫 ** ** – tasks run once per deployment"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🛠 Resolves the package through the registry id ``spotify`` in ```meta/packages.yml`` <meta/packages.yml>`__"

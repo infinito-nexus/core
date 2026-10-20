@@ -1905,7 +1905,7 @@ msgstr "Системний інтерфейс командного рядка д
 # translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr "EnglishDeutschPусский简体中文中國傳統EspañolالعربيةFrançaisελληνικάDanskАнглійскаябългарскиCatalàČeskýEestiSuomiGaeilgeहिन्दीHrvatskiMagyarIndonesiaIcelandicItalianoעברי日本の한국의LietuvosLatvijasмакедонскиMalay"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"

@@ -32,7 +32,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr "AI skýlar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -55,12 +55,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr "Administration Tools fôr sîrvêsar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Agenzjáðar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -84,7 +84,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
-msgstr "Frami"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -98,7 +98,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analyfíki"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -141,12 +141,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
-msgstr "ArtificialIntelligence"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr "Þingstillingunarframfáfnis"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -174,12 +174,12 @@ msgstr "Backup & Restore"
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr "Backupsíður"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
-msgstr "Backup stragið og restandur sýnunar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -248,7 +248,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr "CI Rúnár"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -368,12 +368,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr "Sar farar jéevishte jéevishte sessionum..."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr "Fjöldi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -476,24 +476,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr "Terminalðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðiðið"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
-"Komaakkaar \n"
-"Kommeri"
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr "Communicazioñ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr "Kvindekona"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -517,12 +515,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr "Container Ærðingur"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr "Kolli òekker"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -581,7 +579,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr "Kómfra òlónækakak"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
@@ -601,7 +599,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
-msgstr "Klasi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -656,7 +654,7 @@ msgstr "Naagrahi khelijokho sheshonarৰ নাগাল আপনাকো অ�
 # translated-by: libretranslate
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
-msgstr "Bælti bunghnanei bissettu."
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -680,7 +678,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr "CustomerRelationship"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -694,12 +692,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr "DNS Æfhingur"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNS Resolviðurakjöfurínar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -722,12 +720,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
-msgstr "Database arnæm (DBMS, LDAP, Redisarnæm, )"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr "Database"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -786,7 +784,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr "Deploylab utf wambarel applications (GitLab, Nextcloud, Mastodon, etc.)"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -873,12 +871,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "Developments"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
-msgstr "Deildun og CI/CD lóðin"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -937,12 +935,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr "Doctrns"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
-msgstr "DocumentationWikiKoFloFloKoFlo"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -956,12 +954,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:drv:title"
 msgid "Drivers"
-msgstr "Dritigridar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr "Educjion"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1002,12 +1000,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "Evening og bilet hátiðferið"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "EventData"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1057,12 +1055,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr "Fiñanço òlakakakak"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr "Finansrætningar og finanssfrímið"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1121,17 +1119,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr "Gaemak"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Gamingplataformar og utebyningaskapinar."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr "Šilfargur"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1163,7 +1161,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "HardenedSSHDaemonConfigurationForKeyBasedRemoteAccessWithRootLoginAndPasswordAuthenticationDisabled"
+msgstr ""
 
 # translation-refused: libretranslate echo
 # nocheck: url
@@ -1194,7 +1192,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr "Hjálpa"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1217,7 +1215,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "Útfilla Heilsugina"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1296,12 +1294,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr "Íslendingurín"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr "Íslendingur og nóvíttingaskilásarar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1325,13 +1323,11 @@ msgstr ""
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
 msgstr ""
-"Infrastructure samfnið sem þessar\n"
-"Database"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
-msgstr "Injiko"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1550,7 +1546,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr "Mátiñeyi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1569,7 +1565,7 @@ msgstr "Docker Swarm মামলা ম্যানেজার নোড হ�
 # translated-by: libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr "Markaing"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1592,7 +1588,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "Monitiro"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1673,7 +1669,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
-msgstr "Networkin"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:description"
@@ -1728,12 +1724,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
-msgstr "Sýnaðgerdunar fer á system efena"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr "OS og pakki brestur"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1765,7 +1761,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
-msgstr "Logg out ፎ Icelandic"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1966,7 +1962,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
-msgstr "Optimmsingr afghanim mara yũnai system"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1989,12 +1985,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
-msgstr "Torii hneih yar."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr "Kotlacarok"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2008,7 +2004,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
-msgstr "Python pakketmanagja"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2120,12 +2116,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "Projekta-Managements"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr "Project Management Tooláin"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2166,7 +2162,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr "Proxy Serverin"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
@@ -2212,7 +2208,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr "Reikia"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2327,12 +2323,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr "Sállakşa"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr "Sarbhoent Runtimes"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2493,7 +2489,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr "Sjálfstædd GitHub Actions runnarsýningar prófáðingur"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2652,7 +2648,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "Sjálfstætt kodiðaferðaleitirbundurháttin og byrjaða hagabakkrinþingarinnarafinnar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2810,12 +2806,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr "Server Administrazioni"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr "Service Optmimisastøða"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2830,17 +2826,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr "Service"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr "Service"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr "Samskóra bøićakku"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2886,18 +2882,18 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr "Takki kramaín."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr "Siggitse, ex {failed} of {total} servicios."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr "Signing out of your services…"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2921,17 +2917,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr "Sosial Medias"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr "Social Media Toolar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "Softwareðin Fræðingunarvégar"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -2950,7 +2946,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
-msgstr "Stakka línein for sílisset serverin"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:web.svc:description"
@@ -2978,7 +2974,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr "Stórskap"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:sys:title"
@@ -2988,7 +2984,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr "Sys Frontend Hefurín"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3173,7 +3169,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
-msgstr "Máða"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3187,7 +3183,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr "Svikkunarararakstir"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3210,7 +3206,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr "Tölva sem community byrjyngjandi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3224,7 +3220,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
-msgstr "Þingar sem jafnfar vefsíðastjórnannar"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-tor:description"
@@ -3267,7 +3263,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "Ískefingar og Setkun Stjórnandi"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3289,17 +3285,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:User Management:title"
 msgid "User Management"
-msgstr "UserManagement"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:user:description"
 msgid "User accounts & access control"
-msgstr "User arnðar og innlystingurur"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr "Users òr Ækkjal | Ækkjal"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3327,7 +3323,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr "Web Inftrastructure"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-semaphore:description"
@@ -3378,7 +3374,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr "Webserver optimaing"
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -3410,12 +3406,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "Í sílun færa nú að báði."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr "falgi"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-firewall:description"

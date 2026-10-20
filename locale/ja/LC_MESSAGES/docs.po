@@ -3998,7 +3998,7 @@ msgstr "**警告しないでください `vault_core_unsealed`お問い合わせ
 
 # translated-by: libretranslate
 msgid "**Docker Compose Integration:**"
-msgstr "**Docker Composeの統合:**"
+msgstr ""
 
 # 更新と環境設定を簡素化する、合理化されたコンテナ化されたデプロイプロセスから恩恵を受ける。.
 # translated-by: libretranslate
@@ -5523,7 +5523,7 @@ msgstr "**Idempotentのパッケージの取付け:** 必要に応じてパッ�
 
 # translated-by: libretranslate
 msgid "**Idempotent Role**"
-msgstr "**Idempotentロール**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Idempotent Role**   Safe to run multiple times without unintended side effects."
@@ -5544,7 +5544,7 @@ msgstr "**Idempotentの実行** run-once フラグを使う"
 
 # translated-by: libretranslate
 msgid "**Idempotent persistence**"
-msgstr "**Idempotentの持続性**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Idempotent provisioning** ACL users reconciled on every deploy via `ACL SETUSER`."
@@ -12755,7 +12755,7 @@ msgstr "**galaxy_tags**: : : ['gitea', 'docker', 'git', 'self-hosted', 'バー�
 # gained=["'バージョン制御'"]
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
-msgstr "**galaxy_tags**: : : ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'バージョン制御']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['jira', 'project management']"
@@ -12791,27 +12791,27 @@ msgstr "**galaxy_tags**: : : ['mastodon', 'docker', 'federated', 'decentralized'
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**: : : ['nginx', 'docker', 'reverse\\ proxy', 'web', 'automation', 'archlinux']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**: : : ['nginx', 'javascript', 'csp', 'sub\\ filter', 'injection', 'global']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
-msgstr "**galaxy_tags**: : : ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\ filter']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
-msgstr "**galaxy_tags**: : : ['nginx', 'tls', 'ssl', 'reverse\\ proxy', 'letsencrypt', 'self\\ signed']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
-msgstr "**galaxy_tags**: : : ['nginx', 'tls', 'ssl', 'self\\ signed', 'certificates', 'openssl']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
-msgstr "**galaxy_tags**: : : ['openresty', 'nginx', 'docker', 'reverse\\ proxy']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'video platform']"
@@ -13687,7 +13687,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-snipe-it*: v8.6.3-alpine to v8.7.2-alpine"
-msgstr "*web-app-snipe-it*: v8.6.3-alpineにv8.7.2ログイン"
+msgstr ""
 
 msgid "*web-app-snipe-it*: v8.7.2-alpine to v8.8.0-alpine"
 msgstr ""
@@ -14034,7 +14034,7 @@ msgstr "1. 無料ランナー"
 
 # translated-by: libretranslate
 msgid "1. Log In to Cloudflare"
-msgstr "1. Cloudflareにログイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "1. Search for the User in LDAP"
@@ -14252,7 +14252,7 @@ msgstr "6. ゾーンリソース"
 
 # translated-by: libretranslate
 msgid "64 GB RAM"
-msgstr "64 GBのRAM"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "7 GB"
@@ -14478,7 +14478,7 @@ msgstr "@telegrambot:yourdomain.tld"
 
 # translated-by: libretranslate
 msgid "@whatsappbot:yourdomain.tld"
-msgstr "@whatsappボット:yourdomain.tld"
+msgstr ""
 
 # ``(<channel>-)?v?<numeric-semver><patch>?(-<flavor>)?``, 数値部分が持っている場所 1
 # お問い合わせ 5 点分離された部品、任意一流の ``<channel>-`` 番号の前に書かれたリリースラインです (例:LiteLLMタグ
@@ -16196,7 +16196,7 @@ msgstr "単一のアドオンMAYは両方である: `mechanism: bridge` addon MA
 # gained=['ロールのメタ/アドン/から材料化された単一のアドオン宣言']
 # translated-by: libretranslate
 msgid "A single addon declaration materialised from a role's meta/addons/<id>.yml."
-msgstr "ロールのメタ/アドン/から材料化された単一のアドオン宣言<id>.yml。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A single commit (or a tight related sequence) lands the whole role addition."
@@ -16849,7 +16849,7 @@ msgstr "によって活動化させる ``🧩 Subset`` label: エントリープ
 
 # translated-by: libretranslate
 msgid "Activates GNOME Shell extensions via gsettings."
-msgstr "GNOMEを活性化 Shell gsettingsによる延長。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Activates buffering for advanced features such as Lua-based string replacements."
@@ -17465,7 +17465,7 @@ msgstr "アドオン"
 
 # translated-by: libretranslate
 msgid "Addon declaration: `meta/addons/<addon_id>.yml`"
-msgstr "Addon宣言: `meta/addons/<addon_id>.yml`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Addon ids today"
@@ -19354,7 +19354,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "App-native term (`mechanism`)"
-msgstr "Appnative用語 (`mechanism`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "App-specific container variables live next to the role that owns them, typically in `roles/<role>/templates/env.j2`, `roles/<role>/templates/bootstrap.env.j2`, or `roles/<role>/templates/playwright.env.j2`. They are intentionally NOT centralised here so the app documentation and its generated env file stay in sync."
@@ -22789,7 +22789,7 @@ msgstr "CentOS Stream は、CentOS EOL の定番です。Debian/Ubuntu よりも
 
 # translated-by: libretranslate
 msgid "CentOS, RHEL, Rocky Linux, AlmaLinux"
-msgstr "CentOS、RHEL、Rocky Linux、AlmaLinux"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -23022,7 +23022,7 @@ msgstr "チャットGPT"
 
 # translated-by: libretranslate
 msgid "ChatGPT bridge"
-msgstr "ChatGPTブリッジ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cheatsheet 📋"
@@ -24890,7 +24890,7 @@ msgstr "Compose+swarmの往復 PostgreSQL データベースの役割 (svc-db-po
 
 # translated-by: libretranslate
 msgid "Compose-file env-var contract: [compose.yml.md](../artefact/files/compose.yml.md)"
-msgstr "Compose-file env-var契約: [compose.yml.md](../artefact/files/compose.yml.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Compose-flavor regression"
@@ -24913,7 +24913,7 @@ msgstr "Composerは、解凍ダウンロード用のアーカイブ抽出器を�
 
 # translated-by: libretranslate
 msgid "Composition Over Monolith 🔧"
-msgstr "Monolithの構成 🔧"
+msgstr ""
 
 # field-delete`, `gh project mark-template`)お問い合わせ.
 # translation-refused: libretranslate structure
@@ -25001,7 +25001,7 @@ msgstr "ファイルの設定"
 
 # translated-by: libretranslate
 msgid "Config model"
-msgstr "Configモデル"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Configurable container image and version"
@@ -26447,7 +26447,7 @@ msgstr "DNSセットアップスクリプト 🌐"
 
 # translated-by: libretranslate
 msgid "DNS and TLS helpers"
-msgstr "DNSとTLSヘルパー"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "DNS and network resolution tests"
@@ -26644,7 +26644,7 @@ msgstr "無効化"
 
 # translated-by: libretranslate
 msgid "Deactivating Fetchmail ❌"
-msgstr "Fetchmailの無効化 ❌"
+msgstr ""
 
 msgid "Dead logo keys: `templates/config.yml.j2` lines 66 and 67 set `DISCOURSE_LOGO_URL` and `DISCOURSE_LOGO_SMALL_URL`, yet on v2026.9.0 `SiteSetting.logo` stayed the default upload `-5` (`/images/discourse-logo-sketch.png`) with both set, because `logo` and `logo_small` are upload settings without an env shadow. Options: drop both keys; `tasks/stack_host/03_design.yml` sets the logo uploads when `design` is on."
 msgstr ""
@@ -26655,7 +26655,7 @@ msgstr "デビアン"
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu"
-msgstr "Debian / Ubuntuの"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu → ``openssh-client``"
@@ -27094,7 +27094,7 @@ msgstr "定義ファイル"
 
 # translated-by: libretranslate
 msgid "Definition of Done"
-msgstr "Doneの意味"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Definition of Done (DoD)"
@@ -28070,7 +28070,7 @@ msgstr "リストフォームの形状は、以下の表現はできません。
 
 # translated-by: libretranslate
 msgid "Diff Quality 🔍"
-msgstr "Diffの質 🔍"
+msgstr ""
 
 # ``sidekiq-config``, ``workhorse-config``, ``shell-config``,
 # ``gitaly-config``) 2つのタグとミラースキーマが変更される間 ``templates/config/``お問い合わせ.
@@ -28086,7 +28086,7 @@ msgstr "CNGレポの差 `dev/` テンプレートの設定 (`webservice-config`,
 
 # translated-by: libretranslate
 msgid "Diff-driven app selection 🎯"
-msgstr "Diff-drivenアプリ選択 🎯"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Digital Office"
@@ -28506,7 +28506,7 @@ msgstr "Dockerネットワークヘルパー"
 
 # translated-by: libretranslate
 msgid "Docker Registry"
-msgstr "Dockerレジストリ"
+msgstr ""
 
 msgid "Docker Registry Architecture"
 msgstr ""
@@ -28520,7 +28520,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker Runner Scripts 🐳"
-msgstr "Docker Runnerスクリプト 🐳"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker Server"
@@ -28938,7 +28938,7 @@ msgstr "Drv-epson-multiprinter の役割"
 
 # translated-by: libretranslate
 msgid "Drv-intel Role"
-msgstr "Drv-intelの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Drv-lid-switch Role"
@@ -28977,11 +28977,11 @@ msgstr "Dsk-docker ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-dotlinker Role"
-msgstr "Dsk-dotlinkerの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-firefox Role"
-msgstr "Dsk-firefoxの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-git Role"
@@ -28989,7 +28989,7 @@ msgstr "Dsk-git ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-gnome Role"
-msgstr "Dsk-gnomeの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnome-caffeine Role"
@@ -29005,7 +29005,7 @@ msgstr "Dsk-gnome-terminal ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-claude Role"
-msgstr "Dsk-gnt-claudeロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-gnt-codex Role"
@@ -29037,7 +29037,7 @@ msgstr "Dsk-laya ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-libreoffice Role"
-msgstr "Dsk-libreofficeの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-micro Role"
@@ -29045,7 +29045,7 @@ msgstr "Dsk-micro ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-neovim Role"
-msgstr "Dsk-neovimの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-nextcloud Role"
@@ -29061,11 +29061,11 @@ msgstr "Dsk-qbittorrent ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-retroarch Role"
-msgstr "Dsk-retroarchの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-spotify Role"
-msgstr "Dsk-spotifyの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-ssh Role"
@@ -29077,7 +29077,7 @@ msgstr "Dsk-torbrowser ロール"
 
 # translated-by: libretranslate
 msgid "Dsk-virtualbox Role"
-msgstr "Dsk-virtualboxの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dsk-zoom Role"
@@ -29151,7 +29151,7 @@ msgstr "コンパクトインプット"
 
 # translated-by: libretranslate
 msgid "ENTRYPOINT detection and recovery"
-msgstr "ENTRYPOINTの検出および回復"
+msgstr ""
 
 msgid "ERPNext Architecture"
 msgstr ""
@@ -30319,7 +30319,7 @@ msgstr "クライアントを独自の宣言から呼び出すことで、新し
 
 # translated-by: libretranslate
 msgid "Env contract"
-msgstr "Env契約"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Env key"
@@ -30327,7 +30327,7 @@ msgstr "Env キー"
 
 # translated-by: libretranslate
 msgid "Env-Var Knobs"
-msgstr "Env-Varノブ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Env-based trust fallbacks (`SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, …)"
@@ -31078,7 +31078,7 @@ msgstr "ダウンロード"
 
 # translated-by: libretranslate
 msgid "Exact command"
-msgstr "Exactコマンド"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Exact native endpoint, transport, scopes, entity exposure and service-call mutations verified. A long-lived administrator token is not acceptable."
@@ -32025,7 +32025,7 @@ msgstr "リポジトリページ、問題/PRビュー、生ファイルコンテ
 
 # translated-by: libretranslate
 msgid "Fetchmail Issues 📨"
-msgstr "Fetchmailの問題 📨"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fetchmail Security Concerns 🔐"
@@ -32033,7 +32033,7 @@ msgstr "Fetchmailのセキュリティ上の懸念 🔐"
 
 # translated-by: libretranslate
 msgid "Fetchmail Workaround 🔄"
-msgstr "Fetchmailの回避 🔄"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fetchmail might not work properly with large amounts of data. For more information, refer to this [issue](https://github.com/Mailu/Mailu/issues/1719)."
@@ -32354,7 +32354,7 @@ msgstr "まずバックアップを行います"
 # gained=['最初のエラーコンテキスト/メタ/コンテナファイル']
 # translated-by: libretranslate
 msgid "First error-context / meta / containers file in *rescue_dir*, truncated."
-msgstr "最初のエラーコンテキスト/メタ/コンテナファイル *rescue_dir*、truncated。."
+msgstr ""
 
 msgid "First frio scheme save of a fresh account is dropped"
 msgstr ""
@@ -34031,11 +34031,11 @@ msgstr "GHA-only static-env パススルー: キーから default.env 実際の 
 
 # translated-by: libretranslate
 msgid "GHCR Authentication 🔑"
-msgstr "GHCR認証 🔑"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "GHCR guides 📦"
-msgstr "GHCRガイド 📦"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "GHCR owner."
@@ -34123,7 +34123,7 @@ msgstr "ゲートウェイは閉鎖され、キーはコンシューマー、リ
 
 # translated-by: libretranslate
 msgid "Gating Model for Bash 🚦"
-msgstr "BashのGatingモデル 🚦"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Gen-hunspell Role"
@@ -34474,7 +34474,7 @@ msgstr "プロジェクトツリースキャンのGitignore-awareパスマッチ
 
 # translated-by: libretranslate
 msgid "Gitignore-filtered iteration"
-msgstr "Gitignore-filteredの反復"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Give each module one reason to change."
@@ -34509,7 +34509,7 @@ msgstr "グローバル/ローカル npm はユーザごとにインストール
 
 # translated-by: libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "NGINXのグローバルJavaScriptインジェクタ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Global bucket order:"
@@ -34749,11 +34749,11 @@ msgstr "デプロイされたドメインの HTTP ステータスコード。."
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (``adapter.upstream_transport: sse``)"
-msgstr "HTTP+SSEの (``adapter.upstream_transport: sse``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP+SSE (`adapter.upstream_transport: sse`)"
-msgstr "HTTP+SSEの (`adapter.upstream_transport: sse`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP/2 support, TLS/SSL integration"
@@ -35413,7 +35413,7 @@ msgstr "作成方法 🛠️"
 
 # translated-by: libretranslate
 msgid "How to Run the Playbook"
-msgstr "Playbookを実行する方法"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "How to disable"
@@ -36589,7 +36589,7 @@ msgstr "導入事例 Flowise 3.1.4's Streamable HTTP レジストリと 1 つの
 
 # translated-by: libretranslate
 msgid "Implement RBAC via LDAP"
-msgstr "LDAPによるRBACの実装"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Implement `tasks/03_bench_bootstrap.yml`: `bench new-site` → `bench install-app erpnext` → wizard-bypass API call → Social Login Key seeding."
@@ -37038,11 +37038,11 @@ msgstr "サーバー側のXRPC呼び出し用のIn-stack PDS URL (`http://pds:30
 
 # translated-by: libretranslate
 msgid "Include Cloudflare tasks when `DNS_PROVIDER == \"cloudflare\"`"
-msgstr "Cloudflareタスクをいつ含める `DNS_PROVIDER == \"cloudflare\"`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Include Cloudflare tasks when ``DNS_PROVIDER == \"cloudflare\"``"
-msgstr "Cloudflareタスクをいつ含める ``DNS_PROVIDER == \"cloudflare\"``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Include ``sys-svc-webserver-https`` (once per host)"
@@ -39138,7 +39138,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS、JSONC、..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -39166,7 +39166,7 @@ msgstr "発見と等しいJWKSエンドポイント `jwks_uri`"
 
 # translated-by: libretranslate
 msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
-msgstr "JWT/OIDCのauth: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Java"
@@ -39258,7 +39258,7 @@ msgstr "ログイン"
 
 # translated-by: libretranslate
 msgid "Jitsi Meet"
-msgstr "Jitsiミート"
+msgstr ""
 
 msgid "Jitsi Meet Architecture"
 msgstr ""
@@ -39707,7 +39707,7 @@ msgstr "キーロックグループ → ERPNext ロールマッピングター�
 
 # translated-by: libretranslate
 msgid "Keycloak provider guide: <https://openbao.org/docs/auth/jwt/oidc-providers/keycloak/>"
-msgstr "Keycloakの提供者ガイド: <https://openbao.org/docs/auth/jwt/oidc-providers/keycloak/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keycloak realm issuer URL."
@@ -39756,7 +39756,7 @@ msgstr "Kubernetes バックエンド"
 
 # translated-by: libretranslate
 msgid "Kubernetes cluster credentials."
-msgstr "Kubernetesクラスター資格情報。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Kwargs:"
@@ -39813,7 +39813,7 @@ msgstr "LDAPの統合 (トランジティブ) 📒"
 
 # translated-by: libretranslate
 msgid "LDAP Integration 📒"
-msgstr "LDAPの統合 📒"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP SPOT, defines `LDAP.*`"
@@ -40205,7 +40205,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "LibreTranslate service deployment"
-msgstr "LibreTranslateサービス展開"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "License"
@@ -41154,7 +41154,7 @@ msgstr "MCP クライアントの役割は、MCP サーバーを有効にし、A
 
 # translated-by: libretranslate
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr "MCP契約: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP direction"
@@ -41202,7 +41202,7 @@ msgstr "MDADのノブはからレンダリングされます `templates/flavor/a
 
 # translated-by: libretranslate
 msgid "MDAD playbook invocation"
-msgstr "MDAD Playbookの呼び出し"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MDAD upstream pulled in cleanly"
@@ -41418,11 +41418,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Mailu-friendly filenames (``key.pem``, ``cert.pem``)"
-msgstr "Mailu-friendlyファイル名 (``key.pem``, ``cert.pem``)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mailu-friendly filenames (`key.pem`, `cert.pem`)"
-msgstr "Mailu-friendlyファイル名 (`key.pem`, `cert.pem`)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Main Categories"
@@ -42526,7 +42526,7 @@ msgstr "モード:"
 
 # translated-by: libretranslate
 msgid "Modify Config 🔧"
-msgstr "Configを変更する 🔧"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Modify the Configuration"
@@ -42877,7 +42877,7 @@ msgstr "ミューテーションは、リバーシブル、リバーシブル、
 
 # translated-by: libretranslate
 msgid "Mutually exclusive plugins"
-msgstr "Mutually独占プラグイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "N/A"
@@ -44032,11 +44032,11 @@ msgstr "OIDC → RBAC マッピング (infinito-oidc-rbac-mapper.php) 🎫"
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
-msgstr "OIDC/OIDC/ Keycloak"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
-msgstr "OIDC/OIDC/ Keycloak: : : <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC SPOT, defines `OIDC.*`"
@@ -44836,7 +44836,7 @@ msgstr "支援対象事業者のみが到達可能"
 
 # translated-by: libretranslate
 msgid "Only CODEOWNERS matter"
-msgstr "CODEOWNERSのみ"
+msgstr ""
 
 msgid "Only `ghcr.io/koala73/worldmonitor` is published (semver tags, `linux/amd64` + `linux/arm64`, built from `docker/Dockerfile`). `ais-relay` (`Dockerfile.relay`) and `redis-rest` (`docker/Dockerfile.redis-rest`) have no published image."
 msgstr ""
@@ -44978,11 +44978,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Open WebUI: [openwebui.com](https://openwebui.com)"
-msgstr "WebUIを開く: [openwebui.com](https://openwebui.com)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Open WebUI: `openwebui.com <https://openwebui.com>`__"
-msgstr "WebUIを開く: `openwebui.com <https://openwebui.com>`__"
+msgstr ""
 
 # system_oauth そして、 oauth_2お問い合わせ1.
 # 存在しないクレデンシャルを登録するのではなく、提示できないスキームがスキップされるサーバーなので、このような基本的なユースサーバ Jenkins
@@ -45171,7 +45171,7 @@ msgstr "OpenCloudは、中央に認証を委任 Keycloak 中心からユーザ�
 
 # translated-by: libretranslate
 msgid "OpenCloud env"
-msgstr "OpenCloudのenv"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenCloud reads users from the central `svc-db-openldap` service."
@@ -45201,11 +45201,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenLDAP configuration LDIFs"
-msgstr "OpenLDAPの設定 LDIFs"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenLDAP group LDIFs"
-msgstr "OpenLDAPグループLDIFs"
+msgstr ""
 
 msgid "OpenProject Architecture"
 msgstr ""
@@ -46578,7 +46578,7 @@ msgstr "Per-Roleネットワーク: `meta/server.yml.networks` 🌐"
 
 # translated-by: libretranslate
 msgid "Per-addon Playwright specs"
-msgstr "Per-addon Playwrightの仕様"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-addon task hooks"
@@ -46693,7 +46693,7 @@ msgstr "Per-plugin の設定は、addon id によってキー化され、 [03con
 
 # translated-by: libretranslate
 msgid "Per-provider constraints"
-msgstr "Per-provider制約"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-release archive files for [CHANGELOG.md](../../CHANGELOG.md). The active changelog at the repository root keeps the most recent releases inline; once an entry rolls past the configured retention window, it lives here as its own file."
@@ -47176,7 +47176,7 @@ msgstr "Pixelfedは、創造性とプライバシーを兼ね備えた分散型�
 
 # translated-by: libretranslate
 msgid "Pkgmgr Role"
-msgstr "Pkgmgrロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pkgmgr-install Role"
@@ -47253,7 +47253,7 @@ msgstr "Playbook コンテンツ"
 
 # translated-by: libretranslate
 msgid "Playbook Tests 🎬"
-msgstr "Playbookテスト 🎬"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Plays nicely with ``web-svc-cdn`` without circular inclusion"
@@ -47285,15 +47285,15 @@ msgstr "Playwright コー ジェン (組み込み) 🔧"
 
 # translated-by: libretranslate
 msgid "Playwright Failures"
-msgstr "Playwrightの失敗"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright Parity Tests 🎭"
-msgstr "Playwrightパーリティテスト 🎭"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright Spec Loop"
-msgstr "Playwright Specループ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright Tests 🎭"
@@ -47311,11 +47311,11 @@ msgstr "Playwrightベースダーエンブハンドラー。."
 
 # translated-by: libretranslate
 msgid "Playwright contract: [playwright.specs.js.md](../contributing/artefact/files/role/playwright.specs.js.md) </content>"
-msgstr "Playwright契約: [playwright.specs.js.md](../contributing/artefact/files/role/playwright.specs.js.md) </content>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright coverage"
-msgstr "Playwrightカバレッジ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright coverage parity contract: [019](README.md#archive)"
@@ -47371,7 +47371,7 @@ msgstr "Playwright ランタイム"
 
 # translated-by: libretranslate
 msgid "Playwright service dependencies"
-msgstr "Playwrightサービス依存関係"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright ships a built-in code recorder:"
@@ -48025,7 +48025,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Prometheus Service Tests 📈"
-msgstr "Prometheusサービステスト 📈"
+msgstr ""
 
 # は、アルファからベータまで、フル・パー・ロール・ベースラインで動作します。 Joomla お問い合わせ plg_system_keycloak,
 # 不正ログインブローカーのための Bluesky (バリアント A+)4つのさらなる役割のための実質のOIDCの統合および一致のPlaywright
@@ -48595,7 +48595,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Purge with Cloudflare API"
-msgstr "Cloudflareのパージ API"
+msgstr ""
 
 msgid "Purges one or more app entities inside the running container. With `retire` set it also drops the apps from every round inventory."
 msgstr ""
@@ -48610,7 +48610,7 @@ msgstr "必要に応じて、システム管理者のドロップインディレ
 
 # translated-by: libretranslate
 msgid "Purging Cloudflare Cache"
-msgstr "Cloudflareキャッシュの処理"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Purpose"
@@ -48822,7 +48822,7 @@ msgstr "ログイン"
 
 # translated-by: libretranslate
 msgid "RBAC"
-msgstr "RBACの特長"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC / policies (Decision #6)"
@@ -48872,11 +48872,11 @@ msgstr "マルチサイトに基づくRBACは階層を使用します Keycloak �
 
 # translated-by: libretranslate
 msgid "RBAC 👥"
-msgstr "RBACの特長 👥"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC 🛂"
-msgstr "RBACの特長 🛂"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "README"
@@ -54980,7 +54980,7 @@ msgstr "フォロー ``python -m utils.cleanup.pycache_only_dirs`` (または ``
 
 # translated-by: libretranslate
 msgid "Run with Docker 🐳"
-msgstr "Dockerで実行する 🐳"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Run your playbook. Ansible’s variable precedence ensures your overrides take effect."
@@ -55062,7 +55062,7 @@ msgstr "特定のスコープのテストの実行または検証"
 
 # translated-by: libretranslate
 msgid "Running the Playbook"
-msgstr "Playbookの実行"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Running the Role"
@@ -55769,7 +55769,7 @@ msgstr "ツイート3-互換性 API 幅広いアプリの互換性"
 
 # translated-by: libretranslate
 msgid "SAML"
-msgstr "SAMLの特長"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SAML cert lifecycle (rotation, alignment between Friendica SP and Keycloak IdP) is a new maintenance burden — clarify ownership before shipping."
@@ -55841,7 +55841,7 @@ msgstr "SMTP パスワード。."
 
 # translated-by: libretranslate
 msgid "SMTP port."
-msgstr "SMTPの港。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP username."
@@ -58449,7 +58449,7 @@ msgstr "ソース: ``roles/**/meta/services.yml`` → → ``<entity>.{image,vers
 
 # translated-by: libretranslate
 msgid "Sovereign Cloud"
-msgstr "Sovereignクラウド"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sovereign Cloud Platform"
@@ -58599,7 +58599,7 @@ msgstr "スタックサイクル"
 
 # translated-by: libretranslate
 msgid "Stack domains"
-msgstr "Stackドメイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Stack granularity"
@@ -59750,7 +59750,7 @@ msgstr "Svcエンジン"
 
 # translated-by: libretranslate
 msgid "Svc Objstore"
-msgstr "SvcのObjstore"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-agent-broker Role"
@@ -59911,7 +59911,7 @@ msgstr "Svc-registry-docker ロール"
 
 # translated-by: libretranslate
 msgid "Svc-runner Role"
-msgstr "Svc-runnerロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-storage-nfs-client Role"
@@ -59984,7 +59984,7 @@ msgstr "Swarm + NFSパイロット"
 
 # translated-by: libretranslate
 msgid "Swarm Loop"
-msgstr "Swarmのループ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Swarm NFS export env handlers."
@@ -60006,7 +60006,7 @@ msgstr "Swarmはテストハーネスをデプロイ"
 
 # translated-by: libretranslate
 msgid "Swarm mode"
-msgstr "Swarmモード"
+msgstr ""
 
 msgid "Swarm mode    - `<stack>_<service_key>`, matching how Docker Swarm names every service and how `container service ps` accepts them. The stack name is derived from ``application_id`` via the ``entity_name`` filter, mirroring how ``docker stack deploy`` composes the stack name in ``sys-svc-compose/handlers/main.yml``."
 msgstr ""
@@ -60246,19 +60246,19 @@ msgstr "Sys-ctl-rpr-btrfs-balancer ロール"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-container-hard Role"
-msgstr "Sys-ctl-rpr-container-hardロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-container-soft Role"
-msgstr "Sys-ctl-rpr-container-softロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-daemon Role"
-msgstr "Sys-daemonの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-dns-cloudflare-records Role"
-msgstr "Sys-dns-cloudflareレコードの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-dns-hetzner-rdns Role"
@@ -60605,15 +60605,15 @@ msgstr "TURNとSTUNのリスニングポート"
 
 # translated-by: libretranslate
 msgid "TURN and STUN support over TCP and UDP"
-msgstr "TCPとUDPに対するTURNとSTUNのサポート"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
-msgstr "WikipediaでTURN: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN on Wikipedia: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
-msgstr "WikipediaでTURN: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Tag the commit: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
@@ -60692,7 +60692,7 @@ msgstr "ディレクトリではなく名前をとり、両方がマニフェス
 
 # translated-by: libretranslate
 msgid "Talk TURN and STUN"
-msgstr "TURNとSTUNの話"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Target"
@@ -60778,7 +60778,7 @@ msgstr "スタックをティアダウンします。."
 
 # translated-by: libretranslate
 msgid "Teardown Commands 📋"
-msgstr "Teardownコマンド 📋"
+msgstr ""
 
 msgid "Teardown and delete paths"
 msgstr ""
@@ -66908,7 +66908,7 @@ msgstr "この設計の安全性は完全にから来ます **装置の特徴**�
 
 # translated-by: libretranslate
 msgid "The same as JSON"
-msgstr "JSONと同じ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The same command as one shell string, so a prefix can compose with it."
@@ -73255,7 +73255,7 @@ msgstr "各アップデート User"
 
 # translated-by: libretranslate
 msgid "Update LDAP Sync"
-msgstr "LDAP Syncの更新"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Update Pipeline 🔄"
@@ -73753,7 +73753,7 @@ msgstr "名前空間を寛大に使おう。."
 
 # translated-by: libretranslate
 msgid "Use pdsadmin"
-msgstr "Pdsadminを使う"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Use realistic inputs. Build hypotheses about cross-component behavior before writing assertions."
@@ -74273,7 +74273,7 @@ msgstr "ユーザーワークステーションの役割"
 
 # translated-by: libretranslate
 msgid "Userinfo endpoint"
-msgstr "Userinfoエンドポイント"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Username claim: `preferred_username`, mapped to OpenCloud `username`"
@@ -75166,7 +75166,7 @@ msgstr "Webアプリベースロール"
 
 # translated-by: libretranslate
 msgid "Web-app-bigbluebutton Role"
-msgstr "Web-app-bigbluebuttonの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-bluesky Role"
@@ -75318,7 +75318,7 @@ msgstr "Web-app-mastodon ロール"
 
 # translated-by: libretranslate
 msgid "Web-app-matomo Role"
-msgstr "Web-app-matomoの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-matrix Role"
@@ -75330,7 +75330,7 @@ msgstr "Webアプリのほとんどの役割"
 
 # translated-by: libretranslate
 msgid "Web-app-mediawiki Role"
-msgstr "Web-app-mediawikiロール"
+msgstr ""
 
 msgid "Web-app-meta Role"
 msgstr ""
@@ -75345,11 +75345,11 @@ msgstr "Webアプリミニオの役割"
 
 # translated-by: libretranslate
 msgid "Web-app-mobilizon Role"
-msgstr "Web-app-mobilizonの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-moodle Role"
-msgstr "Web-app-moodleの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-n8n Role"
@@ -75433,11 +75433,11 @@ msgstr "Web-app-prometheus ロール"
 
 # translated-by: libretranslate
 msgid "Web-app-roulette-wheel Role"
-msgstr "Web-app-roulette-wheelロール"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-seaweedfs Role"
-msgstr "Web-app-seaweedfsの役割"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-semaphore Role"
@@ -75554,7 +75554,7 @@ msgstr "Web-svc-mirror ロール"
 
 # translated-by: libretranslate
 msgid "Web-svc-onlyoffice Role"
-msgstr "Web-svc-onlyofficeの役割"
+msgstr ""
 
 msgid "Web-svc-s1 Role"
 msgstr ""
@@ -75564,7 +75564,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-simpleicons Role"
-msgstr "Web-svc-simpleiconsの役割"
+msgstr ""
 
 msgid "Web-svc-translate Role"
 msgstr ""
@@ -77193,7 +77193,7 @@ msgstr "WordPress 使用するプラグイン 🔒"
 
 # translated-by: libretranslate
 msgid "WordPress Plugins"
-msgstr "WordPressプラグイン"
+msgstr ""
 
 # WordPressは、デジタルコンテンツの構築と管理のための堅牢なプラットフォームを作る広範な機能を提供しています。
 # translated-by: libretranslate
@@ -77202,7 +77202,7 @@ msgstr "WordPressは、デジタルコンテンツの構築と管理のための
 
 # translated-by: libretranslate
 msgid "WordPress plugin path"
-msgstr "WordPressプラグインパス"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "WordPress to Discourse post round-trip and analogous role-pair flows."
@@ -77533,7 +77533,7 @@ msgstr "Playwright の仕様書の作成または更新 `web-*` ログイン"
 
 # translated-by: libretranslate
 msgid "XMPP"
-msgstr "XMPPの特長"
+msgstr ""
 
 msgid "XMPP Architecture"
 msgstr ""
@@ -77547,7 +77547,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML & Jinja Lint 📐"
-msgstr "YAMLとJinja Lint 📐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML / Jinja patterns: ban on direct `yaml.safe_load` calls outside `utils.cache.yaml`, and ban on hardcoded `http://` / `https://` protocol literals adjacent to a `lookup(...)` call."
@@ -79625,7 +79625,7 @@ msgstr "[ ] 共有オースによるペルソカバレッジ2- ヘルパーを�
 
 # translated-by: libretranslate
 msgid "[ ] Playwright test run documented"
-msgstr "[ ] Playwrightテスト実行文書"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] Promote individual users to OpenCloud admin via OCC after first login. The default driver assigns the standard `user` role to every auto-provisioned account; admin promotion is currently manual."
@@ -79991,7 +79991,7 @@ msgstr "[ ] [web-app-friendica](../../roles/web-app-friendica/) 宣言 `ldapauth
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-gitea](../../roles/web-app-gitea/): OIDC plus optional LDAP."
-msgstr "[ ] [web-app-gitea](../../roles/web-app-gitea/): OIDCとオプションLDAP。."
+msgstr ""
 
 msgid "[ ] [web-app-hugo](../../roles/web-app-hugo/), [web-app-docs](../../roles/web-app-docs/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-meta](../../roles/web-app-meta/): static or pure-publishing content with no authenticated path."
 msgstr ""
@@ -80361,87 +80361,87 @@ msgstr "[/sys/メトリック](https://openbao.org/api-docs/system/metrics/)"
 
 # translated-by: libretranslate
 msgid "[000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)"
-msgstr "[000.001.000- - -2025- - -12- - -09.mdの](docs/changelog/000.001.000-2025-12-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)"
-msgstr "[000.001.001- - -2025- - -12- - -10.mdの](docs/changelog/000.001.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)"
-msgstr "[000.002.000- - -2025- - -12- - -10.mdの](docs/changelog/000.002.000-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)"
-msgstr "[000.002.001- - -2025- - -12- - -10.mdの](docs/changelog/000.002.001-2025-12-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)"
-msgstr "[000.003.000- - -2025- - -12- - -17.mdの](docs/changelog/000.003.000-2025-12-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)"
-msgstr "[000.003.001- - -2025- - -12- - -18.mdの](docs/changelog/000.003.001-2025-12-18.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)"
-msgstr "[000.003.002- - -2025- - -12- - -19.mdの](docs/changelog/000.003.002-2025-12-19.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)"
-msgstr "[000.003.003- - -2025- - -12- - -21.mdの](docs/changelog/000.003.003-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)"
-msgstr "[000.003.004- - -2025- - -12- - -21.mdの](docs/changelog/000.003.004-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)"
-msgstr "[000.003.005- - -2025- - -12- - -21.mdの](docs/changelog/000.003.005-2025-12-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)"
-msgstr "[000.004.000- - -2025- - -12- - -29.mdの](docs/changelog/000.004.000-2025-12-29.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)"
-msgstr "[000.005.000- - -2025- - -12- - -30.mdの](docs/changelog/000.005.000-2025-12-30.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)"
-msgstr "[000.006.000- - -2025- - -12- - -31.mdの](docs/changelog/000.006.000-2025-12-31.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)"
-msgstr "[000.007.000- - -2026- - -01- - -05.mdの](docs/changelog/000.007.000-2026-01-05.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)"
-msgstr "[000.007.001- - -2026- - -01- - -06.mdの](docs/changelog/000.007.001-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)"
-msgstr "[000.007.002- - -2026- - -01- - -06.mdの](docs/changelog/000.007.002-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)"
-msgstr "[000.008.000- - -2026- - -01- - -06.mdの](docs/changelog/000.008.000-2026-01-06.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)"
-msgstr "[000.009.000- - -2026- - -01- - -07.mdの](docs/changelog/000.009.000-2026-01-07.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)"
-msgstr "[000.010.000- - -2026- - -01- - -08.mdの](docs/changelog/000.010.000-2026-01-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)"
-msgstr "[000.011.000- - -2026- - -01- - -10.mdの](docs/changelog/000.011.000-2026-01-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)"
-msgstr "[000.012.000- - -2026- - -01- - -25.mdの](docs/changelog/000.012.000-2026-01-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[0001](0001-ci-deploy-matrix-axes.md) for the distro and filesystem axes this extends."
@@ -80454,55 +80454,55 @@ msgstr "[0001](0001-ci-deploy-matrix-axes.md) すべての行の1つの値を修
 
 # translated-by: libretranslate
 msgid "[001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)"
-msgstr "[001.000.000- - -2026- - -02- - -03.mdの](docs/changelog/001.000.000-2026-02-03.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)"
-msgstr "[002.000.000- - -2026- - -02- - -08.mdの](docs/changelog/002.000.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)"
-msgstr "[002.001.000- - -2026- - -02- - -08.mdの](docs/changelog/002.001.000-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)"
-msgstr "[002.001.001- - -2026- - -02- - -08.mdの](docs/changelog/002.001.001-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)"
-msgstr "[002.001.002- - -2026- - -02- - -08.mdの](docs/changelog/002.001.002-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)"
-msgstr "[002.001.003- - -2026- - -02- - -08.mdの](docs/changelog/002.001.003-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)"
-msgstr "[002.001.004- - -2026- - -02- - -08.mdの](docs/changelog/002.001.004-2026-02-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)"
-msgstr "[002.001.005- - -2026- - -02- - -09.mdの](docs/changelog/002.001.005-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)"
-msgstr "[002.001.006- - -2026- - -02- - -09.mdの](docs/changelog/002.001.006-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)"
-msgstr "[002.001.007- - -2026- - -02- - -09.mdの](docs/changelog/002.001.007-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)"
-msgstr "[002.001.008- - -2026- - -02- - -09.mdの](docs/changelog/002.001.008-2026-02-09.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)"
-msgstr "[002.001.009- - -2026- - -02- - -10.mdの](docs/changelog/002.001.009-2026-02-10.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)"
-msgstr "[003.000.000- - -2026- - -02- - -11.mdの](docs/changelog/003.000.000-2026-02-11.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004 - Generic RBAC role auto-provisioning](README.md#archive)"
@@ -80510,35 +80510,35 @@ msgstr "[004 - 汎用RBACロール自動提案](README.md#archive)"
 
 # translated-by: libretranslate
 msgid "[004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)"
-msgstr "[004.000.000- - -2026- - -02- - -13.mdの](docs/changelog/004.000.000-2026-02-13.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)"
-msgstr "[004.000.001- - -2026- - -02- - -15.mdの](docs/changelog/004.000.001-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)"
-msgstr "[004.000.002- - -2026- - -02- - -15.mdの](docs/changelog/004.000.002-2026-02-15.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)"
-msgstr "[004.000.003- - -2026- - -02- - -16.mdの](docs/changelog/004.000.003-2026-02-16.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)"
-msgstr "[004.001.000- - -2026- - -02- - -17.mdの](docs/changelog/004.001.000-2026-02-17.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)"
-msgstr "[005.000.000- - -2026- - -02- - -25.mdの](docs/changelog/005.000.000-2026-02-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)"
-msgstr "[005.001.000- - -2026- - -02- - -28.mdの](docs/changelog/005.001.000-2026-02-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)"
-msgstr "[005.002.000- - -2026- - -03- - -21.mdの](docs/changelog/005.002.000-2026-03-21.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[006 - Service-gated Playwright tests](README.md#archive)"
@@ -80550,31 +80550,31 @@ msgstr "[006 - Service-gated プレイライトテスト](README.md#archive) 設
 
 # translated-by: libretranslate
 msgid "[006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)"
-msgstr "[006.000.000- - -2026- - -04- - -25.mdの](docs/changelog/006.000.000-2026-04-25.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)"
-msgstr "[007.000.000- - -2026- - -05- - -08.mdの](docs/changelog/007.000.000-2026-05-08.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)"
-msgstr "[008.000.000- - -2026- - -05- - -27.mdの](docs/changelog/008.000.000-2026-05-27.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)"
-msgstr "[008.000.001- - -2026- - -05- - -28.mdの](docs/changelog/008.000.001-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)"
-msgstr "[008.000.002- - -2026- - -05- - -28.mdの](docs/changelog/008.000.002-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)"
-msgstr "[008.000.003- - -2026- - -05- - -28.mdの](docs/changelog/008.000.003-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)"
-msgstr "[008.000.004- - -2026- - -05- - -28.mdの](docs/changelog/008.000.004-2026-05-28.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) — reference for the autonomous-run procedure pattern used here"
@@ -80582,7 +80582,7 @@ msgstr "[014 - CI 専用ランナー `svc-runner` ログイン](014-svc-runner-c
 
 # translated-by: libretranslate
 msgid "[017 - Playwright biber RBAC coverage](017-playwright-biber-rbac-coverage.md)"
-msgstr "[017 - PlaywrightバイバーRBACカバレッジ](017-playwright-biber-rbac-coverage.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[018 - Playwright LDAP authentication coverage](018-playwright-ldap-coverage.md)"
@@ -80611,7 +80611,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02enable.ymlの](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -80643,11 +80643,11 @@ msgstr "[03configure.yml の設定](./03_configure.yml)"
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12ldap.ymlの](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -81343,7 +81343,7 @@ msgstr "[Ansible フィルタープラグイン Documentation](https://docs.ansi
 
 # translated-by: libretranslate
 msgid "[Ansible Lookup Plugins Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
-msgstr "[Ansible Lookupプラグイン Documentation](https://docs.ansible.com/ansible/latest/plugins/lookup.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Ansible Playbooks Lookups](https://docs.ansible.com/ansible/latest/user_guide/playbooks_lookups.html#id3)"
@@ -81652,7 +81652,7 @@ msgstr "[ブルースキー公式サイト](https://bsky.social/)"
 
 # translated-by: libretranslate
 msgid "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
-msgstr "[Bluesky PDS GitHubリポジトリ](https://github.com/bluesky-social/pds)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
@@ -81727,7 +81727,7 @@ msgstr "[CONTRIBUTING.md](CONTRIBUTING.md) コントリビューターワーク�
 
 # translated-by: libretranslate
 msgid "[CSS on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)"
-msgstr "[MDNのCSS](https://developer.mozilla.org/en-US/docs/Web/CSS)"
+msgstr ""
 
 msgid "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) styles the user-facing surfaces of web applications across the deployment. This role registers `design` as a canonical service in the deployment's service registry so consumer roles can declare the corporate design as a runtime dependency."
 msgstr ""
@@ -81738,7 +81738,7 @@ msgstr "[洞窟マン](https://github.com/JuliusBrussee/caveman) インストー
 
 # translated-by: libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
-msgstr "[Certbot公式サイト](https://certbot.eff.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Checkmk Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
@@ -81746,7 +81746,7 @@ msgstr "[Checkmk Docker ドキュメント](https://docs.checkmk.com/latest/en/i
 
 # translated-by: libretranslate
 msgid "[Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)"
-msgstr "[Checkmk GitHubリポジトリ](https://github.com/Checkmk/checkmk)"
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format
@@ -81772,7 +81772,7 @@ msgstr "[クラウドフレア Dashboard → API トークン](https://dash.clou
 
 # translated-by: libretranslate
 msgid "[Cloudflare Purge Cache Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)"
-msgstr "[Cloudflareパージキャッシュ Documentation](https://developers.cloudflare.com/cache/how-to/purge-cache/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Cloudmark Reset](https://csi.cloudmark.com/en/reset/)"
@@ -82218,7 +82218,7 @@ msgstr "[ドッカー健康チェック Documentation](https://docs.docker.com/e
 
 # translated-by: libretranslate
 msgid "[Docker Hub tags](https://hub.docker.com/r/openbao/openbao)"
-msgstr "[Docker Hubタグ](https://hub.docker.com/r/openbao/openbao)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
@@ -82230,7 +82230,7 @@ msgstr "[Dockerレジストリキャッシュ](roles/svc-registry-cache/)"
 
 # translated-by: libretranslate
 msgid "[Docker Registry](roles/svc-registry-docker/)"
-msgstr "[Dockerレジストリ](roles/svc-registry-docker/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Swarm Manager](roles/svc-swarm-manager/)"
@@ -82282,7 +82282,7 @@ msgstr "[ドキュメント](roles/web-app-docs/)"
 
 # translated-by: libretranslate
 msgid "[ERPNext Official Website](https://erpnext.com/)"
-msgstr "[ERPNext公式サイト](https://erpnext.com/)"
+msgstr ""
 
 # [Frappeフレームワーク](https://frappeframework.com/).
 # これは、財務、CRM、在庫、製造、人事、販売、プロジェクト、および1つの自発的なスタック内のウェブサイトをカバーしています。.
@@ -82328,7 +82328,7 @@ msgstr "[フェディバース (ニュースレター)](https://en.wikipedia.org
 
 # translated-by: libretranslate
 msgid "[Fediwall GitHub Repository](https://github.com/defnull/fediwall)"
-msgstr "[Fediwall GitHubリポジトリ](https://github.com/defnull/fediwall)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Fider GitHub](https://github.com/getfider/fider)"
@@ -82376,11 +82376,11 @@ msgstr "[Frappeソーシャルログインキー](https://docs.frappe.io/framewo
 
 # translated-by: libretranslate
 msgid "[Friendica Docker Hub](https://hub.docker.com/_/friendica)"
-msgstr "[Friendica Dockerハブ](https://hub.docker.com/_/friendica)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Friendica GitHub Repository](https://github.com/friendica/docker)"
-msgstr "[Friendica GitHubリポジトリ](https://github.com/friendica/docker)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Friendica Installation Documentation](https://wiki.friendi.ca/docs/install)"
@@ -82412,7 +82412,7 @@ msgstr "[GitLab MCP サーバー ドキュメント](https://docs.gitlab.com/use
 
 # translated-by: libretranslate
 msgid "[GitLab Official Website](https://about.gitlab.com/)"
-msgstr "[GitLab公式サイト](https://about.gitlab.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
@@ -82420,7 +82420,7 @@ msgstr "[GitLab SSO で Mattermost](https://docs.mattermost.com/administration-g
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
-msgstr "[Gitea LDAPの統合](https://docs.gitea.com/administration/authentication/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea MCP package](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
@@ -82499,7 +82499,7 @@ msgstr "[Infinito.Nexus コミュニティライセンス (非商用)](https://s
 
 # translated-by: libretranslate
 msgid "[Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)"
-msgstr "[Infinito.Nexus GitHubリポジトリ](https://s.infinito.nexus/code)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Infinito.Nexus Hub](https://hub.infinito.nexus/) - tutorials, FAQs, and community support."
@@ -82542,7 +82542,7 @@ msgstr "[課題トラッカー](https://s.infinito.nexus/issues)"
 
 # translated-by: libretranslate
 msgid "[JWT/OIDC auth](https://openbao.org/docs/auth/jwt/)"
-msgstr "[JWT/OIDCのauth](https://openbao.org/docs/auth/jwt/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Jellyfin website](https://jellyfin.org)"
@@ -82598,7 +82598,7 @@ msgstr "[Jitsiミート](https://jitsi.org/) オープンソース、エンド�
 
 # translated-by: libretranslate
 msgid "[Jitsi Meet](roles/web-app-jitsi/)"
-msgstr "[Jitsiミート](roles/web-app-jitsi/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
@@ -82739,7 +82739,7 @@ msgstr "[ケビン・ヴェン・ビルケンバッハ](https://veen.world): uni
 
 # translated-by: libretranslate
 msgid "[Keycloak GitHub Repository](https://github.com/keycloak/keycloak)"
-msgstr "[Keycloak GitHubリポジトリ](https://github.com/keycloak/keycloak)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Keycloak Official Website](https://www.keycloak.org/)"
@@ -82811,7 +82811,7 @@ msgstr "[ダウンロード](platform/linux.md)"
 
 # translated-by: libretranslate
 msgid "[Listmonk GitHub Repository](https://github.com/knadh/listmonk/)"
-msgstr "[Listmonk GitHubリポジトリ](https://github.com/knadh/listmonk/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Listmonk Installation Documentation](https://listmonk.app/docs/installation/)"
@@ -82870,7 +82870,7 @@ msgstr "[Magento オープンソース](https://magento.com/)"
 
 # translated-by: libretranslate
 msgid "[Mailu GitHub repository](https://github.com/Mailu/Mailu)"
-msgstr "[Mailu GitHubリポジトリ](https://github.com/Mailu/Mailu)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mailu Official Website](https://mailu.io/)"
@@ -82930,7 +82930,7 @@ msgstr "[マストドン Documentation](https://docs.joinmastodon.org/)"
 
 # translated-by: libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
-msgstr "[Mastodon GitHubの問題](https://github.com/mastodon/mastodon/issues/7958)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Mastodon Official Website](https://joinmastodon.org/)"
@@ -82978,7 +82978,7 @@ msgstr "[メディアウィキ公式サイト](https://www.mediawiki.org/)"
 
 # translated-by: libretranslate
 msgid "[Memcached official documentation](https://memcached.org/)"
-msgstr "[Memcached公式ドキュメント](https://memcached.org/)"
+msgstr ""
 
 msgid "[Meta Infinite Graph Homepage](https://github.com/infinito-nexus/meta)"
 msgstr ""
@@ -83004,11 +83004,11 @@ msgstr "[Moodle MCPプラグイン](https://moodle.org/plugins/webservice_mcp)"
 
 # translated-by: libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"
-msgstr "[Moodle公式サイト](https://moodle.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Moving from iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
-msgstr "[iptablesからnftablesへの移動](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[NFS Client](roles/svc-storage-nfs-client/)"
@@ -83233,7 +83233,7 @@ msgstr "[オープントーク](https://opentalk.eu/) Heinlein Groupが開発す
 
 # translated-by: libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[WireGuardのOpenWrtフォーラムディスカッション](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Package cache](roles/svc-cache-package/)"
@@ -83245,7 +83245,7 @@ msgstr "[パッケージ更新](roles/update/)"
 
 # translated-by: libretranslate
 msgid "[PeerTube GitHub Issues](https://github.com/Chocobozzz/PeerTube/issues/3091)"
-msgstr "[PeerTube GitHubの問題](https://github.com/Chocobozzz/PeerTube/issues/3091)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)"
@@ -83257,7 +83257,7 @@ msgstr "[スポット構成ガイド](https://help.penpot.app/technical-guide/co
 
 # translated-by: libretranslate
 msgid "[Penpot Docker Guide](https://github.com/penpot/penpot/tree/main/docker)"
-msgstr "[Penpot Dockerガイド](https://github.com/penpot/penpot/tree/main/docker)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Penpot Official Website](https://penpot.app/)"
@@ -83285,7 +83285,7 @@ msgstr "[パイプライン](PULL_REQUEST_TEMPLATE/pipeline.md) - CI/CDの"
 
 # translated-by: libretranslate
 msgid "[Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)"
-msgstr "[Pixelfed GitHubリポジトリ](https://github.com/pixelfed/pixelfed)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Play Blu-ray with VLC Guide](https://videobyte.de/play-blu-ray-with-vlc)"
@@ -83337,7 +83337,7 @@ msgstr "[プレシックス Documentation](https://docs.pretix.eu/en/latest/)"
 
 # translated-by: libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
-msgstr "[Pretix GitHubリポジトリ](https://github.com/pretix/pretix)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Pretix Official Website](https://pretix.eu/)"
@@ -83392,7 +83392,7 @@ msgstr "[RBAC ウィキペディア](https://de.wikipedia.org/wiki/Role_Based_Ac
 
 # translated-by: libretranslate
 msgid "[RBAC design](../../contributing/design/iam/rbac.md)"
-msgstr "[RBACの設計](../../contributing/design/iam/rbac.md)"
+msgstr ""
 
 # 選択トークン文法と1軸回転テーブル。.
 # translated-by: libretranslate
@@ -83434,7 +83434,7 @@ msgstr "[パスワードの再設定 MariaDB/MySQL で Docker](https://wolfgang.
 
 # translated-by: libretranslate
 msgid "[Restrict SSH to rsync](http://gergap.de/restrict-ssh-to-rsync.html)"
-msgstr "[SSHをrsyncに制限する](http://gergap.de/restrict-ssh-to-rsync.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[RetroArch](https://www.retroarch.com/) is a frontend for emulators, game engines, and media players powered by the [Libretro](https://www.libretro.com/) framework. It supports multiple UI styles including [XMB](https://en.wikipedia.org/wiki/XrossMediaBar) and [Ozone](https://docs.libretro.com/), and provides a unified interface for retro gaming across platforms."
@@ -83454,7 +83454,7 @@ msgstr "[ルーレットホイール](https://github.com/p-wojt/roulette-wheel) 
 
 # translated-by: libretranslate
 msgid "[Rsync and sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
-msgstr "[Rsyncとsudoの統合](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SMART](https://en.wikipedia.org/wiki/SMART_criteria)"
@@ -83509,7 +83509,7 @@ msgstr "[海藻FS メニュー](https://github.com/seaweedfs/seaweedfs/wiki)"
 
 # translated-by: libretranslate
 msgid "[SeaweedFS on GitHub](https://github.com/seaweedfs/seaweedfs)"
-msgstr "[GitHubのSeaweedFS](https://github.com/seaweedfs/seaweedfs)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, and files. It exposes an S3-compatible API, so applications store and retrieve objects with standard S3 SDKs and CLIs."
@@ -83532,7 +83532,7 @@ msgstr "[セマフォア Documentation](https://docs.semaphoreui.com/)"
 
 # translated-by: libretranslate
 msgid "[Semaphore GitHub Repository](https://github.com/semaphoreui/semaphore)"
-msgstr "[Semaphore GitHubリポジトリ](https://github.com/semaphoreui/semaphore)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Semaphore UI Official Website](https://semaphoreui.com/)"
@@ -83560,7 +83560,7 @@ msgstr "[セットアップ Keycloak 逆プロキシの背後にある](https://
 
 # translated-by: libretranslate
 msgid "[Shopware Developer Documentation](https://developer.shopware.com/)"
-msgstr "[Shopware開発者 Documentation](https://developer.shopware.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->"
@@ -83572,7 +83572,7 @@ msgstr "[ショップウェアストア (プラグイン)](https://store.shopwar
 
 # translated-by: libretranslate
 msgid "[Snipe‑IT Official Documentation](https://snipe-it.readme.io/)"
-msgstr "[Snipe-IT公式HP Documentation](https://snipe-it.readme.io/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Social Home source](https://github.com/social-home-io/socialhome)"
@@ -83588,7 +83588,7 @@ msgstr "[スパム対策](https://check.spamhaus.org/)"
 
 # translated-by: libretranslate
 msgid "[Sphinx Official Website](https://www.sphinx-doc.org/)"
-msgstr "[Sphinx公式サイト](https://www.sphinx-doc.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Stack Overflow: Invalid Host Header with Webpack Dev Server](https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-connecting-to-webpack-dev-ser)"
@@ -83643,7 +83643,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
-msgstr "[SysPassの問題 #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
+msgstr ""
 
 msgid "[System One API](roles/web-svc-s1/)"
 msgstr ""
@@ -83780,7 +83780,7 @@ msgstr "[NATの背後にあるWireGuardクライアント](roles/svc-net-wiregua
 
 # translated-by: libretranslate
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
-msgstr "[WireGuard接続はUbuntuで死ぬ](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WireGuard Documentation](https://www.wireguard.com/)"
@@ -83792,7 +83792,7 @@ msgstr "[WireGuard NATとファイアウォールの問題](https://serverfault.
 
 # translated-by: libretranslate
 msgid "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
-msgstr "[WireGuardの許可問題の議論](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
@@ -83800,11 +83800,11 @@ msgstr "[ワイヤーガードクライアント](roles/svc-net-wireguard-plain/
 
 # translated-by: libretranslate
 msgid "[WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)"
-msgstr "[WordPressマルチサイト Documentation](https://wordpress.org/support/article/create-a-network/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WordPress Official Website](https://wordpress.org/)"
-msgstr "[WordPress公式サイト](https://wordpress.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[WordPress Plugin Repository](https://wordpress.org/plugins/)"
@@ -83832,15 +83832,15 @@ msgstr "[ワールドワイドウェブ](roles/web-opt-rdr-www/)"
 
 # translated-by: libretranslate
 msgid "[XMPP](roles/web-svc-xmpp/)"
-msgstr "[XMPPの特長](roles/web-svc-xmpp/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-msgstr "[XWikiの特長 Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
-msgstr "[XWiki GitHubリポジトリ](https://github.com/xwiki/xwiki-platform)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[XWiki Official Website](https://www.xwiki.org/)"
@@ -83852,7 +83852,7 @@ msgstr "[ヤギニ](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)"
 
 # translated-by: libretranslate
 msgid "[YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)"
-msgstr "[YOURLS GitHubリポジトリ](https://github.com/YOURLS/YOURLS)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[YOURLS Official Website](https://yourls.org/)"
@@ -83887,7 +83887,7 @@ msgstr "[ザマッド](https://zammad.org/) オープンソースヘルプデス
 
 # translated-by: libretranslate
 msgid "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
-msgstr "[Pythonの禅](https://en.wikipedia.org/wiki/Zen_of_Python)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Zoom](https://zoom.us/) is a popular video conferencing application for online meetings, webinars, and collaboration."
@@ -84276,7 +84276,7 @@ msgstr "[キャンセル/](cancel/)"
 
 # translated-by: libretranslate
 msgid "[castling.club GitHub Repository](https://github.com/stephank/castling.club)"
-msgstr "[castling.club GitHubリポジトリ](https://github.com/stephank/castling.club)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ci/](ci/README.md): CI container image deploy."
@@ -84390,11 +84390,11 @@ msgstr "[dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) 呼び出し `
 
 # translated-by: libretranslate
 msgid "[ejabberd Container Documentation](https://docs.ejabberd.im/CONTAINER/)"
-msgstr "[ejabberdコンテナ Documentation](https://docs.ejabberd.im/CONTAINER/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ejabberd Official Website](https://www.ejabberd.im/)"
-msgstr "[ejabberd公式サイト](https://www.ejabberd.im/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ejabberd](https://www.ejabberd.im/) is a robust, scalable, and modular XMPP server that implements the full XMPP specification plus a number of extensions (XEPs). Clients connect over TCP/TLS on ports 5222 (client-to-server) and 5269 (server-to-server), with an optional HTTP listener for the admin UI and BOSH/WebSocket bindings."
@@ -84432,7 +84432,7 @@ msgstr "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
-msgstr "[env-varsの](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[files/test/test.sh](../../roles/web-app-homeassistant/files/test/test.sh), which drives the shared MCP contract harness inside the provider's own network"
@@ -84585,7 +84585,7 @@ msgstr "[シフト可能](https://www.netfilter.org/projects/nftables/) Linuxカ
 
 # translated-by: libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[Docker Hubのopencloudeu/opencloud](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format
@@ -84602,7 +84602,7 @@ msgstr "[パクマン](https://wiki.archlinux.org/title/pacman)"
 
 # translated-by: libretranslate
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
-msgstr "[pdsadmin GitHubリポジトリ](https://github.com/lhaig/pdsadmin)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
@@ -84753,7 +84753,7 @@ msgstr "[secrets.md](secrets.md): ワークフローが消費するリポジト�
 
 # translated-by: libretranslate
 msgid "[service_registry.py lookup plugin](../../../../../plugins/lookup/service_registry.py)"
-msgstr "[service_registry.py lookupプラグイン](../../../../../plugins/lookup/service_registry.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[service_registry.py lookup](../../../../../plugins/lookup/service_registry.py)"
@@ -88156,7 +88156,7 @@ msgstr "`GET /v1/sys/metrics?format=prometheus`. 普通のトークン格子; �
 
 # translated-by: libretranslate
 msgid "`GH_TOKEN` env var"
-msgstr "`GH_TOKEN` envのvar"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`GH_TOKEN` must be available on the Ansible control node (`delegate_to: localhost`) for the `gh api` registration call to succeed. In CI this is forwarded into the DinD container by `cli/administration/deploy/development/deploy/run.py`."
@@ -88925,7 +88925,7 @@ msgstr "``.po`` または ``.pot`` ファイル。."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS、JSONC、...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -89051,7 +89051,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``GH_TOKEN`` env var"
-msgstr "``GH_TOKEN`` envのvar"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``GITLAB_ROOT_PASSWORD`` (```templates/env.j2`` <./templates/env.j2>`__, from ``GITLAB_INIT_ROOT_PASSWORD`` in ```vars/main.yml`` <./vars/main.yml>`__) belongs to GitLab’s built-in ``root`` account, not to the Keycloak ``administrator`` username the persona signs in with, and no GitLab account is provisioned for ``biber`` at all — the OmniAuth sign-in is the only path that would create one. In the ``services.sso.enabled: false`` matrix variants that path is removed, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ renders ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``. The ``guest`` persona and the baseline assertions run unconditionally."
@@ -89608,7 +89608,7 @@ msgstr "``docker_name`` 明示的な ``name:`` フィールド (エイリアス 
 
 # translated-by: libretranslate
 msgid "``domains``: canonical and alias domains"
-msgstr "``domains``:canonicalおよびaliasのドメイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``dotlinker_apply`` (default: ``true``): run ``doli pull`` after adding mappings"
@@ -90550,7 +90550,7 @@ msgstr "``test-login-native.js`` — 管理者ネイティブ (ローカルパ�
 
 # translated-by: libretranslate
 msgid "``test-login-oidc-admin.js`` — OIDC via Keycloak, administrator."
-msgstr "``test-login-oidc-admin.js`` — OIDC経由 Keycloak管理者."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``test-login-oidc-biber.js`` — OIDC via Keycloak, ``biber`` (non-admin RBAC)."
@@ -90685,7 +90685,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``web-app-keycloak`` — for SSO/OIDC authentication"
-msgstr "``web-app-keycloak`` — SSO/OIDC認証用"
+msgstr ""
 
 msgid "``web-app-matrix`` is in the deployment"
 msgstr ""
@@ -91380,7 +91380,7 @@ msgstr "`docs/contributing/tools/network/` 契約のカバー `address` そし�
 
 # translated-by: libretranslate
 msgid "`domains`: canonical and alias domains"
-msgstr "`domains`:canonicalおよびaliasのドメイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`dotlinker_apply` (default: `true`): run `doli pull` after adding mappings"
@@ -92196,7 +92196,7 @@ msgstr "`meta/variants.yml` (決定ごとの3つの変形 #11)"
 
 # translated-by: libretranslate
 msgid "`meta/variants.yml` (three variants, mirroring openproject)"
-msgstr "`meta/variants.yml` (openprojectを映す3つの変形)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`meta/variants.yml` adds new variants that exercise the ansible flavor (V1 ansible + sso + ldap + email + all-bridges; V2 ansible + no auth; V3 ansible + ldap-only). Existing compose-flavor variants are renamed `Vcompose-*` and stay for regression coverage."
@@ -92518,7 +92518,7 @@ msgstr "`rbac.tenancy` ツイート 📐"
 
 # translated-by: libretranslate
 msgid "`rbac_group_path` lookup plugin 🧭"
-msgstr "`rbac_group_path` lookupプラグイン 🧭"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`recover full <source> <target>` recovers every type present in the backup, in order, adapting to the source:"
@@ -93307,7 +93307,7 @@ msgstr "`test-login-native.js` — 管理者ネイティブ (ローカルパス�
 
 # translated-by: libretranslate
 msgid "`test-login-oidc-admin.js` — OIDC via Keycloak, administrator."
-msgstr "`test-login-oidc-admin.js` — OIDC経由 Keycloak管理者."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`test-login-oidc-biber.js` — OIDC via Keycloak, `biber` (non-admin RBAC)."
@@ -93648,7 +93648,7 @@ msgstr "`web-app-keycloak` オファー `oidc`"
 
 # translated-by: libretranslate
 msgid "`web-app-keycloak` — for SSO/OIDC authentication"
-msgstr "`web-app-keycloak` — SSO/OIDC認証用"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`web-app-kix` — native OTRS header-auth module"
@@ -97341,7 +97341,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "iFrame Notifier for NGINX"
-msgstr "NGINX用iFrame Notifier"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "identify shared dependencies such as database, proxy, or identity"
@@ -97559,7 +97559,7 @@ msgstr "ホストのセットアップをコンシューマーのセットアッ
 
 # translated-by: libretranslate
 msgid "keepassxc-browser"
-msgstr "keepassxcブラウザ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "kernel: needs a real host (kernel nfsd wedges in privileged DinD)."
@@ -98104,11 +98104,11 @@ msgstr "ミリオン"
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: <https://en.wikipedia.org/wiki/Msmtp>"
-msgstr "Wikipediaのmsmtp: <https://en.wikipedia.org/wiki/Msmtp>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp on Wikipedia: https://en.wikipedia.org/wiki/Msmtp"
-msgstr "Wikipediaのmsmtp: https://en.wikipedia.org/wiki/Msmtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "msmtp: <https://marlam.de/msmtp/>"
@@ -100653,7 +100653,7 @@ msgstr "run_after あらゆるカテゴリで注文するエッジ。 ``tiebreak
 
 # translated-by: libretranslate
 msgid "runs Playwright in Docker"
-msgstr "DockerでPlaywrightを実行"
+msgstr ""
 
 msgid "runs ansible's syntax-check plus ansible-lint."
 msgstr ""
@@ -102013,7 +102013,7 @@ msgstr "名前でソートされたプロキシされたリポジトリ。."
 
 # translated-by: libretranslate
 msgid "the qdrant service role id."
-msgstr "qdrantサービスの役割id。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the question is about the storage driver"
@@ -104477,7 +104477,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} -> /etc/<software_domain>/ca//////////////root-ca.crt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"
@@ -104489,7 +104489,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} # トポロジーのデフ�
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> /tmp/email_sent"
+msgstr ""
 
 # lookup('domains', application_id) }} -> 1つの役割のためのサブツリー {{ lookup('domains',
 # application_id, default) }} -> フォールバックのサブツリー
@@ -104516,7 +104516,7 @@ msgstr "{{ lookup('sso', application_id, 'enabled') }} → ボロール"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'flavor') }}          → str"
-msgstr "{{ lookup('sso', application_id, 'flavor') }} → str"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'is_enabled') }}      → bool"

@@ -31,12 +31,12 @@ msgstr "سیریالهای خداحیاطیل AI"
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr "اتطبيقات وأدوات ذكاء اصطناعي لإدارة وتشغيل وتجربة النماذج."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr "کód ویرایشگر اولیه AI در وکس استاندارد قرار داده شده، جای پایگاه داده تنظیم شده به گیرنده یک خط مدیریتی است"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
@@ -58,7 +58,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr "Setup جو نمایشی کتابخنی باز, اپلیکیشن های پوسته و ترمنال در یک جامعه سیستم گنو بر روی لینوکس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
@@ -178,7 +178,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr "نظام استخراج الملفات الرئيسي الذي يتحول المستندات المحمولة إلى نص لاسترجاع مزدوج الذكاء"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:description"
@@ -188,7 +188,7 @@ msgstr "Resurcsa al-khairiyyah bi-qanun, khalqal-fuadh, tamthil al-ma'sal, wa-ad
 # translated-by: libretranslate
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr "نظام تخزين ذاكرة داخليةcentrifوني مع تصفية الأحرف المفتاحية لكل مندوب منفردة، م可用 centrally أو كمضيف مجانير جانبي"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-loader:description"
@@ -243,7 +243,7 @@ msgstr "Təşayıv açın…"
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr "ت修理"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-cln-domains:description"
@@ -253,7 +253,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr "ر-outine التهيئة للغة عائدة من الملفات الصغيرة إلى أقسام القرص، والملفات الترميزية، وبيانات دوكار البدائلية المختارة والأرشيفات القديمة"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
@@ -298,12 +298,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr "Platformة ويك متعاونة للكتابة المدعومة من المستخدمين مع نظام متكامل من تطبيقات التوسع والإدارة المحتوى"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr "برنامج سجل المراحيض من الخرائط لخلق وتنسيق الملاحظات الشخصية من الطرفية"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
@@ -313,12 +313,12 @@ msgstr "م.trade"
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr "اتصال"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr "民众"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -338,7 +338,7 @@ msgstr "Orchestration متوضیف"
 # translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr "سفنات التسجيل"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-container:description"
@@ -383,7 +383,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr "نظام إدارة المحتوى لبناء وصيانة المواقع، المدونات، وشُعب مواقع متعددة مع الوسائط المتعددة والأدوات الوظيفية"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
@@ -418,12 +418,12 @@ msgstr "Injection na designt na corporate na mga aplikasyon sa NGINX, unifying n
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
-msgstr "لا يمكنني فحص سجلاتك الأخرى."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
-msgstr "لا يمكن التحقق من كل تسجيل الخروج."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-nix:description"
@@ -443,7 +443,7 @@ msgstr "Alqalamiyah"
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "کنترول رابطه مشتری (CRM) برای کنترول رابطه مشتری، خط مشخصه فروش، برنامه ریزی اعلان، و活動。."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -473,7 +473,7 @@ msgstr "Database应用程序(DBMS，Redis，等)"
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr "خوادaghان"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
@@ -513,7 +513,7 @@ msgstr "Deployable waa web aapakshiyāt (GitLab, Nextcloud, Mastodon, etc.)"
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
-msgstr "کارکرد کامپیوتری"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-spotify:description"
@@ -543,7 +543,7 @@ msgstr "Setup لمستعرض المحتوى على جهاز المكتب باس�
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr "نظام أ 办公套件 للملفات والم schedules والتقديمات مع خطوط طباعة فريز اس و بلوكets لغات"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
@@ -558,7 +558,7 @@ msgstr "Client for konferensi video online, webinar, dan sharing layar di deskto
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "اتطوير"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
@@ -593,12 +593,12 @@ msgstr "Clustersim لايستراحم و玩级和节点角色 untuk م�sseー�
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Server پنل ورکورن برای ویرایش در تایم رایانه‌ای از فایل‌ها، تبدیل‌ها و مدل‌های نمایشی"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr "خاط備"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
@@ -613,7 +613,7 @@ msgstr "Integrazione del guidatore per il colore del tastierino dinamico e la co
 # translated-by: libretranslate
 msgctxt "category:drv:title"
 msgid "Drivers"
-msgstr "سائقين"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
@@ -643,12 +643,12 @@ msgstr "Wiki و سیستم تکاملاً گروهی برای ایجاد، جز�
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "ئیvéنت و کیت مانیجانس تولیدکننده"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "אירועים"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
@@ -678,12 +678,12 @@ msgstr "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (A
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr "حُكْمٌ ورِقَةُ الحُكْم"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr "سحُوبات اقتصادی و حسابي"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-coturn:description"
@@ -698,7 +698,7 @@ msgstr "Muʿādinan wājiban wadhāḥifan al-ajz li-murād al-milāḥ wa-l-kaw
 # translated-by: libretranslate
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr "سیستم پلتفарمی کاربری موبایل و سیگناله‌ای برای مدیریت پولی و مدیریت مالی شخصی و سازمانی"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-dashboard:description"
@@ -728,7 +728,7 @@ msgstr "Platformat al-ajyad wa al-waṭaniyat al-ḥurriyya."
 # translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr "سادس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
@@ -767,7 +767,7 @@ msgstr "Headless لاتينس سحابة للموديل مع API على الشب
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr "تيسم الصحة للvolumes العابrés الامين المحددين دون توابع الاقلام مع القائمة البيضاء والمعلامه"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
@@ -787,7 +787,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "واعضاء 도구"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
@@ -822,7 +822,7 @@ msgstr "Identity-based secrets PKI و جستجوگر رمزنگاری با ور�
 # translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "Cache القاعدة والتخزين في ذاكرة السحابة، مشتركًا بشكل مركز مع الفصل عن طريق أمان المConsumer أو دمج كجهاز جانب من الجانح"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
@@ -837,7 +837,7 @@ msgstr "Infrastructure"
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr "صَنَاعَةٌ وَمَوَابِرٌ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -876,7 +876,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr "平台上標示 및 проект تتبع платформы للفرق المحددة في تطوير البرمجيات، مع وحى اجيلى، وصفائف العمل، وأضافة OIDC SSO اختياريا"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
@@ -921,12 +921,12 @@ msgstr "LLM-backed ترجمة الم引擎Speak LibreTranslate API، لpipelines
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
-msgstr "Platforms گواهی‌های یادگیری ، نرم افزارهای بهارگزاری کلاس رومی و محیط‌های آموزش دیجیتال."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr "提供商 لطبقة TLS الأمامية المضمونة بإصدار تلقائي من الجوازات"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
@@ -964,7 +964,7 @@ msgstr "Firstkiwi_cross_platafrom_desktop_password_manager_storeing_credentials_
 # translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr "中心 الذي يجمع منبهات Slack، البريد الإلكتروني، وملاحقة المشكلات إلى ورقة مطلوبة للإجراء"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lock:description"
@@ -1004,12 +1004,12 @@ msgstr "Docker Swarm رئیس مدل نodemینک اصل، با معاینگ ل�
 # translated-by: libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr "市场营销"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr "平台上標注引擎查询网络结果而不将用户的查询传递给追踪搜索引擎提供者"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-pi:description"
@@ -1019,7 +1019,7 @@ msgstr "Agent terminal coding minimal with sistema de habilidades lazy-loading, 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "تتبع"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
@@ -1138,17 +1138,17 @@ msgstr "Tasdiq səhifəyə keşəvirsin"
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr "فتح صفحه تسجيل الخروج وإلغاء تسجيل الدخول في الخدمات المتبقية بنفسك."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr "منصة CRM المجانية لניהול المبيعات، المحادثات مع العملاء، والأعمال من خلال فرق العمل"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr "بומپر كريم برای فروش، خدمات، موارد و مدیریت حمله با آموزش مکانیزم عملکرد"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-odoo:description"
@@ -1188,17 +1188,17 @@ msgstr "Server khulnuskhil CI/CD مهندسی پلی کیل، توسعه، و م
 # translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr "دلة اقتراحات الوسائط المفتوحة والتصويت على الاقتراحات والأفكار وتحديد الأولوية"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr "نظام إدارة المحتوى المفتوح المصدر لإنشاء مواقع الويب، وفيشات intranet، وتطبيقات الويب بدون كتابة الكود"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr "بيت تورنت خادم واجهات المستخدم منصبي"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-discourse:description"
@@ -1213,17 +1213,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "نظام مساعدة مفتوح المصدر وحل الندوات لمعالجة طلبات العملاء عبر البريد الإلكتروني، الدردشة، الهاتف، والأجهزة المحمولة"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr "نظام إدارة مدرسة مفتوح المصدر لإنشاء، إدارة، وتقديم الدورات التعليمية عبر الإنترنت والتعلم الإلكتروني"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "نَاشئ تَعَلِيمٌ لِّلْمُسْتَقِرِّ وَالْمُؤَذَّنَةِ لِلْمُحْصَنَاتِ لِتَخْزِنَ قَاسِمَاتٍ كَأَسْرَافٌ وَيُجِيبَنَّ بِأَمْسَكٌ وَيُسْلَمَ بِبُكَّة"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
@@ -1312,12 +1312,12 @@ msgstr "Placeholder دَورٌ للُمنصةِ.futureXMPP الُنشرةِ، ا
 # translated-by: libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "صُناعات إنشاء وניהול منافذ التجارة الالكترونية، وملف المنتجات، وقنوات بيع الكترونية رقمية - بما في ذلك الدفع، الاستوديو، والميزات التCustomer."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr "لا تغلق هذه الصفحة بعد."
+msgstr ""
 
 # translation-refused: libretranslate echo
 # nocheck: url
@@ -1357,7 +1357,7 @@ msgstr "Sakka-yekonjeh pakak va hadar sudoers taqribi va supportiye /etc/sudoers
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "م治理"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
@@ -1367,7 +1367,7 @@ msgstr "Al Qurʼān管理工具"
 # translated-by: libretranslate
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr "سائق محرر الديجيتال غرافيك خاص للأنظمة المبنية على أكروش透过 تجسس المعدات غير المبررة"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-dns-wildcards:description"
@@ -1417,7 +1417,7 @@ msgstr "Tasas ilāhir GitHub-release lint ilāluwa a shekarar ilāluwa a tunuyā
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr "سجیه"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:description"
@@ -1482,7 +1482,7 @@ msgstr "SMTP gateway ta ta'elātāt al-mawdūʿāt al-ʿinīya thalatha'āt Tor'
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr "سایل"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
@@ -1779,12 +1779,12 @@ msgstr "Sabaktaat tahziriyah va taqlid va servis taqribani komponen—tarbiyati 
 # translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr "سکس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr "سکس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
@@ -1799,7 +1799,7 @@ msgstr "Shared host dependency ensuring that OpenSSL CLI is installed once for r
 # translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "ساتبقة مشترك للكسارة الي同步 مع الرسائل مع الحماية المعنوية لكل م��ب وإلغاء التأثير"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:description"
@@ -1809,7 +1809,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr "ساقطة مشترك لجميع المهام على لوحة المكتب، حساب حساب المستخدم وملفاته يخص"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
@@ -1845,17 +1845,17 @@ msgstr "زمرة التحكم الذكي مع تكثيف الأجهزة والد
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr "سیمی میزه"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr "توسعات مسیرهای اجتماعی"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "فني التطوير البرمجي"
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -1929,7 +1929,7 @@ msgstr "Wesegar sakasiya iliyasino bihi ake ya daa'isha ake ya kira ake ko yi ka
 # translated-by: libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "Interface لشبكية التعليمات البرمجية全局 لإدارة وتشغيل بيئة التحقيق ذات الواجهة النهائية من الشلم"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
@@ -1946,7 +1946,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr "Units تایمر واحدهٔ سیستم داس برای شروع یک ارتباط اداری بر اساس گاه‌ای برای اجرا اهداکننگ عملیات‌های پیام‌برداری"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-docker:description"
@@ -1991,7 +1991,7 @@ msgstr "Terminal emulator لمستندات GNOME، يوفر تحرير الأم�
 # translated-by: libretranslate
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr "پینکمبنی مردودی با فونت‌های رایج و نوآورهایی که از بین برنامه‌های پینکمبنی کار می‌کنند و املاک گرافیکی بر اساس زبان سینک‌های کاربری‌پذیر با کلیدهای نمایشی"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"
@@ -2001,7 +2001,7 @@ msgstr "Taawanan-iyya ta'akharush ta'allumayn li-qa'ad al-ashkhar al-islidhiyya 
 # translated-by: libretranslate
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr "هذا ي通常需要几秒钟。."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
@@ -2011,22 +2011,22 @@ msgstr "Tiering röle wael warkan al-ssd bi la'el bi la'el wahdah, wa qalb al-sy
 # translated-by: libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr "نظام الآلية لغة البرمجة البرمجية على Python، التطوير التطبيقي، والعلوم البيانات على لينكس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
-msgstr "آليات"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr "معدات إدارة الهوية والوصول، بما في ذلك التحقق، إنشاء المستخدمين، وتحكم صحي بالوصول."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr "مکان‌های پیامبری"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Marketing:description"
@@ -2036,7 +2036,7 @@ msgstr "معدات campanas البريدية، التواصل مع الأنظم�
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
-msgstr "مکانیکات و سیستم های کامپیوتری موجود در سازمان شما را با آمار خود راه اندازی، تلاش و مدیریت کنید."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
@@ -2046,7 +2046,7 @@ msgstr "مودleri ل comunità"
 # translated-by: libretranslate
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-msgstr "مکان‌های برای اندازه‌گیری، نمایشگر و بهینه‌سازی عملکرد وب سایت و نشاستگی کاربر برای اطلاعات مستند به یادگیری است."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.opt:description"
@@ -2081,7 +2081,7 @@ msgstr "Serviced-failure را من خلال قنوات Telegram و البريد 
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "تقارير وخدمات التثبيت"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:partial_hint"
@@ -2106,17 +2106,17 @@ msgstr "Ụsers account & accés control"
 # translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr "کاربران و دسترسی"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
-msgstr "متد لمستشارك الشخصي للcontro للكمبيوترات بحالة الاعدادات الافتراضية للجنسية وتوقيع ووحدة التجميع"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr "م树布局用于CDN交付的版本化资产树结构 معظمه تخطيط الم树 للتسليم بسحوبات CDN مع المساريات المشتركة، والمساريات الصناعية، ومساريات لكل دور"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
@@ -2187,7 +2187,7 @@ msgstr "Wrappar rolfi fiqatanat idempotent fiwatanasasiyah fi fiyatanat kitabaqi
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "هذا الصفحة الآن يمكن أن تغلق."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
@@ -2223,5 +2223,5 @@ msgstr "tukar hilang"
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr "{done} من خدمات {total} المدفوعة"
+msgstr ""
 

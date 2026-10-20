@@ -48,13 +48,6 @@ msgstr "관리 도구 für 서버"
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr ""
-"---\n"
-"Agents\n"
-" Agents\n"
-"\n"
-"---\n"
-"Agents\n"
-" agents"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -89,7 +82,7 @@ msgstr "idempotent persistence 및 local YAML 저장소에 per-user 애플리케
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr "I can’t help with that."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
@@ -660,8 +653,6 @@ msgstr "이벤트 및 티켓 관리 도구"
 msgctxt "menu:Events:title"
 msgid "Events"
 msgstr ""
-"Events\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
@@ -740,8 +731,6 @@ msgstr "프론트엔드 헬스터 (주입, 공유 자산, CDN 배관)·"
 msgctxt "menu:Games:title"
 msgid "Games"
 msgstr ""
-"Games\n"
-"-ek"
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"

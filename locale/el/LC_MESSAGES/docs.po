@@ -1924,7 +1924,7 @@ msgstr "**Διαμορφώσιμες θύρες:** Εκθέτει την εφα�
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**"
-msgstr "**Con SMTP Settings:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Configurable SMTP Settings:**   Manage email notifications and alerts with customizable SMTP configurations."
@@ -9117,7 +9117,7 @@ msgstr "**Ορισμός γεγονότος** `database_application_id` να ε�
 
 # translated-by: libretranslate
 msgid "**Setup:**"
-msgstr "**Set:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Shallow Clone & Update** (`--depth`)"
@@ -12214,7 +12214,7 @@ msgstr "**galaxy_tags**: ['ldap', 'openldap', 'docker', 'directory', 'tls', «δ
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', 'email marketing', 'self-hosted']"
-msgstr "**galaxy_tags**: ['listmonk', 'docker', 'newsletter', «email marketing», 'self-hosted']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
@@ -12525,7 +12525,7 @@ msgstr "*Pkgmgr* (συσκευασία-διαχειριστής git ref): v1.15.
 
 # translated-by: libretranslate
 msgid "*pkgmgr*: v1.16.1 to v2.0.2"
-msgstr "*Pkgmgr*: v1.16.1 v2.0.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12, hadolint v2.15.1, shfmt v3.13.1"
@@ -13144,7 +13144,7 @@ msgstr "*web-app-socialhome*: 2026.6.16 προς 2026.9.18"
 
 # translated-by: libretranslate
 msgid "*web-app-socialhome*: 2026.9.18 to 2026.10.2"
-msgstr "*web-app-socialhome*2026.9.18 to 2026.10.2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-socialhome*: newly pinned to 2026.6.16"
@@ -13223,7 +13223,7 @@ msgstr "-> κάλτσες5h://host.docker.internal:<port> (σύνθεση)"
 
 # translated-by: libretranslate
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
-msgstr "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}Μ memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}Μ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid ".NET SDK is never needed; safe to remove"
@@ -13359,7 +13359,7 @@ msgstr "023 - Ναι. Docker Swarm Αναπροσαρμογή με κοινόχ�
 
 # translated-by: libretranslate
 msgid "023 - Setup Penpot"
-msgstr "023 - Set Penpot"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "024 - ERPNext Role with OIDC SSO"
@@ -13907,7 +13907,7 @@ msgstr ":mod:`utils.i18n.spans` ποια μέρη προστατεύονται �
 
 # translated-by: libretranslate
 msgid "<comment-prefix> (noqa|nocheck): <rule>(\\s*,\\s*<rule>)*"
-msgstr "<comment-prefix> (noqa): <rule>(\\*,\\*<rule>)*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "<https://gist.github.com/mtigas/565718bbb928ce439e95> — subdomain hidden-service reference"
@@ -21203,7 +21203,7 @@ msgstr "CI / Ε2E"
 
 # translated-by: libretranslate
 msgid "CI Configuration ⚙️"
-msgstr "Configuration CI ⚙️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI Debugging"
@@ -24123,7 +24123,7 @@ msgstr "Εμπιστευτικός πελάτης· τρεις ανακατευ�
 
 # translated-by: libretranslate
 msgid "Config"
-msgstr "Conf"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Config file"
@@ -24147,7 +24147,7 @@ msgstr "Configuration"
 
 # translated-by: libretranslate
 msgid "Configuration (env)"
-msgstr "Configuration (Ι)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Configuration Options"
@@ -28718,7 +28718,7 @@ msgstr "Ηλεκτρονικό ταχυδρομείο (Απόφαση #8 — ν�
 
 # translated-by: libretranslate
 msgid "Email Configuration 📬"
-msgstr "Configuration email 📬"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email Lookup Plugin 📬"
@@ -37789,7 +37789,7 @@ msgstr "Η λύση του είναι η μόνη εξαίρεση. `DOCS_TEST_D
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC, ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -37817,7 +37817,7 @@ msgstr "JWKS τελικό σημείο, ίσο με την ανακάλυψη `j
 
 # translated-by: libretranslate
 msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
-msgstr "JWT/ OIDC auth: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Java"
@@ -38827,7 +38827,7 @@ msgstr "Ας το κάνουμε. `meta/variants.yml` η εγγραφή υπερ
 
 # translated-by: libretranslate
 msgid "LetsEncrypt TLS provider for sys-front-tls."
-msgstr "LetsEncryption TLS provider for sys-front-tls."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Leverage MariaDB for secure and reliable data storage."
@@ -56418,7 +56418,7 @@ msgstr "Settings → Ενέργειες → Γενικά → \"Επίτρεψε 
 
 # translated-by: libretranslate
 msgid "Setup Peertube"
-msgstr "Set Peertube"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Setup new Version and apply restore_postgres_databases.py."
@@ -58547,7 +58547,7 @@ msgstr "Μηχανή Svc"
 
 # translated-by: libretranslate
 msgid "Svc Objstore"
-msgstr "Svc Οbjstore"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-agent-broker Role"
@@ -73451,7 +73451,7 @@ msgstr "WebSocket-γνωστοποίηση: `proxy_buffering off`, ειδικέ�
 
 # translated-by: libretranslate
 msgid "WebSocket?"
-msgstr "WebSocket;?"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Weblate Architecture"
@@ -78096,7 +78096,7 @@ msgstr "[--κλάδος Β] [--ελάχιστο N]"
 
 # translated-by: libretranslate
 msgid "[--format json]"
-msgstr "[--format Json]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[--modes auto] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"] [--lifecycles \"...\"]"
@@ -78344,7 +78344,7 @@ msgstr "[018 - Κάλυψη ταυτότητας LDAP Playwright](018-playwright
 
 # translated-by: libretranslate
 msgid "[01_constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
-msgstr "[01constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
@@ -78391,11 +78391,11 @@ msgstr "[03Διαμόρφωση.yml](./03_configure.yml)"
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12Ldap.yml](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -80028,7 +80028,7 @@ msgstr "[Ενεργοποίηση ενιαίας σύνδεσης (SSO)](https:/
 
 # translated-by: libretranslate
 msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-msgstr "[ESPOCRM Documentation](https://docs.espocrm.com/) 📖"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
@@ -81923,7 +81923,7 @@ msgstr "[αιτήσεις/](applications/README.md) βοηθοί γύρω από
 
 # translated-by: libretranslate
 msgid "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
-msgstr "[ap-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
+msgstr ""
 
 # translation-refused: libretranslate structure
 # nocheck: url
@@ -82044,11 +82044,11 @@ msgstr "[ανάπτυξη/](development/README.md): ανάπτυξη μήτρα�
 
 # translated-by: libretranslate
 msgid "[dnf](https://dnf.readthedocs.io/)"
-msgstr "[δnf](https://dnf.readthedocs.io/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dnf](https://dnf.readthedocs.io/en/latest/)"
-msgstr "[δnf](https://dnf.readthedocs.io/en/latest/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dns/](dns/) for local DNS setup and teardown"
@@ -85989,7 +85989,7 @@ msgstr "``.po`` ή ``.pot`` Αρχείο."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -87929,7 +87929,7 @@ msgstr "`bridges` (προαιρετικό) Πρέπει να είναι μια �
 
 # translated-by: libretranslate
 msgid "`build.extra_hosts` DNS-hijack + frontend HTTP"
-msgstr "`build.extra_hosts` DNS-jack + frontend HTTP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`build_dev_inventory` is the SPOT that turns a `DevInventorySpec` into a fully baked inventory folder via the `infinito administration inventory provision` CLI. `build_dev_inventory_matrix` is the orchestrator: it runs the planner and builds every round's folder."
@@ -88688,7 +88688,7 @@ msgstr "`index`, `sweep` (απαιτείται), `distros` (προαιρετικ
 
 # translated-by: libretranslate
 msgid "`infinito administration deploy development <subcommand>` (Python CLI)"
-msgstr "`infinito administration deploy development <subcommand>` (CLI Python)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`infinito meta cache` subcommand -- render the derived cache files."
@@ -92553,7 +92553,7 @@ msgstr "cli.meta.roles.applications.invokable συσκευασία"
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.new\\_in\\_branch module"
-msgstr "cli.meta.roles.applications.new\\ in\\ branch module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "cli.meta.roles.applications.ressources package"
@@ -93108,7 +93108,7 @@ msgstr "Καταχωρήστε τους ρόλους που ζουν."
 
 # translated-by: libretranslate
 msgid "directory the writes land in."
-msgstr "directory the charts land in."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "disabled"
@@ -95799,7 +95799,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.canonical\\_domains\\_map module"
-msgstr "plugins.filter.canonical\\ mains\\ map module"
+msgstr ""
 
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookieΆρθρωμα']
 # translation-refused: libretranslate protected-span
@@ -96269,7 +96269,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.current\\_play\\_redirect\\_domains module"
-msgstr "plugins.lookup.current\\ play\\ redirect\\ domains module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.database module"
@@ -96364,7 +96364,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.mcp\\_client\\_bearer module"
-msgstr "plugins.lookup.mcp\\ client\\ bearer module"
+msgstr ""
 
 msgid "plugins.lookup.mcp\\_client\\_login module"
 msgstr ""
@@ -96433,7 +96433,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.node\\_max\\_old\\_space\\_size module"
-msgstr "plugins.lookup.node\\ max\\ old\\ space\\ size module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.objstore module"
@@ -96608,7 +96608,7 @@ msgstr "plugins.lookup.users μονάδα"
 
 # translated-by: libretranslate
 msgid "plugins.lookup.users\\_non\\_reserved module"
-msgstr "plugins.lookup.users\\ non\\ reserved module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.lookup.version module"
@@ -97780,7 +97780,7 @@ msgstr "id roleόλων χωρισμένου χώρου. ``__ALL__`` και οτ
 
 # translated-by: libretranslate
 msgid "src"
-msgstr "Src"
+msgstr ""
 
 msgid "ssh server and the run's authorized key, piped into the running target"
 msgstr ""
@@ -99844,7 +99844,7 @@ msgstr "utils.env.handlers συσκευασία"
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.act\\_platform\\_image module"
-msgstr "utils.env.handlers.act\\ platform\\ image module"
+msgstr ""
 
 # lost=['utils.env.handlers.docker']
 # gained=['utils.env.handlers.dockerΆρθρωμα']
@@ -100117,7 +100117,7 @@ msgstr "utils.env.handlers.infinito.swarm\\ nfs πακέτο"
 # gained=['nfs.export']
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
-msgstr "utils.env.handlers.infinito.swarm\\ nfs.export\\ base module"
+msgstr ""
 
 # άρθρωμα
 # gained=['nfs.state']
@@ -100558,7 +100558,7 @@ msgstr "utils.nexus συσκευασία"
 
 # translated-by: libretranslate
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
-msgstr "utils.nexus.list\\ apt\\ proxy\\ repos module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.packages package"
@@ -101297,7 +101297,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} # τοπολογία προ
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> /tmp /email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"

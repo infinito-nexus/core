@@ -30,7 +30,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr "Ai Boshëtuyu"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -52,12 +52,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr "Administración de herramientas para servidores"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Ahanjane"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-all:description"
@@ -75,7 +75,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
-msgstr "Sasaalala"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -102,7 +102,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr "Appêlis"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -122,12 +122,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
-msgstr "Ingineyu Ingineyo"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr "Tsetsaa Mongeeg"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -149,12 +149,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr "Tshintsha kunywa koona"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr "Tsholofelo Lephela"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -222,7 +222,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr "CI Rooni"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:svc-db-typesense:description"
@@ -331,12 +331,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr "Tsheko e phinda imizwe kanye …"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr "Tšakaša"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-cln-domains:description"
@@ -372,7 +372,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Kloubok"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -434,17 +434,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr "Tshawe"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr "Comunicación"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr "Tshetshetha"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front.inj:description"
@@ -462,12 +462,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr "Orchitresa konteineru"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr "Tsawuvvuyuyit"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -520,7 +520,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr "Kosigwayo ho Kayitbo"
+msgstr ""
 
 # translation-refused: libretranslate collapsed
 # nocheck: url
@@ -541,7 +541,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
-msgstr "Tšaka"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -618,7 +618,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr "Koaxioomol₂ol₂ol"
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -631,12 +631,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr "DNS Ñeqhxënëvéñgc"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNS Ressorvorer"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -659,7 +659,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr "Kedvinne"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -719,7 +719,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
-msgstr "Witukoopaayo"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -785,7 +785,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "Dharufiyoqboi"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -849,12 +849,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr "Dokumentashon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
-msgstr "Dokumentasyon og Wiki-applikasjoner"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -867,12 +867,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:drv:title"
 msgid "Drivers"
-msgstr "Sasarinya"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr "Xalagalaabalengo"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -909,12 +909,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "Buket na tix tamazhikanane"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "Bisïshiyoq"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -961,12 +961,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr "Fianansioona ñawiñiràn"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr "Fiançaisi ak dawacsu bëllu"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1022,17 +1022,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr "Gsaws"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Gaming platformsi Entertainment aplicasionyalo."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr "Gaanílu"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1096,7 +1096,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr "Olotu"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1114,7 +1114,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "Kuvëluqta Dhiyamakot"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1185,12 +1185,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr "İnfrastruktură"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr "Infrastructuree koeetoolse"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1212,14 +1212,11 @@ msgstr ""
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
 msgstr ""
-"Infrastructureasaasuumaaba\n"
-"likekudibba\n"
-"saasuumaaba"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
-msgstr "Injaiyo"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:drv-intel:description"
@@ -1409,7 +1406,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr "Tšigabiya"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1452,7 +1449,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "Tsanu"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1525,7 +1522,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
-msgstr "Nèt"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:description"
@@ -1586,8 +1583,6 @@ msgstr ""
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
-"Os uusinot\n"
-"pakkiuusinot"
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-objstore:description"
@@ -1806,12 +1801,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
-msgstr "Olušiwa Toru kikan marwa."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr "Kistit Cachaxa"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1924,12 +1919,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "Kumeteguozi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr "Kubîshi qarooyin aad ka hadlaya"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1963,7 +1958,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr "Proxy Sheshi"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
@@ -2002,7 +1997,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr "Heraa"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2094,12 +2089,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr "Ṣuyi"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr "Runtimes saubatwa"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2240,7 +2235,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr "Zibhungwa GitHub Actions kubuliyesa kubuliyesa"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-littlejs:description"
@@ -2512,12 +2507,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr "Kasa-yoomoyrda"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr "Optimekaane"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2542,12 +2537,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr "Tsaweloga"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr "Sistoregab"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2591,7 +2586,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr "Tuituutuutu uguluma kuti."
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 #, python-brace-format
@@ -2625,17 +2620,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr "Sosial Media"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr "Sofiaa Dhaqaat"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "Tsaqef Taqribiyo Candikiyo"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2648,7 +2643,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr "S'ta"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2682,7 +2677,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr "Sakamëta"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:sys:title"
@@ -2692,7 +2687,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr "System Frontend Koomin"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2860,7 +2855,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
-msgstr "Instrumentum"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2873,7 +2868,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr "Tsawazi dinyanya"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2894,7 +2889,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr "Tsathguut gagaax xoog"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2907,7 +2902,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
-msgstr "Dzivesho zvinotera vetembovesha"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-tor:description"
@@ -2946,7 +2941,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "Môsho na Kiptafo"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -2965,17 +2960,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:User Management:title"
 msgid "User Management"
-msgstr "Gwalëmanci"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:user:description"
 msgid "User accounts & access control"
-msgstr "Kangsiruukak & yirañjijiñjikak"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr "Ndekelehlo yomnyanya kwezizwa"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -3001,7 +2996,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr "Infrastructure"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -3048,7 +3043,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr "Weskerver Optimization"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-docker:description"
@@ -3074,12 +3069,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "Naanaafa maanaase aad u cilmaya."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr "falagi"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -3092,26 +3087,26 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr "na-gwahali-goma"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr "sijāka biniyākka"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr "mëraše �iryër"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr "tshirtsiga"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr "{done} ofu {total} services signed out"
+msgstr ""
 

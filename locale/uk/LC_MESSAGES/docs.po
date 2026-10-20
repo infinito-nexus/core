@@ -6625,7 +6625,7 @@ msgstr "**Мультисайт шлях** (автоматично виявлят
 
 # translated-by: libretranslate
 msgid "**Multi‑Server Management:**"
-msgstr "**Multi-Server Management:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Multi‑Server Management:**   Connect to and administer multiple PostgreSQL instances from a single interface."
@@ -20733,7 +20733,7 @@ msgstr "Конфігурація ТПП ⚙️"
 
 # translated-by: libretranslate
 msgid "CI Debugging"
-msgstr "CI Деbugging"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI Deploy Runs 🚦"
@@ -25268,7 +25268,7 @@ msgstr "Направлення інструкцій 🐞"
 
 # translated-by: libretranslate
 msgid "Debugging in the nested docker daemon"
-msgstr "Деbugging в sted docker daemon"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debugguging Migrations:"
@@ -37128,7 +37128,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC, ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -37140,11 +37140,11 @@ msgstr "JSON об'єкт переніс дієслово до `--vars`"
 
 # translated-by: libretranslate
 msgid "JSON-RPC: ``initialize``, ``tools/list``, ``tools/call``"
-msgstr "JSON-RPC: ``initialize``, й ``tools/list``, й ``tools/call``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON-RPC: `initialize`, `tools/list`, `tools/call`"
-msgstr "JSON-RPC: `initialize`, й `tools/list`, й `tools/call`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`."
@@ -41990,7 +41990,7 @@ msgstr "OIDC до Bluesky-PDS App-password брокер (варіант A+ за 
 
 # translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr "OIDC → `web-app-keycloak`, й `wp-discourse` → `web-app-discourse`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC 🪪"
@@ -59222,7 +59222,7 @@ msgstr "The Pull Запит MUST пов'язаний з пов'язаним ел
 
 # translated-by: libretranslate
 msgid "The Python helper is intentionally self-contained and unit-testable"
-msgstr "EnglishDeutschPусский简体中文中國傳統EspañolالعربيةFrançaisελληνικάDanskАнглійскаябългарскиCatalàČeskýEestiSuomiGaeilgeहिन्दीHrvatskiMagyarIndonesiaIcelandicItalianoעברי日本の한국의LietuvosLatvijasмакедонскиMalay"
+msgstr ""
 
 msgid "The README section \"MCP server\" names `v19.3.1` and a token on `root`; `meta/services.yml` pins a newer release and `tasks/utils/mcp/provision.yml` mints the token on `mcp-web-app-gitlab`."
 msgstr ""
@@ -60335,7 +60335,7 @@ msgstr "Кононічний ключ не дає `username` поле всере
 
 # translated-by: libretranslate
 msgid "The canonical key is the mapping key used at the file root of `roles/*/meta/users.yml`."
-msgstr "EnglishDeutschPусский简体中文中國傳統EspañolالعربيةFrançaisελληνικάDanskАнглійскаябългарскиCatalàČeskýEestiSuomiGaeilgeहिन्दीHrvatskiMagyarIndonesiaIcelandicItalianoעברי日本の한국의LietuvosLatvijasмакедонскиMalayMaltiNederlandsNorskPolskiPortuguêsRomânescSlovenskýSlovenskiShqiptarCрпскиSvenskaไทยTürkçeYкраїнськийTiếng việtייִדישKiswahili `roles/*/meta/users.yml`й."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The canonical key is the same identifier that inventory, group vars, host vars, and role vars MUST use when overriding an entry."
@@ -69773,7 +69773,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Upstream playbook: <https://github.com/spantaleev/matrix-docker-ansible-deploy>"
-msgstr "Playbook Upstream: <https://github.com/spantaleev/matrix-docker-ansible-deploy>"
+msgstr ""
 
 msgid "Upstream plugin wired as an addon"
 msgstr ""
@@ -76338,7 +76338,7 @@ msgstr "[- білий список \"...\"] [--приватність \"...\"] [
 
 # translated-by: libretranslate
 msgid "[/sys/health](https://openbao.org/api-docs/system/health/), [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
-msgstr "[/sys/health](https://openbao.org/api-docs/system/health/), й [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[/sys/metrics](https://openbao.org/api-docs/system/metrics/)"
@@ -76593,7 +76593,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02enable.yml](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -76617,15 +76617,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr "[03configure.yml](./03_configure.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12ldap.yml](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -78378,7 +78378,7 @@ msgstr "[Офіційний веб-сайт GitLab](https://about.gitlab.com/)"
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[GitLab SSO в Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -78824,7 +78824,7 @@ msgstr "[Аудит делегації користувачів MCP](../../docs/
 
 # translated-by: libretranslate
 msgid "[MXToolbox](https://mxtoolbox.com)"
-msgstr "[MXToolbox MX](https://mxtoolbox.com)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Magento Open Source](https://magento.com/)"
@@ -79439,7 +79439,7 @@ msgstr "[SSH команд Обмеження через authorized_keys](https:/
 
 # translated-by: libretranslate
 msgid "[SSH Fails with WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
-msgstr "[SSH Fails з WireGuard IP](https://unix.stackexchange.com/questions/624987/ssh-fails-to-start-when-listenaddress-is-set-to-wireguard-vpn-ip)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[SSL-Tools Mailserver Test](https://ssl-tools.net/mailservers)"
@@ -79866,11 +79866,11 @@ msgstr "[ init .py](__init__.py) MUST список кожного модуля �
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/address/suggest/__main__.py)"
-msgstr "[ main .py](../../../../cli/contributing/network/address/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
-msgstr "[ main .py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
@@ -84282,7 +84282,7 @@ msgstr "``.po`` або ``.pot`` файл."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -95248,7 +95248,7 @@ msgstr "python -m cli.meta.ci.validate [- білий список \"...\"] [--п
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.roles.applications.role_name <app_id> -r <roles_dir>"
-msgstr "python -m cli.meta.roles.applications.role_name <app_id> -р <roles_dir>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m utils.inventory.bundle_apps education-suite,startup-essentials"

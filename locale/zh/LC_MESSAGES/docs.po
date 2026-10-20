@@ -17666,7 +17666,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "API clients,"
-msgstr "API客户,"
+msgstr ""
 
 # exclude_tests=…, exclude_dirs=…)` 输出绝对路径,每个进程一次缓存。
 # `iter_project_files_with_content(…)` 产量 `(path, content)` 两层都缓存。
@@ -23388,7 +23388,7 @@ msgstr "部署流程 📦"
 
 # translated-by: libretranslate
 msgid "Bundles act as skeleton definitions."
-msgstr "Bundles充当骨架定义."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bundles and Inventories 🗂️"
@@ -24117,11 +24117,11 @@ msgstr "军械部署阶段命令."
 
 # translated-by: libretranslate
 msgid "Canonical domain: ``penpot.design.{{ DOMAIN_PRIMARY }}``."
-msgstr "Canonical域名 : ``penpot.design.{{ DOMAIN_PRIMARY }}``。 。 。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Canonical domain: `penpot.design.{{ DOMAIN_PRIMARY }}`."
-msgstr "Canonical域名 : `penpot.design.{{ DOMAIN_PRIMARY }}`。 。 。."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Canonical domains and aliases come from `roles/*/meta/server.yml`"
@@ -30147,7 +30147,7 @@ msgstr "Docker 编曲 **SuiteCRM** 应用程序容器"
 
 # translated-by: libretranslate
 msgid "Docker Compose runs the service layer."
-msgstr "Docker Compose运行服务层."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker Container Health Check"
@@ -31487,7 +31487,7 @@ msgstr "爱莫吉"
 
 # translated-by: libretranslate
 msgid "Emoji legend 📋"
-msgstr "Emoji传说 📋"
+msgstr ""
 
 # '00', '1', '12', '8', '{']
 # ([{\fn方正粗倩简体\fs12\an8\1cHFFFF00\b0}162](https://github.com/infinito-nexus/core/issues/162));只有在工作量证明需要更多时才增加
@@ -35925,7 +35925,7 @@ msgstr "GHCR 指南 📦"
 
 # translated-by: libretranslate
 msgid "GHCR owner."
-msgstr "GHCR车主."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "GHCR publication uses the workflow `GITHUB_TOKEN`; optional Docker Hub secrets are used only to reduce source-side Docker Hub rate limits while mirroring. See [authentication.md](../../tools/ghcr/authentication.md)."
@@ -41300,7 +41300,7 @@ msgstr "JWKS 端点, 等于发现 `jwks_uri`"
 
 # translated-by: libretranslate
 msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
-msgstr "JWT/OIDC认证: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Java"
@@ -41921,7 +41921,7 @@ msgstr "库伯内特后端"
 
 # translated-by: libretranslate
 msgid "Kubernetes cluster credentials."
-msgstr "Kubernetes集群证书."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Kwargs:"
@@ -43386,7 +43386,7 @@ msgstr "MCP合同: [025- 怎么样?mcp-role-integration.md](025-mcp-role-integra
 
 # translated-by: libretranslate
 msgid "MCP direction"
-msgstr "MCP方向"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP endpoint metadata"
@@ -51240,7 +51240,7 @@ msgstr "Python 开发公用事业"
 
 # translated-by: libretranslate
 msgid "Python Lint 🐍"
-msgstr "Py Lint 🐍"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Python packaging and dependency-reference rules: `pyproject.toml` requirement coverage, ban on stale `requirements/NNN-…` numbers in code, the deprecated-`pkgmgr` warning, and Galaxy/git parity of the Ansible collection requirements (suppression rule key `galaxy-git-parity`)."
@@ -58585,19 +58585,19 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP host."
-msgstr "SMTP主机."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP password."
-msgstr "SMTP密码."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP port."
-msgstr "SMTP端口."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP username."
-msgstr "SMTP用户名."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SMTP wired via platform's `SYSTEM_EMAIL` settings"
@@ -62904,7 +62904,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Swarm-aware deploy CLI command."
-msgstr "Swarm -aware部署CLI指挥."
+msgstr ""
 
 # false``) 解析到每个应用的 mariadb , 其音量为 NFS 后置, 且不设插头 。 (锁锁、分裂大脑)。嵌入式DB是一种只作曲的图案。
 # 将每个消费者的 DB 服务翻转到 ``shared: true`` 通往中央Svc -db...* 提供者 (与基准变量一样),所以没有每个应用程序
@@ -63489,7 +63489,7 @@ msgstr "TURN 和 StUN 监听端口"
 
 # translated-by: libretranslate
 msgid "TURN and STUN support over TCP and UDP"
-msgstr "TURN和STUN对TCP和UDP的支持"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
@@ -78507,7 +78507,7 @@ msgstr "数值来自 `custom.env` 最终应用,所以它们会覆盖 `default.en
 
 # translated-by: libretranslate
 msgid "Var-lib directory env handlers."
-msgstr "Var-lib目录env处理器."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Variable"
@@ -84120,7 +84120,7 @@ msgstr "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) 于 `meta/
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): OIDC plus LDAP variant."
-msgstr "[ ] [web-app-akaunting](../../roles/web-app-akaunting/):OIDC+LDAP变种."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-baserow](../../roles/web-app-baserow/): confirm OIDC/LDAP scope."
@@ -84172,7 +84172,7 @@ msgstr "[ ] [web-app-jenkins](../../roles/web-app-jenkins/): Jenkins LDAP 安全
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-jenkins](../../roles/web-app-jenkins/): OIDC plus LDAP variant."
-msgstr "[ ] [web-app-jenkins](../../roles/web-app-jenkins/):OIDC+LDAP变种."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-joomla](../../roles/web-app-joomla/): Joomla's core LDAP authentication plugin is the LDAP-variant surface per [006 audit row](README.md#archive). Pairs with the missing biber scenario from [017](017-playwright-biber-rbac-coverage.md)."
@@ -84197,7 +84197,7 @@ msgstr "[ ] [web-app-mattermost](../../roles/web-app-mattermost/) 声明其插�
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-minio](../../roles/web-app-minio/): OIDC plus LDAP variant."
-msgstr "[ ] [web-app-minio](../../roles/web-app-minio/):OIDC+LDAP变种."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-mobilizon](../../roles/web-app-mobilizon/): confirm scope."
@@ -84842,7 +84842,7 @@ msgstr "[014 - 专职CI 跑者通过 `svc-runner` 作用](014-svc-runner-ci.md) 
 
 # translated-by: libretranslate
 msgid "[017 - Playwright biber RBAC coverage](017-playwright-biber-rbac-coverage.md)"
-msgstr "[017 - Playwright biber RBAC的报道](017-playwright-biber-rbac-coverage.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[018 - Playwright LDAP authentication coverage](018-playwright-ldap-coverage.md)"
@@ -86024,7 +86024,7 @@ msgstr "[CONTRIBUTING.md](CONTRIBUTING.md) 是贡献者工作流程、编码标�
 
 # translated-by: libretranslate
 msgid "[CSS on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS)"
-msgstr "[MDN上的CSS系统](https://developer.mozilla.org/en-US/docs/Web/CSS)"
+msgstr ""
 
 msgid "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) styles the user-facing surfaces of web applications across the deployment. This role registers `design` as a canonical service in the deployment's service registry so consumer roles can declare the corporate design as a runtime dependency."
 msgstr ""
@@ -102956,7 +102956,7 @@ msgstr "要获取 git 仓库 URL ``aliases`` 从文件。."
 
 # translated-by: libretranslate
 msgid "github"
-msgstr "gi"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "global TLS default, overridden per consumer by ``resolve_enabled``; an .onion domain always resolves to plaintext."
@@ -110081,7 +110081,7 @@ msgstr "utils.install.ruby 模块"
 
 # translated-by: libretranslate
 msgid "utils.install.system\\_pkg module"
-msgstr "utils.install.system\\ pkg模块"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.inventory package"

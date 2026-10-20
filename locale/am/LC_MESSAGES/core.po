@@ -50,7 +50,7 @@ msgstr "_administratorserverz�отե_"
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Arkagewetarguwetarka"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -78,7 +78,7 @@ msgstr "All-in-one Սիներգիալ լիվիկ լեզու սե rvեր վերց
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "_analytics_"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -144,7 +144,7 @@ msgstr "אבאjectivityivity بر宿迁س"
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr "ANKUNUTUNETENEGALATENGE"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:description"
@@ -336,7 +336,7 @@ msgstr "Clipboardシステム erver etsuti, երկրային աշխատանք, �
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Akash"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -383,7 +383,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr "BUSINESS"
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -395,7 +395,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr "Aleppo"
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=['sub_filter']
 # gained=['Nginx/sub_filter/Lua']
@@ -415,7 +415,7 @@ msgstr "سورיסcope 奥斯ụụụụụụụụụụụụụụụụụ
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr "AINER ÐAĞAZARINOROGALEN"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -508,7 +508,7 @@ msgstr "Kıղέν AI ռե.ggելեր, Փոխադարձնվող OpenAI, լոկո�
 # translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "Codecs ATS ets ets ATS"
+msgstr ""
 
 # translation-refused: libretranslate collapsed
 # nocheck: url
@@ -549,7 +549,7 @@ msgstr "AppModule լրդիցիս լեռնա陇ել դիսկի լրիվանքը C
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr "MüşESIS sockēri"
+msgstr ""
 
 # translation-refused: libretranslate lost-token
 # nocheck: url
@@ -561,12 +561,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr "DNS AppModule"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "_dnս_rwsov_"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
@@ -586,7 +586,7 @@ msgstr "Դավես աプリլենզ (DBMS, LDAP, Redis, etc.)"
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr "_DATABASES_"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
@@ -636,7 +636,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
-msgstr "Lapınlitira"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -667,7 +667,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr "Desktop-media_player_setup_vlc_amozon_acs_bd_player_arch_linux"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
@@ -705,7 +705,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr "Codecsasar system _locator 1_ _locator 2_"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
@@ -731,8 +731,6 @@ msgstr "Asarerver backend իրական բարեկաղի հաշնագլիացմա
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr ""
-"\\system\n"
-"\\System"
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -751,10 +749,6 @@ msgstr "DRIVER ԻնՏԵԳՆՆՈՒԹՅԱՆ ՄԻՍԻ լոբատուկներում 
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
-"Driver \n"
-" drivers \n"
-" barber \n"
-" ---"
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
@@ -781,8 +775,6 @@ msgstr ""
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr ""
-"Armenian\n"
-" Armenian"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
@@ -797,7 +789,7 @@ msgstr "Եvents անդամ տիկետ աշխատանքներ"
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "EVENTS"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -837,7 +829,7 @@ msgstr "ഫേബ്രൈഡ് ബിഗ് സിസ്റ്റംഡ് അ
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr "Finance accountant"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
@@ -882,9 +874,6 @@ msgstr ""
 msgctxt "menu:Games:title"
 msgid "Games"
 msgstr ""
-"Gıս Ankara \n"
-" gıլ Ankara \n"
-" Ankara"
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
@@ -894,7 +883,7 @@ msgstr "İnternet վեալուորերը և վարման աշխարհագրակ�
 # translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr "GENERIC"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
@@ -942,7 +931,7 @@ msgstr "Здрав科学发展安康检讨孤立無從屬之匿名Docker儲存�
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr "Ho"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -975,7 +964,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr "/host-antz_configuration_systemd-journald_log_daemon_with_retnit_limitz_artz_live_log_streaming"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-shell:description"
@@ -1028,7 +1017,7 @@ msgstr "Ընդունական"
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr "Institution ergaz awetakakortu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -1058,8 +1047,6 @@ msgstr ""
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
-".Injectivi\n"
-"---"
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:drv-intel:description"
@@ -1197,7 +1184,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr "Antzotec"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
@@ -1216,9 +1203,6 @@ msgstr ""
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
-"Marketera \n"
-"---\n"
-"marketingu"
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1297,7 +1281,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
-msgstr "Antzín"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:description"
@@ -1368,7 +1352,7 @@ msgstr "安庆安庆安庆安庆安庆安庆安庆"
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
-msgstr "Antzəris awlan zevkwər walnut"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
@@ -1559,7 +1543,7 @@ msgstr "אפלים لإنشاء וניהול מגדלי שoppים_ONL ine , מד
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr "Genet tokhnut tokhnutyom yeqerdyom."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_open"
@@ -1609,7 +1593,7 @@ msgstr "安庆ervisoruty"
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr "Antzetsaantzeliyo"
+msgstr ""
 
 # translation-refused: libretranslate untranslated
 # nocheck: url
@@ -1915,7 +1899,7 @@ msgstr "Self-hosted 챗インターフェイス for ինտերկ്വའրու�
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "Amazonutyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututy"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:description"
@@ -1925,7 +1909,7 @@ msgstr "سورategyan, կարգացուցչություն, և տվյալների
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
-msgstr "سورיהpositorydatabaseسورית Syriapositorydatabaseسورית"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
@@ -2077,19 +2061,16 @@ msgstr "سورibox լեզագրված կամբ լացըն և կերպված կա
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr ""
-"Srvicess \n"
-" \n"
-"srvicion"
 
 # translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr "Srvicess"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr "سورטiments"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"
@@ -2121,7 +2102,7 @@ msgstr "سورategyianini ենթացրկված լինելու կարգացուր
 # translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr "Antz'na hlil."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -2159,7 +2140,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "سورويتنېشنalickevikuneatu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
@@ -2169,7 +2150,7 @@ msgstr "Համարանի զինելի վիդեobufեենտորի հասցե, ա�
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr "Stap"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"
@@ -2197,19 +2178,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr "/storage"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
-"_SYS_ \n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr "Syriansa Hayeregziroq"
+msgstr ""
 
 # translation-refused: libretranslate protected-span lost=['locale.gen']
 # gained=['Locale.gen']
@@ -2222,7 +2201,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
-msgstr "Aleppo rêziyet warkat rêziyet walê"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys:description"
@@ -2289,7 +2268,7 @@ msgstr "システmlinked msmtp Notifier_system 埃塞俄比亚语"
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr "Systemd-antzuty-unseruvayot-serverutser-chat"
+msgstr ""
 
 # translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-claude:description"
@@ -2416,7 +2395,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "\\systemd_NOTIFICATION_service_dispatching_service-failure_alerts_through_both_Telegram_and_email_channels\\Systemd"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:title"
@@ -2521,7 +2500,7 @@ msgstr "İnternet-ベース Armenիակ գաղsuccessfully նախողությո�
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr "Wiksaravakakko"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
@@ -2547,7 +2526,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "Beirut."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
@@ -2567,21 +2546,21 @@ msgstr "ըչ ընթ NSDictionary"
 # translated-by: libretranslate
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr "antz'arzak kwəlturop"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr "antz'otsot"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr "سورunning"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr "{done} Armen> {total} Armen> Armen"
+msgstr ""
 

@@ -11925,7 +11925,7 @@ msgstr "**galaxy_tags**: ['nginx', 'docker'«Обратный прокси», 'w
 # filter", 'injection', 'global']
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp'\"sub filter\", 'injection', 'global']"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
@@ -12108,7 +12108,7 @@ msgstr "**🧹 Удаленный**"
 
 # translated-by: libretranslate
 msgid "*@playwright/test*: ^1.61.1 to ^1.62.1"
-msgstr "*@playwright/test*:^1.61.1 ↑1.62.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*Applications*"
@@ -12528,7 +12528,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-magento*: PHP 8.5-fpm to 8.4-fpm"
-msgstr "*web-app-magento*PHP 8.5-fpm 8.4-pm"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-mailu*: 1.5.3 to 1.5.4"
@@ -13530,7 +13530,7 @@ msgstr ":mod:`utils.i18n.spans` какие части защищены и как
 
 # translated-by: libretranslate
 msgid "<comment-prefix> (noqa|nocheck): <rule>(\\s*,\\s*<rule>)*"
-msgstr "<comment-prefix> (noqa |nocheck): <rule>(\\s*,\\s*<rule>)*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "<https://gist.github.com/mtigas/565718bbb928ce439e95> — subdomain hidden-service reference"
@@ -25024,11 +25024,11 @@ msgstr "Разработчик: Ubuntu"
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu → ``openssh-client``"
-msgstr "Debian / Ubuntu ``openssh-client``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debian / Ubuntu → `openssh-client`"
-msgstr "Debian / Ubuntu `openssh-client`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Debian SHOULD be the preferred distro for that focused workflow iteration unless the failure is clearly distro-specific or the user asked for a different distro."
@@ -26877,7 +26877,7 @@ msgstr "Docker по умолчанию останавливается первы
 
 # translated-by: libretranslate
 msgid "Docker docs: <https://docs.checkmk.com/latest/en/introduction_docker.html>"
-msgstr "Docker Docs: <https://docs.checkmk.com/latest/en/introduction_docker.html>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Docker image builds"
@@ -29996,11 +29996,11 @@ msgstr "Федора"
 
 # translated-by: libretranslate
 msgid "Fedora / Red Hat / CentOS → ``openssh-clients``"
-msgstr "Fedora / Red Hat / CentOS ``openssh-clients``"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fedora / Red Hat / CentOS → `openssh-clients`"
-msgstr "Fedora / Red Hat / CentOS `openssh-clients`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fedora/CentOS: `@development-tools`"
@@ -32580,7 +32580,7 @@ msgstr "HTTPS (порт 443): Сертификаты сервера с имен�
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
-msgstr "HTTPS OAuth Redirect"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS base ready (NGINX, ACME webroot)"
@@ -36763,7 +36763,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "JS, JSONC, …"
-msgstr "JS, JSONC, ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "JSON file holding the rolling window."
@@ -36791,7 +36791,7 @@ msgstr "Конечная точка JWKS, равная открытию `jwks_ur
 
 # translated-by: libretranslate
 msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
-msgstr "JWT/OIDC Auth: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Java"
@@ -37268,7 +37268,7 @@ msgstr "Клиентский шаблон Keycloak 📦"
 
 # translated-by: libretranslate
 msgid "Keycloak OIDC"
-msgstr "Keyloak OIDC"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keycloak OIDC client is **auto-provisioned** by `web-app-keycloak` for every OIDC consumer; no manual operator step."
@@ -37402,7 +37402,7 @@ msgstr "LDAP"
 
 # translated-by: libretranslate
 msgid "LDAP & SSO Notes"
-msgstr "LDAP и SSO Notes"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LDAP (Decision #3)"
@@ -38093,11 +38093,11 @@ msgstr "Маленький Джейс Playground разработан как л�
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: [GitHub – LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
-msgstr "LittleJS README & Docs: [GitHub - LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
-msgstr "LittleJS README & Docs: `GitHub – LittleJS <https://github.com/KilledByAPixel/LittleJS#readme>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Live Review"
@@ -41487,7 +41487,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OBS Studio"
-msgstr "OBS Studios"
+msgstr ""
 
 msgid "OBS Studio Architecture"
 msgstr ""
@@ -41514,11 +41514,11 @@ msgstr "OIDC -> RBAC-картирование (infinito-oidc-rbac-mapper.php) �
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
-msgstr "OIDC/ Keycloak"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
-msgstr "OIDC/ Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC SPOT, defines `OIDC.*`"
@@ -41582,7 +41582,7 @@ msgstr "ОРВД на Bluesky-PDS app-password брокер (Вариант А+ 
 
 # translated-by: libretranslate
 msgid "OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse`"
-msgstr "OIDC `web-app-keycloak`, `wp-discourse` ? `web-app-discourse`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC 🪪"
@@ -42559,7 +42559,7 @@ msgstr "OpenCloud делегирует аутентификацию в цент�
 
 # translated-by: libretranslate
 msgid "OpenCloud env"
-msgstr "OpenCloud Env"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OpenCloud reads users from the central `svc-db-openldap` service."
@@ -46026,7 +46026,7 @@ msgstr "Python, YAML, JSON и другие типы файлов-помощни�
 
 # translated-by: libretranslate
 msgid "Python, YAML, shell, conf, INI, …"
-msgstr "Python, YAML, shell, conf, INI..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Python-Pip"
@@ -54720,7 +54720,7 @@ msgstr "Открытие совместного поставщика видит 
 
 # translated-by: libretranslate
 msgid "Shared-service auto-include"
-msgstr "Shared-service Auto-include"
+msgstr ""
 
 msgid "Shares are rounded to `0.01`, Docker's granularity, and never fall below it. A percentage above 100 is refused, and so is a bare `cpus: 0` — Docker reads a zero as *uncapped* rather than as none, so it has to be written as `100%` to mean the machine."
 msgstr ""
@@ -56714,7 +56714,7 @@ msgstr "Роль Svc-db-mariadb"
 
 # translated-by: libretranslate
 msgid "Svc-db-memcached Role"
-msgstr "Svc-db-memcached"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-db-openldap Role"
@@ -56761,7 +56761,7 @@ msgstr "Svc-net-wireguard-core Роль"
 
 # translated-by: libretranslate
 msgid "Svc-net-wireguard-firewalled Role"
-msgstr "Svc-net-wireguard-firewalled"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-net-wireguard-plain Role"
@@ -57019,7 +57019,7 @@ msgstr "Синтаксис"
 
 # translated-by: libretranslate
 msgid "Sys-ca-selfsigned Role"
-msgstr "Sys-ca-selfsigned"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-cleanup Role"
@@ -57035,7 +57035,7 @@ msgstr "Sys-ctl-alm-compose роль"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-alm-email Role"
-msgstr "Sys-ctl-alm-email"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-alm-telegram Role"
@@ -57047,7 +57047,7 @@ msgstr "Sys-ctl-cln-anon-томы"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-bkps Role"
-msgstr "Sys-ctl-cln-bkps"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-certs Role"
@@ -57063,11 +57063,11 @@ msgstr "Роль Sys-ctl-cln-docker"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-cln-faild-bkps Role"
-msgstr "Sys-ctl-cln-faild-bkps"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-btrfs Role"
-msgstr "Sys-ctl-hlth-btrfs"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-container Role"
@@ -57083,11 +57083,11 @@ msgstr "Sys-ctl-hlth-disc-пространство"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-journalctl Role"
-msgstr "Sys-ctl-hlth-journalctl"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-msmtp Role"
-msgstr "Sys-ctl-hlth-msmtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-volumes Role"
@@ -57095,15 +57095,15 @@ msgstr "Sys-ctl-hlth-тома"
 
 # translated-by: libretranslate
 msgid "Sys-ctl-hlth-webserver Role"
-msgstr "Sys-ctl-hlth-webserver"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-mtn-cert-deploy Role"
-msgstr "Sys-ctl-mtn-cert-deploy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-mtn-cert-renew Role"
-msgstr "Sys-ctl-mtn-cert-renew"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-ctl-rpr-btrfs-balancer Role"
@@ -57162,11 +57162,11 @@ msgstr "Sys-front-tls роль"
 
 # translated-by: libretranslate
 msgid "Sys-front-tls-letsencrypt Role"
-msgstr "Sys-front-tls-letsencrypt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-front-tls-selfsigned Role"
-msgstr "Sys-front-tls-selfsigned"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-hostname Role"
@@ -57214,7 +57214,7 @@ msgstr "Роль Sys-stk-front-base"
 
 # translated-by: libretranslate
 msgid "Sys-stk-front-proxy Role"
-msgstr "Sys-stk-front-proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-stk-full Role"
@@ -57270,11 +57270,11 @@ msgstr "Sys-svc-mail роль"
 
 # translated-by: libretranslate
 msgid "Sys-svc-mail-msmtp Role"
-msgstr "Sys-svc-mail-msmtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mail-smtp Role"
-msgstr "Sys-svc-mail-smtp"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-svc-mcp-reconcile Role"
@@ -57310,7 +57310,7 @@ msgstr "Sys-svc-webserver-ядро"
 
 # translated-by: libretranslate
 msgid "Sys-svc-webserver-https Role"
-msgstr "Sys-svc-webserver-https"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Sys-timer Role"
@@ -68626,7 +68626,7 @@ msgstr "URL-адреса, домены и учетные данные должн
 
 # translated-by: libretranslate
 msgid "USAGE::"
-msgstr "USAGE:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ubuntu"
@@ -70958,7 +70958,7 @@ msgstr "Роль Web-app-shopware"
 
 # translated-by: libretranslate
 msgid "Web-app-snipe-it Role"
-msgstr "Web-app-snipe-it"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-socialhome Role"
@@ -71051,7 +71051,7 @@ msgstr "Web-svc-правовая роль"
 
 # translated-by: libretranslate
 msgid "Web-svc-libretranslate Role"
-msgstr "Web-svc-libretranslate"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-svc-logout Role"
@@ -72908,14 +72908,14 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "XPI urls (uBlock Origin, KeePassXC)"
-msgstr "XPI URL (uBlock Origin, KeePassXC)"
+msgstr ""
 
 msgid "XWiki Architecture"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML & Jinja Lint 📐"
-msgstr "YAML и Jinja Lint 📐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "YAML / Jinja patterns: ban on direct `yaml.safe_load` calls outside `utils.cache.yaml`, and ban on hardcoded `http://` / `https://` protocol literals adjacent to a `lookup(...)` call."
@@ -75818,11 +75818,11 @@ msgstr "[018 - Покрытие аутентификации Playwright LDAP](01
 
 # translated-by: libretranslate
 msgid "[01_constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
-msgstr "[01constructor.yml](../../../../../tasks/stages/01_constructor.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[01_install.yml](./01_install.yml)"
-msgstr "[01install.yml](./01_install.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
@@ -75837,7 +75837,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[02_enable.yml](./02_enable.yml)"
-msgstr "[02enable.yml](./02_enable.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)"
@@ -75861,15 +75861,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[03_configure.yml](./03_configure.yml)"
-msgstr "[03configure.yml](./03_configure.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[11_oidc.yml](../../../../group_vars/all/11_oidc.yml)"
-msgstr "[11oidc.yml](../../../../group_vars/all/11_oidc.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[12_ldap.yml](../../../../group_vars/all/12_ldap.yml)"
-msgstr "[12ldap.yml](../../../../group_vars/all/12_ldap.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ACME Challenge Types (Wikipedia)](https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment)"
@@ -77434,7 +77434,7 @@ msgstr "[Теги Docker Hub](https://hub.docker.com/r/openbao/openbao)"
 
 # translated-by: libretranslate
 msgid "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
-msgstr "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker Docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Registry Cache](roles/svc-registry-cache/)"
@@ -77466,11 +77466,11 @@ msgstr "[Объёмы Docker Documentation](https://docs.docker.com/storage/volu
 
 # translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker)"
-msgstr "[Docker Docs](https://docs.semaphoreui.com/administration-guide/installation/docker)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker docs](https://docs.semaphoreui.com/administration-guide/installation/docker), [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
-msgstr "[Docker Docs](https://docs.semaphoreui.com/administration-guide/installation/docker), [Docker Hub](https://hub.docker.com/r/semaphoreui/semaphore)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Document custom addon development workflow](https://open.project.infinito.nexus/wp/560)"
@@ -77622,7 +77622,7 @@ msgstr "[Официальный сайт GitLab](https://about.gitlab.com/)"
 
 # translated-by: libretranslate
 msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
-msgstr "[GitLab SSO в Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
@@ -78280,7 +78280,7 @@ msgstr "[База знаний OBS Studio](https://obsproject.com/kb/)"
 
 # translated-by: libretranslate
 msgid "[OBS Studio](https://obsproject.com/)"
-msgstr "[OBS Studios](https://obsproject.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[OBS Studio](https://obsproject.com/) is a free, open-source application for video recording and live streaming, widely used for screencasts, broadcasting, and content creation."
@@ -78375,7 +78375,7 @@ msgstr "[OpenCloud](https://opencloud.eu/) Это суверенная плат�
 
 # translated-by: libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr "[OpenID Connect RP-Initiated](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"
@@ -79082,11 +79082,11 @@ msgstr "[ init .py](__init__.py) Необходимо перечислить к�
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/address/suggest/__main__.py)"
-msgstr "[ main .py](../../../../cli/contributing/network/address/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
-msgstr "[ main .py](../../../../cli/contributing/network/ports/suggest/__main__.py)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
@@ -79721,7 +79721,7 @@ msgstr "[нф(8) ручная страница](https://www.netfilter.org/projec
 
 # translated-by: libretranslate
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
-msgstr "[Nftables Wiki](https://wiki.nftables.org/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[nftables](https://www.netfilter.org/projects/nftables/) is the packet filtering framework of the Linux kernel and the successor to `iptables`. Its rules live in memory: a reboot drops them unless something loads them again."
@@ -79729,7 +79729,7 @@ msgstr "[неприступный](https://www.netfilter.org/projects/nftables/)
 
 # translated-by: libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[opencloudeu/opencloud в Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format
@@ -83283,7 +83283,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "`_shared.js` — env + login helpers (`penpotOidcLogin`, `penpotLdapLogin`, `penpotNativeLogin`, `penpotRegister`)."
-msgstr "`_shared.js` • Env + Login Helpers (`penpotOidcLogin`, `penpotLdapLogin`, `penpotNativeLogin`, `penpotRegister`)."
+msgstr ""
 
 msgid "`_submissions`/465, `_imaps`/993, `_pop3s`/995 point at the mail host"
 msgstr ""
@@ -83306,7 +83306,7 @@ msgstr "``\"same-or-above\"`` (по умолчанию): любой из выш�
 
 # translated-by: libretranslate
 msgid "``#`` (Python, YAML, shell, conf, INI, …)"
-msgstr "``#`` (Python, YAML, shell, conf, INI...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``#``, ``@``, ``+``, ``%`` and ``/`` introduce an axis and appear in neither a role id nor a display name, so the first of them is the seam."
@@ -83447,7 +83447,7 @@ msgstr "``.po`` или ``.pot`` Файл."
 
 # translated-by: libretranslate
 msgid "``//`` (JS, JSONC, …)"
-msgstr "``//`` (JS, JSONC, ...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
@@ -83739,7 +83739,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``_shared.js`` — env + login helpers (``penpotOidcLogin``, ``penpotLdapLogin``, ``penpotNativeLogin``, ``penpotRegister``)."
-msgstr "``_shared.js`` • Env + Login Helpers (``penpotOidcLogin``, ``penpotLdapLogin``, ``penpotNativeLogin``, ``penpotRegister``)."
+msgstr ""
 
 msgid "``_submissions``/465, ``_imaps``/993, ``_pop3s``/995 point at the mail host"
 msgstr ""
@@ -91430,7 +91430,7 @@ msgstr "Появляется на лету, когда `INFINITO_CACHE_PACKAGE_F
 
 # translated-by: libretranslate
 msgid "gettext domain."
-msgstr "Gettext domain."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "git repository URL (GitHub-style raw path layout)."
@@ -93476,7 +93476,7 @@ msgstr "plugins.filter.sed модуль"
 
 # translated-by: libretranslate
 msgid "plugins.filter.split\\_postgres\\_connections module"
-msgstr "plugins.filter.split\\ postgres\\ connections module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "plugins.filter.status\\_codes module"
@@ -94114,7 +94114,7 @@ msgstr "Порты:"
 
 # translated-by: libretranslate
 msgid "postgres + 16         -> docker.io/library/postgres:16 postgis/postgis + 17  -> docker.io/postgis/postgis:17"
-msgstr "Postgres + 16 -> docker.io/library/postgres:16 Postgis / Postgis + 17 -> docker.io/postgis/postgis:17"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "postgresql-<major>-<apt_package>"
@@ -95505,7 +95505,7 @@ msgstr "SPOT не объявляет ``API`` как картографию."
 
 # translated-by: libretranslate
 msgid "the SPOT vars-file (``DEV_INVENTORY_VARS_FILE``),"
-msgstr "SPOT vars-file (``DEV_INVENTORY_VARS_FILE``),"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the URL to request."
@@ -96238,7 +96238,7 @@ msgstr "Проксидные репозитории, отсортированн�
 
 # translated-by: libretranslate
 msgid "the qdrant service role id."
-msgstr "qdrant service role id."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the question is about the storage driver"
@@ -98703,7 +98703,7 @@ msgstr "{{ 30 | curl }} -> curl-s -connect-timeout 5 - Максимальное 
 
 # translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} -> /etc/<software_domain>/ca/root-ca.crt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"
@@ -98715,7 +98715,7 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} #по умолчанию т
 
 # translated-by: libretranslate
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
-msgstr "{{ lookup('container_mail_marker') }} -> /tmp/email_sent"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('domains') }}                          -> full canonical-domains map {{ lookup('domains', application_id) }}          -> subtree for one role {{ lookup('domains', application_id, default) }} -> subtree with fallback"
