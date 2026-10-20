@@ -51,10 +51,11 @@ fi
 
 cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
 cmd+=(-P "ubuntu-latest=${ACT_PLATFORM_IMAGE}")
-cmd+=(-P "ubuntu-24.04=${ACT_PLATFORM_IMAGE}")
 cmd+=(-P "ubuntu-24.04-arm=${ACT_PLATFORM_IMAGE}")
-cmd+=(-P "ubuntu-22.04=${ACT_PLATFORM_IMAGE}")
-cmd+=(-P "ubuntu-20.04=${ACT_PLATFORM_IMAGE}")
+_act_workflows_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/.github/workflows"
+while read -r _act_label; do
+	cmd+=(-P "${_act_label}=${ACT_PLATFORM_IMAGE}")
+done < <(grep -rhE 'runs-on:' "${_act_workflows_dir}" | grep -oE 'ubuntu-[0-9]+\.[0-9]+' | sort -u)
 
 if [[ -n "${ACT_JOB}" ]]; then
 	cmd+=(-j "${ACT_JOB}")

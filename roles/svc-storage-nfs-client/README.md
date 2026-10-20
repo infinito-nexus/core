@@ -32,3 +32,9 @@ mounts happen later, driven by the Docker engine at container start.
   Generations written to the share before the bind stay under the
   export's `backup/` directory, hidden from the nodes; remove them there
   by hand.
+- **Directory delegations off against old ganesha:** When the server
+  runs nfs-ganesha older than 9.11, every client and the controller set
+  the kernel's `nfsv4` parameter `directory_delegations` to `N`, at
+  runtime and in `/etc/modprobe.d`. The parameter is kernel-wide, so on
+  a lab whose nodes share one kernel it covers every NFS mount of that
+  host until the module reloads.

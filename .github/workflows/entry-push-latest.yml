@@ -21,7 +21,7 @@ permissions:
 jobs:
   run-policy:
     name: 🧭 Decide CI policy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       pull-requests: read
@@ -59,7 +59,7 @@ jobs:
     name: ⏭️ Skip CI
     needs: run-policy
     if: needs.run-policy.outputs.should_run != 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ⏭️ Explain skip
         shell: bash
@@ -72,7 +72,7 @@ jobs:
     if: needs.run-policy.outputs.should_run == 'true'
     needs: run-policy
     name: 🏷️ Detect release tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       is_version: ${{ steps.pick.outputs.is_version }}
       version_tag: ${{ steps.pick.outputs.version_tag }}
@@ -91,7 +91,7 @@ jobs:
     if: needs.run-policy.outputs.should_run == 'true'
     name: ⭐ Resolve new-role priority
     needs: run-policy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       priority: ${{ steps.resolve.outputs.priority }}
     steps:
@@ -132,7 +132,7 @@ jobs:
       - run-policy
       - detect-release
       - ci-orchestrator
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       allowed: ${{ steps.guard.outputs.allowed }}
     steps:

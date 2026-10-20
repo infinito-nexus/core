@@ -58,4 +58,4 @@ flags:
     skip the pre-recover safety backup of the current target
     (only when it holds nothing worth saving: fresh host / empty / disposable)
 
-mechanism: "rsync -a --delete, preceded by a pre-recover safety backup by default"
+mechanism: "rsync -aHAX --delete, preceded by a pre-recover safety backup by default"

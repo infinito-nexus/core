@@ -119,7 +119,7 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
         Path(local_backup_destination_path).mkdir(parents=True, exist_ok=True)
 
         rsync_command = (
-            f"rsync -a --partial --info=stats2 "
+            f"rsync -aHAX --partial --info=stats2 "
             f"--numeric-ids --delete --delete-excluded --timeout=300 "
             f'-e "ssh {SSH_OPTS}" '
             f'--rsync-path="sudo rsync" '

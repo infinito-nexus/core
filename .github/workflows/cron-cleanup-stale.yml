@@ -12,7 +12,7 @@ permissions:
 jobs:
   stale:
     name: 🏷️ Close inactive issues and pull requests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       issues: write
       pull-requests: write
@@ -45,7 +45,7 @@ jobs:
 
   delete-stale-branches:
     name: 🌿 Delete inactive branches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
       issues: write
@@ -65,7 +65,7 @@ jobs:
 
   cleanup-ghcr-ci-images:
     name: 📦 Delete old GHCR CI images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

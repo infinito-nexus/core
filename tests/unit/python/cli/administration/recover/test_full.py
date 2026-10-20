@@ -74,7 +74,7 @@ class PullCmdTest(unittest.TestCase):
             full._pull_cmd("user@srchost"),
             [
                 "rsync",
-                "-a",
+                "-aHAX",
                 f"user@srchost:{paths.BACKUP_ROOT}/",
                 f"{full.PULL_STAGE}/",
             ],
@@ -83,7 +83,7 @@ class PullCmdTest(unittest.TestCase):
     def test_host_with_explicit_path(self):
         self.assertEqual(
             full._pull_cmd("host:/custom/root"),
-            ["rsync", "-a", "host:/custom/root/", f"{full.PULL_STAGE}/"],
+            ["rsync", "-aHAX", "host:/custom/root/", f"{full.PULL_STAGE}/"],
         )
 
 

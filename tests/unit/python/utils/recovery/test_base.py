@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -67,6 +68,15 @@ class TestDirectoryRecovery(unittest.TestCase):
                 "a restore without -X returns the payload byte-identical while "
                 "every xattr-backed application (OpenCloud posixfs) reads the "
                 "tree as unknown",
+            )
+
+    def test_restore_keeps_user_xattrs(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            source, target = self._mk(td)
+            os.setxattr(source / "restored.txt", "user.oc.id", b"space-1")
+            _Recovery(str(source), str(target)).restore()
+            self.assertEqual(
+                os.getxattr(target / "restored.txt", "user.oc.id"), b"space-1"
             )
 
     def test_missing_unit_refuses(self) -> None:

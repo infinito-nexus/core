@@ -51,6 +51,10 @@
   failed_when:
     - svc_storage_nfs_client_probe is failed
 
+- name: "🔧 Align the NFS client's directory delegations with the ganesha server"
+  ansible.builtin.include_tasks: directory_delegations.yml
+  when: lookup('nfs_flavor') == 'ganesha'
+
 - name: "🔍 Probe-write a marker to confirm the mount is RW"
   ansible.builtin.copy:
     dest: "{{ SVC_STORAGE_NFS_CLIENT_PROBE_DIR }}/.svc-storage-nfs-client-probe.{{ inventory_hostname }}"

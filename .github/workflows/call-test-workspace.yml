@@ -26,7 +26,7 @@ permissions:
 jobs:
   prepare:
     name: 🧑‍💻 Workspace Matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -49,7 +49,7 @@ jobs:
 
   test-workspace:
     name: ${{ matrix.icon }} Workspace (${{ matrix.label }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 345
     needs: prepare
 

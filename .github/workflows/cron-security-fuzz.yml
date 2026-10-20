@@ -16,7 +16,7 @@ permissions:
 jobs:
   fuzz-yaml-bootstrap:
     name: 🧬 Fuzz the bootstrap YAML reader
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - name: ⬇️ Checkout
