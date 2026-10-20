@@ -1,10 +1,13 @@
-"""Backends: the two protocols a translation engine speaks in this deployment."""
+"""Backends: the three protocols a translation engine speaks in this deployment."""
 
 from __future__ import annotations
 
 import json
 import re
 import urllib.request
+
+from .flores import code as flores_code
+from .flores import pairs as flores_pairs
 
 PROMPT = (
     "Translate the text between the markers from {source} to {target}. "
@@ -291,3 +294,103 @@ class ChatModelEngine:
         if not translation:
             raise ValueError(f"{self.name} answered without a translation")
         return translation
+
+
+class NllbEngine:
+    """NLLB-200 behind the inference server of ``svc-ai-nllb-engine``.
+
+    NLLB is a sequence-to-sequence translation model rather than a chat
+    model, so nothing here is a prompt: the request carries the source and
+    target language as FLORES-200 codes and the server conditions the decoder
+    on them. That is also why this is a third backend kind and not an alias of
+    the other two. The LibreTranslate client speaks ISO codes to an engine
+    that answers which ones it loaded; the chat client speaks a prompt to a
+    model that will answer in whatever it feels like. This one has to cross
+    the ISO 639-1 to FLORES-200 boundary on every call, and a language that
+    boundary has no crossing for is refused rather than handed to the model to
+    invent, which is the failure the chat backend produced for Belarusian,
+    Abkhaz and Amharic.
+
+    Args:
+        name: how the router and the learning log refer to this backend.
+        base_url: the inference server's root, without a trailing slash.
+        timeout: seconds to wait for a translation.
+        languages: ``{(source, target)}`` it serves, or None to take the full
+            catalogue the FLORES mapping derives.
+    """
+
+    def __init__(self, name, base_url, *, timeout=120, languages=None):
+        self.name = name
+        self._base_url = base_url.rstrip("/")
+        self._timeout = timeout
+        self._languages = (
+            frozenset(tuple(pair) for pair in languages)
+            if languages is not None
+            else flores_pairs()
+        )
+
+    @property
+    def pairs(self):
+        """The ISO 639-1 pairs this backend serves."""
+        return self._languages
+
+    def serves(self, source, target):
+        """True when NLLB has a FLORES code for both ends of the pair.
+
+        An absent or ``auto`` source is refused. NLLB carries no language
+        detector and the decoder needs a source token, so there is nothing
+        honest to send: answering such a request would mean guessing the
+        token, and the guess reaches the catalog as a translation. Refusing
+        leaves the request to a backend that does detect.
+        """
+        if not source or source == "auto":
+            return False
+        return (source, target) in self._languages
+
+    def translate(self, source, target, text, protected=(), fmt="text"):
+        """The translation the model generated.
+
+        Args:
+            source: source language code; required, see :meth:`serves`.
+            target: target language code.
+            text: the string to translate.
+            protected: accepted for signature parity; NLLB takes no glossary,
+                so the terms are checked on the answer by the router instead.
+            fmt: ``text`` only. NLLB has no markup-preserving mode, so an
+                ``html`` payload would come back with its tags translated and
+                a caller's masked spans destroyed.
+
+        Raises:
+            OSError: when the inference server cannot be reached.
+            ValueError: when a language has no FLORES code, when ``html`` is
+                asked for, or when the server answers without a translation.
+        """
+        if fmt != "text":
+            raise ValueError(f"{self.name} serves no {fmt} payloads")
+        payload = {
+            "source": flores_code(source),
+            "target": flores_code(target),
+            "text": text,
+        }
+        request = urllib.request.Request(  # noqa: S310 configured internal origin
+            f"{self._base_url}/translate",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=self._timeout) as response:  # noqa: S310 configured internal origin
+            body = json.loads(response.read())
+        answer = ((body or {}).get("translation") or "").strip()
+        if not answer:
+            raise ValueError(f"{self.name} answered without a translation")
+        return answer
+
+    def catalogue(self):
+        """The ISO pairs this backend serves, as the gateway's route reads them.
+
+        The model is the same 202 FLORES codes whatever host it runs on, so
+        the mapping answers this without a round trip; reading it back off the
+        server would only report the same table a slow start had not loaded
+        yet.
+        """
+        return set(self._languages)

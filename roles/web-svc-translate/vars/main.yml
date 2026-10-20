@@ -29,6 +29,7 @@ TRANSLATE_WEBLATE_PROJECT: "{{ lookup('config', application_id, 'services.transl
 
 TRANSLATE_LIBRETRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.libretranslate-engine.enabled') | bool }}"
 TRANSLATE_LTENGINE_ENABLED: "{{ lookup('config', application_id, 'services.ltengine.enabled') | bool }}"
+TRANSLATE_NLLB_ENABLED: "{{ lookup('config', application_id, 'services.nllb-engine.enabled') | bool }}"
 TRANSLATE_OLLAMA_ENABLED: "{{ lookup('config', application_id, 'services.ollama.enabled') | bool }}"
 TRANSLATE_S1_ENABLED: "{{ lookup('config', application_id, 'services.s1.enabled') | bool }}"
 TRANSLATE_WEBLATE_ENABLED: "{{ lookup('config', application_id, 'services.weblate.enabled') | bool }}"
@@ -39,6 +40,10 @@ TRANSLATE_LIBRETRANSLATE_URL: "http://{{ lookup('config', 'svc-ai-libretranslate
 # nocheck: literal-protocol-lookup  same
 TRANSLATE_LTENGINE_URL: "http://{{ lookup('config', 'svc-ai-ltengine', 'services.ltengine.name') }}:{{ lookup('config', 'svc-ai-ltengine', 'services.ltengine.ports.internal.http')
   }}"
+# nocheck: literal-protocol-lookup  same
+TRANSLATE_NLLB_URL: "http://{{ lookup('config', 'svc-ai-nllb-engine', 'services.nllb-engine.name') }}:{{ lookup('config', 'svc-ai-nllb-engine', 'services.nllb-engine.ports.internal.http')
+  }}"
+TRANSLATE_NLLB_TIMEOUT: "{{ lookup('config', 'svc-ai-nllb-engine', 'services.nllb-engine.request_timeout') }}"
 TRANSLATE_OLLAMA_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
 TRANSLATE_OLLAMA_MODEL: "{{ lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models', []) | map(attribute='alias') | reject('search', 'embed') | list |
   first | default('', true) }}"
@@ -56,6 +61,7 @@ TRANSLATE_CHAT_PAIRS: "{{ ['en', 'auto'] | product(TRANSLATE_CHAT_TARGETS) | map
 TRANSLATE_ENGINES: >-
   {{ [{'name': 'libretranslate', 'kind': 'libretranslate', 'url': TRANSLATE_LIBRETRANSLATE_URL}] * (TRANSLATE_LIBRETRANSLATE_ENABLED | bool | ternary(1, 0))
    + [{'name': 'ltengine', 'kind': 'libretranslate', 'url': TRANSLATE_LTENGINE_URL}] * (TRANSLATE_LTENGINE_ENABLED | bool | ternary(1, 0))
+   + [{'name': 'nllb', 'kind': 'nllb', 'url': TRANSLATE_NLLB_URL, 'timeout': TRANSLATE_NLLB_TIMEOUT}] * (TRANSLATE_NLLB_ENABLED | bool | ternary(1, 0))
    + [{'name': 'ollama', 'kind': 'chat', 'url': TRANSLATE_OLLAMA_URL, 'model': TRANSLATE_OLLAMA_MODEL, 'api_key': TRANSLATE_LITELLM_API_KEY,
        'pairs': TRANSLATE_CHAT_PAIRS}]
      * ((TRANSLATE_OLLAMA_ENABLED | bool and TRANSLATE_LITELLM_ENABLED | bool and TRANSLATE_OLLAMA_MODEL | length > 0) | ternary(1, 0)) }}

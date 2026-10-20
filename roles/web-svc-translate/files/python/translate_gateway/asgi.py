@@ -13,7 +13,11 @@ from infinito_decider import Decider, History, Sampler
 from translate_gateway.app import create_app
 from translate_gateway.cache import TranslationCache
 from translate_gateway.db import Database
-from translate_gateway.engines import ChatModelEngine, LibreTranslateEngine
+from translate_gateway.engines import (
+    ChatModelEngine,
+    LibreTranslateEngine,
+    NllbEngine,
+)
 from translate_gateway.failures import FailureLog
 from translate_gateway.gateway import Gateway
 from translate_gateway.memory import WeblateClient, WeblateGlossary, WeblateMemory
@@ -22,6 +26,13 @@ from translate_gateway.router import Router
 
 def _engine(entry, timeout):
     pairs = [tuple(pair) for pair in entry.get("pairs") or []] or None
+    if entry.get("kind") == "nllb":
+        return NllbEngine(
+            entry["name"],
+            entry["url"],
+            timeout=int(entry["timeout"]),
+            languages=pairs,
+        )
     if entry.get("kind") == "chat":
         return ChatModelEngine(
             entry["name"],

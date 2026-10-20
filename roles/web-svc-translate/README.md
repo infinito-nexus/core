@@ -8,13 +8,16 @@ One translation endpoint for every application in the deployment. It speaks the 
 
 The gateway is published at `api.translate.{{ DOMAIN_PRIMARY }}`. An application points at that one URL; anything that already speaks to LibreTranslate works unchanged.
 
-Three backends are declared as consumer entries in `meta/services.yml`, each switched on by deploying the role that provides it:
+Four backends are declared as consumer entries in `meta/services.yml`, each switched on by deploying the role that provides it:
 
 | Backend | Provider | Reached over |
 | --- | --- | --- |
 | `libretranslate` | [`svc-ai-libretranslate-engine`](../svc-ai-libretranslate-engine/) | the LibreTranslate API |
+| `nllb` | [`svc-ai-nllb-engine`](../svc-ai-nllb-engine/) | FLORES-200 codes, mapped from ISO 639-1 by `translate_gateway/flores.py` |
 | `ltengine` | [`svc-ai-ltengine`](../svc-ai-ltengine/) | the LibreTranslate API |
 | `ollama` | [`svc-ai-ollama`](../svc-ai-ollama/) | Ollama's generate API, as a prompt |
+
+`nllb` serves 136 of the 184 languages of `meta/languages.yml` and refuses the other 48, which NLLB-200 has no language code for; `flores.py` names them. It also refuses a request without a source language, because NLLB carries no detector.
 
 ## Reading the memory
 
@@ -38,6 +41,7 @@ flowchart LR
     gw -->|which engine| s1["svc-ai-s1"]
     gw -->|cache, history, failures| db["PostgreSQL"]
     gw --> lt["svc-ai-libretranslate-engine"]
+    gw --> nl["svc-ai-nllb-engine"]
     gw --> lte["svc-ai-ltengine"]
     gw --> ol["svc-ai-ollama"]
 ```

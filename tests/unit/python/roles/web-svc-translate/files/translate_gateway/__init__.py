@@ -24,10 +24,12 @@ def _load(name: str):
 
 ERRORS = _load("errors")
 SIGNATURE = _load("signature")
+FLORES = _load("flores")
 
 sys.modules.setdefault("translate_gateway", sys.modules[__name__])
 sys.modules["translate_gateway.errors"] = ERRORS
 sys.modules["translate_gateway.signature"] = SIGNATURE
+sys.modules["translate_gateway.flores"] = FLORES
 
 CACHE = _load("cache")
 ENGINES = _load("engines")

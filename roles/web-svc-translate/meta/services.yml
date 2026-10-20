@@ -59,6 +59,7 @@ translate:
     question: translation-verdict
     order:
       - libretranslate
+      - nllb
       - ltengine
       - ollama
     saturation_minimum: 10
@@ -78,6 +79,11 @@ libretranslate-engine:
   bond: 1
   enabled: true # nocheck: dynamic-flag  the default backend ships with the gateway; without it the gateway has nothing to route to
   shared: true # nocheck: dynamic-flag  the engine always runs in its own role, never inside this one
+# nocheck: playwright-service-flag: bridged NLLB backend, covered by the engine role's own spec
+nllb-engine:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-nllb-engine' in group_names }}"
+  shared: "{{ 'svc-ai-nllb-engine' in group_names }}"
 # nocheck: playwright-service-flag: bridged ltengine backend, covered by the engine role's own spec
 ltengine:
   bond: 0.5
