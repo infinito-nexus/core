@@ -253,9 +253,7 @@ def covers(pin: Pin, entry: Mapping[str, Any]) -> bool:
     ):
         if value is not None and entry.get(key) != value:
             return False
-    if pin.vpn is not None and (entry.get("vpn") == "true") != pin.vpn:
-        return False
-    return True
+    return pin.vpn is None or (entry.get("vpn") == "true") == pin.vpn
 
 
 def parse_list(tokens: str) -> list[Pin]:
