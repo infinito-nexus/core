@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# nocheck: file-size tasks/00_core.yml copies this file alone to BIN_CONTAINER, so a sibling module would have to be installed on PATH beside the executable to be importable at runtime
 from __future__ import annotations
 
 import argparse
