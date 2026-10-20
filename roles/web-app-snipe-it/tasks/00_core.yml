@@ -13,6 +13,7 @@
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
+    webserver_location_extra_configuration: 'proxy_set_header {{ SNIPE_IT_SSO_PROXY_HEADER }} "{{ SNIPE_IT_SSO_PROXY_SECRET }}";'
 
 - name: "👔 Snipe-IT manager-side operations (container exec)"
   include_tasks: 01_install/manager_ops.yml

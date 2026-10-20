@@ -9,6 +9,7 @@ The transfer is hard-link deduplicated against the previous snapshot, so each pl
 
 This role asserts that the mount, source, and target configuration values are present, deploys the rsync-driver script, and installs a systemd mount unit plus a oneshot service.
 The oneshot service is triggered automatically when the configured mount path appears, so the only operator action is to physically plug the device in.
+The filesystem mounted at the configured mount path must store owners, POSIX ACLs and extended attributes (for example ext4 or xfs). The backup runs `rsync -aHAXP`, which fails on FAT or exFAT.
 
 ## Schema
 

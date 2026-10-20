@@ -25,7 +25,7 @@ import re
 _PLAIN = re.compile(r"^[A-Za-z_/][A-Za-z0-9_./+@:\- ]*$")
 _RESERVED = re.compile(r"^(?:true|false|yes|no|on|off|y|n|null)$", re.IGNORECASE)
 _NON_PRINTABLE = re.compile(
-    "[^\x09\x0a\x0d\x20-\x7e\x85\xa0-\U0000d7ff\U0000e000-\U0000fffd\U00010000-\U0010ffff]"
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x84\x86-\x9f\ud800-\udfff￾￿]"
 )
 
 

@@ -4,6 +4,15 @@ from pathlib import Path
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
 
+__all__ = [
+    "PROJECT_ROOT",
+    "build_mappings",
+    "find_roles",
+    "main",
+    "output_graph",
+    "process_role",
+]
+
 from . import __main__ as _main  # noqa: E402
 
 build_mappings = _main.build_mappings

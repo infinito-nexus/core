@@ -9,6 +9,8 @@ from utils.cache.yaml import load_yaml_str
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[5]
 ROLES_DIR: Path = PROJECT_ROOT / "roles"
 
+__all__ = ["PROJECT_ROOT", "ROLES_DIR", "load_role_meta", "role_dirs"]
+
 
 def role_dirs() -> list[Path]:
     """Every role directory under ``roles/``, sorted by name."""

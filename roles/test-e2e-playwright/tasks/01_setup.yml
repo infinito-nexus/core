@@ -53,6 +53,10 @@
 - name: ⬇️ Pull the Playwright image once for every role of this run
   ansible.builtin.command:
     argv:
+      - timeout
+      - -k
+      - "60"
+      - "{{ lookup('timeout', 1800) | int }}"
       - container
       - pull
       - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"

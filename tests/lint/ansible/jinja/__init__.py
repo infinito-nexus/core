@@ -2,6 +2,8 @@ from pathlib import Path
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[4]
 
+__all__ = ["COMPOSE_TEMPLATE", "PROJECT_ROOT", "is_main_compose_template"]
+
 COMPOSE_TEMPLATE = "compose.yml.j2"
 
 

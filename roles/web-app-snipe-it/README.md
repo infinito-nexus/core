@@ -23,9 +23,14 @@ This Docker deployment uses Ansible automation to set up Snipe‑IT along with n
   When the oauth2-proxy SSO flavor is active, Snipe-IT's native
   `loginViaRemoteUser()` is enabled via the `Setting` model
   (`login_remote_user_enabled`, `login_remote_user_header_name =
-  HTTP_X_FORWARDED_PREFERRED_USERNAME`). nginx gates `/login` through
-  oauth2-proxy/Keycloak and injects the verified
-  `X-Forwarded-Preferred-Username` header, which Snipe-IT matches against
+  INFINITO_SSO_USER`). nginx gates `/login` through
+  oauth2-proxy/Keycloak, injects the verified
+  `X-Forwarded-Preferred-Username` header and sends the
+  `sso_proxy_secret` credential as `X-Infinito-Sso-Proxy` with every
+  request. Apache in the
+  container copies the username into the `INFINITO_SSO_USER` server
+  variable only when that secret matches `INFINITO_SSO_PROXY_SECRET`.
+  Snipe-IT matches the username against
   `users.username` (the user must pre-exist and be activated — sync them
   via LDAP) to mint a native `snipeit_session`. Visitors without a matching
   activated user silently fall through to the normal login form (no error).
