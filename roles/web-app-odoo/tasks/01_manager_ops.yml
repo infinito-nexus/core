@@ -70,10 +70,6 @@
   include_tasks: 06_ldap.yml
   when: ODOO_LDAP_ENABLED | bool
 
-- name: "🪣 Configure the object store as attachment storage"
-  include_tasks: 07_objstore.yml
-  when: ODOO_OBJSTORE_ENABLED | bool
-
 - name: "♻️ Reload Odoo so the SQL-provisioned config takes effect"
   include_tasks: 08_reload_provisioned_config.yml
   when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool) or (ODOO_OBJSTORE_ENABLED | bool)

@@ -22,6 +22,10 @@
         query_file: "{{ role_path }}/files/sql/update/ir-cron/resume.sql"
       changed_when: true
 
+- name: "🪣 Configure the object store as attachment storage before the `-u all` boot"
+  include_tasks: 07_objstore.yml
+  when: ODOO_OBJSTORE_ENABLED | bool
+
 - name: "📝 Flag Odoo for an offline `-u all` on the next boot"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ ODOO_LOCAL_CID | quote }} touch {{ ODOO_UPDATE_MARKER | quote }}
