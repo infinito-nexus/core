@@ -38,6 +38,8 @@
         jellyfin_auth_env_sso:
           JELLYFIN_SSO_PLUGIN_MANIFEST: "{{ JELLYFIN_SSO_PLUGIN_MANIFEST }}"
           JELLYFIN_OIDC_ISSUER: "{{ JELLYFIN_OIDC_ISSUER }}"
+          JELLYFIN_WEB_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+          JELLYFIN_OIDC_DISABLE_HTTPS: "{{ (JELLYFIN_OIDC_ISSUER | urlsplit('scheme') != 'https') | string | lower }}"
           JELLYFIN_OIDC_CLIENT_ID: "{{ JELLYFIN_OIDC_CLIENT_ID }}"
           JELLYFIN_OIDC_CLIENT_SECRET: "{{ JELLYFIN_OIDC_CLIENT_SECRET }}"
         jellyfin_auth_env: >-

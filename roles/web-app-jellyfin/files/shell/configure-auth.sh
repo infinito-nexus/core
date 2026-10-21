@@ -207,7 +207,8 @@ if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
       "OidScopes": ["openid", "profile", "email"],
       "DefaultUsernameClaim": "preferred_username",
       "DisablePushedAuthorization": true,
-      "SchemeOverride": "https"
+      "DisableHttps": ${JELLYFIN_OIDC_DISABLE_HTTPS},
+      "SchemeOverride": "${JELLYFIN_WEB_PROTOCOL}"
     }
   }
 }
