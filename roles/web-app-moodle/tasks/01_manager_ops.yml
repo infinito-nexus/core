@@ -74,6 +74,17 @@
   changed_when: moodle_admin_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "⚙️ Apply Moodle's cURL egress policy and debug level to the site config"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --name={{ item.name | quote }}
+    --set={{ item.value | quote }}
+  loop: "{{ MOODLE_EGRESS_SETTINGS + MOODLE_DEBUG_SETTINGS }}"
+  loop_control:
+    label: "{{ item.name }}"
+  changed_when: false
+
 - name: "📂 Include ownership settings tasks for moodle"
   include_tasks: 03_ownership.yml
 

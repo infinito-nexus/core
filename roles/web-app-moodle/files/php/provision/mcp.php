@@ -1,11 +1,10 @@
 <?php
 // nocheck: mirrored-unit-test - a CLI_SCRIPT that requires Moodle's config.php and
-// externallib at the top level and then writes through set_config and the webservice
-// manager; nothing loads without a provisioned Moodle install
+// the webservice library at the top level and then writes through set_config and the
+// webservice manager; nothing loads without a provisioned Moodle install
 define('CLI_SCRIPT', true);
 
 require(getenv('MOODLE_CONFIG'));
-require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 
 $shortname = (string) getenv('MCP_SERVICE_SHORTNAME');
@@ -42,8 +41,6 @@ foreach ($functions as $function) {
         $webservice->add_external_function_to_service($function, $service->id);
     }
 }
-
-require_once($CFG->dirroot . '/user/lib.php');
 
 $username = (string) getenv('MCP_ACCOUNT_USERNAME');
 $capabilities = array_filter(array_map('trim', explode(',', (string) getenv('MCP_ROLE_CAPABILITIES'))));

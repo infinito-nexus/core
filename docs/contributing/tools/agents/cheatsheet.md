@@ -40,5 +40,6 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Pushing a branch through the manual-CI draft → ready-for-review cycle | `i8-push-trigger-pull` |
 | Leading a CI run with a priority line that verifies the branch's open questions | `i8-ci-trigger-priority` |
 | Verifying from both ends at once: the CI run on a triage loop plus local iteration | `i8-verify-parallel` |
+| Writing the blog article, banner image and social posts for a release | `i8-release-article` |
 | Writing a new requirement | `i8-requirement-create` |
 | Implementing an existing requirement file end to end | `i8-requirement-implement` |

@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        16.2.1
+Version:        16.2.2
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,30 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.2-1
+- Fixed:
+
+- - Moodle: a fresh install with MCP enabled mints its token on Moodle 5.3
+- - Moodle: debug deployments keep the component cache; swarm pages load fast
+- - Playwright: a stuck image pull times out and retries instead of hanging
+
+- Version jumps (net since 16.2.1):
+
+- - *svc-ai-ollama*: 0.40.6 to 0.40.7
+- - *svc-runner*: BuildKit v0.34.0 to v0.34.1
+- - *web-app-erpnext*: v16.51.1 to v16.51.2
+- - *web-app-opentalk*: RabbitMQ 4.3.6 to 4.4.0
+- - *web-app-wazuh*: 4.14.6 to 4.14.9
+- - *web-app-xwiki*: AI LLM 0.10 to 0.11, OIDC authenticator 2.29.0 to 2.29.1
+
+- Upgrade notes:
+
+- - Device backup: the device needs a filesystem like ext4 or xfs, not FAT
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): Moodle, Playwright pull
+
 * Tue Oct 20 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.1-1
 - Fixed:
 
