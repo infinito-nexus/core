@@ -88,24 +88,27 @@ exports.register = function (shared) {
   /**
    * Args:
    *   page: signed-in Playwright page of the legacy interface.
-   *   url: URL to open again once the first-steps tour of the dashboard is marked as seen.
+   *   url: URL to open again once every onboarding tour of the dashboard is marked as seen.
    */
   async function skipIntro(page, url) {
-    const seen = await page.evaluate(() =>
-      fetch(`${window.App.Config.get("api_path")}/users/me`, { headers: { Accept: "application/json" } })
+    const pending = await page.evaluate(() => {
+      const keys = ["intro", ...Object.values(window.App.Config.get("Clues") || {}).map((clue) => clue.preference_key)];
+      return fetch(`${window.App.Config.get("api_path")}/users/me`, { headers: { Accept: "application/json" } })
         .then((response) => response.json())
-        .then((account) => Boolean((account.preferences || {}).intro)),
-    );
-    if (seen) return;
+        .then((account) => keys.filter((key) => key && !(account.preferences || {})[key]));
+    });
+    if (pending.length === 0) return;
     const saved = page.waitForResponse((response) => response.url().includes("/users/preferences"));
-    await page.evaluate(() =>
-      window.App.Ajax.request({
-        id: "design-intro",
-        type: "PUT",
-        url: `${window.App.Config.get("api_path")}/users/preferences`,
-        data: JSON.stringify({ intro: true }),
-        processData: true,
-      }),
+    await page.evaluate(
+      (keys) =>
+        window.App.Ajax.request({
+          id: "design-intro",
+          type: "PUT",
+          url: `${window.App.Config.get("api_path")}/users/preferences`,
+          data: JSON.stringify(Object.fromEntries(keys.map((key) => [key, true]))),
+          processData: true,
+        }),
+      pending,
     );
     await saved;
     await gotoOnion(page, url);
