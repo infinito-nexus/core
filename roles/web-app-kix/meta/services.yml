@@ -62,6 +62,7 @@ postgres:
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 redis:
   bond: 1
+  name: kix-redis
   enabled: true
   shared: false
 kix:
