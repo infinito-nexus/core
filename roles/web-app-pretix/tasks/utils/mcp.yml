@@ -32,8 +32,8 @@
   register: pretix_mcp_identity
   retries: 30
   delay: 10
-  until: "pretix_mcp_identity.rc == 0 and (pretix_mcp_identity.stdout is search('(?m)^PRETIX_RESULT=(UN)?CHANGED'))"
-  changed_when: "pretix_mcp_identity.stdout is search('(?m)^PRETIX_RESULT=CHANGED')"
+  until: "pretix_mcp_identity.rc == 0 and (pretix_mcp_identity.stdout is search('(?m)PRETIX_RESULT=(UN)?CHANGED$'))"
+  changed_when: "pretix_mcp_identity.stdout is search('(?m)PRETIX_RESULT=CHANGED$')"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ PRETIX_IDENTITY_HOST_NODE }}"
   run_once: true
