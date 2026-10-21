@@ -23,7 +23,7 @@ FILESYSTEMS = ("zfs", "btrfs", "ext4")
 
 ARCHITECTURES = ("amd64", "arm64")
 
-RUNNERS = {"amd64": "ubuntu-latest", "arm64": "ubuntu-24.04-arm"}
+RUNNERS = {"amd64": "ubuntu-26.04", "arm64": "ubuntu-24.04-arm"}
 """The runner label each architecture deploys on."""
 
 
