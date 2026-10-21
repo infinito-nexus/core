@@ -45,6 +45,9 @@ msgid "Administration Tools für servers"
 msgstr "Administration टूल्स फॉर सेवर्स"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: _agents_bh  __$agents_bh
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr ""
@@ -343,6 +346,9 @@ msgid "Container Orchestration"
 msgstr "ऑरिजिएंस ऑरिक्यूरेंस"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Sectarian
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
 msgstr ""
@@ -393,6 +399,9 @@ msgid "Content management system for building and managing websites, blogs, and 
 msgstr "चालू संचारित काम शैली से वेबसाइट, ब्लॉग तथा विश्वसंचारित साइट नेटवर्कों की बनावट तथा जीतание"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Controls
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr ""
@@ -487,6 +496,9 @@ msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr "डब्ल्यूएसएमएस (, लैडबेस, Redis, आदि )"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Dbh Goaṅsaka
 msgctxt "category:svc.db:title"
 msgid "Databases"
 msgstr ""
@@ -637,6 +649,9 @@ msgid "Driver integration for dynamic keyboard color and RGB lighting control on
 msgstr "ডাঐ ক্যাবিনেন ফ্রიমেন্ট মিসি লপটেলের ডিম্যাক্ট কাবেট ক্লার্ড অন্তর্ভুক্ত করার জন্য ডিম্যাক্ট কাবেট ক্লার্ড এবং রেগ্যুলার লিঙ্গ লিংটিং কন্ট্রোল"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: दriverેસ્ટિન્યોઝ્યોનો
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
@@ -752,6 +767,9 @@ msgid "Gaming platforms and entertainment applications."
 msgstr "गेम्स प्लास्टर और नागरिकता एप्लिकेशन્સ."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: GENERIC
 msgctxt "category:gen:title"
 msgid "Generic"
 msgstr ""
@@ -1087,11 +1105,15 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-ખેલાદેર ભાવણીટમાં એક જેનિજા ટેલ્યુર્સના લેગલ પ્રદર્શના (ઇમ્પ્રસમ) અને ટેલ્યુસ 2ફેલ્ડ્રામ્યલે"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 ट्यागिंग इडस्टीन अलगाव इंजीनियरिंग अपवाद ऑपरेटर सेवा ऑपरेटर सेवा ऑपरेटर"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NETWORK
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr ""
@@ -1163,6 +1185,9 @@ msgid "One translation endpoint that picks the engine itself and prefers a revie
 msgstr "एक टランス एंडपॉंट जो स्ट्रिंग स्टेनलस सीजन आपल्या रिवर्सेड हंमन व्यक्ती या इनगने आपल्या स्वतंत्रतेमुळे स्वरूपन करू येण्यावर प्रधान माना झाला"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: _open_त्याग्यापूर्ण_पृष्ठ_फिल्ड_
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
 msgstr ""
@@ -1440,6 +1465,9 @@ msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr "નોંધક પ્લેનિટફોનો માધ્વિષિલ્ટ તુલના ઉપકરણો તુલના કાર્નોક ટુલનાં ચિબીક ટ્રાઇલન્સ રાખે છે"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: ર Repair  bh
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr ""
@@ -1919,6 +1947,9 @@ msgid "Static site generator building HTML from an upstream Git repository at bu
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Storaga
 msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr ""
@@ -2121,6 +2152,9 @@ msgid "Use the links below to sign out of the services still listed."
 msgstr "नेपाली अनुवाद: छोटो बटो नीचे वाले सेवागैरो बनाउने तथा तिन्हरे से बाहर निकाउने लागि लिंकहरूलाई बनाउने तথा यसको बाहेक साथ छाउने।."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: _User Management_ arya
 msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr ""
@@ -2131,6 +2165,9 @@ msgid "User accounts & access control"
 msgstr "योग्यता अカウंसल और अक्सेस कन्टロल"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: UserData & AccessData
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
@@ -2214,6 +2251,9 @@ msgid "You can close this page now."
 msgstr "વિશાલિયાણ્યું તે પાઝર અને અને આપણે તે સંદેશો છોડો અને અને તે પાયબોક્સ છોડો."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: falया
 msgctxt "logout:st_failed"
 msgid "failed"
 msgstr ""
