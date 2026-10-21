@@ -5,8 +5,8 @@
 # nocheck: playwright-service-flag — engine provider, covered by the web-svc-seaweedfs CLI test
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
-  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+  enabled: true
+  shared: true
 # nocheck: variants-coverage  the onion gate is a hard invariant; no variant may force this consumer on a tor node.
 # nocheck: bond-baseline  same reason: variant 0 must not pin this consumer on.
 sso:

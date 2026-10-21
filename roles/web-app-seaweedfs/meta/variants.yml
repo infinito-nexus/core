@@ -22,8 +22,8 @@
       enabled: true
 - services:
     seaweedfs:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     sso:
       enabled: false
       shared: false
