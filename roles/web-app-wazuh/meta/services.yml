@@ -68,7 +68,7 @@ certs_generator:
   pids_limit: 128
 manager:
   image: wazuh/wazuh-manager
-  version: "4.14.6"
+  version: "4.14.9"
   name: wazuh.manager
   # nocheck: min-storage-headroom  Reason: budgets room for wazuh-manager's own operational data (var-ossec logs, alerts, agent queue/state) to grow well beyond the base image over the service's lifetime, not just the image itself.
   min_storage: 10GB
@@ -98,7 +98,7 @@ indexer:
     # nocheck: healthcheck-timing-override  covers the indexer's real boot without waiting out the curl flavor's 10m default, which would otherwise stall manager/dashboard's startup order far longer than the indexer actually needs.
     start_period: 90s
   image: wazuh/wazuh-indexer
-  version: "4.14.6"
+  version: "4.14.9"
   name: wazuh.indexer
   # nocheck: min-storage-headroom  Reason: budgets room for the OpenSearch index data (security events/alerts Wazuh continuously ingests) to grow well beyond the base image over the service's lifetime, not just the image itself.
   min_storage: 20GB
@@ -116,7 +116,7 @@ indexer:
       http: 8097
 console:
   image: wazuh/wazuh-dashboard
-  version: "4.14.6"
+  version: "4.14.9"
   name: wazuh.dashboard
   # nocheck: min-storage-headroom  Reason: budgets room for the dashboard's own runtime state (OpenSearch Dashboards bundle/build cache rebuilt on first boot, plus exported reports and saved-object data) to grow beyond the base image, not just the image itself.
   min_storage: 2GB
