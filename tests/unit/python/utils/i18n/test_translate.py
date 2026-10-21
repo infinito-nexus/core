@@ -10,11 +10,11 @@ from babel.messages.catalog import Catalog
 from utils.annotations.suppress import is_suppressed_at
 from utils.i18n.catalog import (
     ENGINE,
-    MACHINE_TRANSLATION,
     REFUSAL_PREFIX,
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
     build_template,
+    machine_translation,
     merge,
     render,
 )
@@ -30,6 +30,7 @@ from utils.i18n.translate import (
     taken_translations,
 )
 
+MACHINE_TRANSLATION = machine_translation()
 TOKEN = re.compile(r'<x id="\d+"></x>')
 
 

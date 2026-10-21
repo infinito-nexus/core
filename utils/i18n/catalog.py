@@ -26,7 +26,8 @@ if TYPE_CHECKING:
 LOCALE_DIR = Path("locale")
 PROJECT = "infinito-nexus"
 ENGINE = "libretranslate"
-MACHINE_TRANSLATION = f"translated-by: {ENGINE}"
+MACHINE_PREFIX = "translated-by:"
+UNNAMED_ENGINE = "unnamed"
 REFUSAL_PREFIX = "translation-refused:"
 REJECTED_PREFIX = "translation-rejected:"
 TRANSLATION_REFUSED = f"{REFUSAL_PREFIX} {ENGINE} damaged-span"
@@ -39,6 +40,29 @@ HEADER = f"""\
 # {CONTACT}, YEAR.
 # {SOFTWARE_URL}
 #"""
+
+
+def machine_translation(engine: str = "") -> str:
+    """Return the comment marking a machine translation, naming its engine.
+
+    The gateway routes each request on its own, so a catalog holds the work of
+    several engines and a constant mark would attribute all of it to one. An
+    entry whose engine the gateway did not report is marked ``unnamed`` rather
+    than guessed at.
+
+    Args:
+        engine: the engine the gateway reported for this entry.
+    """
+    return f"{MACHINE_PREFIX} {engine or UNNAMED_ENGINE}"
+
+
+def is_machine_translation(comment: str) -> bool:
+    """Whether ``comment`` is the machine-translation mark, whichever engine.
+
+    Args:
+        comment: one ``user_comments`` entry of a message.
+    """
+    return comment.startswith(MACHINE_PREFIX)
 
 
 def catalog_path(root: Path, code: str, domain: str) -> Path:

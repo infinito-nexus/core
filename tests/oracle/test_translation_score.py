@@ -53,7 +53,7 @@ import unittest
 from tests.utils.services import answers as serves
 from tests.utils.services import progress as _progress
 from utils.cache.yaml import load_yaml
-from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
+from utils.i18n.catalog import catalog_path, is_machine_translation, read_catalog
 from utils.i18n.judge import MIDDLE, ChatJudge
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
 from utils.i18n.libretranslate import GATEWAY_ROLE, GATEWAY_SERVICE_KEY
@@ -99,7 +99,7 @@ def _pairs(code: str, domain: str) -> list[tuple[str, str]]:
         for m in read_catalog(path)
         if m.id
         and m.string
-        and MACHINE_TRANSLATION in (m.user_comments or [])
+        and any(is_machine_translation(c) for c in m.user_comments or [])
         and len(prose(str(m.id)).strip()) >= MIN_SOURCE_CHARS
     ]
 

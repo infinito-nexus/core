@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import (
     ENGINE,
-    MACHINE_TRANSLATION,
     REFUSAL_PREFIX,
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
+    is_machine_translation,
+    machine_translation,
 )
 from utils.i18n.placeholders import (
     COLLAPSE_FLOOR,
@@ -149,7 +150,7 @@ def over_shared(catalog: Catalog) -> list[Message]:
     for message in catalog:
         if not message.id or not message.string:
             continue
-        if MACHINE_TRANSLATION not in (message.user_comments or []):
+        if not any(is_machine_translation(c) for c in message.user_comments or []):
             continue
         if not _own_translation_due(str(message.id)):
             continue
@@ -271,6 +272,7 @@ def apply(
     results: list[str | Rejected | None],
     taken: set[str] | None = None,
     criteria: Counter[str] | None = None,
+    engines: tuple[str, ...] = (),
 ) -> int:
     """Store machine translations on ``messages``.
 
@@ -278,6 +280,9 @@ def apply(
         messages: entries returned by ``pending``.
         results: one entry per message: the translation, a ``Rejected``, or
             ``None`` where the server never answered.
+        engines: the engine behind each result, as the gateway named it, so
+            the mark on an entry says which one earned it. Shorter than
+            ``results``, or empty, leaves the remainder unnamed.
         criteria: tally the caller prints, which counts what the client
             rejected. A duplicate is turned down here rather than there, so
             without this the run reports the discard and no reason for it.
@@ -291,7 +296,8 @@ def apply(
         The number of discarded translations; their entries keep no ``msgstr``.
     """
     discarded = 0
-    for message, text in zip(messages, results, strict=True):
+    names = [*engines, *[""] * (len(messages) - len(engines))]
+    for message, text, engine in zip(messages, results, names, strict=True):
         if not isinstance(text, str):
             discarded += 1
             record(message, text)
@@ -307,6 +313,10 @@ def apply(
         message.string = text
         message.flags.discard("fuzzy")
         clear(message)
-        if MACHINE_TRANSLATION not in message.user_comments:
-            message.user_comments.append(MACHINE_TRANSLATION)
+        message.user_comments = [
+            comment
+            for comment in message.user_comments
+            if not is_machine_translation(comment)
+        ]
+        message.user_comments.append(machine_translation(engine))
     return discarded

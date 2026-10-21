@@ -214,7 +214,9 @@ def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
             criteria.update(
                 value.reason for value in outcome.values if isinstance(value, Rejected)
             )
-            discarded += apply(chunk, outcome.values, taken, criteria)
+            discarded += apply(
+                chunk, outcome.values, taken, criteria, outcome.engines
+            )
             refused += outcome.refused
             damaged += outcome.damaged
             refusal = outcome.refusal or refusal

@@ -26,7 +26,7 @@ import unittest
 
 from tests.utils.services import answers as serves
 from tests.utils.services import progress as _progress
-from utils.i18n.catalog import MACHINE_TRANSLATION, catalog_path, read_catalog
+from utils.i18n.catalog import catalog_path, is_machine_translation, read_catalog
 from utils.i18n.libretranslate import PIVOT_LANGUAGE, SERVICE_KEY, served_languages
 from utils.i18n.untranslatable import untranslatable
 from utils.inventory.tools import LIBRETRANSLATE_ROLE, lane_url
@@ -89,7 +89,7 @@ class TestBackTranslation(unittest.TestCase):
                 for m in read_catalog(path)
                 if m.id
                 and m.string
-                and MACHINE_TRANSLATION in (m.user_comments or [])
+                and any(is_machine_translation(c) for c in m.user_comments or [])
                 and len(str(m.id)) >= MIN_SOURCE_CHARS
                 and not untranslatable(str(m.id))
             ]

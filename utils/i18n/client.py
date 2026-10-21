@@ -61,25 +61,32 @@ class Outcome:
         refused: requests the server turned down, retries included.
         damaged: translations that altered a protected span.
         refusal: the last refusal's message, empty when none happened.
+        engines: the engine that produced each value, aligned with ``values``
+            and empty where none answered. The gateway routes per request, so
+            a batch is rarely the work of one engine, and the catalog records
+            which one earned each entry.
     """
 
     values: list[str | Rejected | None]
     refused: int
     damaged: int
     refusal: str
+    engines: tuple[str, ...] = ()
 
 
 def merge(outcomes: Iterable[Outcome]) -> Outcome:
     """Fold per-text outcomes back into one for the whole batch."""
     values: list[str | Rejected | None] = []
+    engines: list[str] = []
     refused = damaged = 0
     refusal = ""
     for outcome in outcomes:
         values += outcome.values
+        engines += outcome.engines or [""] * len(outcome.values)
         refused += outcome.refused
         damaged += outcome.damaged
         refusal = outcome.refusal or refusal
-    return Outcome(values, refused, damaged, refusal)
+    return Outcome(values, refused, damaged, refusal, tuple(engines))
 
 
 class LibreTranslate:
@@ -222,28 +229,32 @@ class LibreTranslate:
         result, engines, refused, refusal = self._post(masked, target, exclude)
         if result is None:
             if len(texts) == 1:
-                return Outcome([None], refused, 0, refusal)
+                return Outcome([None], refused, 0, refusal, ("",))
             return merge(self._batch([text], target, exclude) for text in texts)
         values = [
             unmask(translated, item, text, target)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
-        retried = self._reask(texts, target, values, engines, exclude)
+        retried, names = self._reask(texts, target, values, engines, exclude)
         damaged = sum(1 for text in retried if isinstance(text, Rejected))
-        return Outcome(retried, refused, damaged, refusal)
+        return Outcome(retried, refused, damaged, refusal, tuple(names))
 
     def _reask(
         self, texts: list[str], target: str, values: list, engines: list, exclude: tuple
-    ) -> list:
+    ) -> tuple[list, list[str]]:
         """Replace every rejected value with one from another engine.
 
         Returns:
             ``values`` with each rejection re-translated where another engine
-            was left to ask, and the original rejection where none was.
+            was left to ask, and the original rejection where none was, paired
+            with the engine each surviving value came from. A re-ask moves the
+            name along with the text: recording the engine that was replaced
+            would describe a translation the catalog does not carry.
         """
         if not engines or len(engines) != len(values):
-            return values
+            return values, [""] * len(values)
         answered = list(values)
+        names = list(engines)
         for index, value in enumerate(values):
             if not isinstance(value, Rejected):
                 continue
@@ -253,7 +264,8 @@ class LibreTranslate:
             retry = self._batch([texts[index]], target, (*exclude, engine))
             if not isinstance(retry.values[0], Rejected) and retry.values[0]:
                 answered[index] = retry.values[0]
-        return answered
+                names[index] = (retry.engines or ("",))[0]
+        return answered, names
 
     def translate(self, texts: list[str], target: str) -> Outcome:
         """Translate ``texts`` from English into ``target``.
@@ -273,6 +285,7 @@ class LibreTranslate:
                 fail too, so the run stops instead of discarding the rest.
         """
         results: list[str | Rejected | None] = list(texts)
+        names = [""] * len(texts)
         wordy = [index for index, text in enumerate(texts) if not untranslatable(text)]
         size = self.batch_size
         batches = [wordy[i : i + size] for i in range(0, len(wordy), size)]
@@ -284,9 +297,13 @@ class LibreTranslate:
                 batches,
             )
             for batch, outcome in zip(batches, translated, strict=True):
-                for index, text in zip(batch, outcome.values, strict=True):
+                engines = outcome.engines or ("",) * len(outcome.values)
+                for index, text, engine in zip(
+                    batch, outcome.values, engines, strict=True
+                ):
                     results[index] = text
+                    names[index] = engine
                 refused += outcome.refused
                 damaged += outcome.damaged
                 refusal = outcome.refusal or refusal
-        return Outcome(results, refused, damaged, refusal)
+        return Outcome(results, refused, damaged, refusal, tuple(names))
