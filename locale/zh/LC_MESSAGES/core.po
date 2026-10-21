@@ -320,9 +320,6 @@ msgstr "社区"
 
 # 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 # gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Composable HTML injection roles (CSS, JS, logout
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
 # sub_filter/Lua with CDN-backed assets.
 msgctxt "category:sys.front.inj:description"
@@ -509,9 +506,6 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 
 # translated-by: libretranslate
 # Mastodon,等编.)
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: --- 可 deployed web applications (GitLab, Nextcloud,
 # Mastodon, etc.) --- 部署可用 web 应用 (GitLab, Nextcloud, Mastodon, etc.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
@@ -537,9 +531,6 @@ msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "启动 GNOME 的桌面配置角色 Shell 扩展并安装管理它们的 CLI 工具"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Desktop environment roles & apps (GNOME, browser,
 # LibreOffice, etc.) --  Application centers & settings (Applications,
 # LibreOffice, etc.) ---  Desktop environment roles & apps (GNOME,
 # LibreOffice, etc.) ---  Window management roles & features (Window manager,
@@ -799,9 +790,6 @@ msgid "Helpful Tools"
 msgstr "辅助工具"
 
 # (英语).
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: 3高-performance, self-hosted storage solutions for
 # managing, scaling, and accessing unstructured data — including object
 # storage compatible with Amazon S3 APIs.
 msgctxt "menu:Storage:description"

@@ -364,9 +364,6 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "میزبانی کے لئے منظم تصاویر سرور Simple Icons ویب اور دستاویزات کے استعمال کے لیے برانڈ ایس وی جی اور پی این اے کے مجموعے"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Containerized relational database with automated
 # database, user, and privilege provisioning
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
@@ -636,9 +633,6 @@ msgid "End-of-play convergence of every deployed MCP client against the complete
 msgstr "مکمل فراہم کُنندہ کے مقابلے میں ہر یو آر ایل ایم سی کلائنٹ کا فائنل"
 
 # لیے سطح مرتفع (Engner-agnostic fecture) جس میں فی کسشن فراہم کیا جاتا ہے۔
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Engin-agnostic wiring layer for shared cache, queue,
 # search, and vector engines with per-consumer provisioning
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
@@ -868,9 +862,6 @@ msgid "Injection"
 msgstr "غیر متصل"
 
 # ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Intel VA-API media driver for hardware-accelerated
 # video decode and encode across Linux distributions --
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -1093,9 +1084,6 @@ msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a
 msgstr "گنس sub_filter JavaScrip production تمام افعال کو مرکزی طور پر OIDC واحد علامت کے اختتامی پوائنٹ پر منتقل کرتا ہے۔"
 
 # ورک کو اندرونی ویب اطلاقیے تک شیئر کرنے کے لیے استعمال کیا جاتا ہے۔
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: --- Nginx-based content delivery network for serving
 # shared static assets to internal web applications ---
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
@@ -1134,9 +1122,6 @@ msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer c
 # translated-by: libretranslate
 # space a construct space a space a space a space space a space a spapfile
 # taff -
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: On-target Automation for struction a space a space a
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr ""
@@ -1343,9 +1328,6 @@ msgstr "Policy-manage web Browns for Arch لینکس ڈیسک ٹاپز کے سا
 
 # for settleplople Led-world-constitution province for abored community for
 # community community for community of community, AC, and Dected states
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Systemd logind configuration power-aware, laptop
 # lid-close behavior, battery, AC, docked states
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
@@ -1613,9 +1595,6 @@ msgid "Self-hosted System One classifier that answers typed questions so the gat
 msgstr "خود کار محفوظ System One ایسی کلاس‌ئر جو ایسے سوالات کا جواب دیتی ہے تاکہ وہ کسی بھی طریقے سے گاڑی چلا سکے ۔"
 
 # کرنے اور بنانے کے لیے مختصر تعلقات بنانے کے لیے
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Self-hosted URL shortener for creating, tracking, and
 # managing short links with built-in click analytics
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"

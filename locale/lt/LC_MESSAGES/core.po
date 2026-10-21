@@ -1696,9 +1696,6 @@ msgid "Self-hosted media server for streaming and organizing movies, TV, music, 
 msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavimui ir filmų, TV, muzikos ir nuotraukų organizavimui, su OIDC ir LDAP prisijungimu"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name API
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr ""
@@ -1725,9 +1722,6 @@ msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Savarankiškai patalpinta atvirojo kodo mašininio vertimo API teksto vertimui ir aptikimui kalbomis"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Self-hosted personal AI agent gateway with a browser
 # control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
 # personal AI agent gateway with a browser control UI, sandboxed in a Kata
 # microVM or gVisor runtime
@@ -2003,9 +1997,6 @@ msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "GNOME darbastalio terminalų emuliatorius, suteikiantis prieigą prie Arch Linux darbo vietų"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr ""

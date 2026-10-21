@@ -4311,23 +4311,14 @@ msgid "**Ephemeral:** no volume is mounted, so each restart discards whatever th
 msgstr "**Ephemeral:** walang laman, kaya itinatapon ng bawat piyesa ang anumang nakasulat na kodigo."
 
 # ``sys-ctl-alm-compose`` sa pagbibigay - babala tungkol sa kabiguan.
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: **Error sa pagbasa: %s** Mga Integrate na may kasamang
 msgid "**Error Notification:** Integrates with ``sys-ctl-alm-compose`` for alerting on failure."
 msgstr ""
 
 # `sys-ctl-alm-compose` sa pagbibigay - babala tungkol sa kabiguan.
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: **Error sa pagbasa: %s** Mga Integrate na may kasamang
 msgid "**Error Notification:** Integrates with `sys-ctl-alm-compose` for alerting on failure."
 msgstr ""
 
 # paggamit sys-ctl-alm-compose.
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: **Error sa pagbasa: %s** Napapansin ang pagkabigo sa
 msgid "**Error Notification:** Notifies on failure using sys-ctl-alm-compose."
 msgstr ""
 
@@ -4573,9 +4564,6 @@ msgstr "**Ang paglikha ng talaksan sa pamamagitan ng shell hedoc ay FORBIDEN. �
 
 # ay nilalagay bilang isang read-lamang na talaksang pagkaayos, na may
 # database-stored model cripts off.
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: **Sawi ang pagbasa ng talaksang '%s':** Ang model list
 msgid "**File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off."
 msgstr ""
 
@@ -5078,9 +5066,6 @@ msgstr "**Hardened CA trust, kalusugan, at pagkukumpuni ng lohika** kasama *mala
 # "magagamit" ay isang lantaran, dokumentadong op-in, hindi ang tahimik na
 # default. Ang ClaMPE ay nagtatala ng pagsabog na paikot: magagawa ng ahente
 # ang anumang bagay na ipinahihintulot ng ipinagkaloob na mga aparato.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: **Ang hardware access ay idineklara, hindi
 msgid "**Hardware access is declared, not blanket-by-accident.** The role exposes a device allowlist (`/dev/*`, GPIO, I2C/SPI, video/camera, serial) that the operator sets; \"full access\" is an explicit, documented opt-in, not the silent default. The README documents the blast radius: the agent can do anything the granted devices allow."
 msgstr ""
 
@@ -5912,9 +5897,6 @@ msgstr "**pederasyon ng LDA:** Kailan `svc-db-openldap` ay naroroon, Zammad Mga 
 # inline script na nagre - check on LAM' official na trabaho, kaya ang mga
 # kagamitang ito ay nanatili "nagaganap" magpakailanman. Ang iskrip na iyon ay
 # pinapayagang muli.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: **Ang pag - aangkat ng LDAP, pagluluwas at Multiple
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -6686,9 +6668,6 @@ msgstr "**Makipot:** Ito'y nagsasaayos ng resolusyon sa pangalan at wala nang ib
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ are are are are ’ ’ ’ ’ ’; ’ ’ ’ ’ ’ ’ ’ ’ ’
 # ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ( Keycloak Bago pa man nila marating ang
 # kliyente sa web.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Katutubo Keycloak SSO:** Maupo ``web-app-keycloak``
 msgid "**Native Keycloak SSO:** Sit a ``web-app-keycloak``\\ ’s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
 msgstr ""
 
@@ -13886,9 +13865,6 @@ msgstr "@signalbot:yourdomain.tld"
 msgid "@slackbot:yourdomain.tld"
 msgstr "@blabot:yourdomain.tld"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `telegrambot:yourdomain.tld
 msgid "@telegrambot:yourdomain.tld"
 msgstr ""
 
@@ -21297,9 +21273,6 @@ msgstr "Suporta ng CSP configuration"
 msgid "CSP, `domains`, `status_codes`, plus per-role `networks.local.{subnet,dns_resolver}`. File root IS `applications.<app>.server`."
 msgstr "CSP, `domains`, `status_codes`, pati na ang per-role `networks.local.{subnet,dns_resolver}`. Larawang ugat IS `applications.<app>.server`."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: CSP-aware reverse proxy integration
 msgid "CSP-aware reverse proxy integration"
 msgstr ""
 
@@ -33440,9 +33413,6 @@ msgstr "Saganang Paglilinis"
 msgid "Host directories the cache stack keeps its state in."
 msgstr ""
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Host directory for per-hostname leaf certs.
 msgid "Host directory for per-hostname leaf certs."
 msgstr ""
 
@@ -33959,9 +33929,6 @@ msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
 msgstr "INFINITO_WORKER_CPU: CPU-count base para sa manggagawa SPOT chain."
 
 # count.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: INFINITO_WORKER_FETCH: I/O-bound network-fetch worker
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
 msgstr ""
 
@@ -38189,9 +38156,6 @@ msgstr "Pamana *simpleicons_host_* Iba - iba"
 msgid "Legacy function retained for reference. Delegates to the `get_all_application_ids` filter plugin."
 msgstr ""
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Legacy matrix text-based filtering
 msgid "Legacy matrix text-based filtering"
 msgstr ""
 
@@ -45449,9 +45413,6 @@ msgstr "Ang praktikal na kodigo ay gumagana sa tunay na repo."
 msgid "Pre-provision `biber` via `php occ ldap:check-user --update biber` (and any other personas used by the test suite) as part of the role's post-deploy tasks, or"
 msgstr "Pre-provision `biber` gagamitin `php occ ldap:check-user --update biber` (at iba pang mga taong ginamit ng test suite) bilang bahagi ng post-deploy na mga gawain ng papel, o"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Pre-redeploy verification gate (HARD)
 msgid "Pre-redeploy verification gate (HARD)"
 msgstr ""
 
@@ -49412,9 +49373,6 @@ msgstr "Bumalik (may-ari, repo, run_id) mula sa run id o run/job URL."
 
 # gained=['job_idWalang']
 # mula sa run/job URL.
-# translation-refused: libretranslate protected-span lost=['job_id']
-# nocheck: url
-# translation-rejected: Bumalik (may-ari, repo, run_id, job_idWalang Suyo)
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -53540,9 +53498,6 @@ msgid "SPOT for the fnmatch-based ``.gitignore``-style filter used by lint and i
 msgstr "SPOT para sa fnmatch-based ``.gitignore``-style filter na ginagamit ng linta at mga pagsubok sa pagsasama - sama na kailangang lumakad sa lalagyan nang hindi nangingitlog ``git``. Takpan ang hugis ng repo ``.gitignore`` aktuwal na gamit (Mga dibuhong basename, path-special pattern, pagtahak-slash-as-directory) at sadyang inaalis ang negation (``!``) at ``**`` globstar — ang pagdaragdag ng alinman dito ay nangangailangan ng isang tunay na pagpapatupad ng mga landas."
 
 # sumusulat sa loob nito ``log_path`` talaksan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: SPOT para sa linyang panlapi (fix Ansible) ay
 msgid "SPOT for the line prefix Ansible writes into its ``log_path`` file."
 msgstr ""
 
@@ -57517,9 +57472,6 @@ msgstr "Swarm test extension"
 msgid "Swarm test routine 🔁"
 msgstr "Napakabisang rutin sa pagsubok 🔁"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Swarm variant-matrix round orchestrator.
 msgid "Swarm variant-matrix round orchestrator."
 msgstr ""
 
@@ -62779,9 +62731,6 @@ msgstr ""
 # doon; ang per-PR supersession ay pinangangasiwaan ng sariling entry
 # workflow' `pr-ci-*` grupo. Tingnan
 # [configuration.md](../../tools/github/actions/configuration.md).
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: Ang orkestra at ang takbo ng tulak entry
 msgid "The orchestrator and the push entry workflow (`entry-push-latest.yml`) cancel in-progress runs on every ref except `main`, which no automatic trigger cancels. A `pull_request_target` run inherits `refs/heads/main` as its ref, so the orchestrator does not cancel there either; per-PR supersession is handled by the entry workflow's own `pr-ci-*` group. See [configuration.md](../../tools/github/actions/configuration.md)."
 msgstr ""
 
@@ -65137,9 +65086,6 @@ msgstr "Ang trade-off ay na `deny` ngayon ay dala - dala ang buong bigat ng \"ku
 # ng hanay ay hindi nakatutulong sa dayuhang tagapaglaan (nakabukod ang papel
 # na ginagampanan): bawat pagkakaiba sa iba't ibang hanay, mula sa pinakapuno
 # ``meta/services.yml`` sa buong-role na hanay.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Ang mga larangan ng paghahatid (``services`` /
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -65977,9 +65923,6 @@ msgstr "Ang maliwanag na papel na ito ang may pananagutan sa pagluluklok GnuCash
 # software, sa mga sistema na ginagamit ang Pacman package manager. Ito'y lalo
 # nang kapaki - pakinabang sa pagtatayo GnuCash sa isang kapaligiran ng Linux
 # na may kaunting manu - manong pakikialam.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Ang maliwanag na papel na ito ang may pananagutan sa
 msgid "This Ansible role is responsible for installing GnuCash, a free and open-source financial management software, on systems utilizing the Pacman package manager. It’s particularly useful for setting up GnuCash in a Linux environment with minimal manual intervention."
 msgstr ""
 
@@ -67930,9 +67873,6 @@ msgstr "Ang papel na ito ay mahalaga **hindi** pumirma sa mga sertipiko ng dahon
 # o grupo ng LDAP. Pagpipla Bridgy Fed sa likuran ``web-app-keycloak`` ’ ’ ’ ’
 # ’ ’ ’ and and and and and and and and and and and ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’
 # . ’ ’ ’ ’ . ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ ’ Ang eksepsiyong ito ng SSO at RBAC
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Ang papel na ito ay hindi nagsasaayos ng OIDC laban sa
 msgid "This role does NOT configure OIDC against ``web-app-keycloak``, LDAP against ``svc-db-openldap``, or any role-claim / LDAP-group RBAC mapping. Bridgy Fed authenticates users via their fediverse or atproto credentials at the source platform, not via local accounts. There is no local user table to bind an external IdP to, and no in-app authorisation tier to map a Keycloak role or LDAP group onto. Placing Bridgy Fed behind ``web-app-keycloak``\\ ’s SSO-proxy sidecar would break inbound federation traffic and MUST NOT be done. This SSO and RBAC exception is documented per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__."
 msgstr ""
 
@@ -68159,9 +68099,6 @@ msgstr "Ang bahaging ito ang nagluluklok sa CopyQ \" clipboard manager \" sa mga
 
 # manager " sa mga sistemang Pacman-based (e.g. Arch Linux) at tinitiyak nito
 # na ito ay kusang sinisimulan para sa kasalukuyang gumagamit.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Ang bahaging ito ang nagluluklok sa CopyQ " clipboard
 msgid "This role installs the CopyQ clipboard manager on Pacman-based systems (e.g. Arch Linux) and ensures it is started automatically for the current user."
 msgstr ""
 
@@ -68961,9 +68898,6 @@ msgid "To route all CI back to GitHub-hosted runners (e.g. if the server goes do
 msgstr "Patungo sa ruta ang lahat ng CI pabalik sa GitHub-hosed runners (e.g. kung bababa ang server):"
 
 # GitHub-hosed runners (e.g. kung bababa ang server):
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Patungo sa ruta ang lahat ng CI pabalik sa
 msgid "To route all CI back to GitHub-hosted runners (e.g. if the server goes down):"
 msgstr ""
 
@@ -72467,9 +72401,6 @@ msgstr "Ang mga variable ba, default, at parehong lohika ay pinanatiling DRY?"
 # serbisyo ay nagmamana ng parehong hugis (real na end-to-end check na
 # nabibigo kapag nasira ang integration, na naka-trade sa pamamagitan ng
 # `skipUnlessServiceEnabled`).
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Ano "paglilingkod" ay nangangahulugang sa bawat
 msgid "What \"exercise the service\" means at each gate inside the persona flows. Non-exhaustive; new services inherit the same shape (real end-to-end check that fails when the integration breaks, gated via `skipUnlessServiceEnabled`)."
 msgstr ""
 
@@ -79008,9 +78939,6 @@ msgid "[KeePassXC](https://keepassxc.org/) is a free, open-source, cross-platfor
 msgstr "[Kie CREXC](https://keepassxc.org/) ay isang malaya, bukas-source, cross-platform password manager na nag-iimbak ng mga kredensiyal sa isang encrypted lokal database na tumutugma sa Kee Pass format."
 
 # self-provider test fix
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [Kevin Veen-Birkenbach](https://veen.world): ERPNext
 msgid "[Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix"
 msgstr ""
 
@@ -85441,9 +85369,6 @@ msgstr "``key``: serbisyo.<key>.* Pabalat ng paa. Default: nagbibigay o entity_n
 # bawat kliyente sa paglalagay. Ang pagiging kliyente ay hindi isang pag -
 # amin: kung wala ang ikalawang kalagayan ang isa ay nakararating sa bawat
 # tagapaglaan na nagbubukas ng balot nito.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``kind``: ``services_flags`` (default) Uson
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
 msgstr ""
 
@@ -86174,9 +86099,6 @@ msgid "``true`` runs the test in the sync pass only, so ``full_cycle`` does not 
 msgstr ""
 
 # ``config`` Uson ``secret``
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``type`` isa sa ``volume`` Uson ``bind`` Uson
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
 msgstr ""
 
@@ -89056,9 +88978,6 @@ msgid "`web-app-friendica` — addon/hook: header → session"
 msgstr "`web-app-friendica` — Adon/hook: header → sesyon"
 
 # backend
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: `web-app-funkwhale` — django header / remote-user auth
 msgid "`web-app-funkwhale` — django header / remote-user auth backend"
 msgstr ""
 
@@ -94875,9 +94794,6 @@ msgstr "plugins.lookup.compose\\ file\\ args module"
 msgid "plugins.lookup.compose\\_networks module"
 msgstr "plugins.lookup.compose\\ networks module"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: plugins.lookup.compose` lamang module
 msgid "plugins.lookup.compose\\_only module"
 msgstr ""
 
@@ -94929,9 +94845,6 @@ msgstr "plugins.lookup.container\\ Pagcheck module"
 msgid "plugins.lookup.container\\_hostname module"
 msgstr "plugins.lookup.container\\ hostname module"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: plugins.lookup.container` image module
 msgid "plugins.lookup.container\\_image module"
 msgstr ""
 
@@ -95133,9 +95046,6 @@ msgstr "plugins.lookup.path\\ absolute module"
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr "plugins.lookup.playwright\\ Minagawang module"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: plugins.lookup.postgres` libraries module
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -98456,9 +98366,6 @@ msgstr "utils.cache.records module"
 msgid "utils.cache.render module"
 msgstr "utils.cache.render module"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: utils.cache.schema` credentials module
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -98641,9 +98548,6 @@ msgid "utils.env.handlers.infinito.ca package"
 msgstr "utils.env.handlers.infinito.ca pakete"
 
 # module
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.bundle` candidates
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
 msgstr ""
 
@@ -98802,9 +98706,6 @@ msgstr "utils.env.handlers.infinito.package\\ cache.direct\\ mem module"
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr "utils.env.handlers.infinito.package\\ cache. minultuhin ang module"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.parent` image module
 msgid "utils.env.handlers.infinito.parent\\_image module"
 msgstr ""
 
@@ -100701,9 +100602,6 @@ msgid "🧩 Upstream project: `lyqht/mini-qr <https://github.com/lyqht/mini-qr>`
 msgstr "🧩 Bagong proyekto: `lyqht/mini-qr <https://github.com/lyqht/mini-qr>`__"
 
 # Framework](https://www.libretro.com/)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: 🧩 [Libretro - Modular Emulator
 msgid "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
 msgstr ""
 

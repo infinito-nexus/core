@@ -19,1741 +19,2181 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr ""
+msgstr "ACME klijent za automatsko isporušavanje i obaveštenje certifikata SSL/TLS pomoću webroota ili značajaka DNS-01"
 
+# translated-by: ollama
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr ""
+msgstr "AI usluge"
 
+# translated-by: ollama
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr ""
+msgstr "AI alati i strukturni za rad, upravljanje i eksperimentisanje s modelima."
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr ""
+msgstr "AI-tjedni kodni editor instalisan na radnog računala, gde nadpisivanje endpointa ostaje operatorčki step"
 
+# translated-by: ollama
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr ""
+msgstr "Administracijske nastroje za serverи"
 
+# translated-by: ollama
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr ""
+msgstr "Agenti"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "Aggregate NGINX sub-filter injector dodajući Matomo trazivanje, gloabilni temiranje, snipete i JS snimčike poput lakvi"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr ""
+msgstr "Sajdomni desktop okruženje koordiniraju kafein, seštenice shell i terminal u zajedničkom setupu GNOME na Linuxu"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
-msgstr ""
+msgstr "Pozvanoanje"
 
+# translated-by: ollama
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr ""
+msgstr "All-in-one stalwart mail server s sSMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV i dugama filteriranju od spam"
 
+# translated-by: ollama
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr ""
+msgstr "Analiza"
 
+# translated-by: ollama
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr ""
+msgstr "Ansible odgovornost za idempotentnost i pretraživanje per-korisničkih tokens aplikacije na mjestu u lokalnom store u formati YAML"
 
+# translated-by: ollama
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr ""
+msgstr "Applikacije"
 
+# translated-by: ollama
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr ""
+msgstr "Applikacije za e-komerciju, prodaju i pregledni pregledni sistemi."
 
+# translated-by: ollama
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
-msgstr ""
+msgstr "Arch Linux dodatak za multimodalni printer Epson koristicom escpr i imagescan"
 
+# translated-by: ollama
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
-msgstr ""
+msgstr "Artificialni inteligencni"
 
+# translated-by: ollama
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr ""
+msgstr "Uprštanje asetova"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Automated recovery service restartačno ponavljanje završilo, nije ispunjeno, ili je nepostojanje Docker Compose. stacki i rešavanje konfliktova sa portima"
 
+# translated-by: ollama
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
-msgstr ""
+msgstr "Automatski ulazak za obratu DNS (PTR) zapisa na serverima na Hetzner Cloud, glavne IP adrese, voznjke IP adrese i zahtevanje zapisa"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr ""
+msgstr "Ponuda i Privanjica"
 
+# translated-by: ollama
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr ""
+msgstr "Snijke Pravila"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
-msgstr ""
+msgstr "Strategije za spremanje i pristup povratnim radnjama"
 
+# translated-by: ollama
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
-msgstr ""
+msgstr "Osuvanje razvojnog okruženja za programarce na Linux-u s glavnim redovnicima i običnim radnima alatima po jeziku"
 
+# translated-by: ollama
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
-msgstr ""
+msgstr "Bazna uloga za konfiguracije sistemnog menadžera systemctl kroz drop-inove, poznate zadatke i validaciju jedinica"
 
+# translated-by: ollama
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr ""
+msgstr "Blender工作站 instalacija vezana na agenata na zasloukpu kroz Modelni kontekst protokol"
 
+# translated-by: ollama
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "Administracija interfejsa za prostorskih magacin za SeaweedFS, usluga za filere i glavne konsolesa ispred SSO"
 
+# translated-by: ollama
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
-msgstr ""
+msgstr "Browser-skrapljaci aplikacija za odabir, naudobi i gamiciranje"
 
+# translated-by: ollama
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr ""
+msgstr "Prijedproxysovani administracijski preglednik za zajednički LLM gateway, objavljeno na samom domenom"
 
+# translated-by: ollama
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr ""
+msgstr "Nagradačni alat za simulaciju root-ovodnih operacija nad datotekama bez visnog dozvola poduzetci kod strojenja paqueti"
 
+# translated-by: ollama
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr ""
+msgstr "CI Ruber"
 
+# translated-by: ollama
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "Central Dockeriziran pretraživač zbiranog korisničkima sa per-korisničkiom skopoizvanom API ključevima"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "Centralni dokumenti izvornik za premetanje i prenasanje dolaznih datoteka za dodavanje chatom-aus"
 
+# translated-by: ollama
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
-msgstr ""
+msgstr "Središni pomoćni resursi, uključujući dokumentaciju, podrška stručnjaka i navodnine."
 
+# translated-by: ollama
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr ""
+msgstr "Centralni memorijski cache engine s per-klijentovim ključ-predznak izolacijom, korišteni centralno ili kao uključeni odjekar"
 
+# translated-by: ollama
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
-msgstr ""
+msgstr "Središnji obilaznik ulaza za uskrobošene dodavanja prepreke preusmerljenih zajedničkih usluga i uključenih poslije prepreke u preuzimanju na deklaraciji"
 
+# translated-by: ollama
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr ""
+msgstr "Central logout proxy za jednostavnu odjednotku izlogivanja na sva OIDC-povezanih aplikacijama, s Nginx snipetima i živim statusnim UI-om"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
-msgstr ""
+msgstr "Središnja rol za orchestrisiranje poslova Infinito.Nexus, integrirajući Email SaaS, msmtp i opcionalni lokalni SMTP preko"
 
+# translated-by: ollama
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Central recursive/forwarding DNS resolver enginei (Unbound, etc.)"
 
+# translated-by: ollama
 msgctxt "role:svc-dns-unbound:description"
 msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
-msgstr ""
+msgstr "Central ra/prekomunicirani DNSSEC rezolver na statičnom IP adresi za računalne stakle koje se smatraju ciljem kao rezolver DNS"
 
+# translated-by: ollama
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
-msgstr ""
+msgstr "Centralni pretraživač i analitički engine sa per-korisničkim indexniom nazivomom izoliraju kuće u zajedničkom deployu Docker-a"
 
+# translated-by: ollama
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
-msgstr ""
+msgstr "Centralni vectorni bazu poslovečnog programa za snazištovanje i pretraživanje per-klijentovih embedova spajanih kroz stablo"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Centralizirani MariaDB или PostgreSQL bazu podataka dijeljeni po aplikacijama kroz Docker Compose"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr ""
+msgstr "Certbot-priporutan ACME servis za TLS sertifikate na razmake i razmake za domene Let's Encrypt na domenima NGINX"
 
+# translated-by: ollama
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr ""
+msgstr "Proveravam drugih vaših sesija…"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr ""
+msgstr "Očistavanje"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr ""
+msgstr "Clean-up rutina za nuklearde preširenih domenaških, obrišivanje konfiguracija Nginx i odbijanje njihovih certifikata za Certbot"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr ""
+msgstr "Očistička za vraćanje prostora na disk s temp datotekama, paketni cache, dodatno opcionalni Docker podaci i stari kopije"
 
+# translated-by: ollama
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr ""
+msgstr "Klijentski setup NFS za montiranje javljenja daleko sa remota serverom na svakom vrstu točki swarm sa probe dostupa u vremenu otvaranja"
 
+# translated-by: ollama
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
-msgstr ""
+msgstr "Kučnik clipboard s uređivima povijesti, privremnim uređivanjima i podrškom za skriptiranje"
 
+# translated-by: ollama
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
+"Njokk\n"
+"---\n"
+"\n"
+"Skupljač"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
-msgstr ""
+msgstr "Cloudflare DNS bootstrap role za apex i wildcard A/AAAA adresne zapisa ( i moguć CAA) za osnovne domene u web stack-u"
 
+# translated-by: ollama
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "Klasterni lokalni registar za potvrđivanje specifično izgradljivih slika za korisnike računala uključujući Docker Swarm"
 
+# translated-by: ollama
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Klasterno lokalni predmemorij za paketi izvanrednika, sluzi apt, pip, npm i raw artefakti svaka uloga deli"
 
+# translated-by: ollama
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr ""
+msgstr "Pregledni pull-thru skladiste za zajedničke ovlašćene Image Docker Hub skupa, otkazujući dvostruke prenose i ograničavanja brzine"
 
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr ""
+msgstr "Spozivateljska wiki platforma za opširnujeći dokumentaciju s opremom za dodavanje naročilo i sustavom za menadžment sadržaja"
 
+# translated-by: ollama
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr ""
+msgstr "Koričnijočni članak aplikacija za stvaranje i nadzor pojedinčnih dijogni unutrašnjih napisa iz komandne linije"
 
+# translated-by: ollama
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr ""
+msgstr "Komercije"
 
+# translated-by: ollama
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr ""
+msgstr "Komunikacija"
 
+# translated-by: ollama
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr ""
+msgstr "Komunita"
 
+# translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "Komponirani HTML invazioni rolji (CSS, JS, logout interceptor, analitika, ikona ikona) za Nginx/OpenResty kroz sub_filter/Lua s CDN-prostiranim vodicima."
 
+# translated-by: ollama
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr ""
+msgstr "Kompozitni stabl role koji omogućava kombinisanje kontejnerizovanih sustava za trgovinu podataka s HTTP obrnutim proxyom za prevod prekida za web pristup"
 
+# translated-by: ollama
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr ""
+msgstr "Orkestracija kontejnera"
 
+# translated-by: ollama
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr ""
+msgstr "Registri Kontejnera"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr ""
+msgstr "Runtajni engine kontejnera s Compose za stvaranje i pokretanje kontejnera aplikacije na Linux hostovima"
 
+# translated-by: ollama
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr ""
+msgstr "Ortanizacijski skup za rasporedovanje usluga između kompjuteričnih noda koordinatora i radnih noda"
 
+# translated-by: ollama
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
-msgstr ""
+msgstr "Service kontejnerne registrovača - lokalni registrovač i pull-kladnica."
 
+# translated-by: ollama
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
-msgstr ""
+msgstr "Kontejnerizirani Reveal.js predstava dijelova za prikaz naadministratorem, programerima, korisnicima i investitorima"
 
+# translated-by: ollama
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Kontejnerizirani server za hostiranje kolekcije SVG i PNG dizija za otvaramu i dokumentacijski korištenje za Simple Icons značajke"
 
+# translated-by: ollama
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ""
+msgstr "Skontainerizirani relacijski baza podataka s automatskim provjerojam korisnika i prava"
 
+# translated-by: ollama
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr ""
+msgstr "Kontrola i managementsa"
 
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr ""
+msgstr "Konzderatni sistem za stvaranje i upravljanje veb-stranicama, blogova i multistranica sa temama i dodativama"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl:title"
 msgid "Control"
-msgstr ""
+msgstr "Kontrol"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr ""
+msgstr "Kontrolni sloj za lifecycle upravljanje sistemom - rukovanje održavanjem, praznjenjem, kontrole, upozorenjima, išpravavanjem i mapevanjem netačnosti."
 
+# translated-by: ollama
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr ""
+msgstr "Koreni AI osnove—uvodnike za obilježavanje modela, otvorene AI kompatibilne otvorice, skupine vektorskih bazi, organizatori i UI za dijalogske interakcije."
 
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "Core NGINX webserver s podrjaljivanjem HTTP i TCP/UDP streama i odabranih zadovoljstvenih odabira za performantske postavke"
 
+# translated-by: ollama
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "Corporate design configuration owner i usluga `design`, redirektira svoj hostname na CDN"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Design injectije za aplikacije koji se snimaju s NGINX, ujednočavanje temne i svjetlostne temiranja iz design tokena OKLCH"
 
+# translated-by: ollama
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
-msgstr ""
+msgstr "Nisam mogli provjeriti drugih vaših sesija."
 
+# translated-by: ollama
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
-msgstr ""
+msgstr "Ne mogla sam potvrditi svaki izlaz."
 
+# translated-by: ollama
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
-msgstr ""
+msgstr "Pridajuci klikač za paketni menadžer Nix s verifikiranim sumom kontrolama i ponavljanom mjestu korisnika"
 
+# translated-by: ollama
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
-msgstr ""
+msgstr "Istraživanje rutine dijeljenja za preživotnišćenje prema disku prema CI, kontejneri i okruženju proizvodnje"
 
+# translated-by: ollama
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr ""
+msgstr "Vrhovanje"
 
+# translated-by: ollama
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr ""
+msgstr "Customer Relationship Management ( CRM) softver za upravljanje customerskim odnosima, prodavnim putevima, marketingom i aktivnostima podrške."
 
+# translated-by: ollama
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr ""
+msgstr "DNS Automacija"
 
+# translated-by: ollama
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr ""
+msgstr "DNS Resolvori"
 
+# translated-by: ollama
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
-msgstr ""
+msgstr "DNS provizori, reči, i rDNS prouznanje (Cloudflare, Hetzner, itd.)."
 
+# translated-by: ollama
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr ""
+msgstr "Data-driven role za upravljanje DNS dijelovi Cloudflare (A/AAAA, CNAME, MX, TXT, SRV) između aplikacija i okruženja"
 
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr ""
+msgstr "Baze daniловaca"
 
+# translated-by: ollama
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr ""
+msgstr "Decentralizirani, federirani platforma za peer-to-peer video hostiranje, streamiranje i live pokretanje"
 
+# translated-by: ollama
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr ""
+msgstr "Decentralizirani, federirani platform za dijeljenje slika i prikazivanje slika na fediverseu"
 
+# translated-by: ollama
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr ""
+msgstr "Decentralizirani, federirani društveni platforma za peer-to-peer komunikaciju i obnovljujuće zajednici"
 
+# translated-by: ollama
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr ""
+msgstr "Dijeljena administratorski račun s pristupom kroz SSH ključ i s pomoću prekida sa loptom za sigurno prenijemljivu prijavu privilegija"
 
+# translated-by: ollama
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr ""
+msgstr "Destiniran sistemni račun s ograničenima komandom za SSH i bezlokacni rsync sudo za sigurni pristup za dodavanje spremnika"
 
+# translated-by: ollama
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
-msgstr ""
+msgstr "Prijenosne početno orchestriracijera za omogućavanje i početak pokrenutih systemd usluga jednako jednokorisnickom igri što je završio"
 
+# translated-by: ollama
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Deployable web aplikacije (GitLab, Nextcloud, Mastodon, etc.)"
 
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
-msgstr ""
+msgstr "Desktop klijent za pretragu muzike, igra liste i podcasti"
 
+# translated-by: ollama
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr ""
+msgstr "Upravljanje računalom postavljajući home mapove u mapu za sačuvanje u oblaku za integrirani unos fajlova"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "Desktop konfiguracijski role za aktivaciju GNOME Shell dodataka i instalaciju kliena za njihovu upravljanju"
 
+# translated-by: ollama
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr ""
+msgstr "Desktopni okruženje nogu i aplikacije ( GNOME, preglednik, LibreOffice, itd. )"
 
+# translated-by: ollama
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr ""
+msgstr "Poziciranje desktop media-playera s VLC i bibliotekama AACS/BD+ za dekripciju i preživanje Blu-ray dijela na Arch Linuxскоj"
 
+# translated-by: ollama
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr ""
+msgstr "Desktop prijava za dokaze, tablice i prezentacije s fontima Liberation i jezičnim računalničkim zahtevama"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr ""
+msgstr "Desktopnogacni za ograničavanje počasti i zubnog, autostartovani na desktopu GNOME"
 
+# translated-by: ollama
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
-msgstr ""
+msgstr "Klien za dijagnostikuvideo konferenciju za online skupine, webinarove i prodibanje pokaznika dijela pokaznika dijela"
 
+# translated-by: ollama
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr ""
+msgstr "Rastagran"
 
+# translated-by: ollama
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
-msgstr ""
+msgstr "Izgradnja i razvoj alata za CI/CD"
 
+# translated-by: ollama
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "Distribirat S3-kompatibilni objekt depozit za zajedničku, po-preduzeca petice proizvedenja kroz role web-aplikacija"
 
+# translated-by: ollama
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr ""
+msgstr "Distribuiran sistem za kontrolu verzija za pregled promjena izvornog koda i koordiniranje radnog dela"
 
+# translated-by: ollama
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
-msgstr ""
+msgstr "Distributsion-specifični osnovni otoka alatkona ( kompajleri, linkeri, make) za kompajling softvera s izvornim kodom"
 
+# translated-by: ollama
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr ""
+msgstr "Docker stak za kontejnerizirane relacijske baze podataka s ostvarivanjem prilikom spremanja podataka korisnika i pravaodošća"
 
+# translated-by: ollama
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr ""
+msgstr "Bootstrap klaster Docker Swarm i role noda-membersije za višehrane depozitaciju usluge."
 
+# translated-by: ollama
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Dokumentni server za trenutno prikazivanje u prozoru kolačnika za uređivanje dokumenta, tablica i predstavitelja"
 
+# translated-by: ollama
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr ""
+msgstr "Dokumentacija"
 
+# translated-by: ollama
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
-msgstr ""
+msgstr "Dokumentacije i Wiki-omski upotrebljivi aplikacije"
 
+# translated-by: ollama
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr ""
+msgstr "Integracija za državanje dinamičnog klavijatara s bojom i kontrolu RGB svježja na laptopima MSI"
 
+# translated-by: ollama
 msgctxt "category:drv:title"
 msgid "Drivers"
-msgstr ""
+msgstr "Izvornici"
 
+# translated-by: ollama
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr ""
+msgstr "Obrazovanje"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr ""
+msgstr "Emotibilizirani robotski platform za Hermes na određenoj, segmentiranoj jedinstvenom zaintegrisanoj uređaju"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
-msgstr ""
+msgstr "Konekcija krańcowego końca gry dla každego wdrożonego klienta MCP z kompletnim zestawom dostawców"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr ""
+msgstr "Engine-независни kable vrstica za zajednički cache, front, pretraga i vektorne vrstice s prikazom po potrošniku"
 
+# translated-by: ollama
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
-msgstr ""
+msgstr "Područje vlasništva i zajedničkog radnog sistema za stvaranje, organizaciju i dijeljenje sadržaja"
 
+# translated-by: ollama
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr ""
+msgstr "Evidencija i upravljanje tiketima"
 
+# translated-by: ollama
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr ""
+msgstr "Eventi"
 
+# translated-by: ollama
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr ""
+msgstr "Ekstendljivi Vim-obzirom predviđen editor za tekst na komande-log za kodiranje i konfiguracije za terminalski korak"
 
+# translated-by: ollama
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr ""
+msgstr "Sastavčak federirane igre šah za igra i slanje po pravilanima validiranih igra na Fediverseuoci sa ActivityPubom"
 
+# translated-by: ollama
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr ""
+msgstr "Fediran, end-to-end-šifrirani poraziller platforma s web klijentom in protokolnim mešajnicama za eksternke komunikacije"
 
+# translated-by: ollama
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
-msgstr ""
+msgstr "Sferifikiran, samostenan platform za organizaciju događaja i stvaranje skupina i skupa"
 
+# translated-by: ollama
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Federativni most koji povezuje ActivityPub (Fediverse), AT Protokol (Bluesky), i IndieWeb"
 
+# translated-by: ollama
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr ""
+msgstr "Finance i financijsko podrška"
 
+# translated-by: ollama
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr ""
+msgstr "Financijski i računalni softver"
 
+# translated-by: ollama
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr ""
+msgstr "Bežni i otvoren server TURN/STUN za prekršavanje NAT za NAT traversal u WebRTC i snimljivoj komunikaciji"
 
+# translated-by: ollama
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
-msgstr ""
+msgstr "Bežni i otvoren softver za živu streamiranje snimaca ekrana"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr ""
+msgstr "Beogradsko prikazni aplikacni program za osobne i mali poduzečne računske i financijske radnje"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
-msgstr ""
+msgstr "Front-end JS injekcija obavioja odjetih prozora određene okvirenu i obavioja prijevodu eksternih linkova u novi prozori"
 
+# translated-by: ollama
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr ""
+msgstr "Baze za prednjenuvelu za web aplikacije: osnove HTTPS, opcionalni setup Cloudflare i susret prirodnog proxya"
 
+# translated-by: ollama
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
-msgstr ""
+msgstr "Frontend helpiši za obrnuti-proxiblirane aplikacije (injection, sklanjenjem zajedničkih sredstava, CDN plumblinom)."
 
+# translated-by: ollama
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr ""
+msgstr "Igri"
 
+# translated-by: ollama
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr ""
+msgstr "Građevine igraštaka i meditacija aplikacija."
 
+# translated-by: ollama
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr ""
+msgstr "Generički"
 
+# translated-by: ollama
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
-msgstr ""
+msgstr "Genericki testiranječnik za end-to-end izvješća koji izvršava Playwright specifikacije koje su dobivate role u Docker kontejnerima protiča prema napravljenim aplikacijama"
 
+# translated-by: ollama
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
-msgstr ""
+msgstr "Genericka rola instalirajući doli CLI i primjene dotveća snimljačnih mapeva koje je druga rola podigla"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr ""
+msgstr "Global JavaScript injection layer za HTML odgovornosti preko sub_filter za NGINX, s CSP hashiranjem"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr ""
+msgstr "Tjedljena konfiguracija opšte SSH daemonya za korisničke teme koristitiva bez logiranja kao korisničko korisničko i brisanja lozinke"
 
+# translated-by: ollama
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr ""
+msgstr "Hardanir računalnički desktop web preglednik sa ograženom privatnosti i dodatkom za uređivač lozinkama kroz Entitetne politike"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr ""
+msgstr "Headlu lokalni model server za otvorene LLMs sa otvorenom API na kontejnernoj mreži"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr ""
+msgstr "Prigovori kokeleće za oduvijekovane anonimne kontejnerevolumene bez poveznica na kontejnere s whitelist i upozorenjima"
 
+# translated-by: ollama
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr ""
+msgstr "Pomojte"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Helper role instalaciju CA-trusova podataka za Docker Compose stackove i valideriranje projektnog CA sertifikata"
 
+# translated-by: ollama
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
-msgstr ""
+msgstr "Helper roliji i instalatori (git, lokalni sistemi, vremenski uređaj, itd.)"
 
+# translated-by: ollama
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr ""
+msgstr "Pomocne alati"
 
+# translated-by: ollama
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr ""
+msgstr "Nagrgaštih, samostavnih rezolucija za pregledovanje, skaliranje i pristupa nestrukturijnom podacima — uključujući objektno pohranjivanje kompatibilno sa API-ima Amazon S3."
 
+# translated-by: ollama
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr ""
+msgstr "Nastavitve nasvetnika za sistem sistem systemd-journald z ogranicenjima za odstopanje in napredujoče preslobokođenje"
 
+# translated-by: ollama
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr ""
+msgstr "Pojedinčno konfiguracije povezanja Bash i Zsh logovanih shell-ova sa zajedničkim .profile za sagradljivu okruženju"
 
+# translated-by: ollama
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
-msgstr ""
+msgstr "Host-level provjera za podnošanje sistema projektnog pyproject.toml verzije naštednjom/kroz /etc/environment"
 
+# translated-by: ollama
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
-msgstr ""
+msgstr "Host-level role provisioning root RSA 4096-bit SSH key pair for secure automated administrative access"
 
+# translated-by: ollama
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr ""
+msgstr "Identitetiški skrivnici, PKI i manager za enkripciju, OIDC prijava, grupirani politika i automatski oslobađanje uzastopnika statickog zaštite"
 
+# translated-by: ollama
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr ""
+msgstr "Memorarna ključno-vrijednosti cache i magacin, zajednički prijavično s per-korisnika ACL ogranicenjem ili ugrađen kao sidecar"
 
+# translated-by: ollama
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
-msgstr ""
+msgstr "Infinito.Nexus dokumentaciju za najnoviju commit i svaku izdanju,构бран na zahtev sa Sphinxom"
 
+# translated-by: ollama
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr ""
+msgstr "Infrastruktura"
 
+# translated-by: ollama
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr ""
+msgstr "Infrastruktura i netovni nástupi"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
-msgstr ""
+msgstr "Infračin role za upravljanje struktura projektova za kontejneriziranih aplikacijskih struksura, fajlova .env i handleri lifecycle"
 
+# translated-by: ollama
 msgctxt "role:sys-service:description"
 msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
-msgstr ""
+msgstr "Infrastruktura uloge za užimanje systemd usluge unitova: obrišivanje, deklarisanje, vremenske nade i zajedničke preporuke preporuke za spadanje"
 
+# translated-by: ollama
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
-msgstr ""
+msgstr "Infrastruktura servisa kao podrijetla"
 
+# translated-by: ollama
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
-msgstr ""
+msgstr "Injekcija"
 
+# translated-by: ollama
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr ""
+msgstr "Intel VA-API media driver za pregled konteksta u prirodnim jezicima i kodiranje s prirodnim jezicom na sistemu Linux"
 
+# translated-by: ollama
 msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
-msgstr ""
+msgstr "Interaktivni grafni vizualizaciju svih Infinito.Nexus uloga i njihova zavisnosti za odracenje otvorenosti arhitekture"
 
+# translated-by: ollama
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr ""
+msgstr "Platform za naloge i projektiranje za družbe softvera, sa agilnim dijagramima, workflow-ima i opcionalnim OIDC SSO"
 
+# translated-by: ollama
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr ""
+msgstr "JavaScript podrta za stvaranje i pokretanje serverskih aplikacija i razvojnih dodataka"
 
+# translated-by: ollama
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
-msgstr ""
+msgstr "Kernel WireGuard tanye, hrbati mreže pod swamovim管理员，和Compose predpjezbi full mreže"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "Kernel backend koji izvrtava kôd koja piše hrvat, u kontejneru umjesto u zauzetnom prozoru za pregledu u browseru"
 
+# translated-by: ollama
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "Kernel-isolirani runtime agent koji omilja OpenAI-compatible API, routiran u modeli kroz zajednički gateway LLM"
 
+# translated-by: ollama
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr ""
+msgstr "Kernel-isolating container runtimes na host-južniku: Kata Containers microVM i gVisor korpusni sluzbenik."
 
+# translated-by: ollama
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
-msgstr ""
+msgstr "Kernel-isolating container runtimes koje isablju neovisne otvorene zadatake u mikroVM-u ili u kernelu korisničkog prostora"
 
+# translated-by: ollama
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr ""
+msgstr "NFS-urediljač na poziome kernela za eksport spajanih direktorija sa ogranicenim pristupom za hostove swarm-node"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
-msgstr ""
+msgstr "LLM-backiNJus javanji motor reči jej je habranije engajment za LibreTranslate API, za pipeline koje ga koriste direktno"
 
+# translated-by: ollama
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
-msgstr ""
+msgstr "Arukeštalnici, skolske koordinativne naregulacije tools i digitalne učni okruženja."
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr ""
+msgstr "Letačni provjeric Let's Encrypt za prvobitni sloj TLS garantirajući automatsku izvršavanje potvrđivača i presećenja"
 
+# translated-by: ollama
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr ""
+msgstr "Libretro-bazeani preglednik za emulatore, igra enginee i mediapodigjevi, sa stilima menija XMB i Ozone"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr ""
+msgstr "NaprednijiSMTPklienter i. zamjene za slanje e-pošte kroz vanjski SMTP server"
 
+# translated-by: ollama
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "Lightniš samostalni Git servis za kolaboraciju kodova, kontrolu verzija i nadzoru prenosa"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr ""
+msgstr "Local name resolution za domene koje se ciljevom, kroz modul myhostname NSS"
 
+# translated-by: ollama
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
-msgstr ""
+msgstr "Lokalni samopisni Root CA za ispoljava varuškastu sigurnosti tako da kontejneri prihvataju interne endpointove za TLS"
 
+# translated-by: ollama
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr ""
+msgstr "Početni lokalni platforma za računalniške uređajke za uređivač lozinka pohranjujući autentificacijske podatke u zaštićenom bazi podataka u formaturi KeePass-a"
 
+# translated-by: ollama
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "Domovinski komando centar za poruke koji zajedno spaja Slack, poštu i trazivača izveštaja u akcioni kartice koju je moguće potvrditi"
 
+# translated-by: ollama
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
-msgstr ""
+msgstr "Mekanizam za otkrivanje za ograničavanje zadataka za menadžment mreže do kraja kriticnih usluga s konfigurablem ponavljanjem i vremenskim granomom"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr ""
+msgstr "Loopback-only postfix relator za lakšu izlaznu poštu kroz localhost kada se ne pokreće centralni mail nacin"
 
+# translated-by: ollama
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
-msgstr ""
+msgstr "Nivo za kretanje kreiranja, isprobavanja i objavljivanja workflows LLM i RAG kao HTTP endpointove"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Machinačka premetevnica bez webnog dijela za pipeline koje ju direktno pozivaju"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr ""
+msgstr "Održavanje"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
-msgstr ""
+msgstr "Nagrada role za certifikate, sistema i regularnim operativnim nalogima."
 
+# translated-by: ollama
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Docker Swarm kao glavni uzak željač, s inicijalnom logiki delovanjem na svc-swarm-node"
 
+# translated-by: ollama
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr ""
+msgstr "Markatura"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Metasearcni engine platforma traži rezultate na web bez obrade upita korisnika o tražištu provizorisanom tražištu"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Minimal terminal coding agent s malobavećom sistema značajaka, složen na platformskom本身的模型网关"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr ""
+msgstr "Monitiranje"
 
+# translated-by: ollama
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr ""
+msgstr "Multi-jezikni kontroler šifrevač slova s konfigurabilnim predmetima za dizajn i radnikeTextEdit"
 
+# translated-by: ollama
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr ""
+msgstr "NGINX glavni delegiran radi za 301 prebacuje prilagođene domene iz izvora u ciljne domene s automatskim SSL za izvorni hostovi"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
-msgstr ""
+msgstr "NGINX slovačka za HTTPS s slojem Let's Encrypt ACME zahtevačnog obradnja, port 80 na 443 prekid i odbacivanje starog vHosta"
 
+# translated-by: ollama
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "NGINX server blocks koji priduraju nepretiranje www podsubdomena na njihove apex domane bez www"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "NGINZ subfilter injektor dodaje Matomo analitički skriptu i bezskriptni snimku otputnog HTML stranica"
 
+# translated-by: ollama
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "NGINX vhost za podršku statičnih HTML web stranica nad HTTPS s automatičnim sertifikatima Let's Encrypt"
 
+# translated-by: ollama
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
-msgstr ""
+msgstr "NGINX-izradevni web platform in prehodnik z potrbenim ponovni pregledom konfiguracij in integracijo z Let's Encrypt"
 
+# translated-by: ollama
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr ""
+msgstr "NGINX-sadrženi stranica statičkog renderovanja slova (Impressum) iz Jinja2 strukture"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 translation model sevidor preko HTTP, za pipeline koje ga isprobaju na direktan način"
 
+# translated-by: ollama
 msgctxt "category:svc.net:title"
 msgid "Network"
-msgstr ""
+msgstr "Mreva"
 
+# translated-by: ollama
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr ""
+msgstr "Mreva postavke (DNS, Let's Encrypt HTTP, WireGuard, itd.)"
 
+# translated-by: ollama
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
-msgstr ""
+msgstr "Mrežni DNS zavjalnik za blokiranje reklama i tražilica na svačem uređaju, s DHCP i pregledni preglednik web-a"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
-msgstr ""
+msgstr "Nginx sub_filter JavaScript injekcija redirekcija svih izlaznih akcija na centraliziran OIDC jedinstveno prihvatanje endpointa"
 
+# translated-by: ollama
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr ""
+msgstr "Nasljedni napravak za preuzimanje općenito dostupnih statičkih naloga za utherne web aplikacije na temelju Nginx"
 
+# translated-by: ollama
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
-msgstr ""
+msgstr "Nginx-osan privatne proxy koji mirira ulazne pravo pod prvostručnim domenom"
 
+# translated-by: ollama
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr ""
+msgstr "Nginx-osnaženi server za hostiranje statičkih položaja kopirani iz izvornog direktorija na put za mrežne podatke"
 
+# translated-by: ollama
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
+"Pakčevni-omiljatelj postavljanje npm i opcionalno pokretanje 'npm ci' u direktoriju projekta\n"
+"---\n"
+"\n"
+"Node.js"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
-msgstr ""
+msgstr "Obaveštenja za sistemne događaje"
 
+# translated-by: ollama
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr ""
+msgstr "Os i paketi ažurništva"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Objektnešći sloj za rezoluciju/backend resoluciju za SeaweedFS/MinIO i provjera konzumera kocije i prekida"
 
+# translated-by: ollama
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr ""
+msgstr "Način automatskog kreiranja i aktivacije zauvek prostora kroz skript za kopiranje zauvek prostora"
 
+# translated-by: ollama
 msgctxt "role:web-svc-translate:description"
 msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
-msgstr ""
+msgstr "Iznakni se endpoint za prikazivanje engine samom sebe i preferira odbijenu ljudsku niziku"
 
+# translated-by: ollama
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
-msgstr ""
+msgstr "Otvori stranicu za izlogivanje"
 
+# translated-by: ollama
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr ""
+msgstr "Otvori stranicu za odjava i odjavi se od ostalih usluga samostalno."
 
+# translated-by: ollama
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr ""
+msgstr "Openačni platforma za rad sa prodaji, upućivanja kupaca i radni processi putem skupova koristi"
 
+# translated-by: ollama
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr ""
+msgstr "Opšteni platform CRM sa praćenjem prodaje, usluga, slučajeva i nadzora kampanjama s automatizacijom procesa"
 
+# translated-by: ollama
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr ""
+msgstr "Uprava open-source ERP za CRM, prodaju, obnove, skladište, OSO i pregled stranice web"
 
+# translated-by: ollama
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr ""
+msgstr "Otpravljacič za open-source IT i apsajtileske pozornosti sa poneimenom za upotrebu LDAP korisničke uprave"
 
+# translated-by: ollama
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
-msgstr ""
+msgstr "Otvoreni sistemska sistema za pregledit hardware i softver inventara"
 
+# translated-by: ollama
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
-msgstr ""
+msgstr "Open-source ITSM i platform za pomoćne radnike (OTRS) za tikete, CMDB, znanje bazu i raportiranje"
 
+# translated-by: ollama
 msgctxt "role:web-app-wazuh:description"
 msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
-msgstr ""
+msgstr "Otvoreni platform SIEM i XDR za monitorisanje, analizu logova, detekciju intruzije/skladanja i pravila isporuke"
 
+# translated-by: ollama
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
-msgstr ""
+msgstr "Otvoreni projektni nalogovni platform za Scrum, Kanban i hibarnirane radne vještinje vještine"
 
+# translated-by: ollama
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr ""
+msgstr "Opće izvorčeno server za CI/CD putevine, postavljanja i putevine za nalagu ploča koja su upravljene putem plugina"
 
+# translated-by: ollama
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr ""
+msgstr "Platform za komunitarnu pomoć za otvorene zvjezdove platformu za prihvaćanje, glasovanje i prioritizaciju zahteva za funkcije i ideje"
 
+# translated-by: ollama
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr ""
+msgstr "Opširni zaradnik za构築maganje sadržaja za构築konstrukcije svijeta, intrašteovi i online aplikacija bez napisivanja koda"
 
+# translated-by: ollama
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr ""
+msgstr "Pogonski BitTorrent klijent za preuzimanje i podijelu datoteka korakom preko protokola BitTorrent"
 
+# translated-by: ollama
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
-msgstr ""
+msgstr "Otvoreni forum za diskusiju i zajedničku svijetlu sa moderacijom, obaveštenjima i podrškom za dodatak"
 
+# translated-by: ollama
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr ""
+msgstr "Open-source ekonomsko platforma za e-commerce构buildana na Symfony i Vue.js za构budovanje i skaliranje elektroničkih prodavnica"
 
+# translated-by: ollama
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr ""
+msgstr "Plačalačni i tiketni sistem za otvaranje za rukovanje zahtevi od poslovnih korisnika preko e-pošte, komunicacije putem razgovora i web-u"
 
+# translated-by: ollama
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr ""
+msgstr "Osnovni učilni sistem za kreiranje, upravljanje i prevođenje online kursa i e-učenja"
 
+# translated-by: ollama
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr ""
+msgstr "Opširni izvor za monitoriranje i upozorenje za spremanje metrika kao vremenskim serijskim podacima i traženje ih s PromQL-om"
 
+# translated-by: ollama
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr ""
+msgstr "Pregledni platform za općenito demokratsko delovanje za javne preglednine, civski procesi i zajedničku glazbu"
 
+# translated-by: ollama
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr ""
+msgstr "Otpretna, sebeželjiva platforma za skupni komunikacije za večinski kolaboracije kroz kanale, hrama i integracije"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr ""
+msgstr "OpenAI-compatible LLM gateway ruteći jedan /v1 endpoint lokalnom i hostovanim modelnim backendima s per-korisnika ključima"
 
+# translated-by: ollama
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK runtime i razvojni kut za Java aplikacije na 11-baze sistemima"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
-msgstr ""
+msgstr "Paketa za klijentski klaster OpenSSH za sigurnu daleko dostupnu shell podršku i autentifikaciju na temelju ključeva"
 
+# translated-by: ollama
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
-msgstr ""
+msgstr "Optimacije servis za poboljšanje vašeg sustava"
 
+# translated-by: ollama
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
+msgstr "Optimiziranje kompajlorskog nosača za oblikovanje C, C++, i drugih prenosnih jezika programa"
 
+# translated-by: ollama
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
+msgstr "Ortensija operater za provjenu per-domena NGINX sa TLS sertifikatima, vHost šablonsima i opcionalnom OAuth2"
 
+# translated-by: ollama
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
-msgstr ""
+msgstr "Over Tor ovaj može zabrzođiti vrijeme."
 
+# translated-by: ollama
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Pacini Cikani"
 
+# translated-by: ollama
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
-msgstr ""
+msgstr "Instalacija paketa za obbuildni program GNU Make na Arch Linux koristeci Pacman"
 
+# translated-by: ollama
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
-msgstr ""
+msgstr "Paletni pokretnik za instalaciju i nadžihu Python paketa na ciljnom hostu"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
-msgstr ""
+msgstr "Per-korisnika Hermes i OpenClaw agenti po požadovanju početak na otvorenom terminalu koji je kompatibilan s OpenAI-om"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
-msgstr ""
+msgstr "Periodični pregled zdravića za izlaznu posljevežnju, posalje testni poruku kroz msmtp i upozorava na pustljenje"
 
+# translated-by: ollama
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "Persistent systemd korisničkih servisa SSH agent za Wayland desktope, s .ssh konfiguracijom susednom iz Git"
 
+# translated-by: ollama
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "Placeholder stub role za dalje XMPP poslužitelja/kontejnerne implementacije, implementacija prijevode"
 
+# translated-by: ollama
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr ""
+msgstr "Platformi za构buildanje i nadzorovanje načina kupovine na internet stranici, proizvodskih kataloga i digitalnih kanala prodaje - uključujući plaćanje, skladarsko i klijentske opcije."
 
+# translated-by: ollama
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr ""
+msgstr "Ne pojasni ovu stranicu još še."
 
+# translated-by: ollama
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
-msgstr ""
+msgstr "Pošljite ovu stranicu odabranom unutar dok se sastoji od ovoga."
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr ""
+msgstr "Plug-ovlovani systemd backup za dvojne povezanosti deduplirani snimci hard-linka lokalne tree backup na pottivni USB medjal"
 
+# translated-by: ollama
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr ""
+msgstr "Politika pregledanju brskara za desktop Arh Arch Linux s automatskim instalisanjem područnih dopunaca"
 
+# translated-by: ollama
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr ""
+msgstr "Istaknut konfiguraciji systemd logind za previše kompajlnu konfiguraciju sistema za presječeno izlazak sa kaptaonice prema bateriji, električnom snijegu i usrednjenoj poziciji"
 
+# translated-by: ollama
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
-msgstr ""
+msgstr "Pravilniški društveni platforma za obitelji, federirajući se postradavajući sastraj korijeniran na WebRTC na uključenom store SQLite"
 
+# translated-by: ollama
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr ""
+msgstr "Privijevnjak za prekrivanje i usavršen konfiguracija sudoera s podrškom za /etc/sudoers.d"
 
+# translated-by: ollama
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr ""
+msgstr "Projektiranje"
 
+# translated-by: ollama
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr ""
+msgstr "Nastaveleme projektni sustave"
 
+# translated-by: ollama
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr ""
+msgstr "Proprietary GPU driver installer za Arch-bazirane sustave kroz mhwd nefrih hardware detekciju"
 
+# translated-by: ollama
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
-msgstr ""
+msgstr "Provisioning role za wildcard DNS records (*.parent) na parent hostov in temeljno domenah"
 
+# translated-by: ollama
 msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
-msgstr ""
+msgstr "Provisioniranost ulaza u radni sustav za racunarsku logju sa svojim datotekama shell, ključima SSH i okruženjem"
 
+# translated-by: ollama
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr ""
+msgstr "Provisioning role za per-korisničko okruženje postavki, upravljanje shell dot failovima i SSH authorized_keys"
 
+# translated-by: ollama
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr ""
+msgstr "Proxy Serveri"
 
+# translated-by: ollama
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
-msgstr ""
+msgstr "Poučak REST API za serviranje rolenih podataka, istorije i prevoda Infinito.Nexus za svaki ref core i njegovih forkova"
 
+# translated-by: ollama
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Public vhost koji uključuje System One postojeće API svc-ai-s1"
 
+# translated-by: ollama
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Pull-tihod cache za povezivaće paketa - proxy repozitorijumi i TLS prekida koja odgovara za njih."
 
+# translated-by: ollama
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr ""
+msgstr "Python CLI pakacni omiljani za klonovanje više kodnih repozitorija i automatsko izvršavanje zvanih Git operaženja"
 
+# translated-by: ollama
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr ""
+msgstr "Izdelni pinovi za GitHub-release lint poslužiteljeve upravljalni kanal instalira"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr ""
+msgstr "Reparacija"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
-msgstr ""
+msgstr "Repair i vraćanje uloge – rukovanje hard/soft vraćanjem Docker-a, balancerima Btrfs-a i drugih nizkih sistema rješenja."
 
+# translated-by: ollama
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "Razvijeni Git pull predimjer za snježne kopije, odlazne sigurne azur enci, oznaka peštica i tačno obličenje promjena"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr ""
+msgstr "Povrsniječeni per-providera MCP adapter ispolužljivog prilagodila koji izdvaja ograničenu prikaznu površinu"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
-msgstr ""
+msgstr "Reverse proxy vrhiva za Docker-ovima hostiranih servisa s automatskim sužavanjem TLS, podrškom za WebSocket i per-aplikacni vHost pretprostaraњa"
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr ""
+msgstr "Revers-proxy TLS orchesterinačni sloj kojeg odabraće provizorične certifikate Let's Encrypt, sjedišni certifikati ili otklošeni provizorični certifikatori za Nginx"
 
+# translated-by: ollama
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
-msgstr ""
+msgstr "Role reverse-proxy za routiranje i naslag-balansiranje putem zadatki backend servisa"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr ""
+msgstr "Položke za čišćenje različnih sistema resursa – stari napravi, nepotrebni potvrđiva, temporalni fajlovi, vaskule Docker, disk cache, istarani domine, i više."
 
+# translated-by: ollama
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Roleovi za instalaciju i konfiguraciju hardverskih driverova - pokretnica, grafičke procesore, predlopte i dr. podršku."
 
+# translated-by: ollama
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
-msgstr ""
+msgstr "角色 za upravljanje web infrastrukture - koordinirajući statične sadržaje i podrživajuće web aplikacije."
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Role za sistemski monitoriranje i zdravlje provjeri – uključujući bot-stil automatske provjere i značajne donji-level monitori za logove, kontejnere, korišćenje diska i mnogo više."
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr ""
+msgstr "SAN-ovljenog provjerioca provjerekcije generiranja i snage snagljenih TLS provjerekcija za prekojevnu TLS sloju"
 
+# translated-by: ollama
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
-msgstr ""
+msgstr "SMTP gateway koji sluzi za podeljivanje .onion obaviteva kroz SOCKS listener Tor-a"
 
+# translated-by: ollama
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr ""
+msgstr "Promocija"
 
+# translated-by: ollama
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr ""
+msgstr "Sandboxirani rundumi"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr ""
+msgstr "Naplanihnjena zadnja radnja za hard-linkane razlikevi rsync snakematke za NFS iznosu u lokalni snimacki tree"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
-msgstr ""
+msgstr "Planirani uredušni alat za odbijanje i obrišivanje neobavljenih certifikata Let's Encrypt"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr ""
+msgstr "Naplata zaporne korekcije za host skrivnike, CA, ACME pristupačne i simbota u lokalnoj korištenom direktoriju"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr ""
+msgstr "Naplatan popisni deduplikatorne dopravljajući sistem za kontejnerni podnosa vasega, s usninjanim dumpima SQL-a"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr ""
+msgstr "Scheduled health check crawling konfigurirani domen za CSP-obzranjene resurse kroz Node.js kontrolu koristeći se na skriptimeer temeljnom"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
-msgstr ""
+msgstr "Nagljen za zaštitni zdravstven pregled za filesysteme Btrfs koji odziva na četirične pogrešne kontora za devidju"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
-msgstr ""
+msgstr "Nadnastiran posao za proučavanje zaporne zavisnosti za filesystem disk, upozorenje kada bilo koji mount poexcedi važni granicni nivo"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
-msgstr ""
+msgstr "Snatični pregled bolje sistema skenira journale systemd za dnevne pogreške i osvežava se sponzira preko podudaranja"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
-msgstr ""
+msgstr "Planiranog pregled HTTP statusa svakog NGINX domena koji se provjerava i obavijesti na premahu"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
-msgstr ""
+msgstr "Naplata servisa za otkrivanje i uklanjanje neresiljenih napada sa Docker backup-ima, dok se trenutne set-ovi ostaju navrhnuti"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
-msgstr ""
+msgstr "Naplacani zadatak za obnavljavanje prostora na disku za prijevodovanje pohrana namiraka i preklapanja susednih namiraka koji su iskoristivani nekoliko puta"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr ""
+msgstr "Naplaceno naplanično snimanje datoteka po SSH i rsync-om kao sklopljene snimke"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
-msgstr ""
+msgstr "Nastavljen systemski tijek za prune vanjskih kopija kad poluovanje nadisku prepreče predvidjenom granice"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr ""
+msgstr "Planiran systemd sausag i vrijeme za rebalansiranje Btrfs fajlskupina kako bi se stotina alokacije optimalizirala"
 
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr ""
+msgstr "Sustav za autodeklasiranje CI infrastrukture za izvršavanje zadaca workflow-a GitHub Actions u epheškim Docker kontejnerima"
 
+# translated-by: ollama
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr ""
+msgstr "Self-hosted DevOps platform za Git kodoši upravljanje, pipelines CI/CD i pitanja traženja"
 
+# translated-by: ollama
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr ""
+msgstr "Svojstveni Fediverse zbirak za prikazavanje nedavnih javnih postova po hastag-u ili računu u živoj masonry gradi"
 
+# translated-by: ollama
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr ""
+msgstr "Slobađan GitHub Akcija kreiranih runda podrške i konfiguracija"
 
+# translated-by: ollama
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr ""
+msgstr "Pogonici HTML5 igračica za pregled i pokretanje ligtanim motora dema i igara u pregledniku"
 
+# translated-by: ollama
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
-msgstr ""
+msgstr "Svjedben LDAP dijagorni uslugeć za centraliziranu upotrebinju, skupinu i schema pregleda s sigurnim pristupom prema TLS"
 
+# translated-by: ollama
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr ""
+msgstr "Self-hosted S3-kompatibilni objektni snage za datume, mediјe, naprave i AI artefakti"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr ""
+msgstr "Self-hosted System One klasterizator koji odgovara pisanim pitanjima tako da galetara puteva porukovoditi bez generisanja"
 
+# translated-by: ollama
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr ""
+msgstr "Središnji poslužitelj URL skracnika za krištenje, prateanje i upravljanje maličnim odlukama s ugrađenim analitikom klikova"
 
+# translated-by: ollama
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr ""
+msgstr "Sloborni platform za end-to-end-ukrastljenu video konferenciju s federiranim autentificacijom"
 
+# translated-by: ollama
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "Sloborni pregledni računaločni alat za generiranje QR koda s tekstom ili URL-ovima s lokalnim prikaživanjem privatnog važenja"
 
+# translated-by: ollama
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "Self-hosted chat interface za interakciju s lojalnim i privatnim AI modelima preko načina upravljanja takvimiškim kao Ollama"
 
+# translated-by: ollama
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr ""
+msgstr "Svijetljačni cloud platform za snimanje datoteka, dijeljenje, spremanje u većini vremena kolaboraciju i tamske radne mreže prema vašem domenićnom domeni"
 
+# translated-by: ollama
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr ""
+msgstr "Slobarni rešivači za synchronizaciju datoteka, kooperaciju i podijeljivanje podataka."
 
+# translated-by: ollama
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
-msgstr ""
+msgstr "Sredihostiran decentralized slobodni središni sajt na koncu AT Protokolu sa svojim svojim Mjestem Ljubitelja Posla"
 
+# translated-by: ollama
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr ""
+msgstr "Sloborni platform za dizajn i prototipovanje za rad na UI/UX, snimljeno spoljava i prenosa razvijatelja"
 
+# translated-by: ollama
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
-msgstr ""
+msgstr "Središnji poslodavanji e-komercni platforma za katalogiranje, proveru, ponuda i višestorni online trgovinu"
 
+# translated-by: ollama
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr ""
+msgstr "Sredihostirani enterprezentalni wiki i platforma za nadzor i smještanje sa koštenkom i dodataka na temelju aplikacija"
 
+# translated-by: ollama
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "Svjetaća federativno pregledna platforma za književne ocene i pregledivanje na Fediverseu"
 
+# translated-by: ollama
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr ""
+msgstr "Sredihostirani federisani društveni snimak za mikroblogiranje, trenutne kronike i pregledavanje zajedničkih komunitama"
 
+# translated-by: ollama
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr ""
+msgstr "Sredihostovan platform za identitet i pristupačnost s jednom logovanjem, višestaljnim provjerama rešetke i federacije korisnika"
 
+# translated-by: ollama
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr ""
+msgstr "Sloborni platform za automatske automatizacije za spajanje servisa i构建工作流集成視覺化"
 
+# translated-by: ollama
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
-msgstr ""
+msgstr "Self-hosted mail server suite s SMTP/IMAP/POP3, webmail, filtriranje spama, antivir, potpisivanje DKIM i TLS"
 
+# translated-by: ollama
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr ""
+msgstr "Sredihostirani server za prenos i organizaciju filmova, TV, muzike i fotografija, sa prijavom kroz OIDC i LDAP"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "Sjever za samopohranjenu radnju opšte LLM-a za rad na lokalnom počtu putem simple HTTP API"
 
+# translated-by: ollama
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "Sloborni nekodebarna platforma sa izravnom sučeljem sa interfejsimi spremljanja in spoljbežnega dela z podatki"
 
+# translated-by: ollama
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Središnji poslužitelj online ofisne backend za live prikazivanje dokumenta, tablica i prezentacija u prozoru uređivačkog računa"
 
+# translated-by: ollama
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr ""
+msgstr "Sredihostovani otvoreni ERP kombinaciju za finansije, CRM, naročnice, proizvodnja, izobražavanje, prodaja i projekti"
 
+# translated-by: ollama
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "Self-hosted open-source machine translation API za prešifriranje i detektiranje teksta po jezicima"
 
+# translated-by: ollama
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "Self-hosted privni AI agent otvorac s kontrolnim IU za brskovalnu okruženju, zabranjenjem u microVM-u KATA ili runtime gVisor-a"
 
+# translated-by: ollama
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr ""
+msgstr "Self-hostani platform za snimanje datoteka, deljenje i koordinaciju s Keycloak SSO i centralnom LDAP direktorijem"
 
+# translated-by: ollama
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr ""
+msgstr "Sloborni platform za novinare i listove s segmentacijom posiljača i analitika kampanja"
 
+# translated-by: ollama
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
-msgstr ""
+msgstr "Središnji hostiran platform za online računanje, odnosanje i pregled finansijskih poslova"
 
+# translated-by: ollama
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr ""
+msgstr "Središnji hostovan platform za upravljavanje projekta, prilagodljivost delova, planiranje Gantta i komunikaciju tima"
 
+# translated-by: ollama
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr ""
+msgstr "Sloborni portal za zajedničko pristup svega napravljenim aplikačnim dijelovima kroz dostupno tvrtkovu ikonu i rubrični interfejs"
 
+# translated-by: ollama
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr ""
+msgstr "Slobodno poslušni platforma za poslovanje tiketa za događaje s virtualnim prodatim tiketima, pregledom registracija i sigurnim plaćanjem"
 
+# translated-by: ollama
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr ""
+msgstr "Sloborni platform za virtualne predaje materice, online zasedbe in trenutna spoljba"
 
+# translated-by: ollama
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr ""
+msgstr "Sredihostovan, federiran platforma za prodaju, objavljivanje i streamiranje svoje muzičke i audio biblioteke"
 
+# translated-by: ollama
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr ""
+msgstr "Slobarisan, privatno web analitički platforma za trenutno prikazivanje gostova i metričke informacije stranica"
 
+# translated-by: ollama
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr ""
+msgstr "Server Administracija"
 
+# translated-by: ollama
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr ""
+msgstr "Optimiranje usluga"
 
+# translated-by: ollama
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "Nagradačni komponenti za servisnu veličinu spremnog i vraćanja - rukovanje automatskim snimcima podataka, zemljinskim spremnima, uslugu skeniranja i nagradačni komponenti za orchestriranje spremnog prema bazi podataka, datotekama i kontejnerima."
 
+# translated-by: ollama
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr ""
+msgstr "Sluzbe"
 
+# translated-by: ollama
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr ""
+msgstr "Sluzbe"
 
+# translated-by: ollama
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr ""
+msgstr "Skupni Pohrānica"
 
+# translated-by: ollama
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr ""
+msgstr "Hosted host odzravenje obaveštenje instalacije OpenSSL CLI jednokratno za roli koje invaze komandom OpenSSL"
 
+# translated-by: ollama
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr ""
+msgstr "Sjedenja poruka poslužitelja za asynchronsku poručivanje sa per-poručnika virtualnim pojamškom i otkrivljivim korisnicima"
 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Srednja premisara svake desktop role, tačno su konto za prijave i fajlove pripadajujo onome"
 
+# translated-by: ollama
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr ""
+msgstr "Složeni referentni bazni uređaj za aplikacije koji obaveznim treba centralnu SQL snimanju, pokrenut u Docker"
 
+# translated-by: ollama
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr ""
+msgstr "Odjava na svijetu."
 
+# translated-by: ollama
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr ""
+msgstr "Izljenut, uključeno u {failed} od {total} usluga."
 
+# translated-by: ollama
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr ""
+msgstr "Izlazim od vaših usluga…"
 
+# translated-by: ollama
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "Single-user ActivityPub bookmarking site koordinirajujo publike bookmarkove sa Mastodon in Fediverse"
 
+# translated-by: ollama
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr ""
+msgstr "Sastavak značajke za dom automatskega uporabnega lika s podjetniškimi integracijami, stručnjavami in ustreznim MCP spletnim serverjem za dostop do AI agenta"
 
+# translated-by: ollama
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr ""
+msgstr "Sociale Medijeri"
 
+# translated-by: ollama
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr ""
+msgstr "Sredstva za društvene medije"
 
+# translated-by: ollama
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr ""
+msgstr "Software razvojne užiljeće"
 
+# translated-by: ollama
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "Sovereign otkrozni platforma za obnovljive video konferencije za zvučne/video komunicacije, prikaza ekra, izloživa sobe i oteženo prijavljivanje"
 
+# translated-by: ollama
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr ""
+msgstr "Stak"
 
+# translated-by: ollama
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
-msgstr ""
+msgstr "Nivo nivo za podešavanje servera"
 
+# translated-by: ollama
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
-msgstr ""
+msgstr "Static content servers (službe sadržaja, HTML, legalne datoteke)"
 
+# translated-by: ollama
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr ""
+msgstr "Statični server za fajlove na HTTPS sa popisom direktorija i obradjivanjem .well-known i automatiziranim certifikatima TLS"
 
+# translated-by: ollama
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "Static središnji generator stranica构建HTML iz上游Git repozitorija prijeviš time i ga sluja u via nginx"
 
+# translated-by: ollama
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr ""
+msgstr "Skladanka"
 
+# translated-by: ollama
 msgctxt "category:sys:title"
 msgid "System"
-msgstr ""
+msgstr "/system"
 
+# translated-by: ollama
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr ""
+msgstr "Sjeverni Pomoćnici System"
 
+# translated-by: ollama
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
-msgstr ""
+msgstr "Sistemni konfiguracijski role za postavku i generisanje lokacija kroz locale.gen i locale.conf predmeta"
 
+# translated-by: ollama
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
-msgstr ""
+msgstr "Konfiguracija sistemskog hostname odvojena od entiteta hosta iz invenčnog entiteta"
 
+# translated-by: ollama
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
-msgstr ""
+msgstr "Sistem oko komponenta. Bije automatski pozvano ako je potrebno drugim rolama."
 
+# translated-by: ollama
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
-msgstr ""
+msgstr "Rol za obnovljenu indekske liste paketa i poslužavanje ispunjenih paketa kroz OS paketi managerskirovanje"
 
+# translated-by: ollama
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr ""
+msgstr "Sistemni komandomjev interfejs za upute i rad na cijelom svom poslovnom okruženju koje se hostira na lokalnoj mreži iz grčkice shell-a"
 
+# translated-by: ollama
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr ""
+msgstr "Sistemni pip pomoćnik za instalaciju ili nadogradnju Python paketa kroz hostov sistemni Python"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Systemd service i timer za snimanje sertifikata Let's Encrypt u Docker Compose NGINX stackovima s hot-reloadom"
 
+# translated-by: ollama
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr ""
+msgstr "Timer jednačina za početak usluge na zvjezdnoj kalendarskoj schedule za automatsku izvrsavanje zadatka"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr ""
+msgstr "Service za obriživanje pokretani na temelju Systemd koji obrađuje anonsirane Docker vodeće, uzimaša slike, kontejnere, mreže i pohranu za proizvodnju"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "Systemd-organiziran posao za punjbe full Docker Compose sklop ponovnih restarta s trčnim restartima za sklope ljudi Mailu"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr ""
+msgstr "Systemski vremenski monitorn za otkrivanje nezdravih ili nepromirenih kontejnera Docker i površinje porazvoke upozorenja"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr ""
+msgstr "Systemd-ovjedrani msmtp upozornitelj za slanje poruka operaterima kada podržan servisni jedinica zavrtne"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "Systemd-požagavač za slanje oznaka oporovanja usluga za Telegram komponentu"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Terminal coding agent od Anthropic, pokazan na platformsku本身的模型引導 Gateway umjesto proizvođača API"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Terminal coding agent od OpenAI, odredište na platformsku svojinsku suslijdu umjesto provdora API"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
-msgstr ""
+msgstr "Terminacijni upitnik za GNOME desktop, dajući pristup komandi na Arh Linux radnijevima"
 
+# translated-by: ollama
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr ""
+msgstr "Komentolokski editor za tekstove sastupiti sa modernim klavesnim bindingima i sintakskim otkrivanjem za sastupiteljeve sa sestave Pacmana"
 
+# translated-by: ollama
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
-msgstr ""
+msgstr "Testnačin za rad koji izvršava konzolne komandi testne skripte za rodle koje declariju testni okvirni skriptu"
 
+# translated-by: ollama
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr ""
+msgstr "Točno važi oveveć nekoliko sekundi."
 
+# translated-by: ollama
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
-msgstr ""
+msgstr "Trijanje role poslane Docker volume na SSD ili HDD po vrsti zadataka, s simboličkim linkovima pomenčajući putove konzistentnim"
 
+# translated-by: ollama
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr ""
+msgstr "Ikona za Python izvještavanje, razvoj aplikacija i nauka sa podacima na Linux"
 
+# translated-by: ollama
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
+"Instruči\n"
+"---\n"
+"\n"
+"Não está no texto que você forneceu o termo \"Tools\" que precisa ser traduzido para croata. Portanto, não há nada para traduzir."
 
+# translated-by: ollama
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr ""
+msgstr "Nekretnici za identitet i pristup, uključujući autentifikaciju, priredivanje korisnika i sigurno pristup kontrolu."
 
+# translated-by: ollama
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr ""
+msgstr "Nastaveleme za komunikaciju"
 
+# translated-by: ollama
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
-msgstr ""
+msgstr "Nagradaštve za elektronske poslove, odnos s zajamcev, automatisacije in workflowi za digitalno poslovevsko naravnoanje."
 
+# translated-by: ollama
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
-msgstr ""
+msgstr "Nástaveci za invenčiju, traženje i nadzor hrani i softvera poslovnih značajki na vašoj organizaciji."
 
+# translated-by: ollama
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr ""
+msgstr "Neki za upravljanje zajednice"
 
+# translated-by: ollama
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-msgstr ""
+msgstr "Ovoće za mjerenje, vizualizaciju i opterećivanje web stranica te iskustva korisnika koristeći područnja iskrišine."
 
+# translated-by: ollama
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
-msgstr ""
+msgstr "Ogrnuti servere spuštanjem"
 
+# translated-by: ollama
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
+"Tor daemon pošalje node kao viseću onausne usluge \n"
+"3"
 
+# translated-by: ollama
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
-msgstr ""
+msgstr "Kliena i pokretnika za anonimno i određeno prijave u web-u"
 
+# translated-by: ollama
 msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
-msgstr ""
+msgstr "Tražilica za opremom, glossariji i ljudskom provjerenom procesom unutar prilikom prevođenja greškog puta"
 
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr ""
+msgstr "Jedinstvena systemd upozorenja upućuju uslugu provjere provjera kroz oba kanala za posluživač Telegram i elekronične pošte"
 
+# translated-by: ollama
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr ""
+msgstr "Ažuriranje i Obaveze Pregleda"
 
+# translated-by: ollama
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
-msgstr ""
+msgstr "Pogledajte podnajmi linkove za odjave od svog svojeg."
 
+# translated-by: ollama
 msgctxt "logout:stalled_hint"
 msgid "Use the links below to sign out of the services still listed."
-msgstr ""
+msgstr "Prijavite se koristeći ovdje punjene linkove za odjava iz nadjenih servisa."
 
+# translated-by: ollama
 msgctxt "menu:User Management:title"
 msgid "User Management"
-msgstr ""
+msgstr "Administracija Korisnika"
 
+# translated-by: ollama
 msgctxt "category:user:description"
 msgid "User accounts & access control"
-msgstr ""
+msgstr "Korisnici i kontrola pristupa"
 
+# translated-by: ollama
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr ""
+msgstr "Korisnici i pristup"
 
+# translated-by: ollama
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
-msgstr ""
+msgstr "Klijent za preglednike za individualno radno mjesto, preconfigirani s identiteter, potpisima i predviđanimi nadmaćima"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr ""
+msgstr "Verznamačani layout trojnika kartica za prenos s CDN s zajedničkim, proizvođačkim i per-role direktorijumima"
 
+# translated-by: ollama
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
-msgstr ""
+msgstr "Visual Studio Code editor za rad u izaberenoj razini, koji odražava dopustne zahteva odgovornih zrakoploava koje host odražava"
 
+# translated-by: ollama
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr ""
+msgstr "Webstruktura"
 
+# translated-by: ollama
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "Web UI i API za pokretnost Ansible, Terraform/OpenTofu i shell automatisacije na zadnjem poziciju ili na voljan poziciju"
 
+# translated-by: ollama
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr ""
+msgstr "Web prikas za uređivanje LDAP direktorija: upravljanje korisnicima, skupovima i drugim obliki direktorija"
 
+# translated-by: ollama
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr ""
+msgstr "Web-skaljni LDAP administrativni interfejs za upravljanje korisnicima, grupe i direktorijuma objekata"
 
+# translated-by: ollama
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr ""
+msgstr "Webne LDAP klijent za pregledavanje, pretraživanje i upoadmirevanje podataka u LDAP serverima"
 
+# translated-by: ollama
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "Webni administracni i razvojni platforma za upravljanje više PostgreSQL servera sa opcijom OAuth2 prijava"
 
+# translated-by: ollama
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr ""
+msgstr "Webnošno administracijski alat za MySQL i MariaDB sa oblikovanjem schema, upitnjom i uvozom/izvozom"
 
+# translated-by: ollama
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr ""
+msgstr "Optimizacija servera"
 
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr ""
+msgstr "Mekanika staketa i dozvole za parovnu porta za razvoj Arduino potele na Linux системе"
 
+# translated-by: ollama
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
-msgstr ""
+msgstr "Role oge za idempotentne pakcage instalacije i ažuriranja kroz universalni pakacen managere pkgmgr"
 
+# translated-by: ollama
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr ""
+msgstr "Možete za zatvoriti ovu stranicu sada."
 
+# translated-by: ollama
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr ""
+msgstr "izlaznilo"
 
+# translated-by: ollama
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr ""
+msgstr "nftables paket filter koji su pravila jednoznacno uzivaju za svaki od ulaza i pojavljaju se ponekad pri pokretanju sistema"
 
+# translated-by: ollama
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr ""
+msgstr "Ne potvrđeno"
 
+# translated-by: ollama
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr ""
+msgstr "izlazite rukoteški"
 
+# translated-by: ollama
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr ""
+msgstr "izlazao"
 
+# translated-by: ollama
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr ""
+msgstr "izlazak"
 
+# translated-by: ollama
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr ""
+msgstr "{done} od {total} usluga sijekuše"
 

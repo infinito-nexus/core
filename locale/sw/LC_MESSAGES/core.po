@@ -114,9 +114,6 @@ msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker
 # translated-by: libretranslate
 # Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
 # mizani ya mzigo
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Jukumu la Automation kwa reverse DNS (wa wa wa wa)
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -328,9 +325,6 @@ msgstr "Jumuiya ya Jumuiya"
 # logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
 # Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 # gained=['sub_filterTumia']
-# translation-refused: libretranslate protected-span lost=['sub_filter']
-# nocheck: url
-# translation-rejected: Majukumu ya sindano ya HTML (CSS, JS, uingizaji wa
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -387,9 +381,6 @@ msgstr "Usimamizi wa Maudhui"
 
 # translated-by: libretranslate
 # ya kuchapisha mtandao
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -455,9 +446,6 @@ msgstr "Uhusiano wa Wateja"
 # translated-by: libretranslate
 # kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
 # msaada.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -1090,9 +1078,6 @@ msgstr "Hifadhi ya DNS ya mtandao kwa kuzuia matangazo na trackers katika vifaa 
 
 # translated-by: libretranslate
 # zote logout kwa centralized OIDC moja ishara-nje mwisho
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""

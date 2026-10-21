@@ -407,9 +407,6 @@ msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance
 msgstr "HTTP 및 TCP / UDP 스트림 지원 및 성능 조정 기본이있는 Core NGINX 웹 서버"
 
 # owner
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: `design` `design` service flag `design` configuration
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
@@ -661,9 +658,6 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 
 # translated-by: libretranslate
 # rule-validated games over ActivityPub 건너편 Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Federated chess server for playing and following
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr ""
@@ -1050,9 +1044,6 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 
 # translated-by: libretranslate
 # HTTPS with automatic Let's Encrypt 인증서
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: NGINX vhost for serving static HTML websites over
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1389,9 +1380,6 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API 서빙 역할 데이터, 역사 및 번역 Infinito.Nexus 핵심과 그것의 포크의 각 ref를 위해"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Public vhost that exposes the System One decision API
 # of svc-ai-s1
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
@@ -1655,9 +1643,6 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 
 # translated-by: libretranslate
 # and reading tracking throughout the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted federated reading platform for book review
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1903,9 +1888,6 @@ msgid "System Frontend Helpers"
 msgstr "시스템 Frontend 헬퍼"
 
 # locale.conf 파일 형식
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: System configuration role for setting up and
 # generating localesvia locale.gen and locale.conf templates System
 # configuration role for setting up and generating localesvia locale.gen and
 # locale.conf templates
@@ -2146,9 +2128,6 @@ msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "LDAP 서버에서 검색, 검색 및 관리 디렉토리 항목을 위한 웹 기반 LDAP 클라이언트"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Web-based administration and development platform for
 # managing multiple PostgreSQL servers, with optional OAuth2 login ---
 # ตัวแปรฐาน Web ที่สามารถจัดการเซิร์ฟเวอร์หลายเซิร์ฟเวอร์ได้
 # พร้อมด้วยการเข้าถึง OAuth2 ที่เป็นไปได้

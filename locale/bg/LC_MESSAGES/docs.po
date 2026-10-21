@@ -109,9 +109,6 @@ msgstr ""
 
 # translated-by: libretranslate
 # docker-version
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: # nocheck: shared, email # nocheck: url,
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
 msgstr ""
 
@@ -2557,16 +2554,10 @@ msgid "**Deploy on an Encrypted Server** You SHOULD install Infinito.Nexus on an
 msgstr "**Активиране на криптиран сървър** Трябва да инсталирате Infinito.Nexus на криптиран сървър за предотвратяване на достъпа на доставчиците на хостинг до данните на крайния потребител. За практическо ръководство за създаване на криптиран сървър, вж. [Hetzner Arch LUKS хранилище](https://github.com/kevinveenbirkenbach/hetzner-arch-luks) 🔐. (Научете повече за [шифроване на диск](https://en.wikipedia.org/wiki/Disk_encryption) в Уикипедия.)"
 
 # "Предизвикателство и пренасочване" ``sys-svc-letsencrypt``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Разгръщане** {\cH00D8FF}Натиснете бутона
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from ``sys-svc-letsencrypt``."
 msgstr ""
 
 # "Предизвикателство и пренасочване" `sys-svc-letsencrypt`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Разгръщане** {\cH00D8FF}Натиснете бутона
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from `sys-svc-letsencrypt`."
 msgstr ""
 
@@ -2725,9 +2716,6 @@ msgstr "**Описание:** Клъстер-местни прокси кеш з
 # translated-by: libretranslate
 # for shared Docker Hub base-image pulls, cut duplicate transfers and rate
 # limits
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Cluster-local local pull-through cash
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
 
@@ -2769,9 +2757,6 @@ msgstr "**Описание:** Система за управление на съ
 
 # translated-by: libretranslate
 # TCP/UDP stream support and performance-tunned defaults
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Core NGINX webserver with HTTP and
 msgid "**Description:** Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
 
@@ -2889,9 +2874,6 @@ msgstr "**Описание:** Enterprise wiki и платформа за сът�
 
 # translated-by: libretranslate
 # editor for terminal-drived code and configuration editing
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Extensible Vim-based command-line text
 msgid "**Description:** Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
 
@@ -3013,9 +2995,6 @@ msgstr "**Описание:** Платформа за проследяване �
 
 # translated-by: libretranslate
 # running server-side applications and developer tooling
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** JavaScript runtime for building and
 msgid "**Description:** JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
 
@@ -3475,9 +3454,6 @@ msgstr "**Описание:** Self-hosted чат интерфейс за вза�
 # translated-by: libretranslate
 # sync, shareing, real-time cooperation, and team workspaces under your own
 # domain
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Self-hosted cloud platform for file
 msgid "**Description:** Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
@@ -3499,9 +3475,6 @@ msgstr "**Описание:** Самостоятелно предприятие 
 
 # translated-by: libretranslate
 # for book reviews and reading tracking over the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Self-hosted federated reading platform
 msgid "**Description:** Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
 
@@ -3583,9 +3556,6 @@ msgstr "**Описание:** Self-hosted, federated платформа за с�
 
 # translated-by: libretranslate
 # platform for real-time visit tracking and site metrics
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Self-hosted, privacy-first web analytics
 msgid "**Description:** Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
 
@@ -3763,9 +3733,6 @@ msgstr "**Описание:** Workstation настройка за Docker и Dock
 
 # translated-by: libretranslate
 # permissions for Arduino board development on Linux
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Описание:** Workstation toolchain and series-port
 msgid "**Description:** Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""
 
@@ -6943,9 +6910,6 @@ msgstr "**Местни във всички издания** (включител�
 # ``tasks/main.yml`` - Да. ``create-profile`` за нов профил,
 # ``update-profile`` за да зададете паролата, когато вече е създаден от
 # федериран вход; капанът за ботуши се пропуска под OIDC.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Native** местния имейл / парола вход е *off* След
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the ``sso`` service flag. ``PENPOT_FLAGS`` renders ``enable-login-with-password`` / ``disable-login-with-password`` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the ``administrator`` profile via the backend PREPL (``enable-prepl-server``) in ``tasks/main.yml`` — ``create-profile`` for a fresh profile, ``update-profile`` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
@@ -6958,9 +6922,6 @@ msgstr ""
 # `tasks/main.yml` - Да. `create-profile` за нов профил, `update-profile` за
 # да зададете паролата, когато вече е създаден от федериран вход; капанът за
 # ботуши се пропуска под OIDC.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Native** местния имейл / парола вход е *off* След
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS` renders `enable-login-with-password` / `disable-login-with-password` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the `administrator` profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` — `create-profile` for a fresh profile, `update-profile` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
@@ -9136,9 +9097,6 @@ msgstr ""
 # мястото, където е OIDC. Native администратор е обувка и LDAP самостоятелно
 # предоставяне без него. ``PENPOT_FLAGS`` amount in units (real)
 # ``enable-registration`` / ``disable-registration`` Съответно.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Саморегистрация** е *на* когато OIDC е активиран и
 msgid "**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also derived from the ``sso`` service flag. Penpot routes first-time OIDC logins through the registration path (a disabled flag makes the callback fail with ``?error=registration-disabled`` for not-yet-provisioned users), so registration must stay on wherever OIDC is. Native admin is bootstrapped and LDAP self-provisions without it. ``PENPOT_FLAGS`` renders ``enable-registration`` / ``disable-registration`` accordingly."
 msgstr ""
 
@@ -9149,9 +9107,6 @@ msgstr ""
 # OIDC. Native администратор е обувка и LDAP самостоятелно предоставяне без
 # него. `PENPOT_FLAGS` amount in units (real) `enable-registration` /
 # `disable-registration` Съответно.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Саморегистрация** е *на* когато OIDC е активиран и
 msgid "**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also derived from the `sso` service flag. Penpot routes first-time OIDC logins through the registration path (a disabled flag makes the callback fail with `?error=registration-disabled` for not-yet-provisioned users), so registration must stay on wherever OIDC is. Native admin is bootstrapped and LDAP self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` / `disable-registration` accordingly."
 msgstr ""
 
@@ -11154,9 +11109,6 @@ msgstr "**описание**: All-in-one Stalwart пощенски сървър 
 
 # translated-by: libretranslate
 # per-user apply signons in a local YAML store
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Ansible helper role for idempotent
 msgid "**description**: Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
@@ -11219,9 +11171,6 @@ msgstr "**описание**: Central loader роля за поръчване н
 # translated-by: libretranslate
 # action sign-out all OIDC-linked apps, with Nginx snippets and a live status
 # UI
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Central logout prospective for single-
 msgid "**description**: Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr ""
 
@@ -11280,9 +11229,6 @@ msgstr "**описание**: Cluster-local прокси кеш за пакет 
 # translated-by: libretranslate
 # shared Docker Hub base-image pulls, cuting duplicate transfers and rate
 # limits
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Cluster-local pull-through cash for
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
 
@@ -11440,9 +11386,6 @@ msgstr "**описание**: Enterprise wiki и платформа за сът�
 
 # translated-by: libretranslate
 # editor for terminal-drived code and configuration editing
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Extensible Vim-based command-line text
 msgid "**description**: Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
 
@@ -11564,9 +11507,6 @@ msgstr "**описание**: Платформа за проследяване �
 
 # translated-by: libretranslate
 # running server-side applications and developer tooling
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: JavaScript runtime for building and
 msgid "**description**: JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
 
@@ -12013,9 +11953,6 @@ msgstr "**описание**: Самостоятелно Hosted URL скъсяв
 
 # translated-by: libretranslate
 # to-end-recopyable video conferencecing with federated authority
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Self-hosted WebRTC platform for end-
 msgid "**description**: Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr ""
 
@@ -12030,9 +11967,6 @@ msgstr "**описание**: Self-hosted чат интерфейс за вза�
 # translated-by: libretranslate
 # sync, shareing, real-time cooperation, and team workspaces under your own
 # domain
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Self-hosted cloud platform for file
 msgid "**description**: Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
@@ -12054,9 +11988,6 @@ msgstr "**описание**: Самостоятелно предприятие 
 
 # translated-by: libretranslate
 # for book reviews and reading tracking over the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Self-hosted federated reading platform
 msgid "**description**: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
 
@@ -12090,9 +12021,6 @@ msgstr "**описание**: Самостоятелно избрана безк
 
 # translated-by: libretranslate
 # real-time in-browser editing of documents, electables, and presentations
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Self-hosted online office backend for
 msgid "**description**: Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -12142,9 +12070,6 @@ msgstr "**описание**: Self-hosted, federated platform for share, hosting
 
 # translated-by: libretranslate
 # platform for real-time visit tracking and site metrics
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Self-hosted, privacy-first web analytics
 msgid "**description**: Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
 
@@ -12322,9 +12247,6 @@ msgstr "**описание**: Workstation настройка за Docker и Dock
 
 # translated-by: libretranslate
 # permissions for Arduino board development on Linux
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **описание**: Workstation toolchain and series-port
 msgid "**description**: Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""
 
@@ -12378,9 +12300,6 @@ msgstr "**dsk-gnome-terminal:** Инсталиране GNOME TerminalОфици�
 # прилагане на отложеното `KC_HOSTNAME` Лук-портал за Keycloak това беше
 # свалено от по-ранния пакет, защото е необходимо само след като съществува
 # двойно семейство.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **доставчици на двойно семейство** год. На възел на CI
 msgid "**dual-family providers** — the one real remaining design gap. On a CI onion node, tor-enabled providers (e.g. mastodon) are onion-exclusive: their domain list contains only the `.onion` canonical, no clearnet sibling. The family-alignment resolver (`utils/tls_common.py:align_domain_to_consumer`, wired into `plugins/lookup/tls.py`) correctly bails in that case, so a clearnet-pinned consumer still receives an onion URL it can neither resolve nor reach. First hard evidence: `web-app-fediwall` variant 2 (tor=false) renders `microblog.<onion>` into `wall-config.json.servers`; the clearnet browser (no SOCKS) times out waiting for mastodon wall items (`test-walls-surface-posts.js:24`, deterministic across retries). The same class is expected to keep `web-app-bigbluebutton`, `web-app-nextcloud`, `web-app-opentalk` and `web-app-jitsi` red (clearnet-pinned apps whose peer refs — OIDC/cdn/matomo/logout — resolve onion-primary). Fix direction: providers must publish BOTH families (clearnet sibling alongside the onion canonical) so the resolver has something to align to; includes re-applying the deferred `KC_HOSTNAME` onion-gate for Keycloak that was dropped from the earlier bundle because it is only needed once dual-family exists."
 msgstr ""
 
@@ -13157,9 +13076,6 @@ msgstr ""
 
 # translated-by: libretranslate
 # gitaly, shell, rails): v19.3.0 v19.3.2
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: *web-app-gitlab* (webservice, sidekiq, workhorse,
 msgid "*web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2"
 msgstr ""
 
@@ -14605,9 +14521,6 @@ msgstr "A ``svc-bkp-*`` предварително закачено устрой
 # съхранение на гитали, което нагоре по веригата забранява на НФС). Други
 # ``nfs`` стойност (липса, ``true``, или uid/gid/mode [Сложна комбинация])
 # запазва пренаписването.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A ``type: volume`` Задаване на вход ``nfs: false`` да
 msgid "A ``type: volume`` entry may set ``nfs: false`` to opt out of the swarm NFS rewrite: the volume then stays a plain node-local named volume even when ``storage.backend`` is ``nfs`` (e.g. gitaly repository storage, which upstream forbids on NFS). Any other ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed by the NFS subdir pre-creation) keeps the rewrite."
 msgstr ""
 
@@ -15189,10 +15102,7 @@ msgstr "URL адрес за работа стеснява изтеглянето
 # (``ollama pull`` отпечатъци "Актуално" и излиза извън нулата)И двамата са
 # претърсени, така че по телефона минава толерираното фразиране и не трябва да
 # знае кой ключ го носи.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Актуално"']
-# nocheck: url
-# translation-rejected: Работата се брои за неуспешна, когато не е завършена,
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -17090,9 +17000,6 @@ msgstr "Добавяне на нови роли за кандидатстван�
 # web-role-no-web-dependence, run-once-once-on-shared-services,
 # exter-bool-patterns, sed-escape, no-sh-pipe-fail, compose-resource-de-deput,
 # dynamic-flag, aut-coverage, varular-coverage, version-services-s-matchage
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Добавени нови охранители за мъх: project-walk,
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
 msgstr ""
 
@@ -18040,9 +17947,6 @@ msgid "All services run behind a reverse proxy and share centralized identity ma
 msgstr "Всички услуги се движат зад обратна прокси и споделят централизирано управление на самоличността. описът определя един хост и активира ролите декларативен."
 
 # units (real) `_FILE` Наставка чете стойност от файл (Тайно-приятелски).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Всички налични настройки като `SEMAPHORE_*` amount in
 msgid "All settings available as `SEMAPHORE_*` env vars; `_FILE` suffix reads a value from a file (secret-friendly)."
 msgstr ""
 
@@ -19547,10 +19451,7 @@ msgstr "Като администратор на платформата Infinito
 # във физическия свят, така че Hermes може "оживя." на робот, докато тази
 # мощност остава ограничена до специално, сегментирано устройство и никога не
 # изтича върху споделена инфраструктура.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"оживя."']
-# nocheck: url
-# translation-rejected: Като администратор на платформата Infinito.Nexus,
 msgid "As a platform administrator of Infinito.Nexus, I want a `svc-ai-robot` role that turns one dedicated machine into an embodied platform for Hermes, giving the agent scoped-to-full host access so it can explore its own hardware and act in the physical world, so that Hermes can \"come to life\" on a robot while this power stays confined to a dedicated, segmented device and never leaks onto shared infrastructure."
 msgstr ""
 
@@ -24161,9 +24062,6 @@ msgstr "Клъстер-местни прокси кеш за пакет наго
 
 # translated-by: libretranslate
 # Docker Hub base-image pulls, cut duplicate transfers and rate limits
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Cluster-local local pull-through cash for shared
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
 
@@ -24711,9 +24609,6 @@ msgstr "Изчислените пропуски не са независими. 
 
 # translated-by: libretranslate
 # returns a CSP signon like "'sha256-<base64>'".
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Изравнява SHA256 hash of the given inline content and
 msgid "Computes the SHA256 hash of the given inline content and returns a CSP token like \"'sha256-<base64>'\"."
 msgstr ""
 
@@ -25873,9 +25768,6 @@ msgstr "Критично въртене между PASS 1 и Пас 2 - Да."
 
 # translated-by: libretranslate
 # values.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Credential schema definitions and runtime credential
 msgid "Credential schema definitions and runtime credential values."
 msgstr ""
 
@@ -26221,9 +26113,6 @@ msgid "DNS resolutions to `172.30.0.4` for hosts like `pypi.org` are intentional
 msgstr "Резолюция на DNS `172.30.0.4` за домакини като `pypi.org` са умишлено: пакет-кеш предната част отменя тези имена в `/etc/hosts`, така че трафикът завършва в огледалото на местния регистър с `0.00s` DNS/TCP/TLS пъти, вместо да се удари в публичния регистър."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: DNS-hijack + frontend HTPS + runner CA-trust
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
 msgstr ""
 
@@ -26486,7 +26375,6 @@ msgstr "Децентрализирана, захранвана платформ�
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr "Децентрализирана платформа за социално-мрежова комуникация и изграждане на общност"
 
-# translation-refused: libretranslate damaged-span
 msgid "Decide what the administrator persona asserts. `templates/playwright.env.j2:26` renders `PERSONA_ADMINISTRATOR_BLOCKED` from `services.sso.enabled`, so the `adminInteraction` in `files/playwright/playwright.spec.js:60` runs in the sso-enabled variants, while `tasks/main.yml` provisions no Mobilizon account and `templates/config.exs.j2:260-287` wires Keycloak as a login provider without a role mapping. The OIDC-provisioned administrator lands with the default `:user` role, and `/admin/*` requires `:administrator` or `:moderator`, so the callback asserts nothing today. Either pin the flag to `true` with a `# nocheck: persona-block-rationale` line, or take the converger `feature/designer` carries in `faee47c6b7` (`/bin/mobilizon rpc` with `files/elixir/administrator.exs`, credentials as JSON on stdin) and then narrow the locator to an admin-only entry."
 msgstr ""
 
@@ -28174,9 +28062,6 @@ msgid "Docker Auto Restart"
 msgstr "Автоматично рестартиране на Docker"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Compose Certificate Sync Service
 msgid "Docker Compose Certificate Sync Service"
 msgstr ""
 
@@ -28256,9 +28141,6 @@ msgstr "Docker Registry Architecture"
 msgid "Docker Registry Cache"
 msgstr ""
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Registry Cache Architecture
 msgid "Docker Registry Cache Architecture"
 msgstr ""
 
@@ -28282,9 +28164,6 @@ msgstr "Docker Swarm Architecture"
 msgid "Docker Swarm Manager"
 msgstr "Docker Swarm Manager"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Docker Swarm Manager Architecture
 msgid "Docker Swarm Manager Architecture"
 msgstr ""
 
@@ -31159,9 +31038,6 @@ msgid "Expose app-specific base URLs, issuer URLs, feature flags, and credential
 msgstr "Експозирайте специфични за приложението базови URL адреси, URL адреси на емитента, знамена за функции и акредитиви само когато спецификациите ги консумират."
 
 # config patch.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Expose the LiteLLLM route builder to the prospective
 msgid "Expose the LiteLLM route builder to the proxy config template."
 msgstr ""
 
@@ -33111,7 +32987,6 @@ msgstr "Преинсталирай цялата система."
 msgid "Force a rebuild"
 msgstr "Принуждаване на възстановяване"
 
-# translation-refused: libretranslate damaged-span
 msgid "Force act (nektos/act) to its latest release."
 msgstr ""
 
@@ -33289,9 +33164,6 @@ msgstr "Friendica Architecture"
 
 # translated-by: libretranslate
 # . . .
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Friendica's `saml` Addon е общностно-оставените . . .
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
 msgstr ""
 
@@ -33500,10 +33372,7 @@ msgstr "GITHUB_ACTIONS=вярно И не ACT - > реални действия 
 
 # хранилище GHA, получен от GITHUB_REPOSITORY_OWNER / Собственост /
 # GITHUB_REPOSITORYФатален, ако не може да бъде решен на GHA.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYФатален']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: по-малък собственик на
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -33527,9 +33396,6 @@ msgstr "Архитектура на работния плот GNOME"
 msgid "GNOME Extensions Manager"
 msgstr "Управител на разширения на GNOME"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: GNOME Extensions Manager Architecture
 msgid "GNOME Extensions Manager Architecture"
 msgstr ""
 
@@ -34991,9 +34857,6 @@ msgstr "INFINITO_DIR_SECRETS: host secrets dir, получени от var-lib SP
 # translated-by: libretranslate
 # read from the group_vars Пътища SPOT (group_vars/all/05_paths.yml
 # DIR_VAR_LIB).
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: INFINITO_DIR_VAR_LIB: Infinito state/secrets base dir,
 msgid "INFINITO_DIR_VAR_LIB: Infinito state/secrets base dir, read from the group_vars paths SPOT (group_vars/all/05_paths.yml DIR_VAR_LIB)."
 msgstr ""
 
@@ -37180,7 +37043,6 @@ msgstr "Инсталиране на `.service` както и `.timer` Едини
 msgid "Install a ``.service`` and ``.timer`` unit."
 msgstr "Инсталиране на ``.service`` както и ``.timer`` Единица."
 
-# translation-refused: libretranslate damaged-span
 msgid "Install act (nektos/act) if missing; provisions the act-based make targets."
 msgstr ""
 
@@ -37261,9 +37123,6 @@ msgid "Install shfmt: system-pkg first, GitHub release fallback."
 msgstr "Инсталиране на shfmt: система-pkg първо, GitHub освобождаване назад."
 
 # (real)).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Инсталиране на sqlfulf чрез pipp (amount in units
 msgid "Install sqlfluff via pip (parser for lint-sql)."
 msgstr ""
 
@@ -37284,9 +37143,6 @@ msgid "Install the Node.js runtime through the system package manager."
 msgstr "Инсталиране на Node.js Runtime чрез мениджъра система пакет."
 
 # (amount in units (real)).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Инсталиране на PHP CLI чрез системен пакет мениджър
 msgid "Install the PHP CLI via system package manager (parser for lint-php)."
 msgstr ""
 
@@ -37299,9 +37155,6 @@ msgid "Install the PHP toolchain and the Composer vendor tree."
 msgstr "Инсталиране на PHP инструментчейн и търговец на композитори дърво."
 
 # (amount in units (real)).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Инсталиране на Ruby CLI чрез системен пакет мениджър
 msgid "Install the Ruby CLI via system package manager (parser for lint-ruby)."
 msgstr ""
 
@@ -37411,9 +37264,6 @@ msgstr "Инсталира Docker и Docker Compose, и добавя потре�
 
 # устройства за принтер Epson (amount in units (real)) през Пакман и AUR на
 # Арч Линукс.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Инсталира многофункционални драйвери и сканиращи
 msgid "Installs Epson multifunction printer drivers and scanning utilities (escpr, imagescan) via Pacman and AUR on Arch Linux."
 msgstr ""
 
@@ -38470,9 +38320,6 @@ msgstr "Итерация на роля на уеб приложение в ре�
 
 # translated-by: libretranslate
 # recounting its data.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Iterating on Ansible logics for a application without
 msgid "Iterating on Ansible logic for an application without recycling its data."
 msgstr ""
 
@@ -38712,9 +38559,6 @@ msgstr "Kata & gVisor Architecture"
 # преместване на агента подреждане на докера върху контейнер с `devmapper`,
 # което е отделно решение. До тогава клаузите за microVM по-долу описват
 # намерение, а не превозен механизъм.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kata с Firecricker хипервизор е бил първоначалният
 msgid "Kata with the Firecracker hypervisor was the original choice and cannot be delivered on Docker Engine: Firecracker requires the container rootfs as a block device (the containerd `devmapper` snapshotter), while dockerd always hands the runtime a directory. Kata's Firecracker driver advertises no filesystem sharing, and Kata's own documentation tests Docker with QEMU as the VMM. Reaching a microVM here means moving the agent tier off dockerd onto containerd with `devmapper`, which is a separate decision. Until then the microVM clauses below describe an intent, not a shipped mechanism."
 msgstr ""
 
@@ -39589,9 +39433,6 @@ msgstr "LibreTranslate Архитектура"
 msgid "LibreTranslate Engine"
 msgstr "LibreTranslate Engine"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: LibreTranslate Engine Architecture
 msgid "LibreTranslate Engine Architecture"
 msgstr ""
 
@@ -40648,9 +40489,6 @@ msgstr "MDAD's `ansible-playbook setup.yml` икона е капсулована
 
 # translated-by: libretranslate
 # MODE_BAZ: null # comment
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: MODE_FOO: true # comment MODE_BAR: false # comment
 msgid "MODE_FOO: true   # comment MODE_BAR: false  # comment MODE_BAZ: null   # comment"
 msgstr ""
 
@@ -41134,9 +40972,6 @@ msgstr "Роля на картата - > [:class:`Failure`] за всяка пр
 msgid "Map the design tokens onto those variables. Add selector overrides only for surfaces that cannot be reached through variables."
 msgstr "Картографирайте дизайн символи върху тези променливи. Добавяне на настройки на селектора само за повърхности, които не могат да бъдат достигнати чрез променливи."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Map the generated assets of one role onto their CDN
 # URLs.
 msgid "Map the generated assets of one role onto their CDN URLs."
 msgstr ""
@@ -42426,9 +42261,6 @@ msgid "NGINX Domain Setup"
 msgstr "Настройки на домейн NGINX"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: NGINX Global Matomo & Theming Modifier Role
 msgid "NGINX Global Matomo & Theming Modifier Role"
 msgstr ""
 
@@ -43204,7 +43036,6 @@ msgstr "Няма роля за няколко преводачески двиг�
 msgid "No role under `roles_path` declares this application_id."
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgid "No schema migration runs after an image bump (measured on `frappe/erpnext:v16.50.0`): the backend starts `/usr/local/bin/entrypoint.sh`, which only links the baked assets into `sites/assets` and executes gunicorn, the image command `start.sh` only starts gunicorn, the configurator only runs `bench set-config`, and no task of this role calls `bench migrate`. A site created under v16.37.0 therefore keeps its old schema after the v16.50.0 bump on main, and Frappe 16.50 renders \"This site needs a migration\" on the desk of such a site (`www/desk.py`); a fresh site is not affected (measured: desk boots, Frappe 16.51.0, ERPNext 16.50.0). Option: an idempotent `bench --site <site> migrate` task in `tasks/02_bench_bootstrap.yml` before the design task, with `changed_when` on its output."
 msgstr ""
 
@@ -46507,9 +46338,6 @@ msgstr "Заострени ***pkgmgr*** клонинги към ***стабил�
 
 # translated-by: libretranslate
 # ``requirements/``.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Pinned Ansible collection versions in
 msgid "Pinned Ansible collection versions in ``requirements/``."
 msgstr ""
 
@@ -46964,9 +46792,6 @@ msgid "PostgreSQL Architecture"
 msgstr "PostgreSQL Архитектура"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: PostgreSQL Docker Upgrade: Major Version Migration
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr ""
 
@@ -47335,10 +47160,7 @@ msgstr "Отпечатване на ролите, които са дължими
 
 # ролята на разпоредбата CLI следва ``--include`` Така полученият инвентар има
 # всяка група APP_IDТранзитните депа ще се нуждаят от време.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDТранзитните']
-# nocheck: url
-# translation-rejected: Печат, по един на ред, идентификационните данни за
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -47559,9 +47381,6 @@ msgstr "Поръчителство API пълномощия (на `API` SPOT)"
 msgid "Proprietary Drivers"
 msgstr "Поръчкови водачи"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Proprietary Drivers Architecture
 msgid "Proprietary Drivers Architecture"
 msgstr ""
 
@@ -49439,9 +49258,6 @@ msgstr "Регенериране"
 
 # translated-by: libretranslate
 # --ghcr-prefix on *unit description in lists*.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Регистри -- ghcr-namespace, --ghcr-repository,
 msgid "Register --ghcr-namespace, --ghcr-repository, --ghcr-prefix on *parser*."
 msgstr ""
 
@@ -50058,9 +49874,6 @@ msgstr "Превъртете матрицата на връзката: коя р
 
 # translated-by: libretranslate
 # totals as a lineed text table or as JSON.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Render the collected service roads and cumulated
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
 msgstr ""
 
@@ -50995,9 +50808,6 @@ msgstr "Възстановяването е обратното:"
 # монтирания път веднъж на рояк тичане: тя монтира износа в обем на
 # mittlepoint с обем на собствените опции на водача, възстановява чрез него, и
 # твърди, че маркер на сървъри диск.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Възстановяване на процедура за обем, поддържан от NFS:
 msgid "Restore procedure for an NFS-backed volume: either restore the export subdirectory via ``svc-bkp-nfs-2-local``\\ ’s ``recover.py``, or run this role’s ``recover.py volume`` while something holds the volume mounted - it refuses an unmounted backing store, because the rsync would land on the node disk under the bare mountpoint and be shadowed by the real export on the next mount. The DR drill proves the mounted path once per swarm run: it mounts the export at the volume’s mountpoint with the volume’s own driver options, restores through it, and asserts the marker on the server’s disk."
 msgstr ""
 
@@ -51009,9 +50819,6 @@ msgstr ""
 # работи: тя монтира износа при монтажната точка на звука със собствени опции
 # на водача на звука, възстановява през него и отстоява маркера на диска на
 # сървъра.
-# translation-refused: libretranslate added-span lost=[] gained=['"', '♪']
-# nocheck: url
-# translation-rejected: Възстановяване на процедура за обем, поддържан от NFS:
 msgid "Restore procedure for an NFS-backed volume: either restore the export subdirectory via `svc-bkp-nfs-2-local`'s `recover.py`, or run this role's `recover.py volume` while something holds the volume mounted - it refuses an unmounted backing store, because the rsync would land on the node disk under the bare mountpoint and be shadowed by the real export on the next mount. The DR drill proves the mounted path once per swarm run: it mounts the export at the volume's mountpoint with the volume's own driver options, restores through it, and asserts the marker on the server's disk."
 msgstr ""
 
@@ -51135,10 +50942,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Връщане (собственик, репо, run_id) от Run Id или адрес на работа."
 
 # адрес за връзка/работа.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idНяма']
-# nocheck: url
-# translation-rejected: Връщане (собственик, репо, run_id, job_idНяма) от
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -51387,9 +51191,6 @@ msgstr "Връщане ``{application_id: [override_0, ...]}``, суровият
 # in units (real) ``roles_dir``. Всеки вариант е ефективна конфигурация на
 # ролята след съответната `meta/variants.yml` Преодоляването е дълбоко слято
 # на върха на `meta/services.yml`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Връщане ``{application_id: [variant_0, ...]}`` amount
 #, python-brace-format
 msgid "Return ``{application_id: [variant_0, ...]}`` cached per ``roles_dir``. Each variant is the role's effective configuration after the corresponding `meta/variants.yml` override has been deep-merged on top of `meta/services.yml`."
 msgstr ""
@@ -56170,9 +55971,6 @@ msgstr "SeaweedFS Console Architecture"
 msgid "SeaweedFS is the shared S3 object store. A role becomes a consumer by declaring a `seaweedfs` service in `meta/services.yml`, wiring its app config from `lookup('objstore', application_id, ...)` (bucket / access_key / secret_key / url / region), and shipping a gated `files/playwright/test-seaweedfs.js`. See `web-app-mastodon`, `web-app-pixelfed`, and `web-app-nextcloud` for the reference pattern. SeaweedFS S3 requires **path-style addressing** and the internal `http://` endpoint."
 msgstr "SeaweedFS е общата S3 В магазина за обекти. Ролята става потребител чрез обявяване на `seaweedfs` услуги в `meta/services.yml`, свързване на приложението си config от `lookup('objstore', application_id, ...)` (кофа / access_key / secret_key / URL / регион), и изпращайки порта `files/playwright/test-seaweedfs.js`. Вижте `web-app-mastodon`, `web-app-pixelfed`, и `web-app-nextcloud` за референтния модел. SeaweedFS S3 изисква **Адресиране в стил път** и вътрешните `http://` Точка."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Secondary text, AA against every surface
 msgid "Secondary text, AA against every surface"
 msgstr ""
 
@@ -56642,9 +56440,6 @@ msgstr "Self-hosted чат интерфейс за взаимодействие 
 
 # translated-by: libretranslate
 # real-time cooperation, and team workspaces under your own domain
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted cloud platform for file sync, shareing,
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
@@ -56666,9 +56461,6 @@ msgstr "Самостоятелно предприятие уики и платф
 
 # translated-by: libretranslate
 # reviews and reading tracking over the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted federated reading platform for book
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
 
@@ -56758,9 +56550,6 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 
 # translated-by: libretranslate
 # real-time visit tracking and site metrics
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted, privacy-first web analytics platform for
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
 
@@ -57906,9 +57695,6 @@ msgstr "Пропусни всичко. ``<root>/tests/``."
 
 # translated-by: libretranslate
 # containers
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Skip hostname configure when running inside Docker
 msgid "Skip hostname configuration when running inside Docker containers"
 msgstr ""
 
@@ -59244,9 +59030,6 @@ msgstr ""
 
 # translated-by: libretranslate
 # matric-dression video.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Summarise Ansible `profile_roles` runtimes per
 msgid "Summarise Ansible `profile_roles` runtimes per matrix-deploy variant."
 msgstr ""
 
@@ -59921,9 +59704,6 @@ msgid "Sys-ctl-cln-docker Role"
 msgstr "Sys-ctl-cln-docker Role"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Sys-ctl-cln-failed-bkps Role
 msgid "Sys-ctl-cln-faild-bkps Role"
 msgstr ""
 
@@ -59960,9 +59740,6 @@ msgid "Sys-ctl-hlth-webserver Role"
 msgstr "Sys-ctl-hlth-webserver Роля"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Sys-ctl-mtn-cert-dression Role
 msgid "Sys-ctl-mtn-cert-deploy Role"
 msgstr ""
 
@@ -61916,9 +61693,6 @@ msgstr "На Keycloak Груповото дърво е построено от *
 msgid "The LLM is wired to the shared LiteLLM gateway when `LITELLM_USABLE`. `OPENROUTER_API_KEY` is not used."
 msgstr "LLM е свързан към общ LiteLLLM портал, когато `LITELLM_USABLE`. `OPENROUTER_API_KEY` не се използва."
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: The Laravel debug bar се предава на всяка страница,
 # докато `MODE_DEBUG` е, защото `templates/env.j2:5` карти върху `APP_DEBUG`.
 # Опции: комплект `DEBUGBAR_ENABLED=false` в `templates/env.j2`♪ or keep
 # `APP_DEBUG` Изключи и увеличи само нивото на дневника.
@@ -61933,10 +61707,7 @@ msgstr "Пътят на MCP автентира със статичен ключ,
 msgid "The MCP surface ships disabled by default and is independent of the host role's `lifecycle`: a `beta` host role MUST NOT imply that its MCP surface is stable. An MCP surface is only considered validated once its acceptance criteria are met end to end."
 msgstr "Повърхностните кораби на MCP са изключени по подразбиране и са независими от ролята на приемника `lifecycle`: a `beta` ролята на домакин НЕ ТРЯБВА да означава, че повърхността на MCP е стабилна. Повърхността на MCP се счита за валидирана само след като критериите за приемане са изпълнени до края."
 
-# translation-refused: libretranslate protected-span lost=['"', '10', '15']
 # gained=['"Студено.10-15мин."']
-# nocheck: url
-# translation-rejected: Капанът за ботуши на MDAD чака
 # `tasks/flavor/ansible/05_proxy_wiring.yml` (линия 7 до 14) е почти изтощен:
 # студен капан за ботуши 24 минути в изходно ниво 2026-10-09 и се използва 287
 # от неговата 360 Отново 5 Докато името на задачата все още казва
@@ -62471,9 +62242,6 @@ msgstr "На `auto` има псевдоним и всеки друг псевд�
 # [`templates/playwright.env.j2`](./templates/playwright.env.j2) amount in
 # units (real) `PERSONA_BIBER_BLOCKED=true` както и
 # `PERSONA_ADMINISTRATOR_BLOCKED=true`. Две причини:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: На `biber` както и `administrator` Playwright personas
 msgid "The `biber` and `administrator` Playwright personas are gated on `services.sso.enabled`. When SSO is off, [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. Two reasons:"
 msgstr ""
 
@@ -63254,9 +63022,6 @@ msgid "The cache services are added."
 msgstr "Складовите услуги се добавят."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Товарачът на кеша е заобикалян нарочно.
 msgid "The cache's path-keyed loader is bypassed on purpose — the caller mutates content per call, so each parse is intentionally fresh."
 msgstr ""
 
@@ -64795,10 +64560,7 @@ msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Логото трябва да използва валиден Font Awesome class string, например:"
 
 # **/var/lib/poker/toums/nextcloud_data/ данни/данни/nextcloud.log**
-# translation-refused: libretranslate protected-span lost=['nextcloud.log']
 # gained=['данни/данни/nextcloud.log']
-# nocheck: url
-# translation-rejected: Дневниците, които ще намерите тук на домакина:
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -67716,10 +67478,7 @@ msgstr "Размяната е, че `deny` Сега носи цялата теж
 # директните услуги на реда не позволява на чуждестранни доставчици (ролята е
 # изолирана): за вариант на варианти редове, от основата ``meta/services.yml``
 # на цели редове.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['"', 'alpha/beta/pre/...']
-# nocheck: url
-# translation-rejected: Транзитните полета (``services`` / ``consumed_by`` и
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -68136,9 +67895,6 @@ msgstr "Тези скриптове поддържат откриването н
 # в околната среда и призовава `test.sh`, който организира останалите. Те
 # използват `systemctl`, `container` опаковка и `/etc/machine-id`, Така че те
 # имат смисъл само когато ролята действително се разгърна.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Тези скриптове работят **на разположения приемник**Не
 msgid "These scripts run **on the deployed host**, not on the controller. `test-e2e-cli` renders `templates/test.env.j2` into the environment and calls `test.sh`, which orchestrates the rest. They use `systemctl`, the `container` wrapper and `/etc/machine-id`, so they only make sense where the role actually deployed."
 msgstr ""
 
@@ -68485,9 +68241,6 @@ msgstr "Тази недостижима роля инсталира и изпъ�
 
 # translated-by: libretranslate
 # Климатикът е на ваше разположение.
-# translation-refused: libretranslate missing-name
-# nocheck: url
-# translation-rejected: Това Ansible роля инсталира и прави Infinito.Nexus
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
 msgstr ""
 
@@ -68688,10 +68441,7 @@ msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path
 msgstr "Това избягва крехките родители[N] предположения и корекции \"cli/cli/...\" Пътни буболечки."
 
 # поправки "cli/cli/...Проблеми.
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
 # gained=['"', 'cli/cli/...Проблеми.']
-# nocheck: url
-# translation-rejected: Това избягва крехка конструкция на файловата пътека и
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -69891,10 +69641,7 @@ msgstr "Тази роля изгражда LTEngine от източниците 
 # своите SQLite данни. Пощенски марки е един потребител: няма сметки, само
 # "собственикът". В нагоре по течението вход е една обща тайна парола форма,
 # която обръща една сесия boolean (`req.session.loggedIn`).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"собственикът"']
-# nocheck: url
-# translation-rejected: Тази роля изгражда Postmarks от източника в
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -70068,10 +69815,7 @@ msgstr "Тази роля декларира `PERSONA_BIBER_BLOCKED` в `templat
 # също служи ``/landing`` Интерстициален към неавтентирани посетители, които
 # се изчистват само веднъж ``localStorage.__landingPageSeen__`` е засята преди
 # навигацията, и споделеният помощник няма кука init-script да направи това.
-# translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.NexusПревод']
-# nocheck: url
-# translation-rejected: Тази роля декларира ``PERSONA_ADMINISTRATOR_BLOCKED``
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
 msgstr ""
 
@@ -70655,9 +70399,6 @@ msgstr "Тази роля инсталира доверителен инжекц
 
 # принтер Epson и сканиращи устройства (amount in units (real)) през Пакман и
 # AUR на Арч Линукс.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Тази роля инсталира многофункционални драйвери за
 msgid "This role installs Epson multifunction printer drivers and scanning utilities (escpr, imagescan) via Pacman and AUR on Arch Linux."
 msgstr ""
 
@@ -70804,9 +70545,6 @@ msgstr "Тази роля инсталира пакетите SSH клиент, 
 # (real)](https://en.wikipedia.org/wiki/Pip_(package_manager)) пакет на
 # целевата система. Той гарантира, че Pip пакет мениджър е на разположение за
 # инсталиране на пакети Python.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Тази роля се инсталира [amount in units
 msgid "This role installs the [python-pip](https://en.wikipedia.org/wiki/Pip_(package_manager)) package on the target system. It ensures that the pip package manager is available for installing Python packages."
 msgstr ""
 
@@ -71706,10 +71444,7 @@ msgstr "Днес всеки Infinito.Nexus разгърнати пробеги `
 # yml](../../roles/web-app-opencloud/meta/variants.yml) където вариант 1
 # Комплекти `ldap.enabled: true` с `oidc.enabled: false`), но съответният
 # сценарий не съществува все още.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml'] gained=[]
-# nocheck: url
-# translation-rejected: Днес повечето от характеристиките на ролите предават
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -73681,11 +73416,8 @@ msgstr "Използва се от ``ressources`` CLI и от варианта �
 # configuration/prometheus.yml.j2 за автоматично откриване на приложения,
 # които разкриват родния /metrics крайна точка без трудно кодиране всяко име
 # на приложението.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['configuration/prometheus.yml.j2']
-# nocheck: url
-# translation-rejected: Използва се от web-app-prometheus/templates /
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -73855,10 +73587,7 @@ msgstr "Искане за потребителско име: `preferred_username
 # ``{{hunspell_languages}}`` променлива въз основа на специфичните им езикови
 # изисквания. Тази променлива приема списък с езикови кодове (напр.,
 # год.en_US.de_DE- Да.).
-# translation-refused: libretranslate protected-span lost=['de_DE', 'en_US']
 # gained=['en_US.de_DE']
-# nocheck: url
-# translation-rejected: Потребителите се насърчават да персонализират
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -77329,10 +77058,7 @@ msgstr "Не трябва да влизате във вътрешния цикъ
 # еквивалентен самомаркер. Статусът SPOT се предоставя от читателите чрез
 # кръстосан линк към страницата от другаде, а не от страницата, която го
 # отстоява за себе си. Опиши темата директно.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"СПОТ"']
-# nocheck: url
-# translation-rejected: Не трябва изрично да декларирате страница с
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -79595,9 +79321,6 @@ msgstr "[ ] [web-app-xwiki](../../roles/web-app-xwiki/) декларира св�
 # [web-svc-xmpp](../../roles/web-svc-xmpp/),
 # [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend
 # services with no end-user UI.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [ ] [web-svc-cdn](../../roles/web-svc-cdn/),
 msgid "[ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI."
 msgstr ""
 
@@ -81240,9 +80963,6 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # translated-by: libretranslate
 # Repository](https://github.com/bluesky-social/social-app)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [Bluesky Social App GitHub
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
 msgstr ""
 
@@ -82783,9 +82503,6 @@ msgstr "[Приставка OIDCName (импулсен двигател)](https:
 
 # translated-by: libretranslate
 # Hub](https://hub.docker.com/r/onlyoffice/documentserver)
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: [AONOFFICE Document Server on Docker
 msgid "[ONLYOFFICE Document Server on Docker Hub](https://hub.docker.com/r/onlyoffice/documentserver)"
 msgstr ""
 
@@ -83796,9 +83513,6 @@ msgstr "[`sys-svc-mail`](../sys-svc-mail/) ."
 # администрацията. `biber` следователно няма сметка във всеки вариант матрица
 # и [`templates/playwright.env.j2`](./templates/playwright.env.j2) amount in
 # units (real) `PERSONA_BIBER_BLOCKED=true` Безусловно.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [`tasks/01_admin.yml`](./tasks/01_admin.yml)
 msgid "[`tasks/01_admin.yml`](./tasks/01_admin.yml) provisions only the administrator in Shopware's user table. [`meta/services.yml`](./meta/services.yml) pins `services.sso.flavor: oidc`, so no oauth2-proxy fronts the role and the storefront carries no authenticated surface at all; the Keycloak login provider that [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) configures covers the administration backend alone. `biber` therefore has no account in any matrix variant and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` unconditionally."
 msgstr ""
 
@@ -83812,9 +83526,6 @@ msgstr ""
 # amount in units (real) `PERSONA_BIBER_BLOCKED=true`. `administrator` persona
 # поддържа родния си вход чрез `ADMIN_NATIVE_PASSWORD` и работи във всеки
 # вариант.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [`tasks/01_setup.yml`](./tasks/01_setup.yml) семена
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
 msgstr ""
 
@@ -83831,9 +83542,6 @@ msgstr ""
 # ползване
 # ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js))
 # Кара едно и също пътуване с администратор и прескача същия флаг.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "[`tasks/05_administrator.yml`](./tasks/05_administrator.yml) creates the account with `tootctl accounts create` and never sets or captures a password, so `ADMIN_PASSWORD` — the Keycloak secret — cannot drive Mastodon's native `/auth/sign_in`; `biber` has no Mastodon account at all, since the OIDC sign-in ([`templates/env.j2`](./templates/env.j2)) is the only path that would create one. In the `services.sso.enabled: false` matrix variants that path is removed, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The SeaweedFS companion scenario ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js)) drives the same admin journey and skips on the same flag."
 msgstr ""
 
@@ -83853,7 +83561,6 @@ msgstr "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) създава специ
 msgid "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password for the dedicated MCP account via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`."
 msgstr "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) Изчаква пулса на ExApp, регистрира разгърнатия демон и ExApp (Път `^/mcp`, глаголи `POST,GET,DELETE`, ниво на достъп `1`), позволява на ExApp, мента парола на приложението за посветен MCP сметка чрез `occ user:auth-tokens:add`, продължава през `sys-token-store` под `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, и твърди, че е автентично `initialize` отговори на повикванията `200`."
 
-# translation-refused: libretranslate damaged-span
 msgid "[`templates/config.exs.j2`](./templates/config.exs.j2) wires Keycloak as the only login provider this role configures, and the only Mobilizon account the role creates is the platform administrator in [`tasks/01_design.yml`](./tasks/01_design.yml), which the design spec signs in as; `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) additionally closes the database login whenever LDAP is on. In the `services.sso.enabled: false` matrix variants biber has no account and the shared persona flow types `ADMIN_USERNAME` where Mobilizon's form takes the e-mail, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally."
 msgstr ""
 
@@ -83867,9 +83574,6 @@ msgstr ""
 # има признаци на LDAP `biber` в от директорията). `administrator` persona
 # поддържа родния си вход чрез `ADMIN_NATIVE_PASSWORD` и работи във всеки
 # вариант.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [`templates/env.j2`](./templates/env.j2) семена само
 msgid "[`templates/env.j2`](./templates/env.j2) seeds only the administrator into SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` reaches the app through SuiteCRM's own SAML login against Keycloak, where `SAML_AUTO_CREATE` mints the account on first assertion. In the `services.sso.enabled: false` matrix variants there is no SAML entry point and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` for the generic persona journeys (the LDAP spec still signs `biber` in from the directory). The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
 msgstr ""
 
@@ -83878,9 +83582,6 @@ msgstr ""
 # `PERSONA_ADMINISTRATOR_BLOCKED=true` във всеки вариант на матрицата, защото
 # помощникът на споделената персона не може да управлява тази роля в нито един
 # от тях. Три независими причини, всяка от които сама по себе си е достатъчна:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "[`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in every matrix variant, because the shared persona helper cannot drive this role's sign-in in any of them. Three independent reasons, each sufficient on its own:"
 msgstr ""
 
@@ -84257,9 +83958,6 @@ msgstr "[neutralize.yml](./neutralize.yml) спира и маскира апт-�
 msgid "[nft(8) manual page](https://www.netfilter.org/projects/nftables/manpage.html)"
 msgstr "[nft(8) Ръчна страница](https://www.netfilter.org/projects/nftables/manpage.html)"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [amount in units (real)](https://wiki.nftables.org/)
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
 msgstr ""
 
@@ -84269,9 +83967,6 @@ msgstr "[Нефтове](https://www.netfilter.org/projects/nftables/) е рам
 
 # translated-by: libretranslate
 # Hub](https://hub.docker.com/r/opencloudeu/opencloud)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [opencloudeu/opencloud on Docker
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
 msgstr ""
 
@@ -85585,9 +85280,6 @@ msgstr "[x] Роли, които законно не упражняват сер
 # акаунта, докато старите са поддържали пълен достъп. Ментата сега е
 # предшествана от списък и отнемане на всеки символ, носещ това управлявано
 # име.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] Тестовете за въртене и деактивация доказват, че
 msgid "[x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name."
 msgstr ""
 
@@ -86176,9 +85868,6 @@ msgstr "[x] [layout.md](../contributing/design/role/services/layout.md) и [Пр
 msgid "[x] [layout.md](../contributing/design/role/services/layout.md) documents `meta/addons/`: file-root convention, the addon schema, field defaults, allowed values, and the materialised path; and removes `addons` from the inlined-key list."
 msgstr "[x] [layout.md](../contributing/design/role/services/layout.md) документи `meta/addons/`: конвенция за корените на файловете, схемата на addon, неизпълнението на полетата, допустимите стойности и материализирания път; и премахва `addons` от списъка с ключовете."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [x] [svc-db-openldap](../../roles/svc-db-openldap/):
 # backend service with no end-user UI; covered by integration tests, not
 # Playwright.
 msgid "[x] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright."
@@ -86529,10 +86218,7 @@ msgstr "[x] `meta/variants.yml` декларира вариантите за и�
 
 # (`ldap` на, `sso`/OIDC off) на конвенцията в [web-app-openproject/meta/
 # variants. yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml'] gained=[]
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` определя **Само LDAP** вариант
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -87580,9 +87266,6 @@ msgstr "`GH_TOKEN` трябва да бъде на разположение на
 # units (real) `PERSONA_BIBER_BLOCKED=true` както и
 # `PERSONA_ADMINISTRATOR_BLOCKED=true`. `guest` persona и основните твърдения
 # работят безусловно.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `GITLAB_ROOT_PASSWORD`
 msgid "`GITLAB_ROOT_PASSWORD` ([`templates/env.j2`](./templates/env.j2), from `GITLAB_INIT_ROOT_PASSWORD` in [`vars/main.yml`](./vars/main.yml)) belongs to GitLab's built-in `root` account, not to the Keycloak `administrator` username the persona signs in with, and no GitLab account is provisioned for `biber` at all — the OmniAuth sign-in is the only path that would create one. In the `services.sso.enabled: false` matrix variants that path is removed, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally."
 msgstr ""
 
@@ -89479,9 +89162,6 @@ msgid "``new``: HEAD carries no design spec for it."
 msgstr "``new``: Главата не носи дизайнерски спецификации за него."
 
 # ``None`` ако липсва
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``nfs`` Включване на NFS (amount in units (real)),
 msgid "``nfs``            NFS opt-in (bool or dict), ``None`` if absent"
 msgstr ""
 
@@ -90036,9 +89716,6 @@ msgstr "``users.<WORKSTATION_USER>.username`` (по подразбиране WOR
 # translated-by: libretranslate
 # ``get_merged_applications`` (insible-free at import time, runner-host
 # friendly).
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: ``utils.cache.applications`` . +
 msgid "``utils.cache.applications`` — variants + ``get_merged_applications`` (ansible-free at import time, runner-host friendly)."
 msgstr ""
 
@@ -90392,9 +90069,6 @@ msgstr "`bench new-site` използва централния MariaDB\"е `root
 # [`templates/playwright.env.j2`](./templates/playwright.env.j2) amount in
 # units (real) `PERSONA_BIBER_BLOCKED=true`. `administrator` както и `guest`
 # Хората се движат във всеки вариант.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `biber` Само вътре съществува. EspoCRM чрез
 msgid "`biber` only ever exists inside EspoCRM through OIDC auto-provisioning (`ESPOCRM_CONFIG_OIDC_CREATE_USER=true`, [`templates/env.j2`](./templates/env.j2)); the role itself seeds only the administrator account. In the `services.sso.enabled: false` matrix variants that provisioning path is gone and no native `biber` user exists, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run in every variant."
 msgstr ""
 
@@ -91668,7 +91342,6 @@ msgstr "`mmctl plugin enable` само пише `PluginSettings.PluginStates` и
 msgid "`model`    — the `RoleRuntime` record (one role's time within a segment)."
 msgstr "`model` . `RoleRuntime` Запис (време за една роля в рамките на сегмент)."
 
-# translation-refused: libretranslate damaged-span
 msgid "`monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). A `version` pin MUST also name its version source here, or carry `# nocheck: unwatched-version` with a reason: either `type` with its fields, or `monitored: true` with `catalog: github-releases` and the `owner/repository` as `upstream_id`. See [Declared version sources](../../../../../cli/contributing/update/README.md#declared-version-sources)."
 msgstr ""
 
@@ -92610,7 +92283,6 @@ msgstr "`tasks/02_manager_ops.yml` \"Copy тайга gate config\" се прев
 msgid "`tasks/02_manager_ops.yml` reports \"Realign the administrator password EspoCRM persisted at install\" as changed on every run (`changed_when: rc == 0`), so a second deploy is never idempotent. Options: compare the stored hash first with a PHP check, as `files/php/set_siteurl.php` does for `siteUrl`."
 msgstr "`tasks/02_manager_ops.yml` доклади \"Пренаписване на паролата на администратора EspoCRM продължава да се инсталира\" както се променя при всяко движение (`changed_when: rc == 0`), Така че второ разгръщане никога не е неподходящо. Опции: първо сравнете съхраняваната хеш с PHP проверка, като `files/php/set_siteurl.php` прави за `siteUrl`."
 
-# translation-refused: libretranslate damaged-span
 msgid "`tasks/02_settings.yml:58` renders `OPENPROJECT_RAILS_SETTINGS` including `smtp_password` into the shell command line as `-e OPENPROJECT_RAILS_SETTINGS=<json>`; forward it as `-e OPENPROJECT_RAILS_SETTINGS` plus `environment:`, or feed the JSON on stdin."
 msgstr ""
 
@@ -92690,7 +92362,6 @@ msgstr "`templates/compose.yml.j2:62` пас `FUNKWHALE_TYPESENSE_API_KEY` ка�
 msgid "`templates/compose.yml.j2`: its own standalone stack."
 msgstr "`templates/compose.yml.j2`: собствена самостоятелна купчина."
 
-# translation-refused: libretranslate damaged-span
 msgid "`templates/env.j2:7-10` renders `BRIDGY_APPVIEW_HOST`, `BRIDGY_PLC_HOST`, `BRIDGY_BGS_HOST` and `BRIDGY_PDS_HOST`, while upstream reads `APPVIEW_HOST`, `PLC_HOST`, `BGS_HOST` and `PDS_HOST` (`config.py:116-118`, `hub.py:201-203`), so the rendered values reach no code path (read from both sources, not measured). Options: render the names upstream reads; or drop the four lines."
 msgstr ""
 
@@ -92702,7 +92373,6 @@ msgstr "`templates/env.j2` линии 33 до 41 задаване на фикс�
 msgid "`templates/env.j2` passes `LDAP_ADMIN_PASSWORD`, which no script of the LAM 9.7 image reads (`start.sh` reads `LDAP_USER`, `LAM_PASSWORD`, `LDAP_SERVER`, `LDAP_BASE_DN` and friends; the key only feeds the OpenLDAP service of the upstream compose file). It places the LDAP root password into the LAM container environment for nothing, since LAM binds with the password the user types. Option: drop the key."
 msgstr "`templates/env.j2` пас `LDAP_ADMIN_PASSWORD`, който няма сценарий на LAM 9.7 изображение чете (`start.sh` чете `LDAP_USER`, `LAM_PASSWORD`, `LDAP_SERVER`, `LDAP_BASE_DN` и приятели; ключът храни само OpenLDAP услуга на композиционния файл нагоре по веригата). Тя поставя LDAP коренова парола в LAM контейнер среда за нищо, тъй като LAM свързва с паролата на типовете потребители. Вариант: хвърли ключа."
 
-# translation-refused: libretranslate damaged-span
 #, no-python-format, python-brace-format
 msgid "`templates/env.j2` renders `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` inside the `{% if email.enabled %}` block, so a deploy with `sso` on and `email` off leaves the database login form open next to Keycloak (`config.exs.j2` defaults the key to `false`). Options: move the line out of the email block, or derive it in `config.exs.j2` from the SSO and LDAP flags."
 msgstr ""
@@ -93067,9 +92737,6 @@ msgstr "`web-app-friendica` ."
 
 # translated-by: libretranslate
 # backend
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: `web-app-funkwhale` django header / offer-user auth
 msgid "`web-app-funkwhale` — django header / remote-user auth backend"
 msgstr ""
 
@@ -93216,9 +92883,6 @@ msgstr "coreDNS sidecar в мрежовия namespace на целевия"
 msgid "a LUKS device / image (recovered first via the device step, which restores the tree to its restore-root, then discovered under that root)."
 msgstr "устройство LUKS / образ (Възстановява се първо чрез стъпалото на устройството, което възстановява дървото до възстановяването му, след което се открива под този корен)."
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Playwright Specification Translation a know string
 # through `api.translate.<domain>`
 msgid "a Playwright spec translating a known string through `api.translate.<domain>`"
 msgstr ""
@@ -93286,9 +92950,6 @@ msgstr "искане"
 msgid "a deploy already holds the container stack this one     would touch."
 msgstr "Разположението вече държи контейнера, който този ще докосне."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Разгръщането вече е започнало, и превеждането ще се
 # състезава за същия контейнер.
 msgid "a deploy is already running, and translating would race     it for the same container stack."
 msgstr ""
@@ -93942,9 +93603,6 @@ msgstr "задачи в подходяща готовност"
 msgid "apt_package: the PGDG package suffix, installed as"
 msgstr "apt_package: PGDG пакетна наставка, инсталирана като"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real)
 msgid "arch"
 msgstr ""
 
@@ -94337,9 +93995,6 @@ msgstr "cdn.jsdelivr.net/npm/<package>@<locked-version>/<path>"
 msgid "ceiling for the Tor case, independent of the CI cap."
 msgstr "таван за случая Tor, независимо от CI капачката."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real)
 msgid "centos"
 msgstr ""
 
@@ -94560,11 +94215,8 @@ msgid "cli.administration.deploy.development.inventory.builder module"
 msgstr "cli.administration.deploy.development.inventory.builder модул"
 
 # cli.administration.deploy.development.inventory.legacyМодул \ разрешител
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.deploy.development.inventory.legacy']
 # gained=['cli.administration.deploy.development.inventory.legacyМодул']
-# nocheck: url
-# translation-rejected:
 msgid "cli.administration.deploy.development.inventory.legacy\\_resolver module"
 msgstr ""
 
@@ -94580,11 +94232,8 @@ msgstr "cli.administration.deploy.development.inventory.planner модул"
 msgid "cli.administration.deploy.development.inventory.spec module"
 msgstr "cli.administration.deploy.development.inventory.spec модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.deploy.development.log']
 # gained=['cli.administration.deploy.development.logМодул']
-# nocheck: url
-# translation-rejected: cli.administration.deploy.development.logМодул \ utils
 msgid "cli.administration.deploy.development.log\\_utils module"
 msgstr ""
 
@@ -94737,11 +94386,8 @@ msgid "cli.administration.inventory.provision.filters module"
 msgstr "cli.administration.inventory.provision.filters модул"
 
 # vars
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.host']
 # gained=['cli.administration.inventory.provision.hostМодул']
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostМодул \
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
 
@@ -94750,11 +94396,8 @@ msgid "cli.administration.inventory.provision.inventory\\_generator module"
 msgstr "cli.administration.inventory.provision.inventory\\ генераторен модул"
 
 # overrides
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.mirror']
 # gained=['cli.administration.inventory.provision.mirrorМодул']
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.mirrorМодул \
 msgid "cli.administration.inventory.provision.mirror\\_overrides module"
 msgstr ""
 
@@ -94771,11 +94414,8 @@ msgid "cli.administration.inventory.provision.reset module"
 msgstr "cli.administration.inventory.provision.reset модул"
 
 # разрешител
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.role']
 # gained=['cli.administration.inventory.provision.roleМодул']
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.roleМодул \
 msgid "cli.administration.inventory.provision.role\\_resolver module"
 msgstr ""
 
@@ -94784,11 +94424,8 @@ msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr "cli.administration.inventory.provision.ruamel\\ io модул"
 
 # за изключване
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.inventory.provision.services']
 # gained=['cli.administration.inventory.provision.servicesМодул']
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.servicesМодул
 msgid "cli.administration.inventory.provision.services\\_disabler module"
 msgstr ""
 
@@ -95143,17 +94780,11 @@ msgstr "cli.meta.ci.architectures модул"
 msgid "cli.meta.ci.chunks module"
 msgstr "cli.meta.ci.chunks модул"
 
-# translation-refused: libretranslate protected-span lost=['cli.meta.ci.dev']
 # gained=['cli.meta.ci.devМодул']
-# nocheck: url
-# translation-rejected: cli.meta.ci.devМодул \ runtime
 msgid "cli.meta.ci.dev\\_runtime module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['cli.meta.ci.image'] gained=['cli.meta.ci.imageМодул']
-# nocheck: url
-# translation-rejected: cli.meta.ci.imageМодул \ ref
 msgid "cli.meta.ci.image\\_ref module"
 msgstr ""
 
@@ -95229,10 +94860,7 @@ msgstr "cli.meta.ci.roles.runtime.sources модул"
 msgid "cli.meta.ci.slots module"
 msgstr "cli.meta.ci.slots модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['cli.meta.ci.subset'] gained=['cli.meta.ci.subsetМодул']
-# nocheck: url
-# translation-rejected: cli.meta.ci.subsetМодул \ roles
 msgid "cli.meta.ci.subset\\_roles module"
 msgstr ""
 
@@ -95316,11 +94944,8 @@ msgstr "cli.meta.roles.applications.complexity.model модул"
 msgid "cli.meta.roles.applications.complexity.render module"
 msgstr "cli.meta.roles.applications.complexity.render модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['cli.meta.roles.applications.dynamic']
 # gained=['cli.meta.roles.applications.dynamicМодул']
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.dynamicМодул \ услуги
 msgid "cli.meta.roles.applications.dynamic\\_services module"
 msgstr ""
 
@@ -96399,9 +96024,6 @@ msgstr "равно на `from`"
 msgid "eslint preserve-caught-error and no-useless-assignment violations in five Playwright helpers"
 msgstr "eslint conserve-cotted-error и no-less-assignment нарушения в пет Playwright помощници"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real)
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr ""
 
@@ -96875,10 +96497,7 @@ msgstr "избрани от групата роли"
 msgid "group_vars/ directory"
 msgstr "group_vars/ директория"
 
-# translation-refused: libretranslate protected-span lost=['group_vars']
 # gained=['group_varsВсички']
-# nocheck: url
-# translation-rejected: group_varsВсички 📦
 msgid "group_vars/all 📦"
 msgstr ""
 
@@ -97466,9 +97085,6 @@ msgid "loop: \"{{ lookup('stage_groups', 'server') }}\""
 msgstr "цикъл: \"{{ lookup('stage_groups', 'server') }}\""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: a.
 msgid "loopback and cloud-metadata addresses stay denied"
 msgstr ""
 
@@ -98515,9 +98131,6 @@ msgstr "parent_dns_domains (списък[str], по избор): FQDNs за оц
 msgid "parent_dns_enabled (bool, default: true)"
 msgstr "parent_dns_enabled (Бул, по подразбиране: вярно)"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: parent_dns_proxied (amount in units (real))
 msgid "parent_dns_proxied (bool, default: false)"
 msgstr ""
 
@@ -98682,9 +98295,6 @@ msgstr "phpMyAdmin признаци като MariaDB ``root`` сметката �
 # (`sso.oauth2.allowed_groups`) както и `biber` има празен списък с роли, така
 # че `PERSONA_BIBER_BLOCKED=true` държи във всеки вариант. На `guest` persona
 # и основните твърдения работят безусловно.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: phpMyAdmin признаци като MariaDB `root` сметката е
 msgid "phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); the Keycloak `administrator` username is not a MariaDB user, so in the `services.sso.enabled: false` matrix variants the `administrator` persona has no native login to drive and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-phpmyadmin` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`) and `biber` carries an empty role list, so `PERSONA_BIBER_BLOCKED=true` holds in every variant. The `guest` persona and the baseline assertions run unconditionally."
 msgstr ""
 
@@ -98756,10 +98366,7 @@ msgstr "пакет приставки"
 msgid "plugins.filter package"
 msgstr "plugins.filter Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.active'] gained=['plugins.filter.activeМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.activeМодул \ докер
 msgid "plugins.filter.active\\_docker module"
 msgstr ""
 
@@ -98810,10 +98417,7 @@ msgstr "plugins.filter.docker.network\\ нуп модул"
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr "plugins.filter.docker.service\\ възможен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.domainМодул \ инструменти
 msgid "plugins.filter.domain\\_tools module"
 msgstr ""
 
@@ -98825,19 +98429,13 @@ msgstr "plugins.filter.dotenv модул"
 msgid "plugins.filter.generate package"
 msgstr "plugins.filter.generate Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.generate.all']
 # gained=['plugins.filter.generate.allМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.generate.allМодул \ домейни
 msgid "plugins.filter.generate.all\\_domains module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.generate.base']
 # gained=['plugins.filter.generate.baseМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.generate.baseМодул \ sld\ domains
 msgid "plugins.filter.generate.base\\_sld\\_domains module"
 msgstr ""
 
@@ -98849,27 +98447,18 @@ msgstr "plugins.filter.get Опаковка"
 msgid "plugins.filter.get.all package"
 msgstr "plugins.filter.get.all Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.all.application']
 # gained=['plugins.filter.get.all.applicationМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.applicationМодул \ ids
 msgid "plugins.filter.get.all.application\\_ids module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.all.invokable']
 # gained=['plugins.filter.get.all.invokableМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.invokableМодул \ приложения
 msgid "plugins.filter.get.all.invokable\\_apps module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.category']
 # gained=['plugins.filter.get.categoryМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.get.categoryМодул \ entries
 msgid "plugins.filter.get.category\\_entries module"
 msgstr ""
 
@@ -98877,10 +98466,7 @@ msgstr ""
 msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.docker'] gained=['plugins.filter.get.dockerМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.get.dockerМодул \ пътеки
 msgid "plugins.filter.get.docker\\_paths module"
 msgstr ""
 
@@ -98888,10 +98474,7 @@ msgstr ""
 msgid "plugins.filter.get.domain module"
 msgstr "plugins.filter.get.domain модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.entity'] gained=['plugins.filter.get.entityМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.get.entityМодул \ име
 msgid "plugins.filter.get.entity\\_name module"
 msgstr ""
 
@@ -98923,10 +98506,7 @@ msgstr "plugins.filter.has.domain модул"
 msgid "plugins.filter.has.env module"
 msgstr "plugins.filter.has.env модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.invokable'] gained=['plugins.filter.invokableМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.invokableМодул \ пътеки
 msgid "plugins.filter.invokable\\_paths module"
 msgstr ""
 
@@ -98938,11 +98518,8 @@ msgstr "plugins.filter.ldap\\ modify\\ nop модул"
 msgid "plugins.filter.litellm package"
 msgstr "plugins.filter.litellm Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.litellm.model']
 # gained=['plugins.filter.litellm.modelМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.litellm.modelМодул \ маршрути
 msgid "plugins.filter.litellm.model\\_routes module"
 msgstr ""
 
@@ -98957,10 +98534,7 @@ msgstr "plugins.filter.merge Опаковка"
 msgid "plugins.filter.merge.mapping module"
 msgstr "plugins.filter.merge.mapping модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.merge.with'] gained=['plugins.filter.merge.withМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.merge.withМодул \ по подразбиране
 msgid "plugins.filter.merge.with\\_defaults module"
 msgstr ""
 
@@ -98972,17 +98546,11 @@ msgstr "plugins.filter.mirror\\ филтърен модул"
 msgid "plugins.filter.on\\_off module"
 msgstr "plugins.filter.on\\ извън модула"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.redirect'] gained=['plugins.filter.redirectМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.redirectМодул \ източници
 msgid "plugins.filter.redirect\\_sources module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.reservedМодул \ потребители
 msgid "plugins.filter.reserved\\_users module"
 msgstr ""
 
@@ -99006,17 +98574,11 @@ msgstr "plugins.filter.seaweedfs модул"
 msgid "plugins.filter.sed module"
 msgstr "plugins.filter.sed модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.split'] gained=['plugins.filter.splitМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.splitМодул \ postgress\ connections
 msgid "plugins.filter.split\\_postgres\\_connections module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.status'] gained=['plugins.filter.statusМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.statusМодул \ кодове
 msgid "plugins.filter.status\\_codes module"
 msgstr ""
 
@@ -99024,11 +98586,8 @@ msgstr ""
 msgid "plugins.filter.swarm package"
 msgstr "plugins.filter.swarm Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.swarm.deployed']
 # gained=['plugins.filter.swarm.deployedМодул']
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.deployedМодул \ услуги
 msgid "plugins.filter.swarm.deployed\\_services module"
 msgstr ""
 
@@ -99088,11 +98647,8 @@ msgstr "plugins.lookup.api модул"
 msgid "plugins.lookup.api\\_enabled module"
 msgstr "plugins.lookup.api\\ възможен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.application']
 # gained=['plugins.lookup.applicationМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationМодул за затваряне
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
@@ -99116,10 +98672,7 @@ msgstr "plugins.lookup.asset модул"
 msgid "plugins.lookup.asset\\_host module"
 msgstr "plugins.lookup.asset\\ host модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.bounded'] gained=['plugins.lookup.boundedМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.boundedМодул \ име
 msgid "plugins.lookup.bounded\\_name module"
 msgstr ""
 
@@ -99132,16 +98685,10 @@ msgid "plugins.lookup.cache\\_records module"
 msgstr "plugins.lookup.cache\\ записва модул"
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheМодул']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheМодул \ repos
 msgid "plugins.lookup.cache\\_repos module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheМодул']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheМодул \ нагоре по веригата
 msgid "plugins.lookup.cache\\_upstreams module"
 msgstr ""
 
@@ -99169,10 +98716,7 @@ msgstr "plugins.lookup.compose\\ външен модул \\ мрежа"
 msgid "plugins.lookup.compose\\_file\\_args module"
 msgstr "plugins.lookup.compose\\ файл\\ args модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeМодул \ мрежа
 msgid "plugins.lookup.compose\\_networks module"
 msgstr ""
 
@@ -99180,24 +98724,15 @@ msgstr ""
 msgid "plugins.lookup.compose\\_only module"
 msgstr "plugins.lookup.compose\\ само модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeМодул \ replicas
 msgid "plugins.lookup.compose\\_replicas module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeМодул за рестартиране
 msgid "plugins.lookup.compose\\_restart module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeМодул \ обеми
 msgid "plugins.lookup.compose\\_volumes module"
 msgstr ""
 
@@ -99221,10 +98756,7 @@ msgstr "plugins.lookup.container\\ зависи\\ от модула"
 msgid "plugins.lookup.container\\_deploy module"
 msgstr "plugins.lookup.container\\ разгърнат модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ dns
 msgid "plugins.lookup.container\\_dns module"
 msgstr ""
 
@@ -99236,17 +98768,11 @@ msgstr "plugins.lookup.container\\ extra\\ hosts модул"
 msgid "plugins.lookup.container\\_healthcheck module"
 msgstr "plugins.lookup.container\\ модул за проверка на здравето"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ hostname
 msgid "plugins.lookup.container\\_hostname module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ образ
 msgid "plugins.lookup.container\\_image module"
 msgstr ""
 
@@ -99254,17 +98780,11 @@ msgstr ""
 msgid "plugins.lookup.container\\_mail\\_marker module"
 msgstr "plugins.lookup.container\\ mail\\ маркерен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ мрежа
 msgid "plugins.lookup.container\\_networks module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ портове
 msgid "plugins.lookup.container\\_ports module"
 msgstr ""
 
@@ -99275,10 +98795,7 @@ msgstr "plugins.lookup.container\\ сервизен модул"
 msgid "plugins.lookup.container\\_url module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerМодул \ обеми
 msgid "plugins.lookup.container\\_volumes module"
 msgstr ""
 
@@ -99334,17 +98851,11 @@ msgstr "plugins.lookup.fediwall\\ активен модул"
 msgid "plugins.lookup.gpu module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.group'] gained=['plugins.lookup.groupМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.groupМодул \ roles
 msgid "plugins.lookup.group\\_roles module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.guide'] gained=['plugins.lookup.guideМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.guideМодул \ role
 msgid "plugins.lookup.guide\\_role module"
 msgstr ""
 
@@ -99385,10 +98896,7 @@ msgstr ""
 msgid "plugins.lookup.mcp\\_credential module"
 msgstr "plugins.lookup.mcp\\ отрицателен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpМодул за сървъри
 msgid "plugins.lookup.mcp\\_servers module"
 msgstr ""
 
@@ -99427,10 +98935,7 @@ msgstr "plugins.lookup.nfs\\ износ\\ база модул"
 msgid "plugins.lookup.nfs\\_flavor module"
 msgstr "plugins.lookup.nfs\\ Флаворен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsМодул \ fstype
 msgid "plugins.lookup.nfs\\_fstype module"
 msgstr ""
 
@@ -99465,17 +98970,11 @@ msgstr "plugins.lookup.objstore\\ модул за потребители"
 msgid "plugins.lookup.path\\_absolute module"
 msgstr "plugins.lookup.path\\ абсолютен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.playwright'] gained=['plugins.lookup.playwrightМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.playwrightМодул за работни места
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.postgresМодул за библиотека
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -99486,10 +98985,7 @@ msgstr "plugins.lookup.prometheus\\ интеграция\\ активен мод
 msgid "plugins.lookup.proxy\\_excluded\\_hosts module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.proxy'] gained=['plugins.lookup.proxyМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.proxyМодул \ пас
 msgid "plugins.lookup.proxy\\_pass module"
 msgstr ""
 
@@ -99505,10 +99001,7 @@ msgstr "plugins.lookup.redirect\\ uris модул"
 msgid "plugins.lookup.resource module"
 msgstr "plugins.lookup.resource модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.roleМодул \ subnets
 msgid "plugins.lookup.role\\_subnets module"
 msgstr ""
 
@@ -99573,10 +99066,7 @@ msgstr ""
 msgid "plugins.lookup.sso\\_whitelist\\_domains module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.stage'] gained=['plugins.lookup.stageМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.stageМодул \ групи
 msgid "plugins.lookup.stage\\_groups module"
 msgstr ""
 
@@ -99584,10 +99074,7 @@ msgstr ""
 msgid "plugins.lookup.subnet\\_address\\_regex module"
 msgstr "plugins.lookup.subnet\\ address\\ regex модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnetМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.subnetМодул \ gateway
 msgid "plugins.lookup.subnet\\_gateway module"
 msgstr ""
 
@@ -99599,10 +99086,7 @@ msgstr "plugins.lookup.timeout модул"
 msgid "plugins.lookup.tls module"
 msgstr "plugins.lookup.tls модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.torМодул \ портове
 msgid "plugins.lookup.tor\\_ports module"
 msgstr ""
 
@@ -99610,10 +99094,7 @@ msgstr ""
 msgid "plugins.lookup.tor\\_reachable module"
 msgstr "plugins.lookup.tor\\ достъпен модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.torМодул \ чорапи
 msgid "plugins.lookup.tor\\_socks module"
 msgstr ""
 
@@ -99621,10 +99102,7 @@ msgstr ""
 msgid "plugins.lookup.tor\\_socks\\_proxy module"
 msgstr "plugins.lookup.tor\\ socks\\ proxy модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.unit'] gained=['plugins.lookup.unitМодул']
-# nocheck: url
-# translation-rejected: plugins.lookup.unitМодул \ име
 msgid "plugins.lookup.unit\\_name module"
 msgstr ""
 
@@ -99821,9 +99299,6 @@ msgstr "Питон - м utils.parse_trace <trace.zip>"
 
 # (real)3 - m cli.meta.ci.dev_runtime дистро -- образна федора: последен
 # питон3 - m cli.meta.ci.dev_runtime матрица - режим завъртане - рън 42
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: питон3 - m cli.meta.ci.dev_runtime amount in units
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
 msgstr ""
 
@@ -100018,9 +99493,6 @@ msgstr "топирани вариантни конфигурации за при
 msgid "rendered variant configs per app; without them no variant can be told to be the smallest one."
 msgstr "не може да се каже, че е най-малкият вариант."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real) `.env` от `playwright.env.j2`
 msgid "renders `.env` from `playwright.env.j2`"
 msgstr ""
 
@@ -102541,9 +102013,6 @@ msgstr "до ``aliases``. Поставете го, когато препокри
 msgid "to get a list of available commands and options."
 msgstr "да получите списък с налични команди и опции."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real)
 msgid "to-dos"
 msgstr ""
 
@@ -102624,9 +102093,6 @@ msgstr ""
 
 # translated-by: libretranslate
 # live=True streaks stdout/stderr.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: ty=Noone auto-selects (local: True, CI: False).
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
 msgstr ""
 
@@ -102773,10 +102239,7 @@ msgstr "utils.annotations.summarize модул"
 msgid "utils.annotations.suppress module"
 msgstr "utils.annotations.suppress модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.annotations.task'] gained=['utils.annotations.taskМодул']
-# nocheck: url
-# translation-rejected: utils.annotations.taskМодул \ gate
 msgid "utils.annotations.task\\_gate module"
 msgstr ""
 
@@ -102836,10 +102299,7 @@ msgstr "utils.cache.records модул"
 msgid "utils.cache.render module"
 msgstr "utils.cache.render модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.cache.schema'] gained=['utils.cache.schemaМодул']
-# nocheck: url
-# translation-rejected: utils.cache.schemaМодул \ credentials
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -102855,10 +102315,7 @@ msgstr "utils.cache.users.placeholders модул"
 msgid "utils.cache.yaml module"
 msgstr "utils.cache.yaml модул"
 
-# translation-refused: libretranslate protected-span lost=['utils.cert']
 # gained=['utils.certМодул']
-# nocheck: url
-# translation-rejected: utils.certМодул \ utils
 msgid "utils.cert\\_utils module"
 msgstr ""
 
@@ -102878,10 +102335,7 @@ msgstr "utils.cleanup Опаковка"
 msgid "utils.cleanup.databases\\_csv module"
 msgstr "utils.cleanup.databases\\ csv модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.cleanup.nginx'] gained=['utils.cleanup.nginxМодул']
-# nocheck: url
-# translation-rejected: utils.cleanup.nginxМодул \ vhosts
 msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr ""
 
@@ -102963,10 +102417,7 @@ msgstr "utils.docker.image.ref модул"
 msgid "utils.docker.mirror module"
 msgstr "utils.docker.mirror модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.docker.paths'] gained=['utils.docker.pathsМодул']
-# nocheck: url
-# translation-rejected: utils.docker.pathsМодул \ utils
 msgid "utils.docker.paths\\_utils module"
 msgstr ""
 
@@ -103010,10 +102461,7 @@ msgstr "utils.env.handlers Опаковка"
 msgid "utils.env.handlers.act\\_platform\\_image module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.docker'] gained=['utils.env.handlers.dockerМодул']
-# nocheck: url
-# translation-rejected: utils.env.handlers.dockerМодул \ platform
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr ""
 
@@ -103034,11 +102482,8 @@ msgid "utils.env.handlers.infinito.ca package"
 msgstr "utils.env.handlers.infinito.ca Опаковка"
 
 # кандидати
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.ca.bundle']
 # gained=['utils.env.handlers.infinito.ca.bundleМодул']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.bundleМодул за
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
 msgstr ""
 
@@ -103060,9 +102505,6 @@ msgstr "utils.env.handlers.infinito.cache.hosts модул"
 
 # lost=['utils.env.handlers.infinito.cache.http']
 # gained=['utils.env.handlers.infinito.cache.httpМодул']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.cache.httpМодул \ hosts
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
 msgstr ""
 
@@ -103198,11 +102640,8 @@ msgstr "utils.env.handlers.infinito.package\\ cache.direct\\ mem модул"
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr "utils.env.handlers.infinito.package\\ cache.heap модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.parent']
 # gained=['utils.env.handlers.infinito.parentМодул']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.parentМодул \ образ
 msgid "utils.env.handlers.infinito.parent\\_image module"
 msgstr ""
 
@@ -103302,10 +102741,7 @@ msgstr "utils.env.handlers.infinito.worker.cpu модул"
 msgid "utils.env.handlers.infinito.worker.fetch module"
 msgstr "utils.env.handlers.infinito.worker.fetch модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.nix'] gained=['utils.env.handlers.nixМодул']
-# nocheck: url
-# translation-rejected: utils.env.handlers.nixМодул \ config
 msgid "utils.env.handlers.nix\\_config module"
 msgstr ""
 
@@ -103345,10 +102781,7 @@ msgstr "utils.github.playwright\\ пълен модул"
 msgid "utils.github.pytest\\_summary module"
 msgstr "utils.github.pytest\\ пълен модул"
 
-# translation-refused: libretranslate protected-span lost=['utils.github.run']
 # gained=['utils.github.runМодул']
-# nocheck: url
-# translation-rejected: utils.github.runМодул \ име
 msgid "utils.github.run\\_name module"
 msgstr ""
 
@@ -103472,10 +102905,7 @@ msgstr "utils.install Опаковка"
 msgid "utils.install.collections module"
 msgstr "utils.install.collections модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.install.github'] gained=['utils.install.githubМодул']
-# nocheck: url
-# translation-rejected: utils.install.githubМодул за освобождаване
 msgid "utils.install.github\\_release module"
 msgstr ""
 
@@ -103599,10 +103029,7 @@ msgstr "utils.install.system\\ pkg модул"
 msgid "utils.inventory package"
 msgstr "utils.inventory Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.inventory.bundle'] gained=['utils.inventory.bundleМодул']
-# nocheck: url
-# translation-rejected: utils.inventory.bundleМодул \ приложения
 msgid "utils.inventory.bundle\\_apps module"
 msgstr ""
 
@@ -103613,10 +103040,7 @@ msgstr "utils.inventory.groups модул"
 msgid "utils.inventory.tools module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=['utils.kcadm']
 # gained=['utils.kcadmМодул']
-# nocheck: url
-# translation-rejected: utils.kcadmМодул \ json
 msgid "utils.kcadm\\_json module"
 msgstr ""
 
@@ -103669,10 +103093,7 @@ msgstr "utils.meta.authors модул"
 msgid "utils.meta.identity module"
 msgstr "utils.meta.identity модул"
 
-# translation-refused: libretranslate protected-span lost=['utils.meta.port']
 # gained=['utils.meta.portМодул']
-# nocheck: url
-# translation-rejected: utils.meta.portМодул \ ленти
 msgid "utils.meta.port\\_bands module"
 msgstr ""
 
@@ -103859,11 +103280,8 @@ msgstr "utils.roles.applications.services.resources модул"
 msgid "utils.roles.applications.services.sso module"
 msgstr "utils.roles.applications.services.sso модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.roles.applications.status']
 # gained=['utils.roles.applications.statusМодул']
-# nocheck: url
-# translation-rejected: utils.roles.applications.statusМодул \ кодове
 msgid "utils.roles.applications.status\\_codes module"
 msgstr ""
 
@@ -103886,10 +103304,7 @@ msgstr "utils.roles.categories модул"
 msgid "utils.roles.credits module"
 msgstr "utils.roles.credits модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.roles.dependency'] gained=['utils.roles.dependencyМодул']
-# nocheck: url
-# translation-rejected: utils.roles.dependencyМодул \ разрешител
 msgid "utils.roles.dependency\\_resolver module"
 msgstr ""
 
@@ -104023,10 +103438,7 @@ msgstr "utils.tests Опаковка"
 msgid "utils.tests.swarm package"
 msgstr "utils.tests.swarm Опаковка"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.backup'] gained=['utils.tests.swarm.backupМодул']
-# nocheck: url
-# translation-rejected: utils.tests.swarm.backupМодул \ repos
 msgid "utils.tests.swarm.backup\\_repos module"
 msgstr ""
 
@@ -104063,11 +103475,8 @@ msgstr "utils.tests.swarm.write Опаковка"
 msgid "utils.tests.swarm.write.extras module"
 msgstr "utils.tests.swarm.write.extras модул"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.write.hosts']
 # gained=['utils.tests.swarm.write.hostsМодул']
-# nocheck: url
-# translation-rejected: utils.tests.swarm.write.hostsМодул \ entries
 msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr ""
 
@@ -104094,10 +103503,7 @@ msgstr "utils.update.base модул"
 msgid "utils.update.checksum module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.update.collection'] gained=['utils.update.collectionМодул']
-# nocheck: url
-# translation-rejected: utils.update.collectionМодул \ източник
 msgid "utils.update.collection\\_source module"
 msgstr ""
 
@@ -104134,15 +103540,9 @@ msgstr "utils.update.source модул"
 msgid "utils.yaml\\_bootstrap module"
 msgstr "utils.yaml\\ bootstrap модул"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real) 📐
 msgid "utils/env 📐"
 msgstr ""
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: amount in units (real)
 msgid "utils/install"
 msgstr ""
 
@@ -104576,9 +103976,6 @@ msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr "- Да.️ **Логика за превод** да бюст браузър кеш"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: .
 msgid "⏳ Wait for asynchronous resources to become available"
 msgstr ""
 

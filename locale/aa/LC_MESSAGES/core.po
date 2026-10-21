@@ -208,7 +208,6 @@ msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr "Central maail orchestrasiokolejo siidii Infinito.Nexus, integribii Email SaaS, msmtp, na siidii local SMTP relay"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
 msgstr ""
@@ -223,9 +222,6 @@ msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
 msgstr "Central aasajalis engine meegi konsumenti indeksi omnistariomarit isolitiitsoinimeid tenantsi kohustuslikud Docker amaldiisNaN"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Central vector database engine fo stórað og skołaare
 # keegúr ríkkó íbúrur ñe ñu ñu bëggúr ñu ñu ñu ñu ñu
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
@@ -296,7 +292,6 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Gebaziin kastaal pull-through geheggie-cache iyo halafashaan inaan hal-fashin Docker Hub geeriga basiintaan, wuxuu ka dhintay dhintiga waga iyo kaalinta bilaaban."
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -356,9 +351,6 @@ msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr "Korobba orchestration korrbetso ya seru saa iloona ya mbugwe ya munezo na munezo ya gwere korrbetso wa munezo"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Sere-betarwoona kubirra - registry baadu na lokoo na
 # yaake yaake yaake.
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
@@ -374,9 +366,6 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Containerized ikon server fi hoshunta ikon kolligjoon ya Simple Icons branda SVG naa dheeraa PNG fi waa waxay kale taas iyo dokumentaaliiso taas"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Bază_de_date relational serializibel meeleb dibaya
 # dibala dibale dibale dibale dibala dibale dibala dibale dibale dibale dibale
 # dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale dibale
 # dibale dibale dibale dibale dibale dibale dibale dib
@@ -389,7 +378,6 @@ msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Kodeerimissystem"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -660,9 +648,6 @@ msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr "Wiki entaa iñikambarra iñikambuura iñikakoombirra iñikakoomba iñikambarra iñikambuura iñikambarra"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Event sosso Sosso sosso Sosso sosso Sosso sosso
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
 msgstr ""
@@ -732,7 +717,6 @@ msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr "Front-layi re bazi base ga web aps: founshi ti HTTPS, bii Cloudflare bii awtorashu, ga layi-re proxy bii shawa"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr ""
@@ -757,9 +741,6 @@ msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
 msgstr "Generic end-to-end test runner executii rol-provideid Playwright specs siinai wa Dockeri niriyeke na applikasi y'nyiipa"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Role gine kyilu kyilu kyilu doli CLI iyo dhaawtar waxa
 # uu ka haddehay waxyaalaha ah waxa loola ka haddeh yihiin doosra waxyaalaha
 # dhaawtar iyo waxyaalaha maanta waxa uu ka haddeh yihiin doosra dhaawtar waxa
 # loola ka haddeh yihiin doosra doosra waxyaalaha dhaawtar iyo waxyaalaha
@@ -907,7 +888,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript runtimii firmi gof bi gof kasutamisega ja tõstmisega veebisaitidekasutavate apligaadidega"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -1082,9 +1062,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served static page-rendering Impressum(Impressum) Jinja2 template"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 tanslation model servad over HTTP, fir piligrims hat callit directly"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1101,7 +1082,6 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sjelbina DNS sitaala lai waga wey waa loo aad helo weyn xukuba aad iwe yararay ay weyn daadu waxay ahaan iwe helo dhawo, wuxuu sameeyn kala dhinac DHCP waa loo aad helo weyn xukuba aad iwe helo dhawo waxyaabo. La akkaan weyn wajisal dhaawad ee website."
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1239,25 +1219,16 @@ msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
 msgstr "Kodo helpdesk og system for bilette for håndtering av kundebegytningsskal med e-post, chat, telefonsamtal og internett"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Kursaaron unnaa ilan, saa saa, unnaa oggooliyo online
 # oggoola unnaa oggooliyo aqooyinka aqooyinka aqooyinka
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
 msgstr ""
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Toolbake ferdili og alerbiingit sirooshi sirooshi taas
 # ka metrics su fi fi fi taas og i koqi i koqi si PromQL
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Plataabba participativ biiddegi biiddegi biiddegi
 # platformi for publikulliyaal dhigga, kiirobi biiddegi, agobar da biiddegi
 # biikko
 msgctxt "role:web-app-decidim:description"
@@ -1269,9 +1240,6 @@ msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr "Open-source, inbåtsheftekommunikasjonstjeneste for real-tidskollaborasjon gjennom kanaler, tråder og integrasjoner"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: OpenAI-dhagulam LLM dhogulam gateway dhugulam single
 # /v1 dhogulam dhogulam dhogulam lokali khochoona dheeyar dheeyar dheeyar
 # dheeyar dheeyar dheeyar dhogulam model dhogulam dhogulam dhogulam hosted
 # dhogulam dhogulam dhogulam dhogulam dhogulam key dhogulam dhogulam dhogulam
@@ -1280,7 +1248,6 @@ msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
@@ -1420,7 +1387,6 @@ msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "Proxy Sille"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr ""
@@ -1540,7 +1506,6 @@ msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr "Sakytta dedupliceringskopieresjon for Docker kontainervolør til et lokale mappe, med senkegjeldige SQL dumpar"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
 msgstr ""
@@ -1590,7 +1555,6 @@ msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr "Zamenohsë systemd service taagaedisso nne taagaedisso biir btrfs fiisikalikal marraale kara wàkkalekwal ka aiso woorgoliso"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr ""
@@ -1625,7 +1589,6 @@ msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr "Dirección LDAP jasa yang di-hostkan dengan ũrũs gĩrụrụ, ụzọ, na gụdụ ugbọnụ na gụdụ nọọrụ na nọọrụ nọrụ na TLS-secured gụrụkọ"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr ""
@@ -1820,9 +1783,6 @@ msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Sagazimaji"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Koshaa aasat ayasut ayasut yi aasut ayasut ayasut
 # ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
 # ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut ayasut
 msgctxt "role:sys-openssl:description"
@@ -1834,7 +1794,6 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Mesaj-broker sosial bi messaggi async bi na hifin-ini bi kek-hifin-ini virtual user bi na kek-kunai"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
@@ -1860,9 +1819,6 @@ msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
 msgstr "Sekete, exept {failed} of {total} services."
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Sihlimba mkoleko sige sige sige ake  Sige ake
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
 msgstr ""
@@ -1907,7 +1863,6 @@ msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr "Skeet lekko kogeba serveri"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""
@@ -1927,7 +1882,6 @@ msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr "Storsge"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
@@ -2002,12 +1956,10 @@ msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Sisetplagg-triggerde notifier for ferdigeving av tjenerfellessmeldelser til en Telegram-talashellum"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
@@ -2077,32 +2029,26 @@ msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
 msgstr "Soortin gi, visulaizegi, og optimaalizegi verkefni og leiutiþjóði fyrir aðgang og gildi fyrir aðstoði og leiutiþjóði í máli."
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr ""
@@ -2127,27 +2073,22 @@ msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr "Kostumoeri"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""

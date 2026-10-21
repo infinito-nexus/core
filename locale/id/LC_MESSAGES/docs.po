@@ -106,9 +106,6 @@ msgstr "# nocheck: pip- versi package_name: \"autotu = =1.1.1\""
 
 # translated-by: libretranslate
 # docker-version
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: # nocheck: shared, email # nocheck: url,
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
 msgstr ""
 
@@ -673,9 +670,6 @@ msgstr "**Ansible**Anda perlu Ansible terpasang pada sistem Anda untuk menggunak
 
 # dari `entry-manual-steer.yml` dan (malaikat-malaikat) yang mengatur urusan
 # (dunia).)Nilai eksplisit Harus menang atas diff dan melewati verbatim.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Tidak ada kosong lainnya `whitelist`** (diteruskan
 msgid "**Any other non-empty `whitelist`** (forwarded from `entry-manual-steer.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim."
 msgstr ""
 
@@ -1428,9 +1422,6 @@ msgstr "**Senarai allowlist turunan CSP-@@** Upstream proxy dihasilkan dari apli
 # untuk MCP. Bila suatu implementasi memerlukan pengambilan MCP pada sisi
 # browser-, yang ditambahkan `connect-src` Sumber HARUS didokumentasikan dalam
 # README peran.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **CSP.** MCP Streamable HTTP menjalankan server server
 msgid "**CSP.** MCP Streamable HTTP runs server-to-server (the client role's backend connects to the server role), so a server role MUST NOT need a new browser `csp` `connect-src` entry for MCP. If an implementation does require a browser-side MCP fetch, the added `connect-src` source MUST be documented in the role README."
 msgstr ""
 
@@ -1660,9 +1651,6 @@ msgstr "**Diubah:** distribusi baku beralih ke *Debian* dan penanganan gambar CI
 # demi rombongan yang menggiring dengan sebenar-benarnya) demi para malaikat
 # yang menggiring atau mengarak awan. MariaDB dan mesin pos. Checkmk menyimpan
 # 401 fatal sehingga sandi salah tidak dapat mengunci akun keluar.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Mengubah kata sandi berubah di mana-mana.** Seorang
 msgid "**Changing a password changes it everywhere.** A user declares how its password must be generated, the inventory pins one for every declared user, a new generator produces API-key shapes, the deploy rotates credentials between its two passes, and a reset command exists. Applications that persist an administrator password at install now realign it when the declared one changes: Nextcloud, Moodle, EspoCRM, Jellyfin, Listmonk, Discourse, Checkmk, xWiki, n8n, Matrix and the dedicated MariaDB and Postgres engines. Checkmk keeps a 401 fatal so a wrong password cannot lock the account out."
 msgstr ""
 
@@ -2805,9 +2793,6 @@ msgstr "**Keterangan:** platform kolaborasi Enterprise dan tim untuk menciptakan
 
 # translated-by: libretranslate
 # Vim-masuk akal bagi pengubahan kode dan konfigurasi termal
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Keterangan:** Penyunting teks baris baris baris
 msgid "**Description:** Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
 
@@ -3501,9 +3486,6 @@ msgstr "**Keterangan:** Server basis data relasional bersama bagi aplikasi yang 
 
 # bookmarks federasi penanda publik ke Mastodon dan (malaikat-malaikat) yang
 # membedakan (antara yang hak dan yang bathil) dengan sejelas-jelasnya,
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Keterangan:** Penyanyi-user ActivityPub situs
 msgid "**Description:** Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
 
@@ -3854,9 +3836,6 @@ msgstr "**Kompose Dok** Mengaktifkan standalone `compose` peran untuk mendefinis
 # dan betis kirinya bertaut ketika ia mati. Atau makna yang dimaksud ialah
 # saling bertaut antara sakit berpisah dengan dunia dan sakit menghadapi
 # akhirat di dalam dirinya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Manajemen Jaringan Dok:** Membuat sebuah terisolasi
 msgid "**Docker Network Management:** Creates an isolated `/28` subnet for Collabora and connects containers securely."
 msgstr ""
 
@@ -3868,9 +3847,6 @@ msgstr "**Manajemen Jaringan Dok:** Membuat sebuah terisolasi `/28` subnet untuk
 # dan betis kirinya bertaut ketika ia mati. Atau makna yang dimaksud ialah
 # saling bertaut antara sakit berpisah dengan dunia dan sakit menghadapi
 # akhirat di dalam dirinya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Manajemen Jaringan Dok:** Membuat sebuah terisolasi
 msgid "**Docker Network Management:** Creates an isolated ``/28`` subnet for Collabora and connects containers securely."
 msgstr ""
 
@@ -4593,9 +4569,6 @@ msgstr "**Federasi Siap:** Yang dirender `socialhome.toml` menerbitkan URL ekste
 
 # tanpa henti Mastodon(Dan gelas-gelas) yakni tempat-tempat untuk minum tanpa
 # gagang ( Matrix dan aplikasi ActivityPub lainnya keluar dari kotak.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Dukungan & AktivityPub Berkembang** 🌐 Integrasikan
 msgid "**Fediverse & ActivityPub Support** 🌐 Seamlessly integrate Mastodon, Peertube, Matrix and other ActivityPub apps out of the box."
 msgstr ""
 
@@ -4747,9 +4720,6 @@ msgstr "**Templat vHost Fleksibel**: *dasar* dan *ws_generic* aplikasi tameng st
 # kencang) yang bertiup sangat kencang. Konektivitas internal tidak pernah
 # terpecahkan oleh perlindungan SSRF yang secara global mematikan bagi semua
 # penulis aliran.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Flowise 3.1.4** didamaikan melalui yang dikonfirmasi
 msgid "**Flowise 3.1.4** is reconciled through the authenticated `/api/v1/custom-mcp-servers` routes with a scoped identity limited to `tools:create`, `tools:view`, `tools:update` and `tools:delete`. It registers only Streamable HTTP providers: its SSE fallback cannot complete a connection at this pin, so an SSE provider is reported incompatible rather than claimed as registered. The role builds its own image from the pinned npm package, because the published `flowiseai/flowise` tags `3.1.3`, `3.1.4` and `latest` all ship the `flowise` package at version 3.1.2, which serves none of the required routes. Internal connectivity is never solved by globally disabling SSRF protection for all flow authors."
 msgstr ""
 
@@ -5483,9 +5453,6 @@ msgstr "**Independent of docker:** Docker memiliki tabel sendiri dan tidak perna
 # **pemantauan**, **peringatan**, **pembersihan**, **penyembuhan diri**,
 # **Pemutakhiran otomatis**, dan **solusi backup** menyediakan segala sesuatu
 # sebuah organisasi perlu dijalankan pada skala.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Infinito.Nexus** adalah **otomatis, kerangka
 msgid "**Infinito.Nexus** is an **automated, modular infrastructure framework** built on **Docker**, **Linux**, and **Ansible**, equally suited for cloud services, local server management, and desktop workstations. At its core lies a **web-based desktop with single sign-on**, backed by an **LDAP directory** and **OIDC**, granting **seamless access** to an almost limitless portfolio of self-hosted applications. It fully supports **ActivityPub applications** and is **Fediverse-compatible**, while integrated **monitoring**, **alerting**, **cleanup**, **self-healing**, **automated updates**, and **backup solutions** provide everything an organization needs to run at scale."
 msgstr ""
 
@@ -6600,18 +6567,12 @@ msgstr "**Pemantauan, Pemberitahuan & Analisis** 📊 Built-in sistem, aplikasi,
 # pada jaringan lokal. Sebuah node disegel terdeteksi dari `/v1/sys/health`,
 # yang menjawab 503 (Dan ditutup pula) diselimuti pula (oleh kegelapan) dan
 # kepekatan yang menghitam. 200 sekali dibuka.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Pemantauan:** Prometheus goresan `/v1/sys/metrics`
 msgid "**Monitoring:** Prometheus scrapes `/v1/sys/metrics` on the role-local network. A sealed node is detected from `/v1/sys/health`, which answers 503 while sealed and 200 once unsealed."
 msgstr ""
 
 # pada jaringan lokal. Sebuah node disegel terdeteksi dari ``/v1/sys/health``,
 # yang menjawab 503 (Dan ditutup pula) diselimuti pula (oleh kegelapan) dan
 # kepekatan yang menghitam. 200 sekali dibuka.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Pemantauan:** Prometheus goresan ``/v1/sys/metrics``
 msgid "**Monitoring:** Prometheus scrapes ``/v1/sys/metrics`` on the role-local network. A sealed node is detected from ``/v1/sys/health``, which answers 503 while sealed and 200 once unsealed."
 msgstr ""
 
@@ -6675,9 +6636,6 @@ msgstr "**Manajemen Multisite:** Mudah membuat dan mempertahankan beberapa situs
 # klaim. Penanda meta (`_infinito_oidc_added_blog_ids`) catatan mana blog yang
 # keanggotaan mapper memiliki, sehingga keanggotaan ditambahkan melalui
 # `wp-admin` atau REST API Di luar aliran OIDC tidak pernah tersentuh.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Path multisit** (oto- terdeteksi melalui
 msgid "**Multisite path** (auto-detected via `is_multisite()`): per-site roles come from `/roles/web-app-wordpress/<canonical-domain>/<role>` entries; the super-admin capability comes from `/roles/web-app-wordpress/network-administrator`. The mapper adds the user to any site they have a role for (`add_user_to_blog`) and removes them from sites it previously added them to (`remove_user_from_blog`) when a role for that site disappears from the claim. A user-meta marker (`_infinito_oidc_added_blog_ids`) records which blog memberships the mapper owns, so memberships added through `wp-admin` or the REST API outside the OIDC flow are never touched."
 msgstr ""
 
@@ -7498,9 +7456,6 @@ msgid "**Optional web dashboard:** With `services.webui.enabled` set, the dashbo
 msgstr ""
 
 # pengalihan wildcard (eksperimental) ♫️
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: **Secara Opsional** sertakan sebuah template
 msgid "**Optionally** include a wildcard redirect template (experimental) ⭐️"
 msgstr ""
 
@@ -8392,9 +8347,6 @@ msgstr "**Stability & Performance Robust:** Leverage terintegrasi Redis caching 
 
 # translated-by: libretranslate
 # your website with comprehensive analytics tools.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: **Robust Tracking:** Track user interactions across
 msgid "**Robust Tracking:** Track user interactions across your website with comprehensive analytics tools."
 msgstr ""
 
@@ -9126,9 +9078,6 @@ msgstr "**Logika tunggal untuk semua peran**"
 # peran hidup di *meta/secrets.yml*Sambungan tidak lagi membaca keluaran build
 # gitignored, komentar diperiksa dalam setiap berkas daripada hanya yang
 # berubah, dan setiap script dikirim membutuhkan tes unit cermin.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Satu titik kebenaran, dipaksa oleh benang.** Baru
 msgid "**Single points of truth, enforced by lint.** The new *sys-lint* role pins the GitHub-release lint tools. Every mount target has one spot in *meta/volumes.yml* and container paths are derived from it, *default.env* is the enforced source of the primary domain, *container_backup* is rejected where no volume exists, and role credentials live at *meta/secrets.yml*. Linters no longer read gitignored build output, comments are checked in every file rather than only changed ones, and every shipped script requires a mirrored unit test."
 msgstr ""
 
@@ -9663,9 +9612,6 @@ msgstr "**Alias adalah switch.** `services.litellm.router_alias` default ke `aut
 # `baudolo-restore --empty -d <db>` dengan apa-apa untuk terhubung. Setengah
 # basis data kehilangan bukti dengan itu - yang pra-bersih menjatuhkan skema
 # termasuk tabel penanda, dan hanya dump membawa kembali.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Volume aplikasi benar-benar dibuang** (`down
 msgid "**The app volumes are really discarded** (`down --volumes`) and re-created empty by `compose create`, so what comes back can only come from the backup. The database projects go down without `--volumes` on purpose: their data directory carries the database itself, which the deploy creates and the container does not, so a wiped datadir would leave `baudolo-restore --empty -d <db>` with nothing to connect to. The database half loses no proof by it — the pre-clean drops the schema including the marker table, and only the dump brings it back."
 msgstr ""
 
@@ -10429,17 +10375,11 @@ msgstr "**Kontrak kerja netral.** The `meta/addons/` kontrak berlaku untuk tipe 
 
 # (``dsk-*``) (Dan perbuatan dosa) lafal Ar-Rujza ditafsirkan oleh Nabi saw.
 # berhala-berhala (tinggalkanlah) hal itu untuk selama-lamanya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Lingkup workstation:** Target tingkat desktop
 msgid "**Workstation scope:** Targets the desktop tier (``dsk-*``) and stays out of server inventories."
 msgstr ""
 
 # (`dsk-*`) (Dan perbuatan dosa) lafal Ar-Rujza ditafsirkan oleh Nabi saw.
 # berhala-berhala (tinggalkanlah) hal itu untuk selama-lamanya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Lingkup workstation:** Target tingkat desktop
 msgid "**Workstation scope:** Targets the desktop tier (`dsk-*`) and stays out of server inventories."
 msgstr ""
 
@@ -11847,9 +11787,6 @@ msgstr "**deskripsi**: Server basis data relasional bersama untuk aplikasi yang 
 
 # federasi penanda publik ke Mastodon dan (malaikat-malaikat) yang membedakan
 # (antara yang hak dan yang bathil) dengan sejelas-jelasnya,
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **deskripsi**: Aktivitas Single-user Situs penanda Pub
 msgid "**description**: Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
 
@@ -12244,9 +12181,6 @@ msgstr "**tugas lingkungan pengembangan test-** - Semua 5 tugas distro (arch, de
 # rombongan yang menggiring dengan sebenar-benarnya) demi para malaikat yang
 # menggiring atau mengarak awan. `svc-prx-openresty` memecahkan. Periksa
 # `roles/` untuk id sebelum menjatuhkan kandidat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **peran id salah.** Kandidat yang dirakit dari memori
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
 msgstr ""
 
@@ -13837,9 +13771,6 @@ msgstr ":data:`DEFAULT_OK` plus apapun aplikasi mendeklarasikan domain ini."
 # ditambal ``PROJECT_ROOT`` dan tes fixtures membangun file di dalam pohon
 # sementara. Tingkat modul konstanta absolut akan membekukan root pada waktu
 # impor dan diam-diam mengabaikan keduanya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :data:`FILE_META_CATEGORIES` tetap repository- root
 msgid ":data:`FILE_META_CATEGORIES` stays repository-root *relative* and is not pre-joined onto ``PROJECT_ROOT`` at import time on purpose: the root is not fixed. ``utils.roles.validation.invokable`` is exercised against a patched ``PROJECT_ROOT`` and test fixtures build the file inside a temporary tree. A module level absolute constant would freeze the root at import time and silently ignore both."
 msgstr ""
 
@@ -14408,9 +14339,6 @@ msgstr "Konsumen adalah peran yang difungsikan yang merged config memungkinkan b
 # sendiri ``meta/services.yml`` dengan ``enabled`` dan ``shared`` siap.
 # ``web-app-openwebui`` {Y: i} kapal yang bendera dan mengirimkan
 # ``WEB_SEARCH_ENGINE=searxng`` dengan itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Seorang konsumen mencapainya sebagai
 msgid "A consumer reaches it as ``http://searxng:8080/search?q=<query>`` once it declares ``searxng`` in its own ``meta/services.yml`` with ``enabled`` and ``shared`` set. ``web-app-openwebui`` ships that flag and sends ``WEB_SEARCH_ENGINE=searxng`` with it."
 msgstr ""
 
@@ -14419,9 +14347,6 @@ msgstr ""
 # mengikat konsumen untuk jaringan peran ini. ``web-app-openwebui`` {Y: i}
 # kapal yang bendera dan mengirimkan ``CONTENT_EXTRACTION_ENGINE=tika`` dengan
 # itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Seorang konsumen mencapainya sebagai
 msgid "A consumer reaches it as ``http://tika:9998`` once it declares ``tika`` in its own ``meta/services.yml`` with ``enabled`` and ``shared`` set, which is what attaches the consumer to this role’s network. ``web-app-openwebui`` ships that flag and sends ``CONTENT_EXTRACTION_ENGINE=tika`` with it."
 msgstr ""
 
@@ -14429,9 +14354,6 @@ msgstr ""
 # sendiri `meta/services.yml` dengan `enabled` dan `shared` siap.
 # `web-app-openwebui` {Y: i} kapal yang bendera dan mengirimkan
 # `WEB_SEARCH_ENGINE=searxng` dengan itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Seorang konsumen mencapainya sebagai
 msgid "A consumer reaches it as `http://searxng:8080/search?q=<query>` once it declares `searxng` in its own `meta/services.yml` with `enabled` and `shared` set. `web-app-openwebui` ships that flag and sends `WEB_SEARCH_ENGINE=searxng` with it."
 msgstr ""
 
@@ -14439,9 +14361,6 @@ msgstr ""
 # dengan `enabled` dan `shared` set, itulah yang mengikat konsumen untuk
 # jaringan peran ini. `web-app-openwebui` {Y: i} kapal yang bendera dan
 # mengirimkan `CONTENT_EXTRACTION_ENGINE=tika` dengan itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Seorang konsumen mencapainya sebagai
 msgid "A consumer reaches it as `http://tika:9998` once it declares `tika` in its own `meta/services.yml` with `enabled` and `shared` set, which is what attaches the consumer to this role's network. `web-app-openwebui` ships that flag and sends `CONTENT_EXTRACTION_ENGINE=tika` with it."
 msgstr ""
 
@@ -14819,9 +14738,6 @@ msgstr "Sebuah ekspresi filter yang salah bentuk."
 # dimuliakan di sisi Allah (dan yang mencatat) maksudnya menjadi juru tulis
 # amal perbuatan kalian. Magento Hard- gagal ``setup:install`` di tengah
 # MariaDB mayor.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Sebuah peran manajer- disematkan membuat volume node -
 msgid "A manager-pinned role keeps its volumes node-local (``swarm_nfs_backed``) and its DB sidecar carries the matching placement constraint, so a literal ``shared: false`` there is honoured instead of overridden — Magento hard-fails ``setup:install`` on the central MariaDB major."
 msgstr ""
 
@@ -14888,9 +14804,6 @@ msgstr ""
 # `openrouter/auto`, mock, dan tag lokal seperti `ollama/qwen2.5:0.5b` yang
 # absen meskipun keluarganya hadir. `context` menyimpan rumah yang ada pada
 # entri, feed `AI_MODEL_CONTEXTS` dan `num_ctx`, dan melebihi jendela katalog.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Sebuah entri model MY masih membawa `traits` pemetaan
 msgid "A model entry MAY still carry a `traits` mapping (`vision`, `tools`, `max_output`, `cost`), and it wins over the catalog. That is for what the catalog does not know: `openrouter/auto`, the mock, and a local tag such as `ollama/qwen2.5:0.5b` that is absent although its family is present. `context` keeps its existing home on the entry, feeds `AI_MODEL_CONTEXTS` and `num_ctx`, and outranks the catalogued window."
 msgstr ""
 
@@ -15670,9 +15583,6 @@ msgstr "Sebuah lab tunggal-titik tidak dapat menjawab kriteria multi- node: skal
 # ``req.session.loggedIn = true``, dan (malaikat-malaikat) yang menyebarkan
 # (rahmat Tuhannya) dengan seluas-luasnya, ``isAuthenticated`` gerbang di
 # ``/admin`` Terbuka untuk pemilik proxied.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Middleware Express kecil
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
 msgstr ""
 
@@ -15681,9 +15591,6 @@ msgstr ""
 # tajuk dan membalik `req.session.loggedIn = true`, dan (malaikat-malaikat)
 # yang menyebarkan (rahmat Tuhannya) dengan seluas-luasnya, `isAuthenticated`
 # gerbang di `/admin` Terbuka untuk pemilik proxied.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Middleware Express kecil (`files/sso/header_auth.js`,
 msgid "A small Express middleware (`files/sso/header_auth.js`, mounted into `server.js` at build time by `files/sso/patch_server.js`) reads only those nginx-overwritten `X-Forwarded-*` headers and flips `req.session.loggedIn = true`, so the existing `isAuthenticated` gate on `/admin` opens for the proxied owner."
 msgstr ""
 
@@ -15882,9 +15789,6 @@ msgstr "Sebuah dinding ``config.servers`` mungkin dibiarkan kosong untuk otomati
 # Kadzdzaba, artinya tiada mengingkari (suatu peringatan) atau peringatan
 # (melainkan dengan dua makna yang terdapat di dalam dua huruf). Katakan
 # kepada mereka sebelum mengabaikannya:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (Tiada mendustakan) dapat dibaca Kadzaba atau
 msgid "A warning does not refuse, and it carries two very different meanings. Tell them apart before ignoring it:"
 msgstr ""
 
@@ -16563,9 +16467,6 @@ msgstr "Tambahkan grup OIDC generik -ke -RBAC auto- provisioning untuk WordPress
 
 # layanan-gated spesifikasi Playwright, dan WordPress ♫ Discourse round-trip
 # flow
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Ditambahkan hirarki / peran /<app>/<role> Jalur RBAC,
 msgid "Added hierarchical /roles/<app>/<role> RBAC paths, service-gated Playwright specs, and the WordPress ↔ Discourse round-trip flow"
 msgstr ""
 
@@ -16579,9 +16480,6 @@ msgstr "Ditambahkan edisi templat, pembagian contoh PR berdasarkan tipe kontribu
 # delapan (hari) yang telah ditentukan,), diperluas required_by[web] untuk
 # webserver dan CSP infra, dan sebuah Pythonized lint installer dengan host /
 # docker pengiriman
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Ditambahkan penjaga larutan: isolasi seluruh
 msgid "Added lint guards: auth-isolation across variants.yml, variants-services-match with a nocheck opt-out, required_by on non-invokable roles (Bundle C), lint-playwright per-role spec parse, a raw-image ban in compose templates (and the eight existing violations fixed), expanded required_by[web] for the webserver and CSP infra, and a Python-ized lint installer with host/docker dispatch"
 msgstr ""
 
@@ -16885,9 +16783,6 @@ msgstr ""
 msgid "Administration"
 msgstr "Administrasi"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Administrasi 🕵️♫♂️
 msgid "Administration 🕵️‍♂️"
 msgstr ""
 
@@ -18040,9 +17935,6 @@ msgstr "Tubuh kosong ditolak."
 
 # kosong sehingga template sekitarnya tetap YAML valid ((Dan tidak pula
 # mempunyai anak yatim). ``depends_on:`` kata kunci).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Pemetaan atau daftar kosong mengembalikan string
 msgid "An empty mapping or list returns the empty string so the surrounding template stays valid YAML (no orphan ``depends_on:`` keyword)."
 msgstr ""
 
@@ -18206,9 +18098,6 @@ msgid "Analytics tracking"
 msgstr "Pelacakan analisis"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Android SDK is never needed; safe to remove
 msgid "Android SDK is never needed; safe to remove"
 msgstr ""
 
@@ -18734,9 +18623,6 @@ msgstr "Pilihan basis data ekspres aplikasi secara langsung melalui akar berkas 
 # mengakses kebijakan melalui konsol peramban sambil menjaga semuanya pada
 # prem.
 # gained=['"S3"']
-# translation-refused: libretranslate protected-span lost=['3']
-# nocheck: url
-# translation-rejected: Aplikasi yang berbicara "S3" (Pixelfed, Mastodon,
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
 msgstr ""
 
@@ -18745,9 +18631,6 @@ msgid "Applications 📦"
 msgstr "Aplikasi 📦"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Applies a Content Security Policy header.
 msgid "Applies a Content Security Policy header."
 msgstr ""
 
@@ -20315,9 +20198,6 @@ msgstr "Bootstrap env"
 # Ayat ini merupakan jumlah isti 'naf atau kalimat permulaan; yakni, kelakuan
 # mereka seperti itu; mereka tidak pernah menggantungkan sumpahnya itu kepada
 # kehendak Allah swt.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Bootstrap adalah idempoten dan berjalan dari
 msgid "Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own."
 msgstr ""
 
@@ -20815,9 +20695,6 @@ msgid "Build around engaged people and give them ownership of the work."
 msgstr "Membangun sekitar orang terlibat dan memberi mereka kepemilikan pekerjaan."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Build canonical Docker Hub source ref for skopeo.
 msgid "Build canonical Docker Hub source ref for skopeo."
 msgstr ""
 
@@ -20950,9 +20827,6 @@ msgstr "Build-arg diteruskan ke Dockerfile untuk konfigurasi Nix. Pass- melalui 
 # `github.sha`; hanya membangun Docker **konteks** (`_src`) adalah kepala
 # garpu. `persist-credentials: false` menjaga token keluar dari checkout
 # sumber, dan `USE_NIX_TOKEN` tetap dinonaktifkan untuk fork-sourced builds.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Skrip build- orkestra (`scripts/image/push.sh` (Dan
 msgid "Build-orchestration scripts (`scripts/image/push.sh` and the helper checkout) always come from the base repo at `github.sha`; only the Docker build **context** (`_src`) is the fork head. `persist-credentials: false` keeps the token out of the source checkout, and `USE_NIX_TOKEN` stays disabled for fork-sourced builds."
 msgstr ""
 
@@ -23435,9 +23309,6 @@ msgid "Closest in-repo layout analogue: [`roles/web-app-openproject/`](../../rol
 msgstr "Analog tata letak in- repo terdekat: [`roles/web-app-openproject/`](../../roles/web-app-openproject/)"
 
 # citaste migration ♪ (req 021).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Preseden in- repo terdekat untuk `flavor:` ♪ ♪ SSO
 msgid "Closest in-repo precedent for a `flavor:` discriminator: SSO flavor migration (req 021)."
 msgstr ""
 
@@ -24045,9 +23916,6 @@ msgstr "Komputer scope dari `git diff --name-only origin/main...<branch>`."
 
 # translated-by: libretranslate
 # application role.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Compute the canonical OIDC group path for an
 msgid "Compute the canonical OIDC group path for an application role."
 msgstr ""
 
@@ -24965,9 +24833,6 @@ msgstr "Counterpart to :mod:`utils.update.repository` (yang menangani git refs).
 # penuh dan daftar nama saudara. Dengan ``symbol=True`` header adalah emoji-
 # saja (compact), sel boolean / lifecycle membuat sebagai emoji, dan legenda
 # ditambahkan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Hanya menghitung (ditambah pendek ``dna`` dan
 msgid "Counts only (plus the short ``dna`` and the sibling count). Use ``--format json`` for the full role and sibling name lists. With ``symbol=True`` the headers are emoji-only (compact), the boolean/lifecycle cells render as emojis, and a legend is appended."
 msgstr ""
 
@@ -25536,9 +25401,6 @@ msgid "DNS resolutions to `172.30.0.4` for hosts like `pypi.org` are intentional
 msgstr "Resolusi DNS ke `172.30.0.4` Untuk host seperti `pypi.org` adalah disengaja: paket-cache antarmuka overrides nama-nama dalam `/etc/hosts`, jadi lalu lintas berakhir di registri cermin lokal dengan `0.00s` DNS/TCP/TLS kali daripada memukul daftar publik."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: DNS-hijack + frontend HTTPS + runner CA-trust
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
 msgstr ""
 
@@ -25767,9 +25629,6 @@ msgid "Debugging guides 🐞"
 msgstr "Panduan pengawakutuan 🐞"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Debugging in the nested docker daemon
 msgid "Debugging in the nested docker daemon"
 msgstr ""
 
@@ -26814,9 +26673,6 @@ msgstr "Dirancang untuk operasi non-interaktif, produksi-safe"
 # ini RetroArch bersama dengan aset inti dan tema pada sistem Arch Linux. Ini
 # memastikan semua gaya UI siap dan menyediakan antarmuka antarmuka antarmuka
 # emulator konsisten.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Dirancang untuk penggemar retro game, instalasi peran
 msgid "Designed for retro gaming enthusiasts, this role installs RetroArch along with its core assets and themes on Arch Linux systems. It ensures all UI styles are ready and provides a consistent emulator frontend interface."
 msgstr ""
 
@@ -26832,9 +26688,6 @@ msgstr "Dirancang untuk setup reverse- proxy"
 # surga-surga yang penuh nikmat.) Ini mengkonfigurasi layanan penting seperti
 # aplikasi itu sendiri, PostgreSQL basis data, proksi terbalik, dan integrasi
 # pilihan LDAP untuk manajemen identitas.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Dirancang untuk kesederhanaan, peran ini otomatis
 msgid "Designed for simplicity, this role automates everything needed to run OpenProject in a containerized environment. It configures essential services such as the application itself, a PostgreSQL database, reverse proxy, and optional LDAP integration for identity management."
 msgstr ""
 
@@ -27112,9 +26965,6 @@ msgstr "Panggilan CLI Langsung ⚙️"
 # matriks (manual `infinito administration inventory provision`(Dan air yang
 # tercurah) maksudnya air yang mengalir terus selama-lamanya. `make
 # compose-up`) abaikan `--app-variants` / `--variant`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Penelepon langsung yang tidak menjalankan perencana
 msgid "Direct callers that do not run the matrix planner (manual `infinito administration inventory provision`, ad-hoc credential refresh, `make compose-up`) omit `--app-variants` / `--variant`."
 msgstr ""
 
@@ -29991,9 +29841,6 @@ msgstr "Contoh: `web-svc-cdn` penutupan"
 # serves.yml](../../roles/web-app-friendica/meta/services.yml) telah
 # mendeklarasikan:
 # lost=['web-app-friendica/meta/services.yml'] gained=['serves.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Contoh: `ldapauth` Addon di atas membutuhkan bahwa
 msgid "Example: the `ldapauth` addon above requires that [web-app-friendica/meta/services.yml](../../roles/web-app-friendica/meta/services.yml) already declares:"
 msgstr ""
 
@@ -30976,9 +30823,6 @@ msgstr "Snapshot sistem berkas"
 # bermakna Istifham yakni kata tanya, maksudnya, apakah (dapat menjamin mereka
 # apa yang mereka selalu menikmatinya? ") untuk menolak azab dari diri mereka
 # atau meringankannya; maksudnya tidak berguna.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Isi `image`/`version` (Apakah) huruf Maa di sini
 msgid "Fill `image`/`version` only if they are blank or absent"
 msgstr ""
 
@@ -32598,9 +32442,6 @@ msgstr "Sistem surel fungsional bagi Greenlight SMTP"
 # User Cerita dan pemeriksaan Penerimaan Criteria. Lihat
 # [requirements.md](docs/contributing/requirements.md) (Untuk menolak
 # alasan-alasan atau memberi petunjuk) dari Allah swt.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Syarat fungsional hidup di bawah
 msgid "Functional requirements live under [`docs/requirements/`](docs/requirements/) and follow a fixed format with a User Story and checkable Acceptance Criteria. See [requirements.md](docs/contributing/requirements.md) for the authoring guide."
 msgstr ""
 
@@ -32688,9 +32529,6 @@ msgstr "GITHUB_ACTIONS= true AND bukan AKT - > aksi github real"
 # lowercased, berasal dari GITHUB_REPOSITORY_OWNER / OWNER /
 # GITHUB_REPOSITORYFatal jika tak bisa diselesaikan di GHA.
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYFatal']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: pemilik repositori GHA
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -32875,9 +32713,6 @@ msgstr "Kontraktor TLS generik yang dapat ditancapkan di depan proksi reverse we
 
 # "commit", dan tidak (pula) sama yang serupa dengan yang lain.) HARUS TIDAK
 # memenuhi syarat. Ketika ragu, Anda HARUS TIDAK menggunakan `--no-verify`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Permintaan komit generik (seperti "komit perubahan",
 msgid "Generic commit requests (such as \"commit the changes\", \"commit\", or any equivalent in any language) MUST NOT qualify. When in doubt, you MUST NOT use `--no-verify`."
 msgstr ""
 
@@ -33212,9 +33047,6 @@ msgstr "Grants `sudo <https://en.wikipedia.org/wiki/Sudo>`__ Hak hak bagi penggu
 # dapat membedakan kueri baca dari mutasi di baris perintah; body- flag
 # meminta aturan juga api untuk doa graphql yang lulus `-f query=…`,
 # menyediakan pertahanan dalam kedalaman.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Mutasi GraphQL bypass jalur REST- berbasis menyangkal
 #, python-brace-format
 msgid "GraphQL mutations bypass the REST-path-based deny rules entirely. A `mutation { … }` can achieve write effects (label manipulation, project-item creation, issue transfers, etc.) whose REST equivalents are denied by path. The whole endpoint is asked regardless of query direction because `gh api` cannot distinguish a read query from a mutation at the command line; body-flag ask rules also fire for graphql invocations that pass `-f query=…`, providing defence in depth."
 msgstr ""
@@ -33729,9 +33561,6 @@ msgid "Honest for a brand-new role using a non-default seal. The role does wire 
 msgstr "Jujur untuk sebuah brand- peran baru menggunakan segel tidak baku. Peran tidak kawat OIDC dan LDAP secara default, sehingga promosi untuk `beta` adalah keputusan berikut-up, bukan menulis ulang."
 
 # telah selesai) dari salat (bersungguh-sungguhlah kamu) di dalam berdoa.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kehormatan ``INFINITO_ENV_LOADED=1`` (Kemudian apabila
 msgid "Honours ``INFINITO_ENV_LOADED=1`` and returns immediately when set."
 msgstr ""
 
@@ -34787,9 +34616,6 @@ msgid "If this happens, always consider all caching layers:"
 msgstr "Jika hal ini terjadi, selalu pertimbangkan semua lapisan caching:"
 
 # untuk masukan non-www.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Jika bernilai benar (true), tambahkan 'www.<domain>'
 msgid "If true, add 'www.<domain>' for non-www entries."
 msgstr ""
 
@@ -35287,9 +35113,6 @@ msgstr "Diimpor tetapi tidak digunakan"
 # sebuah opsional ``version:``. Sebuah baris yang tidak cocok dengan bentuk
 # yang meninggalkan entri unpinned, yang penelepon memperlakukan sebagai tidak
 # puas dan instalasi.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Diimpor oleh bootstrap bintil, yang berjalan pada
 msgid "Imported by the lint bootstrap, which runs on a bare interpreter before any dependency is installed, so this module stays on the standard library. It also stays inside its own package: the Dockerfile copies it into the image beside ``utils/__init__.py`` and ``utils/install/__init__.py`` and nothing else, so importing any other ``utils`` submodule raises ``ModuleNotFoundError`` in the layer that runs it. The requirements files it reads are this repository's own and hold one shape: a ``collections:`` list of ``- name:`` entries with an optional ``version:``. A line that does not match that shape leaves the entry unpinned, which the caller treats as unsatisfied and installs."
 msgstr ""
 
@@ -35565,9 +35388,6 @@ msgid "Include copyright"
 msgstr ""
 
 # selalu bersama dia) mereka selalu bergegas untuk taat kepada Allah.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Sertakan resolusi, `disable`(Dan anak-anak yatim yang
 msgid "Include resolution, `disable`, and orphan pruning"
 msgstr ""
 
@@ -35979,9 +35799,6 @@ msgstr "Inspeksi log mentah untuk menemukan setiap akar kegagalan, kemudian clus
 # `defaults/main.yml` untuk menentukan titik masukan yang didukung (dashboard
 # vs. aplikasi langsung), enabled integrations (OIDC, LDAP, pesan, dll.), dan
 # personas aktif.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Inspeksi peran `meta/services.yml` (dan
 msgid "Inspect the role's `meta/services.yml` (and the matching `meta/server.yml` / `meta/rbac.yml`) and `defaults/main.yml` to determine the supported entry point (dashboard vs. direct app), enabled integrations (OIDC, LDAP, messaging, etc.), and active personas."
 msgstr ""
 
@@ -36867,9 +36684,6 @@ msgstr "Tes integrasi untuk identitas dan akses permukaan: OAuth2 / Invarian kon
 
 # `tasks/stages/**`(Dan demi yang mengatur dan menjalankan segala macam
 # urusan).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Tes integrasi bagi kabel tingkat main:
 msgid "Integration tests for playbook-level wiring: `tasks/stages/**`, invokable-path coverage, and the dispatch between them."
 msgstr ""
 
@@ -36926,9 +36740,6 @@ msgstr "Tes integrasi yang memaksa penjajah dari `server:` blok masuk `roles/*/m
 # dan native- metrics kontrak scrapes
 # (`services.prometheus.native_metrics.enabled` ♫
 # `templates/prometheus.yml.j2`) memegang di seluruh pohon peran.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Tes integrasi yang memaksa penjajah integrasi
 msgid "Integration tests that enforce invariants of the prometheus integration: every web-app/svc role declares the shared `prometheus` service entry, the prometheus role's own nginx + docker-health wiring is intact, and the native-metrics scrape contract (`services.prometheus.native_metrics.enabled` ⇔ `templates/prometheus.yml.j2`) holds across the roles tree."
 msgstr ""
 
@@ -36987,9 +36798,6 @@ msgstr "Tes integrasi yang latihan plugin aksi Ansible gubahan akhir-ke-end mela
 # `<NAME>_SERVICE_ENABLED=`, setiap baris env dikonsumsi oleh gaving helper
 # dalam spesifikasi, dan `# nocheck: playwright-service-flag` / `# nocheck:
 # playwright-service-gate` adalah satu-satunya tekanan.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Tes integrasi yang pin `meta/services.yml` ♫
 msgid "Integration tests that pin the `meta/services.yml` ↔ `templates/playwright.env.j2` ↔ `files/playwright/playwright.spec.js` parity contract: every enabled service surfaces as `<NAME>_SERVICE_ENABLED=`, every env line is consumed by a gating helper in the spec, and `# nocheck: playwright-service-flag` / `# nocheck: playwright-service-gate` are the only suppressions."
 msgstr ""
 
@@ -37265,9 +37073,6 @@ msgstr ""
 # yang sengaja menyesatkan) pada jalan yang benar. ``covers:`` ekstensi
 # sehingga penelepon dapat membedakan "peran ini IS penyedia" dari "peran ini
 # mencakup dep ini secara transitif".
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Inverse :func:`build_role_to_covered_keys`: untuk
 msgid "Inverse of :func:`build_role_to_covered_keys`: for each covered service key (NOT including the primary), the role that covers it. Use :func:`build_role_to_primary_service_key` for the primary direction; this helper is intentionally limited to the ``covers:`` extension so callers can distinguish \"this role IS the provider\" from \"this role covers this dep transitively\"."
 msgstr ""
 
@@ -38905,9 +38710,6 @@ msgstr ""
 # tantangan aliran, sehingga tidak ada per- registry kasus khusus diperlukan.
 # ``docker.io`` memecahkan ke ``registry-1.docker.io`` dan apabila nama-nama
 # (malaikat-malaikat) telah ditentukan, ``library/``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Daftar tag dan cek tag reachability untuk registry
 msgid "Lists tags and checks tag reachability for ANY registry that speaks the standard v2 API (Docker Hub, GHCR, MCR, Quay, GitLab/opencode, …) via the RFC-standard ``WWW-Authenticate: Bearer`` token-challenge flow, so no per-registry special case is needed. ``docker.io`` resolves to ``registry-1.docker.io`` and bare official names are prefixed with ``library/``."
 msgstr ""
 
@@ -38966,9 +38768,6 @@ msgstr "Ulasan Hidup"
 
 # `tests/external/update/addons/` dan berjalan melalui `make test-external`,
 # tidak melalui default `make test` Mengalir.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Live upstream checks MUST live under ♪
 msgid "Live upstream checks MUST live under `tests/external/update/addons/` and run through `make test-external`, not through the default `make test` flow."
 msgstr ""
 
@@ -39043,9 +38842,6 @@ msgid "Loader role providing the shared-service preload pass and helper tasks fo
 msgstr "Peran loader menyediakan layanan shared- preload dan tugas pembantu untuk antrian peran post- load inclusions."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Loader, lint, and the materialised path
 msgid "Loader, lint, and the materialised path"
 msgstr ""
 
@@ -43680,9 +43476,6 @@ msgstr "Operator-disediakan `--apps` (atau `--include`)"
 
 # translated-by: libretranslate
 # test`
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Opt-in live third-party checks, excluded from `make
 msgid "Opt-in live third-party checks, excluded from `make test`"
 msgstr ""
 
@@ -46299,9 +46092,6 @@ msgstr "Memproyeksikan docker- raw - panggilan penjaga ke tata bahasa penekanan 
 msgid "Promotes each transient condition the applying step tolerates into a red row, on every deploy job of every sweep."
 msgstr "Promoses setiap kondisi sementara menerapkan langkah toleransi ke dalam barisan merah, pada setiap penyebaran pekerjaan setiap menyapu."
 
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Memproyeksikan sebuah OIDC User ke Admin 🧑♫💼
 msgid "Promoting an OIDC User to Admin 🧑‍💼"
 msgstr ""
 
@@ -47295,9 +47085,6 @@ msgstr "Kategori jangkauan `relay`"
 # sendiri dan yang dideklarasikan `limits`. Sebuah operator mengekspos satu ke
 # internet terbuka harus menempatkan batas laju di depan vhost; platform tidak
 # akan memasok satu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (Dan sekali-kali bukanlah dia termasuk orang-orang
 msgid "Rate limiting is not among them. The proxy ships no `limit_req` or `limit_conn` anywhere, so a public MCP endpoint is only as protected as its own authentication and its declared `limits`. An operator exposing one to the open internet has to put a rate limiter in front of the vhost; the platform will not supply one."
 msgstr ""
 
@@ -47731,9 +47518,6 @@ msgstr ""
 
 # rasa itu sendiri dinyatakan dalam svc-storage-nfs-server/ meta / servis.
 # lost=['svc-storage-nfs-server/meta/services.yml.'] gained=[]
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Membaca informasi rahasia melalui pencarian('config');
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -49817,9 +49601,6 @@ msgstr "Kembali (pemilik, repo, run_id) dari sebuah id atau sebuah URL run / job
 
 # sebuah URL run / job.
 # gained=['job_idTidak']
-# translation-refused: libretranslate protected-span lost=['job_id']
-# nocheck: url
-# translation-rejected: Kembali (pemilik, repo, run_id, job_idTidak ada) dari
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -50303,9 +50084,6 @@ msgstr "Kembalikan setiap judul peran yang nama produk upstream, diurutkan."
 
 # ref)`` deklarasi di bawah ``roles/*/meta/services.yml`` dan
 # ``roles/*/meta/addons/*.yml`` yang tidak berhenti (berbuah),.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kembalikan setiap semver- pemeriksaan ``(repository,
 msgid "Return every semver-checkable ``(repository, ref)`` declaration under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml`` whose ref is not suppressed."
 msgstr ""
 
@@ -51163,9 +50941,6 @@ msgstr "Kembali"
 
 # biner hilang. Kembali (-2, "waktu habis setelah...") dan apabila panggilan
 # (perintah Allah) telah melampaui batas, ``timeout``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kembali (-1, "perintah tidak ditemukan:...") ketika
 msgid "Returns (-1, \"command not found: …\") when the binary is missing. Returns (-2, \"timeout after …\") when the call exceeds ``timeout``."
 msgstr ""
 
@@ -54287,9 +54062,6 @@ msgstr "Scope dibatasi oleh `denyRead` dalam konfigurasi sandbox (lihat [sandbox
 # zona file zona menyatakan, dan bahwa set peran yang mencakup persis set
 # mendeklarasikan `exposure: public`, sehingga permukaan publik keempat gagal
 # tes daripada mencapai tepi tak terbatas.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Scope adalah tiga peran yang menyatakan `exposure:
 msgid "Scope is the three roles declaring `exposure: public`, which is the criterion's own scope: an internal surface is reached over the container network and never traverses the proxy. Of the seven limits, `response_bytes` stays with the adapter, since nginx caps a request body but not a proxied response body. [`test_mcp_edge_limits.py`](../../tests/unit/python/roles/sys-svc-proxy/templates/test_mcp_edge_limits.py) renders both templates against each role's real declaration and asserts the zone names are unique per role and per kind, that the directives reference the zones the zone file declares, and that the set of roles it covers is exactly the set declaring `exposure: public`, so a fourth public surface fails the test rather than reaching the edge unlimited."
 msgstr ""
 
@@ -54431,9 +54203,6 @@ msgstr "Mencari semua ``roles/*/vars/main.yml`` untuk application_id dan mengemb
 # application_id dan dia kembali kepada kaumnya (yang sama-sama beriman).
 # (dari root projek) peran yang cocok. Menimbulkan galat jika nol atau lebih
 # dari satu kecocokan ditemukan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Mencari semua ``roles/*/vars/main.yml`` untuk
 msgid "Searches all ``roles/*/vars/main.yml`` for application_id and returns the relative path (from the project root) of the role that matches. Raises an error if zero or more than one match is found."
 msgstr ""
 
@@ -55135,9 +54904,6 @@ msgid "Serialise *data* to a YAML string."
 msgstr "Serialise *data* ke string YAML."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Serialise an EnvBuilder to .env on disk.
 msgid "Serialise an EnvBuilder to .env on disk."
 msgstr ""
 
@@ -55737,9 +55503,6 @@ msgid "Sharing one lookup keeps the active-set logic in a single SPOT and mirror
 msgstr "Berbagi satu lookup menjaga aktiv-set logika dalam SPOT tunggal dan cermin ``tls`` lookup 's positional ``want`` API."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Shebang Requirement for Custom Modules
 msgid "Shebang Requirement for Custom Modules"
 msgstr ""
 
@@ -56105,9 +55868,6 @@ msgstr "Peran tunggal dengan biaya minimal."
 
 # penanda publik ke Mastodon dan (malaikat-malaikat) yang membedakan (antara
 # yang hak dan yang bathil) dengan sejelas-jelasnya,
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Penyanyi-user ActivityPub situs bookmarks federasi
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
 
@@ -56850,9 +56610,6 @@ msgstr "Server berkas statik melalui HTTPS dengan daftar direktori, penanganan .
 # `roles/<role>/files/<name>.<ext>` (Dan demi rombongan yang menggiring dengan
 # sebenar-benarnya) demi para malaikat yang menggiring atau mengarak awan.
 # `ansible.builtin.script` atau `command`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Skrip statik (shell, Python, binaries) milik di
 msgid "Static scripts (shell, Python, binaries) belong in `roles/<role>/files/<name>.<ext>` and are invoked via `ansible.builtin.script` or `command`."
 msgstr ""
 
@@ -56932,9 +56689,6 @@ msgstr "Tetap buka ✓"
 # menarik modul ini tanpa menyeret masuk masuk masuk Satu-dua simbol tunggal
 # yang terbuka dari sini adalah `_render_with_templar`, yang lama-impor
 # `utils.templating.ansible` hanya ketika benar-benar dipanggil.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Tetap penting-murah sehingga
 msgid "Stays import-cheap so that `utils.cache.applications` (consumed on GitHub Actions runner hosts that ship without ansible — see CI runs 24934007615 / 24935979190) can pull this module without dragging ansible in. The single ansible-coupled symbol exposed from here is `_render_with_templar`, which lazy-imports `utils.templating.ansible` only when actually invoked."
 msgstr ""
 
@@ -57530,9 +57284,6 @@ msgstr "Registry yang didukung 🌐"
 # "strong_password" Aba "bcrypt" Aba "alphanumeric" Aba "sk_prefixed" Aba
 # "base64_prefixed_32" Aba "vapid_private" Aba "vapid_public" Aba
 # "rsa_pem_2048"
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Algoritma yang didukung: ----@@ "random_hex" Aba
 msgid "Supported algorithms: • \"random_hex\" • \"random_hex_32\" • \"random_hex_16\" • \"sha256\" • \"sha1\" • \"strong_password\" • \"bcrypt\" • \"alphanumeric\" • \"sk_prefixed\" • \"base64_prefixed_32\" • \"vapid_private\" • \"vapid_public\" • \"rsa_pem_2048\""
 msgstr ""
 
@@ -57604,9 +57355,6 @@ msgid "Supports live log streaming via `journalctl -f`"
 msgstr "Mendukung streaming log hidup melalui `journalctl -f`"
 
 # pula) terang benderang,
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Mendukung backend lokal (Ollama) dan (Kami jadikan
 msgid "Supports local backends (Ollama) and OpenAI-compatible APIs"
 msgstr ""
 
@@ -57791,9 +57539,6 @@ msgstr "Svc-db-qrant Peran"
 msgid "Svc-db-rabbitmq Role"
 msgstr "Svc-db-rabbitmq Role"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: {Y: i} Svc-db- redis Peran
 msgid "Svc-db-redis Role"
 msgstr ""
 
@@ -58176,9 +57921,6 @@ msgstr "Sys- ctl- rpr-reaser- soft Peran"
 msgid "Sys-daemon Role"
 msgstr "Peran Sys- daemon"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: { cHffffff} Rekor rekor.
 msgid "Sys-dns-cloudflare-records Role"
 msgstr ""
 
@@ -58194,9 +57936,6 @@ msgstr "Peran Sys- dns- wildcards"
 msgid "Sys-front-inj-all Role"
 msgstr "Sys- front-inj- all Role"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: { cHffffff} Jalur depan.
 msgid "Sys-front-inj-dashboard Role"
 msgstr ""
 
@@ -58595,9 +58334,6 @@ msgstr "Membawa caller- disediakan 32-byte AES-256-GCM-96 kunci via `current_key
 # ((Dan demi angin yang menyebarkan rahmat) yaitu angin yang menyebarkan
 # hujan. pg_trgm dan unaccent sudah di dasar - mereka disaring
 # keluar)Masing-masing masuk kembali adalah dekrit dengan:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Membawa daftar nama ekstensi dan mengembalikan subset
 msgid "Takes a list of extension names and returns the subset that needs a custom library install on top of the official postgres base image (the contrib extensions bloom, pg_trgm and unaccent are already in the base — those are filtered out). Each returned entry is a dict with:"
 msgstr ""
 
@@ -59085,9 +58821,6 @@ msgstr "Tes dalam direktori ini Musti hanya meliputi role- folder dan konvensi n
 # `import_role` keberadaan target HARUS hidup di bawah
 # [`includes/`](includes/). Kompose- atau handler-spesifik cek HARUS hidup
 # dalam cluster topical mereka masing-masing.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Tes dalam direktori ini Musti hanya meliputi aturan
 msgid "Tests in this directory MUST only cover role-level structural rules (folder naming, role-name regex). `meta/main.yml` presence and field checks MUST live under [`meta/`](meta/). Dependency-graph checks (self-, circular, unnecessary dependencies, `run_after`) MUST live under [`meta/dependencies/`](meta/dependencies/) (and the sibling [`meta/services/run_after/`](meta/services/run_after/)). Application-specific role rules (web-app README, `applications[...]` / `group_names` usage, `application_id` identity) MUST live under [`applications/`](applications/). `run_once_<role>` flag lifecycle checks MUST live under [`run_once/`](run_once/). Block-level `when:` hygiene (guard blocks, duplication, size) MUST live under [`when/`](when/). `include_tasks` / `import_tasks` / `include_role` / `import_role` target existence MUST live under [`includes/`](includes/). Compose- or handler-specific checks MUST live in their respective topical clusters."
 msgstr ""
 
@@ -60321,9 +60054,6 @@ msgstr "URL reachability cek memperlakukan waktu baca dan koneksi sebagai pering
 # tidak (sewaktu nyawa sampai) pada saat menjelang kematian (di tenggorokan)
 # yakni pada saat nyawa sampai pada kerongkongan. ``type`` adalah ``volume``,
 # penelepon default nama docker ke kunci semantik.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kunci YAML adalah semantik nama pendek. Setiap nilai
 msgid "The YAML key is the semantic short name. Each entry value MAY carry ``name`` (the docker volume name); when absent and ``type`` is ``volume``, callers default the docker name to the semantic key."
 msgstr ""
 
@@ -60600,9 +60330,6 @@ msgstr "The `applications` pencarian adalah HANYA didukung titik entri waktu-jal
 # dipanggil dalam sebuah exec 'd pembantu kontainer bypass ask-gate. Kontainer
 # pembantu memiliki sendiri daemon Docker atau bind-mount soket host, sehingga
 # dalam `docker run` eksekusi langsung.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: The `ask` aturan pada `docker run*` / `docker build*`
 msgid "The `ask` rules on `docker run*` / `docker build*` / `docker push*` / `docker login*` only catch the outermost invocation. Because the project uses Docker-in-Docker (for example `docker exec <helper-container> docker run ...`), a `docker run` invoked inside an exec'd helper container bypasses the ask-gate. The helper container has its own Docker daemon or a bind-mounted host socket, so the inner `docker run` executes directly."
 msgstr ""
 
@@ -60836,9 +60563,6 @@ msgstr "The `utils/` tree HARUS berisi modul pembantu Python dan paket pembantu 
 # Maksudnya, demi para qari yang membacakan peringatan atau Alquran.
 # `meta/services.yml` melalui `lookup('config', ...)` filter. Ini terus
 # `meta/services.yml` sebagai satu sumber kebenaran.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: The `vars/main.yml` dari peran HARUS mendefinisikan
 msgid "The `vars/main.yml` of the role MUST define the variables referenced in `args:` by reading them from `meta/services.yml` through the `lookup('config', ...)` filter. This keeps `meta/services.yml` as the single source of truth."
 msgstr ""
 
@@ -61269,9 +60993,6 @@ msgstr "Hasil kerja debug CI yang luas didokumentasikan di [ci.md](../../../cont
 # terotentikasi di boot. Suatu pialang restart drop cache; kunjungan SSO
 # selanjutnya memicu sesegar `createAccount` dan app- sandi sebelumnya tetap
 # valid dalam PDS sampai diputar.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Broker MUST menerima `X-Forwarded-User`,
 msgid "The broker MUST receive `X-Forwarded-User`, `X-Forwarded-Preferred-Username`, and `X-Forwarded-Email` from `oauth2-proxy`. On a user's first authenticated visit the broker calls the PDS `com.atproto.server.createAccount` endpoint with a synthesised app-password, encrypts that password with AES-256-GCM under a key from the project's credentials vault, and caches the ciphertext in the broker's in-process `sessionCache` keyed by Keycloak username. Subsequent visits decrypt the cached password in-broker, exchange it for a PDS session via `com.atproto.server.createSession`, and seed `localStorage[\"BSKY_STORAGE\"]` so the social-app finds an authenticated session at boot. A broker restart drops the cache; the next SSO visit triggers a fresh `createAccount` and the previous app-password remains valid in PDS until rotated."
 msgstr ""
 
@@ -61287,9 +61008,6 @@ msgstr ""
 # terotentikasi di boot. Suatu pialang restart drop cache; kunjungan SSO
 # selanjutnya memicu sesegar ``createAccount`` dan app- sandi sebelumnya tetap
 # valid dalam PDS sampai diputar.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Broker MUST menerima ``X-Forwarded-User``,
 msgid "The broker MUST receive ``X-Forwarded-User``, ``X-Forwarded-Preferred-Username``, and ``X-Forwarded-Email`` from ``oauth2-proxy``. On a user’s first authenticated visit the broker calls the PDS ``com.atproto.server.createAccount`` endpoint with a synthesised app-password, encrypts that password with AES-256-GCM under a key from the project’s credentials vault, and caches the ciphertext in the broker’s in-process ``sessionCache`` keyed by Keycloak username. Subsequent visits decrypt the cached password in-broker, exchange it for a PDS session via ``com.atproto.server.createSession``, and seed ``localStorage[\"BSKY_STORAGE\"]`` so the social-app finds an authenticated session at boot. A broker restart drops the cache; the next SSO visit triggers a fresh ``createAccount`` and the previous app-password remains valid in PDS until rotated."
 msgstr ""
 
@@ -63477,9 +63195,6 @@ msgstr ""
 # diberikan: nama fakta `_INFINITO_APPLICATIONS_RENDERED`,
 # `merged_applications_cache_key`, dan demi (rombongan) yang membacakan
 # pelajaran, `get_merged_applications` Konsultan sebelum itu terjadi.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Pembawa yang diputar dari muatan aplikasi yang
 msgid "The play-scoped carrier of the rendered applications payload: the fact name `_INFINITO_APPLICATIONS_RENDERED`, `merged_applications_cache_key`, and the reader `get_merged_applications` consults before it renders."
 msgstr ""
 
@@ -63543,9 +63258,6 @@ msgstr "Intinya: seorang asisten dengan jangkauan nyata ke dalam rumah, tapi age
 # `/openbao/config/`: server memisahkan setiap berkas dalam direktori
 # konfigurasi konfigurasi konfigurasi konfig, sehingga berkas kebijakan di
 # sana memecahkan startup.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Kebijakan `.hcl` templat dirender ke direktori
 msgid "The policy `.hcl` templates are rendered to the host config directory and mounted at `/openbao/policies/`, deliberately **outside** `/openbao/config/`: the server parses every file in its config directory as server configuration, so a policy file there breaks startup."
 msgstr ""
 
@@ -63560,9 +63272,6 @@ msgstr ""
 # penelepon (loopback untuk host- jaringan konsumen, ``host.docker.internal``
 # (Untuk) atau untuk (sebuah bejana) yang terbuat dari perak. ``0.0.0.0``
 # untuk daemon bind).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Port adalah sumber kebenaran tunggal ``svc-net-tor
 msgid "The port is the single source of truth ``svc-net-tor services.tor.ports.local.socks``; only the host varies by caller context (loopback for host-network consumers, ``host.docker.internal`` for a bridged sibling container, ``0.0.0.0`` for the daemon bind)."
 msgstr ""
 
@@ -63728,9 +63437,6 @@ msgstr "Proyektdimiliki server melewati kepemilikan, lisensi, pinning dan baku b
 # dengan ``/`` atau ``..`` menavigasi, ``infinito [path]`` melompat mutlak,
 # ``ls`` daftar folder saat ini, segala sesuatu yang lain berjalan dengan path
 # yang sedang berjalan sebelumnya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Trek cepat suatu kategori stack: mengetik sebuah nama
 msgid "The prompt tracks a category stack: typing a bare category name cd's into it, ``..`` walks one level up, ``/`` returns to root, path tokens with ``/`` or ``..`` navigate, ``infinito [path]`` jumps absolute, ``ls`` lists the current folder, everything else runs with the current path prepended."
 msgstr ""
 
@@ -64173,9 +63879,6 @@ msgstr "Logika generator dapat digunakan kembali tinggal di `utils/domains/list.
 # musim-musiman (dan tidak terlarang mengambilnya) artinya, ia boleh diambil
 # tanpa harus membayarnya.) membuat setiap varian, dan begitu juga peran benih
 # itu sendiri, yang file sendiri berubah.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Penutupan terbalik adalah fail- aman: setiap benih
 msgid "The reverse closure is fail-safe: any seed that is not modellable in the resolver (no `application_id` and not referenced by any role's `run_after`) MUST trigger a fall-back to a full deploy, as MUST any resolver runtime error. The closure MUST NOT silently shrink the deploy matrix on partial information. The variant narrowing follows the same rule: a role reached only through a `run_after` edge (which the round closure does not follow) keeps every variant, and so does a seed role itself, whose own files changed."
 msgstr ""
 
@@ -64184,9 +63887,6 @@ msgstr ""
 # [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh).
 # Lem mengalir kerja tinggal di
 # [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Penutupan terbalik diimplementasikan dalam [resolver
 msgid "The reverse closure is implemented in [affected resolver](../../../../cli/meta/roles/applications/resolution/affected/__main__.py) and invoked from [affected_roles.sh](../../../../scripts/meta/resolve/diff/affected_roles.sh). The workflow glue lives in [effective_whitelist.sh](../../../../scripts/github/resolve/effective_whitelist.sh)."
 msgstr ""
 
@@ -64306,9 +64006,6 @@ msgstr ""
 # setelah menyatakan ``jupyter`` di sendiri ``meta/services.yml`` dengan
 # ``enabled`` dan ``shared`` siap. ``web-app-openwebui`` {Y: i} kapal yang
 # bendera dan mengirimkan ``CODE_EXECUTION_ENGINE=jupyter`` dengan itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran mendeklarasikan tidak ada volume: kernel yang
 msgid "The role declares no volume: a kernel that executes code a chat wrote gets a fresh filesystem on every restart. A consumer reaches it as ``http://jupyter:8888`` once it declares ``jupyter`` in its own ``meta/services.yml`` with ``enabled`` and ``shared`` set. ``web-app-openwebui`` ships that flag and sends ``CODE_EXECUTION_ENGINE=jupyter`` with it."
 msgstr ""
 
@@ -64317,9 +64014,6 @@ msgstr ""
 # setelah menyatakan `jupyter` di sendiri `meta/services.yml` dengan `enabled`
 # dan `shared` siap. `web-app-openwebui` {Y: i} kapal yang bendera dan
 # mengirimkan `CODE_EXECUTION_ENGINE=jupyter` dengan itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran mendeklarasikan tidak ada volume: kernel yang
 msgid "The role declares no volume: a kernel that executes code a chat wrote gets a fresh filesystem on every restart. A consumer reaches it as `http://jupyter:8888` once it declares `jupyter` in its own `meta/services.yml` with `enabled` and `shared` set. `web-app-openwebui` ships that flag and sends `CODE_EXECUTION_ENGINE=jupyter` with it."
 msgstr ""
 
@@ -64444,9 +64138,6 @@ msgstr "Pemasangan peran **Nix** menggunakan baik manajer paket asli (dimana did
 # menyebarkan hujan. ``msmtprc`` berkas via Janja2. Untuk dicros tanpa
 # berdedikasi ``msmtp-mta`` paket, itu mengkonfigurasi langsung
 # ``/usr/bin/sendmail`` Link simbolik kompatibilitas ke ``msmtp``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Pemasangan peran **msmtp**, menangani perbedaan paket
 msgid "The role installs **msmtp**, handles distro-specific package differences (including EPEL bootstrap on EL-family hosts when required), and deploys a pre-configured ``msmtprc`` file via Jinja2. For distros without a dedicated ``msmtp-mta`` package, it configures a direct ``/usr/bin/sendmail`` compatibility symlink to ``msmtp``."
 msgstr ""
 
@@ -64455,9 +64146,6 @@ msgstr ""
 # menyebarkan hujan. `msmtprc` berkas via Janja2. Untuk dicros tanpa
 # berdedikasi `msmtp-mta` paket, itu mengkonfigurasi langsung
 # `/usr/bin/sendmail` Link simbolik kompatibilitas ke `msmtp`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Pemasangan peran **msmtp**, menangani perbedaan paket
 msgid "The role installs **msmtp**, handles distro-specific package differences (including EPEL bootstrap on EL-family hosts when required), and deploys a pre-configured `msmtprc` file via Jinja2. For distros without a dedicated `msmtp-mta` package, it configures a direct `/usr/bin/sendmail` compatibility symlink to `msmtp`."
 msgstr ""
 
@@ -64593,9 +64281,6 @@ msgstr "Peran ketentuan baru GitLab Misalnya. Solusi, rahasia dan backup dari pe
 # `PERSONA_BIBER_BLOCKED=true` dan `PERSONA_ADMINISTRATOR_BLOCKED=true`.
 # `guest` persona dan baseline reachability dan CSP pernyataan dijalankan
 # tanpa syarat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran menerbitkan situs dokumentasi publik.
 msgid "The role publishes a public documentation site. [`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `sso.shared` to `false`, and the role ships no `meta/users.yml` and no account provisioning; [`templates/env.j2`](./templates/env.j2) only configures the build service. [`tasks/main.yml`](./tasks/main.yml) only wires the container and proxy stack and stages the Sphinx tooling into the build context. There is no account and no auth chain for the `biber` or `administrator` persona, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability and CSP assertions run unconditionally."
 msgstr ""
 
@@ -64985,9 +64670,6 @@ msgstr "Ruang lingkup folder ini sedang menunggu dan tersedia pemeriksaan. Build
 # letak dengan `/dev/sdb` dipasang pada `/mnt`) dan kembali ke `/` jika tidak.
 # Pelari publik saat ini tidak lagi mengekspos terpisah `/mnt`, sehingga
 # swapfile tanah di `/` dan tidak boleh kelaparan sistem berkas akar.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Skrip **lebih suka `/mnt`** (Dan apabila ruh-ruh
 msgid "The script **prefers `/mnt`** when it is a separate partition (classic `ubuntu-latest` layout with `/dev/sdb` mounted at `/mnt`) and falls back to `/` otherwise. Current public runners no longer expose a separate `/mnt`, so the swapfile lands on `/` and must not starve the root filesystem."
 msgstr ""
 
@@ -65003,9 +64685,6 @@ msgstr ""
 # (Dari suatu tempat yang telah ditentukan waktunya) yaitu tempat datangnya
 # hari kiamat. ``exec`` membuat server PID 1; polling loop meninggal dengan
 # wadah dan kesiapan diberi gated oleh menunggu padat konsumen.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Skrip harus tetap bebas dari setiap shell ``$``:
 msgid "The script must stay free of every shell ``$``: the compose and swarm render paths launder dollars differently (a ``$pid`` reached the container as ``\"\"`` and crash-looped the sidecar on a sh syntax error). The bucket bootstrap therefore polls ``/status`` from a backgrounded subshell while ``exec`` makes the server PID 1; the poll loop dies with the container and readiness is gated by the consumer's bounded wait."
 msgstr ""
 
@@ -65232,9 +64911,6 @@ msgstr "Berbagi `biber` dan `administrator` Perjalanan pribadi dipilih melalui `
 # `files/playwright/playwright.spec.js`; opt- out lapses sekali pembantu
 # bersama belajar FiderModal.
 # gained=['"Masuk"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Berbagi `biber` dan `administrator` Perjalanan pribadi
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
 msgstr ""
 
@@ -65260,9 +64936,6 @@ msgstr "Berbagi `biber` dan `administrator` Perjalanan pribadi dipilih melalui `
 # Keycloak peta identitas untuk tidak ada sesi direktori pembantu bersama
 # dapat membawa melalui logout in- app.
 # gained=['"Masuk"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Berbagi `biber` dan `administrator` Perjalanan pribadi
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -65543,9 +65216,6 @@ msgstr "Tabel di bawah ini meringkas jenis plugin Ansible umum dan nama direktor
 # menerus mengerjakan) melakukan (harta benda mereka) harta benda mereka (dan
 # tidak mau menyentuh) barang sedikit pun. Baris adalah peran yang tak
 # terkalahkan, diurutkan naik oleh kolom Entitas.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Meja tinggal di sendiri ``## Roles Overview 🧩`` daerah
 msgid "The table lives in its own ``## Roles Overview 🧩`` section directly above ``## Use it online 🚀`` in the root README.md and is fully regenerated on every run; every other section stays untouched. Rows are the invokable roles, sorted ascending by the Entity column."
 msgstr ""
 
@@ -65734,9 +65404,6 @@ msgstr "Pertukaran. `deny` sekarang membawa berat penuh \"apa yang agen tidak bo
 # varian pada baris variant, dari dasar ``meta/services.yml`` {\ cH5EFFFF}
 # Pada baris peran tunggal.
 # gained=['5', 'alpha/beta/pre/...', '{', '}']
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Medan transitif (``services`` / ``consumed_by`` dan
 # varian pada baris variant, dari dasar ``meta/services.yml`` { cH5EFFFF} Pada
 # baris peran tunggal.
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
@@ -65994,9 +65661,6 @@ msgstr "Yang dapat ditulisi ``secrets.credentials`` titik dari satu blok aplikas
 # jalan umum) yakni jalan raya (yang terang) jelas; mengapa kalian hai
 # penduduk Mekah tidak mau mengambil pelajaran daripadanya? `.env` ingat apa
 # yang dikatakan lingkungan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Penulis penangan memutuskan berapa lama nilai hidup.
 msgid "The writer a handler picks decides how long a value lives. Both kinds are registered in `default.env` and both are visible to the lints; they differ only in whether the generated `.env` remembers what the environment said."
 msgstr ""
 
@@ -66935,9 +66599,6 @@ msgstr "Direktori ini berisi skrip spesifik platform untuk mengaktifkan sistem d
 # mengatur resolusi DNS lokal untuk `infinito.test` domain ((Dan penduduk Mu
 # 'tafikah) yaitu negeri-negeri tempat tinggal kaum Nabi Luth.) di mesin
 # pengembangan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Direktori ini berisi skrip spesifik platform untuk
 msgid "This directory contains platform-specific scripts for setting up local DNS resolution for the `infinito.test` domain (and subdomains) on the development machine."
 msgstr ""
 
@@ -67902,9 +67563,6 @@ msgstr ""
 # upstream adalah bentuk sandi rahasia tunggal yang membalik satu sesi boolean
 # (`req.session.loggedIn`).
 # gained=['"pemilik"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Peran ini membangun Postmarks dari sumber ke gambar
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -68401,9 +68059,6 @@ msgstr "Peran ini menyebarkan ejakulasi pada Docker Compose dengan standar proye
 # LDAP ditawarkan. Kredensial disimpan di dalam n8n akan dienkripsi saat
 # istirahat dengan stabil ``N8N_ENCRYPTION_KEY``.
 # gained=['2.8']
-# translation-refused: libretranslate protected-span lost=['2', '8']
-# nocheck: url
-# translation-rejected: Peran ini menyebar n8n Edisi Komunitas menggunakan
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
 msgstr ""
 
@@ -68416,9 +68071,6 @@ msgstr ""
 # LDAP ditawarkan. Kredensial disimpan di dalam n8n akan dienkripsi saat
 # istirahat dengan stabil `N8N_ENCRYPTION_KEY`.
 # gained=['2.8']
-# translation-refused: libretranslate protected-span lost=['2', '8']
-# nocheck: url
-# translation-rejected: Peran ini menyebar n8n Edisi Komunitas menggunakan
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
 msgstr ""
 
@@ -68450,9 +68102,6 @@ msgstr "Peran ini menyebarkan LiteLM admin UI sebagai browser- menghadap titik m
 # melalui OIDC dan reuses ``svc-db-postgres`` dan ``web-svc-coturn`` untuk
 # data relasional dan STUN / TURN. Untuk rincian kabel identitas lihat `IAM.md
 # <docs/IAM.md>`__ dan `LDAP.md <docs/LDAP.md>`__.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini menyebarkan OpenTalk stack menggunakan
 msgid "This role deploys the OpenTalk stack using Docker Compose and exposes the web frontend at ``open.talk.{{ DOMAIN_PRIMARY }}`` through the central reverse proxy. It runs the Rust controller, the LiveKit WebRTC media server, the React web frontend, a dedicated Redis, a dedicated MinIO bucket for controller assets, a RabbitMQ broker, and the OpenTalk recorder for meeting MP4 archives. The deployment integrates with the shared Keycloak realm via OIDC and reuses ``svc-db-postgres`` and ``web-svc-coturn`` for relational data and STUN/TURN. For identity wiring details see `IAM.md <docs/IAM.md>`__ and `LDAP.md <docs/LDAP.md>`__."
 msgstr ""
 
@@ -68465,9 +68114,6 @@ msgstr ""
 # melalui OIDC dan reuses `svc-db-postgres` dan `web-svc-coturn` untuk data
 # relasional dan STUN / TURN. Untuk rincian kabel identitas lihat
 # [IAM.md](docs/IAM.md) dan [LDAP.md](docs/LDAP.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini menyebarkan OpenTalk stack menggunakan
 msgid "This role deploys the OpenTalk stack using Docker Compose and exposes the web frontend at `open.talk.{{ DOMAIN_PRIMARY }}` through the central reverse proxy. It runs the Rust controller, the LiveKit WebRTC media server, the React web frontend, a dedicated Redis, a dedicated MinIO bucket for controller assets, a RabbitMQ broker, and the OpenTalk recorder for meeting MP4 archives. The deployment integrates with the shared Keycloak realm via OIDC and reuses `svc-db-postgres` and `web-svc-coturn` for relational data and STUN/TURN. For identity wiring details see [IAM.md](docs/IAM.md) and [LDAP.md](docs/LDAP.md)."
 msgstr ""
 
@@ -68510,9 +68156,6 @@ msgstr ""
 # anonim** (Yang tidak melindungi) asap itu tidak dapat menaungi mereka dari
 # panas hari itu (dan tiada bermanfaat) barang sedikit pun bagi mereka (untuk
 # menolak azab ") yakni api neraka.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini mendeteksi tidak digunakan **volume Docker
 msgid "This role detects unused **anonymous Docker volumes** that are not bound to any running container."
 msgstr ""
 
@@ -68520,9 +68163,6 @@ msgstr ""
 # panas hari itu (dan tiada bermanfaat) barang sedikit pun bagi mereka (untuk
 # menolak azab ") yakni api neraka. Secara pilihan dapat mengecualikan volume
 # spesifik dari cek menggunakan whitelis yang dapat diatur.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini mendeteksi tidak digunakan **volume Docker
 msgid "This role detects unused **anonymous Docker volumes** that are not bound to any running container.   It can optionally exclude specific volumes from the check using a configurable whitelist."
 msgstr ""
 
@@ -68819,9 +68459,6 @@ msgstr "Peran ini menginstal skrip cadangan dan layanan sistemd yang menggerakka
 # mengkonfirmasi reachability dan writeable pada waktu penyebaran. Pendek
 # sebenarnya volume gunung terjadi kemudian, didorong oleh mesin Docker pada
 # awal kontainer.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini menginstal paket klien dispro- yang sesuai
 msgid "This role installs the distro-appropriate NFS client packages on every host in the Ansible group ``svc-swarm-node`` and probe-mounts the configured ``storage.nfs.server`` and the export base from the svc-storage-nfs-server services.yml SPOT to confirm reachability and writability at deploy time. The actual docker volume mounts happen later, driven by the Docker engine at container start."
 msgstr ""
 
@@ -68831,9 +68468,6 @@ msgstr ""
 # mengkonfirmasi reachability dan writeable pada waktu penyebaran. Pendek
 # sebenarnya volume gunung terjadi kemudian, didorong oleh mesin Docker pada
 # awal kontainer.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini menginstal paket klien dispro- yang sesuai
 msgid "This role installs the distro-appropriate NFS client packages on every host in the Ansible group `svc-swarm-node` and probe-mounts the configured `storage.nfs.server` and the export base from the svc-storage-nfs-server services.yml SPOT to confirm reachability and writability at deploy time. The actual docker volume mounts happen later, driven by the Docker engine at container start."
 msgstr ""
 
@@ -68962,9 +68596,6 @@ msgid "This role performs a complete cleanup of Docker resources by invoking a s
 msgstr "Peran ini melakukan pembersihan lengkap sumber daya Docker dengan memanggil sebuah sistematis dikelola script. Ini menghapus gambar Docker yang tidak terpakai, menghentikan kontainer, jaringan, membangun cache, dan volume anonim. Pembersihan sepenuhnya otomatis dan dapat berjalan pada jadwal atau dipicu secara manual."
 
 # (Untuk) menjadi Maf 'ul Lah (para host kalian)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Peran ini menyediakan **penataan surat terpadu**
 msgid "This role provides a **unified mail setup** for your hosts:"
 msgstr ""
 
@@ -69466,17 +69097,11 @@ msgstr "Untuk memberikan peran kepada pengguna `<role_name>` nyala `<application
 
 # ``services.hugo.source_repository`` dan ``services.hugo.source_version``
 # dalam inventaris Anda. Contoh:
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ To host your own ♪ Hugo situs, override
 msgid "To host your own Hugo site, override ``services.hugo.source_repository`` and ``services.hugo.source_version`` in your inventory. Example:"
 msgstr ""
 
 # `services.hugo.source_repository` dan `services.hugo.source_version` dalam
 # inventaris Anda. Contoh:
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ To host your own ♪ Hugo situs, override
 msgid "To host your own Hugo site, override `services.hugo.source_repository` and `services.hugo.source_version` in your inventory. Example:"
 msgstr ""
 
@@ -69689,9 +69314,6 @@ msgstr "Hari ini setiap Infinito.Nexus menyebarkan berjalan `docker compose` ter
 # 1 set `ldap.enabled: true` dengan `oidc.enabled: false`), tapi skenario
 # spesifikasi sesuai belum ada.
 # lost=['web-app-opencloud/meta/variants.yml'] gained=['variants.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Hari ini sebagian besar spesifikasi peran mereka
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -69956,9 +69578,6 @@ msgstr "Terjemahkan *nilai* (sebuah kompose- gaya ``docker_restart_policy``) unt
 
 # cocok (♫14 beriman `/28`, IVER30 beriman `/27`, IVER62 beriman `/26`,
 # IVER126 beriman `/25`, IVER254 beriman `/24`,...).
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Terjemahkan `--clients N` ke awalan CIDR terkecil yang
 msgid "Translate `--clients N` to the smallest CIDR prefix that fits (≤14 → `/28`, ≤30 → `/27`, ≤62 → `/26`, ≤126 → `/25`, ≤254 → `/24`, …)."
 msgstr ""
 
@@ -70114,9 +69733,6 @@ msgstr "True iff the docker daemon register an NVIDIA runtime."
 msgid "True iff the docker data root may be wiped when the stack goes down."
 msgstr "Sebenarnya iff akar data docker mungkin dihapus ketika tumpukan turun."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: True iff the file declares a top-of-file marker
 msgid "True iff the file declares a top-of-file marker"
 msgstr ""
 
@@ -70140,9 +69756,6 @@ msgid "True iff this instance runs the cache stack rather than sharing it."
 msgstr "Benar iff instansi ini berjalan tumpukan cache daripada berbagi."
 
 # not that.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: True on a real GitHub runner; act and generic CI are
 msgid "True on a real GitHub runner; act and generic CI are not that."
 msgstr ""
 
@@ -70152,9 +69765,6 @@ msgstr ""
 # menyimpannya) menaruhnya di dalam peti simpanan dan tidak menunaikan hak
 # Allah yang ada pada harta bendanya itu. ``HiddenServicePort``
 # (``collect_exposed_ports``).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Benar ketika *application_id* dicapai atas node
 msgid "True when *application_id* is reachable over the node onion, i.e. when svc-net-tor is deployed for it (``services.tor.enabled``) AND at least one of its services opts in with ``exposed: true``, which is what earns a ``HiddenServicePort`` (``collect_exposed_ports``)."
 msgstr ""
 
@@ -70366,9 +69976,6 @@ msgstr "Dua sifat lebih lanjut lingkungan berbentuk desain rekonsiliasi. Buka se
 # under `applications:` di dalam `--vars` JSON langkah persediaan
 # mengkonsumsi. Caller - diberikan `extra_vars` Selalu menang atas kue variant
 # - itulah yang didokumentasikan "vars pengguna selalu menang" aturan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (yaitu) dua orang yang berpasangan.
 msgid "Two helpers, both pure: `_resolve_variant_payloads` picks the variant payload for each app in a round's include set, and `_bake_overrides` merges those payloads under `applications:` inside the `--vars` JSON the inventory provision step consumes. Caller-supplied `extra_vars` always win over the variant bake — that's the documented \"user vars always win\" rule."
 msgstr ""
 
@@ -70600,9 +70207,6 @@ msgstr "Tak Terpengaruh (CI menjalankan aturan per branch) ✓"
 # unblocking biber berarti pertama menciptakan terbatas Listmonk peran
 # pengguna. Ini membeli tidak ada cakupan persona administrator tidak sudah
 # membeli.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Buka blokir `biber` persona. Listmonk cocok dengan
 msgid "Unblock the `biber` persona. Listmonk matches OIDC users by e-mail and the role provisions no biber account; `cmd/auth.go` `OIDCFinish` 404s unless `security.oidc.auto_create_users` is true, and `createOIDCUser` passes `UserRoleID` as a plain int, so `default_user_role_id` must name a real role. The seeded database holds exactly one (`id=1 Super Admin`), so unblocking biber means first creating a limited Listmonk user role. It buys no coverage the administrator persona does not already buy."
 msgstr ""
 
@@ -70667,9 +70271,6 @@ msgstr "Penanganan TLS terpadu dengan penggantian SSL_ENABLED dengan TLS_ENABLED
 # hook ditambah spesifikasi untuk setiap tambahan tambahan. Matriks integrasi
 # baris silang diregenerasi dari modul data yang didedikasikan
 # (*integration_matrix_data.py*).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Sintaks addon unified (persyaratan 026): setiap plugin
 msgid "Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*)."
 msgstr ""
 
@@ -71643,9 +71244,6 @@ msgstr "Digunakan oleh ``ressources`` CLI dan dengan sumber variasi - budget ben
 # mengekspos titik akhir asli / metrik tanpa nama aplikasi hardcoding setiap.
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['memprometheus.yml.j2']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Digunakan oleh web-app-prometheus/ templat /
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -71814,9 +71412,6 @@ msgstr "Klaim pengguna: `preferred_username`, dipetakan ke OpenCloud `username`"
 # ``{{hunspell_languages}}`` variabel berdasarkan persyaratan bahasa spesifik
 # mereka. Variabel ini menerima daftar kode bahasa (mis. 'en_US','de_DE').
 # gained=["'de_DE'", "'en_US'"]
-# translation-refused: libretranslate protected-span lost=['de_DE', 'en_US']
-# nocheck: url
-# translation-rejected: Pengguna didorong untuk menyesuaikan
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -73224,9 +72819,6 @@ msgstr ""
 # `mode`, `tor`, `distros`, `filesystem` atau `architectures` masukan, atau
 # `:arm64` pada peran yang `meta/services.yml` deklarasi `architectures:
 # [amd64]`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Apa token daun terbuka milik garis yang berdiri di:
 msgid "What a token leaves open belongs to the line it stands in: `priority` covers every remaining combination in one sweep, `whitelist` keeps the rotation and the row's position in the matrix. A pin the row cannot take aborts the matrix rather than dropping the row, because a dropped row would report a green run for a combination that never ran. Such a pin is `@swarm` on a role without its own stack, `+tor` on a variant that pins `services.tor.enabled` false, or any axis that fights the run's own `mode`, `tor`, `distros`, `filesystem` or `architectures` input, or `:arm64` on a role whose `meta/services.yml` declares `architectures: [amd64]`."
 msgstr ""
 
@@ -73494,9 +73086,6 @@ msgstr ""
 # (bawang v3 telah menyediakan otentikasi transport encryption + server);
 # aplikasi masih diterima ``X-Forwarded-Proto: https`` karena ``.onion``
 # adalah browser Secure Context.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kapan ``svc-net-tor`` telah dikerahkan, node
 msgid "When ``svc-net-tor`` is deployed, the node’s ``DOMAIN_PRIMARY`` is the minted ``.onion`` address, so the whole stack (web vhosts, Keycloak SSO, LDAP, CA) resolves onion domains consistently. The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (``HiddenServicePort 80 -> 127.0.0.1:80``); per-app subdomains (``<app>.<node>.onion``) are routed by the ``Host`` header. TLS is off on the onion side (onion v3 already provides transport encryption + server authentication); apps still receive ``X-Forwarded-Proto: https`` because ``.onion`` is a browser Secure Context."
 msgstr ""
 
@@ -73554,9 +73143,6 @@ msgstr "Kapan `services.talk.enabled` benar, Nextcloud Talk HARUS menggunakan be
 # (bawang v3 telah menyediakan otentikasi transport encryption + server);
 # aplikasi masih diterima `X-Forwarded-Proto: https` karena `.onion` adalah
 # browser Secure Context.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Kapan `svc-net-tor` telah dikerahkan, node
 msgid "When `svc-net-tor` is deployed, the node's `DOMAIN_PRIMARY` is the minted `.onion` address, so the whole stack (web vhosts, Keycloak SSO, LDAP, CA) resolves onion domains consistently. The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (`HiddenServicePort 80 -> 127.0.0.1:80`); per-app subdomains (`<app>.<node>.onion`) are routed by the `Host` header. TLS is off on the onion side (onion v3 already provides transport encryption + server authentication); apps still receive `X-Forwarded-Proto: https` because `.onion` is a browser Secure Context."
 msgstr ""
 
@@ -73812,9 +73398,6 @@ msgstr "Ketika aplikasi menggunakan berkas lingkungan"
 # MUST meliputi bi- directional `biber` ♫ `administrator` pertukaran (setiap
 # pengiriman dinyatakan dalam inbox penerima dari konteks peramban
 # terisolasi).
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Ketika aplikasi mendukung peer-to-peer messaging, Spec
 msgid "When the application supports peer-to-peer messaging, the spec MUST cover a bi-directional `biber` ↔ `administrator` exchange (each delivery asserted in the recipient's inbox from an isolated browser context)."
 msgstr ""
 
@@ -74502,9 +74085,6 @@ msgstr ""
 
 # sebuah peran; dibatalkan, timed- keluar, dilewati (🚫) dan masih-berjalan (♫)
 # Modes tidak.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Dengan ``strict``, hanya keras ``failure`` (❌) memilih
 msgid "With ``strict``, only a hard ``failure`` (❌) selects a role; cancelled, timed-out, skipped (🚫) and still-running (⏳) modes do not."
 msgstr ""
 
@@ -75225,9 +74805,6 @@ msgstr "Anda HARUS TIDAK masukkan loop dalam kecuali semua berikut terus:"
 # ke halaman dari tempat lain, bukan oleh halaman menegaskan tentang dirinya
 # sendiri. Jelaskan subjek langsung sebagai gantinya.
 # gained=['"SPOT"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Anda HARUS TIDAK secara eksplisit mendeklarasikan
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -75954,9 +75531,6 @@ msgstr "Anda HARUS memperlakukan setiap kriteria yang belum diperiksa (`- [ ]`) 
 # neraka Jahim) yakni neraka yang apinya menyala-nyala.
 # `.github/PULL_REQUEST_TEMPLATE` sebagai SPOT untuk persyaratan, pemeriksaan
 # file, validasi harapan, dan Definisi Selesai.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Anda HARUS memperlakukan pencocokan template tarik
 msgid "You MUST treat the matching Pull Request template described in [Pull Request Templates](../../contributing/artefact/git/pull-request.md) and stored in `.github/PULL_REQUEST_TEMPLATE` as the SPOT for requirements, file checks, validation expectations, and the Definition of Done."
 msgstr ""
 
@@ -76576,9 +76150,6 @@ msgstr "[ ] Tambah MinIO cacket policy hardening and a dedicated service account
 # `templates/test.env.j2` (Dan campuran khamar murni itu) yaitu barang yang
 # dicampurkan ke dalamnya (adalah tasnim) makna tasnim ditafsirkan atau
 # dijelaskan oleh firman berikutnya:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] Tambah `files/test/test.sh` tambah
 msgid "[ ] Add `files/test/test.sh` plus `templates/test.env.j2` and run BOTH flavors through it:"
 msgstr ""
 
@@ -76794,9 +76365,6 @@ msgstr ""
 # mereka itu) yakni dari apa yang telah dinasihatkan kepada mereka itu (karena
 # sesungguhnya mereka itu) yakni di dalam peringatan itu (benar-benar
 # orang-orang yang melampaui batas) yaitu orang-orang yang musyrik.).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] Setiap addon dari web- menghadapi kapal peran yang
 msgid "[ ] Every addon of a web-facing role ships a matching Playwright spec under `roles/<role>/files/playwright/addons/` covering that addon's behaviour, and that spec is green before the addon is marked migrated. Desktop (`desk-*`) roles ship NO specs (the lint forbids them)."
 msgstr ""
 
@@ -76899,9 +76467,6 @@ msgstr "[ ] LDAP dan SSO-bridging addons tetap ditutupi oleh persyaratan LDAP / 
 # [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py)
 # (yaitu) pintu-pintu gerbang yang ditutup-tertutup, `ldap login` tes sebelah
 # personas dilarang oleh 019 Aturan 5.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] LDAP-driven persona HARUS Iive IN THE persona
 msgid "[ ] LDAP-driven persona scenarios MUST live INSIDE the persona bodies named `biber: <flow>` and `administrator: <flow>` per 019 Rule 3; the per-persona LDAP gate is added via a separate `skipUnlessServiceEnabled('ldap')` call inside the existing persona body, not as a parallel ungated test. The persona-naming lint [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py) is the role-closure gate; an additional ungated `ldap login` test next to the personas is forbidden by 019 Rule 5."
 msgstr ""
 
@@ -77278,9 +76843,6 @@ msgstr ""
 # (es.NextcloudCollabora/ BBB, WordPress♫Discourse), migrasi mendamaikan kabel
 # yang ada dengan masukan matriks daripada menduplikasi itu.
 # gained=['es.NextcloudCollabora', '♫']
-# translation-refused: libretranslate added-span lost=[]
-# nocheck: url
-# translation-rejected: [ ] Dimana sambungan sel ke plugin already-wired
 msgid "[ ] Where the cell links to an already-wired plugin (e.g. Nextcloud↔Collabora/BBB, WordPress↔Discourse), the migration reconciles the existing wiring with the matrix entry instead of duplicating it."
 msgstr ""
 
@@ -77419,9 +76981,6 @@ msgstr "[ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../..
 
 # `<html lang>` adalah `de` dan tubuh yang berisi terjemahan Jerman pesan dari
 # Jerman `docs.po`; `/latest/de/` berikut sekali katalog berada di `main`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] `/deployed/de/` {Y: i} melayani halaman yang
 msgid "[ ] `/deployed/de/` serves a page whose `<html lang>` is `de` and whose body contains the German translation of a message from the German `docs.po`; `/latest/de/` follows once the catalogs are on `main`."
 msgstr ""
 
@@ -78455,9 +78014,6 @@ msgstr "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-
 
 # Ibanez](https://github.com/AlejandroRomanIbanez): video recording for
 # hand-built Playwright contexts
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [Alejandro Roman
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for hand-built Playwright contexts"
 msgstr ""
 
@@ -81142,9 +80698,6 @@ msgstr "[`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md)
 # perbuatan. Ini diperoleh, segar kembali, ditukar dan dicabut apa-apa,
 # sehingga pembawa penyebaran yang diberikan adalah delegasi pengguna hanya
 # nama.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "[`plugins/filter/mcp/authorization.py`](../../../plugins/filter/mcp/authorization.py) rendered `oidc` as a stored bearer. It acquired, refreshed, exchanged and revoked nothing, so a rendered deployment bearer was user delegation in name only."
 msgstr ""
 
@@ -81227,9 +80780,6 @@ msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml) ketentuan hanya administrat
 # yang berlayar di atas permukaan air (dengan mudah) dengan sangat mudahnya.
 # Kalimat ini adalah Mashdar yang berkedudukan menjadi Hal, yakni
 # Muyassaratan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [`tasks/01_setup.yml`](./tasks/01_setup.yml) benih
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
 msgstr ""
 
@@ -81266,9 +80816,6 @@ msgstr ""
 # yakni kapal-kapal yang berlayar di atas permukaan air (dengan mudah) dengan
 # sangat mudahnya. Kalimat ini adalah Mashdar yang berkedudukan menjadi Hal,
 # yakni Muyassaratan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [`templates/env.j2`](./templates/env.j2) benih hanya
 msgid "[`templates/env.j2`](./templates/env.j2) seeds only the administrator into SuiteCRM (`SUITECRM_ADMIN_USERNAME` / `SUITECRM_ADMIN_PASSWORD`); `biber` reaches the app through SuiteCRM's own SAML login against Keycloak, where `SAML_AUTO_CREATE` mints the account on first assertion. In the `services.sso.enabled: false` matrix variants there is no SAML entry point and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` for the generic persona journeys (the LDAP spec still signs `biber` in from the directory). The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
 msgstr ""
 
@@ -82152,9 +81699,6 @@ msgid "[x] A deployment-managed Flowise fixture executes a deterministic MCP too
 msgstr "[x] Penyebaran - dikelola Flowise fixture eksekusi sebuah deterministik MCP alat berhasil dan berisi tidak ada kredensial MCP MCP plaintext. Perbaikan adalah suatu Aliran Agentflow yang Node Alat memanggil satu alat bernama dengan argumen tetap melalui `customMcpServerTool`, sehingga panggilan deterministik daripada kiri ke model, dan menyebarkan berjalan melalui `/api/v1/prediction` dan gagal pada non-200 jawaban atau sebuah tubuh kesalahan. Node hanya memuat id entri registri: pembawa tetap di Flowisedienkripsi `authConfig`, yang tes unit memegang dengan menegaskan arus serialisasi berisi baik token maupun kata `Bearer`. Kandidat adalah tiga penyedia yang mengakui Flowise, masing-masing dengan alat baca yang tidak memakai argumen; yang pertama terdaftar dibangun dan dijalankan dan dijalankan dari larian sebelumnya dihapus."
 
 # luar grup mendapat HTTP 403 dan tidak (pula) membuat kontainer,.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Panggilan langsung ke pialang untuk pengguna di
 msgid "[x] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container."
 msgstr ""
 
@@ -82301,9 +81845,6 @@ msgstr "[x] Sebuah skenario memverifikasi penciptaan proyek."
 # diabaikan, default ke `false` untuk pilihan addon, baku ke true untuk
 # `required: true`, dan enggan (menolong dengan) barang berguna. `required:
 # true` dengan `enabled: false`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Tes skema memastikan bahwa `enabled` mungkin
 msgid "[x] A schema test verifies that `enabled` may be omitted, defaults to `false` for optional addons, defaults to true for `required: true`, and rejects `required: true` with `enabled: false`."
 msgstr ""
 
@@ -82351,9 +81892,6 @@ msgstr "[x] Spec menyatakan penolakan RBAC dari kriteria di atas (bukan-anggota 
 # asynchronous, sehingga impor / ekspor LDAP dan Multi edit memposting
 # pekerjaan mereka, ditampilkan `Status: in progress` dan tidak pernah
 # menyudutkannya - rusak untuk setiap pengguna, bukan hanya spesifikasi.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Spek mencakup setiap tingkat RBAC, tidak hanya
 msgid "[x] A spec covers every RBAC tier, not only the denial: `biber` starts in no group and reaches no privileged surface, then an administrator adds him to each of the three RBAC groups in turn through LAM, and after every change he logs in again and the spec asserts the policy set and the capability that tier is meant to grant — the operator writes an application secret where the reader gets 403, the reader still reads it back, and only the administrator reads an ACL policy definition. Removing him between rounds proves the revoke as well as the grant. **Correction from implementation:** this was first built with two dedicated accounts, `baooperator` and `baoreader`, which deployed and joined their groups correctly but returned 403 on every LDAP bind — a user declared without an explicit `password` inherits the `strong_password` fallback, which `utils/templating/ansible.py` re-evaluates through `secrets.choice` on each render with nothing persisted, so `ldap_passwd` and `playwright.env` could receive different strings. Moving `biber` between the groups drops both accounts, needs no password workaround, and covers strictly more: the static members could only ever show a steady state, never a grant or a revoke taking effect. Building it also surfaced a defect in `web-app-lam`: `meta/csp.yml` set `script-src-elem.unsafe-inline: false`, which blocked the inline script LAM renders to drive its asynchronous tools, so LDAP import/export and Multi edit posted their job, displayed `Status: in progress` and never polled it — broken for every user, not just the spec."
 msgstr ""
 
@@ -82695,9 +82233,6 @@ msgstr "[x] Traefik MDAD bundled dinonaktifkan dalam inventaris yang dirender."
 # angin yang bertiup dengan kencang) yang bertiup sangat kencang.
 # `probe-reader` Applee log masuk dan menerima sebuah `reader`-scoped token
 # tanpa keterlibatan manusia.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Akses mesin dikonfigurasi secara independen dari
 msgid "[x] Machine access is configured independently of the human OIDC path: the AppRole auth method exists with its own policy, and an application AppRole can obtain a token without any human login and without the Ansible AppRole's credentials. Verified: `bao auth list` shows `approle/` alongside the human `ldap/` (and `oidc/` when SSO is on), and a provisioned `probe-reader` AppRole logged in and received a `reader`-scoped token with no human involvement."
 msgstr ""
 
@@ -82726,9 +82261,6 @@ msgstr ""
 # terlebih dahulu: Hermes mendaftarkan setiap alat ketika `tools.include`
 # absen, yang dokumen sebagai backward- nya baku kompatibel, dan OpenClaw'
 # `toolFilter` tidak pernah ditulis sama sekali.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Alat-alat MCP bermutasi diblokir oleh lingkup hulu
 msgid "[x] Mutating MCP tools are blocked by enforceable upstream scopes or a `tools/call` policy allowlist. A `mutating_tools_enabled: false` metadata value without runtime enforcement does not satisfy this criterion. Adapter-backed surfaces are covered by the adapter, which refuses an unnamed tool and refuses a mutating one while mutations are off, on `tools/call` itself rather than at load time. Two of the enabled native surfaces carry a real upstream scope: Moodle's token reaches only the five read functions its external service lists, behind a role holding one capability, and Home Assistant's account is pinned to the read-only group on every run rather than only at creation. Two do not, and auditing them is what closed this criterion. Baserow's `MCPEndpoint` model carries `name`, `key`, `created`, `user` and `workspace` and no scope of any kind, while `CoreHandler.create_workspace` makes the endpoint's owner a workspace administrator, so its declared `create_rows`, `update_rows` and `delete_rows` were served and callable under a declaration that said mutations were off. Nextcloud's app password is likewise bounded only by its own account. The gap is closed at the one place that is enforceable for a native server: a surface now names its mutating tools, every client's include list is the allowlist minus that set, and no admitted client is offered a tool the provider calls mutating. Both agents needed the include list itself first: Hermes registers every tool when `tools.include` is absent, which it documents as its backward-compatible default, and OpenClaw's `toolFilter` was never written at all."
 msgstr ""
 
@@ -82751,9 +82283,6 @@ msgstr "[x] Baik root token, kunci pemulihan, kunci segel maupun Applee `secret_
 # difungsikan jembatan melalui admin Synapse API dan (malaikat-malaikat) yang
 # menyampaikan wahyu, `services.matrix.plugins.<bridge>=true` entri memiliki
 # catatan appservice hidup.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Baru `test-bridge-roster.js` daftar yang
 msgid "[x] New `test-bridge-roster.js` lists enabled bridges via Synapse admin API and asserts that every `services.matrix.plugins.<bridge>=true` entry has a live appservice record."
 msgstr ""
 
@@ -82953,9 +82482,6 @@ msgstr "[x] Role- meta lint menolak `services.mcp.enabled=true` ketika `services
 # dengan `enabled: false`, sebuah non-mapping `config`, sebuah rahasia literal
 # inlined dalam `config`(Dan ladang-ladang) atau ladang-ladang (yang tidak ada
 # harganya) yang tidak ada padanya. `# nocheck:` Konvensi penekanan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Role- meta lint di bawah
 msgid "[x] Role-meta lint under [`tests/lint/ansible/services/`](../../tests/lint/ansible/services/) rejects an invalid `mechanism` (outside the `addon`/`plugin`/`mu_plugin`/`extension`/`module`/`bridge` set), an invalid `source`, an invalid `update.catalog`, an empty `bridges: []`, a non-string `version`, a non-boolean `required`, `required: true` combined with `enabled: false`, a non-mapping `config`, a literal secret inlined in `config`, and missing required fields, honouring the `# nocheck:` suppression convention."
 msgstr ""
 
@@ -83011,9 +82537,6 @@ msgstr "[x] Menjalankan skrip terhadap host yang bersih `svc-runner` (ditambah t
 # daripada pada semua orang. Aturan ini generik - kunci pada perangkat
 # mendeklarasikan tiga argumen jangkauan, bukan pada nama peran - sehingga
 # upstream berbentuk masa depan mewarisi itu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] S3 adaptor dibatasi untuk dideklarasikan prefix
 msgid "[x] S3 adapters are restricted to declared bucket prefixes and list/head/get; Prometheus adapters enforce lookback/sample limits; GraphQL and SQL adapters reject arbitrary input languages. **Three of the four categories do not exist yet:** only `openapi_allowlist` (10 roles) and `mcp_passthrough` (4) are in use, and `test_mcp_schema.py` already requires exact `scope` names before an `s3_prefix`, `graphql_allowlist` or `named_query` adapter could ship. The Prometheus clause was real and is now half-closed: `prometheus_query_range` accepts client-chosen `start`, `end` and `step`, and the container ran with no `--query.timeout` at all, so a query the adapter abandoned after 15s kept Prometheus busy for its 2-minute default. The role now passes `--query.timeout` derived from `mcp.limits.timeout_seconds`, so the two cannot drift. **The lookback half is now closed too, and the sample ceiling is closed at the layer that can carry it.** `policy.assert_range` bounds a range query's point count by the contract's own `result_items`: a tool whose schema declares `start`, `end` and `step` has `(end - start) / step + 1` checked against that ceiling and is refused with `range_too_wide` and the smallest step that would fit. Against the live Prometheus contract, a day at one-minute resolution asks for 1441 points against a ceiling of 100 and is refused naming an 873-second step. The point is not politeness: the adapter already truncated such a response to 100 rows, so the upstream was scanning a range whose result was thrown away, and the timeout bounded only how long it did so. Both boundary forms Prometheus accepts are understood, unix seconds and RFC 3339, and an unparseable one is refused rather than waved through, because a range that cannot be measured cannot be bounded. `--query.max-samples` deliberately stays unset: lowering it far enough to matter would also bound the platform's own dashboards, which share the instance, so the ceiling belongs on the adapter's requests rather than on everyone's. The rule is generic — it keys on a tool declaring the three range arguments, not on a role name — so a future range-shaped upstream inherits it."
 msgstr ""
 
@@ -83184,9 +82707,6 @@ msgstr "[x] Gambar disematkan ke `openbao/openbao:2.6.2` (tidak `:latest`, tidak
 # hanya dapat dicapai pada role- lokal docker jaringan dan
 # localhosters-terikat `ports.local.http`(Dan sekali-kali bukanlah dia senda
 # gurau) atau mainan dan kebatilan. `0.0.0.0` dari tuan rumah.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Pendengar berjalan dengan `tls_disable = true` dan
 msgid "[x] The listener runs with `tls_disable = true` and is reachable only on the role-local docker network and the localhost-bound `ports.local.http`; it is not bound on `0.0.0.0` of the host."
 msgstr ""
 
@@ -83621,9 +83141,6 @@ msgstr ""
 # konfigurasi yang diberikan klien. Klausa yang tersisa, panggilan tiba dari
 # masing-masing klien yang dipilih daripada dari probe, adalah akhir ke-akhir
 # kriteria di bawah ini.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] [web-app-baserow](../../roles/web-app-baserow/)
 msgid "[x] [web-app-baserow](../../roles/web-app-baserow/) exposes its native MCP server when `services.mcp.enabled=true`, uses a verified least-privilege identity and read-only tool contract, and verifies at least one deterministic tool call through each selected client. **The least-privilege half cannot hold as built.** `provision_mcp.py` creates the endpoint owner's workspace with `CoreHandler().create_workspace`, which makes that account the workspace ADMIN, and Baserow 2.3.3 knows only `ADMIN` and `MEMBER` (`backend/src/baserow/core/models.py`) — both write table data, so there is no read-only workspace role to demote to. The declared `mutating_tools_enabled: false` therefore bounds nothing, and `create_rows`, `update_rows` and `delete_rows` sit in the served allowlist. Decided fix: front the native endpoint with the `mcp_passthrough` adapter, whose contract simply omits the three write tools, so a client calling one is refused with `DENY_UNKNOWN_TOOL` rather than writing into the MCP workspace. `passthrough.py` refuses to load a contract that lists a mutating tool while mutations are off — \"advertising a tool that cannot run is worse than not having it\" — so omission is the mechanism, and `filter_upstream_tools` narrows the upstream `tools/list` by name, which means the contract needs no tool schemas of its own. **The blocker that reverted this twice is now removed.** Baserow serves the classic HTTP+SSE transport, where a GET opens the response stream and the stream announces a second URL as the request channel, while the adapter only ever spoke Streamable HTTP, which answers a POST on the same request. `files/python/sse.py` adds that client, with a reader thread because the answer to a POST regularly arrives before the POST returns, and the contract selects it through `upstream_transport`, defaulting to `streamable_http` so no existing provider changes. **That wiring is now in place.** The role deploys a `baserowmcp` sidecar whose contract serves the four read tools of [tools.json](../../roles/web-app-baserow/files/mcp/tools.json), pinned by `schema_sha256`, and lists the ten it refuses under `tools.upstream_serves`, so a version bump that enables one shows up as contract drift instead of as a silently widened surface. The endpoint key reaches the sidecar as `ADAPTER_UPSTREAM_PATH_KEY` and is spliced in by `policy.upstream_url`, which percent-encodes it, so it never enters the rendered contract. `tasks/utils/mcp.yml` rebuilds the sidecar and runs the adapter probe against it with `list_databases`, which is the deterministic tool call, on every deploy. Baserow was the last role declaring `endpoint.key_credential`, and that field is now gone from the schema, the `roles_with_service` projection and the discovery plugin: a URL segment cannot be scoped per consumer or revoked alone, so a provider that authenticates that way belongs behind an adapter rather than in a client's rendered configuration. The remaining clause, the call arriving from each selected client rather than from the probe, is the end-to-end criterion below."
 msgstr ""
 
@@ -83662,9 +83179,6 @@ msgstr ""
 # reserved ruang ditolak. Menyebar sekarang membuktikan bahwa daftar hidup
 # dengan menunjuk entri throwaway di loopback dan di alamat metadata dan gagal
 # kecuali keduanya ditolak.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] [web-app-flowise](../../roles/web-app-flowise/)
 # adalah 3.1.4, bukan 3.1.3 { fnCandara fs60 b1 4cH000000 4aH80} kriteria ini
 # bernama. Dua koreksi keluar dari audit tag itu. Alat pendaftaran diatur
 msgid "[x] [web-app-flowise](../../roles/web-app-flowise/) uses the authenticated `/api/v1/custom-mcp-servers` registry, stores custom headers encrypted, authorizes and verifies the expected tools, and provisions a managed flow that executes a deterministic tool. Streamable HTTP requires a proven bridge or source-audited upgrade. Globally disabling `HTTP_SECURITY_CHECK` alone is not an integration. The deployed pin is 3.1.4, not the 3.1.3 this criterion named. Two corrections came out of auditing that tag. The registry entry's tool set was compared against a contract the role always passed as empty, so the check could not fail; it now compares against the provider's declared allowlist, which the discovery snapshot carries. The managed flow pointed a `customMCP` node at an input named `customMCPServerId`, which exists on no node at this tag, and the node that does take a registry id is `customMcpServerTool` through `mcpServerId`; the flow is now an Agentflow whose Tool node calls one named tool with fixed arguments, so no model decides whether the call happens. `HTTP_SECURITY_CHECK=false` is set, which upstream documents as replacing the built-in deny list rather than removing it, and `HTTP_DENY_LIST` keeps loopback, link-local, cloud metadata, multicast and reserved space denied. The deploy now proves that list is live by pointing a throwaway entry at loopback and at the metadata address and failing unless both are refused."
@@ -83791,9 +83305,6 @@ msgstr ""
 # `files/playwright/addons/infinito-mcp-abilities.spec.js` menegaskan bahwa
 # persis mereka dapat dicapai dan bahwa anonim `tools/list` ditolak. Kapal
 # permukaan `enabled: false`, jadi operator opt- in.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x]
 msgid "[x] [web-app-wordpress](../../roles/web-app-wordpress/) is audited for a maintained MCP plugin and is integrated only after the plugin's update cadence, license, authentication, and tool scope are documented. The plugin is [WordPress/mcp-adapter](https://github.com/WordPress/mcp-adapter), which bridges the Abilities API to MCP. **Maintained:** owned by the WordPress organisation, not archived, last pushed 2026-08-28. **Cadence:** eight releases between 2025-08-14 and 2026-08-13; the role pins `v0.5.0` (2026-04-15) while `v0.6.1` is current, so the pin trails by two minor versions and is the first thing to revisit. **Licence:** GPL-2.0. **Authentication:** a WordPress application password held in the token store, behind `is_user_logged_in()` and a per-ability permission callback. **Tool scope:** the role registers three read abilities of its own — `infinito/search-posts`, `infinito/get-post`, `infinito/list-categories` — rather than exposing core or third-party abilities, and `files/playwright/addons/infinito-mcp-abilities.spec.js` asserts that exactly those are reachable and that an anonymous `tools/list` is refused. The surface ships `enabled: false`, so it is an operator opt-in."
 msgstr ""
 
@@ -83969,9 +83480,6 @@ msgstr "[x] `meta/variants.yml` mendeklarasikan varians matriks-menyebarkan (lih
 # varian (`ldap` on, `sso`/ OIDC off) dalam konvensi [web-app-openproject/
 # meta / variants.yml](../../roles/web-app-openproject/meta/variants.yml).
 # lost=['web-app-openproject/meta/variants.yml'] gained=['variants.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` mendefinisikan **LDAP-saja**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -84027,9 +83535,6 @@ msgstr "[x] `roles/web-app-erpnext/README.md` dokumen perintah backup manual (`b
 # mengatur urusan (dunia).Redis (3-DB- nomor split) Pola konsumen, kumpulan
 # OIDC - rekonsiliasi, matriks variant, jalur bootstrap bypass, dan aliran
 # backup / restore.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] `roles/web-app-erpnext/README.md` dokumen: image
 msgid "[x] `roles/web-app-erpnext/README.md` documents: image source + bump policy, the central-MariaDB and central-Redis (3-DB-number split) consumer pattern, the OIDC group-mapping reconciliation, the variant matrix, the wizard-bypass bootstrap path, and the backup / restore flow."
 msgstr ""
 
@@ -84143,9 +83648,6 @@ msgstr "[x] `web-app-flowise` Difaktorkan kembali untuk mengkonsumsi `svc-ai-lit
 # mendeklarasikan peran RBAC `agent-user`(Yang beredar dan yang terbenam) yang
 # dimaksud adalah bintang-bintang yang lima, yaitu: Uranus, Mars, Venus dan
 # Pluto. Keycloak grup.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] `web-app-hermes` dan `web-app-openclaw` setiap
 msgid "[x] `web-app-hermes` and `web-app-openclaw` each declare the RBAC role `agent-user`, which provisions a Keycloak group."
 msgstr ""
 
@@ -85323,9 +84825,6 @@ msgstr "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `
 
 # `/var/lib/semaphore`), `mysql`, `postgres`. Postgres menggunakan
 # `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: `SEMAPHORE_DB_DIALECT` ♫ `bolt` (berkas di
 msgid "`SEMAPHORE_DB_DIALECT` ∈ `bolt` (file at `/var/lib/semaphore`), `mysql`, `postgres`. Postgres uses `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`."
 msgstr ""
 
@@ -85599,9 +85098,6 @@ msgstr "``(msgctxt, msgid)`` pasang dalam urutan sumber."
 # sejelas-jelasnya) maksudnya, demi ayat-ayat Alquran yang membedakan antara
 # perkara yang hak dan perkara yang batil, serta yang membedakan antara
 # perkara yang halal dan perkara yang haram. ``msgctxt`` mungkin ``None``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``(msgctxt, msgid)`` (Dan demi yang membedakan
 msgid "``(msgctxt, msgid)`` pairs; ``msgctxt`` may be ``None``."
 msgstr ""
 
@@ -85759,9 +85255,6 @@ msgstr "``FILE_ENVIRONMENT`` (baku: ``/etc/environment``)"
 # hal-hal variant - peran pin gerbang ``true`` dalam varian 0 dan ``false``
 # sisanya, jadi membaca hanya dasar config klaim bawang untuk putaran yang
 # sengaja berjalan tanpa satu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``False`` (Dan demi angin yang menyebarkan rahmat)
 msgid "``False`` when the covered variant pins ``services.tor.enabled`` to a literal false, ``True`` otherwise. A reactive Jinja flag counts as capable: it is the role saying \"onion when the node is dark\". Consulting the variant matters -- roles pin the gate ``true`` in variant 0 and ``false`` in the rest, so reading only the base config claims an onion for rounds that deliberately run without one."
 msgstr ""
 
@@ -86016,9 +85509,6 @@ msgstr "```tasks/01_admin.yml`` <./tasks/01_admin.yml>`__ provisions only the ad
 # berlayar di atas permukaan air (dengan mudah) dengan sangat mudahnya.
 # Kalimat ini adalah Mashdar yang berkedudukan menjadi Hal, yakni
 # Muyassaratan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ```tasks/01_setup.yml`` <./tasks/01_setup.yml>`__
 msgid "```tasks/01_setup.yml`` <./tasks/01_setup.yml>`__ seeds only the administrator into Magento’s admin table (``bin/magento setup:install --admin-user``, credentials from ```templates/env.j2`` <./templates/env.j2>`__); ``biber`` reaches the backend solely through the oauth2-proxy declared in ```meta/services.yml`` <./meta/services.yml>`__. In the ``services.sso.enabled: false`` matrix variants that proxy is absent and ``biber`` has no native account, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ renders ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` persona keeps its native login via ``ADMIN_NATIVE_PASSWORD`` and runs in every variant."
 msgstr ""
 
@@ -86052,9 +85542,6 @@ msgstr ""
 # berlayar di atas permukaan air (dengan mudah) dengan sangat mudahnya.
 # Kalimat ini adalah Mashdar yang berkedudukan menjadi Hal, yakni
 # Muyassaratan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ```templates/env.j2`` <./templates/env.j2>`__ seeds
 msgid "```templates/env.j2`` <./templates/env.j2>`__ seeds only the administrator into SuiteCRM (``SUITECRM_ADMIN_USERNAME`` / ``SUITECRM_ADMIN_PASSWORD``); ``biber`` reaches the app through SuiteCRM’s own SAML login against Keycloak, where ``SAML_AUTO_CREATE`` mints the account on first assertion. In the ``services.sso.enabled: false`` matrix variants there is no SAML entry point and ``biber`` has no native account, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ renders ``PERSONA_BIBER_BLOCKED=true`` for the generic persona journeys (the LDAP spec still signs ``biber`` in from the directory). The ``administrator`` persona keeps its native login via ``ADMIN_NATIVE_PASSWORD`` and runs in every variant."
 msgstr ""
 
@@ -86480,9 +85967,6 @@ msgstr ""
 # msmtp melalui kerumunan ingress di:587, misalnya - membutuhkan alias, dan
 # itu tidak harus hardcode ``host-gateway`` karena yang istirahat di bawah
 # kawanan untuk alasan di bawah ini.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``host_alias=true``(Yang mengelupaskan kulit kepala)
 msgid "``host_alias=true``, which pins ``host.docker.internal`` at whatever reaches the host in the effective mode. A container that must talk to a service the host publishes -- msmtp relaying through the swarm ingress on :587, for instance -- needs the alias, and it must not hardcode ``host-gateway`` because that breaks under swarm for the reason below."
 msgstr ""
 
@@ -86562,9 +86046,6 @@ msgstr ""
 # puluhan ribu commit- sha tag sebelum ``v*`` rilis tag, sehingga scan
 # unseeded kelelahan ``max_pages`` (Mereka itu tidak pernah disentuh oleh
 # seorang pun.).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``last`` benih kursor paginasi OCI: hanya tag
 msgid "``last`` seeds the OCI pagination cursor: only tags sorting lexically after it are returned. Repos like GitLab CNG carry tens of thousands of commit-sha tags before the ``v*`` release tags, so an unseeded scan exhausts ``max_pages`` without ever reaching them."
 msgstr ""
 
@@ -86747,9 +86228,6 @@ msgid "``modes``: list of DEPLOYMENT_MODE values where this overlay applies"
 msgstr "``modes``: daftar DEPLOYMENT_MODE nilai dimana overlay ini berlaku"
 
 # ``[]`` jika absen
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``mounts`` yang (membakar) adalah golongan kanan.
 msgid "``mounts``         the raw mounts list, ``[]`` if absent"
 msgstr ""
 
@@ -86976,9 +86454,6 @@ msgstr "``roles/<app>/meta/server.yml`` deklarasi ``status_codes`` Keyed seperti
 # ``playwright.spec.js``
 # <../../docs/contributing/artefact/files/role/playwright.specs.js.md>`__ (Dan
 # demi angin yang bertiup dengan kencang) yang bertiup sangat kencang.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "``roles/<application_id>/files/playwright/playwright.spec.js`` Follow `Contributing ``playwright.env.j2`` <../../docs/agents/files/role/playwright.env.j2.md>`__ and `Contributing ``playwright.spec.js`` <../../docs/contributing/artefact/files/role/playwright.specs.js.md>`__ while creating them."
 msgstr ""
 
@@ -87302,9 +86777,6 @@ msgstr "``tools_unenforceable`` adalah aturan yang sama yang diterapkan pada keb
 # mengukur eksposur tanpa paksaan, dan penyedia yang perbedaannya tidak kosong
 # membutuhkan sebuah gateway di depan. Ditambah hash skema dan kebijakan
 # mutasi.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``tools``: ``allowlist`` (Ialah) kitab yang bertulis,
 msgid "``tools``:           ``allowlist`` is what a reader may reach and ``writer_allowlist`` what a writer may reach; the deployment renders one contract per role, each with its own bearer, because the gateway tells callers apart by credential and by nothing else. ``allowlist`` is policy, what the platform lets a consumer reach, and is only a constraint where a gateway enforces it. ``upstream_serves`` is the observation: every tool the upstream offers at the deployed version. State it only where it DIFFERS from the allowlist; absence means the two are identical, which is the normal case for a provider that serves exactly what is allowed. The difference between them measures unenforced exposure, and a provider whose difference is non-empty needs a gateway in front. Plus schema hash and mutation policy."
 msgstr ""
 
@@ -88103,9 +87575,6 @@ msgstr "`dotlinker_user` (dibutuhkan): pengguna untuk dijalankan `doli` sebagai"
 # antara semua makhluk. `-j` untuk menghitung pekerja. Catatan perjob membawa
 # tugas gagal dan kesalahannya, dan artefak membawa Playwright
 # `error-context.md`, cuplikan layar, dan `playwright-junit.xml`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `download` menerima penyaring kesimpulan (`-s` Sukses,
 msgid "`download` accepts conclusion filters (`-s` success, `-f` failed, `-c` cancelled, `-k` skipped; none fetches all), `-d` for the destination, and `-j` for the worker count. The per-job logs carry the real failing task and its error, and the artefacts carry the Playwright `error-context.md`, screenshots, and `playwright-junit.xml`."
 msgstr ""
 
@@ -88764,9 +88233,6 @@ msgstr "`mcp` blok layanan: field, nilai yang diijinkan, metadata titik akhir, p
 # jaringan / appservice (lihat Keputusan Dikonfirmasi 13) dan
 # (malaikat-malaikat) yang membedakan (antara yang hak dan yang bathil) dengan
 # sejelas-jelasnya, `bridges:` lapangan di bawah ini.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `mechanism` (dibutuhkan) HARUS menjadi salah satu
 msgid "`mechanism` (required) MUST be one of `addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`. It records the upstream installation mechanism and selects which task path installs the addon. `mechanism: bridge` denotes a network/appservice bridge addon (see Confirmed Decision 13) and is distinct from the `bridges:` field below."
 msgstr ""
 
@@ -89261,9 +88727,6 @@ msgstr "`role` adalah direktori di bawah ``roles/``, `app` peran application_id 
 # `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) dan
 # `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md)
 # (Dan demi angin yang bertiup dengan kencang) yang bertiup sangat kencang.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "`roles/<application_id>/files/playwright/playwright.spec.js` Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them."
 msgstr ""
 
@@ -89683,9 +89146,6 @@ msgstr ""
 # jaringan, dan layanan sistemd. Peran berinteraksi dengan GitHub API (`gh
 # api`) pada waktu pengiriman untuk mengambil tanda pendaftaran - itu tidak
 # **tidak** toko mandat panjang.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: `svc-runner` ketentuan satu atau lebih GigHub Actions
 msgid "`svc-runner` provisions one or more GitHub Actions self-hosted runner instances on a dedicated machine. Each instance is an isolated unit with its own Docker volume, network subnet, and systemd service. The role interacts with the GitHub API (`gh api`) at deploy time to fetch registration tokens — it does **not** store long-lived credentials."
 msgstr ""
 
@@ -90151,9 +89611,6 @@ msgstr "`upstreams.conf.j2 <./templates/upstreams.conf.j2>`__ dirender ke host d
 # dia pun berpaling) dari iman. HTTPS (port 443) per nama host untuk
 # jalan-jalan, HTTP (port 80) Untuk batin`dockerd` Dockerfile membangun.
 # Mengkait `/etc/nginx/conf.d/upstreams.conf`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `upstreams.conf`: nginx server- blocks, dihasilkan
 msgid "`upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`."
 msgstr ""
 
@@ -90317,9 +89774,6 @@ msgstr "`web-app-zammad` terjepit 6.5.0, yang kapal tidak permukaan AI sama seka
 
 # laki-laki yang baik dan wanita yang baik itu (ampunan dan rezeki yang mulia)
 # di surga.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `web-svc-*` dan `web-opt-*` (Bagi mereka) yakni
 msgid "`web-svc-*` and `web-opt-*` for web-facing helpers and redirects"
 msgstr ""
 
@@ -90372,9 +89826,6 @@ msgstr ""
 # baseline to pin (sebagai contoh murni matriks-driver peran seperti
 # `svc-bkp-volume-2-local`(Yaitu) orang-orang yang apabila menerima takaran
 # dari orang lain mereka minta dipenuhi, `variants.yml`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `{}` diizinkan hanya ketika `meta/services.yml`
 #, python-brace-format
 msgid "`{}` is permitted only when `meta/services.yml` declares no dynamic-enabled service-key, so there is nothing for the baseline to pin (for example pure matrix-driver roles such as `svc-bkp-volume-2-local`, whose every service-key originates in `variants.yml`)."
 msgstr ""
@@ -91826,9 +91277,6 @@ msgstr "cli.administration.inventory.provision.cli modul"
 # Modul generator
 # lost=['cli.administration.inventory.provision.credentials']
 # gained=['cli.administration.inventory.provision.credentials_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.credentials_
 msgid "cli.administration.inventory.provision.credentials\\_generator module"
 msgstr ""
 
@@ -91843,9 +91291,6 @@ msgstr "cli.administration.inventory.provision.host\\ _ vars modul"
 # Modul generator
 # lost=['cli.administration.inventory.provision.inventory']
 # gained=['cli.administration.inventory.provision.inventory_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.inventory_
 msgid "cli.administration.inventory.provision.inventory\\_generator module"
 msgstr ""
 
@@ -91872,18 +91317,12 @@ msgstr "cli.administration.inventory.provision.role\\ _ resolver modul"
 # ini
 # lost=['cli.administration.inventory.provision.ruamel']
 # gained=['cli.administration.inventory.provision.ruamel_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.ruamel_ Modul
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr ""
 
 # _ disabler
 # lost=['cli.administration.inventory.provision.services']
 # gained=['cli.administration.inventory.provision.servicesmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.servicesmodul _
 # disabler
 msgid "cli.administration.inventory.provision.services\\_disabler module"
 msgstr ""
@@ -91891,9 +91330,6 @@ msgstr ""
 # Modul pelari
 # lost=['cli.administration.inventory.provision.subprocess']
 # gained=['cli.administration.inventory.provision.subprocess_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.subprocess_
 msgid "cli.administration.inventory.provision.subprocess\\_runner module"
 msgstr ""
 
@@ -91904,17 +91340,11 @@ msgstr "cli.administration.inventory.provision.tor\\ _ node modul"
 # generator
 # lost=['cli.administration.inventory.provision.users']
 # gained=['cli.administration.inventory.provision.users_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.users_ Modul
 msgid "cli.administration.inventory.provision.users\\_generator module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.yaml']
 # gained=['cli.administration.inventory.provision.yaml_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.yaml_ Modul ini
 msgid "cli.administration.inventory.provision.yaml\\_io module"
 msgstr ""
 
@@ -92079,18 +91509,12 @@ msgstr "cli.contributing.changelog.archive.archive\\ _ dir modul"
 # md
 # lost=['cli.contributing.changelog.archive.changelog']
 # gained=['cli.contributing.changelog.archive.changelogmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.changelogmodul _ md
 msgid "cli.contributing.changelog.archive.changelog\\_md module"
 msgstr ""
 
 # cermin
 # lost=['cli.contributing.changelog.archive.package']
 # gained=['cli.contributing.changelog.archive.package_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.package_ Modul
 msgid "cli.contributing.changelog.archive.package\\_mirror module"
 msgstr ""
 
@@ -92184,9 +91608,6 @@ msgstr "cli.contributing.update paket"
 
 # lost=['cli.contributing.update.collection']
 # gained=['cli.contributing.update.collectionpaket']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.update.collectionpaket _ sumber
 msgid "cli.contributing.update.collection\\_source package"
 msgstr ""
 
@@ -92266,16 +91687,10 @@ msgid "cli.meta.ci.chunks module"
 msgstr "cli.meta.ci.chunks modul"
 
 # gained=['cli.meta.ci.dev_']
-# translation-refused: libretranslate protected-span lost=['cli.meta.ci.dev']
-# nocheck: url
-# translation-rejected: cli.meta.ci.dev_ Modul waktu-jalan
 msgid "cli.meta.ci.dev\\_runtime module"
 msgstr ""
 
 # lost=['cli.meta.ci.image'] gained=['cli.meta.ci.image_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.image_ Modul ref
 msgid "cli.meta.ci.image\\_ref module"
 msgstr ""
 
@@ -92352,9 +91767,6 @@ msgid "cli.meta.ci.slots module"
 msgstr "cli.meta.ci.slots modul"
 
 # lost=['cli.meta.ci.subset'] gained=['cli.meta.ci.subset_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.subset_ Modul peran
 msgid "cli.meta.ci.subset\\_roles module"
 msgstr ""
 
@@ -92440,9 +91852,6 @@ msgstr "cli.meta.roles.applications.complexity.render modul"
 
 # lost=['cli.meta.roles.applications.dynamic']
 # gained=['cli.meta.roles.applications.dynamic_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.dynamic_ Modul layanan
 msgid "cli.meta.roles.applications.dynamic\\_services module"
 msgstr ""
 
@@ -92456,9 +91865,6 @@ msgstr "cli.meta.roles.applications.invokable paket"
 
 # lost=['cli.meta.roles.applications.new']
 # gained=['cli.meta.roles.applications.new_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.new_ dalam modul _ branch
 msgid "cli.meta.roles.applications.new\\_in\\_branch module"
 msgstr ""
 
@@ -92476,9 +91882,6 @@ msgstr "cli.meta.roles.applications.ressources.render modul"
 
 # lost=['cli.meta.roles.applications.role']
 # gained=['cli.meta.roles.applications.role_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.role_ Nama paket
 msgid "cli.meta.roles.applications.role\\_name package"
 msgstr ""
 
@@ -95798,9 +95201,6 @@ msgid "plugins.filter.active\\_docker module"
 msgstr "plugins.filter.active\\ _ docker modul"
 
 # lost=['plugins.filter.application'] gained=['plugins.filter.application_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.application_ Modul yang diijinkan
 msgid "plugins.filter.application\\_allowed module"
 msgstr ""
 
@@ -95820,16 +95220,10 @@ msgid "plugins.filter.canonical\\_domains\\_map module"
 msgstr "plugins.filter.canonical\\ _ domains modul\\ _ map"
 
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookie_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.cookie_ Scope modul
 msgid "plugins.filter.cookie\\_scope module"
 msgstr ""
 
 # lost=['plugins.filter.csp'] gained=['plugins.filter.csp_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.csp_ Modul filter
 msgid "plugins.filter.csp\\_filters module"
 msgstr ""
 
@@ -95843,9 +95237,6 @@ msgstr "plugins.filter.docker paket"
 
 # lost=['plugins.filter.docker.build']
 # gained=['plugins.filter.docker.buildmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.buildmodul _ digest
 msgid "plugins.filter.docker.build\\_digest module"
 msgstr ""
 
@@ -95855,16 +95246,10 @@ msgstr "plugins.filter.docker.network\\ _ Noop modul"
 
 # lost=['plugins.filter.docker.service']
 # gained=['plugins.filter.docker.servicemodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.servicemodul _ diaktifkan
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr ""
 
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domain_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.domain_ Modul alat
 msgid "plugins.filter.domain\\_tools module"
 msgstr ""
 
@@ -95894,9 +95279,6 @@ msgstr "plugins.filter.get.all paket"
 
 # lost=['plugins.filter.get.all.application']
 # gained=['plugins.filter.get.all.applicationmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.applicationmodul _ ids
 msgid "plugins.filter.get.all.application\\_ids module"
 msgstr ""
 
@@ -95913,9 +95295,6 @@ msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr "plugins.filter.get.deployment\\ _ tipe modul\\ _ dari\\ _ grup"
 
 # lost=['plugins.filter.get.docker'] gained=['plugins.filter.get.docker_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.docker_ Jalur modul
 msgid "plugins.filter.get.docker\\_paths module"
 msgstr ""
 
@@ -95924,9 +95303,6 @@ msgid "plugins.filter.get.domain module"
 msgstr "plugins.filter.get.domain modul"
 
 # lost=['plugins.filter.get.entity'] gained=['plugins.filter.get.entity_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.entity_ Nama modul
 msgid "plugins.filter.get.entity\\_name module"
 msgstr ""
 
@@ -95936,9 +95312,6 @@ msgstr "plugins.filter.get.role modul"
 
 # lost=['plugins.filter.get.service']
 # gained=['plugins.filter.get.servicemodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.servicemodul _ script _ path
 msgid "plugins.filter.get.service\\_script\\_path module"
 msgstr ""
 
@@ -95963,9 +95336,6 @@ msgid "plugins.filter.has.env module"
 msgstr "plugins.filter.has.env modul"
 
 # lost=['plugins.filter.invokable'] gained=['plugins.filter.invokable_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.invokable_ Jalur modul
 msgid "plugins.filter.invokable\\_paths module"
 msgstr ""
 
@@ -95979,9 +95349,6 @@ msgstr "plugins.filter.litellm paket"
 
 # lost=['plugins.filter.litellm.model']
 # gained=['plugins.filter.litellm.model_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.litellm.model_ Modul rute
 msgid "plugins.filter.litellm.model\\_routes module"
 msgstr ""
 
@@ -96001,37 +95368,22 @@ msgid "plugins.filter.merge.with\\_defaults module"
 msgstr "plugins.filter.merge.with\\ _ standar modul"
 
 # lost=['plugins.filter.mirror'] gained=['plugins.filter.mirror_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.mirror_ Modul filter
 msgid "plugins.filter.mirror\\_filters module"
 msgstr ""
 
 # lost=['plugins.filter.on'] gained=['plugins.filter.on_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.on_ Matikan modul
 msgid "plugins.filter.on\\_off module"
 msgstr ""
 
 # lost=['plugins.filter.redirect'] gained=['plugins.filter.redirectmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.redirectmodul _ sumber
 msgid "plugins.filter.redirect\\_sources module"
 msgstr ""
 
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reserved_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.reserved_ Modul pengguna
 msgid "plugins.filter.reserved\\_users module"
 msgstr ""
 
 # lost=['plugins.filter.resource'] gained=['plugins.filter.resourcemodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.resourcemodul _ filter
 msgid "plugins.filter.resource\\_filter module"
 msgstr ""
 
@@ -96065,24 +95417,15 @@ msgstr "plugins.filter.swarm paket"
 
 # lost=['plugins.filter.swarm.deployed']
 # gained=['plugins.filter.swarm.deployed_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.deployed_ Modul layanan
 msgid "plugins.filter.swarm.deployed\\_services module"
 msgstr ""
 
 # lost=['plugins.filter.swarm.restart']
 # gained=['plugins.filter.swarm.restart_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.restart_ Kondisi modul
 msgid "plugins.filter.swarm.restart\\_condition module"
 msgstr ""
 
 # lost=['plugins.filter.text'] gained=['plugins.filter.text_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.text_ Modul filter
 msgid "plugins.filter.text\\_filters module"
 msgstr ""
 
@@ -96103,16 +95446,10 @@ msgid "plugins.filter.url.join module"
 msgstr "plugins.filter.url.join modul"
 
 # lost=['plugins.filter.url.to'] gained=['plugins.filter.url.to_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.url.to_ Modul bawang
 msgid "plugins.filter.url.to\\_onion module"
 msgstr ""
 
 # lost=['plugins.filter.value'] gained=['plugins.filter.value_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.value_ Modul generator
 msgid "plugins.filter.value\\_generator module"
 msgstr ""
 
@@ -96137,16 +95474,10 @@ msgid "plugins.lookup.api module"
 msgstr "plugins.lookup.api modul"
 
 # lost=['plugins.lookup.api'] gained=['plugins.lookup.apimodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.apimodul _ diaktifkan
 msgid "plugins.lookup.api\\_enabled module"
 msgstr ""
 
 # lost=['plugins.lookup.application'] gained=['plugins.lookup.application_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.application_ Tutup modul
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
@@ -96171,23 +95502,14 @@ msgid "plugins.lookup.asset\\_host module"
 msgstr "plugins.lookup.asset\\ _ host modul"
 
 # lost=['plugins.lookup.bounded'] gained=['plugins.lookup.bounded_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.bounded_ Nama modul
 msgid "plugins.lookup.bounded\\_name module"
 msgstr ""
 
 # lost=['plugins.lookup.ca'] gained=['plugins.lookup.ca_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.ca_ Modul yang disuntikkan
 msgid "plugins.lookup.ca\\_injected module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cache_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cache_ Catatan modul
 msgid "plugins.lookup.cache\\_records module"
 msgstr ""
 
@@ -96196,16 +95518,10 @@ msgid "plugins.lookup.cache\\_repos module"
 msgstr "plugins.lookup.cache\\ _ repos modul"
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cachemodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cachemodul _ upstream
 msgid "plugins.lookup.cache\\_upstreams module"
 msgstr ""
 
 # lost=['plugins.lookup.canonical'] gained=['plugins.lookup.canonicalModul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.canonicalModul _ url
 msgid "plugins.lookup.canonical\\_url module"
 msgstr ""
 
@@ -96218,9 +95534,6 @@ msgid "plugins.lookup.cert module"
 msgstr "plugins.lookup.cert modul"
 
 # lost=['plugins.lookup.command'] gained=['plugins.lookup.command_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.command_ Lokasi modul
 msgid "plugins.lookup.command\\_path module"
 msgstr ""
 
@@ -96233,16 +95546,10 @@ msgid "plugins.lookup.compose\\_file\\_args module"
 msgstr "plugins.lookup.compose\\ _ file modul\\ _ args"
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.compose_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.compose_ Modul jaringan
 msgid "plugins.lookup.compose\\_networks module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.compose_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.compose_ Hanya modul
 msgid "plugins.lookup.compose\\_only module"
 msgstr ""
 
@@ -96255,9 +95562,6 @@ msgid "plugins.lookup.compose\\_restart module"
 msgstr "plugins.lookup.compose\\ _ Ulang modul"
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.compose_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.compose_ Modul volume
 msgid "plugins.lookup.compose\\_volumes module"
 msgstr ""
 
@@ -96270,9 +95574,6 @@ msgid "plugins.lookup.container module"
 msgstr "plugins.lookup.container modul"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Modul alamat
 msgid "plugins.lookup.container\\_address module"
 msgstr ""
 
@@ -96281,9 +95582,6 @@ msgid "plugins.lookup.container\\_depends\\_on module"
 msgstr "plugins.lookup.container\\ _ tergantung pada modul"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Jalankan modul
 msgid "plugins.lookup.container\\_deploy module"
 msgstr ""
 
@@ -96296,23 +95594,14 @@ msgid "plugins.lookup.container\\_extra\\_hosts module"
 msgstr "plugins.lookup.container\\ _ ekstra modul\\ _ host"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Periksa modul
 msgid "plugins.lookup.container\\_healthcheck module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containermodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containermodul _ hostname
 msgid "plugins.lookup.container\\_hostname module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModul _ image
 msgid "plugins.lookup.container\\_image module"
 msgstr ""
 
@@ -96321,23 +95610,14 @@ msgid "plugins.lookup.container\\_mail\\_marker module"
 msgstr "plugins.lookup.container\\ _ mail\\ _ marker modul"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Modul jaringan
 msgid "plugins.lookup.container\\_networks module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containermodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containermodul _ port
 msgid "plugins.lookup.container\\_ports module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Modul layanan
 msgid "plugins.lookup.container\\_service module"
 msgstr ""
 
@@ -96345,9 +95625,6 @@ msgid "plugins.lookup.container\\_url module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.container_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.container_ Modul volume
 msgid "plugins.lookup.container\\_volumes module"
 msgstr ""
 
@@ -96367,9 +95644,6 @@ msgid "plugins.lookup.database\\_consumerless\\_volumes module"
 msgstr "plugins.lookup.database\\ _ consumerless\\ _ volume modul"
 
 # lost=['plugins.lookup.depends'] gained=['plugins.lookup.depends_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.depends_ Pada modul
 msgid "plugins.lookup.depends\\_on module"
 msgstr ""
 
@@ -96400,9 +95674,6 @@ msgid "plugins.lookup.engine module"
 msgstr "plugins.lookup.engine modul"
 
 # lost=['plugins.lookup.fediwall'] gained=['plugins.lookup.fediwallmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.fediwallmodul _ aktif
 msgid "plugins.lookup.fediwall\\_active module"
 msgstr ""
 
@@ -96410,16 +95681,10 @@ msgid "plugins.lookup.gpu module"
 msgstr ""
 
 # lost=['plugins.lookup.group'] gained=['plugins.lookup.group_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.group_ Modul peran
 msgid "plugins.lookup.group\\_roles module"
 msgstr ""
 
 # lost=['plugins.lookup.guide'] gained=['plugins.lookup.guide_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.guide_ Modul peran
 msgid "plugins.lookup.guide\\_role module"
 msgstr ""
 
@@ -96428,16 +95693,10 @@ msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr "plugins.lookup.i18n\\ _ modul katalog"
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nModul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nModul _ isi
 msgid "plugins.lookup.i18n\\_content module"
 msgstr ""
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18n_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18n_ Contoh modul
 msgid "plugins.lookup.i18n\\_sample module"
 msgstr ""
 
@@ -96456,9 +95715,6 @@ msgid "plugins.lookup.matrix\\_server\\_name module"
 msgstr ""
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpmodul _ klien _ pembawa
 msgid "plugins.lookup.mcp\\_client\\_bearer module"
 msgstr ""
 
@@ -96466,16 +95722,10 @@ msgid "plugins.lookup.mcp\\_client\\_login module"
 msgstr ""
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpmodul _ kredensial
 msgid "plugins.lookup.mcp\\_credential module"
 msgstr ""
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpmodul _ server
 msgid "plugins.lookup.mcp\\_servers module"
 msgstr ""
 
@@ -96511,9 +95761,6 @@ msgid "plugins.lookup.nfs\\_export\\_base module"
 msgstr "plugins.lookup.nfs\\ _ export modul\\ _ base"
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfs_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfs_ Modul rasa
 msgid "plugins.lookup.nfs\\_flavor module"
 msgstr ""
 
@@ -96526,9 +95773,6 @@ msgid "plugins.lookup.nfs\\_mount\\_opts module"
 msgstr "plugins.lookup.nfs\\ _ mount modul\\ _ opts"
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsmodul _ state _ path
 msgid "plugins.lookup.nfs\\_state\\_path module"
 msgstr ""
 
@@ -96548,30 +95792,18 @@ msgid "plugins.lookup.objstore module"
 msgstr "plugins.lookup.objstore modul"
 
 # lost=['plugins.lookup.objstore'] gained=['plugins.lookup.objstore_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.objstore_ Modul konsumen
 msgid "plugins.lookup.objstore\\_consumers module"
 msgstr ""
 
 # lost=['plugins.lookup.path'] gained=['plugins.lookup.path_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.path_ Modul absolut
 msgid "plugins.lookup.path\\_absolute module"
 msgstr ""
 
 # lost=['plugins.lookup.playwright'] gained=['plugins.lookup.playwright_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.playwright_ Modul pekerja
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr ""
 
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgres_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.postgres_ Modul perpustakaan
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -96583,9 +95815,6 @@ msgid "plugins.lookup.proxy\\_excluded\\_hosts module"
 msgstr ""
 
 # lost=['plugins.lookup.proxy'] gained=['plugins.lookup.proxy_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.proxy_ lewati modul
 msgid "plugins.lookup.proxy\\_pass module"
 msgstr ""
 
@@ -96594,9 +95823,6 @@ msgid "plugins.lookup.rbac\\_group\\_path module"
 msgstr "plugins.lookup.rbac\\ _ grup modul\\ _ path"
 
 # lost=['plugins.lookup.redirect'] gained=['plugins.lookup.redirectmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.redirectmodul _ uris
 msgid "plugins.lookup.redirect\\_uris module"
 msgstr ""
 
@@ -96625,9 +95851,6 @@ msgid "plugins.lookup.roles\\_with\\_service module"
 msgstr "plugins.lookup.roles\\ _ dengan modul layanan\\ _"
 
 # lost=['plugins.lookup.scrape'] gained=['plugins.lookup.scrape_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.scrape_ Target modul
 msgid "plugins.lookup.scrape\\_target module"
 msgstr ""
 
@@ -96636,9 +95859,6 @@ msgid "plugins.lookup.service module"
 msgstr "plugins.lookup.service modul"
 
 # lost=['plugins.lookup.service'] gained=['plugins.lookup.service_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.service_ Modul ekstensi
 msgid "plugins.lookup.service\\_extensions module"
 msgstr ""
 
@@ -96646,16 +95866,10 @@ msgid "plugins.lookup.service\\_memory\\_mb module"
 msgstr ""
 
 # lost=['plugins.lookup.service'] gained=['plugins.lookup.servicemodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.servicemodul _ registri
 msgid "plugins.lookup.service\\_registry module"
 msgstr ""
 
 # lost=['plugins.lookup.shared'] gained=['plugins.lookup.sharedmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.sharedmodul _ network _ key
 msgid "plugins.lookup.shared\\_network\\_key module"
 msgstr ""
 
@@ -96682,9 +95896,6 @@ msgid "plugins.lookup.sso\\_whitelist\\_domains module"
 msgstr ""
 
 # lost=['plugins.lookup.stage'] gained=['plugins.lookup.stage_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.stage_ Kelompok modul
 msgid "plugins.lookup.stage\\_groups module"
 msgstr ""
 
@@ -96693,9 +95904,6 @@ msgid "plugins.lookup.subnet\\_address\\_regex module"
 msgstr "plugins.lookup.subnet\\ _ alamat\\ _ regex modul"
 
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnet_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.subnet_ Gateway modul
 msgid "plugins.lookup.subnet\\_gateway module"
 msgstr ""
 
@@ -96708,23 +95916,14 @@ msgid "plugins.lookup.tls module"
 msgstr "plugins.lookup.tls modul"
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.tormodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.tormodul _ port
 msgid "plugins.lookup.tor\\_ports module"
 msgstr ""
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.tor_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.tor_ Modul yang dapat dicapai
 msgid "plugins.lookup.tor\\_reachable module"
 msgstr ""
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.tor_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.tor_ Modul kaus kaki
 msgid "plugins.lookup.tor\\_socks module"
 msgstr ""
 
@@ -96733,9 +95932,6 @@ msgid "plugins.lookup.tor\\_socks\\_proxy module"
 msgstr "plugins.lookup.tor\\ _ kaus kaki\\ _ proxy modul"
 
 # lost=['plugins.lookup.unit'] gained=['plugins.lookup.unit_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.unit_ Nama modul
 msgid "plugins.lookup.unit\\_name module"
 msgstr ""
 
@@ -97775,18 +96971,12 @@ msgstr "set ``MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true``,"
 # ``agents_confighistory`` (Dan malaikat-malaikat) lafal al-malaku adalah
 # bentuk jamak dari lafal malaa 'ikah, artinya malaikat-malaikat (yang
 # mencabut nyawa orang-orang yang berdosa) orang-orang kafir.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: set ``mcp.enablePluginServer`` di plugin aktif
 msgid "sets ``mcp.enablePluginServer`` in the plugin’s active ``agents_confighistory`` row and reloads the plugin,"
 msgstr ""
 
 # `agents_confighistory` (Dan malaikat-malaikat) lafal al-malaku adalah bentuk
 # jamak dari lafal malaa 'ikah, artinya malaikat-malaikat (yang mencabut nyawa
 # orang-orang yang berdosa) orang-orang kafir.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: set `mcp.enablePluginServer` di plugin aktif
 msgid "sets `mcp.enablePluginServer` in the plugin's active `agents_confighistory` row and reloads the plugin,"
 msgstr ""
 
@@ -98133,9 +97323,6 @@ msgstr "bahwa dokumen seluruh berkas dimaksudkan untuk menjadi `include_tasks:` 
 
 # dipilih"(Dan tidak ada seorang pun dapat berjalan) artinya, tiada seorang
 # pun yang dapat mendahului-Nya.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: token pilihan baris; kosong berarti "tidak ada yang
 msgid "that line's selection tokens; empty means \"no selection\", and every row passes through untouched."
 msgstr ""
 
@@ -98203,9 +97390,6 @@ msgstr "checkout MDAD di `{{ MATRIX_MDAD_DIR }}`, sebuah salinan baca-tulis"
 # volume dipilih ke NFS (`nfs: true`) (Dan demi yang membagi-bagi urusan) demi
 # malaikat-malaikat yang membagi-bagi rezeki, hujan dan lain-lainnya ke
 # berbagai negeri dan kepada semua hamba-hamba Allah.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: yang MediaWiki aplikasi `images/` dan `extensions/`
 msgid "the MediaWiki application's `images/` and `extensions/` volumes opt into NFS (`nfs: true`) and are shared across nodes;"
 msgstr ""
 
@@ -98228,9 +97412,6 @@ msgstr "agen OpenAI tidak membutuhkan basis URL dan `ollama` Integrasi berbicara
 # dikompresi (65 byte, 0x04126; 126; X 124; 12.4Y), dalam format ekosistem Web
 # Push / mastodon mengharapkan.
 # gained=['04126', '12.4', '124', '126']
-# translation-refused: libretranslate protected-span lost=['04']
-# nocheck: url
-# translation-rejected: P256 skalar privat (32 byte) dan titik publik yang tak
 msgid "the P-256 private scalar (32 bytes) and the uncompressed public point (65 bytes, 0x04||X||Y), in the format the Web Push / mastodon ecosystem expects."
 msgstr ""
 
@@ -98266,9 +97447,6 @@ msgstr "berkas YAML untuk ditulis."
 
 # takhfif daripada inna (YAML benar-benar suatu yang tidak valid) buruk dan
 # tidak layak dijadikan sebagai tempat berlindung.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (Dan sesungguhnya) lafal in di sini adalah bentuk
 msgid "the YAML is invalid,"
 msgstr ""
 
@@ -98400,9 +97578,6 @@ msgid "the application whose domain names the value."
 msgstr "aplikasi yang domain nama nilai."
 
 # orang lain mereka minta dipenuhi,.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (yaitu) orang-orang yang apabila menerima takaran dari
 msgid "the application whose grants are being resolved."
 msgstr ""
 
@@ -98523,9 +97698,6 @@ msgid "the consuming role's own override, when it declares ``config_key``;"
 msgstr "yang mengkonsumsi peran 's override sendiri, ketika menyatakan ``config_key``;"
 
 # rusak.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: { fnCandara fs60 b1 4cH000000 4aH80} Ciri itu rusak.
 msgid "the criterion it broke."
 msgstr ""
 
@@ -98900,9 +98072,6 @@ msgstr "modul yang publik API sedang diekspor ulang."
 # tertangani tidak pernah membawa ``msg`` - AnsiballZ pembungkus hanya kembali
 # ``failed`` dan ``exception``, yang disaksikan oleh malaikat-malaikat yang
 # didekatkan (kepada Allah).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: perintah kembali modul sendiri, ditandai dengan modul
 msgid "the module's own return dict, tagged with the module that produced it. A module that dies on an unhandled exception never carries ``msg`` -- the AnsiballZ wrapper returns only ``failed`` and ``exception``, whose event holds the sole account of what went wrong."
 msgstr ""
 
@@ -99914,16 +99083,10 @@ msgid "utils.annotations.suppress module"
 msgstr "utils.annotations.suppress modul"
 
 # lost=['utils.annotations.task'] gained=['utils.annotations.task_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.annotations.task_ Kosongkan modul
 msgid "utils.annotations.task\\_gate module"
 msgstr ""
 
 # gained=['utils.ansiblemodul']
-# translation-refused: libretranslate protected-span lost=['utils.ansible']
-# nocheck: url
-# translation-rejected: utils.ansiblemodul _ log
 msgid "utils.ansible\\_log module"
 msgstr ""
 
@@ -99980,9 +99143,6 @@ msgid "utils.cache.render module"
 msgstr "utils.cache.render modul"
 
 # lost=['utils.cache.schema'] gained=['utils.cache.schemamodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cache.schemamodul _ kredensial
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -100007,9 +99167,6 @@ msgid "utils.claude package"
 msgstr "utils.claude paket"
 
 # lost=['utils.claude.settings'] gained=['utils.claude.settings_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.claude.settings_ Urutkan modul
 msgid "utils.claude.settings\\_sort module"
 msgstr ""
 
@@ -100120,9 +99277,6 @@ msgid "utils.domains.application\\_domain\\_index module"
 msgstr "utils.domains.application\\ _ domain\\ _ indeks modul"
 
 # lost=['utils.domains.default'] gained=['utils.domains.default_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.domains.default_ Modul primer
 msgid "utils.domains.default\\_primary module"
 msgstr ""
 
@@ -100131,9 +99285,6 @@ msgid "utils.domains.list module"
 msgstr "utils.domains.list modul"
 
 # lost=['utils.domains.primary'] gained=['utils.domains.primary_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.domains.primary_ Modul domain
 msgid "utils.domains.primary\\_domain module"
 msgstr ""
 
@@ -100154,16 +99305,10 @@ msgid "utils.env.handlers.act\\_platform\\_image module"
 msgstr "utils.env.handlers.act\\ _ platform modul\\ _ image"
 
 # lost=['utils.env.handlers.docker'] gained=['utils.env.handlers.docker_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.docker_ Modul platform
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr ""
 
 # lost=['utils.env.handlers.gha'] gained=['utils.env.handlers.gha_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.gha_ Lewati modul
 msgid "utils.env.handlers.gha\\_passthrough module"
 msgstr ""
 
@@ -100181,9 +99326,6 @@ msgstr "utils.env.handlers.infinito.ca paket"
 
 # lost=['utils.env.handlers.infinito.ca.bundle']
 # gained=['utils.env.handlers.infinito.ca.bundle_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.bundle_ Modul calon
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
 msgstr ""
 
@@ -100205,9 +99347,6 @@ msgstr "utils.env.handlers.infinito.cache.hosts modul"
 
 # lost=['utils.env.handlers.infinito.cache.http']
 # gained=['utils.env.handlers.infinito.cache.http_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.cache.http_ Modul host
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
 msgstr ""
 
@@ -100247,9 +99386,6 @@ msgstr "utils.env.handlers.infinito.dir.secrets modul"
 
 # lost=['utils.env.handlers.infinito.dir.var']
 # gained=['utils.env.handlers.infinito.dir.varmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.dir.varmodul _ lib
 msgid "utils.env.handlers.infinito.dir.var\\_lib module"
 msgstr ""
 
@@ -100281,9 +99417,6 @@ msgstr "utils.env.handlers.infinito.fork.account modul"
 # url
 # lost=['utils.env.handlers.infinito.fork.repository']
 # gained=['utils.env.handlers.infinito.fork.repositoryModul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.fork.repositoryModul _ url
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
 msgstr ""
 
@@ -100292,9 +99425,6 @@ msgstr ""
 
 # lost=['utils.env.handlers.infinito.git']
 # gained=['utils.env.handlers.infinito.git_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.git_ Modul identitas
 msgid "utils.env.handlers.infinito.git\\_identity module"
 msgstr ""
 
@@ -100316,9 +99446,6 @@ msgstr "utils.env.handlers.infinito.image modul"
 
 # lost=['utils.env.handlers.infinito.image']
 # gained=['utils.env.handlers.infinito.image_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.image_ Modul repositori
 msgid "utils.env.handlers.infinito.image\\_repository module"
 msgstr ""
 
@@ -100363,9 +99490,6 @@ msgstr "utils.env.handlers.infinito.package\\ _ cache.heap modul"
 
 # lost=['utils.env.handlers.infinito.parent']
 # gained=['utils.env.handlers.infinito.parentModul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.parentModul _ image
 msgid "utils.env.handlers.infinito.parent\\_image module"
 msgstr ""
 
@@ -100383,9 +99507,6 @@ msgstr "utils.env.handlers.infinito.playwright.stage\\ _ base modul\\ _ dir"
 
 # lost=['utils.env.handlers.infinito.pull']
 # gained=['utils.env.handlers.infinito.pull_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.pull_ Modul kebijakan
 msgid "utils.env.handlers.infinito.pull\\_policy module"
 msgstr ""
 
@@ -100411,9 +99532,6 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ _ dump modul\\ _ dir"
 
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.running_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.running_ Pada paket
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr ""
 
@@ -100498,9 +99616,6 @@ msgid "utils.env.writer module"
 msgstr "utils.env.writer modul"
 
 # gained=['utils.getModul']
-# translation-refused: libretranslate protected-span lost=['utils.get']
-# nocheck: url
-# translation-rejected: utils.getModul _ url
 msgid "utils.get\\_url module"
 msgstr ""
 
@@ -100509,23 +99624,14 @@ msgid "utils.github package"
 msgstr "utils.github paket"
 
 # lost=['utils.github.playwright'] gained=['utils.github.playwright_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.github.playwright_ Ringkasan modul
 msgid "utils.github.playwright\\_summary module"
 msgstr ""
 
 # lost=['utils.github.pytest'] gained=['utils.github.pytest_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.github.pytest_ Ringkasan modul
 msgid "utils.github.pytest\\_summary module"
 msgstr ""
 
 # gained=['utils.github.run_']
-# translation-refused: libretranslate protected-span lost=['utils.github.run']
-# nocheck: url
-# translation-rejected: utils.github.run_ Nama modul
 msgid "utils.github.run\\_name module"
 msgstr ""
 
@@ -100650,9 +99756,6 @@ msgid "utils.install.collections module"
 msgstr "utils.install.collections modul"
 
 # lost=['utils.install.github'] gained=['utils.install.github_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.github_ Keluarkan modul
 msgid "utils.install.github\\_release module"
 msgstr ""
 
@@ -100702,9 +99805,6 @@ msgstr "utils.install.lint.mbake modul"
 
 # lost=['utils.install.lint.mermaid']
 # gained=['utils.install.lint.mermaidmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.lint.mermaidmodul _ cli
 msgid "utils.install.lint.mermaid\\_cli module"
 msgstr ""
 
@@ -100773,9 +99873,6 @@ msgid "utils.install.ruby module"
 msgstr "utils.install.ruby modul"
 
 # lost=['utils.install.system'] gained=['utils.install.systemmodul']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.systemmodul _ pkg
 msgid "utils.install.system\\_pkg module"
 msgstr ""
 
@@ -100795,9 +99892,6 @@ msgid "utils.inventory.tools module"
 msgstr ""
 
 # gained=['utils.kcadmmodul']
-# translation-refused: libretranslate protected-span lost=['utils.kcadm']
-# nocheck: url
-# translation-rejected: utils.kcadmmodul _ json
 msgid "utils.kcadm\\_json module"
 msgstr ""
 
@@ -100827,9 +99921,6 @@ msgid "utils.manager package"
 msgstr "utils.manager paket"
 
 # lost=['utils.manager.credential'] gained=['utils.manager.credential_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.manager.credential_ Kunci modul
 msgid "utils.manager.credential\\_key module"
 msgstr ""
 
@@ -100838,9 +99929,6 @@ msgid "utils.manager.inventory module"
 msgstr "utils.manager.inventory modul"
 
 # lost=['utils.manager.value'] gained=['utils.manager.value_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.manager.value_ Modul generator
 msgid "utils.manager.value\\_generator module"
 msgstr ""
 
@@ -100857,9 +99945,6 @@ msgid "utils.meta.identity module"
 msgstr "utils.meta.identity modul"
 
 # gained=['utils.meta.portmodul']
-# translation-refused: libretranslate protected-span lost=['utils.meta.port']
-# nocheck: url
-# translation-rejected: utils.meta.portmodul _ band
 msgid "utils.meta.port\\_bands module"
 msgstr ""
 
@@ -100951,9 +100036,6 @@ msgid "utils.packages.sources module"
 msgstr "utils.packages.sources modul"
 
 # gained=['utils.parse_']
-# translation-refused: libretranslate protected-span lost=['utils.parse']
-# nocheck: url
-# translation-rejected: utils.parse_ Jejak modul
 msgid "utils.parse\\_trace module"
 msgstr ""
 
@@ -101142,9 +100224,6 @@ msgstr "utils.roles.validation paket"
 
 # lost=['utils.roles.validation.deploy']
 # gained=['utils.roles.validation.deploy_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.validation.deploy_ Modul id
 msgid "utils.roles.validation.deploy\\_id module"
 msgstr ""
 
@@ -101177,9 +100256,6 @@ msgid "utils.storage.nfs module"
 msgstr "utils.storage.nfs modul"
 
 # gained=['utils.symbolmodul']
-# translation-refused: libretranslate protected-span lost=['utils.symbol']
-# nocheck: url
-# translation-rejected: utils.symbolmodul _ glossary
 msgid "utils.symbol\\_glossary module"
 msgstr ""
 
@@ -101222,9 +100298,6 @@ msgid "utils.tests.swarm.derive\\_includes module"
 msgstr "utils.tests.swarm.derive\\ _ termasuk modul"
 
 # lost=['utils.tests.swarm.extend'] gained=['utils.tests.swarm.extend_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.extend_ Modul inventaris
 msgid "utils.tests.swarm.extend\\_inventory module"
 msgstr ""
 
@@ -101258,16 +100331,10 @@ msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr "utils.tests.swarm.write.hosts\\ _ masukan modul"
 
 # gained=['utils.tls_']
-# translation-refused: libretranslate protected-span lost=['utils.tls']
-# nocheck: url
-# translation-rejected: utils.tls_ Modul umum
 msgid "utils.tls\\_common module"
 msgstr ""
 
 # gained=['utils.tor_']
-# translation-refused: libretranslate protected-span lost=['utils.tor']
-# nocheck: url
-# translation-rejected: utils.tor_ Modul bawang
 msgid "utils.tor\\_onion module"
 msgstr ""
 
@@ -101287,9 +100354,6 @@ msgid "utils.update.checksum module"
 msgstr ""
 
 # lost=['utils.update.collection'] gained=['utils.update.collection_']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.update.collection_ Modul sumber
 msgid "utils.update.collection\\_source module"
 msgstr ""
 
@@ -101664,9 +100728,6 @@ msgstr "{% if lookup('prometheus_integration_active', application_id) %} ... blo
 # -all-error --retry-delay 2 {{ lookup('timeout', 30) | curl }} - >
 # TIMEOUT_FACTORvarian skala
 # gained=['TIMEOUT_FACTORvarian']
-# translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
-# nocheck: url
-# translation-rejected: {{ 30 | curl }} - > curl -s --connect-timeout 5
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
 msgstr ""
 
@@ -101766,9 +100827,6 @@ msgstr "Informasi Pengarang"
 msgid "“Smart defaults”:"
 msgstr "\"Smart default\":"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: ♫️ **Mengversi logika** untuk bust cache peramban
 msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr ""
 

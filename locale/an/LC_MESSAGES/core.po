@@ -19,7 +19,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr ""
@@ -109,7 +108,6 @@ msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr "Automated recovery service restartarando stacks que salieron mal o que están enfermos Docker Compose y resolviendo conflictos de puertos"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -199,7 +197,6 @@ msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr "Central logout proxy para el cortejo de salidas unificadas para todo los apps conectados a OIDC con fragmentos de Nginx e interfaz de usuario con estado actual"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr ""
@@ -244,7 +241,6 @@ msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
 msgstr "Limpieza"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
 msgstr ""
@@ -289,7 +285,6 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Cache de transferencia local de pull compartido para pases desde una imagen base de Docker Hub, reduciendo transferencias duplicadas y limitando el ritmo"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -319,7 +314,6 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Comunida"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -374,7 +368,6 @@ msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Controlo de Gestió"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -384,7 +377,6 @@ msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "Sisteme de gestion de contenu pentru construire și gestionarea sitelor, bloguri și rețele multesitare cu teme și pluginuri"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr ""
@@ -404,7 +396,6 @@ msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Core NGINX webserver con soporte para flujo HTTP y TCP/UDP y configuraciones por defecto optimizadas para el rendimiento"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
@@ -459,12 +450,10 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "DNS provisori, records, y rDNS management (Cloudflare, Hetzner, etc.)."
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr ""
@@ -504,7 +493,6 @@ msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Orchestrador de comienzo retrasado para habilitar y comenzar los servicios systemd recopilados una vez que se complete una jugada"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -709,7 +697,6 @@ msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr "Fundamential base per aplikasyon web: Fundament sunet HTTPS, setup sunet Cloudflare, at reverse-proxy handler koneksi"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr ""
@@ -754,7 +741,6 @@ msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Browser web de desktop fortificat amb extencions d'privateïtat i d'extensions de gestionador de contrasenyes via Policies d'Empresa"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
 msgstr ""
@@ -774,7 +760,6 @@ msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "Helper role installează sursă de înlocuire a CA în stivele Docker Compose și validă certificatul CA al proiectului"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr ""
@@ -784,7 +769,6 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Els Duitsos Tools"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -799,12 +783,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Configuración de nivel de host ligando los shells de inicio de sesión Bash y Zsh a un .profile compartido para cargar de manera consistente el entorno"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr ""
@@ -854,7 +836,6 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Injección"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
@@ -874,7 +855,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Runtime JavaScript para la construcción y ejecución de aplicaciones en servidor y herramientas de desarrollador"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -934,7 +914,6 @@ msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "Lightweyse autostàtic Git serviciu pentru colaborarea cu cod, control de versiune și gestionare a depozitului"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr ""
@@ -1049,16 +1028,16 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served static page rendering Impressum(Impressum) from a Jinja2 template"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 traducirx model servirx a través de HTTP, para pipelines que lo llaman directamente"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr "Rédei"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr ""
@@ -1068,7 +1047,6 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Sistemic DNS sinkol para blokea ad y trackeores sa to'o dvin, gamangan DHCP at dvin web admin layar"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1088,9 +1066,6 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Servidor basado en Nginx para alojar recursos estáticos que copia desde el directorio de origen al camino de datos web"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Node.js
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1225,12 +1200,10 @@ msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr "Plataforma de mensajería de equipo de código abierto para colaboración en tiempo real a través de canales, hilos y integraaciones"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
@@ -1279,22 +1252,18 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Gestor de paciènts per a l'instal·lacions i la gerenciació de paciènts Python a l'hòstig objectiu"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
@@ -1354,7 +1323,6 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Instalador de controlador de GPU propietario para sistemas basados en Arch mediante la detección de hardware no libre mhwd"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
 msgstr ""
@@ -1364,7 +1332,6 @@ msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "Provisionació de rol per a un compte d'inici de sessió de màquineta amb els seus fitxers de shell, claus autoritzades d'SSH i entornos"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr ""
@@ -1374,7 +1341,6 @@ msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "Servis Proxy"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr ""
@@ -1494,7 +1460,6 @@ msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr "Sistem deduplicat pagpilihan ng backup para sa Docker container volumes sa lokal na direktoryo, saan ng mga konsistente pagdump ng SQL"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
 msgstr ""
@@ -1544,7 +1509,6 @@ msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr "Servicio systemd programatitzat i tímpler per rebalancejar les fius Btrfs de sistema per mantenir l'alocation de stockament otímica"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr ""
@@ -1569,7 +1533,6 @@ msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "Pozicionamenta e configuración de un rendidor de Actions de GitHub Self-hostado"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr ""
@@ -1579,12 +1542,10 @@ msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr "Servicio de directorio LDAP self-hosted con gestion centralizada de usuarios, grupos y esquemas, acceso seguro mediante TLS"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
 msgstr ""
@@ -1604,7 +1565,6 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Tool perinstalado localmente para crear códigos QR a partir de texto o URLs con renderización local privada"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
@@ -1624,117 +1584,94 @@ msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
 msgstr "Sistònia desentralitzada autodeployada en la protocol AT Obert, amb seva seva Diners Personal Server"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
 msgstr ""
@@ -1749,12 +1686,10 @@ msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
 msgstr "Administració de Serveis"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
@@ -1784,7 +1719,6 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Messajebroker asincrono compartimentat pentru mesaje cu host virtual per consumator și isolare utilizator"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
@@ -1804,7 +1738,6 @@ msgctxt "logout:all_done"
 msgid "Signed out everywhere."
 msgstr "Signatutout."
 
-# translation-refused: libretranslate damaged-span
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
@@ -1815,7 +1748,6 @@ msgctxt "logout:running"
 msgid "Signing you out of your services…"
 msgstr "Saliendo de tus servicios…"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
@@ -1845,7 +1777,6 @@ msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "Sovereign plaça de conferència en temps real basada en codi obert per calls de xifre/visual, partícies de sessió, i SSO"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""
@@ -1855,7 +1786,6 @@ msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr "Nivellos de pila per configurar el servidor"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""
@@ -1875,7 +1805,6 @@ msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr "Depósito"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
@@ -1915,7 +1844,6 @@ msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr "Asistente sistémico para la instalación o actualización de un paquete de Python a través del Python del sistema del host"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr ""
@@ -1930,7 +1858,6 @@ msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Servicio de reciclaje impulsado por Systemd que limpia el recorte de volumenes de Docker anónimos, imágenes, contenedores, redes y caché de compilación"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr ""
@@ -1950,12 +1877,10 @@ msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Notifier systemd-triggerat para l'enviament d'alerts d'advertència de fallada de servei a una conversa de Telegram"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
@@ -1970,12 +1895,10 @@ msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "Terminal-básico editor de textos con teclas modernas y resaltado de sintaxis para trabajos basados en Pacman"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
 msgstr ""
@@ -2045,7 +1968,6 @@ msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr "Memoria de traducciones, glosarios y flujo de trabajo humano detrás del gateway de traducción"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
@@ -2080,12 +2002,10 @@ msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "Càmpus d'usuari i control d'accés"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr ""
@@ -2095,7 +2015,6 @@ msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Asset-arbol de versado de versión con entrega de CDN con directorios de versado compartido, proveedor y por rol personalizados"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
@@ -2130,7 +2049,6 @@ msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr "Web-based administration and development platform para gestionar múltiples servidores PostgreSQL, con inicio de sesión por OAuth2 opcional"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
 msgstr ""
@@ -2140,7 +2058,6 @@ msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Optimización de servidor"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr ""

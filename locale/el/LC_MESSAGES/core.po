@@ -787,9 +787,6 @@ msgstr "Βοηθητικά Εργαλεία"
 # διαχείριση, κλιμάκωση και πρόσβαση σε μη δομημένα δεδομένα —
 # συμπεριλαμβανομένης της αποθήκευσης αντικειμένων συμβατών με την Amazon S3
 # APIs (στα Αγγλικά).
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: --- High-performancia, soluciones de almacenamiento de
 # alta rendimiento, autónomo para gestionar, escalar y acceder a datos no
 # estructurados — compatibles con APIs de Amazon S3.  ---.
 msgctxt "menu:Storage:description"
@@ -1002,9 +999,6 @@ msgid "Marketing"
 msgstr "Εμπορία"
 
 # results without handing a user's query to a tracking search provider
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Metasearch engine the platform queries for web results
 # without handing a user's query to a tracking search provider
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"

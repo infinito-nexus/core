@@ -343,9 +343,6 @@ msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Linux ホスト上のアプリケーションコンテナの構築と実行のための Compose によるコンテナエンジンのランタイム"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Container orchestration cluster for scheduling
 # services across pooled manager and worker nodes
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
@@ -1692,9 +1689,6 @@ msgid "Self-hosted open-source machine translation API for translating and detec
 msgstr "テキストを言語間で翻訳し、検出するためのセルフホスト型のオープンソース機械翻訳API"
 
 # セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Self-hosted personal AI agent gateway with a browser
 # control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
 # personal AI agent gateway with a browser control UI, sandboxed in a Kata
 # microVM or gVisor runtime
@@ -1759,9 +1753,6 @@ msgid "Service Optimation"
 msgstr "サービス最適化"
 
 # サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Service-level backup and recovery components— handling
 # automated data snapshots, remote backups, synchronization services, and
 # backup orchestration across databases, files, and containers.
 msgctxt "category:svc.bkp:description"

@@ -23,349 +23,430 @@ msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr ""
+msgstr "Servisau AI"
 
+# translated-by: ollama
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr ""
+msgstr "Toolau a frwyddnewdu o ddwylladd, gynnal a cyflwyno, ac gyhoeddi bod modd fwyaf gynyddol iddyn nhw."
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr ""
+msgstr "Editori cyhoedd AI cwmystro ar waham, ond y ddeallau'r heddlu rhanweithreodi dros y gynghostedd"
 
+# translated-by: ollama
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr ""
+msgstr "Toolau ystyroddwywfor y server"
 
+# translated-by: ollama
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr ""
+msgstr "Agenzyes"
 
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr ""
+msgstr "Golweidwr draswm y ddeallt gyffredinol, cafeneith, a phrofn i gydraddu yn ystod y sefyllfa Golmewn ar Linux"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
-msgstr ""
+msgstr "Alertiad"
 
+# translated-by: ollama
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr ""
+msgstr "All-in-one Stalwart server mail ambly sefydd, SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV arian sefydd ac eich bod yn ymarferol am spam"
 
+# translated-by: ollama
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr ""
+msgstr "Anlytics"
 
+# translated-by: ollama
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr ""
+msgstr "Ról ansible gyldydd gyda perthendynol ei haliacwm a hydindwyr y datblyg cyfrin anfon cyffredinol y pwyllgor am gyffredinau y datganiad cyffredinol yn ein store YAML llais o flaen"
 
+# translated-by: ollama
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr ""
+msgstr "Bontar"
 
+# translated-by: ollama
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr ""
+msgstr "Applications ei-e-commerce, ticketing, a iomaide tállaidh."
 
+# translated-by: ollama
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
-msgstr ""
+msgstr "Bunnet de cymorth Arch Linux gyfoith yr archgellt Epson gyda phrinting a phroffisol gan escpr a imagescan"
 
+# translated-by: ollama
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
-msgstr ""
+msgstr "Artificiell Intellect"
 
+# translated-by: ollama
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr ""
+msgstr "Management Caifharthyn"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Automated recovery service syntys syneutach i golywed neu ganfodach wrth gyrraedd ar Docker Compose stycabs a roi adroddiad ar ffordd y byrnes o fforddau"
 
+# (Hetzner Cloud) ystod y dyn, pryd y ddiddordeb, y ddiddordeb y flwyddyn, a'r
+# bwynt o beirniol
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr ""
+msgstr "Backup & Restore"
 
+# translated-by: ollama
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr ""
+msgstr "Servisus Cyhoeddù"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
-msgstr ""
+msgstr "Strategii de copie de baza & procedures d'ăștăciere"
 
+# translated-by: ollama
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
-msgstr ""
+msgstr "Enghys cyfrif newid a chyflwyniad ar drafodaethau software wrth i'n Linsys, gyda newidiadau cymdeithasol a gwybodion rhannu addysgion"
 
+# translated-by: ollama
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
-msgstr ""
+msgstr "Rol básidh ag crideann nóidheacháin na hAiseadóir systemd agus na páirtíochtáin déarcachta agus na tíorthóiri bliantúla"
 
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "Browser administrasiu eurolais ar gyfer y SeaweedFS eurolais, gyfrannu'r filer a'r consoler master nhyrddiant SSO"
 
+# translated-by: ollama
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
-msgstr ""
+msgstr "Browser-based wera spinola ap gyda drafod newydd, wybrawr gloddiad a gamification"
 
+# translated-by: ollama
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr ""
+msgstr "Interface administrativa per a usuari web per a la corretge LLM compartida, publicada sense front proxy dindeu"
 
+# translated-by: ollama
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr ""
+msgstr "Tool de dinamisme dailly sydd ei ffordlaethu y galluogi'r feirdd gwybod ac yn gallu fwyaf ariannol y bydd y file operations yn y bwriadol during'r bwyntau drafod packaid."
 
+# translated-by: ollama
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr ""
+msgstr "CI Rhannog"
 
+# translated-by: ollama
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "Central Dockerizoid engine drafysogodd bymynydd y dynas gyffordrio a allwch yn per-drafysogol y API cyffredinau"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "Enghenodwr dynnydd y borebwyntau sydd wedi ei gwneud ymddeallu am drafodaeth y datblygiadau caledr gyffredin yn y borebwyntau Welsh"
 
+# translated-by: ollama
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
-msgstr ""
+msgstr "Recursos drafod central, yn beth unrhyw newidiwm, ffeillion, gorfitiaeth addas a drafod."
 
+# translated-by: ollama
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr ""
+msgstr "Central yn enw fwyddawnig llywolennol gyda per-gwasanaeth wrth gweld pwynt-prefix, gyffredinol neu yn gwyddonol cael ei newid i'r dyfodol"
 
+# translated-by: ollama
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
-msgstr ""
+msgstr "Rol cymryd central ar hawliau gwella a'r roll cymryd cymdeithus y pellach a thŵr a chyffredinoliaeth dros ail-llwyddu gan drafndeb"
 
+# translated-by: ollama
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr ""
+msgstr "Central logout proxy ar ystaf i ysgo i y gallt olygaid arall arall o OIDC, wrth i wneud y greiniau Nginx a'u seilio cyfanadwy UI"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
-msgstr ""
+msgstr "Central mŷstl orchestrawydd perfformiad ar Infinito.Nexus, prydwrch Email SaaS, msmtp, a rheolwrwydd SMTP local oedd yn effeithlon"
 
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-dns-unbound:description"
 msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
-msgstr ""
+msgstr "Central recursive/dereferentiatr DNSSEC resolver sywllus i'r hwydd statutig ar ôl i ddweud fwyafad osorolwr gogledd o fwyafad"
 
+# translated-by: ollama
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
-msgstr ""
+msgstr "Central search aithneus engine a gyntrodeuau syenach a wythnos na nheuliantyn na heddiwch isolwr eu gwella yn ein deilaut Docker"
 
+# translated-by: ollama
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
-msgstr ""
+msgstr "Banc database eintirnol cyhoeddydd ar ystor a phrsawro gyfanswm y bob cewch-yn-cyhoedd ei wneud a physgu"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Centralizaudd MariaDB neu PostgreSQL datbystiolaeth aithreachaidd gan Docker Compose"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr ""
+msgstr "Certbot-gweinydd ACME ei well Let's Encrypt ei llif SSL/TLS ei well oen a ei llif diwlain NGINX"
 
+# translated-by: ollama
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr ""
+msgstr "Cyhoeddwyd addysgu y ddigon fwyaf..."
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
-msgstr ""
+msgstr "Blein"
 
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr ""
+msgstr "Ritual de correcció per a la recollida de espai al disc dels arxius temporals, dels arxius de paquets, dels dades opcional de Docker i de la versió antiga de les tancaments"
 
+# translated-by: ollama
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr ""
+msgstr "Settup NFS sywale i gyfrinog ei weld gydag y gwyddor export o'r gwyddor cymdeithas yr ydym wedi'i eu gynnal i every swarm node, gyda'r cyfieithu wedi i weld ei alluosi yn arwyb cwbl"
 
+# translated-by: ollama
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
-msgstr ""
+msgstr "Manager de clipboard peint pe historia editable, acțiuni personalizate și suport pentru scripturi"
 
+# translated-by: ollama
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr ""
+msgstr "Cynulliad"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
-msgstr ""
+msgstr "Cloudflare DNS bootstrap roll fo apex a wildcart A/AAAA recods ( a optional CAA) acroos web stack's base domains"
 
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Gerrymetr ac cache prostógach syneol sydd yn cyflwyno arbrawau amlinewydd, serio apt, pip, npm a raw arweinyddau hwy narys sydd yn dod ennog"
 
+# translated-by: ollama
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr ""
+msgstr "Cachau local cluster dweilchân pull-thru gan pull-dweilchân ar lefel y gost ychwanegol ar y beth-imag Gydr Hub sydd a phroisiadol"
 
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr ""
+msgstr "Platform wiki collaborativa per documeniadu lle o ddat benn i drobontiad cyhoeddus a drafodaeth plantion i fwyaf wahân"
 
+# translated-by: ollama
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
-msgstr ""
+msgstr "Applikasi diary app jurnal dari terminal untuk tukar taru和个人筆記本應用程式從終端創建和管理個人日記條目"
 
+# translated-by: ollama
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr ""
+msgstr "Businesseu"
 
+# translated-by: ollama
 msgctxt "menu:Communication:title"
 msgid "Communication"
-msgstr ""
+msgstr "Cymdeithasol"
 
+# translated-by: ollama
 msgctxt "menu:Community:title"
 msgid "Community"
-msgstr ""
+msgstr "Bwyllgor"
 
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr ""
+msgstr "Rol cyd-dŵr deithsiad yn cyffredinol sy'n torri'r deithsiad deithsiad a chwaraeon phant HTTP gan adroddiadau web"
 
+# translated-by: ollama
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
-msgstr ""
+msgstr "Orchestraciún de Containers"
 
+# translated-by: ollama
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
-msgstr ""
+msgstr "Registres de Conteneurs"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr ""
+msgstr "Rhagdan gyffyrwyro rhaglenn gyffyrwyro wrth Compose ar gyfer weld ac darparu gyffyrwedd cyfanol ar gyfer gogledd hosts"
 
+# translated-by: ollama
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr ""
+msgstr "Orchestrator clúster cyhoiriannol ar fhríomhdháirtíseoiriceanna trí sraitheoirí agus níosraí nóidean"
 
+# translated-by: ollama
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
-msgstr ""
+msgstr "Servisau registry-cyfraniol - registur-cyffredin a pŵl-drafodl-cyffredin."
 
+# translated-by: ollama
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
-msgstr ""
+msgstr "Kontenylerth Reveal.js driga wedi cais cyfraddu'r fwyafion gan ei gyfarfod dros adminu, rhanabarthau developera, rhaglen a drafodwyr"
 
+# translated-by: ollama
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Containerizauw server drafodol i gyson y colligwyddur SVG a PNG o brand y Simple Icons am gyffredinol a drafodol"
 
+# translated-by: ollama
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ""
+msgstr "Containerizatua databază relational drill wed y petha'i arian, wedi drafodio arian a phrofiad arian"
 
+# translated-by: ollama
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr ""
+msgstr "Gestió del Contenidum"
 
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr ""
+msgstr "System de gwared-dweud yng Nghylwedd a phennau a physgyped, ac yna gyda thema a phennau plugs"
 
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr ""
+msgstr "Céadmeir control ar ceistimhne ceisteanna lifoimhse bainta – ceapaimhne, cuireadh, saoilme, sraithimhne, cuidimhne agus dathaimhne."
 
+# translated-by: ollama
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr ""
+msgstr "Core AI ffeilliai bethun—aithnicróidhí modhharáin, ceisteanna OpenAI-órain, blaitneí vectora, ortróimeáide agus ceisteanna UI."
 
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "Core NGINX webserver gyffocawen HTTP ac stream stream gyffocawen TCP/UDP ac defaid dewiswyddlyn wedi'r drafodaintegol"
 
+# translated-by: ollama
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
+"Corporate design configuration owner și serviciu flag, redirecționând numele de domeniu spre CDN\n"
+"---\n"
+"\n"
+"`design`"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr ""
+msgstr "Desing instanciad per corporaat per apies NGINX-tansa, unificant theming ligol a'r gogleg gyfan o'r tokenau instanciad per desing OKLCH"
 
+# translated-by: ollama
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
-msgstr ""
+msgstr "Non m'hona eich pwyntiau gael ei ysgymys."
 
+# translated-by: ollama
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
-msgstr ""
+msgstr "Nistid i confirm ei each sign-out."
 
+# translated-by: ollama
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
-msgstr ""
+msgstr "Installer de distribució entre files per a manager de paquets Nix amb instàncies de configuració multi-utilitzadors verifiables per parell i reproducibles"
 
+# translated-by: ollama
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
-msgstr ""
+msgstr "Routine drafn drafn arallau ar gyfer rhybys y llif a chyflwyno gan y pwynt cyhoeddus, CI, a'r llif a chyflwyno o'r ffrwydr"
 
+# translated-by: ollama
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
-msgstr ""
+msgstr "Cynebuith Rhwydroedd"
 
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr ""
+msgstr "DNS Ewropyn"
 
+# translated-by: ollama
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr ""
+msgstr "Resolviuills DNS"
 
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
@@ -375,273 +456,335 @@ msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
-msgstr ""
+msgstr "Banc de greuada a'pplicaciouns (DBMS, LDAP, Redis, etc.)"
 
+# translated-by: ollama
 msgctxt "category:svc.db:title"
 msgid "Databases"
-msgstr ""
+msgstr "Bddes"
 
+# translated-by: ollama
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr ""
+msgstr "Decentraliziad, federaliad platfórmada phospor-drosio, streamding, arian ac cymdeithasolais broadcasting"
 
+# translated-by: ollama
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr ""
+msgstr "Decentraliziad, federolwyd datblygiad yr heddiwch i fod y bore, a photo arfer a phant ffwydd o hyd y fediverse"
 
+# translated-by: ollama
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr ""
+msgstr "Decentraliziad, federaliad dangoswm-baethau roddoli a chymwyllam-wynta"
 
+# translated-by: ollama
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr ""
+msgstr "Administrator account cyfiadwr a phaid y key SSH a phaid-y safon ar y bwnc-athrawydd wedi'i wneud yn ogystal gan sicrhad i ysgymunedion gyfan"
 
+# translated-by: ollama
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr ""
+msgstr "Sysmptysiad ac awnys sydynw gyson a phwrsynnau cyfraniadol gyda phwrsynnau rsync ac sudo gwyddonol gydag ymhlith swyddi cyffredinol yn y datganiad"
 
+# translated-by: ollama
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
-msgstr ""
+msgstr "Orchestrator gwir gan ethus ac uchelau i weld ac i weithredu servisau systemd wedi'u caledo gan gymryd un cyfan o play"
 
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:dsk:title"
 msgid "Desktop"
-msgstr ""
+msgstr "Des Kreiden"
 
+# translated-by: ollama
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
-msgstr ""
+msgstr "Client de pantalla perthymiant gyffes, listwyddegau a podscottïweddïau"
 
+# translated-by: ollama
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr ""
+msgstr "Client ei golyod ei atalwyr ynglŷn â chwisgrifwyr yng y filau siocol gan gynnwys gorfodau yn y dirffir cloud-syched"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "Configuració del rol de desktop per activar xapencatges GNOME Shell i instalar un xapencatge CLI per gestionar-los"
 
+# translated-by: ollama
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr ""
+msgstr "Desktop environment roles &apps (GNOME, browser, LibreOffice, etc.)"
 
+# translated-by: ollama
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr ""
+msgstr "Pleideriadau ymediable wrth VLC a'r llyfrfachau AACS/BD+ ar gael yng Ngwariant Arch Linux i ddifrifoldeb a thalraint o discau Blu-ray"
 
+# translated-by: ollama
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr ""
+msgstr "Ofisias graffur y gost, grafografiog y gost a phresennau sy'n cael eu ffordd gydd fontiau Liberation a phwentau ynglŷn â litellau"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr ""
+msgstr "Útilità escrita per inhibir la sobrecàrrega de la pantalla i el dormiment, autostarada a la pantalla de GNOME"
 
+# translated-by: ollama
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
-msgstr ""
+msgstr "Client per conferencji vizuale na destributor desktop pentru întâlniri online, webinare și partajați de ecran"
 
+# translated-by: ollama
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr ""
+msgstr "Dweilling"
 
+# translated-by: ollama
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
-msgstr ""
+msgstr "Tacciad o ddewnewen a CD/CI"
 
+# translated-by: ollama
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "Distribuíto S3-compatible storaio ar-leabhar ag prophionas co-ionacha agus co-paighíníochta i stair stóracháin san ábhair web-roinne"
 
+# translated-by: ollama
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr ""
+msgstr "Système de control de versions distribué per tebaliad a chynnu eu cod source a chynnu eu fwyafedd wedi eu ddefnyddio"
 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr ""
+msgstr "Stack Docker per taniau datablysau ffeilliau'r llynedd gyffredinol gyda budd, unigol a materionwch wneud"
 
+# translated-by: ollama
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
+"Bootstrapping iawn clustur a rollau benn trepa a chéile ar déaradh múltiple chéile stairm.\n"
+"chóirdeannan syne."
 
+# translated-by: ollama
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Server doceménye réel-tímás bápmítás Documentok, körcikkök és előadások révén"
 
+# translated-by: ollama
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr ""
+msgstr "Dulyniad"
 
+# translated-by: ollama
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
-msgstr ""
+msgstr "Cynll活ddref a Phrosiad Cymraeg"
 
+# translated-by: ollama
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr ""
+msgstr "Integraciún drowys eurolwm na lapanach MSI ar drafod ddynnyddol ac ar lomhrwydd eu lwm"
 
+# translated-by: ollama
 msgctxt "category:drv:title"
 msgid "Drivers"
-msgstr ""
+msgstr "Cynghraifwyr"
 
+# translated-by: ollama
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr ""
+msgstr "Éducació"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr ""
+msgstr "Robo platform yna Embodied oherwydd yn ei weld gan Hermes yn ein deilheistedd dewisol a phrofiadol a'u gyngholedd gwefnol yn unigwrionion"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
-msgstr ""
+msgstr "Caerfaiwr y dŵr am yr holl cyfeirnod cymaint MCP wedi'i deulu gan y llythur datganiad"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr ""
+msgstr "Engine-agnostic gwyrdd llwyddiant y blaen, gwaredd, cais, a pherfyn yna gyfan gan per-penod gwirionedd"
 
+# translated-by: ollama
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
-msgstr ""
+msgstr "Wiki i'r fwyac ddinas a platform drafod a threfusydd am sicrhau, weithio ac weithredu gan ceisio"
 
+# translated-by: ollama
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr ""
+msgstr "Even acus ac bennúnt acáilíocht"
 
+# translated-by: ollama
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr ""
+msgstr "Esgannau"
 
+# translated-by: ollama
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr ""
+msgstr "Editori de text Vim-orientat pentru editori de comenzi în termență pentru editare de cod și de configurare"
 
+# translated-by: ollama
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr ""
+msgstr "Servidor de xadrez federat iddi i drafod neu a drafod neu a llwyddo y gyfraethwyr gwbl o gyffredinol ar Fediverse"
 
+# translated-by: ollama
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr ""
+msgstr "Federat, end-to-end-encycrypted messegier platform a chun wēn-cliet a phrótotridweddau pûntogol i chat nêthraon"
 
+# translated-by: ollama
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
-msgstr ""
+msgstr "Federat, aifaitaidd platform mewn rhoiwein i gwrando euweddau a phrofioedd oherwyb"
 
+# translated-by: ollama
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Federaciynydd grŵp arfysydd yng Nghrestril (Fediverse), yr AT Gwybodlad (Bluesky), a'r IndieWeb"
 
+# translated-by: ollama
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
-msgstr ""
+msgstr "Cymdeithas addysgu a chynnal"
 
+# translated-by: ollama
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr ""
+msgstr "Systosau a chunnumasgair financial"
 
+# translated-by: ollama
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr ""
+msgstr "Servidor de retransmetuiri TURN/STUN liber iwniua i prawet kai komunikaiu real-time o WebRTC"
 
+# translated-by: ollama
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
-msgstr ""
+msgstr "Dewey a driodolwr ei hun gan amser live a'r gogledd gynnal"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr ""
+msgstr "Apllaciône deskthop ar-free a drafwn i gair a mynydd-athropoldeb a phensoddeb管理"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
-msgstr ""
+msgstr "Front-end JS injection misfit wythdyn eu hawliau am y wlad y front a fewndd a phwyllwch y wlad y chwaraeon yn eu rhoi yn newydd wadl"
 
+# translated-by: ollama
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr ""
+msgstr "Llun-base arallbarau internet: fondur HTTPS, arallbar Cloudflare arall ariant, a llunfaethu prifysgolwyr eu ffordfegu"
 
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr ""
+msgstr "Cricywyr"
 
+# translated-by: ollama
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr ""
+msgstr "Plaids gael atleteg iawn a dadolebion applikaiwsedd."
 
+# translated-by: ollama
 msgctxt "category:gen:title"
 msgid "Generic"
-msgstr ""
+msgstr "Cymdeithas"
 
+# translated-by: ollama
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
-msgstr ""
+msgstr "Cyber end-to-end tets rhannuid ar fochainte Playwright rólúnaí i ngheirradar agus an róinigh i ngheabhracair dághúnta cáiliontóirí céafachíomhaiseacha"
 
+# translated-by: ollama
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
-msgstr ""
+msgstr "Rol gwir cyffredin sy'n rhoi'r doli CLI a phochrwyddion arweinyddol a ddefnyddiol o feddwl ariannol sy'n cael ei wahân gan gwirfformiadau gwirfformiadol o gyffredinau gwirfformiadol"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr ""
+msgstr "Global JavaScript injection layer for NGINX HTML responses via sub_filter, con CSP hashing"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr ""
+msgstr "Configuració del daemon OpenSSH oblidat per a accés remoto basat en clau amb el login d'últim usuaris i l'autenticació amb contrasenya desactivats"
 
+# translated-by: ollama
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr ""
+msgstr "Browser web desktop harden sy a phansiad rhannu a chyffredinol a wneud cyffredinol a phansiad amddiffynol gyffredinol arfansiad Password Manager"
 
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr ""
+msgstr "Check de thalasmo ganolfanol wrth y gallun anomalu Docker yn rhoi, gyda listen de thalasmo ac awltingwr"
 
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Helper rolan aithlic AT-trust injection assets gyda Docker Compose stackau a threfaidd drafodol y cyfran CA"
 
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr ""
+msgstr "Talente Uwch"
 
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr ""
+msgstr "Configuració nivel host per al daemon d'emissió de joves systemd amb límits d'eliminació i flux d'emissió en temps reals"
 
+# translated-by: ollama
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr ""
+msgstr "Kredywl-athblygiad ei Gall a thlygiad Zsh a thlygiad Bash i thlygiad .profile can ceisio âl unol ambliantionwr cwblai"
 
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -651,229 +794,283 @@ msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr ""
+msgstr "Identificatuon grŵp, PKI a gwyddynwriaeth codi a fewnsus OIDC, polisiwmân grŵp mewn llythyr a gwyddynwriaeth codi ar y bore"
 
+# translated-by: ollama
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr ""
+msgstr "Cache de clynt a chynllun y ddatblygu a phan yr hagof gweithio a phanol a chyffredinol ychwanegol, a phanrif yn y byr nhw roedig a chynllun am gyffredinol"
 
+# translated-by: ollama
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
-msgstr ""
+msgstr "Infinito.Nexus cyfrymwr y drafodaeth y cyfan gan y cyffredin newydd a chyfran amser, gyffroydd gyda Sphinx"
 
+# translated-by: ollama
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr ""
+msgstr "Infrastruturádhonra"
 
+# translated-by: ollama
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
-msgstr ""
+msgstr "Infrastrucktuar a drafanllais gyffredinwyd"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
-msgstr ""
+msgstr "Rol cyrft ynghylch gyrffin cyrsedig y gallwn pwynt gwella strwythurion, arwain .env a chyd-derbynol gyrffinion"
 
+# translated-by: ollama
 msgctxt "role:sys-service:description"
 msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
-msgstr ""
+msgstr "Rol cyhoeddi gosodiant systemd euwch, dehynu, ddiffinioau a chwaraeon ei hunau cychwynwch"
 
+# translated-by: ollama
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
-msgstr ""
+msgstr "Sercwiau cymharu fel gyffroydd"
 
+# translated-by: ollama
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
-msgstr ""
+msgstr "Injemcia"
 
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr ""
 
+# gained=['grafcwuauwuuwuuwuuuwuuuwuuwu可视化所有Infinito.Nexus角色及其依赖关系以实现架构透明性']
+# grafcwuauwuuwuuwuuuwuuuwuuwu可视化所有Infinito.Nexus角色及其依赖关系以实现架构透明性
 msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr ""
+msgstr "Platform dweill a chyflawnog eu weision gyda phroffesiynau software, gyfan agile boards, afdroesau a phroffesiynau i lawr ac oidc SSO i bhroesais sydd yn cael eu dweill"
 
+# translated-by: ollama
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr ""
+msgstr "JavaScript ran phase ar gyfrifol cyfanswm a phwysigrwydd a phoblif llais a phoblif cynllunio"
 
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "Backend kernel y byddwn yn rhoi cod y chat yw'n rhoi, yn un ffordd y mae'n rhoi ar ein contaiwn yno wrth y safonau ymhlith yng Nghyffordd"
 
+# translated-by: ollama
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "Kernel-isolauyt agen rutin syrenwch y llif gwella angen Ofaenai cyffredinol API, roedd yn raglen eu gwella gyda'r gwella LL.M gwella"
 
+# translated-by: ollama
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr ""
+msgstr "Kernel-isolating container runtimes on the container host: Kata Containers microVMs a'r fformat a phrovo a gVisor fformat ei wrogai."
 
+# translated-by: ollama
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
-msgstr ""
+msgstr "Kernel-isolating container runtimes y chwaraeon a'r holl agoswmadau cysgrannu wedi'i wahân ar unigol y mae'n cael ei drafn gyda'r microVM neu'r ceffwrdd kernel ychwanegol yn y ddysguwrdd"
 
+# translated-by: ollama
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr ""
+msgstr "Kernel-level NFS servery dweilrif euwaith ei drogrig sydd weddoleuaeth IP-gedrechu ar hawsodau swarm-node"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
-msgstr ""
+msgstr "LLM-backed translation engine ymgyrwyddro gyhoeddwyr LibreTranslate API, wrth allan o gymharuau a gynnwch wedi cyfeirdo am ni"
 
+# translated-by: ollama
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
-msgstr ""
+msgstr "Platformau lled, cewbarhau cwmharferdd a ddigpeteddion cwmharferdd cyd-fwled."
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr ""
+msgstr "Cyhoeddur Let's Encrypt gyfan ar gyfer llero ar gyflym yn rhoi sicrhau ar holiad arfer a phrosirion"
 
+# translated-by: ollama
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr ""
+msgstr "Libretro-básach cenhadaínteach a thosaímigh amhránaíanna, a dhruidíochtaí geamhránaíochta agus amhránpaighíochtaí, le céimanna XMB agus Ozone"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr ""
+msgstr "Client SMTP leolach ag iarzaiad a phroisiannaf i chiúin i gfeirneanna SMTP eileanna cáiliúnach"
 
+# translated-by: ollama
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "Service lleoliach self-galluolach Git ar gyfer collibyr, unrhywlon unrhywol a'r llai welliongion"
 
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr ""
 
+# containers accept internal TLS endpoints Cyfryngau Local self-signed Root CA
+# ei rhoi gynhyrwyll o swyddo bod y buwch yn cael eu bod yn y gallu amfydrol a
+# fydd angen eu greu gyda gwirio am hynny sydd yn cael ei greu arweinyddol gan
+# yr un o fewn oes Gwybodaeth SSL/TLS.
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr ""
+msgstr "Paesman-manager yn ei gynnwys eu llawn i'r ffrwydr pleidleisio a'r ffrwydr drafod, a dweud addysgu eu llawn yn fformat Paesman-gwyddoedd caelus"
 
+# translated-by: ollama
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "Ferchol-lefydd cynghrair cynllun y rhwyddannau, yn rhoi Slaak, mess, a chyffrot y gwybodaeth o'r pryd wedi dod yn bersonol i pwyllgu trefn cyfraniol o dan amser aro地"
 
+# translated-by: ollama
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
-msgstr ""
+msgstr "Mecanisme bodach marbhachtar na gheataidh i bharrachdan na gheimiptar meistairithe go háirtionn às na sgrichteoirí crithaichí, saol a chéile a bheil a chuid deis ag fudúr a chiondóir agus a tháinig."
 
+# translated-by: ollama
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr ""
+msgstr "Postfix relai yn ystod y ffwyst wrth drafodol eu laintennu o'r ffwyst yn y fwyaf cais yn gynnal â'r ffwyst ac ar ôl eu drafod y ffwyst acau yn y fwyaf cais o'r ffwyst o fewn y cwrs y ffwyst"
 
+# translated-by: ollama
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
-msgstr ""
+msgstr "Builddor low-code visual pereach ar gyfer newid, aent, a phosodolwyddo eu gwahardd LLM a RAG eu ffônau HTTP"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
-msgstr ""
+msgstr "Engeint gyngor cynllunio traethodol gan ddefnydd eu hun yn holi gyda pilwyr sy'n ei ddefnyddio gan fyw"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr ""
+msgstr "Maintân"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
-msgstr ""
+msgstr "Rolau maintényent, aelódhau'r cyfrifoldeb a chynghosau eu pedwarion operatyfwydd recurrenteg."
 
+# translated-by: ollama
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Docker Swarm manager node role aidded, alogic init delegatad aix svc-swarm-node"
 
+# translated-by: ollama
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr ""
+msgstr "Markado"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Engrannachurach engine dhruthar agus y drafodwyw cymdeithasol hefyd mae'n ymgysylltiol y pwynt y bydd y fuddsoddyf drafod y cyhoedd yn ei drafod i'r gogledd o'r gogledd o'r gwbl"
 
+# translated-by: ollama
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Cadw llawer codiwn gan ferch yn cael ei wario gan gyffyrwng own y byddwn nhw yn cael ei wario gan gyffyrwng modd eang"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr ""
+msgstr "Monitor"
 
+# translated-by: ollama
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
-msgstr ""
+msgstr "Multi-llo gyflym spell checker gyda fforddau cyfrifol cymhwystyddol yn cael eu weld yn sicrhau gwella datganiad y text yn ymwneud ag y dylid y ddynolwch a'r hysbysedd"
 
+# translated-by: ollama
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr ""
+msgstr "NGINX rol per gluw ar 301 yw'r glwch yn glysir yng Nghelwg a Thregdon, gyda SSL ychwanegol yn cael ei wneud yn y gogledd o'r gofynchiadau"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
-msgstr ""
+msgstr "NGINX llyr gyntaf am HTTPS gyffro nhw nhw a CHALLENGE gyffro Lets Encrypt ACME, port 80 i 443 redirect, a chynllawd y VHost oed ariannol"
 
+# translated-by: ollama
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "NGINX servus blocks gyda'r cwcystiad ar-ddangol ymarferol ei wahân subdomains www i'r dominau capel nid-www"
 
+# translated-by: ollama
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "NGINX subfilter injector gyda'iad Matomo rhifcerdd a phryglwydd graffif noscript i adroddiadau HTML caled"
 
+# translated-by: ollama
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "NGINX vhost ar gydrannu gyffordd HTML yn ein wedi'i newid gan HTTPS gyfan yw Let's Encrypt gyfforddiau"
 
+# translated-by: ollama
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
-msgstr ""
+msgstr "NGINX-ddefedd web defaffaeth a defarfawbfawc arferol a defaint ledefeletec a defaint Let's Encrypt"
 
+# translated-by: ollama
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr ""
+msgstr "NGINX-served static page rendering Impressum(Impressum) from a Jinja2 template"
 
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:svc.net:title"
 msgid "Network"
-msgstr ""
+msgstr "Réteg"
 
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
-msgstr ""
+msgstr "Sistem autentycyjny DNS syphon perpendiguwnol yn ystyriaeth yna gyfrinag ystyriaethu, ac y drothyrion a ddŵr y web, gyffredinol ac yn y llwyfan admin"
 
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr ""
+msgstr "Nwens gyda ddigonol cyffredinol drafnoli gyffredinol gyd wedi eu rhoi at sutrio llywolaid web yn eu gynllun internal"
 
+# translated-by: ollama
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
-msgstr ""
+msgstr "Nginx-based privacy proxy sy'n gyflawniwn heddlu gan gyfforddiant ariannol amlin nhw rhwng arianau threfthun wrthym sydd wedi'u gweld fel prif prifwen nhw rhwng ein prifwen domenyol"
 
+# translated-by: ollama
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr ""
+msgstr "Nginx gwerthol serfyn ar gyfer arioegusu y beth i weld, a hefyd y wneud y peth sydd wedi cael eu rhoed at dalwm addysgu ar y llais gwyddonol"
 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
@@ -883,153 +1080,189 @@ msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr ""
+msgstr "OS & Package updates"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Object-storfa-llynnol gydd SeaweedFS/MinIO ffurf-raf-siwtled a per-consumer bunc a credentiel prifwysig prósioedd"
 
+# translated-by: ollama
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr ""
+msgstr "Automaci adrefoliant wrth hyn yw'r creuwfu a'ch torriad o fwybog deiliaid o fewn eu rhywun ac o fewn eu swyffile arferoliant script"
 
+# translated-by: ollama
 msgctxt "role:web-svc-translate:description"
 msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
-msgstr ""
+msgstr "Un entonce point de tradició que se li autocompte l'engege i prefereix una línia humana revisada"
 
+# translated-by: ollama
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
-msgstr ""
+msgstr "Trefni enblygiad arbawt"
 
+# translated-by: ollama
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr ""
+msgstr "Afrodizew drafod logi a siarwydd y byddwn eisoes yn ei newid a siarwydd eich hun yn ein bodoliwedd ariannol."
 
+# translated-by: ollama
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr ""
+msgstr "Platform CRM open-sourced per gyfraillu cynlluniau, cynlluniau a chyffredinoldeb gwybod ac a phroses gosod gan grŵp"
 
+# translated-by: ollama
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr ""
+msgstr "Platform CRM open-sourced per canvaun, sioinun, cysylltiwau a perfformiad cyntaf gyfan gyfrannol a datgaidau amlinag"
 
+# translated-by: ollama
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr ""
+msgstr "ERP suite open-source ar gyffredin CRM, gorau, arbennig, pwyllgor, gorau, a wladfoddau cwbloddydd"
 
+# translated-by: ollama
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr ""
+msgstr "Servus IT a servus aplication monitoring server cryddol gydd SSO gyffrestioid o datganiad user cyffredinol LDAPr"
 
+# translated-by: ollama
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
-msgstr ""
+msgstr "System drafthaut a chéilmhín iad gan scríobhan a fhreastalach go dtí ag dhiúliscú an chéilmhín agus an drafthaut a riamhónaigh"
 
+# translated-by: ollama
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
-msgstr ""
+msgstr "Open-source ITSM a platform dweillanwr (OTRS) dweillanwr gwmell, CMDB, aithebwrion gyfan, a phrofiwrion"
 
+# translated-by: ollama
 msgctxt "role:web-app-wazuh:description"
 msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
-msgstr ""
+msgstr "Platform GISIOS a SYM fore sicurua, analísiu logau, detekciyi intrussie/vulnerabilitet, a fórsaunce"
 
+# translated-by: ollama
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
-msgstr ""
+msgstr "Plataforma de gestion d'open-source d'administració agil per projectes per al Scrum, Kanban i flòw de tasques híbrides"
 
+# translated-by: ollama
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr ""
+msgstr "Automatyczny server open-source dla pipestrów CI/CD, bultów i workflowów zainstalowanych uzależnieniowe"
 
+# translated-by: ollama
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr ""
+msgstr "Platform y datgelladwyddo cyffreithdâu ar wahamser a gwneud ystaferydd ar gyfer ymwneudad ar gyfer ydatgelladwyr a phroblemwedd"
 
+# translated-by: ollama
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr ""
+msgstr "Systm drafodaith y gêm arweinyddol ar gyfer waharddweinleua, wahartddi a ddigwyddiadau gwirio gan ddifontio ar gyfer daeth yn ôl i gynnwys daeth i gynnwys drafodaethau codyn"
 
+# translated-by: ollama
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr ""
+msgstr "Client desktop open-sourced pentru descarcări și partagează fișiere folosind protocolul BitTorrent"
 
+# translated-by: ollama
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
-msgstr ""
+msgstr "Platform de diwyniad a ddifodol cynllun cyffredinol gyda diwysiad, eurol a gwyddonoliaeth plugineg"
 
+# translated-by: ollama
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
-msgstr ""
+msgstr "Open-source e-commerciu platform gairiad ar Symfony a Vue.js gydag i fod i gasniach ag cafnyddion online"
 
+# translated-by: ollama
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr ""
+msgstr "Sistemeis grŵp a gwyddynwch cyffredinol am gydwasanaeth eu gwella gan sicrhau crynodeb ar gyfer i weld crynodeb gan phlent, chyn, a phwyllgai a phwyddyn web"
 
+# translated-by: ollama
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr ""
+msgstr "System de gurunwari ceffescu open-sourced pentru a crea, gestiona și a furniza cursuri online și e-learning"
 
+# translated-by: ollama
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr ""
+msgstr "Toolbox criptiu de supervisiu i alerta wed drafnuau i gyfrannu cyllidau os tiwmogogion a phwrciwyd gyda PromQL"
 
+# translated-by: ollama
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr ""
+msgstr "Platform lleolêdd addasol a démokrátiad gyfanwladwyr ar hymorweddau, processau cynnalwyr a threfnau cyffreichddan"
 
+# translated-by: ollama
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr ""
+msgstr "Plataforma de mensajería de equip de tipògic per la cooperació en temps real per canals, histròries i integracions"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr ""
+msgstr "OpenAI-compatible LLM gateway rachting endpoint /v1 iawn i fendeb a fendeb gwybod gyda phrosiannau per-gwnewid"
 
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
-msgstr ""
+msgstr "Paquet OpenSSH client ar haliad cenhualas agus cenhualas ala idir pabellon"
 
+# translated-by: ollama
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
-msgstr ""
+msgstr "Servisau oepnion gyntai am gyfan heddiwyd"
 
+# translated-by: ollama
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr ""
+msgstr "Optimising compiler toolchain per building C, C++, arian drafthandling prouctyones"
 
+# translated-by: ollama
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr ""
+msgstr "Orchestration wrapper per-guani NGINX vreichthuiwency gyng SSL certyfiwacthyn, vHost template a gyfraethon OAuth2"
 
+# translated-by: ollama
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
-msgstr ""
+msgstr "Cydd ymarfer yma fyddai'n cael ei wneud yn y gallai."
 
+# translated-by: ollama
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Packes Cachau"
 
+# translated-by: ollama
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
-msgstr ""
+msgstr "Packge insta.llaciyn gyffawr ar gyfer gyffarwr trefn cyflwyniad GNU Make ar Arch Linux fwyaf Pacman"
 
+# translated-by: ollama
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
-msgstr ""
+msgstr "Manager d'úsuar ar aithne agus a' thugadh agus a' tharaigh packajeid Python ar an duine dhuine target"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
-msgstr ""
+msgstr "Per-user Hermes a agentes OpenClaw iniciaus iawn amser i gadw ac i'u benderfennad gyffredinol ar gyfer OpenAI"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
-msgstr ""
+msgstr "Check periode gyfan gorleuol wediych chi am gael ei gyfrifoliaeth am sy'n cael ei gydraddwr, a'u dymaidd yn gyffredinol â chi, ac a'u dymuno ar y gynllwm wedi cael ei gyfrifoliaeth"
 
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
@@ -1039,229 +1272,280 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr ""
+msgstr "Platformau gyfrau a derbynodi shopiog yn ei enblygiad, catalogau a chynlluniau gwyddonol i gasodi, yn yr heddlu a phroblem a phersonau."
 
+# translated-by: ollama
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr ""
+msgstr "Nemanai sut ti holi hwn nych."
 
+# translated-by: ollama
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
-msgstr ""
+msgstr "Arweidio y gyffredin llawer gyda dioddef yn yr hynw."
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr ""
+msgstr "Plug-triggered systemd backup sydynathfwr hedlinc-deduplicated cynllun sydynaeth yn ôl y arbennig tree yna ychwanegol USB"
 
+# translated-by: ollama
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr ""
+msgstr "Politegolwyr web gyfanso ar gael ynglŷn â lwc Arch Linux cwrweddol gyffredinol meidwēr auto-cyffredinol addasau"
 
+# translated-by: ollama
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr ""
+msgstr "Configuració de systemd logind amb xarxa sensitiva per al comportament predictible de cobertxa de butxa a més avui, al voltant d'estats de bateria, de corrent i de butxa"
 
+# translated-by: ollama
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
-msgstr ""
+msgstr "Platform social privàtor prif ar gospeer, federwyd wedi eu feddrefu wedi eu feddrefu nad oes oes ar webrtc yn ein stafwrif SQLite"
 
+# translated-by: ollama
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
-msgstr ""
+msgstr "Pacem-escalaciúil páipéar a chuthúi ag páipéar hardeoideach tábhachtach ar /etc/sudoers.d a bhríomhatanadh"
 
+# translated-by: ollama
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr ""
+msgstr "Management Project"
 
+# translated-by: ollama
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr ""
+msgstr "Talenta Cynigolwyddau"
 
+# translated-by: ollama
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr ""
+msgstr "Cymriannog installer o datganiad GPU prifysgol ar ystafiodau Arch ac ynghyd â y cyd-w unreffanwchau forfar"
 
+# translated-by: ollama
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
-msgstr ""
+msgstr "Provisioning rol i'r Cloudflare ddarlunionion cwtch DNS i (*.parent) ar y ddewi gyfanswm a'r ddewil apex"
 
+# translated-by: ollama
 msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
-msgstr ""
+msgstr "Provisioniadwr rol i gyfan lleoliad workstations a chyffilau'r ffordd, a phryglau SSH a phwyllau'r enforiancadswm"
 
+# translated-by: ollama
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr ""
+msgstr "Provisioning rol i'r enfadlwyr ar y canlyniad eu hunan, addewnos llwyddiant ffordd fwyaf o dan pethau'r shell a'r SSH i authorized_keys"
 
+# translated-by: ollama
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr ""
+msgstr "Srouces"
 
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Public vhost y byddwn yn cyflwyno System One myriad API o svc-ai-s1"
 
+# translated-by: ollama
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Pull-thru caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
 
+# translated-by: ollama
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr ""
+msgstr "Python CLI pakakman ar gwasgoedd clonio gwael codol a unrhyw gwasgoedd arolfa a fyddai yn cyflwyno gwasgoedd amserol o fewn y Git"
 
+# translated-by: ollama
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr ""
+msgstr "Pins perth yn ei sôn ar gyfer'r rhaglen Cymru o'r gwyddoniau rhaglen"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr ""
+msgstr "Répair"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
-msgstr ""
+msgstr "Repair aysrhydriau a thrafodiebau - hefyd atal y Dŷr, balancers Btrfs a thrafodiebau atal eu disgyblau synolig."
 
+# translated-by: ollama
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "Reutilizable Git pull primtyfor clonans shallo, părinții safetans actualizazzions, tagn pinning, ans deteccion changans fiulans"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr ""
+msgstr "Adaptador de MCP per-providor uchualas yn cais a chyn synnu pobl cynllun cais leitœ"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
-msgstr ""
+msgstr "Proxy front-end fwynt ar Docker-gweinyddau a fyddai yn cael eu rhoi ar gyfer TLS, suhēwtēk, a thalwmis gwyddoniaeth per-app a phwyllgor tirig"
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr ""
+msgstr "Layer de l'orchestración del proxy inversor TLS seleccinando proveïdors de certificados Let's Encrypt, de certificat d'ordinació pròpia o desactivat per proveïdors de certificats"
 
+# translated-by: ollama
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
-msgstr ""
+msgstr "Rolau proxy retrocedant gyntebogfasurol a phrosgwladu traffigaid i serviau trefnach"
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr ""
+msgstr "Rolau ardalion ychwaneg gyflym gyda rhoi newid ar gyfer y system, newyddion cyhoeddus, cyfrifiadau ystyried euwroedd, voulau Docker, cynghorydd ydych chi, newyddion ymgyrchau, a fydd gan edrych euweliw."
 
+# translated-by: ollama
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Rolau arweil a welltraffan cyfieithoedd hysgol - hyffordd yn fwyaf, grifiyn, gofal gwella, a chyffordd y byrnodau cymharu."
 
+# translated-by: ollama
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
-msgstr ""
+msgstr "Rolau i gydweithio â chrafau internet web - ganoliant y craf cyffredinol a phrofodol applikaiwedd internet web."
 
+# translated-by: ollama
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Rolau i monitori sysem ari cymhwylwedd—enghraiffin y bot-style monitorau arianol a monitorau fwyaf ethol ar logau, contanarau, darlledus, a phwrseddoriaid chynedd."
 
+# translated-by: ollama
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr ""
+msgstr "SAN-aware certificat provider gyfunnwr a phroster gyffredinol SSL/CERT y gallwn TLS gyffwrn ffwrthanan"
 
+# translated-by: ollama
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
-msgstr ""
+msgstr "SMTP gw sy'n toru'r gwaith a'i newid y gwaith ar y chwyddon .onion tracyn"
 
+# translated-by: ollama
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr ""
+msgstr "Salládh"
 
+# translated-by: ollama
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr ""
+msgstr "Cyfranwyddion Rhwydddechiwr Sganiol"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr ""
+msgstr "Sasléadfaeth datblygu gan fôn arall gyfan llifol o sgilion snailltus o einstipen NFS yn y dendd datblygol local"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
-msgstr ""
+msgstr "Tool cysylliad ar gyflymwyd sy'n cyffredinol a phwysigol yr Ychwanegu Let's Encrypt yr adroddiadau sydd yn ei newid oherwyd"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr ""
+msgstr "Targed fforddoliant cymryd ddyferwyr o safonau gwasanaeth, caleddant CAFÉ, cymryd CAFÉ, a chynllawiad y gwasanaethwyr hoffa i'r diriwllys cymryd ddyferwyr"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr ""
+msgstr "System dediplychi cadwaliad ganyn Docker cyffredinol gyffredinol i'r pryd dir, gyda llywyddiad SQL yn cael ei wneud yn caelus"
 
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
-msgstr ""
+msgstr "Check scothachdachan a thaisgleachta Btrfs a stair a stair a stair, a dh'fhruthaigh iomallach airgead ar an chonnaicneacha duine agus dianta cáinreacoíneón"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
-msgstr ""
+msgstr "Coffordadwy cais ar gyfeirnon disgybliau o ddifais, a drafodol gan ethiwrus ar gyfer y bobol a gennych chi drafodus at y threfnwrddur dros y wahanolion fwyaf drafodedd."
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
-msgstr ""
+msgstr "Gedrechwen cyhoeddyddol weddill y ddwyelwch yn ddaethu ar y cyllid systemd gan drafod y byddai yn rhoi am y drafodau newid a drafodwyddan Welshedd"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
-msgstr ""
+msgstr "Check greuol cyhoedd cynnig yn cais gynt at eu llwyddyn NGINX a ddeall y bob llwyddent a gael ei werthwr ar y golyg"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
-msgstr ""
+msgstr "Servicio pernwch y ddarprangnon ynglŷn â phosod ac â phwysigrwydd yr awr gan ei weld a phynnu rhannau fwyaf gyfran arall o'r dwblion Docker oherwyd"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
-msgstr ""
+msgstr "Tâch ôl ymarferol ym mhennoldeb erchwmyn gan rhoi rhannau anonywmol Docker a phlifau ymarferol ei alluwaí"
 
+# translated-by: ollama
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr ""
+msgstr "Backup pull-style gychualadh gan rôp gychualadh ar na gwasannaeth SSH ac RSYNC neu sêinuelion gychualadh"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
-msgstr ""
+msgstr "Serviciu systemd planiad per glissionsiony versions de copie înfranjate atunci când uzul de dispozitie depășește o întrânsă"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr ""
+msgstr "Scheduled systemd ymate a hysgelym ar hystosial Btrfs ffeill sythynwyddwyr gyntafol i roi amcan llaiostaliad yn ogystal"
 
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr ""
+msgstr "Infrastructure perffeddol ychwanfyl wedi eu rhoi gan y ddigon fwyafeddfael y Cymdeithas GitHub fwyafeddfael am gyfarfodion cerfrefydd GitHub Actions yn anthrofedolol Dæmons Cymdeithas Docker"
 
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr ""
+msgstr "Self-hostat Fediverse lo gyffredin gan well newydd eu phlwyddyn ar waith eu phlwyddyn gan gynnal masonry grid"
 
+# translated-by: ollama
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr ""
+msgstr "Deployeac econfiguiracieion acasual GitHub Actions runner"
 
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
-msgstr ""
+msgstr "Servis autostálaíocht LDAP ar cheannróid user, grúp agus scálaíocht le feiceáil meascánach TLS"
 
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
@@ -1271,294 +1555,353 @@ msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr ""
+msgstr "Autostorfa url gwyddynol ar gyfer eich wynebu, chwaraeonu a phrofiad y ddigonolau url gyda chynllun i bwynt yn gyffroydd ond y bydd y dargonion click yn cael eu roi"
 
+# translated-by: ollama
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr ""
+msgstr "Platform webRTC autocompusthau arfan ffordlaid-eang gofogleideol gyfanol gyda ffordlaid arfan ffordlaid-eang oheririniol i conferentialeg webcam"
 
+# translated-by: ollama
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "Browser gweithredwr fwyaf helpus gan sicrhadwy wrth cais ar gyflym wrth dweud neu URL sydd â sicrhadwy wrth cais local"
 
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr ""
+msgstr "Pa-eidyn pleidleisio cloudfach sydd ei benn i fiach synodlaeth, share, pleidleisio real-time a chroíntioin ac peidyn hawlio"
 
+# translated-by: ollama
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr ""
+msgstr "Solutions autenticables periecys a'r clef, arian a'r gwyddonoldeb a'r teithio o dat.bwysig."
 
+# translated-by: ollama
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
-msgstr ""
+msgstr "Self-hosted decentraliziad social network yn eu hun am y Protocol AT, gyda'i own Server o Ddwylyddiaeth Personal"
 
+# translated-by: ollama
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr ""
+msgstr "Platform lleoli-ui/UX a drafnwr lleoli a'r lloegr ywch-cwmniad ac y symud lleoli i'r drafnwr ywch-cwmniad"
 
+# translated-by: ollama
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
-msgstr ""
+msgstr "Plataforma d'ecomerci autogestionada per la gerenciació del catallònia, el procés d'checkout, els promocions i la comercialització en moltes vistes de retail online"
 
+# translated-by: ollama
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr ""
+msgstr "Self-hosted wiki i gwyddynol a rohallt gyfan a phroffesiynol a phroffesiynol a phronesesiawyr a phwyllgoriad a phroffesiynol a phronesesiawyr"
 
+# translated-by: ollama
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "Platform automicus ddefnyddiol yn ei wrogedyn ar adroddiadau yn y Fedireiverse a chynalwch y croefwr"
 
+# translated-by: ollama
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr ""
+msgstr "Syféalas arbrofaol sociaethreacht a fyddai phrifedig ar blog, líneas rhannnuaiche a chur, a chur ar fhrainc iomlán"
 
+# translated-by: ollama
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr ""
+msgstr "Platform de gestion de identitats i accés autònoma amfitriona per al SSO, autenticació més que un factor i federació d'utilitzadors"
 
+# translated-by: ollama
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr ""
+msgstr "Pleintebet llozi cod-dydd ac platforma ddefnyddio cod-dydd gyda’r pwyllgorau a’r gwefnodu ar gael eu weld grafigelydd"
 
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr ""
+msgstr "Self-hostod server ddyliwn am dweud ac atalwydd o ddweudion, ddweudion teledwyll, llwyddiant a photo, gyda log-in OIDC a LDAP"
 
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "Platform de databas no-code autodeployid gyda tendrefoliant ar drafn ynglŷn ag buddiannog a gweld a phrofio ar y datad"
 
+# translated-by: ollama
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "Dreisodan ofis backend ar internet, gyda funsiynau yn llawn ar feirniaid gyfan, gyfan deunawu, a presnetlâu"
 
+# translated-by: ollama
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr ""
+msgstr "Self-hostod cyfrifol ERP cyffredinol yn ystod yr addysgu, yr addysgu cwmdestran, y cymal, y byddant, yr addysgu ar gyflym, yr addysgu gwasanaethol a'r prifwyllt"
 
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "Sellaith-cyhoedd golweindre agent gwladol ar ffeiliau cysylltiad gogledd, sgilach gan weithreduit microVM Kata neu gVisor"
 
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr ""
+msgstr "Platform autarchidweilu a chultasais agus caisling a chultasais gyda chéadluath na caisling ac ag ábhair na caisling"
 
+# translated-by: ollama
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
-msgstr ""
+msgstr "Platform autentannolw trwy gogledd internet, a chynfod rhannog, a chynfod yr hunanegol a chynfod"
 
+# translated-by: ollama
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr ""
+msgstr "Platform autentificat per gregarion, seguimentacjon de pacaks de treball, planificació de Gantt, i col·laboració de equip"
 
+# translated-by: ollama
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr ""
+msgstr "Portal self-hospidol ar ystod y gallwn o drafod ynglŷn ag y bobwiwn wedi bod yn ymhlith, gyda wahân a menydd ariannol cymhleth"
 
+# translated-by: ollama
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr ""
+msgstr "Platform autonòm ar gach diogelwch yn ymeddwlus gyda sutrioedd ymeddwlus, taliwch a chynllunio, a sutrioedd cyffredinol cyfraniadol"
 
+# translated-by: ollama
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr ""
+msgstr "Platforma de conferencies virtuelle per a salles virtuals, reuniótes en línia i cooperació en temps real"
 
+# translated-by: ollama
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr ""
+msgstr "Sianfrogi, federaliad platform gyffredinol gan gynnwys ei gyfarfodwyr, gyfarfodwyr gyfan a rohitwyr eisiau eich own am fyth"
 
+# translated-by: ollama
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr ""
+msgstr "Platform web analytiqau syntulach, pryvalityfau ganennais, ar gyffig gyrau a mesurau poblemor site"
 
+# translated-by: ollama
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr ""
+msgstr "Administració del Server"
 
+# translated-by: ollama
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr ""
+msgstr "Service Optymisation"
 
+# translated-by: ollama
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "Cadairion ganferiant a threifio y wlad – myrddin am gwasanaethion data sydynol, cadairiant amlinol, a wleidyddion threifio ac orchestrosiad cadairiant ar ganferion, ffeithiau a cyflwynwyr."
 
+# translated-by: ollama
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr ""
+msgstr "Serviços"
 
+# translated-by: ollama
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr ""
+msgstr "Serviços"
 
+# translated-by: ollama
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
-msgstr ""
+msgstr "Cystutus Rhyddfryd"
 
+# translated-by: ollama
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr ""
+msgstr "Gur cais gysylltiad unrhyw host yn rhoi rhoi dros y OpenSSL CLI yn cael ei wneud yn unig gan hawliau sy'n cael eu rhoi â weidwae fwyaf a'r OpenSSL cyllid"
 
+# translated-by: ollama
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr ""
+msgstr "Brodcasteur mesen yng Nghirchedd y Cynllunio Afsosolus agoph arfer y cymdeithas a fwyaf per-consumer virtual host a isoleilio'r ychwanegol"
 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Premis comóin i each rol prédís, dochrúin a chéadúin i gcóras a bhainte á sheachtálaíocht"
 
+# translated-by: ollama
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr ""
+msgstr "Server de gwerthfawr ganolfan rugbyster gyda threfnu SQL, rhoi'n cael ychwanegol gan Docker"
 
+# translated-by: ollama
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr ""
+msgstr "Cysgannedd yna i'r gallwain."
 
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
 msgstr ""
 
+# translated-by: ollama
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr ""
+msgstr "Sighywch ydy'n phosythwyd eich servis..."
 
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr ""
+msgstr "Smart-home automation hub gyda unrhywedd y drafodion, deskriptebion ac wedi ymaridi server ddydd-ai wedi eu allanoli am y pwyllgor agent cyfatebololwg"
 
+# translated-by: ollama
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr ""
+msgstr "Societat Mebile"
 
+# translated-by: ollama
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
-msgstr ""
+msgstr "Gwmewnus Cynnalwrau"
 
+# translated-by: ollama
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr ""
+msgstr "Software Cynigawdwrion"
 
+# translated-by: ollama
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr ""
+msgstr "Sovereign open-source platform drafthun dideo, cwm dideo, drafthun rhifleidawr, a drafthun SSO"
 
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
-msgstr ""
+msgstr "Levelau cais i gysyllti'r droeddus"
 
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
-msgstr ""
+msgstr "Serveur de fichiers statiques par HTTPS con el catàlog de directoris, manejament del .well-known i certificats TLS automàtics"
 
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "menu:Storage:title"
 msgid "Storage"
-msgstr ""
+msgstr "Buscadunegysachualodwyroeg"
 
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
-msgstr ""
+msgstr "Frontend Synthetechedd"
 
+# translated-by: ollama
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
-msgstr ""
+msgstr "System role moddwl ar gyfer ystyried a phwrsio lloegrau a phwrsio llais gyffredinog gyda gweithredwyr locale.gen a locale.conf trefn"
 
+# translated-by: ollama
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
-msgstr ""
+msgstr "Hostname format syntehtic yw'r ent ei gynnwys gwellaedd y gosodantai"
 
+# translated-by: ollama
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
-msgstr ""
+msgstr "System near components. S黔いcalled automatically if necessary from other royes."
 
+# translated-by: ollama
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
-msgstr ""
+msgstr "Rol system-maintainesi gyddyniad gydag i gyflawni arbennig gyffrot a gynnal arbennig ar gyfer iddi'n perfformiad system-manager OS"
 
+# translated-by: ollama
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr ""
+msgstr "Interface de linia de comandă sistemàlic per a la gestió i operació de l'entorn de platfórmes self-hostat des de la línia de comandes"
 
+# translated-by: ollama
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr ""
+msgstr "Systmecwl pip helpwr i sutudir neu sutrodiwyr budd Cymreig ar wahân i wahandwr Python sydd â phrydyn Cymreig"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Systemd service et timer gyda gychwanu cyfrifion Certificates Let's Encrypt yn y Docker Compose STACKS NGINX gyda chynllun arall yr hoff"
 
+# translated-by: ollama
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr ""
+msgstr "Tím unit systemd arallt wedi gweld ei gyfraff gydag y sefydlu yna ar holliant calenda ar gyfer eu rhannau drafodedd o ddigonion tân"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr ""
+msgstr "Serci de haelwenion systemd-dywedus, y byrwyddwriaeth haelwenion ar sgorion Docker oghraidd, amserolion, gwasanaethion, ac rhyw drafodion drafwneddâu"
 
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr ""
+msgstr "Sistem-timed monitor gynt gyfraithu ar etholiadau Docker yn ymdrech neu weddil-bach a chyflawn gwell a chyflawn alert o gwreiddiol"
 
+# operators when a monitored service unit fails en cy
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "Systemd-triggered notificador per thrafod y gallwgau sy'n cael eu rhoedat at hyn ym mhens Telegram"
 
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
@@ -1568,192 +1911,237 @@ msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
-msgstr ""
+msgstr "Emulator per termítacel a stakontom GNOME, drafodol acces dinamicol pe stakontele Arch Linux"
 
+# translated-by: ollama
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr ""
+msgstr "Editori textual basat terminal ambes aithreachaidh agus tighseachadh sintaksis ar workstationaid Pacman"
 
+# translated-by: ollama
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
-msgstr ""
+msgstr "Rol o drioddeiliaid gyfrifol rhoed y test cyfrifol CLI gyfan o test cyffredinol yng Ngallawd o'r golygyddion"
 
+# translated-by: ollama
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr ""
+msgstr "Iaith yna yn gallai rhoi cyfan y dyddiad yma."
 
+# translated-by: ollama
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
-msgstr ""
+msgstr "Tiering rolan y galltfaes ym Mhwrtheg, na fyddan Docker volaethion ar gyfer llwyddiant, gyda symudlais symudol iddo'n cael pethau bod y drafodaethau wediidda"
 
+# translated-by: ollama
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr ""
+msgstr "Cysccwlwr y drafod Python, prif sicrhau a datascience am Linsysys"
 
+# translated-by: ollama
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
+"Cymadeuwyr\n"
+"---"
 
+# translated-by: ollama
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr ""
+msgstr "Cymalwyr cyfeiriad a phandair, rohebu cynllun, phandair y drafodaeth, a phandair cymalwyr effeithio sicrhad."
 
+# translated-by: ollama
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr ""
+msgstr "Cymareddiadau ar hunnewiadai"
 
+# translated-by: ollama
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
-msgstr ""
+msgstr "Cymorthau ar drafnau email, gywio yr ogystal, aro Weinyn a fwyafesuryn digitol mewn cyfrawsau cyffredinol."
 
+# translated-by: ollama
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
-msgstr ""
+msgstr "Cymorthau ynglŷn ag heddlu, cadw, a derbyn gwybod y llywodraethion ar gyfer y materion ailiau."
 
+# translated-by: ollama
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr ""
+msgstr "Ffeiliau yn ymrestru'r broblemau cwblwm"
 
+# translated-by: ollama
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-msgstr ""
+msgstr "Toolau i misiear, witrifisear, a roiwmarear gefion gyffymhen a phoblino byrnegol a phoblino byrnesus hefyd gyda thalennu greuol gan gynnal gwmynhys."
 
+# translated-by: ollama
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
-msgstr ""
+msgstr "Arbows yw hi'n gyfrifoleddCroeswm ar webservers"
 
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
-msgstr ""
+msgstr "Client i llafrig tor a llafrigwr wrth gwyddonau arianol a phwyllgorol o safbwynt web"
 
+# translated-by: ollama
 msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
-msgstr ""
+msgstr "Glaswyr gyfrifol, gloslasau a gorw以防译文网背后的翻译流程"
 
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr ""
+msgstr "Unified systemd notaflioedd serfysg ymchwilir ymhol y byrddoedd Telegram a'r email"
 
+# translated-by: ollama
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr ""
+msgstr "Cynnig & Meldiwyddiad Packaid"
 
+# translated-by: ollama
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
-msgstr ""
+msgstr "Feist y canhoddiaid yma ei sign out addysgu eich ei."
 
+# translated-by: ollama
 msgctxt "logout:stalled_hint"
 msgid "Use the links below to sign out of the services still listed."
-msgstr ""
+msgstr "Use the links below ei silti listatthach go dtiacan."
 
+# translated-by: ollama
 msgctxt "menu:User Management:title"
 msgid "User Management"
-msgstr ""
+msgstr "Cynulliad Gyntaualwr"
 
+# translated-by: ollama
 msgctxt "category:user:description"
 msgid "User accounts & access control"
-msgstr ""
+msgstr "Cynulliad addysgu a chynllawïwrponsus"
 
+# translated-by: ollama
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr ""
+msgstr "Users & Accés"
 
+# translated-by: ollama
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
-msgstr ""
+msgstr "Client d'administració de control de versió per a estacions personales préconfigurats amb defaults per identificació, firmació i fusió"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr ""
+msgstr "TrânslatedTextCyberneith"
 
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr ""
+msgstr "Infoshawrwyr"
 
+# translated-by: ollama
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "Web UI aAPI iawn i runnain Ansible, Terraform/OpenTofu, a seilebriau gwbl a phanfawddeddâu ar ein hunain neu sydyn neu i runnung"
 
+# translated-by: ollama
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr ""
+msgstr "Systm interface arbennigol y dirifysgraffau LDAP: arbennig o naillen, hysbysau a phobodau dirifysgraffol sydd a phobodan"
 
+# translated-by: ollama
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr ""
+msgstr "Interface de guiatà web per gulumiadu LDAP a gyntro drafodol phryderiaid, grŵp a phobodau dirigoluaidd"
 
+# translated-by: ollama
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr ""
+msgstr "Client webdir web de LDAP per ei fod, ei gwyddoniedol a ei chymdeud i dirigolion entwytheg i’r serviau LDAP"
 
+# translated-by: ollama
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "Web-based administration a chyfnodol ac drafodol pwyllgor gyfanol gyntafol o PostgreSQL pwyllgau, wrth gyhoeddydd Oauth2 log-in"
 
+# translated-by: ollama
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr ""
+msgstr "Web-based administraciún tool ar MySQL un MariaDB le gefn y dysgu, cyfraniad, ac yn yr holiwrâu"
 
+# translated-by: ollama
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
-msgstr ""
+msgstr "Servidor Optimizació"
 
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr ""
 
+# translated-by: ollama
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr ""
+msgstr "Toolchain cyhoedd ac ymos ymwylad ar gyfer arduino cyfeiriadwyr wedi datblygu ar Linux"
 
+# translated-by: ollama
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
-msgstr ""
+msgstr "Rolwraper ar gyfer roldir y rhoi a phlifu ar gynyddol y gymharferthwyn pkgmgr'r unigolyn y gyffredinol o gyffroyddiaeth"
 
+# translated-by: ollama
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr ""
+msgstr "Afhannu y gallu cerru y bwriaeth yma nôn."
 
+# translated-by: ollama
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr ""
+msgstr "falagh"
 
+# translated-by: ollama
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr ""
+msgstr "nftables eufracht gyfan ag unrhyw pwy llawronn y gallwnw sobol a thynnychennaf neu drafnwythu nhw gan amser newydd"
 
+# translated-by: ollama
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr ""
+msgstr "neith feuds ei coch"
 
+# translated-by: ollama
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr ""
+msgstr "logout syntech"
 
+# translated-by: ollama
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr ""
+msgstr "feindiad"
 
+# translated-by: ollama
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr ""
+msgstr "signydou"
 
+# translated-by: ollama
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr ""
+msgstr "{done} o {total} serviwyddau gweldoedd"
 

@@ -278,7 +278,6 @@ msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr "Role DNS Cloudflare untuk bootstrap awal dan rekod A/AAAA wildcard ( dan CAA) di domain dasar sepadaan stack web"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr ""
@@ -293,7 +292,6 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Kecelakaan serantang untuk penarikan bas-ejakulasi Docker Hub yang terkait, mengurangkan transfer dupa dan batasan laju"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -318,12 +316,10 @@ msgctxt "menu:Communication:title"
 msgid "Communication"
 msgstr "Komunikasi"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -368,17 +364,14 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Server ikonik menggandeng sumber kod SVG dan PNG untuk koleksi Simple Icons untuk pengerjaan web dan dokumenter"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -470,7 +463,6 @@ msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr "Data-penggerak fasa untuk menguruskan ikon Cloudflare DNS (A/AAAA, CNAME, MX, TXT, SRV) di dalam aplikasi dan lingkungan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr ""
@@ -540,17 +532,14 @@ msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr "Sistem jenama lengan &apps (GNOME, lalu LibreOffice, sebarang seorang )"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr ""
@@ -565,12 +554,10 @@ msgctxt "menu:Development:title"
 msgid "Development"
 msgstr "Desarrollop"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr ""
@@ -605,12 +592,10 @@ msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr "Buku Panduan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
 msgstr ""
@@ -625,7 +610,6 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "Pendidikan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
 msgstr ""
@@ -780,7 +764,6 @@ msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "Helper role menginstal assets CA-trust injeksi untuk Docker Compose stak dan memvalidasi sertifikat CA proyek"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr ""
@@ -880,7 +863,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Bulider dan menjalankan aplikasi di sisi server dan alat pengembangan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -960,9 +942,6 @@ msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
 msgstr "Centar notifikasi pertama local yang menyaring Slack, pesan dan pencadangan isu ke kartya tindakan yang disetujui"
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Mekanik meghub ngampelasan tindakan perkhidmatan
 # perkhidmatan perkhidmatan seharian hingga sivitas kritis henti, dengan retry
 # dan timeout yang boleh disesuaikan
 msgctxt "role:sys-lock:description"
@@ -1059,9 +1038,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served static halaman berat-rendering imeprint(Impressum) dari tplate Jinja2"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 model tradision ni komputeri sertipikat servas ni HTTP, piplin piknikar nuker pangseras"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1098,7 +1078,6 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Wanakam nginx-based server kangung kopi dari peta sumber kangai web peta"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1113,7 +1092,6 @@ msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr "Perbaharuan peranti & paket"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr ""
@@ -1163,7 +1141,6 @@ msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
 msgstr "Sistem pengurusan aset IT bermutu terbuka untuk mengawasi jadual harta benda dan penyimpanan perisian"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr ""
@@ -1302,7 +1279,6 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Persistent systemd user-service SSH agent untuk desktop Wayland, dengan .ssh konfigurasi dikaitkan dari Git"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr ""
@@ -1372,7 +1348,6 @@ msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "Pengesan peran untuk akaun masuk perangkat kerja dengan file dot shell, Hak SSH ekuipen, dan lingkungan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr ""
@@ -1795,7 +1770,6 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Mesin broker pesan async dengan peran virtual per-konsumen dan isolasi pengguna"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
@@ -1876,7 +1850,6 @@ msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr "Server statik menggunakan HTTPS dengan penunjuk direktori, pemindaian .well-known, dan sertificate TLS yang otomatis"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr ""
@@ -2061,7 +2034,6 @@ msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr "Memori Transkrip, Jangkarupu dan Jurutera Manusia di Belakang Sistem Pengawalan Jaringan Terjemahan"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
@@ -2111,7 +2083,6 @@ msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Layout em-tree aset untuk pengiriman CDN dengan direktori penyumbangan, vendor, dan per-peran"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""

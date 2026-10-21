@@ -358,7 +358,6 @@ msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
 msgstr "Serviços de registo de contêineres - registo local e cache pull-through."
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
 msgstr ""
@@ -378,7 +377,6 @@ msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Gerenciamento de Conteúdo"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -513,7 +511,6 @@ msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Aplicativos web implantáveis (GitLab, Nextcloud, Mastodon, etc.)"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr ""
@@ -878,7 +875,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Runtime de script para construção e execução de aplicações server-side e ferramentas de desenvolvedor"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -993,7 +989,6 @@ msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr "Role de tag do gerenciador de nó do nó de gerenciamento como Docker Swarm, com a lógica de inicialização delegada a svc-swarm-node"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
@@ -1053,9 +1048,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-servido página estática renderizada por um aviso legal (Impressum) de uma plantilla Jinja2"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 modelo de tradução translation servido por HTTP, para pipelines que o chamam diretamente"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1240,7 +1236,6 @@ msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr "OpenAI-compatible LLM gateway roteando um único endpoint /v1 para back-ends locais e hospedados com chaves de modelo per-consumidor"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
@@ -1554,7 +1549,6 @@ msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr "Servico systemd agendado e temporizador para rebalanceamento de arquivos Btrfs para manter a alocação de armazenamento otimizada"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr ""
@@ -1614,7 +1608,6 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Tool de navegador hospedado para gerar códigos QR a partir de texto ou URLs com renderização local privativa"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
@@ -1794,7 +1787,6 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Broker de mensagens assíncrono compartilhado para virtual hosts e isolamento de usuário por consumidor"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""
@@ -2057,7 +2049,6 @@ msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr "Memória de tradução, gírias e fluxo humano atrás do gateway de tradução"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
@@ -2142,7 +2133,6 @@ msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "Cliente de LDAP baseado na web para navegação, pesquisa e administração de entradas da diretoria em servidores LDAP"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""
@@ -2157,7 +2147,6 @@ msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Optimização do Servidor Web"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr ""

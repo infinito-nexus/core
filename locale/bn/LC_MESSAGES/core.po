@@ -65,9 +65,6 @@ msgid "Alerting"
 msgstr "সতর্কবার্তা"
 
 # Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: IMAP, IMAP সার্ভার %s-র মধ্যে মেইল প্রেরণ করা হচ্ছে3;
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -324,9 +321,6 @@ msgstr "সম্প্রদায়"
 
 # translated-by: libretranslate
 # এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -911,9 +905,6 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "দূরবর্তী হোস্ট- নেম সার্ভারের সাথে শেয়ার করার জন্য ডি. এন. এস. সার্ভার"
 
 # API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: লিয়েট-থেকে- অনুমোদনকৃত অনুবাদ ইঞ্জিন LibreTranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
 msgstr ""
@@ -995,9 +986,6 @@ msgstr "সার্টিফিকেটের জন্য দায়ী ভ
 
 # translated-by: libretranslate
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""

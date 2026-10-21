@@ -6647,9 +6647,6 @@ msgstr "**Estreito:** configura resolução de nome e nada mais, então os usuá
 # ``web-app-keycloak``\ 's SSO-proxy sidecar sidecar sidecar na frente do
 # corretor tão visitantes não autenticados são redirecionados para Keycloak
 # antes de chegarem ao cliente da Web.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Nativo Keycloak SSO:** Sente-se.
 msgid "**Native Keycloak SSO:** Sit a ``web-app-keycloak``\\ ’s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
 msgstr ""
 
@@ -14558,10 +14555,7 @@ msgstr "Um URL de trabalho reduz o download para a aplicação desse trabalho; u
 # colocá-lo em ``stdout`` (``ollama pull`` impressões "actualizados" e sai
 # fora de zero). Ambos são pesquisados, de modo que um chamador passa o
 # phrasing tolerado e não precisa saber qual chave carrega-lo.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"actualizados"']
-# nocheck: url
-# translation-rejected: Uma tarefa conta como falhada quando nunca terminou,
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -16908,9 +16902,6 @@ msgstr "Regras do arquivo do agente 📁"
 # lost=['agent-employees-firecracker.md'] gained=['Não.agent',
 # 'employees-firecracker.md']
 # Não.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Uma frota de agentes que consome o portal. [032-
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -16918,9 +16909,6 @@ msgstr ""
 # lost=['agent-employees-firecracker.md'] gained=['Não.agent',
 # 'employees-firecracker.md']
 # Não.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Uma frota agente que consome este portal. [032-
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -16961,9 +16949,6 @@ msgstr "Habilidades de agente não instaladas. Executar `make install-skills` pa
 # 'employees-firecracker.md']
 # domiciliar): [032-
 # Não.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Agente que o consome. (Cenário isolado de assistência
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -28394,9 +28379,6 @@ msgstr "E- mail: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach
 # lost=['agent-employees-firecracker.md'] gained=['Não.agent',
 # 'employees-firecracker.md']
 # Não.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Decisão e cenário de modo encorpado: [032-
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -32115,9 +32097,6 @@ msgstr "Forma"
 # um único Raspberry Pi como um assistente doméstico, isolado com kernel,
 # acessível sobre voz / chat, controlando dispositivos domésticos através de
 # MCP sem nunca obter acesso ao host.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Formalizado como seu próprio papel em [033-
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
 msgstr ""
 
@@ -32423,9 +32402,6 @@ msgstr "GITHUB_ACTIONS=true AND not ACT -> real github actions"
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYFatal']
 # GHA em minúsculas, derivado de GITHUB_REPOSITORY_OWNER / Proprietário /
 # GITHUB_REPOSITORYFatal se não resolvível em GHA.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: proprietário do repositório
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -38026,9 +38002,6 @@ msgstr ""
 # lost=['llm-gateway-model-backends.md'] gained=['Não.llm',
 # 'gateway-model-backends.md']
 # Não.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Gateway LLM: [031-
 msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
@@ -39285,9 +39258,6 @@ msgstr "Funções do cliente MCP conectam-se a servidores MCP habilitados e apre
 
 # lost=['mcp-role-integration.md'] gained=['Não.mcp', 'role-integration.md']
 # Não.mcp-role-integration.md](025-mcp-role-integration.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Contrato MCP: [025-
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -39317,9 +39287,6 @@ msgstr "Funções do servidor MCP expõem recursos de aplicativos através de um
 
 # lost=['mcp-role-integration.md'] gained=['Não.mcp', 'role-integration.md']
 # Não.mcp-role-integration.md](025-mcp-role-integration.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Plano de ferramentas MCP: [025-
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -39592,9 +39559,6 @@ msgstr "Manutenção, dependência e atualizações de ferramentas (incl. ramos 
 
 # lost=['proxy_hide_header'] gained=['Marcarproxy_hide_header']
 # opcional utilizando more_header Opção.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Marcarproxy_hide_header Teor-Segurança-Política'
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -40612,18 +40576,12 @@ msgstr "Modelo"
 # lost=['llm-gateway-model-backends.md'] gained=['Não.llm',
 # 'gateway-model-backends.md']
 # Não.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Modelo de plano (Gateway LLM) isto depende: [031-
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
 # lost=['llm-gateway-model-backends.md'] gained=['Não.llm',
 # 'gateway-model-backends.md']
 # Não.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Modelo de plano que se baseia em: [031-
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
@@ -45818,9 +45776,6 @@ msgstr ""
 # gained=['APP_IDOs']
 # deve ``--include`` assim o inventário resultante tem cada grupo APP_IDOs
 # deps transitivos vão precisar de ajuda.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
-# nocheck: url
-# translation-rejected: Imprima, um por linha, a função IDs da provisão CLI
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -49480,9 +49435,6 @@ msgstr "Voltar (proprietário, run_id) a partir de um ID de execução ou um URL
 
 # gained=['job_idNenhum']
 # de um URL de execução/trabalho.
-# translation-refused: libretranslate protected-span lost=['job_id']
-# nocheck: url
-# translation-rejected: Voltar (proprietário, run_id, job_idNenhum) a partir
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -59415,9 +59367,6 @@ msgstr "O AUR PKGBUILDs este projeto consome carrega uma soma de verificação e
 # então uma aba lá dura minutos em vez dos segundos que um membro da piscina
 # precisa girar para fora; EXTERNAL_FETCHÉ40a janela s tem sido observada
 # perdendo para um único retalho.
-# translation-refused: libretranslate protected-span lost=['40',
-# nocheck: url
-# translation-rejected: O AUR é um host de origem sem espelho atrás dele,
 msgid "The AUR is one origin host with no mirror pool behind it, so a flap there lasts minutes rather than the seconds a pool member needs to rotate out; EXTERNAL_FETCH's ~40s window has been observed losing to a single flap."
 msgstr ""
 
@@ -62187,9 +62136,6 @@ msgstr ""
 # direitos para explorar e conduzir **uma máquina dedicada** para que possa
 # mapear seu próprio hardware e atuar no mundo físico: a ideia da plataforma
 # robô. Isto só é coerente ao abrigo da Decisão #12.
-# translation-refused: libretranslate protected-span lost=['svc-ai-robot.md']
-# nocheck: url
-# translation-rejected: O inverso de todos os outros cenários, e
 msgid "The inverse of every other scenario, and deliberately so. Formalised as its own role in [034-svc-ai-robot.md](034-svc-ai-robot.md). Here Hermes is given full rights to explore and drive **one dedicated machine** so it can map its own hardware and act in the physical world: the robot platform idea. This is only coherent under Decision #12."
 msgstr ""
 
@@ -62393,9 +62339,6 @@ msgstr "O logótipo deve utilizar um texto válido da classe Font Awesome, por e
 
 # gained=['dados/dados/nextcloud.log']
 # **/var/lib/docker/volume/nextcloud_data/ dados/dados/nextcloud.log**
-# translation-refused: libretranslate protected-span lost=['nextcloud.log']
-# nocheck: url
-# translation-rejected: Os registros que você encontrará aqui no host:
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -65156,9 +65099,6 @@ msgstr "A troca é que `deny` agora carrega o peso total de \"o que o agente nun
 # direto da linha não mantém nenhum provedor estrangeiro habilitado (o papel
 # implementa isolado): por variante em linhas variantes, a partir da base
 # ``meta/services.yml`` em filas inteiras.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Os campos transitivos (``services`` / ``consumed_by``
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -66099,9 +66039,6 @@ msgstr "Isso evita pais frágeis[N] suposições e correções \"cli/cli/...\" E
 
 # gained=['cli/cli/...Problemas.']
 # correções 'cli/cli/...Problemas.
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
-# nocheck: url
-# translation-rejected: Isto evita a frágil construção do caminho do arquivo e
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -68997,9 +68934,6 @@ msgstr "Hoje em dia Infinito.Nexus executar `docker compose` contra uma única m
 # [web-app-opencloud/meta/variantes.yml](../../roles/web-app-opencloud/meta/variants.yml)
 # em que variante 1 conjuntos `ldap.enabled: true` com `oidc.enabled: false`),
 # mas o cenário específico correspondente ainda não existe.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Hoje a maioria das especificações de papel portam seus
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -69851,9 +69785,6 @@ msgstr "URL `redis://redis:6379/2`"
 # (')<scheme>://'. Elementos de caminho são sequências simples. Os elementos
 # de consulta devem começar com '?' ou '&' e conter exatamente uma
 # 'chave=valor'.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Segmentos de URL. O primeiro elemento deve incluir
 msgid "URL segments. First element MUST include '<scheme>://'. Path elements are plain strings. Query elements must start with '?' or '&' and contain exactly one 'key=value'."
 msgstr ""
 
@@ -79742,9 +79673,6 @@ msgstr "[Roda de roleta no GitHub](https://github.com/p-wojt/roulette-wheel)"
 # gained=['Node.jsaplicação']
 # um Node.jsaplicação front-end baseado que simula uma roleta roda no
 # navegador.
-# translation-refused: libretranslate protected-span lost=['Node.js']
-# nocheck: url
-# translation-rejected: [Roleta](https://github.com/p-wojt/roulette-wheel) é
 msgid "[Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr ""
 
@@ -82899,9 +82827,6 @@ msgstr "[x] `meta/variants.yml` declara as variantes matriciais (ver **Variantes
 # gained=['web-app-openproject/meta/variantes.yml']
 # variante (`ldap` em frente, `sso`/OIDC desligado) pela convenção em
 # [web-app-openproject/meta/variantes.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` define uma **Apenas LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -84209,9 +84134,6 @@ msgstr "`RetroArch <https://www.retroarch.com/>`__ é um frontend para emuladore
 # gained=['Node.jsaplicação']
 # <https://github.com/p-wojt/roulette-wheel>`__ é um Node.jsaplicação
 # front-end baseado que simula uma roleta roda no navegador.
-# translation-refused: libretranslate protected-span lost=['Node.js']
-# nocheck: url
-# translation-rejected: `Roulette Wheel
 msgid "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr ""
 
@@ -91140,9 +91062,6 @@ msgstr "cli.meta.roles.applications.complexity.render módulo"
 
 # lost=['cli.meta.roles.applications.dynamic']
 # gained=['cli.meta.roles.applications.dynamicMódulo']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.dynamicMódulo \ services
 msgid "cli.meta.roles.applications.dynamic\\_services module"
 msgstr ""
 
@@ -91176,9 +91095,6 @@ msgstr "cli.meta.roles.applications.role\\ name pacote"
 
 # lost=['cli.meta.roles.applications.sufficient']
 # gained=['cli.meta.roles.applications.sufficientPacote']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.sufficientPacote \ storage
 msgid "cli.meta.roles.applications.sufficient\\_storage package"
 msgstr ""
 
@@ -92160,9 +92076,6 @@ msgid "eslint preserve-caught-error and no-useless-assignment violations in five
 msgstr "eslint preserv-caught-error e violações de atribuição sem uso em cinco ajudantes de dramaturgo"
 
 # actions/setup-python, actions/create-github-app-token
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: eslint, eslint-plugin-playwright, eslint/js,
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr ""
 
@@ -94716,9 +94629,6 @@ msgstr "plugins.filter.swarm pacote"
 
 # lost=['plugins.filter.swarm.deployed']
 # gained=['plugins.filter.swarm.deployedMódulo']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.deployedMódulo \ services
 msgid "plugins.filter.swarm.deployed\\_services module"
 msgstr ""
 
@@ -95221,9 +95131,6 @@ msgid "plugins.lookup.tor\\_ports module"
 msgstr "plugins.lookup.tor\\ ports module"
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torMódulo']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.torMódulo \ alcançável
 msgid "plugins.lookup.tor\\_reachable module"
 msgstr ""
 
@@ -95907,9 +95814,6 @@ msgstr "IDs de papel para iniciar a travessia."
 msgid "role name -> its run_after role names."
 msgstr "nome da função -> sua run_after nomes de funções."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: role name -> sort key for ready-set tie-breaking.
 msgid "role name -> sort key for ready-set tie-breaking."
 msgstr ""
 
@@ -98828,9 +98732,6 @@ msgstr "utils.env.handlers.infinito.running\\ on.github module"
 
 # lost=['utils.env.handlers.infinito.swarm']
 # gained=['utils.env.handlers.infinito.swarmPacote']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarmPacote \ nfs
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr ""
 
@@ -100025,9 +99926,6 @@ msgstr "{{ lookup('compose_replicas') }} # topologia padrão {{ lookup('compose_
 # topologia padrão {{ lookup('container_deploy', replicas=1) | indent(4) }} *
 # Um sidecar de escritor único {{ lookup('container_deploy', replicas=n) |
 # indent(4) }} # explícito; '' = padrão
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: {{ lookup('container_deploy') | indent(4) }} #
 msgid "{{ lookup('container_deploy') | indent(4) }}                # topology default {{ lookup('container_deploy', replicas=1) | indent(4) }}    # single-writer sidecar {{ lookup('container_deploy', replicas=n) | indent(4) }}    # explicit; '' = default"
 msgstr ""
 

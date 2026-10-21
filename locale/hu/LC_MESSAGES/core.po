@@ -1391,9 +1391,6 @@ msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git 
 
 # translated-by: libretranslate
 # toolchain installs
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Release pins for the GitHub-release lint tools the
 # toolchain installs  release pins github-release lint tools the toolchain
 # installs
 msgctxt "role:sys-lint:description"

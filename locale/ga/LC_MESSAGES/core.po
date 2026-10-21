@@ -327,9 +327,6 @@ msgstr "Pobail agus Fiontair"
 # translated-by: libretranslate
 # interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
 # via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Composable HTML injection roles (CSS, JS, logout
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua with
 # CDN-backed assets.  ### User: Translate the text between the markers from ga
 # to en. Answer with the translation and nothing else, no quotes, no

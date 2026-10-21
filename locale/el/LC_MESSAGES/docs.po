@@ -429,9 +429,6 @@ msgstr "**Οι απαγορεύσεις διεύθυνσης λήγουν μετ
 # διαχειριστή. Το ανάντη δεν έχει καμία διεκδίκηση* χαρτογράφησηleόλων, έτσι
 # αυτός ο σπόρος εξωτερικού-ενός χρόνου ανάπτυξης είναι ο "μικρότερο βήμα
 # συμφιλίωσης".
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Διαχειριστής / πρότυπο roleόλων = και τα δύο**
 msgid "**Admin / role model = both** (operator: \"admin anlegen wenn nicht oidc sonst claim mapping\"), implemented within Semaphore's constraints: (a) a **break-glass local admin** is always seeded via `SEMAPHORE_ADMIN*` with a dedicated `breakglass` login + dedicated email — reachable via the form only when LDAP is off; (b) when SSO is enabled the role creates the Keycloak administrator as an **external admin** at deploy time (`semaphore user add --admin --external`), so the OIDC callback (matches by email, accepts only external users) elevates that operator to admin. Upstream has no claim→role mapping, so this deploy-time external-admin seed is the \"smallest reconciliation step\"."
 msgstr ""
 
@@ -459,9 +456,6 @@ msgstr "**Ηλεκτρονικές συσκευές:** Και οι δύο διε
 msgid "**Administrator Password:** The superuser password converges to the configured administrator's password on every deploy."
 msgstr "**Κωδικός πρόσβασης διαχειριστή:** Ο κωδικός πρόσβασης του υπερχρήστη συγκλίνει προς τον κωδικό πρόσβασης του ρυθμισμένου διαχειριστή σε κάθε ανάπτυξη."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Κωδικός πρόσβασης διαχειριστή:** Ο κωδικός πρόσβασης
 # του υπερχρήστη συγκλίνει προς τον κωδικό πρόσβασης του ρυθμισμένου
 # διαχειριστή σε κάθε ανάπτυξη.
 msgid "**Administrator Password:** The superuser password converges to the configured administrator’s password on every deploy."
@@ -1743,9 +1737,6 @@ msgstr "**Ανέπαφο δίχτυ:** κανονική φήμη SMTP, DKIM κα
 msgid "**Client ports are implicit-TLS only (465/993/995).** Stalwart's default configuration binds no STARTTLS listeners, so the role neither publishes 587/143/110 nor advertises them via SRV records."
 msgstr "**Οι θύρες πελατών είναι μόνο έμμεση-TLS (465/993/995).** Οι προεπιλεγμένες ρυθμίσεις του Stalwart δεν δεσμεύουν κανέναν ακροατή STARTTLS, οπότε ο ρόλος ούτε δημοσιεύει 587/143/110 Ούτε τα διαφημίζει μέσω αρχείων SVV."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Οι θύρες πελατών είναι μόνο έμμεση-TLS
 # (465/993/995).** Οι προεπιλεγμένες ρυθμίσεις του Stalwart δεν δεσμεύουν
 # κανέναν ακροατή STARTTLS, οπότε ο ρόλος ούτε δημοσιεύει 587/143/110 Ούτε τα
 # διαφημίζει μέσω αρχείων SVV.
@@ -2226,9 +2217,6 @@ msgstr "**Προσαρμοσμένη λογική (προαιρετικό).** Δ
 # Tail Tail Tail Tail όπως η αποθήκευση, η παράδοση ηλεκτρονικού ταχυδρομείου
 # και οι διοικητικές παράμετροι χρησιμοποιώντας περιβαλλοντικές μεταβλητές και
 # αρχεία ρυθμίσεων.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Προσαρμογή ρύθμισης:** settings Tail Tail Tail Tail
 msgid "**Customizable Configuration:** Tailor settings such as storage, email delivery, and administrative parameters using environment variables and configuration files."
 msgstr ""
 
@@ -3073,9 +3061,6 @@ msgstr "**Περιγραφή:** Σηματοδοτώντας έναν οικοδ
 
 # questions for web results without handing a user's query to a tracking
 # search provider
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Περιγραφή:** Metasearch engine the platform
 msgid "**Description:** Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
 
@@ -3124,9 +3109,6 @@ msgstr "**Περιγραφή:** Καταβόθρα δικτύου DNS για τ�
 
 # redirecting all logout actions to a centralized OIDC single sign-out
 # endpoint
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Περιγραφή:** Nginx sub\ filter JavaScript injection
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
@@ -7943,9 +7925,6 @@ msgstr "**Περιβλήματα καρφιτσών (μία ή δέσμη).** Α
 # σύντομο χρονικό διάστημα και ένα τεστ υγείας εξυπηρετεί τόσο το πακέτο cache
 # όσο και τις κατασκευές εικόνας. *Js-yaml (στα Αγγλικά)* ανυψώθηκε στο 4.3.2
 # για το GHSA-2883- xcg3-Β3Ω.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Καρφίτσες που δεν μπορούν να γεράσουν απαρατήρητα.**
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
 msgstr ""
 
@@ -11548,9 +11527,6 @@ msgstr "**Περιγραφή**: Καταβόθρα δικτύου DNS για τ�
 
 # redirecting all logout actions to a centralized OIDC single sign-out
 # endpoint
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Περιγραφή**: Nginx sub\ filter JavaScript injection
 msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
@@ -11991,9 +11967,6 @@ msgstr "**Περιγραφή**: Κοινή εξάρτηση υποδοχής ε�
 
 # translated-by: libretranslate
 # messaging with per-consumer virtual host and user semonity
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: **Περιγραφή**: Shared message maker for async
 msgid "**description**: Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr ""
 
@@ -12385,9 +12358,6 @@ msgstr "**role_name**: πληκτρολόγιο-χρώμα"
 # του ήταν η openid_connect λίθων ανακατασκευή του URL ανακάλυψη πάνω από
 # https ανεξάρτητα από το σχήμα εκδότη, που καθορίζονται στο 2389β6ε38.
 # '24']
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Υποψήφιοι πρόσβασης OIDC από πλευράς εξυπηρετητή** —
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
 msgstr ""
 
@@ -12744,9 +12714,6 @@ msgstr "*sys-ctl-hlth-csp*: 2.1.2 προς 2.2.1"
 msgid "*sys-ctl-hlth-csp*: csp-checker 3.0.4 to 3.1.0"
 msgstr ""
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: *sys-lint* (shfmt (στα Αγγλικά)): v3.13.1 v3.14.1
 msgid "*sys-lint* (shfmt): v3.13.1 to v3.14.1"
 msgstr ""
 
@@ -14966,9 +14933,6 @@ msgstr "Μια URL εργασίας περιορίζει τη λήψη στην 
 # έξοδοι χωρίς μηδέν)Και οι δύο ερευνώνται, έτσι ένας ακροατής περνά την
 # ανεκτή φράση και δεν χρειάζεται να ξέρει ποιο κλειδί το μεταφέρει.
 # gained=['"ενημερωμένη"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Μια εργασία μετράει ως αποτυχημένη όταν δεν τελείωσε
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -16897,9 +16861,6 @@ msgstr "Προστέθηκε η εξωτερική Docker έκδοση-ελέγ�
 # parultures-services-match / Ansible Galaxy schema / inline calmage-block
 # size / pythion- file-ize cap / SP-of-of-itage για domains / ouths / othauts2
 # κατανομή θύρας μεσολάβησης
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Προστέθηκε το lint corpus για: project-walk /
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
 msgstr ""
 
@@ -21525,9 +21486,6 @@ msgstr "CA-trust και OIDC-over-self-υπογραφή-TLS σκλήρυνση: 
 msgid "CA-trust env handlers."
 msgstr "CA-εμπιστευτικοί χειριστές."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: CACHE SEMANTIKS (ΗΜΕΡΟΛΟΓΙΑ)
 msgid "CACHE SEMANTICS"
 msgstr ""
 
@@ -24234,9 +24192,6 @@ msgstr "Συγκρίνετε τις απαιτήσεις του καθηλωμέ
 msgid "Compared with Mailu's multi-container stack, Stalwart collapses the mail server into one binary. This role runs:"
 msgstr "Σε σύγκριση με MailuΗ στοίβα πολλαπλών εμπορευματοκιβωτίων, ο Stalwart καταρρέει το διακομιστή αλληλογραφίας σε ένα δυαδικό. Ο ρόλος αυτός είναι:"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Σε σύγκριση με MailuΗ στοίβα πολλαπλών
 # εμπορευματοκιβωτίων, ο Stalwart καταρρέει το διακομιστή αλληλογραφίας σε ένα
 # δυαδικό. Ο ρόλος αυτός είναι:
 msgid "Compared with Mailu’s multi-container stack, Stalwart collapses the mail server into one binary. This role runs:"
@@ -26115,9 +26070,6 @@ msgstr "Υπηρεσίες βάσης δεδομένων 🗄️"
 # PostgreSQL μέσω `svc-db-postgres`** (`SEMAPHORE_DB_DIALECT=postgres`)- Πότε;
 # `shared=true` ο ρόλος καταναλώνει τον κεντρικό κινητήρα· όταν `shared=false`
 # `sys-svc-rdbms` templates a per-role Postgres (στα Αγγλικά).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Σύστημα υποστήριξης βάσης δεδομένων **κεντρική
 msgid "Database backend is **central PostgreSQL via `svc-db-postgres`** (`SEMAPHORE_DB_DIALECT=postgres`). When `shared=true` the role consumes the central engine; when `shared=false` `sys-svc-rdbms` templates a per-role Postgres."
 msgstr ""
 
@@ -28126,9 +28078,6 @@ msgstr "Έγγραφο"
 
 # translated-by: libretranslate
 # plugin docstring and README.
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Document every plugin-specific task buttons in the
 msgid "Document any plugin-specific task arguments in the plugin docstring and README."
 msgstr ""
 
@@ -29342,9 +29291,6 @@ msgstr "Ενεργοποιεί το caching πλευρά του προγράμμ
 # (ΟΙΝΔΚ). Χρησιμοποιείται πρόσθετο: [Getterhart-openid-connect-generic
 # (γενικός
 # σύνδεσμος)](https://wordpress.org/plugins/daggerhart-openid-connect-generic/)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Ενεργοποίηση ασφαλούς σύνδεσης μέσω OpenID Connect
 msgid "Enables secure login via OpenID Connect (OIDC).   Plugin used: [daggerhart-openid-connect-generic](https://wordpress.org/plugins/daggerhart-openid-connect-generic/)"
 msgstr ""
 
@@ -30261,9 +30207,6 @@ msgstr "Κάθε τύπος roleόλων με τα αρχεία που μπορ�
 # λίστες θα μπορούσε να διαβαστεί ως "δεν έχει ακόμη εξετάσει" και ως "κατά"
 # Την ίδια στιγμή, χωρίς να υπάρχει τίποτα για να ξεχωρίσει τους δύο.
 # gained=['"κατά"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Κάθε ρόλος με μια κυριολεκτική `application_id`
 msgid "Every role with a literal `application_id` is filed exactly once below. A role missing from these lists would read as \"not yet looked at\" and as \"decided against\" at the same time, with nothing to tell the two apart."
 msgstr ""
 
@@ -31642,9 +31585,6 @@ msgstr "Όνομα"
 # translated-by: libretranslate
 # λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα
 # ροή, επιμένουν στο δίσκο.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Πρώτο τράβηγμα οποιασδήποτε εικόνας: λανθάνουσα
 msgid "First pull of any image: cache miss, fetched upstream, persisted to disk."
 msgstr ""
 
@@ -32923,9 +32863,6 @@ msgstr "Μορφή"
 # σε ένα ενιαίο Raspberry Pi ως οικιακή βοηθός, πυρήνα-απομονωμένο, προσβάσιμο
 # πάνω από τη φωνή / συνομιλία, τον έλεγχο των οικιακών συσκευών μέσω MCP
 # χωρίς ποτέ να πάρει πρόσβαση στον υπολογιστή.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Ο ρόλος του [033-
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
 msgstr ""
 
@@ -33239,9 +33176,6 @@ msgstr "GITHUB_ACTIONS=αληθινές και όχι πράξεις -> πραγ
 # αποθετηρίου GHA, προερχόμενος από GITHUB_REPOSITORY_OWNER / Ιδιοκτήτης
 # GITHUB_REPOSITORYΘανατηφόρο αν δεν μπορεί να λυθεί στο GHA.
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYΘανατηφόρο']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: μικρότερος ιδιοκτήτης
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -33935,9 +33869,6 @@ msgstr "HTTPS επανακατεύθυνση OAuth Fix"
 msgid "HTTPS base ready (NGINX, ACME webroot)"
 msgstr "HTTPS βάση έτοιμη (NGINX, ιστός ACME)"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: HTTPS credentials written by git's `store` credential
 # helper.
 msgid "HTTPS credentials written by git's `store` credential helper."
 msgstr ""
@@ -34487,9 +34418,6 @@ msgid "How does it integrate with the existing stack?"
 msgstr "Πώς ενσωματώνεται με την υπάρχουσα στοίβα;?"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Πώς συμπεριφέρεται αυτό στο δοκιμασμένο distro(α)♪ ♪?
 msgid "How does this behave on the tested distro(s)?"
 msgstr ""
 
@@ -34648,7 +34576,6 @@ msgstr "ΙΑΜ(Διαχείριση ταυτότητας και πρόσβαση
 msgid "ICO bytes."
 msgstr "ICO bytes."
 
-# translation-refused: libretranslate damaged-span
 msgid "IMAGE=<ref> [cmd=\"...\"] [INFINITO\\_RUN\\_FLAGS=\"...\"] make compose-inner-run"
 msgstr ""
 
@@ -34940,9 +34867,6 @@ msgstr "ISO 639- Ναι.1 κωδικός, ``None`` για ένα πρότυπο.
 msgid "ISO 639-1 code."
 msgstr "ISO 639- Ναι.1 Κωδικός."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: ISO 639-1 codes to load; empty means every package the
 # engine offers
 msgid "ISO 639-1 codes to load; empty means every package the engine offers"
 msgstr ""
@@ -41388,9 +41312,6 @@ msgid "Metadata required by the Infinito Deployer (title, description, logo, etc
 msgstr "Μεταδεδομένα που απαιτούνται από το Infinito Deployer (τίτλος, περιγραφή, λογότυπο κ.λπ.)"
 
 # results without handing a user's query to a tracking search provider
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Metasearch engine the platform questions for web
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
 
@@ -42289,9 +42210,6 @@ msgstr "Η υποστήριξη πελατών MCP απαιτεί Open WebUI `v0
 msgid "Native OIDC SSO against Keycloak for Joomla 6, with RBAC group mapping and an env-toggleable local-form fallback at `/administrator?fallback=local` (Modus 3 per requirement 013)."
 msgstr "Ιθαγενής OIDC SSO εναντίον Keycloak για Joomla 6, με τη χαρτογράφηση της ομάδας RBAC και ένα env-toggleable τοπική-μορφή fallback στο `/administrator?fallback=local` (Μόδου 3 ανά απαίτηση 013)."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Native OIDC, user mapping and in-app roles (no
 # upstream support in self-hosted mode).
 msgid "Native OIDC, user mapping and in-app roles (no upstream support in self-hosted mode)."
 msgstr ""
@@ -42515,9 +42433,6 @@ msgstr "Νέες εφαρμογές"
 # OpenLDAP μέσω του Doctype Settings LDAP. Η μήτρα τριών μεταβλητών (SSO συν
 # LDAP, χωρίς auth, LDAP μόνο) ασκείται end-to-end και ένα plint caps σε
 # κλίμακα repo 120 χαρακτήρες.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Νέο ERPNext ρόλο ότι τα πλοία το ανάντη Frappe Frappe
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
 msgstr ""
 
@@ -43563,9 +43478,6 @@ msgstr "Σε περίπτωση αποτυχίας: ask τον χειριστή 
 # Αγγλικά).). Ο εγκαταστάτης περιμένει έως και δύο λεπτά για ένα apt-lock αν
 # μια παράλληλη ανάπτυξη εκτελείται. IPv6 Οι ανιχνευτές είναι αυτόματοι όταν η
 # γέφυρα δεν έχει χρησιμοποιήσιμο IPv6 προκαθορισμένη διαδρομή.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Στην πρώτη εκτέλεση αυτο-εγκαταστάσεις `iputils-ping`
 msgid "On first run it self-installs `iputils-ping` + `iproute2` via the container's package manager (Debian / Ubuntu apt, Arch pacman, Fedora / CentOS / RHEL dnf). The installer waits up to two minutes for an apt-lock if a parallel deploy is running. IPv6 probes are auto-skipped when the bridge has no usable IPv6 default route."
 msgstr ""
 
@@ -44398,9 +44310,6 @@ msgstr "Ανοίγει ένα διαδραστικό κέλυφος στο τρ�
 # συγχρονισμό με τα αρχεία αποθετηρίων ανάντη διανομής τους. Κάθε ένα πλοίο με
 # διαφορετική επιφάνεια εντολών αλλά όλα εξυπηρετούν τον ίδιο στόχο: ανανεώστε
 # το ευρετήριο και αναβαθμίστε κάθε εγκατεστημένο πακέτο στον υπολογιστή.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Διαχείριση πακέτων λειτουργικού συστήματος, όπως [apt
 msgid "Operating-system package managers such as [apt](https://wiki.debian.org/Apt), [pacman](https://wiki.archlinux.org/title/pacman) and [dnf](https://dnf.readthedocs.io/) keep installed software in sync with their upstream distribution repositories. Each one ships with a different command surface but they all serve the same goal: refresh the index and upgrade every installed package on the host."
 msgstr ""
 
@@ -45532,9 +45441,6 @@ msgstr "Έντυπο κωδικού πρόσβασης συν το κουμπί 
 msgid "Password form; the dashboard's OIDC provider takes an HTTPS issuer only, so the role renders no OIDC variables"
 msgstr "Έντυπο κωδικού πρόσβασης: ο πάροχος OIDC του ταμπλό παίρνει μόνο έναν εκδότη HTTPS, έτσι ο ρόλος δεν καθιστά καμία μεταβλητές OIDC"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Έντυπο κωδικού πρόσβασης: ο πάροχος OIDC του ταμπλό
 # παίρνει μόνο έναν εκδότη HTTPS, έτσι ο ρόλος δεν καθιστά καμία μεταβλητές
 # OIDC
 msgid "Password form; the dashboard’s OIDC provider takes an HTTPS issuer only, so the role renders no OIDC variables"
@@ -47036,9 +46942,6 @@ msgstr "Εκτύπωση των rolesόλων που οφείλονται για
 # πρέπει ``--include`` έτσι το αποτέλεσμα απογραφή έχει κάθε ομάδα APP_IDΟι
 # μεταβατικές αποστολές θα χρειαστούν κατά την ανάπτυξη.
 # gained=['APP_IDΟι']
-# translation-refused: libretranslate protected-span lost=['APP_ID']
-# nocheck: url
-# translation-rejected: Εκτύπωση, μία ανά γραμμή, ο ρόλος IDs η παροχή CLI θα
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -48850,9 +48753,6 @@ msgstr "Το σχήμα αναδρομικής επίλυσης περιλαμβ
 
 # '$ANSIBLE_VAULTΣε ένα VaultScalar ώστε να πετάξει σαν ένα κατά γράμμα μπλοκ.
 # gained=['ANSIBLE_VAULTΣε']
-# translation-refused: libretranslate protected-span lost=['ANSIBLE_VAULT']
-# nocheck: url
-# translation-rejected: Αναδρομικά τυλίξτε οποιοδήποτε str που ξεκινά με
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
 msgstr ""
 
@@ -50376,9 +50276,6 @@ msgstr "Ανάλυση 🔗"
 
 # παραλλαγές.
 # gained=['APP_IDΟι']
-# translation-refused: libretranslate protected-span lost=['APP_ID']
-# nocheck: url
-# translation-rejected: Επίλυση APP_IDΟι μεταβατικές περιλαμβάνουν τις ενεργές
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -53314,9 +53211,6 @@ msgstr "Διαδρομές που ισχυρίζεται το πρόσθετο"
 # αποκλείει τοπικά αντικείμενα πράκτορα Claude (*launch.json*, *routineτίνες*,
 # *Ροές εργασίας*), και εξαρτήσεις από *ενέργειες/ορατότητα* 9 → 10 και
 # *εσλίντη* 10.5.0 → 10.6.0.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Συντήρηση ρουτίνας: *. gitignore .gitignore . gi gi .
 msgid "Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0."
 msgstr ""
 
@@ -53350,9 +53244,6 @@ msgstr "Συντήρηση ρουτίνας: quitabots of *δράσεις/εξα
 
 # δράση* 4.3.0 προς 4.4.0 και *eslint-plugin-playwright (στα Αγγλικά)* 2.10.4
 # προς 2.10.5· αφαίρεσε ένα αδέσποτο *.claude/settings.local.json*.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Συντήρηση ρουτίνας: quitabots of *docker/λογαριθμική
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."
 msgstr ""
 
@@ -53567,9 +53458,6 @@ msgstr "Εκτέλεση `python -m cli.meta.ci.slots --matrix` να δω ολό
 msgid "Run a command with stdout/stderr passthrough."
 msgstr "Εκτελέστε μια εντολή με stdout/stderr passthrough."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Run a kcadm list command and return a {name: id} map
 # (empty on noise).
 #, python-brace-format
 msgid "Run a kcadm list command and return a {name: id} map (empty on noise)."
@@ -53583,9 +53471,6 @@ msgstr "Εκτελέστε μια εφάπαξ -`docker run\\` μέσα στο �
 msgid "Run a one-off command inside a deployed app container of the local compose stack."
 msgstr "Εκτέλεση μιας εφάπαξ εντολής μέσα σε ένα ανεπτυγμένο δοχείο εφαρμογών της στοίβας τοπικών συνθέσεων."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Run a one-off command inside a swarm SERVICE container
 # (one replica) on a DinD node.
 msgid "Run a one-off command inside a swarm SERVICE container (one replica) on a DinD node."
 msgstr ""
@@ -55118,7 +55003,6 @@ msgstr "Εκτέλεση τακτικών, αυτοματοποιημένων ε
 msgid "Runs the Ansible syntax validation for `playbook.yml`."
 msgstr "Εκτελεί την Επιστρέψιμη συντακτική επικύρωση για `playbook.yml`."
 
-# translation-refused: libretranslate damaged-span
 msgid "Runs the [atheris](https://github.com/google/atheris) harness [_yaml_bootstrap.py](../../../../../tests/fuzz/_yaml_bootstrap.py) for 15 minutes and uploads every crashing input as the `fuzz-crashes` artifact. Reproduce one locally with `pip install -e \".[fuzz]\"` and `python3 tests/fuzz/_yaml_bootstrap.py <crash-file>`."
 msgstr ""
 
@@ -61290,9 +61174,6 @@ msgstr "Το AUR PKGBUILDs αυτό το έργο καταναλώνει φέρ�
 # δευτερόλεπτα ένα μέλος της πισίνας πρέπει να περιστραφεί έξω?
 # EXTERNAL_FETCHΕίναι ~40Παρατηρήθηκε απώλεια παραθύρου από ένα μόνο πτερύγιο.
 # gained=['EXTERNAL_FETCHΕίναι']
-# translation-refused: libretranslate protected-span lost=['EXTERNAL_FETCH']
-# nocheck: url
-# translation-rejected: Το AUR είναι ένας ξενιστής προέλευσης χωρίς πισίνα
 msgid "The AUR is one origin host with no mirror pool behind it, so a flap there lasts minutes rather than the seconds a pool member needs to rotate out; EXTERNAL_FETCH's ~40s window has been observed losing to a single flap."
 msgstr ""
 
@@ -64184,9 +64065,6 @@ msgstr "Η απογραφή `$WORKDIR` γράφεται από το δοχείο
 # μπορεί να χαρτογραφήσει το δικό του υλικό και να δράσει στον φυσικό κόσμο:
 # την ιδέα πλατφόρμα ρομπότ. Αυτό είναι μόνο συνεκτικό βάσει της απόφασης #12.
 # gained=[]
-# translation-refused: libretranslate protected-span lost=['svc-ai-robot.md']
-# nocheck: url
-# translation-rejected: Το αντίστροφο κάθε άλλου σεναρίου, και σκόπιμα έτσι. Ο
 msgid "The inverse of every other scenario, and deliberately so. Formalised as its own role in [034-svc-ai-robot.md](034-svc-ai-robot.md). Here Hermes is given full rights to explore and drive **one dedicated machine** so it can map its own hardware and act in the physical world: the robot platform idea. This is only coherent under Decision #12."
 msgstr ""
 
@@ -64399,9 +64277,6 @@ msgstr "Το λογότυπο πρέπει να χρησιμοποιεί έγκ�
 # υπολογιστή: **/var/lib/docker/όγκοι/nextcloud_data/
 # δεδομένα/δεδομένα/nextcloud.log**
 # gained=['δεδομένα/δεδομένα/nextcloud.log']
-# translation-refused: libretranslate protected-span lost=['nextcloud.log']
-# nocheck: url
-# translation-rejected: Τα αρχεία καταγραφής που θα βρείτε εδώ στον
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -64693,9 +64568,6 @@ msgstr "Ο εξυπηρετητής nfs χρησιμοποιεί το userspace 
 # από το ``cache:`` δηλώσεις στους ρόλους (') `meta/networks.yml`. Κανένα από
 # αυτά δεν ανιχνεύεται, αυτό το πακέτο τα αναγεννά. Ζώντες στην εφαρμογή
 # `utils.cache.render`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Ο χάρτης Nginx upstream, ο καταναλωτής συνθέτουν
 msgid "The nginx upstream map, the consumer compose override and the package managers' client configuration all follow from the ``cache:`` declarations in the roles' `meta/networks.yml`. None of them is tracked; this package regenerates them. Implementation lives in `utils.cache.render`."
 msgstr ""
 
@@ -66769,9 +66641,6 @@ msgstr "Η κοινή χρήση `biber` και `administrator` persona ταξί
 # `files/playwright/playwright.spec.js`· η opt-out παύει μόλις ο κοινός βοηθός
 # μάθει FiderΕίναι μοντάλ.
 # gained=['"Υπογραφή"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Η κοινή χρήση `biber` και `administrator` persona
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
 msgstr ""
 
@@ -66798,9 +66667,6 @@ msgstr "Η κοινή χρήση `biber` και `administrator` persona ταξί
 # ταυτότητας σε καμία συνεδρία καταλόγου που οι κοινόχρηστοι βοηθοί θα
 # μπορούσαν να μεταφέρουν σε μια αποσύνδεση στην εφαρμογή.
 # gained=['"Υπογραφή"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Η κοινή χρήση `biber` και `administrator` persona
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -67299,9 +67165,6 @@ msgstr "Η ανταλλαγή είναι ότι `deny` τώρα φέρει το 
 # πάροχο (ο ρόλος αναπτύσσεται απομονωμένος): ανά παραλλαγή σε σειρές
 # παραλλαγής, από τη βάση ``meta/services.yml`` σε σειρές ολικής ρόλ.
 # gained=['alpha/beta/pre/...']
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Τα μεταβατικά πεδία (``services`` / ``consumed_by``
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -68261,9 +68124,6 @@ msgstr "Αυτό αποφεύγει τους εύθραυστους γονείς
 
 # αρχείων και διορθώνει 'cli/cli/...Θέματα.
 # gained=['cli/cli/...Θέματα.']
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
-# nocheck: url
-# translation-rejected: Αυτό αποφεύγει την εύθραυστη κατασκευή διαδρομής
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -69119,9 +68979,6 @@ msgstr "Αυτή η σελίδα ορίζει τον εσωτερικό βρόχ
 # διάρκειας που διαχειρίζεται η κοινότητα στην επιχείρηση [Κόκκινο
 # Καπέλο](https://www.redhat.com) στ) τις εγκαταστάσεις και τα μηχανήματα
 # ανάπτυξης κύλισης αιχμής.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Αυτή η σελίδα ορίζει ποια λειτουργικά συστήματα
 msgid "This page defines which operating systems deployments, scripts, and programs MUST support. Following this policy ensures that Infinito Nexus runs reliably across a broad range of server environments, from community-managed long-term-support servers to enterprise [Red Hat](https://www.redhat.com) deployments and cutting-edge rolling-release development machines."
 msgstr ""
 
@@ -70417,9 +70274,6 @@ msgstr "Ο ρόλος αυτός είναι ο **κοινόχρηστος δρο
 # δράσης](https://github.com/rhysd/actionlint),
 # [αδολίδη](https://github.com/hadolint/hadolint) και [shfmt (στα
 # Αγγλικά)](https://github.com/mvdan/sh).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Αυτός ο ρόλος είναι το μοναδικό σημείο της αλήθειας
 msgid "This role is the single point of truth for the release pins of the lint tools that the toolchain installs from GitHub releases: [actionlint](https://github.com/rhysd/actionlint), [hadolint](https://github.com/hadolint/hadolint) and [shfmt](https://github.com/mvdan/sh)."
 msgstr ""
 
@@ -70524,9 +70378,6 @@ msgstr "Αυτός ο ρόλος προβλέπει μια ειδική μηχα
 # sys-svc-compose-ca ένεση.
 # 'root-ca.crt'] gained=['etc/infinito.nexus/γα/root-ca.crt']
 # TLS. Παραγωγικά προϊόντα / etc/infinito.nexus/γα/root-ca.crt για
-# translation-refused: libretranslate protected-span lost=['infinito.nexus',
-# nocheck: url
-# translation-rejected: Αυτός ο ρόλος προβλέπει μια τοπική ρίζα CA
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
 msgstr ""
 
@@ -73155,9 +73006,6 @@ msgstr "Χρήση από το ``ressources`` CLI και από την παρα�
 # hardcoding κάθε όνομα εφαρμογής.
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['web-app-prometheus/templates/configureation/prometheus.yml.j2']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Χρησιμοποιείται από
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -74808,9 +74656,6 @@ msgstr "Ποιες πληροφορίες προστέθηκαν, αφαιρέθ
 msgid "What instruction, workflow, or policy changed?"
 msgstr "Ποια εκπαίδευση, ροή εργασίας ή πολιτική άλλαξε;?"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Τι είναι αυτό; Infinito.Nexus♪ ♪ 📌
 msgid "What is Infinito.Nexus? 📌"
 msgstr ""
 
@@ -75870,9 +75715,6 @@ msgstr "Γιατί; GITHUB_TOKEN Είναι η Σωστή Επιλογή ✅"
 msgid "Why Mirrors Exist 🎯"
 msgstr "Γιατί Υπάρχουν Καθρέφτες 🎯"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Γιατί; Taiga♪ ♪?
 msgid "Why Taiga?"
 msgstr ""
 
@@ -76009,9 +75851,6 @@ msgstr "Σύρματα OpenRestyΧειριστές /NGINX"
 msgid "With SSO disabled the role uses the Internal directory and the bot's derived account password."
 msgstr "Με την αποσύνδεση του SSO, η ρόλός χρησιμοποιεί το εσωτερικό διαδίκτυο και τον κωδικό πρόσβασης που προκύπτει από τον bot."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Με την αποσύνδεση του SSO, η ρόλός χρησιμοποιεί το
 # εσωτερικό διαδίκτυο και τον κωδικό πρόσβασης που προκύπτει από τον bot.
 msgid "With SSO disabled the role uses the Internal directory and the bot’s derived account password."
 msgstr ""
@@ -78814,18 +78653,12 @@ msgstr "[ ] Η δοκιμή παραλείπει αντί να αποτυγχά�
 # [docs/contributing/requirements.mdΔιασταύρωση](../contributing/requirements.md#cross-linking)).
 # lost=['docs/contributing/requirements.md']
 # gained=['docs/contributing/requirements.mdΔιασταύρωση']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [ ] Αυτό το αρχείο απαίτησης συνδέεται με την εφαρμογή
 msgid "[ ] This requirement file is cross-linked from the implementing PR (per [docs/contributing/requirements.md#cross-linking](../contributing/requirements.md#cross-linking))."
 msgstr ""
 
 # PR (ανά
 # [requirements.mdΔιασταύρωση](../contributing/requirements.md#cross-linking)).
 # gained=['requirements.mdΔιασταύρωση']
-# translation-refused: libretranslate protected-span lost=['requirements.md']
-# nocheck: url
-# translation-rejected: [ ] Αυτό το αρχείο απαίτησης συνδέεται με την εφαρμογή
 msgid "[ ] This requirement file is cross-linked from the implementing PR (per [requirements.md#cross-linking](../contributing/requirements.md#cross-linking))."
 msgstr ""
 
@@ -79018,9 +78851,6 @@ msgid "[ ] [web-app-postmarks](../../roles/web-app-postmarks/): confirm scope."
 msgstr "[ ] [web-app-postmarks](../../roles/web-app-postmarks/)- Επιβεβαιώστε το πεδίο εφαρμογής."
 
 # (στα Αγγλικά).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] [web-app-taiga](../../roles/web-app-taiga/): OIDC
 msgid "[ ] [web-app-taiga](../../roles/web-app-taiga/): OIDC."
 msgstr ""
 
@@ -81355,9 +81185,6 @@ msgstr "[Επίσημη τεκμηρίωση Jernl](https://jrnl.sh/)"
 # και αποτελεσματική εφαρμογή περιοδικών γραμμής εντολών που επιτρέπει στους
 # χρήστες να δημιουργούν και να διαχειρίζονται προσωπικές καταχωρήσεις
 # περιοδικών.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Jernl (στα Αγγλικά)](https://jrnl.sh/) είναι μια απλή
 msgid "[Jrnl](https://jrnl.sh/) is a simple and effective command-line journal application that allows users to create and manage personal journal entries."
 msgstr ""
 
@@ -82058,17 +81885,11 @@ msgstr "[Ταχυδρομικές σφραγίδες (GitHub)](https://github.co
 
 # Αγγλικά).](https://github.com/pragepani): .ανύπαρκτος κατάλογος cache
 # αγνοείται
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Prageeth Panicker (στα
 msgid "[Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored"
 msgstr ""
 
 # Αγγλικά).](https://github.com/pragepani): Pi-hole ρόλο και το Playwright
 # test σουίτα
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Prageeth Panicker (στα
 msgid "[Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite"
 msgstr ""
 
@@ -82080,9 +81901,6 @@ msgstr ""
 
 # Αγγλικά).](https://github.com/pragepani): web-app-n8n ρόλος (Αυτοματοποίηση
 # ροής εργασίας, SSO κεφαλής άκρων, LDAP, Playwright)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Prageeth Panicker (στα
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
 msgstr ""
 
@@ -82916,9 +82734,6 @@ msgstr "[αιτήσεις/](applications/README.md) βοηθοί γύρω από
 msgid "[apt-get](https://manpages.debian.org/apt/apt-get.8.en.html)"
 msgstr ""
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [apt (καθαρή)](https://wiki.debian.org/Apt)
 msgid "[apt](https://wiki.debian.org/Apt)"
 msgstr ""
 
@@ -83204,9 +83019,6 @@ msgstr "[moodlehq/moodle-docker](https://github.com/moodlehq/moodle-docker) (α�
 # (ISO)](https://github.com/Askannz/msi-perkeyrgb) είναι ένα εργαλείο για τη
 # ρύθμιση των δυναμικών χρωμάτων πληκτρολογίου RGB ανά πλήκτρο σε φορητούς
 # υπολογιστές MSI.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [mis-perkeyrgb
 msgid "[msi-perkeyrgb](https://github.com/Askannz/msi-perkeyrgb) is a tool for setting dynamic per-key RGB keyboard colors on MSI laptops."
 msgstr ""
 
@@ -83247,9 +83059,6 @@ msgid "[nft(8) manual page](https://www.netfilter.org/projects/nftables/manpage.
 msgstr "[Nft(8) Χειροκίνητη σελίδα](https://www.netfilter.org/projects/nftables/manpage.html)"
 
 # Αγγλικά)](https://wiki.nftables.org/)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Nftables Wiki (στα
 msgid "[nftables Wiki](https://wiki.nftables.org/)"
 msgstr ""
 
@@ -83527,9 +83336,6 @@ msgstr "[test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/tes
 # [test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py)
 # Σαρώνει git-tracked συν untracked-but-not-ignored αρχεία κειμένου για
 # κυριολεκτική δημόσια `http://` και `https://` URLs (στα Αγγλικά).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "[test_urls_reachable.py](../../../../tests/external/repository/test_urls_reachable.py) scans git-tracked plus untracked-but-not-ignored text files for literal public `http://` and `https://` URLs."
 msgstr ""
 
@@ -83721,9 +83527,6 @@ msgstr "[x] Α `storage` το τετράγωνο προστίθεται στο `
 # OpenAI `/v1` το τελικό σημείο· `model_list` διαδρομές προς τουλάχιστον
 # `svc-ai-ollama`, `svc-ai-lmstudio`, και ένας εξωτερικός πάροχος (OpenRouter
 # (στα Αγγλικά)).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Α `svc-ai-litellm` ο ρόλος εκθέτει ένα συμβατό
 msgid "[x] A `svc-ai-litellm` role exposes one OpenAI-compatible `/v1` endpoint; its `model_list` routes to at least `svc-ai-ollama`, `svc-ai-lmstudio`, and one external provider (OpenRouter)."
 msgstr ""
 
@@ -87691,9 +87494,6 @@ msgstr "``enforced`` κρεμμύδια κάθε ικανή σειρά, ``disabl
 # επιφάνεια είναι ``docker_args:`` στην ``app.yml``, έτσι χρειάζεται
 # ``--add-host=<entry>`` Γραμμές.
 # gained=['discourse_dockerΣ']
-# translation-refused: libretranslate protected-span lost=['discourse_docker']
-# nocheck: url
-# translation-rejected: ``entries_only=true`` επιστρέφει αυτές τις
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -88305,9 +88105,6 @@ msgstr ""
 # πακέτων της πλατφόρμας: στο Debian (apt (καθαρή)) ο χνούδι δοχείο παίρνει
 # ``dpkg-parsechangelog`` (``dpkg-dev``), ``rpmspec`` (``rpm``) και
 # ``rpmlint``· στην Αψίδα (πακμάν) ένα dev host παίρνει ``namcap``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``scripts/lint/packages.sh`` επικυρώνει τα παραγόμενα
 msgid "``scripts/lint/packages.sh`` validates the generated packaging metadata with each ecosystem's native parser. This installer provisions those parsers wherever the platform's package manager can: on Debian (apt) the lint container gets ``dpkg-parsechangelog`` (``dpkg-dev``), ``rpmspec`` (``rpm``) and ``rpmlint``; on Arch (pacman) a dev host gets ``namcap``."
 msgstr ""
 
@@ -92349,9 +92146,6 @@ msgstr "το πολύ *τεμάχια* κομμάτια, κανένα μεγαλ
 # [`web-app-bluesky`](../../roles/web-app-bluesky/) ως πηγή ταυτότητας PDS/AT
 # μέσω του πρωτοκόλλου AT OAuth **όχι** Στείλε το δικό του κατάστημα
 # ταυτότητας. `sso` είναι επομένως AT- OAuth, όχι Keycloak OIDC (στα Αγγλικά).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ATMO καταναλώνει
 msgid "atmo consumes [`web-app-bluesky`](../../roles/web-app-bluesky/) as its PDS / AT identity source via AT Protocol OAuth; it does **not** ship its own identity store. `sso` is therefore AT-OAuth, not Keycloak OIDC."
 msgstr ""
 
@@ -93060,9 +92854,6 @@ msgstr "cli.administration.inventory.provision.filters μονάδα"
 # vars
 # lost=['cli.administration.inventory.provision.host']
 # gained=['cli.administration.inventory.provision.hostΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostΆρθρωμα \
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
 
@@ -93271,9 +93062,6 @@ msgstr "cli.contributing.changelog.archive συσκευασία"
 # dir
 # lost=['cli.contributing.changelog.archive.archive']
 # gained=['cli.contributing.changelog.archive.archiveΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.archiveΆρθρωμα \
 msgid "cli.contributing.changelog.archive.archive\\_dir module"
 msgstr ""
 
@@ -93453,16 +93241,10 @@ msgid "cli.meta.ci.chunks module"
 msgstr "cli.meta.ci.chunks μονάδα"
 
 # gained=['cli.meta.ci.devΆρθρωμα']
-# translation-refused: libretranslate protected-span lost=['cli.meta.ci.dev']
-# nocheck: url
-# translation-rejected: cli.meta.ci.devΆρθρωμα χρόνου εκτέλεσης
 msgid "cli.meta.ci.dev\\_runtime module"
 msgstr ""
 
 # lost=['cli.meta.ci.image'] gained=['cli.meta.ci.imageΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.imageΆρθρωμα \ αφ
 msgid "cli.meta.ci.image\\_ref module"
 msgstr ""
 
@@ -93539,9 +93321,6 @@ msgid "cli.meta.ci.slots module"
 msgstr "cli.meta.ci.slots μονάδα"
 
 # lost=['cli.meta.ci.subset'] gained=['cli.meta.ci.subsetΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.subsetΆρθρωμα ρολών
 msgid "cli.meta.ci.subset\\_roles module"
 msgstr ""
 
@@ -93631,9 +93410,6 @@ msgstr "cli.meta.roles.applications.dynamic\\ Υπηρεσίες"
 
 # lost=['cli.meta.roles.applications.in']
 # gained=['cli.meta.roles.applications.inΠακέτο']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.inΠακέτο \ ομάδων\ deps
 msgid "cli.meta.roles.applications.in\\_group\\_deps package"
 msgstr ""
 
@@ -94037,9 +93813,6 @@ msgstr "δεμπιάν"
 
 # translated-by: libretranslate
 # infinito-nexus so dpkg-source builds success again
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: debian/changelog source-package name returned to
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
 msgstr ""
 
@@ -95121,9 +94894,6 @@ msgid "group_vars/ directory"
 msgstr "group_vars/ κατάλογος"
 
 # gained=['group_varsΌλα']
-# translation-refused: libretranslate protected-span lost=['group_vars']
-# nocheck: url
-# translation-rejected: group_varsΌλα 📦
 msgid "group_vars/all 📦"
 msgstr ""
 
@@ -95483,9 +95253,6 @@ msgstr "θέσεις εργασίας ενός ή περισσότερων δρ�
 msgid "keep host setup separate from consumer setup"
 msgstr "κρατήστε την εγκατάσταση του υπολογιστή ξεχωριστή από την εγκατάσταση του καταναλωτή"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: keeassxc-browser (περιήγηση)
 msgid "keepassxc-browser"
 msgstr ""
 
@@ -96999,9 +96766,6 @@ msgid "plugins.filter.bcrypt\\_hash module"
 msgstr ""
 
 # lost=['plugins.filter.ca'] gained=['plugins.filter.caΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.caΆρθρωμα εμπιστοσύνης\ paths
 msgid "plugins.filter.ca\\_trust\\_paths module"
 msgstr ""
 
@@ -97010,9 +96774,6 @@ msgid "plugins.filter.canonical\\_domains\\_map module"
 msgstr ""
 
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookieΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.cookieΆρθρωμα πεδίου
 msgid "plugins.filter.cookie\\_scope module"
 msgstr ""
 
@@ -97034,17 +96795,11 @@ msgstr "plugins.filter.docker.build\\ απογυμνωτικό άρθρωμα"
 
 # lost=['plugins.filter.docker.network']
 # gained=['plugins.filter.docker.networkΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.networkΆρθρωμα \ noop
 msgid "plugins.filter.docker.network\\_noop module"
 msgstr ""
 
 # lost=['plugins.filter.docker.service']
 # gained=['plugins.filter.docker.serviceΕνεργοποιημένο']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.serviceΕνεργοποιημένο άρθρωμα
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr ""
 
@@ -97172,16 +96927,10 @@ msgid "plugins.filter.on\\_off module"
 msgstr "plugins.filter.on\\ εκτός αρθρώματος"
 
 # lost=['plugins.filter.redirect'] gained=['plugins.filter.redirectΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.redirectΆρθρωμα πηγών
 msgid "plugins.filter.redirect\\_sources module"
 msgstr ""
 
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.reservedΆρθρωμα χρήστη
 msgid "plugins.filter.reserved\\_users module"
 msgstr ""
 
@@ -97207,16 +96956,10 @@ msgstr "plugins.filter.sed μονάδα"
 
 # module
 # lost=['plugins.filter.split'] gained=['plugins.filter.splitmodule']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.splitmodule Postgres\ connections
 msgid "plugins.filter.split\\_postgres\\_connections module"
 msgstr ""
 
 # lost=['plugins.filter.status'] gained=['plugins.filter.statusmodule']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.statusmodule κώδικες άρθρωμα
 msgid "plugins.filter.status\\_codes module"
 msgstr ""
 
@@ -97237,9 +96980,6 @@ msgid "plugins.filter.text\\_filters module"
 msgstr "plugins.filter.text\\ φίλτρα άρθρωμα"
 
 # lost=['plugins.filter.timeout'] gained=['plugins.filter.timeoutΕκκίνηση']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.timeoutΕκκίνηση\ sec\ for\ mains module
 msgid "plugins.filter.timeout\\_start\\_sec\\_for\\_domains module"
 msgstr ""
 
@@ -97256,9 +96996,6 @@ msgid "plugins.filter.url.join module"
 msgstr "plugins.filter.url.join μονάδα"
 
 # lost=['plugins.filter.url.to'] gained=['plugins.filter.url.toΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.url.toΆρθρωμα \ onion
 msgid "plugins.filter.url.to\\_onion module"
 msgstr ""
 
@@ -97271,23 +97008,14 @@ msgid "plugins.lookup package"
 msgstr "plugins.lookup συσκευασία"
 
 # lost=['plugins.lookup.active'] gained=['plugins.lookup.activemodule']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.activemodule alertmanager\ κανάλι
 msgid "plugins.lookup.active\\_alertmanager\\_channels module"
 msgstr ""
 
 # lost=['plugins.lookup.addon'] gained=['plugins.lookup.addonmodule']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.addonmodule env\ flags άρθρωμα
 msgid "plugins.lookup.addon\\_env\\_flags module"
 msgstr ""
 
 # lost=['plugins.lookup.alert'] gained=['plugins.lookup.alertΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.alertΆρθρωμα κανόνας\ ρολών
 msgid "plugins.lookup.alert\\_rule\\_roles module"
 msgstr ""
 
@@ -97296,17 +97024,11 @@ msgid "plugins.lookup.api module"
 msgstr "plugins.lookup.api μονάδα"
 
 # lost=['plugins.lookup.api'] gained=['plugins.lookup.apiΕνεργοποιημένο']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.apiΕνεργοποιημένο άρθρωμα
 msgid "plugins.lookup.api\\_enabled module"
 msgstr ""
 
 # lost=['plugins.lookup.application']
 # gained=['plugins.lookup.applicationΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationΆρθρωμα κλεισίματος
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
@@ -97327,9 +97049,6 @@ msgid "plugins.lookup.asset module"
 msgstr "plugins.lookup.asset μονάδα"
 
 # lost=['plugins.lookup.asset'] gained=['plugins.lookup.assetΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.assetΆρθρωμα \ host
 msgid "plugins.lookup.asset\\_host module"
 msgstr ""
 
@@ -97394,9 +97113,6 @@ msgid "plugins.lookup.compose\\_restart module"
 msgstr "plugins.lookup.compose\\ επανεκκίνηση αρθρώματος"
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeΕνότητα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeΕνότητα \ όγκοι
 msgid "plugins.lookup.compose\\_volumes module"
 msgstr ""
 
@@ -97433,9 +97149,6 @@ msgid "plugins.lookup.container\\_healthcheck module"
 msgstr "plugins.lookup.container\\ Μονάδα ελέγχου υγείας"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerΆρθρωμα \ hostname
 msgid "plugins.lookup.container\\_hostname module"
 msgstr ""
 
@@ -97444,9 +97157,6 @@ msgid "plugins.lookup.container\\_image module"
 msgstr "plugins.lookup.container& Άρθρωμα εικόνας"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerΜονάδα \ mail\ marker
 msgid "plugins.lookup.container\\_mail\\_marker module"
 msgstr ""
 
@@ -97466,9 +97176,6 @@ msgid "plugins.lookup.container\\_url module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerΕνότητα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerΕνότητα \ όγκοι
 msgid "plugins.lookup.container\\_volumes module"
 msgstr ""
 
@@ -97525,23 +97232,14 @@ msgid "plugins.lookup.gpu module"
 msgstr ""
 
 # lost=['plugins.lookup.group'] gained=['plugins.lookup.groupΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.groupΆρθρωμα ρολών
 msgid "plugins.lookup.group\\_roles module"
 msgstr ""
 
 # lost=['plugins.lookup.guide'] gained=['plugins.lookup.guideΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.guideΆρθρωμα \ ρολ
 msgid "plugins.lookup.guide\\_role module"
 msgstr ""
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nΆρθρωμα καταλόγου
 msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr ""
 
@@ -97558,9 +97256,6 @@ msgid "plugins.lookup.image module"
 msgstr "plugins.lookup.image μονάδα"
 
 # lost=['plugins.lookup.local'] gained=['plugins.lookup.localΕνότητα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.localΕνότητα \ mtime\ qs
 msgid "plugins.lookup.local\\_mtime\\_qs module"
 msgstr ""
 
@@ -97582,9 +97277,6 @@ msgid "plugins.lookup.mcp\\_credential module"
 msgstr "plugins.lookup.mcp\\ credential άρθρωμα"
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpΆρθρωμα εξυπηρετητών
 msgid "plugins.lookup.mcp\\_servers module"
 msgstr ""
 
@@ -97620,9 +97312,6 @@ msgid "plugins.lookup.nfs\\_export\\_base module"
 msgstr "plugins.lookup.nfs\\ εξαγωγή\\ Βασικό άρθρωμα"
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsΜονάδα \ γεύσης
 msgid "plugins.lookup.nfs\\_flavor module"
 msgstr ""
 
@@ -97663,9 +97352,6 @@ msgstr "plugins.lookup.path\\ απόλυτο άρθρωμα"
 
 # lost=['plugins.lookup.playwright']
 # gained=['plugins.lookup.playwrightΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.playwrightΜονάδα εργασίας
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr ""
 
@@ -97697,9 +97383,6 @@ msgid "plugins.lookup.resource module"
 msgstr "plugins.lookup.resource μονάδα"
 
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.roleΆρθρωμα \ υποδικτύων
 msgid "plugins.lookup.role\\_subnets module"
 msgstr ""
 
@@ -97743,9 +97426,6 @@ msgid "plugins.lookup.shared\\_network\\_key module"
 msgstr "plugins.lookup.shared\\ Δίκτυο\\ Βασικό άρθρωμα"
 
 # lost=['plugins.lookup.smtp'] gained=['plugins.lookup.smtpΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.smtpΆρθρωμα \ host
 msgid "plugins.lookup.smtp\\_host module"
 msgstr ""
 
@@ -97757,9 +97437,6 @@ msgid "plugins.lookup.sso\\_cookie\\_domains module"
 msgstr ""
 
 # lost=['plugins.lookup.sso'] gained=['plugins.lookup.ssoάρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.ssoάρθρωμα \ oidc\ plugin
 msgid "plugins.lookup.sso\\_oidc\\_plugin module"
 msgstr ""
 
@@ -97771,9 +97448,6 @@ msgid "plugins.lookup.sso\\_whitelist\\_domains module"
 msgstr ""
 
 # lost=['plugins.lookup.stage'] gained=['plugins.lookup.stageΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.stageΆρθρωμα \ ομάδων
 msgid "plugins.lookup.stage\\_groups module"
 msgstr ""
 
@@ -97782,9 +97456,6 @@ msgid "plugins.lookup.subnet\\_address\\_regex module"
 msgstr "plugins.lookup.subnet\\ διεύθυνση\\ ενότητα regex"
 
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnetΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.subnetΆρθρωμα πύλης
 msgid "plugins.lookup.subnet\\_gateway module"
 msgstr ""
 
@@ -98657,9 +98328,6 @@ msgstr ""
 # μεταβλητές=available_variables, validate_certs=Αληθινή)
 # lost=['https://toshio.fedorapeople.org/one.txt'] gained=['"',
 # 'https://toshio.fedorapeople.org/one.txt\\']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
 msgid "run(['https://toshio.fedorapeople.org/one.txt'], variables=available_variables, validate_certs=True)"
 msgstr ""
 
@@ -98735,9 +98403,6 @@ msgstr "δείγματα που καταγράφηκαν μέχρι στιγμή
 
 # αριθ.
 # ')']
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: σάρωση για όλα τα περιστατικά του '[\"και\"{(') ΕΕ
 msgid "scan for all occurrences of '[' and '{' in the output"
 msgstr ""
 
@@ -99520,9 +99185,6 @@ msgstr "το κλειδί για την επίλυση του παιδιού."
 # translated-by: libretranslate
 # εργασίας τους (το βήμα ανακάλυψης)- οι δυναμικοί ανά σειρά πίνακες τους
 # είναι ακριβώς οι διαθέσιμοι διαθέσιμοι διαθέσιμοι πόροι.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: το ίδιο το κομμάτι διατηρεί μόνο τις στατικές θέσεις
 msgid "the chunk blocks themselves reserve only their static jobs (the discover step); their dynamic per-row matrices are exactly the slots being budgeted."
 msgstr ""
 
@@ -101056,16 +100718,10 @@ msgid "utils.cleanup.databases\\_csv module"
 msgstr "utils.cleanup.databases\\ csv άρθρωμα"
 
 # lost=['utils.cleanup.nginx'] gained=['utils.cleanup.nginxΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.nginxΆρθρωμα \ vhosts
 msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr ""
 
 # lost=['utils.cleanup.pycache'] gained=['utils.cleanup.pycacheΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.pycacheΆρθρωμα \ μόνο\ διαδρομές
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
 msgstr ""
 
@@ -101189,9 +100845,6 @@ msgstr ""
 
 # lost=['utils.env.handlers.docker']
 # gained=['utils.env.handlers.dockerΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.dockerΆρθρωμα platform
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr ""
 
@@ -101217,9 +100870,6 @@ msgstr "utils.env.handlers.infinito.ca.bundle\\ υποψήφιο άρθρωμα"
 
 # lost=['utils.env.handlers.infinito.ca.cert']
 # gained=['utils.env.handlers.infinito.ca.certΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.certΆρθρωμα \ host
 msgid "utils.env.handlers.infinito.ca.cert\\_host module"
 msgstr ""
 
@@ -101275,9 +100925,6 @@ msgstr "utils.env.handlers.infinito.dir.secrets μονάδα"
 
 # lost=['utils.env.handlers.infinito.dir.var']
 # gained=['utils.env.handlers.infinito.dir.varΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.dir.varΆρθρωμα \ lib
 msgid "utils.env.handlers.infinito.dir.var\\_lib module"
 msgstr ""
 
@@ -101315,17 +100962,11 @@ msgstr ""
 
 # lost=['utils.env.handlers.infinito.git']
 # gained=['utils.env.handlers.infinito.gitΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.gitΜονάδα ταυτότητας
 msgid "utils.env.handlers.infinito.git\\_identity module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.gpu']
 # gained=['utils.env.handlers.infinito.gpuΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.gpuΜονάδα υπολογισμού
 msgid "utils.env.handlers.infinito.gpu\\_count module"
 msgstr ""
 
@@ -101362,9 +101003,6 @@ msgstr "utils.env.handlers.infinito.outer\\ network\\ mtu άρθρωμα"
 
 # lost=['utils.env.handlers.infinito.package']
 # gained=['utils.env.handlers.infinito.packageΠακέτο']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packageΠακέτο \ cache
 msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr ""
 
@@ -101377,9 +101015,6 @@ msgstr "utils.env.handlers.infinito.package\\ cache.admin\\ password άρθρω�
 # cache.blobstore\ max
 # lost=['utils.env.handlers.infinito.package'] gained=['cache.blobstore',
 # 'utils.env.handlers.infinito.packageΜονάδα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packageΜονάδα \
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
 
@@ -101426,9 +101061,6 @@ msgstr "utils.env.handlers.infinito.rescue συσκευασία"
 # \ dir
 # lost=['utils.env.handlers.infinito.rescue.diagnostics']
 # gained=['utils.env.handlers.infinito.rescue.diagnosticsΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.rescue.diagnosticsΆρθρωμα
 msgid "utils.env.handlers.infinito.rescue.diagnostics\\_dir module"
 msgstr ""
 
@@ -101489,9 +101121,6 @@ msgstr ""
 
 # lost=['utils.env.handlers.infinito.tor']
 # gained=['utils.env.handlers.infinito.torΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.torΆρθρωμα αποθήκευσης
 msgid "utils.env.handlers.infinito.tor\\_socks\\_port module"
 msgstr ""
 
@@ -101508,9 +101137,6 @@ msgid "utils.env.handlers.infinito.worker.fetch module"
 msgstr "utils.env.handlers.infinito.worker.fetch μονάδα"
 
 # lost=['utils.env.handlers.nix'] gained=['utils.env.handlers.nixΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.nixΆρθρωμα ρύθμισης
 msgid "utils.env.handlers.nix\\_config module"
 msgstr ""
 
@@ -101724,9 +101350,6 @@ msgstr "utils.install.lint.mbake μονάδα"
 
 # lost=['utils.install.lint.mermaid']
 # gained=['utils.install.lint.mermaidΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.lint.mermaidΆρθρωμα \ cli
 msgid "utils.install.lint.mermaid\\_cli module"
 msgstr ""
 
@@ -102007,9 +101630,6 @@ msgstr "utils.roles.applications.config μονάδα"
 
 # lost=['utils.roles.applications.in']
 # gained=['utils.roles.applications.inΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.applications.inΆρθρωμα \ ομάδας\ deps
 msgid "utils.roles.applications.in\\_group\\_deps module"
 msgstr ""
 
@@ -102059,9 +101679,6 @@ msgstr "utils.roles.applications.services.sso μονάδα"
 
 # lost=['utils.roles.applications.status']
 # gained=['utils.roles.applications.statusmodule']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.applications.statusmodule κώδικες άρθρωμα
 msgid "utils.roles.applications.status\\_codes module"
 msgstr ""
 
@@ -102137,9 +101754,6 @@ msgid "utils.roles.rbac.scoped module"
 msgstr "utils.roles.rbac.scoped μονάδα"
 
 # lost=['utils.roles.required'] gained=['utils.roles.requiredΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.requiredΆρθρωμα κάλυψης
 msgid "utils.roles.required\\_by\\_coverage module"
 msgstr ""
 
@@ -102234,9 +101848,6 @@ msgid "utils.tests.swarm.extend\\_inventory module"
 msgstr "utils.tests.swarm.extend\\ άρθρωμα απογραφής"
 
 # lost=['utils.tests.swarm.force'] gained=['utils.tests.swarm.forceΚοινό']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.forceΚοινό άρθρωμα
 msgid "utils.tests.swarm.force\\_shared\\_db module"
 msgstr ""
 
@@ -102270,9 +101881,6 @@ msgid "utils.tls\\_common module"
 msgstr "utils.tls\\ κοινό άρθρωμα"
 
 # gained=['utils.torΆρθρωμα']
-# translation-refused: libretranslate protected-span lost=['utils.tor']
-# nocheck: url
-# translation-rejected: utils.torΆρθρωμα \ onion
 msgid "utils.tor\\_onion module"
 msgstr ""
 
@@ -102292,9 +101900,6 @@ msgid "utils.update.checksum module"
 msgstr ""
 
 # lost=['utils.update.collection'] gained=['utils.update.collectionΆρθρωμα']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.update.collectionΆρθρωμα πηγής
 msgid "utils.update.collection\\_source module"
 msgstr ""
 
@@ -102328,9 +101933,6 @@ msgid "utils.update.source module"
 msgstr "utils.update.source μονάδα"
 
 # gained=['utils.yamlΆρθρωμα']
-# translation-refused: libretranslate protected-span lost=['utils.yaml']
-# nocheck: url
-# translation-rejected: utils.yamlΆρθρωμα bootstrap
 msgid "utils.yaml\\_bootstrap module"
 msgstr ""
 

@@ -45,9 +45,6 @@ msgid "Administration Tools für servers"
 msgstr "Administration टूल्स फॉर सेवर्स"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: _agents_bh  __$agents_bh
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr ""
@@ -147,10 +144,10 @@ msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "ब्लेडर एक्स्पायर सेटिंग इंटरेक्स ऑफ़ क्यूटेक्स डिजाइनर्स पर जुड़ा हुआ है"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr ""
+msgstr "Browser-admin प्रति वस्त्र और मास्टर मिश्रण से सीएसए के बारे में सेवा करने वाली SeaweedFS वस्त्र स्टोर का ब्राउज़र लाइन इन्फ़रेक्शन प्रोटीकल"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -202,17 +199,11 @@ msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr "ક્ષેત્રના અંતર્ગત લોગિંક પ્રોક્સી માપનિની વિશ્વાસની સમાવેશન લોગિંક પર સ્ક્યેન્ડ કરવાના ઉપયોગમાં મુખ્યત્વથી વપરાવાનું પ્રતિયોજના, નિંધર સિન્ડ્યિક્ટિન એપ્લીકેશન્સ માટે મોટા ઉપલબ્ધતા અને એક અનુક્રમિત રૂપે સંપાત કરવાના મદદકી રૂપે"
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Centrally mail orchestration role for Infinito.Nexus,
 # integrating Email SaaS, msmtp, and an optional local SMTP relay
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr ""
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: -central recursive/forwarding DNS resolver engines
 # (Unbound, etc.)
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
@@ -346,9 +337,6 @@ msgid "Container Orchestration"
 msgstr "ऑरिजिएंस ऑरिक्यूरेंस"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Sectarian
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
 msgstr ""
@@ -399,9 +387,6 @@ msgid "Content management system for building and managing websites, blogs, and 
 msgstr "चालू संचारित काम शैली से वेबसाइट, ब्लॉग तथा विश्वसंचारित साइट नेटवर्कों की बनावट तथा जीतание"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Controls
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr ""
@@ -456,9 +441,6 @@ msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
 msgstr ".customer आयातची लक्षṇ"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: कृपया उत्तर वाक्यांश वाले मानकोंको अन्तरालमा: (, ).
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -473,17 +455,11 @@ msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
 msgstr "DNSરણોથાંસ્કર્ટાંસ"
 
-# translation-refused: libretranslate added-span lost=[] gained=['</x>']
-# nocheck: url
-# translation-rejected: डीएns प्रोवर्डर, रेकॉर्ड्स और रडीएns माउन्टेजन
 # (क्लाउडफाल्ल, हेट्शर्न</x>)।.
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr ""
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Data-driven उपयोग जो कंफ्लायर डानस रिकॉर्ड्स A/AAAA,
 # CNAME, MX, TXT, SRV) को संवर्द्धित करने से संबंधित (A/AAAA, CNAME, MX, TXT,
 # SRV) के साथ आपातकालिक सेटिंग्स और परिधि
 msgctxt "role:sys-dns-cloudflare-records:description"
@@ -496,9 +472,6 @@ msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr "डब्ल्यूएसएमएस (, लैडबेस, Redis, आदि )"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Dbh Goaṅsaka
 msgctxt "category:svc.db:title"
 msgid "Databases"
 msgstr ""
@@ -593,10 +566,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "निर्माण और CI/CD मामले"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr ""
+msgstr "डिस्ट्रिब्यूटेड S3-संबंधित ऑ�्जेक्ट बॉस लकड़ी के उपयोगकर्ताओं के बाकी कुंकुम की कंप्यूटरिंग संयोजन के वेब-आप्लाइब्ले रॉल के बीच"
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -633,9 +606,6 @@ msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr "दाखल"
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: ડૉકૂપ્યું અને વિલીક્લીબ એપ્લિકેશન્સ  Note: There might
 # be slight variations in the translation as the terms "Documentation" and
 # "Wiki" do not have exact equivalents in Sanskrit, and the context might
 # require slight adjustments in wording.
@@ -649,9 +619,6 @@ msgid "Driver integration for dynamic keyboard color and RGB lighting control on
 msgstr "ডাঐ ক্যাবিনেন ফ্রიমেন্ট মিসি লপটেলের ডিম্যাক্ট কাবেট ক্লার্ড অন্তর্ভুক্ত করার জন্য ডিম্যাক্ট কাবেট ক্লার্ড এবং রেগ্যুলার লিঙ্গ লিংটিং কন্ট্রোল"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: दriverેસ્ટિન્યોઝ્યોનો
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
@@ -767,9 +734,6 @@ msgid "Gaming platforms and entertainment applications."
 msgstr "गेम्स प्लास्टर और नागरिकता एप्लिकेशन્સ."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: GENERIC
 msgctxt "category:gen:title"
 msgid "Generic"
 msgstr ""
@@ -921,7 +885,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "જેસ્ટ્સ્કિપ રૂટર્સ ફેસ્ટિવલ અને ઇન્સ્ટ્રોક્શન્સ શેરીન્ગ અને સેરીસલેબ્લ અફિર્ડટિંગ અને વેબ સેટિલન્સિલ એપલોડર્સ લેબલ્સની ઉદ્દેશ્યનું સ્ટેટ્સપાન્ડ કરવો"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -936,9 +899,6 @@ msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
 msgstr "Kernel-चित्रित इंटरेसेट रनटाइमर ऑपनईलाइफिकेशन सेवनेही API से जुड़ा, लाइव मोडल्स के तरफ़ साझेय LLM गाइडवेट लॉड होते ही"
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected:
 # Kernel-isolating-container-runtimes-on-the-container-host_Kata-Containers-microVMs-and-the-gVisor-userspace-fallback_bh.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
@@ -989,9 +949,6 @@ msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr "Lok name resolution तसलीम, वापरून तरहस दोमाने एकाधिकार देता अधिकारी NSS मोडुल"
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Lokk saṅghātaṭṭhiti Root CA Lokk Siddhi saṅghātaṭṭhiti
 # phalasaṇṭhika cintakaṭṭhita dhāmaka upaṭṭhaṇa
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
@@ -1037,9 +994,6 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "कार्�tyोक्टियोक्ट कार्सन्स, सिस्टम वोटिक्ट्रोनिक्स र वारिड ऑपरेटिंग टास्क।."
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Docker Swarm एक उपकारिणी नoden के साथ, योजना लाइक्लिस
 # इकाई svc-swarm-node को दिया गया है    Docker Swarm
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
@@ -1111,9 +1065,6 @@ msgid "NLLB-200 translation model served over HTTP, for pipelines that call it d
 msgstr "NLLB-200 ट्यागिंग इडस्टीन अलगाव इंजीनियरिंग अपवाद ऑपरेटर सेवा ऑपरेटर सेवा ऑपरेटर"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: NETWORK
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr ""
@@ -1123,16 +1074,12 @@ msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr "नेटवर्क डिस्केज (डीएनस, लेटस अक्रिटिकल HTTP, WireGuard, आदें.)"
 
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: GANGULI DHPSUKHANA PRAKHARA ANUSRENANA BHOMANA
 # ANUSRENANA KARONA ADNA AND TRACKERNA KICCHA PATHA ANUSRENANA WEB ADMIN
 # DASHBOARDAN
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1154,7 +1101,6 @@ msgstr ""
 "नेन्जीकल्पित प्रतिष्ठान के सेवा को संतुलित असेसंस्थानों को सूचीबद्ध किया गया है जो स्रोत के एक डिशर्टर से लॉड किया गया है उसे वेब डाटा पतले के लिए\n"
 "नेन्जी अर्थ में नेन्जीकल्पित है, जो उच्च कार्यक्षमता के लिए उपलब्ध जारी किए गए एक डिस्काइजर को चुनकर शामिल होने का प्रतिबंध देता है"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1185,9 +1131,6 @@ msgid "One translation endpoint that picks the engine itself and prefers a revie
 msgstr "एक टランス एंडपॉंट जो स्ट्रिंग स्टेनलस सीजन आपल्या रिवर्सेड हंमन व्यक्ती या इनगने आपल्या स्वतंत्रतेमुळे स्वरूपन करू येण्यावर प्रधान माना झाला"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: _open_त्याग्यापूर्ण_पृष्ठ_फिल्ड_
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
 msgstr ""
@@ -1297,7 +1240,6 @@ msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr "OpenAI-चालक LLM गateway /v1 माउन्ट लिफ्टिंग सेटपिंग पार्टी यूनिट को लोकल और ऑनलाइट इम्बेड्ड मॉडल पर्टी की तरफ"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
@@ -1429,20 +1371,20 @@ msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "पुरालय उपadeepणे वाटकाळावर एक वाटकाळे उपासर, उपासर दोटफिल्स, एसएसएच अवलोकनाच्या वाटकाळे आणि परिसर"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr ""
+msgstr "प्रविष्टिपाती फ़लगन जीरो की वास्तविकता की सेटअप, शेल डॉटफ़ीलों को नियंत्रित करने और SSH authorized_keys"
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "प्रोक्सी सेवाएँ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
-msgstr ""
+msgstr "प्राप्ता REST API सर्वर दिएकडं कोड, इवळे खजखाली अवैधिका र Infinito.Nexus सर्वरकोले पनि कोर र इवळे फक्सको"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
@@ -1465,9 +1407,6 @@ msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr "નોંધક પ્લેનિટફોનો માધ્વિષિલ્ટ તુલના ઉપકરણો તુલના કાર્નોક ટુલનાં ચિબીક ટ્રાઇલન્સ રાખે છે"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: ર Repair  bh
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr ""
@@ -1554,20 +1493,20 @@ msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
 msgstr "વિસ્તરણ પ્રક્રિટ પ્રયોગ જેમાં પુષ્ટિપ્રાપ્ત લેટેન્ટ કેટલિટનું અનુભવિત અને અસુચી રૂપે માટે પરિણામી છાલૂ છે"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr ""
+msgstr "Scheduled डेडिप्लॉक करने की स्थानीय बैकअप दिशा में सेट गई सेटिंग्स, सेट कैर, अकेली कैम, और नोड योग्यता"
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr "સ્ટેજન્યલ ડેબિક્યુટિડ બ્યુક્ષિ સ્ટેસ્યન ડોકર ક્યુનેટ વોલેયમેન અને એક લોકાલ પેગિંગ કરો અને સંસ્ચારિક એસએએ ચલિર્સ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: ollama
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr ""
+msgstr "Scheduled जीवनरोधीकरण की सैट डिमांड को डिमांड किया गया डोमेन एक पुब्लेक्टर आधारित Node.js चेकर कोण"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
@@ -1599,67 +1538,64 @@ msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
 msgstr "ढालानंद कारणांतरित करण्यात स्टेटमेंट वेस्टर्न अंतर्ण दिशेनुमाने अन्याने जुळलेले अन्यानंतर डोकर वॉलुप्स आणि ते स्लीम्प्लिकेन्ड करणे"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: ठीक हिंड Hindi
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
-msgstr ""
+msgstr "गिन्हन अनुसूची तत्वालयात समापन डिस्क उपपत्ति एक तुल्यांकन सेवा जो की डिस्क उपपत्ति के अपर प्रयोग से कम होने पर अनुपयुक्त पीसाची वर्जीन्यांस अस्थायी करण्यासाठी"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr ""
+msgstr "Scheduled टमाट्र systemd व्यवस्था और समयपरिकलन ब्लूट्रस फाइल सिस्टम के लिए रेबलेंज करने की तकनीक को स्टोरेज की जांच करने से ऑptimal करने के लिए"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: ollama
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
-msgstr ""
+msgstr "Scheduled systemd-timer उत्तरण कार्य करें लेट क्रेट सेट सेल एल कॉन्टेस्ट सेल/टीसल किस्टेज्स का रेनोर वी Certbot और न्यूनज़ियं एस्ट रिलोड करना न्यूगन्स बाद"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr ""
+msgstr "વેસ્ટર્લિન્સ વોલ્વેકલોજી કલાકારોનો વેસ્ટર્લિન્સ કાર્યચાર્ય મૂલ્યાંકન પર કાર્યકર્તો વેસ્ટર્લિન્સ ઓરાન્ડ કાઉન્ટર્સિની ઉપયોગી ડીઓકારન્સ માધ્યમે પણ પ્રાપ્યાતકતાનોં કાર્ય કરવી"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr ""
+msgstr "ક્લિન અનાલયસિસ પ્laબલીક ફ્લેસ્ટ ફ્રે Git સૂચિબાદની સૂચિબાદ ક્લિન્યું પેદારી, CI/CD પલિસીસ ફ્રે પેદારી અને વેબ સુચિબાદોની ટ્રાક્યોંગ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr ""
+msgstr "વિશાળ વિશેષયિકૃત ફેડિવેરિલ ઉત્તરારખન જેમાં આગાહ લેખવામાં હાથેડો ફેડિવેરિલ ઉત્તરો હાથેડો એકોટા ઘ્રાન્ય ગ્રાફમાં સ્પર્ધાત"
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "गणेश एकेडमी के स्वस्थ गिटाएक्स रेनर डेप्लॉयमेंट और डिफ़ॉर्मेशन"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr ""
+msgstr "मनोरंजन एचटीएम5 खेल अन्योजन जो चारों ओर से स्वयं एचटीएम खेल दौरान देखें और खेलें"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr "વિવેચનાત્મક ડેરેક્ટરી સ્વિશંબાદ, વેગ્યુલેટર્યુલ વેબ્સેટ સાથે વેગ્યુલેટર્યુલ બાલ્ક્યુટર્યુલ સાથે મુખ્યમંત્રી વેબ્સેટ સાથે યુનિસ્કો માટે નીતિનો વિચારો સાથે નિમેષની વિચારો મેળવવા માટે"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr ""
+msgstr "स्टेटशॉप्ट S3-प्रोटोगनिट ऑफ़ स्टोरेज फॉर फाइल, माठ, बैकअप और ईआI एट्यूटॉमैन्टॉने"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr ""
+msgstr "સેફલાંબર્ટેટેદ System One કેલ્બરેટ જેન્બેર્યુલ પાસવોની ટ્વિક્યાનો શ્વાસ લખી અહીં કે ગ્યોર્ફેટ રેટિન નહીં નક્ષત્રોને બનાવો અથવા"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
@@ -1676,10 +1612,10 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "ક્રિયાવલ્ક લોકાસ્તિંગ બોસ્ટાર ટોલ ક્યુએરક કોડસની વિષયસાહિષ્ટ તાલીમ એ વેબ ટોલ તેમ ટેક્સ્ટ અથવા લાંबો વિલ્યુમ્સમાં આવે અને પ્રયોગિકા લોકાસ્તિંગમાં નિયંત્રણે નિતિલી પ્રતિસાદીય લોકોપરાગત ચિદ્રોપસ્ટિબે નિદરોની"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "Self-hosted chat इंटरफ़ेस जो कॉमिक के साथ लोकल और व्यापक AI मॉडल को द्वारा वापसी संसाधनों जैसे Ollama के साथ संपर्क ले सकता है"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
@@ -1706,142 +1642,142 @@ msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr "चित्रपति, उदाहरण वित्तीय प्लेटफार्म जिसमें कैटलॉग, कॉचट, प्रोमोशन और विश्लेषण की संगती की संरचना कर सकता है, तथा विश्लेषण की संगती के अलावा, विविध वित्तीय उपकरणों की उपलब्धि के लिए कुल संपर्क"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr ""
+msgstr "વેસ્ટિલ યેવ્યુલ અને શાકોફીલ્ડ કોન્સલેશન પેપલાઇન અને સંચારિકરણ અને પેપલાઇન પર લાઇનિબાઇન વિસ્તારિકતા"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "વેડિઝિ ફેડરેડ પ્રોટ્રેક્ટ પેદાર્યો પ્રોગ્રામ જેમાં સ્ટ્રોલ્યુસ રેયિન્ડ પ્રોટ્ટેન્ટ વેબ રેવીવિંગ અને રેડિંગ ટ્રાકિંગ થયેલ છે અને ફેડિવિયિયિસ પર"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr ""
+msgstr "ક્લિન્યાતનિયું ફેડેરેટ સો�ciાલ નેટવર્ક જેમે શ્રેષ્ઠિઓ પ્રોબ્લેમ્સ પર વિચારો, જેમે બુલેબોલિબિગ, વિઝિબોલિબિગ, અને કમ્યુનિટ મોટરિયો"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr ""
+msgstr "વેસ્ટિંગ વેબસાઇટ યેડી એન્ટરપ્યુસ યેડિયીએન્એ પ્લેસ્યુંટ યેડિયી એન્ટરપ્યુસ સ્ટેનાલ ઇડિય્યુ એન્ટરપ્યુસ પ્લેસ્ટિ માટે સુન્દર ઇનામેયંગ એફાઇડિટરી એન્ટરપ્યુસ લેબેલેટ્ટર્સ, મોટરફેસ એટલેબેટરી એન્ટરપ્યુસ અને યેડિય્યુ ફેડરેયિસ્ટ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr ""
+msgstr "માલિક્યાન્યો લોબોડો અનેવ્યો પ્રક્રિયા ઇન્ટ્રોચિન્સ કાર્ડવલ પ્રાઇટલેયર એફોટોપ્યાનો પ્લાટ્રોનics જેમાં સેવાઓ અને ભૂતપૂર્વનું ઇન્ટ્રોક્ષનનો વ્યાખ્યાણ લખવામાં ઉપયોગ કરવામાં આવેલો"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: ollama
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr ""
+"स्टोरीड मेल सेवा चयन का संयुक्त कार्यक्रम और वेब मेल, गड़बड़ाव निर्देशिका, आपातकातीसी, डीकी म्यूनिंग और टूलस \n"
+"SMTP/IMAP/POP3"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr ""
+msgstr "વિભવદિખક સેટિનું મીડિયા સેવા પણ સ્ટ્રીંગ અને મીડિયા વિશેષિયંત્રણ કરવા માટે, ફ્યાઈલોગ્સ, ટ્વીશિન્સ, મોટર્સ અને પ્યોથાગર્સ દ્વારા લગતાવવામાં આવેલું"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "खात्रीय आर्थित लाइवलेटर सेवा को लाइब्रेट्री मॉडल सेवा से संबंधित सामान्य HTTP API"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "વેસ્ટિંગ નો-કોડ ડેબાઇસ્ટ્રોપ પ્રોટ્રેબલ જેમે એક સ્પેસલીક આર્ટિલી ઇફીરેય્શ લેબelling જેમાં ડેબાઇસ્ટ્રોપ બનાવવી અને ડાયાબિ કરવી અને ડેબાઇસ્ટ્રોપમાં પછી કામગીરી કરવી"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr ""
+msgstr "વેર્ટીલ બેકન્યો ટેકનોલોજી જેમાં ડોશિમેન્ટ્સ, સ્પેસિબોક્સ અને પ્રેસ્ટ્યોન્સ વિશ્વનો ઓફિસ બ્લેક્ન્યો વેલેન્ડ્સ માટે સ્વાયટર્સેટ્ટિડ ઓનલાઈન ટેકનોલોજી"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
-msgstr ""
+msgstr "स्वामित्वपूर्ण विविध ऑपनसाइट एएपरसूट फांसी, क्रिम क्रिम, इटीव्यू, माइसनिंग, हर्मू, विपण, और पर्यवेक्षण"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "વેસ્ટર્ન બોસ્ટન પ્રતિવર્જિત કાતા મુખ્યત્વેનું એન્યુઆઈ અયોગ્ય ગ્યાલવેન અને બ્રોસ્ટર રંટાઈટિનું"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr ""
+msgstr "स्व-साइसिंग प्लेटफार्म लैबीड प्लाटफार्म लैबीड डिश, शेयरिंग और कोर्सेबलेशन के लिए एक फाइल स्टै के साथ Keycloak साइस और केन्ट्रल लैबीड डिशर्डिश प्लाटफार्म"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr ""
+msgstr "स्टाफल्स फ़ॉर न्यूसलैस्टर्ज और मेलिलिंगलिस्ट जिसमें अवस्थानी विभाजन और कार्यक्रम के विश्लेषण"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
-msgstr ""
+msgstr "आयनी, कार्बन की संचालन और कर्मचारियों की बाजारी निवेद性管理 लेकर उत्कृष्ट वेबसाइट है"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr ""
+msgstr "વિભવદિખાલી પ્રોજેક્ટ મેન્યુબિ્ટ, વેક્ટર ટ્રાકિંગ, ગાંટ પંચાયત પાલિન્ગ અને ટ્વેન્ટી ટેવેલ્ડ સંસ્થા સમૃદ્ધા"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr ""
+msgstr "વેસ્ટલ પોર્તલ માટે સ્વેચ્યુટ ઉપયોગકનો લાઈનિબિ અને ટેલિવિન ઇફીક્યેની ચિદણી ઇફીક્યેની આપવામાં અથવા ચિદણી ઇફીક્યેની ચિદણી આપવાનું લાભો માટે"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr ""
+msgstr "મેનેજમેન્ટ અને સુરક્ષિત પ્યાથ્યકરણ મેનેજમેન્ટ અને સુરક્ષિત પ્યાથ્યકરણ ઓનલાઇન પ્યાથ્યકરણ ઓનલાઇન પ્યાથ્યકરણ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr ""
+msgstr "चालू वेब कन्फरेंस प्लाटफार्म वैजळीवर कक्षाओं, इलायन मेटाउन्स और वाइटाइड कॉलेक्शन"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr ""
+msgstr "માન્યતાવામાં મૂળ્યોમાં શેરીલ, ફેડરેટિડ પેપ્લાયેન્ટ જેવું છે જેમાં તમે અસરીલ માન્યતા અને અસરીલ લેબ્યાનો પેસ્ટીલ અને તમે અસરીલ માન્યતાનું અલેક્સ્ટર શેર કરો અને અલેક્સ્ટર અલેક્સ્ટર શેર કરો"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr ""
+msgstr "વેબ વેનચરાર્સ પ્રદરશિત અને જ્યાંત્રિણી રસ્તા લેખવા અને વેબ પ્રોસેસરનો રેટિલ્ગ્યાનો સ્ટેટિમેન્ટ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
-msgstr ""
+msgstr "सर्वाधिकारः"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr ""
+msgstr "सेवा ओप्टिमिसेशन"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "सेवा-लालन बैकअप और रिपोर्टिंग वर्तनी - अतीतीय डाटा स्पीकर, वार्तली बैकअप, डेटा स्पीकर सेवाएं और डेटा बैकअप सोकीशन के बीच डिब्यूट, फ़ाइल और कंटेनर से।."
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
-msgstr ""
+msgstr "सेवाएँ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
-msgstr ""
+msgstr "सेवाएँ"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr ""
@@ -1851,51 +1787,51 @@ msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr "खण्डित एससीईआई द्वारा अर्थात OpenSSL CLI की अनुकूलन करने की जरूरत"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr ""
+msgstr "नियंत्रणात्मक समान्तर मार्चिंग कंप्यूटर जैसा एक साझेदारی"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr ""
+msgstr "संपर्कित स्टाँपरस्टोर वैक्युम जो बहिर्णशैलीपर उपयोगी हैं - NFSv4 सेवा और कालिंग भिडियो."
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "कुंजीपत्र की उपयोगिता वाली सभी डेस्कटोर रॉल के लिए सामान्य अंतर्गत"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr ""
+msgstr "ડિસ્ટાન્ડ સ્ટેયરિંગ ડાબલ્વેન્ડ ટેબોલ્સની રંગબ્રેડ ડાબલ્વેડ એસ્યેક્સ્ટ્રોપ્લેટ લેબ્લેડ હેલ્વેક્ટર્સ કાર્ડની વિશાળતમો સુચેલી સ્ટેનલસ સ્ટેટ્સ ડાબલ્વેડ ઓસ્ટીન ડાબલ્વેડ રોલસ લેબ્લેડ સ્ટેનલસ ડાબલ્વેડ માસ્ક્સ્ટ્રેટ્સ ડાબલ્વેડ હાન્ડલિસ ફેસ્ટ્રેક્સ ડાબલ્વેડ ટ્રાસ્ટ્ટ્સ ડાબલ્વેડ ડાબલ્વેડ લેબ્લેડ હેલ્વેક્ટર્સ ડાબલ્વેડ વેચ ડ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
-msgstr ""
+msgstr "निर्बाध बनूय."
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr ""
+msgstr "नियन्त्रण मध्ये आहे, {failed} ऑफ {total} सेवा."
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr ""
+msgstr "વિસ્તરશેલ આ સ્વાય્યાંનું વ્યક્તિગત સહાયકોને …"
 
-# translation-refused: libretranslate damaged-span
+# bookmarks federate to Mastodon and the Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr ""
+msgstr "एनटीएच हब यूज़ डिवाइस इन्टरलिजन्स, डैशबोर्ड एवं मैनेजर ईपीआई सेवर जैसे AI एगेजर की समर्थन"
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
@@ -1931,25 +1867,22 @@ msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr "ढाल-श्रेणीहरू सेवाकलन गरिब Nepal"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
-msgstr ""
+msgstr "Static गतिविधिक सेवाओं (अभियां, HTML, लेवल, फाइसलिंग)"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr "स्टैटिक फाइल सेवा ऑफ़ एस्टीएचएस और डिप्लोयमेंट डिरेक्शनल, .well-known नियम और एमाइट टीएलसिटिस टालिसायर्स"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "स्टा�tic साइट गेजर वरितन HTML एक पूर्वया Git रेसिपी को वरितन करता है और नेशन वास्तविक रोल करता है"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Storaga
 msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr ""
@@ -2034,10 +1967,10 @@ msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
 msgstr "तर्फीक टोपिगाली कैजेन फॉर एन्लांड, टाइलरी, प्रत्यक्ष रूप से प्लायरेज़ यूनिवर्सल गेम्यूल गाउली एक्सेस गेटवे नेपर वेस्टर्न डेवलपर्स API"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "टायपरंपर की प्रोजेक्टिंग आग्नेय इंटरफ़ेस से ऑपनईल, टेम्पलेट प्लेटफ़ॉर्म के अपने मॉडल गेटवे पर जाता है जैसे नियमी विक्रेट API"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-terminal:description"
@@ -2152,9 +2085,6 @@ msgid "Use the links below to sign out of the services still listed."
 msgstr "नेपाली अनुवाद: छोटो बटो नीचे वाले सेवागैरो बनाउने तथा तिन्हरे से बाहर निकाउने लागि लिंकहरूलाई बनाउने तথा यसको बाहेक साथ छाउने।."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: _User Management_ arya
 msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr ""
@@ -2165,9 +2095,6 @@ msgid "User accounts & access control"
 msgstr "योग्यता अカウंसल और अक्सेस कन्टロल"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: UserData & AccessData
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""
@@ -2182,43 +2109,44 @@ msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "વેન્ચોર, પ્રદાનકાર અને પ્રયોજનાવર્ત્તી પદાર્થો સંદર્ભોનું મૂળો બેસ વેબલેયોપાલન વેચોડ લેબલ્ટાંટીએ"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: विज्ञापन स्टाइचर एडिटर Code को संलग्न वर्तमान फलस्वरूप
 # लिंकिंग वर्तनी વિજ્ઞાનપણ સ્ટાવચર એડિટર Code ને સ્થાનિય વિશિષતાઓ છે
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr ""
+"વेब ઇફ્રિન્ગીએસિએ\n"
+"---"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "वेब यूआई एवं API जिसे आंस्यलन, टेराफाउंड एवं शल्ल एनाम्बुट एक समयमित या नहीं जानकारी लेने और उनकी जानकारी नियतीवत या प्रोत्साहित तरीके से उपलब्ध करने के लिए"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr ""
+msgstr "વિભાગનો પરિણામો, ગ્રેબ્સ અને અનેક પ્રતિસાદિકાતાઓનો મૂળ્યાત્મક વિભાગોને વ્યાપક લાઇડાઈપી વિભાગોને મદદ કરવાનું એન્ડલાઇડ લેવાનું વિભાગ"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr ""
+msgstr "વेबसाइटેની LDAP પરિસ્થિપત્રિની પરિશોધક મેનેજર લાઇબ્રેરી જે ઉપયોગક, ગ્રુપ્સ અને ડિટાકોબલ્યૂસ્ટોક્યુંને મેનેજ કરવો માટે"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "વेब-based LDAP ચલિર જે માહિતી વેબ્સેટમાં પસંદ કરવાનું, પરંતુ કેન્દ્રિટરો પર પ્રદર્શિણ, પાસ્કેન્ટ કરવાનું અને ડિરીક્યુલર વેબટિલીયમાં જેમાં વેબ પ્રદર્શિણ કરવાનું"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""
+"વેબબેઝ માનેઝિ અને ડેvેલ્વર્સ પેઝલેન્ચ જેમે અનેક PostgreSQL સ્ક્રીપ્ટાનો માનેઝિ કરવા માધ્યમેનું\n"
+"વોલોબોટ લિંકાઇન સહાયકોનું લોગિંક શું છે છે 2"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
@@ -2251,9 +2179,6 @@ msgid "You can close this page now."
 msgstr "વિશાલિયાણ્યું તે પાઝર અને અને આપણે તે સંદેશો છોડો અને અને તે પાયબોક્સ છોડો."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: falया
 msgctxt "logout:st_failed"
 msgid "failed"
 msgstr ""
@@ -2273,19 +2198,19 @@ msgctxt "logout:manual"
 msgid "sign out manually"
 msgstr "સંકેતકોનો નિષ્નાપ અમૂલકીયતાથી"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr ""
+msgstr "વिस્તરિત કરવામાં આવ્યો"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr ""
+msgstr "ঔঘাতিরেখা"
 
-# translation-refused: libretranslate damaged-span
+# translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr ""
+msgstr "{done} द्वारा {total} व्यवहारणात"
 

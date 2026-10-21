@@ -321,9 +321,6 @@ msgstr "ชุมชน"
 # เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
 # Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 # gained=['sub_filterส']
-# translation-refused: libretranslate protected-span lost=['sub_filter']
-# nocheck: url
-# translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -404,9 +401,6 @@ msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vect
 msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที่เข้ากันได้, ฐานข้อมูลเวกเตอร์, วงออเคสตร้า, และแชต UIs."
 
 # stream และค่าปริยายของการแสดง
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
 # support and performance-tuned defaults - Core
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
@@ -897,9 +891,6 @@ msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระ�
 
 # translated-by: libretranslate
 # Kata loader microVMs และ sports overnames.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Kernel-isolating container runtimes on the container
 # host: Kata Containers microVMs and the gVisor userspace fallback.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
@@ -956,9 +947,6 @@ msgid "Local self-signed Root CA for issuing trust so containers accept internal
 msgstr "ลายเซ็นตัวเองท้องถิ่นรูท CA สําหรับสร้างความไว้วางใจ เพื่อให้คอนเทนเนอร์ยอมรับจุดปลายของ TLS ภายใน"
 
 # (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Local-first cross-platform desktop password manager
 # storing credentials in an encrypted KeePass-format database
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"

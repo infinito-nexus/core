@@ -576,9 +576,6 @@ msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Qalereya3- Paylaşılan, web-app rolları arasında per-consumer kova təqdimatı üçün uyğun obyekt mağazası"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr ""
@@ -780,9 +777,6 @@ msgstr "Yardım"
 
 # translated-by: libretranslate
 # Docker Compose stack and and and and
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -802,9 +796,6 @@ msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Amazon S ilə uyğun olaraq, səhifə saxlamaq, səviyyətləşdirilməsi və konfiqurasiyasız məlumatların daxil olmaq üçün yüksək keyfiyyətli depozitləri3 API."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr ""
@@ -824,9 +815,6 @@ msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Bir kök RSA-nın evüstü rolu 4096- Secure avtomatik idarəetmə giriş üçün SSH key cüt"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr ""
@@ -886,9 +874,6 @@ msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "Proqram komandaları üçün fayl və layihə izleme platforması, çevik boardlar, işıqlar, və isteğe bağlı OIDC SSO"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Yadda saxla
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1109,9 +1094,6 @@ msgid "Nginx-based server for hosting static assets copied from a source directo
 msgstr "Nginx-based server for hosting statik aktivlər üçün web məlumat yolu üçün mövcuddur"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Node.js package a a a a pm
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1221,9 +1203,6 @@ msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr "Symfony və Vue.js onlayn mağazafronts bina və səhifə"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
 msgstr ""
@@ -1234,9 +1213,6 @@ msgid "Open-source learning management system for creating, managing, and delive
 msgstr "Open-source öyrənmə sistemi yaratmaq, idarə etmək və online kurslar və e-ömək"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: PromQL
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr ""
@@ -1592,9 +1568,6 @@ msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "Self-dən keçirilib GitHub Action"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: E-poçt ünvanı5 the the the the the the the
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr ""
@@ -1679,9 +1652,6 @@ msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr "Bir imza-on, multi-faktor təhlükəsizlik və istifadə idarəetmə platforması"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr ""
@@ -1706,16 +1676,10 @@ msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "Self-poçt ünvanı veriləndirilməsi və məlumatların yaradılması və məlumatlaşdırılması üçün yayılmış məlumat bazası platformasını qeyd etdi"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
 msgstr ""
@@ -1755,9 +1719,6 @@ msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "Xüsusi dəstək və menyu interfeyssi ilə bütün istifadə edilmiş proqramlar üçün Self- hosting portalı"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: E-poçt ünvanı
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
 msgstr ""
@@ -1851,9 +1812,6 @@ msgstr "Sizə xidmətlərinə baxın..."
 # translated-by: libretranslate
 # ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
 # məlumatları öyrənmək Mastodon Fediverse
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
@@ -1944,9 +1902,6 @@ msgid "System-maintenance role for refreshing the package index and upgrading in
 msgstr "OS paketi meneceri ilə hazırlanmış paketi indeksi və yeniləndirilməsi üçün sistem-anatenance rolu"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: The the the the
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
 msgstr ""

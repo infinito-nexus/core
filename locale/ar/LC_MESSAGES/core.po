@@ -66,9 +66,6 @@ msgid "Alerting"
 msgstr "الإنذار"
 
 # POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
-# translation-refused: libretranslate protected-span lost=['3'] gained=['33']
-# nocheck: url
-# translation-rejected: All-in-one Stalwart mail server with SMTP, IMAP, JMAP,
 # POP33, ManageSieve, CalDAV, CardDAV and built-in spam filtering
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
@@ -237,9 +234,6 @@ msgid "Centralized MariaDB or PostgreSQL database service shared across applicat
 msgstr "المركزية MariaDB أو PostgreSQL خدمات قاعدة البيانات المشتركة عبر التطبيقات Docker Compose"
 
 # إل إس) و(جي إن جي)"
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Certbot-driven ACME service for Let's Encrypt
 # single-domain and wildcard TLS certificates on NGINX domains
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
@@ -543,9 +537,6 @@ msgid "Desktop config role for activating GNOME Shell extensions and installing 
 msgstr "دور عقد المؤتمرات المكتبية لتفعيل نظام المعلومات الجغرافية Shell تمديد وتركيب أداة من أدوات الحرف اليدوية لإدارة تلك الأجهزة"
 
 # LibreOfficeإلخ)
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Desktop environment roles & apps (GNOME, LibreOffice,
 # etc.) ---  Desktop environment roles & apps GNOME, LibreOffice, etc.)
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
@@ -765,9 +756,6 @@ msgid "Generic role installing the doli CLI and applying dotfile symlink mapping
 msgstr ":: دور عام في تركيب نظام \" ديلي كلي \" وتطبيق خرائط ربطات عنق الرحم التي تمر بها أدوار أخرى"
 
 # responses via sub_filter, مع (سي إس بي)
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Global JavaScript injection layer for NGINX HTML
 # responses via sub_filter, with CSP hashing  ### Global - sub_filter -
 # JavaScript - injection - layer - for - NGINX - HTML - responses - via - CSP
 # - hashing
@@ -804,9 +792,6 @@ msgstr "النجدة"
 
 # translated-by: libretranslate
 # الفساد Docker Compose (ج) أكياس المشروع وإثباته
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Helper role installing CA-trust injection assets for
 # Docker Compose stacks and validating the project CA certificate --- نقل
 # ترخيص CA من دایره را می‌كنیم برای Docker Compose سpires و صحت certifiable
 # project CA Certificate
@@ -1062,17 +1047,11 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 
 # translated-by: libretranslate
 # target domains with automatic SSL for the source hosts
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: NGINX glue role for 301 Redirects from source to
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
 
 # 443 إعادة توجيه وتنظيف الحضيض
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: NGINX layer for HTTPS with Let's Encrypt ACME
 # challenge handling, port 80 to 443 redirect, and stale vHost cleanup ---
 # NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to
 # 443 redirect, and stale vHost cleanup --
@@ -1093,9 +1072,6 @@ msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل 
 
 # translated-by: libretranslate
 # HTTPS with automatic Let's Encrypt certificates
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: NGINX vhost for serving static HTML websites over
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1152,9 +1128,6 @@ msgstr "الخادم الذي يوجد مقره في نجينكس لاستضاف
 
 # translated-by: libretranslate
 # ci داخل دليل المشروع
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1315,9 +1288,6 @@ msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج 
 
 # translated-by: libretranslate
 # with TLS certificates, vHost templates, and optional OAuth2
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
@@ -1455,9 +1425,6 @@ msgstr "سحب من خلال المواهب لحزمة من أعلى المجر�
 
 # translated-by: libretranslate
 # repositos and automating common Git العمليات
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Python CLI package manager for cloning multiple code
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr ""
@@ -1631,9 +1598,6 @@ msgstr "البنية التحتية ذاتية التشغيل لأجهزة ال�
 
 # translated-by: libretranslate
 # أنابيب CI/CD، وتتبع القضايا
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Self-hosted DevOps platform for Git source-code
 # management, CI/CD pipelines, and issue tracking --- Self-hosted DevOps
 # platform for Git source-code management, CI/CD pipelines, and issue tracking
 msgctxt "role:web-app-gitlab:description"
@@ -2037,9 +2001,6 @@ msgid "Systemd-triggered notifier for delivering service-failure alerts to a Tel
 msgstr "مُخطر مُبرمج لتقديم تنبيهات بعدم الخدمة إلى دردشة برقية"
 
 # النموذجية للمنصة بدلاً من البائع API
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: --- Terminal coding agent from Anthropic, pointed at
 # the platform's own model gateway instead of the vendor API --- إنتحال
 # كودding_AGENT من Anthropic ، استخدمه في الملاصق المعماري instead of the
 # vender API
@@ -2124,9 +2085,6 @@ msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr "الأدوات التي تساعد على الاستفادة المثلى من خدمات الإنترنت"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Tor daemon publishing the node as a v3 onion service
 # ---  V3 Tor daemon publishing the node as a v3 onion service
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
@@ -2202,9 +2160,6 @@ msgstr "الشبكة"
 
 # translated-by: libretranslate
 # الطلب
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Web UI and API for running Ansible,
 # Terraform/OpenTofu, and shell automation on a schedule or on demand ---  يوم
 # الويبوين وال API لRunning Ansible, Terraform/OpenTofu, and shell automation
 # on a schedule or on demand

@@ -1943,9 +1943,6 @@ msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker c
 msgstr "Monitorim me kohë të sistemit për zbulimin e kontejnerëve të pashëndetshëm apo jo-zero-eksitueshëm Docker dhe ngritjen e alarmeve të dështimit"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Systemd-triggered msmtp notifier for emailing
 # operators when a monitored service unit fails -Systemd-triggered
 # -mpsmtp-notifier -for -emailing -operators -when -a -monitored -service
 # -unit -fails
@@ -1954,9 +1951,6 @@ msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored 
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Systemd-triggered notifier for delivering
 # service-failure alerts to a Telegram chat SystemdNotifier for Telegram chat.
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"

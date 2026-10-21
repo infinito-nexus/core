@@ -37,9 +37,6 @@ msgstr "\"Newest\" có nghĩa là chạy vào nhóm cuối cùng, do đó, các 
 
 # gained=['"Comment"']
 # buộc ngay cả khi dòng lên bỏ qua nó
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: "Comment" dịch vụ API URL; một phím không rỗng là bắt
 msgid "\"OpenAI Compatible\" service with API URL; a non-empty key is mandatory even when the upstream ignores it"
 msgstr ""
 
@@ -82,9 +79,6 @@ msgid "\"universal\" = invokable roles that are NOT matched by any other non-uni
 msgstr "\"universal\" Bằng các vai trò không thể thay đổi mà không khớp với bất kỳ quy tắc khác không phải là không thể."
 
 # -> người mang một khách hàng nhập viện gửi, hoặc "" ♪ Khi chưa ai gieo gì
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: "{{ lookup('mcp_client_bearer', 'web-app-gitea') }}"
 msgid "\"{{ lookup('mcp_client_bearer', 'web-app-gitea') }}\" -> the bearer an admitted client sends, or \"\" when none is minted yet"
 msgstr ""
 
@@ -96,9 +90,6 @@ msgid "\"{{ lookup('mcp_credential', 'web-app-gitea') }}\" -> the reader token, 
 msgstr "\"{{ lookup('mcp_credential', 'web-app-gitea') }}\" -> độc giả biểu tượng, hoặc \"\" khi chưa phát hành \"{{ lookup('mcp_credential', 'web-app-gitea', 'mcp-writer') }}\" -> Ký hiệu nhà văn, được lưu bên cạnh nó với một phím đóng vai"
 
 # suffix=False) }}" ♪ Không có hậu quả ♪
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: "{{ lookup('unit_name', system_service_id,
 msgid "\"{{ lookup('unit_name', system_service_id, suffix=False) }}\"  # no suffix"
 msgstr ""
 
@@ -245,9 +236,6 @@ msgstr "**\"Tạo ra tài khoản riêng\"** = danh tính giả mạo từ quy�
 # đại lý, mà phải do đó có thể chạy việc soạn thảo (Name).. đây là một khả
 # năng thực sự ép buộc vai trò đại diện phải tuyên bố; nó là chính xác loại
 # chủ-không cần quyết định #4Việc lựa chọn thời gian phải đáp ứng.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: **"Comment"** xảy ra bên trong hộp cát biệt lập của
 msgid "**\"Spins up local containers\"** happens inside the agent's isolated sandbox, which MUST therefore be able to run compose workloads (nested Docker inside the isolated runtime). This is a real capability constraint the agent role MUST declare; it is exactly the kind of host-near need Decision #4's runtime selection has to accommodate."
 msgstr ""
 
@@ -437,9 +425,6 @@ msgstr ""
 # OIDC (Khớp bởi thư điện tử, chấp nhận chỉ người dùng bên ngoài) Nâng người
 # điều hành lên quản lý. Ở thượng nguồn không có bản đồ phân loại, nên hạt
 # giống ngoài thời gian này là hạt giống "bước hòa giải nhỏ".
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: **Quản trị / Hình mẫu = cả hai** (tổng đài:
 msgid "**Admin / role model = both** (operator: \"admin anlegen wenn nicht oidc sonst claim mapping\"), implemented within Semaphore's constraints: (a) a **break-glass local admin** is always seeded via `SEMAPHORE_ADMIN*` with a dedicated `breakglass` login + dedicated email — reachable via the form only when LDAP is off; (b) when SSO is enabled the role creates the Keycloak administrator as an **external admin** at deploy time (`semaphore user add --admin --external`), so the OIDC callback (matches by email, accepts only external users) elevates that operator to admin. Upstream has no claim→role mapping, so this deploy-time external-admin seed is the \"smallest reconciliation step\"."
 msgstr ""
 
@@ -1071,9 +1056,6 @@ msgstr "**Sẵn sàng sao lưu:** Dữ liệu bền bỉ dưới `{{ JIRA_STORAG
 # tiện truyền thông bên ngoài. Một sự hợp nhất *phục hồi* CLI lái xe phục hồi,
 # trong khi chế tạo kiểm tra phục hồi và một máy khoan dự trữ đầy đủ thảm họa
 # máy khoan liên tục xác nhận đường đi. Name *♪* Bản sao.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Hỗ trợ và hồi phục thảm họa.**
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
 msgstr ""
 
@@ -1944,9 +1926,6 @@ msgstr "**Lỗi cấu hình:** Việc di chuyển là luôn luôn hành; việc 
 # tùy chọn ``context`` bằng vật kỷ niệm. Name
 # ``applications.svc-ai-litellm.services.litellm.remote_models``, Và một nhà
 # cung cấp không có khe khóa hủy cuộc triển khai.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Mô hình cấu hình từ xa:** Các mô hình được công bố
 msgid "**Configurable remote models:** The published remote models are the ``litellm.remote_models`` list in ``meta/services.yml``, each entry an ``alias``, the LiteLLM ``model`` string and its ``provider``, plus an optional ``context`` in tokens. An inventory replaces the list through ``applications.svc-ai-litellm.services.litellm.remote_models``, and a provider without a key slot aborts the deploy."
 msgstr ""
 
@@ -1955,9 +1934,6 @@ msgstr ""
 # `context` bằng vật kỷ niệm. Name
 # `applications.svc-ai-litellm.services.litellm.remote_models`, Và một nhà
 # cung cấp không có khe khóa hủy cuộc triển khai.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Mô hình cấu hình từ xa:** Các mô hình được công bố
 msgid "**Configurable remote models:** The published remote models are the `litellm.remote_models` list in `meta/services.yml`, each entry an `alias`, the LiteLLM `model` string and its `provider`, plus an optional `context` in tokens. An inventory replaces the list through `applications.svc-ai-litellm.services.litellm.remote_models`, and a provider without a key slot aborts the deploy."
 msgstr ""
 
@@ -2489,9 +2465,6 @@ msgstr "**Mặc định** được phát hiện từ mỗi siêu dữ liệu tro
 msgid "**Defaults** discovered from every `roles/*/meta/users.yml` in the repository (file root IS the users map; no `users:` wrapper)."
 msgstr "**Mặc định** được phát hiện từ mọi thứ `roles/*/meta/users.yml` trong kho (Gốc tập tin IS sơ đồ người dùng; không `users:` wrapper)."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Xoá( delete) User:**
 msgid "**Delete a User:**"
 msgstr ""
 
@@ -2629,9 +2602,6 @@ msgstr "**Mô tả:** Trung tâm nhớ lưu trữ động cơ mở khóa với s
 msgid "**Description:** Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr "**Mô tả:** Vai trò tải trung tâm cho việc sắp xếp dịch vụ nạp trước và xếp hàng sau khi đăng xuất"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr ""
 
@@ -2702,9 +2672,6 @@ msgstr "**Mô tả:** Ứng dụng nhật ký dòng lệnh cho việc tạo và 
 msgid "**Description:** Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
 msgstr "**Mô tả:** Tính năng xếp chồng hợp nhất co giật một hậu phương cơ sở dữ liệu đã công cụ hoá với giao diện điều khiển đảo ngược HTTP cho truy cập web"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr ""
 
@@ -2721,9 +2688,6 @@ msgid "**Description:** Containerized icon server for hosting the Simple Icons b
 msgstr "**Mô tả:** Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Mô tả:** Comment
 msgid "**Description:** Containerized relational database with automated database, user, and privilege provisioning"
 msgstr ""
 
@@ -2773,9 +2737,6 @@ msgstr "**Mô tả:** Tài khoản quản trị đã hiến dâng với truy c�
 msgid "**Description:** Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr "**Mô tả:** Tài khoản hệ thống đã hiến tặng với các lệnh đã được mã hóa SSH và mật khẩu rsync sudo để truy cập sao lưu bảo mật"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr ""
 
@@ -2791,9 +2752,6 @@ msgstr "**Mô tả:** Trình khách môi trường thiết lập liên kết th�
 msgid "**Description:** Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "**Mô tả:** Vai trò cấu hình môi trường để khởi động GNOME Shell Phần mở rộng và cài đặt một công cụ CLI để quản lý chúng"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr ""
 
@@ -2829,9 +2787,6 @@ msgstr "**Mô tả:** Bộ soạn thảo Docker cho cơ sở dữ liệu quan h�
 msgid "**Description:** Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr "**Mô tả:** Hậu phương của máy phục vụ tài liệu cho việc biên tập tài liệu, bảng tính và trình bày thời gian thực"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
 msgstr ""
 
@@ -3021,9 +2976,6 @@ msgstr "**Mô tả:** Chọn NSS module"
 msgid "**Description:** Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "**Mô tả:** CA gốc tự ký địa phương cho việc phát hành sự tin tưởng để các thùng chứa chấp nhận điểm kết thúc nội bộ của USD"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
 
@@ -3035,9 +2987,6 @@ msgstr "**Mô tả:** Trung tâm điều khiển thông báo cục bộ thứ nh
 msgid "**Description:** Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "**Mô tả:** Đang khoá cơ chế để chuyển đổi tác vụ bảo trì cho đến khi dịch vụ quan trọng dừng lại, với việc thử lại và thời hạn có thể cấu hình"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Phụ đề được thực hiện bởi Động Phim
 msgid "**Description:** Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr ""
 
@@ -3061,9 +3010,6 @@ msgid "**Description:** Minimal terminal coding agent with a lazy-loading skill 
 msgstr "**Mô tả:** Nhân viên bộ mã thiết bị cuối tối thiểu với một hệ thống tải kỹ năng lười biếng, nối kết với cổng ra vào của nền tảng"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Mô tả:** Comment
 msgid "**Description:** Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr ""
 
@@ -3268,9 +3214,6 @@ msgstr "**Mô tả:** Hệ thống nhận biết điện đã đăng nhập cho 
 msgid "**Description:** Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "**Mô tả:** Nền tảng xã hội riêng tư đầu tiên cho các hộ gia đình, Liên kết ngang hàng trên WebTC trên một cửa hàng QT"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
 
@@ -3317,9 +3260,6 @@ msgstr "**Mô tả:** Bộ thích nghi MCP cho phép sử dụng bề mặt đ�
 msgid "**Description:** Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr "**Mô tả:** Giao diện điều khiển ủy nhiệm ngược cho dịch vụ của Docker-host với sự hỗ trợ máy chủ tự động của USD, WebSoet, và một app vHost vHolating"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Trình sắp xếp chứng nhận ngược thời gian
 msgid "**Description:** Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr ""
 
@@ -3342,9 +3282,6 @@ msgstr "**Mô tả:** Công cụ dọn dẹp đã lên lịch cho việc phục 
 msgid "**Description:** Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr "**Mô tả:** Đã lên lịch việc sao lưu các bí mật máy, CA, ACME, và tên nút để sao lưu vào thư mục cục bộ"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Comment
 msgid "**Description:** Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
 
@@ -3384,9 +3321,6 @@ msgstr "**Mô tả:** Đã lên lịch sao chép kiểu kéo sao chép các máy
 msgid "**Description:** Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr "**Mô tả:** Dịch vụ bảo trì có hệ thống để tỉa phiên bản sao lưu đã lỗi thời khi sử dụng đĩa vượt quá ngưỡng"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Comment
 msgid "**Description:** Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr ""
 
@@ -3623,9 +3557,6 @@ msgid "**Description:** Systemd-triggered msmtp notifier for emailing operators 
 msgstr "**Mô tả:** Bộ thông báo msmp hệ thống cho những người sử dụng thư điện tử khi một đơn vị dịch vụ giám sát thất bại"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Mô tả:** Comment
 msgid "**Description:** Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr ""
 
@@ -3672,9 +3603,6 @@ msgstr ""
 msgid "**Description:** Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "**Mô tả:** Kiểu...2 Trình siêu giám sát máy ảo trên trạm làm việc Pacman, với mô-đun hạt nhân và gói mở rộng"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr ""
 
@@ -3682,9 +3610,6 @@ msgstr ""
 msgid "**Description:** Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "**Mô tả:** Trình khách điều khiển phiên bản cho trạm làm việc cá nhân, cấu hình sẵn với danh tính, ký và hợp nhất mặc định"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr ""
 
@@ -3720,9 +3645,6 @@ msgstr "**Mô tả:** Công cụ quản lý dựa trên Web cho ICC và MariaDB 
 msgid "**Description:** Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "**Mô tả:** Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Mô tả:** Name
 msgid "**Description:** Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""
 
@@ -4992,17 +4914,11 @@ msgstr ""
 
 # ``sphinx-apidoc``, mỗi người một trang ``meta/main.yml`` và ReadME, và một
 # danh mục của tất cả các tập tin YML.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Tạo tham chiếu:** PageUp (trang lên)
 msgid "**Generated reference:** API pages via ``sphinx-apidoc``, one page per role from its ``meta/main.yml`` and README, and an index of every YAML file."
 msgstr ""
 
 # `sphinx-apidoc`, mỗi người một trang `meta/main.yml` và ReadME, và một danh
 # mục của tất cả các tập tin YML.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Tạo tham chiếu:** PageUp (trang lên)
 msgid "**Generated reference:** API pages via `sphinx-apidoc`, one page per role from its `meta/main.yml` and README, and an index of every YAML file."
 msgstr ""
 
@@ -6360,9 +6276,6 @@ msgid "**Machine identity:** AppRole is configured independently of human login,
 msgstr "**Danh tính máy:** AppRole được cấu hình độc lập về đăng nhập của con người, vì vậy dịch vụ và tự động hóa sử dụng danh tính của riêng họ và các biểu tượng ngắn hạn thay vì thẻ quản trị được chia sẻ."
 
 # *users_groups* @ info/ rich
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Làm cho công ty quảng cáo thành phố** và được đối xử
 msgid "**Made Snipe-IT admin bootstrap idempotent** and treated known *users_groups* duplicate constraint errors as non-fatal while keeping strict failure handling for other cases"
 msgstr ""
 
@@ -6475,9 +6388,6 @@ msgstr "**Cỡ `unauthenticated_metrics_access = true`** trên thính giả nộ
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
 msgstr "**Tập tin soạn thảo đã phân tích** từ *docker-compose.yml* phải *compose.yml*, bao gồm ghi đè và CA ghi đè biến thể, và các phím cấu hình cấu hình hợp nhất"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Đường cong Chuyển (♪4-6H):**
 msgid "**Migration outline (~4-6h):**"
 msgstr ""
 
@@ -6511,9 +6421,6 @@ msgstr "**Dấu chân:** Không hiệu lực mục nhập dịch vụ hay tự �
 
 # gained=['Node.jsDịch']
 # chồng lớn hơn.
-# translation-refused: libretranslate protected-span lost=['Node.js']
-# nocheck: url
-# translation-rejected: **Dấu chân:** Nhỏ Node.jsDịch vụ nén vừa vặn thành
 msgid "**Minimal footprint:** Small Node.js/Express service that fits neatly into larger stacks."
 msgstr ""
 
@@ -6704,9 +6611,6 @@ msgstr ""
 # tham số thay thế)Lý do: giống hệt quy tắc vòng lặp. Chia công việc ra
 # **(music)** hoặc sử dụng một lệnh tương đương (`xargs`. `grep` với nhiều
 # arg, một mục tiêu làm cho mục tiêu).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Hàng loạt các trường hợp liên quan đến vỏ bọc là
 msgid "**Multi-statement chains in shell invocations are FORBIDDEN. ⛔** You MUST NOT chain independent statements inside a single Bash tool call with **any** statement separator (`;`, literal newline, `&&`, `||`, `&` background operator, or subshell/brace groups around the same). The ban covers causally-dependent chains (`cd X && cmd`) just as much as optional ones, and applies to trailing `&` used to background a command (use the Bash tool's `run_in_background: true` parameter instead). Reason: identical to the loop rule. Split the work across **separate Bash tool calls** or use a single-command equivalent (`xargs`, `grep` with multiple args, a make target)."
 msgstr ""
 
@@ -6771,9 +6675,6 @@ msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termin
 msgstr "**Ủy nhiệm Dòng thẳng đứng:** Name `/cool/` con đường."
 
 # đường.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Ủy nhiệm Dòng thẳng đứng:** Name ``/cool/`` con
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
 msgstr ""
 
@@ -7375,9 +7276,6 @@ msgstr "**Chỉ có thêm gia công vào thôi.** A `<target>:` khối dịch v�
 # xác trợ cấp nhóm. Kể từ đó, một container không được khởi động lại phục hồi
 # chức năng đã phục hồi, kiểm tra chính xác sự kết nối mà không cần triển
 # khai.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Chỉ có khởi đầu đầu đầu không có nghĩa lý gì.** Các
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what `TOOL_SERVER_CONNECTIONS` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, `vars/main.yml` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
 msgstr ""
 
@@ -7390,9 +7288,6 @@ msgstr ""
 # với chính xác trợ cấp nhóm. Kể từ đó, một container không được khởi động lại
 # phục hồi chức năng đã phục hồi, kiểm tra chính xác sự kết nối mà không cần
 # triển khai.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Chỉ có khởi đầu đầu đầu không có nghĩa lý gì.** Các
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what ``TOOL_SERVER_CONNECTIONS`` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, ``vars/main.yml`` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
 msgstr ""
 
@@ -7851,9 +7746,6 @@ msgid "**Persona Integration:** Extends ``dev-core`` with Python-specific tools.
 msgstr "**Hợp nhất cá nhân:** Mở rộng ``dev-core`` với công cụ đặc trưng Python."
 
 # công cụ cụ cụ thể.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Hợp nhất cá nhân:** Mở rộng ``dev-core`` với những
 msgid "**Persona Integration:** Extends ``dev-core`` with embedded-specific tools."
 msgstr ""
 
@@ -7862,9 +7754,6 @@ msgid "**Persona Integration:** Extends `dev-core` with Python-specific tools."
 msgstr "**Hợp nhất cá nhân:** Mở rộng `dev-core` với công cụ đặc trưng Python."
 
 # công cụ cụ cụ thể.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Hợp nhất cá nhân:** Mở rộng `dev-core` với những
 msgid "**Persona Integration:** Extends `dev-core` with embedded-specific tools."
 msgstr ""
 
@@ -7911,16 +7800,10 @@ msgstr "**Bề mặt công cụ ép:** `files/mcp/tools.json` giữ các 24 Côn
 
 # Trình khách web từ một thẻ đính kèm do đó của nhà môi giới ``BSKY_STORAGE``
 # (Cười).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Ứng dụng khách theo dòng:** Xây dựng ``social-app``
 msgid "**Pinned upstream client:** Build the ``social-app`` web client from a pinned tag so the broker’s ``BSKY_STORAGE`` handoff stays in sync with the upstream persistence schema."
 msgstr ""
 
 # Trình khách web từ một thẻ đã gắn kết để nhà môi giới `BSKY_STORAGE` (Cười).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Ứng dụng khách theo dòng:** Xây dựng `social-app`
 msgid "**Pinned upstream client:** Build the `social-app` web client from a pinned tag so the broker's `BSKY_STORAGE` handoff stays in sync with the upstream persistence schema."
 msgstr ""
 
@@ -9395,9 +9278,6 @@ msgstr "**Xác nhận:** Thiếu `storage.nfs.server` Hoặc thất bại trong 
 # y hệt như trên mạng vậy. ([địa
 # chỉ](https://spec.torproject.org/address-spec). [RFC 7686
 # ♪2](https://www.rfc-editor.org/rfc/rfc7686.html))
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Phần phụ:** `sub.<addr>.onion` Đường tới **Tương
 msgid "**Subdomains:** `sub.<addr>.onion` routes to the **same** hidden service; the client sends the full `Host:` header → vhost routing works exactly like clearnet. ([address-spec](https://spec.torproject.org/address-spec), [RFC 7686 §2](https://www.rfc-editor.org/rfc/rfc7686.html))"
 msgstr ""
 
@@ -10120,9 +10000,6 @@ msgstr "**Chính sách công cụ hai lưỡi:** Trợ lý nhà cung cấp khôn
 
 # định định định định tuyến phải mất một lần vượt qua một bộ mã hóa, chứ không
 # phải hoàn thành.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Đánh máy câu trả lời, không thế hệ.** Một quyết định
 msgid "**Typed answers, no generation.** A routing decision costs one forward pass over an encoder, not a completion."
 msgstr ""
 
@@ -10716,9 +10593,6 @@ msgstr "**`default:` (Tùy chọn)** là chuỗi Jinja được sử dụng như
 # enable`/`workflow disable`/`repo delete`/`pr merge`/`issue transfer`)và biến
 # đổi `gh api` động từ (`DELETE`/`PUT`. secrets/keys/collaborators/merge các
 # đường).
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: **`deny`** (Ưu tiên 1): Những hình ảnh phá hủy cấu
 msgid "**`deny`** (precedence 1): structurally destructive shapes are blocked outright, even when sandboxed. Covers shell loops (`for`/`while`/`until`), cross-repo `git -C *`, force-push/reset/clean/amend, `rm -rf*`, `sudo*`, privileged `gh` verbs (`secret`/`ssh-key`/`gpg-key`/`variable`/`extension`/`workflow enable`/`workflow disable`/`repo delete`/`pr merge`/`issue transfer`), and mutating `gh api` verbs (`DELETE`/`PUT`, secrets/keys/collaborators/merge paths)."
 msgstr ""
 
@@ -10735,9 +10609,6 @@ msgstr "**`disable-onboarding`** đang ở `PENPOT_FLAGS` Vì vậy người dù
 # Mục tiêu (e.g. `make compose-exec`, hoặc mục tiêu cụ thể `Makefile` Hiển
 # thị)Nếu không `make` Mục tiêu bao gồm những gì bạn cần, yêu cầu nhà điều
 # hành thay vì rơi trở lại thô `docker exec`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **`docker exec` ( Anh ngữ) Tháng 4 ⛔** Bạn không bao
 msgid "**`docker exec` is FORBIDDEN. ⛔** You MUST NEVER invoke `docker exec` (nor nested `docker exec … docker exec …` into the DiD stack) directly. Always reach the live stack through `make` targets (e.g. `make compose-exec`, or the role-specific targets the `Makefile` exposes). If no `make` target covers what you need, ask the operator instead of falling back to raw `docker exec`."
 msgstr ""
 
@@ -10944,9 +10815,6 @@ msgstr "**Đang sao lưu** (thư mục) Phát hiện + phục hồi `nfs → vol
 # bại trong tính cách chung của quảng cáo (cố định trong b97cf8888) và biến
 # thể trên mạng trở về HTTP 500 vào get/api/v1/ Áp dụng/user, nguyên nhân vẫn
 # mở.
-# translation-refused: libretranslate protected-span lost=['1']
-# nocheck: url
-# translation-rejected: **Bỏ dạng cơ bản** - `web-app-fider` và
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
@@ -12008,9 +11876,6 @@ msgstr "**Mô tả**: Dịch vụ và đồng bộ giờ hệ thống cho các c
 msgid "**description**: Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
 msgstr "**Mô tả**: Bộ đếm thời gian hệ thống để bắt đầu dịch vụ trên lịch lặp lại cho việc tự động thực hiện nhiệm vụ"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Mô tả**: Dịch vụ dọn dẹp không tên bằng hệ thống
 msgid "**description**: Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr ""
 
@@ -12395,9 +12260,6 @@ msgstr "**Đã giải mã hệ thống** để tránh xung đột với cổng, 
 # lưu ý rằng hành e2♪ vốn đã mở rộng thói quen ♪ (×5 Thời hạn hành, mạch điện
 # đợi)Vì vậy, trong tình trạng tắc nghẽn những công việc này là những người
 # đầu tiên nhấn mũ.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **Công việc phát triển môi trường thử ra** - Tất cả 5
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
 msgstr ""
 
@@ -12415,9 +12277,6 @@ msgstr ""
 # tuyến): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + ".onion"`.
 # `CHECKSUM = SHA3-256(".onion checksum" ‖ PUBKEY ‖ VERSION)[:2]`. `VERSION =
 # 0x03`♪, PBUB = 32- byte ed25519 Ông chủ quán rượu.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: **v3 thuật toán địa chỉ** (Cần thiết cho việc ngoại
 msgid "**v3 address algorithm** (needed for offline mint): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, PUBKEY = 32-byte ed25519 master pubkey."
 msgstr ""
 
@@ -13454,9 +13313,6 @@ msgstr "-retry đếm; --retry-all-bales làm cho nó bao gồm vận chuyển-l
 
 # lost=['host.docker.internal'] gained=['vànghost.docker.internal']
 # thảo)
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: -> Tất5h vội vànghost.docker.internal:<port> (Soạn
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
 msgstr ""
 
@@ -14008,9 +13864,6 @@ msgid ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` otherwise."
 msgstr ":data:`utils.roles.mapping.ROLE_TYPE_TOOLING` Nếu không."
 
 # trần ♪ ``user`` vai trò và mọi ``user-<…>`` Anh em (Dựa vào tên);
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: :data:`utils.roles.mapping.ROLE_TYPE_USER` ♪ cho cái
 msgid ":data:`utils.roles.mapping.ROLE_TYPE_USER` for the bare ``user`` role and every ``user-<…>`` sibling (name-based);"
 msgstr ""
 
@@ -14377,9 +14230,6 @@ msgstr "A `v*` thẻ thúc đẩy fan hâm mộ vào hai dòng làm việc của
 # trong vai trò ma trận. Mỗi `mode=update` Phải mang theo `variant=<idx>`
 # (hàng 2). Mất tích `variant=` không bao giờ là lý do để chuyển sang
 # `mode=reinstall`.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Một cái trần ♪ `mode=update` không có `variant=`
 msgid "A bare `mode=update` without `variant=` on a matrix-variant role. Every `mode=update` MUST carry `variant=<idx>` (row 2). A missing `variant=` is never a reason to switch to `mode=reinstall`."
 msgstr ""
 
@@ -14397,9 +14247,6 @@ msgid "A bare run id resolves owner/repo from ``repo_override`` or the current g
 msgstr "Một bộ trình bày mã nhận diện trần ``repo_override`` hay là hiện tại."
 
 # trường hiện tại.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Name `<role>` hoàn thành thành thành công trong môi
 msgid "A baseline deploy for `<role>` completed successfully in the current environment."
 msgstr ""
 
@@ -14781,9 +14628,6 @@ msgstr "Một cơ sở hạ tầng đám mây có chủ quyền được thiết
 msgid "A gateway answering ``/languages`` with an empty catalogue counts as absent. It is a router: without a backend that names a language it can serve nothing, and treating the bare 200 as ready skips the deploy that would give it one, which is how a stale container survives a code change."
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "A gateway with no router alias loads no hook"
 msgstr ""
 
@@ -14811,9 +14655,6 @@ msgstr "Một máy chủ MCP toàn cầu sẽ gắn với động cơ chia sẻ;
 msgid "A good architecture is still usable on smaller machines."
 msgstr "Một kiến trúc tốt vẫn có thể sử dụng được trên những cỗ máy nhỏ hơn."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "A green local workspace run does not clear CI"
 msgstr ""
 
@@ -14876,9 +14717,6 @@ msgstr ""
 msgid "A host that cannot serve it"
 msgstr "Một vật chủ không thể phục vụ nó."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "A host that cannot serve the assigned kind"
 msgstr ""
 
@@ -14904,9 +14742,6 @@ msgstr "Một địa chỉ URL công việc thu hẹp việc tải xuống ứng
 # pull`` In ấn "Cập nhật đầy đủ" và thoát không bằng không)Cả hai đều được lục
 # soát, nên một người gọi đi qua việc giải mã và không cần biết chìa khóa nào
 # mang nó.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Một công việc được tính là thất bại khi nó chưa bao
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -15011,9 +14846,6 @@ msgid "A measured rate reaches `traits.speed`, and a declared one outranks it"
 msgstr "Name `traits.speed`.. và một tuyên bố cao cấp hơn nó"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "A message prepared for an HTML-mode translation request."
 msgstr ""
 
@@ -15149,9 +14981,6 @@ msgstr ""
 # thực không"hoặc "không có dấu hiệu quản trị UI" ( Anh ngữ) Tháng 4 Comment
 # (hỏng bản đồ OIDC, đã gỡ bỏ nút đăng xuất, cấu hình sai oauth2- Phi tiêu,
 # người chọn UI trôi dạt.) đằng sau một cuộc triển khai màu xanh lá cây.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Một kịch bản nhân cách sẽ thất bại to khi cuộc hành
 msgid "A persona scenario MUST fail loudly when its contracted journey cannot execute end-to-end. A silent `test.skip(...)` on runtime detection of \"no logout button\", \"no authenticated surface\", or \"no admin UI marker\" is FORBIDDEN. Silent skips hide real regressions (broken OIDC mapping, removed logout button, misconfigured oauth2-proxy, drifted UI selectors) behind a green deploy."
 msgstr ""
 
@@ -15583,9 +15412,6 @@ msgstr ""
 # được thực hiện bởi các phòng thử nghiệm tự động của dự án trên mỗi thay đổi,
 # và một thất bại thử nghiệm ngăn chặn việc phát hành. Những sân khấu bên
 # ngoài chiếc tàu May mà không có sự giám sát tự động.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Giá trị vòng đời của vai trò nằm trên một trục tuyến
 msgid "A role's lifecycle value sits on a single linear axis from `planned` (no code yet) to `eol` (end of life). A subset of stages is the **tested** envelope: roles in those stages MUST be exercised by the project's automated test suite on every change, and a failing test blocks the release. Stages outside that envelope MAY ship without automated coverage."
 msgstr ""
 
@@ -17365,9 +17191,6 @@ msgstr "Thu thập nhiều vai trò liên quan đến GNOME thành một tổ ch
 msgid "Aggregates the role groups from one or more [inventories/bundles/](../../../inventories/bundles/) entries into `apps` and runs the reinstall flow. Set `full_cycle=true` for the async update pass."
 msgstr "Thu nhóm các nhóm vai trò từ một hay nhiều [Phát minh/ thu nhỏ/](../../../inventories/bundles/) Mục vào `apps` và chạy lại quá trình cài đặt. Đặt `full_cycle=true` cho việc cập nhật định kỳ."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Aggressively pruned Docker artifacts between distro runs"
 msgstr ""
 
@@ -17841,9 +17664,6 @@ msgid "Allows a raw `Path.read_text` / `Path.read_bytes` call in `tests/lint/` o
 msgstr "Cho phép thô `Path.read_text` / `Path.read_bytes` gọi `tests/lint/` bên ngoài LRU-cached `utils.cache.files.read_text` Hợp đồng."
 
 # ♪ Hãy gọi bên ngoài ♪ `utils.cache.files.iter_project_files` Hợp đồng.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Cho phép thô `Path.rglob`. `os.walk`, hoặc `glob.glob`
 msgid "Allows a raw `Path.rglob`, `os.walk`, or `glob.glob` call outside the `utils.cache.files.iter_project_files` contract."
 msgstr ""
 
@@ -17951,9 +17771,6 @@ msgstr "Name"
 
 # dụng không thể thay đổi được được được đặt thành một biến số máy (như danh
 # sách).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Thay thế: Xây dựng một kho hàng nơi tất cả các ứng
 msgid "Alternative: Build an inventory where all invokable apps are set as a host variable (as a list)."
 msgstr ""
 
@@ -18075,9 +17892,6 @@ msgstr ""
 # gained=['"Comment"']
 # và chưa có ai được chữa trị. Năm người từng ngồi dưới "Comment" ở đây bởi vì
 # sự phục hồi đó không tìm thấy bề mặt được vận chuyển để tái tạo.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Một người thích nghi có thể đạt được những điều này,
 msgid "An adapter could reach these, and none has been curated yet. The five that used to sit under \"current MCP metadata requiring revalidation\" are here because that revalidation found no shipped surface to revalidate."
 msgstr ""
 
@@ -18287,9 +18101,6 @@ msgstr ""
 msgid "An omitted flag inherits the client's own declaration; only an explicit ``mcp_consumer: false`` excludes, so a deliberate exclusion is distinguishable from a forgotten entry."
 msgstr "Một lá cờ bị bỏ qua thừa hưởng lời khai của chính khách hàng, chỉ có điều rõ ràng ``mcp_consumer: false`` Loại trừ, vì vậy một người cố ý loại trừ có thể phân biệt với một lối vào bị lãng quên."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "An option the router never offered is refused"
 msgstr ""
 
@@ -18419,9 +18230,6 @@ msgstr "Mặc định khả năng (22)"
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr "Bổ sung lọc có khả năng lấy mã số ứng dụng."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Ansible filter plugin that safely joins URL components from a list."
 msgstr ""
 
@@ -19508,9 +19316,6 @@ msgid "Automated Email Alerts for Service Failures"
 msgstr "Comment"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Comment
 msgid "Automated Telegram Alerts for Service Failures"
 msgstr ""
 
@@ -19570,9 +19375,6 @@ msgstr "Tự động xử lý DOS thông qua ``sys-stk-front-base``"
 msgid "Automatic TLS handling via `sys-stk-front-base`"
 msgstr "Tự động xử lý DOS thông qua `sys-stk-front-base`"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Automatic certificate sync into the Compose project"
 msgstr ""
 
@@ -19733,9 +19535,6 @@ msgstr "Chặn hậu phương"
 msgid "Backends"
 msgstr ""
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: @ info/ rich.
 msgid "Backfills CI images for the version tag if missing, retags them to release tags, and publishes the version-specific image set."
 msgstr ""
 
@@ -20428,9 +20227,6 @@ msgstr ""
 # Fediver, và duy trì môi trường đọc riêng của họ. Là một quản trị viên, bạn
 # có thể cấu hình các công cụ điều độ, quy tắc nội dung, và các chính sách
 # liên kết để phù hợp với cộng đồng của bạn.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: BookWyrm cung cấp một mạng xã hội được liên kết cho
 msgid "BookWyrm provides a federated social network for books built on ActivityPub. Each instance can be private, invitation-only, or open for public registration. Users can import/export book lists, interact with others across the Fediverse, and maintain their own curated reading environment. As an admin, you can configure moderation tools, content rules, and federation policies to suit your community."
 msgstr ""
 
@@ -21455,9 +21251,6 @@ msgstr "CI được kích hoạt tự động trên sự kiện kéo và đẩy 
 msgid "CI on Tag Push 🤖"
 msgstr "Xoá nhóm 🤖"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "CI orchestration and coordination workflows"
 msgstr ""
 
@@ -22130,9 +21923,6 @@ msgstr "Danh tính trung tâm và hệ thống liên lạc an toàn được tri
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
 msgstr "Trung tâm nhớ lưu trữ động cơ mở khóa với sự cô lập chìa khóa một chiều, có thể sử dụng trung tâm hoặc như một chiếc xe phụ gắn kết"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr ""
 
@@ -22343,9 +22133,6 @@ msgstr "Kiểm tra nếu thế hệ DKIM làm việc trên các thiết lập m�
 
 # gained=['stlates/env.j2']
 # application_id }}/ stlates/env.j2
-# translation-refused: libretranslate protected-span lost=['env.j2']
-# nocheck: url
-# translation-rejected: Kiểm tra nếu env.j2 tồn tại dưới vai trò/{{
 msgid "Check if env.j2 exists under roles/{{ application_id }}/templates/env.j2"
 msgstr ""
 
@@ -24262,9 +24049,6 @@ msgid "Config model"
 msgstr "Mô hình cấu hình"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Name
 msgid "Configurable container image and version"
 msgstr ""
 
@@ -24615,9 +24399,6 @@ msgstr "Ngăn cản đối tượng người dùng"
 msgid "Container half"
 msgstr "Ngăn chứa"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr ""
 
@@ -24655,9 +24436,6 @@ msgstr "Kiểu vai trò ngăn chặn dịch vụ (Xe phụ soạn, `meta/service
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
 msgstr ""
 
@@ -25637,9 +25415,6 @@ msgstr "Khóa dịch vụ DB dưới vai diễn ``meta/services.yml``."
 msgid "DB-provider services are exempt from that pruning: the dep walk applies the same force-shared view as ``utils.tests.swarm.force_shared_db``."
 msgstr "Dịch vụ DB-provider được miễn cắt tỉa đó: đi bộ dep áp dụng cùng một lực lượng xem như ``utils.tests.swarm.force_shared_db``."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (Tiếng Tây Ban Nha) (tắt cả năm).
 msgid "DEFAULT: yes (disable all five)."
 msgstr ""
 
@@ -25964,9 +25739,6 @@ msgid "Decidim's base image does not include an OpenID Connect OmniAuth strategy
 msgstr "Ảnh cơ bản của Decidim không bao gồm chiến lược OpenID kết nối OmniAuth. Vai trò này xây dựng một ảnh tự chọn:"
 
 # kết nối OmniAuth. Vai trò này xây dựng một ảnh tự chọn:
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Ảnh cơ bản của Decidim không bao gồm chiến lược OpenID
 msgid "Decidim’s base image does not include an OpenID Connect OmniAuth strategy. This role builds a custom image that:"
 msgstr ""
 
@@ -26286,9 +26058,6 @@ msgid "Defines the service, volume, environment, port, and network wiring."
 msgstr "Định nghĩa dịch vụ, âm lượng, môi trường, cổng và mạng lưới."
 
 # của lẽ thật.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Định nghĩa các biến cố cố cố định chung là nguồn chính
 msgid "Defines the shared fixed role variables as the main source of truth."
 msgstr ""
 
@@ -26362,9 +26131,6 @@ msgstr ""
 msgid "Delete the old user via the admin UI"
 msgstr "Xoá người dùng cũ qua admin UI"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Xoá( delete) `true`.
 msgid "Delete the variable or change its value to anything other than `true`."
 msgstr ""
 
@@ -26531,9 +26297,6 @@ msgstr "Triển khai mục nhập"
 # cuộc chạy đã có trước các tên hiển thị cũng giải mã được. Dàn nhạc đã chuẩn
 # bị "người gọi / " Tiền tố và hậu tố mảnh vỡ (e.g. " 0,1") Đi dọc theo trong
 # tên hiển thị; cả hai đều được dung túng.
-# translation-refused: libretranslate protected-span lost=['{', '}']
-# nocheck: url
-# translation-rejected: Triển khai công việc được khớp với compose/swarm/host
 #, python-brace-format
 msgid "Deploy jobs are matched by the compose/swarm/host glyph (from the symbol glossary, the single source of truth) their test-deploy-{compose,swarm,host}.yml matrix titles them with -- NOT the words \"Compose\"/\"Swarm\"/\"Host\", which no real job carries (matching those made ``--failed swarm`` silently find nothing). What follows the glyph is the role's display name (``utils.roles.display``), decoded back to the role id; a bare role id from a run that predates the display names decodes just as well. The orchestrator prepends a \"caller / \" prefix and the shard suffix (e.g. \" 0,1\") rides along in the display name; both are tolerated."
 msgstr ""
@@ -26633,9 +26396,6 @@ msgstr "Ngoại lệ triển khai ⚠️"
 msgid "Deployment Modes 🚢"
 msgstr "Chế độ triển khai 🚢"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Chế độ triển khai (Quyết định11♪12♪13)
 msgid "Deployment modes (Decisions #11, #12, #13)"
 msgstr ""
 
@@ -27545,9 +27305,6 @@ msgstr "Do **không phải** Chỉ cần đổi tên thư mục thư điện t�
 msgid "Do NOT break native login, logout, navigation, or form flows unless the role explicitly requires that change and the new behavior is verified end to end."
 msgstr "KHÔNG phá vỡ việc đăng nhập, đăng nhập, định vị hoặc hình thức di chuyển, trừ khi vai trò đòi hỏi rõ ràng sự thay đổi và hành vi mới được kiểm tra kết thúc."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: KHÔNG.
 msgid "Do NOT document patterns or extension points that do not exist in the code."
 msgstr ""
 
@@ -27818,9 +27575,6 @@ msgstr "Bác sĩ: `External Authentication <https://docs.bigbluebutton.org/green
 msgid "Document"
 msgstr "Tài liệu"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Document any plugin-specific task arguments in the plugin docstring and README."
 msgstr ""
 
@@ -29037,9 +28791,6 @@ msgstr "Comment"
 # gained=['{Name}']
 # ma trận biến dạng 0 và 1; v2 cũng vượt qua Playwright cho bốn vai trò mục
 # tiêu (Name **KC_HOSTNAME**- làm việc lang thang, quan tâm riêng).
-# translation-refused: libretranslate protected-span lost=['{', '}']
-# nocheck: url
-# translation-rejected: Kết thúc để kết thúc chống lại *web-app-{Name}* trong
 #, python-brace-format
 msgid "End-to-end against *web-app-{keycloak,nextcloud,bookwyrm,gitea,friendica,dashboard}* in matrix variants 0 and 1; v2 also passes Playwright for the four target roles (modulo a pre-existing **KC_HOSTNAME**-drift workaround, separate concern)."
 msgstr ""
@@ -29144,9 +28895,6 @@ msgstr "Bảo đảm rằng các dịch vụ và ứng dụng hệ thống có t
 
 # luôn luôn gửi thông báo (Kiểm tra sức khỏe, cảnh báo, kết quả công việc)
 # Không có mỗi vai trò phải quan tâm đến hệ thống đường ống thư ngầm.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Bảo đảm rằng các dịch vụ và ứng dụng hệ thống có thể
 msgid "Ensure that system services and applications can always send notifications (e.g. health checks, alerts, job results) without each role having to care about the underlying mail plumbing."
 msgstr ""
 
@@ -29167,9 +28915,6 @@ msgid "Ensured reliable Mailu initialization by waiting for database schema read
 msgstr "Bảo đảm là đáng tin cậy Mailu Khởi tạo bằng cách đợi cơ sở dữ liệu sẵn sàng"
 
 # trước
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Bảo đảm kho phần mềm tồn tại tại tại tại đích đã cho
 msgid "Ensures a repository exists at a given destination"
 msgstr ""
 
@@ -29655,9 +29400,6 @@ msgstr "Mỗi khách hàng đều có chìa khóa riêng và điều hành hợp
 # Vai trò cung cấp oxy, hay di sản *oidc* / *Oauth2* Tên dịch vụ trợ giúp phát
 # âm phải di chuyển đến Hợp nhất **sso** hình dáng. Toàn bộ kế hoạch và quyết
 # định được lưu trữ dưới phục hồi 21.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Mỗi người tiêu dùng của di sản Oauth2 / oidc dịch vụ
 msgid "Every consumer of the legacy oauth2 / oidc service sub-trees, the **OAUTH2_PROXY_\\*** env / Jinja vars, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, the dedicated oauth2-proxy provider role, or the legacy *oidc* / *oauth2* Playwright gating helper service names must migrate to the unified **sso** shape. Full plan and decisions are archived under req 21."
 msgstr ""
 
@@ -29767,9 +29509,6 @@ msgstr "Mỗi vai trò không thể thay đổi trong phong bì đời sống th
 
 # năng :func:`override_key` Xây dựng; một hình thức ngắn bị từ chối thay vì
 # đoán, bởi vì cùng một tên khóa ngắn khác nhau trên các ứng dụng khác nhau.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Mỗi phím cần phải được các hình thức đầy đủ đủ đủ khả
 msgid "Every key MUST be the fully qualified form :func:`override_key` builds; a short form is rejected rather than guessed at, because the same short key names different credentials on different apps."
 msgstr ""
 
@@ -30177,9 +29916,6 @@ msgstr "Ví dụ: `web-svc-cdn` Đóng cửa"
 # lost=['web-app-friendica/meta/services.yml'] gained=['Services.yml']
 # [web-app-friendica/meta/
 # Services.yml](../../roles/web-app-friendica/meta/services.yml) Đã tuyên bố:
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Ví dụ: `ldapauth` Cộng thêm trên yêu cầu rằng
 msgid "Example: the `ldapauth` addon above requires that [web-app-friendica/meta/services.yml](../../roles/web-app-friendica/meta/services.yml) already declares:"
 msgstr ""
 
@@ -30707,9 +30443,6 @@ msgstr "Rút ra ``owner/repo`` Từ một viên đạn github.com URL (Comment).
 msgid "Extracted Code 📤"
 msgstr "Đã lấy ra Code 📤"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Extracted cleanup logic into a dedicated script"
 msgstr ""
 
@@ -31797,9 +31530,6 @@ msgstr "Cho bất kỳ lệnh không liên quan (Kiểm tra chạy, triển khai
 # nhưng `Bash(*)` bây giờ là cổng chính, do đó, vỏ hình dạng hộp cát khám phá
 # sử dụng để giảm ((Tiếng Tây Ban Nha) `&&`/`|` đa ngôn ngữ, chuyển hướng)
 # Không cần phải chia sẻ thêm nữa.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Với Bash, lá bài cho phép vào `Bash(*)` Tự động cho
 msgid "For Bash specifically, the wildcard allow entry `Bash(*)` auto-allows every invocation that does not match a `deny` or `ask` rule. The legacy `sandbox.autoAllowBashIfSandboxed: true` flag remains enabled as defence-in-depth, but the `Bash(*)` entry is now the primary gate, so shell shapes the sandbox heuristic used to decline (env-prefixes, `&&`/`|` chains, quoted multi-word args, redirections) no longer need per-shape allow entries."
 msgstr ""
 
@@ -32650,9 +32380,6 @@ msgstr "Vai trò"
 # không `oauth2-proxy` Xe phụ. Do đó vai trò sử dụng `services.sso.flavor:
 # oidc` Giản đồ (Sau đó...[021](README.md#archive) Hợp đồng SSO), liên kết với
 # [`web-app-odoo`](../../roles/web-app-odoo/meta/services.yml).
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Name 2.0 / Hỗ trợ trình khách kết nối OpenID thông qua
 msgid "Frappe ships native OAuth 2.0 / OpenID Connect client support via the built-in **\"Social Login Key\"** record (see [Frappe docs: Social Login Key](https://docs.frappe.io/framework/user/en/guides/integration/social_login_key)). The integration uses Frappe's own OIDC client against the Infinito Keycloak IdP — no `oauth2-proxy` sidecar. The role therefore uses the `services.sso.flavor: oidc` schema (post-[021](README.md#archive) unified SSO contract), aligned with [`web-app-odoo`](../../roles/web-app-odoo/meta/services.yml)."
 msgstr ""
 
@@ -32807,9 +32534,6 @@ msgstr "Dòng chảy lặp lại toàn phụ nữ"
 msgid "Fully idempotent (safe to run multiple times)"
 msgstr "Quyền hạn hoàn toàn (an toàn để chạy nhiều lần)"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Comment
 msgid "Functional email system for Greenlight SMTP"
 msgstr ""
 
@@ -32901,9 +32625,6 @@ msgstr "GITHUB_ACTIONS= True và không phải ACT -> hành động thực tế 
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYThật']
 # thường, bắt nguồn từ GITHUB_REPOSITORY_OWNER / Thợ đóng tàu /
 # GITHUB_REPOSITORYThật đáng thương nếu không thể giải quyết trên kênh GHA.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: chủ sở hữu kho gHA chữ
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -33222,9 +32943,6 @@ msgstr "GitHub i18Trợ giúp n 🌐"
 msgid "GitHub lists its hosted images in the runner-images README; the newest x64 Ubuntu label whose image carries no preview or beta badge is the target."
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "GitHub user or org the runners register with."
 msgstr ""
 
@@ -33646,9 +33364,6 @@ msgstr "Những đoạn mã khó giải thích thường che giấu những khuy
 msgid "Hardened *baserow* by pinning the image version to *2.1.6* **Fixed**"
 msgstr "Cứng *nền* bằng cách xoay phiên bản ảnh thành *2.1.6* **Cố định**"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Hardened CA override generator and correct execution order"
 msgstr ""
 
@@ -34135,9 +33850,6 @@ msgstr "Cách nó hoạt động"
 msgid "How many annotations were dropped."
 msgstr "Bao nhiêu chú thích đã được bỏ xuống."
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Bao nhiêu lần quét ♪
 msgid "How many chunks a sweep spends"
 msgstr ""
 
@@ -34221,9 +33933,6 @@ msgstr "Cách sử dụng"
 msgid "How to use 🧭"
 msgstr "Cách sử dụng 🧭"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Hugging Face repository those flavors download at build time"
 msgstr ""
 
@@ -34292,9 +34001,6 @@ msgstr "INFINITO_CACHE_HTTP_HOSTS: các tên máy phục vụ giao diện điề
 # gained=['host_pathTên']
 # mỗi chủ Nexus admin mật khẩu: sha256(host_pathTên máy), Bị trói buộc 32 hex
 # Charless.
-# translation-refused: libretranslate protected-span lost=['host_path']
-# nocheck: url
-# translation-rejected: INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: ổn định trên
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
 msgstr ""
 
@@ -34324,9 +34030,6 @@ msgstr "INFINITO_CACHE_REGISTRY_MAX_SIZE: Mũ mềm đăng nhập (Nửa đĩa m
 msgid "INFINITO_CACHE_STACK: whether the pull-through cache stack should run."
 msgstr "INFINITO_CACHE_STACK: liệu đống bộ nhớ tạm có nên chạy hay không."
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: INFINITO_CACHE_TLS_HOSTS: tên máy.
 msgid "INFINITO_CACHE_TLS_HOSTS: the hostnames the package-cache frontend needs a leaf certificate for, being those its cache: declarations serve over HTTPS."
 msgstr ""
 
@@ -34461,9 +34164,6 @@ msgstr "INFINITO_SWARM_NFS_EXPORT_BASE: cơ sở xuất NFS bên trong toa bên 
 
 # NFS để thử ra trạng thái hành động, bắt nguồn từ mã nguồn gốc gốc gốc xuất
 # khẩu (INFINITO_SWARM_NFS_EXPORT_BASE) và hằng số tiểu bang chung.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: INFINITO_SWARM_NFS_STATE_PATH: tập hợp dir trạng thái
 msgid "INFINITO_SWARM_NFS_STATE_PATH: cluster-shared NFS state dir for the act-swarm test harness, derived from the export-base SPOT (INFINITO_SWARM_NFS_EXPORT_BASE) and the shared state subdir constant."
 msgstr ""
 
@@ -34711,9 +34411,6 @@ msgstr "Nếu một tiêu chuẩn là mơ hồ, bạn phải yêu cầu người
 
 # không khí đầy đủ, vai trò có thể được mở rộng để sử dụng một tập lệnh cài
 # đặt đã cung cấp cục bộ với một tổng kiểm tra đã đóng.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Nếu cần thiết thiết thiết lập tắt máy hoặc cấu hình
 msgid "If a fully offline or air-gapped setup is required, the role can be extended to use a locally vendored installer script with a pinned checksum."
 msgstr ""
 
@@ -34745,9 +34442,6 @@ msgstr "Nếu một vai trò không thể trả lời những câu hỏi này, c
 # phải ở lại trong `meta/services.yml` và không nên được liệt kê trong bổ sung
 # `bridges:`(Tiếng Ý)2- Có oxy ngược `sso` Dịch vụ như một cổng trước cửa.
 # `ldapauth`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Nếu một vai trò sử dụng dịch vụ khác xung quanh ứng
 msgid "If a role uses another service around the application but the addon does not talk to that service directly, the service MUST stay in `meta/services.yml` and MUST NOT be listed in the addon's `bridges:`. Friendica's oauth2-proxy-backed `sso` service is such a front-door auth gate for `ldapauth`."
 msgstr ""
 
@@ -35391,9 +35085,6 @@ msgstr "Thi hành giản đồ"
 msgid "Implement the smallest end-to-end server plus client slice, preferably `web-app-baserow` to `web-app-openwebui` (pinning Open WebUI to an MCP-capable tag and adding the `mcp` variant axis)."
 msgstr "Thực hiện các máy chủ nhỏ nhất để kết thúc cộng với lát khách hàng, tốt hơn `web-app-baserow` phải `web-app-openwebui` (Quay Open WebUI một thẻ MCP có thể chạy và thêm `mcp` trục biến)."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Comment
 msgid "Implement working logout for all applications"
 msgstr ""
 
@@ -35694,18 +35385,12 @@ msgstr "Trong bao vây chế độ `restart:` Khóa dịch vụ cấp cao bị b
 # mãn bầu trời ♪2- Không. LAM bản thân đã ký ra, vì vậy các nhân vật đất trở
 # lại trên LAMĐơn đăng nhập của chính mình và không tìm thấy điều khiển đăng
 # xuất ở đó.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Trong biến thể SSO có thể Keycloak ♪ Chuyến đi thỏa
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM's own login form and finds no logout control there."
 msgstr ""
 
 # mãn bầu trời ♪2- Không. LAM bản thân đã ký ra, vì vậy các nhân vật đất trở
 # lại trên LAMĐơn đăng nhập của chính mình và không tìm thấy bảng điều khiển ở
 # đó.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Trong biến thể SSO có thể Keycloak ♪ Chuyến đi thỏa
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM’s own login form and finds no logout control there."
 msgstr ""
 
@@ -36666,9 +36351,6 @@ msgid "Install the plugin into the running Nextcloud container."
 msgstr "Cài đặt bổ sung vào khi chạy Nextcloud container."
 
 # Nên mọi môi trường đều trùng khớp.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Cài đặt phiên bản ghi lưu lưu lưu lại pyproject.toml
 msgid "Install the ruff version pinned in pyproject.toml so every environment matches."
 msgstr ""
 
@@ -37251,9 +36933,6 @@ msgstr "Intel VA-API Trình điều khiển phương tiện cho phép giải mã
 msgid "Interaction Rules 💬"
 msgstr "Quy tắc giao tiếp 💬"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name 🧬
 msgid "Interaction between the three inclusion mechanisms 🧬"
 msgstr ""
 
@@ -38373,9 +38052,6 @@ msgstr "Name `groups` Phạm vi ứng dụng khách 🎫"
 # vào hồ sơ vai trò Frappe vẫn đòi hỏi một ứng dụng Frappe vận chuyển
 # `hooks.py` `on_session_creation` Gọi lại — đó là **Tạm hoãn theo yêu cầu
 # tiếp theo**.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Name ERPNext sơ đồ điểm ảnh đích:
 msgid "Keycloak group → ERPNext role mapping target tiers: `roles/web-app-erpnext/administrator` → Frappe `System Manager`, `roles/web-app-erpnext/manager` → Frappe `Sales User` + `Purchase User` + `Stock User` + `Accounts User`, default → Frappe `Customer`. **v1 scope split:** the path-to-roles map is persisted at deploy time by `apply/oidc_settings.py` (writes JSON to `frappe.db.set_default(\"erpnext_oidc_group_role_map\", …)`). Per-login reconciliation into Frappe role records still requires a custom Frappe app shipping a `hooks.py` `on_session_creation` callback — that piece is **deferred to a follow-up requirement**."
 msgstr ""
 
@@ -39433,9 +39109,6 @@ msgstr "Địa điểm 📁"
 msgid "Location: under [`cli/administration/inventory/`](../../cli/administration/inventory/), integrated with `credentials/{emit,vault}.py`; runs automatically during inventory build when `svc-net-tor` is in the target groups."
 msgstr "Địa điểm: [`cli/administration/inventory/`](../../cli/administration/inventory/), hợp nhất với `credentials/{emit,vault}.py`; chạy tự động trong khi cất giữ khi `svc-net-tor` nằm trong nhóm mục tiêu."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Lock the session when on AC power or docked"
 msgstr ""
 
@@ -40112,9 +39785,6 @@ msgstr "Bảo trì, phụ thuộc và cập nhật quá nhiều (nămcl. chi nh�
 
 # lost=['proxy_hide_header'] gained=['Tạoproxy_hide_header']
 # more_header lựa chọn.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Tạoproxy_hide_header Tùy chọn nội dung- policy bằng
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -41379,9 +41049,6 @@ msgstr "Gắn kết bản dịch `saml.config.php` in `compose.yml.j2` (Tương 
 msgid "Mounted logo set"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Mounts NGINX configuration and Let’s Encrypt directories"
 msgstr ""
 
@@ -41400,9 +41067,6 @@ msgstr "Chuyển init_database.yml một vai trò riêng"
 msgid "Move the existing compose-flavor tasks + templates into the new `flavor/compose/` subdirectories without behavior change; add a flavor dispatch in `tasks/main.yml`."
 msgstr "Chuyển các tác vụ đã soạn thảo- mà đã có vào mẫu mới `flavor/compose/` Các thư mục con không thay đổi hành vi; thêm một thông tin hương vị vào `tasks/main.yml`."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
 msgstr ""
 
@@ -41699,9 +41363,6 @@ msgstr "Cho biết tên của công cụ đang chạy gắn kết một khối l
 msgid "Name the services a ``docker stack deploy`` run reported acting on."
 msgstr "Tên dịch vụ là ``docker stack deploy`` chạy báo cáo hành động."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Named list, search, and get tools for the application's primary records"
 msgstr ""
 
@@ -41871,9 +41532,6 @@ msgstr "Quản lý mạng"
 msgid "Network Tests 🕸️"
 msgstr "Thử mạng 🕸️"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Network and dependency handling via shared system roles"
 msgstr ""
 
@@ -42324,9 +41982,6 @@ msgstr "Không có nguồn nào khác được tham khảo ý kiến."
 
 # cung cấp có khả năng tồn tại tại tại tại các đầu kim hiện tại, vì vậy mỗi
 # nhà cung cấp tuyên bố `auth_subject: service_account`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Không có cặp một khách hàng có khả năng và một nhà
 msgid "No pair of a capable client and a capable provider exists at the current pins, so every provider declares `auth_subject: service_account`."
 msgstr ""
 
@@ -42403,9 +42058,6 @@ msgstr "Name3 Danh tính củ hành cho bộ giáp."
 # tố được áp dụng ở đây để tên máy tương ứng với các thùng chứa. ♪ The env
 # get() giữ SWARM_NAME Nhập- an toàn; chính() Thực thi nó trong thời gian
 # chạy.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Tên cơ sở nút là SPOT in default.env (được chia sẻ
 msgid "Node base names are the SPOT in default.env (shared with scripts/tests/deploy/swarm/utils/topology/base.sh); only the SWARM_NAME prefix is applied here so host names match the containers. The env get() keeps SWARM_NAME import-safe; main() enforces it at run time."
 msgstr ""
 
@@ -42574,9 +42226,6 @@ msgstr ""
 msgid "Nothing recorded that cost, so the choice used to be made by assertion. Deploy job titles carry the whole row (:func:`utils.github.variant.axes.parse_label`) and the API gives every job a start and an end, so the cost per axis value is read back off the runs that already happened."
 msgstr "Không có ghi lại chi phí đó, vì vậy sự lựa chọn đã được thực hiện bởi khẳng định. Triển khai tựa công việc mang cả hàng (:func:`utils.github.variant.axes.parse_label`) và API cung cấp cho mỗi công việc một khởi đầu và một kết thúc, vì vậy chi phí mỗi giá trị trục được đọc ngược lại những gì đã xảy ra."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Notifies NGINX to restart after removing configurations."
 msgstr ""
 
@@ -43017,9 +42666,6 @@ msgstr "Trên các nền tảng mà các gói di truyền được biết đến
 # là vấn đề (e.g. Arch Linux ARM), đóng vai trò cố tình tránh gói hệ thống và
 # quay trở lại với bộ cài đặt chính thức để đảm bảo việc cài đặt Nix hoạt động
 # và cập nhật.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Trên các nền tảng mà các gói di truyền được biết đến
 msgid "On platforms where distro packages are known to be problematic (e.g. Arch Linux ARM), the role deliberately avoids the system package and falls back to the official installer to ensure a working and up-to-date Nix installation."
 msgstr ""
 
@@ -45079,9 +44725,6 @@ msgid "Per-app overrides MUST be applied after global resolution completes so th
 msgstr "Các quyền ghi đè phải được áp dụng sau khi giải quyết toàn cầu hoàn tất để một phím vượt quá bị chiếm hữu giành chiến thắng trên cả hình thức hàng tồn kho và các lỗi tính toán."
 
 # `meta/variants.yml` vào. Dây Jinja được bảo quản nguyên văn.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Nạp đơn `meta/services.yml` ♪ Một vòng tròn sâu ♪
 msgid "Per-app payload = `meta/services.yml` deep-merged with the round's `meta/variants.yml` entry. Jinja strings are preserved verbatim."
 msgstr ""
 
@@ -45334,9 +44977,6 @@ msgstr "Quyền hạn"
 msgid "Permission Model 🔐"
 msgstr "Mô hình quyền hạn 🔐"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name 📢
 msgid "Permission State Announcement at Session Start 📢"
 msgstr ""
 
@@ -45572,9 +45212,6 @@ msgstr "Comment ***pkgmgr*** nhân bản tới ***ổn định*** Để triển 
 msgid "Pinned Ansible collection versions in ``requirements/``."
 msgstr "Name ``requirements/``."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Pinned Docker GitHub Actions used in release image workflows to commit SHAs"
 msgstr ""
 
@@ -45944,9 +45581,6 @@ msgid "Port Management 🌐"
 msgstr "Quản lý cổng 🌐"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Name
 msgid "Port resolved through the ports registry"
 msgstr ""
 
@@ -45981,9 +45615,6 @@ msgstr "Vị trí ngữ pháp là một tiêu chuẩn và được liệt kê tr
 msgid "Position semantics 📍"
 msgstr "Vị trí ngữ pháp 📍"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Possible via an upstream plugin/extension"
 msgstr ""
 
@@ -46029,9 +45660,6 @@ msgstr "Thư mục dữ liệu PostgreSQL là **không tương thích với phi�
 msgid "PostgreSQL database (MySQL/MariaDB not supported since Mattermost v8+)"
 msgstr "Cơ sở dữ liệu PostgreSQL (MyQL/MariaDB không hỗ trợ kể từ khi Mattermost v8+)"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: @ info/ rich
 msgid "PostgreSQL database via the shared platform instance"
 msgstr ""
 
@@ -46371,9 +45999,6 @@ msgstr ""
 # gained=['APP_IDThuốc']
 # nên ``--include`` Vì vậy, kết quả kiểm kê có tất cả các nhóm APP_IDThuốc
 # giảm đau sẽ cần ở thời gian triển khai.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
-# nocheck: url
-# translation-rejected: In, một trong mỗi dòng, vai trò ID các cung cấp CLI
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -46492,9 +46117,6 @@ msgstr "Quản lý dự án với tấm ván Kanban, biểu đồ Gantt, và th�
 msgid "Project-internal descriptive metadata (icon, upstream homepage, demo video, dashboard display flag) lives in an OPTIONAL `meta/info.yml`, not nested inside `galaxy_info:`. The file-root convention applies: there is no wrapping `info:` key, and the file content IS `applications.<role>.info`."
 msgstr "Comment (biểu tượng, trang chủ ngược dòng, phim demo, cờ hiển thị bảng điều khiển) Sống trong môi trường sống `meta/info.yml`, không phải làm tổ bên trong `galaxy_info:`. hội nghị tập tin gốc được áp dụng: không có gói `info:` Phím, và nội dung tập tin là `applications.<role>.info`."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Project-local plugin namespace for Python imports in tests and tooling."
 msgstr ""
 
@@ -47402,9 +47024,6 @@ msgstr ""
 # thiết một sự hạn chế vị trí cho bất kỳ âm lượng không phải là NFS nào theo
 # đàn, vì vậy dữ liệu không thể bị mất khi sắp xếp lại lịch. Cùng hình dạng
 # [`svc-db-postgres`](../../roles/svc-db-postgres/) và các động cơ khác.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Cửa hàng của Raft's BoltDB là mmap + `fsync` dựa trên
 msgid "Raft's BoltDB store is mmap + `fsync` based, so it hits exactly the locking and `fsync` semantics that keep the database engines off NFS. The deployment-modes volume model requires a placement constraint for any non-NFS volume under swarm, so the data cannot be lost on a reschedule. Same shape as [`svc-db-postgres`](../../roles/svc-db-postgres/) and the other engines."
 msgstr ""
 
@@ -47480,9 +47099,6 @@ msgstr "Nâng lên"
 
 # '<b>']
 # thần mem_limit (MB) <b>Silence:</b> min_mb.
-# translation-refused: libretranslate added-span lost=[] gained=['</b>',
-# nocheck: url
-# translation-rejected: Tăng khả năng trả thù nếu mem_limit bị mất tích/vô
 msgid "Raises AnsibleError if mem_limit is missing/invalid OR if mem_limit (MB) < min_mb."
 msgstr ""
 
@@ -47961,9 +47577,6 @@ msgstr ""
 # lost=['svc-storage-nfs-server/meta/services.yml.'] gained=['Services.yml']
 # hương vị tự nó được tuyên bố trong svc-storage-nfs-server/meta/
 # Services.yml.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Đọc các âm thanh trộn lẫn qua tìm kiếm('config');
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -48032,9 +47645,6 @@ msgstr "Xây dựng lại hàng tồn kho cục bộ và giữ thời gian chạ
 # vào default.envvà đặt tất cả các thời gian chạy dưới `INFINITO_` Miền tên
 # (BUILDKIT_ENABLED. OUTER_NETWORK_MTU Được phát hiện tự động từ tuyến đường
 # máy, CONTAINER_CA_ENABLED, và các ghi đè ảnh/ đường dẫn)
-# translation-refused: libretranslate protected-span lost=['default.env']
-# nocheck: url
-# translation-rejected: Xây dựng lại đường ống dẫn máu xung quanh một SPOT
 msgid "Rebuilt the env pipeline around a SPOT default.env at the repository root, retired the env/ subtree and the env.development marker, folded ci.env into default.env, and put every runtime knob under the `INFINITO_` namespace (BUILDKIT_ENABLED, OUTER_NETWORK_MTU auto-detected from the host route, CONTAINER_CA_ENABLED, and the path/image overrides)"
 msgstr ""
 
@@ -48171,9 +47781,6 @@ msgstr "Sự giải quyết đệ quy bao gồm sự hạn chế."
 # gained=["'ANSIBLE_VAULT'"]
 # '$'ANSIBLE_VAULT'trong một cổng vòm Salar vì vậy nó thải ra như một khối
 # theo nghĩa đen.
-# translation-refused: libretranslate protected-span lost=['ANSIBLE_VAULT']
-# nocheck: url
-# translation-rejected: Hãy gói lại bất cứ cái gì bắt đầu với
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
 msgstr ""
 
@@ -48324,9 +47931,6 @@ msgstr "Cấu trúc, thiết lập và triển khai lại các luồng công vi�
 msgid "Refactored fork PR image handling to safely build, mirror, and validate CI images for external contributions"
 msgstr "Công cụ xử lý hình ảnh PR được sửa chữa bằng nĩa để xây dựng, phản chiếu và xác thực hình ảnh CN cho sự đóng góp bên ngoài"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Refactored internal task structure for clearer execution flow"
 msgstr ""
 
@@ -48470,9 +48074,6 @@ msgstr "Đã đăng ký chuyển đổi URI cho mỗi người dùng SSO, mỗi 
 
 # gained=['{Name}']
 # Fediwall Bộ tổng hợp
-# translation-refused: libretranslate protected-span lost=['{', '}']
-# nocheck: url
-# translation-rejected: Đã đăng ký web-app-{Name} là dịch vụ chung cho
 #, python-brace-format
 msgid "Registered web-app-{mastodon,friendica,pixelfed} as shared services for the Fediwall aggregator"
 msgstr ""
@@ -48550,9 +48151,6 @@ msgid "Rejects the call unconditionally, even if `allow` would otherwise match."
 msgstr "Từ chối cuộc gọi vô điều kiện, ngay cả khi `allow` Nếu không sẽ phù hợp."
 
 # meta/main.yml: phụ thuộc vào thực đơn. 'run_after' (Tiếng Tây Ban Nha).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Rekursiv werden nur include_role. import_role und
 msgid "Rekursiv werden nur include_role, import_role und meta/main.yml:dependencies verfolgt. 'run_after' wird hier absichtlich ignoriert."
 msgstr ""
 
@@ -48939,9 +48537,6 @@ msgstr "Gỡ bỏ bộ nhớ tạm công cụ và ngôn ngữ (ống, npm, len, 
 msgid "Removes nginx and self-signed CA state inside the container."
 msgstr "Loại bỏ nginx và trạng thái CA tự ký kết bên trong container."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Bỏ.
 msgid "Removes nginx config and self-signed CA state in the running container."
 msgstr ""
 
@@ -49666,9 +49261,6 @@ msgstr "Độ phân giải 🔗"
 
 # gained=['APP_IDQuá']
 # những biến thể hoạt động.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
-# nocheck: url
-# translation-rejected: Giải quyết APP_IDQuá trình vận chuyển bao gồm dưới
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -49757,9 +49349,6 @@ msgstr "Giải quyết các cấu hình đường dẫn nginx và một đườn
 msgid "Resolve one host-resource value, measured and computed in one place."
 msgstr "Giải quyết một giá trị mã nguồn máy, đo và tính toán ở một nơi."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Resolve postgres-extension library install recipes."
 msgstr ""
 
@@ -49986,9 +49575,6 @@ msgstr "Phục hồi cơ sở dữ liệu bằng ``--databases`` Chế độ tr�
 msgid "Restored Ansible task timing and profiling output Re-enabled timer and profile_tasks via callbacks_enabled, restoring runtime visibility with YAML output."
 msgstr "Phục hồi thời gian công việc có khả năng phục hồi và phân tích kết xuất tái sử dụng đồng hồ hẹn giờ và profile_tasks qua callbacks_enabled, Đang khôi phục tầm nhìn thời gian chạy với kết xuất YML."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Restored DB seed enablement semantics without bool-coercion warning"
 msgstr ""
 
@@ -50010,9 +49596,6 @@ msgstr "Phục hồi chức năng Debian xây dựng vi tính, thỏa mãn các 
 # kiểm tra đánh dấu dưới khối acl mà họ mô tả, và cuộn lên phụ thuộc một khối
 # (hành động/ bộ nhớ tạm 4teppi825, hành động/ gây sụp đổ 4teppi826) cộng với
 # ảnh kiểu Docker/ git rethies.
-# translation-refused: libretranslate protected-span lost=['5', '6']
-# nocheck: url
-# translation-rejected: Phục hồi xây dựng hình ảnh Debian bằng cách giới thiệu
 msgid "Restores the Debian dev-image build by introducing the INFINITO_VENV_DIR SPOT and calling infinito via its absolute venv path in scripts/docker/entry.sh, so the post-`make install` version check no longer trips on the PATH that bash -lc clobbers via /etc/profile; also scopes the auto-update PR dedup fingerprint to the files a run actually committed (instead of the whole commit tree) so unrelated drift on main no longer forces a fresh PR on every daily cron, nests web-app-bluesky's nocheck markers under the acl block they describe, and rolls up dependabot bumps (actions/cache 4→5, actions/setup-node 4→6) plus routine Docker image / git ref refreshes."
 msgstr ""
 
@@ -50097,9 +49680,6 @@ msgstr "Trả lại (chủ nhân. run_id) từ một ID chạy hoặc một đ�
 
 # gained=['job_idKhông']
 # chỉ URL chạy/công việc.
-# translation-refused: libretranslate protected-span lost=['job_id']
-# nocheck: url
-# translation-rejected: Trả lại (chủ nhân. run_id. job_idKhông có) từ một địa
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -51232,9 +50812,6 @@ msgid "Return the set of role types declared by *role_dir*'s markers."
 msgstr "Name *role_dir*Điểm đánh dấu."
 
 # Khu vực.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Hãy trở về vị thần ♪256 của mọi dịch vụ ``build``
 msgid "Return the sha256 of every service's ``build`` section."
 msgstr ""
 
@@ -52360,9 +51937,6 @@ msgstr ""
 # thành một kịch bản có thể đạt được. Các tài liệu readME bị mất nghiêm nghiêm
 # nghiêm và bỏ ra phải được nhìn thấy từ vai diễn `lifecycle` và
 # `services.yml` Ngoại lệ.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Vai trò mà không có bề mặt thấp (Không có tài khoản
 msgid "Roles that have no auth surface at all (federation-only services with no local accounts, e.g. `web-app-bridgy-fed`) MAY collapse the three persona scenarios into one baseline reachability scenario. The README MUST document the missing auth tier and the omission MUST be visible from the role's `lifecycle` and `services.yml` exceptions."
 msgstr ""
 
@@ -54310,15 +53884,9 @@ msgstr "SSO **hương vị là `oidc` (bản xứ)**không `oauth2-proxy` - cùn
 msgid "SSO / Authentication"
 msgstr "SSO / Xác thực"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: SSO / OIDC (Quyết định2♪6)
 msgid "SSO / OIDC (Decisions #2, #6)"
 msgstr ""
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: SSO / OIDC (Quyết định4♪5)
 msgid "SSO / OIDC (Decisions #4, #5)"
 msgstr ""
 
@@ -54399,9 +53967,6 @@ msgstr "An toàn để chạy liên tục"
 msgid "Safer failed-backup cleanup (04:00, timeout, single worker; cleanback 1.3.0 semantics)."
 msgstr "Dọn dẹp thất bại (04:00, nhân viên đơn; làm sạch 1.3.0 Các ngữ nghĩa)."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Safer systemd deploy flow with deploy-safe timer handling"
 msgstr ""
 
@@ -54521,9 +54086,6 @@ msgstr "Lên lịch công việc sao lưu cho ảnh chụp vi phân quy tắc rs
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr "Đã lên lịch việc sao lưu các bí mật máy, CA, ACME, và tên nút để sao lưu vào thư mục cục bộ"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
 
@@ -54669,9 +54231,6 @@ msgstr "Dấu niêm phong (Phím phục hồi tương ứng phím bỏ đính k�
 msgid "Seal types"
 msgstr "Đóng"
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Đóng ấn, init & khởi động (Quyết định1♪2)
 msgid "Seal, init & bootstrap (Decisions #1, #2)"
 msgstr ""
 
@@ -54859,9 +54418,6 @@ msgstr "Quét an ninh"
 msgid "Security vulnerabilities MUST NOT be reported there. See [SECURITY.md](../../../SECURITY.md) instead."
 msgstr "Không được báo cáo ở đó. Xem [SECURITY.md](../../../SECURITY.md) Thay vào đó."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Comment
 msgid "Security vulnerabilities and incident response"
 msgstr ""
 
@@ -56216,9 +55772,6 @@ msgstr "Đơn"
 # trong vai diễn đó ``meta/networks.yml``; bất cứ điều gì có lý do về không
 # gian địa chỉ của triển khai đọc nó từ đây thay vì lặp lại nghĩa đen, đó là
 # làm thế nào một CIDR kết thúc lên nói hai lần và sau đó trôi dạt.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Một chiều cho "Name"Khu nhà được tuyên bố một lần,
 msgid "Single SPOT for \"which address block does role X own\". The block is declared once, in that role's ``meta/networks.yml``; anything that has to reason about the deployment's own address space reads it from here instead of repeating the literal, which is how a CIDR ends up stated twice and then drifts."
 msgstr ""
 
@@ -56306,9 +55859,6 @@ msgstr "Việc ra dấu đơn không truyền lại"
 # ``-ip=localhost`` là cố ý: các máy chủ tất cả trong một nếu không quảng cáo
 # các báo cáo tự động bầy đàn song song song song, mà không thể liên lạc với
 # gRPC và treo ``weed shell`` trong lúc chuẩn bị xô.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Một nguồn cho args chia sẻ bởi chồng nhà cung cấp đứng
 msgid "Single source for the args shared by the standalone provider stack (``compose.yml.j2``) and the local sidecar (``service.yml.j2``). ``-ip=localhost`` is deliberate: the all-in-one server otherwise advertises the auto-detected swarm ingress IP, which is unreachable for gRPC and hangs ``weed shell`` during bucket provisioning."
 msgstr ""
 
@@ -56520,9 +56070,6 @@ msgid "Smoke after deploy:"
 msgstr "Khói sau khi triển khai:"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Comment
 msgid "Smoke-tests the interactive console REPL"
 msgstr ""
 
@@ -57037,9 +56584,6 @@ msgstr "Bắt đầu với một thử nghiệm thất bại, thực hiện mã 
 # run*` mô hình bắt hình trực tiếp; bối rối giữa `docker * run*` Name `docker
 # container run` Đối xứng (và bất kỳ tương lai nào `docker <namespace> run`
 # chính tả) trong một quy tắc duy nhất.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Khởi động một container. ♪ Nơi trần trụi ♪ `docker
 msgid "Starting a container. The bare `docker run*` pattern catches the direct form; the middle-wildcard `docker * run*` pattern catches the `docker container run` synonym (and any future `docker <namespace> run` spelling) in a single rule."
 msgstr ""
 
@@ -57465,9 +57009,6 @@ msgstr "Kế hoạch hoàn toàn của SAN `CURRENT_PLAY_DOMAINS_ALL`"
 msgid "Strict failure on un-executable persona cases"
 msgstr "Lỗi nghiêm trọng trong trường hợp nhân cách không thể xử lý"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Strict multi-pass Jinja rendering to prevent leaked templates"
 msgstr ""
 
@@ -57828,9 +57369,6 @@ msgstr "Hỗ trợ tập hợp này cho phép các nhà điều hành sự lựa
 msgid "Supports A/AAAA, CNAME, MX, TXT, SRV"
 msgstr "Hỗ trợ A/AAAA, CNAME, MX, TXT, SRV"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Supports Arch, Debian, Ubuntu, Fedora, CentOS Stream"
 msgstr ""
 
@@ -58279,15 +57817,9 @@ msgstr "Chuyển sang **Biến** Thanh."
 msgid "Switch to the configured realm (for example `infinito.nexus`)."
 msgstr "Name (Ví dụ `infinito.nexus`)."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Switched CI execution to compose-native workflows with host cgroup support for systemd"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Switched Docker image base to pkgmgr and enforced local images for deploy tests"
 msgstr ""
 
@@ -58741,9 +58273,6 @@ msgstr "Cổng TCP để lắng nghe (mặc định `8080`)."
 
 # gained=['"LÀ"']
 # cả.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: CON NGƯỜI ĐÃ ĐÃ ĐÃ ĐÃ ĐƯỢC "LÀ"Không có gì đặc biệt
 msgid "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND."
 msgstr ""
 
@@ -59105,9 +58634,6 @@ msgstr "Hương vị thử 'edge'"
 msgid "Test guidance 🧪"
 msgstr "& Hướng dẫn thử 🧪"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Test scenarios executed by the Playwright runner"
 msgstr ""
 
@@ -60084,9 +59610,6 @@ msgstr "Các PUR PKGBULDs dự án này tiêu thụ một đĩa kiểm tra trên
 # nó, vì vậy một cánh có kéo dài vài phút thay vì những giây một thành viên
 # trong hồ bơi cần xoay ra; EXTERNAL_FETCH♪ Là ♪40Cửa sổ đã được quan sát thấy
 # mất chỉ một cánh.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: AUR là một nguồn gốc chủ thể không có hồ kính phía sau
 msgid "The AUR is one origin host with no mirror pool behind it, so a flap there lasts minutes rather than the seconds a pool member needs to rotate out; EXTERNAL_FETCH's ~40s window has been observed losing to a single flap."
 msgstr ""
 
@@ -60503,9 +60026,6 @@ msgstr ""
 # thúc workflow_dispatch, vì vậy các dữ liệu đầu vào được thu hồi từ chính nó:
 # ngắn nhất từ tiêu đề (``config_from_title``)♪ Những cái dài trong nhật ký
 # công việc (``inputs_from_jobs``)Cái đó gọi là cắt đuôi.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Trận chiến API trả lời ``inputs: null`` cho một kết
 msgid "The REST API answers ``inputs: null`` for a finished workflow_dispatch, so the inputs are recovered from the run itself: short ones from the title (``config_from_title``), the long ones from a called job's log (``inputs_from_jobs``), which the title truncates."
 msgstr ""
 
@@ -60662,9 +60182,6 @@ msgstr "Hạt `Makefile` là bề mặt chỉ huy của con người cho tái th
 # cho người tiêu dùng (( delete))..việc ghi đè phát minh vì vậy sống dưới
 # `OIDC_OVERRIDE:` - mức kiểm kê `OIDC:` ngăn cản sẽ làm mờ đi nghị quyết lười
 # biếng và bị một người xây dựng từ chối.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Hạt `OIDC` cây là kẻ lười biếng group_var: nó giải
 msgid "The `OIDC` tree is a lazy group_var: it resolves in the consuming role's context, so the issuer family-aligns to that consumer (clearnet page → clearnet issuer, onion page → onion issuer). Inventory overrides therefore live under `OIDC_OVERRIDE:` — an inventory-level `OIDC:` block would shadow the lazy resolution and is rejected by a constructor assert."
 msgstr ""
 
@@ -61431,9 +60948,6 @@ msgstr "Hậu phương trục có thể chứa biểu tượng lựa chọn CN (
 # svc-swarm-node nhóm mà chơi giải quyết DEPLOYMENT_MODE= Giao diện và
 # IS_STACK_HOSTSự thật về vật chủ dự phòng, vì vậy vai trò dự phòng được thực
 # hiện mà không có các trường hợp đặc biệt.
-# translation-refused: libretranslate protected-span lost=['IS_STACK_HOST']
-# nocheck: url
-# translation-rejected: Máy sao lưu không nằm trong kho hàng của cụm: nó sống
 msgid "The backup host is NOT appended to the cluster inventory: it lives in a sibling ``backup.yml`` next to ``INV_PATH`` (same host_vars dir), deployed as a second play after the cluster one. Without a svc-swarm-node group that play resolves DEPLOYMENT_MODE=compose and IS_STACK_HOST=true on the backup host, so the backup roles run without cluster-membership special cases."
 msgstr ""
 
@@ -61510,9 +61024,6 @@ msgstr ""
 
 # (Xe/role riêng), không phải bên trong `web-app-atmo`, cổng thành.
 # `web-app-mobilizon in group_names`.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: ♫ Những chiếc cầu như một **thành phần riêng**
 msgid "The bridge ships as a **separate component** (own sidecar/role), not inside `web-app-atmo`, gated on `web-app-mobilizon in group_names`."
 msgstr ""
 
@@ -62025,9 +61536,6 @@ msgstr "Trang trí trang trí một trang gói tên vào trước; xem :func:`_b
 # *Chức năng/*) bị xoá; các 5 Mẫu xe phụ và tổng hợp chuyển tác vụ vào
 # **web-app-keycloak** (*Mẫusso_proxy/*. *tasks/sso_proxy.yml*).
 # **web-app-keycloak** Bây giờ tuyên bố **cung cấp: sso**.
-# translation-refused: libretranslate protected-span lost=['sso_proxy']
-# nocheck: url
-# translation-rejected: Lễ khánh thành2- Vai trò cung cấp oxy (thư mục dưới
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
 msgstr ""
 
@@ -62145,9 +61653,6 @@ msgstr "Thư mục không phải là cấu hình máy thuộc về một vai tr�
 
 # chạy, thử ra các tập lệnh, hoặc hỗ trợ xây dựng. ♪ Những thứ thuộc về dưới ♪
 # `scripts/` hay `tests/`.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Thư mục này cần thiết không phải là máy chạy văn lệnh
 msgid "The directory MUST NOT host workflow scripts, test fixtures, or build helpers. Those belong under `scripts/` or `tests/`."
 msgstr ""
 
@@ -62734,9 +62239,6 @@ msgstr "Vật chủ phải chịu trách nhiệm cho các mối quan tâm cấp 
 msgid "The host-side env-vars (`INFINITO_CACHE_REGISTRY_*`, `INFINITO_CACHE_PACKAGE_*`) are declared in [default.env](../../../default.env) and the dynamic ones (cache sizes from `df`/`/proc/meminfo`, sha256 admin password) are computed by [utils/env/builder.py](../../../utils/env/builder.py). `make dotenv` writes them into `.env`, which Compose auto-loads and which `BASH_ENV` makes available to every Makefile recipe through [scripts/meta/env/load.sh](../../../scripts/meta/env/load.sh). See [variables.md](variables.md)."
 msgstr "Name (`INFINITO_CACHE_REGISTRY_*`. `INFINITO_CACHE_PACKAGE_*`) được tuyên bố vào [default.env](../../../default.env) và những cái động (Cỡ bộ nhớ tạm từ `df`/`/proc/meminfo`, sha256 Mật khẩu mandmin) được tính bởi [utils/env/builder.py](../../../utils/env/builder.py). `make dotenv` viết chúng vào `.env`, mà tạo ra tự động nạp và mà `BASH_ENV` cung cấp thông tin về mọi công thức Makefile thông qua [scripts/meta/env/load.sh](../../../scripts/meta/env/load.sh). Thấy chưa? [variables.md](variables.md)."
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Name [apps.sh](../../scripts/container/purge/apps.sh).
 msgid "The host-side purge flow invokes these modules through the app-keyed orchestrator [apps.sh](../../scripts/container/purge/apps.sh)."
 msgstr ""
 
@@ -62868,9 +62370,6 @@ msgstr "Đường dẫn tác vụ cài đặt cho mỗi bổ sung danh dự `req
 msgid "The install-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) run in parallel once `code-quality-gate` is green. All of them MUST pass `test-install-gate`."
 msgstr "Name `Infrastructure tests` bảng [workflows.md](../../tools/github/actions/workflows.md) Chạy song song một lần `code-quality-gate` xanh lá cây. Tất cả bọn họ phải đi qua. `test-install-gate`."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "The installer script is fetched from the official release location"
 msgstr ""
 
@@ -62996,9 +62495,6 @@ msgstr "Hai đoạn cuối cùng, cùng tham gia bởi sự phân cách trước
 # "Comment"cái `applications`/`users`/`domains` Bộ nhớ tạm môđun "điều này
 # tổng hợp, sản xuất trọng tải".. Chúng không làm tê liệt lẫn nhau và May đều
 # hoạt động cùng một lúc.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Các lớp là các orthogonal: `yaml.py` Bộ nhớ tạm
 msgid "The layers are orthogonal: `yaml.py` caches \"this file's parsed root\", the `applications`/`users`/`domains` modules cache \"this aggregated, rendered payload\". They do not invalidate each other and MAY both be active at the same time."
 msgstr ""
 
@@ -63014,9 +62510,6 @@ msgstr "Hình dạng di sản của các câu lệnh không còn được chấp
 # chuyển đổi sự kiện qua `/etc/systemd/logind.conf`. Cái
 # [`setup-hibernate`](https://github.com/kevinveenbirkenbach/setup-hibernate)
 # Công cụ cung cấp cấu hình hỗ trợ ngủ đông.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Công tắc nắp là một thành phần phần phần cứng trên máy
 msgid "The lid switch is a hardware component on laptops that triggers power state changes (sleep, hibernate, lock) when the lid is closed. On Linux, systemd's `logind` daemon manages lid switch events via `/etc/systemd/logind.conf`. The [`setup-hibernate`](https://github.com/kevinveenbirkenbach/setup-hibernate) tool provides hibernation support configuration."
 msgstr ""
 
@@ -63026,9 +62519,6 @@ msgstr ""
 # ```setup-hibernate``
 # <https://github.com/kevinveenbirkenbach/setup-hibernate>`Công cụ cung cấp
 # cấu hình hỗ trợ ngủ đông.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Công tắc nắp là một thành phần phần phần cứng trên máy
 msgid "The lid switch is a hardware component on laptops that triggers power state changes (sleep, hibernate, lock) when the lid is closed. On Linux, systemd’s ``logind`` daemon manages lid switch events via ``/etc/systemd/logind.conf``. The ```setup-hibernate`` <https://github.com/kevinveenbirkenbach/setup-hibernate>`__ tool provides hibernation support configuration."
 msgstr ""
 
@@ -63079,9 +62569,6 @@ msgid "The literal ``entity_name`` a role declares, or ``\"\"``."
 msgstr ""
 
 # trống trải ♪ `- ` mục danh sách vẫn còn giá trị.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Theo nghĩa đen `null` được bình thường hoá `{}` ♪ Thật
 #, python-brace-format
 msgid "The literal `null` is normalised to `{}` so a bare `- ` list item stays valid."
 msgstr ""
@@ -63136,9 +62623,6 @@ msgstr "Logo phải sử dụng chuỗi lớp kiểu Font Awesome hợp lệ:"
 
 # 'nextcloud_data'] gained=['liệu/nextcloud.log', 'nextcloud_datadữ']
 # **/var/lib/docker/volumes/nextcloud_datadữ liệu/dữ liệu/nextcloud.log**
-# translation-refused: libretranslate protected-span lost=['nextcloud.log',
-# nocheck: url
-# translation-rejected: Bản ghi mà bạn sẽ tìm thấy ở đây trên máy chủ:
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -63343,9 +62827,6 @@ msgstr "Chế độ được đọc là ``compose_mode_force or DEPLOYMENT_MODE`
 # (Một đại diện trên một cụm ADN ở phía trước của cắt giảm ngân sách, vì vậy
 # thừa thừa thừa của cùng một dịch vụ biến số rơi phía sau nó đầu tiên), Và
 # phong bì là INFINITO_LIFECYCLES.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Chế độ chọn là một *lọc*không phải trục: ``--modes
 msgid "The mode selection is a *filter*, not an axis: ``--modes swarm`` keeps the rows whose role can be deployed as a swarm stack, ``--modes \"compose swarm\"`` keeps the rows at least one of the two can take. The shared filter is mode-clause + INFINITO_WHITELIST + INFINITO_BLACKLIST, the order is INFINITO_DISCOVERY_SORT, whose first key sorts clones last (one representative per dna cluster stays ahead of the budget cut, so redundant same-service-set variants fall behind it first), and the lifecycle envelope is INFINITO_LIFECYCLES."
 msgstr ""
 
@@ -63620,9 +63101,6 @@ msgstr "Gói này chuyển đổi điều đã cam kết [default.env](../../def
 # Á Rập)) sử dụng kênh bên phải cho mỗi công cụ (Bộ quản lý gói hệ thống, ống,
 # npm, hoặc GitHub phát hành)Môđun ở cấp độ này là các kênh nguyên thủy bất
 # khả tri; chính sách một công cụ sống xuống một cấp trong [lit/](lint/).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Gói cài đặt các lintonchin ((Tiếng Tây Ban Nha)2(Tiếng
 msgid "The package installs the lint toolchain (actionlint, shfmt, ruff, ansible-lint, mbake, markdownlint-cli2, eslint, shellcheck, ansible-playbook, ansible-galaxy) using the right channel per tool (system package manager, pip, npm, or GitHub release). Modules at this level are channel-agnostic primitives; per-tool policy lives one level down in [lint/](lint/)."
 msgstr ""
 
@@ -64026,9 +63504,6 @@ msgstr "Phần bổ sung danh dự dự án không được công bố: điểm 
 # phiên chạy mỗi quá trình, mà ngược dòng xác nhận trong
 # `src/test/transport.test.ts` vào `v0.3.1`; máy dò phóng sẽ để nó khởi động
 # lại.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Máy chủ có danh dự dự dự án thông qua quyền sở hữu,
 msgid "The project-owned server passes ownership, licence, pinning and read-only default, but its HTTP transport serves one session per process, which upstream asserts in `src/test/transport.test.ts` at `v0.3.1`; the deploy probe alone would leave it restart-required."
 msgstr ""
 
@@ -64715,9 +64190,6 @@ msgstr "Vai trò cài đặt **Nix** sử dụng hoặc bộ quản lý gói b�
 # triển khai một cấu hình sẵn ``msmtprc`` Tập tin qua Jinja2♪ Cho những cuộc
 # chia cắt mà không có một người tận tụy ♪ ``msmtp-mta`` gói, nó cấu hình trực
 # tiếp ``/usr/bin/sendmail`` liên kết tương thích với ``msmtp``.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Vai trò cài đặt **msmtp**, quản lý sự khác biệt gói cụ
 msgid "The role installs **msmtp**, handles distro-specific package differences (including EPEL bootstrap on EL-family hosts when required), and deploys a pre-configured ``msmtprc`` file via Jinja2. For distros without a dedicated ``msmtp-mta`` package, it configures a direct ``/usr/bin/sendmail`` compatibility symlink to ``msmtp``."
 msgstr ""
 
@@ -64725,9 +64197,6 @@ msgstr ""
 # triển khai một cấu hình sẵn `msmtprc` Tập tin qua Jinja2♪ Cho những cuộc
 # chia cắt mà không có một người tận tụy ♪ `msmtp-mta` gói, nó cấu hình trực
 # tiếp `/usr/bin/sendmail` liên kết tương thích với `msmtp`.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Vai trò cài đặt **msmtp**, quản lý sự khác biệt gói cụ
 msgid "The role installs **msmtp**, handles distro-specific package differences (including EPEL bootstrap on EL-family hosts when required), and deploys a pre-configured `msmtprc` file via Jinja2. For distros without a dedicated `msmtp-mta` package, it configures a direct `/usr/bin/sendmail` compatibility symlink to `msmtp`."
 msgstr ""
 
@@ -65072,9 +64541,6 @@ msgstr "Cuộc chạy này xây dựng khác với việc tái tranh cãi: một
 # bắt đầu đọc dòng thường xuyên tại một bù đắp (`cli.meta.ci.chunks`), Vì vậy,
 # do đó, quét liên tục đi bộ toàn bộ danh sách thay vì thử lại cùng một đầu
 # mãi mãi.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ The run's 256- Cái nắp là trần thứ hai. `slots` tính
 msgid "The run's 256-job cap is the second ceiling. `slots` counts every non-deploy job the orchestrator chain spawns, subtracts the worst `entry-*.yml` overhead, and what remains is `available` — the rows one sweep may deploy across all its chunks. Rows beyond that roll into the next sweep, which starts reading the regular line at an offset (`cli.meta.ci.chunks`), so consecutive sweeps walk the whole list instead of re-testing the same head forever."
 msgstr ""
 
@@ -65424,9 +64890,6 @@ msgstr "Chia sẻ ``biber`` và ``administrator`` Một hành trình cá nhân �
 # ``tasks/main.yml`` không cung cấp FusionDirectory tài khoản, vì vậy Keycloak
 # ID bản đồ đến không có phiên chạy thư mục nào mà các trợ giúp chia sẻ có thể
 # mang tới bản đăng nhập.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Chia sẻ ``biber`` và ``administrator`` Một hành trình
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -65502,9 +64965,6 @@ msgstr "Chia sẻ `biber` và `administrator` Một hành trình cá nhân đư�
 # không cung cấp FusionDirectory tài khoản, vì vậy Keycloak ID bản đồ đến
 # không có phiên chạy thư mục nào mà các trợ giúp chia sẻ có thể mang tới bản
 # đăng nhập.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Chia sẻ `biber` và `administrator` Một hành trình cá
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -65967,9 +65427,6 @@ msgstr "Đánh đổi là `deny` Bây giờ mang toàn bộ trọng lượng c�
 # ``skip`` không sử dụng máy tính này. ``test_*`` Cột. ``integrated`` sai khi
 # bản đồ dịch vụ hàng không được hỗ trợ (vai trò triển khai bị cô lập): mỗi
 # biến thể trên hàng dạng, từ cơ sở ``meta/services.yml`` trên các hàng ghế.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Các trường vận chuyển (``services`` / ``consumed_by``
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -66100,9 +65557,6 @@ msgstr "Giá trị luôn được trích kép trong kết xuất. Điều đó l
 # chính chìa khóa thực sự để dự phòng cho một cuộc chạy bộ nhóm sẽ đạt được:
 # mỗi dòng chảy để lại sự quét bằng tay sống, bởi vì nó là hoạt động mới nhất
 # của dòng chảy công việc của chính nó.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Giá trị phải phản ánh cách khóa nhóm hỗ trợ. `all`
 msgid "The value must mirror how the backed-up group is keyed. `all` treats every matched run as one instance — correct for `global-ci-<repo>-<ref_name>`, which spans both `entry-push-latest.yml` and `entry-manual-steer.yml`, so a push must be able to reap a manual sweep. `event` keeps one instance per event name — correct for `pr-ci-<repo>-<event_name>-pr-<number>`. Grouping any finer than the real key spares a run the group would have reaped: per-workflow grouping leaves the manual sweep alive, because it is the newest run of its own workflow."
 msgstr ""
 
@@ -66146,9 +65600,6 @@ msgstr ""
 # lost=['package-lock.json'] gained=['filespackage-lock.json']
 # diễn/<application_id>/files/filespackage-lock.json, Vì vậy, URL luôn luôn là
 # phiên bản chính xác bị mắc kẹt, khóa tập tin được xác minh.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Phiên bản được đọc từ vai
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
 msgstr ""
 
@@ -66281,9 +65732,6 @@ msgstr ""
 # Cho sự lặp lại thông thường sau lần triển khai thành công đầu tiên, xem
 # [Công cụ cài đặt Samba
 # Comment](../../../agents/action/iteration/playwright.md).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Chẳng còn ai đứng vững ♪ `make` Mục tiêu của
 msgid "There is no standalone `make` target for Playwright. Tests run as part of local deploy flows (e.g. `make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true`). For spec-only iteration after the first successful deploy, see [Playwright Spec Loop](../../../agents/action/iteration/playwright.md)."
 msgstr ""
 
@@ -66931,9 +66379,6 @@ msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path
 msgstr "Điều này tránh cha mẹ brittle[N] giả định và sửa \"cli/cli/...\" bọ đường."
 
 # gained=['richcli/cli/...Vấn']
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
-# nocheck: url
-# translation-rejected: @ info/ richcli/cli/...Vấn đề.
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -67123,9 +66568,6 @@ msgstr "Thư mục này chứa tập tin định nghĩa biến mặc định cho
 # đóng góp làm việc cùng với các mật vụ mã AI trong dự án này. Nó bao gồm các
 # hướng dẫn đặc vụ chia sẻ mà áp dụng bất kể các công cụ AI sử dụng, cũng như
 # đặc trưng cho phép công cụ cụ cụ thể và lý do an ninh cho mỗi đại lý hỗ trợ.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Thư mục này chứa tài liệu hướng dẫn cho những người
 msgid "This directory contains documentation for contributors working alongside AI coding agents in this project. It covers shared agent guidelines that apply regardless of the AI tool used, as well as tool-specific permission references and security rationale for each supported agent."
 msgstr ""
 
@@ -67213,9 +66655,6 @@ msgstr "Thư mục này chứa văn lệnh bộ giải quyết để phát hiệ
 # (LSS/PKI) trong môi trường phát triển lndito Nexus. Đối với các chính sách
 # làm chỉ mục tiêu mà kêu gọi các trợ giúp, xem
 # [make.md](../../../docs/contributing/tools/make.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Thư mục này chứa các tập lệnh để quản lý các mối quan
 msgid "This directory contains scripts for managing TLS/PKI concerns in the Infinito Nexus development environment. For the canonical Make target index that invokes these helpers, see [make.md](../../../docs/contributing/tools/make.md)."
 msgstr ""
 
@@ -67963,9 +67402,6 @@ msgstr "Kho này sử dụng một luồng công việc dựa trên nĩa. Nhữn
 msgid "This repository uses a strict fork-first workflow. You MUST NOT commit directly to `main`. You MUST do all work in your own fork and MUST open Pull Requests from your fork back to the main repository."
 msgstr "Kho này sử dụng một dòng công việc chặt chẽ. Bạn không nên cam kết trực tiếp đến `main`. Anh phải tự làm mọi việc trong cái nĩa của mình và mở ra yêu cầu kéo từ ngã ba trở về kho chính."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: @ info/ rich
 msgid "This repository uses several test and validation types:"
 msgstr ""
 
@@ -68887,9 +68323,6 @@ msgstr "Vai trò này cài đặt và cấu hình các thành phần cần thi�
 # `sys-ctl-alm-telegram` Dịch vụ và cấu hình tham số và mẫu tuỳ chỉnh để gửi
 # thông điệp qua [Telegram](https://telegram.org). <i>-- nocheck: url
 # telegram.org trả lời 404 trên gốc cây trần -->
-# translation-refused: libretranslate added-span lost=[] gained=['<i>']
-# nocheck: url
-# translation-rejected: Vai trò này cài đặt và cấu hình các thành phần cần
 msgid "This role installs and configures the necessary components for sending notifications via systemd when a service fails. It sets up the `sys-ctl-alm-telegram` service and configures parameters and customizable templates for sending messages through [Telegram](https://telegram.org). <!-- nocheck: url telegram.org answers 404 on the bare root -->"
 msgstr ""
 
@@ -68927,9 +68360,6 @@ msgstr "Vai trò này cài đặt các CopyQ Bộ quản lý bảng tạm trên 
 
 # hệ thống dựa trên Pacman (e.g. Arch Linux) và đảm bảo nó sẽ được khởi chạy
 # tự động cho người dùng hiện thời.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Vai trò này cài đặt các CopyQ Bộ quản lý bảng tạm trên
 msgid "This role installs the CopyQ clipboard manager on Pacman-based systems (e.g. Arch Linux) and ensures it is started automatically for the current user."
 msgstr ""
 
@@ -69631,17 +69061,11 @@ msgstr "Để cung cấp cho một người sử dụng vai trò `<role_name>` t
 
 # ``services.hugo.source_repository`` và ``services.hugo.source_version``
 # trong kho hàng của anh. Ví dụ:
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Để giữ lấy chính mình ♪ Hugo nơi Mạng, ghi đè
 msgid "To host your own Hugo site, override ``services.hugo.source_repository`` and ``services.hugo.source_version`` in your inventory. Example:"
 msgstr ""
 
 # `services.hugo.source_repository` và `services.hugo.source_version` trong
 # kho hàng của anh. Ví dụ:
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ♪ Để giữ lấy chính mình ♪ Hugo nơi Mạng, ghi đè
 msgid "To host your own Hugo site, override `services.hugo.source_repository` and `services.hugo.source_version` in your inventory. Example:"
 msgstr ""
 
@@ -69749,9 +69173,6 @@ msgid "To route all CI back to GitHub-hosted runners (e.g. if the server goes do
 msgstr "Để đưa tất cả các CN trở lại GitHub-chab vận động viên chạy trốn (e.g. nếu máy phục vụ đi xuống):"
 
 # chạy trốn (e.g. nếu máy phục vụ đi xuống):
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Để đưa tất cả các CN trở lại GitHub-chab vận động viên
 msgid "To route all CI back to GitHub-hosted runners (e.g. if the server goes down):"
 msgstr ""
 
@@ -69978,9 +69399,6 @@ msgid "Top-level + first-sub-level categories for the given role id."
 msgstr "Phân loại cấp cao + cấp bậc một cho vai trò chứng minh."
 
 # bố bởi mỗi svc-db-* vai diễn.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Các khóa dịch vụ cung cấp cấp cấp cấp cao được tuyên
 msgid "Top-level provider service keys declared by every svc-db-* role."
 msgstr ""
 
@@ -70112,9 +69530,6 @@ msgstr "Dịch *giá trị* (Name ``docker_restart_policy``) về đàn của n�
 # '8214']
 # (teppi8214 teppi82 `/28`, Gởi30 teppi82 `/27`, Gởi62 teppi82 `/26`, Gởi126
 # teppi82 `/25`, Gởi254 teppi82 `/24`...).
-# translation-refused: libretranslate protected-span lost=['14'] gained=['82',
-# nocheck: url
-# translation-rejected: Dịch `--clients N` tới tiền tố CIDR nhỏ nhất khớp
 msgid "Translate `--clients N` to the smallest CIDR prefix that fits (≤14 → `/28`, ≤30 → `/27`, ≤62 → `/26`, ≤126 → `/25`, ≤254 → `/24`, …)."
 msgstr ""
 
@@ -70776,9 +70191,6 @@ msgstr "Kế hoạch thống nhất: [021](README.md#archive)"
 msgid "Unified Service Failure Notifier"
 msgstr "Lỗi thông báo dịch vụ hợp nhất"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Unified ShellCheck execution via container for reproducible linting"
 msgstr ""
 
@@ -70803,9 +70215,6 @@ msgid "Unified trust injection via `with-ca-trust.sh`"
 msgstr "Name `with-ca-trust.sh`"
 
 # recover.py kịch bản.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Đồng phục phục phục hồi cL xung quanh svc-bp-*
 msgid "Uniform recover CLI around the svc-bkp-* recover.py scripts."
 msgstr ""
 
@@ -70815,9 +70224,6 @@ msgstr ""
 # phòng. Một lệnh bao gồm mỗi vai trò `files/python/recover.py` đằng sau một
 # ngữ pháp duy nhất và gây ra một thảm họa hoàn toàn phục hồi theo thứ tự
 # chính xác.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Đồng phục phục phục hồi cho `svc-bkp-*` Vai diễn dự
 msgid "Uniform recovery for the `svc-bkp-*` backup roles. One command wraps each role's `files/python/recover.py` behind a single grammar and drives a full disaster recovery in the correct order."
 msgstr ""
 
@@ -71203,9 +70609,6 @@ msgstr "Nguồn trên dòng"
 # #628](https://project.infinito.nexus/work_packages/628) - *Comment OpenBao
 # vào Infinito.Nexus*PR đầy đủ: [(Tiếng
 # cười)611](https://github.com/infinito-nexus/core/pull/611).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Chuyện ngược dòng: [OpenProject
 msgid "Upstream story: [OpenProject #628](https://project.infinito.nexus/work_packages/628) — *Integrate OpenBao into Infinito.Nexus*. Implementing PR: [infinito-nexus/core#611](https://github.com/infinito-nexus/core/pull/611)."
 msgstr ""
 
@@ -71778,9 +71181,6 @@ msgstr "Dùng bởi ``ressources`` CLI và các biến thể tài nguyên-budget
 # gained=['stlates/concuration/prometheus.yml.j2']
 # stlates/concuration/prometheus.yml.j2 cho các ứng dụng tự động tiết lộ một
 # kết thúc địa phương / metricpoint mà không cần cứng mỗi tên ứng dụng.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Dùng bởi web-app-prometheus/
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -71949,9 +71349,6 @@ msgstr "Yêu cầu tên người dùng: `preferred_username`, bản đồ OpenCl
 # gained=['g.en_US']
 # ``{{hunspell_languages}}`` biến dựa trên yêu cầu ngôn ngữ riêng của họ. Biến
 # này chấp nhận danh sách các mã ngôn ngữ (e.g.en_US’, ‘de_DE’).
-# translation-refused: libretranslate protected-span lost=['en_US']
-# nocheck: url
-# translation-rejected: Người dùng được khuyến khích tùy chỉnh
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -72398,9 +71795,6 @@ msgstr "Đóng cửa cho những bí mật được mã hóa: một gói dịch 
 msgid "Venv-aware pip installer with `--break-system-packages` and `--user` fallback."
 msgstr "Name `--break-system-packages` và `--user` Lùi lại."
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Rắn `copy` Không có trong danh sách thẻ. @ info/ rich.
 msgid "Verb `copy` is not in the wildcard list. The duplicate is created under the operator's identity and may be public-by-default depending on org settings."
 msgstr ""
 
@@ -72422,9 +71816,6 @@ msgstr "Mở đích"
 # gained=['"Name"']
 # dụng bắt đầu, vì vậy "khôi phục lại nó" phải tách rời khỏi "Name"và một
 # `clean` Bỏ qua rồi lấy dấu hiệu ra khỏi quả bom trực tiếp.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Xác định chạy ngay sau khi xem lại và trước khi ứng
 msgid "Verification runs right after the replay and before the apps start, so \"the restore brought it back\" stays separate from \"an app overwrote it\", and a `clean` pass then takes the token out of the live payload again."
 msgstr ""
 
@@ -72726,9 +72117,6 @@ msgstr "Phân tích từng thư mục ``playwright-junit.xml`` nó tìm thấy, 
 # kết quả phụ thuộc vào những gì một vai trò. ♫ Những vòng quay sống trong ♫
 # ``utils/roles/applications/in_group_deps``; điều này chỉ làm cho nó trở nên
 # khả thi.
-# translation-refused: libretranslate added-span lost=[] gained=['♫']
-# nocheck: url
-# translation-rejected: Đi bộ cùng một cạnh vai trò của người xây dựng được
 msgid "Walks the same edges the constructor's role set is built from, so a whitelist-scoped deploy and the full-inventory deploy agree on what a role depends on. The traversal itself lives in ``utils/roles/applications/in_group_deps``; this only exposes it to Ansible."
 msgstr ""
 
@@ -73419,9 +72807,6 @@ msgid "What instruction, workflow, or policy changed?"
 msgstr "Sự chỉ dẫn, dòng chảy công việc hoặc chính sách nào đã thay đổi?"
 
 # gained=['Infinito.NexusHả']
-# translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
-# nocheck: url
-# translation-rejected: Cái gì? Infinito.NexusHả? 📌
 msgid "What is Infinito.Nexus? 📌"
 msgstr ""
 
@@ -73643,9 +73028,6 @@ msgstr ""
 # không ghi đè)♪ Sự tìm kiếm đã trở lại ♪ ``<image>`` (Chưa gắn kết) và phát
 # ra a ``display.warning`` Vì vậy, người điều hành chú ý đến các tham khảo
 # chưa được ghi lại mà không hủy bỏ vở kịch.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Khi ``version`` không đặt (không có giá trị dịch vụ,
 msgid "When ``version`` is unset (no services value, no override), the lookup returns the bare ``<image>`` (unpinned) and emits a ``display.warning`` so the operator notices the unpinned reference without aborting the play."
 msgstr ""
 
@@ -74028,9 +73410,6 @@ msgstr "Khi các phòng bao gồm nhiều nhân vật như `biber` và `administ
 # các tuyến trình duyệt Playwright thông qua ủy nhiệm SOCKS của Tor Vì vậy,
 # thông số thực tập đường dẫn hành thực (sắp xếp với quyết định11♪'s real-Tor
 # E2E).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Khi mục tiêu trong thử nghiệm là một `.onion` miền,
 msgid "When the target under test is an `.onion` domain, the Playwright browser routes through Tor's SOCKS proxy so specs exercise the real onion path (aligns with Decision #11's real-Tor E2E)."
 msgstr ""
 
@@ -74279,9 +73658,6 @@ msgid "Whether every credential of a provider carries a value."
 msgstr "Mỗi thẻ tín dụng của nhà cung cấp đều có giá trị."
 
 # thành thành thành công.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Cho dù mỗi công việc của ``suite`` ('workspace') hoàn
 msgid "Whether every job of ``suite`` ('workspace') completed successfully."
 msgstr ""
 
@@ -74551,9 +73927,6 @@ msgstr "Wikipedia: `Session Traversal Utilities for NAT <https://en.wikipedia.or
 msgid "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
 msgstr "Wikipedia: `Traversal Using Relays around NAT <https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT>`__"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Wildcard Certificate Setup with Let's Encrypt"
 msgstr ""
 
@@ -74948,9 +74321,6 @@ msgstr ""
 msgid "Worst-case jobs an ``entry-*.yml`` adds to the run around its orchestrator call (the orchestrator's own jobs are already counted)."
 msgstr "Công việc trường hợp xấu nhất a ``entry-*.yml`` thêm vào cuộc chạy quanh cuộc gọi của dàn nhạc (Công việc của chính dàn nhạc đã được tính)."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Wrap/extend module execution behavior at task runtime."
 msgstr ""
 
@@ -75353,9 +74723,6 @@ msgstr "Bạn không được vào vòng trong, trừ khi tất cả những vò
 # "SPOT". "Một điểm lẽ thật"hoặc bất kỳ nhãn hiệu tương đương. Trạng thái SPOT
 # được đánh dấu bởi độc giả liên kết với trang khác, chứ không phải bởi trang
 # xác nhận nó về chính nó. Hãy miêu tả trực tiếp chủ đề.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Bạn không nên tuyên bố rõ ràng một trang tài liệu như
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -75472,9 +74839,6 @@ msgstr "Bạn không nên tham khảo tập tin yêu cầu từ mã (ghi chú, d
 
 # `infinito-nexus/core` ( Anh ngữ) `GITHUB_TOKEN` ở đó thiếu cấp độ tổ chức
 # `administration` Phạm vi. Name `vars/main.yml` Tự động xử lý.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Bạn không nên đăng ký chạy thi chống lại
 msgid "You MUST NOT register runners against `infinito-nexus/core` from fork CI — the `GITHUB_TOKEN` there lacks organisation-level `administration` scope. The env-var override in `vars/main.yml` handles this automatically."
 msgstr ""
 
@@ -77054,9 +76418,6 @@ msgstr "[ ] Name"
 # đăng xuất của chính UI được điều khiển từ một phiên chạy xác thực, mà cá
 # nhân các khối làm cho khó xử; khẳng định đã được hoàn lại thay vì trái thất
 # bại.*
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [ ] Đăng xuất kết thúc OpenBao phiên chạy và tích hợp
 msgid "[ ] Logout terminates the OpenBao session and integrates with the `logout` service when enabled. *The integration half is done and verified: the deploy activates the logout proxy for the openbao vhost, injects the universal-logout code with its CSP hash, and includes openbao in `LOGOUT_DOMAINS`. The termination half is **not** asserted, and an attempt to assert it surfaced a finding now recorded in the README — navigating to `/ui/vault/logout` leaves the session intact (the UI returns to `/ui/vault/secrets`, since the Ember app restores its token from browser storage). Proving termination needs the UI's own logout control driven from an authenticated session, which the persona blocks make awkward; the assertion was reverted rather than left failing.*"
 msgstr ""
 
@@ -77170,9 +76531,6 @@ msgstr ""
 msgid "[ ] Seeding repeats on a fixed interval inside the stack, and one hung feed does not block the others."
 msgstr ""
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: [ ] Comment
 msgid "[ ] Service health, timers, or package behavior verified"
 msgstr ""
 
@@ -77187,9 +76545,6 @@ msgstr "[ ] Bề mặt OpenTalk Súng phóng tên lửa OpenCloud Thanh bên. `W
 msgid "[ ] Swarm deploys behave as before."
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: [ ] Name
 msgid "[ ] Technical accuracy checked against the current implementation"
 msgstr ""
 
@@ -77270,9 +76625,6 @@ msgstr ""
 
 # GitHub cảnh báo chú thích cho phiên bản bổ sung lỗi thời và cho mục mục mục
 # danh mục mới có liên quan không được liệt kê trong `meta/addons/`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [ ] Thử nghiệm bổ sung bên ngoài phát ra các hành động
 msgid "[ ] The external addon test emits GitHub Actions warning annotations for outdated addon versions and for relevant new catalog entries that are not listed in `meta/addons/`."
 msgstr ""
 
@@ -77423,9 +76775,6 @@ msgstr "[ ] Name (NameCollabora/BBBB, WordPressteppi82Discourse), Sự di cư n�
 # cách khẳng định sự vắng mặt của một nguyên tố quảng cáo. ♪ Một cái trần ♪
 # "Trang sau được dịch" kiểm tra được chấp nhận như điểm khởi đầu nhưng phải
 # được đánh dấu trong vai trò của ReadME để tiếp theo có thể thắt chặt nó.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [ ] Nơi mà vai trò của RBAC hợp đồng bản đồ biber đến
 msgid "[ ] Where the role's RBAC contract maps biber to a specific application role (e.g. `editor`, `member`), the assertion SHOULD pin that role: either by checking a role-scoped UI element or by asserting the absence of an admin-scoped element. A bare \"post-login page rendered\" check is acceptable as a starting point but MUST be flagged in the role README so a follow-up can tighten it."
 msgstr ""
 
@@ -77452,9 +76801,6 @@ msgstr ""
 msgid "[ ] WordPress and Discourse each declare a `translate` consumer entry and an addon under [026](026-unified-addon-syntax.md) that bridges it; Nextcloud, Moodle, Matrix and OpenProject stay open for the reason stated under [Re-opened Decisions](#re-opened-decisions)."
 msgstr ""
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: [ ] Name
 msgid "[ ] Workflow run in fork or equivalent validation"
 msgstr ""
 
@@ -77884,9 +77230,6 @@ msgid "[014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) �
 msgstr "[014 - CI Runner đã hiến dâng qua `svc-runner` Nhiệm vụ](014-svc-runner-ci.md) - tham khảo cho các thủ tục tự động chạy sử dụng ở đây"
 
 # RBAC](017-playwright-biber-rbac-coverage.md)
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [017 - Trình biên kịch song song song
 msgid "[017 - Playwright biber RBAC coverage](017-playwright-biber-rbac-coverage.md)"
 msgstr ""
 
@@ -81366,9 +80709,6 @@ msgstr "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) tạo một chủ sở h�
 # user:auth-tokens:add`♪ Hãy kiên trì vượt qua ♪ `sys-token-store` dưới
 # `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, và khẳng định
 # rằng một xác thực `initialize` gọi câu trả lời `200`.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) đang
 msgid "[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password for the dedicated MCP account via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`."
 msgstr ""
 
@@ -81654,9 +80994,6 @@ msgstr "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) điểm WordPre
 # qua ủy nhiệm Tor SOCKS tên `WORDPRESS_OIDC_SOCKS_PROXY`, mà
 # [env.j2](../../templates/env.j2) chỉ khi OIDC phát hành hành hành, vì vậy
 # một cuộc triển khai mạng không bao giờ đi qua Tor.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected:
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
 msgstr ""
 
@@ -81836,9 +81173,6 @@ msgstr "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), trên mỗi 
 
 # [probe.py](../../roles/svc-ai-litellm/files/test/probe.py)♪ Chạy trên mọi
 # cánh cổng đang triển khai ♪
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected:
 msgid "[probe.py](../../roles/svc-ai-litellm/files/test/probe.py), run on every gateway deploy"
 msgstr ""
 
@@ -82070,9 +81404,6 @@ msgstr "[tls/](tls/) Trình hỗ trợ tin cậy CA"
 # tập tin vai trò. Một vai can thuộc về nhiều loại cùng một lúc (một ứng dụng
 # cũng vận chuyển một đơn vị hệ thống tuyên bố cả hai `application_id` và
 # `system_service_id`); `get_role_types` hoàn lại toàn bộ thiết lập.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [type.py](../../../../utils/roles/type.py) Cũng như
 msgid "[type.py](../../../../utils/roles/type.py) consumes the same schema. It walks every entry flagged `marker: True` in `ROLE_FILES` and adds the surrounding type to a role's type set whenever the marker's dotted path resolves to a non-empty value in the role's file. A role MAY belong to several types simultaneously (an application that also ships a systemd unit declares both `application_id` and `system_service_id`); `get_role_types` returns the full set."
 msgstr ""
 
@@ -83015,9 +82346,6 @@ msgstr "[x] Nhà cung cấp tuyên bố rõ ràng cho phép người tiêu dùng
 # tham số của địa điểm chia sẻ chứ không phải cố định `900s` Nó đã được mã
 # hóa. Đó là nơi `stream_seconds` Cuối cùng cũng cắn: người thích nghi không
 # giữ được dòng suối, còn cái ủy nhiệm thì có.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] phơi nắng công cộng áp dụng định tuyến ủy nhiệm,
 msgid "[x] Public MCP exposure enforces proxy routing, TLS, request-size, response-size, timeout, concurrency, stream-duration, and rate limits with explicit tested values. **Partly done, and auditing which limits were real found two that were not.** Every role declares seven limits and the adapter validates all seven at contract load, but only five were ever applied: request size, response size, timeout, page size and result items. `concurrent_requests` and `stream_seconds` appeared nowhere except the required-key list. `concurrent_requests` is now enforced, because `ThreadingHTTPServer` starts a thread per connection and asks no contract, so the surplus is refused with `too_many_concurrent_requests` rather than queued, and the slot is given back on the failure path as well as the success path. `stream_seconds` has nothing to bound inside the adapter, which reads a size-capped body and holds no stream open; it belongs at the edge, on the surfaces that do stream. What remains is the edge itself: nothing in the deployment applies any of these at the reverse proxy, and the repository has no rate or connection limiting at all, so the two enabled public surfaces reach their upstream with only the platform's global defaults. **The edge now applies them.** [`templates/mcp/zones.conf.j2`](../../roles/sys-svc-proxy/templates/mcp/zones.conf.j2) renders one `limit_req_zone` and one `limit_conn_zone` per role, and [`tasks/utils/mcp_edge_limits.yml`](../../roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml) writes them as `mcp-<app>.conf` into the http-level include directory, in the shape `web-app-prometheus` already uses for `lua_shared_dict`. The file is per role and written by the role that owns the surface, so a later round deploying a different application cannot drop another application's zones — a single round-scoped file would have. [`templates/mcp/vhost.conf.j2`](../../roles/sys-svc-proxy/templates/mcp/vhost.conf.j2) then decides what the application's own vhost does with the declared `mcp.endpoint.path`. A surface that is `enabled` and `exposure: public` gets a location carrying the four `limit_*` directives, with `request_bytes` as `client_max_body_size`, `timeout_seconds` as `proxy_send_timeout` and `stream_seconds` as `proxy_read_timeout` and `send_timeout`, which are now parameters of the shared location snippet rather than the fixed `900s` it hard-coded. That is where `stream_seconds` finally bites: the adapter holds no stream, the proxy does."
 msgstr ""
 
@@ -83212,9 +82540,6 @@ msgstr "[x] Name `DEPLOYMENT_MODE` trong kho: `swarm` iff `len(groups[applicatio
 # - Cpp-meta cởi đồ, mũi tiêm cắt đầu/ thân thể cho Matomo / CSS / JavaScript
 # / Dashboard Việc đăng nhập — cụ thể là mở rộng và không có gì tương đương ở
 # Traefik mà không có cổng bổ sung.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] Đã có
 msgid "[x] The existing [svc-prx-openresty](../../roles/svc-prx-openresty/) remains the reverse proxy under BOTH `DEPLOYMENT_MODE: compose` AND `DEPLOYMENT_MODE: swarm`. No new reverse-proxy role is introduced by this requirement. This preserves the full `sys-front-inj-*` frontend-injection pipeline ([roles/sys-front-inj-all/templates/body_filter.lua.j2](../../roles/sys-front-inj-all/templates/body_filter.lua.j2)) — CSP-meta stripping, head/body snippet injection for Matomo / CSS / JavaScript / Dashboard / Logout — which is openresty-Lua-specific and has no equivalent in Traefik without a non-trivial plugin port."
 msgstr ""
 
@@ -83446,9 +82771,6 @@ msgstr "[x] Dòng chảy công việc thoát nước nút hiện đang chạy Me
 
 # PR, và PR được liên kết lại từ đây. PR đầy đủ: [(Tiếng
 # cười)611](https://github.com/infinito-nexus/core/pull/611).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Yêu cầu này được liên kết chéo từ các thực hiện
 msgid "[x] This requirement is cross-linked from the implementing PR, and the PR is cross-linked back from here. Implementing PR: [infinito-nexus/core#611](https://github.com/infinito-nexus/core/pull/611)."
 msgstr ""
 
@@ -83561,9 +82883,6 @@ msgstr "[x] Khi `web-app-mailu` không có trong `group_names`. `tasks/01_core.y
 # Đã ra ngoài ♪ `Email Account` tự động cấu hình bởi `tasks/06_email.yml` qua
 # `files/scripts/apply/email_account.py` (sử dụng `db_insert`/`db_update` để
 # vượt qua sự sắp đặt của Frappe).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] Khi `web-app-mailu` đang ở `group_names`. ERPNext♪
 msgid "[x] When `web-app-mailu` is in `group_names`, ERPNext's outbound `Email Account` is auto-configured by `tasks/06_email.yml` via `files/scripts/apply/email_account.py` (uses `db_insert`/`db_update` to bypass Frappe's deploy-time SMTP socket validation)."
 msgstr ""
 
@@ -83573,25 +82892,16 @@ msgstr "[x] Khi `web-app-mailu` đang ở `group_names`, Các kho dự trữ đ�
 
 # compose`, khối mạng vẫn giống hệt ngày nay (`bridge`, không có thuộc tính mã
 # hóa).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] ♪ Khi một dịch vụ chạy cùng `DEPLOYMENT_MODE:
 msgid "[x] When a service runs with `DEPLOYMENT_MODE: compose`, network blocks remain identical to today (`bridge`, no encryption attribute)."
 msgstr ""
 
 # compose`, Khối âm lượng vẫn y hệt như ngày nay (âm lượng docker cục bộ,
 # không `driver_opts`); per-lome `nfs` Cờ bị bỏ qua khi được soạn thảo.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] ♪ Khi một dịch vụ chạy cùng `DEPLOYMENT_MODE:
 msgid "[x] When a service runs with `DEPLOYMENT_MODE: compose`, the volume block remains identical to today (local docker volumes, no `driver_opts`); the per-volume `nfs` flag is ignored under compose."
 msgstr ""
 
 # swarm` VÀ `storage.backend: nfs` Và vai trò không được chốt, mỗi tập của nó
 # phải được vẽ bằng khối trình điều khiển NFS:
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] ♪ Khi một dịch vụ chạy cùng `DEPLOYMENT_MODE:
 msgid "[x] When a service runs with `DEPLOYMENT_MODE: swarm` AND `storage.backend: nfs` AND the role is not pinned, each of its volumes MUST be rendered with the NFS driver block:"
 msgstr ""
 
@@ -83601,9 +82911,6 @@ msgstr ""
 # swarm`, mỗi mạng trên TV tuyên bố ngày hôm nay là `driver: bridge` Phải được
 # diễn đạt như `driver: overlay` có `attachable: true`. Phụ thuộc vào việc này
 # -- `bridge` mạng lưới được nối với nhau và có thể phá vỡ mạng lưới.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] ♪ Khi một dịch vụ chạy cùng `DEPLOYMENT_MODE:
 msgid "[x] When a service runs with `DEPLOYMENT_MODE: swarm`, every per-role network declared today as `driver: bridge` MUST be rendered as `driver: overlay` with `attachable: true`. Cross-node service-to-service traffic depends on this — `bridge` networks are node-local and would break the swarm mesh."
 msgstr ""
 
@@ -83725,9 +83032,6 @@ msgstr "[x] [web-app-gitea](../../roles/web-app-gitea/) Hoặc là vận chuyể
 # mà người điều hành chuyển `mcp_server_enabled` tắt, hoặc mất vật kỷ niệm
 # `mcp` Phạm vi, không thể triển khai và nói đó là vụ nào. Khả năng tiếp cận
 # tại các dữ liệu tự quản lý là cùng một thăm dò, chống `/api/v4/mcp`.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: [x] [web-app-gitlab](../../roles/web-app-gitlab/) Hiển
 #, python-brace-format
 msgid "[x] [web-app-gitlab](../../roles/web-app-gitlab/) exposes GitLab MCP only when the operator confirms the required tier/license and the endpoint is reachable at the documented self-managed path. **There is no tier to confirm, and believing there was one is what kept this open.** The survey above recorded Premium-or-Ultimate from the marketing page; the source says otherwise. `lib/api/mcp/base.rb` sits in the CE tree, not `ee/`, and at the pinned `v19.3.1` its `mcp_denial_reason` returns `:instance_setting_disabled` unless `Gitlab::CurrentSettings.mcp_server_enabled?`, with no licence check on that path — `app/models/application_setting.rb:836` declares `mcp_server_enabled: [:boolean, { default: true }]`. So a stock CE instance serves the endpoint, and the role's `-ce` images can reach it. `minimum_version` moves from `18.0` to `19.0`: the route first appears at `v18.3.0` but is gated there by the per-user `mcp_server` feature flag, while `v19.0.0` defines `feature_available?` as an unconditional `true` in CE. The gate that replaces the operator's tier confirmation is a measurement rather than a declaration: `tasks/utils/mcp.yml` asserts the probe both authenticated and returned a non-empty `tools=` count, so an instance whose operator turned `mcp_server_enabled` off, or whose token lost the `mcp` scope, fails the deploy and says which of the two it was. Reachability at the documented self-managed path is the same probe, against `/api/v4/mcp`."
 msgstr ""
@@ -84646,9 +83950,6 @@ msgstr "`01_install.yml` chấp nhận cài đặt là thiết bị cuối để
 msgid "`01_install.yml` and `02_enable.yml` each emit a `debug` warning that the plugin will be skipped for this run."
 msgstr "`01_install.yml` và `02_enable.yml` mỗi phát ra a `debug` cảnh báo rằng bổ sung sẽ bị bỏ qua cho lần chạy này."
 
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: `0` ♪ GtHub-master ♪ (mặc định).
 msgid "`0` / unset → everything GitHub-hosted (default)."
 msgstr ""
 
@@ -84978,9 +84279,6 @@ msgstr "`INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var cho các gói soạn thảo
 # ngược dòng khi độ nhạt là thích hợp hơn để tăng dòng tải; hạ xa hơn cho cấp
 # dữ liệu nhanh chóng di chuyển (`apt-debian-security`♪, hắc ín bọc cành) Khi
 # sự cũ kỹ trở nên rõ ràng.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: `INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` (mặc định `8640`
 msgid "`INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` (default `8640` = 6 days) controls how long every Nexus proxy repo holds an upstream response before revalidating. The bootstrap helper applies it as `contentMaxAge`, `metadataMaxAge`, and `negativeCache.timeToLive`. The default is intentionally one day below the 7-day `Valid-Until` window Debian and Ubuntu generate in their apt `Release` files, so Nexus always refreshes the manifest before `apt-get update` would see it expired. Raise it for slow-moving upstreams when staleness is preferable to upstream load; lower it further for fast-moving feeds (`apt-debian-security`, branch-pinned tarballs) when staleness becomes visible."
 msgstr ""
 
@@ -85426,9 +84724,6 @@ msgstr "`Unit tests` Xác nhận lập luận lẻ loi."
 
 # dùng dùng để lấy `from` và `password`. Việc thiếu mục phải tạo ra một lệnh
 # trắng. Hậu quả của `from` là sau đó `root@<inventory_hostname>.localdomain`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: `UsersLookup` sản xuất `no-reply` Lệnh người dùng dùng
 msgid "`UsersLookup` yields the `no-reply` user dict used to derive `from` and `password`. Missing entries MUST yield an empty dict. The fallback for `from` is then `root@<inventory_hostname>.localdomain`."
 msgstr ""
 
@@ -86035,9 +85330,6 @@ msgstr "``aliases``: danh sách các bí danh DNS. Mặc định ``[entity_name]
 # nhập đường dẫn chấm chấm chấm) Có thể có mặt để đóng một vai trò như thế.
 # Đặt ``allowed: False`` Để cấm tập tin/ đăng nhập vào vai trò của loại này để
 # lớp lit có thể bề mặt lỗi với một lý do chính xác.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``allowed`` (mặc định ``True``): tập tin (hoặc mục
 msgid "``allowed`` (default ``True``): the file (or dotted-path entry) MAY be present for a role of this type. Set ``allowed: False`` to forbid the file/entry on roles of this type so the lint layer can surface the offence with a precise reason."
 msgstr ""
 
@@ -86354,9 +85646,6 @@ msgstr "``enforced`` Hành tất cả các hàng có khả năng, ``disabled`` K
 # soạn thảo: ``web-app-discourse`` được xây dựng bởi discourse_dockerCủa
 # ``launcher``, Người duy nhất nổi lên tranh luận là ``docker_args:`` trong đó
 # ``app.yml``, Vì vậy nó cần ``--add-host=<entry>`` dòng.
-# translation-refused: libretranslate protected-span lost=['discourse_docker']
-# nocheck: url
-# translation-rejected: ``entries_only=true`` trả lại các chuỗi như là một
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -86379,9 +85668,6 @@ msgstr "``ephemeral`` xuất bản cổng container trên các lựa chọn cổ
 # thể/config nơi nó đặt ``exposed: true`` - đó chính xác là những gì cho phép
 # hai biến thể DB được kiểm tra trên Tor (v0 phơi nắng -> có thể với tới, v1
 # không -> từ chối).
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: ``exposed`` là một lựa chọn rõ ràng cho mỗi dịch vụ
 msgid "``exposed`` is an explicit per-service opt-in (default false) that makes the service reachable over the node onion: its port gets a dedicated ``HiddenServicePort``. Because ``applications`` is the variant-merged config (base ``meta/services.yml`` deep-merged with the round's ``meta/variants.yml`` override), a service is forwarded only in the variant/config where it sets ``exposed: true`` — which is exactly what lets the two DB variants be tested over Tor (v0 exposed -> reachable, v1 not -> refused)."
 msgstr ""
 
@@ -86535,9 +85821,6 @@ msgstr "``key``: dịch vụ.<key>.* Tìm kiếm căn cứ. Mặc định: cung 
 # trong cuộc triển khai. Là một khách hàng không phải là một sự thừa nhận: nếu
 # không có điều kiện thứ hai, một trong những thừa nhận bất cứ nơi nào đến với
 # mỗi nhà cung cấp mở rộng của nó.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``kind``: ``services_flags`` (mặc định) teppi82
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
 msgstr ""
 
@@ -86646,9 +85929,6 @@ msgstr "``make install`` hoàn thành trên máy điều khiển (Name)."
 # nhập đường dẫn chấm chấm chấm) Phải có mặt và không rỗng tuếch cho một vai
 # trò của loại này. Quỷ ``allowed: True``; thiết lập ``mandatory: True`` cùng
 # với ``allowed: False`` là một lỗi kế hoạch.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``mandatory`` (mặc định ``False``): tập tin (hoặc mục
 msgid "``mandatory`` (default ``False``): the file (or dotted-path entry) MUST be present and non-empty for a role of this type. Implies ``allowed: True``; setting ``mandatory: True`` together with ``allowed: False`` is a schema error."
 msgstr ""
 
@@ -87274,9 +86554,6 @@ msgid "``true`` runs the test in the sync pass only, so ``full_cycle`` does not 
 msgstr ""
 
 # ``config`` teppi82 ``secret``
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``type`` một ``volume`` teppi82 ``bind`` teppi82
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
 msgstr ""
 
@@ -88314,9 +87591,6 @@ msgstr "`gh workflow run` không in ID chạy mới. Giải quyết nó bằng c
 # phải** cất ở đây (Họ sống ở `~/.config/gh/`, mà chỉ được đọc)Sự bền bỉ đánh
 # đổi giống hệt `~/.cache/pip` / `~/.cache/pre-commit`: ngộ độc bộ nhớ tạm,
 # nếu có, sẽ sống sót sau khi khởi động lại, nhưng API (Tiếng Tây Ban Nha).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `gh` Thư mục bộ nhớ tạm CLI (Bộ nhớ tạm đáp HTTP và
 msgid "`gh` CLI's cache directory (HTTP response cache + extension metadata). Granted because every `gh` invocation writes cache entries at startup; denying it would require every `gh` call to be wrapped with an `XDG_CACHE_HOME=/tmp/...` env prefix, which adds a shell shape that falls out of sandbox auto-allow and forces per-subcommand allow entries. Auth tokens are **not** stored here (they live in `~/.config/gh/`, which stays read-only). Persistence trade-off is identical to `~/.cache/pip` / `~/.cache/pre-commit`: cache poisoning, if it occurred, would survive reboots, but API auth is server-side so the blast radius is bounded to wrong-output-to-operator."
 msgstr ""
 
@@ -88785,9 +88059,6 @@ msgid "`meta/services.yml` excerpt (native OIDC, no oauth2-proxy)"
 msgstr "`meta/services.yml` đoạn (bản xứ OIDC, không oauth2-Praxy)"
 
 # của thuốc bổ, không có chất nổ bên ngoài)
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: `meta/services.yml` đoạn (Oauth2- hương vị vị vị vị
 msgid "`meta/services.yml` excerpt (oauth2-proxy flavor, no external DB)"
 msgstr ""
 
@@ -89990,9 +89261,6 @@ msgstr "`tests/lint/...` Kiểm tra & va chạm/ băng"
 
 # `tests/lint/ansible/roles/meta/test_unpinned_no_engine_volume.py` không được
 # phát âm âm âm lượng dữ liệu.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected:
 msgid "`tests/lint/ansible/roles/meta/test_unpinned_no_engine_volume.py` stays as the guard: an unpinned role must not declare an engine on-disk data volume."
 msgstr ""
 
@@ -90152,9 +89420,6 @@ msgstr "`validation.min_length` được tuyên bố trong nhiều vai trò khá
 # người chạy và ``3,4`` ngày tiếp theo)♪ Từng gói đã qua ♪ `variants`. Các
 # chất xúc tác ngoài tầm nhìn tăng lên `ValueError` Vậy người gọi xuất hiện
 # lỗi điều hành sạch.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: `variants=None` Trả lại kế hoạch không thay đổi (Chế
 msgid "`variants=None` returns the plan unchanged (full-matrix mode). This is the runner-split entry point: a role with more variants than one runner should iterate is sliced into bundles (e.g. ``0,1,2`` on one runner and ``3,4`` on the next), each bundle passed as `variants`. Out-of-range indices raise `ValueError` so the caller surfaces a clean operator error."
 msgstr ""
 
@@ -91058,9 +90323,6 @@ msgstr ""
 
 # nhau nhất ♪ *ngân sách* Hàng. Ưu tiên hàng đầu và không bao giờ xếp hàng
 # thường xuyên.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: nhiều nhất *khối* Mảnh, không lớn hơn *Cỡ*♪, giữ chặt
 msgid "at most *blocks* chunks, none larger than *size*, together holding at most *budget* rows. Priority chunks come first and are never topped up with regular rows."
 msgstr ""
 
@@ -91315,9 +90577,6 @@ msgstr "Lịch (``core_calendar_get_calendar_events``)"
 msgid "calendar events (`core_calendar_get_calendar_events`)"
 msgstr "Lịch (`core_calendar_get_calendar_events`)"
 
-# translation-refused: libretranslate added-span lost=[] gained=['%d']
-# nocheck: url
-# translation-rejected: ứng cử viên = 35%d mem_limit
 #, no-python-format
 msgid "candidate = 35% of mem_limit"
 msgstr ""
@@ -91333,9 +90592,6 @@ msgstr "miền chính thống, trống ``canonical_domain`` và ``canonical_url`
 msgid "canonical image name without registry, e.g. ``postgis/postgis``"
 msgstr ""
 
-# translation-refused: libretranslate added-span lost=[] gained=['%d']
-# nocheck: url
-# translation-rejected: mũ = min(3072 MB, 60%d mem_limit)
 #, no-python-format
 msgid "cap       = min(3072 MB, 60% of mem_limit)"
 msgstr ""
@@ -92729,9 +91985,6 @@ msgstr "Truy cập cơ sở dữ liệu."
 msgid "debian"
 msgstr "debian"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: @ info/ rich
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
 msgstr ""
 
@@ -93809,9 +93062,6 @@ msgid "group-selected roles"
 msgstr "Chọn nhóm"
 
 # gained=['group_varsThư']
-# translation-refused: libretranslate protected-span lost=['group_vars']
-# nocheck: url
-# translation-rejected: group_varsThư mục
 msgid "group_vars/ directory"
 msgstr ""
 
@@ -94086,9 +93336,6 @@ msgstr "nội bộ (Xe bên lề chỉ có thể đến được trên mạng co
 msgid "internal (web-svc-cdn deployed, flavor internal):"
 msgstr "nội bộ (web-svc-cdn triển khai, hương vị bên trong):"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "internal CDN for style/script elem and connect"
 msgstr ""
 
@@ -94100,9 +93347,6 @@ msgstr "nội bộ:"
 msgid "inventories/   server/   workstation/"
 msgstr "Phát minh/ máy chủ/ trạm làm việc/"
 
-# translation-refused: libretranslate added-span lost=[] gained=['%s']
-# nocheck: url
-# translation-rejected: Gói máy phục vụ máy chủ/máy chủ %s
 msgid "inventories/server → server bundle"
 msgstr ""
 
@@ -94756,9 +94000,6 @@ msgstr "n8Trình khách, kích hoạt và cung cấp công cộng API"
 msgid "n8n: SSO hook, MCP provisioning and API paging work under n8n 2"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Tên.
 msgid "name prefixes to keep; all roles when empty or None."
 msgstr ""
 
@@ -94857,9 +94098,6 @@ msgid "no row takes the onion"
 msgstr "không có hàng nhận hành"
 
 # gained=['no_cacheThêm']
-# translation-refused: libretranslate protected-span lost=['no_cache']
-# nocheck: url
-# translation-rejected: no_cacheThêm '--no-cache' để docker xây dựng
 msgid "no_cache=True => add '--no-cache' to docker build"
 msgstr ""
 
@@ -95631,9 +94869,6 @@ msgstr ""
 # install-python` bước (đi qua kết nối bởi `make test`♪, chạy như một cái móc
 # câu ♪) gỡ bỏ bộ nhớ tạm này; từ chối nó sẽ buộc mọi cài đặt phải tải lại từ
 # PyPI ngay cả khi các yêu cầu chưa thay đổi.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Bộ nhớ tạm gói hàng. Cho phép bởi vì dự án là `make
 msgid "pip's package cache. Granted because the project's `make install-python` step (transitively invoked by `make test`, which runs as a pre-commit hook) populates this cache; denying it would force every install to redownload from PyPI even when the requirements have not changed."
 msgstr ""
 
@@ -95744,9 +94979,6 @@ msgid "plugins.filter.docker.service\\_enabled module"
 msgstr "plugins.filter.docker.service\\ Mô- đun xác thực"
 
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainMô']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.domainMô- đun công cụ
 msgid "plugins.filter.domain\\_tools module"
 msgstr ""
 
@@ -96714,9 +95946,6 @@ msgstr "Thu thập các cụm còn lại qua mỗi cụm ID"
 msgid "reason"
 msgstr "Lý do"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Xây dựng lại=False & ảnh còn thiếu =] xây dựng một khi
 msgid "rebuild=False & image missing => build once"
 msgstr ""
 
@@ -97359,9 +96588,6 @@ msgstr "Phạm vi: ``host`` (mặc định) Hạn chế vai trò trong ``group_n
 msgid "seconds an agent gets to answer its health endpoint"
 msgstr "giây một tác nhân được trả lời điểm kết thúc sức khỏe"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: giây.
 msgid "seconds per source for this run, None where the install failed."
 msgstr ""
 
@@ -97403,9 +96629,6 @@ msgid "self_signed  -> generate and store a self-signed certificate (SAN aware)"
 msgstr "self_signed -> Tạo và lưu trữ một chứng nhận tự ký (SAN biết)"
 
 # (SAN biết)
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: self_signed -> Tạo và lưu trữ một chứng nhận tự ký
 msgid "self_signed -> generate and store a self-signed certificate (SAN aware)"
 msgstr ""
 
@@ -97477,9 +96700,6 @@ msgstr "đặt `mcp.enablePluginServer` trong bổ sung hoạt động `agents_c
 # chọn `token`)Cần 7.1.2; `stable-6.5` tuyên bố không cần thiết. `Setting.set`
 # chạy `AI::Provider::CustomOpenAI.ping!`, Vì vậy, viết cấu trúc chính nó là
 # một bằng chứng có thể truy cập
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: thiết lập `ai_provider` ((Tiếng Tây Ban Nha) "Name")
 msgid "settings `ai_provider` (boolean \"a provider is configured\") plus `ai_provider_config` (`provider: custom_open_ai`, `url`, `model`, optional `token`). Needs 7.1.2; `stable-6.5` declares neither setting. `Setting.set` runs `AI::Provider::CustomOpenAI.ping!`, so writing the config is itself a reachability proof"
 msgstr ""
 
@@ -97907,9 +97127,6 @@ msgstr "Đặc vụ OpenDI không có URL cơ sở và các `ollama` Hòa hợp 
 
 # không bị nén (65 byte, 0x04(Tiếng Tây Ban Nha))theo định dạng của hệ sinh
 # thái trên Web Push / Badodon.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: P-256 Chữ số riêng (32 byte) và các điểm công cộng
 msgid "the P-256 private scalar (32 bytes) and the uncompressed public point (65 bytes, 0x04||X||Y), in the format the Web Push / mastodon ecosystem expects."
 msgstr ""
 
@@ -98628,9 +97845,6 @@ msgstr ""
 msgid "the pinned slug, and the pinned version unless ``<TOOL>_VERSION`` in the environment overrides it for a one-off install."
 msgstr "viên đạn đã bị kẹp, và phiên bản đính trừ ``<TOOL>_VERSION`` trong môi trường ghi đè lên nó để cài đặt một lần."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: @ info/ rich
 msgid "the pinned tag appeared for the first time"
 msgstr ""
 
@@ -101227,9 +100441,6 @@ msgstr "{{ lookup('compose_replicas') }} # Thân thuộc mặc định {{ lookup
 # thuộc mặc định {{ lookup('container_deploy', replicas=1) | indent(4) }} ♪
 # Chiếc xe riêng lẻ ♪ {{ lookup('container_deploy', replicas=n) | indent(4) }}
 # # Rõ ràng; '' = mặc định
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: {{ lookup('container_deploy') | indent(4) }} # Thân
 msgid "{{ lookup('container_deploy') | indent(4) }}                # topology default {{ lookup('container_deploy', replicas=1) | indent(4) }}    # single-writer sidecar {{ lookup('container_deploy', replicas=n) | indent(4) }}    # explicit; '' = default"
 msgstr ""
 
@@ -101383,9 +100594,6 @@ msgstr "✅ Không có phụ thuộc"
 msgid "✅ OpenID Connect (OIDC)"
 msgstr "✅ Kết nối OpenID (OIDC)"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: ✅ Name
 msgid "✅ Separate lint execution from tool installation and environment bootstrap"
 msgstr ""
 
@@ -101482,9 +100690,6 @@ msgstr ""
 msgid "🏖️ Install OS-level Claude Code sandbox dependencies (`bubblewrap`, `socat`) via `sandbox.sh`, covering Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, and Arch; also exposed as `make install-agent`"
 msgstr "🏖️ Cài đặt cấp hệ điều hành Claude Code Phụ thuộc vào hộp cát (`bubblewrap`. `socat`) qua `sandbox.sh`, Yểm trợ Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, và Arch cũng bị phơi bày `make install-agent`"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 🏗️ Name
 msgid "🏗️ Build container images for local and CI workflows"
 msgstr ""
 
@@ -101543,9 +100748,6 @@ msgstr "👉 Không tự nâng cấp PR"
 msgid "👉 Secrets may accidentally be committed"
 msgstr "👉 Những bí mật có thể vô tình xảy ra."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 👉 Name
 msgid "👉 Security issues may be detected automatically"
 msgstr ""
 
@@ -101681,9 +100883,6 @@ msgstr "🔎 Kiểm tra xem có mong đợi CN hay phát hành ảnh còn thiế
 msgid "🔎 Keep lint entry points small, explicit, and callable from `make`"
 msgstr "🔎 Giữ mục nhập lit điểm nhỏ, rõ ràng, và gọi từ `make`"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 🔎 Name
 msgid "🔎 Poll external systems until expected artifacts are ready"
 msgstr ""
 
@@ -101879,9 +101078,6 @@ msgstr "🧩 **Hỗ trợ sắc thái cho Keycloak. Nextcloud. Gitea. LAMĐồng
 msgid "🧩 Custom OAuth2 flows via ENV vars"
 msgstr "🧩 Tự chọn OAuth2 chảy qua ENV vars"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 🧩 Name
 msgid "🧩 Derive runtime values from repository and workflow context"
 msgstr ""
 

@@ -792,9 +792,6 @@ msgstr "Palīglīdzekļi"
 # LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
 # pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
 # API.
-# translation-refused: libretranslate unknown-token
-# nocheck: url
-# translation-rejected: High-performance, self-hosted storage solutions for
 # managing, scaling, and accessing unstructured data — including object
 # storage compatible with Amazon S<x id="0"></x> <x id="1"></x>.
 msgctxt "menu:Storage:description"
@@ -1322,9 +1319,6 @@ msgid "Please keep this page open until this is done."
 msgstr "Lūdzu, atstājiet šo lapu atvērtu līdz tas ir izdarīts."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
@@ -1818,9 +1812,6 @@ msgid "Signed out everywhere."
 msgstr "Parakstīts visur."
 
 # pakalpojumi.
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Signed out, except {failed} of {total} services. ---
 # Sigālēt, uzākst {failed} no {total} pārējgaiden. ---  ### User:  ### Signed
 # out, except {failed} of {total} services. ---  ### Signed out, except
 # {failed} of {total} services.
@@ -2209,9 +2200,6 @@ msgctxt "logout:st_pending"
 msgid "signing out"
 msgstr "parakstīšanās"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: --- {done} of {total} servicēs ģremnē atvērīti ---
 # ### User:  --- {done} {total}saprūdījumi</x> signāti iznogoti ---  ### User:
 # --- {done} {total}pārtstāvēšanas</x> atsargumi signāti iznogti ---  ###
 # User:  --- {done} {total}uzvālēs</x> signāti atkārtēti

@@ -286,9 +286,6 @@ msgstr "Клъстер-местни прокси кеш за пакет наго
 
 # translated-by: libretranslate
 # Docker Hub base-image pulls, cut duplicate transfers and rate limits
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Cluster-local pull-through cache for shared Docker Hub
 # base-image pulls, cutting duplicate transfers and rate limits
 # -----------------------------------------------
 msgctxt "role:svc-registry-cache:description"
@@ -407,9 +404,6 @@ msgstr "Core AI building bursorks год., OpenAI-съвместими порт�
 
 # translated-by: libretranslate
 # support and performance-tunned defaults
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
 # support and performance-tuned defaults ---
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
@@ -661,9 +655,6 @@ msgid "Events"
 msgstr "Събития"
 
 # terminal-drived code and configuration editing
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Extensible Vim-based command-line text editor for
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -885,9 +876,6 @@ msgstr "Платформа за проследяване на емисии и п
 
 # translated-by: libretranslate
 # server-side applications and developer tooling
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: JavaScript runtime for building and running
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1463,9 +1451,6 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "Роли за управление на уеб инфраструктурата, покриващи услуги за статично съдържание и приложения за достъп до интернет."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Roles for system monitoring and health
 # checks—encompassing bot-style automated checks and core low-level monitors
 # for logs, containers, disk usage, and more. Roles for system monitoring and
 # health checks—encompassing bot-style automated checks and core low-level
@@ -1631,9 +1616,6 @@ msgstr "Self-hosted чат интерфейс за взаимодействие 
 
 # translated-by: libretranslate
 # real-time cooperation, and team workspaces under your own domain
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted cloud platform for file sync, shareing,
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
@@ -1665,9 +1647,6 @@ msgstr "Самостоятелно предприятие уики и платф
 
 # translated-by: libretranslate
 # reviews and reading tracking over the Fediverse
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Self-hosted federated reading platform for book
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -2179,9 +2158,6 @@ msgstr "Настройка на работна станция за Docker и Doc
 
 # translated-by: libretranslate
 # Arduino board development on Linux
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Workstation toolchain and series-port permissions for
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

@@ -1401,9 +1401,6 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of svc-ai-s1
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Halk vhost, açığa çıkan System One karar kararı karar
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -1620,9 +1617,6 @@ msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantılar
 
 # translated-by: libretranslate
 # uç uç uç-son şifreli video konferencing with beerated doğrulama
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Kendi kendine ev sahipliği WebRTC platformu son uç uç
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr ""
@@ -1675,9 +1669,6 @@ msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısında
 # translated-by: libretranslate
 # zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş
 # sosyal ağ
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Kendi kendini mikroblogging, gerçek zamanlı zaman
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr ""

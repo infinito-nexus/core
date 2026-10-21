@@ -106,9 +106,6 @@ msgstr "# nocheck: pip-version package_name: \"Automatu = =1.1.1\""
 
 # translated-by: libretranslate
 # docker-version
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: # nocheck: shared, email # nocheck: url,
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
 msgstr ""
 
@@ -2410,9 +2407,6 @@ msgstr "**Alapértelmezett viselkedés (változó nincs beállítva vagy beáll�
 # translated-by: libretranslate
 # vagy beállítva más értékre, mint `true`):** A `main` a `run-policy` A munka
 # és az informátor kimarad.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Alapértelmezett viselkedés (változó nincs beállítva
 msgid "**Default behaviour (variable not set or set to any value other than `true`):** Pushes to `main` are gated out at the `run-policy` job and CI is skipped."
 msgstr ""
 
@@ -4081,9 +4075,6 @@ msgstr "**Hatékony URL rövidítés:** Gyorsan generálni rövid, márkás link
 # néven az első szegmense nélkül, mert `ollama/llama3` előzetes rögzítés alatt
 # `openai/gpt-4o-mini` a) `gpt-4o-mini`. Soha nem szondázza a hátteret
 # kéréskor.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **A támogathatóság a LitellM saját katalógusából
 msgid "**Eligibility is read from LiteLLM's own catalog; a declaration is the override.** The image ships `model_prices_and_context_window_backup.json`, 1595 models deep, carrying `max_input_tokens`, `supports_vision`, `supports_function_calling` and `input_cost_per_token`. The hook reads a route's capabilities from `litellm.model_cost`, keyed on the route's own `litellm_params.model` and then on that name without its first segment, because `ollama/llama3` is filed prefixed while `openai/gpt-4o-mini` is filed as `gpt-4o-mini`. It never probes a backend at request time."
 msgstr ""
 
@@ -5910,10 +5901,7 @@ msgstr "**LDAP Szövetség:** Mikor `svc-db-openldap` jelen van, Zammad hiteles�
 # újra LAM.** A Content Security Policy blokkolta az inline script, hogy
 # ellenőrizze LAMa háttérmunka, így ezek az eszközök maradtak "folyamatban"
 # Örökre. A forgatókönyv újra megengedett.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"folyamatban"']
-# nocheck: url
-# translation-rejected: **LDAP import, export és Multi szerkesztés befejezés
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -7432,9 +7420,6 @@ msgid "**Optional web dashboard:** With `services.webui.enabled` set, the dashbo
 msgstr ""
 
 # sablont (kísérleti) *️
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Választható** tartalmazza a vad kártya átirányított
 msgid "**Optionally** include a wildcard redirect template (experimental) ⭐️"
 msgstr ""
 
@@ -8478,9 +8463,6 @@ msgid "**SSO Login:** \"Login with SSO\" button (when OIDC is enabled)"
 msgstr "**SSO bejelentkezés:** \"Bejelentkezés SSO-val\" gomb (OIDC engedélyezésekor)"
 
 # (OIDC engedélyezésekor)
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **SSO bejelentkezés:** "Bejelentkezés SSO-val" gomb
 msgid "**SSO Login:** “Login with SSO” button (when OIDC is enabled)"
 msgstr ""
 
@@ -14638,10 +14620,7 @@ msgstr "A munka URL leszűkíti a letöltés a munka app; egy csupasz futó URL 
 # (``ollama pull`` nyomatok "naprakész" és nem-nulla kijáratok)Mindkettőt
 # átkutatják, így a hívó átmegy a tolerált kifejezésen, és nem kell tudnia,
 # melyik kulcs hordozza.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"naprakész"']
-# nocheck: url
-# translation-rejected: A munka sikertelennek számít, ha nem fejeződött be,
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -15059,9 +15038,6 @@ msgid "A refused answer reaches the next engine"
 msgstr ""
 
 # ``192\.168\.24\.\d+`` a)24 vagy ``192\.168\.(24|25)\.\d+`` a)23.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A regex több mint pontozott oktets, pl.
 msgid "A regex over dotted octets, e.g. ``192\\.168\\.24\\.\\d+`` for a /24 or ``192\\.168\\.(24|25)\\.\\d+`` for a /23."
 msgstr ""
 
@@ -16748,9 +16724,6 @@ msgid "Administration"
 msgstr "Alkalmazás"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Alkalmazás 🕵️*♂️
 msgid "Administration 🕵️‍♂️"
 msgstr ""
 
@@ -18004,9 +17977,6 @@ msgstr ""
 msgid "An inventory in Infinito.Nexus is not just a host definition. It represents a complete, declarative infrastructure bundle."
 msgstr "Leltár Infinito.Nexus Ez nem csak egy host definíció. Teljes, deklaratív infrastrukturális csomagot képvisel."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Leltár Infinito.Nexus a)
 msgid "An inventory in Infinito.Nexus is:"
 msgstr ""
 
@@ -18937,9 +18907,6 @@ msgstr "Látogatóként Infinito.Nexus telepítés, azt akarom, hogy a dokument�
 # infrastruktúra-titkok, alkalmazásigazolások, tanúsítványok és zsetonok
 # központi tárolhatók és visszakereshetők legyenek anélkül, hogy statikus
 # titkokat terjesztenének a rendszerek között.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Mint Infinito.Nexus Rendező, akarom
 msgid "As an Infinito.Nexus administrator, I want [OpenBao](https://github.com/openbao/openbao) deployed as a `web-app-openbao` role with Keycloak OIDC login, group-mapped policies, persistent storage, automatic unsealing, backup and monitoring, so that infrastructure secrets, application credentials, certificates and tokens can be stored and retrieved centrally without distributing static secrets across systems."
 msgstr ""
 
@@ -25034,9 +25001,6 @@ msgstr "A PASS közötti credential rotation 1 és PASS 2 Egy bevetési kört."
 
 # translated-by: libretranslate
 # values.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Credential schema definitions and runtime credential
 msgid "Credential schema definitions and runtime credential values."
 msgstr ""
 
@@ -26978,9 +26942,6 @@ msgstr "Irány"
 # elsőbbség `native > plugin > sidecar > external`; `sidecar`/`external` A
 # szerver saját szolgáltatást kap és portot kap ahelyett, hogy újrahasználja
 # az alkalmazás elsődleges HTTP portját.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Irányok kapuk a vezetékek: a `server` Csak a szerepek
 msgid "Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role only consumes, a `both` role does either. Implementation precedence is `native > plugin > sidecar > external`; a `sidecar`/`external` server gets its own service entry and port rather than reusing the app's primary HTTP port."
 msgstr ""
 
@@ -28412,9 +28373,6 @@ msgstr "Vagy a jelenlegi alkalmazás IS web-app-prometheus, OR ez kijelenti, pro
 # str[rg] A 90. árucsoporthoz tartozó Megjegyzések 1. b) pontjában
 # meghatározott áruk[str, str]) vagy a domainek már lapított listája, vagy
 # egyetlen domain sztring.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Vagy a domain feltérképezése dict (értékek lehetnek
 msgid "Either the domain mapping dict (values can be str | list[str] | dict[str,str]) or an already flattened list of domains, or a single domain string."
 msgstr ""
 
@@ -29915,9 +29873,6 @@ msgstr "SQL parancsok végrehajtása"
 # Ellenőrizze az összes Checkmk env nevek, a `auth_by_http_header` config
 # mechanizmus, site- path routing, és a GUI kiválasztók ellen a rögzített
 # upstream verzió, mielőtt azt állítják, hogy megtörtént.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A nyitott kérdések megoldása után önállóan hajtsa
 msgid "Execute autonomously after the Open Questions are resolved. Scaffold using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (oauth2 flavor + header SSO + LDAP). Verify all Checkmk env names, the `auth_by_http_header` config mechanism, site-path routing, and the GUI selectors against the pinned upstream version before claiming done."
 msgstr ""
 
@@ -32055,10 +32010,7 @@ msgstr "A roncsolásmentes megfelelőt lásd: [inicializálás /](../initialize/
 # [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md).
 # A munkafolyamat katalógus, amely vezeti ezeket a hívásokat lásd
 # [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Lemezterület"']
-# nocheck: url
-# translation-rejected: A logikai mögött lemez reclamation és swap bővítés
 msgid "For the rationale behind disk reclamation and swap enlargement in deploy workflows see the \"Disk space\" and \"Swap\" sections in [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md). For the workflow catalog that drives these calls see [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md)."
 msgstr ""
 
@@ -32523,10 +32475,7 @@ msgstr "GITHUB_ACTIONS= true AND not ACT - > real github actions"
 
 # tulajdonosa, származó GITHUB_REPOSITORY_OWNER / OWNER /
 # GITHUB_REPOSITORYHalálos, ha megoldhatatlan a GHA-n.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYHalálos']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: alacsony szintű GHA tároló
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -36440,9 +36389,6 @@ msgid "Installs the CLI GNOME Extension Manager using the package manager."
 msgstr "Telepíti a CLI GNOME kiterjesztési kezelőt a csomagkezelő segítségével."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate missing-name
-# nocheck: url
-# translation-rejected: Telepíti a Infinito.Nexus Automatikus CLI
 msgid "Installs the Infinito.Nexus CLI automatically"
 msgstr ""
 
@@ -36719,9 +36665,6 @@ msgstr "Integrációs tesztek, amelyek érvényre juttatják a `server:` block i
 # docker- egészségügyi vezetékek sértetlen, és a native- metrika kaparási
 # szerződés (`services.prometheus.native_metrics.enabled` *
 # `templates/prometheus.yml.j2`) tartja át a szerepek fa.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Integrációs tesztek, amelyek érvényesítik a túlélők a
 msgid "Integration tests that enforce invariants of the prometheus integration: every web-app/svc role declares the shared `prometheus` service entry, the prometheus role's own nginx + docker-health wiring is intact, and the native-metrics scrape contract (`services.prometheus.native_metrics.enabled` ⇔ `templates/prometheus.yml.j2`) holds across the roles tree."
 msgstr ""
 
@@ -38814,9 +38757,6 @@ msgid "Loader role providing the shared-service preload pass and helper tasks fo
 msgstr "Loader szerepe biztosítja a megosztott szolgáltatás előzetes átengedési és segítő feladatok sorban postload szerepbefoglalások."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Loader, lint, and the materialised path
 msgid "Loader, lint, and the materialised path"
 msgstr ""
 
@@ -39686,10 +39626,7 @@ msgid "Maintenance, dependency, and tooling updates (incl. branches created by [
 msgstr "Karbantartás, függőség és szerszámok frissítése (Beleértve az általa létrehozott ágakat [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
 # "opcionális more_header lehetőség.
-# translation-refused: libretranslate protected-span
 # lost=['proxy_hide_header'] gained=['"', 'Gyártmányproxy_hide_header']
-# nocheck: url
-# translation-rejected: Gyártmányproxy_hide_header Content- Security- Policy
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -40618,9 +40555,6 @@ msgstr "Tükrök felülbírálása **Csak kép / verzió**az összes többi szer
 # mariadb): azon ágak, amelyeken a tárhely-tároló motor van (amount in units
 # (real)) a fogyasztó egységes S-t tett lehetővé és hoz létre3 kapcsolat
 # hasznos teher, így a fogyasztói sablonok továbbra is invazív.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Tükrök plugins/lookup/database.py (postgres124;
 msgid "Mirrors plugins/lookup/database.py (postgres|mariadb): branches on which object-store engine (seaweedfs|minio) the consumer has enabled and yields a uniform S3 connection payload, so consumer templates stay engine-agnostic."
 msgstr ""
 
@@ -41166,9 +41100,6 @@ msgid "NGINX Domain Setup"
 msgstr "NGINX tartománybeállítás"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: NGINX Global Matomo & Theming Modifier Role
 msgid "NGINX Global Matomo & Theming Modifier Role"
 msgstr ""
 
@@ -41287,10 +41218,7 @@ msgid "Named volume (or host path) backing the nested Docker directory. Generato
 msgstr "Névleges térfogat (vagy menetvonal) a fészkes Docker könyvtár mögött. Generátor felülbírálja a `/mnt/docker` GHA-n."
 
 # kulcsadaemon.json.
-# translation-refused: libretranslate protected-span lost=['daemon.json']
 # gained=['kulcsadaemon.json']
-# nocheck: url
-# translation-rejected: Nameservers beszorult a ``dns`` a / etc / docker /
 msgid "Nameservers pinned under the ``dns`` key of /etc/docker/daemon.json."
 msgstr ""
 
@@ -45919,10 +45847,7 @@ msgstr ""
 
 # rendelkezés CLI kell ``--include`` Így a kapott leltár minden csoport
 # APP_IDA tranzitív dep-jeire szükség lesz a bevetés idejére.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDA']
-# nocheck: url
-# translation-rejected: Nyomtatás, egy vonalanként, a szerepazonosító a
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -46082,9 +46007,6 @@ msgstr "Promoted the docker-raw-call guard into the uniformed suppression gramma
 msgid "Promotes each transient condition the applying step tolerates into a red row, on every deploy job of every sweep."
 msgstr "Elősegíti minden átmeneti állapot az alkalmazott lépés tolerálja a piros sorban, minden bevetési munkát minden söprés."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Az OIDC előmozdítása User Admin 🧑*💼
 msgid "Promoting an OIDC User to Admin 🧑‍💼"
 msgstr ""
 
@@ -47510,10 +47432,7 @@ msgid "Reads the last day of the journal as JSON with every field in full (``--a
 msgstr ""
 
 # keresztül('config'); maga az íz svc-storage-nfs-server/ meta / service.yml.
-# translation-refused: libretranslate protected-span
 # lost=['svc-storage-nfs-server/meta/services.yml.'] gained=['service.yml']
-# nocheck: url
-# translation-rejected: Megolvassa a merged- config SKOT-ot a keresésen
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -47830,9 +47749,6 @@ msgid "Refactored *dev-fakeroot* by extracting *00_core* tasks"
 msgstr "Átdolgozott *dev-fakeroot* extrahálással *00_ core* feladatok"
 
 # és az összehangolt Debian álnevek használata
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Átdolgozott *amount in units (real)* a közzétett kép
 msgid "Refactored *mig* to use the published image and aligned Debian aliases"
 msgstr ""
 
@@ -48200,9 +48116,6 @@ msgstr "Szabadidő-kapuk, amelyek eldöntik, hogy egy jelölt elkötelezettség 
 
 # translated-by: libretranslate
 # Deterministic Deploys 🚀
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Release: Infrastructure Hardening, Mirroring &
 msgid "Release: Infrastructure Hardening, Mirroring & Deterministic Deploys 🚀"
 msgstr ""
 
@@ -49193,10 +49106,7 @@ msgid "Resolution 🔗"
 msgstr "Felbontás 🔗"
 
 # változatok.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDA']
-# nocheck: url
-# translation-rejected: Megoldás APP_IDA tranzitív tartalmazza az aktív
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -49610,10 +49520,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Visszatérés (tulajdonos, repo, run_id) Run ID vagy Run / Jobs URL."
 
 # "átlagos kimenőteljesítmény" meghaladja az 1 kW-ot;) a futás / munka URL.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['"', '1', 'job_idAz']
-# nocheck: url
-# translation-rejected: Visszatérés (tulajdonos, repo, run_id, job_idAz
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -53965,18 +53872,12 @@ msgstr "Scaffold `tasks/flavor/ansible/` (klón, render leltár, futtatás ját�
 # bekezdésének b) pontja (legközelebbi analóg: ERP-alakú, OIDC + LDAP
 # változatok, central- service fogyasztói minta, kettős HTTP + WebSocket
 # vhost).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Scaffold a szerepet használ
 msgid "Scaffold the role using [`roles/web-app-odoo/`](../../roles/web-app-odoo/) as the structural template (closest analogue: ERP-shaped, OIDC + LDAP variants, central-service consumer pattern, dual HTTP + WebSocket vhost)."
 msgstr ""
 
 # [`roles/web-app-openproject/`](../../roles/web-app-openproject/) A CRR 429.
 # cikke (1) bekezdésének b) pontja (Postgres fogyasztó, LDAP var, OIDC, három
 # személy).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Scaffold a szerepet használ
 msgid "Scaffold the role using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (Postgres consumer, LDAP vars, OIDC, three personas)."
 msgstr ""
 
@@ -55134,9 +55035,6 @@ msgstr "Beállítás ``npm_project_folder`` egy olyan könyvtárba, amely ``pack
 # cikke (1) bekezdésének b) pontja ``templates/flavor/compose/``. A meglévő
 # volumeneket és megbízóleveleket újra felhasználják, így a belső telepítések
 # nem igényelnek migrációt.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Beállítás ``services.matrix.flavor: compose`` hogy
 msgid "Set ``services.matrix.flavor: compose`` to opt in. Tasks live under ``tasks/flavor/compose/``, templates under ``templates/flavor/compose/``. Existing volumes and credentials are reused, so in-place deploys need no migration."
 msgstr ""
 
@@ -55163,9 +55061,6 @@ msgstr "Beállítás `npm_project_folder` egy olyan könyvtárba, amely `package
 # cikke (1) bekezdésének b) pontja `templates/flavor/compose/`. A meglévő
 # volumeneket és megbízóleveleket újra felhasználják, így a belső telepítések
 # nem igényelnek migrációt.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Beállítás `services.matrix.flavor: compose` hogy
 msgid "Set `services.matrix.flavor: compose` to opt in. Tasks live under `tasks/flavor/compose/`, templates under `templates/flavor/compose/`. Existing volumes and credentials are reused, so in-place deploys need no migration."
 msgstr ""
 
@@ -58213,10 +58108,7 @@ msgstr "Systemd Timer"
 msgid "TCP port to listen on (default `8080`)."
 msgstr "TCP port hallgatni (alapértelmezés `8080`)."
 
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"IS"']
-# nocheck: url
-# translation-rejected: A TÁRSADALOM "IS"Minden ok nélkül.
 msgid "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND."
 msgstr ""
 
@@ -59683,9 +59575,6 @@ msgstr "A Certbot A szerep egy \"readyto- use\", automatikus megoldás SSL / TLS
 # hagyományos szervereket kezelsz, akár tárolod a környezetet, ez a szerep
 # biztosítja, hogy a bizonyítványaid mindig a helyükön legyenek és érvényesek
 # legyenek.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: A Certbot A szerep egy "readyto- use", automatikus
 msgid "The Certbot role provides a ready-to-use, automated solution for SSL/TLS management in your infrastructure. Whether you’re managing traditional servers or containerized environments, this role ensures your certificates are always in place and valid."
 msgstr ""
 
@@ -60181,9 +60070,6 @@ msgstr "A ``administrator`` Személyi **nem** Blokkolva: `tasks/04_admin.yml <./
 # ``create_user(...)`` és nem ``is_staff`` zászló, és semmilyen feladat nem
 # segíti elő a meglévő számla, így a rendszergazda érkezik, mint egy átlagos
 # tag nélkül admin felület gyakorolni.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A ``administrator`` persona is blokkolja, mert ez a
 msgid "The ``administrator`` persona is additionally blocked because this role never creates a BookWyrm staff account. ``files/sso/header_auth.py`` provisions proxied identities with ``create_user(...)`` and no ``is_staff`` flag, and no task promotes an existing account, so the administrator arrives as an ordinary member with no admin surface to exercise."
 msgstr ""
 
@@ -60319,9 +60205,6 @@ msgstr "A `administrator` Személyi **nem** Blokkolva: [tasks/04_admin.yml](./ta
 # `create_user(...)` és nem `is_staff` zászló, és semmilyen feladat nem segíti
 # elő a meglévő számla, így a rendszergazda érkezik, mint egy átlagos tag
 # nélkül admin felület gyakorolni.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A `administrator` persona is blokkolja, mert ez a
 msgid "The `administrator` persona is additionally blocked because this role never creates a BookWyrm staff account. `files/sso/header_auth.py` provisions proxied identities with `create_user(...)` and no `is_staff` flag, and no task promotes an existing account, so the administrator arrives as an ordinary member with no admin surface to exercise."
 msgstr ""
 
@@ -61486,9 +61369,6 @@ msgstr "A dekoráció egy oldal csomagolja be a nevet először távolítsa el; 
 # 5 sidecar sablonok és a per- consumers former feladat **web-app-keycloak**
 # (*Sablonok /sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** Most
 # nyilatkozik. **biztosítja: sso**.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A dedikált búcsú2-proxy szolgáltató szerepe (a
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
 msgstr ""
 
@@ -61971,9 +61851,6 @@ msgstr "A formátum a dokker-kompozit `.env`-alcsoport: lapos `KEY=value` vonala
 # `roles/web-app-nextcloud/vars/plugins/sociallogin.yml` a (2) bekezdés
 # helyébe a következő szöveg lép: install/enable/configure Felolvasott
 # feladatok `applications.web-app-nextcloud.addons.sociallogin.config` Inkább.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Az előző
 msgid "The former `roles/web-app-nextcloud/vars/plugins/sociallogin.yml` is deleted; the install/enable/configure tasks read `applications.web-app-nextcloud.addons.sociallogin.config` instead."
 msgstr ""
 
@@ -65354,10 +65231,7 @@ msgstr "A kereskedelmi: `deny` Most már a teljes súlya \"amit az ügynök soha
 # közvetlen szolgáltatás térkép nem tart külföldi szolgáltató engedélyezve (a
 # szerepvállalás elszigetelt): variánssoronként, az alaptól
 # ``meta/services.yml`` Az egész szerepsor sorokban.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['(', ')', '1', '114', '4', '56']
-# nocheck: url
-# translation-rejected: Az átmeneti mezők (``services`` / ``consumed_by`` és a
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -66100,9 +65974,6 @@ msgstr "Ez az Elérhető szerep beépül és végrehajtja ```dockreap`` <https:/
 
 # translated-by: libretranslate
 # CLI elérhető a rendszerén.
-# translation-refused: libretranslate missing-name
-# nocheck: url
-# translation-rejected: Ez az elérhetõ szerep beiktatja és Infinito.Nexus A
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
 msgstr ""
 
@@ -69231,10 +69102,7 @@ msgstr "Ma minden Infinito.Nexus indítási futások `docker compose` egyetlen, 
 # variants.yml](../../roles/web-app-opencloud/meta/variants.yml) ahol változat
 # 1 készlet `ldap.enabled: true` és `oidc.enabled: false`), de a megfelelő
 # spec forgatókönyv még nem létezik.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml'] gained=['variants.yml']
-# nocheck: url
-# translation-rejected: A mai napon a legtöbb szerepspektrumon megjelennek a
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -71137,11 +71005,8 @@ msgstr "Használta: ``ressources`` CLI és a variáns források-költségvetés 
 
 # / prometheus.yml.j2, hogy az auto-fedezze fel alkalmazások, amelyek
 # felfedezni egy natív / metrika végpont nélkül hardcoding minden app nevét.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['prometheus.yml.j2']
-# nocheck: url
-# translation-rejected: Használta: web-app-prometheus/ sablonok / konfiguráció
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -71309,10 +71174,7 @@ msgstr "Felhasználónév-követelés: `preferred_username`, feltérképezve Ope
 
 # ``{{hunspell_languages}}`` változó sajátos nyelvi követelményeik alapján. Ez
 # a változó elfogadja a nyelvi kódok listáját (például ",en_US','de_DE').
-# translation-refused: libretranslate protected-span lost=['de_DE']
 # gained=['"', "'de_DE'"]
-# nocheck: url
-# translation-rejected: A felhasználók arra ösztönzik, hogy testre
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -73959,9 +73821,6 @@ msgstr ""
 
 # kiválasztja a szerepet; törölt, kimerült, kihagyott (🚫) és még mindig fut
 # (*) Az üzemmódok nem.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A ``strict``, Csak keményen. ``failure`` (❌)
 msgid "With ``strict``, only a hard ``failure`` (❌) selects a role; cancelled, timed-out, skipped (🚫) and still-running (⏳) modes do not."
 msgstr ""
 
@@ -79595,9 +79454,6 @@ msgstr "[Nextcloud hivatalos honlapja](https://nextcloud.com/)"
 
 # translated-by: libretranslate
 # App](https://apps.nextcloud.com/apps/onlyoffice)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: [Nextcloud → ONLYOFFICE Integration
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr ""
 
@@ -80984,9 +80840,6 @@ msgstr "[mapping.py](../../../../utils/roles/mapping.py) ez az egyetlen hiteles 
 
 # (real)](https://github.com/moodlehq/moodle-docker) (A kiterjesztési lista
 # hivatkozási száma)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [amount in units
 msgid "[moodlehq/moodle-docker](https://github.com/moodlehq/moodle-docker) (extension list reference)"
 msgstr ""
 
@@ -81736,9 +81589,6 @@ msgstr "[x] Az egyszintű vizsgálat kiterjed a CLI paraméterekre (szükséges 
 
 # translated-by: libretranslate
 # DOMAIN_PRIMARY }}/` a Keycloak a OpenBao UI. (`test-oidc-login.js`, 6.5 c.)
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] A felhasználó bejelentkezik a `https://openbao.{{
 msgid "[x] A user logs in at `https://openbao.{{ DOMAIN_PRIMARY }}/` through the Keycloak chain and lands authenticated in the OpenBao UI. (`test-oidc-login.js`, 6.5 s.)"
 msgstr ""
 
@@ -82631,9 +82481,6 @@ msgstr "[x] A felhasználó azonosítója a `{{ OIDC.ATTRIBUTES.USERNAME }}`; a 
 
 # real-time együttműködés (élő kurzorok, megjegyzések) építési munkák (A CRR
 # 429. cikkének (1) bekezdése).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] A vhost beállítja a WebSocket frissítést, így
 msgid "[x] The vhost configures WebSocket upgrade so real-time collaboration (live cursors, comments) works (handled by the shared proxy template)."
 msgstr ""
 
@@ -83149,10 +82996,7 @@ msgstr "[x] `meta/variants.yml` kijelenti, hogy a matrix- telepítési változat
 # ban** változat (`ldap` a `sso`/ OIDC kikapcsolva) az egyezményenként:
 # [web-app-openproject/ meta /
 # variants.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml'] gained=['variants.yml']
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` meghatározza a **Csak LDAP-
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -83616,10 +83460,7 @@ msgid "__Increment fallback:__ if the band has no internal gaps, propose `max(us
 msgstr "_ _ Növelési visszaesés: _ _ ha a sávnak nincsenek belső hiányosságai, javasoljuk `max(used) + 1` (a szalag felső részéhez rögzítve)."
 
 # CA köteg hiányzik, server- side kérdés
-# translation-refused: libretranslate protected-span lost=['handshake__']
 # gained=['esik.handshake__']
-# nocheck: url
-# translation-rejected: Az MTU középre esik.handshake__, MITM cert mismatch,
 msgid "__MTU drops mid-handshake__, MITM cert mismatch, CA bundle missing, server-side issue"
 msgstr ""
 
@@ -84477,9 +84318,6 @@ msgstr "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `
 
 # `/var/lib/semaphore`), `mysql`, `postgres`. Postgres használ
 # `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `SEMAPHORE_DB_DIALECT` * `bolt` (fájl
 msgid "`SEMAPHORE_DB_DIALECT` ∈ `bolt` (file at `/var/lib/semaphore`), `mysql`, `postgres`. Postgres uses `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`."
 msgstr ""
 
@@ -84697,10 +84535,7 @@ msgstr "``$wgHTTPTimeout`` ugyanabban a blokkban emelkedik, mert a mag 25S egy h
 # nem tagság. Húros összehasonlítás (``==`` ``!=`` ``%%``) esetérzéketlenek;
 # ``< > <= >=`` numerikus. Puszta kifejezés üzemeltető nélkül (pl.
 # ``nextcloud``) rövidítés ``name %% nextcloud``.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"tagja"']
-# nocheck: url
-# translation-rejected: ``%%`` ed "contains" egy scalar sztring értéke és
 #, no-python-format
 msgid "``%%`` is \"contains\" for a scalar string value and \"is a member of\" for a set value; ``==`` / ``!=`` against a set mean membership / non-membership. String comparisons (``==`` ``!=`` ``%%``) are case-insensitive; ``< > <= >=`` are numeric. A bare expression with no operator (e.g. ``nextcloud``) is shorthand for ``name %% nextcloud``."
 msgstr ""
@@ -85507,10 +85342,7 @@ msgstr "``enforced`` hagyma minden alkalmas sorban, ``disabled`` nincs, ``exclus
 # ``web-app-discourse`` az építette: discourse_dockers ``launcher``, amelynek
 # egyetlen érv felülete: ``docker_args:`` a ``app.yml``, így van szüksége
 # ``--add-host=<entry>`` vonalak.
-# translation-refused: libretranslate protected-span lost=['discourse_docker']
 # gained=['discourse_dockers']
-# nocheck: url
-# translation-rejected: ``entries_only=true`` azokat a sztringeket a
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -86054,9 +85886,6 @@ msgstr "``relay`` és ``media`` UDP. ``stun_turn`` és a TLS változat beszél T
 # ``pacman_section`` a) ``pacman.conf`` például: ``multilib``,
 # ``copr``/``ppa`` közösségi adattárhoz, vagy ``managed_externally`` amikor a
 # szerep felállítja magát.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``repo`` az adattár a nevek származik, meghatározott
 msgid "``repo`` carries the repository the names come from, defined inline on the entry that needs it: a full definition (``name``/``description``/ ``baseurl``/``gpgkey``) rendered as a yum repo, ``bootstrap_package`` for a repo shipped as a package such as ``epel-release``, ``enable_existing`` to switch on a repo the distro already ships, ``pacman_section`` to uncomment a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a community repository, or ``managed_externally`` when the role sets it up itself."
 msgstr ""
 
@@ -87964,9 +87793,6 @@ msgstr "`meta/variants.yml` (három változat, mirroring openproject)"
 # az illatos íz (V1 anzil + sso + ldap + e-mail + all- hidak; V2 amount in
 # units (real)3 anzil + ldap- only). Meglévő kompozit-íz változatok átnevezve
 # `Vcompose-*` és marad a regressziós lefedettségre.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `meta/variants.yml` új változatok, amelyek gyakorolják
 msgid "`meta/variants.yml` adds new variants that exercise the ansible flavor (V1 ansible + sso + ldap + email + all-bridges; V2 ansible + no auth; V3 ansible + ldap-only). Existing compose-flavor variants are renamed `Vcompose-*` and stay for regression coverage."
 msgstr ""
 
@@ -93091,16 +92917,10 @@ msgid "image built from `Dockerfile` + `init.sh`; `MACHINE_BASE_IMAGE` comes fro
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: image name, with or without a registry prefix.
 msgid "image name, with or without a registry prefix."
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: image name, with or without registry host.
 msgid "image name, with or without registry host."
 msgstr ""
 
@@ -97001,9 +96821,6 @@ msgstr "az OpenAI ügynök nem vesz alap URL és a `ollama` Az integráció besz
 # / EK tanácsi irányelv és a 95 / 46 / EK európai parlamenti és tanácsi
 # irányelv hatályon kívül helyezéséről (HL L 281., 2015.10.31., 1. o.).), a
 # Web Push / Mastodon ökoszisztéma által elvárt formátumban.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A256 magánskalár (32 bájt) és a tömörítetlen nyilvános
 msgid "the P-256 private scalar (32 bytes) and the uncompressed public point (65 bytes, 0x04||X||Y), in the format the Web Push / mastodon ecosystem expects."
 msgstr ""
 
@@ -97866,9 +97683,6 @@ msgstr "a kiolvasztott konfig egy tartályba van szerelve ahelyett, hogy a gazda
 msgid "the reply names no index, or one outside the levels. Both     are refusals to answer the question that was asked, and reading     them as a score would put a number on a non-answer."
 msgstr ""
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: a / debian / és / debian- security /.
 msgid "the repository behind each path, for a host whose suites live side by side, as Debian's do under /debian/ and /debian-security/."
 msgstr ""
 
@@ -98184,9 +97998,6 @@ msgid "the services file, the ``repository`` or the ``ref`` is     missing or ma
 msgstr "a szolgáltatási akta, ``repository`` vagy ``ref`` hiányzó vagy hibás. Gondolom, bármelyikük is telepítene egy eszközt, amit senki sem választott."
 
 # -m``, üres, amikor a php nem lehet kérdés.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: A CRR 429. cikke (1) bekezdésének b) pontja ``php
 msgid "the set reported by ``php -m``, empty when php cannot be queried."
 msgstr ""
 
@@ -100405,9 +100216,6 @@ msgstr "Az Author adatai"
 msgid "“Smart defaults”:"
 msgstr "\"Intelligens alapértelmezés\":"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: *️ **Szűrési logika** break böngésző gyorsítótár
 msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr ""
 
@@ -100590,9 +100398,6 @@ msgid "🐳 **Docker-Based Deployment:** Easy containerized setup of backend, fr
 msgstr "🐳 **Dokumentumalapú telepítés:** A hátoldal, a frontend, az aszinkron dolgozók és az események egyszerű elhelyezése."
 
 # in units (real)](https://github.com/bigbluebutton/docker)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 🐳 **Dokumentumalapú** telepítés hivatalos úton [amount
 msgid "🐳 **Docker-based** deployment via official [bigbluebutton/docker](https://github.com/bigbluebutton/docker)"
 msgstr ""
 

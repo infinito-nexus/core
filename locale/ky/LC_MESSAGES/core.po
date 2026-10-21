@@ -280,9 +280,6 @@ msgid "Cluster-local container image registry for serving custom-built images to
 msgstr "Docker Swarm жумушчу түйүндөрүнө атайын курулган сүрөттөрдү жеткирүү үчүн кластердик жергиликтүү контейнердик сүрөт реестри"
 
 # прокси кэш) - бул ар бир ролду жарыялайт.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Cluster-local proxy cache for package upstreams,
 # serving apt, pip, npm and raw artefacts every role declares
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
@@ -326,9 +323,6 @@ msgstr "Коомчулук"
 # аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
 # камсыздалган активдери бар Луа.
 # gained=['sub_filterМЧН']
-# translation-refused: libretranslate protected-span lost=['sub_filter']
-# nocheck: url
-# translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -809,9 +803,6 @@ msgid "Host-level configuration linking Bash and Zsh login shells to a shared .p
 msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү ырааттуу жүктөө үчүн жалпы.profile менен байланыштырган хост деңгээлиндеги конфигурация"
 
 # чаралар pyproject.toml Системалык версия (ETC)
-# translation-refused: libretranslate unknown-token
-# nocheck: url
-# translation-rejected: Host-level provisioning for exposing the project's <x
 # id="0"></x> version system-wide via /etc/environment --- Host-level
 # provisioning for exposing the project's <x id="1"></x> version system-wide
 # via /etc/environment --- Host-level provisioning for exposing the project's
@@ -1064,9 +1055,6 @@ msgstr "NGINX негизделген веб-платформа жана беки
 
 # translated-by: libretranslate
 # берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
@@ -1168,9 +1156,6 @@ msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and webs
 msgstr "Ачык булактуу ERP топтому CRM, сатуу, бухгалтердик эсеп, инвентаризация, кадрлар жана веб-сайтты башкаруу үчүн"
 
 # (SSO)
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Open-source IT and application monitoring server
 # behind SSO with native LDAP user management  Open-source IT and application
 # monitoring server behind SSO with native LDAP user management
 msgctxt "role:web-app-checkmk:description"
@@ -1811,9 +1796,6 @@ msgstr "Керектөөчүлөргө виртуалдык хост жана к
 
 # жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
 # ролдор.
-# translation-refused: libretranslate added-span lost=[] gained=['<unk>']
-# nocheck: url
-# translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr ""

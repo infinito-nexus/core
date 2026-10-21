@@ -442,9 +442,6 @@ msgstr "**Hallinnoijan sisäänkirjautumisen on oltava avainpohjainen:** Playboo
 # talletettu rahake edelleen todistusvoimainen, kumoaako se ujon merkinnän
 # tällä nimellä, ja uudelleenmintoittaa, kun API Hylätään se. Käyttö
 # epäonnistuu, jos uusi merkki hylätään myös.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Hallintovirkamies:** Rooli lyö Gitea
 msgid "**Administrator-issued token:** The role mints a Gitea personal access token named ``gitea-mcp`` for the ``administrator`` account with the read-only scope set ``read:repository,read:issue,read:user,read:organization,read:notification``, and persists it in the token store MCP clients read. Every deploy asks the API whether the stored token still authenticates, revokes the stale entry under that name, and re-mints when the API rejects it. The deploy fails if the fresh token is rejected too."
 msgstr ""
 
@@ -455,9 +452,6 @@ msgstr ""
 # talletettu rahake edelleen todistusvoimainen, kumoaako se ujon merkinnän
 # tällä nimellä, ja uudelleenmintoittaa, kun API Hylätään se. Käyttö
 # epäonnistuu, jos uusi merkki hylätään myös.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Hallintovirkamies:** Rooli lyö Gitea
 msgid "**Administrator-issued token:** The role mints a Gitea personal access token named `gitea-mcp` for the `administrator` account with the read-only scope set `read:repository,read:issue,read:user,read:organization,read:notification`, and persists it in the token store MCP clients read. Every deploy asks the API whether the stored token still authenticates, revokes the stale entry under that name, and re-mints when the API rejects it. The deploy fails if the fresh token is rejected too."
 msgstr ""
 
@@ -1660,10 +1654,7 @@ msgstr "**Muutos**"
 # *config.yaml* Lue vain. Hälytys paahdettu nimenomaiset aikakatkaisut
 # sävellys ja sähköposti, sekä kannettava mailer ja järjestelmällinen
 # varmuuskopioita.
-# translation-refused: libretranslate protected-span lost=['3.11']
 # gained=['13.11']
-# nocheck: url
-# translation-rejected: **Muutos:** Oletusjakelu kytketty *Debian* ja CI kuvan
 msgid "**Changed:** Default distribution switched to *Debian* and CI image handling aligned. Python baseline raised: *dev-python* installs Python 3.11+ by default; *requires-python* raised to *>=3.11*. Cross distro Python interpreter and pip handling unified via *sys-pip-install*. Dashboard deployment uses fixed image *ghcr.io/kevinveenbirkenbach/port-ui:1.0.0* and mounts generated *config.yaml* read only. Alerting hardened with explicit timeouts for compose and email, plus portable mailer and systemd instance fallbacks."
 msgstr ""
 
@@ -4831,9 +4822,6 @@ msgstr "**Täysin automatisoitu asennus:** Rooli hoitaa kaikki tehtävät, kuten
 # translated-by: libretranslate
 # asennusta käyttämällä Docker Compose (DE-III) Nextcloud hakemuksen ja sen
 # MariaDB Taaksepäin.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Täysin tyhjä käyttöönotto:** Yksinkertaistaa
 msgid "**Fully Dockerized Deployment:** Simplifies installation using Docker Compose for the Nextcloud application and its MariaDB backend."
 msgstr ""
 
@@ -5925,10 +5913,7 @@ msgstr "**LDAP-liitto:** Milloin `svc-db-openldap` on läsnä, Zammad todentaa j
 # uudelleen LAM.** Content Security Policy esti inline skripti, joka tarkistaa
 # LAM's taustatyöt, joten nämä työkalut jäivät "käynnissä" Ikuisesti.
 # Käsikirjoitus on taas sallittu.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"käynnissä"']
-# nocheck: url
-# translation-rejected: **LDAP tuonti, vienti ja Multi-muokkaus viimeistely
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -6303,9 +6288,6 @@ msgstr "**Huolto- ja hallintotyökalut:** Sisäänrakennettu CLI- ja web-app-poh
 
 # translated-by: libretranslate
 # automaattinen asetustoiminto.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Huolto ja puhdistus:** Pienennetty Let Matomo
 msgid "**Maintenance & Cleanup:** Reduced Let’s Encrypt renewal frequency to avoid rate limits, removed deprecated logs and variables, applied broad refactorings, and merged the Matomo autosetup feature."
 msgstr ""
 
@@ -10587,9 +10569,6 @@ msgid "**`external.sh` — real job-pickup smoke test (optional).** Uses `RUNNER
 msgstr "**`external.sh` Oikea työnhakutesti (valinnainen).** Käyttö `RUNNER_API_TOKEN` vahvistaakseen rekisteröidyt juoksijat ja ovat verkossa GitHub API:n kautta, lähettää savun työnkulun ja gallupit sen valmiiksi. Hyppäsi automaattisesti, kun poletin ei ole läsnä."
 
 # does not need a translation)) Python- taustaosa
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **`frappe`** (GunicornCity name (optional, probably
 msgid "**`frappe`** (Gunicorn) — Python web backend"
 msgstr ""
 
@@ -10703,9 +10682,6 @@ msgstr "**`version`** (merkkijono):"
 
 # translated-by: libretranslate
 # [`web-app-bluesky`](../../roles/web-app-bluesky/) PDS/Outh source.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **`web-app-atmo`**
 msgid "**`web-app-atmo`** — a role that runs a self-hosted atmo appview on the platform, reusing the existing AT Protocol identity provided by [`web-app-bluesky`](../../roles/web-app-bluesky/) as the PDS/OAuth source."
 msgstr ""
 
@@ -10779,10 +10755,7 @@ msgstr "**backup-juuri** (kansio) → löytää + palauttaa `nfs → volume → 
 # sipulityöstä. espocrm on jättänyt tämän luettelon: sen sipuliversio
 # epäonnistui jaetun admin persona (kiinteä b:ssä97cf8888) ja sen clearnet
 # variantti palauttaa HTTP 500 GET/api/v1/App/user, aihe on vielä auki.
-# translation-refused: libretranslate protected-span lost=['1']
 # gained=['GET/api/v1/App/user']
-# nocheck: url
-# translation-rejected: **lähtötilanteen poissulkemiset** - Mitä?
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
@@ -17770,10 +17743,7 @@ msgstr "Mukana isäntä `svc-swarm-node`, klusterin hallinnoija yksilöidään l
 
 # `meta/<topic>.yml` merkkitiedosto (palvelut, palvelin, rbac, volyymit,
 # skeema, käyttäjät).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"hakutehtävä"']
-# nocheck: url
-# translation-rejected: An "hakutehtävä" sisältää vähintään yhden hankkeen
 msgid "An \"application role\" carries at least one project-owned `meta/<topic>.yml` marker file (services, server, rbac, volumes, schema, users)."
 msgstr ""
 
@@ -20253,9 +20223,6 @@ msgstr "Molemmat aidot Playwright-henkilöt ovat tukossa. BookWyrmin kirjautumis
 
 # translated-by: libretranslate
 # BookWyrm.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Molemmat aidot Playwright-henkilöt ovat tukossa.
 msgid "Both authenticated Playwright personas are blocked. BookWyrm’s logout control is an icon-only avatar dropdown with no accessible name, so the shared in-app-logout helper cannot locate it; the trusted-header login itself works."
 msgstr ""
 
@@ -22069,10 +22036,7 @@ msgid "Check if DKIM generation works on new setups"
 msgstr "Tarkista, toimiiko DKIM-sukupolven uudet asetukset"
 
 # application_id }}Templatesenv.j2
-# translation-refused: libretranslate protected-span lost=['env.j2']
 # gained=['Templatesenv.j2']
-# nocheck: url
-# translation-rejected: Tarkista env.j2 on olemassa rooleissa /{{
 msgid "Check if env.j2 exists under roles/{{ application_id }}/templates/env.j2"
 msgstr ""
 
@@ -24718,9 +24682,6 @@ msgstr "Ydinkehittäjän työnkulku (`make install`, `make setup`)"
 # kielikoodin mukaan käännetyt kielet, `{placeholder}` lähtö- ja saapumisajat
 # `dir` arvo (JSON)
 # [kirjautuminenpanel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Corella ei ole tekstiviestiä tänään. Ainoa luettelo on
 # [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2).
 #, python-brace-format
 msgid "Core has no gettext today. The only catalogue is [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 languages keyed by language code, named keys, `{placeholder}` slots and a `dir` value, inlined as JSON by [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
@@ -24974,9 +24935,6 @@ msgid "Created in 2023 by `Kevin Veen-Birkenbach <https://www.veen.world/>`__"
 msgstr "Luotu 2023 mennessä `Kevin Veen-Birkenbach <https://www.veen.world/>`__"
 
 # allekirjoitettu) (DE-III) Infinito.Nexus ympäristö.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Luo (kerran) paikallinen juuri-CA (itse
 msgid "Creates (once) a local Root CA (self-signed) for the Infinito.Nexus environment."
 msgstr ""
 
@@ -26112,9 +26070,6 @@ msgid "Deny Rules 🚫"
 msgstr "Kiellä säännöt 🚫"
 
 # a translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: DependabotCity name (optional, probably does not need
 msgid "Dependabot"
 msgstr ""
 
@@ -32043,10 +31998,7 @@ msgstr "Ei-tuhoava vastine: ks. [Alusta/](../initialize/README.md)."
 # [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md).
 # Työvirran luettelo, joka ajaa nämä puhelut katso
 # [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Levytila"']
-# nocheck: url
-# translation-rejected: Levyn regenerointiin ja laajentumisen vaihtamiseen
 msgid "For the rationale behind disk reclamation and swap enlargement in deploy workflows see the \"Disk space\" and \"Swap\" sections in [workflow.md](../../../docs/contributing/artefact/files/github/workflow.md). For the workflow catalog that drives these calls see [workflows.md](../../../docs/contributing/tools/github/actions/workflows.md)."
 msgstr ""
 
@@ -32216,9 +32168,6 @@ msgstr "Pakkaus"
 # yhden vadelma Pi kuin kotitalouden avustaja, ydin-eristetty, tavoitettavissa
 # yli äänen / keskustelu, ohjaus kodin laitteet kautta MCP koskaan saada
 # isäntä pääsy.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Muodollistettu omaksi roolikseen
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
 msgstr ""
 
@@ -32523,10 +32472,7 @@ msgstr "GITHUB_ACTIONS= true AND not ACT -> real github actions"
 
 # omistaja, joka on johdettu GITHUB_REPOSITORY_OWNER / Omistaja /
 # GITHUB_REPOSITORYTappavaa, jos GHA:ta ei voi ratkaista.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYTappavaa']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: pienimuotoinen GHA-varaston
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -37113,9 +37059,6 @@ msgstr "Sitä EI saa nimetä `meta/inventory.yml`. Ansible kielipalvelin auto-ap
 
 # translated-by: libretranslate
 # että etuliitteet
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Se ei saa kantaa `name:`, ja PITÄÄ kantaa `run-name:`
 msgid "It MUST NOT carry ⏰ in its `name:`, and MUST carry a `run-name:` that prefixes ⏰ only when the schedule started the run, so a dispatched run is not mislabelled as scheduled:"
 msgstr ""
 
@@ -39673,10 +39616,7 @@ msgid "Maintenance, dependency, and tooling updates (incl. branches created by [
 msgstr "Huolto, riippuvuus ja työkalupäivitykset (sis. haarat, jotka on luotu [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
 # valinnainen käyttämällä more_header vaihtoehto.
-# translation-refused: libretranslate protected-span
 # lost=['proxy_hide_header'] gained=['"', 'Merkkiproxy_hide_header']
-# nocheck: url
-# translation-rejected: Merkkiproxy_hide_header Sisältö-turva-poliisi"
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -47455,11 +47395,8 @@ msgid "Reads the last day of the journal as JSON with every field in full (``--a
 msgstr ""
 
 # maku itsessään on julistettu svc-storage-nfs-server/meta/palvelut.yml.
-# translation-refused: libretranslate protected-span
 # lost=['svc-storage-nfs-server/meta/services.yml.']
 # gained=['svc-storage-nfs-server/meta/palvelut.yml.']
-# nocheck: url
-# translation-rejected: Lue sulautettu-konfig SPOT kautta etsiä('config');
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -47649,10 +47586,7 @@ msgid "Recursively resolve schema includes by following configs transitively."
 msgstr "Rekursiivisesti ratkaista skeema myös seuraamalla configs transitly."
 
 # joten se uppoaa kirjaimellisesti.
-# translation-refused: libretranslate protected-span lost=['ANSIBLE_VAULT']
 # gained=['ANSIBLE_VAULTHolvesScalarissa']
-# nocheck: url
-# translation-rejected: Kääri str, joka alkaa '$ANSIBLE_VAULTHolvesScalarissa,
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
 msgstr ""
 
@@ -49039,9 +48973,6 @@ msgstr "Vaaditaan `${INFINITO_INVENTORY_DIR}/devices.yml` sekä `.password`."
 msgid "Requires `INFINITO_CONTAINER` to be set to the name of the running container."
 msgstr "Vaaditaan `INFINITO_CONTAINER` asetetaan kulkusäiliön nimi."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Vaaditaan kelvollinen '<scheme>{') (RFC-3986-)
 msgid "Requires a valid '<scheme>://' in the first element (any RFC-3986-ish scheme)"
 msgstr ""
 
@@ -49546,10 +49477,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Palauttaminen (omistaja, repo, run_id) juoksutunnuksesta tai juoksu/työn URL-osoitteesta."
 
 # mitään) juoksun/työn URL.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idEi']
-# nocheck: url
-# translation-rejected: Palauttaminen (omistaja, repo, run_id, job_idEi
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -53939,10 +53867,7 @@ msgid "Scenarios that create persistent state (WordPress posts, Discourse topics
 msgstr "Skenaariot, jotka luovat pysyvän tilan (WordPress virat, Discourse aiheet Keycloak ryhmäjäsenyys, tiedostojen lataukset, ...) PITÄÄ siivota `try { ... } finally { ... }` Pysäytä. Purkamisen täytyy:"
 
 # [s.infinito.nexusTapaa](https://s.infinito.nexus/meet)
-# translation-refused: libretranslate protected-span lost=['s.infinito.nexus']
 # gained=['s.infinito.nexusTapaa']
-# nocheck: url
-# translation-rejected: Aikataulu
 msgid "Schedule a meeting: [s.infinito.nexus/meet](https://s.infinito.nexus/meet)"
 msgstr ""
 
@@ -55515,16 +55440,10 @@ msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-
 msgstr "Toimita sivuliike: toimita per [commit.md](commit.md), sitten juosta `git-sign-push` Hiekkalaatikon ulkopuolella. Avaa vetopyyntöä vastaan `origin/main` per [pull-request.md](pull-request.md)."
 
 # (``templates/service.yml.j2``) (DE-III) ``shared: false`` opt-out-polku.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Laivat upotettu sivuvaunu
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
 msgstr ""
 
 # (DE-III) `shared: false` opt-out-polku.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Laivat upotettu sivuvaunu (`templates/service.yml.j2`)
 msgid "Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `shared: false` opt-out path."
 msgstr ""
 
@@ -56639,9 +56558,6 @@ msgid "Step"
 msgstr "Vaihe"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Vaihe 1
 msgid "Step 1 — Provision runner instances on the target server"
 msgstr ""
 
@@ -58142,10 +58058,7 @@ msgstr "Järjestelmällinen ajastin"
 msgid "TCP port to listen on (default `8080`)."
 msgstr "TCP-portti kuuntelemaan (oletus `8080`)."
 
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"AS"']
-# nocheck: url
-# translation-rejected: OHJELMISTO "AS"-Ei hätää.
 msgid "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND."
 msgstr ""
 
@@ -61399,9 +61312,6 @@ msgstr ""
 # mukaisesti jäsenvaltiot valvovat komission täytäntöönpanovallan käyttöä
 # (EUVL L 55, 28.2.2011, s. 13). ``meta/distros.yml`` Potaskaa. Jokaisesta
 # avaimesta vaaditaan kattavuus.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Oletuksena distro matriksi kartoitettu ``os_family``
 msgid "The default distro matrix mapped onto the ``os_family`` ansible reports for it, read from the ``meta/distros.yml`` SPOT. Coverage is required for every key."
 msgstr ""
 
@@ -61475,9 +61385,6 @@ msgstr "Tuhopora vain synkronoi. Se todistaa, että varmuuskopio on palautettava
 # välillä lähimmän `- name:` (luetelmakohdassa N) rikkovan viivan ja seuraavan
 # ylätason rakennemerkin yläpuolella (`- name:` kk))Sen span etsimme mitään
 # `when:` lauseke, jonka tekstiarvo on vain säveltäjä.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Havaitseminen on linjapohjainen: tehtävä lohko on span
 msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
 msgstr ""
 
@@ -62245,10 +62152,7 @@ msgstr ""
 # kone** jotta se voi kartoittaa omat laitteistonsa ja toimia fyysisessä
 # maailmassa: robotti alusta idea. Tämä on johdonmukaista vain päätöksen #
 # nojalla12.
-# translation-refused: libretranslate protected-span lost=['svc-ai-robot.md']
 # gained=[]
-# nocheck: url
-# translation-rejected: Käänteinen kaikki muut skenaariot, ja tarkoituksella.
 msgid "The inverse of every other scenario, and deliberately so. Formalised as its own role in [034-svc-ai-robot.md](034-svc-ai-robot.md). Here Hermes is given full rights to explore and drive **one dedicated machine** so it can map its own hardware and act in the physical world: the robot platform idea. This is only coherent under Decision #12."
 msgstr ""
 
@@ -62459,11 +62363,8 @@ msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Logossa on käytettävä voimassa olevaa Font Awesome -luokan merkkijonoa, esim.:"
 
 # **Var/lib/docker/volyymit/nextcloud_data/ data/data/nextcloud.log**
-# translation-refused: libretranslate protected-span lost=['nextcloud.log',
 # 'nextcloud_data'] gained=['Var/lib/docker/volyymit/nextcloud_data',
 # 'data/data/nextcloud.log']
-# nocheck: url
-# translation-rejected: Lokit löydät täältä isäntä:
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -62518,9 +62419,6 @@ msgid "The main purpose of this role is to:"
 msgstr "Tämän tehtävän päätarkoituksena on"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Vanhempi sivuvaunu on poistettu.
 msgid "The maintained native path needs Kibana Agent Builder with its index privileges and licence; the older sidecar is deprecated."
 msgstr ""
 
@@ -65244,10 +65142,7 @@ msgstr "Vaihtokauppa on, että `deny` Nyt on koko paino \"mitä agentti ei saa k
 # väärä, kun rivin suora palvelukartta ei ole käytössä (tehtävä on erotettu):
 # varianttia kohti varianttiriveillä, alusta ``meta/services.yml``
 # kokonaisilla riveillä.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
-# nocheck: url
-# translation-rejected: Siirtymäalueet (``services`` / ``consumed_by`` ja
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -66187,10 +66082,7 @@ msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path
 msgstr "Tämä välttää hauras vanhemmat[N] oletukset ja korjaukset \"cli/cli/...\" polkuötökät."
 
 # korjaa "cli/cli/...Ongelmia.
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
 # gained=['"', 'cli/cli/...Ongelmia.']
-# nocheck: url
-# translation-rejected: Tämä välttää hauras tiedostopolun rakentaminen ja
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -67384,10 +67276,7 @@ msgstr ""
 # SQLite tiedot. Postimerkit on yksi käyttäjä: ei ole tilejä, vain "omistaja".
 # Ylävirtaan kirjautuminen on yksi jaettu salainen salasana muodossa, joka
 # kääntää yhden istunnon boolean (`req.session.loggedIn`).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"omistaja"']
-# nocheck: url
-# translation-rejected: Tämä rooli Postmarks lähteestä mukautetun kuvan,
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -68438,10 +68327,7 @@ msgstr "Tämä rooli tarjoaa omistettu kone kuin yksi tai useampi GitHub Toiminn
 
 # allekirjoitettu, CA:TRUE) sisäisten TLS-päätetapahtumien luottaminen.
 # Tuotteet/etc/infinito.nexus/ca/juuri-ca.crt B. sys-svc-compose-ca injektio.
-# translation-refused: libretranslate protected-span lost=['infinito.nexus',
 # 'root-ca.crt'] gained=['Tuotteet/etc/infinito.nexusca/root-ca.crt']
-# nocheck: url
-# translation-rejected: Tämä rooli tarjoaa paikallisen juuritason CA (itse
 # Tuotteet/etc/infinito.nexusca/root-ca.crt B. sys-svc-compose-ca injektio.
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
 msgstr ""
@@ -69116,11 +69002,8 @@ msgstr "Tänään joka Infinito.Nexus Käyttöajot `docker compose` yhtä isänt
 # [web-app-opencloud/meta/variantit.yml](../../roles/web-app-opencloud/meta/variants.yml)
 # jossa variantti 1 sarjat `ldap.enabled: true` kun `oidc.enabled: false`),
 # mutta vastaava kaava ei ole vielä olemassa.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml']
 # gained=['web-app-opencloud/meta/variantit.yml']
-# nocheck: url
-# translation-rejected: Nykyisin useimmat roolispeksit avaavat todennetut
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -71190,10 +71073,7 @@ msgstr "Käyttäjätunnusvaatimus: `preferred_username`, OpenCloud `username`"
 # ``{{hunspell_languages}}`` muuttuja perustuu niiden erityisiä
 # kielivaatimuksia. Tämä muuttuja hyväksyy luettelon kielikoodeista
 # (Esim.en_US...de_DE- Mitä?).
-# translation-refused: libretranslate protected-span lost=['en_US']
 # gained=['Esim.en_US']
-# nocheck: url
-# translation-rejected: Käyttäjiä kannustetaan muokkaamaan
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -74584,10 +74464,7 @@ msgstr "Älä syötä sisäsilmukkaa, elleivät kaikki seuraavat kohdat ole voim
 # "Yksi Totuuden piste", tai vastaava itsemerkintä. SPOT-statuksen antavat
 # lukijat, jotka linkittävät sivulle muualta, ei sivulta, joka vahvistaa sen
 # itsestään. Kuvaile kohdetta sen sijaan suoraan.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"SPOT"']
-# nocheck: url
-# translation-rejected: Et saa nimenomaisesti ilmoittaa asiakirjasivua "SPOT",
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -74618,9 +74495,6 @@ msgstr "Et saa esitellä rinnakkaista välimuistia. Muunnokset ovat välimuistis
 # translated-by: libretranslate
 # extra-var. Varianttidata elää inin in in in in in in in in in in in in in in
 # in `applications.<app>` Ohituksia.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Et saa ottaa käyttöön runtime variantti-valitsin
 msgid "You MUST NOT introduce a runtime variant-selector extra-var. Variant data lives in the inventory after init; the deploy stage reads it as plain `applications.<app>` overrides."
 msgstr ""
 
@@ -75777,10 +75651,7 @@ msgstr "[ ] **Ei `ask` Antaa periksi.** Agentti EI saa laukaista mitään työka
 # vihreä ... jokainen asia on ratkaistava sen juurella tämän saman iterointi
 # ilman kehotusta operaattori. Työkierrokset, tilapäiset hypyt,
 # uusintakierteet, tai "seuranta" Lykkäyksiä ei saa käyttää.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"seuranta"']
-# nocheck: url
-# translation-rejected: [ ] **Ei keskeytyksiä.** Vikakorjauksia,
 msgid "[ ] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, swarm-init flakes, NFS mount races, workflow reruns until green — every issue MUST be resolved at its root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -79610,9 +79481,6 @@ msgstr "[Ollaman mallikirjasto](https://ollama.com/library)"
 # avoimen LLMs laitteistossa ja paljastaa yksinkertainen HTTP API. Kompastusta
 # ja dataa pysyvät koneita, joten se selkäranka yksityisyyden ensimmäinen
 # tekoäly.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [OllamaCity name (optional, probably does not need a
 msgid "[Ollama](https://ollama.com) is a local model server that runs open LLMs on your hardware and exposes a simple HTTP API. Prompts and data stay on your machines, making it the backbone for privacy-first AI."
 msgstr ""
 
@@ -80730,9 +80598,6 @@ msgstr "[database.py](database.py) ratkaisee aktiivisen tietokannan taustaosan s
 
 # [käyttöönottomodes.md](../../contributing/design/deployment-modes.md)
 # (DE-III) `mode` akseli.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 # [deployment-modes.md](../../contributing/design/deployment-modes.md)
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
 msgstr ""
@@ -81396,10 +81261,7 @@ msgstr "[x] **Ei `ask` Antaa periksi.** Agentti EI saa laukaista mitään työka
 # ratkaistava niiden juurella tämän saman iterointi ilman kehotusta
 # operaattori. Työkierrokset, tilapäiset hypyt, uusintakierteet, tai
 # "seuranta" Lykkäyksiä ei saa käyttää.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"seuranta"']
-# nocheck: url
-# translation-rejected: [x] **Ei keskeytyksiä.** Vikakorjauksia,
 msgid "[x] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, and healthcheck flaps MUST be resolved at their root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -81407,10 +81269,7 @@ msgstr ""
 # ja vastaavat asiat on ratkaistava niiden juurella tämän saman iterointi
 # ilman kehotusta operaattori. Työkierrokset, tilapäiset hypyt,
 # uusintakierteet, tai "seuranta" Lykkäyksiä ei saa käyttää.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"seuranta"']
-# nocheck: url
-# translation-rejected: [x] **Ei keskeytyksiä.** Vikakorjauksia,
 msgid "[x] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, and similar issues MUST be resolved at their root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or \"track in a follow-up\" deferrals MUST NOT be used."
 msgstr ""
 
@@ -82295,9 +82154,6 @@ msgid "[x] Self-registration is **on** when OIDC is enabled (Penpot's OIDC JIT p
 msgstr "[x] Itserekisteröinti on **8.** kun OIDC on käytössä (PenpotOIDC JIT tarjoaa reittejä rekisteröintireitin kautta) sekä **pois** muu, joka on johdettu `sso` palvelulippu, renderointi `enable-registration`/`disable-registration` in `PENPOT_FLAGS`."
 
 # `svc-ai-litellm` Muutetaan asetus (EU) N:o 1303/2013 seuraavasti:.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Kuluttajan taustaosan vaihtaminen edellyttää vain
 msgid "[x] Switching a consumer's backend requires only a `svc-ai-litellm` config change, verified by re-routing a model alias with no consumer redeploy."
 msgstr ""
 
@@ -83017,9 +82873,6 @@ msgstr "[x] `apply/api_bot.py` sarjat `setup_complete=1` maaliskuuta `System Set
 
 # translated-by: libretranslate
 # Arvot vain.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: [x] `auth/oidc/config` on kirjoitettu `OIDC.CLIENT.*`
 msgid "[x] `auth/oidc/config` is written from `OIDC.CLIENT.*` values only — no hardcoded realm name, issuer URL, endpoint or claim string anywhere in the role."
 msgstr ""
 
@@ -83157,11 +83010,8 @@ msgstr "[x] `meta/variants.yml` ilmoittaa matriisiversiot (Katso **Muunnokset** 
 
 # variantti (`ldap` on `sso`/OIDC off) sopimus
 # [web-app-openproject/meta/variantit.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml']
 # gained=['web-app-openproject/meta/variantit.yml']
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` määritellään **Vain LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -83962,9 +83812,6 @@ msgid "`Claude Code <https://code.claude.com/>`__ is Anthropic’s terminal codi
 msgstr "`Claude Code <https://code.claude.com/>`__ Antropicin terminaalin koodausaine. Tämä rooli asentaa sen työasemalle ja osoittaa sen alustan oma malli portti sijaan myyjä API."
 
 # API.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: `Codex <https://github.com/openai/codex>`__ on OpenAI
 msgid "`Codex <https://github.com/openai/codex>`__ is OpenAI’s terminal coding agent, installed on a workstation and pointed at this deployment’s own model gateway instead of the vendor API."
 msgstr ""
 
@@ -84097,9 +83944,6 @@ msgstr "`GH_TOKEN` env var"
 # Ansible-ohjaussolmukohdassa (`delegate_to: localhost`) (DE-III) `gh api`
 # Rekisteröintikutsu onnistua. CI:ssä tämä toimitetaan DinD-säiliöön
 # `cli/administration/deploy/development/deploy/run.py`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `GH_TOKEN` sen on oltava saatavilla
 msgid "`GH_TOKEN` must be available on the Ansible control node (`delegate_to: localhost`) for the `gh api` registration call to succeed. In CI this is forwarded into the DinD container by `cli/administration/deploy/development/deploy/run.py`."
 msgstr ""
 
@@ -85603,9 +85447,6 @@ msgstr ""
 # Kontti, jonka on puhuttava isännän julkaisemalle palvelulle.587, esimerkiksi
 # -- tarvitsee peitenimen, ja se ei saa kova koodi ``host-gateway`` Koska se
 # hajoaa parven alla alla alla olevasta syystä.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``host_alias=true``, joka nastat
 msgid "``host_alias=true``, which pins ``host.docker.internal`` at whatever reaches the host in the effective mode. A container that must talk to a service the host publishes -- msmtp relaying through the swarm ingress on :587, for instance -- needs the alias, and it must not hardcode ``host-gateway`` because that breaks under swarm for the reason below."
 msgstr ""
 
@@ -86052,9 +85893,6 @@ msgid "``required`` (always installed, vendored)"
 msgstr "``required`` (aina asennettu, myyjä)"
 
 # peräisin ``REDIS_PASSWORD`` Oikeutettu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``requirepass`` (DE-III) ``default`` (admin) käyttäjä,
 msgid "``requirepass`` for the ``default`` (admin) user, sourced from the ``REDIS_PASSWORD`` credential."
 msgstr ""
 
@@ -87251,9 +87089,6 @@ msgstr ""
 # translated-by: libretranslate
 # `cancel-in-progress: true` suoraan omaan ryhmäänsä, ja orkesteri
 # `github.event_name`.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: `entry-manual-steer.yml` ilmoitukset
 msgid "`entry-manual-steer.yml` declares `cancel-in-progress: true` outright on its own group, and the orchestrator reads `github.event_name` — which a called workflow inherits from its caller — so a manual sweep supersedes on both levels without an input to pass down."
 msgstr ""
 
@@ -88103,9 +87938,6 @@ msgstr "`ordered`: tilatut pääasialliset huoltotiedot huoltokuormaajalle"
 
 # translated-by: libretranslate
 # oletusarvo on dokumentoitu) `/tmp/`.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: `output stream file` (**valinnainen**, jonka
 msgid "`output stream file` (**optional**, with a documented default value) — file path the deploy's stdout/stderr stream is written to; the default MUST be a stable, documented path under `/tmp/`."
 msgstr ""
 
@@ -88315,9 +88147,6 @@ msgid "`requirements.git.yml`   **Git-based fallback** used when Galaxy is unava
 msgstr "`requirements.git.yml` **Git-pohjainen varasuunnitelma** käytetään, kun Galaxy ei ole käytettävissä tai epävakaa."
 
 # peräisin `REDIS_PASSWORD` Oikeutettu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `requirepass` (DE-III) `default` (admin) käyttäjä,
 msgid "`requirepass` for the `default` (admin) user, sourced from the `REDIS_PASSWORD` credential."
 msgstr ""
 
@@ -90731,11 +90560,8 @@ msgid "cli.administration.deploy.development.inventory.spec module"
 msgstr "cli.administration.deploy.development.inventory.spec moduuli"
 
 # moduulia
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.deploy.development.log']
 # gained=['cli.administration.deploy.development.logTilaa']
-# nocheck: url
-# translation-rejected: cli.administration.deploy.development.logTilaa
 msgid "cli.administration.deploy.development.log\\_utils module"
 msgstr ""
 
@@ -90782,11 +90608,8 @@ msgid "cli.administration.deploy.development.up module"
 msgstr "cli.administration.deploy.development.up moduuli"
 
 # moduuli
-# translation-refused: libretranslate protected-span
 # lost=['cli.administration.deploy.development.variant']
 # gained=['cli.administration.deploy.development.variantValitse']
-# nocheck: url
-# translation-rejected: cli.administration.deploy.development.variantValitse \
 msgid "cli.administration.deploy.development.variant\\_select module"
 msgstr ""
 
@@ -92076,10 +91899,7 @@ msgstr "verkkoalue (kanoninen tai peitenimi)"
 # Henkilö, joka on kirjoitettu alkukirjaimella ("Smith") Näin ollen se ei ole
 # enää täytäntöönpano, vaan väärä myönteinen, joka on turvallinen suunta
 # nukka.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Smith"']
-# nocheck: url
-# translation-rejected: piste on mitä erottaa ihmiset tuotteista ja
 msgid "dot is what separates people from the products and projects that also appear in Credits lines (\"Infinito.Nexus Project\"). A person written with an initial (\"J. Smith\") therefore falls out of enforcement rather than into a false positive, which is the safe direction for a lint."
 msgstr ""
 
@@ -92484,9 +92304,6 @@ msgstr "eslint state-catch-virhe ja hyödytön-tehtävä rikkoo viidessä Playwr
 
 # translated-by: libretranslate
 # actions/setup-python, actions/create-github-app-token
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: eslint, eslint-plugin-playwright, eslint/js,
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr ""
 
@@ -94419,9 +94236,6 @@ msgid "output stops changing, OR"
 msgstr "lähtö pysähtyy muuttumaan, TAI"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: ohita
 msgid "override  – regenerate every managed section, overwriting the current"
 msgstr ""
 
@@ -95174,10 +94988,7 @@ msgstr "plugins.lookup.compose\\ vain moduuli"
 msgid "plugins.lookup.compose\\_replicas module"
 msgstr "plugins.lookup.compose\\ replicas-moduuli"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeKäynnistä']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeKäynnistä moduuli \ uudelleen
 msgid "plugins.lookup.compose\\_restart module"
 msgstr ""
 
@@ -95201,10 +95012,7 @@ msgstr "plugins.lookup.container\\ osoitemoduuli"
 msgid "plugins.lookup.container\\_depends\\_on module"
 msgstr "plugins.lookup.container\\ riippuu\\ moduulista"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerKäytä']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerKäytä moduulia
 msgid "plugins.lookup.container\\_deploy module"
 msgstr ""
 
@@ -96308,9 +96116,6 @@ msgid "roles/ directory"
 msgstr "roolit/ hakemisto"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: roles_dir
 msgid "roles_dir — roles directory for the postgres connection split"
 msgstr ""
 
@@ -98765,10 +98570,7 @@ msgstr "utils.cache.users.placeholders moduuli"
 msgid "utils.cache.yaml module"
 msgstr "utils.cache.yaml moduuli"
 
-# translation-refused: libretranslate protected-span lost=['utils.cert']
 # gained=['utils.certTilaa']
-# nocheck: url
-# translation-rejected: utils.certTilaa moduulia
 msgid "utils.cert\\_utils module"
 msgstr ""
 
@@ -98870,10 +98672,7 @@ msgstr "utils.docker.image.ref moduuli"
 msgid "utils.docker.mirror module"
 msgstr "utils.docker.mirror moduuli"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.docker.paths'] gained=['utils.docker.pathsTilaa']
-# nocheck: url
-# translation-rejected: utils.docker.pathsTilaa moduulia
 msgid "utils.docker.paths\\_utils module"
 msgstr ""
 
@@ -99131,11 +98930,8 @@ msgstr "utils.env.handlers.infinito.rescue.dns53\\ näyte\\ lokimoduuli"
 msgid "utils.env.handlers.infinito.rescue.local\\_dumps\\_dir module"
 msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir moduli"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.runningPaketissa']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.runningPaketissa
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr ""
 
@@ -100332,9 +100128,6 @@ msgstr "{{ 30 | curl }} -> kihara - s --connect-timeout 5 --max-aika 30 -- 3 --r
 # translated-by: libretranslate
 # gained=['ca/root-ca.crt']
 # /etc/<software_domain>ca/root-ca.crt
-# translation-refused: libretranslate protected-span lost=['root-ca.crt']
-# nocheck: url
-# translation-rejected: {{ SOFTWARE_DOMAIN | ca_cert_host }} ->
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
 msgstr ""
 

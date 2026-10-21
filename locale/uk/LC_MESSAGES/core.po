@@ -1167,9 +1167,6 @@ msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Платформа управління проектами для Scrum, Kanban та гібридних командних процесів"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Статус на сервери
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
 msgstr ""
@@ -1656,9 +1653,6 @@ msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr "Статус на сервери SMTP/IMAP/POP3, webmail, фільтрація спаму, антивірус, запис DKIM та TLS"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Статус на сервери
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr ""
@@ -1851,9 +1845,6 @@ msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr "Статус на сервери (активи, HTML, правовий, файли)"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Статус на сервери
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr ""

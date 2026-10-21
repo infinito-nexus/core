@@ -1431,9 +1431,6 @@ msgid "Reverse-proxy roles for routing and load-balancing traffic to backend ser
 msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către serviciile suport"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Roles for cleaning up various system resources—old
 # backups, unused certificates, temporary files, Docker volumes, disk caches,
 # deprecated domains, and more.
 msgctxt "category:sys.ctl.cln:description"

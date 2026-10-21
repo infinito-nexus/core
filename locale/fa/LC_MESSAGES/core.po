@@ -375,9 +375,6 @@ msgstr "مدیریت محتوا"
 
 # translated-by: libretranslate
 # انتشار وب
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -442,9 +439,6 @@ msgstr "ارتباط مشتری"
 
 # translated-by: libretranslate
 # روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی.
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Customer Relationship Management ( CRM) software for
 # managing customer relationships, sales pipelines, marketing, and support
 # activities.  --- Microsoft Dynamics 365 ( Business Intelligence ) software
 # for managing customer relationships, sales pipelines, marketing, and support
@@ -659,9 +653,6 @@ msgid "Events"
 msgstr "حوادث"
 
 # code and Configuration
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: Extensible Vim-line text Editor for Terminal-based
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""

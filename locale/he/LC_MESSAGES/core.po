@@ -320,9 +320,6 @@ msgid "Community"
 msgstr "קהילה"
 
 # Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Composable HTML injection roles (CSS, JS, logout
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
 # sub_filter/Lua with CDN-backed assets.
 msgctxt "category:sys.front.inj:description"
@@ -876,9 +873,6 @@ msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנ�
 
 # translated-by: libretranslate
 # Applications and Developer Tooling
-# translation-refused: libretranslate untranslated
-# nocheck: url
-# translation-rejected: JavaScript Runtime for Building and run Server-side
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""

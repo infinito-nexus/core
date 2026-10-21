@@ -368,9 +368,6 @@ msgstr "**ACME Challenge Výběr:** Podporuje pluginy DNS nebo metodu webroot au
 # Mattermost Agenti8b) Open WebUI a Flowise. Admin UI brány se podepisuje skrz
 # KeycloakVidíš? [svc-ai-litellm](roles/svc-ai-litellm/README.md) a
 # [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Asistence AI uvnitř aplikací, které už máte.** Úloha
 msgid "**AI assistance inside the applications you already run.** A gateway role, *svc-ai-litellm*, fronts OpenAI, Anthropic and OpenRouter from declared keys, with *svc-ai-ollama* and the new *svc-ai-lmstudio* serving local models from one shared catalogue, so inference can stay inside the deployment. Sixteen applications use it for their own built-in AI features instead of calling a vendor directly: WordPress AI Engine, MediaWiki AIEditingAssistant, Moodle's AI subsystem, Zammad Smart Assist, the xWiki LLM extension, Discourse AI, the Matrix ChatGPT bridge, Nextcloud, Mattermost Agents, n8n, Open WebUI and Flowise. The gateway's admin UI signs in through Keycloak. See [svc-ai-litellm](roles/svc-ai-litellm/README.md) and [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)."
 msgstr ""
 
@@ -458,9 +455,6 @@ msgstr "**Přijímací konzole:** Obě rozhraní jsou dostupná pouze pro členy
 msgid "**Administrator Password:** The superuser password converges to the configured administrator's password on every deploy."
 msgstr "**Heslo správce:** Heslo superuživatele se převádí na heslo nakonfigurovaného administrátora při každém nasazení."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Heslo správce:** Heslo superuživatele se převádí na
 # heslo nakonfigurovaného administrátora při každém nasazení.
 msgid "**Administrator Password:** The superuser password converges to the configured administrator’s password on every deploy."
 msgstr ""
@@ -541,9 +535,6 @@ msgstr "**Vědomí:** roli agenta na stejném hostiteli přináší jeho editor 
 msgid "**Agent-driven modelling:** An MCP client creates, edits and renders scenes through Blender's own Python API."
 msgstr "**Modely založené na agentech:** Name Blendervlastní Python API."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Modely založené na agentech:** Name Blendervlastní
 # Python API.
 msgid "**Agent-driven modelling:** An MCP client creates, edits and renders scenes through Blender’s own Python API."
 msgstr ""
@@ -1709,9 +1700,6 @@ msgstr "**Změněno:** Výchozí distribuce přepnuta na *Debian* a CI zpracová
 # když se ohlásí jedna změna: Nextcloud, Moodle, EspoCRM, Jellyfin, Listmonk,
 # Discourse, Checkmk, xWiki, n8b) Matrix a MariaDB a motory Postgres. Checkmk
 # udržuje 401 fatální, takže špatné heslo nemůže zablokovat účet.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Změna hesla to změní všude.** Uživatel prohlašuje,
 msgid "**Changing a password changes it everywhere.** A user declares how its password must be generated, the inventory pins one for every declared user, a new generator produces API-key shapes, the deploy rotates credentials between its two passes, and a reset command exists. Applications that persist an administrator password at install now realign it when the declared one changes: Nextcloud, Moodle, EspoCRM, Jellyfin, Listmonk, Discourse, Checkmk, xWiki, n8n, Matrix and the dedicated MariaDB and Postgres engines. Checkmk keeps a 401 fatal so a wrong password cannot lock the account out."
 msgstr ""
 
@@ -1767,9 +1755,6 @@ msgstr "**Clearnet nedotčen:** normální SMTP pověst, DKIM a SPF dodávka nik
 msgid "**Client ports are implicit-TLS only (465/993/995).** Stalwart's default configuration binds no STARTTLS listeners, so the role neither publishes 587/143/110 nor advertises them via SRV records."
 msgstr "**Klientské porty jsou implicitní - pouze TLS (465/993/995).** Výchozí konfigurace Stalwartu neváže žádné posluchače STARTTLS, takže ani role nezveřejňuje 587/143/110 ani je neprozrazuje přes záznamy SRV."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Klientské porty jsou implicitní - pouze TLS
 # (465/993/995).** Výchozí konfigurace Stalwartu neváže žádné posluchače
 # STARTTLS, takže ani role nezveřejňuje 587/143/110 ani je neprozrazuje přes
 # záznamy SRV.
@@ -2608,9 +2593,6 @@ msgstr "**Omezené role nejsou testovány.** Úloha *depresivní* fáze životn�
 msgid "**Description:** ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr "**Popis:** ACME klient pro automatizované Zašifrovat SSL / TLS certifikát vydání a obnovení přes webroot nebo DNS-01 výzvy"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr ""
 
@@ -2823,9 +2805,6 @@ msgid "**Description:** Dedicated administrator account with SSH key access and 
 msgstr "**Popis:** Dedikovaný administrátorský účet s přístupem ke klíči SSH a ověřeným heslem sudo pro zvýšení bezpečnosti práv"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr ""
 
@@ -3018,9 +2997,6 @@ msgid "**Description:** Interactive graph visualization of all Infinito.Nexus ro
 msgstr "**Popis:** Interaktivní vizualizace všech grafů Infinito.Nexus role a jejich závislost na transparentnosti architektury"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr ""
 
@@ -3124,9 +3100,6 @@ msgstr "**Popis:** Role lepidla NGINX pro 301 přesměruje ze zdroje do cílový
 msgid "**Description:** NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "**Popis:** NGINX vrstva pro HTTPS s Zašifrovat ACME výzvu manipulaci, port 80 do 443 přesměrovat, a zatuchlý vHost úklid"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr ""
 
@@ -3134,9 +3107,6 @@ msgstr ""
 msgid "**Description:** NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "**Popis:** NGINX subfilter injector additing Matomo analytics script and noscript image tracker to service HTML pages"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
 
@@ -3156,9 +3126,6 @@ msgstr "**Popis:** NLLB-200 překlad model sloužil přes HTTP, pro potrubí, kt
 msgid "**Description:** Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "**Popis:** Network- wide DNS dřez pro blokování reklamy a trackery napříč všemi zařízeními, s DHCP a web admin palubní deska"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
@@ -3314,9 +3281,6 @@ msgstr "**Popis:** Role držáku desky pro budoucí nasazení XMPP serveru / kon
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "**Popis:** Záložní systém Plug- spuštěný pro deduplikované snímky místního záložního stromu na swapplifikovatelné USB zařízení"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr ""
 
@@ -3485,9 +3449,6 @@ msgid "**Description:** Self-hosted WebRTC platform for end-to-end-encryptable v
 msgstr "**Popis:** Self- hostovaná platforma WebRTC pro end- to- end- šifrovatelné video konference s federativní autentizace"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr ""
 
@@ -3544,16 +3505,10 @@ msgid "**Description:** Self-hosted model server for running open LLMs locally b
 msgstr "**Popis:** Self- hostovaný modelový server pro spuštění open LLM lokálně za jednoduchým HTTP API"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -3761,9 +3716,6 @@ msgstr "**Popis:** Webové rozhraní pro správu LDAP adresářů: správa uživ
 msgid "**Description:** Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "**Popis:** Web- based LDAP administration interface pro správu uživatelských, skupinových a adresářových objektů"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr ""
 
@@ -3788,9 +3740,6 @@ msgid "**Description:** Wrapper role for idempotent package installation and upd
 msgstr "**Popis:** Role Wrapper pro instalaci idempotent balíčků a aktualizace prostřednictvím univerzálního správce balíků pkgmgr"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Popis:** Name
 msgid "**Description:** nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr ""
 
@@ -6095,10 +6044,7 @@ msgstr "**LDAP federace:** Kdy `svc-db-openldap` je přítomen, Zammad ověřuje
 # LAM.** Obsah bezpečnostní politika zablokoval inline skript, který
 # kontroluje LAMTakže tyhle nástroje zůstaly. "probíhá" navždy. Ten scénář je
 # zase povolený.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"probíhá"']
-# nocheck: url
-# translation-rejected: **LDAP import, export a multi editace dokončit znovu v
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -6869,9 +6815,6 @@ msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termin
 msgstr "**NGINX Reverzní Proxy:** Name `/cool/` Cesty."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **NGINX Reverzní Proxy:** Name ``/cool/`` Cesty.
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
 msgstr ""
 
@@ -6957,9 +6900,6 @@ msgstr "**Domácí OIDC chuť** (`services.sso.flavor: oidc`), ne oauth2-proxy b
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar."
 msgstr "**Přihlášení původního OIDC:** Přístrojová deska označuje uživatele proti Keycloakje objev koncový bod, bez oauth2-Proxy sidecar."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: **Přihlášení původního OIDC:** Přístrojová deska
 # označuje uživatele proti Keycloakje objev koncový bod, bez oauth2-Proxy
 # sidecar.
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak’s discovery endpoint, without an oauth2-proxy sidecar."
@@ -10742,9 +10682,6 @@ msgstr "**Dlužíš:** používat soukromě nebo pro vzdělávání; komerční 
 # poskytovatel volá mutace jsou zakázány, čtenář a spisovatel role jsou
 # oddělené, a každý poskytovatel ověřuje volající jako svůj vlastní účet
 # služby. Viz [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Vaše nástroje dostupné od vašich asistentů.** Asi
 msgid "**Your tools reachable from your assistants.** About twenty applications now speak MCP. Gitea, GitLab, Mattermost, Nextcloud, n8n, Baserow, Jenkins, Home Assistant, Moodle, Snipe-IT and WordPress serve their own endpoints; ten more get one through a locked-down sidecar. Open WebUI, Flowise and the agents discover what the deployment offers and register it automatically. Access is bounded rather than assumed: blocked paths are declared, every served path is gated, tools a provider calls mutating are withheld, reader and writer roles are separate, and each provider authenticates callers as its own service account. See [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md)."
 msgstr ""
 
@@ -15118,9 +15055,6 @@ msgstr "Grep pro `meta/addons/` před provedením nesmí být vráceno nic a tat
 msgid "A group change applies on the user's next request, because the indexer's auth cache is disabled."
 msgstr "Na další požadavek uživatele se použije skupinová změna, protože uzávěrka je zakázána."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Na další požadavek uživatele se použije skupinová
 # změna, protože uzávěrka je zakázána.
 msgid "A group change applies on the user’s next request, because the indexer’s auth cache is disabled."
 msgstr ""
@@ -15199,10 +15133,7 @@ msgstr "URL práce zužuje stahování do aplikace této práce; URL holé běh 
 # Příkazy dát to tam ``stdout`` (``ollama pull`` otisky "aktuální" a východy
 # nenulové). Oba jsou prohledávány, takže volající projde tolerované frázování
 # a nemusí vědět, který klíč nese.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"aktuální"']
-# nocheck: url
-# translation-rejected: Práce se počítá jako neúspěšná, když se modul nikdy
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -16459,9 +16390,6 @@ msgstr "Asistent pro editaci AI"
 msgid "AI subsystem provider"
 msgstr "Poskytovatel subsystémů AI"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr ""
 
@@ -16673,9 +16601,6 @@ msgstr "Účet / pošta / úschovna metadat"
 msgid "Accounts and aliases are provisioned from the inventory by this role; mailboxes created only inside Mailu's admin UI MUST be added to the inventory first. Sieve filters and CalDAV/CardDAV data are out of scope."
 msgstr "Účty a přezdívky jsou zajištěny z inventáře touto úlohou; poštovní schránky vytvořené pouze uvnitř MailuAdmin UI musí být přidána do inventáře jako první. Sieve filtry a data CalDAV / CardDAV jsou mimo rozsah."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Účty a přezdívky jsou zajištěny z inventáře touto
 # úlohou; poštovní schránky vytvořené pouze uvnitř MailuAdmin UI musí být
 # přidána do inventáře jako první. Sieve filtry a data CalDAV / CardDAV jsou
 # mimo rozsah.
@@ -18824,9 +18749,6 @@ msgstr "Ansible rozhoduje, co by mělo existovat."
 msgid "Ansible default (22)"
 msgstr "Ansible default (22)"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr ""
 
@@ -19279,10 +19201,7 @@ msgstr "Aplikace expresní výběr databáze přímo přes soubor kořene `meta/
 # používající známé SDK a CLI. Administrátoři spravují kbelíky, uživatele a
 # přístupové zásady přes prohlížečovou konzoli a přitom vše uchovávají
 # on-prem.
-# translation-refused: libretranslate protected-span lost=['3']
 # gained=['"S3"']
-# nocheck: url
-# translation-rejected: Aplikace, které hovoří "S3" (Pixelfed, Mastodon,
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
 msgstr ""
 
@@ -19674,9 +19593,6 @@ msgstr "Assertion at the gate"
 msgid "Asserts the active provider's submission token was provisioned before configuring external mail."
 msgstr "Před konfigurací externí pošty byl poskytnut ukazatel podání aktivního poskytovatele."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Před konfigurací externí pošty byl poskytnut ukazatel
 # podání aktivního poskytovatele.
 msgid "Asserts the active provider’s submission token was provisioned before configuring external mail."
 msgstr ""
@@ -20193,9 +20109,6 @@ msgstr "Záloha (Rozhodnutí #13 - dokumentovaný příkaz operátora v v1)"
 msgid "Backup Docker Volumes"
 msgstr "Záložní zásobníky"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Backup Docker Volumes Architecture
 msgid "Backup Docker Volumes Architecture"
 msgstr ""
 
@@ -21607,9 +21520,6 @@ msgstr "Vytváří a vykonává dev- runtime image matrix."
 msgid "Builds running at once; defaults to half the host's CPUs capped at 2, and each one costs another scratch tree on disk"
 msgstr "Stavebnictví běží najednou; selhání na polovinu hostitelské CPU omezena na 2, a každý z nich stojí další škrábanec na disku"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Stavebnictví běží najednou; selhání na polovinu
 # hostitelské CPU omezena na 2, a každý z nich stojí další škrábanec na disku
 msgid "Builds running at once; defaults to half the host’s CPUs capped at 2, and each one costs another scratch tree on disk"
 msgstr ""
@@ -22578,9 +22488,6 @@ msgstr "Centos Stream 9: ``libva-intel-hybrid-driver`` (pomocí EPEL)"
 msgid "CentOS Stream 9: `libva-intel-hybrid-driver` (via EPEL)"
 msgstr "Centos Stream 9: `libva-intel-hybrid-driver` (pomocí EPEL)"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "CentOS Stream is rolling; classic CentOS EOL; smaller community than Debian/Ubuntu"
 msgstr ""
 
@@ -24546,9 +24453,6 @@ msgstr "Porovnejte požadavky na přišpendlenou galaxii s tím, co je na disku.
 msgid "Compared with Mailu's multi-container stack, Stalwart collapses the mail server into one binary. This role runs:"
 msgstr "Ve srovnání s MailuStalwart rozpadá server na jeden binární. Tato role je:"
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Ve srovnání s MailuStalwart rozpadá server na jeden
 # binární. Tato role je:
 msgid "Compared with Mailu’s multi-container stack, Stalwart collapses the mail server into one binary. This role runs:"
 msgstr ""
@@ -24926,17 +24830,11 @@ msgstr "Nastaví systémovou službu pro spuštění vyrovnávacího skriptu."
 
 # translated-by: libretranslate
 # [sys-ctl-alm-compose](../sys-ctl-alm-compose/README.md).
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Name
 msgid "Configures a systemd service to run the cleanup script, with notifications via [sys-ctl-alm-compose](../sys-ctl-alm-compose/README.md)."
 msgstr ""
 
 # translated-by: libretranslate
 # <../sys-ctl-alm-compose/README.md>`__.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Name `sys-ctl-alm-compose
 msgid "Configures a systemd service to run the cleanup script, with notifications via `sys-ctl-alm-compose <../sys-ctl-alm-compose/README.md>`__."
 msgstr ""
 
@@ -25623,9 +25521,6 @@ msgstr "Firemní design"
 msgid "Corporate Design Architecture"
 msgstr "Architektura firemního designu"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Corporate Design Injection for NGINX
 msgid "Corporate Design Injection for NGINX"
 msgstr ""
 
@@ -27227,9 +27122,6 @@ msgstr "Uvolnění pouzdro"
 msgid "Deploying against a publicly reachable mail server additionally asserts that server's live **hard facts** — the records and listeners either match the deployed configuration or they do not. There is no mail-flow scenario here; that is what the suites above are for."
 msgstr "Nasazení proti veřejně dosažitelnému mail serveru navíc tvrdí, že server je živý **tvrdá fakta** - záznamy a posluchači buď odpovídají použité konfiguraci, nebo ne. Neexistuje zde žádný scénář poštovního toku; to je to, k čemu apartmány výše jsou."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Nasazení proti veřejně dosažitelnému mail serveru
 # navíc tvrdí, že server je živý **tvrdá fakta** - záznamy a posluchači buď
 # odpovídají použité konfiguraci, nebo ne. Neexistuje zde žádný scénář
 # poštovního toku; to je to, k čemu apartmány výše jsou.
@@ -29545,9 +29437,6 @@ msgstr "Prázdná klávesa nebo out- of- emption základna URL selže nasazení"
 
 # jako návrh prostřednictvím `gh pr create --draft` 1 písm. b) nařízení o
 # kapitálových požadavcích. [Pull...request.md](./pull-request.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Prázdný výsledek (žádné otevřené PR): vytvořit jeden
 # kapitálových požadavcích. [pull-request.md](./pull-request.md).
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
 msgstr ""
@@ -29703,9 +29592,6 @@ msgstr "Povolit self-hosted běžci v org"
 
 # translated-by: libretranslate
 # repository tree.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Encode role ids to display names and back, for one
 msgid "Encode role ids to display names and back, for one repository tree."
 msgstr ""
 
@@ -31535,9 +31421,6 @@ msgstr "Návratný tvar pro generaci, která nemůže určit vlastní."
 msgid "Falling back to whichever declaring role IS deployed fixes that, and ordering the fallback ``provides:`` before ``covers:`` keeps it single-valued — two providers can never both consider themselves active and bind port 25."
 msgstr "Vrátit se k tomu, co je uvedeno v prohlášení, to napraví a nařídí, aby to bylo v pořádku. ``provides:`` před ``covers:`` udržuje ji samostatně hodnocené - dva poskytovatelé se nikdy nemohou považovat za aktivní a vázat port 25."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Familiar multi-chat interface with quick model switching"
 msgstr ""
 
@@ -33610,10 +33493,7 @@ msgstr "GITHUB_ACTIONS= true AND not ACT - > real github actions"
 
 # odvozený z GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORYSmrtelný, i
 # když nerozlučitelný na GHA.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYSmrtelný']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: malý vlastník úložiště GHA,
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -35243,9 +35123,6 @@ msgstr "INFINITO_WORKER_CPU * 20, se základnou 1 Kolabuje na 1 (sekvenční nou
 
 # translated-by: libretranslate
 # SPOT chain.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: INFINITO_WORKER_CPU: CPU-count base for the worker
 msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
 msgstr ""
 
@@ -35545,10 +35422,7 @@ msgstr "Pokud inventory_file je poskytována, také odstraňuje roli poskytovate
 
 # jejichž galaxy_info.lifecycle je v sadě jsou zahrnuty. Chybějící životní
 # cyklus je považován za "neodpovídající".
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"neodpovídající"']
-# nocheck: url
-# translation-rejected: Pokud je k dispozici životní cyklus, pouze role,
 msgid "If lifecycles is provided, only roles whose galaxy_info.lifecycle is in the set are included. Missing lifecycle is treated as \"not matching\"."
 msgstr ""
 
@@ -37930,9 +37804,6 @@ msgstr "Integrační testy, které prosazují invarianty `server:` blokovat `rol
 # elektroinstalace je neporušená, a native- metrics scrap smlouva
 # (`services.prometheus.native_metrics.enabled` {\ cHFFFFFF}
 # `templates/prometheus.yml.j2`) drží přes rolí stromu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Integrační testy, které prosazují invarianty
 msgid "Integration tests that enforce invariants of the prometheus integration: every web-app/svc role declares the shared `prometheus` service entry, the prometheus role's own nginx + docker-health wiring is intact, and the native-metrics scrape contract (`services.prometheus.native_metrics.enabled` ⇔ `templates/prometheus.yml.j2`) holds across the roles tree."
 msgstr ""
 
@@ -42564,9 +42435,6 @@ msgstr "Name"
 msgid "NGINX Domain Setup"
 msgstr "Nastavení domény NGINX"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "NGINX Global Matomo & Theming Modifier Role"
 msgstr ""
 
@@ -42582,15 +42450,9 @@ msgstr "Šablony umístění NGINX"
 msgid "NGINX Matomo Tracking Role"
 msgstr "NGINX Matomo Sledovací role"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "NGINX domain and reverse-proxy configuration"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "NGINX domain setup with WebSocket and reverse-proxy configuration"
 msgstr ""
 
@@ -42606,9 +42468,6 @@ msgstr "NGINX hot- reload, pokud je k dispozici, jinak restart"
 msgid "NGINX installed on the target server."
 msgstr "NGINX nainstalován na cílovém serveru."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr ""
 
@@ -42616,9 +42475,6 @@ msgstr ""
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
 msgstr "NGINX vHost šablony: Základní vs. WebSocket (ws_generic)"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
 
@@ -42974,9 +42830,6 @@ msgstr "Nové aplikace"
 # OpenLDAP pomocí typu LDAP Settings. Třívariantová matice (SSO plus LDAP,
 # žádný auth, pouze LDAP) je vykonáván end- to- end a repo- wide kšiltovky
 # Ansible názvy úloh na 120 postavy.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Nový ERPNext role, která lodě proti Frappe Frappe
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
 msgstr ""
 
@@ -47503,10 +47356,7 @@ msgstr "Vytisknout role, které jsou splatné pro konstrukční přihrávku v pr
 
 # ``--include`` takže výsledný inventář má každou skupinu APP_IDPřechodné depy
 # budou potřebovat čas.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDPřechodné']
-# nocheck: url
-# translation-rejected: Tisk, jeden na řádek, role ID ustanovení CLI by měla
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -48999,9 +48849,6 @@ msgid "Read-only Mode 🔒"
 msgstr "Režim pouze pro čtení 🔒"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Name
 msgid "Read-only project identity; no task start, playbook, Terraform, shell, repository, key, inventory, environment, or user mutation"
 msgstr ""
 
@@ -49145,10 +48992,7 @@ msgstr "Čte poslední den deníku jako JSON se všemi poli v plném rozsahu (``
 
 # chuť sama o sobě je deklarována v svc-storage-nfs-server/ meta /
 # services.yml.
-# translation-refused: libretranslate protected-span
 # lost=['svc-storage-nfs-server/meta/services.yml.'] gained=['services.yml']
-# nocheck: url
-# translation-rejected: Čte merged- config SPOT pomocí vyhledávání('config');
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -50873,10 +50717,7 @@ msgid "Resolution 🔗"
 msgstr "Usnesení 🔗"
 
 # varianty.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDje']
-# nocheck: url
-# translation-rejected: Řešení APP_IDje přechodný patří nastavit pod aktivní
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -51309,10 +51150,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Návrat (majitel, repo, run_id) od run ID nebo run / job URL."
 
 # z URL run / job.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idCLANEK124']
-# nocheck: url
-# translation-rejected: Návrat (majitel, repo, run_id, job_idCLANEK124; žádné)
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -56314,9 +56152,6 @@ msgid "Seamless injection via NGINX `sub_filter` on `</head>`."
 msgstr "Bezproblémová injekce přes NGINX `sub_filter` n `</head>`."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Seamless restarts on config update
 msgid "Seamless restarts on config update"
 msgstr ""
 
@@ -56831,16 +56666,10 @@ msgstr "Self- hostovaný URL zkratka pro tvorbu, sledování a správu krátkýc
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Self- hostovaná platforma WebRTC pro end- to- end- šifrovatelné video konference s federativní autentizace"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name Ollama
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr ""
 
@@ -56888,15 +56717,9 @@ msgstr "Self- hostil mediální server pro streamování a organizování filmů
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Self- hostovaný modelový server pro spuštění open LLM lokálně za jednoduchým HTTP API"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr ""
 
@@ -61951,10 +61774,7 @@ msgstr "AUR PKGBUILDs tento projekt spotřebovává nese kontrolní součet na g
 # bazénu za ním, takže klapka tam trvá minuty spíše než sekundy člen bazénu
 # potřebuje otočit ven; EXTERNAL_FETCHJe ~40s okno bylo pozorováno ztráty na
 # jednu klapku.
-# translation-refused: libretranslate protected-span lost=['EXTERNAL_FETCH']
 # gained=['EXTERNAL_FETCHJe']
-# nocheck: url
-# translation-rejected: AUR je jedním z původních hostitelů bez zrcadlového
 msgid "The AUR is one origin host with no mirror pool behind it, so a flap there lasts minutes rather than the seconds a pool member needs to rotate out; EXTERNAL_FETCH's ~40s window has been observed losing to a single flap."
 msgstr ""
 
@@ -63905,10 +63725,7 @@ msgstr "Databáze generace"
 msgid "The decision compares the free space on the filesystem holding Docker's data root - where images, volumes and build cache grow - against the storage the deploy actually declares it needs: the sum of ``min_storage`` over the services of the applications being deployed, transitive dependencies included. No threshold constant is involved, so the answer follows the declarations rather than a guess about disk sizes."
 msgstr "Rozhodnutí porovnává volný prostor na souborovém systému držící základ dat Docker - kde obrázky, objemy a stavět cache rostou - s úložištěm, které nasazení ve skutečnosti prohlašuje, že potřebuje: součet ``min_storage`` na služby uplatňovaných žádostí včetně přechodných závislostí. Žádná mezní konstanta není zahrnuta, takže odpověď následuje prohlášení spíše než hádat o velikosti disku."
 
-# translation-refused: libretranslate protected-span
 # lost=['web-svc-libretranslate/meta/services.yml'] gained=['services.yml']
-# nocheck: url
-# translation-rejected: Rozhodovacím mechanismem není nová práce. Zvednout
 # znamená extrahovat, ne kopírovat: druhá kopie `History` a `judge_answers` je
 # druhá věc, kterou je třeba napravit, když se smlouva pohne. Domácí precedens
 # pro cross-role Python artefact je MCP adaptér, jehož build kontext je
@@ -65052,9 +64869,6 @@ msgstr "Přihlašovací tlačítko v UI bude číst \"SSO s Infinito.Nexus\" (p�
 
 # Infinito.Nexus" (přejmenováno pomocí aplikace JavaScript). Základní tok auth
 # je standardní OAuth2/ OIDC proti Keycloak.
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Přihlašovací tlačítko v UI bude číst "SSO s
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
 msgstr ""
 
@@ -65976,9 +65790,6 @@ msgid "The project's environment is owned by a single generator, not scattered a
 msgstr "Prostředí projektu je ve vlastnictví jediného generátoru, který není roztroušen napříč moduly shell. Každá proměnná je dokumentována INLINE vedle definice s jednořádkem `# ...` komentář nad klíčem. Tato stránka je jen mapa, kde hledat."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
 msgstr ""
 
@@ -67839,10 +67650,7 @@ msgstr "Téma musí být spojeno se zdrojovým úložištěm (buď zaškrtnuto p
 msgid "The theme MUST be bundled with the source repository (either checked in under `themes/` or referenced as a Hugo Module via `go.mod`). V1 does not support a separate theme override."
 msgstr "Téma musí být spojeno se zdrojovým úložištěm (buď zaškrtnuto pod `themes/` nebo odkazováno jako Hugo Modul `go.mod`). V.1 nepodporuje samostatné ovládání tématu."
 
-# translation-refused: libretranslate protected-span lost=['20']
 # gained=['200']
-# nocheck: url
-# translation-rejected: Tématické listy a `files/playwright/test-design.js`
 # byly vytvořeny proti Odoo 20, Role běží 19.0 (`meta/services.yml`), a dvě
 # tvrzení proto cíl této verze neznamená: `test-design.js:425` chce
 # `.o_search_panel_category_value_header`, které 19 vydává se za prostý
@@ -68009,10 +67817,7 @@ msgstr "Výhoda je, že `deny` Nyní nese plnou váhu \"co agent nesmí nikdy ud
 # žádného zahraničního poskytovatele povoleného (role je izolována): na
 # variantu na řádcích variant, ze základny ``meta/services.yml`` na řadách
 # všech rolí.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
-# nocheck: url
-# translation-rejected: Přechodná pole (``services`` / ``consumed_by`` a
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -70175,9 +69980,6 @@ msgstr "Tato role bootstraps a spravuje Docker Swarm cluster napříč hostiteli
 msgid "This role builds LTEngine from the upstream sources at a pinned commit and runs it as an internal engine without a browser surface. The gateway [`web-svc-translate`](../web-svc-translate/) consumes it over the shared overlay network; nothing publishes it to the internet."
 msgstr "Tato role buduje LTEngine ze zdrojů proti proudu při přišpendlené revizi a běží to jako vnitřní motor bez povrchu prohlížeče. Brána [`web-svc-translate`](../web-svc-translate/) spotřebovává ji přes sdílenou síť, nic ji nezveřejňuje na internet."
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Tato role buduje LTEngine ze zdrojů proti proudu při
 # přišpendlené revizi a běží to jako vnitřní motor bez povrchu prohlížeče.
 # Brána ```web-svc-translate`` <../web-svc-translate/>`_ _ _ spotřebovává přes
 # sdílenou síť překryvu; nic ji nezveřejňuje na internetu.
@@ -70188,10 +69990,7 @@ msgstr ""
 # data. Postmarks is single-user: neexistují žádné účty, pouze "vlastník".
 # Závodní přihlášení je jeden shared- tajné heslo formulář, který přepne jednu
 # relaci boolean (`req.session.loggedIn`).
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"vlastník"']
-# nocheck: url
-# translation-rejected: Tato role buduje Postmarks od zdroje do vlastního
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -70721,10 +70520,7 @@ msgstr "Tato role vysílá ejabberd na Docker Compose se standardním rolemetov�
 # licence (``ldap.controller.ee.js`` není registrován v CE) - takže není
 # nabízena žádná varianta LDAP. Úvěry uložené uvnitř n8n jsou zašifrovány v
 # klidu se stabilní ``N8N_ENCRYPTION_KEY``.
-# translation-refused: libretranslate protected-span lost=['2', '8']
 # gained=['2.8']
-# nocheck: url
-# translation-rejected: Tato úloha se zabývá n8n Vydání Společenství za
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
 msgstr ""
 
@@ -70736,10 +70532,7 @@ msgstr ""
 # licence (`ldap.controller.ee.js` není registrován v CE) - takže není
 # nabízena žádná varianta LDAP. Úvěry uložené uvnitř n8n jsou zašifrovány v
 # klidu se stabilní `N8N_ENCRYPTION_KEY`.
-# translation-refused: libretranslate protected-span lost=['2', '8']
 # gained=['2.8']
-# nocheck: url
-# translation-rejected: Tato úloha se zabývá n8n Vydání Společenství za
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
 msgstr ""
 
@@ -71973,10 +71766,7 @@ msgstr "Dnes každý Infinito.Nexus nasadit běhy `docker compose` proti jediné
 # variants.yml](../../roles/web-app-opencloud/meta/variants.yml) kde varianta
 # 1 soupravy `ldap.enabled: true` s `oidc.enabled: false`), ale odpovídající
 # scénář SPC ještě neexistuje.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml'] gained=['variants.yml']
-# nocheck: url
-# translation-rejected: Dnes většina rolí specifikuje brány jejich ověřené
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -72266,9 +72056,6 @@ msgstr "Překládá prázdné a rozmazané položky jednoho jazyka v obou oblast
 msgid "Translation Gateway"
 msgstr "Přenosová brána"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Translation Gateway Architecture
 msgid "Translation Gateway Architecture"
 msgstr ""
 
@@ -73259,9 +73046,6 @@ msgstr "Výchozí obrázky vývojové zkušební matrice."
 msgid "Upstream container reference: <https://github.com/frappe/frappe_docker>"
 msgstr "Odkaz na horní nádrž: <https://github.com/frappe/frappe_docker>"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Upstream degrades gracefully per feed.
 msgid "Upstream degrades gracefully per feed."
 msgstr ""
 
@@ -73935,11 +73719,8 @@ msgstr "Použití ``ressources`` CLI a variantou zdroje-rozpočet lint, takže s
 
 # prometheus.yml.j2 k automatickému objevování aplikací, které vystaví cílový
 # parametr rodný / metrický bez tvrdého kódování každé aplikace.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['prometheus.yml.j2']
-# nocheck: url
-# translation-rejected: Používá se web-app-prometheus/ šablony / konfigurace /
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -74109,10 +73890,7 @@ msgstr "Nárok na uživatelské jméno: `preferred_username`, mapovaný OpenClou
 # ``{{hunspell_languages}}`` proměnné založené na jejich specifických
 # jazykových požadavcích. Tato proměnná přijímá seznam jazykových kódů (např.
 # "en_US','de_DE').
-# translation-refused: libretranslate protected-span lost=['de_DE']
 # gained=['"', "'de_DE'"]
-# nocheck: url
-# translation-rejected: Uživatelé jsou vybízeni, aby přizpůsobit
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -76201,9 +75979,6 @@ msgid "When the role injects custom branding or theming"
 msgstr "Když role vdechne vlastní značku nebo téma"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: When the role injects custom frontend behavior
 msgid "When the role injects custom frontend behavior"
 msgstr ""
 
@@ -76800,9 +76575,6 @@ msgstr "Dráty OpenResty/ NGINX handlers"
 msgid "With SSO disabled the role uses the Internal directory and the bot's derived account password."
 msgstr "Když je SSO vypnuto, použije se vnitřní adresář a heslo k účtu."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Když je SSO vypnuto, použije se vnitřní adresář a
 # heslo k účtu.
 msgid "With SSO disabled the role uses the Internal directory and the bot’s derived account password."
 msgstr ""
@@ -77577,10 +77349,7 @@ msgstr "Nesmíte vstoupit do vnitřní smyčky, pokud se neobjeví všechna nás
 # "ŠPANĚLSKO", "Jednotný bod pravdy"nebo jakékoli rovnocenné samolepky. Status
 # SOT je přiznán čtenáři cross- linking na stránku odjinud, ne na stránce,
 # která tvrdí, že o sobě. Popište téma přímo.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ŠPANĚLSKO"']
-# nocheck: url
-# translation-rejected: Nesmíte výslovně prohlásit stránku dokumentace za
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -85264,9 +85033,6 @@ msgstr ""
 # Parametr cesty `qdrant_get_collection` není příčné riziko: adaptér
 # condition- kóduje jej s prázdnou sadou, takže `../` Argument dosahuje Qdrant
 # jako doslovný název sbírky.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] Integrace zálohované databáze používá per-
 msgid "[x] Database-backed integrations use per-application views/collections/indexes and read-only principals; no test or configuration contains a shared engine administrator credential. One database-backed surface is enabled, Qdrant, and auditing it found the engine running with no authentication at all: its environment set the HTTP port and disabled telemetry and nothing else, so every container that reached its network held full read, write and delete access to every collection, and the surface's read-only promise rested entirely on the adapter's own contract naming only GET routes. Qdrant 1.19 offers what was needed: `read_only_api_key` forces authentication on every request and grants reads only. The engine now declares both keys, the adapter presents the read-only one through `api-key`, and the full key goes only to consumers that own data here, which is asserted by a unit test on the resolver because handing the read-only key out anywhere else would make it meaningless. A contract that named a write route is now refused by the engine rather than only by the adapter. Two limits stay, and neither is a credential problem: Qdrant has no per-consumer principals, only engine-wide keys, so \"read-only principal\" is as narrow as this engine goes without JWT RBAC; and `qdrant_list_collections` enumerates the whole engine, which is bounded today by there being one data owner but is not a per-application view. The path parameter of `qdrant_get_collection` is not a traversal risk: the adapter percent-encodes it with an empty safe set, so a `../` argument reaches Qdrant as a literal collection name."
 msgstr ""
 
@@ -86059,9 +85825,6 @@ msgstr "[x] Identifikátor uživatele je popsán `{{ OIDC.ATTRIBUTES.USERNAME }}
 
 # spolupráci (živé kurzory, komentáře) práce (1 písm. b) nařízení o
 # kapitálových požadavcích.).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Vhost konfiguruje upgrade WebSocket tak real-time
 msgid "[x] The vhost configures WebSocket upgrade so real-time collaboration (live cursors, comments) works (handled by the shared proxy template)."
 msgstr ""
 
@@ -86612,10 +86375,7 @@ msgstr "[x] `meta/variants.yml` prohlašuje varianty využití v manželství (v
 
 # varianta (`ldap` dne, `sso`/ OIDC vypnuto) na úmluvu [web-app-openproject/
 # meta / variants.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml'] gained=['variants.yml']
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` definuje **Pouze LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -87138,9 +86898,6 @@ msgstr "\\`make compose-up\\` běží to pro checkout, který sdílí jiný je c
 
 # translated-by: libretranslate
 # souvislé rozpětí velikosti `--length N` uvnitř kapely.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: _ _ Gap- first: _ _ _ navrhnout nejnižší neobsazené
 msgid "__Gap-first:__ propose the lowest unoccupied contiguous span of size `--length N` within the band."
 msgstr ""
 
@@ -87159,17 +86916,11 @@ msgstr "_ _ Zvětšení pozadí: _ _ pokud všechny podbloky aktivní `/24` jsou
 # translated-by: libretranslate
 # pasuje, navrhnout `max(end) + 1` do `max(end) + N` (sevřený na horní hranici
 # kapely).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: _ _ _ Zvětšení pozadí: _ _ Pokud není vnitřní mezera
 msgid "__Increment fallback:__ if no internal gap fits, propose `max(end) + 1` to `max(end) + N` (clamped to the band's upper bound)."
 msgstr ""
 
 # translated-by: libretranslate
 # mezery, navrhnout `max(used) + 1` (sevřený na horní hranici kapely).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: _ _ _ Zvětšení pozadí: _ _ Pokud kapela nemá vnitřní
 msgid "__Increment fallback:__ if the band has no internal gaps, propose `max(used) + 1` (clamped to the band's upper bound)."
 msgstr ""
 
@@ -87182,9 +86933,6 @@ msgstr "_ _ MTU klesá mid-handshake__, MITM cert neshoda, CA svazek chybí, ser
 # `--clients 1000` → `/22` a ne `/22` je užíván), výstup non-nula s jasnou
 # chybou naznačuje, že provozovatel projít `--block <cidr>` k manuálnímu
 # padělání nového bloku deštníků.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: _ _ _ Žádná stanovená posloupnost: _ _ pokud
 msgid "__No established sequence:__ if the requested prefix size has no umbrella block established yet (e.g. `--clients 1000` → `/22` and no `/22` is in use), exit non-zero with a clear error suggesting that the operator pass `--block <cidr>` to bootstrap a new umbrella block manually."
 msgstr ""
 
@@ -87194,9 +86942,6 @@ msgstr "_ _ stderr _ _ prints a human- rectory summary noting which band was use
 
 # translated-by: libretranslate
 # human- recable summary noting which deštník block(s) byli skenováni.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: _ _ _ stderr _ _ prints per- support capacity and a
 msgid "__stderr__ prints per-suggestion capacity and a human-readable summary noting which umbrella block(s) were scanned."
 msgstr ""
 
@@ -88355,9 +88100,6 @@ msgid "``(healthcheck, source)``. Reading upstream is the documented fallback fo
 msgstr "``(healthcheck, source)``. Čtení proti proudu je dokumentovaný záloha pro obrázky, které zrcadlo nemá; volající, který smaže mnoho snímků může použít počítat, aby poznal záloha ze zrcadla, které přestalo fungovat."
 
 # b) nařízení o kapitálových požadavcích.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``(input name, opening literal, is_marker)`` 1 písm.
 msgid "``(input name, opening literal, is_marker)`` per rendered segment, in template order."
 msgstr ""
 
@@ -88608,9 +88350,6 @@ msgstr "``None`` na jakémkoli neurčeném výsledku: nerozlučitelný název, s
 msgid "``None`` when the title carries no deploy row. ``name`` is the display name, returned unresolved -- callers decode it through ``utils.roles.display``, which is what knows the role tree. ``tor``, ``distro``, ``filesystem``, ``architecture`` and ``vpn`` matter because a priority role runs the same mode and variant several times over, and only the glyphs tell those jobs apart -- a retrigger built from the title alone would otherwise replay a different combination than the one that failed."
 msgstr ""
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``OutboundEmailAccounts`` názvy SuiteCRMOdchozí
 # poštovní modul a prohlašuje ``email`` Most. Role nenastavuje žádný SMTP,
 # takže addon zaznamenává most spíše než zajištěné integrace, a
 # ```files/playwright/addons/OutboundEmailAccounts.spec.js``
@@ -89163,10 +88902,7 @@ msgstr "``enforced`` cibule v každé řadě. ``disabled`` žádné, ``exclusive
 # souboru vůbec: ``web-app-discourse`` je postaven discourse_dockerje
 # ``launcher``, jehož jediným argumentem je povrch ``docker_args:`` v jeho
 # ``app.yml``, takže to potřebuje ``--add-host=<entry>`` čáry.
-# translation-refused: libretranslate protected-span lost=['discourse_docker']
 # gained=['discourse_dockerje']
-# nocheck: url
-# translation-rejected: ``entries_only=true`` vrací tyto struny jako seznam
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -93381,9 +93117,6 @@ msgstr "poptávka"
 msgid "a deploy already holds the container stack this one     would touch."
 msgstr "Rozmístění už drží zásobník kontejnerů, kterého by se tento dotkl."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Rozmístění už běží a překlad by závodil o stejný
 # zásobník kontejnerů.
 msgid "a deploy is already running, and translating would race     it for the same container stack."
 msgstr ""
@@ -95249,10 +94982,7 @@ msgstr "cli.meta.ci.plan modul"
 msgid "cli.meta.ci.query module"
 msgstr "cli.meta.ci.query modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['cli.meta.ci.report'] gained=['cli.meta.ci.reportName']
-# nocheck: url
-# translation-rejected: cli.meta.ci.reportName
 msgid "cli.meta.ci.report\\_failures module"
 msgstr ""
 
@@ -98035,9 +97765,6 @@ msgstr "nový"
 msgid "nfs-server"
 msgstr "nfs-server"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr ""
 
@@ -99019,20 +98746,14 @@ msgstr "plugins.filter.active\\ _ docker modul"
 msgid "plugins.filter.application\\_allowed module"
 msgstr "plugins.filter.application\\ _ povolený modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.async'] gained=['plugins.filter.asyncName']
-# nocheck: url
-# translation-rejected: plugins.filter.asyncName
 msgid "plugins.filter.async\\_failures module"
 msgstr ""
 
 msgid "plugins.filter.bcrypt\\_hash module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.ca'] gained=['plugins.filter.caName']
-# nocheck: url
-# translation-rejected: plugins.filter.caName
 msgid "plugins.filter.ca\\_trust\\_paths module"
 msgstr ""
 
@@ -99040,10 +98761,7 @@ msgstr ""
 msgid "plugins.filter.canonical\\_domains\\_map module"
 msgstr "plugins.filter.canonical\\ _ domény\\ _ mapový modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookieName']
-# nocheck: url
-# translation-rejected: plugins.filter.cookieName
 msgid "plugins.filter.cookie\\_scope module"
 msgstr ""
 
@@ -99071,10 +98789,7 @@ msgstr "plugins.filter.docker.network\\ _ noop modul"
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr "plugins.filter.docker.service\\ _ povolen modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainName']
-# nocheck: url
-# translation-rejected: plugins.filter.domainName
 msgid "plugins.filter.domain\\_tools module"
 msgstr ""
 
@@ -99086,19 +98801,13 @@ msgstr "plugins.filter.dotenv modul"
 msgid "plugins.filter.generate package"
 msgstr "plugins.filter.generate balíček"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.generate.all']
 # gained=['plugins.filter.generate.allName']
-# nocheck: url
-# translation-rejected: plugins.filter.generate.allName
 msgid "plugins.filter.generate.all\\_domains module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.generate.base']
 # gained=['plugins.filter.generate.baseName']
-# nocheck: url
-# translation-rejected: plugins.filter.generate.baseName
 msgid "plugins.filter.generate.base\\_sld\\_domains module"
 msgstr ""
 
@@ -99114,11 +98823,8 @@ msgstr "plugins.filter.get.all balíček"
 msgid "plugins.filter.get.all.application\\_ids module"
 msgstr "plugins.filter.get.all.application\\ _ ids modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.all.invokable']
 # gained=['plugins.filter.get.all.invokableName']
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.invokableName
 msgid "plugins.filter.get.all.invokable\\_apps module"
 msgstr ""
 
@@ -99130,10 +98836,7 @@ msgstr "plugins.filter.get.category\\ _ entry modul"
 msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr "plugins.filter.get.deployment\\ _ types\\ _ from\\ _ groups modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.get.docker'] gained=['plugins.filter.get.dockerName']
-# nocheck: url
-# translation-rejected: plugins.filter.get.dockerName
 msgid "plugins.filter.get.docker\\_paths module"
 msgstr ""
 
@@ -99173,10 +98876,7 @@ msgstr "plugins.filter.has.domain modul"
 msgid "plugins.filter.has.env module"
 msgstr "plugins.filter.has.env modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.invokable'] gained=['plugins.filter.invokableName']
-# nocheck: url
-# translation-rejected: plugins.filter.invokableName
 msgid "plugins.filter.invokable\\_paths module"
 msgstr ""
 
@@ -99188,11 +98888,8 @@ msgstr "plugins.filter.ldap\\ _ modification\\ _ noop modul"
 msgid "plugins.filter.litellm package"
 msgstr "plugins.filter.litellm balíček"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.litellm.model']
 # gained=['plugins.filter.litellm.modelName']
-# nocheck: url
-# translation-rejected: plugins.filter.litellm.modelName
 msgid "plugins.filter.litellm.model\\_routes module"
 msgstr ""
 
@@ -99224,10 +98921,7 @@ msgstr "plugins.filter.on\\ _ off modul"
 msgid "plugins.filter.redirect\\_sources module"
 msgstr "plugins.filter.redirect\\ _ sources modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedName']
-# nocheck: url
-# translation-rejected: plugins.filter.reservedName
 msgid "plugins.filter.reserved\\_users module"
 msgstr ""
 
@@ -99251,10 +98945,7 @@ msgstr "plugins.filter.seaweedfs modul"
 msgid "plugins.filter.sed module"
 msgstr "plugins.filter.sed modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.split'] gained=['plugins.filter.splitName']
-# nocheck: url
-# translation-rejected: plugins.filter.splitName
 msgid "plugins.filter.split\\_postgres\\_connections module"
 msgstr ""
 
@@ -99294,10 +98985,7 @@ msgstr "plugins.filter.url balíček"
 msgid "plugins.filter.url.join module"
 msgstr "plugins.filter.url.join modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.filter.url.to'] gained=['plugins.filter.url.toName']
-# nocheck: url
-# translation-rejected: plugins.filter.url.toName
 msgid "plugins.filter.url.to\\_onion module"
 msgstr ""
 
@@ -99313,10 +99001,7 @@ msgstr "plugins.lookup balíček"
 msgid "plugins.lookup.active\\_alertmanager\\_channels module"
 msgstr "plugins.lookup.active\\ _ alertmanager\\ _ channels modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.addon'] gained=['plugins.lookup.addonName']
-# nocheck: url
-# translation-rejected: plugins.lookup.addonName
 msgid "plugins.lookup.addon\\_env\\_flags module"
 msgstr ""
 
@@ -99332,11 +99017,8 @@ msgstr "plugins.lookup.api modul"
 msgid "plugins.lookup.api\\_enabled module"
 msgstr "plugins.lookup.api\\ _ povolen modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.application']
 # gained=['plugins.lookup.applicationName']
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationName
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
@@ -99364,10 +99046,7 @@ msgstr "plugins.lookup.asset\\ _ hostitelský modul"
 msgid "plugins.lookup.bounded\\_name module"
 msgstr "plugins.lookup.bounded\\ _ name modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.ca'] gained=['plugins.lookup.caName']
-# nocheck: url
-# translation-rejected: plugins.lookup.caName
 msgid "plugins.lookup.ca\\_injected module"
 msgstr ""
 
@@ -99376,16 +99055,10 @@ msgid "plugins.lookup.cache\\_records module"
 msgstr "plugins.lookup.cache\\ _ records modul"
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheName']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheName
 msgid "plugins.lookup.cache\\_repos module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheName']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheName
 msgid "plugins.lookup.cache\\_upstreams module"
 msgstr ""
 
@@ -99413,10 +99086,7 @@ msgstr "plugins.lookup.compose\\ _ externí modul\\ _ sítě"
 msgid "plugins.lookup.compose\\_file\\_args module"
 msgstr "plugins.lookup.compose\\ _ file\\ _ args modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeName']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeName
 msgid "plugins.lookup.compose\\_networks module"
 msgstr ""
 
@@ -99432,10 +99102,7 @@ msgstr "plugins.lookup.compose\\ _ replikas modul"
 msgid "plugins.lookup.compose\\_restart module"
 msgstr "plugins.lookup.compose\\ _ restart modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeName']
-# nocheck: url
-# translation-rejected: plugins.lookup.composeName
 msgid "plugins.lookup.compose\\_volumes module"
 msgstr ""
 
@@ -99455,10 +99122,7 @@ msgstr "plugins.lookup.container\\ _ address modul"
 msgid "plugins.lookup.container\\_depends\\_on module"
 msgstr "plugins.lookup.container\\ _ záleží\\ _ na modulu"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerName']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerName
 msgid "plugins.lookup.container\\_deploy module"
 msgstr ""
 
@@ -99486,10 +99150,7 @@ msgstr "plugins.lookup.container\\ _ image modul"
 msgid "plugins.lookup.container\\_mail\\_marker module"
 msgstr "plugins.lookup.container\\ _ mail\\ _ marker modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerName']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerName
 msgid "plugins.lookup.container\\_networks module"
 msgstr ""
 
@@ -99505,10 +99166,7 @@ msgstr "plugins.lookup.container\\ _ servisní modul"
 msgid "plugins.lookup.container\\_url module"
 msgstr "plugins.lookup.container\\ _ url modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerName']
-# nocheck: url
-# translation-rejected: plugins.lookup.containerName
 msgid "plugins.lookup.container\\_volumes module"
 msgstr ""
 
@@ -99540,10 +99198,7 @@ msgstr "plugins.lookup.deployment modul"
 msgid "plugins.lookup.design module"
 msgstr "plugins.lookup.design modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.design'] gained=['plugins.lookup.designName']
-# nocheck: url
-# translation-rejected: plugins.lookup.designName
 msgid "plugins.lookup.design\\_palette module"
 msgstr ""
 
@@ -99579,10 +99234,7 @@ msgstr "plugins.lookup.group\\ _ roles modul"
 msgid "plugins.lookup.guide\\_role module"
 msgstr "plugins.lookup.guide\\ _ role modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nName']
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nName
 msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr ""
 
@@ -99610,10 +99262,7 @@ msgstr "plugins.lookup.mail\\ _ provider modul"
 msgid "plugins.lookup.matrix\\_server\\_name module"
 msgstr "plugins.lookup.matrix\\ _ server\\ _ name modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpName']
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpName
 msgid "plugins.lookup.mcp\\_client\\_bearer module"
 msgstr ""
 
@@ -99625,10 +99274,7 @@ msgstr "plugins.lookup.mcp\\ _ client\\ _ přihlašovací modul"
 msgid "plugins.lookup.mcp\\_credential module"
 msgstr "plugins.lookup.mcp\\ _ akreditační modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpName']
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpName
 msgid "plugins.lookup.mcp\\_servers module"
 msgstr ""
 
@@ -99710,10 +99356,7 @@ msgstr "plugins.lookup.path\\ _ absolutní modul"
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr "plugins.lookup.playwright\\ _ workshop"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresName']
-# nocheck: url
-# translation-rejected: plugins.lookup.postgresName
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -99741,10 +99384,7 @@ msgstr "plugins.lookup.redirect\\ _ uris modul"
 msgid "plugins.lookup.resource module"
 msgstr "plugins.lookup.resource modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleName']
-# nocheck: url
-# translation-rejected: plugins.lookup.roleName
 msgid "plugins.lookup.role\\_subnets module"
 msgstr ""
 
@@ -99796,10 +99436,7 @@ msgstr "plugins.lookup.smtp\\ _ hostitelský modul"
 msgid "plugins.lookup.sso module"
 msgstr "plugins.lookup.sso modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.sso'] gained=['plugins.lookup.ssoName']
-# nocheck: url
-# translation-rejected: plugins.lookup.ssoName
 msgid "plugins.lookup.sso\\_cookie\\_domains module"
 msgstr ""
 
@@ -99807,10 +99444,7 @@ msgstr ""
 msgid "plugins.lookup.sso\\_oidc\\_plugin module"
 msgstr "plugins.lookup.sso\\ _ oidc\\ _ modul plugin"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.sso'] gained=['plugins.lookup.ssoName']
-# nocheck: url
-# translation-rejected: plugins.lookup.ssoName
 msgid "plugins.lookup.sso\\_proxy\\_consumers module"
 msgstr ""
 
@@ -99826,10 +99460,7 @@ msgstr "plugins.lookup.stage\\ _ groups modul"
 msgid "plugins.lookup.subnet\\_address\\_regex module"
 msgstr "plugins.lookup.subnet\\ _ adresa\\ _ regex modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnetName']
-# nocheck: url
-# translation-rejected: plugins.lookup.subnetName
 msgid "plugins.lookup.subnet\\_gateway module"
 msgstr ""
 
@@ -99849,10 +99480,7 @@ msgstr "plugins.lookup.tor\\ _ ports modul"
 msgid "plugins.lookup.tor\\_reachable module"
 msgstr "plugins.lookup.tor\\ _ dosažitelný modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torName']
-# nocheck: url
-# translation-rejected: plugins.lookup.torName
 msgid "plugins.lookup.tor\\_socks module"
 msgstr ""
 
@@ -100314,9 +99942,6 @@ msgstr "Kořen úložiště držící RUNNER_COMPOSE_FILES a ``default.env``. Ko
 msgid "repository root holding the ``requirements`` directory."
 msgstr "Kořen úložiště držící ``requirements`` adresář."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: repository root the compose files are relative to.
 msgid "repository root the compose files are relative to."
 msgstr ""
 
@@ -100324,9 +99949,6 @@ msgstr ""
 msgid "repository root the role resolver works from."
 msgstr "úložiště kořen role resolver funguje."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: repository root the runner images are declared under.
 msgid "repository root the runner images are declared under."
 msgstr ""
 
@@ -100934,10 +100556,7 @@ msgstr "service_name může být \"\" → bude řešit entity_name(application_i
 msgid "services.<entity_name(application_id)>.<key>"
 msgstr "služby.<entity_name(application_id)>.<key>"
 
-# translation-refused: libretranslate protected-span lost=['service_name']
 # gained=['službyservice_name']
-# nocheck: url
-# translation-rejected: službyservice_name nebo
 # entity_name(application_id)>.<key>
 msgid "services.<service_name or entity_name(application_id)>.<key>"
 msgstr ""
@@ -103248,10 +102867,7 @@ msgstr "utils.cache.records modul"
 msgid "utils.cache.render module"
 msgstr "utils.cache.render modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.cache.schema'] gained=['utils.cache.schemaName']
-# nocheck: url
-# translation-rejected: utils.cache.schemaName
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -103427,10 +103043,7 @@ msgstr "utils.env.handlers.docker\\ _ platform modul"
 msgid "utils.env.handlers.gha\\_passthrough module"
 msgstr "utils.env.handlers.gha\\ _ Passthrough modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.github'] gained=['utils.env.handlers.githubName']
-# nocheck: url
-# translation-rejected: utils.env.handlers.githubName
 msgid "utils.env.handlers.github\\_repository\\_owner module"
 msgstr ""
 
@@ -103546,11 +103159,8 @@ msgstr "utils.env.handlers.infinito.ghcr\\ _ zrcadlový modul"
 msgid "utils.env.handlers.infinito.git\\_identity module"
 msgstr "utils.env.handlers.infinito.git\\ _ identity modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.gpu']
 # gained=['utils.env.handlers.infinito.gpuName']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.gpuName
 msgid "utils.env.handlers.infinito.gpu\\_count module"
 msgstr ""
 
@@ -103604,11 +103214,8 @@ msgstr "utils.env.handlers.infinito.package\\ _ cache.bstore\\ _ max modul"
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
 msgstr "utils.env.handlers.infinito.package\\ _ cache.Direct\\ _ mem modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.env.handlers.infinito.package']
 # gained=['utils.env.handlers.infinito.packageName']
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packageName
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr ""
 
@@ -103750,17 +103357,11 @@ msgstr "utils.get\\ _ url modul"
 msgid "utils.github package"
 msgstr "utils.github balíček"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.github.playwright'] gained=['utils.github.playwrightName']
-# nocheck: url
-# translation-rejected: utils.github.playwrightName
 msgid "utils.github.playwright\\_summary module"
 msgstr ""
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.github.pytest'] gained=['utils.github.pytestName']
-# nocheck: url
-# translation-rejected: utils.github.pytestName
 msgid "utils.github.pytest\\_summary module"
 msgstr ""
 
@@ -103890,10 +103491,7 @@ msgstr "utils.install balíček"
 msgid "utils.install.collections module"
 msgstr "utils.install.collections modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.install.github'] gained=['utils.install.githubName']
-# nocheck: url
-# translation-rejected: utils.install.githubName
 msgid "utils.install.github\\_release module"
 msgstr ""
 
@@ -104017,10 +103615,7 @@ msgstr "utils.install.system\\ _ pkg modul"
 msgid "utils.inventory package"
 msgstr "utils.inventory balíček"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.inventory.bundle'] gained=['utils.inventory.bundleName']
-# nocheck: url
-# translation-rejected: utils.inventory.bundleName
 msgid "utils.inventory.bundle\\_apps module"
 msgstr ""
 
@@ -104036,10 +103631,7 @@ msgstr "utils.inventory.tools modul"
 msgid "utils.kcadm\\_json module"
 msgstr "utils.kcadm\\ _ json modul"
 
-# translation-refused: libretranslate protected-span lost=['utils.keycloak']
 # gained=['utils.keycloakName']
-# nocheck: url
-# translation-rejected: utils.keycloakName
 msgid "utils.keycloak\\_scopes module"
 msgstr ""
 
@@ -104091,10 +103683,7 @@ msgstr "utils.meta.authors modul"
 msgid "utils.meta.identity module"
 msgstr "utils.meta.identity modul"
 
-# translation-refused: libretranslate protected-span lost=['utils.meta.port']
 # gained=['utils.meta.portName']
-# nocheck: url
-# translation-rejected: utils.meta.portName
 msgid "utils.meta.port\\_bands module"
 msgstr ""
 
@@ -104289,11 +103878,8 @@ msgstr "utils.roles.applications.status\\ _ codes modul"
 msgid "utils.roles.applications.topics module"
 msgstr "utils.roles.applications.topics modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.roles.applications.variant']
 # gained=['utils.roles.applications.variantName']
-# nocheck: url
-# translation-rejected: utils.roles.applications.variantName
 msgid "utils.roles.applications.variant\\_pins module"
 msgstr ""
 
@@ -104361,10 +103947,7 @@ msgstr "utils.roles.rbac balíček"
 msgid "utils.roles.rbac.scoped module"
 msgstr "utils.roles.rbac.scoped modul"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.roles.required'] gained=['utils.roles.requiredName']
-# nocheck: url
-# translation-rejected: utils.roles.requiredName
 msgid "utils.roles.required\\_by\\_coverage module"
 msgstr ""
 
@@ -104436,10 +104019,7 @@ msgstr "utils.templating.jinja modul"
 msgid "utils.templating.vars module"
 msgstr "utils.templating.vars modul"
 
-# translation-refused: libretranslate protected-span lost=['utils.terminal']
 # gained=['utils.terminalName']
-# nocheck: url
-# translation-rejected: utils.terminalName
 msgid "utils.terminal\\_aliases module"
 msgstr ""
 
@@ -104451,10 +104031,7 @@ msgstr "utils.tests balíček"
 msgid "utils.tests.swarm package"
 msgstr "utils.tests.swarm balíček"
 
-# translation-refused: libretranslate protected-span
 # lost=['utils.tests.swarm.backup'] gained=['utils.tests.swarm.backupName']
-# nocheck: url
-# translation-rejected: utils.tests.swarm.backupName
 msgid "utils.tests.swarm.backup\\_repos module"
 msgstr ""
 
@@ -104500,10 +104077,7 @@ msgstr "utils.tests.swarm.write.hosts\\ _ entry modul"
 msgid "utils.tls\\_common module"
 msgstr "utils.tls\\ _ společný modul"
 
-# translation-refused: libretranslate protected-span lost=['utils.tor']
 # gained=['utils.torName']
-# nocheck: url
-# translation-rejected: utils.torName
 msgid "utils.tor\\_onion module"
 msgstr ""
 
@@ -105368,9 +104942,6 @@ msgid "🔄 **Mail-provider integration (when available)**"
 msgstr "🔄 **Integrace poštovních služeb (pokud je k dispozici)**"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: 🔍 Name
 msgid "🔍 Resolve identifiers, references, and computed inputs"
 msgstr ""
 

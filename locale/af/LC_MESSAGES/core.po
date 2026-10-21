@@ -374,7 +374,6 @@ msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Bestuursbeheer"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -464,7 +463,6 @@ msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr "Data-getende rol vir die beheer van Cloudflare DNS-ore (A/AAAA, CNAME, MX, TXT, SRV) oor apps en omgewings"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr ""
@@ -559,9 +557,6 @@ msgctxt "menu:Development:title"
 msgid "Development"
 msgstr "Ontwikkeling"
 
-# translation-refused: libretranslate added-span lost=[] gained=['<br>']
-# nocheck: url
-# translation-rejected: Ontwikkeling en CI/CD uitvoeringswerktydens<br>scripts
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr ""
@@ -880,7 +875,6 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript-runtime-voegeling-voar-en-bouw-en-voer-uit-servier-applications-en-developer-toole"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
 msgstr ""
@@ -1055,9 +1049,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-gedeonde statiese sewer-rendering van 'n juridiese toonetta (Impressum) uit 'n Jinja2 maatjie"
 
+# translated-by: ollama
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 tradisional modelservig oor HTTP, vir pipelines wat dit direkte raak nie"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1094,7 +1089,6 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Nginx gebaseerde server vir die hosting van statieke beweekteken kopieer uit 'n brondir na die webdatapad"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1159,7 +1153,6 @@ msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
 msgstr "Open-source IT-aangestelde systeem vir bewaring hard- en software-inventory"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr ""
@@ -1364,7 +1357,6 @@ msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "Provisionings rol vir 'n werkspleegkonto vir 'n werkspleegverklaring, SSh aangewys huidigies, en omgeving"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr ""
@@ -1374,7 +1366,6 @@ msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "ProxyServers"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr ""
@@ -2045,7 +2036,6 @@ msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr "Translating mémoire van hersiening, glssariere en die menslike review proses wat na die oversettergwangryweke van die oversettergwang lig"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr ""
@@ -2095,7 +2085,6 @@ msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Versionde aardbvakboomuitwikkeling vir CDN-dienst met gemigte, verkoopers en per-rollrolreleubakbestandmappen"
 
-# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""

@@ -13230,9 +13230,6 @@ msgstr "003 - Zmniejszyć `applications` oraz `users` aby sprawdzić tylko dost�
 msgid "004 - Generic RBAC role auto-provisioning via OpenLDAP"
 msgstr "004 - Generyczne RBAC rola auto- zaopatrzenie poprzez OpenLDAP"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: 005 - WordPress Multisite support for OIDC-driven RBAC
 msgid "005 - WordPress Multisite support for OIDC-driven RBAC"
 msgstr ""
 
@@ -13360,9 +13357,6 @@ msgstr "029 - Checkmk Rola z oauth2-proxy SSO + LDAP"
 msgid "030 - Jellyfin Role with LDAP / OIDC SSO"
 msgstr "030 - Jellyfin Rola LDAP / OIDC SSO"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: 031 - LLM Gateway and Model Backends (LiteLLM)
 msgid "031 - LLM Gateway and Model Backends (LiteLLM)"
 msgstr ""
 
@@ -13391,9 +13385,6 @@ msgid "034 - Embodied Robot Platform for Hermes (svc-ai-robot)"
 msgstr "034 - Embodred Robot Platform dla Hermes (svc-ai-robot)"
 
 # Interconnection
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: 035 - MCP Proxy Expansion and Application
 msgid "035 - MCP Proxy Expansion and Application Interconnection"
 msgstr ""
 
@@ -14618,10 +14609,7 @@ msgstr "URL zadania zawęża pobieranie do aplikacji tego zadania; goły adres U
 # odciski palców "aktualny" i wyjścia niezerowe). Oba są przeszukiwane, więc
 # dzwoniący przechodzi tolerowany zwrot i nie musi wiedzieć, który klucz go
 # niesie.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"aktualny"']
-# nocheck: url
-# translation-rejected: Praca liczy się jako nieudany, gdy nigdy nie skończył,
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -14691,9 +14679,6 @@ msgstr "Nieprawidłowe wyrażenie filtra."
 # ograniczenie umieszczenia, więc dosłownie ``shared: false`` Tam jest
 # uhonorowany, a nie przewrócony Magento nieudane ``setup:install`` na środku
 # MariaDB Majorze.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Rola kierownika utrzymuje swoje tomy node-lokalne
 msgid "A manager-pinned role keeps its volumes node-local (``swarm_nfs_backed``) and its DB sidecar carries the matching placement constraint, so a literal ``shared: false`` there is honoured instead of overridden — Magento hard-fails ``setup:install`` on the central MariaDB major."
 msgstr ""
 
@@ -18552,10 +18537,7 @@ msgstr "Aplikacje wyrażają wybór bazy danych bezpośrednio poprzez root pliku
 # przy użyciu znanych SDK i CLI. Administratorzy zarządzają wiaderkami,
 # użytkownikami i zasadami dostępu przez konsolę przeglądarki, zachowując
 # wszystko na-prem.
-# translation-refused: libretranslate protected-span lost=['3']
 # gained=['"S3"']
-# nocheck: url
-# translation-rejected: Aplikacje, które mówią "S3" (Pixelfed, Mastodon,
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
 msgstr ""
 
@@ -18840,10 +18822,7 @@ msgstr ""
 # badać swój własny sprzęt i działać w świecie fizycznym, tak aby Hermes mógł
 # "Ożyj" na robocie, podczas gdy ta moc jest ograniczona do dedykowanego,
 # segmentowanego urządzenia i nigdy nie przecieka na wspólną infrastrukturę.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"Ożyj"']
-# nocheck: url
-# translation-rejected: Jako administrator platformy Infinito.Nexus, Chcę
 msgid "As a platform administrator of Infinito.Nexus, I want a `svc-ai-robot` role that turns one dedicated machine into an embodied platform for Hermes, giving the agent scoped-to-full host access so it can explore its own hardware and act in the physical world, so that Hermes can \"come to life\" on a robot while this power stays confined to a dedicated, segmented device and never leaks onto shared infrastructure."
 msgstr ""
 
@@ -27530,9 +27509,6 @@ msgstr "Dokumentowane lokalne *sprawdzić* cele **Naprawiono**"
 # static- file (autoindex) oraz 301-redirect vhosts, które nie noszą strony
 # HTML zwróconej do użytkownika warty `_paq` nadajnik. Marker towarzyszy
 # `track:` Dane znaczą wyróżnienia.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Dokumenty `services.matomo.track: false` opt- out in
 #, python-brace-format
 msgid "Documents a `services.matomo.track: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.matomo.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('matomo')` drops it from `MATOMO_TARGET_ROLES_JSON` and the matomo tracker e2e contract. Reserved for static-file (autoindex) and 301-redirect vhosts that carry no user-facing HTML page worth a `_paq` tracker. The marker accompanies the `track:` data flag the lookup honors."
 msgstr ""
@@ -27544,9 +27520,6 @@ msgstr ""
 # nie obsługują prośby przez lua- resty- prometeusz, więc emitują nie
 # `app="<role>"` etykieta i nie mają zadrapania celu. Marker towarzyszy
 # `scrape:` Dane znaczą wyróżnienia.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Dokumenty `services.prometheus.scrape: false` opt- out
 #, python-brace-format
 msgid "Documents a `services.prometheus.scrape: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.prometheus.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('prometheus')` drops it from `PROMETHEUS_TARGET_ROLES_JSON`. Reserved for 301-redirect-only vhosts that never serve a request through lua-resty-prometheus, so they emit no `app=\"<role>\"` label and have no scrape target. The marker accompanies the `scrape:` data flag the lookup honors."
 msgstr ""
@@ -28146,9 +28119,6 @@ msgstr ""
 # narzędzie i ujawnia jeden `ensure()` funkcja. CLI [_ _ main _ _ _
 # .py](__main__.py) grupy zapewniają wywołania i stosuje skip oparty na stamp-
 # dla domyślnej "all" Zaproszenie.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Każdy moduł w tym katalogu posiada dokładnie jedno
 msgid "Each module in this directory owns exactly one lint tool and exposes a single `ensure()` function. The CLI in [__main__.py](__main__.py) groups these ensure calls and applies the stamp-based skip for the default \"all\" invocation."
 msgstr ""
 
@@ -28156,9 +28126,6 @@ msgstr ""
 # połączenia pomocniczego. Orchestrator w [builder.py](../builder.py) powtarza
 # rejestr w [_ _ init _ _ _ .py](__init__.py) i dzwoni do każdego opiekuna
 # `apply(eb, ctx)` w porządku.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Każdy moduł w tym katalogu posiada dokładnie jedną
 msgid "Each module in this directory owns exactly one variable, or one tightly-coupled group resolved by a single helper call. The orchestrator in [builder.py](../builder.py) iterates the registry in [__init__.py](__init__.py) and calls each handler's `apply(eb, ctx)` in order."
 msgstr ""
 
@@ -29782,10 +29749,7 @@ msgstr "Przykład: `web-svc-cdn` zamknięcie"
 # [web-app-friendica/ meta /
 # services.yml](../../roles/web-app-friendica/meta/services.yml) już
 # oświadcza:
-# translation-refused: libretranslate protected-span
 # lost=['web-app-friendica/meta/services.yml'] gained=['services.yml']
-# nocheck: url
-# translation-rejected: Przykład: `ldapauth` addon powyżej wymaga, aby
 msgid "Example: the `ldapauth` addon above requires that [web-app-friendica/meta/services.yml](../../roles/web-app-friendica/meta/services.yml) already declares:"
 msgstr ""
 
@@ -32472,10 +32436,7 @@ msgstr "GITHUB_ACTIONS= true AND not ACT - > real github actions"
 
 # pochodzący z GITHUB_REPOSITORY_OWNER / OWNER GITHUB_REPOSITORYŚmiertelne,
 # jeśli nie da się rozwiązać GHA.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYŚmiertelne']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: właściciel repozytorium GHA,
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -32888,9 +32849,6 @@ msgstr "Biorąc pod uwagę ten sam układ na dysku i te same argumenty, pomocnik
 msgid "Global / local npm install with per-user `--prefix` fallback."
 msgstr "Globalna / lokalna instalacja npm z per- user `--prefix` Odwrót."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Global JavaScript Injector for NGINX
 msgid "Global JavaScript Injector for NGINX"
 msgstr ""
 
@@ -34296,9 +34254,6 @@ msgstr "Jeśli rola nie może odpowiedzieć na te pytania, prawdopodobnie robi z
 # pozostać w `meta/services.yml` I MUSI NIE być wymienione w addonie
 # `bridges:`* Friendica 's oauth *2-proksy- backed `sso` usługa jest taki
 # front- drzwi bramy auth dla `ldapauth`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Jeśli jakaś rola korzysta z innej usługi wokół
 msgid "If a role uses another service around the application but the addon does not talk to that service directly, the service MUST stay in `meta/services.yml` and MUST NOT be listed in the addon's `bridges:`. Friendica's oauth2-proxy-backed `sso` service is such a front-door auth gate for `ldapauth`."
 msgstr ""
 
@@ -39394,9 +39349,6 @@ msgstr "MDAD w górę ciągnięty czysto"
 # `/usr/local/bin`, `/matrix`, i MDAD checkout tak MDAD pisze ziemi w
 # rozmieszczonym pojemniku przestrzeni nazw (sam demon Docker i systemd jak
 # reszta stosu).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: MDAD `ansible-playbook setup.yml` Zaproszenie jest
 msgid "MDAD's `ansible-playbook setup.yml` invocation is encapsulated in a dedicated sub-container (DinD #2 relative to the Infinito deploy container which is DinD #1). The runner image is built locally from `roles/web-app-matrix/files/flavor/ansible/runner/Dockerfile` and pinned via `services.matrix.runner.image`. The runner bind-mounts `/var/run/docker.sock`, `/etc/systemd/system`, `/run/systemd`, `/usr/local/bin`, `/matrix`, and the MDAD checkout so MDAD's writes land in the deploy container's namespace (same Docker daemon and systemd as the rest of the stack)."
 msgstr ""
 
@@ -44043,9 +43995,6 @@ msgstr "Właściciele `_MERGED_DOMAINS_CACHE`. Publicznie. API: `get_merged_doma
 # `get_merged_users`* The Ansible-facing * `users` Zużycie wtyczki do
 # wyszukiwania `get_merged_users` bezpośrednio z tego modułu (`from
 # utils.cache.users import get_merged_users`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Właściciele `_USERS_DEFAULTS_CACHE` oraz
 msgid "Owns `_USERS_DEFAULTS_CACHE` and `_MERGED_USERS_CACHE`. Public API: `get_user_defaults`, `get_merged_users`. The Ansible-facing `users` lookup plugin consumes `get_merged_users` directly from this module (`from utils.cache.users import get_merged_users`)."
 msgstr ""
 
@@ -45075,17 +45024,11 @@ msgid "Pinned Docker GitHub Actions used in release image workflows to commit SH
 msgstr "Akcje Docker GitHub używane w operacjach obrazu wydania do commit SHA"
 
 # ``services.matrix.upstream.{repo,ref}``* To bump *
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: MDAD przypinany w górę żyje w
 #, python-brace-format
 msgid "Pinned MDAD upstream lives at ``services.matrix.upstream.{repo,ref}``. To bump:"
 msgstr ""
 
 # `services.matrix.upstream.{repo,ref}`* To bump *
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: MDAD przypinany w górę żyje w
 #, python-brace-format
 msgid "Pinned MDAD upstream lives at `services.matrix.upstream.{repo,ref}`. To bump:"
 msgstr ""
@@ -45511,9 +45454,6 @@ msgstr "Postfix:"
 msgid "PostgreSQL Architecture"
 msgstr ""
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: PostgreSQL Docker Upgrade: Major Version Migration
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr ""
 
@@ -45867,10 +45807,7 @@ msgstr ""
 
 # ``--include`` więc wynik inwentaryzacji ma każdą grupę APP_IDPrzejściowe
 # deski będą potrzebne w czasie rozmieszczenia.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDPrzejściowe']
-# nocheck: url
-# translation-rejected: Drukuj, jeden na linię, rola ID przepis CLI powinien
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -46524,9 +46461,6 @@ msgstr "Tylko pulls. Płuca nie są przechwytywane."
 # którym mowa w ust. 1, może w dowolnym momencie podjąć decyzję o przyznaniu
 # pomocy.)Verb `sync` nie jest na liście, ponieważ `gh repo clone`-styl czyta
 # używać powiązanych czasowników, które powinny pozostać bez tarcia.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Pulls upstream commits into the fork (W przypadku gdy
 msgid "Pulls upstream commits into the fork (the operator's repo). Verb `sync` is not in the wildcard list because `gh repo clone`-style reads use related verbs that should remain frictionless."
 msgstr ""
 
@@ -47215,9 +47149,6 @@ msgstr "Przeczytaj dane z bazy danych hosta databases.csv."
 
 # nazwy roszczeń z `OIDC.*`. Never hardcode name name name name name, URL, or
 # claim strings.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Przeczytaj punkty końcowe, identyfikatory klientów i
 msgid "Read endpoints, client identifiers, and claim names from `OIDC.*`. Never hardcode realm names, URLs, or claim strings."
 msgstr ""
 
@@ -47460,10 +47391,7 @@ msgid "Reads the last day of the journal as JSON with every field in full (``--a
 msgstr ""
 
 # sam smak jest deklarowany w svc-storage-nfs-server/ meta / services.yml.
-# translation-refused: libretranslate protected-span
 # lost=['svc-storage-nfs-server/meta/services.yml.'] gained=['services.yml']
-# nocheck: url
-# translation-rejected: Czyta merged- config SPOT poprzez lookup('config');
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -49132,10 +49060,7 @@ msgid "Resolution 🔗"
 msgstr "Rozdzielczość 🔗"
 
 # aktywnych wariantach.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDPrzejściowe']
-# nocheck: url
-# translation-rejected: Rozwiązanie APP_IDPrzejściowe zawiera zestaw w
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -49547,10 +49472,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "Powrót (właściciel, repo, run_id) z identyfikatora run lub URL run / job."
 
 # URL biegu / zadania.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_id124']
-# nocheck: url
-# translation-rejected: Powrót (właściciel, repo, run_id, job_id124; Brak) z
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -52911,9 +52833,6 @@ msgstr ""
 # dla IPv4 oraz IPv6 o ile jest dostępny. Dodatkowe hosty mogą być dołączone
 # poprzez `INFINITO_NET_DEBUG_HOSTS="example.com api.example.org" make
 # diagnose-network`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Biegi [_ _ main _ _ _
 msgid "Runs [__main__.py](../../../../cli/contributing/network/diagnose/__main__.py) inside the running `infinito` container and produces a structured DNS / TCP / TLS / PMTU report against the standard infrastructure hosts (`github.com`, `ghcr.io`, `registry-1.docker.io`, `auth.docker.io`, `pypi.org`, `files.pythonhosted.org`, `registry.npmjs.org`, `objects.githubusercontent.com`, `raw.githubusercontent.com`), separately for IPv4 and IPv6 when available. Extra hosts can be appended via `INFINITO_NET_DEBUG_HOSTS=\"example.com api.example.org\" make diagnose-network`."
 msgstr ""
 
@@ -59535,9 +59454,6 @@ msgstr ""
 # .py](../../cli/meta/env/__main__.py) poniżej `cli/meta/env/`. Źródło
 # konsumentów powłoki [load.sh](../../scripts/meta/env/load.sh) poniżej
 # `scripts/meta/env/`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Punkt wejścia CLI mieszka w [_ _ main _ _ _
 msgid "The CLI entry point lives at [__main__.py](../../cli/meta/env/__main__.py) under `cli/meta/env/`. Shell consumers source [load.sh](../../scripts/meta/env/load.sh) under `scripts/meta/env/`."
 msgstr ""
 
@@ -59545,9 +59461,6 @@ msgstr ""
 # jako `python3 -m utils.install.lint`. Pasujący dyspozytor
 # [wrapper.sh](../../scripts/install/wrapper.sh) trasy `make install-lint`
 # host vs pojemnik na podstawie `INFINITO_LINT_RUNNER`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Punkt wejścia CLI mieszka w [_ _ main _ _ _
 msgid "The CLI entry point lives at [__main__.py](lint/__main__.py), invoked from [lint.sh](../../scripts/install/lint.sh) as `python3 -m utils.install.lint`. The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `make install-lint` host vs container based on `INFINITO_LINT_RUNNER`."
 msgstr ""
 
@@ -59656,9 +59569,6 @@ msgstr "Docker MariaDB Rola oferuje łatwy i skuteczny sposób wdrożenia MariaD
 # updater repozytorium ``repository`` plus ``ref``* A pin outside both *
 # ``app_version``, a ``release``, znacznik w rejestrze, którego żaden updater
 # nie wypowiada - deklaruje, gdzie mieszka:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Zegarki Docker updater ``image`` plus ``version``,
 msgid "The Docker updater watches ``image`` plus ``version``, the repository updater ``repository`` plus ``ref``. A pin outside both - an ``app_version``, a ``release``, a tag in a registry neither updater speaks - declares where its upstream lives::"
 msgstr ""
 
@@ -60980,9 +60890,6 @@ msgstr "Usługi cache są dodawane."
 msgid "The cache's path-keyed loader is bypassed on purpose — the caller mutates content per call, so each parse is intentionally fresh."
 msgstr "Path- keyed Loader cache jest celowo pomijany - dzwoniący mutuje zawartość na połączenie, więc każdy parse jest celowo świeży."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: The callback names the file the role mounts
 msgid "The callback names the file the role mounts"
 msgstr ""
 
@@ -61198,9 +61105,6 @@ msgstr "Projekt komponujący, do którego należy kontener, pusty, gdy nie ma ż
 # nazwany `<app>-swarm-mgr-01` itp. poprzez obowiązkowe `SWARM_NAME` (id
 # aplikacji jest domyślnym identyfikatorem klastra). Każda zwalidowana gromada
 # roju jest później uwalniana, chyba że przejść `keep=true`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Etap komponowania `compose-deploy mode=reinstall
 msgid "The compose step runs `compose-deploy mode=reinstall apps=<app> full_cycle=true variant=0`; the swarm step runs `swarm-zombie app=<app>`, pinned to `variant:0` so a multi-variant app validates one cluster (parity with the compose step, not the full per-variant CI matrix that runs one isolated runner per variant). The cluster is named `<app>-swarm-mgr-01` etc. via the mandatory `SWARM_NAME` (the app id is the default cluster id). Each validated swarm cluster is released afterwards unless you pass `keep=true`."
 msgstr ""
 
@@ -62556,9 +62460,6 @@ msgstr "Marker dodaje `web-app-docs` do tego wiersza `apps`, więc dokumentacja 
 # maszynach ze sterownika, który nie ma nic wspólnego z oznaczeniem każdego
 # przedmiotu jednego gospodarza poza trzema wierszami, które piszą plik i
 # odczytują go z powrotem.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Plik znacznikowy nosi taką samą nazwę jak wiertło
 msgid "The marker file carries the same name as the swarm drill's (`scripts/tests/deploy/swarm/routine/backup/base.sh`) — one name for one concept. The implementations stay apart on purpose: the swarm drill follows a single token across five hops on four machines from the controller, which has nothing in common with marking every subject of one host beyond the three lines that write a file and read it back."
 msgstr ""
 
@@ -63157,9 +63058,6 @@ msgstr "Wtyczka ufa Keycloak- Wydany dowód tożsamości. W `jumbojett/openid-co
 # wizerunku przez `roles/web-app-joomla/files/Dockerfile`* The role- side *
 # `tasks/08_oidc_plugin.yml` kopiuje źródło wtyczki do pojemnika, działa
 # `composer install --no-dev`, i instaluje wtyczkę poprzez Joomla CLI:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Zależności PHP wtyczki
 msgid "The plugin's PHP dependencies (`jumbojett/openid-connect-php`) are vendored at deploy time inside the Joomla container. Composer is baked into the role's custom image by `roles/web-app-joomla/files/Dockerfile`. The role-side `tasks/08_oidc_plugin.yml` copies the plugin source into the container, runs `composer install --no-dev`, and installs the plugin via the Joomla CLI:"
 msgstr ""
 
@@ -64808,9 +64706,6 @@ msgstr "Wspólne `biber` oraz `administrator` Podróże osób są wybierane popr
 # `fider: biber sso login as regular user` scenariusze w
 # `files/playwright/playwright.spec.js`; opt- out wygasa, gdy wspólny pomocnik
 # się dowie Fidermodal.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Wspólne `biber` oraz `administrator` Podróże osób są
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
 msgstr ""
 
@@ -64836,9 +64731,6 @@ msgstr "Wspólne `biber` oraz `administrator` Podróże osób są wybierane popr
 # Podróż. `tasks/main.yml` przepisy FusionDirectory konta, więc Keycloak mapy
 # identyfikacyjne do żadnej sesji katalogowej, którą współdzieleni pomocnicy
 # mogli przenieść do wylogowania w aplikacji.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Wspólne `biber` oraz `administrator` Podróże osób są
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -65307,9 +65199,6 @@ msgstr "Handel jest taki, że `deny` teraz nosi pełną wagę \"co agent nie mo�
 # serwisowa wiersza nie jest włączona (odizolowana rola): na wariant w
 # wierszach wariantowych, od podstawy ``meta/services.yml`` na wszystkich
 # rzędach ról.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Pola przejściowe (``services`` / ``consumed_by`` i ich
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -67455,9 +67344,6 @@ msgstr ""
 # SQLite. Znaki pocztowe są jednym użytkownikiem: nie ma kont, tylko
 # "właściciel"Logowanie początkowe jest pojedynczym tajnym hasłem, który
 # przewraca jedną sesję boolean (`req.session.loggedIn`).
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Ta rola buduje Postmarks od źródła do niestandardowego
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -67971,9 +67857,6 @@ msgstr "Ta rola rozmieszczona jestna Docker Compose ze standardowym przewodem ro
 # zarejestrowana w CE) - więc nie jest oferowany wariant LDAP. Kredyty
 # przechowywane wewnątrz n8n są zaszyfrowane w spoczynku ze stajnią
 # ``N8N_ENCRYPTION_KEY``.
-# translation-refused: libretranslate protected-span lost=['2', '8']
-# nocheck: url
-# translation-rejected: Ta rola rozwija się n8n Wydanie Wspólnoty z
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
 msgstr ""
 
@@ -67986,9 +67869,6 @@ msgstr ""
 # (`ldap.controller.ee.js` nie jest zarejestrowana w CE) - więc nie jest
 # oferowany wariant LDAP. Kredyty przechowywane wewnątrz n8n są zaszyfrowane w
 # spoczynku ze stajnią `N8N_ENCRYPTION_KEY`.
-# translation-refused: libretranslate protected-span lost=['2', '8']
-# nocheck: url
-# translation-rejected: Ta rola rozwija się n8n Wydanie Wspólnoty z
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
 msgstr ""
 
@@ -68821,9 +68701,6 @@ msgstr "Trzy właściwości następują od jak Open WebUI prace i żadna z nich 
 # `templates/playwright.env.j2` opisać ochronę, której tam nie ma. Przepisz
 # trzy klucze jako jeden obiekt, a następnie zdecyduj, czy captcha na
 # publicznym formularzu subskrypcji jest w ogóle poszukiwany.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Trzy klawisze ustawień `vars/main.yml` są ciche no-
 #, python-brace-format
 msgid "Three settings keys in `vars/main.yml` are silent no-ops on v6.2.0: `security.enable_captcha`, `security.captcha_key` and `security.captcha_secret`. The live `settings` table carries a single `security.captcha` object (`{\"altcha\": {…}, \"hcaptcha\": {\"key\", \"secret\", \"enabled\"}}`), so all three `UPDATE`s match zero rows and neither `ON_ERROR_STOP` nor the reaper notices. hCaptcha has therefore never been active, which also makes the `HCAPTCHA_SERVICE_ENABLED` rationale in `templates/playwright.env.j2` describe protection that is not there. Rewrite the three keys as one object, then decide whether a captcha on the public subscription form is wanted at all."
 msgstr ""
@@ -69210,9 +69087,6 @@ msgstr "Dziś każdy Infinito.Nexus rozmieszczenie `docker compose` przeciwko je
 # meta / variants.yml](../../roles/web-app-opencloud/meta/variants.yml) gdzie
 # wariant 1 zestawy `ldap.enabled: true` z `oidc.enabled: false`), ale
 # odpowiedni scenariusz spec nie istnieje jeszcze.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Dziś większość ról Specyfikacje bramy ich
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -71111,9 +70985,6 @@ msgstr "Używany przez ``ressources`` CLI i na podstawie wariantu resource- bud�
 # gained=['prometeus.yml.j2']
 # konfiguracje / prometeus.yml.j2 do autoodkrywania aplikacji, które ujawniają
 # natywny / metryczny punkt końcowy bez kodowania każdej nazwy aplikacji.
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Używane przez web-app-prometheus/ szablony /
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -73322,9 +73193,6 @@ msgstr "Kiedy rola pozwala zarówno `oidc` oraz `ldap`, każda osoba jest głów
 msgid "When the role injects custom branding or theming"
 msgstr "Kiedy rola wchodzi w obieg marki lub teming"
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: When the role injects custom frontend behavior
 msgid "When the role injects custom frontend behavior"
 msgstr ""
 
@@ -74650,9 +74518,6 @@ msgstr "NIE NALEŻY wprowadzić pętli wewnętrznej, chyba że wszystkie poniżs
 # samoetykiety. Status SPOT jest przyznawany przez czytelników łączących się
 # ze stroną z innego miejsca, a nie przez stronę potwierdzającą ją o sobie.
 # Opisz obiekt bezpośrednio.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: NIE MUSISZ wyraźnie zadeklarować strony dokumentacji
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -80385,16 +80250,10 @@ msgid "[Zoom](https://zoom.us/) is a popular video conferencing application for 
 msgstr "[Powiększ](https://zoom.us/) jest popularną aplikacją wideokonferencyjną do spotkań online, webinarów i współpracy."
 
 # każdy moduł obsługi w `ORDERED_HANDLERS`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [_ _ init _ _ _ .py](__init__.py) MUSISZ wymienić
 msgid "[__init__.py](__init__.py) MUST list every handler module in `ORDERED_HANDLERS`."
 msgstr ""
 
 # CLI do stałego zestawu `ensure()` połączenia:
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [_ _ main _ _ _ .py](__main__.py) mapuje każdą grupę
 msgid "[__main__.py](__main__.py) maps each CLI group to a fixed set of `ensure()` calls:"
 msgstr ""
 
@@ -80556,9 +80415,6 @@ msgstr "[`plugins/lookup/mcp_servers.py`](../../../plugins/lookup/mcp_servers.py
 # odkryli wszystkich wspólnych dostawców bez dopuszczalnej listy konsumentów,
 # i kilka flag rola nazwie konkretne ról ról ról rówieśników w `group_names`,
 # co nie pomija kilku pierwszych klientów.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected:
 msgid "[`plugins/lookup/roles_with_service.py`](../../../plugins/lookup/roles_with_service.py) discovered all shared providers with no consumer allowlist, and several role flags named concrete peer roles in `group_names`, which does not scale past the first few clients."
 msgstr ""
 
@@ -82215,9 +82071,6 @@ msgstr "[x] Proprietary / external API legitymacje są deklarowane raz w `group_
 
 # klienci deklarują obsługiwane transporty / programy auth, a odkrycie oblicza
 # skrzyżowanie bez nazwy ról ról ról rówieśników w `group_names` wyrażenia.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] Dostawcy deklarują wyraźnie dozwolone konsumentów,
 msgid "[x] Providers declare explicit allowed consumers, clients declare supported transports/auth schemes, and discovery computes the intersection without naming peer roles in `group_names` expressions."
 msgstr ""
 
@@ -82791,9 +82644,6 @@ msgstr "[x] Kiedy oba są w `group_names` (wariant V1), rola rozwija się czysto
 # przez DIND), agent działa pod gVisor (`runsc`) {C: $398dc6} fallback, never
 # plain {S: 14} `runc`; wybrany runtime jest zalogowany w czasie
 # rozmieszczenia.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Gdzie KVM jest niedostępny (np. lokalne `act`
 msgid "[x] Where KVM is unavailable (e.g. local `act` through DinD), the agent runs under the gVisor (`runsc`) fallback, never plain `runc`; the chosen runtime is logged at deploy time."
 msgstr ""
 
@@ -83139,9 +82989,6 @@ msgstr "[x] `meta/variants.yml` deklaruje warianty rozmieszczenia macierzy (patr
 # wariant (`ldap` dnia, `sso`/ OIDC wyłączone) na konwencję
 # [web-app-openproject/ meta /
 # variants.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` definiuje **Tylko LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -84007,9 +83854,6 @@ msgstr "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ jest budynkiem 
 
 # aiolibdatachannel obok 8099* Nothing hears on it at rest * 8099 jest
 # publikowane; czy wiąże leniwie podczas połączenia jest nietestowany.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `Dockerfile.sh` Ekspozycje 8124 dla sygnalizacji
 msgid "`Dockerfile.sh` exposes 8124 for aiolibdatachannel signalling beside 8099. Nothing listens on it at rest, so only 8099 is published; whether it binds lazily during a call is untested."
 msgstr ""
 
@@ -85495,9 +85339,6 @@ msgstr "``enforced`` cebuli każdy możliwy rząd, ``disabled`` brak ``exclusive
 # discourse_dockerjest ``launcher``, którego jedynym argumentem jest
 # powierzchnia ``docker_args:`` w ``app.yml``, więc potrzebuje
 # ``--add-host=<entry>`` linie.
-# translation-refused: libretranslate protected-span lost=['discourse_docker']
-# nocheck: url
-# translation-rejected: ``entries_only=true`` zwraca te ciągi jako listę
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -86061,9 +85902,6 @@ msgstr "``role`` może być nazwą roli (względem ``roles/``) lub ścieżka bez
 
 # ``status_codes`` * Keyed like * ``domains.canonical``; Jest to jedyne źródło
 # prawdy dla każdego probera.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``roles/<app>/meta/server.yml`` deklaruje
 msgid "``roles/<app>/meta/server.yml`` declares ``status_codes`` keyed like ``domains.canonical``; it is the single source of truth for every prober."
 msgstr ""
 
@@ -89351,9 +89189,6 @@ msgstr "`web-app-openwebui` zyskuje drugie połączenie OpenAI wskazujące na br
 # rola MUSI przypiąć jeden zamiast pozostawiając wybór do administratora
 # witryny. Złącze przymocowane `ai-engine`, którego `custom` typ silnika ma
 # OpenAI kompatybilny z bazowym URL i API klucz na środowisko.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: `web-app-wordpress` nie ma AI powierzchni w rdzeniu;
 msgid "`web-app-wordpress` has no AI surface in core; the requirement applies to whichever connector plugin the role installs, and the role MUST pin one rather than leaving the choice to a site administrator. The pinned connector is `ai-engine`, whose `custom` engine type takes an OpenAI-compatible base URL and an API key per environment."
 msgstr ""
 
@@ -89468,9 +89303,6 @@ msgstr ""
 
 # `lookup('<engine>', consumer_id, want)` powrót
 # host/port/user/password/url/db dla konsumenta.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: lustrzana lustrzana lustrzana `database`:
 msgid "a connection lookup mirroring `database`: `lookup('<engine>', consumer_id, want)` returning host/port/user/password/url/db for the consumer."
 msgstr ""
 
@@ -89571,9 +89403,6 @@ msgstr "ścieżka we własnej przestrzeni nazw rozmówcy, która znajduje się n
 msgid "a pin names an out-of-range or unresolvable variant."
 msgstr ""
 
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: przytwierdzony, izolowany boczny boczny boczny;
 msgid "a pinned, isolated upstream sidecar;"
 msgstr ""
 
@@ -90716,9 +90545,6 @@ msgstr "cli.administration.deploy.development.inventory.builder moduł"
 # lost=['cli.administration.deploy.development.inventory.legacy']
 # gained=['cli.administration.deploy.development.inventory.legacyModuł']
 # cli.administration.deploy.development.inventory.legacyModuł\ _ resolver
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
 msgid "cli.administration.deploy.development.inventory.legacy\\_resolver module"
 msgstr ""
 
@@ -90737,9 +90563,6 @@ msgstr "cli.administration.deploy.development.inventory.spec moduł"
 # lost=['cli.administration.deploy.development.log']
 # gained=['cli.administration.deploy.development.logModuł']
 # utils
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.deploy.development.logModuł\ _
 msgid "cli.administration.deploy.development.log\\_utils module"
 msgstr ""
 
@@ -90788,9 +90611,6 @@ msgstr "cli.administration.deploy.development.up moduł"
 # lost=['cli.administration.deploy.development.variant']
 # gained=['cli.administration.deploy.development.variantModuł']
 # select
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.deploy.development.variantModuł\ _
 msgid "cli.administration.deploy.development.variant\\_select module"
 msgstr ""
 
@@ -90890,9 +90710,6 @@ msgstr "cli.administration.inventory.provision.cli moduł"
 # lost=['cli.administration.inventory.provision.credentials']
 # gained=['cli.administration.inventory.provision.credentialsModuł']
 # cli.administration.inventory.provision.credentialsModuł\ _ generatora
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
 msgid "cli.administration.inventory.provision.credentials\\_generator module"
 msgstr ""
 
@@ -90903,27 +90720,18 @@ msgstr "cli.administration.inventory.provision.filters moduł"
 # lost=['cli.administration.inventory.provision.host']
 # gained=['cli.administration.inventory.provision.hostModuł']
 # vars
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostModuł\ _
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.inventory']
 # gained=['cli.administration.inventory.provision.inventoryModuł']
 # _ generatora
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.inventoryModuł\
 msgid "cli.administration.inventory.provision.inventory\\_generator module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.mirror']
 # gained=['cli.administration.inventory.provision.mirrorModuł']
 # overrides
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.mirrorModuł\ _
 msgid "cli.administration.inventory.provision.mirror\\_overrides module"
 msgstr ""
 
@@ -90942,62 +90750,41 @@ msgstr "cli.administration.inventory.provision.reset moduł"
 # lost=['cli.administration.inventory.provision.role']
 # gained=['cli.administration.inventory.provision.roleModuł']
 # resolver
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.roleModuł\ _
 msgid "cli.administration.inventory.provision.role\\_resolver module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.ruamel']
 # gained=['cli.administration.inventory.provision.ruamelModuł']
 # io
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.ruamelModuł\ _
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.services']
 # gained=['cli.administration.inventory.provision.servicesModuł']
 # _ disabler
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.servicesModuł\
 msgid "cli.administration.inventory.provision.services\\_disabler module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.subprocess']
 # gained=['cli.administration.inventory.provision.subprocessModuł']
 # cli.administration.inventory.provision.subprocessModuł\ _ runner
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
 msgid "cli.administration.inventory.provision.subprocess\\_runner module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.tor']
 # gained=['cli.administration.inventory.provision.torModuł']
 # node
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.torModuł\ _
 msgid "cli.administration.inventory.provision.tor\\_node module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.users']
 # gained=['cli.administration.inventory.provision.usersModuł']
 # generatora
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.usersModuł\ _
 msgid "cli.administration.inventory.provision.users\\_generator module"
 msgstr ""
 
 # lost=['cli.administration.inventory.provision.yaml']
 # gained=['cli.administration.inventory.provision.yamlModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.administration.inventory.provision.yamlModuł\ _ io
 msgid "cli.administration.inventory.provision.yaml\\_io module"
 msgstr ""
 
@@ -91157,18 +90944,12 @@ msgstr "cli.contributing.changelog.archive opakowanie"
 
 # lost=['cli.contributing.changelog.archive.archive']
 # gained=['cli.contributing.changelog.archive.archiveModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.archiveModuł\ _ dir
 msgid "cli.contributing.changelog.archive.archive\\_dir module"
 msgstr ""
 
 # lost=['cli.contributing.changelog.archive.changelog']
 # gained=['cli.contributing.changelog.archive.changelogModuł']
 # md
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.changelogModuł\ _
 msgid "cli.contributing.changelog.archive.changelog\\_md module"
 msgstr ""
 
@@ -91344,16 +91125,10 @@ msgid "cli.meta.ci.chunks module"
 msgstr "cli.meta.ci.chunks moduł"
 
 # gained=['cli.meta.ci.devModuł']
-# translation-refused: libretranslate protected-span lost=['cli.meta.ci.dev']
-# nocheck: url
-# translation-rejected: cli.meta.ci.devModuł\ _ runtime
 msgid "cli.meta.ci.dev\\_runtime module"
 msgstr ""
 
 # lost=['cli.meta.ci.image'] gained=['cli.meta.ci.imageModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.imageModuł\ _ ref
 msgid "cli.meta.ci.image\\_ref module"
 msgstr ""
 
@@ -91390,9 +91165,6 @@ msgid "cli.meta.ci.query module"
 msgstr "cli.meta.ci.query moduł"
 
 # lost=['cli.meta.ci.report'] gained=['cli.meta.ci.reportModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.reportModuł\ _ awarii
 msgid "cli.meta.ci.report\\_failures module"
 msgstr ""
 
@@ -91433,9 +91205,6 @@ msgid "cli.meta.ci.slots module"
 msgstr "cli.meta.ci.slots moduł"
 
 # lost=['cli.meta.ci.subset'] gained=['cli.meta.ci.subsetModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.ci.subsetModuł\ _ roles
 msgid "cli.meta.ci.subset\\_roles module"
 msgstr ""
 
@@ -91521,9 +91290,6 @@ msgstr "cli.meta.roles.applications.complexity.render moduł"
 
 # lost=['cli.meta.roles.applications.dynamic']
 # gained=['cli.meta.roles.applications.dynamicModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.dynamicModuł\ _ usług
 msgid "cli.meta.roles.applications.dynamic\\_services module"
 msgstr ""
 
@@ -91553,9 +91319,6 @@ msgstr "cli.meta.roles.applications.ressources.render moduł"
 
 # lost=['cli.meta.roles.applications.role']
 # gained=['cli.meta.roles.applications.rolePakiet']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: cli.meta.roles.applications.rolePakiet\ _ name
 msgid "cli.meta.roles.applications.role\\_name package"
 msgstr ""
 
@@ -92164,9 +91927,6 @@ msgstr "domena (kanoniczny lub alias)"
 # Projekt"). Osoba napisana inicjałem ("Przewodniczący") Dlatego wypada z
 # egzekwowania, a nie w fałszywie pozytywny, co jest bezpiecznym kierunkiem
 # dla kłaczki.
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: kropka jest tym, co oddziela ludzi od produktów i
 msgid "dot is what separates people from the products and projects that also appear in Credits lines (\"Infinito.Nexus Project\"). A person written with an initial (\"J. Smith\") therefore falls out of enforcement rather than into a false positive, which is the safe direction for a lint."
 msgstr ""
 
@@ -94367,9 +94127,6 @@ msgstr "tylko słucha ``127.0.0.1``,"
 # jest zużywany do budowy kontenerowego URL sieciowego, gdzie port publikowany
 # przez hosta jest zawsze zły)* Callers that omit * ``direction`` zachować
 # oryginał 4- Wpisy kluczy.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: tylko role, których blok oświadcza, że ``direction``
 msgid "only roles whose block declares that ``direction`` (or ``both``) are returned, and each entry additionally carries ``transport``, ``auth``, ``auth_subject``, ``credential`` (``owner``/``source``/ ``key``), ``allowed_consumers``, ``supported_transports``, ``supported_auths`` and an ``endpoint`` dict (``service_key``, ``path``, ``port`` taken from the referenced service's ``ports.internal`` and only then ``ports.local``: the entry is consumed to build a container-network URL, where a host-published port is always the wrong one). Callers that omit ``direction`` keep the original 4-key entries."
 msgstr ""
 
@@ -94897,9 +94654,6 @@ msgid "plugins.filter package"
 msgstr "plugins.filter opakowanie"
 
 # lost=['plugins.filter.active'] gained=['plugins.filter.activeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.activeModuł\ _ docker
 msgid "plugins.filter.active\\_docker module"
 msgstr ""
 
@@ -94908,9 +94662,6 @@ msgid "plugins.filter.application\\_allowed module"
 msgstr "plugins.filter.application\\ _ dozwolony moduł"
 
 # lost=['plugins.filter.async'] gained=['plugins.filter.asyncModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.asyncModuł\ _ awarii
 msgid "plugins.filter.async\\_failures module"
 msgstr ""
 
@@ -94918,30 +94669,18 @@ msgid "plugins.filter.bcrypt\\_hash module"
 msgstr ""
 
 # lost=['plugins.filter.ca'] gained=['plugins.filter.caModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.caModuł\ _ trust\ _ ścieżki
 msgid "plugins.filter.ca\\_trust\\_paths module"
 msgstr ""
 
 # lost=['plugins.filter.canonical'] gained=['plugins.filter.canonicalModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.canonicalModuł\ _ domen\ _ map
 msgid "plugins.filter.canonical\\_domains\\_map module"
 msgstr ""
 
 # lost=['plugins.filter.cookie'] gained=['plugins.filter.cookieModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.cookieModuł\ _ scope
 msgid "plugins.filter.cookie\\_scope module"
 msgstr ""
 
 # lost=['plugins.filter.csp'] gained=['plugins.filter.cspModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.cspModuł\ _ filtrów
 msgid "plugins.filter.csp\\_filters module"
 msgstr ""
 
@@ -94955,32 +94694,20 @@ msgstr "plugins.filter.docker opakowanie"
 
 # lost=['plugins.filter.docker.build']
 # gained=['plugins.filter.docker.buildModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.buildModuł\ _ digest
 msgid "plugins.filter.docker.build\\_digest module"
 msgstr ""
 
 # lost=['plugins.filter.docker.network']
 # gained=['plugins.filter.docker.networkModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.networkModuł\ _ noop
 msgid "plugins.filter.docker.network\\_noop module"
 msgstr ""
 
 # lost=['plugins.filter.docker.service']
 # gained=['plugins.filter.docker.serviceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.docker.serviceModuł\ _ włączony
 msgid "plugins.filter.docker.service\\_enabled module"
 msgstr ""
 
 # lost=['plugins.filter.domain'] gained=['plugins.filter.domainModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.domainModuł\ _ narzędzi
 msgid "plugins.filter.domain\\_tools module"
 msgstr ""
 
@@ -94994,17 +94721,11 @@ msgstr "plugins.filter.generate opakowanie"
 
 # lost=['plugins.filter.generate.all']
 # gained=['plugins.filter.generate.allModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.generate.allModuł\ _ domen
 msgid "plugins.filter.generate.all\\_domains module"
 msgstr ""
 
 # lost=['plugins.filter.generate.base']
 # gained=['plugins.filter.generate.baseModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.generate.baseModuł\ _ sld\ _ domen
 msgid "plugins.filter.generate.base\\_sld\\_domains module"
 msgstr ""
 
@@ -95018,25 +94739,16 @@ msgstr "plugins.filter.get.all opakowanie"
 
 # lost=['plugins.filter.get.all.application']
 # gained=['plugins.filter.get.all.applicationModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.applicationModuł\ _ ids
 msgid "plugins.filter.get.all.application\\_ids module"
 msgstr ""
 
 # lost=['plugins.filter.get.all.invokable']
 # gained=['plugins.filter.get.all.invokableModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.all.invokableModuł\ _ apps
 msgid "plugins.filter.get.all.invokable\\_apps module"
 msgstr ""
 
 # lost=['plugins.filter.get.category']
 # gained=['plugins.filter.get.categoryModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.categoryModuł\ _ wpisów
 msgid "plugins.filter.get.category\\_entries module"
 msgstr ""
 
@@ -95045,9 +94757,6 @@ msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr "plugins.filter.get.deployment\\ _ types\\ _ from\\ _ groups module"
 
 # lost=['plugins.filter.get.docker'] gained=['plugins.filter.get.dockerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.dockerModuł\ _ ścieżki
 msgid "plugins.filter.get.docker\\_paths module"
 msgstr ""
 
@@ -95056,9 +94765,6 @@ msgid "plugins.filter.get.domain module"
 msgstr "plugins.filter.get.domain moduł"
 
 # lost=['plugins.filter.get.entity'] gained=['plugins.filter.get.entityModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.entityModuł\ _ name
 msgid "plugins.filter.get.entity\\_name module"
 msgstr ""
 
@@ -95068,9 +94774,6 @@ msgstr "plugins.filter.get.role moduł"
 
 # lost=['plugins.filter.get.service']
 # gained=['plugins.filter.get.serviceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.serviceModuł\ _ script\ _ path
 msgid "plugins.filter.get.service\\_script\\_path module"
 msgstr ""
 
@@ -95079,9 +94782,6 @@ msgid "plugins.filter.get.url module"
 msgstr "plugins.filter.get.url moduł"
 
 # lost=['plugins.filter.gitea'] gained=['plugins.filter.giteaModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.giteaModuł\ _ auth\ _ noop
 msgid "plugins.filter.gitea\\_auth\\_noop module"
 msgstr ""
 
@@ -95098,9 +94798,6 @@ msgid "plugins.filter.has.env module"
 msgstr "plugins.filter.has.env moduł"
 
 # lost=['plugins.filter.invokable'] gained=['plugins.filter.invokableModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.invokableModuł\ _ ścieżki
 msgid "plugins.filter.invokable\\_paths module"
 msgstr ""
 
@@ -95114,9 +94811,6 @@ msgstr "plugins.filter.litellm opakowanie"
 
 # lost=['plugins.filter.litellm.model']
 # gained=['plugins.filter.litellm.modelModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.litellm.modelModuł\ _ tras
 msgid "plugins.filter.litellm.model\\_routes module"
 msgstr ""
 
@@ -95132,44 +94826,26 @@ msgid "plugins.filter.merge.mapping module"
 msgstr "plugins.filter.merge.mapping moduł"
 
 # lost=['plugins.filter.merge.with'] gained=['plugins.filter.merge.withModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.merge.withModuł\ _ domyślny
 msgid "plugins.filter.merge.with\\_defaults module"
 msgstr ""
 
 # lost=['plugins.filter.mirror'] gained=['plugins.filter.mirrorModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.mirrorModuł\ _ filtrów
 msgid "plugins.filter.mirror\\_filters module"
 msgstr ""
 
 # lost=['plugins.filter.on'] gained=['plugins.filter.onModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.onModuł\ _ off
 msgid "plugins.filter.on\\_off module"
 msgstr ""
 
 # lost=['plugins.filter.redirect'] gained=['plugins.filter.redirectModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.redirectModuł\ _ sources
 msgid "plugins.filter.redirect\\_sources module"
 msgstr ""
 
 # lost=['plugins.filter.reserved'] gained=['plugins.filter.reservedModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.reservedModuł\ _ użytkowników
 msgid "plugins.filter.reserved\\_users module"
 msgstr ""
 
 # lost=['plugins.filter.resource'] gained=['plugins.filter.resourceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.resourceModuł\ _ filtra
 msgid "plugins.filter.resource\\_filter module"
 msgstr ""
 
@@ -95190,16 +94866,10 @@ msgid "plugins.filter.sed module"
 msgstr "plugins.filter.sed moduł"
 
 # lost=['plugins.filter.split'] gained=['plugins.filter.splitModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.splitModuł\ _ postgres\ _ connections
 msgid "plugins.filter.split\\_postgres\\_connections module"
 msgstr ""
 
 # lost=['plugins.filter.status'] gained=['plugins.filter.statusModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.statusModuł\ _ kodów
 msgid "plugins.filter.status\\_codes module"
 msgstr ""
 
@@ -95209,24 +94879,15 @@ msgstr "plugins.filter.swarm opakowanie"
 
 # lost=['plugins.filter.swarm.deployed']
 # gained=['plugins.filter.swarm.deployedModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.deployedModuł\ _ usług
 msgid "plugins.filter.swarm.deployed\\_services module"
 msgstr ""
 
 # lost=['plugins.filter.swarm.restart']
 # gained=['plugins.filter.swarm.restartModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.swarm.restartModuł\ _ stanu
 msgid "plugins.filter.swarm.restart\\_condition module"
 msgstr ""
 
 # lost=['plugins.filter.text'] gained=['plugins.filter.textModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.textModuł\ _ filtrów
 msgid "plugins.filter.text\\_filters module"
 msgstr ""
 
@@ -95251,9 +94912,6 @@ msgid "plugins.filter.url.to\\_onion module"
 msgstr "plugins.filter.url.to\\ _ moduł cebuli"
 
 # lost=['plugins.filter.value'] gained=['plugins.filter.valueModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.valueModuł\ _ generatora
 msgid "plugins.filter.value\\_generator module"
 msgstr ""
 
@@ -95266,16 +94924,10 @@ msgid "plugins.lookup.active\\_alertmanager\\_channels module"
 msgstr "plugins.lookup.active\\ _ alertmanager\\ _ channels module"
 
 # lost=['plugins.lookup.addon'] gained=['plugins.lookup.addonModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.addonModuł\ _ env\ _ flags
 msgid "plugins.lookup.addon\\_env\\_flags module"
 msgstr ""
 
 # lost=['plugins.lookup.alert'] gained=['plugins.lookup.alertModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.alertModuł\ _ rule\ _ roles
 msgid "plugins.lookup.alert\\_rule\\_roles module"
 msgstr ""
 
@@ -95284,25 +94936,16 @@ msgid "plugins.lookup.api module"
 msgstr "plugins.lookup.api moduł"
 
 # lost=['plugins.lookup.api'] gained=['plugins.lookup.apiModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.apiModuł\ _ włączony
 msgid "plugins.lookup.api\\_enabled module"
 msgstr ""
 
 # lost=['plugins.lookup.application']
 # gained=['plugins.lookup.applicationModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationModuł zamknięcia\ _
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
 # lost=['plugins.lookup.application']
 # gained=['plugins.lookup.applicationModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationModuł\ _ gid
 msgid "plugins.lookup.application\\_gid module"
 msgstr ""
 
@@ -95319,51 +94962,30 @@ msgid "plugins.lookup.asset module"
 msgstr "plugins.lookup.asset moduł"
 
 # lost=['plugins.lookup.asset'] gained=['plugins.lookup.assetModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.assetModuł\ _ host
 msgid "plugins.lookup.asset\\_host module"
 msgstr ""
 
 # lost=['plugins.lookup.bounded'] gained=['plugins.lookup.boundedModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.boundedModuł\ _ name
 msgid "plugins.lookup.bounded\\_name module"
 msgstr ""
 
 # lost=['plugins.lookup.ca'] gained=['plugins.lookup.caModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.caModuł\ _ wtryskiwanego
 msgid "plugins.lookup.ca\\_injected module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheModuł\ _ rekordów
 msgid "plugins.lookup.cache\\_records module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheModuł\ _ repos
 msgid "plugins.lookup.cache\\_repos module"
 msgstr ""
 
 # lost=['plugins.lookup.cache'] gained=['plugins.lookup.cacheModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.cacheModuł\ _ upstreams
 msgid "plugins.lookup.cache\\_upstreams module"
 msgstr ""
 
 # lost=['plugins.lookup.canonical'] gained=['plugins.lookup.canonicalModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.canonicalModuł\ _ url
 msgid "plugins.lookup.canonical\\_url module"
 msgstr ""
 
@@ -95376,58 +94998,34 @@ msgid "plugins.lookup.cert module"
 msgstr "plugins.lookup.cert moduł"
 
 # lost=['plugins.lookup.command'] gained=['plugins.lookup.commandModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.commandModuł\ _ ścieżki
 msgid "plugins.lookup.command\\_path module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ zewnętrznych\ _ sieci
 msgid "plugins.lookup.compose\\_external\\_networks module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ file\ _ args
 msgid "plugins.lookup.compose\\_file\\_args module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ sieci
 msgid "plugins.lookup.compose\\_networks module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ tylko
 msgid "plugins.lookup.compose\\_only module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ repliki
 msgid "plugins.lookup.compose\\_replicas module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ restart
 msgid "plugins.lookup.compose\\_restart module"
 msgstr ""
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeModuł\ _ woluminów
 msgid "plugins.lookup.compose\\_volumes module"
 msgstr ""
 
@@ -95440,9 +95038,6 @@ msgid "plugins.lookup.container module"
 msgstr "plugins.lookup.container moduł"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ adres
 msgid "plugins.lookup.container\\_address module"
 msgstr ""
 
@@ -95451,23 +95046,14 @@ msgid "plugins.lookup.container\\_depends\\_on module"
 msgstr "plugins.lookup.container\\ _ zależy\\ _ od modułu"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ wdrożenia
 msgid "plugins.lookup.container\\_deploy module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ dns
 msgid "plugins.lookup.container\\_dns module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ extra\ _ hosts
 msgid "plugins.lookup.container\\_extra\\_hosts module"
 msgstr ""
 
@@ -95476,16 +95062,10 @@ msgid "plugins.lookup.container\\_healthcheck module"
 msgstr "plugins.lookup.container\\ _ moduł kontroli zdrowia"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ hostname
 msgid "plugins.lookup.container\\_hostname module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ image
 msgid "plugins.lookup.container\\_image module"
 msgstr ""
 
@@ -95494,16 +95074,10 @@ msgid "plugins.lookup.container\\_mail\\_marker module"
 msgstr "plugins.lookup.container\\ _ mail\\ _ marker moduł"
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ sieci
 msgid "plugins.lookup.container\\_networks module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ portów
 msgid "plugins.lookup.container\\_ports module"
 msgstr ""
 
@@ -95515,9 +95089,6 @@ msgid "plugins.lookup.container\\_url module"
 msgstr ""
 
 # lost=['plugins.lookup.container'] gained=['plugins.lookup.containerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.containerModuł\ _ woluminów
 msgid "plugins.lookup.container\\_volumes module"
 msgstr ""
 
@@ -95533,9 +95104,6 @@ msgid "plugins.lookup.database module"
 msgstr "plugins.lookup.database moduł"
 
 # lost=['plugins.lookup.database'] gained=['plugins.lookup.databaseModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.databaseModuł\ _ consumerless\ _ toms
 msgid "plugins.lookup.database\\_consumerless\\_volumes module"
 msgstr ""
 
@@ -95577,30 +95145,18 @@ msgid "plugins.lookup.gpu module"
 msgstr ""
 
 # lost=['plugins.lookup.group'] gained=['plugins.lookup.groupModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.groupModuł\ _ roles
 msgid "plugins.lookup.group\\_roles module"
 msgstr ""
 
 # lost=['plugins.lookup.guide'] gained=['plugins.lookup.guideModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.guideModuł\ _ role
 msgid "plugins.lookup.guide\\_role module"
 msgstr ""
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nModuł\ _ katalogu
 msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr ""
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nModuł\ _ content
 msgid "plugins.lookup.i18n\\_content module"
 msgstr ""
 
@@ -95613,9 +95169,6 @@ msgid "plugins.lookup.image module"
 msgstr "plugins.lookup.image moduł"
 
 # lost=['plugins.lookup.local'] gained=['plugins.lookup.localModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.localModuł\ _ mtime\ _ qs
 msgid "plugins.lookup.local\\_mtime\\_qs module"
 msgstr ""
 
@@ -95626,9 +95179,6 @@ msgid "plugins.lookup.matrix\\_server\\_name module"
 msgstr ""
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpModuł\ _ klienta\ _ okaziciela
 msgid "plugins.lookup.mcp\\_client\\_bearer module"
 msgstr ""
 
@@ -95640,9 +95190,6 @@ msgid "plugins.lookup.mcp\\_credential module"
 msgstr "plugins.lookup.mcp\\ _ moduł kredytowy"
 
 # lost=['plugins.lookup.mcp'] gained=['plugins.lookup.mcpModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.mcpModuł\ _ serwerów
 msgid "plugins.lookup.mcp\\_servers module"
 msgstr ""
 
@@ -95660,9 +95207,6 @@ msgid "plugins.lookup.mxid module"
 msgstr ""
 
 # lost=['plugins.lookup.native'] gained=['plugins.lookup.nativeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nativeModuł\ _ metrics\ _ apps
 msgid "plugins.lookup.native\\_metrics\\_apps module"
 msgstr ""
 
@@ -95673,9 +95217,6 @@ msgid "plugins.lookup.network\\_driver module"
 msgstr ""
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsModuł\ _ client\ _ src
 msgid "plugins.lookup.nfs\\_client\\_src module"
 msgstr ""
 
@@ -95684,30 +95225,18 @@ msgid "plugins.lookup.nfs\\_export\\_base module"
 msgstr "plugins.lookup.nfs\\ _ export\\ _ base module"
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsModuł\ _ smaku
 msgid "plugins.lookup.nfs\\_flavor module"
 msgstr ""
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsModuł\ _ fstype
 msgid "plugins.lookup.nfs\\_fstype module"
 msgstr ""
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsModuł\ _ mount\ _ opts
 msgid "plugins.lookup.nfs\\_mount\\_opts module"
 msgstr ""
 
 # lost=['plugins.lookup.nfs'] gained=['plugins.lookup.nfsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.nfsModuł\ _ state\ _ path
 msgid "plugins.lookup.nfs\\_state\\_path module"
 msgstr ""
 
@@ -95735,16 +95264,10 @@ msgid "plugins.lookup.path\\_absolute module"
 msgstr "plugins.lookup.path\\ _ moduł bezwzględny"
 
 # lost=['plugins.lookup.playwright'] gained=['plugins.lookup.playwrightModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.playwrightModuł\ _ pracowników
 msgid "plugins.lookup.playwright\\_workers module"
 msgstr ""
 
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.postgresModuł\ _ biblioteki
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -95756,23 +95279,14 @@ msgid "plugins.lookup.proxy\\_excluded\\_hosts module"
 msgstr ""
 
 # lost=['plugins.lookup.proxy'] gained=['plugins.lookup.proxyModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.proxyModuł\ _ pass
 msgid "plugins.lookup.proxy\\_pass module"
 msgstr ""
 
 # lost=['plugins.lookup.rbac'] gained=['plugins.lookup.rbacModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.rbacModuł\ _ grupy\ _ ścieżki
 msgid "plugins.lookup.rbac\\_group\\_path module"
 msgstr ""
 
 # lost=['plugins.lookup.redirect'] gained=['plugins.lookup.redirectModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.redirectModuł\ _ uris
 msgid "plugins.lookup.redirect\\_uris module"
 msgstr ""
 
@@ -95781,9 +95295,6 @@ msgid "plugins.lookup.resource module"
 msgstr "plugins.lookup.resource moduł"
 
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.roleModuł\ _ podsieci
 msgid "plugins.lookup.role\\_subnets module"
 msgstr ""
 
@@ -95792,9 +95303,6 @@ msgid "plugins.lookup.role\\_templates\\_expanded module"
 msgstr "plugins.lookup.role\\ _ szablony\\ _ rozszerzony moduł"
 
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.roleModuł\ _ testów
 msgid "plugins.lookup.role\\_tests module"
 msgstr ""
 
@@ -95807,9 +95315,6 @@ msgid "plugins.lookup.roles\\_with\\_service module"
 msgstr "plugins.lookup.roles\\ _ z modułem\\ _ usługi"
 
 # lost=['plugins.lookup.scrape'] gained=['plugins.lookup.scrapeModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.scrapeModuł\ _ target
 msgid "plugins.lookup.scrape\\_target module"
 msgstr ""
 
@@ -95818,9 +95323,6 @@ msgid "plugins.lookup.service module"
 msgstr "plugins.lookup.service moduł"
 
 # lost=['plugins.lookup.service'] gained=['plugins.lookup.serviceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.serviceModuł\ _ rozszerzeń
 msgid "plugins.lookup.service\\_extensions module"
 msgstr ""
 
@@ -95828,9 +95330,6 @@ msgid "plugins.lookup.service\\_memory\\_mb module"
 msgstr ""
 
 # lost=['plugins.lookup.service'] gained=['plugins.lookup.serviceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.serviceModuł\ _ rejestru
 msgid "plugins.lookup.service\\_registry module"
 msgstr ""
 
@@ -95839,9 +95338,6 @@ msgid "plugins.lookup.shared\\_network\\_key module"
 msgstr "plugins.lookup.shared\\ _ network\\ _ key module"
 
 # lost=['plugins.lookup.smtp'] gained=['plugins.lookup.smtpModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.smtpModuł\ _ host
 msgid "plugins.lookup.smtp\\_host module"
 msgstr ""
 
@@ -95857,9 +95353,6 @@ msgid "plugins.lookup.sso\\_oidc\\_plugin module"
 msgstr "plugins.lookup.sso\\ _ oidc\\ _ plugin module"
 
 # lost=['plugins.lookup.sso'] gained=['plugins.lookup.ssoModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.ssoModuł\ _ proxy\ _ consumers
 msgid "plugins.lookup.sso\\_proxy\\_consumers module"
 msgstr ""
 
@@ -95867,23 +95360,14 @@ msgid "plugins.lookup.sso\\_whitelist\\_domains module"
 msgstr ""
 
 # lost=['plugins.lookup.stage'] gained=['plugins.lookup.stageModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.stageModuł\ _ grup
 msgid "plugins.lookup.stage\\_groups module"
 msgstr ""
 
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnetModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.subnetModuł\ _ adres\ _ regex
 msgid "plugins.lookup.subnet\\_address\\_regex module"
 msgstr ""
 
 # lost=['plugins.lookup.subnet'] gained=['plugins.lookup.subnetModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.subnetModuł\ _ bramki
 msgid "plugins.lookup.subnet\\_gateway module"
 msgstr ""
 
@@ -95896,23 +95380,14 @@ msgid "plugins.lookup.tls module"
 msgstr "plugins.lookup.tls moduł"
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.torModuł\ _ portów
 msgid "plugins.lookup.tor\\_ports module"
 msgstr ""
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.torModuł\ _ dostępny
 msgid "plugins.lookup.tor\\_reachable module"
 msgstr ""
 
 # lost=['plugins.lookup.tor'] gained=['plugins.lookup.torModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.torModuł\ _ skarpet
 msgid "plugins.lookup.tor\\_socks module"
 msgstr ""
 
@@ -95921,9 +95396,6 @@ msgid "plugins.lookup.tor\\_socks\\_proxy module"
 msgstr "plugins.lookup.tor\\ _ skarpetki\\ _ moduł proxy"
 
 # lost=['plugins.lookup.unit'] gained=['plugins.lookup.unitModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.unitModuł\ _ name
 msgid "plugins.lookup.unit\\_name module"
 msgstr ""
 
@@ -95932,9 +95404,6 @@ msgid "plugins.lookup.users module"
 msgstr "plugins.lookup.users moduł"
 
 # lost=['plugins.lookup.users'] gained=['plugins.lookup.usersModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.usersModuł\ _ non\ _ zastrzeżony
 msgid "plugins.lookup.users\\_non\\_reserved module"
 msgstr ""
 
@@ -96321,9 +95790,6 @@ msgid "renders `.env` from `playwright.env.j2`"
 msgstr "rendery `.env` od `playwright.env.j2`"
 
 # rendering.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: renders a Jinja expression string; None disables
 msgid "renders a Jinja expression string; None disables rendering."
 msgstr ""
 
@@ -96862,9 +96328,6 @@ msgid "seconds an agent gets to answer its health endpoint"
 msgstr "sekundy agent dostaje odpowiedzieć na swój punkt końcowy zdrowia"
 
 # install failed.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: seconds per source for this run, None where the
 msgid "seconds per source for this run, None where the install failed."
 msgstr ""
 
@@ -97401,9 +96864,6 @@ msgstr "Agent OpenAI nie pobiera podstawowego adresu URL i `ollama` integracja p
 # gained=['04124', '124']
 # punkt publiczny (65 bajty, 0x04124; 124; X 124; 124;), w formacie, jakiego
 # oczekuje ekosystem Web Push / mastodon.
-# translation-refused: libretranslate protected-span lost=['04']
-# nocheck: url
-# translation-rejected: P -256 prywatny skalar (32 bajty) i nieskompresowany
 msgid "the P-256 private scalar (32 bytes) and the uncompressed public point (65 bytes, 0x04||X||Y), in the format the Web Push / mastodon ecosystem expects."
 msgstr ""
 
@@ -99075,9 +98535,6 @@ msgid "utils.annotations.task\\_gate module"
 msgstr "utils.annotations.task\\ _ moduł bramy"
 
 # gained=['utils.ansibleModuł']
-# translation-refused: libretranslate protected-span lost=['utils.ansible']
-# nocheck: url
-# translation-rejected: utils.ansibleModuł\ _ log
 msgid "utils.ansible\\_log module"
 msgstr ""
 
@@ -99134,9 +98591,6 @@ msgid "utils.cache.render module"
 msgstr "utils.cache.render moduł"
 
 # lost=['utils.cache.schema'] gained=['utils.cache.schemaModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cache.schemaModuł\ _ uwierzytelniania
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -99153,9 +98607,6 @@ msgid "utils.cache.yaml module"
 msgstr "utils.cache.yaml moduł"
 
 # gained=['utils.certModuł']
-# translation-refused: libretranslate protected-span lost=['utils.cert']
-# nocheck: url
-# translation-rejected: utils.certModuł\ _ utils
 msgid "utils.cert\\_utils module"
 msgstr ""
 
@@ -99164,9 +98615,6 @@ msgid "utils.claude package"
 msgstr "utils.claude opakowanie"
 
 # lost=['utils.claude.settings'] gained=['utils.claude.settingsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.claude.settingsModuł\ _ sort
 msgid "utils.claude.settings\\_sort module"
 msgstr ""
 
@@ -99175,23 +98623,14 @@ msgid "utils.cleanup package"
 msgstr "utils.cleanup opakowanie"
 
 # lost=['utils.cleanup.databases'] gained=['utils.cleanup.databasesModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.databasesModuł\ _ csv
 msgid "utils.cleanup.databases\\_csv module"
 msgstr ""
 
 # lost=['utils.cleanup.nginx'] gained=['utils.cleanup.nginxModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.nginxModuł\ _ vhosts
 msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr ""
 
 # lost=['utils.cleanup.pycache'] gained=['utils.cleanup.pycacheModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.pycacheModuł\ _ only\ _ dirs
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
 msgstr ""
 
@@ -99270,9 +98709,6 @@ msgid "utils.docker.mirror module"
 msgstr "utils.docker.mirror moduł"
 
 # lost=['utils.docker.paths'] gained=['utils.docker.pathsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.docker.pathsModuł\ _ utils
 msgid "utils.docker.paths\\_utils module"
 msgstr ""
 
@@ -99285,9 +98721,6 @@ msgid "utils.domains package"
 msgstr "utils.domains opakowanie"
 
 # lost=['utils.domains.application'] gained=['utils.domains.applicationModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.domains.applicationModuł\ _ domain\ _ index
 msgid "utils.domains.application\\_domain\\_index module"
 msgstr ""
 
@@ -99300,9 +98733,6 @@ msgid "utils.domains.list module"
 msgstr "utils.domains.list moduł"
 
 # lost=['utils.domains.primary'] gained=['utils.domains.primaryModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.domains.primaryModuł\ _ domain
 msgid "utils.domains.primary\\_domain module"
 msgstr ""
 
@@ -99323,24 +98753,15 @@ msgid "utils.env.handlers.act\\_platform\\_image module"
 msgstr "utils.env.handlers.act\\ _ Platform\\ _ image module"
 
 # lost=['utils.env.handlers.docker'] gained=['utils.env.handlers.dockerModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.dockerModuł\ _ platformy
 msgid "utils.env.handlers.docker\\_platform module"
 msgstr ""
 
 # lost=['utils.env.handlers.gha'] gained=['utils.env.handlers.ghaModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.ghaModuł\ _ passthrough
 msgid "utils.env.handlers.gha\\_passthrough module"
 msgstr ""
 
 # lost=['utils.env.handlers.github'] gained=['utils.env.handlers.githubModuł']
 # właściciela
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.githubModuł\ _ repozytorium\ _
 msgid "utils.env.handlers.github\\_repository\\_owner module"
 msgstr ""
 
@@ -99355,17 +98776,11 @@ msgstr "utils.env.handlers.infinito.ca opakowanie"
 # lost=['utils.env.handlers.infinito.ca.bundle']
 # gained=['utils.env.handlers.infinito.ca.bundleModuł']
 # kandydatów
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.bundleModuł\ _
 msgid "utils.env.handlers.infinito.ca.bundle\\_candidates module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.ca.cert']
 # gained=['utils.env.handlers.infinito.ca.certModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.ca.certModuł\ _ host
 msgid "utils.env.handlers.infinito.ca.cert\\_host module"
 msgstr ""
 
@@ -99383,9 +98798,6 @@ msgstr "utils.env.handlers.infinito.cache.hosts moduł"
 
 # lost=['utils.env.handlers.infinito.cache.http']
 # gained=['utils.env.handlers.infinito.cache.httpModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.cache.httpModuł\ _ hosts
 msgid "utils.env.handlers.infinito.cache.http\\_hosts module"
 msgstr ""
 
@@ -99425,9 +98837,6 @@ msgstr "utils.env.handlers.infinito.dir.secrets moduł"
 
 # lost=['utils.env.handlers.infinito.dir.var']
 # gained=['utils.env.handlers.infinito.dir.varModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.dir.varModuł\ _ lib
 msgid "utils.env.handlers.infinito.dir.var\\_lib module"
 msgstr ""
 
@@ -99459,9 +98868,6 @@ msgstr "utils.env.handlers.infinito.fork.account moduł"
 # lost=['utils.env.handlers.infinito.fork.repository']
 # gained=['utils.env.handlers.infinito.fork.repositoryModuł']
 # url
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.fork.repositoryModuł\ _
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
 msgstr ""
 
@@ -99474,9 +98880,6 @@ msgstr "utils.env.handlers.infinito.git\\ _ moduł tożsamości"
 
 # lost=['utils.env.handlers.infinito.gpu']
 # gained=['utils.env.handlers.infinito.gpuModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.gpuModuł\ _ count
 msgid "utils.env.handlers.infinito.gpu\\_count module"
 msgstr ""
 
@@ -99494,9 +98897,6 @@ msgstr "utils.env.handlers.infinito.image moduł"
 
 # lost=['utils.env.handlers.infinito.image']
 # gained=['utils.env.handlers.infinito.imageModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.imageModuł\ _ repozytorium
 msgid "utils.env.handlers.infinito.image\\_repository module"
 msgstr ""
 
@@ -99517,9 +98917,6 @@ msgstr "utils.env.handlers.infinito.outer\\ _ network\\ _ mtu module"
 
 # lost=['utils.env.handlers.infinito.package']
 # gained=['utils.env.handlers.infinito.packagePakiet']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packagePakiet\ _ cache
 msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr ""
 
@@ -99532,9 +98929,6 @@ msgstr "utils.env.handlers.infinito.package\\ _ cache.admin\\ _ password module"
 # lost=['utils.env.handlers.infinito.package'] gained=['cache.blobstore',
 # 'utils.env.handlers.infinito.packageModuł']
 # cache.blobstore\ _ max
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packageModuł\ _
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
 
@@ -99547,17 +98941,11 @@ msgstr "utils.env.handlers.infinito.package\\ _ cache.direct moduł\\ _ mem"
 # lost=['utils.env.handlers.infinito.package'] gained=['cache.hutch',
 # 'utils.env.handlers.infinito.packageModuł']
 # cache.hutch
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.packageModuł\ _
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.parent']
 # gained=['utils.env.handlers.infinito.parentModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.parentModuł\ _ image
 msgid "utils.env.handlers.infinito.parent\\_image module"
 msgstr ""
 
@@ -99568,18 +98956,12 @@ msgstr "utils.env.handlers.infinito.playwright opakowanie"
 # lost=['utils.env.handlers.infinito.playwright.reports']
 # gained=['utils.env.handlers.infinito.playwright.reportsModuł']
 # base\ _ dir
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.playwright.reportsModuł\ _
 msgid "utils.env.handlers.infinito.playwright.reports\\_base\\_dir module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.playwright.stage']
 # gained=['utils.env.handlers.infinito.playwright.stageModuł']
 # base\ _ dir
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.playwright.stageModuł\ _
 msgid "utils.env.handlers.infinito.playwright.stage\\_base\\_dir module"
 msgstr ""
 
@@ -99590,9 +98972,6 @@ msgstr "utils.env.handlers.infinito.pull\\ _ moduł polityki"
 # lost=['utils.env.handlers.infinito.registry']
 # gained=['utils.env.handlers.infinito.registryModuł']
 # max\ _ size
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.registryModuł\ _ cache\ _
 msgid "utils.env.handlers.infinito.registry\\_cache\\_max\\_size module"
 msgstr ""
 
@@ -99603,18 +98982,12 @@ msgstr "utils.env.handlers.infinito.rescue opakowanie"
 # lost=['utils.env.handlers.infinito.rescue.diagnostics']
 # gained=['utils.env.handlers.infinito.rescue.diagnosticsModuł']
 # dir
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.rescue.diagnosticsModuł\ _
 msgid "utils.env.handlers.infinito.rescue.diagnostics\\_dir module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.rescue.dns53']
 # gained=['utils.env.handlers.infinito.rescue.dns53Moduł']
 # sampler\ _ log
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.rescue.dns53Moduł\ _
 msgid "utils.env.handlers.infinito.rescue.dns53\\_sampler\\_log module"
 msgstr ""
 
@@ -99628,25 +99001,16 @@ msgstr "utils.env.handlers.infinito.running\\ _ na opakowaniu"
 
 # lost=['utils.env.handlers.infinito.running'] gained=['on.act',
 # 'utils.env.handlers.infinito.runningModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.runningModuł\ _ on.act
 msgid "utils.env.handlers.infinito.running\\_on.act module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.running'] gained=['on.github',
 # 'utils.env.handlers.infinito.runningModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.runningModuł\ _ on.github
 msgid "utils.env.handlers.infinito.running\\_on.github module"
 msgstr ""
 
 # lost=['utils.env.handlers.infinito.swarm']
 # gained=['utils.env.handlers.infinito.swarmPakiet']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarmPakiet\ _ nfs
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr ""
 
@@ -99659,9 +99023,6 @@ msgstr "utils.env.handlers.infinito.swarm\\ _ nfs.export\\ _ base module"
 # lost=['utils.env.handlers.infinito.swarm'] gained=['nfs.state',
 # 'utils.env.handlers.infinito.swarmModuł']
 # path
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarmModuł\ _ nfs.state\ _
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
 msgstr ""
 
@@ -99700,9 +99061,6 @@ msgid "utils.env.handlers.infinito.worker.fetch module"
 msgstr "utils.env.handlers.infinito.worker.fetch moduł"
 
 # lost=['utils.env.handlers.nix'] gained=['utils.env.handlers.nixModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.nixModuł\ _ config
 msgid "utils.env.handlers.nix\\_config module"
 msgstr ""
 
@@ -99727,9 +99085,6 @@ msgid "utils.env.writer module"
 msgstr "utils.env.writer moduł"
 
 # gained=['utils.getModuł']
-# translation-refused: libretranslate protected-span lost=['utils.get']
-# nocheck: url
-# translation-rejected: utils.getModuł\ _ url
 msgid "utils.get\\_url module"
 msgstr ""
 
@@ -99746,9 +99101,6 @@ msgid "utils.github.pytest\\_summary module"
 msgstr "utils.github.pytest\\ _ moduł podsumowania"
 
 # gained=['utils.github.runModuł']
-# translation-refused: libretranslate protected-span lost=['utils.github.run']
-# nocheck: url
-# translation-rejected: utils.github.runModuł\ _ name
 msgid "utils.github.run\\_name module"
 msgstr ""
 
@@ -99873,9 +99225,6 @@ msgid "utils.install.collections module"
 msgstr "utils.install.collections moduł"
 
 # lost=['utils.install.github'] gained=['utils.install.githubModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.githubModuł\ _ wydania
 msgid "utils.install.github\\_release module"
 msgstr ""
 
@@ -99925,9 +99274,6 @@ msgstr "utils.install.lint.mbake moduł"
 
 # lost=['utils.install.lint.mermaid']
 # gained=['utils.install.lint.mermaidModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.lint.mermaidModuł\ _ cli
 msgid "utils.install.lint.mermaid\\_cli module"
 msgstr ""
 
@@ -99996,9 +99342,6 @@ msgid "utils.install.ruby module"
 msgstr "utils.install.ruby moduł"
 
 # lost=['utils.install.system'] gained=['utils.install.systemModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.install.systemModuł\ _ pkg
 msgid "utils.install.system\\_pkg module"
 msgstr ""
 
@@ -100007,9 +99350,6 @@ msgid "utils.inventory package"
 msgstr "utils.inventory opakowanie"
 
 # lost=['utils.inventory.bundle'] gained=['utils.inventory.bundleModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.inventory.bundleModuł\ _ apps
 msgid "utils.inventory.bundle\\_apps module"
 msgstr ""
 
@@ -100021,9 +99361,6 @@ msgid "utils.inventory.tools module"
 msgstr ""
 
 # gained=['utils.kcadmModuł']
-# translation-refused: libretranslate protected-span lost=['utils.kcadm']
-# nocheck: url
-# translation-rejected: utils.kcadmModuł\ _ json
 msgid "utils.kcadm\\_json module"
 msgstr ""
 
@@ -100053,9 +99390,6 @@ msgid "utils.manager package"
 msgstr "utils.manager opakowanie"
 
 # lost=['utils.manager.credential'] gained=['utils.manager.credentialModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.manager.credentialModuł\ _ key
 msgid "utils.manager.credential\\_key module"
 msgstr ""
 
@@ -100064,9 +99398,6 @@ msgid "utils.manager.inventory module"
 msgstr "utils.manager.inventory moduł"
 
 # lost=['utils.manager.value'] gained=['utils.manager.valueModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.manager.valueModuł\ _ generatora
 msgid "utils.manager.value\\_generator module"
 msgstr ""
 
@@ -100083,9 +99414,6 @@ msgid "utils.meta.identity module"
 msgstr "utils.meta.identity moduł"
 
 # gained=['utils.meta.portModuł']
-# translation-refused: libretranslate protected-span lost=['utils.meta.port']
-# nocheck: url
-# translation-rejected: utils.meta.portModuł\ _ pasm
 msgid "utils.meta.port\\_bands module"
 msgstr ""
 
@@ -100122,9 +99450,6 @@ msgid "utils.networks.attachments module"
 msgstr "utils.networks.attachments moduł"
 
 # lost=['utils.networks.lookup'] gained=['utils.networks.lookupModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.networks.lookupModuł\ _ kontekstowy
 msgid "utils.networks.lookup\\_context module"
 msgstr ""
 
@@ -100144,9 +99469,6 @@ msgid "utils.nexus package"
 msgstr "utils.nexus opakowanie"
 
 # gained=['utils.nexus.listModuł']
-# translation-refused: libretranslate protected-span lost=['utils.nexus.list']
-# nocheck: url
-# translation-rejected: utils.nexus.listModuł\ _ apt\ _ proxy\ _ repos
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
 msgstr ""
 
@@ -100183,9 +99505,6 @@ msgid "utils.packages.sources module"
 msgstr "utils.packages.sources moduł"
 
 # gained=['utils.parseModuł']
-# translation-refused: libretranslate protected-span lost=['utils.parse']
-# nocheck: url
-# translation-rejected: utils.parseModuł\ _ trace
 msgid "utils.parse\\_trace module"
 msgstr ""
 
@@ -100235,9 +99554,6 @@ msgstr "utils.roles.applications.config moduł"
 
 # lost=['utils.roles.applications.in']
 # gained=['utils.roles.applications.inModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.applications.inModuł\ _ group\ _ deps
 msgid "utils.roles.applications.in\\_group\\_deps module"
 msgstr ""
 
@@ -100287,9 +99603,6 @@ msgstr "utils.roles.applications.services.sso moduł"
 
 # lost=['utils.roles.applications.status']
 # gained=['utils.roles.applications.statusModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.applications.statusModuł\ _ kodów
 msgid "utils.roles.applications.status\\_codes module"
 msgstr ""
 
@@ -100313,9 +99626,6 @@ msgid "utils.roles.credits module"
 msgstr "utils.roles.credits moduł"
 
 # lost=['utils.roles.dependency'] gained=['utils.roles.dependencyModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.dependencyModuł\ _ resolver
 msgid "utils.roles.dependency\\_resolver module"
 msgstr ""
 
@@ -100352,9 +99662,6 @@ msgid "utils.roles.mapping module"
 msgstr "utils.roles.mapping moduł"
 
 # gained=['utils.roles.metaModuł']
-# translation-refused: libretranslate protected-span lost=['utils.roles.meta']
-# nocheck: url
-# translation-rejected: utils.roles.metaModuł\ _ lookup
 msgid "utils.roles.meta\\_lookup module"
 msgstr ""
 
@@ -100371,9 +99678,6 @@ msgid "utils.roles.rbac.scoped module"
 msgstr "utils.roles.rbac.scoped moduł"
 
 # lost=['utils.roles.required'] gained=['utils.roles.requiredModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.requiredModuł\ _ by\ _ coverage
 msgid "utils.roles.required\\_by\\_coverage module"
 msgstr ""
 
@@ -100391,9 +99695,6 @@ msgstr "utils.roles.validation opakowanie"
 
 # lost=['utils.roles.validation.deploy']
 # gained=['utils.roles.validation.deployModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.roles.validation.deployModuł\ _ id
 msgid "utils.roles.validation.deploy\\_id module"
 msgstr ""
 
@@ -100426,9 +99727,6 @@ msgid "utils.storage.nfs module"
 msgstr "utils.storage.nfs moduł"
 
 # gained=['utils.symbolModuł']
-# translation-refused: libretranslate protected-span lost=['utils.symbol']
-# nocheck: url
-# translation-rejected: utils.symbolModuł\ _ glossary
 msgid "utils.symbol\\_glossary module"
 msgstr ""
 
@@ -100451,9 +99749,6 @@ msgid "utils.templating.vars module"
 msgstr ""
 
 # gained=['utils.terminalModuł']
-# translation-refused: libretranslate protected-span lost=['utils.terminal']
-# nocheck: url
-# translation-rejected: utils.terminalModuł\ _ aliasów
 msgid "utils.terminal\\_aliases module"
 msgstr ""
 
@@ -100466,9 +99761,6 @@ msgid "utils.tests.swarm package"
 msgstr "utils.tests.swarm opakowanie"
 
 # lost=['utils.tests.swarm.backup'] gained=['utils.tests.swarm.backupModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.backupModuł\ _ repos
 msgid "utils.tests.swarm.backup\\_repos module"
 msgstr ""
 
@@ -100477,16 +99769,10 @@ msgid "utils.tests.swarm.derive\\_includes module"
 msgstr "utils.tests.swarm.derive\\ _ zawiera moduł"
 
 # lost=['utils.tests.swarm.extend'] gained=['utils.tests.swarm.extendModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.extendModuł\ _ inwentaryzacji
 msgid "utils.tests.swarm.extend\\_inventory module"
 msgstr ""
 
 # lost=['utils.tests.swarm.force'] gained=['utils.tests.swarm.forceModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.forceModuł\ _ shared\ _ db
 msgid "utils.tests.swarm.force\\_shared\\_db module"
 msgstr ""
 
@@ -100513,9 +99799,6 @@ msgstr "utils.tests.swarm.write.extras moduł"
 
 # lost=['utils.tests.swarm.write.hosts']
 # gained=['utils.tests.swarm.write.hostsModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.write.hostsModuł\ _ wpisów
 msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr ""
 
@@ -100543,9 +99826,6 @@ msgid "utils.update.checksum module"
 msgstr ""
 
 # lost=['utils.update.collection'] gained=['utils.update.collectionModuł']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.update.collectionModuł\ _ source
 msgid "utils.update.collection\\_source module"
 msgstr ""
 
@@ -100579,9 +99859,6 @@ msgid "utils.update.source module"
 msgstr "utils.update.source moduł"
 
 # gained=['utils.yamlModuł']
-# translation-refused: libretranslate protected-span lost=['utils.yaml']
-# nocheck: url
-# translation-rejected: utils.yamlModuł\ _ bootstrap
 msgid "utils.yaml\\_bootstrap module"
 msgstr ""
 
@@ -100936,9 +100213,6 @@ msgstr "{{ lookup('container_deploy') | indent(4) }} # topologia domyślna {{ lo
 
 # gained=['tmpemail_sent']
 # tmpemail_sent
-# translation-refused: libretranslate protected-span lost=['email_sent']
-# nocheck: url
-# translation-rejected: {{ lookup('container_mail_marker') }} - > /
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
 msgstr ""
 

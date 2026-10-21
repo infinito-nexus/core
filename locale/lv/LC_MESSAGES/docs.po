@@ -279,9 +279,6 @@ msgstr "**Izmaiņas `services.hugo.source_version`** padara klonu nederīgu `COP
 # bet maršrutētāja paša zonde būvē savu pārmērīgi ātri no `"x "`, kas
 # tokenizes ar divām zīmēm uz marķieri: 16384 rakstzīmes ir 8193 reālā
 # marķieri uz visiem trim apkalpo marķieri pret aplēsēm 5461.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Deklarētais logs ir augšējā robeža aizmugures goda
 msgid "**A declared window is an upper bound the backend honours, and the token demand is a floor.** Two numbers guard the same decision from opposite sides, and each was wrong in the direction that hid the other. `smollm2:135m` was declared at 16384 against a trained `max_position_embeddings` of 8192 with no rope scaling, so Ollama clamped `num_ctx` and then truncated the prompt to half the window, which is the `n_left=4091` recorded in `8dbdd31b22`. Meanwhile `CHARS_PER_TOKEN = 3` was justified as erring high, but the router's own probe builds its oversized prompt from `\"x \"`, which tokenizes at two characters per token: 16384 characters are 8193 real tokens on all three served tokenizers against an estimate of 5461."
 msgstr ""
 
@@ -3036,9 +3033,6 @@ msgstr ""
 msgid "**Description:** Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "**Apraksts:** Tīkla mēroga DNS grimšanas caurums, lai bloķētu reklāmas un trackers pa visām ierīcēm, ar DHCP un web admin paneļa"
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Apraksts:** Name
 msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
@@ -3189,9 +3183,6 @@ msgid "**Description:** Placeholder stub role for a future XMPP server/container
 msgstr "**Apraksts:** Nākotnes viettura loma XMPP servera/konteinera izvietošana, īstenošana vēl nav pabeigta"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Apraksts:** Name
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
 
@@ -5777,9 +5768,6 @@ msgstr "**Tā ir daļa no rindas identitātes.** Glifs ir darba marķējumā, v�
 # vienalga. Padarīt to lēnāko ciparu būtu aktīvi nepareizi: loma ar četrām
 # rindām sēdēt uz vienas arhitektūras uz visiem laikiem, un ass pastāv tieši
 # tāpēc lomas pašas varianti dalās pa abām.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Tas rotē uz rindas pozīcijas tieši, nevis kā trešais
 msgid "**It rotates on the row's position directly, not as a third odometer digit.** The distro/filesystem odometer exists because two pools of equal length walked on the same index cover only `n` of `n x m` pairs. Two architectures against five distros are coprime, and against the fifteen distro/filesystem positions too, so the fast rotation reaches every pairing anyway. Making it the slowest digit would be actively wrong: a role with four rows would sit on one architecture forever, and the axis exists precisely so a role's own variants split over both."
 msgstr ""
 
@@ -5919,9 +5907,6 @@ msgstr "**LDAP federācija:** Kad `svc-db-openldap` ir klāt, Zammad autentifik�
 # pārbauda LAMfona darbi, tāpēc šie rīki palika "notiek" mūžīgi. Tas skripts
 # ir atļauts vēlreiz.
 # gained=['"notiek"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: **LDAP imports, eksports un Multi rediģēšana vēlreiz
 msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
@@ -6483,9 +6468,6 @@ msgstr "**Modelis un konteksts:** `agents.model` nosauc vārteja segvārdu katrs
 
 # ir atsauce uz šo punktu, piemēro Regulas (ES) Nr. 182/2011 5. pantu.
 # '182', '2011', '5']
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Vārtejas atslēgas modelis:** Ar LiteLLM Gateway Ja
 msgid "**Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application."
 msgstr ""
 
@@ -7521,16 +7503,10 @@ msgid "**PKI engine ships behind a flag, default off.** When on, the play mounts
 msgstr "**PKI dzinēju kuģiem aiz karoga, noklusējuma off.** Kad ieslēgts, atskaņošanas mounts `pki`, rada iekšējo saknes CA un viena izdevēja loma."
 
 # `NGINX-mod-stream`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Iepakojumu uzstādīšana** skaits * `NGINX` kā arī
 msgid "**Package installation** of `NGINX` and `NGINX-mod-stream`."
 msgstr ""
 
 # ``NGINX-mod-stream``.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Iepakojumu uzstādīšana** skaits * ``NGINX`` kā arī
 msgid "**Package installation** of ``NGINX`` and ``NGINX-mod-stream``."
 msgstr ""
 
@@ -10131,9 +10107,6 @@ msgstr "**Vērtība:** `\"9oVizYIYVGlZ3VtWQIKRS5UghyXiqGoUNlCtIE7LiA\"`"
 # deklarētajiem logiem 4096, 16384 kā arī 65536. Deklarētais logs zem tā, ko
 # tags atbalsta ir apzināta: tas ierobežo KV kešatmiņu, un tas ir skaitlis
 # filtrs lasa.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Variants 1 skaits * `svc-ai-ollama` apkalpo trīs
 msgid "**Variant 1 of `svc-ai-ollama` serves three models with different windows.** A router is only observable when the routes differ in something the request can demand. Variant 1 therefore preloads `qwen2.5:0.5b`, `smollm2:135m` and `llama3.2:1b` with declared windows of 4096, 16384 and 65536. A declared window below what the tag supports is deliberate: it bounds the KV cache, and it is the number the filter reads."
 msgstr ""
 
@@ -10144,9 +10117,6 @@ msgstr ""
 # likmi, tāpēc nekas, bet logs atdala tos un apaļo testus tieši ass stratēģija
 # piebilst. `mock/deterministic` saglabā savu nosaukumu un 131072 logu, jo
 # aģents brokeris vada savus aģentus uz to katrā kārtā.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Variants 2 skaits * `svc-ai-litellm` nes
 msgid "**Variant 2 of `svc-ai-litellm` carries `system_one` on three mocks, and no fourth variant is added.** The strategy is only observable when the routes differ in the one thing it ranks on, so that variant publishes mocks with windows of 4096, 16384 and 131072. Mocks pull no model and cost no wall clock, and they carry no measured rate, so nothing but the window separates them and the round tests exactly the axis the strategy adds. `mock/deterministic` keeps its name and its 131072 window, because the agent broker runs its agents on it in every round."
 msgstr ""
 
@@ -10842,9 +10812,6 @@ msgid "**description**: Browser-facing admin interface for the shared LLM gatewa
 msgstr "**apraksts**: uz pārlūku vērsta admin saskarne kopīgotai LLM vārteja, publicēta savā domēnā aiz priekšējā starpniekservera"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **apraksts**& Projekts
 msgid "**description**: Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr ""
 
@@ -12095,9 +12062,6 @@ msgstr "**resursdators** (`[user@]host`) → rsync-pull visu rezerves koku, tad 
 # katrs patērētājs nosaka stends: SOCKS starpniekserveris libcurl klientiem.
 # peertube vairs nav starp tiem - tā ir tikai tīriem tīkliem.
 # '1', '12.1.2001', '18', '2000']
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Eiropas Parlamenta un Padomes Regula (EK) Nr.
 msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.** OIDC Discovery / RFC 8414 want an https issuer, and an onion-exclusive Keycloak has none, so strict client libraries refuse it. Serving TLS on the onion is blocked on four independent things, in this order: (1) `roles/svc-net-tor/templates/torrc.j2` publishes only `HiddenServicePort 80`, and no role declares 443 in `ports.public`/`ports.local`, so `lookup('tor_ports')` can never emit it — flipping TLS on first makes Keycloak unreachable over Tor entirely, because `nginx_ssl_header.j2` is one if/else and port 80 disappears; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` writes an unguarded CN, which overflows X.509's 64-byte cap on a 62-char v3 onion — `group_vars/all/02_tls.yml` already guards exactly this for the root CA and nowhere else; (3) `nginx_ssl_header.j2` emits HSTS in the same branch, and browsers offer no click-through on an HSTS host with an untrusted chain, so a self-signed interim locks real users out while staying invisible to Playwright's `ignoreHTTPSErrors`; (4) it fixes zero libcurl consumers, because RFC 7686 refusal happens at name resolution and is scheme-independent. Unblocking needs a CA that issues for v3 `.onion` (HARICA, CA/B Forum ballot 144) — procurement, not code. Until then the per-consumer fixes stand: SOCKS proxy for libcurl clients. peertube is no longer among them - it is a clearnet-only role."
 msgstr ""
 
@@ -13599,9 +13563,6 @@ msgstr "2. Push"
 msgid "2. Security 🛡️"
 msgstr "2. Drošība 🛡️"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 3 skaits * 9
 msgid "3 of 9"
 msgstr ""
 
@@ -13766,9 +13727,6 @@ msgstr "7. Papildu resursi (Pēc izvēles) 🔗"
 msgid "8. Image Mirroring 🪞"
 msgstr "8. Attēla spoguļi 🪞"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 9 skaits * 9
 msgid "9 of 9"
 msgstr ""
 
@@ -13961,9 +13919,6 @@ msgid "@signalbot:yourdomain.tld"
 msgstr "@signalbot:yourdomain.tld"
 
 # gained=['whatsthisyourdomain.tld']
-# translation-refused: libretranslate protected-span lost=['yourdomain.tld']
-# nocheck: url
-# translation-rejected: @ info: whatsthisyourdomain.tld
 msgid "@slackbot:yourdomain.tld"
 msgstr ""
 
@@ -14678,9 +14633,6 @@ msgstr "Darbs URL sašaurina lejupielādi uz šī darba programmu; tukšas palai
 # nospiedumi "aktuāls" un izejas, kas nav nulle). Abi tiek meklēti, tāpēc
 # zvanītājs iet pieļaujamo frāžu un nav jāzina, kura atslēga nes to.
 # gained=['"aktuāls"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Darbs skaitās kā neveiksmīgs, kad tas nekad nav
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
 msgstr ""
 
@@ -17890,9 +17842,6 @@ msgstr "Programmas kanoniskais primārais domēns, kad tam ir ne vairāk kā max
 msgid "An axis the token leaves open matches anything, so ``web-app-x`` covers every row of that role and ``web-app-x#2@swarm`` only its swarm deploy of variant 2. Reads the strings a matrix entry carries, not a discovery row's native types."
 msgstr "Ass marķieris atstāj atvērtu atbilst kaut ko, tāpēc ``web-app-x`` aptver katru šīs lomas rindu un ``web-app-x#2@swarm`` tikai varianta izvietošanā 2. Lasa virknes matricas ierakstu nes, nevis atklājumu rindu dzimtās tipi."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "An embedding model, a deprecated model and a model that denies system messages are never routed to"
 msgstr ""
 
@@ -18151,9 +18100,6 @@ msgid "Ansible default (22)"
 msgstr "Noklusētais (22)"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr ""
 
@@ -18167,9 +18113,6 @@ msgstr "Ansible filter spraudnis: get_role"
 
 # translated-by: libretranslate
 # current host.
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Ansible filter to count active docker services for
 msgid "Ansible filter to count active docker services for current host."
 msgstr ""
 
@@ -18885,9 +18828,6 @@ msgstr ""
 # "atdzīvināt" robotā, kamēr šī jauda paliek ierobežota ar īpašu, segmentētu
 # ierīci un nekad nenoplūst kopējā infrastruktūrā.
 # gained=['"atdzīvināt"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Kā platformas administrators Infinito.Nexus, es gribu
 msgid "As a platform administrator of Infinito.Nexus, I want a `svc-ai-robot` role that turns one dedicated machine into an embodied platform for Hermes, giving the agent scoped-to-full host access so it can explore its own hardware and act in the physical world, so that Hermes can \"come to life\" on a robot while this power stays confined to a dedicated, segmented device and never leaks onto shared infrastructure."
 msgstr ""
 
@@ -20439,9 +20379,6 @@ msgid "Boundary"
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Pakešu filtrs ir vienīgā pieejamā robeža.
 msgid "Bounding a service port that carries no access policy of its own, where the packet filter is the only boundary available."
 msgstr ""
 
@@ -21211,9 +21148,6 @@ msgstr "CI cauruļvads"
 # ja atvērta PR pastāv (kur: 20s sacīkšu atkārtojums botu zariem); pip cache +
 # pitons 3.12 visos 16 darbplūsmas, plus npm un ansible-galaxy kešatmiņas, ja
 # trūkst. Atjaunot botu tagad dzēš pats savus zarus, aizverot aizstātās PR.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: CI cauruļvada caurlaide: PR cauruļvada cauruļvada
 msgid "CI pipeline pass: PR flow now gates the env-matrix via a new detect-affected-roles resolver (skipped on role-only diffs); push CI skipped when an open PR exists (with 20s race retry for bot branches); pip cache + python 3.12 across all 16 workflows, plus npm and ansible-galaxy caches where missing. Update bot now deletes its own branches when closing superseded PRs."
 msgstr ""
 
@@ -22086,9 +22020,6 @@ msgstr "Pārbaudiet, vai DKIM paaudze strādā uz jauniem iestatījumiem"
 
 # application_id }}Anīsa sēklasenv.j2
 # gained=['sēklasenv.j2']
-# translation-refused: libretranslate protected-span lost=['env.j2']
-# nocheck: url
-# translation-rejected: Pārbaudiet, vai env.j2 pastāv saistībā ar lomām/{{
 msgid "Check if env.j2 exists under roles/{{ application_id }}/templates/env.j2"
 msgstr ""
 
@@ -23534,9 +23465,6 @@ msgstr "Sakļaut jebkuru daudzrindu virkni vienā rindā, apdares papildus atsta
 # Flavor specifiskas atslēgas dzīvot zem *sso.<flavor>*
 # (*sso.oauth2.{izcelsme, ieskaitotallowed_groups}*, *sso.oidc.plugin*).
 # gained=['ieskaitotallowed_groups']
-# translation-refused: libretranslate protected-span lost=['allowed_groups']
-# nocheck: url
-# translation-rejected: Sakļaut paralēli **oauts2** kā arī **oidc** augstākā
 #, python-brace-format
 msgid "Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*)."
 msgstr ""
@@ -23939,9 +23867,6 @@ msgid "Compute scope from `git diff --name-only origin/main...<branch>`."
 msgstr "Skaitļot darbības jomu no `git diff --name-only origin/main...<branch>`."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment.
 msgid "Compute the canonical OIDC group path for an application role."
 msgstr ""
 
@@ -29847,9 +29772,6 @@ msgstr "Piemērs: `web-svc-cdn` slēgšana"
 # jau paziņo:
 # lost=['web-app-friendica/meta/services.yml']
 # gained=['web-app-friendica/meta/pakalpojumi.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Piemērs: `ldapauth` iepriekš minētajam ir
 msgid "Example: the `ldapauth` addon above requires that [web-app-friendica/meta/services.yml](../../roles/web-app-friendica/meta/services.yml) already declares:"
 msgstr ""
 
@@ -29943,9 +29865,6 @@ msgstr "Izpildīt SQL komandas"
 # nosaukumi, `auth_by_http_header` konfigurācijas mehānisms, vietas ceļa
 # maršrutēšana, un GUI selektorus pret pinned augšpusējā versija pirms
 # apgalvojot darīts.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Izpildīt autonomi pēc tam, kad Atvērtie Jautājumi ir
 msgid "Execute autonomously after the Open Questions are resolved. Scaffold using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (oauth2 flavor + header SSO + LDAP). Verify all Checkmk env names, the `auth_by_http_header` config mechanism, site-path routing, and the GUI selectors against the pinned upstream version before claiming done."
 msgstr ""
 
@@ -30642,9 +30561,6 @@ msgid "Fetch with `git fetch fork <branch>`, list what is incoming, then merge `
 msgstr "Ielādēt ar `git fetch fork <branch>`, saraksts, kas ir ienākošo, pēc tam apvienot `FETCH_HEAD`. Atrisināt katru konfliktu, palaist `make quality`, noteikt to, ko tā ziņo, un atkārtoti darboties, kamēr visi četri mērķi ir zaļa. Atstājiet apvienoto nodevumu operatoram, ja vien tas nav pieprasīts."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Fetch-once cache and parser for the operator's terminal aliases."
 msgstr ""
 
@@ -32666,9 +32582,6 @@ msgid "Generate or complete role README.md files from the schema template."
 msgstr ""
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Vispārējs.
 msgid "Generate the invokable-role overview table in the repository README."
 msgstr ""
 
@@ -32857,9 +32770,6 @@ msgstr "GitHub atceļ darbu, kas ir sēdējis rindā priekš 24 stundas. Tas pul
 # lomas ID. Katrs darbs *izsaukts* darbplūsmu atver savu žurnālu ar
 # ``##[group] Inputs`` bloku turot pilnas vērtības, tāpēc tas ir SPOT par kaut
 # ko nosaukums nevar turēt.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: GitHub izcirtņi ``display_title`` datums 512 UTF-8
 msgid "GitHub cuts ``display_title`` at 512 UTF-8 bytes (measured on two runs, both exactly 512) and closes it with a literal ``...``. The run-name template renders ``priority`` second-to-last and ``whitelist`` last, and on the ``--failed`` path the whitelist is empty, so the cut always lands inside the priority list: measured 21 of 69 roles survived, the 21st a half-token. A CJK display name costs 3 bytes per character, so the budget is ~22 display names against ~28 bare role ids. Every job of the *called* workflow opens its log with an ``##[group] Inputs`` block holding the full values, so that is the SPOT for anything the title cannot hold."
 msgstr ""
 
@@ -34426,9 +34336,6 @@ msgstr "Ja inventory_file tiek sniegts, arī izslēdz pakalpojuma sniedzēja lom
 # kuru galaxy_info.lifecycle ir komplektā ir iekļauti. Trūkstošo dzīves ciklu
 # uzskata par "neatbilst".
 # gained=['"neatbilst"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Ja nodrošina dzīves ciklus, tad tikai tos uzdevumus,
 msgid "If lifecycles is provided, only roles whose galaxy_info.lifecycle is in the set are included. Missing lifecycle is treated as \"not matching\"."
 msgstr ""
 
@@ -39453,9 +39360,6 @@ msgstr "MDAD inventarizācija veikta"
 # Klonu galamērķis: `{{ lookup('container', application_id,
 # 'directories.instance') }}mdad/`. Bump ceļš: sasist SHA, redeploy. Operators
 # apstiprināts.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: MDAD tiek ievilkts kā git izrakstīšanās izmantošanas
 msgid "MDAD is pulled in as a git checkout at deploy time, not vendored. Source: `https://github.com/spantaleev/matrix-docker-ansible-deploy`. Upstream ships from `master` (no release tags exist), so the pin is the concrete commit SHA `9634cc3f7956e312eaf04647d85cbab46173f2e9` (master HEAD at PR-cut time) stored in `meta/services.yml::matrix.upstream.ref`. Clone destination: `{{ lookup('container', application_id, 'directories.instance') }}mdad/`. Bump path: bump the SHA, redeploy. Operator-confirmed."
 msgstr ""
 
@@ -40721,9 +40625,6 @@ msgstr "Režīma izvēles trigeris"
 # dažādas pārbaudes: mēra pēc pašreizējā ranga, 2 skaits * 277 rindas atbilst,
 # tāpēc katra pastaiga apstājās savā pirmajā rindā un regulārā līnija nekad
 # neatstāja galvu. Riņķis ir rupjākā identitāte, ko rotācija nevar kustēties.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Režīms, sīpolu stāvoklis, distro un filesystem tiek
 msgid "Mode, onion state, distro and filesystem are assigned by the rotation over the sweep number, and a retrigger is a new run with a new number (``call-orchestrator.yml`` falls back to ``github.run_number``). Comparing the full deploy tokens therefore compares two different sweeps: measured against the current ranking, 2 of 277 rows matched, so every walk stopped on its first row and the regular line never left the head. The row is the coarsest identity the rotation cannot move."
 msgstr ""
 
@@ -41448,9 +41349,6 @@ msgstr "Negācija (``!``) kā arī ``**`` globstar apzināti netiek atbalstīti 
 # puse nes 197 skaits * 231 uzņemas no viena autora, saglabā savu piekļuves
 # kontroli atsevišķā Odoo Apps veikalā modulis ārpus jebkura pinneble tag, un
 # noklusējumus uz muttang rīku jomu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Ne Odoo SA, ne OCA nepublicē serveri; vadošā trešā
 msgid "Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope."
 msgstr ""
 
@@ -42016,9 +41914,6 @@ msgstr "Node Tor v3 Sīpolu identitāte izmantošanai par inspiratoru."
 # tiek pielietots prefikss, lai resursdatora nosaukumi atbilstu konteineriem.
 # ♪ Laidiet() saglabā SWARM_NAME importdrošs; galvenais() ievieš to darbības
 # laikā.
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Mezgla bāzes nosaukumi ir SPOT default.env (dalīts ar
 msgid "Node base names are the SPOT in default.env (shared with scripts/tests/deploy/swarm/utils/topology/base.sh); only the SWARM_NAME prefix is applied here so host names match the containers. The env get() keeps SWARM_NAME import-safe; main() enforces it at run time."
 msgstr ""
 
@@ -44923,9 +44818,6 @@ msgstr "Viena lietotāja piekļuve marķierierīcei un dalība telpā; nav starp
 msgid "Per-user or room-scoped service identity; no unrestricted archive, send, invite, kick, ban, role, or server administration action"
 msgstr "Katra lietotāja vai telpā ar darbības jomu pakalpojumu identitāte; nav neierobežots arhīvs, sūtīt, uzaicināt, kick, aizliegums, loma, vai servera administrācijas darbību"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Per-user token for timeline data; no posting, messaging, contact, moderation, or account mutation"
 msgstr ""
 
@@ -45489,9 +45381,6 @@ msgstr "Playwright-spec neveiksmes ir ALWAYS reproducējams dzīvot kaudze: jums
 msgid "Please do not open a public issue or pull request for a security problem."
 msgstr "Lūdzu, neatveriet publisku jautājumu vai nepieprasiet drošības problēmu."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
 
@@ -45634,9 +45523,6 @@ msgstr "Postfikss:"
 msgid "PostgreSQL Architecture"
 msgstr ""
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: PostgreSQL Docker Upgrade: Major Version Migration
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr ""
 
@@ -47562,9 +47448,6 @@ msgstr ""
 # svc-storage-nfs-server/meta/pakalpojumi.yml.
 # lost=['svc-storage-nfs-server/meta/services.yml.']
 # gained=['svc-storage-nfs-server/meta/pakalpojumi.yml.']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Lasa apvienoto konfigurāciju SPOT caur
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -49646,9 +49529,6 @@ msgstr "Atgriešanās (īpašnieks, repo uzņēmums, run_id) no palaista id vai 
 
 # job_idNav) no palaišanas/darba URL.
 # gained=['job_idNav']
-# translation-refused: libretranslate protected-span lost=['job_id']
-# nocheck: url
-# translation-rejected: Atgriešanās (īpašnieks, repo uzņēmums, run_id,
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -50824,9 +50704,6 @@ msgid "Return the subset of users that have an identity-directory account (``ide
 msgstr "Atgriezt lietotāju apakškopu, kuriem ir identitātes direktorijas konts (``identity`` skaits ``accounts``). Tas ir komplekts Keycloak/LDAP vadība."
 
 # tranzīta atkarības.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Atgriezt summēto min_storage skaits * app_ids un to
 msgid "Return the summed min_storage of app_ids and their transitive dependencies."
 msgstr ""
 
@@ -53999,17 +53876,11 @@ msgstr "Sastatnes `tasks/flavor/ansible/` (klons, padarīt inventāra, palaist a
 # [`roles/web-app-odoo/`](../../roles/web-app-odoo/) KKP) (tuvākais analogs:
 # ERP formas OIDC + LDAP varianti, centrālā pakalpojuma patērētāju modelis,
 # dubultā HTTP + WebSocket vhost).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Sastatiet lomu izmantojot
 msgid "Scaffold the role using [`roles/web-app-odoo/`](../../roles/web-app-odoo/) as the structural template (closest analogue: ERP-shaped, OIDC + LDAP variants, central-service consumer pattern, dual HTTP + WebSocket vhost)."
 msgstr ""
 
 # [`roles/web-app-openproject/`](../../roles/web-app-openproject/) KKP)
 # (Postgres patērētājs, LDAP vars, OIDC, trīs personas).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Sastatiet lomu izmantojot
 msgid "Scaffold the role using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (Postgres consumer, LDAP vars, OIDC, three personas)."
 msgstr ""
 
@@ -57454,9 +57325,6 @@ msgstr "Apspiež trūkstošo e-pasta integrācijas brīdinājumu. Pāris ar `ena
 # Pārbaude izstaro a `DeprecationWarning` lokāli un GitHub darbības
 # `::warning` anotācija CI. Priekšroka `pip install <name>` vai `pip install
 # git+<repo>`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Apspiest brīdinājumu tikai deprecation paziņojumu par
 msgid "Suppresses the warn-only deprecation notice for `include_role` / `import_role` of `pkgmgr` / `pkgmgr-install`. The check emits a `DeprecationWarning` locally and a GitHub Actions `::warning` annotation in CI. Prefer `pip install <name>` or `pip install git+<repo>`."
 msgstr ""
 
@@ -61599,9 +61467,6 @@ msgid "The dev container's own `/tmp` (tmpfs)"
 msgstr ""
 
 # apakšprocesu.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Comment `variants.yml` Pārklāšana sasniedz kredentālo
 msgid "The dev-deploy CLI threads the variant index through three layers so a variant's `variants.yml` overlay reaches the credential subprocess."
 msgstr ""
 
@@ -62559,9 +62424,6 @@ msgstr "Logotipam jāizmanto derīga Font Awesome klases virkne, piemēram:"
 
 # **/var/lib/docker/tilpumi/nextcloud_data/ dati/dati/nextcloud.log**
 # gained=['dati/dati/nextcloud.log']
-# translation-refused: libretranslate protected-span lost=['nextcloud.log']
-# nocheck: url
-# translation-rejected: Žurnāli jūs atradīsiet šeit uz uzņēmēja:
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -63709,9 +63571,6 @@ msgstr "Pārcelšana NEKAD nav verifikācija. \"Vārtiem/remontam vienalga jāsk
 # sniegti, nevis izmantoti šīs rindas sadalīšanai. Sasniedzot sagriezuma rindu
 # uz savas ass nozīmē nosaukt to uz prioritātes līnijas, kas ir tas, ko `⭐`
 # pastāv.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Atlaišanas samazinājums neseko asīm. `covered_by` ir
 msgid "The redundancy cut does not follow the axes. `covered_by` is a role-level claim discovery computes from the service closure, so the row that covers a cut row now usually lands on a different distribution: on a full sweep, 6 of 44 cut rows share their coverer's distro. The cut therefore asserts that the services were exercised, not that they were exercised on that row's distribution. Reaching a cut row on its own axes means naming it on the priority line, which is what `⭐` exists for."
 msgstr ""
 
@@ -64844,9 +64703,6 @@ msgstr "Dalītais `biber` kā arī `administrator` personas braucienus izvēlas,
 # `files/playwright/playwright.spec.js`; atteikšanās zaudē, kad dalītais
 # palīgs mācās Fidermodāls.
 # gained=['"Paraksts"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Dalītais `biber` kā arī `administrator` personas
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
 msgstr ""
 
@@ -64872,9 +64728,6 @@ msgstr "Dalītais `biber` kā arī `administrator` personas braucienus izvēlas,
 # līdz ar to Keycloak identitātes kartes uz ne direktoriju sesiju kopīgotie
 # palīgi varētu veikt uz in-app logout.
 # gained=['"Paraksts"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Dalītais `biber` kā arī `administrator` personas
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -65338,9 +65191,6 @@ msgstr "Kompromiss ir tāds, ka `deny` tagad veic pilnu svaru \"ko aģents nedr�
 # pakalpojumu sniedzējs (loma izvieto izolētas): katram variantam uz rindām,
 # sākot no bāzes ``meta/services.yml`` uz veselām rindām.
 # gained=['alpha/beta/pre/...']
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
-# nocheck: url
-# translation-rejected: Tranzīta lauki (``services`` / ``consumed_by`` un to
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -65479,9 +65329,6 @@ msgid "The values one axis may draw from this run."
 msgstr "Vērtības, ko no šīs kārtas var iegūt viena ass."
 
 # darbojas.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: (Sk. *lietotne* kas veic atkārtotu spēli, un režīms tā
 msgid "The variant of *app* that carries the replay, and the mode it runs in."
 msgstr ""
 
@@ -67326,9 +67173,6 @@ msgstr "Šī prasība paplašina [025 - MCP lomu integrācija](025-mcp-role-inte
 # Autotulkošana](037-gettext-catalogs-libretranslate.md) un atver API skaits *
 # [038 - web-svc-api](README.md#archive) pārlūkprogrammas patērētājiem. Pēc
 # tam patērētāju repozitoriji mainās un neietilpst šajā prasībā.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Šī prasība pārvieto galvenās lomas, kas tulko tekstu
 msgid "This requirement moves the core roles that render translated text onto the catalogs of [037 - Gettext Catalogs with LibreTranslate Autotranslation](037-gettext-catalogs-libretranslate.md) and opens the API of [038 - web-svc-api](README.md#archive) to browser consumers. The consumer repositories change afterwards and are not part of this requirement."
 msgstr ""
 
@@ -67481,9 +67325,6 @@ msgstr ""
 # pieteikšanās ir viena dalīta slepeno paroli veidlapu, kas uzgriež vienu
 # sesiju boolean (`req.session.loggedIn`).
 # gained=['"īpašnieks"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Šī loma veido Postmarks no avota uz pielāgotu attēlu,
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only \"the owner\". The upstream login is a single shared-secret password form that flips one session boolean (`req.session.loggedIn`)."
 msgstr ""
 
@@ -69171,9 +69012,6 @@ msgstr "Šodien katru Infinito.Nexus Izvietošanas trases `docker compose` pret 
 # bet attiecīgais spec scenārijs vēl nepastāv.
 # lost=['web-app-opencloud/meta/variants.yml']
 # gained=['web-app-opencloud/meta/varianti.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Šodien lielākā daļa lomu specs vērā to autentificē
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -69887,9 +69725,6 @@ msgstr "Diviem vai vairākiem noteikumiem jāiztur `AnsibleError`."
 # noliegums varētu piliens gandrīz katru maršrutu. Tāpēc modelis ir izslēgts
 # tikai tad, ja katalogs norāda ne- čatu `mode`, noliedz sistēmas ziņojumus
 # tieši, vai dod `deprecation_date` jau sen.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Tās pārvalda divas polaritātes, un sajaucot tās pa
 msgid "Two polarities govern them, and mixing them up routes silently wrong. A capability the request **demands** must be proven, because such a flag is catalogued wherever it exists: an absent `supports_vision` means no vision, and the route is dropped only when the request carries an image. A **disqualifier** acts on explicit evidence only, because silence is the norm for it: 256 of 1595 entries carry `supports_system_messages` at all and a local tag is catalogued not at all, so reading silence as denial would drop nearly every route. A model is therefore excluded only when the catalog states a non-chat `mode`, denies system messages outright, or gives a `deprecation_date` already past."
 msgstr ""
 
@@ -71090,9 +70925,6 @@ msgstr "Izmanto ``ressources`` CLI un pēc varianta resursu budžeta lint, tāp�
 # bez hardcoding katru lietotnes nosaukumu.
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['web-app-prometheus/tempelates/konfiguration/prometheus.yml.j2']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: Izmantotājs
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -74631,9 +74463,6 @@ msgstr "Jūs NEDRĪKST ievadīt iekšējo cilpu, ja vien turiet visas šīs ier�
 # statusu piešķir lasītāji šķērssaites uz lapu no citurienes, nevis ar lapu
 # apgalvojot to par sevi. Tā vietā aprakstiet tematu.
 # gained=['"SPOT"']
-# translation-refused: libretranslate protected-span lost=['"']
-# nocheck: url
-# translation-rejected: Jūs NEDRĪKST skaidri deklarēt dokumentācijas lapu kā
 msgid "You MUST NOT explicitly declare a documentation page as \"the SPOT\", \"Single Point of Truth\", or any equivalent self-label. SPOT status is conferred by readers cross-linking to the page from elsewhere, not by the page asserting it about itself. Describe the subject directly instead."
 msgstr ""
 
@@ -82920,9 +82749,6 @@ msgstr ""
 # YOLO režīms tikai izstrādei un testēšanai. Tādējādi loma paliek bloķēta
 # `unreviewed_third_party`, un atkārtota pārskatīšana ir pamatota, ja Odoo SA
 # vai OCA publicē serveri.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] [web-app-odoo](../../roles/web-app-odoo/) tiek
 msgid "[x] [web-app-odoo](../../roles/web-app-odoo/) is audited for a maintained MCP add-on and is integrated only after the add-on's update cadence, license, authentication, and tool scope are documented. The audit was carried out and its outcome is that no add-on qualifies, so the role ships no MCP surface. Odoo SA publishes none, and a search of the OCA organisation returns zero MCP repositories, so no vendor-backed or community-governed option exists. The leading third party is [`ivnvxd/mcp-server-odoo`](https://github.com/ivnvxd/mcp-server-odoo). **Cadence:** active, `v0.8.0` on 2026-08-26 after `v0.7.1`, `v0.7.0`, `v0.6.0` and `v0.5.2` since 2026-04. **Licence:** MPL-2.0. **Authentication:** an Odoo API key or a username and password, over XML-RPC. **Tool scope:** mutating by design, advertised as create, update and manage, against the read-only default this project requires of every surface. Three findings disqualify it rather than the licence or the cadence. Its contributor list is 197 of 231 commits from one author with no organisational backing, so a single maintainer holds an ERP-wide data path. Its production access control lives in a second module distributed through the Odoo Apps store rather than a pinnable source tag, which the source-pinning rule cannot accommodate. Its module-free fallback is labelled upstream as YOLO mode for development and testing only. The role therefore stays blocked under `unreviewed_third_party`, and re-review is warranted if Odoo SA or the OCA publishes a server."
 msgstr ""
 
@@ -83123,9 +82949,6 @@ msgstr "[x] `meta/variants.yml` deklarē matricas izvietojuma variantus (skatīt
 # [web-app-openproject/meta/varianti.yml](../../roles/web-app-openproject/meta/variants.yml).
 # lost=['web-app-openproject/meta/variants.yml']
 # gained=['web-app-openproject/meta/varianti.yml']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` definē a **Tikai LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -83150,9 +82973,6 @@ msgid "[x] `meta/volumes.yml` declares the role's named volumes."
 msgstr "[x] `meta/volumes.yml` deklarē lomas nosauktos sējumus."
 
 # uzglabāšanu angļu vietā plus tulkoto vietu.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] `min_storage` skaits * web-app-docs norāda
 msgid "[x] `min_storage` of web-app-docs states the storage of the English site plus the translated sites."
 msgstr ""
 
@@ -83261,9 +83081,6 @@ msgstr "[x] `sys-svc-proxy` norāda kanonisko resursdatora nosaukumu uz MDAM pie
 # ar tapām `services.matrix.upstream.ref` skaits *
 # `services.matrix.upstream.repo` uz `{{ instance_dir }}mdad/`; rerun ir
 # idempotent (Comment).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] `tasks/flavor/ansible/01_clone_upstream.yml` kloni
 msgid "[x] `tasks/flavor/ansible/01_clone_upstream.yml` clones the pinned `services.matrix.upstream.ref` of `services.matrix.upstream.repo` into `{{ instance_dir }}mdad/`; rerun is idempotent (fetch + checkout, no destructive reset)."
 msgstr ""
 
@@ -83598,9 +83415,6 @@ msgstr "Pakāpeniskas atkāpšanās: ja joslai nav iekšēju tukšumu, ierosinie
 
 # trūkst CA komplekta, servera puses jautājums
 # gained=['vidūhandshake__']
-# translation-refused: libretranslate protected-span lost=['handshake__']
-# nocheck: url
-# translation-rejected: MTU pilieni vidūhandshake__, MITM sertu neatbilstība,
 msgid "__MTU drops mid-handshake__, MITM cert mismatch, CA bundle missing, server-side issue"
 msgstr ""
 
@@ -85628,9 +85442,6 @@ msgstr "``key``: pakalpojumi.<key>.* Lookup bāze. Noklusētais: nodrošina vai 
 # uzņēmies, nevis katru klientu izvietošanā. Būt klientam nav uzņemšana: bez
 # otrā nosacījuma viena uzņemšana jebkur sasniedz katru pakalpojumu sniedzēju,
 # kas atver savu pārklājumu.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``kind``: ``services_flags`` (noklusētais) י
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
 msgstr ""
 
@@ -86370,9 +86181,6 @@ msgid "``true`` runs the test in the sync pass only, so ``full_cycle`` does not 
 msgstr ""
 
 # ``secret``
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``type`` viens no ``volume`` י ``bind`` י ``config`` י
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
 msgstr ""
 
@@ -88619,9 +88427,6 @@ msgstr "`svc-ai-litellm` jau kalpo ar OpenAI savietojamu vārteju un `web-app-ne
 # `web-app-zammad`, `web-app-nextcloud` kārtas, kas pin šiem partneriem
 # pārsniedz 64 GB budžetu apsargā
 # `tests/integration/roles/meta/variants/test_resource_budget.py`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `svc-ai-litellm` vilkšanas `svc-ai-ollama` kā arī
 msgid "`svc-ai-litellm` pulls `svc-ai-ollama` and `svc-ai-lmstudio` with it, so a consumer that enables the gateway adds roughly 6 GB to its round. Variant 0 is the fallback every higher round lands on, so a heavy shared dependency pinned there appears in every round: with the gateway on variant 0 of `web-app-matrix`, `web-app-mattermost` and `web-app-zammad`, the `web-app-nextcloud` rounds that pin those partners exceed the 64 GB budget guarded by `tests/integration/roles/meta/variants/test_resource_budget.py`."
 msgstr ""
 
@@ -90736,9 +90541,6 @@ msgstr "cli.administration.deploy.development.up modulis"
 # cli.administration.deploy.development.variantIzvēlieties moduli
 # lost=['cli.administration.deploy.development.variant']
 # gained=['cli.administration.deploy.development.variantIzvēlieties']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected:
 msgid "cli.administration.deploy.development.variant\\_select module"
 msgstr ""
 
@@ -94740,9 +94542,6 @@ msgid "plugins.filter package"
 msgstr "plugins.filter Iepakojums"
 
 # lost=['plugins.filter.active'] gained=['plugins.filter.activeD']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.activeD dokera modulis
 msgid "plugins.filter.active\\_docker module"
 msgstr ""
 
@@ -94831,9 +94630,6 @@ msgstr "plugins.filter.get.all.invokable\\ apps modulis"
 
 # lost=['plugins.filter.get.category']
 # gained=['plugins.filter.get.categoryIeraksta']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.get.categoryIeraksta modulis
 msgid "plugins.filter.get.category\\_entries module"
 msgstr ""
 
@@ -94911,9 +94707,6 @@ msgstr "plugins.filter.merge.mapping modulis"
 # modulis
 # lost=['plugins.filter.merge.with']
 # gained=['plugins.filter.merge.withNoklusējuma']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.merge.withNoklusējuma noklusējuma
 msgid "plugins.filter.merge.with\\_defaults module"
 msgstr ""
 
@@ -94954,9 +94747,6 @@ msgid "plugins.filter.sed module"
 msgstr "plugins.filter.sed modulis"
 
 # lost=['plugins.filter.split'] gained=['plugins.filter.splitPieslēguma']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.splitPieslēguma veids
 msgid "plugins.filter.split\\_postgres\\_connections module"
 msgstr ""
 
@@ -94997,9 +94787,6 @@ msgid "plugins.filter.url.join module"
 msgstr "plugins.filter.url.join modulis"
 
 # lost=['plugins.filter.url.to'] gained=['plugins.filter.url.toSaimes']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.filter.url.toSaimes modulis
 msgid "plugins.filter.url.to\\_onion module"
 msgstr ""
 
@@ -95012,9 +94799,6 @@ msgid "plugins.lookup package"
 msgstr "plugins.lookup Iepakojums"
 
 # lost=['plugins.lookup.active'] gained=['plugins.lookup.activealertmanager']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.activealertmanager\ kanālu modulis
 msgid "plugins.lookup.active\\_alertmanager\\_channels module"
 msgstr ""
 
@@ -95048,9 +94832,6 @@ msgstr "plugins.lookup.applications modulis"
 
 # lost=['plugins.lookup.applications']
 # gained=['plugins.lookup.applicationspašreizējais']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.applicationspašreizējais play modulis
 msgid "plugins.lookup.applications\\_current\\_play module"
 msgstr ""
 
@@ -95111,9 +94892,6 @@ msgid "plugins.lookup.compose\\_networks module"
 msgstr "plugins.lookup.compose\\ tīklu modulis"
 
 # lost=['plugins.lookup.compose'] gained=['plugins.lookup.composeTikai']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.composeTikai modulis
 msgid "plugins.lookup.compose\\_only module"
 msgstr ""
 
@@ -95208,9 +94986,6 @@ msgid "plugins.lookup.database\\_consumerless\\_volumes module"
 msgstr "plugins.lookup.database\\ bezpatērētāju apjoma modulis"
 
 # lost=['plugins.lookup.depends'] gained=['plugins.lookup.dependsuz']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.dependsuz moduļa
 msgid "plugins.lookup.depends\\_on module"
 msgstr ""
 
@@ -95260,16 +95035,10 @@ msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr "plugins.lookup.i18n\\ katalogs"
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nSatura']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nSatura modulis
 msgid "plugins.lookup.i18n\\_content module"
 msgstr ""
 
 # lost=['plugins.lookup.i18n'] gained=['plugins.lookup.i18nParauga']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.i18nParauga modulis
 msgid "plugins.lookup.i18n\\_sample module"
 msgstr ""
 
@@ -95377,9 +95146,6 @@ msgid "plugins.lookup.playwright\\_workers module"
 msgstr "plugins.lookup.playwright\\ workers modulis"
 
 # lost=['plugins.lookup.postgres'] gained=['plugins.lookup.postgresLibraries']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.postgresLibraries modulis
 msgid "plugins.lookup.postgres\\_libraries module"
 msgstr ""
 
@@ -95407,9 +95173,6 @@ msgid "plugins.lookup.resource module"
 msgstr "plugins.lookup.resource modulis"
 
 # lost=['plugins.lookup.role'] gained=['plugins.lookup.roleSubnets']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: plugins.lookup.roleSubnets modulis
 msgid "plugins.lookup.role\\_subnets module"
 msgstr ""
 
@@ -95727,9 +95490,6 @@ msgstr "qdrant nav par patērētāju pasūtītājiem, tikai divas motora aptvero
 
 # BAR ghcr.io/mastodon/mastodon - "mastodons/mastodons docker.iopostgres
 # gained=['"', 'docker.iopostgres']
-# translation-refused: libretranslate protected-span lost=['docker.io']
-# nocheck: url
-# translation-rejected: quay.io/keycloak/keycloak -  BAR  keycloak/keycloak
 msgid "quay.io/keycloak/keycloak -> keycloak/keycloak ghcr.io/mastodon/mastodon -> mastodon/mastodon docker.io/postgres        -> postgres postgres                  -> postgres"
 msgstr ""
 
@@ -98749,9 +98509,6 @@ msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr "utils.cleanup.nginx\\ vhosts modulis"
 
 # lost=['utils.cleanup.pycache'] gained=['utils.cleanup.pycacheTikai']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.cleanup.pycacheTikai modulis
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
 msgstr ""
 
@@ -99092,9 +98849,6 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir modulis"
 
 # lost=['utils.env.handlers.infinito.running']
 # gained=['utils.env.handlers.infinito.runninguz']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.runninguz iepakojuma
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr ""
 
@@ -99109,9 +98863,6 @@ msgstr "utils.env.handlers.infinito.running\\ on.github modulis"
 
 # lost=['utils.env.handlers.infinito.swarm']
 # gained=['utils.env.handlers.infinito.swarmnfs']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.env.handlers.infinito.swarmnfs pakotne
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr ""
 
@@ -99489,9 +99240,6 @@ msgstr "utils.manager Iepakojums"
 
 # lost=['utils.manager.credential']
 # gained=['utils.manager.credentialAtslēgas']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.manager.credentialAtslēgas modulis
 msgid "utils.manager.credential\\_key module"
 msgstr ""
 
@@ -99552,9 +99300,6 @@ msgid "utils.networks.attachments module"
 msgstr "utils.networks.attachments modulis"
 
 # lost=['utils.networks.lookup'] gained=['utils.networks.lookupKonteksta']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.networks.lookupKonteksta modulis
 msgid "utils.networks.lookup\\_context module"
 msgstr ""
 
@@ -99872,9 +99617,6 @@ msgstr "utils.tests.swarm.derive\\ ietver moduli"
 
 # lost=['utils.tests.swarm.extend']
 # gained=['utils.tests.swarm.extendinventarizācijas']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.extendinventarizācijas modulis
 msgid "utils.tests.swarm.extend\\_inventory module"
 msgstr ""
 
@@ -99905,9 +99647,6 @@ msgstr "utils.tests.swarm.write.extras modulis"
 
 # lost=['utils.tests.swarm.write.hosts']
 # gained=['utils.tests.swarm.write.hostsIeraksta']
-# translation-refused: libretranslate protected-span
-# nocheck: url
-# translation-rejected: utils.tests.swarm.write.hostsIeraksta modulis
 msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr ""
 
@@ -99916,9 +99655,6 @@ msgid "utils.tls\\_common module"
 msgstr "utils.tls\\ kopējais modulis"
 
 # gained=['utils.torSaimes']
-# translation-refused: libretranslate protected-span lost=['utils.tor']
-# nocheck: url
-# translation-rejected: utils.torSaimes modulis
 msgid "utils.tor\\_onion module"
 msgstr ""
 
@@ -100324,9 +100060,6 @@ msgid "{{ lookup('container_deploy') | indent(4) }}                # topology de
 msgstr "{{ lookup('container_deploy') | indent(4) }} # topoloģija noklusējuma {{ lookup('container_deploy', replicas=1) | indent(4) }} Nesējmašīna {{ lookup('container_deploy', replicas=n) | indent(4) }} # precīzi; '' = noklusējums"
 
 # gained=['-/tmp/email_sent']
-# translation-refused: libretranslate protected-span lost=['email_sent']
-# nocheck: url
-# translation-rejected: {{ lookup('container_mail_marker') }} -/tmp/email_sent
 msgid "{{ lookup('container_mail_marker') }}   -> /tmp/email_sent"
 msgstr ""
 
@@ -100416,9 +100149,6 @@ msgstr "“Viedā noklusējuma”:"
 msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr "י️ **Versijas loģika** Atzīmēt pārlūka kešatmiņu"
 
-# translation-refused: libretranslate empty
-# nocheck: url
-# translation-rejected:
 msgid "⏳ Wait for asynchronous resources to become available"
 msgstr ""
 

@@ -289,9 +289,6 @@ msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, 
 msgstr "cache pull-through Cluster-local per l'imaging di base Docker Hub condiviso, il taglio di trasferimenti duplicati e limiti di velocità"
 
 # (Claude Code♪ Cursor♪)
-# translation-refused: libretranslate added-span lost=[] gained=['♪']
-# nocheck: url
-# translation-rejected: Agenti di codifica installati sulla stazione di lavoro
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""

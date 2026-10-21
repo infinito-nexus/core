@@ -617,9 +617,6 @@ msgstr "**Totes les rutes restants canviades `roles/<role>/...`**: els rols canv
 # estableix `email_domains = "{{ DOMAIN_PRIMARY }}"`)tan sols els nodes d'
 # onion; el transport d' un node d' esborrat existent està fora de l' àmbit
 # (DN base + totes les identitats canviarien).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Res de res:** un torn parcial (Web onion, identitat
 # translation)2- Coincidència de correu- proxy
 # ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2)
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
@@ -1090,9 +1087,6 @@ msgstr "**S' ha endurit l' accés a l' usuari SSH:** Les tecles de còpia de seg
 msgid "**Backup/cleanup services are more reliable:** run-once flags execute earlier, user-backup is an explicit dependency, and cleanback now uses a configurable backups root and keeps the newest backups by default (force-keep=3)."
 msgstr "**Els serveis de còpia de seguretat/ neteja són més fiables:** Executa els indicadors abans, user-backup és una dependència explícita, i la neteja ara usa una arrel configurable de còpies de seguretat i manté les còpies de seguretat més noves per omissió (força- Keep=3)."
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **Backupes sobreviven a un fitxer truncat mitjana
 # copia.** *baudolo* 7.0.2 permet que la copia de control parada repreplaceAll
 # una pre-copiat viva que un contingut escrit romant mitjan a rsync, què
 # abortava la copia de seguretat.**.
@@ -2886,9 +2880,6 @@ msgid "**Description:** Federated chess server for playing and following rule-va
 msgstr "**Descripció:** Servidor d'escacs Federats per jugar i seguir jocs validats de regles sobre l'activitatPub a través de la Federivers"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **Descripció:** Name
 msgid "**Description:** Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
 
@@ -4922,9 +4913,6 @@ msgstr "**Punter complet:** Executa `container system prune -a -f` per reclamar 
 # 4correspondbyte UTF UTF UTF UTF UTFName8, permetent l'emmagatzematge d'
 # emojiis, símbols complementaris, i tots els scripts globals sense pèrdua de
 # dades.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Implementació completa d' Unicode**: `utf8mb4` és l'
 msgid "**Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss."
 msgstr ""
 
@@ -4975,9 +4963,6 @@ msgstr "**Amarrat complet:** Compon la pila amb un volum de dades dedicat (`jira
 # translated-by: libretranslate
 # estàndards moderns s'han convergint a UTF UTF UTF UTF UTF UTF8; usant
 # `utf8mb4` Evita els reptes de migració més tard.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Blémplosa de futur:** Les aplicacions i els
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
 msgstr ""
 
@@ -6524,9 +6509,6 @@ msgstr "**Funció de marcador:** Les Carries no tenen tasques; selecciona quines
 msgid "**Marketing & Automation:** Create email campaigns, marketing automation workflows, and social media management integrated with CRM data."
 msgstr "**Automatització:** Creeu campanyes de correu electrònic, fluxs de treball de màrqueting i gestió de xarxes socials integrats amb dades CRM."
 
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: **Marko Pjevac, Kevin Veen-Birkenbach**
 msgid "**Marko Pjevac, Kevin Veen-Birkenbach**"
 msgstr ""
 
@@ -6843,9 +6825,6 @@ msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termin
 msgstr "**NGINX invers intermediari:** Name `/cool/` camins."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: **NGINX invers intermediari:** Name ``/cool/`` camins.
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
 msgstr ""
 
@@ -6949,9 +6928,6 @@ msgstr "**Natiu en totes les edicions** (Incl. En brut): LDAP \"connections\" Si
 # (``enable-prepl-server``) in ``tasks/main.yml`` 1] ``create-profile`` per un
 # perfil nou, ``update-profile`` per establir la contrasenya quan ja s' ha
 # creat una entrada alimentada, la trampa de botes s' omet sota OIDC.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Natiu** La connexió per correu/ contrasenya local és
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the ``sso`` service flag. ``PENPOT_FLAGS`` renders ``enable-login-with-password`` / ``disable-login-with-password`` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the ``administrator`` profile via the backend PREPL (``enable-prepl-server``) in ``tasks/main.yml`` — ``create-profile`` for a fresh profile, ``update-profile`` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
@@ -6965,9 +6941,6 @@ msgstr ""
 # `tasks/main.yml` 1] `create-profile` per un perfil nou, `update-profile` per
 # establir la contrasenya quan ja s' ha creat una entrada alimentada, la
 # trampa de botes s' omet sota OIDC.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Natiu** La connexió per correu/ contrasenya local és
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS` renders `enable-login-with-password` / `disable-login-with-password` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the `administrator` profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` — `create-profile` for a fresh profile, `update-profile` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
 msgstr ""
 
@@ -7093,9 +7066,6 @@ msgstr "**Sense configuració sense una clau:** El fitxer només està escrit un
 msgid "**No configuration without a key:** the settings file is written only once both the gateway URL and the key are set."
 msgstr "**Sense configuració sense una clau:** El fitxer d' arranjament només s' escriu una vegada que s' estableix l' URL del portal i la clau."
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **No diff at all**, OR **any other changed path
 # outside `roles/<role>/...`**, OR **only skipped paths**: no whitelist is
 # set, so the full deploy across the workflow's scope runs.**.
 msgid "**No diff at all**, OR **any other changed path outside `roles/<role>/...`**, OR **only skipped paths**: no whitelist is set, so the full deploy across the workflow's scope runs."
@@ -7150,9 +7120,6 @@ msgid "**No state changes beyond install:** Does not enable services or write pe
 msgstr "**No hi ha canvis d' estat més enllà d' instal· lar:** No habilita els serveis o escriu la configuració per usuari OBS."
 
 # noqa:`, `# shellcheck …`, `# type: ignore`, `# pragma: no cover`.. etc.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **No comprovar la directiva** 1] `# nocheck:`, `#
 msgid "**Nocheck directive** — `# nocheck:`, `# noqa:`, `# shellcheck …`, `# type: ignore`, `# pragma: no cover`, etc."
 msgstr ""
 
@@ -7666,9 +7633,6 @@ msgid "**Optional web dashboard:** With `services.webui.enabled` set, the dashbo
 msgstr "**Tauler web opcional:** Amb `services.webui.enabled` set, el tauler funciona dins del contenidor de l' agent i es publica a l' arrel del subdomini. Per omissió està apagat. Veure [Tauler web](#web-dashboard)."
 
 # comodins (experimental) 1]️
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Opcionalment** Inclou una plantilla de redirecció de
 msgid "**Optionally** include a wildcard redirect template (experimental) ⭐️"
 msgstr ""
 
@@ -7732,7 +7696,6 @@ msgstr "**Jo mateix:** Quan `web-svc-coturn` forma part del desplegament, WebRTC
 msgid "**Owned per role:** Each consumer declares one table under its own name, so rules are added and retired with the role that needs them."
 msgstr "**pròpiament per paper:** Cada consumidor declara una taula sota el seu propi nom, així que les regles s'afegiran i es retiren amb el paper que les necessita."
 
-# translation-refused: libretranslate damaged-span
 msgid "**Owner provisioned on every deploy:** Once the hub answers, the deploy runs ``files/python/provision.py`` inside the container with ``HA_OWNER_ONLY=1``. On a fresh hub the script creates the owner from the platform administrator’s username and ``credentials.administrator_password``, names the hub after the corporate design title when the design service is on, and closes the remaining onboarding steps. On every later deploy it signs in with the same credentials and reports no change. When the hub refuses them, the deploy writes the password into the hub’s auth store with Home Assistant’s ``auth`` script, restarts the hub and signs in again. Both calls receive their values on standard input."
 msgstr ""
 
@@ -8399,18 +8362,12 @@ msgstr "**Repositori Cloning:** Recupera automàticament el darrer repositori or
 # translated-by: libretranslate
 # resolen l'entorn ``ref``, La mateixa publicació instal· la la la la mateixa
 # versió de l'Iinter en cada màquina i en cada CI.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Instal·lacions reproducibles:** Totes les eines
 msgid "**Reproducible installs:** every tool resolves to the pinned ``ref``, so the same commit installs the same linter version on every host and in every CI run."
 msgstr ""
 
 # translated-by: libretranslate
 # resolen l'entorn `ref`, La mateixa publicació instal· la la la la mateixa
 # versió de l'Iinter en cada màquina i en cada CI.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Instal·lacions reproducibles:** Totes les eines
 msgid "**Reproducible installs:** every tool resolves to the pinned `ref`, so the same commit installs the same linter version on every host and in every CI run."
 msgstr ""
 
@@ -8676,9 +8633,6 @@ msgstr "**Surnner-container encapsulat.** MDC' s `ansible-playbook setup.yml` Ex
 # Ansibles, de manera que el MDAD pot posar la seva pròpia ``ansible-core`` /
 # ``community.docker`` / ``community.general`` versions sense xocar amb
 # l'Infinitots. Els munts del llançador:
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Surnner-container encapsulat.** MDAD 1]s
 msgid "**Runner-container encapsulation.** MDAD’s ``ansible-playbook setup.yml`` invocation runs inside a dedicated sub-container (image: ``services.matrix.runner.image``, built from ``files/flavor/ansible/runner/Dockerfile``). This isolates MDAD’s Ansible runtime from the Infinito-Nexus deploy container’s Ansible, so MDAD can pin its own ``ansible-core`` / ``community.docker`` / ``community.general`` versions without colliding with Infinito’s. The runner mounts:"
 msgstr ""
 
@@ -8789,9 +8743,6 @@ msgstr "**El sabor de SSO és `oauth2`** (oauth2- Un cotxe lateral contra Keyclo
 # miralls [`web-app-openproject`](../../roles/web-app-openproject/)Pont de
 # capçalera SSO (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gate capçalera
 # confiança).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **El sabor de SSO és `oauth2`** (oauth2- Al port de
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
 msgstr ""
 
@@ -8817,9 +8768,6 @@ msgstr "**SSO mitjançant Keycloak:** S' ha configurat automàticament en el pri
 # senyal i en problemes n8La galeta de la sessió n és de manera que cada
 # Keycloak L' usuari arriba directament a l' editor de flux de treball, sense
 # segon, no8step de connexió n- local.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **SSO via Oauth2-El proxy amb auto-provisionació:** V1
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
 msgstr ""
 
@@ -8833,9 +8781,6 @@ msgstr ""
 # problemes n8n zeptòmetres la galeta de la sessió, per tant cada Keycloak L'
 # usuari arriba directament a l' editor de flux de treball, sense segon,
 # no8step de connexió n- local.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **SSO via Oauth2-El proxy amb auto-provisionació:** V1
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
 msgstr ""
 
@@ -9587,9 +9532,6 @@ msgstr "**Declaració estrictament:** Falta `storage.nfs.server` o falla la col�
 # vhostrting funciona exactament com si fos clarnet. ([spec d'
 # adreça](https://spec.torproject.org/address-spec), [RFC 7686
 # 1]2](https://www.rfc-editor.org/rfc/rfc7686.html))
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Subdomines:** `sub.<addr>.onion` Rutes fins a la
 msgid "**Subdomains:** `sub.<addr>.onion` routes to the **same** hidden service; the client sends the full `Host:` header → vhost routing works exactly like clearnet. ([address-spec](https://spec.torproject.org/address-spec), [RFC 7686 §2](https://www.rfc-editor.org/rfc/rfc7686.html))"
 msgstr ""
 
@@ -9924,9 +9866,6 @@ msgstr "**La WebUI (WebAdmin) El paquet està organitzat pel controlador.** Salt
 # d'usuari de la plataforma 2001- 2003, no aquest cablejat, i la cobertura de
 # Playwright ho reflecteix: demostra que tots els grups de gràcia veuen burg i
 # el grup no veu res de KBugn, no el cas selectiva.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **La ``mcp`` paper és concedit per plataforma, no per
 msgid "**The ``mcp`` role is granted per platform, not per application.** A user’s ``roles:`` list carries role names only, and ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform’s user model, not this wiring, and the Playwright coverage reflects it: it proves “all groups sees all servers” and “no group sees none”, not the selective case."
 msgstr ""
 
@@ -10404,9 +10343,6 @@ msgstr "**Fitxers sense rastrejar i la porta.** Lints que enumera a través de `
 # comportament en temps d' execució. Aquest valor per omissió s' aplica només
 # als adds automàtics, que NO anul· la la la regla auto- keep- partner per a
 # la integració deliberadament-wired (Decisió 5).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **Actualitza el comportament PP.** El flux d'
 msgid "**Update PR behaviour.** The scheduled update workflow MAY open or refresh an update pull request for addon version bumps and newly discovered catalog entries. Addon entries *discovered by update automation* MUST be added disabled by default (`enabled: false`) and MUST NOT silently enable new runtime behaviour. This hard-off default applies to auto-discovered addons only; it does NOT override the auto-enable-with-partner rule for deliberately-wired integrations (Decision 5)."
 msgstr ""
 
@@ -10428,9 +10364,6 @@ msgstr "**Usa ordres Artisan:** Els paràmetres de píxel estan construïts a La
 # amb entorns d' escriptori com [GNOME](https://en.wikipedia.org/wiki/GNOME)
 # Excel·lent seguretat. (Aprèn més sobre [Xifrat del
 # disc](https://en.wikipedia.org/wiki/Disk_encryption) A la Viquipèdia.)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Usa els sistemes encriptats** Vostè ha de fugir.
 msgid "**Use Encrypted Systems** You SHOULD run Infinito.Nexus only on systems with full disk encryption. For example, Linux distributions such as [Manjaro](https://manjaro.org/) (based on ArchLinux) with desktop environments like [GNOME](https://en.wikipedia.org/wiki/GNOME) provide excellent security. (Learn more about [disk encryption](https://en.wikipedia.org/wiki/Disk_encryption) on Wikipedia.)"
 msgstr ""
 
@@ -10503,9 +10436,6 @@ msgstr "**Propietat de l' usuari:** El fitxer pertany a l' usuari de l' estació
 # l' usuari i usuaris normals, igual que les terres KDEDIRS directament en n8n
 # shanbes pròpia superfície de flux de treball sense segon, n8step de connexió
 # n- local.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **V1 (SSO):** La oauthCity name (optional, probably
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
 msgstr ""
 
@@ -10517,9 +10447,6 @@ msgstr ""
 # `users.administrator.email`), així que cada Keycloak l' administrador de l'
 # usuari i usuaris normals, igual que les terres KDEDIRS directament en
 # n8superfície de flux de treball sense segon, n8step de connexió n- local.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **V1 (SSO):** La oauthCity name (optional, probably
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
 msgstr ""
 
@@ -10732,9 +10659,6 @@ msgstr "**Per què aquest plató?** [Debian](https://www.debian.org) És preferi
 # per API Punts d' acabament, mai per a la sessió web. L' ldaphauth addon es
 # manté habilitat només com a una de les primeres botes que materialitza el
 # `friendica.user` fila des de l' espai obert.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Per què:** Autica actualment autenticarà en dos
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
 msgstr ""
 
@@ -11002,9 +10926,6 @@ msgstr "**`disable-onboarding`** és dins `PENPOT_FLAGS` Per tant els usuaris at
 # Objectius (Hola. `make compose-exec`, o els objectius específics del paper
 # `Makefile` exposcions).. Si no `make` L'objectiu cobreix el que necessites,
 # pregunta a l'operador enlloc de caure en brut `docker exec`.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: **`docker exec` És PERBIDDEN. ⛔** No es pot invocar
 msgid "**`docker exec` is FORBIDDEN. ⛔** You MUST NEVER invoke `docker exec` (nor nested `docker exec … docker exec …` into the DiD stack) directly. Always reach the live stack through `make` targets (e.g. `make compose-exec`, or the role-specific targets the `Makefile` exposes). If no `make` target covers what you need, ask the operator instead of falling back to raw `docker exec`."
 msgstr ""
 
@@ -11143,9 +11064,6 @@ msgstr "**`version`** (cadena):"
 # aplicació auto- màquina a la plataforma, reutilitzant la identitat actual
 # del protocol AT proporcionada per
 # [`web-app-bluesky`](../../roles/web-app-bluesky/) Com a font de PDS/OAuth.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **`web-app-atmo`** 1] un paper que executa una
 msgid "**`web-app-atmo`** — a role that runs a self-hosted atmo appview on the platform, reusing the existing AT Protocol identity provided by [`web-app-bluesky`](../../roles/web-app-bluesky/) as the PDS/OAuth source."
 msgstr ""
 
@@ -11221,9 +11139,6 @@ msgstr "**back- root** (un directori) recovery descobrir + recuperar `nfs → vo
 # administrador compartit (Solucionat en b97cfunit description in lists8888) i
 # la seva variant clearnet retorna HTTP 500 app / api/v1/ App/ user, perquè
 # encara està obert.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Exclusions de línia** 1] `web-app-fider` i
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
@@ -11275,9 +11190,6 @@ msgstr "**descripció**: Aggregate NGINX sub-filter i afegeix el seguiment de Ma
 msgid "**description**: Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "**descripció**: Entorn d'escriptori Agregate cafeïna, extensions shells i terminal en una configuració completa del GNOME en Linux"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **descripció3: All-in-one Stalwart mail server amb
 # SMTP, IMAP, JMAP, POP**, ManageSieve, CalDAV, CardDAV i filtre
 # intranquilitat incorporat**
 msgid "**description**: All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
@@ -11313,9 +11225,6 @@ msgstr ""
 "**descripció**: Blender estàpost de càmara instal·lada a malla, connectada als agents del host per través del Protocol de Contexte de Model\n"
 "---"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **Descripció**: Interfície d'administració del
 # navegador per al gestor del SeaweedFS object store, serveixent els filers i
 # consolas mestre agafats d'atractors SSO **
 msgid "**description**: Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
@@ -11353,9 +11262,6 @@ msgstr "**descripció**: paper central de càrrega per a la gestió de serveis c
 msgid "**description**: Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr "**descripció**: Intermediari de sortida central per a un signe d' una sola acció a través de totes les aplicacions OIDC connectades, amb retalls Nginx i un estat UI en directe"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **Descripció**: Rol central d'orquestació de correus
 # per als Infinito.Nexus, integrant Email SaaS, msmtp i un relè local SMTP
 # opcional**
 msgid "**description**: Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
@@ -11556,9 +11462,6 @@ msgid "**description**: Embodied robot platform for Hermes on a dedicated, netwo
 msgstr "**descripció**: plataforma robot embodida per a Hersmes en un dispositiu dedicat, de xarxa amb un únic aparell"
 
 # client MC (CP) en contra del proveïdor complet
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **descripció**: Final de la convergència de cada
 msgid "**description**: End-of-play convergence of every deployed MCP client against the complete provider set"
 msgstr ""
 
@@ -11761,9 +11664,6 @@ msgstr "**descripció**: un repetidor de l' únic Postfix de només reenviar cor
 msgid "**description**: Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "**descripció**: Constructor visual de codi baix per crear, provar i publicar fluxos de treball LLLM i ARG com a punts de final HTTP"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **descripció**: Mecanitzada per a traduir des de
 # pipelines que la fan servir directament**
 msgid "**description**: Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr ""
@@ -11847,10 +11747,7 @@ msgstr "**descripció**: Capa d' objecte per a la resolució del dorsal SeaweedF
 msgid "**description**: On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "**descripció**: En l' automatització de l' objectiu per crear i activar l' espai d' intercanvi mitjançant un script de fitxer d' intercanvi clonat"
 
-# translation-refused: libretranslate added-span lost=[] gained=['"1"',
 # '</x>']
-# nocheck: url
-# translation-rejected: **descripció**: Eдин endpoint de traducció que selsaix
 # això mateix i prefereix una línia human revisada</x id="1"></x>
 msgid "**description**: One translation endpoint that picks the engine itself and prefers a reviewed human string"
 msgstr ""
@@ -12014,9 +11911,6 @@ msgstr "**descripció**: Provisioning paper per a configurar l' entorn per usuar
 msgid "**description**: Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "**descripció**: Public REST API servint dades de rol, història i traduccions Infinito.Nexus per cada àrbitre de nucli i les seves forquilles"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **descripció**: Vhost públic que exposa la System One
 # decisió API d'svc-ai-s1**
 msgid "**description**: Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
@@ -12382,9 +12276,6 @@ msgstr "**descripció**: El dimoni Tor ha publicat el node com a v3 servei d' ce
 msgid "**description**: Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "**descripció**: client de xarxa Tor i carregador de navegador per a navegació web anònima i privadesa"
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: **descripció**: Memòria de traducció, glosaries i la
 # vegada d'aprovació humana subjacent a la xarxa de traducció**
 msgid "**description**: Translation memory, glossaries and the human review workflow behind the translation gateway"
 msgstr ""
@@ -12458,9 +12349,6 @@ msgstr "**dispositiu** (`/dev/sdb1`, fitxer d' imatge) primer pas del dispositiu
 # distribució en lloc de demostrar-ne una i reclamar res sobre els altres
 # quatre, i una fila vermella encara noms de la distribució exacta que va
 # morir.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **DestroCity name (optional, probably does not need a
 msgid "**distro** -- which declared distribution the row deploys on. Per row rather than per run, so one sweep proves every distribution instead of proving one and claiming nothing about the other four, and a red row still names the exact distribution it died on."
 msgstr ""
 
@@ -12611,9 +12499,6 @@ msgstr "**https de la ceba i l'IdP estrangulació i REJECTED, no re-deriveive.**
 # Les galetes segures són acceptades sobre una ceba senzilla). El següent pas
 # quan torna a fallar post-fix: aïllar l' URL post- submit Keycloak redirecció
 # (galeta perduda) Del formulari contra el renderitzat de control lent.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **Especificació de alternativa local d' joomla** 1]
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
 msgstr ""
 
@@ -12641,9 +12526,6 @@ msgstr "**Vermell local, verd CI**: normalment l' estat local el llançador come
 # (pressió de recurs/ prune després de ~3h)No hi ha codi fix derivable. Si es
 # repeteix, investiguen com un veritable accident de estomo. (Registres de
 # contenidors, mem_limit).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: **flocs de salut del recipient matomo (lot " checkmk
 msgid "**matomo container health flake (checkmk batch)** — in the checkmk job the 4th deploy play failed at `Wait for Matomo container to be healthy` with `container inspect: map has no entry for key \"State\"` for the whole retry window (container started, then vanished — likely crash + prune). Plays 1–3 in the SAME job deployed matomo healthy, so classified transient (resource/prune pressure after ~3h). No code fix derivable. If it recurs, investigate as a real matomo crash/OOM (container logs, mem_limit)."
 msgstr ""
 
@@ -12813,9 +12695,6 @@ msgid "*backup-docker-to-local* (*baudolo*): 7.0.2 to 7.1.1"
 msgstr ""
 
 # probably does not need a translation)*): advers a 7.0.1, via 6.0.0 i 7.0.0
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: *a local de reserva* (*baudoloCity name (optional,
 msgid "*backup-docker-to-local* (*baudolo*): pinned to 7.0.1, via 6.0.0 and 7.0.0"
 msgstr ""
 
@@ -12824,9 +12703,6 @@ msgid "*backup-docker-to-local*: 3.1.1 to 3.1.3"
 msgstr "*a local de reserva*: 3.1.1 a 3.1.3"
 
 # translation)*: advers a 3.4.1
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: *baudoloCity name (optional, probably does not need a
 msgid "*baudolo*: pinned to 3.4.1"
 msgstr ""
 
@@ -14463,30 +14339,18 @@ msgid ":meth:`RoleDisplayName.decode` accepts a raw role id unchanged, so every 
 msgstr ""
 
 # matrius orquestrat
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.builder` 1] :func:`build_dev_inventory` +
 msgid ":mod:`.builder`         — :func:`build_dev_inventory` + matrix orchestrator"
 msgstr ""
 
 # argifica el bucle d' anàlisi i la orquestra
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.cli` 1] :func:`add_parser` + :func:`handler`,
 msgid ":mod:`.cli`   — :func:`add_parser` + :func:`handler`, arg parsing and the round/pass orchestration loop"
 msgstr ""
 
 # verificació de còpia de seguretat/ recuperació
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.drill` 1] :func:`_maybe_recover_drill`,
 msgid ":mod:`.drill` — :func:`_maybe_recover_drill`, backup/recover verification"
 msgstr ""
 
 # ``CombinedResolver``Resolució d' inclusió determinada
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.legacy_resolver` 1]
 msgid ":mod:`.legacy_resolver` — ``CombinedResolver``-driven include resolution"
 msgstr ""
 
@@ -14495,30 +14359,18 @@ msgid ":mod:`.payload`         — variant payload pick + ``--vars`` bake"
 msgstr ":mod:`.payload` variant variant del pagament + ``--vars`` Fet"
 
 # Netejació d' entitat inter- al voltant
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.purge` 1] :func:`_purge_app_entities`,
 msgid ":mod:`.purge` — :func:`_purge_app_entities`, inter-round entity cleanup"
 msgstr ""
 
 # inter- passa
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.rotate` 1] :func:`_rotate_credentials`, Rotació
 msgid ":mod:`.rotate` — :func:`_rotate_credentials`, inter-pass credential rotation"
 msgstr ""
 
 # contenidor
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.run` 1] :func:`_run_deploy`, Una passa dins del
 msgid ":mod:`.run`   — :func:`_run_deploy`, one deploy pass inside the container"
 msgstr ""
 
 # ``PlanEntry`` tipus
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: :mod:`.spec` 1] :class:`~.spec.DevInventorySpec` +
 msgid ":mod:`.spec`            — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` type"
 msgstr ""
 
@@ -14547,16 +14399,10 @@ msgid "<https://spec.torproject.org/address-spec> — v3 address + key formats"
 msgstr "<https://spec.torproject.org/address-spec> Manveen v3 adreça + formats de tecla"
 
 # `.onion` Domini especial d' ús
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: <https://www.rfc-editor.org/rfc/rfc7686.html> 1]
 msgid "<https://www.rfc-editor.org/rfc/rfc7686.html> — `.onion` special-use domain"
 msgstr ""
 
 # Context segur
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: <https://www.w3.org/TR/secure-contexts/> 1] `.onion`
 msgid "<https://www.w3.org/TR/secure-contexts/> — `.onion` secure context"
 msgstr ""
 
@@ -14628,9 +14474,6 @@ msgstr "Una carpeta de categoria de CLI pot contenir- ne una `README.md` Això d
 msgid "A CLI command is a Python package directory under cli/ that contains __main__.py."
 msgstr "Una ordre CLI és un directori de paquets Python sota cli/ que conté   .py."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aprovació d'un CODEConstellation name (optional)
 msgid "A CODEOWNER MUST approve"
 msgstr ""
 
@@ -14662,9 +14505,6 @@ msgstr "Un pont Matrix Matrix es converteix en una entrada addon per xarxa ponti
 msgid "A Matrix user id is ``@<localpart>:<server_name>``. Six templates of web-app-matrix assembled it by hand, which is how the MDAD flavor came to use a different server name than the compose flavor. The shape lives here and the server name stays in ``MATRIX_SERVER_NAME``, so a caller supplies only the localpart and the homeserver it belongs to."
 msgstr "A Matrix l' identificador d' usuari és ``@<localpart>:<server_name>``. sis plantilles de web-app-matrix L' ha muntat a mà, que és com va arribar l' sabor MDAD per usar un nom diferent del servidor que compondre el gust. La forma viu aquí i el nom del servidor es queda en ``MATRIX_SERVER_NAME``, així que un cridador només proporciona la part local i el servidor de casa al que pertany."
 
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: A MoodleName.
 msgid "A Moodle-compatible plugin pinned, an exact web-service function allowlist, a restricted service user, and proof that unlisted functions cannot be invoked."
 msgstr ""
 
@@ -16128,9 +15968,6 @@ msgstr "Un flux de treball planificat (`cron-*.yml`) gotes `Category:` esquema: 
 # cada còpia de seguretat també aboca una instantània SQL consistent via
 # [baudoloCity name (optional, probably does not need a
 # translation)](https://github.com/kevinveenbirkenbach/backup-docker-to-local).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Una còpia planificada, desordenant totes les dades del
 msgid "A scheduled, deduplicating backup of every Docker container's data on this host to a local backup directory. File payloads are captured with rsync hard-link snapshots; databases register themselves into a central seed file so each backup run also dumps a consistent SQL snapshot via [baudolo](https://github.com/kevinveenbirkenbach/backup-docker-to-local)."
 msgstr ""
 
@@ -16506,9 +16343,6 @@ msgstr "Un mur `config.servers` Potser es pot deixar buit a l' auto-fill amb els
 # que són presents en els ordinadors actuals ``group_names``. Cada altre camp
 # de ``wall-config.json`` es llegeix verbatim des de la paret, Bushs
 # ``config`` bloquejar.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Un mur Mur Mur wallss ``config.servers`` Pot estar
 msgid "A wall’s ``config.servers`` may be left empty to auto-fill with the active Mastodon-API-compatible Fediverse siblings (``web-app-mastodon``, ``web-app-pixelfed``, ``web-app-friendica``) that are present in the current host’s ``group_names``. Every other field of ``wall-config.json`` is read verbatim from the wall’s ``config`` block."
 msgstr ""
 
@@ -16805,9 +16639,6 @@ msgstr "Compte / mail / metadata"
 msgid "Accounts and aliases are provisioned from the inventory by this role; mailboxes created only inside Mailu's admin UI MUST be added to the inventory first. Sieve filters and CalDAV/CardDAV data are out of scope."
 msgstr "Els comptes i els àlies es preveuen de l' inventari per aquest paper; les bústies de correu només creades dins MailuPrimer s'afegeix a l'inventari. Filtres Sieve i dades CalDAV/cardDAV estan fora d' àmbit."
 
-# translation-refused: libretranslate duplicate
-# nocheck: url
-# translation-rejected: Els comptes i els àlies es preveuen de l' inventari
 # per aquest paper; les bústies de correu només creades dins MailuPrimer
 # s'afegeix a l'inventari. Filtres Sieve i dades CalDAV/cardDAV estan fora d'
 # àmbit.
@@ -17184,9 +17015,6 @@ msgstr "S' ha afegit un flux de treball programat/manual per a recuperar l' etiq
 # clau-proveïble, la `PERSONA_*_BLOCKED` contracte, un PLAYWRIGHT_KEEP_ALL
 # Commutador de artefacte, art persisteix per variant i passa, i una columna
 # de temps en la taula de resum
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Va afegir una biblioteca compartida PlaywrightONa que
 msgid "Added a shared Playwright persona library that now drives every web role, parameterized matomo tracker checks, web-svc-logout injection specs via roles_with_service, dashboard dropdown handling, iframe-aware deny checks, keycloak auth-provider exemption, the `PERSONA_*_BLOCKED` contract, a PLAYWRIGHT_KEEP_ALL artefact toggle, persisted artefacts per variant and pass, and a Time column in the summary table"
 msgstr ""
 
@@ -17221,9 +17049,6 @@ msgstr "S'ha afegit un gràfic genèric de grups OIDC a través de l'autoprovisi
 # translated-by: libretranslate
 # RBAC, les especificacions del servei Playwrights, i les WordPress 1]
 # Discourse Flux d' arrodoniment
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: S' ha afegit jeràrquic /roles /<app>/<role> Rutes
 msgid "Added hierarchical /roles/<app>/<role> RBAC paths, service-gated Playwright specs, and the WordPress ↔ Discourse round-trip flow"
 msgstr ""
 
@@ -17540,9 +17365,6 @@ msgid "Administration"
 msgstr "Administració"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Administració 🕵️1]♂️
 msgid "Administration 🕵️‍♂️"
 msgstr ""
 
@@ -18367,9 +18189,6 @@ msgstr "Permet una `roles/*/meta/variants.yml` Les fulles substitueixen d' un at
 # son son. La reserva d'una crida al sistema de resolució estàtica no pot
 # atribut mastodon representa cada servei a través d'una macro que
 # `service_name` és un paràmetre macro.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Permet una `services.<key>.healthcheck` que no
 msgid "Allows a `services.<key>.healthcheck` that no `lookup('container_healthcheck', …)` call renders. Default path: add the lookup to the service block, because an unrendered declaration reads like the service is watched while the compose file carries no probe. Reserved for a call the static resolver cannot attribute — mastodon renders every service through a macro whose `service_name` is a macro parameter."
 msgstr ""
 
@@ -18812,9 +18631,6 @@ msgstr ""
 # aquestes estan segures per a tornar a enjack per a cada construcció. Una
 # construcció que instal· la la la CA addicionalment obté les màquines TLS;
 # `sys-svc-compose`El generador sobreescriure decideix que per imatge.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Una imatge construeix abasta la memòria cau per nom de
 msgid "An image build reaches the cache by hostname, but it cannot verify the frontend's self-signed certificate unless its Dockerfile installs the CA, so only these are safe to hijack for every build. A build that does install the CA additionally gets the TLS hosts; `sys-svc-compose`'s override generator decides that per image."
 msgstr ""
 
@@ -19001,9 +18817,6 @@ msgid "Ansible filter plugin for retrieving application IDs."
 msgstr "Connector de filtre Anable per a recuperar els ID de l' aplicació."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Ansible filter plugin that safely joins URL components from a list."
 msgstr ""
 
@@ -19470,10 +19283,7 @@ msgstr "Les aplicacions expressen directament l' elecció de la base de dades mi
 # electrònics familiaritzats amb SDK i CLIs. Administradors gestiona galls,
 # usuaris i polítiques d'accés a través d'una consola del navegador mentre es
 # manté tot a mà.
-# translation-refused: libretranslate protected-span lost=['3'] gained=['31',
 # ']']
-# nocheck: url
-# translation-rejected: Aplicacions que parlen ManveenS31] (Pixelfed,
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
 msgstr ""
 
@@ -20810,9 +20620,6 @@ msgstr "Comença clar tots els requisits oberts amb el `active-listening` habili
 msgid "Begin by clarifying every open requirement with the `active-listening` skill, then work under the `robot` skill. The task is finished only when the worktree exists and its `.env` has been generated."
 msgstr "Comença clar tots els requisits oberts amb el `active-listening` habilitat, llavors treballa sota la `robot` habilitat. La tasca només s' acaba quan el arbre de treball existeix i la seva `.env` S' ha generat."
 
-# translation-refused: libretranslate lost-token
-# nocheck: url
-# translation-rejected: Keep these terms exactly as they are written:
 # `active-listening`, `cleanup`. ---  Explica cada exigència aviat amb el
 # `active-listening` skill. El procés està complet quan el `cleanup` informe
 # mostri la mesura avui i la mesura amagar i que tothom que ha respondit
@@ -21958,9 +21765,6 @@ msgstr "Per omissió **tot** El treball s' executa en el llançador de GitHub- h
 # (La `pull_request_target` El testimoni encara porta `packages: write`, així
 # que la `🛡️ Trusted` L' etiqueta segueix sent el límit de confiança real per
 # a qualsevol cosa més enllà de la publicació d' imatges.)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Per omissió Monstrosity per a un **no fiable**
 msgid "By default — for an **untrusted** fork PR — the privileged `pull_request_target` build checks out the **base merge ref** (`refs/pull/<N>/merge`) from the base repository: the PR's changes merged onto base, with all workflow and build-orchestration scripts coming from base, never from the fork. Because `actions/checkout` otherwise refuses to fetch a PR ref under `pull_request_target`, the source checkout sets `allow-unsafe-pr-checkout: true`. The untrusted build runs **without organization secrets** — `secrets: inherit` is not passed and it authenticates to GHCR with the per-job `GITHUB_TOKEN` only, so a malicious fork cannot read repository/organization secrets. (The `pull_request_target` token still carries `packages: write`, so the `🛡️ Trusted` label remains the real trust boundary for anything beyond image publication.)"
 msgstr ""
 
@@ -22017,9 +21821,6 @@ msgstr "injecció de confiança CA (`with-ca-trust.sh`)"
 # probably does not need a translation) encrypt_string* Llegeix el text pla
 # des de l' entrada de manera que els valors de l' intèrpret d' ordres, i
 # Mastodon permet la inserida *script- src- eem* pel seu servidor, SPA.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: CA-confiança i OIDC a part de l'autosignament de
 msgid "CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA."
 msgstr ""
 
@@ -22027,9 +21828,6 @@ msgstr ""
 msgid "CA-trust env handlers."
 msgstr "Gestors de confiança env."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: CEDE SEMANICESConstellation name (optional)
 msgid "CACHE SEMANTICS"
 msgstr ""
 
@@ -22481,9 +22279,6 @@ msgid "Caches"
 msgstr "Cau"
 
 # translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: CachingCity name (optional, probably does not need a
 msgid "Caching"
 msgstr ""
 
@@ -22736,9 +22531,6 @@ msgid "Catalog 📚"
 msgstr "Catàleg 📚"
 
 # units (real)3 list/head/get; tradueix i detecta
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Catalog/page/library cerca i aconsegueix; Samount in
 msgid "Catalog/page/library search and get; S3 list/head/get; translate and detect"
 msgstr ""
 
@@ -22926,9 +22718,6 @@ msgstr "Servidor de sortida centralitzada que neteja les galetes i sessions a tr
 msgid "Centralized logout redirection for a unified user experience."
 msgstr "S' ha redireccionat per sortida per a una experiència d' usuari unificat."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Centralized more CI helper logic into reusable scripts and utility modules to reduce workflow duplication"
 msgstr ""
 
@@ -23044,9 +22833,6 @@ msgstr "Pont ChatGPT"
 
 # translated-by: libretranslate
 # translation) 📋
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: CheatshetCity name (optional, probably does not need a
 msgid "Cheatsheet 📋"
 msgstr ""
 
@@ -24482,9 +24268,6 @@ msgid "Code of Conduct 🕊️"
 msgstr "Codi de Conductor 🕊️"
 
 # [CORREDORSConstellation name (optional)](../../../.github/CODEOWNERS).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: El propietari del codi està definit
 msgid "Code ownership is defined in [CODEOWNERS](../../../.github/CODEOWNERS)."
 msgstr ""
 
@@ -24555,10 +24338,7 @@ msgstr "Contrau qualsevol cadena multilínia en una sola línia, retalla espais 
 # Bloc amb un **sabor** discriminador (*iidoc* 1] *oauth2* 1] *saml*, per
 # defecte *iidoc*). Les claus específiques d' Flavor viuen sota *Sí.<flavor>*
 # (*sso.oauth2.{origen,acl.allowed_groups}*, *sso.oidc.plugin*).
-# translation-refused: libretranslate protected-span lost=['allowed_groups']
 # gained=['1', ']', 'acl.allowed_groups']
-# nocheck: url
-# translation-rejected: Plega el paral· lela **oauth2** i **iidoc** Blocs de
 #, python-brace-format
 msgid "Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*)."
 msgstr ""
@@ -25131,9 +24911,6 @@ msgstr "Configura `inet_interfaces = loopback-only` per a restringir el dimoni S
 msgid "Configures a systemd service (and optionally a timer) to execute the restart script."
 msgstr "Configura un servei per sistemaName (i opcionalment un temporitzador) per executar l' script de reinici."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name.
 msgid "Configures a systemd service to run the balancing script."
 msgstr ""
 
@@ -25269,9 +25046,6 @@ msgstr "Construeix un GHCRProvidador de l' argències de CLI analitzades."
 # 'make dotenv' to generate the .env single source of truth}`; nuamount in
 # units (real) `${VAR}` és acceptable només quan el valor és opcional (Hola.
 # `NIX_CONFIG`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Consumeix la variable estrictament via `${VAR:?Run
 #, python-brace-format
 msgid "Consume the variable strictly via `${VAR:?Run 'make dotenv' to generate the .env single source of truth}`; bare `${VAR}` is acceptable only when the value is optional (e.g. `NIX_CONFIG`)."
 msgstr ""
@@ -26321,9 +26095,6 @@ msgstr "No es pot apuntar el cursor a un punt d' acabament personalitzat OpenAI:
 # el seu propi protocol després. L' editor porta un camp URL de base OpenAI,
 # però viu en Cursor1]s la base de dades d'estat en comptes d' un fitxer
 # aquest paper podria representar.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: No es pot assenyalar el cursor EXACTs al punt de final
 # el seu propi protocol després. L'editor porta un autopista OpenAI Base camp
 # URL PROXY, però viu en Cursor1]s la base de dades d'estat en comptes d' un
 # fitxer aquest paper podria representar.
@@ -27363,9 +27134,6 @@ msgstr "Les files de Deplògia un intent pot passar a través de tots els seus t
 
 # ordinadoramount in units (real) Node/Python/Go/Ruby Les cadenes d' eines no
 # s' usen
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: El duploy corre dins de la `infinito` contenidor;
 msgid "Deploy runs inside the `infinito` container; host Node/Python/Go/Ruby toolchains go unused"
 msgstr ""
 
@@ -28138,9 +27906,6 @@ msgstr "Direcció"
 # aamount in units (real) `sidecar`/`external` El servidor obté la seva pròpia
 # entrada de servei i port enlloc de tornar a usar el port primari HTTP de l'
 # aplicació.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Portes direcció el cablejat: a `server` rol només
 msgid "Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role only consumes, a `both` role does either. Implementation precedence is `native > plugin > sidecar > external`; a `sidecar`/`external` server gets its own service entry and port rather than reusing the app's primary HTTP port."
 msgstr ""
 
@@ -29590,9 +29355,6 @@ msgid "Effectively: nothing blocks merge here"
 msgstr "Efectiu: no hi ha bloqueigs aquí"
 
 # translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: EgressCity name (optional, probably does not need a
 msgid "Egress"
 msgstr ""
 
@@ -31770,9 +31532,6 @@ msgstr "Servidor d'escacs Federats per jugar i seguir jocs validats de regles so
 msgid "Federated social and messaging"
 msgstr "social i missatgeria Federed"
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
 
@@ -32604,9 +32363,6 @@ msgstr "Segueix les instruccions des de AGENTS.md, després refactor i optimitza
 # de resultats per objectiu, no el codi de sortida de tub (que és poc fiable),
 # arregla cada fallada a l'arrel i torna a executar fins `make quality` El
 # final verd és fi.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Segueix les instruccions des de AGENTS.md, després
 msgid "Follow the instructions from AGENTS.md, then run `make quality` (the default action of this skill). Stream the output to a log under `/tmp` and iterate: read the per-target result table, not the pipe exit code (which is unreliable), fix every failure at its root, and re-run until `make quality` is green end to end."
 msgstr ""
 
@@ -33589,9 +33345,6 @@ msgstr "Arquitectura mica"
 # need a translation) `saml` L'afon és l'aficionat de la comunitat, l'última
 # recuperació i la compatibilitat de configuració necessita verificació abans
 # de cometre-la com el camí canònica SSO.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Friendica' sCity name (optional, probably does not
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
 msgstr ""
 
@@ -33801,10 +33554,7 @@ msgstr "GITHUB_ACTIONS=true i no Acte -> accions real github"
 
 # GHAA, derivat GITHUB_REPOSITORY_OWNER / LilER / GITHUB_REPOSITORYfatal si és
 # inservible en el GHA.
-# translation-refused: libretranslate protected-span
 # lost=['GITHUB_REPOSITORY'] gained=['GITHUB_REPOSITORYfatal']
-# nocheck: url
-# translation-rejected: GITHUB_REPOSITORY_OWNER: propietari del repositori
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -34249,9 +33999,6 @@ msgid "GnuCash Architecture"
 msgstr "Arquitectura GnuCash"
 
 # need a translation)** Manveen **Configuració**.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Vés a **CachingCity name (optional, probably does not
 msgid "Go to **Caching** → **Configuration**."
 msgstr ""
 
@@ -35284,17 +35031,11 @@ msgstr "INFINITO_CONTAINER: compondre el nom del contenidor del servei derivat I
 
 # local, derivat del var-lib SPOT (INFINITO_DIR_VAR_LIB); mirallsamount in
 # units (real) group_vars/all/05_paths.yml DIR_BACKUPS.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: INFINITO_DIR_BACKUPS: root de còpia de seguretat
 msgid "INFINITO_DIR_BACKUPS: local backup root, derived from the var-lib SPOT (INFINITO_DIR_VAR_LIB); mirrors group_vars/all/05_paths.yml DIR_BACKUPS."
 msgstr ""
 
 # var-lib SPOT (INFINITO_DIR_VAR_LIB); mirallsamount in units (real)
 # group_vars/all/05_paths.yml DIR_SECRETS.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: INFINITO_DIR_SECRETS: secrets màquina dir, derivat del
 msgid "INFINITO_DIR_SECRETS: host secrets dir, derived from the var-lib SPOT (INFINITO_DIR_VAR_LIB); mirrors group_vars/all/05_paths.yml DIR_SECRETS."
 msgstr ""
 
@@ -36496,9 +36237,6 @@ msgid "Improved Ansible portability (pacman → package) and added formatter wor
 msgstr "Portabilitat millorada (paquet del pacman eka) i ha afegit flux de treball formatador."
 
 # translated-by: libretranslate
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: Name
 msgid "Improved CI diagnostics, runner-state dumps, disk / swap handling, image wait logic, and mirror / release backfill workflows for fork-based development"
 msgstr ""
 
@@ -38111,9 +37849,6 @@ msgstr "Comprovacions d'integració que fan complir elsvaris dels `server:` Bloq
 # està intacte i el contracte natiu
 # (`services.prometheus.native_metrics.enabled` 1]
 # `templates/prometheus.yml.j2`) A l'altre costat del paper.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Les proves d'integració que obliguen avariciants de la
 msgid "Integration tests that enforce invariants of the prometheus integration: every web-app/svc role declares the shared `prometheus` service entry, the prometheus role's own nginx + docker-health wiring is intact, and the native-metrics scrape contract (`services.prometheus.native_metrics.enabled` ⇔ `templates/prometheus.yml.j2`) holds across the roles tree."
 msgstr ""
 
@@ -38172,9 +37907,6 @@ msgstr "Proves d' integració que executen connectors d'acció personalitzats a 
 # `<NAME>_SERVICE_ENABLED=`, Cada línia d' entorn es consumeix per un auxiliar
 # d'ensenyament en les especificacions, i `# nocheck: playwright-service-flag`
 # / `# nocheck: playwright-service-gate` Són les úniques supressió.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Proves d' integració que pinten `meta/services.yml` 1]
 msgid "Integration tests that pin the `meta/services.yml` ↔ `templates/playwright.env.j2` ↔ `files/playwright/playwright.spec.js` parity contract: every enabled service surfaces as `<NAME>_SERVICE_ENABLED=`, every env line is consumed by a gating helper in the spec, and `# nocheck: playwright-service-flag` / `# nocheck: playwright-service-gate` are the only suppressions."
 msgstr ""
 
@@ -38221,7 +37953,6 @@ msgstr "Integració amb `sys-ctl-hlth-journalctl` per monitoració riu avall"
 msgid "Integrations"
 msgstr "Integracions"
 
-# translation-refused: libretranslate damaged-span
 msgid "Integrations are **directional**: the row role hosts the flag or the plugin. A bidirectional pair such as `nextcloud` ↔ `openproject` is two declarations, one on each side."
 msgstr ""
 
@@ -38962,9 +38693,6 @@ msgid "Joins a repeated ``MESSAGE`` field into one line before matching."
 msgstr "Uneix a un repetit ``MESSAGE`` camp en una línia abans de coincidir."
 
 # translation) 6 Keycloak Connector OIDC SSOName (`plg_system_keycloak`)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: JoomlaCity name (optional, probably does not need a
 msgid "Joomla 6 Keycloak OIDC SSO plugin (`plg_system_keycloak`)"
 msgstr ""
 
@@ -42564,9 +42292,6 @@ msgstr "lògica d' ordres multilínia en el flux de treball `run:` La pols de bl
 # (optional, probably does not need a translation) `bench --site`) és **fora
 # d' àmbit** per v1. El paper disposicions exactament un lloc (`{{
 # canonical_domain }}`) i un sol ERPNext app install.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Multi-tenància / multi-tit (Fippe' sCity name
 msgid "Multi-tenancy / multi-site (Frappe's `bench --site`) is **out of scope** for v1. The role provisions exactly one site (`{{ canonical_domain }}`) and a single ERPNext app install."
 msgstr ""
 
@@ -43014,9 +42739,6 @@ msgid "Network Tests 🕸️"
 msgstr "Proves de xarxa 🕸️"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Comment
 msgid "Network and dependency handling via shared system roles"
 msgstr ""
 
@@ -44584,9 +44306,6 @@ msgstr ""
 msgid "Only Assist-exposed entities are reachable"
 msgstr "Només les entitats asist- propòsit són accessibles"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Només importa el CODEWORSConstellation name (optional)
 msgid "Only CODEOWNERS matter"
 msgstr ""
 
@@ -44730,9 +44449,6 @@ msgstr "Open WebUIts ``ToolServerConnection`` accepta l'ós, la sessió, system_
 
 # translated-by: libretranslate
 # pàgina d'aterratge (escriptori no nus).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Obre `/app/erpnext` 1] ERPNext Representacions de la
 msgid "Open `/app/erpnext` — ERPNext landing page renders (not bare Frappe desk)."
 msgstr ""
 
@@ -46203,9 +45919,6 @@ msgid "Paths 📂"
 msgstr "Rutes 📂"
 
 # translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: PatreonCity name (optional, probably does not need a
 msgid "Patreon"
 msgstr ""
 
@@ -46435,9 +46148,6 @@ msgstr "Per als fitxers d' arxiu per al cos [CHANGELOG.md](../../CHANGELOG.md). 
 # d'entrada dels serveis, `meta/secrets.yml` (incl. la `default:` camp),
 # perlle `networks:` i peritat `ports` Forma. `run_after`/`lifecycle`
 # Col·loca.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: PergroleCity name (optional, probably does not need a
 msgid "Per-role `meta/<topic>.yml` shape, file-root convention, services-inlining rule, `meta/secrets.yml` (incl. the `default:` field), per-role `networks:` and per-entity `ports` shape, `run_after`/`lifecycle` placement."
 msgstr ""
 
@@ -46723,9 +46433,6 @@ msgstr "Fase"
 msgid "Phase 1 — AT identity wiring"
 msgstr "Fase 1 IETF AT Zacat"
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Fase 1 1] `web-app-atmo` Col·la i serveix (MVP)
 msgid "Phase 1 — `web-app-atmo` deploys and serves (MVP)"
 msgstr ""
 
@@ -47033,9 +46740,6 @@ msgid "Playwright (per [playwright.spec.js contract](../contributing/artefact/fi
 msgstr "Playwrightgreat- britain counties. kgm (per [playwright.spec.js contracte](../contributing/artefact/files/role/playwright.specs.js.md))"
 
 # translated-by: libretranslate
-# translation-refused: libretranslate echo
-# nocheck: url
-# translation-rejected: Playwright / E2E: biber First-Login Caveat
 msgid "Playwright / E2E: biber First-Login Caveat"
 msgstr ""
 
@@ -47669,10 +47373,7 @@ msgstr "Imprimeix els rols que es deu a un pas de disseny en ordre de treball (p
 
 # la disposició de CLI ``--include`` Així l'inventari resultant té tots els
 # grups APP_IDEls deps transitants necessiten al seu temps lliure.
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDEls']
-# nocheck: url
-# translation-rejected: Imprimeix, una per línia, el paper ID que ha de tenir
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -47834,9 +47535,6 @@ msgstr "Va impulsar el guàrdia de música a la gramàtica de supressió unifica
 msgid "Promotes each transient condition the applying step tolerates into a red row, on every deploy job of every sweep."
 msgstr "Promociona cada condició transitori el pas que s'aplica a una fila vermella, en cada tasca de cada escombra."
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Promocionant una OIDC User a administrador 🧑1]💼
 msgid "Promoting an OIDC User to Admin 🧑‍💼"
 msgstr ""
 
@@ -47884,16 +47582,10 @@ msgid "Proprietary"
 msgstr ""
 
 # a translation) API SPOT, llegeix de group_vars/all/18_api.yml.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ProprietariCity name (optional, probably does not need
 msgid "Proprietary API credential SPOT, read from group_vars/all/18_api.yml."
 msgstr ""
 
 # a translation) API credencials (el `API` SPOT)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ProprietariCity name (optional, probably does not need
 msgid "Proprietary API credentials (the `API` SPOT)"
 msgstr ""
 
@@ -48368,9 +48060,6 @@ msgstr "Dades puras en, només dades, així que l'informe és provable sense una
 # ``"{{ '<role>' in group_names }}"`` Forma de Jinja, tant per
 # ``utils.roles.applications.services.registry.is_explicit_truth``); si cada
 # paper ho marca ``False`` Es queda fora de la inclusió.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: La funció Pure 1] llegeix el paper de metadades
 msgid "Pure function — reads role metadata via cached YAML helpers and emits ``PlanEntry`` tuples; no filesystem side effects. The include set per round is resolved by the ``CombinedResolver`` (see ``.legacy_resolver``): each role contributes its own pulled-in providers and the include is the union. A service-key is therefore pulled in as soon as ANY role in the round-aware closure says it should be (literal ``True`` OR the ``\"{{ '<role>' in group_names }}\"`` Jinja form, both accepted by ``utils.roles.applications.services.registry.is_explicit_truth``); if EVERY role marks it ``False`` it stays out of the include."
 msgstr ""
 
@@ -49314,11 +49003,8 @@ msgstr "Llegeix l' últim dia del diari com a JSON amb cada camp en ple (``--all
 
 # cerca('config'); el sabor en si mateix s' ha declarat
 # svc-storage-nfs-server/meta/serves.yml.
-# translation-refused: libretranslate protected-span
 # lost=['svc-storage-nfs-server/meta/services.yml.']
 # gained=['svc-storage-nfs-server/meta/serves.yml.']
-# nocheck: url
-# translation-rejected: Llegeix el grup de fitxers SPOT a través de la
 msgid "Reads the merged-config SPOT through lookup('config'); the flavor itself is declared in svc-storage-nfs-server/meta/services.yml."
 msgstr ""
 
@@ -49901,10 +49587,7 @@ msgstr "Rebutja la crida incondicionalment, encara que `allow` Si no, coincidiri
 
 # meta/main.ymlIndependències verfolkgt. 'run_after' Un hird hiser
 # d'absichtlich ignort.
-# translation-refused: libretranslate protected-span lost=['meta/main.yml']
 # gained=['main.ymlIndependències']
-# nocheck: url
-# translation-rejected: Rekursiv werden nur include_role, import_role sense
 msgid "Rekursiv werden nur include_role, import_role und meta/main.yml:dependencies verfolgt. 'run_after' wird hier absichtlich ignoriert."
 msgstr ""
 
@@ -51043,10 +50726,7 @@ msgstr "Resolució ✅"
 msgid "Resolution 🔗"
 msgstr "Resolució 🔗"
 
-# translation-refused: libretranslate protected-span lost=['APP_ID']
 # gained=['APP_IDEntre']
-# nocheck: url
-# translation-rejected: Resol APP_IDEntre les variants actives i trànsit.
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -51481,10 +51161,7 @@ msgid "Return (owner, repo, run_id) from a run id or a run/job URL."
 msgstr "RetornQShortcut (propietari, repo. run_id) des d' un identificador d' execució o un URL d' execució/ treball."
 
 # job_idNoneCap) d' un URL d' execució/ treball.
-# translation-refused: libretranslate protected-span lost=['job_id']
 # gained=['job_idNoneCap']
-# nocheck: url
-# translation-rejected: RetornQShortcut (propietari, repo. run_id,
 msgid "Return (owner, repo, run_id, job_id|None) from a run/job URL."
 msgstr ""
 
@@ -51997,10 +51674,7 @@ msgid "Return free space in GB at `path` (or the closest existing ancestor). 0 w
 msgstr "Torna l' espai lliure en GB a `path` (o l' avantpassat més proper existent). 0 quan `df` falla o no es pot interpretar la sortida."
 
 # està d' acord amb l' inventari existenthost_vars Estat.
-# translation-refused: libretranslate protected-span lost=['host_vars']
 # gained=['existenthost_vars']
-# nocheck: url
-# translation-rejected: Retorna els conflictes llegibles quan `disable` No hi
 msgid "Return human-readable conflicts when `disable` disagrees with the existing inventory/host_vars state."
 msgstr ""
 
@@ -52854,9 +52528,6 @@ msgid "Return whether the installed ruby can require minitest."
 msgstr "Volga que l’instalació de Ruby pugui exigir minitest."
 
 # (``compose`` 1] ``swarm`` 1] ``host``).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Retorna si el paper optes a desplegar ``mode``
 msgid "Return whether the role opts into deploy ``mode`` (``compose`` | ``swarm`` | ``host``)."
 msgstr ""
 
@@ -53098,9 +52769,6 @@ msgstr "Retorna l' origen de la cerca('asset'...) Resol problemes contra el desp
 # cada URI es resol per al CONTINAR (el seu propi) ``server.tls.enabled``
 # sobre el món global ``TLS_ENABLED``, i sempre text pla per a una .onion -
 # mai de KeycloakEl seu propi estat TLS.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Retorna els URI redireccionats Keycloak ha de
 msgid "Returns the redirect URIs Keycloak must whitelist: one per domain of every application this play deploys (``group_names``) whose config enables SSO. Each URI's scheme is resolved for the CONSUMER -- its own ``server.tls.enabled`` over the global ``TLS_ENABLED``, and always plaintext for an .onion -- never from Keycloak's own TLS state."
 msgstr ""
 
@@ -54056,9 +53724,6 @@ msgstr "Les files són els rols invokibles dins el sobre de cicle vital provable
 
 # translated-by: libretranslate
 # la la la cua.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Un tros de files pot contenir- se abans que es cancel·
 msgid "Rows one chunk may hold before its tail risks the queue cancel."
 msgstr ""
 
@@ -56156,9 +55821,6 @@ msgstr "El sabor de SSO és **`oidc` (natiu)** \"2002 Semaphore representa el se
 
 # capçalera-authCity name (optional, probably does not need a translation)
 # (`auth_by_http_header = "X-Remote-User"`) + natiu LDAP**.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: SSO és la **oauth2- Porta d'accés + Checkmk
 msgid "SSO is the **oauth2-proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) + native LDAP**."
 msgstr ""
 
@@ -56711,9 +56373,6 @@ msgstr "Seguretat: SECRET_KEY"
 # regexs i immobiled *Crs- k/stale-branches* a un SHA. Guardes: a *import-
 # linter* contracte, un lint requereix un bandit justificat *noqa*, i ruff
 # *Maine001* Com una rata.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Seguretat: s' ha resolt tot 80 Obre les alerta d'
 msgid "Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet."
 msgstr ""
 
@@ -57921,9 +57580,6 @@ msgstr "Ajudadors de l' intèrpret d' ordres que s' executen dins de la `infinit
 
 # de treball, i els actius de l' ajuda no-Pyth (no s' han d' emmagatzemar sota
 # `utils/`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Scripts de l' intèrpret d' ordres, embolcalls de flux
 msgid "Shell scripts, workflow wrappers, and non-Python helper assets MUST NOT be stored under `utils/`."
 msgstr ""
 
@@ -60647,10 +60303,7 @@ msgid "TCP port to listen on (default `8080`)."
 msgstr "Port TCP per escoltar (per omissió `8080`)."
 
 # DE GARANTIA.
-# translation-refused: libretranslate protected-span lost=['"']
 # gained=['"ASS"']
-# nocheck: url
-# translation-rejected: S'OFEREIX S'OFEREIX S'OFEREIXE "ASS", SENSE CAP MENA
 msgid "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND."
 msgstr ""
 
@@ -64035,10 +63688,7 @@ msgstr "Les bases de dades d' una generació"
 msgid "The decision compares the free space on the filesystem holding Docker's data root - where images, volumes and build cache grow - against the storage the deploy actually declares it needs: the sum of ``min_storage`` over the services of the applications being deployed, transitive dependencies included. No threshold constant is involved, so the answer follows the declarations rather than a guess about disk sizes."
 msgstr "La decisió compara l' espai lliure en el sistema de fitxers que conté l' arrel de dades Docker - on imatges, volum i creació de la memòria cau - contra l' emmagatzematge que es declara en realitat: la suma de ``min_storage`` Sobre els serveis de les aplicacions que s'estan usant, s' inclouen dependències transitives. No hi ha cap llindar d' constant involucrat, de manera que la resposta segueix les declaracions en comptes d' una suposició sobre les mides del disc."
 
-# translation-refused: libretranslate protected-span
 # lost=['web-svc-libretranslate/meta/services.yml'] gained=['services.yml']
-# nocheck: url
-# translation-rejected: El mecanisme de decisions no és nou. En pujar vol dir
 # extreure'l, no copiar-lo: una segona còpia de `History` i `judge_answers` és
 # una segona cosa per solucionar quan es mou el contracte. El precedent de la
 # casa per a un artefacte en Python creuat és l'Adaptador de MCP, la
@@ -64295,10 +63945,7 @@ msgstr "El efectiu ``API`` Mapat per a un àmbit de representació."
 # niats `infinito` contenidor (systemd, niats Docker, Ansible) reserva un punt
 # de partida no vàlid. Plan per aproximadament **11]2 GB de dalt** abans de
 # qualsevol paper col·loca un servei.
-# translation-refused: libretranslate protected-span lost=['1'] gained=['11',
 # ']']
-# nocheck: url
-# translation-rejected: El pressupost efectiu per a la càrrega de treball
 msgid "The effective budget for the actual workload is lower than the table suggests because the runner itself plus the nested `infinito` container (systemd, nested Docker, Ansible) reserve a non-trivial baseline. Plan for roughly **1–2 GB of overhead** before any role deploys a service."
 msgstr ""
 
@@ -64856,9 +64503,6 @@ msgstr "La implementació del MTAR manté una línia d'abstracció neta entre el
 
 # translated-by: libretranslate
 # natiu del MC. Name.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: La implementació MTART prefereix la implementació
 msgid "The implementation MUST prefer native upstream MCP support. Plugin, sidecar, or marketplace MCP servers MAY be used only when the upstream project documents them as supported or when the role README documents the risk and the operator explicitly enables the integration."
 msgstr ""
 
@@ -65151,10 +64795,7 @@ msgstr "El botó d' accés de la IU llegirà \"SSO amb Infinito.Nexus\" (S' ha r
 
 # Infinito.Nexus1] (S' ha reanomenat mitjançant el JavaScript injectat). El
 # flux d' autorització subjacent és estàndard OAuth2/ OIDC contra Keycloak.
-# translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexus1', ']']
-# nocheck: url
-# translation-rejected: El botó d' accés a la IU llegirà l' ordre YUSSSO amb
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
 msgstr ""
 
@@ -65471,9 +65112,6 @@ msgstr "El nombre de bolcats que es va reproduir."
 # per omissió, i després protegir els camins llistats*L'ajudant en `/`, que és
 # públic, així que l' intermediari mai l'intercepta i la Keycloak El viatge
 # rodó mai comença.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: La oauthCity name (optional, probably does not need a
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
 msgstr ""
 
@@ -65482,9 +65120,6 @@ msgstr ""
 # *expose everything by default, then protect the listed paths*. The helper
 # lands on ``/``, que és públic, així que l' intermediari mai l'intercepta i
 # la Keycloak El viatge rodó mai comença.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: La oauthCity name (optional, probably does not need a
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
 msgstr ""
 
@@ -65709,9 +65344,6 @@ msgstr "La complexitat perruple, la seva ``dna`` Clau clúster i ``siblings``."
 # `X-Forwarded-Groups`, i `biber` S' ha denegat abans Postmarks S'ha arribat a
 # l'entrada, i amb la SSO fora de l'únic fonament no pertany a cap compte
 # d'usuari.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: S'han declarat banderes de la persona
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
 msgstr ""
 
@@ -65726,9 +65358,6 @@ msgstr ""
 # comprovar ``X-Forwarded-Groups``, i ``biber`` S' ha denegat abans Postmarks
 # S'ha arribat a l'entrada, i amb la SSO fora de l'únic fonament no pertany a
 # cap compte d'usuari.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: S'han declarat banderes de la persona
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
 msgstr ""
 
@@ -68029,10 +67658,7 @@ msgstr "El sacrifici és que `deny` Ara porta el pes complet de \"el que l' agen
 # servei directe de la fila no manté cap proveïdor estranger habilitat (el
 # paper col·loca aïllat): per variant en files variant, des de la base
 # ``meta/services.yml`` En files de cor sencer.
-# translation-refused: libretranslate protected-span lost=['alpha/beta/pre']
 # gained=['alpha/beta/pre/...']
-# nocheck: url
-# translation-rejected: Els camps transitius (``services`` / ``consumed_by`` i
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -68592,9 +68218,6 @@ msgstr "Aquest paper impossible col·loca [PhpMyAdmin](https://www.phpmyadmin.ne
 # equips que requereixen una solució auto-conferenciada de vídeo. > 🔧
 # **Nota**: La capa de base de dades s' hauria de de de de de de de de decouar
 # en un futur llançament per millorar la modular i la integració. >
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Aquest paper impossible col·loca `BigBlueButton
 msgid "This Ansible role deploys `BigBlueButton <https://bigbluebutton.org/>`__ using Docker Compose. It includes support for Greenlight, OIDC, LDAP, TURN/STUN, health checks, and a modular ``.env`` setup. This role is ideal for educational institutions and teams requiring a self-hosted video conferencing solution. > 🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration. >"
 msgstr ""
 
@@ -68808,9 +68431,6 @@ msgstr "Aquest paper impossible instal·la ppm i opcionalment funciona `npm ci` 
 # de Compilador GNU (GCC) En els sistemes Arch Linux. GCC és una suite de
 # compilador estàndard que permet C, C++, i d' altres idiomes de programació.
 # És un component central per compilar i construir programari des de la font.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Aquest paper impossible instal· la la la col· lecció
 msgid "This Ansible role installs the GNU Compiler Collection (GCC) on Arch Linux systems. GCC is a standard compiler suite supporting C, C++, and other programming languages. It is a core component for compiling and building software from source."
 msgstr ""
 
@@ -68989,10 +68609,7 @@ msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path
 msgstr "Això evita els pares fràgils[N] suposicions i correccions \"cli/cli/...\" Camí als errors."
 
 # correcció de 'cli/cli/...Problemes.
-# translation-refused: libretranslate protected-span lost=['cli/cli/...']
 # gained=['cli/cli/...Problemes.']
-# nocheck: url
-# translation-rejected: Això evita la construcció del camí de fitxers fràgil i
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -70348,9 +69965,6 @@ msgstr "Aquest rol declara `PERSONA_ADMINISTRATOR_BLOCKED` i `PERSONA_BIBER_BLOC
 # disposicions de paper exactament una Matomo compte, aquest mateix
 # superusuari, i no té cap disposició per usuari, així que biber no té Matomo
 # Identitat en absolut.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest rol declara `PERSONA_ADMINISTRATOR_BLOCKED` i
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. `meta/services.yml` pins `sso.enabled: false` — Matomo holds no Keycloak client, so the OIDC round-trip the shared helper waits for never happens; the administrator signs in on Matomo's native `index.php?module=Login` form against the local superuser configured in `vars/main.yml`. Biber is blocked for a different reason: the role provisions exactly one Matomo account, that same superuser, and has no per-user provisioning, so biber has no Matomo identity at all."
 msgstr ""
 
@@ -70376,10 +69990,7 @@ msgstr "Aquest rol declara `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.
 # aclariran una vegada ``localStorage.__landingPageSeen__`` Està sembrat abans
 # de la navegació, i el auxiliar compartit no té un ganxo d'init-script per
 # fer-ho.
-# translation-refused: libretranslate protected-span lost=['Infinito.Nexus']
 # gained=['Infinito.Nexus1', ']']
-# nocheck: url
-# translation-rejected: Aquest rol declara ``PERSONA_ADMINISTRATOR_BLOCKED`` i
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
 msgstr ""
 
@@ -70403,9 +70014,6 @@ msgstr "Aquest rol declara ``PERSONA_ADMINISTRATOR_BLOCKED`` i ``PERSONA_BIBER_B
 # disposicions de paper exactament una Matomo compte, aquest mateix
 # superusuari, i no té cap disposició per usuari, així que biber no té Matomo
 # Identitat en absolut.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest rol declara ``PERSONA_ADMINISTRATOR_BLOCKED`` i
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. ``meta/services.yml`` pins ``sso.enabled: false`` — Matomo holds no Keycloak client, so the OIDC round-trip the shared helper waits for never happens; the administrator signs in on Matomo’s native ``index.php?module=Login`` form against the local superuser configured in ``vars/main.yml``. Biber is blocked for a different reason: the role provisions exactly one Matomo account, that same superuser, and has no per-user provisioning, so biber has no Matomo identity at all."
 msgstr ""
 
@@ -70503,9 +70111,6 @@ msgstr "Aquest rol col·loca FusionDirectory Si Docker Compose contra el project
 # (Central o lateral), OIDC i SMTP a través de la plataforma SSO i els serveis
 # de correu electrònic. L' intermediari frontal finalitza TLS i avança HTTP a
 # treballar cavall.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest rol col·loca GitLab Nadiu oficial del núvol
 msgid "This role deploys GitLab from the official Cloud Native GitLab (CNG) CE images at ``registry.gitlab.com/gitlab-org/build/cng/`` as separate services: ``webservice`` (puma), ``sidekiq``, ``workhorse`` (sole HTTP entry point), ``gitaly``, ``shell`` (gitlab-sshd) and a one-shot ``migrations`` job. All images share a single version pin (``services.webservice.version``). PostgreSQL, Redis and S3-compatible object storage are wired through the platform lookups (central or sidecar), OIDC and SMTP through the platform SSO and email services. The front proxy terminates TLS and forwards HTTP to workhorse."
 msgstr ""
 
@@ -70519,9 +70124,6 @@ msgstr ""
 # (Central o lateral), OIDC i SMTP a través de la plataforma SSO i els serveis
 # de correu electrònic. L' intermediari frontal finalitza TLS i avança HTTP a
 # treballar cavall.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest rol col·loca GitLab Nadiu oficial del núvol
 msgid "This role deploys GitLab from the official Cloud Native GitLab (CNG) CE images at `registry.gitlab.com/gitlab-org/build/cng/` as separate services: `webservice` (puma), `sidekiq`, `workhorse` (sole HTTP entry point), `gitaly`, `shell` (gitlab-sshd) and a one-shot `migrations` job. All images share a single version pin (`services.webservice.version`). PostgreSQL, Redis and S3-compatible object storage are wired through the platform lookups (central or sidecar), OIDC and SMTP through the platform SSO and email services. The front proxy terminates TLS and forwards HTTP to workhorse."
 msgstr ""
 
@@ -70859,9 +70461,6 @@ msgstr "Aquest paper fa **no** Signa certificats de fulles. Només domina la CA 
 # proxy car trencaria en el trànsit de federació i no es fa. Aquesta excepció
 # SSO i RBAC està documentada per `lifecycle.md
 # <../../docs/contributing/design/role/services/lifecycle.md>`__.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest paper no configura la lluita contra OIDC
 msgid "This role does NOT configure OIDC against ``web-app-keycloak``, LDAP against ``svc-db-openldap``, or any role-claim / LDAP-group RBAC mapping. Bridgy Fed authenticates users via their fediverse or atproto credentials at the source platform, not via local accounts. There is no local user table to bind an external IdP to, and no in-app authorisation tier to map a Keycloak role or LDAP group onto. Placing Bridgy Fed behind ``web-app-keycloak``\\ ’s SSO-proxy sidecar would break inbound federation traffic and MUST NOT be done. This SSO and RBAC exception is documented per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__."
 msgstr ""
 
@@ -70875,9 +70474,6 @@ msgstr ""
 # de la SSO- proxy trencaria el trànsit de federació i No es fa. Aquesta
 # excepció SSO i RBAC està documentada per
 # [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Aquest paper no configura la lluita contra OIDC
 msgid "This role does NOT configure OIDC against `web-app-keycloak`, LDAP against `svc-db-openldap`, or any role-claim / LDAP-group RBAC mapping. Bridgy Fed authenticates users via their fediverse or atproto credentials at the source platform, not via local accounts. There is no local user table to bind an external IdP to, and no in-app authorisation tier to map a Keycloak role or LDAP group onto. Placing Bridgy Fed behind `web-app-keycloak`'s SSO-proxy sidecar would break inbound federation traffic and MUST NOT be done. This SSO and RBAC exception is documented per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)."
 msgstr ""
 
@@ -71813,9 +71409,6 @@ msgstr "Per instal· lar l' editor, una eina de gestió de dependències PHP:"
 # Redis endpoints i el frontal de l' intermediari inversa existent
 # (sys-svc-proxy) Tot el flux des de Infinito.Nexus a MDAD mitjançant aquest
 # adaptador.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Per integrar-la Infinito.Nexus, el rol de consum
 msgid "To integrate it into Infinito.Nexus, the consumer-facing role (`web-app-matrix`) MUST act as an adapter: clone MDAD at a pinned ref into the role artefact directory, generate an MDAD-shaped inventory + vars file from `lookup('config', application_id, ...)`, and invoke MDAD via `ansible-playbook` as a child process (or via Ansible's `import_playbook`). Credentials, domains, Keycloak OIDC client, central postgres / redis endpoints and the existing reverse-proxy front (sys-svc-proxy) all flow from Infinito.Nexus into MDAD via that adapter."
 msgstr ""
 
@@ -72011,11 +71604,8 @@ msgstr "Avui cada Infinito.Nexus S' està desplegar les sortides `docker compose
 # [web-app-opencloud/meta/varis.yml](../../roles/web-app-opencloud/meta/variants.yml)
 # on variant 1 estableix `ldap.enabled: true` amb `oidc.enabled: false`), però
 # el corresponent escenari de l' especificació encara no existeix.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-opencloud/meta/variants.yml'] gained=['"E.g."',
 # 'web-app-opencloud/meta/varis.yml']
-# nocheck: url
-# translation-rejected: Avui, la majoria de les especificacions del paper
 msgid "Today most role specs gate their authenticated scenarios on `oidc` only, even when the role's `meta/services.yml` also declares `ldap.enabled` and a dedicated LDAP auth plugin / driver is wired in. Consequence: a deploy with `disable=oidc` (LDAP-only mode) makes every authenticated scenario `skip`, leaving the LDAP path untested. The matrix-deploy variant lists in `meta/variants.yml` typically include an LDAP-only variant exactly to exercise that branch (see e.g. [web-app-opencloud/meta/variants.yml](../../roles/web-app-opencloud/meta/variants.yml) where variant 1 sets `ldap.enabled: true` with `oidc.enabled: false`), but the corresponding spec scenario does not exist yet."
 msgstr ""
 
@@ -72839,9 +72429,6 @@ msgid "URI: `{{ LDAP.SERVER.URI }}`"
 msgstr "URI: `{{ LDAP.SERVER.URI }}`"
 
 # de xarxa per al servei compartit.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: URL ``redis://redis:6379/0`` 1] ``redis`` és l' àlies
 msgid "URL ``redis://redis:6379/0`` — ``redis`` is the in-compose network alias for the shared service."
 msgstr ""
 
@@ -72854,9 +72441,6 @@ msgid "URL ``redis://redis:6379/2``"
 msgstr "URL ``redis://redis:6379/2``"
 
 # xarxa per al servei compartit.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: URL `redis://redis:6379/0` 1] `redis` és l' àlies de
 msgid "URL `redis://redis:6379/0` — `redis` is the in-compose network alias for the shared service."
 msgstr ""
 
@@ -73355,9 +72939,6 @@ msgstr "Codis amunt"
 # #628](https://project.infinito.nexus/work_packages/628) 1] *Integra OpenBao
 # dins Infinito.Nexus*. Implementació de relacions públiques: [infinito-
 # nexus/core#611](https://github.com/infinito-nexus/core/pull/611).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: La història de dalt a baix: [Obre projecte
 msgid "Upstream story: [OpenProject #628](https://project.infinito.nexus/work_packages/628) — *Integrate OpenBao into Infinito.Nexus*. Implementing PR: [infinito-nexus/core#611](https://github.com/infinito-nexus/core/pull/611)."
 msgstr ""
 
@@ -73933,11 +73514,8 @@ msgstr "Utilitzada per la ``ressources`` CLI i per la variant lint pel pressupos
 
 # config/prometheus.yml.j2 per a descobrir aplicacions auto-diverències que
 # exposen un punt de final natiu / mimetrics sense dur a cada aplicació.
-# translation-refused: libretranslate protected-span
 # lost=['web-app-prometheus/templates/configuration/prometheus.yml.j2']
 # gained=['config/prometheus.yml.j2']
-# nocheck: url
-# translation-rejected: Usat per web-app-prometheus/templates/
 msgid "Used by web-app-prometheus/templates/configuration/prometheus.yml.j2 to auto-discover apps that expose a native /metrics endpoint without hardcoding each app name."
 msgstr ""
 
@@ -74106,10 +73684,7 @@ msgstr "Nom d' usuari: `preferred_username`, mapa a OpenCloud `username`"
 # ``{{hunspell_languages}}`` variable basada en els seus requeriments d'
 # idioma específics. Aquesta variable accepta una llista de codis d' idioma
 # (e.g., aavsoen_US1],íemafghanistan. kgmde_DE1]).
-# translation-refused: libretranslate protected-span lost=['de_DE', 'en_US']
 # gained=[']', 'aavsoen_US1', 'kgmde_DE1']
-# nocheck: url
-# translation-rejected: Els usuaris s' animaran a personalitzar el
 msgid "Users are encouraged to customize the ``{{hunspell_languages}}`` variable based on their specific language requirements. This variable accepts a list of language codes (e.g., ‘en_US’, ‘de_DE’)."
 msgstr ""
 
@@ -74547,9 +74122,6 @@ msgstr "Vars i proves per omissió 📐"
 
 # translation) `hostname` + ambdós fitxers clau; emet `DOMAIN_PRIMARY:
 # <address>.onion` a l'inventari generat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: VaultCity name (optional, probably does not need a
 msgid "Vault `hostname` + both key files; emit `DOMAIN_PRIMARY: <address>.onion` into the generated inventory."
 msgstr ""
 
@@ -74892,9 +74464,6 @@ msgstr "Camina des de ``start`` (omissió: directori de treball actual) Fins a u
 # translated-by: libretranslate
 # última execució d' una branca és sovint un esdeveniment lint-només o o o o o
 # s' ha omès sense matriu de colors.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: Va cap amunt ``limit`` L' execució recent perquè l'
 msgid "Walks up to ``limit`` recent runs because the very latest run on a branch is often a lint-only or skipped event with no deploy matrix."
 msgstr ""
 
@@ -76085,9 +75654,6 @@ msgstr "Quan l' aplicació usa fitxers d' entorn"
 # paper, l' especificació MUS ha cobert un bi-direcció `biber` 1]
 # `administrator` Canvi (Cada entrega afirmada en la safata d' entrada del
 # destinatari des d' un context aïllat del navegador).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Quan l' aplicació accepta missatgeria de parell a
 msgid "When the application supports peer-to-peer messaging, the spec MUST cover a bi-directional `biber` ↔ `administrator` exchange (each delivery asserted in the recipient's inbox from an isolated browser context)."
 msgstr ""
 
@@ -76775,9 +76341,6 @@ msgstr ""
 
 # selecciona un paper; cancel· lat, temps- fora, desactivat (🚫) i continua en
 # execució (1]) Els modes no.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: Amb ``strict``, només un difícil ``failure`` (❌)
 msgid "With ``strict``, only a hard ``failure`` (❌) selects a role; cancelled, timed-out, skipped (🚫) and still-running (⏳) modes do not."
 msgstr ""
 
@@ -77664,9 +77227,6 @@ msgstr "No es fa servir `templates/Dockerfile.j2` A menys que el fitxer Docker r
 # pensat trencades o separadors de la clàusula. Vostè prefereix les frases
 # completes. Separadors (-) Pot ser que s' usi per a paraules compostes i
 # elements de llista.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: No heu d' usar els valors de sortida (1]) com ja s'han
 msgid "You MUST NOT use em dashes (—) as thought breaks or clause separators. You SHOULD prefer complete sentences. Hyphens (-) MAY be used for compound words and list items."
 msgstr ""
 
@@ -78900,9 +78460,6 @@ msgstr "[ ] Totes tres variants asibles col·loqueu-les a una caixa nova (La por
 
 # caixa nova (Porta de matriu completa, totes les RECAPConstellation name
 # (optional) `failed=0`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] Totes tres variants col·loqueu- se netament en una
 msgid "[ ] All three variants deploy cleanly on a fresh box (full matrix gate, all PLAY RECAPs `failed=0`)."
 msgstr ""
 
@@ -79145,9 +78702,6 @@ msgstr "[ ] LDAP"
 
 # translated-by: libretranslate
 # cables nous.
-# translation-refused: libretranslate truncated
-# nocheck: url
-# translation-rejected: [ ] SÈRIES-VOSC Traducció: onliyu (017/018) Sense
 msgid "[ ] LDAP- and SSO-bridging addons remain covered by the existing Playwright LDAP/SSO requirements (017/018) without new per-role wiring."
 msgstr ""
 
@@ -79522,9 +79076,6 @@ msgstr ""
 # LDAP separada, per tant està exempt d' una porta de Playwright (`# nocheck:
 # playwright-service-flag`), mirall
 # [`web-app-openproject`](../../roles/web-app-openproject/).
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [ ] Quan `svc-db-openldap` és dins `group_names`, una
 msgid "[ ] When `svc-db-openldap` is in `group_names`, an LDAP connection is provisioned (`files/configure-sso.sh`) so LDAP users (matching the `X-Remote-User`) exist with roles/contact groups. LDAP is a backend identity source behind the oauth2 gate — there is no separate LDAP login surface, so it is exempted from a Playwright gate (`# nocheck: playwright-service-flag`), mirroring [`web-app-openproject`](../../roles/web-app-openproject/)."
 msgstr ""
 
@@ -79537,9 +79088,6 @@ msgstr ""
 
 # g. Nextclod MárquezCollabora/BB, WordPress1]Discourse), La migració es basa
 # en el cablejat existent amb l'entrada de la matriu enlloc de duplicar-la.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [ ] On la cel· la enllaça a un connector jawidName (e.
 msgid "[ ] Where the cell links to an already-wired plugin (e.g. Nextcloud↔Collabora/BBB, WordPress↔Discourse), the migration reconciles the existing wiring with the matrix entry instead of duplicating it."
 msgstr ""
 
@@ -79919,9 +79467,6 @@ msgstr "[![GtHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub%20Sponsor
 # [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate)
 # [![Sponsor
 # Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [![PatreonCity name (optional, probably does not need
 msgid "[![Patreon](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/kevinveenbirkenbach) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [![Sponsor Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)"
 msgstr ""
 
@@ -81499,9 +81044,6 @@ msgstr ""
 # **ESTUNConstellation name (optional) (Utilitats Traversals de la sessió per
 # a l' NAT)** Servidor. Permet la comunicació en temps real (RTC) Aplicacions
 # com ara **WebRTC** per treballar amb seguretat a través de NAT i tallafocs.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Cotorn](https://github.com/coturn/coturn) és un codi
 msgid "[Coturn](https://github.com/coturn/coturn) is a free and open-source **TURN (Traversal Using Relays around NAT)** and **STUN (Session Traversal Utilities for NAT)** server.   It enables real-time communication (RTC) applications such as **WebRTC** to work reliably across NATs and firewalls."
 msgstr ""
 
@@ -81983,9 +81525,6 @@ msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/
 msgstr "[Connectors Jitrius (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 
 # translation) Documentation](https://docs.joomla.org/)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [JoomlaCity name (optional, probably does not need a
 msgid "[Joomla Documentation](https://docs.joomla.org/)"
 msgstr ""
 
@@ -81999,9 +81538,6 @@ msgstr "[Pàgina web oficial Joomla](https://www.joomla.org/)"
 # component, un mòdul i arquitectura de connectors que els autors i els
 # desenvolupadors s'amplien amb tipus de contingut personalitzats,
 # disposicions i integració.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [JoomlaCity name (optional, probably does not need a
 msgid "[Joomla](https://www.joomla.org/) is a free and open-source content management system that lets users build and run websites, intranets, and online applications without writing code. It exposes a component, module, and plugin architecture that authors and developers extend with custom content types, layouts, and integrations."
 msgstr ""
 
@@ -82499,9 +82035,6 @@ msgstr "[OIDC / Keycloak configuració](https://docs.semaphoreui.com/administrat
 
 # probably does not need a
 # translation))](https://github.com/pulsejet/nextcloud-oidc-login)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Endollable d' accés OIDC (polsjetCity name (optional,
 msgid "[OIDC Login Plugin (pulsejet)](https://github.com/pulsejet/nextcloud-oidc-login)"
 msgstr ""
 
@@ -82850,10 +82383,7 @@ msgstr "[Roda de Rouette al GitHub](https://github.com/p-wojt/roulette-wheel)"
 
 # Roulette](https://github.com/p-wojt/roulette-wheel) és a Node.jsUna
 # aplicació basada en el frontal que simula una roda piulate al navegador.
-# translation-refused: libretranslate protected-span lost=['Node.js']
 # gained=['Node.jsUna']
-# nocheck: url
-# translation-rejected: [Roda de
 msgid "[Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr ""
 
@@ -82891,9 +82421,6 @@ msgstr "[Connector SSO/OCComment](https://github.com/9p4/jellyfin-plugin-sso)"
 
 # need a translation)](https://en.wikipedia.org/wiki/Sapere_aude): Utilitza la
 # teva pròpia raó amb coratge i responsabilitat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [Sapere AudeCity name (optional, probably does not
 msgid "[Sapere aude](https://en.wikipedia.org/wiki/Sapere_aude): use your own reason with courage and responsibility."
 msgstr ""
 
@@ -83507,9 +83034,6 @@ msgstr "[`tasks/01_setup.yml`](./tasks/01_setup.yml) Les sembradors només s' a 
 # `PERSONA_ADMINISTRATOR_BLOCKED=true`. The SeaweedFS escenari de companyia
 # ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js))
 # Condueix el mateix viatge d'administració i salta a la mateixa bandera.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "[`tasks/05_administrator.yml`](./tasks/05_administrator.yml) creates the account with `tootctl accounts create` and never sets or captures a password, so `ADMIN_PASSWORD` — the Keycloak secret — cannot drive Mastodon's native `/auth/sign_in`; `biber` has no Mastodon account at all, since the OIDC sign-in ([`templates/env.j2`](./templates/env.j2)) is the only path that would create one. In the `services.sso.enabled: false` matrix variants that path is removed, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The SeaweedFS companion scenario ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js)) drives the same admin journey and skips on the same flag."
 msgstr ""
 
@@ -84172,9 +83696,6 @@ msgstr "[test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_
 
 # `listen:`- L'entrada de gestió d'audicions MUST porta un nom estàtic (sense
 # gir de Jinja).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [test_names_static.py](test_names_static.py) 1] a
 msgid "[test_names_static.py](test_names_static.py) — a `listen:`-bearing handler entry MUST carry a static name (no Jinja templating)."
 msgstr ""
 
@@ -84655,9 +84176,6 @@ msgstr "[x] Totes tres comprovacions integrades amb l' existent `sys-ctl-hlth-*`
 # caixa nova (Porta de matriu FUL `make compose-deploy mode=reinstall
 # apps=web-app-erpnext full_cycle=true purge=true` 1] 6 REAPConstellation name
 # (optional) `failed=0`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Totes tres variants col·loqueu- se netament en una
 msgid "[x] All three variants deploy cleanly on a fresh box (FULL matrix gate `make compose-deploy mode=reinstall apps=web-app-erpnext full_cycle=true purge=true` — 6 PLAY RECAPs, all `failed=0`)."
 msgstr ""
 
@@ -84808,9 +84326,6 @@ msgstr "[x] Cada fixatura (Pàgina de mostra, imatge de mostra, credencials d' a
 # un node de no gestor, mentre que el resoldor també dóna el node
 # d'allotjament i espera que l' increment d' inici necessita abans `bao
 # operator init`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Cada tasca de configuració encon- mantenidor
 msgid "[x] Every in-container configuration task reaches the container through [`resolve_host_cid.yml`](../../roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml) — `container exec <resolved CID>` under `ansible.builtin.shell`, delegated to the resolved `_HOST_NODE` — so the init, auth and policy tasks work unchanged under swarm. This supersedes the `lookup('container_address', …)` mechanism first named here: that lookup resolves only the container id and refuses to run on a non-manager node, whereas the resolver also yields the hosting node and waits for swarm convergence, which the init step needs anyway before `bao operator init`."
 msgstr ""
 
@@ -85013,9 +84528,6 @@ msgstr "[x] No s' usa cap paper llançada per omissió les ordres ltdio MCP per 
 
 # (RECAPConstellation name (optional) `failed=0`; Playwright s' executa de tot
 # allò que es va aprovar, no hi ha errors).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] No hi ha errors fatals en Matrix r3
 msgid "[x] No fatal failures in matrix r3 (all PLAY RECAPs `failed=0`; Playwright runs all passed-or-skipped, no failures)."
 msgstr ""
 
@@ -85217,9 +84729,6 @@ msgstr "[x] Final TLS, gestió del certificat (Encriptarem + project CA pila via
 # es torna a contribuir mitjançant l' elecció del controlador NFS contra el
 # volum local (Veure [Integració amb el volum d'
 # acoblament](#docker-volume-integration)).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] Les tasques estan programades lliurement a través
 msgid "[x] Tasks are scheduled freely across the role's declared hosts under v1; no per-role `deploy.placement.constraints` is rendered by default. Pinning is reintroduced only via NFS-driver vs local-volume choice (see [Docker volume integration](#docker-volume-integration))."
 msgstr ""
 
@@ -85393,9 +84902,6 @@ msgstr "[x] L' natiu `mcp_server` La integració està habilitada i s' ha declar
 # força la seva forma allà. Un informe generat els va eliminar: l'objectiu i
 # el subjecte fident era idèntica a cada paper, de manera que la taula restava
 # les seves fonts en lloc de de de de de de de de de de de fer res.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: [x] Les metadades operatives es mantenen en el paper
 msgid "[x] The operational metadata stays role-local: authoritative source, transport, authentication, real credential subject, read/write scope, tool allowlist, proposed implementation, selected consumers, and blocker all live in the role's own `meta/mcp.yml`, and [test_mcp_schema.py](../../tests/lint/ansible/services/test_mcp_schema.py) enforces their shape there. A generated report aggregating them was removed: scope and credential subject were identical for every role, so the table restated its sources instead of deriving anything from them."
 msgstr ""
 
@@ -86092,11 +85598,8 @@ msgstr "[x] `meta/variants.yml` Declara les variants de matriu (Veure **Variants
 
 # variant (`ldap` - Sí. `sso`/ OIDC desactivat) per la convenció en
 # [web-app-openproject/meta/varis.yml](../../roles/web-app-openproject/meta/variants.yml).
-# translation-refused: libretranslate protected-span
 # lost=['web-app-openproject/meta/variants.yml']
 # gained=['web-app-openproject/meta/varis.yml']
-# nocheck: url
-# translation-rejected: [x] `meta/variants.yml` defineix un **Només LDAP**
 msgid "[x] `meta/variants.yml` defines an **LDAP-only** variant (`ldap` on, `sso`/OIDC off) per the convention in [web-app-openproject/meta/variants.yml](../../roles/web-app-openproject/meta/variants.yml)."
 msgstr ""
 
@@ -86205,9 +85708,6 @@ msgstr "[x] `services.openbao.pki.enabled` Per omissió a `false` i res relacion
 # API: treball `openbao`, `scrapeUrl
 # http://openbao:8200/v1/sys/metrics?format=prometheus`, `health: "up"`,
 # `lastError: ""`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: [x] `services.prometheus.native_metrics.enabled: true`
 msgid "[x] `services.prometheus.native_metrics.enabled: true` and `templates/prometheus.yml.j2` exist; Prometheus scrapes `/v1/sys/metrics?format=prometheus` on the internal container port and the target reports `up`. Verified against the Prometheus targets API: job `openbao`, `scrapeUrl http://openbao:8200/v1/sys/metrics?format=prometheus`, `health: \"up\"`, `lastError: \"\"`."
 msgstr ""
 
@@ -86582,10 +86082,7 @@ msgid "__Increment fallback:__ if the band has no internal gaps, propose `max(us
 msgstr "Alternació de funció: si la banda no té llocs buits interns, proposa `max(used) + 1` (Lligat al límit superior de la banda)."
 
 # paquet CA desaparegut, el tema del servidor
-# translation-refused: libretranslate protected-span lost=['handshake__']
 # gained=['mig.handshake__']
-# nocheck: url
-# translation-rejected: L'ITU cau al mig.handshake__, desajusto el MITM, el
 msgid "__MTU drops mid-handshake__, MITM cert mismatch, CA bundle missing, server-side issue"
 msgstr ""
 
@@ -86953,9 +86450,6 @@ msgstr "`Cosmos`, `Quick Setup` i `Credits` No apareix en un paper README. La do
 # codi lliure i obert **Canvia (Traversal usant girs al voltant de NAT)** i
 # **ESTUNConstellation name (optional) (Utilitats Traversals de la sessió per
 # a l' NAT)** Servidor.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `Coturn <https://github.com/coturn/coturn>`__ és un
 msgid "`Coturn <https://github.com/coturn/coturn>`__ is a free and open-source **TURN (Traversal Using Relays around NAT)** and **STUN (Session Traversal Utilities for NAT)** server."
 msgstr ""
 
@@ -87201,9 +86695,6 @@ msgid "`KeePassXC <https://keepassxc.org/>`__ is a free, open-source, cross-plat
 msgstr "`KeePassXC <https://keepassxc.org/>`__ és un gestor de contrasenyes lliure, de codi obert, multiplataforma que desa credencials en una base de dades local encriptada compatible amb el format KeePas."
 
 # probably does not need a translation))
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `LDAP.BIND_CREDENTIAL` (VaultCity name (optional,
 msgid "`LDAP.BIND_CREDENTIAL` (Vault)"
 msgstr ""
 
@@ -87412,10 +86903,7 @@ msgstr ""
 msgid "`RELAY_SHARED_SECRET`, `REDIS_PASSWORD`, `REDIS_TOKEN`, `WM_SESSION_SECRET`. Each container exits on boot when its secret is missing."
 msgstr ""
 
-# translation-refused: libretranslate protected-span lost=['3.18']
 # gained=['28803.18']
-# nocheck: url
-# translation-rejected: `RUN apk add` (Alpine 28803.18 HTTPS)
 msgid "`RUN apk add` (Alpine ≥3.18 HTTPS)"
 msgstr ""
 
@@ -87453,10 +86941,7 @@ msgstr "`RetroArch <https://www.retroarch.com/>`__ És un frontal per a emulador
 
 # <https://github.com/p-wojt/roulette-wheel>`__ és a Node.jsUna aplicació
 # basada en el frontal que simula una roda piulate al navegador.
-# translation-refused: libretranslate protected-span lost=['Node.js']
 # gained=['Node.jsUna']
-# nocheck: url
-# translation-rejected: `Roulette Wheel
 msgid "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr ""
 
@@ -87470,9 +86955,6 @@ msgstr "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `
 
 # `/var/lib/semaphore`), `mysql`, `postgres`. Postgres utilitzat
 # `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `SEMAPHORE_DB_DIALECT` 1] `bolt` (fitxer a
 msgid "`SEMAPHORE_DB_DIALECT` ∈ `bolt` (file at `/var/lib/semaphore`), `mysql`, `postgres`. Postgres uses `SEMAPHORE_DB_HOST/PORT/USER/PASS/SEMAPHORE_DB`."
 msgstr ""
 
@@ -87792,9 +87274,6 @@ msgstr "``//`` (JSONC, ...)"
 
 # MDAD 1]s ``systemctl`` Crida a l'objectiu de la col·laboració dels
 # contenidors
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``/etc/systemd/system``, ``/run/systemd``, per tant
 msgid "``/etc/systemd/system``, ``/run/systemd``, so MDAD’s ``systemctl`` calls target the deploy container’s systemd"
 msgstr ""
 
@@ -87827,9 +87306,6 @@ msgstr "``/opt/data/config.yaml``, propietat de uid 10000"
 # corredor, el Python ABI desajusta a la segulta (La màquina Python es
 # construeix diferent a ``python:3.13-slim``)Els scripts d' ajuda no s'
 # anomenen . MDAD 1]s de la màquina.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``/usr/local/bin`` NO es pot muntar, tot i que MDAD
 msgid "``/usr/local/bin`` is NOT bind-mounted, even though MDAD writes a few helper scripts there. The runner’s ``ansible-core`` lives at ``/opt/ansible/bin/`` (out of the way) to keep the option open, but mounting the deploy container’s ``/usr/local/bin`` over the runner causes a Python ABI mismatch segfault (host Python is built differently from ``python:3.13-slim``). MDAD’s host-side helper scripts are not invoked by the deploy flow."
 msgstr ""
 
@@ -87861,9 +87337,6 @@ msgstr ""
 # aplicacions és la durada de les fulles en brut ``{{ ... }}`` text en el
 # lloc: el consumidor desa plantilla de text, i ``| bool`` Conaceix a Fals amb
 # un avís de de de de deprecació que falla a l'entrada d'advertència.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: ``API`` és un mapatge pla, de manera que un inventari
 msgid "``API`` is a plain mapping, so an inventory that configures three providers replaces the whole declaration instead of merging into it, and every provider it does not name disappears. Resolving a hidden provider then raises, and a raising lookup inside a value the applications renderer is templating leaves the raw ``{{ ... }}`` text in place: the consumer stores template text, and ``| bool`` coerces it to False with a deprecation warning that fails the deploy on the warning gate."
 msgstr ""
 
@@ -88296,9 +87769,6 @@ msgid "``baudolo-restore --empty`` pre-cleans the schema in one psql session and
 msgstr "``baudolo-restore --empty`` Neteja l' esquema en una sessió sql i torna a reproduir el bolcat en el següent, de manera que un consumidor que les botes entre recrear l' esquema i la repetició mor pel seu compte ``CREATE TABLE``. Per tant, la negativa mentre un consumidor puja."
 
 # per crear la BD per ordre en primer lloc.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``bench new-site`` Usa el centre MariaDB1]s ``root``
 msgid "``bench new-site`` uses the central MariaDB’s ``root`` to create the per-site DB on first deploy."
 msgstr ""
 
@@ -88678,9 +88148,6 @@ msgstr "``key``: serveis.<key>.* Cerca base. Per omissió: proveeix o entity_nam
 # comptes de cada client del desplegament. Ser un client no és una admissió:
 # sense la segona condició que s'admissió enlloc arriba a tots els proveïdors
 # que obren el seu recobriment.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``kind``: ``services_flags`` (per omissió) 1]
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
 msgstr ""
 
@@ -88713,9 +88180,6 @@ msgstr "``ldap``: els tres escenaris RBAC addicionals depenen de la sincronitzac
 # queda en ```meta/services.yml`` <./meta/services.yml>`. La ruta d' accés
 # LDAP està coberta per les especificacions de LDAP Playwright (requisit 018),
 # per tant no s' afegeix cap especificació específica addon.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``ldapauth`` és l'únic camí que materialitza a
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
 msgstr ""
 
@@ -89012,9 +88476,6 @@ msgstr "``playwright.version`` in ``meta/services.yml`` és l' única font de ve
 # commutació, i rutes de grups RBAC) Viu sota els addon 1]s ``config:`` Bloc,
 # que ```templates/env.j2`` <./templates/env.j2>`__ renders into the
 # ``JOOMLA_OIDC_*`` Entorn de connectors.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``plg_system_keycloak`` es construeix imperatiu dins
 msgid "``plg_system_keycloak`` is built imperatively inside the Joomla container and speaks OIDC against Keycloak. Its enablement derives directly from the ``sso`` service flag, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon’s ``config:`` block, which ```templates/env.j2`` <./templates/env.j2>`__ renders into the ``JOOMLA_OIDC_*`` plugin environment."
 msgstr ""
 
@@ -89116,9 +88577,6 @@ msgstr "``roles/test-e2e-playwright/files/playwright.config.js`` (copiat com a- 
 # ``roles/test-e2e-playwright/templates/package.json.j2`` (renderitzat per-
 # deploy; pintesamount in units (real) ``@playwright/test`` des de
 # ``meta/services.yml.playwright.version``)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected:
 msgid "``roles/test-e2e-playwright/templates/package.json.j2`` (rendered per-deploy; pins ``@playwright/test`` from ``meta/services.yml.playwright.version``)"
 msgstr ""
 
@@ -89209,9 +88667,6 @@ msgstr "``services.s1.flavor`` Selecciona quina implementació respon a aquest c
 # l'inventari) decideix si una execució utilitza el baudlops ``--snapshot``
 # Mode. **Cita el valor** 1] YAML llegeix un nus ``off``/``no``/``false`` com
 # a booleà, i l'esquisi s'expressa en el resultat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``services.volume-2-local.snapshot_mode`` (S' ha
 msgid "``services.volume-2-local.snapshot_mode`` (declared in ``meta/services.yml``, overridable per host from the inventory) decides whether a run uses baudolo’s ``--snapshot`` mode. **Quote the value** — YAML reads a bare ``off``/``no``/``false`` as a boolean, and the deploy asserts on the result."
 msgstr ""
 
@@ -89375,16 +88830,10 @@ msgid "``test-element-call.js`` opens the Element home view and verifies a call-
 msgstr "``test-element-call.js`` Obre la vista inicial de l' element i verifica una superfície de control d' estris de crida quan ``services.matrix.conferencing.element_call=true`` (S' ha omès d' altra manera)."
 
 # administrador.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``test-login-ldap-admin.js`` 1] OpenLDAP Uniu-vos,
 msgid "``test-login-ldap-admin.js`` — OpenLDAP bind, administrator."
 msgstr ""
 
 # ``biber`` (Nodmin RBAC).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``test-login-ldap-biber.js`` 1] OpenLDAP Uneix.
 msgid "``test-login-ldap-biber.js`` — OpenLDAP bind, ``biber`` (non-admin RBAC)."
 msgstr ""
 
@@ -89435,9 +88884,6 @@ msgid "``tools``:           ``allowlist`` is what a reader may reach and ``write
 msgstr "``tools``: ``allowlist`` és el que un lector pot arribar i ``writer_allowlist`` El que pot arribar un escriptor, el desplegament representa un contracte per rol, cadascun amb el seu propi portador, perquè la porta diu que els crida per credential i per res més. ``allowlist`` la política és: quina plataforma permet arribar a un consumidor, i és només una restricció on un portal l'obliga. ``upstream_serves`` és l' observació: cada eina que ofereix el riu amunt a la versió usada. Estat només on DIFFERS de la llista de permet, l' absència vol dir que els dos són idèntics, que és el cas normal per a un proveïdor que serveix exactament el que es permet. La diferència entre ells mesura una exposició no forçada, i un proveïdor que la diferència no és buida necessita un portal al davant. A més a més de la política de mutacions i mutacions."
 
 # Absent = far- només (sense adjunt)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``topology``: ``shared_net`` 1] ``default_net``.
 msgid "``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)"
 msgstr ""
 
@@ -89449,9 +88895,6 @@ msgid "``true`` runs the test in the sync pass only, so ``full_cycle`` does not 
 msgstr ""
 
 # ``secret``
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ``type`` un de ``volume`` 1] ``bind`` 1] ``config`` 1]
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
 msgstr ""
 
@@ -90528,9 +89971,6 @@ msgid "`git-setup-remotes` writes three git-config keys that together route push
 msgstr "`git-setup-remotes` Escriu tres tecles git- config que empenyen junts la ruta:"
 
 # registres (Descarrega els artefactes CSV via `gh`).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `github` 1] a un URL de treball en execució ->
 msgid "`github`   — a run/job URL -> records (downloads the CSV artifacts via `gh`)."
 msgstr ""
 
@@ -90730,9 +90170,6 @@ msgstr "`ldap`: els tres escenaris RBAC addicionals depenen de la sincronitzaci�
 # [`meta/services.yml`](./meta/services.yml). La ruta d' accés LDAP està
 # coberta per les especificacions de LDAP Playwright (requisit 018), per tant
 # no s' afegeix cap especificació específica addon.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `ldapauth` és l'únic camí que materialitza a
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
 msgstr ""
 
@@ -90855,9 +90292,6 @@ msgstr ""
 
 # translated-by: libretranslate
 # local del repositori `pre-commit` Hi ha ganxos per a aquesta recuperació.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: `make environment-bootstrap` També instal· la la la
 msgid "`make environment-bootstrap` also installs the repository's local `pre-commit` hooks for this checkout."
 msgstr ""
 
@@ -91044,9 +90478,6 @@ msgid "`mmctl plugin enable` only writes `PluginSettings.PluginStates` and exits
 msgstr ""
 
 # paper dins d' un segment).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `model` 1] the `RoleRuntime` registre (Temps d' un
 msgid "`model`    — the `RoleRuntime` record (one role's time within a segment)."
 msgstr ""
 
@@ -91375,9 +90806,6 @@ msgid "`required` is True when some deployed app has the service with both `enab
 msgstr "`required` és cert quan alguna aplicació que s' usa té el servei amb ambdós `enabled: true` I `shared: true`, directament o trànsit a través de les seves pròpies dependències de servei habilitats. Aquests són els consumidors de bandera quan s'han de decidir si carregar, integrar-se o configurar el servei. Un pla `enabled` La bandera no és suficient pel seu compte, perquè un servei que està habilitat, però mai no es pot compartir amb una altra aplicació, en realitat no es requereix contractement per ningú."
 
 # **Galàxia Anibleobject name (optional)**.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `requirements.galaxy.yml` Font primària usant
 msgid "`requirements.galaxy.yml`   Primary source using **Ansible Galaxy**."
 msgstr ""
 
@@ -91454,9 +90882,6 @@ msgstr "`roles/test-e2e-playwright/tasks/02_run_one.yml` Avança el valor resolt
 
 # (renderitzat per- deploy; pintesamount in units (real) `@playwright/test`
 # des de `meta/services.yml.playwright.version`)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `roles/test-e2e-playwright/templates/package.json.j2`
 msgid "`roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy; pins `@playwright/test` from `meta/services.yml.playwright.version`)"
 msgstr ""
 
@@ -91630,9 +91055,6 @@ msgstr "`services.s1.flavor` Selecciona quina implementació respon a aquest con
 # decideix si una execució utilitza el de Baudol `--snapshot` Mode. **Cita el
 # valor** 1] YAML llegeix un nus `off`/`no`/`false` com a booleà, i l'esquisi
 # s'expressa en el resultat.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `services.volume-2-local.snapshot_mode` (S' ha
 msgid "`services.volume-2-local.snapshot_mode` (declared in `meta/services.yml`, overridable per host from the inventory) decides whether a run uses baudolo's `--snapshot` mode. **Quote the value** — YAML reads a bare `off`/`no`/`false` as a boolean, and the deploy asserts on the result."
 msgstr ""
 
@@ -92087,16 +91509,10 @@ msgid "`test-element-call.js` opens the Element home view and verifies a call-wi
 msgstr "`test-element-call.js` Obre la vista inicial de l' element i verifica una superfície de control d' estris de crida quan `services.matrix.conferencing.element_call=true` (S' ha omès d' altra manera)."
 
 # administrador.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `test-login-ldap-admin.js` 1] OpenLDAP Uniu-vos,
 msgid "`test-login-ldap-admin.js` — OpenLDAP bind, administrator."
 msgstr ""
 
 # (Nodmin RBAC).
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `test-login-ldap-biber.js` 1] OpenLDAP Uneix. `biber`
 msgid "`test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC)."
 msgstr ""
 
@@ -92462,9 +91878,6 @@ msgstr "`web-app-wordpress` no té cap superfície IA en el nucli; el requisit s
 # proveïdor es mou a un `AI::ProviderConnection` Registre i canvis del
 # contracte. 7.1.2 accepta Elasticsearch `>= 7.8, < 10`, així que el paper és
 # existent 8.13.4 Les agulles estan.
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: `web-app-zammad` estava atrapat a 6.5.0, que no hi ha
 msgid "`web-app-zammad` was pinned at 6.5.0, which ships no AI surface at all. The role is bumped to 7.1.2, the newest line whose contract is still the `ai_provider` / `ai_provider_config` setting pair; past 7.1.x the provider moves into an `AI::ProviderConnection` record and the contract changes. 7.1.2 accepts Elasticsearch `>= 7.8, < 10`, so the role's existing 8.13.4 pin stands."
 msgstr ""
 
@@ -92577,9 +91990,6 @@ msgstr ""
 msgid "a connection lookup mirroring `database`: `lookup('<engine>', consumer_id, want)` returning host/port/user/password/url/db for the consumer."
 msgstr "una rèplica de la connexió `database`: `lookup('<engine>', consumer_id, want)` Tornar host/port/user/password/url/db pel consumidor."
 
-# translation-refused: libretranslate collapsed
-# nocheck: url
-# translation-rejected: Name
 msgid "a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint"
 msgstr ""
 
@@ -95127,9 +94537,6 @@ msgid "distribution name."
 msgstr "Nom de la distribució."
 
 # translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: DestroCity name (optional, probably does not need a
 msgid "distro"
 msgstr ""
 
@@ -95765,9 +95172,6 @@ msgid "fediverse and media roles"
 msgstr "Papers alimentaris i multimèdia"
 
 # translation)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: fedoraCity name (optional, probably does not need a
 msgid "fedora"
 msgstr ""
 
@@ -98869,9 +98273,6 @@ msgid "re-run with different credentials/configuration"
 msgstr "Torna a executar amb diferents credencials/ configuració"
 
 # services.recaptcha.enabled) per script- eem/frame- src
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: ReCAPConstellation name (optional) (si
 msgid "reCAPTCHA (if services.recaptcha.enabled) for script-elem/frame-src"
 msgstr ""
 
@@ -99159,22 +98560,13 @@ msgid "restrict the choice to these values; empty allows all of them."
 msgstr "restringir l' elecció a aquests valors; els buits en permeten tots."
 
 # docker_network_noop('connect'))
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: result.rc != 0 i no (result.stderr 1]
 msgid "result.rc != 0 and not (result.stderr | docker_network_noop('connect'))"
 msgstr ""
 
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: result.rc != 0 i no (result.stderr 1] gitea_auth_noop)
 msgid "result.rc != 0 and not (result.stderr | gitea_auth_noop)"
 msgstr ""
 
 # ldap_modify_noop)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: result.rc != 0 i no (result.stderr 1]
 msgid "result.rc != 0 and not (result.stderr | ldap_modify_noop)"
 msgstr ""
 
@@ -99523,9 +98915,6 @@ msgid "same or above; `argv:` target item"
 msgstr "El mateix o per sobre; `argv:` element de destí"
 
 # línies)
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: igual o superior; capamount in units (real) (primer 30
 msgid "same or above; head (first 30 lines)"
 msgstr ""
 
@@ -103379,10 +102768,7 @@ msgstr "{% if lookup('prometheus_integration_active', application_id) %} ...prom
 # curl }} -> rulls - s -- connect- timeout 5 -- max- time 300 - hivernal 3 --
 # hivern- all- errors -- hivern- delay 2 {{ lookup('timeout', 30) | curl }} ->
 # TIMEOUT_FACTORvariant escalada
-# translation-refused: libretranslate protected-span lost=['TIMEOUT_FACTOR']
 # gained=['TIMEOUT_FACTORvariant']
-# nocheck: url
-# translation-rejected: {{ 30 | curl }} -> rulls - s -- connect- timeout 5 --
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
 msgstr ""
 
@@ -103486,9 +102872,6 @@ msgid "“Smart defaults”:"
 msgstr "\"2002Smart per omissió:"
 
 # navegador
-# translation-refused: libretranslate structure
-# nocheck: url
-# translation-rejected: 1]️ **lògica de versions** fins a la memòria cau del
 msgid "⏱️ **Versioning logic** to bust browser cache"
 msgstr ""
 
@@ -103911,9 +103294,6 @@ msgstr "🔒 **Configuració de només bucles**"
 # translated-by: libretranslate
 # de de de de decouar en un futur alliberament per millorar la modular i la
 # integració.
-# translation-refused: libretranslate stutter
-# nocheck: url
-# translation-rejected: 🔧 **Nota**: La capa de base de dades s'hauria de de de
 msgid "🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration."
 msgstr ""
 
