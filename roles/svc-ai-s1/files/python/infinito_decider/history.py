@@ -42,8 +42,20 @@ class History:
             "decided_at TIMESTAMPTZ NOT NULL DEFAULT now(),"
             "signature TEXT NOT NULL,"
             "alias TEXT NOT NULL,"
-            "won BOOLEAN NOT NULL)"
+            "won BOOLEAN NOT NULL,"
+            "took_ms INTEGER)"
         )
+
+    @property
+    def widening(self):
+        """The ALTER that brings a table written before ``took_ms`` up to date.
+
+        A verdict table outlives the code that writes it, and ``CREATE TABLE
+        IF NOT EXISTS`` leaves an existing one untouched, so a deployment that
+        recorded wins before this column existed would keep failing every
+        insert.
+        """
+        return f"ALTER TABLE {self._table} ADD COLUMN IF NOT EXISTS took_ms INTEGER"
 
     @property
     def index(self):
@@ -56,20 +68,50 @@ class History:
     async def _ensure(self):
         if not self._ready:
             await self._client.execute_raw(self.ddl)
+            await self._client.execute_raw(self.widening)
             await self._client.execute_raw(self.index)
             self._ready = True
 
-    async def record(self, request_class, winner, offered):
-        """Write one row per offered option, marking which one won."""
+    async def record(self, request_class, winner, offered, took_ms=None):
+        """Write one row per offered option, marking which one won.
+
+        Args:
+            request_class: the signature the comparison belongs to.
+            winner: the option that won it.
+            offered: every option the comparison weighed.
+            took_ms: ``{alias: milliseconds}`` for the options that answered.
+                An option that did not answer keeps a null duration rather
+                than a zero, which would read as the fastest of them all.
+        """
         await self._ensure()
+        timings = took_ms or {}
         for alias in offered:
             await self._client.execute_raw(
-                f"INSERT INTO {self._table} (signature, alias, won) "  # noqa: S608 table validated against IDENTIFIER in __init__
-                f"VALUES ($1, $2, $3)",
+                f"INSERT INTO {self._table} (signature, alias, won, took_ms) "  # noqa: S608 table validated against IDENTIFIER in __init__
+                f"VALUES ($1, $2, $3, $4)",
                 request_class,
                 alias,
                 alias == winner,
+                timings.get(alias),
             )
+
+    async def speed(self, request_class):
+        """``{alias: average milliseconds}`` for *request_class*, timed rows only.
+
+        Quality alone cannot pick between two engines that both answer well,
+        and the last request's duration is gone the moment the process
+        restarts. The average over recorded comparisons is what survives.
+
+        Args:
+            request_class: the signature to read.
+        """
+        await self._ensure()
+        rows = await self._client.query_raw(
+            f"SELECT alias, AVG(took_ms) AS took FROM {self._table} "  # noqa: S608 table validated against IDENTIFIER in __init__
+            f"WHERE signature = $1 AND took_ms IS NOT NULL GROUP BY alias",
+            request_class,
+        )
+        return {row["alias"]: int(row["took"]) for row in rows or []}
 
     async def wins(self, request_class):
         """``{alias: (won, seen)}`` for *request_class*, empty when untried."""

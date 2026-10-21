@@ -124,6 +124,15 @@ class Router:
         except Exception:
             return {}
 
+    async def _speeds(self, request_class):
+        """Average milliseconds per engine, empty when the log cannot answer."""
+        if self._history is None:
+            return {}
+        try:
+            return await self._history.speed(request_class)
+        except Exception:
+            return {}
+
     async def _streaks(self):
         """Consecutive failures per engine, empty when the log cannot answer."""
         if self._failures is None:
@@ -162,9 +171,10 @@ class Router:
         except Exception:
             return
 
-    def _criteria(self, offered, tally):
+    def _criteria(self, offered, tally, speeds=None):
         """One line per engine, stating only measured or catalogued facts."""
         criteria = {}
+        timings = speeds or {}
         for engine in offered:
             facts = ["runs in this cluster"]
             pairs = self._pairs.get(engine)
@@ -173,7 +183,9 @@ class Router:
                 if pairs
                 else "declares no language catalogue"
             )
-            if engine in self._latency:
+            if engine in timings:
+                facts.append(f"averages {timings[engine]} ms on requests like this")
+            elif engine in self._latency:
                 facts.append(f"answered the last request in {self._latency[engine]} ms")
             won, seen = tally.get(engine, (0, 0))
             if seen:
@@ -191,13 +203,14 @@ class Router:
         if self._decider is None or len(offered) < 2:
             return None
         state = f"{source or 'auto'} to {target}: {text}"
+        speeds = await self._speeds(signature(source, target, text))
         try:
             answer = await asyncio.to_thread(
                 self._decider.ask,
                 state,
                 self._question,
                 CHOICE_INSTRUCTIONS,
-                self._criteria(offered, tally),
+                self._criteria(offered, tally, speeds),
             )
         except Exception:
             return None
@@ -369,7 +382,7 @@ class Router:
         if self._history is None:
             return
         try:
-            await self._history.record(request_class, winner, offered)
+            await self._history.record(request_class, winner, offered, self._latency)
         except Exception:
             return
 

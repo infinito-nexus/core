@@ -53,21 +53,27 @@ class FakeDecider:
 
 
 class FakeHistory:
-    def __init__(self, tally=None, *, wins_raises=None, record_raises=None):
+    def __init__(self, tally=None, *, wins_raises=None, record_raises=None, speeds=None):
         self._tally = tally or {}
+        self._speeds = speeds or {}
         self.wins_raises = wins_raises
         self.record_raises = record_raises
         self.recorded = []
+        self.timings = []
 
     async def wins(self, request_class):
         if self.wins_raises:
             raise self.wins_raises
         return dict(self._tally)
 
-    async def record(self, request_class, winner, offered):
+    async def speed(self, request_class):
+        return dict(self._speeds)
+
+    async def record(self, request_class, winner, offered, took_ms=None):
         if self.record_raises:
             raise self.record_raises
         self.recorded.append((request_class, winner, tuple(offered)))
+        self.timings.append(dict(took_ms or {}))
 
 
 class AlwaysSampler:

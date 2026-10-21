@@ -75,8 +75,35 @@ class RecordTestCase(unittest.TestCase):
         statement, params = next(
             (s, p) for s, p in client.executed if s.startswith("INSERT")
         )
-        self.assertIn("VALUES ($1, $2, $3)", statement)
-        self.assertEqual(params, ("sig", "alpha", True))
+        self.assertIn("VALUES ($1, $2, $3, $4)", statement)
+        self.assertEqual(params, ("sig", "alpha", True, None))
+
+    def test_a_measured_duration_is_written_with_its_option(self) -> None:
+        client = FakeClient()
+
+        asyncio.run(
+            History(client, "log").record(
+                "sig", "alpha", ["alpha", "beta"], {"alpha": 120}
+            )
+        )
+
+        inserts = [p for s, p in client.executed if s.startswith("INSERT")]
+        self.assertEqual([p[1] for p in inserts], ["alpha", "beta"])
+        self.assertEqual(
+            [p[3] for p in inserts],
+            [120, None],
+            "an option that did not answer keeps a null, never a zero",
+        )
+
+    def test_the_table_is_widened_for_a_log_written_before_the_column(self) -> None:
+        client = FakeClient()
+
+        asyncio.run(History(client, "log").record("sig", "alpha", ["alpha"]))
+
+        self.assertTrue(
+            any(s.startswith("ALTER TABLE") for s, _ in client.executed),
+            "an existing table never gains the column from CREATE IF NOT EXISTS",
+        )
 
 
 class WinsTestCase(unittest.TestCase):
@@ -89,6 +116,26 @@ class WinsTestCase(unittest.TestCase):
 
     def test_an_untried_class_reads_as_empty(self) -> None:
         self.assertEqual(asyncio.run(History(FakeClient([]), "log").wins("sig")), {})
+
+
+class SpeedTestCase(unittest.TestCase):
+    def test_it_reads_the_average_duration_per_option(self) -> None:
+        client = FakeClient([{"alias": "alpha", "took": 143.6}])
+
+        self.assertEqual(
+            asyncio.run(History(client, "log").speed("sig")), {"alpha": 143}
+        )
+
+    def test_it_asks_only_for_rows_that_carry_a_duration(self) -> None:
+        client = FakeClient([])
+
+        asyncio.run(History(client, "log").speed("sig"))
+
+        statement = next(s for s, _ in client.queried if s.startswith("SELECT"))
+        self.assertIn("took_ms IS NOT NULL", statement)
+
+    def test_a_class_nobody_timed_reads_as_empty(self) -> None:
+        self.assertEqual(asyncio.run(History(FakeClient([]), "log").speed("sig")), {})
 
     def test_a_client_answering_none_reads_as_empty(self) -> None:
         self.assertEqual(asyncio.run(History(FakeClient(None), "log").wins("sig")), {})
