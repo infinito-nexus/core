@@ -10,6 +10,19 @@ from utils.install import npm as npm_mod
 
 
 class TestEnsureNpmPresent(unittest.TestCase):
+    def setUp(self) -> None:
+        patcher = mock.patch("utils.install.node.ensure_node_present")
+        self.ensure_node = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_provides_a_supported_node_first(self) -> None:
+        with (
+            mock.patch.object(npm_mod.shutil, "which", return_value="/usr/bin/npm"),
+            mock.patch("utils.install.system_pkg.install_command_via_pkg"),
+        ):
+            npm_mod.ensure_npm_present()
+        self.ensure_node.assert_called_once_with()
+
     def test_present_noop(self) -> None:
         with (
             mock.patch.object(npm_mod.shutil, "which", return_value="/usr/bin/npm"),

@@ -143,6 +143,13 @@ _COMMAND_PACKAGES: dict[str, dict[str, list[str]]] = {
     "shfmt": {m: ["shfmt"] for m in _SUPPORTED},
     "shellcheck": {m: ["shellcheck"] for m in _SUPPORTED},
     "unzip": {m: ["unzip"] for m in _SUPPORTED},
+    "gpgv": {
+        "pacman": ["gnupg"],
+        "apt-get": ["gpgv"],
+        "dnf": ["gnupg2"],
+        "yum": ["gnupg2"],
+        "brew": ["gnupg"],
+    },
     "php": {
         "pacman": ["php"],
         "apt-get": ["php-cli", "php"],

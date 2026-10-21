@@ -15,6 +15,7 @@ Modules at this level are channel-agnostic primitives; per-tool policy lives one
 | `primitives.py` | Logging, sudo wrapping, PATH mutation, and stdlib-based URL download. |
 | `pip.py` | Venv-aware pip installer with `--break-system-packages` and `--user` fallback. |
 | `npm.py` | Global / local npm install with per-user `--prefix` fallback. |
+| `node.py` | Node.js runtime that is still supported upstream: the distro package, or the newest LTS from nodejs.org (signature- and checksum-verified) when the distro line has reached its end of life. |
 | `github_release.py` | Latest-tag resolver and asset downloader for GitHub releases. |
 | `system_pkg.py` | Per-manager dispatch for `pacman` / `apt-get` / `dnf` / `yum` / `brew`. |
 | [`lint/`](lint/) | One module per tool, each exposing `ensure()`. See [lint README](lint/README.md). |
@@ -33,5 +34,6 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 
 - `primitives.py` MUST NOT import from any other module in this package.
 - `pip.py`, `npm.py`, `github_release.py`, and `system_pkg.py` MAY import from `primitives.py`.
-- `npm.py` MAY import from `system_pkg.py` to bootstrap npm itself; no other cross-imports between these four are allowed.
+- `npm.py` MAY import from `system_pkg.py` and `node.py` to bootstrap npm itself; no other cross-imports between these four are allowed.
+- `node.py` MAY import from `primitives.py` and `system_pkg.py`.
 - Per-tool modules under [`lint/`](lint/) MUST NOT import each other (see [lint README](lint/README.md)).
