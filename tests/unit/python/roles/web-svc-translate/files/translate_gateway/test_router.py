@@ -53,7 +53,9 @@ class FakeDecider:
 
 
 class FakeHistory:
-    def __init__(self, tally=None, *, wins_raises=None, record_raises=None, speeds=None):
+    def __init__(
+        self, tally=None, *, wins_raises=None, record_raises=None, speeds=None
+    ):
         self._tally = tally or {}
         self._speeds = speeds or {}
         self.wins_raises = wins_raises

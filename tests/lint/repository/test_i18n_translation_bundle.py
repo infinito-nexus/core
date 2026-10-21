@@ -53,13 +53,11 @@ def providers() -> dict[str, str]:
 
 class TestTranslationBundleCoversEveryBackend(unittest.TestCase):
     def test_every_gated_backend_role_is_deployed_by_the_bundle(self) -> None:
-        missing = {
-            key: role
-            for key, role in providers().items()
-            if role not in BUNDLE
-        }
+        missing = {key: role for key, role in providers().items() if role not in BUNDLE}
 
-        report = "\n".join(f"  - {key}: {role}" for key, role in sorted(missing.items()))
+        report = "\n".join(
+            f"  - {key}: {role}" for key, role in sorted(missing.items())
+        )
         self.assertFalse(
             missing,
             f"{len(missing)} backend(s) of {ROLE} are gated on a role that "

@@ -1,8 +1,5 @@
 ---
 - services:
-    seaweedfs:
-      enabled: true
-      shared: true
     sso:
       enabled: "{{ 'svc-net-tor' not in group_names }}"
       shared: "{{ 'svc-net-tor' not in group_names }}"
@@ -21,9 +18,6 @@
     tor:
       enabled: true
 - services:
-    seaweedfs:
-      enabled: true
-      shared: true
     sso:
       enabled: false
       shared: false

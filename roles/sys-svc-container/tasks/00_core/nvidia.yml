@@ -18,7 +18,7 @@
 - name: "🎮 Skip the cgroup setup nvidia-container-cli cannot own in a container"
   ansible.builtin.lineinfile:
     path: /etc/nvidia-container-runtime/config.toml
-    regexp: '^#?\s*no-cgroups\s*='
+    regexp: "^#?\\s*no-cgroups\\s*="
     line: "no-cgroups = true"
     owner: root
     group: root

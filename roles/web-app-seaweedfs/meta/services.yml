@@ -3,6 +3,7 @@
 # the engine's shared_net (meta/networks.yml consumer key), and files/playwright/test-storage-buckets.js
 # already asserts every consumer bucket through the filer it serves.
 # nocheck: playwright-service-flag — engine provider, covered by the web-svc-seaweedfs CLI test
+# nocheck: dynamic-flag  the flag's only job is joining the engine's shared_net, and its false branch yields a console container that cannot start
 seaweedfs:
   bond: 1
   enabled: true
