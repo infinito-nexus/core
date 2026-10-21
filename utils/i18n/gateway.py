@@ -38,6 +38,7 @@ ENGINE_ROLE = "svc-ai-libretranslate-engine"
 BUNDLE = (
     ENGINE_ROLE,
     "svc-ai-ltengine",
+    "svc-ai-nllb-engine",
     "svc-ai-ollama",
     "svc-ai-litellm",
     "svc-ai-s1",
