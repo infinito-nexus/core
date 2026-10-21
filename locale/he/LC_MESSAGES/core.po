@@ -72,7 +72,7 @@ msgstr "כל שרת דואר Stalwart עם SMTP, IMAP, JMAP, POP3, ManageSieve, 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr ""
+msgstr "Analytics"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -1001,7 +1001,7 @@ msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm nod
 # translated-by: libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr ""
+msgstr "Marketing"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1058,9 +1058,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "דף סטטי שמור על NGINX הופך חותם משפטי (Impressum) מתוך Jinja2 תבנית"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 מודל התרגום שימש מעל HTTP, עבור צינורות שמכנים אותו ישירות"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"

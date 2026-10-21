@@ -1048,9 +1048,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-сервер статичної сторінки, що надає правовий відбиток (Імпресія) з Jinja2 шаблони"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "НЛБ-200 модель перекладу подається над HTTP, для трубопроводів, які його називають безпосередньо"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1905,7 +1906,7 @@ msgstr "Системний інтерфейс командного рядка д
 # translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
-msgstr ""
+msgstr "Система pip-помощника для встановлення або оновлення Python-пакета через систему хоста"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"

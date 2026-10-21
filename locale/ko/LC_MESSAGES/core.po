@@ -47,7 +47,7 @@ msgstr "관리 도구 für 서버"
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr ""
+msgstr "Agents"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -82,7 +82,7 @@ msgstr "idempotent persistence 및 local YAML 저장소에 per-user 애플리케
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr ""
+msgstr "응용프로그램"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
@@ -652,7 +652,7 @@ msgstr "이벤트 및 티켓 관리 도구"
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr ""
+msgstr "Events"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
@@ -730,7 +730,7 @@ msgstr "프론트엔드 헬스터 (주입, 공유 자산, CDN 배관)·"
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr ""
+msgstr "게임"
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
@@ -1067,9 +1067,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served static 페이지는 법적인 임프린트를 렌더링 (IR 정보) 진자에서2 관련 기사"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "사이트맵200 번역 모델은 HTTP를 통해 제공, 파이프라인은 직접 호출"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"

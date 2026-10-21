@@ -72,7 +72,7 @@ msgstr "SMTP, IMAP, JMAP, POP3, YönetmeSieve, CalDAV, CardDAV ve yerleşik spam
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr ""
+msgstr "Analizler"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -1000,7 +1000,7 @@ msgstr "Bir web yüzeyi olmadan makine çevirisi motoru, onu doğrudan çağıra
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr ""
+msgstr "Bakım"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
@@ -1077,9 +1077,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served statik sayfa yasal bir baskı oluşturur (Impressum) Bir Jinja'dan2 şablon"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 Çeviri modeli HTTP üzerinden hizmet etti, çünkü onu doğrudan çağıran boru hatları"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1490,7 +1491,7 @@ msgstr "SMTP ağ geçidi Tor's Seiko dinleyicileri aracılığıyla .onion alıc
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr ""
+msgstr "Satış"
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"

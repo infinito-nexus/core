@@ -1069,9 +1069,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX 维护的静态页面, 刻出合法印记 (印象) 从金贾2 模板"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB - 说吧。200 翻译模型服务于HTTP上,用于直接调用它的管道"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -2066,7 +2067,7 @@ msgstr "通过Telegram和电子邮件渠道统一系统通知服务发送服务�
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr ""
+msgstr "更新与包管理"
 
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."

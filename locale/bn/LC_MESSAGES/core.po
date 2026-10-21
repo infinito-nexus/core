@@ -120,7 +120,7 @@ msgstr "বিপরীত DNS-র জন্য স্বয়ংক্রি�
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr ""
+msgstr "ব্যাকআপ & পুনরুদ্ধার"
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
@@ -171,7 +171,7 @@ msgstr "প্যাকেজ বিল্ড করার সময় root- �
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
-msgstr ""
+msgstr "CI Runner"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
@@ -457,7 +457,7 @@ msgstr "DNS স্বয়ংক্রিয়ভাবে সনাক্ত 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr ""
+msgstr "DNS Resolvers"
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
@@ -1062,9 +1062,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX- র জন্য নির্ধারিত পৃষ্ঠা প্রদর্শন করা হবে (ইমপ্রেস) জিনজা থেকে2 টেমপ্লেট"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB-200 ট্যাঙ্কিং মডেল HTTP এ পরিষ্কারিত হয়, যা এটি প্রক্রিয়াল একটির মধ্যে নেমে আসে"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1756,7 +1757,7 @@ msgstr "সার্ভার সংক্রান্ত প্রশাসন�
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr ""
+msgstr "সেবা ওপ্টিমেশন"
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"

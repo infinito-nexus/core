@@ -1054,9 +1054,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "Cấu hình trang tĩnh NGINX (Inpressum) từ Jinja2 mẫu"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLB-200 Mô hình dịch được phục vụ trên HTTP, cho các đường ống gọi trực tiếp"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"

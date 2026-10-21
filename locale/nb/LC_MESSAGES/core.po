@@ -1049,9 +1049,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-bevart statisk side som gjør en juridisk imprint (Impressum) fra Jinja2 mal"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NRLB-200 oversettelsesmodell servert over HTTP, for rørledninger som kaller det direkte"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"

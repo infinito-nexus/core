@@ -1110,9 +1110,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "NGINX-served static page rendering a legal imprint (Impressum) من جينجا2 النموذج"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLB200 وخدم نموذج الترجمة التحريرية على شركة HTTP من أجل خطوط الأنابيب التي تسميها مباشرة"
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1166,7 +1167,7 @@ msgstr "مسؤولو الإخطارات عن أحداث النظام"
 # translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr ""
+msgstr "تحديثات نظام التشغيل و البرامج"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -1328,7 +1329,7 @@ msgstr "عبر Tor قد يستغرق ذلك وقتًا أطول."
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "موديم كابسولات"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -2154,7 +2155,7 @@ msgstr "خدمات الاخطار النظامية الموحدة التي تر�
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr ""
+msgstr "تحديثات وإدارة الحزم"
 
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."

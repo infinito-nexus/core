@@ -72,7 +72,7 @@ msgstr "یک سرور ایمیل Stalwart با SMTP، IMAP، JMAP، POP3, مدی
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr ""
+msgstr "تحلیل"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -266,7 +266,7 @@ msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقداما�
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr ""
+msgstr "برج"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -461,7 +461,7 @@ msgstr "اتوماسیون DNS Automation"
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr ""
+msgstr "DNS حل‌کننده‌ها"
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
@@ -566,7 +566,7 @@ msgstr "ویدئو کنفرانس دسکتاپ مشتری را برای جلسا
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr ""
+msgstr "توسعه"
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
@@ -626,7 +626,7 @@ msgstr "رانندگان"
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr ""
+msgstr "Education"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
@@ -1061,9 +1061,10 @@ msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "صفحه استاتیک NGINX که دارای یک اثر قانونی است (Impressum) از جینجا2 الگو"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr ""
+msgstr "NLLB200 مدل ترجمه بیش از HTTP، برای خطوط لوله ای که آن را به طور مستقیم می نامند."
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1569,7 +1570,7 @@ msgstr "دیوار فدیف خود میزبان برای نشان دادن پس�
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
-msgstr ""
+msgstr "تولید و تیکنیک پیامبر اسستیون های اس-گیت هاب محلی"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
