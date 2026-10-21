@@ -20,4 +20,4 @@
     msg: "NVIDIA_VISIBLE_DEVICES={{ SYS_SVC_CONTAINER_GPU_DEVICES }}"
 
 - name: "🎮 Let the container manager hand that GPU to its containers"
-  include_tasks: 00_core/nvidia.yml
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia.yml"

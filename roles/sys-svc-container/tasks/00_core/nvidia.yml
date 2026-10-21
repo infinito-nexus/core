@@ -1,10 +1,10 @@
 ---
 - name: "🔧 Configure the NVIDIA container toolkit repository on Debian and Ubuntu"
-  include_tasks: nvidia/debian.yml
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia/debian.yml"
   when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
 
 - name: "🔧 Configure the NVIDIA container toolkit repository on the RedHat family"
-  include_tasks: nvidia/redhat.yml
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia/redhat.yml"
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: "📦 Install the NVIDIA container toolkit"
