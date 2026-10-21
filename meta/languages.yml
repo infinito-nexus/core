@@ -7,10 +7,13 @@ ab:
   name: "Abkhazian"
   native: "Аԥсшәа"
   direction: ltr
-ae:
-  name: "Avestan"
-  native: "Avesta"
-  direction: ltr
+# Exception: Avestan (ae) is deliberately absent. It is an extinct liturgical
+# language with almost no parallel text, so no engine in the bundle carries a
+# code for it: NLLB-200 lists it under UNSERVED, and LibreTranslate answers a
+# request for it in Arabic script. A run in 2026-10 offered 158 entries and
+# kept none. Listing it promised a translation the stack cannot produce, and
+# the completeness checks then failed on a gap nothing could close. Re-add it
+# only together with an engine that declares the pair.
 af:
   name: "Afrikaans"
   native: "Afrikaans"
