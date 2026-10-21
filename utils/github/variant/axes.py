@@ -55,7 +55,6 @@ from utils.github.variant import instructions
 from utils.github.variant.label import (
     LABEL_RE,
     LOCAL_GLYPH,
-    Label,
     artifact_slug,
     parse_label,
 )
@@ -91,7 +90,6 @@ __all__ = [
     "LABEL_RE",
     "LOCAL_GLYPH",
     "MODES",
-    "Label",
     "artifact_slug",
     "assign",
     "check_pins",

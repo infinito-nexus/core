@@ -11,14 +11,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
-from utils.i18n.client import LibreTranslate, Outcome, merge
+from utils.i18n.client import LibreTranslate as LibreTranslate
+from utils.i18n.client import Outcome as Outcome
+from utils.i18n.client import merge
 from utils.inventory.tools import LANE_SERVICE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-__all__ = ["LibreTranslate", "Outcome", "merge", "server"]
+__all__ = ["merge", "server"]
 
 ROLE = "svc-ai-libretranslate-engine"
 SERVICE_KEY = "libretranslate-engine"

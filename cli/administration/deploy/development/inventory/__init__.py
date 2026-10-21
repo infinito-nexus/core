@@ -29,10 +29,10 @@ re-exported below because unit tests historically patch them under this
 package path. New tests SHOULD patch the submodule path directly
 (e.g. ``inventory.legacy_resolver._resolve_round_include``).
 
-``DevInventorySpec`` is imported but deliberately absent from ``__all__``:
-listing a re-exported class makes autodoc document it here as well as in
-:mod:`.spec`, and sphinx then finds two targets for every annotation. Importing
-it from this package keeps working either way.
+``DevInventorySpec`` and ``PlanEntry`` are imported but deliberately absent
+from ``__all__``: listing a re-exported class makes autodoc document it here
+as well as in :mod:`.spec`, and sphinx then finds two targets for every
+annotation. Importing them from this package keeps working either way.
 """
 
 from __future__ import annotations
@@ -46,10 +46,9 @@ from .legacy_resolver import (
 from .payload import _bake_overrides, _resolve_variant_payloads
 from .planner import filter_plan_to_variants, plan_dev_inventory_matrix
 from .spec import DevInventorySpec as DevInventorySpec
-from .spec import PlanEntry
+from .spec import PlanEntry as PlanEntry
 
 __all__ = [
-    "PlanEntry",
     "_bake_overrides",
     "_build_services_overrides_for_round",
     "_resolve_round_include",

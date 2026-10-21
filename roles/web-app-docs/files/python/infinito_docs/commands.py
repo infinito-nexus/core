@@ -14,6 +14,8 @@ _SPAN = {
     "postprocess html": (60, 99),
 }
 
+APIDOC_EXCLUDED = ("tests", "roles", "library")
+
 
 def _module(name, *args):
     return [sys.executable, "-P", "-m", name, *(str(arg) for arg in args)]
@@ -42,9 +44,7 @@ def generate_commands(src):
             "-o",
             str(generated / "modules"),
             str(src),
-            str(src / "tests"),
-            str(src / "roles"),
-            str(src / "library"),
+            *(str(src / name) for name in APIDOC_EXCLUDED),
         ],
         _generator(
             "yaml_index",
