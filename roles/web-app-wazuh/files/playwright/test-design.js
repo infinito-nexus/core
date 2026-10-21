@@ -192,28 +192,31 @@ exports.register = function () {
   test("design: badges and the avatar leave the inline upstream colors behind", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
-    await open(page, "/app/security-dashboards-plugin#/users", ".euiTableRow .euiBadge");
-    for (const mode of MODES) {
-      await page.emulateMedia({ colorScheme: mode });
-      await assertToken(page, ".euiTableRow .euiBadge", "background-color", "--design-surface-active", `current badge ${mode}`);
-      await assertToken(page, ".euiTableRow .euiBadge", "color", "--design-text", `current badge ${mode}`);
-      await assertToken(page, `${HEADER} .euiAvatar--user`, "background-color", "--design-primary", `avatar ${mode}`);
-      await assertToken(page, `${HEADER} .euiAvatar--user`, "color", "--design-on-primary", `avatar ${mode}`);
+    if (!isServiceEnabled("sso")) {
+      await open(page, "/app/security-dashboards-plugin#/users", ".euiTableRow .euiBadge");
+      for (const mode of MODES) {
+        await page.emulateMedia({ colorScheme: mode });
+        await assertToken(page, ".euiTableRow .euiBadge", "background-color", "--design-surface-active", `current badge ${mode}`);
+        await assertToken(page, ".euiTableRow .euiBadge", "color", "--design-text", `current badge ${mode}`);
+      }
+      await page.emulateMedia({ colorScheme: null });
+      await assertReadable(page, [".euiTableRow .euiBadge"], "wazuh current-user badge");
     }
-    await page.emulateMedia({ colorScheme: null });
-    await assertReadable(page, [".euiTableRow .euiBadge", `${HEADER} .euiAvatar--user`], "wazuh badges");
     await open(page, "/app/security", ".euiTableRow .euiBadge");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await assertToken(page, ".euiTableRow .euiBadge", "background-color", "--design-success", `api role badge ${mode}`);
       await assertToken(page, ".euiTableRow .euiBadge", "color", "--design-on-success", `api role badge ${mode}`);
+      await assertToken(page, `${HEADER} .euiAvatar--user`, "background-color", "--design-primary", `avatar ${mode}`);
+      await assertToken(page, `${HEADER} .euiAvatar--user`, "color", "--design-on-primary", `avatar ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
-    await assertReadable(page, [".euiTableRow .euiBadge"], "wazuh api role badges");
+    await assertReadable(page, [".euiTableRow .euiBadge", `${HEADER} .euiAvatar--user`], "wazuh api role badges");
   });
 
   test("design: the sign-in page sits on the frame with the generated lockup", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    skipUnlessServiceDisabled("sso");
     const loginUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGIN_URL);
     test.skip(!loginUrl, "logo replacement is disabled for this role");
     await openLogin(page);
@@ -286,6 +289,7 @@ exports.register = function () {
 
   test("design: the sign-in page raises no legacy browser warning", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    skipUnlessServiceDisabled("sso");
     await openLogin(page);
     await page.waitForTimeout(resolveTimeout(3_000));
     await expect(page.getByText("Your browser does not meet the security requirements")).toHaveCount(0);

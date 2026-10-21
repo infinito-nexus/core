@@ -4,11 +4,13 @@ const {
   assertInjectedAssetLoadsWithoutCspBlock,
   decodeDotenvJsonList,
   decodeDotenvQuotedValue,
+  gotoOnion,
   requireDotenvValue,
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -61,8 +63,16 @@ for (const target of logoutTargetRoles) {
       `${target.id}: GET ${url} returned ${referenceResp.status()} — surface must respond for the logout assertion to be meaningful`
     ).toBeLessThan(500);
     const referenceHtml = await referenceResp.text();
-    const landedHost = new URL(referenceResp.url()).host;
-    if (landedHost !== new URL(url).host && !referenceHtml.includes("logout.js")) {
+    const ownHost = new URL(url).host;
+    let landedHost = new URL(referenceResp.url()).host;
+    if (landedHost === ownHost && !referenceHtml.includes("logout.js")) {
+      await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
+      await page
+        .waitForURL((landed) => new URL(landed).host !== ownHost, { timeout: resolveTimeout(15_000) })
+        .catch(() => {});
+      landedHost = new URL(page.url()).host;
+    }
+    if (landedHost !== ownHost && !referenceHtml.includes("logout.js")) {
       const idpHost = new URL(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL")).host;
       expect(
         landedHost,
