@@ -48,8 +48,8 @@ pixelfed:
   bond: 1
   shared: true
   enabled: true # nocheck: dynamic-flag
-  image: zknt/pixelfed
-  version: "20261021"
+  image: ghcr.io/pixelfed/pixelfed
+  version: v0.14.4
   name: pixelfed
   min_storage: 588MB
   backup:
