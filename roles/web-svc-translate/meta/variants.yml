@@ -5,6 +5,11 @@
 # nocheck: sso-variant-tor — variant 1 is LTEngine's round, and svc-ai-ltengine
 # pins tor.enabled false because an engine consumed over the internal network
 # publishes no onion surface; a round binding it may not advertise one either.
+#
+# nocheck: variant-limit: folding nllb-engine into the LTEngine round was
+# measured and does not fit, at 33.04 GB reservation against the 32 GB cap and
+# 69.88 GB limit against the 64 GB cap on web-app-discourse variant 1. The two
+# translation engines each need a round of their own.
 
 - services:
     ltengine:
