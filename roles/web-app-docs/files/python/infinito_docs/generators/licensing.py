@@ -13,15 +13,35 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from utils.licensing.contexts import CONTEXTS, UNKNOWN
-from utils.licensing.rights import DISCLAIMERS, DUTIES, GRANTS, NOT_GRANTED
-from utils.licensing.roles import Declared, declared, deploys_nothing
-from utils.roles.required_by_coverage import role_is_invokable
+try:
+    from utils.licensing.contexts import CONTEXTS, UNKNOWN
+    from utils.licensing.rights import DISCLAIMERS, DUTIES, GRANTS, NOT_GRANTED
+    from utils.licensing.roles import Declared, declared, deploys_nothing
+    from utils.roles.required_by_coverage import role_is_invokable
+except ImportError:
+    DECLARED_LICENCES = False
+else:
+    DECLARED_LICENCES = True
 
-COLUMNS: tuple[tuple[str, str], ...] = tuple(
-    (field, field.replace("_", " ").capitalize())
-    for field in GRANTS + DUTIES + DISCLAIMERS + NOT_GRANTED
+COLUMNS: tuple[tuple[str, str], ...] = (
+    tuple(
+        (field, field.replace("_", " ").capitalize())
+        for field in GRANTS + DUTIES + DISCLAIMERS + NOT_GRANTED
+    )
+    if DECLARED_LICENCES
+    else ()
 )
+
+ABSENT = """\
+.. _generated-licensing:
+
+Licence contexts
+================
+
+This release predates the per-role licence declarations, so there is nothing
+to tabulate for it. The page exists because the table of contents references
+it for every version; newer releases carry the matrix.
+"""
 
 HEADER = """\
 .. _generated-licensing:
@@ -180,6 +200,11 @@ def main(argv=None):
     parser.add_argument("--roles-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args(argv)
+    if not DECLARED_LICENCES:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(ABSENT, encoding="utf-8")
+        print(f"licensing: release without declarations -> {args.output}")
+        return 0
     count = generate(args.roles_dir, args.output)
     print(f"licensing: {count} roles -> {args.output}")
     return 0
