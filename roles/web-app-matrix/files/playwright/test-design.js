@@ -388,7 +388,10 @@ exports.register = function (shared) {
       await expect(page.locator("body")).toHaveClass(new RegExp(`\\bcpd-theme-${mode}\\b`), readyWait());
       await expect(page.locator("html")).not.toHaveAttribute("data-design-theme");
       await assertToken(page, ".mx_RoomHeader", "background-color", "--design-surface-1", `matrix ${mode} room header`);
-      await assertToken(page, ".mx_LeftPanel", "background-color", "--design-surface-1", `matrix ${mode} room list`);
+      expect(
+        await tokenValue(page, "--cpd-color-bg-canvas-default", "background-color"),
+        `matrix ${mode} room list: Element paints its canvas from --cpd-color-bg-canvas-default, which must carry --design-surface-1`,
+      ).toBe(await tokenValue(page, "--design-surface-1", "background-color"));
       await assertToken(page, ".mx_EventTile_body", "color", "--design-text", `matrix ${mode} message text`);
       await assertToken(page, ".mx_RoomHeader", "border-bottom-color", "--design-border", `matrix ${mode} room header divider`);
     }
