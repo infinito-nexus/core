@@ -38061,11 +38061,6 @@ msgstr "INFINITO_DOMAIN:: ``<stack>.<INFINITO_DNS_DOMAIN>``, 스택은 어디에
 msgid "INFINITO_FORK_ACCOUNT: GitHub account holding the operator's fork, defaulting to the local OS username."
 msgstr "INFINITO_FORK_ACCOUNT: 연산자의 포크를 잡고 있는 GitHub 계정, 로컬 OS 사용자 이름과 기본."
 
-# INFINITO_FORK_ACCOUNT 이름 * INFINITO_FORK_REPOSITORY_NAME·.
-# https://github.com/opskoko/2nd-op INFINITO_FORK_ACCOUNT
-# INFINITO_FORK_REPOSITORY_NAME. --- INFINITO_FORK_REPOSITORY_URL:
-# https://github.com/2nd-op INFINITO_FORK_ACCOUNT
-# INFINITO_FORK_REPOSITORY_NAME.
 msgid "INFINITO_FORK_REPOSITORY_URL: GitHub URL of the operator's fork, composed from INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 msgstr ""
 
