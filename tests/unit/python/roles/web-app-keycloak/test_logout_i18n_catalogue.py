@@ -4,6 +4,13 @@ A key the template reads but the catalogue lacks renders ``undefined`` into the
 page, and a language whose entry is short by one key does it only for the
 visitors who speak it. Both are invisible until someone reports them, which is
 why the shape is asserted here rather than left to review.
+
+Shape holds whatever the translation pipeline has done, so those cases run
+everywhere. Whether an entry carries a translation at all is a different
+question: it is only answerable once the engines have run over the catalogs,
+which needs a GPU. That case therefore carries the same guard as
+``tests/integration/i18n/test_catalogs_complete_on_gpu.py`` and skips where no
+engine could have filled anything.
 """
 
 from __future__ import annotations
@@ -16,12 +23,14 @@ from utils.cache.yaml import load_yaml
 from utils.i18n.extract import logout_context
 from utils.i18n.keyed import keyed_catalogue
 from utils.i18n.languages import load_languages
+from utils.i18n.libretranslate import accelerated
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 TEMPLATE = ROLE / "files" / "javascript" / "logout-panel.js"
 REFERENCE = "en"
 MINIMUM_LANGUAGES = 30
+TOLERATED_ENGLISH_KEYS = 2
 
 
 class TestLogoutCatalogue(unittest.TestCase):
@@ -87,6 +96,14 @@ class TestLogoutCatalogue(unittest.TestCase):
                         "a dropped or renamed placeholder leaves a literal brace on screen",
                     )
 
+
+@unittest.skipUnless(accelerated(), "no NVIDIA runtime on this host")
+class TestLogoutCatalogueIsTranslated(unittest.TestCase):
+    def setUp(self) -> None:
+        self.catalogue = keyed_catalogue(
+            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+        )
+
     def test_translations_are_not_copies_of_english(self) -> None:
         reference = self.catalogue[REFERENCE]
         for lang, entry in self.catalogue.items():
@@ -94,7 +111,11 @@ class TestLogoutCatalogue(unittest.TestCase):
                 continue
             same = [k for k, v in entry.items() if k != "dir" and v == reference[k]]
             with self.subTest(language=lang):
-                self.assertLessEqual(len(same), 2, f"still English: {sorted(same)}")
+                self.assertLessEqual(
+                    len(same),
+                    TOLERATED_ENGLISH_KEYS,
+                    f"still English: {sorted(same)}",
+                )
 
 
 if __name__ == "__main__":
