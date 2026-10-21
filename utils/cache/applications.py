@@ -394,7 +394,7 @@ def get_merged_applications(
 ) -> dict[str, Any]:
     """Return the applications payload for *variables*, cached per key.
 
-    Exception: a re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
+    A re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
     is written, because its payload carries no users and keeps its volumes. It
     is therefore memoised on the render guard instead, which drops it when the
     guard releases. Without that, one template render recomputed the payload

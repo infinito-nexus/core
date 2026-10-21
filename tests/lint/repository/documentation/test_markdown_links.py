@@ -50,7 +50,7 @@ class BrokenLink(NamedTuple):
 def _tracked_files() -> frozenset[str]:
     """Return every path git tracks, repo-root relative.
 
-    Exception: ``safe.directory`` is set for this invocation because the test
+    ``safe.directory`` is set for this invocation because the test
     container mounts the repository under a different owner, where git
     otherwise refuses the directory outright. Asking ``.gitignore`` instead
     would answer a different question, since a pattern keeps matching a file

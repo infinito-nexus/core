@@ -14,13 +14,13 @@ AGENT_STATE = (".agents", ".claude")
 def markdown_files() -> list[Path]:
     """Return every ``.md`` file of the repository the lints are meant to read.
 
-    Exception: asking ``git ls-files`` would answer a different question -- it
+    Asking ``git ls-files`` would answer a different question -- it
     lists what is tracked, so a tracked file inside an ignored directory counts
     and an untracked one never does. It also refuses the worktree the test
     container mounts, which would make the two environments lint two different
     file sets.
 
-    Exception: the agent state directories are dropped explicitly, because
+    The agent state directories are dropped explicitly, because
     ``iter_non_ignored_files`` reads only the root ``.gitignore`` and misses
     the nested one that ignores them. On the host the sandbox mounts
     ``/dev/null`` over entries there, so what is enumerated is a character

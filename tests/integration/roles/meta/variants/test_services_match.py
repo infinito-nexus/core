@@ -71,7 +71,7 @@ _KEY = re.compile(r"^\s*(?P<key>[A-Za-z_][\w.-]*):")
 def _exempt_keys(lines: list[str]) -> set[str]:
     """Return the service keys the file exempts from this rule.
 
-    Exception: the marker is read straight off the text. The line-number scan
+    The marker is read straight off the text. The line-number scan
     this used to go through recorded nothing for some variant shapes, so the
     rule reported keys that could not be exempted at all.
 

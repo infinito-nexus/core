@@ -12,7 +12,6 @@ if command -v update-ca-certificates >/dev/null 2>&1; then
 	CA_DSTS=("${CA_ROOT}/usr/local/share/ca-certificates/${CA_NAME}")
 	CA_REBUILD=(update-ca-certificates)
 elif command -v update-ca-trust >/dev/null 2>&1; then
-	# Exception: Arch and the RedHat family both run update-ca-trust but read different anchor dirs, and with-ca-trust.sh creates both dirs on both families, so the anchor goes into each instead of a probed one.
 	CA_DSTS=(
 		"${CA_ROOT}/etc/pki/ca-trust/source/anchors/${CA_NAME}"
 		"${CA_ROOT}/etc/ca-certificates/trust-source/anchors/${CA_NAME}"

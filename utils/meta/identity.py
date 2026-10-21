@@ -44,7 +44,7 @@ def profile_url(email: str) -> str:
 def _aliases(root: str = str(PROJECT_ROOT)) -> dict[str, tuple[str, str]]:
     """Return ``{commit address: canonical (name, address)}``.
 
-    Exception: ``.mailmap`` is parsed here rather than handed to
+    ``.mailmap`` is parsed here rather than handed to
     ``git check-mailmap``, because the test container mounts the checkout
     without the worktree's git directory and git then refuses to read it.
 
@@ -104,7 +104,7 @@ def by_name(root: str = str(PROJECT_ROOT)) -> dict[str, str]:
 def committing_as(root: Path | None = None) -> tuple[str, str]:
     """Return the identity a commit made here right now would carry.
 
-    Exception: the env pair wins over git. The test container mounts the
+    The env pair wins over git. The test container mounts the
     checkout but not the contributor's git configuration, so asking git there
     yields nothing; ``utils/env/handlers/infinito/git_identity.py`` records the
     host's answer in the ``.env`` the container reads.
