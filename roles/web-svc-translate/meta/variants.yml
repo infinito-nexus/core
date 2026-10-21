@@ -11,8 +11,8 @@
       enabled: false
       shared: false
     nllb-engine:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     ollama:
       enabled: false
       shared: false
@@ -62,6 +62,36 @@
       shared: false
     postgres:
       shared: false
+    tor:
+      enabled: false
+      shared: false
+
+- services:
+    nllb-engine:
+      enabled: true
+      shared: true
+    ltengine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
     tor:
       enabled: false
       shared: false
