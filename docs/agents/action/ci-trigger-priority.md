@@ -14,8 +14,8 @@ is still disputed. It therefore states its axes instead of carrying them over.
   priority line long enough to fill the whole queue window stops being a
   priority.
 - `workspace=false` and `chunk_gate=false`.
-- Every selection names every axis: role, variant, mode, onion state, distro
-  and filesystem. Nothing is left to the rotation.
+- Every selection names every axis: role, variant, mode, onion state, distro,
+  filesystem, architecture and mesh state. Nothing is left to the rotation.
 
 ## 1. Collect the candidates
 
@@ -46,8 +46,9 @@ branch, with the sample count behind each one. Measured on this repository, the
 spread is not marginal: `swarm` costs roughly twice what `compose` costs, and
 an onion row roughly a third more than a clearnet one.
 
-**Every token pins every axis.** `role#variant@mode+tor|clearnet%distro/filesystem`
-carries all six, and none is left to the rotation. A run whose rows the
+**Every token pins every axis.**
+`role#variant@mode+tor|clearnet%distro/filesystem:architecture&vpn|direct`
+carries all eight, and none is left to the rotation. A run whose rows the
 rotation is still free to move is not a verification run: the combination that
 comes back is not the one the question was asked about, and a green row then
 proves nothing about the red one it was supposed to answer.
@@ -61,6 +62,8 @@ takes one:
 | `tor` | the onion is not involved | the failure mentions onion addresses, circuits or the tor proxy |
 | `distro` | the failure is not package-manager specific | the question names a distro, or the row failed on exactly one |
 | `filesystem` | the kind is deliverable, see the next step | the question is about the storage driver |
+| `architecture` | the failure is not instruction-set specific | the row failed on exactly one, or the question is about a native build |
+| `vpn` | the row is not swarm, where `direct` is the only state | the failure is about overlay routing across the mesh |
 
 When `timings.fastest` returns `None`, the measurement has too few samples to
 choose. That is not permission to leave the axis open; it moves the choice one

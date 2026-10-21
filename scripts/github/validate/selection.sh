@@ -8,6 +8,7 @@
 #   INPUT_PRIORITY    priority line of the run ('' = nothing to check)
 #   INPUT_MODE        deploy modes the run draws from
 #   INPUT_TOR         tor axis of the run
+#   INPUT_VPN         WireGuard mesh axis of the run
 #   INPUT_DISTROS     distro pool of the run ('' = every declared distro)
 #   INPUT_FILESYSTEM  filesystem pool of the run ('' = every declared kind)
 #   INPUT_ARCHITECTURES  architecture pool of the run ('' = amd64 and arm64)
@@ -27,6 +28,7 @@ source scripts/meta/env/load.sh
 	--priority "${INPUT_PRIORITY:-}" \
 	--modes "${INPUT_MODE:-auto}" \
 	--tor "${INPUT_TOR:-auto}" \
+	--vpn "${INPUT_VPN:-auto}" \
 	--distros "${INPUT_DISTROS:-}" \
 	--filesystem "${INPUT_FILESYSTEM:-}" \
 	--architectures "${INPUT_ARCHITECTURES:-}" \

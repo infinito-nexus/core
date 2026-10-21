@@ -42,6 +42,11 @@ on:
         required: false
         type: string
         default: "auto"
+      vpn:
+        description: "🕸️ WireGuard axis of the run; decides whether a pinned mesh state is reachable."
+        required: false
+        type: string
+        default: "auto"
       distros:
         description: "🐧 Distro pool of the run; narrows what a pinned distro may be."
         required: false
@@ -143,6 +148,7 @@ jobs:
           INPUT_PRIORITY: ${{ inputs.priority }}
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_TOR: ${{ inputs.tor }}
+          INPUT_VPN: ${{ inputs.vpn }}
           INPUT_DISTROS: ${{ inputs.distros }}
           INPUT_FILESYSTEM: ${{ inputs.filesystem }}
           INPUT_ARCHITECTURES: ${{ inputs.architectures }}

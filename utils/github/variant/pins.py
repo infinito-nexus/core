@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from utils.github.variant.pools import ARCHITECTURES
 from utils.github.variant.tor import tor_states
+from utils.github.variant.vpn import VPN_DEPLOY_MODES, pinned_vpn_states
 from utils.roles.display import VARIANT_SEPARATOR
 from utils.roles.meta_lookup import get_role_architectures
 
@@ -42,8 +43,10 @@ def check_pins(
     pin_distro: str | None,
     pin_filesystem: str | None,
     pin_architecture: str | None = None,
+    pin_vpn: bool | None = None,
     capable: bool,
     tor_mode: str,
+    vpn_mode: str = "auto",
     distros: Sequence[str],
     filesystems: Sequence[str],
     architectures: Sequence[str] = ARCHITECTURES,
@@ -51,9 +54,10 @@ def check_pins(
     """Prove the row can take what the selection token pinned on it.
 
     The offered modes are already narrowed by the run's ``--modes`` input, the
-    onion states by its ``--tor`` input and the two pools by ``--distros`` and
-    ``--filesystem``, so this catches a pin that fights the role, the variant,
-    or the run's own axes with one check each.
+    onion states by its ``--tor`` input, the mesh states by its ``--vpn`` input
+    and the two pools by ``--distros`` and ``--filesystem``, so this catches a
+    pin that fights the role, the variant, or the run's own axes with one check
+    each.
     """
     if pin_mode is not None and pin_mode not in offered:
         _reject(
@@ -74,17 +78,27 @@ def check_pins(
                 f"pinned {axis} {value!r} is outside this run's {axis} pool "
                 f"({', '.join(pool) or 'empty'})",
             )
-    if pin_tor is None:
-        return
-    for mode in (pin_mode,) if pin_mode else offered:
-        if pin_tor in tor_states(mode, capable=capable, tor_mode=tor_mode):
-            return
-    _reject(
-        app,
-        variant,
-        f"pinned onion state {'tor' if pin_tor else 'clearnet'} is impossible "
-        f"here (mode, variant or the run's tor axis rules it out)",
-    )
+    modes = (pin_mode,) if pin_mode else offered
+    if pin_tor is not None and not any(
+        pin_tor in tor_states(mode, capable=capable, tor_mode=tor_mode)
+        for mode in modes
+    ):
+        _reject(
+            app,
+            variant,
+            f"pinned onion state {'tor' if pin_tor else 'clearnet'} is impossible "
+            f"here (mode, variant or the run's tor axis rules it out)",
+        )
+    if pin_vpn is not None and not any(
+        pinned_vpn_states(mode, pin=pin_vpn, vpn_mode=vpn_mode) for mode in modes
+    ):
+        _reject(
+            app,
+            variant,
+            f"pinned mesh state {'vpn' if pin_vpn else 'direct'} is impossible "
+            f"here (only {'/'.join(VPN_DEPLOY_MODES)} meshes). A held vpn axis "
+            f"overrides the pin instead and is not refused here",
+        )
 
 
 def row_architectures(

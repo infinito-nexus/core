@@ -2,7 +2,8 @@
 
 Usage:
   python -m cli.meta.ci.validate [--whitelist "..."] [--priority "..."]
-      [--modes auto] [--tor auto] [--distros "..."] [--filesystem "..."]
+      [--modes auto] [--tor auto] [--vpn auto]
+      [--distros "..."] [--filesystem "..."]
       [--architectures "..."]
       [--lifecycles "..."]
 
@@ -38,7 +39,7 @@ import sys
 
 from cli.meta.ci import query
 from utils.cache.applications import get_variants
-from utils.github.variant import axes, pools, selection, tor
+from utils.github.variant import axes, pools, selection, tor, vpn
 from utils.roles.display import display_names
 
 
@@ -47,6 +48,7 @@ def problems(
     *,
     modes: tuple[str, ...],
     tor_mode: str,
+    vpn_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     architectures: tuple[str, ...] = pools.ARCHITECTURES,
@@ -66,6 +68,7 @@ def problems(
         tokens: the raw ``whitelist``/``priority`` value.
         modes: the run's selected deploy modes.
         tor_mode: the run's tor axis.
+        vpn_mode: the run's mesh axis.
         distros: the distro pool the run draws from.
         filesystems: the filesystem pool the run draws from.
         architectures: the CPU architecture pool the run draws from; a role
@@ -123,8 +126,10 @@ def problems(
                     pin_distro=pin.distro,
                     pin_filesystem=pin.filesystem,
                     pin_architecture=pin.architecture,
+                    pin_vpn=pin.vpn,
                     capable=tor.tor_capable(pin.app, variant, declared),
                     tor_mode=tor_mode,
+                    vpn_mode=vpn_mode,
                     distros=distros,
                     filesystems=filesystems,
                     architectures=axes.row_architectures(pin.app, architectures),
@@ -142,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--priority", default="")
     parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--tor", default=None)
+    parser.add_argument("--vpn", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--architectures", default="")
@@ -150,6 +156,7 @@ def main(argv: list[str] | None = None) -> int:
 
     modes = query.resolve_modes(args.modes)
     tor_mode = tor.resolve_tor_mode(args.tor)
+    vpn_mode = vpn.resolve_vpn_mode(args.vpn)
     distros = pools.resolve_distros(args.distros)
     filesystems = pools.resolve_filesystems(args.filesystem)
     architectures = pools.resolve_architectures(args.architectures)
@@ -161,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
             tokens,
             modes=modes,
             tor_mode=tor_mode,
+            vpn_mode=vpn_mode,
             distros=distros,
             filesystems=filesystems,
             architectures=architectures,

@@ -20,7 +20,9 @@ _VARIANTS = {
 }
 
 
-def _problems(tokens: str, *, tor_mode: str = "auto") -> tuple[list[str], list[str]]:
+def _problems(
+    tokens: str, *, tor_mode: str = "auto", vpn_mode: str = "auto"
+) -> tuple[list[str], list[str]]:
     with (
         mock.patch.object(validate.query, "discover_rows", return_value=_ROWS),
         mock.patch.object(validate, "get_variants", return_value=_VARIANTS),
@@ -29,6 +31,7 @@ def _problems(tokens: str, *, tor_mode: str = "auto") -> tuple[list[str], list[s
             tokens,
             modes=("compose", "swarm", "host"),
             tor_mode=tor_mode,
+            vpn_mode=vpn_mode,
             distros=axes.DISTROS,
             filesystems=axes.FILESYSTEMS,
             lifecycles="",
@@ -74,6 +77,7 @@ class TestProblems(unittest.TestCase):
                 "web-app-c",
                 modes=("compose",),
                 tor_mode="auto",
+                vpn_mode="auto",
                 distros=axes.DISTROS,
                 filesystems=axes.FILESYSTEMS,
                 lifecycles="",
@@ -99,6 +103,13 @@ class TestProblems(unittest.TestCase):
             "web-app-a#0@compose+clearnet", tor_mode="enforced"
         )
         self.assertIn("pinned onion state clearnet is impossible", errors[0])
+
+    def test_a_mesh_state_the_mode_rules_out_is_an_error(self) -> None:
+        errors, _warnings = _problems("web-app-a#0@compose+clearnet&vpn")
+        self.assertIn("pinned mesh state vpn is impossible", errors[0])
+
+    def test_a_mesh_state_the_mode_allows_passes(self) -> None:
+        self.assertEqual(_problems("web-app-a#0@swarm+clearnet&vpn"), ([], []))
 
     def test_every_offender_is_reported_not_just_the_first(self) -> None:
         errors, _warnings = _problems(

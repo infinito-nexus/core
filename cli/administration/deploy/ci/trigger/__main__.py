@@ -82,6 +82,7 @@ def _refused(whitelist: str, priority: str, config: dict[str, str]) -> bool:
             tokens,
             modes=query.resolve_modes(config.get("mode") or query.ALL_MODES),
             tor_mode=tor.resolve_tor_mode(config.get("tor")),
+            vpn_mode=vpn.resolve_vpn_mode(config.get("vpn")),
             distros=pools.resolve_distros(config.get("distros")),
             filesystems=pools.resolve_filesystems(config.get("filesystem")),
             lifecycles=config.get("lifecycles", ""),

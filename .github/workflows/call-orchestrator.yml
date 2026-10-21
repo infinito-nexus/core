@@ -117,6 +117,7 @@ jobs:
       priority: ${{ inputs.priority }}
       mode: ${{ inputs.mode }}
       tor: ${{ inputs.tor }}
+      vpn: ${{ inputs.vpn }}
       distros: ${{ inputs.distros }}
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}

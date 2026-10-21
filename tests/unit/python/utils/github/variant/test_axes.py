@@ -436,6 +436,21 @@ class TestPinnedAxes(unittest.TestCase):
         with self.assertRaises(SystemExit):
             _assign([row], sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS)
 
+    def test_a_mesh_pin_on_a_mode_that_cannot_mesh_aborts(self) -> None:
+        """Only swarm meshes, so ``@compose…&vpn`` asks for a combination that
+        cannot exist. Intersecting it away instead left no state, dropped the
+        row, and reported a green run for a row that never deployed."""
+        row = _row("web-app-b", 0, ("compose",), pin_vpn=True, priority=True)
+        with self.assertRaises(SystemExit):
+            self._entries(row)
+
+    def test_an_unpinned_mode_is_refused_only_when_no_mode_can_mesh(self) -> None:
+        meshable = _row("web-app-b", 0, ("compose", "swarm"), pin_vpn=True)
+        self.assertNotEqual(self._entries(meshable), [])
+        hostbound = _row("web-app-b", 0, ("compose", "host"), pin_vpn=True)
+        with self.assertRaises(SystemExit):
+            self._entries(hostbound)
+
 
 class TestResolvePool(unittest.TestCase):
     def test_an_empty_input_opens_the_whole_declared_set(self) -> None:
