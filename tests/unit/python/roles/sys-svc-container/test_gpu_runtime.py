@@ -1,8 +1,12 @@
-"""The ``runtime: nvidia`` key of the shared resource template.
+"""The GPU keys of the shared resource template.
 
 The template asks the ``gpu`` lookup and decides nothing itself: combining
 the declared flag with the host's device is that lookup's job, and its own
 tests own the matrix.
+
+``runtime: nvidia`` alone hands the container nothing. The runtime's hook
+reads ``NVIDIA_VISIBLE_DEVICES`` off the container's environment and is a
+no-op while that is unset, so the two keys below belong to the same branch.
 """
 
 import unittest
@@ -27,6 +31,8 @@ BASE = {
     "RESOURCE_MEM_LIMIT": "1g",
     "RESOURCE_MEM_RESERVATION": "256m",
     "RESOURCE_PIDS_LIMIT": "512",
+    "SYS_SVC_CONTAINER_GPU_DEVICES": "GPU-strong,GPU-weak",
+    "NVIDIA_DRIVER_CAPABILITIES": "compute,utility",
 }
 
 
@@ -56,6 +62,21 @@ class TestGpuRuntimeRegistration(unittest.TestCase):
 
     def test_the_lookups_no_leaves_the_runtime_key_out(self):
         self.assertNotIn("runtime:", self._render(gpu=False))
+
+    def test_the_runtime_is_told_which_devices_to_hand_over(self):
+        self.assertIn(
+            'NVIDIA_VISIBLE_DEVICES:     "GPU-strong,GPU-weak"',
+            self._render(gpu=True),
+        )
+
+    def test_the_runtime_is_told_to_inject_the_cuda_driver(self):
+        self.assertIn(
+            'NVIDIA_DRIVER_CAPABILITIES: "compute,utility"',
+            self._render(gpu=True),
+        )
+
+    def test_the_lookups_no_leaves_the_device_env_out(self):
+        self.assertNotIn("NVIDIA_VISIBLE_DEVICES", self._render(gpu=False))
 
     def test_the_lookup_is_asked_for_this_service(self):
         self._render(gpu=True)

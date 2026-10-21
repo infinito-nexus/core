@@ -4,4 +4,7 @@ mem_limit:          {{ lookup('applications') | resource_filter(application_id, 
 pids_limit:         {{ lookup('applications') | resource_filter(application_id, 'pids_limit',      service_name | default(''), RESOURCE_PIDS_LIMIT) }}
 {% if lookup('gpu', application_id, service_name | default('')) %}
 runtime:            nvidia
+environment:
+  NVIDIA_VISIBLE_DEVICES:     "{{ SYS_SVC_CONTAINER_GPU_DEVICES }}"
+  NVIDIA_DRIVER_CAPABILITIES: "{{ NVIDIA_DRIVER_CAPABILITIES }}"
 {% endif %}

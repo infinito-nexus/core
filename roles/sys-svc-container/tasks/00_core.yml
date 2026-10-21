@@ -35,11 +35,9 @@
     path: /dev/nvidia0
   register: sys_svc_container_nvidia_device
 
-- name: "🎮 Let the container manager hand that GPU to its containers"
-  include_tasks: 00_core/nvidia.yml
-  when:
-    - sys_svc_container_nvidia_device.stat.exists
-    - ansible_facts['distribution'] in ['Debian', 'Ubuntu']
+- name: "🎮 Hand this host's GPUs to the containers that asked for one"
+  include_tasks: 00_core/gpu.yml
+  when: sys_svc_container_nvidia_device.stat.exists
 
 - name: 📦 Install Docker Python SDK dependencies via pip
   include_role:

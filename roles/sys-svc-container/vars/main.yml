@@ -24,3 +24,12 @@ SYS_SVC_CONTAINER_DPKG_ARCH_BY_ANSIBLE_ARCH:
 
 SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY:
   Archlinux: nftables
+
+SYS_SVC_CONTAINER_NESTED_VIRTUALIZATION:
+  - docker
+  - containerd
+  - podman
+  - lxc
+  - container
+
+SYS_SVC_CONTAINER_GPU_QUERY: "nvidia-smi --query-gpu=memory.total,uuid --format=csv,noheader,nounits"
