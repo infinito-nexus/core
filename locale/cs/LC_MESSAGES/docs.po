@@ -61268,6 +61268,9 @@ msgstr ""
 msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://github.com/kevinveenbirkenbach/roulette-wheel/blob/master/LICENSE.md), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
 msgstr ""
 
+msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://github.com/kevinveenbirkenbach/setup-hibernate/blob/main/LICENSE), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
+msgstr ""
+
 msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://github.com/kevinveenbirkenbach/swap-forge/blob/main/pyproject.toml), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
 msgstr ""
 
@@ -61287,9 +61290,6 @@ msgid "That licence covers this role. The software it deploys is a separate gran
 msgstr ""
 
 msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://github.com/shopware/shopware/blob/trunk/LICENSE), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
-msgstr ""
-
-msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://pypi.org/pypi/setup-hibernate/json), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
 msgstr ""
 
 msgid "That licence covers this role. The software it deploys is a separate grant: [MIT](https://raw.githubusercontent.com/kevinveenbirkenbach/universal-logout/main/LICENSE), under which commercial use is allowed. You owe its authors this much: keep the copyright notice and the licence text. Permission for one of the two is not permission for the other."
