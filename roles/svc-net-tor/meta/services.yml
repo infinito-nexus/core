@@ -47,7 +47,7 @@ tor: # nocheck: category-modes
       # nocheck: onion-flag  publishing the resolver would answer recursive queries for anyone holding the onion address
       dns: false
   min_storage: 100MB
-  cpus: "0.25"
+  cpus: "1.0"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
