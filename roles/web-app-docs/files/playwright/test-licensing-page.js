@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
-const LICENSING_PAGE = "/generated/licensing.html";
+const LICENSING_PAGE = "/deployed/generated/licensing.html";
 const RIGHT_COLUMNS = [
   "Commercial use",
   "Modifications",
