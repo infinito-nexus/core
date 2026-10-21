@@ -2,10 +2,10 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { gotoOnion } = require("../personas");
+const { gotoOnion, isOnionUrl } = require("../personas");
 const shared = require("../_shared");
 
-test("addon freedomtranslate-wp: WordPress translates through the deployed gateway", async ({ browser, request }) => {
+test("addon freedomtranslate-wp: WordPress translates through the deployed gateway", async ({ browser, playwright }) => {
   skipUnlessAddonEnabled("freedomtranslate-wp");
   skipUnlessServiceEnabled("translate");
   test.setTimeout(resolveTimeout(180_000));
@@ -16,15 +16,31 @@ test("addon freedomtranslate-wp: WordPress translates through the deployed gatew
     "the gateway must be a distinct host, not WordPress itself",
   ).not.toBe(new URL(shared.env.wpBaseUrl).host);
 
-  const translated = await request.fetch(endpoint, {
-    method: "POST",
-    data: { q: "House", source: "en", target: "de", format: "text" },
-    headers: { "Content-Type": "application/json" },
-    failOnStatusCode: false,
-    timeout: resolveTimeout(120_000),
+  const proxyServer = process.env.PLAYWRIGHT_PROXY;
+  const gateway = await playwright.request.newContext({
+    ignoreHTTPSErrors: true,
+    ...(proxyServer
+      ? {
+          proxy: {
+            server: proxyServer,
+            ...(isOnionUrl(endpoint) ? {} : { bypass: new URL(endpoint).hostname }),
+          },
+        }
+      : {}),
   });
-  expect(translated.status(), `Expected the endpoint WordPress posts to (${endpoint}) to translate`).toBe(200);
-  expect((await translated.json()).translatedText, "Expected a translation from the gateway").toBeTruthy();
+  try {
+    const translated = await gateway.fetch(endpoint, {
+      method: "POST",
+      data: { q: "House", source: "en", target: "de", format: "text" },
+      headers: { "Content-Type": "application/json" },
+      failOnStatusCode: false,
+      timeout: resolveTimeout(120_000),
+    });
+    expect(translated.status(), `Expected the endpoint WordPress posts to (${endpoint}) to translate`).toBe(200);
+    expect((await translated.json()).translatedText, "Expected a translation from the gateway").toBeTruthy();
+  } finally {
+    await gateway.dispose();
+  }
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
