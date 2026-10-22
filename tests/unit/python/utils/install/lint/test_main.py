@@ -17,6 +17,8 @@ def _make_repo_root(tmp: str, *, stamp_age_offset: float | None = None) -> Path:
     (root / "scripts" / "install").mkdir(parents=True)
     (root / "scripts" / "install" / "lint.sh").write_text("#\n", encoding="utf-8")
     (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
+    (root / cli._PINS).parent.mkdir(parents=True)
+    (root / cli._PINS).write_text("---\n", encoding="utf-8")
     if stamp_age_offset is not None:
         stamp = root / cli._STAMP
         stamp.parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +87,24 @@ class TestStampLogic(unittest.TestCase):
             self.assertEqual(rc, 0)
             inst.assert_called_once()
             self.assertTrue((root / cli._STAMP).exists())
+
+    def test_a_newer_release_pin_triggers_install(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = _make_repo_root(tmp, stamp_age_offset=60.0)
+            pins = root / cli._PINS
+            later = time.time() + 120.0
+            os.utime(pins, (later, later))
+            with (
+                mock.patch.object(cli, "PROJECT_ROOT", root),
+                mock.patch.object(cli.shutil, "which", return_value="/usr/bin/x"),
+                mock.patch.object(
+                    cli.mermaid_cli, "browser_installed", return_value=True
+                ),
+                mock.patch.object(cli, "_install_all") as inst,
+            ):
+                rc = cli.main([])
+            self.assertEqual(rc, 0)
+            inst.assert_called_once()
 
     def test_no_stamp_triggers_install_and_touches(self) -> None:
         with TemporaryDirectory() as tmp:

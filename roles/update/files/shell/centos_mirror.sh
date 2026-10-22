@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Param: none. Rewrites the CentOS Stream repo files in /etc/yum.repos.d in place and prints the metalink repo of every section it pinned; prints nothing when there is nothing left to pin.
+# Param: none. Rewrites the CentOS Stream and EPEL repo files in /etc/yum.repos.d in place and prints the metalink repo or EPEL file of everything it pinned; prints nothing when there is nothing left to pin, exits 1 on an EPEL file whose metalinks lack their baseurl template.
 set -euo pipefail
 
 master="https://mirror.stream.centos.org"
@@ -36,3 +36,24 @@ done
 
 pin "centos-extras-sig-extras-common-[\$]stream" "SIGs/\$stream/extras/\$basearch/extras-common"
 pin "centos-extras-sig-extras-common-source-[\$]stream" "SIGs/\$stream/extras/source/extras-common"
+
+pin_epel() {
+	local file="$1" metalinks templates
+	metalinks="$(awk '/^metalink=https:\/\/mirrors\.fedoraproject\.org\// { n++ } END { print n + 0 }' "${file}")"
+	templates="$(awk '/^#baseurl=https:\/\/download\.example\/pub\/epel\// { n++ } END { print n + 0 }' "${file}")"
+	[[ "${metalinks}" -gt 0 ]] || return 0
+	if [[ "${templates}" -ne "${metalinks}" ]]; then
+		echo "ERROR: ${file} has ${metalinks} Fedora metalinks but ${templates} download.example baseurl templates" >&2
+		exit 1
+	fi
+	sed -i -E \
+		-e 's|^#baseurl=https://download\.example/pub/epel/|baseurl=https://dl.fedoraproject.org/pub/epel/|' \
+		-e '/^metalink=https:\/\/mirrors\.fedoraproject\.org\//d' \
+		"${file}"
+	echo "${file##*/}"
+}
+
+for file in "${repo_dir}"/epel*.repo; do
+	[[ -f "${file}" ]] || continue
+	pin_epel "${file}"
+done

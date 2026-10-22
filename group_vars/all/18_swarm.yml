@@ -20,6 +20,10 @@ STACK_HOST: >-
 
 swarm_stack_fatal_grace: 180
 
+SWARM_INGRESS_GUARDED: "{{ swarm_ingress_endpoints.stdout_lines | swarm_ingress_published | swarm_ingress_guarded(lookup('applications') | swarm_public_ports) }}"
+
+SWARM_INGRESS_PEERS: "{{ swarm_ingress_nodes.stdout_lines | swarm_node_addresses }}"
+
 swarm:
   manager:
     advertise_addr: >-
