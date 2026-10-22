@@ -13,6 +13,7 @@ location = {{ endpoint.path }} {
     set $up_host "{{ endpoint.upstream | regex_replace('^https?://', '') | regex_replace('/.*$', '') }}";
     set $bluesky_upstream "{{ endpoint.upstream }}";
     proxy_pass $bluesky_upstream;
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_set_header Host $up_host;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
@@ -22,3 +23,20 @@ location = {{ endpoint.path }} {
     {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
 }
 {% endfor %}
+
+location = /ipcc {
+    resolver {{ NETWORK_PUBLIC_DNS_RESOLVERS | join(' ') }} ipv6={{ NETWORK_IPV6_ENABLED | on_off }} valid=300s;
+    resolver_timeout {{ BLUESKY_FRONT_PROXY_TIMEOUT }};
+    proxy_connect_timeout {{ BLUESKY_FRONT_PROXY_TIMEOUT }};
+    proxy_read_timeout {{ BLUESKY_FRONT_PROXY_TIMEOUT }};
+    set $up_host "bsky.app";
+    set $bluesky_ipcc_upstream "https://bsky.app/ipcc";
+    proxy_pass $bluesky_ipcc_upstream;
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+    proxy_set_header Host $up_host;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_ssl_server_name on;
+    proxy_hide_header Access-Control-Allow-Origin;
+    {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
+}

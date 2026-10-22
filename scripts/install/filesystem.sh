@@ -135,13 +135,13 @@ install_pacman() {
 install_dnf_native() {
 	case "${ID:-}" in
 	fedora)
-		retry_dnf dnf install -y e2fsprogs btrfs-progs
+		retry_dnf dnf --refresh install -y e2fsprogs btrfs-progs
 		return
 		;;
 	esac
 	log "adding EPEL, the only place the EL family carries btrfs-progs"
-	retry_dnf dnf install -y epel-release
-	retry_dnf dnf install -y e2fsprogs btrfs-progs
+	retry_dnf dnf --refresh install -y epel-release
+	retry_dnf dnf --refresh install -y e2fsprogs btrfs-progs
 }
 
 # Param: $1 path segment of the zfsonlinux repository, `fedora` or `epel`
@@ -233,7 +233,7 @@ install_dnf() {
 	log "zfs userland version: ${zfs_version}"
 
 	if ! command -v rpmbuild >/dev/null 2>&1; then
-		retry_dnf dnf install -y rpm-build
+		retry_dnf dnf --refresh install -y rpm-build
 	fi
 
 	local topdir=/tmp/zfs-kmod-container
@@ -261,7 +261,7 @@ SPEC
 	if [ -n "${source_rpm}" ]; then
 		install_zfs_from_source "${source_rpm}" "${before}"
 	else
-		retry_dnf dnf install -y zfs
+		retry_dnf dnf --refresh install -y zfs
 		dnf remove -y zfs-release
 	fi
 

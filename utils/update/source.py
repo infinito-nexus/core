@@ -40,6 +40,7 @@ from urllib.parse import urlencode
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
+from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
@@ -86,6 +87,10 @@ class VersionSourceEntry:
         config_path: file that carries the pin.
         line: 1-indexed line of the pin.
         addon: whether the pin sits in ``meta/addons/<id>.yml``.
+        image: image the pin tags when it is the entity's ``version``, pulled
+            directly or as the base of a ``custom`` build; a bump to a tag
+            its registry answers 404 for is withheld, an indeterminate answer
+            does not block it.
     """
 
     role: str
@@ -96,6 +101,7 @@ class VersionSourceEntry:
     config_path: Path
     line: int
     addon: bool = False
+    image: str = ""
 
 
 @dataclass(frozen=True)
@@ -416,6 +422,7 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         source=source,
                         config_path=config_path,
                         line=line,
+                        image=config.get("image", "") if key == DEFAULT_KEY else "",
                     )
                 )
     return entries + _addon_entries(repo_root)
@@ -432,8 +439,11 @@ def outdated(
             candidates(entry, repo_root),
             assembled=bool(entry.source.get("template")),
         )
-        if newest:
-            updates.append(VersionSourceUpdate(entry=entry, latest=newest))
+        if not newest:
+            continue
+        if entry.image and manifest_exists(entry.image, newest) is False:
+            continue
+        updates.append(VersionSourceUpdate(entry=entry, latest=newest))
     return updates
 
 

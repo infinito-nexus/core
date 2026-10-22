@@ -13,17 +13,33 @@ installed package on the host.
 
 This role refreshes the package index and upgrades every installed package on
 the host. `tasks/main.yml` reads `ansible_facts['distribution']` and dispatches
-to one of three task files grouped by package-manager family. Debian and
-Ubuntu both use `apt`, Fedora and CentOS both use `dnf`, so each pair shares a
-single task file. A separate `unsupported.yml` fails loudly with a clear
+to one task file per package-manager family. Debian and Ubuntu both use
+`apt`, so they share a single task file; Fedora and CentOS both use `dnf`, and
+CentOS reaches `fedora.yml` through `centos.yml`. A separate `unsupported.yml` fails loudly with a clear
 message when a host runs a distribution that this role does not yet cover.
 
 | `ansible_facts['distribution']` | Task file         | Module                     |
 | ------------------------------- | ----------------- | -------------------------- |
 | `Archlinux`                     | `arch.yml`        | `community.general.pacman` |
 | `Debian` / `Ubuntu`             | `debian.yml`      | `ansible.builtin.apt`      |
-| `Fedora` / `CentOS`             | `fedora.yml`      | `ansible.builtin.dnf`      |
+| `Fedora`                        | `fedora.yml`      | `ansible.builtin.dnf`      |
+| `CentOS`                        | `centos.yml`      | `ansible.builtin.dnf`      |
 | anything else                   | `unsupported.yml` | `ansible.builtin.fail`     |
+
+`centos.yml` first runs [centos_mirror.sh](files/shell/centos_mirror.sh), which replaces every `metalink=` of the CentOS Stream repo files with a `baseurl=` on `mirror.stream.centos.org`, and then includes `fedora.yml`. The [Dockerfile](../../Dockerfile) runs the same script before its first `dnf` call, so the CentOS dev and swarm-node images resolve against the same source.
+
+## Cosmos
+
+The diagram places Package update in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+
+```mermaid
+flowchart LR
+    subgraph role [update 💻]
+        svc_update["update"]
+    end
+```
+
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
