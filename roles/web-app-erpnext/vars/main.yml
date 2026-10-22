@@ -25,6 +25,10 @@ ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'secrets.credential
 
 ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
 
+ERPNEXT_COMPANY_NAME: "{{ service_provider.company.titel }}"
+ERPNEXT_COMPANY_ABBR: "{{ lookup('config', application_id, 'services.erpnext.company.abbr') }}"
+ERPNEXT_COMPANY_COUNTRY: "{{ service_provider.company.address.country }}"
+
 ERPNEXT_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')   | bool }}"
 ERPNEXT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ERPNEXT_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"

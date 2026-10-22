@@ -77,6 +77,8 @@ erpnext:
       websocket: 9000
   proxy:
     service_key: frontend
+  company:
+    abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
   run_after:
     - web-app-keycloak
     - web-app-stalwart

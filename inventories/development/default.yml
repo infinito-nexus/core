@@ -37,6 +37,11 @@ design:
     colors:
       base: "#FFA500"
 
+service_provider:
+  company:
+    address:
+      country: "Germany"
+
 API:
   openai:
     api_key: "{{ lookup('env', 'INFINITO_API_OPENAI_KEY') }}"

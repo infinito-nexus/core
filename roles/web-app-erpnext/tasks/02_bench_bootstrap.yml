@@ -38,12 +38,30 @@
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   changed_when: false
 
+- name: "🏢 ensure the service provider's Company and its accounting basics"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e COMPANY_NAME -e COMPANY_ABBR -e COMPANY_COUNTRY
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/company.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    COMPANY_NAME: "{{ ERPNEXT_COMPANY_NAME }}"
+    COMPANY_ABBR: "{{ ERPNEXT_COMPANY_ABBR }}"
+    COMPANY_COUNTRY: "{{ ERPNEXT_COMPANY_COUNTRY }}"
+  register: erpnext_company_apply
+  changed_when: erpnext_company_apply.rc == 0 and (erpnext_company_apply.stdout_lines | last | from_json).created | length > 0
+
 - name: "📌 apply API-bot user + bypass setup wizard"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i
       -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
+      -e COUNTRY -e CURRENCY
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}"
@@ -56,5 +74,7 @@
     API_BOT_LASTNAME: "{{ ERPNEXT_API_BOT_USER.lastname }}"
     API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_PASSWORD }}"
     API_KEY_SECRET: "{{ ERPNEXT_API_KEY_SECRET }}"
+    COUNTRY: "{{ ERPNEXT_COMPANY_COUNTRY }}"
+    CURRENCY: "{{ (erpnext_company_apply.stdout_lines | last | from_json).currency }}"
   register: erpnext_api_bot_apply
   changed_when: false

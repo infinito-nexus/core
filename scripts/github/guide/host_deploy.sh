@@ -18,6 +18,7 @@ test -s /tmp/host-deploy.sh
 source scripts/meta/env/load.sh
 sed -i "s#<your-ssh-public-key>#ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito#" /tmp/host-deploy.sh
 sed -i "s#<your-domain>#${INFINITO_DOMAIN}#" /tmp/host-deploy.sh
+sed -i "s#<your-country>#Germany#" /tmp/host-deploy.sh
 
 docker pull "${GUIDE_RUNTIME_IMAGE}"
 
