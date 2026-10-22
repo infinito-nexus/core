@@ -24,7 +24,7 @@ require $appDir . '/vendor/autoload.php';
 $app = require $appDir . '/bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-$user = App\User::where('username', $username)->first();
+$user = App\Models\User::where('username', $username)->first();
 if ($user === null) {
     fwrite(STDERR, "no Pixelfed user with username " . $username . "\n");
     exit(1);
