@@ -1,0 +1,16 @@
+---
+- name: "🔍 Look for PDS data in volume '{{ BLUESKY_PDS_VOLUME }}'"
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - ls
+      - --quiet
+      - --filter
+      - "name=^{{ BLUESKY_PDS_VOLUME }}$"
+  register: bluesky_pds_volume_lookup
+  changed_when: false
+
+- name: "🛡️ Check the PDS data against {{ BLUESKY_PDS_IMAGE_REF }}"
+  ansible.builtin.include_tasks: "utils/pds_guard_check.yml"
+  when: BLUESKY_PDS_VOLUME in bluesky_pds_volume_lookup.stdout_lines
