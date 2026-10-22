@@ -68,7 +68,7 @@ echo "[INFO] deploying svc-net-wireguard onto the three hosts"
 "$(dirname "${PYTHON}")/ansible-playbook" \
 	-i "${WORK}/devices.yml" \
 	--vault-password-file "${WORK}/.password" \
-	playbooks/mesh.yml
+	playbooks/lab/mesh.yml
 
 expect_reach "${HOST_I}" "${HOST_II}" alpha
 expect_reach "${HOST_II}" "${HOST_I}" alpha
