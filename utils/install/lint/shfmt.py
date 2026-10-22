@@ -1,9 +1,10 @@
-"""Install shfmt: system-pkg first, GitHub release fallback."""
+"""Install shfmt via GitHub-release prebuilt binary."""
 
 from __future__ import annotations
 
 import os
 import platform
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -13,9 +14,7 @@ from utils.install.primitives import (
     ensure_dir_on_path,
     install_with_optional_sudo,
     log,
-    which,
 )
-from utils.install.system_pkg import detect_package_manager, install_command_via_pkg
 
 # nocheck: environ-get-default  contributor tooling, never deployed: no inventory or image declares SHFMT_INSTALL_DIR, it only lets a workstation without write access to /usr/local/bin redirect the binary
 _DEFAULT_INSTALL_DIR = os.environ.get("SHFMT_INSTALL_DIR", "/usr/local/bin")
@@ -63,27 +62,29 @@ def _install_binary() -> None:
     ensure_dir_on_path(_DEFAULT_INSTALL_DIR)
 
 
-def ensure() -> None:
-    if which("shfmt"):
-        return
-
-    log("Missing command 'shfmt'. Attempting system package installation.")
+def _installed_version() -> str | None:
     try:
-        manager = detect_package_manager()
-        try:
-            install_command_via_pkg("shfmt")
-        except RuntimeError as exc:
-            log(f"System package install failed for 'shfmt' via {manager}: {exc}")
-    except RuntimeError:
-        log(
-            "No supported package manager found; falling back to GitHub release binary."
+        proc = subprocess.run(
+            ["shfmt", "--version"], capture_output=True, text=True, check=True
         )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return proc.stdout.strip().lstrip("v") or None
 
-    if which("shfmt"):
+
+def ensure() -> None:
+    _slug, want = resolve_release("shfmt")
+    found = _installed_version()
+    if found == want:
         return
 
-    log("Falling back to official shfmt binary.")
+    log(f"Installing shfmt v{want} (found {found or 'no shfmt'}).")
     _install_binary()
 
-    if not which("shfmt"):
-        raise RuntimeError("Command 'shfmt' is still unavailable after installation.")
+    found = _installed_version()
+    if found != want:
+        raise RuntimeError(
+            f"Command 'shfmt' reports {found or 'nothing'} after installing "
+            f"v{want} into {_DEFAULT_INSTALL_DIR}; that directory must precede "
+            "any other shfmt on PATH."
+        )

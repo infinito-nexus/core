@@ -54,5 +54,31 @@ class TestHealthCheckLogic(unittest.TestCase):
             )
 
 
+class TestIsDatabase(unittest.TestCase):
+    def test_classification(self):
+        test_cases = [
+            ("postgres_custom:18", True),
+            ("openldap_custom:13.7-slim", True),
+            ("mariadb_custom:11.8", True),
+            ("postgis/postgis:17-3.5", True),
+            ("valkey/valkey:8", True),
+            ("docker.io/library/postgres:18", True),
+            ("ghcr.io/infinito-nexus/mirror/docker.io/library/postgres:18", True),
+            ("registry.infinito.test:5000/openldap_custom:13.7-slim", True),
+            ("postgres@sha256:" + "0" * 64, True),
+            ("docker.elastic.co/elasticsearch/elasticsearch:9.1.0", True),
+            ("bigbluebutton_custom:v3.0.39", False),
+            ("registry.infinito.test:5000/nextcloud:31", False),
+            ("ghcr.io/ldapaccountmanager/lam:9", False),
+            ("phpldapadmin/phpldapadmin:2", False),
+        ]
+        for image_name, expected in test_cases:
+            self.assertEqual(
+                storage_optimizer.is_database(image_name),
+                expected,
+                f"Image {image_name} expected {expected}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
