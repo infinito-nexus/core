@@ -15,7 +15,14 @@
   include_role:
     name: sys-stk-backend
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "🔎 Detect the release the existing PeerTube data was written by"
+  include_tasks: upgrade/detect.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - name: "▶️ Execute stack host routines"
   include_tasks: 01_stack_host.yml

@@ -79,6 +79,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Federated Communication:**
   Designed to operate within a federated network, enabling seamless sharing and interconnection with other PeerTube instances.
 
+- **Automatic Upgrades:**
+  Detects the release the existing data was written by, runs the upstream migration scripts up to the pinned release and reseeds the client assets, see [Upgrade.md](./Upgrade.md).
+
 ## Quick Setup
 
 ### Development
