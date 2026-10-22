@@ -20,25 +20,23 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_flatten_and_feature_flag(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": "single.domain.com"}},
+                "domains": {"canonical": "single.domain.com"},
                 "services": {"logout": {"enabled": True}},
             },
             "app2": {
-                "server": {"domains": {"canonical": ["list1.com", "list2.com"]}},
+                "domains": {"canonical": ["list1.com", "list2.com"]},
                 "services": {"logout": {"enabled": True}},
             },
             "app3": {
-                "server": {
-                    "domains": {"canonical": {"k1": "dictA.com", "k2": "dictB.com"}}
-                },
+                "domains": {"canonical": {"k1": "dictA.com", "k2": "dictB.com"}},
                 "services": {"logout": {"enabled": True}},
             },
             "app4": {
-                "server": {"domains": {"canonical": "no-logout.com"}},
+                "domains": {"canonical": "no-logout.com"},
                 "services": {"logout": {"enabled": False}},
             },
             "other": {
-                "server": {"domains": {"canonical": "ignored.com"}},
+                "domains": {"canonical": "ignored.com"},
                 "services": {"logout": {"enabled": True}},
             },
         }
@@ -56,7 +54,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_missing_canonical_defaults_empty(self):
         applications = {
             "app1": {
-                "server": {"domains": {}},
+                "domains": {},
                 "services": {"logout": {"enabled": True}},
             }
         }
@@ -66,7 +64,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_app_not_in_group(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": "domain.com"}},
+                "domains": {"canonical": "domain.com"},
                 "services": {"logout": {"enabled": True}},
             }
         }
@@ -76,7 +74,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_invalid_domain_type(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": 123}},
+                "domains": {"canonical": 123},
                 "services": {"logout": {"enabled": True}},
             }
         }

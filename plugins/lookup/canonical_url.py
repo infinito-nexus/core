@@ -3,7 +3,7 @@
 # `lookup('canonical_url', application_id[, canonical_key])` returns the web
 # base URL (``scheme://host``, no trailing slash) for an application, or for a
 # specific named canonical (e.g. ``element`` / ``synapse`` / ``filer``) when the
-# role declares ``server.domains.canonical`` as a dict.
+# role declares ``domains.canonical`` as a dict.
 #
 # The scheme follows the resolved domain: ``.onion`` targets are plaintext (Tor
 # provides the encryption) so they resolve to ``http``; everything else follows
