@@ -1389,13 +1389,13 @@ msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git műveletek automatizálásához"
 
-# translated-by: libretranslate
 # toolchain installs
 # toolchain installs  release pins github-release lint tools the toolchain
 # installs
+# translated-by: ltengine
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr ""
+msgstr "A GitHub-release lint tool a toolchain installs"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"

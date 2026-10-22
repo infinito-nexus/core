@@ -365,9 +365,10 @@ msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG 
 msgstr "میزبانی کے لئے منظم تصاویر سرور Simple Icons ویب اور دستاویزات کے استعمال کے لیے برانڈ ایس وی جی اور پی این اے کے مجموعے"
 
 # database, user, and privilege provisioning
+# translated-by: ollama
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ""
+msgstr "Kontainernised relational database مع مصنوعیہ اوریفیشن اور کارکنیٹ اور پریفیکشن د اسکیف کے متعلق"
 
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
@@ -634,9 +635,10 @@ msgstr "مکمل فراہم کُنندہ کے مقابلے میں ہر یو آر
 
 # لیے سطح مرتفع (Engner-agnostic fecture) جس میں فی کسشن فراہم کیا جاتا ہے۔
 # search, and vector engines with per-consumer provisioning
+# translated-by: ollama
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr ""
+msgstr "エンゲージメント अजोड़ी लाइन जैसे कि साझे चालू चाल, कॉर्स, खोज और वेक्टर इंगेजिंग के लिए"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
@@ -863,9 +865,10 @@ msgstr "غیر متصل"
 
 # ڈرائیور - ایکسیل ویڈیو ڈی کوڈ اور لینکس کی تقسیموں میں
 # video decode and encode across Linux distributions --
+# translated-by: ollama
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr ""
+msgstr "英特尔VA-API मामले लेबरलिन्क देखील वीडियो डिझाइन एकॉनोमी क्रम पासकडून"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-meta:description"
@@ -1085,9 +1088,10 @@ msgstr "گنس sub_filter JavaScrip production تمام افعال کو مرکز
 
 # ورک کو اندرونی ویب اطلاقیے تک شیئر کرنے کے لیے استعمال کیا جاتا ہے۔
 # shared static assets to internal web applications ---
+# translated-by: ollama
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr ""
+msgstr "نینجک بنیان بردارنده اطلاعات برای ارسال اطلاعات متقاوت متنی به اپلیکیشن‌های ساینس‌سایت کنترل‌شده"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-mirror:description"
@@ -1119,12 +1123,12 @@ msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer colection and Construmental province –"
 
-# translated-by: libretranslate
 # space a construct space a space a space a space space a space a spapfile
 # taff -
+# translated-by: ollama
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr ""
+msgstr ".on-the-target-automation-للautomation-معتمدة-بهدALSEن-سایپ-سپارک-برای-دوباره-سازی-و-فعالیت-به-یک-سیپ-فایل-پی-کود-"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-translate:description"
@@ -1329,9 +1333,10 @@ msgstr "Policy-manage web Browns for Arch لینکس ڈیسک ٹاپز کے سا
 # for settleplople Led-world-constitution province for abored community for
 # community community for community of community, AC, and Dected states
 # lid-close behavior, battery, AC, docked states
+# translated-by: ollama
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr ""
+msgstr "Power-aware systemd logind ਵਰਤੋਈ ਲੋਗੀਂਡ ਵਰਤੋਈ ਲੋਗਿੰਡ ਕੌਸਲਾਵਾਂ ਦੇ ਪ੍ਰੇਕਤੂਤ ਲੋਪਟਾਲ ਲੀਡ ਕਪਲ ਬਾਦਸ਼ਾਹੀ ਵਿੱਚ ਵਰਤੋਈ ਲੋਜਿੰਡ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
@@ -1596,9 +1601,10 @@ msgstr "خود کار محفوظ System One ایسی کلاس‌ئر جو ایس
 
 # کرنے اور بنانے کے لیے مختصر تعلقات بنانے کے لیے
 # managing short links with built-in click analytics
+# translated-by: ollama
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr ""
+msgstr "Self-hosted URL shortener لعملیات ساخت، توجه دادن و مدیریت لینک‌های کوتاه با تجزیه و تحلیل کلیک‌ها داخلی"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"

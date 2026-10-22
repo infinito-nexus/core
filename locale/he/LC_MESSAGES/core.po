@@ -322,6 +322,12 @@ msgstr "קהילה"
 # Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
 # sub_filter/Lua with CDN-backed assets.
+# translation-refused: libretranslate protected-span lost=['sub_filter']
+# gained=[]
+# nocheck: url
+# translation-rejected: XPathתית HTML שילוב הוראות(CSS, JS, interceptor סל退出,
+# ניתוח אAnalytic)/dashboard פלטפורמה טקיניתOpenResty דרךsub_filter/Lua עם
+# משאבים backdrop CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -871,11 +877,11 @@ msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנה, עם לוחות זריזים, זרימות עבודה, ואופציונלי OIDC SSO"
 
-# translated-by: libretranslate
 # Applications and Developer Tooling
+# translated-by: ollama
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr ""
+msgstr "_RUNTIME JavaScript להס抢救ר והחישוב בשתיית והכלי של המを開発者"
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"

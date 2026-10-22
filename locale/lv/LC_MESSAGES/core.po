@@ -785,7 +785,6 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Palīglīdzekļi"
 
-# translated-by: libretranslate
 # LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo
 # LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo
 # LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo
@@ -794,9 +793,10 @@ msgstr "Palīglīdzekļi"
 # API.
 # managing, scaling, and accessing unstructured data — including object
 # storage compatible with Amazon S<x id="0"></x> <x id="1"></x>.
+# translated-by: ollama
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr ""
+msgstr "Dataplašības siltvietnes izvēle ar savu sālīgo un pieejošu pieeju palīdzēt veicināt, veidot, un pieeigt bezstruktūrāko datus — arī objekta siltvietnes, ko piesaista ar Amazon S3 API-s."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1318,10 +1318,10 @@ msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Lūdzu, atstājiet šo lapu atvērtu līdz tas ir izdarīts."
 
-# translated-by: libretranslate
+# translated-by: ltengine
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr ""
+msgstr "Pārlašīgs sistēmas failēšanas sistēma, kas atbilde atļauj atkarīgu atkarību no failēšanas sistēmām, izveidojis izdedotus failēšanas snapshotus lokālās datu kopiju uz swappable USB ierīces"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
@@ -1815,10 +1815,11 @@ msgstr "Parakstīts visur."
 # Sigālēt, uzākst {failed} no {total} pārējgaiden. ---  ### User:  ### Signed
 # out, except {failed} of {total} services. ---  ### Signed out, except
 # {failed} of {total} services.
+# translated-by: ollama
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr ""
+msgstr "Atšiekts, izklaidīts, jāņem {failed} no {total} darbībā."
 
 # translated-by: libretranslate
 msgctxt "logout:running"
@@ -2203,8 +2204,9 @@ msgstr "parakstīšanās"
 # ### User:  --- {done} {total}saprūdījumi</x> signāti iznogoti ---  ### User:
 # --- {done} {total}pārtstāvēšanas</x> atsargumi signāti iznogti ---  ###
 # User:  --- {done} {total}uzvālēs</x> signāti atkārtēti
+# translated-by: ollama
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
-msgstr ""
+msgstr "{done} sākotām {total} saņēmniekiem"
 

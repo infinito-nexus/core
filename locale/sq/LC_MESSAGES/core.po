@@ -1942,19 +1942,19 @@ msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Monitorim me kohë të sistemit për zbulimin e kontejnerëve të pashëndetshëm apo jo-zero-eksitueshëm Docker dhe ngritjen e alarmeve të dështimit"
 
-# translated-by: libretranslate
 # operators when a monitored service unit fails -Systemd-triggered
 # -mpsmtp-notifier -for -emailing -operators -when -a -monitored -service
 # -unit -fails
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr ""
+msgstr "Systemd-triggered msmtp notifier për pojavleni e sablonve të shqip të operatoreve kohës nëse sabloni i mbledhur e shëndetësuesit është zonësit"
 
-# translated-by: libretranslate
 # service-failure alerts to a Telegram chat SystemdNotifier for Telegram chat.
+# translated-by: ltengine
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "Systemd-triggered notifier për prezencë të alerta të shkëlqyer në Telegram chanë"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"

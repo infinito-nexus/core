@@ -322,6 +322,7 @@ msgstr "社区"
 # gained=['(', ')', '1', 'sub_filter卢亚拥有CDN支持的资产']
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty via
 # sub_filter/Lua with CDN-backed assets.
+# translation-refused: libretranslate damaged-span
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -507,6 +508,7 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 # translated-by: libretranslate
 # Mastodon,等编.)
 # Mastodon, etc.) --- 部署可用 web 应用 (GitLab, Nextcloud, Mastodon, etc.)
+# translation-refused: libretranslate damaged-span
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -535,6 +537,7 @@ msgstr "启动 GNOME 的桌面配置角色 Shell 扩展并安装管理它们的 
 # LibreOffice, etc.) ---  Desktop environment roles & apps (GNOME,
 # LibreOffice, etc.) ---  Window management roles & features (Window manager,
 # LibreOffice, etc.)
+# translation-refused: libretranslate damaged-span
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
@@ -792,6 +795,7 @@ msgstr "辅助工具"
 # (英语).
 # managing, scaling, and accessing unstructured data — including object
 # storage compatible with Amazon S3 APIs.
+# translation-refused: libretranslate damaged-span
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""

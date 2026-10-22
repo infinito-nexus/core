@@ -407,9 +407,10 @@ msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance
 msgstr "HTTP 및 TCP / UDP 스트림 지원 및 성능 조정 기본이있는 Core NGINX 웹 서버"
 
 # owner
+# translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
-msgstr ""
+msgstr "기업 디자인 구성 소유자 및 `design` 서비스 플래그, CDN에 호스트명을 리디렉션"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
@@ -656,11 +657,11 @@ msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 코드 및 구성 편집"
 
-# translated-by: libretranslate
 # rule-validated games over ActivityPub 건너편 Fediverse
+# translated-by: ollama
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr ""
+msgstr "연결된 체스 서버는 활동팔로브를 통해 피더유브리 내에서 규칙 검증된 게임을 플레이하고 촉과하는 것"
 
 # translated-by: libretranslate
 # with web client and protocol bridges to External chat network
@@ -1042,11 +1043,11 @@ msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript 이미지 추적기 HTML 페이지를 제공"
 
-# translated-by: libretranslate
 # HTTPS with automatic Let's Encrypt 인증서
+# translated-by: ollama
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "NGINX 호스팅을 통한 HTTPS로 정적 HTML 웹사이트 서버와 자동 Let's Encrypt 인증서"
 
 # translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1381,9 +1382,10 @@ msgid "Public REST API serving role data, history and translations of Infinito.N
 msgstr "Public REST API 서빙 역할 데이터, 역사 및 번역 Infinito.Nexus 핵심과 그것의 포크의 각 ref를 위해"
 
 # of svc-ai-s1
+# translated-by: ollama
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "공개 vhost가 System One의 API를 노출합니다 svc-ai-s1"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1641,11 +1643,11 @@ msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라이즈 위키 및 지식 관리 플랫폼"
 
-# translated-by: libretranslate
 # and reading tracking throughout the Fediverse
+# translated-by: ollama
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "서버를 설치한 제국적인 소재물 리더 플랫폼과 평가 및 읽기 추적을 통해 제국 싸이브리"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
@@ -1891,6 +1893,11 @@ msgstr "시스템 Frontend 헬퍼"
 # generating localesvia locale.gen and locale.conf templates System
 # configuration role for setting up and generating localesvia locale.gen and
 # locale.conf templates
+# translation-refused: libretranslate protected-span lost=['locale.gen']
+# gained=['Locale.gen']
+# nocheck: url
+# translation-rejected: Locale.gen 설정 및 locale.conf 템플릿을 통해 로케alirole을 구성하고
+# 생성하는 역할
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -2131,9 +2138,10 @@ msgstr "LDAP 서버에서 검색, 검색 및 관리 디렉토리 항목을 위�
 # managing multiple PostgreSQL servers, with optional OAuth2 login ---
 # ตัวแปรฐาน Web ที่สามารถจัดการเซิร์ฟเวอร์หลายเซิร์ฟเวอร์ได้
 # พร้อมด้วยการเข้าถึง OAuth2 ที่เป็นไปได้
+# translated-by: ltengine
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "웹 기반 관리 및 개발 플랫폼으로 여러 PostgreSQL 서버를 관리하고, 선택적 OAuth2 로그인 옵션이 있습니다"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

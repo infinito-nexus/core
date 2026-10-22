@@ -1695,10 +1695,10 @@ msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavimui ir filmų, TV, muzikos ir nuotraukų organizavimui, su OIDC ir LDAP prisijungimu"
 
-# translated-by: libretranslate
+# translated-by: ollama
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "Automatinė serverius skirtas vyresniams LLMs grindyti lokaliosieje įrenginyje paskutinioje HTTPS API"
 
 # platforma su į skaičiuoklę panašia sąsaja duomenų kūrimui ir
 # bendradarbiavimui
@@ -1725,9 +1725,10 @@ msgstr "Savarankiškai patalpinta atvirojo kodo mašininio vertimo API teksto ve
 # control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
 # personal AI agent gateway with a browser control UI, sandboxed in a Kata
 # microVM or gVisor runtime
+# translated-by: ltengine
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "Šūčių tinklė, kurioje yra personalus AI agentą, kontroluojamas per browser, sandakotos Kata microVM ar gVisor platformoje"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
@@ -1997,9 +1998,10 @@ msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "GNOME darbastalio terminalų emuliatorius, suteikiantis prieigą prie Arch Linux darbo vietų"
 
+# translated-by: ltengine
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr ""
+msgstr "Terminal-based text editor s modernais sandelių skaičių ir syntaxu apšaltymu, dirżący Pacman būsto būsto"
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"

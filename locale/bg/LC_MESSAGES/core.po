@@ -284,13 +284,13 @@ msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
 msgstr "Клъстер-местни прокси кеш за пакет нагоре по течението, обслужващи apt, pipp, npm и сурови артефакти всяка роля декларира"
 
-# translated-by: libretranslate
 # Docker Hub base-image pulls, cut duplicate transfers and rate limits
 # base-image pulls, cutting duplicate transfers and rate limits
 # -----------------------------------------------
+# translated-by: ltengine
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr ""
+msgstr "Сървърен клъстер за изтегляне на база-изображение, споделен в Docker Hub, с изтегляне на дублиращи се прехвърляния и ограничения за скорост"
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
@@ -402,12 +402,12 @@ msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr "Core AI building bursorks год., OpenAI-съвместими портали, векторни бази данни, оркестрация и чат UIs."
 
-# translated-by: libretranslate
 # support and performance-tunned defaults
 # support and performance-tuned defaults ---
+# translated-by: ltengine
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "Core NGINX webserver с поддръжка на HTTP и TCP/UDP потоци и оптимизирани настройки за производителност"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
@@ -655,6 +655,10 @@ msgid "Events"
 msgstr "Събития"
 
 # terminal-drived code and configuration editing
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Extensible Vim-based command-line text editor for
+# terminal-driven code and configuration editing
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -874,11 +878,11 @@ msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "Платформа за проследяване на емисии и проекти за софтуерни екипи, с пъргави бордове, работни потоци и опционално OIDC SSO"
 
-# translated-by: libretranslate
 # server-side applications and developer tooling
+# translated-by: ltengine
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr ""
+msgstr "JavaScript runtime for building and running server-side applications и разработчици инструменти"
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
@@ -1450,14 +1454,14 @@ msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
 msgstr "Роли за управление на уеб инфраструктурата, покриващи услуги за статично съдържание и приложения за достъп до интернет."
 
-# translated-by: libretranslate
 # checks—encompassing bot-style automated checks and core low-level monitors
 # for logs, containers, disk usage, and more. Roles for system monitoring and
 # health checks—encompassing bot-style automated checks and core low-level
 # monitors for logs, containers, disk usage, and more.
+# translated-by: ltengine
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Системен мониторинг и проверки за здраве – включва автоматизирани проверки от тип бот и основни монитори за логове, контейнери, използване на дискове и други."
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1614,11 +1618,11 @@ msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr "Self-hosted чат интерфейс за взаимодействие с местни и частни модели AI чрез backends като Ollama"
 
-# translated-by: libretranslate
 # real-time cooperation, and team workspaces under your own domain
+# translated-by: ltengine
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr ""
+msgstr "Самоhosted облачна платформа за синхронизация на файлове, споделяне, реално време на сътрудничество и работни пространства под вашия домейн"
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:description"
@@ -1645,11 +1649,11 @@ msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr "Самостоятелно предприятие уики и платформа за управление на знанията със сътрудничество и гъвкавост на базата на приложението"
 
-# translated-by: libretranslate
 # reviews and reading tracking over the Fediverse
+# translated-by: ltengine
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr ""
+msgstr "Самоhosted федеративно четене на платформа за рецензии и проследяване на четене в Fediverse"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
@@ -2156,11 +2160,11 @@ msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Настройка на работна станция за Docker и Docker Compose с местния потребител в докер групата за използване без корени"
 
-# translated-by: libretranslate
 # Arduino board development on Linux
+# translated-by: ltengine
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr ""
+msgstr "Работна среда и разрешения за портове за Arduino на разработка на Arduino на Linux"
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"

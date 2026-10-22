@@ -111,12 +111,12 @@ msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker Compose stacks na kutatua migogoro ya bandari"
 
-# translated-by: libretranslate
 # Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
 # mizani ya mzigo
+# translated-by: ollama
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
-msgstr ""
+msgstr "Rol del r ole d automatitzat per a les records PTR (PTR) revers del DNS als servers Hetzner Cloud, IPs primàries, IPs flotants i balancers"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
@@ -325,9 +325,10 @@ msgstr "Jumuiya ya Jumuiya"
 # logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
 # Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 # gained=['sub_filterTumia']
+# translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "Inyectiónes de rôles xhtml compostos (CSS, JS, interceptor de logout, analitiques, iframe de panteón) per Nginx/OpenResty a través de sub_filter/Lua amb assets endarranjats per CDN."
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -380,6 +381,10 @@ msgid "Content Management"
 msgstr "Usimamizi wa Maudhui"
 
 # translated-by: libretranslate
+# ya kuchapisha mtandao
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
 # ya kuchapisha mtandao
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
@@ -444,6 +449,11 @@ msgid "Customer Relationship"
 msgstr "Uhusiano wa Wateja"
 
 # translated-by: libretranslate
+# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
+# msaada.
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
 # kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
 # msaada.
 msgctxt "menu:Customer Relationship:description"
@@ -1077,6 +1087,10 @@ msgid "Network-wide DNS sinkhole for blocking ads and trackers across all device
 msgstr "Hifadhi ya DNS ya mtandao kwa kuzuia matangazo na trackers katika vifaa vyote, na DHCP na dashibodi ya admin wa wavuti"
 
 # translated-by: libretranslate
+# zote logout kwa centralized OIDC moja ishara-nje mwisho
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
 # zote logout kwa centralized OIDC moja ishara-nje mwisho
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"

@@ -65,9 +65,10 @@ msgid "Alerting"
 msgstr "সতর্কবার্তা"
 
 # Syv, CalDAV, কার্ডADV, এবং স্প্যাম ফিল্টার পরিচালনা করুন
+# translated-by: ollama
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr ""
+msgstr "All-in-one সুপর মেল সার্ভার বিস্তারিত SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV এবং নিজেই ব্যবহারকারী শ্রোতাবেগে জানালা শোষণ"
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -319,11 +320,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "সম্প্রদায়"
 
-# translated-by: libretranslate
 # এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
+# translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "कॉम्बिनेबल HTML इन्स्ट्रॉजेशन रोल्स (CSS, JS, logout interceptor, analytics, dashboard iframe) Nginx/OpenResty की तरफ से sub_filter/Lua के माध्यम से डीसीन्स की सामग्री साझेदार हो।."
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -905,9 +906,10 @@ msgid "Kernel-level NFS server for exporting a shared directory tree with IP-res
 msgstr "দূরবর্তী হোস্ট- নেম সার্ভারের সাথে শেয়ার করার জন্য ডি. এন. এস. সার্ভার"
 
 # API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
+# translated-by: ollama
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
-msgstr ""
+msgstr "LLM-সুগमতার টেলিভিশন ইনসট্যান্স LibreTranslate API, যা প্লিপিলাইনগুলির জন্য আলাদা করে ব্যবহৃত হয়"
 
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
@@ -984,11 +986,13 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
 
-# translated-by: libretranslate
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
+# translated-by: ollama
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
+"Docker Swarm এক হ্যাউস মেনের নodের মানুষের উপর সেরা মেনেডেজার নোড হিসাবে চিহ্নিত করা, যাতে ইনিট লিকাজ ইনিটিভ লিকাজের দিকে পরামর্শ দেওয়া হয়\n"
+"svc-swarm-node"
 
 # translated-by: libretranslate
 msgctxt "menu:Marketing:title"

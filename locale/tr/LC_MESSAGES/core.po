@@ -1401,9 +1401,10 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # kararı API Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of Of
 # Of Of Of Of Of Of Of Of Of svc-ai-s1
+# translated-by: ollama
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr ""
+msgstr "Yüklü vhost, svc-ai-s1ın System One seçiminin APIini gösteriyor"
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1615,11 +1616,11 @@ msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantıları yönetmek için kısa bağlantılar"
 
-# translated-by: libretranslate
 # uç uç uç-son şifreli video konferencing with beerated doğrulama
+# translated-by: ollama
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr ""
+msgstr "Yerel hosting WebRTC platformı ile erişilebilir otomasyonlu video conferans için federeasyon tabanlı yetkilendirme"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
@@ -1666,12 +1667,12 @@ msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısındaki izleme platformu"
 
-# translated-by: libretranslate
 # zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş
 # sosyal ağ
+# translated-by: ollama
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr ""
+msgstr "Yerel olarak kullanılan federeasyonlu sosyal ağ için microblog, gerçek zamanlı tarihlere ve kitle yönetiminine"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"

@@ -1024,9 +1024,10 @@ msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "NGINX vrstva pro HTTPS s Zašifrovat ACME výzvu manipulaci, port 80 do 443 přesměrovat, a zatuchlý vHost úklid"
 
+# translated-by: ltengine
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr ""
+msgstr "NGINX server blokuje, že permanentně přesměruje podsubdomény na jejich ne-www apex domény"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
@@ -1593,9 +1594,10 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Self- hostovaná platforma WebRTC pro end- to- end- šifrovatelné video konference s federativní autentizace"
 
+# translated-by: ollama
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr ""
+msgstr "Self-hosted prohlížečový nástroj pro generování QR kódů z textu nebo URL s lokalním renderováním soukromým⽅"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1667,9 +1669,10 @@ msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Self- hostovaný modelový server pro spuštění open LLM lokálně za jednoduchým HTTP API"
 
+# translated-by: ltengine
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr ""
+msgstr "Self-hosted no-code database platform s rozhraním podobným tabulkovému pro vytváření a spolupráci na datech"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"

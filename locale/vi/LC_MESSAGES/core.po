@@ -345,9 +345,10 @@ msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Container engine runtime với Compose cho việc xây dựng và chạy ứng dụng trên máy chủ Linux"
 
+# translated-by: ollama
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr ""
+msgstr "Nhóm đột suất cho việc sắp xếp dịch vụ giữa các máy chủ quản lý và công việc"
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
@@ -364,9 +365,10 @@ msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
+# translated-by: ollama
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ""
+msgstr "Bồn chứa database liên quan đã tích hợp với cung cấp tự động database, người dùng và sự cấp quyền"
 
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
@@ -941,9 +943,10 @@ msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "CA gốc tự ký địa phương cho việc phát hành sự tin tưởng để các thùng chứa chấp nhận điểm kết thúc nội bộ của USD"
 
+# translated-by: ollama
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr ""
+msgstr "Local-first cross-platform desktop password manager simpan kredensial dalam database format enkripsi KeePass"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
@@ -1086,6 +1089,9 @@ msgid "Nginx-based server for hosting static assets copied from a source directo
 msgstr "Máy chủ dựa vào Nginx để tổ chức các tài sản tĩnh đã sao chép từ thư mục nguồn đến đường dẫn dữ liệu web"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Node.js Name
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1928,9 +1934,10 @@ msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr "Bộ thông báo msmp hệ thống cho những người sử dụng thư điện tử khi một đơn vị dịch vụ giám sát thất bại"
 
+# translated-by: ollama
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr ""
+msgstr "Notifier systemd-là cho gửi cảnh báo lỗi dịch vụ đến nhóm Chat Telegram"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
@@ -2072,9 +2079,10 @@ msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Trình khách điều khiển phiên bản cho trạm làm việc cá nhân, cấu hình sẵn với danh tính, ký và hợp nhất mặc định"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr ""
+msgstr "Đường dẫn cấu trúc cây tài sản đã phân loại cho việc giao hàng CDN với các thư mục chứa các bản phát hành chia sẻ, nhà cung cấp và theo vai trò"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2126,6 +2134,9 @@ msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 
+# translation-refused: libretranslate collapsed
+# nocheck: url
+# translation-rejected: Name
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

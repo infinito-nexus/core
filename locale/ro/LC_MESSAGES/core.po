@@ -1430,12 +1430,12 @@ msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către serviciile suport"
 
-# translated-by: libretranslate
 # backups, unused certificates, temporary files, Docker volumes, disk caches,
 # deprecated domains, and more.
+# translated-by: ltengine
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr ""
+msgstr "Funcții pentru curățarea resurselor sistemului—back-up-uri vechi, certificări neutilizate, fișiere temporare, volume Docker, cache-uri de disc, domenii învechite și multe altele."
 
 # translated-by: libretranslate
 # hardware.

@@ -321,6 +321,12 @@ msgstr "ชุมชน"
 # เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
 # Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 # gained=['sub_filterส']
+# translation-refused: libretranslate protected-span lost=['sub_filter']
+# gained=['sub_filterส']
+# nocheck: url
+# translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
+# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
+# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -402,9 +408,10 @@ msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที
 
 # stream และค่าปริยายของการแสดง
 # support and performance-tuned defaults - Core
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr ""
+msgstr "เซิร์ฟเวอร์เว็บ NGINX พื้นฐานด้วยการสน apport HTTP และ TCP/UDP วีดีโอและปรับแต่งที่เพิ่มประสิทธิภาพ"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-design:description"
@@ -889,12 +896,12 @@ msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
 msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระตุ้นให้ให้บริการแบบ OpenAI APIเส้นทางที่จะจําลองผ่านประตู LLM ร่วมกัน"
 
-# translated-by: libretranslate
 # Kata loader microVMs และ sports overnames.
 # host: Kata Containers microVMs and the gVisor userspace fallback.
+# translated-by: libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr ""
+msgstr "Keptember- usinaling times appnation on the paint: Kata loader microVMs และ sports overnames."
 
 # translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
@@ -948,9 +955,10 @@ msgstr "ลายเซ็นตัวเองท้องถิ่นรูท
 
 # (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
 # storing credentials in an encrypted KeePass-format database
+# translated-by: ollama
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr ""
+msgstr "ผู้ให้บริการ Local-first บนระบบปฏิบัติการที่หลากหลาย โปรแกรมจัดเก็บรหัสผ่านบนเครื่องคอมพิวเตอร์ที่มีลักษณะการเก็บข้อมูลในรูปแบบฐานข้อมูล KeePass ที่ได้รับการเข้ารหัส"
 
 # slack, จดหมายและเครื่องติดตามเข้าใช้การ์ดการกระทําที่ใช้ได้
 # translated-by: libretranslate

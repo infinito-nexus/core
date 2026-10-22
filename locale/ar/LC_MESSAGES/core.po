@@ -67,6 +67,10 @@ msgstr "الإنذار"
 
 # POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
 # POP33, ManageSieve, CalDAV, CardDAV and built-in spam filtering
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Allin-one Stalwart mail server with SMTP, IMAP, JMAP,
+# POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -235,9 +239,10 @@ msgstr "المركزية MariaDB أو PostgreSQL خدمات قاعدة البي�
 
 # إل إس) و(جي إن جي)"
 # single-domain and wildcard TLS certificates on NGINX domains
+# translated-by: ollama
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr ""
+msgstr "Servicio من منظومة ACME تحت إشراف Certbot لرموز التوثيق TLS من Let's Encrypt لأسرعDomains ورموز TLS متعددة الأحرف على مناطق NGINX"
 
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
@@ -538,9 +543,10 @@ msgstr "دور عقد المؤتمرات المكتبية لتفعيل نظام 
 
 # LibreOfficeإلخ)
 # etc.) ---  Desktop environment roles & apps GNOME, LibreOffice, etc.)
+# translated-by: ollama
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr ""
+msgstr "الroles & التطبيقات للبيئة المكتبية ( GNOME، المتصفح، LibreOffice، إلخ.)"
 
 # Library for Blu-ray discryption and playback on Arch Linux
 # translated-by: libretranslate
@@ -759,9 +765,10 @@ msgstr ":: دور عام في تركيب نظام \" ديلي كلي \" وتطب
 # responses via sub_filter, with CSP hashing  ### Global - sub_filter -
 # JavaScript - injection - layer - for - NGINX - HTML - responses - via - CSP
 # - hashing
+# translated-by: ollama
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr ""
+msgstr "ThickQL أضافة طبقة JavaScript التشغيل عبر إجابة NGINX HTML بthrough sub_filter، مع الترميز الحصري CSP thickQL"
 
 # بعد على أساس رئيسي مع قطع الأشجار الجذرية وتوثيق كلمة السر
 # translated-by: libretranslate
@@ -790,14 +797,14 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "النجدة"
 
-# translated-by: libretranslate
 # الفساد Docker Compose (ج) أكياس المشروع وإثباته
 # Docker Compose stacks and validating the project CA certificate --- نقل
 # ترخيص CA من دایره را می‌كنیم برای Docker Compose سpires و صحت certifiable
 # project CA Certificate
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "هيومنر رول تثبيت وصايا CA للس稷ات Docker Compose وتدقق رخصة CA للمشروع"
 
 # translated-by: libretranslate
 msgctxt "category:gen:description"
@@ -1047,6 +1054,10 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 
 # translated-by: libretranslate
 # target domains with automatic SSL for the source hosts
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: NGINX glue role for 301 Redirects from source to
+# target domains with automatic SSL for the source hosts
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
@@ -1055,9 +1066,10 @@ msgstr ""
 # challenge handling, port 80 to 443 redirect, and stale vHost cleanup ---
 # NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to
 # 443 redirect, and stale vHost cleanup --
+# translated-by: ollama
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
-msgstr ""
+msgstr "Layer NGINX للHTTPS مع التحدي ACME بواسطة Let's Encrypt، ومن معالجة تحويل port 80 إلى 443، والتدوير stale vHost"
 
 # translated-by: libretranslate
 # subdomains to their non-www apex domains
@@ -1070,11 +1082,11 @@ msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل للكتاب ومتتبع للصور المخطوطة لخدمة صفحات HTML"
 
-# translated-by: libretranslate
 # HTTPS with automatic Let's Encrypt certificates
+# translated-by: ollama
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr ""
+msgstr "Hosting المواقع الويبية المت Static HTML عبر HTTPS بواسطة أCertificates تلقائي Let's Encrypt"
 
 # translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1127,6 +1139,10 @@ msgid "Nginx-based server for hosting static assets copied from a source directo
 msgstr "الخادم الذي يوجد مقره في نجينكس لاستضافة الأصول الثابتة المستنسخة من دليل المصدر إلى مسار البيانات على شبكة الإنترنت"
 
 # translated-by: libretranslate
+# ci داخل دليل المشروع
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm
 # ci داخل دليل المشروع
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
@@ -1288,6 +1304,10 @@ msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج 
 
 # translated-by: libretranslate
 # with TLS certificates, vHost templates, and optional OAuth2
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
+# with TLS certificates, vHost templates, and optional OAuth2
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
@@ -1424,6 +1444,10 @@ msgid "Pull-through caches for package upstreams - proxy repositories and the TL
 msgstr "سحب من خلال المواهب لحزمة من أعلى المجرى - مستودعات محترفة و واجهة TLS التي تجيب لهم."
 
 # translated-by: libretranslate
+# repositos and automating common Git العمليات
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Python CLI package manager for cloning multiple code
 # repositos and automating common Git العمليات
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
@@ -1600,6 +1624,7 @@ msgstr "البنية التحتية ذاتية التشغيل لأجهزة ال�
 # أنابيب CI/CD، وتتبع القضايا
 # management, CI/CD pipelines, and issue tracking --- Self-hosted DevOps
 # platform for Git source-code management, CI/CD pipelines, and issue tracking
+# translation-refused: libretranslate damaged-span
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr ""
@@ -2004,6 +2029,7 @@ msgstr "مُخطر مُبرمج لتقديم تنبيهات بعدم الخدم�
 # the platform's own model gateway instead of the vendor API --- إنتحال
 # كودding_AGENT من Anthropic ، استخدمه في الملاصق المعماري instead of the
 # vender API
+# translation-refused: libretranslate damaged-span
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
@@ -2086,6 +2112,7 @@ msgid "Tools which help to optimize webservers"
 msgstr "الأدوات التي تساعد على الاستفادة المثلى من خدمات الإنترنت"
 
 # ---  V3 Tor daemon publishing the node as a v3 onion service
+# translation-refused: libretranslate damaged-span
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
@@ -2158,14 +2185,14 @@ msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr "الشبكة"
 
-# translated-by: libretranslate
 # الطلب
 # Terraform/OpenTofu, and shell automation on a schedule or on demand ---  يوم
 # الويبوين وال API لRunning Ansible, Terraform/OpenTofu, and shell automation
 # on a schedule or on demand
+# translated-by: ollama
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "واجهة المستخدم Web وAPI لل Execusiتد Ansible، ترميماً أوتومنتيون، وتوفو وتو عن طريق التقويم أو عند الطلب"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-lam:description"

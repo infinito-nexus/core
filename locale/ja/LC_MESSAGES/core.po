@@ -344,9 +344,10 @@ msgid "Container engine runtime with Compose for building and running applicatio
 msgstr "Linux ホスト上のアプリケーションコンテナの構築と実行のための Compose によるコンテナエンジンのランタイム"
 
 # services across pooled manager and worker nodes
+# translated-by: ltengine
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr ""
+msgstr "コンテナオーケストレーションクラスタは、プールマネージャーとワークノードの組み合わせでサービスをスケジュールする"
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
@@ -1692,9 +1693,10 @@ msgstr "テキストを言語間で翻訳し、検出するためのセルフホ
 # control UI, sandboxed in a Kata microVM or gVisor runtime  ### Self-hosted
 # personal AI agent gateway with a browser control UI, sandboxed in a Kata
 # microVM or gVisor runtime
+# translated-by: ltengine
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr ""
+msgstr "自己ホストのパーソナルAIエージェントゲートウェイ、ブラウザコントロールUIを備えた、サンドボックス化されたKataマイクロVMまたはgVisorランタイム"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
@@ -1755,9 +1757,10 @@ msgstr "サービス最適化"
 # サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
 # automated data snapshots, remote backups, synchronization services, and
 # backup orchestration across databases, files, and containers.
+# translated-by: ltengine
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "サービスレベルのバックアップと復旧コンポーネント—自動データスナップショットの処理、リモートバックアップ、同期サービス、およびデータベース、ファイル、コンテナ間のバックアップオーケストレーション."
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"

@@ -789,9 +789,10 @@ msgstr "Βοηθητικά Εργαλεία"
 # APIs (στα Αγγλικά).
 # alta rendimiento, autónomo para gestionar, escalar y acceder a datos no
 # estructurados — compatibles con APIs de Amazon S3.  ---.
+# translated-by: ollama
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr ""
+msgstr "Χρήσιμες αποθεωρητικές συστήματα έλεγχου και ανάπτυξης για τη διαχείριση, την ανάληψη και την εισόδημα των αναπάσθετων δεδομένων — συμπερασκαπούμενες προγραμματισμένες συστήματα έλεγχου που συμφιλίζονται με τους Amazon S3 API."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1000,9 +1001,10 @@ msgstr "Εμπορία"
 
 # results without handing a user's query to a tracking search provider
 # without handing a user's query to a tracking search provider
+# translated-by: ltengine
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Ψηφιακός μηχανισμός αναζήτησης που αναζητά σε διαδίκτυα αποτελέσματα χωρίς να δίνει στον χρήστη την ερώτησή του σε έναν διαχειριστή αναζήτησης"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-pi:description"

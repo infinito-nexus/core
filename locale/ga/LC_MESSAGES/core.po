@@ -324,7 +324,6 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Pobail agus Fiontair"
 
-# translated-by: libretranslate
 # interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
 # via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
 # interceptor, analytics, dashboard iframe) for Nginx/OpenResty/Lua with
@@ -338,9 +337,10 @@ msgstr "Pobail agus Fiontair"
 # from en to ga. Answer with the translation and nothing else, no quotes, no
 # from ga to en. Answer with the translation and nothing else, no quotes, no
 # interceptor, analytics,.
+# translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "Komposítil HTML-injektiona rólái (CSS, JS, logout intercep tátor, analýzis, di shátra iframe) Nginx/OpenResty segítségével sub_filter/Lua-alapuló állatokhoz."
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
