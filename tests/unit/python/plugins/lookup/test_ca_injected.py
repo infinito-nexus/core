@@ -140,6 +140,32 @@ class TestCaInjectedLookup(unittest.TestCase):
         )
         self.assertEqual([name for name, _ in calls], ["domains", "tls", "tls"])
 
+    def test_an_onion_served_ca_client_gets_the_ca_on_the_deployment_mode(self):
+        verdict, _ = self._resolve(
+            domains={"web-app-moodle": "abc.onion"},
+            enabled=False,
+            mode="self_signed",
+            services={"api": {"ca_client": True}},
+            tls_mode="self_signed",
+        )
+        self.assertIs(
+            verdict,
+            True,
+            "resolve_enabled returns False for a .onion primary, so an onion app "
+            "has a domain and no TLS of its own; without the CA its outbound call "
+            "to a self-signed endpoint dies at the handshake",
+        )
+
+    def test_an_onion_served_app_without_the_declaration_still_gets_nothing(self):
+        verdict, _ = self._resolve(
+            domains={"web-app-moodle": "abc.onion"},
+            enabled=False,
+            mode="self_signed",
+            services={"api": {}},
+            tls_mode="self_signed",
+        )
+        self.assertIs(verdict, False)
+
     def test_a_ca_client_gets_nothing_when_the_ca_is_not_self_signed(self):
         verdict, _ = self._resolve(
             domains={},

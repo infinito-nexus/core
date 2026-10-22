@@ -37,6 +37,7 @@ api:
     path: api/v1/instance/nodeinfo/2.0
   name: funkwhale-api
   image: funkwhale/api
+  ca_client: true
   version: 2.0.12
   min_storage: 588MB
   ports:
