@@ -46,6 +46,27 @@ NEXTCLOUD_INIT_GATE_HOST: "{{ [lookup('container', 'web-app-nextcloud', 'directo
 
 NEXTCLOUD_SERVICE: "{{ entity_name }}"
 NEXTCLOUD_VERSION: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.version') }}"
+NEXTCLOUD_VERSION_MAJOR: "{{ NEXTCLOUD_VERSION | nextcloud_tag_major }}"
+NEXTCLOUD_DATA_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
+NEXTCLOUD_VERSION_PHP: "{{ [NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'version.php'] | path_join }}"
+NEXTCLOUD_UPGRADE_COMPOSE_FILE: "compose.upgrade.yml"
+NEXTCLOUD_UPGRADE_COMPOSE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), NEXTCLOUD_UPGRADE_COMPOSE_FILE] | path_join }}"
+NEXTCLOUD_UPGRADE_RUN:
+  - "{{ BIN_COMPOSE }}"
+  - --chdir
+  - "{{ lookup('container', application_id, 'directories.instance') }}"
+  - --project
+  - "{{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}"
+  - --file
+  - "{{ NEXTCLOUD_UPGRADE_COMPOSE_FILE }}"
+  - --
+  - run
+  - --rm
+  - -T
+NEXTCLOUD_UPGRADE_OCC: >-
+  {{ NEXTCLOUD_UPGRADE_RUN
+     + ['--no-deps', '--user', NEXTCLOUD_DOCKER_USER, '--entrypoint', 'php',
+        NEXTCLOUD_SERVICE, NEXTCLOUD_INTERNAL_OCC_COMMAND] }}
 NEXTCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.image') }}"
 NEXTCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.name') }}"
 NEXTCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, NEXTCLOUD_SERVICE) }}"

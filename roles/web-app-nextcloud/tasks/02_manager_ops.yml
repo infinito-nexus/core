@@ -1,4 +1,7 @@
 ---
+- name: ⏫ Bring existing Nextcloud data up to the pinned major
+  include_tasks: utils/major_upgrade.yml
+
 - name: 🚿 Flush handlers so Nextcloud container is restarted and ready
   meta: flush_handlers
 

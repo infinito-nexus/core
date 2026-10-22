@@ -193,6 +193,28 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
 
+## Major Upgrades
+
+Every deploy reads `$OC_Version` from `version.php` in the `nextcloud_data` volume and compares its major with the pinned `services.nextcloud.version`, which MUST start with the major number (`34-fpm-alpine`, `32.0.3-fpm-alpine`).
+
+| Data | Behaviour |
+|------|-----------|
+| No volume or no `version.php` | Fresh install through the image entrypoint |
+| Pinned major | Regular deploy, minor updates run in the entrypoint and `occ upgrade` |
+| Older major | One upgrade step per major up to the pinned one, then the regular deploy |
+| Newer major | The deploy stops, Nextcloud cannot downgrade |
+
+[`tasks/utils/major_upgrade.yml`](./tasks/utils/major_upgrade.yml) runs the steps before the compose handlers start the pinned image:
+
+1. It stops every running container that mounts `nextcloud_data`.
+2. Per major it renders [`templates/major_upgrade.yml.j2`](./templates/major_upgrade.yml.j2) as `compose.upgrade.yml`, which swaps the image of the `nextcloud` service for the official `nextcloud:<major><suffix>` image. The suffix comes from the pinned tag, the last step uses the pinned tag itself.
+3. `compose run` starts that image with the service's env file, volumes, networks and dependencies and `NEXTCLOUD_UPDATE=1`, so the upstream entrypoint syncs the code and runs `occ upgrade`.
+4. Maintenance mode is switched off, `occ status` MUST report the step's major with no pending database upgrade, and every app `occ upgrade` disabled that is still disabled after the step is reported.
+
+After the compose handlers ran, [`tasks/02_manager_ops/03_upgrade.yml`](./tasks/02_manager_ops/03_upgrade.yml) asserts that `occ status` reports the pinned major.
+
+The steps run in compose mode only. A swarm deploy that finds an older major stops with the planned steps; pin one major above the installed one per deploy there.
+
 ## MCP Server
 
 Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the `context_agent` ExApp.
