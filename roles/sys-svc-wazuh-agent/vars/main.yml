@@ -21,6 +21,9 @@ WAZUH_AGENT_SOURCE_PINS:
   "4.14.6":
     source: "1de971b9d0663a020a4d55ea713cae07b5c4188e67da896b779bc439029e7ee3"
     deps: "494cd89ae64526e5bbe277c7d5035dc659ef1ddbb1f1c9b7f9c2ad8202269485"
+  "4.14.9":
+    source: "9d58c1c3cc42b4a0ccfc9424a4fe2b3d6fc88731380e97b4c687374dd5012fdc"
+    deps: "4fa922aea19e0837c724949d3f063013accca4d747b1e805edc13e0563cdb6eb"
 # Exception: Wazuh recommends GCC 14, which Arch no longer ships; gcc15 (meta/packages.yml) is the closest, with no fallback to Arch's default gcc.
 WAZUH_AGENT_ARCH_CC: "gcc-15"
 WAZUH_AGENT_ARCH_CXX: "g++-15"

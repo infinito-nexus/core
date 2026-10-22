@@ -67,7 +67,7 @@ On Arch Linux the role builds the agent from Wazuh's official release tarball (`
 7. The role then requires the `wazuh-agent.service` unit that `install.sh` registers, and fails with a clear message if there is none. Plan B, if a real Arch host also gets no unit: render it from Wazuh's own unit template in the source tree.
 
 The build tools (`base-devel`, `gcc15`, `python` from the `wazuh-agent-build` id, plus the shared `cmake` id; `curl` for `make deps` is always there as a `pacman` dependency) stay installed after the build: a known trade-off, faster rebuilds on the next version bump versus a compiler on the host.
-A build takes about 4 minutes on 8 cores (deps 46-73 s, compile 133 s, `install.sh` about 9 s), measured in a probe.
+A build takes about 4 minutes on 8 cores (deps 45-73 s, compile 133-137 s, `install.sh` about 10 s), measured in probes of 4.14.6 and 4.14.9.
 
 **Pinning a new version.** Compute both hashes in a throwaway `archlinux:latest` container, for example with `make compose-inner-run IMAGE=archlinux:latest`. The `sha256sum source.tar.gz` line gives `source`, the last line gives `deps`:
 
@@ -84,16 +84,16 @@ Run `make deps` twice in fresh directories and pin the `deps` hash only when bot
 
 **What is proven and what is pending.** The probe built and installed the agent in an `archlinux:latest` container inside the dev stack, without systemd; the full role run on an Arch host is pending for the combined Arch and RedHat distro test.
 
-| Item | Probe (Wazuh 4.14.6) | Pending for the distro test |
-|---|---|---|
-| `gcc15` from Arch's `extra`, `gcc14` gone | Proven (`gcc15` 15.3.0) | |
-| Source SHA-256 | Proven (`1de971b9…`) | |
-| `make deps` manifest stable | Proven, same hash in two fresh runs (`494cd89a…`, 25266 files) | |
-| Build as non-root with `gcc-15` | Proven, 133 s with `-j8` | The role's own `become_user` build steps |
-| `install.sh` with preloaded vars, unattended | Proven, `wazuh` user and group created | `USER_UPDATE` upgrade from an older pinned version |
-| `VERSION.json` and `wazuh-control info` | Proven (`4.14.6`) | The role's two version checks on Arch |
-| eBPF and Docker listener files | Proven (`libfimebpf.so`, `modern.bpf.o`, `DockerListener`) | Listener under the venv drop-in, FIM state |
-| systemd unit from `install.sh` | Not proven: the probe container has no systemd and got no unit | Unit present, agent `Active`, canary, idempotent second run without a rebuild |
+| Item | Probe (Wazuh 4.14.6) | Probe (Wazuh 4.14.9) | Pending for the distro test |
+|---|---|---|---|
+| `gcc15` from Arch's `extra`, `gcc14` gone | Proven (`gcc15` 15.3.0) | Proven (`gcc15` 15.3.0) | |
+| Source SHA-256 | Proven (`1de971b9…`) | Proven (`9d58c1c3…`) | |
+| `make deps` manifest stable | Proven, same hash in two fresh runs (`494cd89a…`, 25266 files) | Proven, same hash in two fresh runs (`4fa922ae…`, 25260 files) | |
+| Build as non-root with `gcc-15` | Proven, 133 s with `-j8` | Proven, 135-137 s with `-j8` | The role's own `become_user` build steps |
+| `install.sh` with preloaded vars, unattended | Proven, `wazuh` user and group created | Proven, `wazuh` user and group created | `USER_UPDATE` upgrade from an older pinned version |
+| `VERSION.json` and `wazuh-control info` | Proven (`4.14.6`) | Proven (`4.14.9`) | The role's two version checks on Arch |
+| eBPF and Docker listener files | Proven (`libfimebpf.so`, `modern.bpf.o`, `DockerListener`) | Proven (same three files) | Listener under the venv drop-in, FIM state |
+| systemd unit from `install.sh` | Not proven: the probe container has no systemd and got no unit | Not proven, same reason | Unit present, agent `Active`, canary, idempotent second run without a rebuild |
 
 ## Cosmos
 
