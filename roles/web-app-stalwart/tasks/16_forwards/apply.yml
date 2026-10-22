@@ -1,0 +1,75 @@
+---
+# Param: stalwart_forward - one STALWART_FORWARDS entry, {address, destinations}.
+# Param: stalwart_forward_account_id - JMAP account id of stalwart_forward.address.
+# Param: stalwart_jmap_act_as - stalwart_forward.address, every call below runs as that account.
+- name: "📖 List the Sieve scripts of '{{ stalwart_forward.address }}'"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:sieve'],
+          'methodCalls': [['SieveScript/get', {'accountId': stalwart_forward_account_id, 'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Find the forward script of '{{ stalwart_forward.address }}'"
+  ansible.builtin.set_fact:
+    stalwart_forward_scripts: "{{ stalwart_jmap.methodResponses[0][1].list }}"
+    stalwart_forward_own: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | selectattr('name', 'equalto', STALWART_FORWARD_SCRIPT_NAME) | list }}
+
+- name: "📖 Read the forward script of '{{ stalwart_forward.address }}'"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:blob'],
+          'methodCalls': [['Blob/get', {'accountId': stalwart_forward_account_id,
+            'ids': [stalwart_forward_own[0].blobId], 'properties': ['data:asText']}, 'c0']]} | to_json }}
+  when: stalwart_forward_own | length > 0
+
+- name: "🔍 Render the forward script of '{{ stalwart_forward.address }}'"
+  ansible.builtin.set_fact:
+    stalwart_forward_current: "{{ stalwart_forward_text }}"
+    stalwart_forward_desired: >-
+      {{ stalwart_forward.destinations | stalwart_forward_script(
+         stalwart_forward_scripts | stalwart_forward_include(STALWART_FORWARD_SCRIPT_NAME, stalwart_forward_text)) }}
+    stalwart_forward_inactive: "{{ (stalwart_forward_own | length > 0) and not (stalwart_forward_own[0].isActive | bool) }}"
+  vars:
+    stalwart_forward_text: >-
+      {{ stalwart_jmap.methodResponses[0][1].list[0]['data:asText']
+         if stalwart_forward_own | length > 0 else '' }}
+
+- name: "📁 Write and activate the forward script of '{{ stalwart_forward.address }}'"
+  when: stalwart_forward_desired != stalwart_forward_current
+  block:
+    - name: "📤 Upload the forward script of '{{ stalwart_forward.address }}'"
+      include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:blob'],
+              'methodCalls': [['Blob/upload', {'accountId': stalwart_forward_account_id,
+                'create': {'b': {'data': [{'data:asText': stalwart_forward_desired}]}}}, 'c0']]} | to_json }}
+
+    - name: "📁 Point the forward script of '{{ stalwart_forward.address }}' at the upload"
+      include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+      vars:
+        stalwart_forward_blob: "{{ stalwart_jmap.methodResponses[0][1].created.b.id }}"
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:sieve'],
+              'methodCalls': [['SieveScript/set', (
+                {'accountId': stalwart_forward_account_id,
+                 'update': {stalwart_forward_own[0].id: {'blobId': stalwart_forward_blob}},
+                 'onSuccessActivateScript': stalwart_forward_own[0].id}
+                if stalwart_forward_own | length > 0 else
+                {'accountId': stalwart_forward_account_id,
+                 'create': {'f': {'name': STALWART_FORWARD_SCRIPT_NAME, 'blobId': stalwart_forward_blob}},
+                 'onSuccessActivateScript': '#f'}), 'c0']]} | to_json }}
+
+- name: "🔀 Re-activate the forward script of '{{ stalwart_forward.address }}'"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:sieve'],
+          'methodCalls': [['SieveScript/set', {'accountId': stalwart_forward_account_id,
+            'onSuccessActivateScript': stalwart_forward_own[0].id}, 'c0']]} | to_json }}
+  when:
+    - stalwart_forward_desired == stalwart_forward_current
+    - stalwart_forward_inactive | bool

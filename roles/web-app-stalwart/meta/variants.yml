@@ -53,3 +53,23 @@
       shared: false
     tor:
       enabled: true
+    stalwart:
+      migration:
+        import_mailu: true
+        mailbox_map:
+          - source: "legacy-mapped@{{ DOMAIN_PRIMARY }}"
+            target: "biber@{{ DOMAIN_PRIMARY }}"
+      aliases:
+        - address: "@{{ DOMAIN_PRIMARY }}"
+          destinations:
+            - "administrator@{{ DOMAIN_PRIMARY }}"
+        - address: "team@{{ DOMAIN_PRIMARY }}"
+          destinations:
+            - "administrator@{{ DOMAIN_PRIMARY }}"
+            - "biber@{{ DOMAIN_PRIMARY }}"
+            - "team@routing-probe.invalid"
+      forwards:
+        - address: "biber@{{ DOMAIN_PRIMARY }}"
+          destinations:
+            - "administrator@{{ DOMAIN_PRIMARY }}"
+            - "biber@routing-probe.invalid"
