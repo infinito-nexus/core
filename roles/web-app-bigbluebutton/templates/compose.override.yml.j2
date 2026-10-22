@@ -59,8 +59,6 @@ services:
 {% set service_name = 'greenlight' %}
   {{ service_name }}:
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    environment:
-      URL_HOST: "{{ domain }}"
 {% endif %}
 {% if BBB_RECORDING_ENABLED | bool %}
 {% set service_name = 'recordings' %}
