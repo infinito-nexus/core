@@ -30,6 +30,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from plugins.filter.role_path_by_app_id import abs_role_path_by_application_id
 from utils.docker.paths_utils import get_docker_paths
 from utils.templating.jinja import render_strict
 
@@ -80,7 +81,7 @@ def _has_domain(domains: Any, application_id: str) -> bool:
     return _value_has_domain(domains)
 
 
-def _role_provides_override(*, application_id: str, templar: Any) -> bool:
+def _role_provides_override(*, application_id: str) -> bool:
     """
     Mirror tasks/04_files.yml "with_first_found" logic:
 
@@ -89,22 +90,10 @@ def _role_provides_override(*, application_id: str, templar: Any) -> bool:
 
     Only if one of these exists, we append "-f <compose.files.compose_override>".
     """
-    tpl = getattr(templar, "template", None)
-    if not callable(tpl):
-        raise AnsibleError(
-            "compose_file_args: templar is required to resolve abs_role_path_by_application_id"
-        )
-
-    role_base = _as_str(tpl("{{ application_id | abs_role_path_by_application_id }}"))
-    if not role_base:
-        raise AnsibleError(
-            "compose_file_args: abs_role_path_by_application_id resolved to empty"
-        )
-
-    c1 = str(Path(role_base) / "templates" / "compose.override.yml.j2")
-    c2 = str(Path(role_base) / "files" / "compose.override.yml")
-
-    return Path(c1).is_file() or Path(c2).is_file()
+    role_base = Path(abs_role_path_by_application_id(application_id))
+    return (role_base / "templates" / "compose.override.yml.j2").is_file() or (
+        role_base / "files" / "compose.override.yml"
+    ).is_file()
 
 
 class LookupModule(LookupBase):
@@ -174,7 +163,7 @@ class LookupModule(LookupBase):
 
         parts = [f"{flag} {base}"]
 
-        if _role_provides_override(application_id=application_id, templar=templar):
+        if _role_provides_override(application_id=application_id):
             if not _as_str(override):
                 raise AnsibleError(
                     "compose_file_args: compose.files.compose_override is required "
