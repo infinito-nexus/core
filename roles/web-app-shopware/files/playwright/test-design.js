@@ -182,6 +182,11 @@ async function openStorefront(page, path, ready) {
   await expect(page.locator(ready).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
+async function addToCart(view) {
+  await view.waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) });
+  await view.locator(".btn-buy").first().click({ timeout: resolveTimeout(30_000) });
+}
+
 async function openAdmin(page, hash, ready) {
   await signIn(page);
   await dismissFirstRunWizard(page);
@@ -239,7 +244,7 @@ function galleryViews({ channel, theme, productUrl }) {
     await ready("main.content-main")(view);
     if ((await view.locator(".line-item").count()) > 0) return;
     await gotoOnion(view, productUrl);
-    await view.locator(".btn-buy").first().click({ timeout: resolveTimeout(30_000) });
+    await addToCart(view);
     await ready(".offcanvas.show .line-item")(view);
   };
   const admin = (name, hash, selector, prepare, loaded) => ({
@@ -472,7 +477,7 @@ test("design: the secondary button of the cart drawer stays a quiet surface", as
   skipUnlessServiceEnabled("design");
   await seedShowcase(request);
   await openStorefront(page, `/detail/${SHOWCASE.products[0].id}`, ".btn-buy");
-  await page.locator(".btn-buy").first().click({ timeout: resolveTimeout(30_000) });
+  await addToCart(page);
   const close = ".offcanvas.show .offcanvas-close.btn-secondary";
   await expect(page.locator(close)).toBeVisible({ timeout: resolveTimeout(30_000) });
   for (const mode of ["light", "dark"]) {
