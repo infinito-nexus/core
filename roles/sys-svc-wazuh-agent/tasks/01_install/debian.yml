@@ -25,15 +25,9 @@
   delay: 15
   until: wazuh_agent_apt_cache is succeeded
 
-- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }}={{ WAZUH_AGENT_PACKAGE_VERSION }}"
-  ansible.builtin.apt: # nocheck: dynamic-package - exact manager-derived version; see README: registry version/build schema follow-up
-    name: "{{ WAZUH_AGENT_PACKAGE }}={{ WAZUH_AGENT_PACKAGE_VERSION }}"
-    state: present
-    allow_change_held_packages: true
-  register: wazuh_agent_install
-  retries: 5
-  delay: 15
-  until: wazuh_agent_install is succeeded
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }} past the hold"
+  package_install:
+    id: wazuh-agent
   notify: wazuh-agent-restart
 
 - name: "📌 Hold {{ WAZUH_AGENT_PACKAGE }} against upgrades"

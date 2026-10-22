@@ -9,7 +9,10 @@ executes what it is handed.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from utils.packages.calls import (
+    GENERIC_PACKAGE,
     STATE_ABSENT,
     STATE_PRESENT,
     ModuleCall,
@@ -34,6 +37,21 @@ def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
     if state == STATE_ABSENT:
         return [package_call(names, STATE_ABSENT)]
 
+    calls = _acquire(spec, names)
+    if spec.version is None:
+        return calls
+    pinned = [
+        replace(call, pin=spec.version)
+        if call.module == GENERIC_PACKAGE and call.args.get("name") == names
+        else call
+        for call in calls
+    ]
+    if pinned == calls:
+        raise ValueError("a version pin needs a plain package-manager install of its name")
+    return pinned
+
+
+def _acquire(spec: PackageSpec, names: list[str]) -> list[ModuleCall]:
     if spec.source == SOURCE_AUR:
         return aur_calls(names)
 

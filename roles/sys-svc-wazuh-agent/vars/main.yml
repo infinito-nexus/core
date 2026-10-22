@@ -3,8 +3,6 @@ WAZUH_AGENT_MANAGER_ROLE: "web-app-wazuh"
 WAZUH_AGENT_MANAGER_DEPLOYED: "{{ WAZUH_AGENT_MANAGER_ROLE in groups and groups[WAZUH_AGENT_MANAGER_ROLE] | length > 0 }}"
 
 WAZUH_AGENT_VERSION: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.version') }}"
-WAZUH_AGENT_PACKAGE_REVISION: "1"
-WAZUH_AGENT_PACKAGE_VERSION: "{{ WAZUH_AGENT_VERSION }}-{{ WAZUH_AGENT_PACKAGE_REVISION }}"
 WAZUH_AGENT_PACKAGE: "wazuh-agent"
 WAZUH_AGENT_SERVICE: "wazuh-agent.service"
 WAZUH_AGENT_REPO_URL: "https://packages.wazuh.com/{{ WAZUH_AGENT_VERSION.split('.')[0] }}.x"

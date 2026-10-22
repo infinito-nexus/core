@@ -6,7 +6,7 @@ The host agent of [Wazuh](https://wazuh.com/): it forwards the journald logs of 
 
 ## Overview
 
-The agent version is the manager's version from `web-app-wazuh`'s `services.manager.version`, installed exactly (`<version>-1`) from the Wazuh package repository and held against upgrades: `dpkg` hold on the Debian family, a repository `exclude` on the RedHat family that only the role's own pinned install lifts. Arch Linux has no Wazuh package; there the role builds the agent from pinned official source (see below).
+The agent version is the manager's version from `web-app-wazuh`'s `services.manager.version`, installed exactly (`<version>-1`) from the Wazuh package repository through the package registry (`package_install` with `version` in `meta/packages.yml`) and held against upgrades: `dpkg` hold on the Debian family, a repository `exclude` on the RedHat family. An exact pin overrides the role's own hold or exclude for that one install: apt runs it with `allow_change_held_packages`, and on the RedHat family the role passes the Wazuh repository id as `disable_excludes`, which lifts only that repository's exclude and leaves excludes in the main dnf configuration alone. The role sets the hold again after the install. Arch Linux has no Wazuh package; there the role builds the agent from pinned official source (see below).
 Before any change, the role fails when the installed agent is newer than the manager; after the install, it fails unless the installed agent equals the manager's version. Both checks read `version` from the agent's own `/var/ossec/VERSION.json`, which the package and `install.sh` both write, so they work the same with and without a package manager.
 
 The agent does not enroll itself. It writes the entry the manager pre-registered through its API (`lookup('wazuh_agent')`) to `client.keys` (`root:wazuh`, `0640`: `wazuh-agentd` drops to the `wazuh` user before it reads the keys) and connects to the manager's agent port on the local host. Enrollment stays off.
@@ -140,7 +140,7 @@ Limits:
 
 ## Follow-ups
 
-- **Registry version/build schema:** `meta/packages.yml` can neither pin a version derived at deploy time nor verify a source build's checksum, so the exact-version installs call `apt` and `dnf` directly (`nocheck: dynamic-package`) and the Arch source build lives in the role. Proposal for Kevin: extend the registry with a `version` field and `url`/`sha256` on `build`, then move the installs back to `package_install`.
+- **Registry build schema:** the registry pins the Debian and RedHat installs (`version` in `meta/packages.yml`), but its `build` source cannot verify a source tarball and its downloaded dependencies against pinned checksums, so the Arch source build stays in the role.
 
 ## Credits
 

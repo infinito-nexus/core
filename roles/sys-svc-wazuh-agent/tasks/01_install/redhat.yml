@@ -8,13 +8,8 @@
     gpgkey: "{{ WAZUH_AGENT_GPG_KEY_URL }}"
     exclude: "{{ WAZUH_AGENT_PACKAGE }}"
 
-- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }}-{{ WAZUH_AGENT_PACKAGE_VERSION }}"
-  ansible.builtin.dnf: # nocheck: dynamic-package - exact manager-derived version; see README: registry version/build schema follow-up
-    name: "{{ WAZUH_AGENT_PACKAGE }}-{{ WAZUH_AGENT_PACKAGE_VERSION }}"
-    state: present
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }} past the exclude"
+  package_install:
+    id: wazuh-agent
     disable_excludes: "{{ WAZUH_AGENT_YUM_REPO }}"
-  register: wazuh_agent_install
-  retries: 5
-  delay: 15
-  until: wazuh_agent_install is succeeded
   notify: wazuh-agent-restart

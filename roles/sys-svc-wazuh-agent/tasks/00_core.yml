@@ -46,7 +46,7 @@
       {{ WAZUH_AGENT_VERSION }}; a Wazuh agent must never be newer than its manager. Upgrade the manager first.
     quiet: true
 
-- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_PACKAGE_VERSION }}"
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }}"
   include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
 
 - name: "🔍 Re-read the installed agent version"

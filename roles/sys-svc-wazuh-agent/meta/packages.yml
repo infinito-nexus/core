@@ -19,12 +19,14 @@ wazuh-agent:
     names:
       - wazuh-agent
     repo:
-      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and installs the manager's exact version with a hold
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and holds the package
+    version: "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
   RedHat:
     names:
       - wazuh-agent
     repo:
-      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com and installs the manager's exact version behind an exclude
+      managed_externally: sys-svc-wazuh-agent configures packages.wazuh.com with the package excluded
+    version: "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
 
 # Exception: gcc15 because Wazuh recommends GCC 14, which Arch no longer ships; vars WAZUH_AGENT_ARCH_CC/_CXX name its binaries, and a missing gcc15 fails this install. cmake comes from its shared id, and curl ships with every Arch host as a pacman dependency.
 wazuh-agent-build:
