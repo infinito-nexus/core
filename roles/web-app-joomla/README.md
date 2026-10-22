@@ -80,6 +80,19 @@ Its enablement derives directly from the `sso` service flag, and its OIDC runtim
 - **External database:** Persist Joomla content in the project's central RDBMS through the standard role-meta wiring.
 - **NGINX reverse proxy:** Front the Joomla container with the project's `sys-stk-front-proxy` for TLS termination and per-domain routing.
 
+## Core Updates
+
+The Joomla image copies its core into the `joomla_data` volume only while that volume is empty. Every deploy compares three versions: the core files in the volume (`libraries/src/Version.php`), the version the database was last finalised for (the `files_joomla` manifest cache) and the core of the pinned image (`/usr/src/joomla`).
+
+When the site is behind the image, [`tasks/upgrade/`](./tasks/upgrade/) steps it forward one update at a time, planned by [`filter_plugins/joomla_core.py`](./filter_plugins/joomla_core.py):
+
+- A site on an older major first moves to that major's bridge release, listed under `services.joomla.upgrade.bridges` in [`meta/services.yml`](./meta/services.yml). The deploy downloads the bridge's official update package from the Joomla GitHub releases and checks its SHA-256 before use.
+- Before a major is left, the deploy sets the plugin states the bridge entry lists, which are the pre-conditions of Joomla's own `core:update`.
+- Each step lays the update files over the volume, then runs Joomla's own `finaliseUpgrade` through [`files/php/core_update.php`](./files/php/core_update.php), which applies the schema updates and the core update script, and checks the database structure before and after.
+- A core at or above the image's core is left untouched; the image pin only sets the floor. A code volume and a database that disagree above the pin stop the deploy, as does an older major without a declared bridge.
+
+The SSO plugin task requires a core of `6.1.0` or later, the first release with `cli/joomla.php extension:enable`.
+
 ## Quick Setup
 
 ### Development
