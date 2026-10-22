@@ -83,3 +83,9 @@ def services(application_id: str, application: dict):
         if key != entity and truthy(service.get("shared")):
             continue
         yield key, service
+
+
+def pinned(application_id: str, application: dict):
+    for key, service in services(application_id, application):
+        if service.get("image") and service.get("version"):
+            yield key, service

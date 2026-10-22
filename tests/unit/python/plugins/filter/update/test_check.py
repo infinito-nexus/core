@@ -1,6 +1,6 @@
 import unittest
 
-from plugins.filter.update_check import FilterModule, update_check
+from plugins.filter.update.check import FilterModule, update_check
 from utils.update_check.common import FAIL, OK, WARN
 
 NOW = 1_800_000_000

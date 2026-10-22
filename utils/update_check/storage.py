@@ -11,6 +11,7 @@ from utils.update_check.common import (
     WARN,
     compare,
     owner,
+    pinned,
     repo,
     services,
     version,
@@ -171,10 +172,9 @@ def data(report, applications, records, expected):
 def images(report, applications, deployed, records):
     wanted: dict[tuple[str, str], set[str]] = defaultdict(set)
     for app in deployed:
-        for _, service in services(app, applications[app]):
-            if service.get("image") and service.get("version"):
-                key = (app, repo(str(service["image"]))[0])
-                wanted[key].add(str(service["version"]))
+        for _, service in pinned(app, applications[app]):
+            key = (app, repo(str(service["image"]))[0])
+            wanted[key].add(str(service["version"]))
     for fields in records["container"]:
         if len(fields) < 3:
             continue

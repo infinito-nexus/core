@@ -51,12 +51,14 @@ Both terms (application_id, service_key) are required.
 from __future__ import annotations
 
 import contextlib
+from functools import partial
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.docker.image.custom import custom_image_name
 from utils.roles.entity.name import get_entity_name
 
 try:
@@ -164,16 +166,14 @@ class LookupModule(LookupBase):
 
         image_value = _as_str(image_override)
         if not image_value and custom:
-            if isinstance(custom, str) and custom.strip():
-                custom_base = custom.strip()
-            else:
-                custom_base = _as_str(get_entity_name(application_id))
-            if not custom_base:
+            image_value = custom_image_name(
+                custom, partial(get_entity_name, application_id)
+            )
+            if not image_value:
                 raise AnsibleError(
                     f"image: cannot derive entity name from "
                     f"application_id '{application_id}' for custom=True"
                 )
-            image_value = f"{custom_base}_custom"
         if not image_value:
             image_value = _as_str(entry.get("image"))
         if not image_value:
