@@ -26,6 +26,10 @@
     state: directory
     mode: "0755"
 
+- name: "⬆️ Step an older schema through the majors before the pinned one"
+  include_tasks: upgrade/main.yml
+  when: DEPLOYMENT_MODE == 'compose'
+
 - name: 🚿 flush docker service
   meta: flush_handlers
 
