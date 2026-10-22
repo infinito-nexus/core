@@ -1,6 +1,3 @@
-# Exception: Zammad derives the OIDC callback, the session cookie's Secure flag and whether a
-# session is written at all from the global fqdn and http_type, so a plaintext (onion) network
-# sibling would hand out the canonical callback and never keep a session.
 module InfinitoNetworkOrigins
   ORIGINS = {{ ZAMMAD_NETWORK_BASE_URLS | to_json }}.to_h { |url| uri = URI(url); [uri.host, uri.origin] }.freeze
   PLAINTEXT_HOSTS = ORIGINS.select { |_, origin| origin.start_with?("http://") }.keys.freeze
