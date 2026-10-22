@@ -30,6 +30,7 @@ MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.cre
   application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
+MATRIX_SYNAPSE_IMAGE: "{{ lookup('config', application_id, 'services.synapse.image') }}:{{ lookup('config', application_id, 'services.synapse.version') }}"
 MATRIX_SYNAPSE_SERVICE: "{{ lookup('container_service', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name }}"
