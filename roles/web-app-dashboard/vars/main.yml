@@ -3,6 +3,7 @@ application_id: "web-app-dashboard"
 DASHBOARD_APPLICATION_ID: "web-app-dashboard"
 http_port: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
 
+DASHBOARD_ASSET_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.asset.enabled') }}"
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
 DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |

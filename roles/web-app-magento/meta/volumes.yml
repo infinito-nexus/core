@@ -23,3 +23,11 @@ php_fpm_conf:
   mounts:
     - service: php
       target: /usr/local/etc/php-fpm.conf
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: php
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

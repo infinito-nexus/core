@@ -60,3 +60,19 @@ infinito_conf:
       target: &var_www_infinito_target /var/www/infinito/
     - service: cron
       target: *var_www_infinito_target
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: nextcloud
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini
+
+php_fpm_hardening:
+  type: config
+  source: "{{ FILE_PHP_FPM_HARDENING_CONF }}"
+  mode: "0444"
+  mounts:
+    - service: nextcloud
+      target: /usr/local/etc/php-fpm.d/zz-infinito-hardening.conf

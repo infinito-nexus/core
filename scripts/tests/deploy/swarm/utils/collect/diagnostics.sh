@@ -32,6 +32,12 @@ dexec() {
 	timeout 30 docker exec "$@"
 }
 
+sep "node-package-manager" "package manager logs (a failed download names the mirror, the URL and the status)"
+for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+	echo "=== ${node} ==="
+	dexec "${node}" sh -c "tail -n 3000 /var/log/dnf5.log /var/log/dnf.librepo.log 2>&1"
+done
+
 for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	sep "compose-tree" "${node}: /opt/compose tree"
 	dexec "${node}" find /opt/compose -maxdepth 3 -type f -name '*.yml' 2>/dev/null

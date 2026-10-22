@@ -12,3 +12,10 @@ msmtprc:
   mounts:
     - service: wordpress
       target: /etc/msmtprc
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: wordpress
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

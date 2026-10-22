@@ -7,8 +7,34 @@
     line: "retries=10"
     insertafter: "^\\[main\\]"
 
-- name: "🔄 update (dnf) | refresh dnf cache and upgrade all installed packages"
-  ansible.builtin.dnf: # nocheck: dynamic-package - full-system upgrade, not a package install
-    name: "*"
-    state: latest
-    update_cache: true
+# Exception: under dnf5, ansible.builtin.dnf's update_cache expires no repo (it queries the repos before loading them), so cached metadata survives until metadata_expire.
+- name: "🔄 update (dnf) | re-fetch the metadata of every enabled repository"
+  become: true
+  ansible.builtin.command:
+    argv: [dnf, makecache, --refresh]
+  changed_when: false
+
+- name: "🔄 update (dnf) | upgrade all installed packages"
+  block:
+    - name: "🔄 update (dnf) | refresh dnf cache and upgrade all installed packages"
+      ansible.builtin.dnf: # nocheck: dynamic-package - full-system upgrade, not a package install
+        name: "*"
+        state: latest
+        update_cache: true
+  rescue:
+    - name: "🛑 update (dnf) | re-raise anything but packages no mirror serves" # nocheck: rescue-recovery re-fetches metadata a mirror on the previous push served and retries once; the retry fails loud
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg }}"
+      when: ansible_failed_result.msg is not match('Failed to download packages')
+
+    - name: "🧹 update (dnf) | drop the metadata a mirror still on the previous push served"
+      become: true
+      ansible.builtin.command:
+        argv: [dnf, clean, metadata]
+      changed_when: true
+
+    - name: "🔄 update (dnf) | upgrade once more against fresh metadata"
+      ansible.builtin.dnf: # nocheck: dynamic-package - full-system upgrade, not a package install
+        name: "*"
+        state: latest
+        update_cache: true

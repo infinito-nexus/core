@@ -12,4 +12,12 @@ php_upload:
   mode: "0444"
   mounts:
     - service: joomla
-      target: /usr/local/etc/php/conf.d/uploads.ini
+      target: /usr/local/etc/php/conf.d/zzz-joomla-uploads.ini
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: joomla
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

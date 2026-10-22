@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        16.2.2
+Version:        16.2.3
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,48 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.3-1
+- Added:
+
+- - PHP: 20 apps load a shared hardening ini against CVE-2026-109618/109619
+- - PHP: Moodle, Nextcloud and Shopware FPM workers restart every 200 requests
+- - Agents: *i8-release-article* drafts release articles, banners and posts
+
+- Changed:
+
+- - PHP: *expose_php* and *session.upload_progress* are off in all hardened apps
+- - PHP: *memory_limit* is unlimited for now; Joomla and Magento keep theirs
+- - Proxy: no openresty version and no *X-Powered-By*; HSTS lasts one year
+
+- Fixed:
+
+- - Install: an end-of-life distro Node.js is replaced by the current LTS
+- - Install: the upstream Node.js install stops on non-Linux hosts
+- - Moodle: ES module URLs ending in *.js* reach Moodle instead of a 404
+- - BigBlueButton: the welcome help link points at the documentation
+- - Tests: the Bluesky public API CSP origin is no longer probed as a page
+- - CI: swarm diagnostics collect package manager logs first, on every node
+
+- Version jumps (net since 16.2.2):
+
+- - *web-app-erpnext*: v16.51.2 to v16.52.0
+- - *web-app-gitlab*: v19.5.0 to v19.5.1
+- - *web-app-n8n*: 2.45.0 to 2.45.1
+- - *web-app-pixelfed*: 20261020 to 20261021
+- - *web-app-prometheus*: v3.15.0 to v3.15.1
+
+- Upgrade notes:
+
+- - PHP: the first deploy recreates every PHP container once for the new mount
+- - PHP: pull patched images (PHP 8.2.35, 8.3.36, 8.4.27, 8.5.12) and redeploy
+- - PHP: drop *memory_limit = -1* from *hardening.ini* after patched images
+- - Friendica: account imports are capped at 64 MiB while the limit is unlimited
+- - Akaunting (PHP 8.1) and FusionDirectory (PHP 7.4) stay unpatched; see TODOs
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): PHP hardening, Node.js, Moodle
+
 * Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.2-1
 - Fixed:
 

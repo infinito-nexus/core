@@ -1,0 +1,29 @@
+---
+- name: "📁 PHP hardening | ensure directory exists"
+  become: true
+  ansible.builtin.file:
+    path: "{{ DIR_PHP_HARDENING }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: "🛡️ PHP hardening | install ini"
+  become: true
+  stack_host_copy:
+    src: "hardening.ini"
+    dest: "{{ FILE_PHP_HARDENING_INI }}"
+    mode: "0444"
+    owner: root
+    group: root
+
+- name: "🛡️ PHP hardening | render FPM pool"
+  become: true
+  stack_host_template:
+    src: "fpm-hardening.conf.j2"
+    dest: "{{ FILE_PHP_FPM_HARDENING_CONF }}"
+    mode: "0444"
+    owner: root
+    group: root
+
+- include_tasks: utils/once/flag.yml
