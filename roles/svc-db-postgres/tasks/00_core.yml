@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "⬆️ POSTGRES | Bring an older cluster in the data volume to the pinned major"
+  include_tasks: upgrade/prepare.yml
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -52,3 +55,7 @@
   failed_when: >
     postgres_pw_result.rc != 0 or
     postgres_pw_result.stdout is search('\\[FAIL\\]')
+
+- name: "🧹 POSTGRES | Finish an upgrade once the pinned major runs"
+  include_tasks: upgrade/finalize.yml
+  when: DEPLOYMENT_MODE == 'compose'
