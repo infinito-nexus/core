@@ -18,9 +18,13 @@ MEDIAWIKI_LOCAL_PATH: "{{ lookup('volume', 'web-app-mediawiki', 'mw_local').targ
 MEDIAWIKI_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 MEDIAWIKI_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 MEDIAWIKI_CUSTOM_IMAGE: "{{ entity_name }}_custom"
+MEDIAWIKI_CUSTOM_IMAGE_REF: "{{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}"
 MEDIAWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 MEDIAWIKI_VOLUME_IMAGES: "{{ lookup('volume', application_id, 'images').name }}"
 MEDIAWIKI_VOLUME_EXTENSIONS: "{{ lookup('volume', application_id, 'extensions').name }}"
+MEDIAWIKI_EXTENSIONS_SEED_MOUNT: "/mnt/mediawiki-extensions"
+MEDIAWIKI_EXTENSIONS_VERSION_MARKER: ".infinito-mediawiki-version"
+MEDIAWIKI_EXTENSIONS_DOWNGRADE_RC: 3
 MEDIAWIKI_USER: "www-data"
 MEDIAWIKI_USER_GID: "33"
 

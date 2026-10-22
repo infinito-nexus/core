@@ -19,6 +19,13 @@
     resolve_compose_cid: "{{ MEDIAWIKI_CONTAINER }}"
   when: IS_STACK_HOST | bool
 
+- name: "♻️ Reseed the extensions volume when the MediaWiki version changed"
+  include_tasks:
+    file: "utils/refresh_extensions.yml"
+    apply:
+      delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
+
 - name: "📂 Load extensions procedures for '{{ application_id }}'"
   include_tasks:
     file: "02_extensions.yml"
@@ -33,6 +40,7 @@
   when:
     - IS_STACK_HOST | bool
     - >-
+      (mediawiki_extensions_refresh is changed) or
       (_role_templates_render.changed | default(false)) or
       (_install_results.changed | default(false)) or
       (_ext_composer.changed | default(false)) or

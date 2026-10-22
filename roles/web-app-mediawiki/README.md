@@ -116,6 +116,15 @@ This role ships its OIDC login stack and its AI editing stack as unified addons 
 
 `meta/addons/` is also the download list: `MEDIAWIKI_EXT_NAMES` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it.
 
+## Version upgrades
+
+The `mediawiki_extensions` volume holds the extensions bundled with the image next to the installed addons, and Docker seeds it from the image only once. Every deploy therefore runs [refresh_extensions.sh](files/shell/refresh_extensions.sh) in a one-shot container of the pinned image before the addons are installed:
+
+- It compares `MEDIAWIKI_VERSION` of the image with the version recorded in `.infinito-mediawiki-version` in the volume.
+- A volume without the record whose bundled `extension.json` files equal the image's, such as one Docker just seeded, only gets the record.
+- On any other difference, including a patch release, it replaces the volume content with the image's bundled extensions and records the new version. The addons are then missing from the volume, so the addon install fetches them again from the `REL<major>_<minor>` branch of the new version and runs composer for them, and `update.php` runs afterwards.
+- A record newer than the image stops the deploy and leaves the volume untouched.
+
 ## AI editing assistant
 
 With `services.litellm.enabled`, `templates/LocalSettings.php.j2` loads `VisualEditor` (bundled in the image), `VisualEditorPlus` and `AIEditingAssistant`, then points the extension's `open-ai` provider at the in-cluster gateway:
