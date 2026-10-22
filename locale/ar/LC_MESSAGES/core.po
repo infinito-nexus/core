@@ -70,7 +70,6 @@ msgstr "الإنذار"
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Allin-one Stalwart mail server with SMTP, IMAP, JMAP,
-# POP3, ManageSieve, CalDAV, CardDAV and built-in spam filter
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
 msgstr ""
@@ -1057,7 +1056,6 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: NGINX glue role for 301 Redirects from source to
-# target domains with automatic SSL for the source hosts
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr ""
@@ -1143,7 +1141,6 @@ msgstr "الخادم الذي يوجد مقره في نجينكس لاستضاف
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm
-# ci داخل دليل المشروع
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1307,7 +1304,6 @@ msgstr "تحسين أدوات تطوير المترجم لإنشاء برامج 
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Orchestration wrapper for perdomain NGINX provisioning
-# with TLS certificates, vHost templates, and optional OAuth2
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr ""
@@ -1448,7 +1444,6 @@ msgstr "سحب من خلال المواهب لحزمة من أعلى المجر�
 # translation-refused: libretranslate untranslated
 # nocheck: url
 # translation-rejected: Python CLI package manager for cloning multiple code
-# repositos and automating common Git العمليات
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr ""
@@ -1839,6 +1834,10 @@ msgstr "الخدمات"
 msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "الخدمات"
+
+msgctxt "role:sys-svc-compose-php:description"
+msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

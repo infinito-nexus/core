@@ -322,11 +322,8 @@ msgstr "ชุมชน"
 # Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 # gained=['sub_filterส']
 # translation-refused: libretranslate protected-span lost=['sub_filter']
-# gained=['sub_filterส']
 # nocheck: url
 # translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
-# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
-# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -1773,6 +1770,10 @@ msgstr "บริการ"
 msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "บริการ"
+
+msgctxt "role:sys-svc-compose-php:description"
+msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

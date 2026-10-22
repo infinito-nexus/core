@@ -781,7 +781,6 @@ msgstr "Yardım"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
-# Docker Compose stack and and and and
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -1784,6 +1783,10 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Elanlar"
 
+msgctxt "role:sys-svc-compose-php:description"
+msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
@@ -1836,9 +1839,6 @@ msgstr "Sizə xidmətlərinə baxın..."
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
-# məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""

@@ -385,7 +385,6 @@ msgstr "Usimamizi wa Maudhui"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
-# ya kuchapisha mtandao
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -454,8 +453,6 @@ msgstr "Uhusiano wa Wateja"
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
-# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
-# msaada.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -1091,7 +1088,6 @@ msgstr "Hifadhi ya DNS ya mtandao kwa kuzuia matangazo na trackers katika vifaa 
 # translation-refused: libretranslate stutter
 # nocheck: url
 # translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
-# zote logout kwa centralized OIDC moja ishara-nje mwisho
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1786,6 +1782,10 @@ msgstr "Huduma za Huduma"
 msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Huduma za Huduma"
+
+msgctxt "role:sys-svc-compose-php:description"
+msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
