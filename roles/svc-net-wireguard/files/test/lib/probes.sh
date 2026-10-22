@@ -2,7 +2,8 @@
 # shellcheck shell=bash
 #
 # Expects from test.sh: BULK_BYTES, PING_COUNT, SSH_TIMEOUT, PYTHON,
-# REPO_ROOT, DIR and WORK, and on() from lib/hosts.sh.
+# REPO_ROOT, DIR and INV, the inventory of the running scenario, and on()
+# from lib/hosts.sh.
 
 SSH_ARGS=()
 
@@ -20,7 +21,11 @@ load_mesh_ssh_args() {
 }
 
 address() {
-	mesh_helper address "${WORK}/host_vars" "$1" "$2"
+	mesh_helper address "${INV}/host_vars" "$1" "$2"
+}
+
+conf_has() {
+	on "$1" grep -q -E "$3" "/etc/wireguard/$2.conf"
 }
 
 pings() {

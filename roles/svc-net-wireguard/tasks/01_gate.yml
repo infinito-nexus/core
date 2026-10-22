@@ -17,34 +17,33 @@
     label: "{{ item.mesh_name }}"
   when: (item.stdout | trim) | length == 0
 
-- name: "⏳ Wait until every dialling interface has handshaked with its peers"
-  ansible.builtin.command: "wg show {{ mesh_name | quote }} latest-handshakes"
-  loop: "{{ WIREGUARD_SPOKE_MESH_NAMES }}"
+- name: "⏳ Wait until every interface has handshaked with the peers it awaits"
+  ansible.builtin.command: "wg show {{ awaited.key | quote }} latest-handshakes"
+  loop: "{{ WIREGUARD_AWAITED_KEYS | dict2items }}"
   loop_control:
-    loop_var: mesh_name
+    loop_var: awaited
+    label: "{{ awaited.key }}"
   register: wireguard_handshakes
   changed_when: false
   failed_when: false
   retries: 24
   delay: 5
   until:
-    - wireguard_handshakes.rc | default(1) == 0
-    - wireguard_handshakes.stdout | default('', true) | trim | length > 0
-    - wireguard_handshakes.stdout is not search('\t0')
+    - wireguard_handshakes.rc == 0
+    - wireguard_handshakes.stdout | mesh_handshaken(awaited.value)
 
-- name: "🛑 Fail hard when a dialling interface never reached a peer"
+- name: "🛑 Fail hard when an interface never reached a peer it awaits"
   ansible.builtin.fail:
     msg: >-
-      WireGuard interface '{{ item.mesh_name }}' on {{ inventory_hostname }}
-      never completed a handshake with every peer it dials. No deploy can
+      WireGuard interface '{{ item.awaited.key }}' on {{ inventory_hostname }}
+      never completed a handshake with every peer it awaits. No deploy can
       proceed over a partitioned mesh.
-  loop: "{{ wireguard_handshakes.results | default([]) }}"
+  loop: "{{ wireguard_handshakes.results }}"
   loop_control:
-    label: "{{ item.mesh_name }}"
+    label: "{{ item.awaited.key }}"
   when: >-
-    item.rc | default(1) != 0
-    or (item.stdout | default('', true) | trim | length) == 0
-    or (item.stdout | default('', true)) is search('\t0')
+    item.rc != 0
+    or not (item.stdout | mesh_handshaken(item.awaited.value))
 
 - name: "🔍 Check whether ping is available for the MTU probe"
   ansible.builtin.stat:

@@ -15,14 +15,21 @@ from .write import (
 )
 
 
-def parse_endpoints(pairs: list[str]) -> dict[str, str]:
-    endpoints: dict[str, str] = {}
+def parse_pairs(pairs: list[str], flag: str, value_name: str) -> dict[str, str]:
+    """HOST=VALUE pairs as a mapping.
+
+    Args:
+        pairs: the raw values of a repeatable flag.
+        flag: the flag the pairs came from, for the error message.
+        value_name: what the right-hand side names, for the error message.
+    """
+    parsed: dict[str, str] = {}
     for pair in pairs:
-        host, separator, address = pair.partition("=")
-        if not separator or not host.strip() or not address.strip():
-            raise SystemExit(f"--endpoint expects HOST=ADDRESS, got {pair!r}")
-        endpoints[host.strip()] = address.strip()
-    return endpoints
+        host, separator, value = pair.partition("=")
+        if not separator or not host.strip() or not value.strip():
+            raise SystemExit(f"{flag} expects HOST={value_name}, got {pair!r}")
+        parsed[host.strip()] = value.strip()
+    return parsed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -47,6 +54,17 @@ def main(argv: list[str] | None = None) -> int:
         "--vault-password-file",
         required=True,
         help="password file the private keys are encrypted with",
+    )
+    parser.add_argument(
+        "--host-vault-password-file",
+        action="append",
+        default=[],
+        metavar="HOST=FILE",
+        help=(
+            "password file HOST's own private key is encrypted with, for a host "
+            "deployed with its own vault password; repeatable, a host left out "
+            "uses --vault-password-file"
+        ),
     )
     parser.add_argument(
         "--mesh",
@@ -98,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         declared = declared_specs(groups, host_vars_dir, inventory_files)
         topology = topology_of(groups, host_vars_dir, declared)
-    except ValueError as error:
+    except (TypeError, ValueError) as error:
         print(f"[FATAL] {error}", file=sys.stderr)
         return 1
 
@@ -120,17 +138,29 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
     vault_password_file = Path(args.vault_password_file).resolve()
+    host_vault_password_files = {
+        host: Path(path).resolve()
+        for host, path in parse_pairs(
+            args.host_vault_password_file, "--host-vault-password-file", "FILE"
+        ).items()
+    }
+    missing = sorted(
+        str(path) for path in host_vault_password_files.values() if not path.is_file()
+    )
+    if missing:
+        print(
+            f"[FATAL] vault password file(s) not found: {', '.join(missing)}",
+            file=sys.stderr,
+        )
+        return 1
+    endpoints = parse_pairs(args.endpoint, "--endpoint", "ADDRESS")
     all_hosts = sorted(
         {host for hosts in groups.values() for host in hosts}
         | ({args.controller} if args.controller else set())
     )
 
-    for host, names in sorted(prune_foreign_meshes(host_vars_dir, all_hosts).items()):
-        print(
-            f"[INFO] {host}: dropped mesh entr(ies) owned elsewhere: {', '.join(names)}"
-        )
-
     keyed_here: dict[str, str] = {}
+    meshes = []
     for spec in specs:
         held = (
             {}
@@ -138,25 +168,45 @@ def main(argv: list[str] | None = None) -> int:
             else existing_public_keys(host_vars_dir, all_hosts, spec.name)
         )
         held.update(keyed_here)
-        mesh = plan_mesh(
-            spec,
-            topology,
-            held,
-            controller=(args.controller if spec.name == controller_mesh else None),
-            endpoints=parse_endpoints(args.endpoint),
-            addresses=existing_addresses(host_vars_dir, all_hosts, spec.name),
-        )
+        try:
+            mesh = plan_mesh(
+                spec,
+                topology,
+                held,
+                controller=(args.controller if spec.name == controller_mesh else None),
+                endpoints=endpoints,
+                addresses=existing_addresses(host_vars_dir, all_hosts, spec.name),
+            )
+        except ValueError as error:
+            print(f"[FATAL] {error}", file=sys.stderr)
+            return 1
         keyed_here.update({member.host: member.public_key for member in mesh.members})
-        written = write_mesh(mesh, host_vars_dir, vault_password_file, primary)
+        meshes.append(mesh)
+
+    for host, names in sorted(prune_foreign_meshes(host_vars_dir, all_hosts).items()):
+        print(
+            f"[INFO] {host}: dropped mesh entr(ies) owned elsewhere: {', '.join(names)}"
+        )
+
+    for mesh in meshes:
+        written = write_mesh(
+            mesh,
+            host_vars_dir,
+            vault_password_file,
+            primary,
+            host_vault_password_files=host_vault_password_files,
+        )
         minted = sum(1 for member in mesh.members if member.private_key is not None)
+        roaming = sum(1 for member in mesh.spokes if member.roaming)
         shape = (
             f"full mesh of {len(mesh.members)} member(s)"
             if mesh.is_full
             else f"hub {mesh.hub.host} ({mesh.hub.address}), "
             f"{len(mesh.spokes)} spoke(s)"
+            + (f" ({roaming} roaming)" if roaming else "")
         )
         print(
-            f"[INFO] mesh '{spec.name}': {shape}, "
+            f"[INFO] mesh '{mesh.spec.name}': {shape}, "
             f"{minted} keypair(s) minted, {len(written)} host_vars written"
         )
 
