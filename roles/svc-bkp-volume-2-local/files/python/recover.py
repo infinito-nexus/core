@@ -9,7 +9,7 @@ Both modes run the role's deployed backup unit first, unless
 ``--no-safety-backup`` says the target holds nothing worth saving.
 
 Volume mode mirrors the snapshot into the volume's mountpoint
-(``rsync -a --delete``); stop the consuming project first. With
+(``rsync -aHAX --delete``); stop the consuming project first. With
 ``--docker-host ssh://user@host`` it works on a remote host.
 
 Database mode (``--databases``) replays every dump with

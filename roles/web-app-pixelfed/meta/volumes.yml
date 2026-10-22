@@ -33,3 +33,11 @@ worker_entrypoint:
   mounts:
     - service: worker
       target: /infinito-pixelfed-worker-entrypoint.sh
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: pixelfed
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

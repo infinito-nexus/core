@@ -36,6 +36,12 @@
       shared: true
     redis:
       shared: true
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -83,6 +89,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     litellm:
       enabled: false
     tor:
@@ -133,6 +145,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: true
+    search:
+      watermark:
+        max_headroom:
+          low: 10gb
+          high: 5gb
+          flood_stage: 2gb
     tor:
       enabled: true
     openwebui:

@@ -8,9 +8,9 @@ This guide explains the **safe procedure** for migrating user mailboxes to a new
 
 ## Why renaming folders directly does not work 🔴
 
-* Mailu keeps **domains, users, and aliases** in the `admin_data` database. If you rename folders only, Mailu will not recognize the new accounts.
-* Dovecot generates `.dovecot.index*` and `dovecot-uidlist` files in each mailbox. These must be rebuilt when moving mailboxes; otherwise, users may see missing or broken mail.
-* Postfix will refuse to deliver or relay messages for unknown domains.
+- Mailu keeps **domains, users, and aliases** in the `admin_data` database. If you rename folders only, Mailu will not recognize the new accounts.
+- Dovecot generates `.dovecot.index*` and `dovecot-uidlist` files in each mailbox. These must be rebuilt when moving mailboxes; otherwise, users may see missing or broken mail.
+- Postfix will refuse to deliver or relay messages for unknown domains.
 
 ---
 
@@ -84,8 +84,8 @@ This maps all `@cymais.cloud` addresses to their equivalents under `@infinito.ne
 
 ## Summary 💡
 
-* Do **not** just rename mailbox folders.
-* Always create the new domain and user in Mailu first.
-* Copy existing Maildir contents into the new user’s directory.
-* Remove Dovecot indices and fix permissions.
-* Optionally configure a **domain alias** so old addresses remain valid.
+- Do **not** just rename mailbox folders.
+- Always create the new domain and user in Mailu first.
+- Copy existing Maildir contents into the new user’s directory.
+- Remove Dovecot indices and fix permissions.
+- Optionally configure a **domain alias** so old addresses remain valid.

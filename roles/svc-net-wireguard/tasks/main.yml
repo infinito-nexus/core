@@ -1,0 +1,15 @@
+---
+- name: "⏭️ Skip WireGuard on a compose host the mesh CLI wrote no mesh for"
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }} carries svc-net-wireguard but holds no mesh; run
+      cli.administration.inventory.mesh over this deploy's inventories to give
+      it one.
+  when: WIREGUARD_MESHLESS_COMPOSE_HOST | bool
+
+- include_tasks: 00_core.yml
+  when:
+    - run_once_svc_net_wireguard is not defined
+    - not (WIREGUARD_MESHLESS_COMPOSE_HOST | bool)
+  vars:
+    application_id: svc-net-wireguard

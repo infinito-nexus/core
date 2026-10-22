@@ -73,6 +73,8 @@ The mirror workflow runs as stage 8 of the CI pipeline. See [ci.md](../git/pipel
 4. Inventory generation writes the resulting mirror refs from `mirrors.yml` back into host vars.
 5. Deploy and test jobs resolve images from `ghcr.io/{namespace}/{repository}/mirror/...` instead of pulling directly from Docker Hub, MCR, or other upstream registries.
 
+`INFINITO_GHCR_MIRROR` decides whether a run uses the mirror. The generated `.env` sets it to `true` on a real GitHub runner and to `false` everywhere else, act included. A non-empty exported value overrides that for one run. [call-test-workspace.yml](../../../../.github/workflows/call-test-workspace.yml) exports `true`, so the workspace suite runs like a local setup and still pulls from GHCR, in its compose drills and, through `make swarm-zombie`, in its swarm drills.
+
 The mirrors file is generated into the inventory directory.
 The inventory creator applies mirror image overrides to host variables via `cli/administration/inventory/provision/mirror_overrides.py`, which reads `mirrors.yml.applications` and writes `applications.{role}.services.{service}.image` (and `.version`) into host vars subject to the per-service `mirror_policy`.
 

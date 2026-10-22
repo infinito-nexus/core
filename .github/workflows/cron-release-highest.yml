@@ -19,7 +19,7 @@ env:
 jobs:
   check-and-trigger:
     name: 🔎 Backfill highest missing release tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: read

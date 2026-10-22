@@ -1,7 +1,7 @@
 # Maintainer: Kevin Veen-Birkenbach <info@veen.world>
 
 pkgname=infinito-nexus
-pkgver=15.0.0
+pkgver=16.2.3
 pkgrel=1
 pkgdesc="Meta package for Infinito.Nexus host dependencies (dev + CI)."
 arch=('any')

@@ -27,6 +27,7 @@ class Failure(NamedTuple):
     tor: bool
     distro: str
     filesystem: str
+    vpn: bool = False
 
 
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
@@ -57,6 +58,7 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
                 label.tor,
                 label.distro,
                 label.filesystem,
+                label.vpn,
             )
         )
     return out
@@ -76,6 +78,7 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.tor,
         failure.distro,
         failure.filesystem,
+        failure.vpn,
     )
 
 

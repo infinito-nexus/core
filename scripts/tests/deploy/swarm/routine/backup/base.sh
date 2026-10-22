@@ -49,6 +49,15 @@ DEV_MOUNT="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]
 DEV_TARGET="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['applications']['svc-bkp-local-2-device']['services']['local-2-device']['target'])" "${DRILL_EXTRAS}")"
 DEV_DEST="${DEV_MOUNT}${DEV_TARGET}"
 
+if [ "${DRILL_PROBE:-false}" = "true" ]; then
+	if [ -n "${PRIMARY_NFS_VOLUME}" ]; then
+		echo "DRILL=yes"
+	else
+		echo "DRILL=no"
+	fi
+	exit 0
+fi
+
 if [ -z "${PRIMARY_NFS_VOLUME}" ]; then
 	echo "SKIP drill: ${APP_ID} declares no NFS-flagged volume — nothing to prove a restore against"
 	exit 0
@@ -272,7 +281,7 @@ for _i in $(seq 1 24); do
 done
 for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	docker exec "${_node}" timeout 180 sh -c \
-		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}' && mount '${DIR_BACKUPS}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
 for _i in $(seq 1 24); do
 	if docker exec "${MGR}" sh -c \

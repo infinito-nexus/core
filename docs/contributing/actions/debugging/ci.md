@@ -49,11 +49,11 @@ Some CI failures (most notably OOM-kills such as [#162](https://github.com/infin
 
 ### GitHub-Hosted Runner Specs
 
-All [workflows](../../../../.github/workflows/) target `runs-on: ubuntu-latest`, which maps to the GitHub-hosted standard Linux runner. The effective ceiling depends on the repository's visibility and plan:
+All [workflows](../../../../.github/workflows/) target `runs-on: ubuntu-26.04`, the GitHub-hosted standard Linux runner pinned to one Ubuntu release. GitHub still refreshes that image weekly. The `🏃 Update GitHub-hosted runner labels` job of [cron-update.yml](../../../../.github/workflows/cron-update.yml) opens a pull request when a newer GA x64 Ubuntu image is listed in [actions/runner-images](https://github.com/actions/runner-images), and `tests/lint/repository/test_workflow_runner_pinned.py` rejects `*-latest` labels. The effective ceiling depends on the repository's visibility and plan:
 
 | Repository / plan                        | vCPU | RAM    | SSD   |
 |------------------------------------------|------|--------|-------|
-| Public repo (this repo, `ubuntu-latest`) | 4    | 16 GB  | 14 GB |
+| Public repo (this repo, `ubuntu-26.04`)  | 4    | 16 GB  | 14 GB |
 | Private repo on Free / Pro / Team        | 2    | 7 GB   | 14 GB |
 | Private repo on Enterprise               | 4    | 16 GB  | 14 GB |
 
@@ -70,7 +70,7 @@ For the authoritative specs, see the upstream docs for [standard hosted runners]
 Pick the profile that matches the runner you want to mimic:
 
 ```sh
-# Public repo runner (ubuntu-latest, 4 vCPU / 16 GB): the default CI target
+# Public repo runner (ubuntu-26.04, 4 vCPU / 16 GB): the default CI target
 INFINITO_MEM_LIMIT=16g INFINITO_MEMSWAP_LIMIT=16g INFINITO_CPUS=4 make <target>
 
 # Private repo runner on Free/Pro/Team (2 vCPU / 7 GB)

@@ -84,6 +84,11 @@ MOODLE_EGRESS_SETTINGS:
   - name: curlsecurityallowedport
     value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
       }}"
+MOODLE_DEBUG_SETTINGS:
+  - name: debug
+    value: "{{ (MODE_DEBUG | bool) | ternary('32767', '0') }}"
+  - name: debugdisplay
+    value: "{{ (MODE_DEBUG | bool) | ternary('1', '0') }}"
 
 MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"

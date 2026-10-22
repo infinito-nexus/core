@@ -112,13 +112,13 @@ install_pacman() {
 install_dnf_native() {
 	case "${ID:-}" in
 	fedora)
-		retry dnf install -y e2fsprogs btrfs-progs
+		retry dnf --refresh install -y e2fsprogs btrfs-progs
 		return
 		;;
 	esac
 	log "adding EPEL, the only place the EL family carries btrfs-progs"
-	retry dnf install -y epel-release
-	retry dnf install -y e2fsprogs btrfs-progs
+	retry dnf --refresh install -y epel-release
+	retry dnf --refresh install -y e2fsprogs btrfs-progs
 }
 
 # Param: $1 path segment of the zfsonlinux repository, `fedora` or `epel`
@@ -155,7 +155,7 @@ install_dnf() {
 	log "zfs userland offered by the repository: ${zfs_version}"
 
 	if ! command -v rpmbuild >/dev/null 2>&1; then
-		retry dnf install -y rpm-build
+		retry dnf --refresh install -y rpm-build
 	fi
 
 	local topdir=/tmp/zfs-kmod-container
@@ -180,7 +180,7 @@ SPEC
 
 	rpmbuild --define "_topdir ${topdir}" -bb "${topdir}/SPECS/zfs-kmod-container.spec"
 	dnf install -y "${topdir}"/RPMS/noarch/zfs-kmod-container-*.rpm
-	retry dnf install -y zfs
+	retry dnf --refresh install -y zfs
 
 	if rpm -qa 'kernel-devel*' 'kernel-debug*' 'zfs-dkms' | grep -q .; then
 		log "ERROR: the transaction pulled kernel or DKMS packages, so the dummy did not take"

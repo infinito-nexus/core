@@ -78,7 +78,7 @@ expanding `volume` per docker volume.
 
 ## Safety
 
-Each recover mirrors a snapshot with `rsync -a --delete` and first runs the
+Each recover mirrors a snapshot with `rsync -aHAX --delete` and first runs the
 role's backup unit as a rollback point. `--no-safety-backup` skips that
 (only when the target holds nothing worth saving: fresh host / empty /
 disposable). `--preview` prints the exact commands without running them.

@@ -51,6 +51,10 @@
   failed_when:
     - svc_storage_nfs_client_probe is failed
 
+- name: "🔧 Align the NFS client's directory delegations with the ganesha server"
+  ansible.builtin.include_tasks: directory_delegations.yml
+  when: lookup('nfs_flavor') == 'ganesha'
+
 - name: "🔍 Probe-write a marker to confirm the mount is RW"
   ansible.builtin.copy:
     dest: "{{ SVC_STORAGE_NFS_CLIENT_PROBE_DIR }}/.svc-storage-nfs-client-probe.{{ inventory_hostname }}"
@@ -76,11 +80,14 @@
 - name: "✅ Assert no pre-existing local data at {{ DIR_VAR_LIB }} (mount would hide it)"
   ansible.builtin.assert:
     that:
-      - (_svc_storage_nfs_client_premount_state.stdout | trim) in ["mounted", "empty"]
+      - >-
+        'STATE=mounted' in _svc_storage_nfs_client_premount_state.stdout
+        or 'STATE=empty' in _svc_storage_nfs_client_premount_state.stdout
     fail_msg: >-
       Pre-existing local data found at {{ DIR_VAR_LIB }}; NFS mount-over
       would silently hide it. Migrate or remove the local tree manually,
-      then re-run the deploy.
+      then re-run the deploy. Probe said:
+      {{ _svc_storage_nfs_client_premount_state.stdout | trim }}
 
 - name: "✅ Ensure infinito state mount point exists"
   ansible.builtin.file:
@@ -90,10 +97,40 @@
     group: root
     mode: "0755"
 
+- name: "🔍 Detect a pending change of the {{ DIR_VAR_LIB }} mount"
+  ansible.posix.mount:
+    path: "{{ DIR_VAR_LIB }}"
+    src: "{{ STORAGE_NFS_CLIENT_SRC }}"
+    fstype: "{{ STORAGE_NFS_FSTYPE }}"
+    opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev"
+    state: mounted
+  check_mode: true
+  register: svc_storage_nfs_client_state_pending
+
+- name: "🔌 Release {{ DIR_BACKUPS }} so the state mount can be remounted"
+  ansible.posix.mount:
+    path: "{{ DIR_BACKUPS }}"
+    state: unmounted
+  when: svc_storage_nfs_client_state_pending is changed
+
 - name: "🔗 Persistently mount cluster-shared infinito state from NFS"
   ansible.posix.mount:
     path: "{{ DIR_VAR_LIB }}"
     src: "{{ STORAGE_NFS_CLIENT_SRC }}"
     fstype: "{{ STORAGE_NFS_FSTYPE }}"
     opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev"
+    state: mounted
+
+- name: "✅ Ensure the node-local backup store exists"
+  ansible.builtin.file:
+    path: "{{ SVC_STORAGE_NFS_CLIENT_BACKUPS_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🔗 Keep {{ DIR_BACKUPS }} node-local over the shared state"
+  ansible.posix.mount:
+    path: "{{ DIR_BACKUPS }}"
+    src: "{{ SVC_STORAGE_NFS_CLIENT_BACKUPS_DIR }}"
+    fstype: none
+    opts: bind,_netdev
     state: mounted

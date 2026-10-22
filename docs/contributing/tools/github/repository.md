@@ -52,24 +52,24 @@ For GHCR authentication configuration see [authentication.md](../ghcr/authentica
 
 Once enabled, you MUST:
 
-* Create a PR (no direct push)
-* Get 2 approvals
-* Get CODEOWNER approval (if applicable)
-* Resolve all comments
-* Re-approve after changes
-* Keep branch up-to-date
-* Use signed commits
-* Pass code scanning & quality checks
+- Create a PR (no direct push)
+- Get 2 approvals
+- Get CODEOWNER approval (if applicable)
+- Resolve all comments
+- Re-approve after changes
+- Keep branch up-to-date
+- Use signed commits
+- Pass code scanning & quality checks
 
 You MUST NOT:
 
-* Push directly to main
-* Force push
-* Merge without approvals
+- Push directly to main
+- Force push
+- Merge without approvals
 
 You MAY:
 
-* Create branches freely
-* Use merge commits
+- Create branches freely
+- Use merge commits
 
 All rules above are **currently enforced** on `main`.

@@ -23,18 +23,17 @@ _STD_TO_BCRYPT_B64 = bytes.maketrans(
 )
 
 
-def _seeded_salt(seed: str, secret: bytes) -> bytes:
-    """A fixed bcrypt salt derived from the seed and the secret.
+def _seeded_salt(seed: str) -> bytes:
+    """A fixed bcrypt salt derived from the seed alone.
 
     Args:
         seed: caller-chosen, non-empty string that separates otherwise equal secrets.
-        secret: the UTF-8 encoded secret being hashed.
 
     Returns:
         ``$2b$12$`` plus 22 bcrypt-base64 characters encoding the first 16
-        bytes of sha256(seed + secret).
+        bytes of sha256(seed).
     """
-    digest = hashlib.sha256(seed.encode("utf-8") + secret).digest()[:16]
+    digest = hashlib.sha256(seed.encode("utf-8")).digest()[:16]
     encoded = base64.b64encode(digest)[:22].translate(_STD_TO_BCRYPT_B64)
     return b"$2b$12$" + encoded
 
@@ -61,7 +60,7 @@ class FilterModule:
         if salt_seed is None:
             salt = bcrypt.gensalt()
         elif isinstance(salt_seed, str) and salt_seed:
-            salt = _seeded_salt(salt_seed, secret)
+            salt = _seeded_salt(salt_seed)
         else:
             raise ValueError(
                 "bcrypt_hash: salt_seed must be a non-empty string when given"

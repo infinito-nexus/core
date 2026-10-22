@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -54,6 +55,15 @@ class TestDirectoryRecovery(unittest.TestCase):
             text = restored.read_text()  # nocheck: cache-read - tempdir fixture
             self.assertEqual(text, "from-snapshot")
             self.assertFalse((target / "live.txt").exists())
+
+    def test_restore_keeps_user_xattrs(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            source, target = self._mk(td)
+            os.setxattr(source / "restored.txt", "user.oc.id", b"space-1")
+            _Recovery(str(source), str(target)).restore()
+            self.assertEqual(
+                os.getxattr(target / "restored.txt", "user.oc.id"), b"space-1"
+            )
 
     def test_missing_unit_refuses(self) -> None:
         with tempfile.TemporaryDirectory() as td:

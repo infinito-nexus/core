@@ -8,7 +8,7 @@ Opens the LUKS device (interactive passphrase prompt, or stdin with
 ``--passphrase-stdin``), mounts it, picks the newest device snapshot
 (any machine hash: a fresh host after total loss has a new
 /etc/machine-id) and mirrors it into the target
-(``rsync -a --delete``), then unmounts and closes the device again.
+(``rsync -aHAX --delete``), then unmounts and closes the device again.
 No pre-recover service backup runs: the device itself is the backup
 this role maintains.
 

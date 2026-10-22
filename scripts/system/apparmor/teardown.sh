@@ -18,12 +18,15 @@ else
 	echo "[apparmor] apparmor.service not available or systemd inactive; skipping service stop"
 fi
 
-if command -v aa-teardown >/dev/null 2>&1; then
-	aa-teardown || apparmor_warn "[apparmor] aa-teardown returned non-zero; continuing"
-elif command -v apparmor_parser >/dev/null 2>&1 && compgen -G '/etc/apparmor.d/*' >/dev/null; then
-	apparmor_parser -R /etc/apparmor.d/* || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+APPARMOR_FS=/sys/kernel/security/apparmor
+if [[ -w "${APPARMOR_FS}/.remove" ]]; then
+	mapfile -t profiles < <(apparmor_removable_profiles <"${APPARMOR_FS}/profiles")
+	for profile in "${profiles[@]}"; do
+		printf '%s' "${profile}" >"${APPARMOR_FS}/.remove"
+	done
+	echo "[apparmor] unloaded ${#profiles[@]} profile(s); docker-default stays loaded"
 else
-	echo "[apparmor] no AppArmor profile tooling available; skipping profile unload"
+	echo "[apparmor] ${APPARMOR_FS}/.remove is not writable; skipping profile unload"
 fi
 
 echo "[apparmor] teardown complete"

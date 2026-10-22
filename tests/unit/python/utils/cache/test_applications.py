@@ -15,6 +15,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests
@@ -420,6 +421,60 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
                 self.assertEqual(
                     merged["web-app-foo"]["services"]["foo"]["image"], "override"
                 )
+
+
+class TestNestedLookupsReuseTheUnrenderedView(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_nested_calls_during_one_render_build_the_defaults_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            _write(
+                roles / "web-app-foo" / ROLE_FILE_META_SERVICES,
+                """
+                foo:
+                  image: "pre-{{ nested }}"
+                  version: "v-{{ nested }}"
+                """,
+            )
+            variables = {
+                "applications": {
+                    "web-app-foo": {"volumes": {"data": {"type": "volume"}}}
+                }
+            }
+            nested_views = []
+
+            class _NestingTemplar:
+                def __init__(self) -> None:
+                    self.available_variables: dict = {}
+
+                def template(self, value, **_kwargs):
+                    nested_views.append(
+                        cache_apps.get_merged_applications(
+                            variables=self.available_variables,
+                            roles_dir=roles,
+                            templar=self,
+                        )
+                    )
+                    return "rendered"
+
+            with mock.patch.object(
+                cache_apps,
+                "get_application_defaults",
+                wraps=cache_apps.get_application_defaults,
+            ) as defaults:
+                rendered = cache_apps.get_merged_applications(
+                    variables=variables, roles_dir=roles, templar=_NestingTemplar()
+                )
+
+            self.assertEqual(defaults.call_count, 1)
+            self.assertGreaterEqual(len(nested_views), 2)
+            self.assertTrue(all(view is nested_views[0] for view in nested_views))
+            self.assertIn("volumes", nested_views[0]["web-app-foo"])
+            self.assertEqual(
+                rendered["web-app-foo"]["services"]["foo"]["image"], "rendered"
+            )
 
 
 class TestRecursiveMetaWalk(unittest.TestCase):

@@ -70,6 +70,13 @@ class TestBcryptHash(unittest.TestCase):
             self.f("password-two", "app:indexer-admin"),
         )
 
+    def test_seeded_salt_carries_nothing_of_the_secret(self):
+        salt_end = len("$2b$12$") + 22
+        self.assertEqual(
+            self.f("password-one", "app:indexer-admin")[:salt_end],
+            self.f("password-two", "app:indexer-admin")[:salt_end],
+        )
+
     def test_seeded_hash_verifies_against_the_original_password(self):
         password = "correct horse battery staple"
         hashed = self.f(password, "app:indexer-admin")

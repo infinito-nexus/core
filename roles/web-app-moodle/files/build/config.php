@@ -51,8 +51,4 @@ if (explode(':', $_SERVER['HTTP_HOST'] ?? '', 2)[0] === $_moodle_internal_host) 
     $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 }
 
-$_moodle_debug     = moodle_env_bool('MOODLE_DEBUG');
-$CFG->debug        = $_moodle_debug ? 32767 : 0;
-$CFG->debugdisplay = $_moodle_debug;
-
 require_once(__DIR__ . '/lib/setup.php');

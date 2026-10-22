@@ -27,7 +27,7 @@ jobs:
   cancel-branch-runs:
     name: 🚫 Cancel superseded branch runs
     if: ${{ github.event_name == 'push' && (github.ref_name != 'main' || (github.ref_name == 'main' && startsWith(github.event.head_commit.message, 'Release version '))) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
       contents: read
@@ -52,7 +52,7 @@ jobs:
   cancel-pull-request-runs:
     name: 🚫 Cancel superseded pull request runs
     if: ${{ github.event_name == 'pull_request_target' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
       contents: read

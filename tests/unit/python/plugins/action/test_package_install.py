@@ -145,10 +145,12 @@ class TestVersionPin(unittest.TestCase):
         self.assertEqual(args["name"], ["wazuh-agent-4.14.6-1"])
         self.assertEqual(args["disable_excludes"], "wazuh")
 
-    def test_an_unpinned_call_is_unchanged(self):
+    def test_an_unpinned_call_gets_only_the_managers_fixed_arguments(self):
         action = self._action({"id": "git"}, {})
         args = {"name": ["git"], "state": "present"}
-        self.assertEqual(action._manager_args("apt", args, None), args)
+        self.assertEqual(
+            action._manager_args("apt", args, None), {**args, "install_recommends": False}
+        )
 
     def test_a_version_rendering_empty_fails(self):
         action = self._action({"id": "x"}, {"V": ""})
@@ -159,6 +161,27 @@ class TestVersionPin(unittest.TestCase):
         action = self._action({"id": "x"}, {})
         with self.assertRaises(AnsibleActionFail):
             action._manager_args("pacman", {"name": ["x"]}, "1.0-1")
+
+
+class TestManagerArguments(unittest.TestCase):
+    def _args(self, module, facts):
+        action = _action({})
+        action._connection = mock.Mock(become=None, transport="local")
+        action._execute_module = mock.Mock(return_value={})
+        action._execute(ModuleCall(module, {"name": ["wireguard-tools"]}), {}, facts)
+        return action._execute_module.call_args.kwargs["module_args"]
+
+    def test_apt_installs_without_recommends(self):
+        args = self._args(GENERIC_PACKAGE, {"pkg_mgr": "apt"})
+        self.assertFalse(args["install_recommends"])
+
+    def test_other_managers_keep_their_defaults(self):
+        args = self._args(GENERIC_PACKAGE, {"pkg_mgr": "dnf"})
+        self.assertNotIn("install_recommends", args)
+
+    def test_a_concrete_module_is_left_alone(self):
+        args = self._args("ansible.builtin.apt", {"pkg_mgr": "apt"})
+        self.assertNotIn("install_recommends", args)
 
 
 class TestBecomeEscalation(unittest.TestCase):

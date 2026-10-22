@@ -139,6 +139,25 @@ class TestDiffAffectedRoles(unittest.TestCase):
         )
         self.assertEqual(self._run_script(repo, env), "web-app-foo")
 
+    def test_tests_outside_role_are_skipped_when_role_also_changed(self):
+        repo, env = self._setup_repo(
+            base_files={ROLE_TASKS_MAIN_REL: "- debug: msg=v1\n"},
+            feature_files={
+                ROLE_TASKS_MAIN_REL: "- debug: msg=v2\n",
+                "tests/unit/python/roles/web-app-foo/test_x.py": "x = 1\n",
+                "tests/integration/test_y.py": "y = 1\n",
+            },
+            fake_resolver_stdout="web-app-foo",
+        )
+        self.assertEqual(self._run_script(repo, env), "web-app-foo")
+
+    def test_only_tests_outside_role_falls_back_to_all(self):
+        repo, env = self._setup_repo(
+            base_files={"tests/unit/test_z.py": "z = 1\n"},
+            feature_files={"tests/unit/test_z.py": "z = 2\n"},
+        )
+        self.assertEqual(self._run_script(repo, env), "__ALL__")
+
     def test_non_md_outside_role_still_triggers_all(self):
         repo, env = self._setup_repo(
             base_files={ROLE_TASKS_MAIN_REL: "- debug: msg=v1\n"},

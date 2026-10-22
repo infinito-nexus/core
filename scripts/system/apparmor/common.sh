@@ -43,6 +43,10 @@ apparmor_should_manage() {
 	apparmor_is_installed && apparmor_is_enabled
 }
 
+apparmor_removable_profiles() {
+	sed -E 's/ \([a-z]+\)$//' | grep -v -E '//|^docker-default$'
+}
+
 systemd_is_operational() {
 	command -v systemctl >/dev/null 2>&1 && [[ -d /run/systemd/system ]]
 }

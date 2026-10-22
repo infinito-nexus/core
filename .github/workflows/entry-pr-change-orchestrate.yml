@@ -29,7 +29,7 @@ jobs:
   detect-pr-scope:
     name: 🔎 Detect PR scope
     if: ${{ github.event.pull_request.draft == false && (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       scope: ${{ steps.resolve.outputs.scope }}
       run_ci_orchestrator: ${{ steps.resolve.outputs.run_ci_orchestrator }}
@@ -59,7 +59,7 @@ jobs:
       - detect-pr-scope
       - validation
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'false' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: ✅ Confirm lightweight PR scope
         shell: bash
@@ -73,7 +73,7 @@ jobs:
       - detect-pr-scope
       - validation
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       whitelist: ${{ steps.resolve.outputs.whitelist }}
     steps:
@@ -124,7 +124,7 @@ jobs:
       - detect-pr-scope
       - validation
     if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       checkout_ref: ${{ steps.out.outputs.checkout_ref }}
       image_tag: ${{ steps.out.outputs.image_tag }}

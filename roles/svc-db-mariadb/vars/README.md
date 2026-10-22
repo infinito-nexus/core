@@ -11,15 +11,15 @@ This directory contains variable definition files for the `svc-db-mariadb` Ansib
 The role's service config (file root IS the services map keyed by `<entity_name>`).
 For `svc-db-mariadb` this carries the entity-keyed image, version, and hostname:
 
-* **`version`** (string):
+- **`version`** (string):
 
-  * Default: `"latest"`
-  * The MariaDB image tag to pull (e.g. `10.6`, `10.11`, or `latest`).
+  - Default: `"latest"`
+  - The MariaDB image tag to pull (e.g. `10.6`, `10.11`, or `latest`).
 
-* **`hostname`** (string):
+- **`hostname`** (string):
 
-  * Default: `"central-mariadb"`
-  * The container name and DNS alias within the `central_mariadb` network. Used by other services (like Moodle) to connect.
+  - Default: `"central-mariadb"`
+  - The container name and DNS alias within the `central_mariadb` network. Used by other services (like Moodle) to connect.
 
 > **Tip:** Pin to a specific minor version (e.g., `10.6.12`) in production to avoid breaking changes on rebuilds.
 
@@ -29,7 +29,7 @@ For `svc-db-mariadb` this carries the entity-keyed image, version, and hostname:
 
 Minimal file defining the application identifier for the role.
 
-* **`application_id`** (string):
+- **`application_id`** (string):
 
-  * Default: `"mariadb"`
-  * Logical name used in templates, notifications, or paths when multiple roles/services may coexist.
+  - Default: `"mariadb"`
+  - Logical name used in templates, notifications, or paths when multiple roles/services may coexist.

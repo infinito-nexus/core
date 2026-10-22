@@ -177,6 +177,13 @@ The `tor` input decides what the onion axis is allowed to do at all:
 | `exclusive` | as `enforced`, and rows that cannot take an onion are dropped |
 | `disabled` | no row takes the onion |
 
+The `vpn` input does the same for the WireGuard mesh on swarm rows: `auto`
+rotates it, `enforced` meshes every swarm row and `disabled` none. A compose
+row never takes the mesh. `meshes` names the WireGuard layout a meshed row
+deploys, empty meaning `INFINITO_SWARM_MESHES` from `default.env`; pointing it at
+an `inventories/examples/*/wireguard.yml` with `vpn: enforced` and `mode: swarm`
+is how an example is deployed in CI.
+
 `distros` and `filesystem` narrow the pools the other two axes draw from. Both
 default to empty, which means the whole declared set. That is what a sweep
 wants, because the rows are spread over the pool rather than all sharing one
@@ -222,6 +229,7 @@ reproduces by re-running the same sweep:
 |---|---|
 | mode | `(position + sweep) % len(modes the role offers)` |
 | tor | `(position + sweep // 2) % 2` |
+| vpn (swarm rows) | `(position // 2 + sweep // 4) % 2` |
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
 

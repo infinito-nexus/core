@@ -26,9 +26,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-* Idempotent installation of Tor and Tor Browser Launcher  
-* Ensures the Tor service is available for anonymous network traffic  
-* Simplifies first-time setup of Tor Browser  
+- Idempotent installation of Tor and Tor Browser Launcher  
+- Ensures the Tor service is available for anonymous network traffic  
+- Simplifies first-time setup of Tor Browser  
 
 ## Quick Setup
 
@@ -71,8 +71,8 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Further Resources
 
-* [Tor Project documentation](https://www.torproject.org/)
-* [Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)
+- [Tor Project documentation](https://www.torproject.org/)
+- [Infinito.Nexus GitHub repository](https://s.infinito.nexus/code)
 
 ## Credits
 

@@ -74,6 +74,14 @@ class NfsBackupScriptTests(unittest.TestCase):
         ).read_text()  # nocheck: cache-read tempdir fixture
         self.assertEqual(content, "hello")
 
+    def test_snapshot_keeps_user_xattrs(self):
+        (self.source / "a.txt").write_text("hello")
+        os.setxattr(self.source / "a.txt", "user.oc.id", b"space-1")
+        result = self._run()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        snapshot = self._generations()[0] / "files" / "a.txt"
+        self.assertEqual(os.getxattr(snapshot, "user.oc.id"), b"space-1")
+
     def test_second_run_hardlinks_unchanged_files(self):
         (self.source / "a.txt").write_text("hello")
         self.assertEqual(self._run(generation="20240101000000").returncode, 0)

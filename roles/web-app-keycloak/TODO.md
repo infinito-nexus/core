@@ -2,6 +2,7 @@
 
 - Implement working logout for all applications
 - Implement general logout button
+- Restrict the admin console. `https://auth.<domain>/` redirects to `/admin/`, which any client on the internet can reach. Add a source-network allowlist for `/admin` in the proxy vhost.
 
 ## Req 019 rollout: deploy gate
 

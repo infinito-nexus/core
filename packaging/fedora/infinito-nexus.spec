@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        15.0.0
+Version:        16.2.3
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,326 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.3-1
+- Added:
+
+- - PHP: 20 apps load a shared hardening ini against CVE-2026-109618/109619
+- - PHP: Moodle, Nextcloud and Shopware FPM workers restart every 200 requests
+- - Agents: *i8-release-article* drafts release articles, banners and posts
+
+- Changed:
+
+- - PHP: *expose_php* and *session.upload_progress* are off in all hardened apps
+- - PHP: *memory_limit* is unlimited for now; Joomla and Magento keep theirs
+- - Proxy: no openresty version and no *X-Powered-By*; HSTS lasts one year
+
+- Fixed:
+
+- - Install: an end-of-life distro Node.js is replaced by the current LTS
+- - Install: the upstream Node.js install stops on non-Linux hosts
+- - Moodle: ES module URLs ending in *.js* reach Moodle instead of a 404
+- - BigBlueButton: the welcome help link points at the documentation
+- - Tests: the Bluesky public API CSP origin is no longer probed as a page
+- - CI: swarm diagnostics collect package manager logs first, on every node
+
+- Version jumps (net since 16.2.2):
+
+- - *web-app-erpnext*: v16.51.2 to v16.52.0
+- - *web-app-gitlab*: v19.5.0 to v19.5.1
+- - *web-app-n8n*: 2.45.0 to 2.45.1
+- - *web-app-pixelfed*: 20261020 to 20261021
+- - *web-app-prometheus*: v3.15.0 to v3.15.1
+
+- Upgrade notes:
+
+- - PHP: the first deploy recreates every PHP container once for the new mount
+- - PHP: pull patched images (PHP 8.2.35, 8.3.36, 8.4.27, 8.5.12) and redeploy
+- - PHP: drop *memory_limit = -1* from *hardening.ini* after patched images
+- - Friendica: account imports are capped at 64 MiB while the limit is unlimited
+- - Akaunting (PHP 8.1) and FusionDirectory (PHP 7.4) stay unpatched; see TODOs
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): PHP hardening, Node.js, Moodle
+
+* Wed Oct 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.2-1
+- Fixed:
+
+- - Moodle: a fresh install with MCP enabled mints its token on Moodle 5.3
+- - Moodle: debug deployments keep the component cache; swarm pages load fast
+- - Playwright: a stuck image pull times out and retries instead of hanging
+
+- Version jumps (net since 16.2.1):
+
+- - *svc-ai-ollama*: 0.40.6 to 0.40.7
+- - *svc-runner*: BuildKit v0.34.0 to v0.34.1
+- - *web-app-erpnext*: v16.51.1 to v16.51.2
+- - *web-app-opentalk*: RabbitMQ 4.3.6 to 4.4.0
+- - *web-app-wazuh*: 4.14.6 to 4.14.9
+- - *web-app-xwiki*: AI LLM 0.10 to 0.11, OIDC authenticator 2.29.0 to 2.29.1
+
+- Upgrade notes:
+
+- - Device backup: the device needs a filesystem like ext4 or xfs, not FAT
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): Moodle, Playwright pull
+
+* Tue Oct 20 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.1-1
+- Fixed:
+
+- - Cache: the package cache frontend starts again; 16.2.0 broke its nginx
+- - Snipe-IT: SSO login works again on v8.8.1 behind oauth2-proxy
+- - Snipe-IT: the SSO header is only trusted with the proxy's shared secret
+- - Wazuh: seeded bcrypt salts no longer leak a fast password digest
+
+- Version jumps (net since 16.2.0):
+
+- - *web-app-socialhome*: 2026.10.17 to 2026.10.20
+
+- Upgrade notes:
+
+- - Snipe-IT: re-run *infinito administration inventory provision* once
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): cache, Snipe-IT SSO, bcrypt
+
+* Tue Oct 20 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.2.0-1
+- Added:
+
+- - Compose: *make compose-network-recreate* rebuilds the stack network safely
+- - CI: the updater keeps the GitHub-hosted runner labels current
+
+- Fixed:
+
+- - Backup: hard links, ACLs and xattrs survive every backup and recover hop
+- - NFS client: clients on Linux 6.19+ no longer fail writes on ganesha < 9.11
+- - AppArmor: the teardown keeps docker-default, so containers keep starting
+- - Wazuh: hosts can be put into WireGuard meshes like every other role
+- - CI: GitHub-hosted runners are pinned to ubuntu-24.04
+
+- Version jumps (net since 16.1.0):
+
+- - *svc-db-rabbitmq*: 4.3-management-alpine to 4.4-management-alpine
+- - *web-app-n8n*: 2.44.4 to 2.45.0
+- - *web-app-pixelfed*: 20261019 to 20261020
+- - *web-app-snipe-it*: v8.8.0-alpine to v8.8.1-alpine
+- - *web-app-taiga*: RabbitMQ 4.3-management-alpine to 4.4-management-alpine
+- - *eslint* (dev): ^10.12.0 to ^10.13.0
+
+- Upgrade notes:
+
+- - Backup: a target without xattr support now fails instead of losing them
+- - Dev: worktree hosts apply the IP pool with *make compose-network-recreate*
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): backups, NFS, AppArmor, CI
+
+* Mon Oct 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.1.0-1
+- Added:
+
+- - Wazuh: new *web-app-wazuh* role runs Wazuh 4.14.6 as a single-node SIEM
+- - Wazuh: Keycloak OIDC login, LDAP group roles and three RBAC tiers
+- - Wazuh: the SIEM console is served on clearnet only, never as an onion
+
+- Fixed:
+
+- - NFS client: swarm backups stay on local disk with their extended attributes
+- - NFS client: the backup user keeps access; a changed mount line remounts
+- - Docker: RedHat installs iptables-nft, so Fedora no longer needs ip_tables
+- - Compose: worktree stacks no longer take the primary stack's static IPs
+- - Backup: the baudolo version comes from *pyproject.toml* alone
+- - CI: runners with sudo-rs keep the environment the swarm matrix needs
+
+- Version jumps (net since 16.0.1):
+
+- - *pkgmgr*: v2.0.2 to v2.0.4
+- - *web-app-gitea*: 28.1.0 to 28.2.0, MCP server 1.9.0 to 1.10.0
+- - *web-app-n8n*: 2.44.3 to 2.44.4
+- - *web-app-pixelfed*: 20261017 to 20261019
+- - *web-app-semaphore*: v2.19.16 to v2.19.17
+- - *web-app-stalwart*: v0.16.26 to v0.16.27
+- - *web-app-stalwart*: webmail 1.7.4-apache to 1.7.5-apache
+- - *ruff* (dev): 0.17.0 to 0.17.1
+- - *@playwright/test* (dev): ^1.64.0 to ^1.64.1
+
+- Upgrade notes:
+
+- - Dev: run *make dotenv* once; compose now requires *INFINITO_IP_RANGE*
+- - Dev: a compose network created earlier keeps no IP pool until recreated
+- - NFS client: [older generations](roles/svc-storage-nfs-client/README.md) stay on the share; delete them by hand
+
+- Contributors:
+
+- - [Prageeth Panicker](https://github.com/pragepani): the Wazuh role
+- - [Evangelos Tsakoudis](https://evangelostsak.com): the WireGuard CLI test
+- - [Kevin Veen-Birkenbach](https://veen.world): NFS backups, compose IPs
+
+* Sun Oct 18 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.0.1-1
+- Fixed:
+
+- - Changelog: every entry uses dash bullets, so the file lints clean again
+- - Lint: Markdown lists must use dash bullets; MD004 now pins that style
+
+- Upgrade notes:
+
+- - 16.0.0 was never published; its two upgrade notes apply to this release
+- - Moodle: [web-installed plugins](roles/web-app-moodle/README.md#updates) are not carried to 5.3
+- - Zammad: Elasticsearch 9 rebuilds the search index on the first deploy
+
+- Contributors:
+
+- - [Kevin Veen-Birkenbach](https://veen.world): the Markdown list style fix
+
+* Sun Oct 18 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 16.0.0-1
+- Added:
+
+- - WireGuard: new *svc-net-wireguard* role (beta) builds per-host mesh tunnels
+- - Mesh: every role can put its hosts into WireGuard meshes via inventory
+- - Mesh: full meshes without a hub, hub and spoke, controller as a spoke
+- - Mesh CLI: writes the mesh *host_vars* of an inventory and rotates its keys
+- - Swarm: nodes advertise and mount NFS over their primary mesh address
+- - Inventory: credentials can be generated across hosts
+- - Deploy: CLI end-to-end tests run after a deploy; roles declare them
+- - Update: a version pin can declare its own upstream source, addons too
+- - Plugins: memory parameters follow the container limit via one lookup
+- - Stalwart: bans and failed logins appear in the container output
+- - Playbooks: playbooks under *playbooks/* load the root *group_vars*
+
+- Changed:
+
+- - Moodle: runs 5.3; existing 4.5 sites are upgraded on deploy
+- - OpenTalk: runs product version 26.2.1
+- - Bluesky: PDS 0.4.66, so AppView proxy calls carry *lxm*
+- - Nextcloud: held at 34 until *integration_openproject* supports 35
+- - Nextcloud: BPM Files, News and Recognize are optional addons
+- - Memory: PHP, Postgres and Snipe-IT limits follow the container size
+- - Hugo: builds with the official Hugo image as the image's own user
+- - BigBlueButton: the release set follows one version source
+
+- Version jumps (net since 15.0.0):
+
+- - *svc-ai-ollama*: 0.35.0 to 0.40.6
+- - *svc-db-elasticsearch*: 9.5.3 to 9.5.5
+- - *svc-db-qdrant*: v1.19.1 to v1.19.2
+- - *svc-net-tor-smtp*: 3.14-slim to 3.15-slim
+- - *svc-runner*: BuildKit v0.33.1 to v0.34.0
+- - *sys-ctl-hlth-csp*: csp-checker 3.0.4 to 3.1.0
+- - *test-e2e-playwright*: Playwright v1.63.0-noble to v1.64.1-noble
+- - *web-app-baserow*: 2.3.4 to 2.4.1
+- - *web-app-bigbluebutton*: dockerize v0.15.1 to v0.15.2
+- - *web-app-bluesky*: PDS 0.4.0 to 0.4.66, AppView 1.134.0 to 1.135.0
+- - *web-app-checkmk*: 2.4.0p32 to 2.4.0p37
+- - *web-app-chess*: v1.0.1 to v1.2.2
+- - *web-app-erpnext*: v16.37.0 to v16.51.1
+- - *web-app-espocrm*: 10.0.9 to 10.0.10
+- - *web-app-fediwall*: 1.31.6-alpine to 1.31.7-alpine
+- - *web-app-flowise*: better-sqlite3 12.11.1 to 13.0.3
+- - *web-app-funkwhale*: 2.0.11 to 2.0.12
+- - *web-app-gitea*: 1.27.3 to 28.1.0, MCP server 1.6.0 to 1.9.0
+- - *web-app-gitlab*: v19.4.1 to v19.5.0
+- - *web-app-hermes*: v2026.9.7 to v2026.9.24
+- - *web-app-hugo*: builder exts-0.148.0 to v0.168.0
+- - *web-app-hugo*: hugoDocs source v0.148.0 to v0.165.0
+- - *web-app-jenkins*: 2.568.3-lts to 2.580.1-lts
+- - *web-app-jira*: 11.3.11 to 11.3.12
+- - *web-app-keycloak*: 26.8.0 to 26.8.1
+- - *web-app-lam*: 9.6 to 9.7
+- - *web-app-littlejs*: 1.31.6-alpine to 1.31.7-alpine
+- - *web-app-matrix*: Synapse v1.162.0 to v1.163.0
+- - *web-app-matrix*: Element v1.12.30 to v1.12.32
+- - *web-app-mattermost*: 11.11.0 to 12.0.0
+- - *web-app-moodle*: 4.5.11 to 5.3.0, OIDC plugin v4.5.8 to v5.2.1
+- - *web-app-n8n*: 1.100.1 to 2.44.3
+- - *web-app-nextcloud*: context_agent 2.8.0 to 2.9.1
+- - *web-app-nextcloud*: proxy 1.31.5-alpine to 1.31.7-alpine
+- - *web-app-openbao*: 2.6.2 to 2.7.1
+- - *web-app-opentalk*: frontend v2.9.0 to v2.9.2 (product 26.2.1)
+- - *web-app-opentalk*: controller v0.34.1 to v0.34.5
+- - *web-app-opentalk*: recorder v0.16.2 to v0.17.5
+- - *web-app-opentalk*: LiveKit v1.13.7 to v1.13.10
+- - *web-app-penpot*: 2.17.2 to 2.18.3
+- - *web-app-pihole*: 2026.09.0 to 2026.10.0
+- - *web-app-pixelfed*: 20260917 to 20261017
+- - *web-app-pretix*: 2026.7.0 to 2026.8.0
+- - *web-app-prometheus*: v3.14.0 to v3.15.0
+- - *web-app-prometheus*: cAdvisor v0.52.1 to v0.55.1
+- - *web-app-prometheus*: blackbox exporter v0.28.0 to v0.29.0
+- - *web-app-semaphore*: v2.19.14 to v2.19.16
+- - *web-app-socialhome*: 2026.10.2 to 2026.10.17
+- - *web-app-stalwart*: v0.16.24 to v0.16.26, web UI v1.0.5 to v1.0.11
+- - *web-app-suitecrm*: 8.9.1 to 8.10.2
+- - *web-app-taiga*: gateway 1.31.6-alpine to 1.31.7-alpine
+- - *web-app-wordpress*: 7.1.0 to 7.1.3, MCP adapter v0.5.0 to v0.7.1
+- - *web-app-xwiki*: OIDC authenticator 2.19.6 to 2.29.0
+- - *web-app-xwiki*: LDAP authenticator 9.15.7 to 9.16.6
+- - *web-app-xwiki*: AI LLM 0.7 to 0.10
+- - *web-app-zammad*: Elasticsearch 8.13.4 to 9.5.5
+- - *web-svc-collabora*: 26.04.2.1.1 to 26.04.5.1.1
+- - *web-svc-coturn*: gateway 1.31.6-alpine to 1.31.7-alpine
+- - *web-svc-logout*: v1.4.1 to v1.4.2
+- - *web-svc-onlyoffice*: 9.4.0 to 10.0.0
+- - *backup-docker-to-local* (*baudolo*): 7.0.2 to 7.1.1
+- - *community.general*: 13.4.0 to 13.5.0
+- - *community.docker*: 5.3.0 to 5.4.0
+- - *hetzner.hcloud*: 7.1.0 to 7.2.0
+- - *ruff* (dev): 0.16.9 to 0.17.0
+- - *@playwright/test* (dev): ^1.63.0 to ^1.64.0
+- - *eslint* (dev): ^10.9.1 to ^10.12.0
+- - *eslint-plugin-playwright* (dev): ^2.10.5 to ^2.12.1
+- - *globals* (dev): ^17.12.0 to ^17.13.0
+- - *stylelint* (dev): ^17.15.0 to ^17.16.0
+
+- Fixed:
+
+- - Zammad: init waits for search in swarm; disk watermarks fit the disk
+- - Zammad: the deploy stops when Elasticsearch allocates no shard
+- - Nextcloud: OnlyOffice server URL is written last and checked in time
+- - Nextcloud: Talk server lists are written as typed arrays
+- - Keycloak: concurrent *kcadm* jobs no longer lose the config lock
+- - SuiteCRM: sessions live in Redis so replicas share them
+- - SuiteCRM: external auth provisioning can create its user
+- - n8n: SSO hook, MCP provisioning and API paging work under n8n 2
+- - Stalwart: address bans expire; bots use app passwords under SSO
+- - OpenProject: the migration probe no longer creates tables
+- - Prometheus: probes are judged per target and reach apps on their vhosts
+- - Collabora: the WOPI host follows Nextcloud's domain and TLS state
+- - Odoo: the OAuth addon works on Odoo 20
+- - Mobilizon: four migrations are patched for PostgreSQL 18
+- - OpenBao: the LDAP auth method ships as an external plugin
+- - Penpot: the frontend waits for its backend; its probe needs no curl
+- - Pixelfed: the OIDC token exchange uses Tor on an onion issuer
+- - Matrix: Synapse metrics are published in the ansible flavor
+- - Matomo: the CSP allows the inline handler of the core top bar
+- - Moodle: the code tree is replaced only after a complete copy
+- - XWiki: an add-on off its pinned version is upgraded
+- - Bridgy Fed: builds on Python 3.14 until cbor2 supports 3.15
+- - Tor: the onion apex no longer redirects to a clearnet homepage
+- - Health: the CSP crawler follows redirects to this node
+- - Health: the journal check reads long messages, skips container logs
+- - Services: a stale unit result no longer fails a deploy
+- - Cache: the applications carrier stays valid across nested app loads
+- - Docker: the installed apt key is kept when its refresh is refused
+- - Mail: a connection dropped before the greeting is retried
+- - Admin: */usr/local/bin* stays on the administrator's sudo path
+- - User: the login banner stays off non-interactive stdout
+- - CI: a change under *tests/* no longer deploys every role
+- - CI: workspace and runner images are pulled through the GHCR mirror
+
+- Upgrade notes:
+
+- - Moodle: [web-installed plugins](roles/web-app-moodle/README.md#updates) are not carried to 5.3
+- - Zammad: Elasticsearch 9 rebuilds the search index on the first deploy
+
+- Contributors:
+
+- - [Evangelos Tsakoudis](https://evangelostsak.com): WireGuard role and meshes
+- - [Kevin Veen-Birkenbach](https://veen.world): app fixes, version sources, CI
+- - [Prageeth Panicker](https://github.com/pragepani): the journal check fix
+
 * Sat Oct 03 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 15.0.0-1
 - **Breaking Changes**
 

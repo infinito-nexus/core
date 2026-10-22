@@ -7,7 +7,10 @@ STORAGE_NFS_MOUNT_OPTS: "{{ lookup('nfs_mount_opts') }}"
 STORAGE_NFS_FSTYPE: "{{ lookup('nfs_fstype') }}"
 STORAGE_NFS_CLIENT_SRC: "{{ lookup('nfs_client_src') }}"
 
+STORAGE_NFS_CONTROLLER_SRC: "{{ lookup('nfs_client_src', 'controller') }}"
+
 storage:
   backend: local
   nfs:
     server: ""
+    controller_server: ""

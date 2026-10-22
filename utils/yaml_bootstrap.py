@@ -24,6 +24,9 @@ import re
 
 _PLAIN = re.compile(r"^[A-Za-z_/][A-Za-z0-9_./+@:\- ]*$")
 _RESERVED = re.compile(r"^(?:true|false|yes|no|on|off|y|n|null)$", re.IGNORECASE)
+_NON_PRINTABLE = re.compile(
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x84\x86-\x9f\ud800-\udfff￾￿]"
+)
 
 
 class BootstrapYamlError(ValueError):
@@ -64,6 +67,11 @@ def load_block(text: str) -> dict:
     Raises:
         BootstrapYamlError: for any construct outside the subset.
     """
+    non_printable = _NON_PRINTABLE.search(text)
+    if non_printable:
+        raise BootstrapYamlError(
+            f"non-printable character {non_printable.group()!r} at offset {non_printable.start()}"
+        )
     root: dict = {}
     stack: list[tuple[int, object]] = [(0, root)]
     pending: tuple[dict, str, int] | None = None
@@ -76,6 +84,8 @@ def load_block(text: str) -> dict:
         if body == "---":
             if lineno != 1:
                 raise BootstrapYamlError(f"line {lineno}: second document")
+            if line.startswith(" "):
+                raise BootstrapYamlError(f"line {lineno}: indented document marker")
             continue
         indent = len(line) - len(line.lstrip(" "))
         if pending is not None:

@@ -2,6 +2,7 @@
 application_id: "web-app-zammad"
 entity_name: "{{ application_id | get_entity_name }}"
 
+ZAMMAD_PRECHECK_SERVICE: "precheck"
 ZAMMAD_INIT_SERVICE: "init"
 ZAMMAD_RAILS_SERVICE: "railsserver"
 ZAMMAD_WEBSOCKET_SERVICE: "websocket"
@@ -10,6 +11,7 @@ ZAMMAD_NGINX_SERVICE: "nginx"
 ZAMMAD_SEARCH_SERVICE: "elasticsearch"
 ZAMMAD_MEMCACHED_SERVICE: "memcached"
 
+ZAMMAD_PRECHECK_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_PRECHECK_SERVICE ~ '.name') }}"
 ZAMMAD_INIT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_INIT_SERVICE ~ '.name') }}"
 ZAMMAD_RAILS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAILS_SERVICE ~ '.name') }}"
 ZAMMAD_RAILS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, ZAMMAD_RAILS_SERVICE) }}"
@@ -23,8 +25,14 @@ ZAMMAD_RAILS_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAI
 ZAMMAD_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_SEARCH_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_SEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, ZAMMAD_SEARCH_SERVICE, 0.25) }}"
+ZAMMAD_SEARCH_WATERMARK: "{{ lookup('config', application_id, 'services.search.watermark') }}"
 ZAMMAD_SEARCH_MAJOR: "{{ (lookup('config', application_id, 'services.search.version') | string).split('.') | first }}"
 ZAMMAD_SEARCH_DATA_DIR: "{{ [lookup('volume', application_id, 'zammad_search').target, ZAMMAD_SEARCH_MAJOR] | path_join }}"
+ZAMMAD_SEARCH_PRECHECK_ABS: "{{ [lookup('container', application_id, 'directories.config'), 'search_allocation_precheck.sh'] | path_join }}"
+ZAMMAD_SEARCH_PRECHECK_TARGET: "{{ (lookup('volume', application_id, 'search_allocation_precheck').mounts | first).target }}"
+ZAMMAD_SEARCH_READY_SECONDS: 600
+ZAMMAD_SEARCH_POLL_SECONDS: 5
+ZAMMAD_SEARCH_ALLOCATION_TIMEOUT_SECONDS: 60
 
 # Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
 # builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops

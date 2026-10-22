@@ -122,3 +122,19 @@ adminopenauth_yaml:
       target: *var_www_html_config_packages_adminopenauth_yaml_target
     - service: scheduler
       target: *var_www_html_config_packages_adminopenauth_yaml_target
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: web
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini
+
+php_fpm_hardening:
+  type: config
+  source: "{{ FILE_PHP_FPM_HARDENING_CONF }}"
+  mode: "0444"
+  mounts:
+    - service: web
+      target: /usr/local/etc/php-fpm.d/zz-infinito-hardening.conf

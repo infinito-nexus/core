@@ -70,10 +70,10 @@ PIN_FORMATS: dict[str, str] = {
     "dnf5": "{name}-{version}",
     "yum": "{name}-{version}",
 }
-"""How each package manager names an exact version."""
 
 DNF_MANAGERS: frozenset[str] = frozenset({"dnf", "dnf5", "yum"})
-"""Managers whose module understands ``disable_excludes``."""
+
+MANAGER_ARGS: dict[str, dict[str, Any]] = {"apt": {"install_recommends": False}}
 
 
 def package_call(names: list[str], state: str) -> ModuleCall:
@@ -91,9 +91,9 @@ def manager_args(
 ) -> dict[str, Any]:
     """Return a GENERIC_PACKAGE call's arguments for the host's package manager.
 
-    An exact version overrides the role's own hold (apt) for that one install;
-    on the dnf family, ``disable_excludes`` lifts the given repository's
-    excludes only. Without either, the arguments come back unchanged.
+    The manager's fixed arguments (``MANAGER_ARGS``) always apply. An exact
+    version overrides the role's own hold (apt) for that one install; on the
+    dnf family, ``disable_excludes`` lifts the given repository's excludes only.
 
     Args:
         pkg_mgr: the host's ``ansible_facts.pkg_mgr``.
@@ -104,7 +104,7 @@ def manager_args(
     Raises:
         ValueError: a version is pinned on a manager without a pin format.
     """
-    result = dict(args)
+    result = {**args, **MANAGER_ARGS.get(pkg_mgr, {})}
     if version is not None:
         if pkg_mgr not in PIN_FORMATS:
             raise ValueError(f"package manager '{pkg_mgr}' cannot pin an exact version")

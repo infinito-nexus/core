@@ -8,11 +8,12 @@
 #   __ALL__                          full deploy needed. Emitted when:
 #                                      * the diff is empty, OR
 #                                      * any changed path outside
-#                                        roles/<role>/ is not a Markdown
-#                                        or reStructuredText file (the
-#                                        `.md`/`.rst` skip-list mirrors
+#                                        roles/<role>/ is neither a
+#                                        Markdown or reStructuredText file
+#                                        (the `.md`/`.rst` skip-list mirrors
 #                                        scripts/meta/resolve/pr/scope.sh's
-#                                        `is_markdown_or_rst`), OR
+#                                        `is_markdown_or_rst`) nor under
+#                                        tests/, OR
 #                                      * the diff contains only such
 #                                        skipped paths and no role seeds
 #                                        could be derived, OR
@@ -75,7 +76,7 @@ for path in "${changed_paths[@]}"; do
 	[[ -z "${path}" ]] && continue
 	if [[ "${path}" != roles/*/* ]]; then
 		case "${path}" in
-		*.md | *.rst)
+		*.md | *.rst | tests/*)
 			continue
 			;;
 		esac

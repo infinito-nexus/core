@@ -40,7 +40,7 @@ The writer a handler picks decides how long a value lives. Both kinds are regist
 
 `setdefault` is the operator-override contract: exporting a key changes it and the change persists. That persistence is why it MUST NOT carry a value an environment declares for a single run. [Makefile](../../Makefile) exports `BASH_ENV`, so every make recipe sources `.env` — a value adopted once is re-exported into every later recipe and into every container that mounts the repo, and a per-run decision has silently become a property of the machine.
 
-A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority.
+A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB`, `INFINITO_CACHE_STACK` and `INFINITO_GHCR_MIRROR` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority.
 
 ## Import Rules 🔗
 

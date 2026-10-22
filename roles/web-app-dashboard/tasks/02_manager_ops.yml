@@ -53,59 +53,62 @@
       - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
         dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
 
-- name: 🧩 Load rendered dashboard config before first compose start
-  slurp:
-    src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
-  register: dashboard_rendered_config_raw
+- name: ⏳ Wait for branding assets this deployment serves
+  when: DASHBOARD_ASSET_ENABLED | bool
+  block:
+    - name: 🧩 Load rendered dashboard config before first compose start
+      slurp:
+        src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+      register: dashboard_rendered_config_raw
 
-- name: 📊 Collect branding asset URLs served by the shared file service
-  set_fact:
-    dashboard_branding_asset_urls: >-
-      {{
-        [
-          (
-            dashboard_platform_logo_source
-            if dashboard_platform_logo_source.startswith(dashboard_asset_url_base)
-            else ''
-          ),
-          (
-            dashboard_platform_favicon_source
-            if dashboard_platform_favicon_source.startswith(dashboard_asset_url_base)
-            else ''
-          ),
-          (
-            dashboard_company_logo_source
-            if dashboard_company_logo_source.startswith(dashboard_asset_url_base)
-            else ''
-          )
-        ]
-        | select('string')
-        | reject('equalto', '')
-        | unique
-        | list
-      }}
-  vars:
-    dashboard_rendered_config: "{{ dashboard_rendered_config_raw.content | b64decode | from_yaml }}"
-    dashboard_asset_url_base: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
-    dashboard_platform_logo_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('logo') or {}).get('source', '') }}"
-    dashboard_platform_favicon_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('favicon') or {}).get('source', '') }}"
-    dashboard_company_logo_source: "{{ ((dashboard_rendered_config.get('company') or {}).get('logo') or {}).get('source', '') }}"
-  changed_when: false
+    - name: 📊 Collect branding asset URLs served by the shared file service
+      set_fact:
+        dashboard_branding_asset_urls: >-
+          {{
+            [
+              (
+                dashboard_platform_logo_source
+                if dashboard_platform_logo_source.startswith(dashboard_asset_url_base)
+                else ''
+              ),
+              (
+                dashboard_platform_favicon_source
+                if dashboard_platform_favicon_source.startswith(dashboard_asset_url_base)
+                else ''
+              ),
+              (
+                dashboard_company_logo_source
+                if dashboard_company_logo_source.startswith(dashboard_asset_url_base)
+                else ''
+              )
+            ]
+            | select('string')
+            | reject('equalto', '')
+            | unique
+            | list
+          }}
+      vars:
+        dashboard_rendered_config: "{{ dashboard_rendered_config_raw.content | b64decode | from_yaml }}"
+        dashboard_asset_url_base: "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
+        dashboard_platform_logo_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('logo') or {}).get('source', '') }}"
+        dashboard_platform_favicon_source: "{{ ((dashboard_rendered_config.get('platform') or {}).get('favicon') or {}).get('source', '') }}"
+        dashboard_company_logo_source: "{{ ((dashboard_rendered_config.get('company') or {}).get('logo') or {}).get('source', '') }}"
+      changed_when: false
 
-- name: ⏳ Wait for dashboard branding assets before first compose start
-  uri_retry:
-    url: "{{ item }}"
-    status_code: 200
-    validate_certs: false
-  register: dashboard_branding_asset_http
-  retries: 60
-  delay: 5
-  until: dashboard_branding_asset_http.status == 200
-  loop: "{{ dashboard_branding_asset_urls }}"
-  loop_control:
-    label: "{{ item }}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
+    - name: ⏳ Wait for dashboard branding assets before first compose start
+      uri_retry:
+        url: "{{ item }}"
+        status_code: 200
+        validate_certs: false
+      register: dashboard_branding_asset_http
+      retries: 60
+      delay: 5
+      until: dashboard_branding_asset_http.status == 200
+      loop: "{{ dashboard_branding_asset_urls }}"
+      loop_control:
+        label: "{{ item }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
 
 - name: "🚿 Flush compose handlers"
   meta: flush_handlers

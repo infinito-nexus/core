@@ -83,3 +83,10 @@ rspamd_overrides:
   mounts:
     - service: antispam
       target: *overrides_target
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: webmail
+      target: /etc/php83/conf.d/zz-infinito-hardening.ini

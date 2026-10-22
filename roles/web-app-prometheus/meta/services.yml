@@ -55,7 +55,7 @@ prometheus:
   provides:
     - prometheus
   image: prom/prometheus # nocheck: volumes-path-single-spot: the repository path of an image name, not a mount target
-  version: v3.15.0
+  version: v3.15.1
   name: prometheus
   cpus: "0.5"
   mem_reservation: 512m
@@ -94,7 +94,7 @@ blackbox-exporter:
     flavor: wget
     path: -/healthy
   image: prom/blackbox-exporter
-  version: v0.29.0
+  version: v0.29.1
   name: prometheus-blackbox
   cpus: "0.1"
   mem_reservation: 16m

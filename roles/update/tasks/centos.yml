@@ -1,0 +1,8 @@
+---
+- name: "📌 update (dnf) | pin the CentOS Stream repos to mirror.stream.centos.org"
+  become: true
+  ansible.builtin.script: shell/centos_mirror.sh
+  register: update_centos_pinned
+  changed_when: update_centos_pinned.stdout | length > 0
+
+- include_tasks: fedora.yml

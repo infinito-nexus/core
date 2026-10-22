@@ -10,6 +10,7 @@ location = /config {
     set $up_host "{{ BLUESKY_CONFIG_UPSTREAM_URL | regex_replace('^https?://', '') | regex_replace('/.*$', '') }}";
     set $bluesky_config_upstream "{{ BLUESKY_CONFIG_UPSTREAM_URL }}";
     proxy_pass $bluesky_config_upstream;
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_set_header Host $up_host;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
@@ -24,6 +25,7 @@ location = /ipcc {
     set $up_host "bsky.app";
     set $bluesky_ipcc_upstream "https://bsky.app/ipcc";
     proxy_pass $bluesky_ipcc_upstream;
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_set_header Host $up_host;
     proxy_http_version 1.1;
     proxy_set_header Connection "";

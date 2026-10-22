@@ -2,6 +2,7 @@
 
 This directory contains the modular workspace test suite for Infinito.Nexus.
 It validates the full local development flow from a clean state.
+In CI it runs exactly like that flow, except that it pulls images through the GHCR mirror (`INFINITO_GHCR_MIRROR=true`, see [mirror.md](../../../docs/contributing/artefact/image/mirror.md)).
 
 The entry point is [00_orchestrator.sh](00_orchestrator.sh). It runs one or more
 *tracks* — subdirectories whose numbered scripts execute in order.

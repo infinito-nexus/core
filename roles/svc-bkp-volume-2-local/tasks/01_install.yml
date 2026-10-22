@@ -3,7 +3,7 @@
   include_role:
     name: sys-pip-install
   vars:
-    package_name: "backup-docker-to-local==7.0.2"
+    package_name: "backup-docker-to-local=={{ lookup('version', 'backup-docker-to-local') }}"
     global_install: true
 
 - name: ✅ Assert required baudolo commands are available

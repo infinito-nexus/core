@@ -1,10 +1,337 @@
 # Changelog
 
+## [16.2.3] - 2026-10-21
+
+Added:
+
+- PHP: 20 apps load a shared hardening ini against CVE-2026-109618/109619
+- PHP: Moodle, Nextcloud and Shopware FPM workers restart every 200 requests
+- Agents: *i8-release-article* drafts release articles, banners and posts
+
+Changed:
+
+- PHP: *expose_php* and *session.upload_progress* are off in all hardened apps
+- PHP: *memory_limit* is unlimited for now; Joomla and Magento keep theirs
+- Proxy: no openresty version and no *X-Powered-By*; HSTS lasts one year
+
+Fixed:
+
+- Install: an end-of-life distro Node.js is replaced by the current LTS
+- Install: the upstream Node.js install stops on non-Linux hosts
+- Moodle: ES module URLs ending in *.js* reach Moodle instead of a 404
+- BigBlueButton: the welcome help link points at the documentation
+- Tests: the Bluesky public API CSP origin is no longer probed as a page
+- CI: swarm diagnostics collect package manager logs first, on every node
+
+Version jumps (net since 16.2.2):
+
+- *web-app-erpnext*: v16.51.2 to v16.52.0
+- *web-app-gitlab*: v19.5.0 to v19.5.1
+- *web-app-n8n*: 2.45.0 to 2.45.1
+- *web-app-pixelfed*: 20261020 to 20261021
+- *web-app-prometheus*: v3.15.0 to v3.15.1
+
+Upgrade notes:
+
+- PHP: the first deploy recreates every PHP container once for the new mount
+- PHP: pull patched images (PHP 8.2.35, 8.3.36, 8.4.27, 8.5.12) and redeploy
+- PHP: drop *memory_limit = -1* from *hardening.ini* after patched images
+- Friendica: account imports are capped at 64 MiB while the limit is unlimited
+- Akaunting (PHP 8.1) and FusionDirectory (PHP 7.4) stay unpatched; see TODOs
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): PHP hardening, Node.js, Moodle
+
+## [16.2.2] - 2026-10-21
+
+Fixed:
+
+- Moodle: a fresh install with MCP enabled mints its token on Moodle 5.3
+- Moodle: debug deployments keep the component cache; swarm pages load fast
+- Playwright: a stuck image pull times out and retries instead of hanging
+
+Version jumps (net since 16.2.1):
+
+- *svc-ai-ollama*: 0.40.6 to 0.40.7
+- *svc-runner*: BuildKit v0.34.0 to v0.34.1
+- *web-app-erpnext*: v16.51.1 to v16.51.2
+- *web-app-opentalk*: RabbitMQ 4.3.6 to 4.4.0
+- *web-app-wazuh*: 4.14.6 to 4.14.9
+- *web-app-xwiki*: AI LLM 0.10 to 0.11, OIDC authenticator 2.29.0 to 2.29.1
+
+Upgrade notes:
+
+- Device backup: the device needs a filesystem like ext4 or xfs, not FAT
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): Moodle, Playwright pull
+
+## [16.2.1] - 2026-10-20
+
+Fixed:
+
+- Cache: the package cache frontend starts again; 16.2.0 broke its nginx
+- Snipe-IT: SSO login works again on v8.8.1 behind oauth2-proxy
+- Snipe-IT: the SSO header is only trusted with the proxy's shared secret
+- Wazuh: seeded bcrypt salts no longer leak a fast password digest
+
+Version jumps (net since 16.2.0):
+
+- *web-app-socialhome*: 2026.10.17 to 2026.10.20
+
+Upgrade notes:
+
+- Snipe-IT: re-run *infinito administration inventory provision* once
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): cache, Snipe-IT SSO, bcrypt
+
+## [16.2.0] - 2026-10-20
+
+Added:
+
+- Compose: *make compose-network-recreate* rebuilds the stack network safely
+- CI: the updater keeps the GitHub-hosted runner labels current
+
+Fixed:
+
+- Backup: hard links, ACLs and xattrs survive every backup and recover hop
+- NFS client: clients on Linux 6.19+ no longer fail writes on ganesha < 9.11
+- AppArmor: the teardown keeps docker-default, so containers keep starting
+- Wazuh: hosts can be put into WireGuard meshes like every other role
+- CI: GitHub-hosted runners are pinned to ubuntu-24.04
+
+Version jumps (net since 16.1.0):
+
+- *svc-db-rabbitmq*: 4.3-management-alpine to 4.4-management-alpine
+- *web-app-n8n*: 2.44.4 to 2.45.0
+- *web-app-pixelfed*: 20261019 to 20261020
+- *web-app-snipe-it*: v8.8.0-alpine to v8.8.1-alpine
+- *web-app-taiga*: RabbitMQ 4.3-management-alpine to 4.4-management-alpine
+- *eslint* (dev): ^10.12.0 to ^10.13.0
+
+Upgrade notes:
+
+- Backup: a target without xattr support now fails instead of losing them
+- Dev: worktree hosts apply the IP pool with *make compose-network-recreate*
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): backups, NFS, AppArmor, CI
+
+## [16.1.0] - 2026-10-19
+
+Added:
+
+- Wazuh: new *web-app-wazuh* role runs Wazuh 4.14.6 as a single-node SIEM
+- Wazuh: Keycloak OIDC login, LDAP group roles and three RBAC tiers
+- Wazuh: the SIEM console is served on clearnet only, never as an onion
+
+Fixed:
+
+- NFS client: swarm backups stay on local disk with their extended attributes
+- NFS client: the backup user keeps access; a changed mount line remounts
+- Docker: RedHat installs iptables-nft, so Fedora no longer needs ip_tables
+- Compose: worktree stacks no longer take the primary stack's static IPs
+- Backup: the baudolo version comes from *pyproject.toml* alone
+- CI: runners with sudo-rs keep the environment the swarm matrix needs
+
+Version jumps (net since 16.0.1):
+
+- *pkgmgr*: v2.0.2 to v2.0.4
+- *web-app-gitea*: 28.1.0 to 28.2.0, MCP server 1.9.0 to 1.10.0
+- *web-app-n8n*: 2.44.3 to 2.44.4
+- *web-app-pixelfed*: 20261017 to 20261019
+- *web-app-semaphore*: v2.19.16 to v2.19.17
+- *web-app-stalwart*: v0.16.26 to v0.16.27
+- *web-app-stalwart*: webmail 1.7.4-apache to 1.7.5-apache
+- *ruff* (dev): 0.17.0 to 0.17.1
+- *@playwright/test* (dev): ^1.64.0 to ^1.64.1
+
+Upgrade notes:
+
+- Dev: run *make dotenv* once; compose now requires *INFINITO_IP_RANGE*
+- Dev: a compose network created earlier keeps no IP pool until recreated
+- NFS client: [older generations](roles/svc-storage-nfs-client/README.md) stay on the share; delete them by hand
+
+Contributors:
+
+- [Prageeth Panicker](https://github.com/pragepani): the Wazuh role
+- [Evangelos Tsakoudis](https://evangelostsak.com): the WireGuard CLI test
+- [Kevin Veen-Birkenbach](https://veen.world): NFS backups, compose IPs
+
+## [16.0.1] - 2026-10-18
+
+Fixed:
+
+- Changelog: every entry uses dash bullets, so the file lints clean again
+- Lint: Markdown lists must use dash bullets; MD004 now pins that style
+
+Upgrade notes:
+
+- 16.0.0 was never published; its two upgrade notes apply to this release
+- Moodle: [web-installed plugins](roles/web-app-moodle/README.md#updates) are not carried to 5.3
+- Zammad: Elasticsearch 9 rebuilds the search index on the first deploy
+
+Contributors:
+
+- [Kevin Veen-Birkenbach](https://veen.world): the Markdown list style fix
+
+## [16.0.0] - 2026-10-18
+
+Added:
+
+- WireGuard: new *svc-net-wireguard* role (beta) builds per-host mesh tunnels
+- Mesh: every role can put its hosts into WireGuard meshes via inventory
+- Mesh: full meshes without a hub, hub and spoke, controller as a spoke
+- Mesh CLI: writes the mesh *host_vars* of an inventory and rotates its keys
+- Swarm: nodes advertise and mount NFS over their primary mesh address
+- Inventory: credentials can be generated across hosts
+- Deploy: CLI end-to-end tests run after a deploy; roles declare them
+- Update: a version pin can declare its own upstream source, addons too
+- Plugins: memory parameters follow the container limit via one lookup
+- Stalwart: bans and failed logins appear in the container output
+- Playbooks: playbooks under *playbooks/* load the root *group_vars*
+
+Changed:
+
+- Moodle: runs 5.3; existing 4.5 sites are upgraded on deploy
+- OpenTalk: runs product version 26.2.1
+- Bluesky: PDS 0.4.66, so AppView proxy calls carry *lxm*
+- Nextcloud: held at 34 until *integration_openproject* supports 35
+- Nextcloud: BPM Files, News and Recognize are optional addons
+- Memory: PHP, Postgres and Snipe-IT limits follow the container size
+- Hugo: builds with the official Hugo image as the image's own user
+- BigBlueButton: the release set follows one version source
+
+Version jumps (net since 15.0.0):
+
+- *svc-ai-ollama*: 0.35.0 to 0.40.6
+- *svc-db-elasticsearch*: 9.5.3 to 9.5.5
+- *svc-db-qdrant*: v1.19.1 to v1.19.2
+- *svc-net-tor-smtp*: 3.14-slim to 3.15-slim
+- *svc-runner*: BuildKit v0.33.1 to v0.34.0
+- *sys-ctl-hlth-csp*: csp-checker 3.0.4 to 3.1.0
+- *test-e2e-playwright*: Playwright v1.63.0-noble to v1.64.1-noble
+- *web-app-baserow*: 2.3.4 to 2.4.1
+- *web-app-bigbluebutton*: dockerize v0.15.1 to v0.15.2
+- *web-app-bluesky*: PDS 0.4.0 to 0.4.66, AppView 1.134.0 to 1.135.0
+- *web-app-checkmk*: 2.4.0p32 to 2.4.0p37
+- *web-app-chess*: v1.0.1 to v1.2.2
+- *web-app-erpnext*: v16.37.0 to v16.51.1
+- *web-app-espocrm*: 10.0.9 to 10.0.10
+- *web-app-fediwall*: 1.31.6-alpine to 1.31.7-alpine
+- *web-app-flowise*: better-sqlite3 12.11.1 to 13.0.3
+- *web-app-funkwhale*: 2.0.11 to 2.0.12
+- *web-app-gitea*: 1.27.3 to 28.1.0, MCP server 1.6.0 to 1.9.0
+- *web-app-gitlab*: v19.4.1 to v19.5.0
+- *web-app-hermes*: v2026.9.7 to v2026.9.24
+- *web-app-hugo*: builder exts-0.148.0 to v0.168.0
+- *web-app-hugo*: hugoDocs source v0.148.0 to v0.165.0
+- *web-app-jenkins*: 2.568.3-lts to 2.580.1-lts
+- *web-app-jira*: 11.3.11 to 11.3.12
+- *web-app-keycloak*: 26.8.0 to 26.8.1
+- *web-app-lam*: 9.6 to 9.7
+- *web-app-littlejs*: 1.31.6-alpine to 1.31.7-alpine
+- *web-app-matrix*: Synapse v1.162.0 to v1.163.0
+- *web-app-matrix*: Element v1.12.30 to v1.12.32
+- *web-app-mattermost*: 11.11.0 to 12.0.0
+- *web-app-moodle*: 4.5.11 to 5.3.0, OIDC plugin v4.5.8 to v5.2.1
+- *web-app-n8n*: 1.100.1 to 2.44.3
+- *web-app-nextcloud*: context_agent 2.8.0 to 2.9.1
+- *web-app-nextcloud*: proxy 1.31.5-alpine to 1.31.7-alpine
+- *web-app-openbao*: 2.6.2 to 2.7.1
+- *web-app-opentalk*: frontend v2.9.0 to v2.9.2 (product 26.2.1)
+- *web-app-opentalk*: controller v0.34.1 to v0.34.5
+- *web-app-opentalk*: recorder v0.16.2 to v0.17.5
+- *web-app-opentalk*: LiveKit v1.13.7 to v1.13.10
+- *web-app-penpot*: 2.17.2 to 2.18.3
+- *web-app-pihole*: 2026.09.0 to 2026.10.0
+- *web-app-pixelfed*: 20260917 to 20261017
+- *web-app-pretix*: 2026.7.0 to 2026.8.0
+- *web-app-prometheus*: v3.14.0 to v3.15.0
+- *web-app-prometheus*: cAdvisor v0.52.1 to v0.55.1
+- *web-app-prometheus*: blackbox exporter v0.28.0 to v0.29.0
+- *web-app-semaphore*: v2.19.14 to v2.19.16
+- *web-app-socialhome*: 2026.10.2 to 2026.10.17
+- *web-app-stalwart*: v0.16.24 to v0.16.26, web UI v1.0.5 to v1.0.11
+- *web-app-suitecrm*: 8.9.1 to 8.10.2
+- *web-app-taiga*: gateway 1.31.6-alpine to 1.31.7-alpine
+- *web-app-wordpress*: 7.1.0 to 7.1.3, MCP adapter v0.5.0 to v0.7.1
+- *web-app-xwiki*: OIDC authenticator 2.19.6 to 2.29.0
+- *web-app-xwiki*: LDAP authenticator 9.15.7 to 9.16.6
+- *web-app-xwiki*: AI LLM 0.7 to 0.10
+- *web-app-zammad*: Elasticsearch 8.13.4 to 9.5.5
+- *web-svc-collabora*: 26.04.2.1.1 to 26.04.5.1.1
+- *web-svc-coturn*: gateway 1.31.6-alpine to 1.31.7-alpine
+- *web-svc-logout*: v1.4.1 to v1.4.2
+- *web-svc-onlyoffice*: 9.4.0 to 10.0.0
+- *backup-docker-to-local* (*baudolo*): 7.0.2 to 7.1.1
+- *community.general*: 13.4.0 to 13.5.0
+- *community.docker*: 5.3.0 to 5.4.0
+- *hetzner.hcloud*: 7.1.0 to 7.2.0
+- *ruff* (dev): 0.16.9 to 0.17.0
+- *@playwright/test* (dev): ^1.63.0 to ^1.64.0
+- *eslint* (dev): ^10.9.1 to ^10.12.0
+- *eslint-plugin-playwright* (dev): ^2.10.5 to ^2.12.1
+- *globals* (dev): ^17.12.0 to ^17.13.0
+- *stylelint* (dev): ^17.15.0 to ^17.16.0
+
+Fixed:
+
+- Zammad: init waits for search in swarm; disk watermarks fit the disk
+- Zammad: the deploy stops when Elasticsearch allocates no shard
+- Nextcloud: OnlyOffice server URL is written last and checked in time
+- Nextcloud: Talk server lists are written as typed arrays
+- Keycloak: concurrent *kcadm* jobs no longer lose the config lock
+- SuiteCRM: sessions live in Redis so replicas share them
+- SuiteCRM: external auth provisioning can create its user
+- n8n: SSO hook, MCP provisioning and API paging work under n8n 2
+- Stalwart: address bans expire; bots use app passwords under SSO
+- OpenProject: the migration probe no longer creates tables
+- Prometheus: probes are judged per target and reach apps on their vhosts
+- Collabora: the WOPI host follows Nextcloud's domain and TLS state
+- Odoo: the OAuth addon works on Odoo 20
+- Mobilizon: four migrations are patched for PostgreSQL 18
+- OpenBao: the LDAP auth method ships as an external plugin
+- Penpot: the frontend waits for its backend; its probe needs no curl
+- Pixelfed: the OIDC token exchange uses Tor on an onion issuer
+- Matrix: Synapse metrics are published in the ansible flavor
+- Matomo: the CSP allows the inline handler of the core top bar
+- Moodle: the code tree is replaced only after a complete copy
+- XWiki: an add-on off its pinned version is upgraded
+- Bridgy Fed: builds on Python 3.14 until cbor2 supports 3.15
+- Tor: the onion apex no longer redirects to a clearnet homepage
+- Health: the CSP crawler follows redirects to this node
+- Health: the journal check reads long messages, skips container logs
+- Services: a stale unit result no longer fails a deploy
+- Cache: the applications carrier stays valid across nested app loads
+- Docker: the installed apt key is kept when its refresh is refused
+- Mail: a connection dropped before the greeting is retried
+- Admin: */usr/local/bin* stays on the administrator's sudo path
+- User: the login banner stays off non-interactive stdout
+- CI: a change under *tests/* no longer deploys every role
+- CI: workspace and runner images are pulled through the GHCR mirror
+
+Upgrade notes:
+
+- Moodle: [web-installed plugins](roles/web-app-moodle/README.md#updates) are not carried to 5.3
+- Zammad: Elasticsearch 9 rebuilds the search index on the first deploy
+
+Contributors:
+
+- [Evangelos Tsakoudis](https://evangelostsak.com): WireGuard role and meshes
+- [Kevin Veen-Birkenbach](https://veen.world): app fixes, version sources, CI
+- [Prageeth Panicker](https://github.com/pragepani): the journal check fix
+
 ## [15.0.0] - 2026-10-03
 
 **Breaking Changes**
 
-* **Stalwart replaces Mailu as the default mail provider.** *MAIL_PROVIDER* now defaults to
+- **Stalwart replaces Mailu as the default mail provider.** *MAIL_PROVIDER* now defaults to
   *web-app-stalwart*, and every application switches its mail settings on only while the
   configured provider is deployed. An inventory that keeps Mailu must set
   *MAIL_PROVIDER: web-app-mailu*, otherwise its applications stop sending mail. Mailu is now
@@ -15,7 +342,7 @@
   folders, flags and dates, and re-runs skip what is already there. See
   [web-app-stalwart](roles/web-app-stalwart/README.md).
 
-* **PostgreSQL 18 on the official image.** PGDG archived the Debian 11 repository that the
+- **PostgreSQL 18 on the official image.** PGDG archived the Debian 11 repository that the
   old *postgis/postgis:17-3.5* base installed from, so every build of the shared database
   image failed. *svc-db-postgres* and the per-application database now run the official
   multi-arch *postgres:18* image, and the data volume mounts at */var/lib/postgresql*.
@@ -23,14 +350,14 @@
   this release and restore it into the new cluster afterwards. PostGIS is installed only for
   a role that declares it.
 
-* **Major versions arrive with the image updates.** MariaDB moves from 12.3 to 13.0 and
+- **Major versions arrive with the image updates.** MariaDB moves from 12.3 to 13.0 and
   upgrades its system tables on start. Odoo moves from 19.0 to 20.0 and does not migrate an
   existing database across major versions on its own, so back up Odoo before you deploy.
   XWiki moves from 17.10 to 18.8, and the OpenLDAP base from Debian 12 to 13.
 
 **For Users**
 
-* **Stalwart mail server.** The new *web-app-stalwart* role runs SMTP, submission, IMAP,
+- **Stalwart mail server.** The new *web-app-stalwart* role runs SMTP, submission, IMAP,
   POP3, JMAP, ManageSieve, CalDAV, CardDAV and WebDAV in one server, with spam filtering,
   DKIM and DMARC signing and a web admin interface, plus Roundcube webmail and a ClamAV scan
   of incoming mail. Domains, accounts, TLS, Keycloak sign-in, DKIM keys and DNS records are
@@ -39,23 +366,23 @@
   Stalwart without single sign-on for the life of the process, and the server wrote no logs
   at all. Both are fixed. See [web-app-stalwart](roles/web-app-stalwart/README.md).
 
-* **Mail to and from onion addresses.** The new *svc-net-tor-smtp* role accepts mail for
+- **Mail to and from onion addresses.** The new *svc-net-tor-smtp* role accepts mail for
   *.onion* recipients and delivers it over Tor. The applications reach an onion mail
   provider too: 27 roles now resolve the provider's onion host inside their containers and
   skip STARTTLS towards it, since no certificate can exist for an onion name and Tor already
   encrypts the link. GitLab's test suite checks that a password reset mail actually arrives.
 
-* **GitLab migrations no longer run out of locks.** GitLab's database migration failed on
+- **GitLab migrations no longer run out of locks.** GitLab's database migration failed on
   PostgreSQL 18 with "out of shared memory". The shared and the per-application PostgreSQL
   now allow 256 locks per transaction.
 
-* **Backups survive a file truncated mid-copy.** *baudolo* 7.0.2 lets the stopped checksum
+- **Backups survive a file truncated mid-copy.** *baudolo* 7.0.2 lets the stopped checksum
   copy replace a live pre-copy that a writing container broke by truncating files under
   rsync, which used to abort the backup.
 
 **For Developers**
 
-* **The mail provider is a service, not a role name.** Stalwart declares *provides: email*
+- **The mail provider is a service, not a role name.** Stalwart declares *provides: email*
   and Mailu *covers: [email]*. The new *mail_provider* lookup returns the configured provider
   while it is deployed, otherwise the first deployed role offering *email*, and reads the
   cluster-wide groups so swarm workers agree with the manager. The port-collision lint
@@ -63,19 +390,19 @@
   lint fails every role that reads the *email* lookup without emitting
   *container_extra_hosts*.
 
-* **Deprecated roles are untested.** A role in the *deprecated* lifecycle stage is no longer
+- **Deprecated roles are untested.** A role in the *deprecated* lifecycle stage is no longer
   deployed or tested by CI and cannot block a release, so Stalwart stopped pulling Mailu into
   its deploy round. The allowed lifecycle values now have one source, the stage list in
   [lifecycle.md](docs/contributing/design/role/services/lifecycle.md).
 
-* **Release pushes on main.** A push to *main* whose head commit starts with
+- **Release pushes on main.** A push to *main* whose head commit starts with
   *Release version* cancels the running *main* pipeline, so the release starts at once. A
   release-tagged commit deploys every chunk instead of stopping at the first failed one, and
   still ends red when any chunk fails, which keeps a broken release from being published. A
   new integration test requires every release tag from v13.0.0 on to sit on that subject,
   and the test job now checks out the full history with tags.
 
-* **Cancelling CI runs.** Pull request runs fail fast: the first failed row cancels its
+- **Cancelling CI runs.** Pull request runs fail fast: the first failed row cancels its
   siblings in the deploy and workspace matrices, while push and manual runs keep every row.
   Identical deploy rows from different runs queue behind each other again, keyed on every
   matrix axis. A cancel now also stops jobs that used to run after a failure:
@@ -83,61 +410,61 @@
   *report-main-failures* still report a cancelled run. CodeRabbit reviews draft pull
   requests too.
 
-* **Onion port probe runs everywhere.** A role with more than one onion-forwarded port wrote
+- **Onion port probe runs everywhere.** A role with more than one onion-forwarded port wrote
   an unquoted port list into *test.env*, so sourcing it left the list empty and the probe
   passed without checking anything. The list is quoted now, and a unit test sources the
   rendered file in compose and swarm mode.
 
-* **Agent sandbox.** *git commit --amend* is denied, the host's credential files stay
+- **Agent sandbox.** *git commit --amend* is denied, the host's credential files stay
   unreadable inside the sandbox, sandboxed commands may reach local services on 127.0.0.1
   to 127.0.0.12 and localhost, and third-party plugins are no longer switched on for every
   contributor.
 
-* **Ansible collections from Git first.** The automated retune made Git the preferred
+- **Ansible collections from Git first.** The automated retune made Git the preferred
   source for Ansible collections, with Galaxy as the fallback, after Galaxy's median install
   time reached three times Git's.
 
-* Image and dependency version jumps (net since 14.2.0):
-  * *svc-db-postgres*: postgis/postgis 17-3.5 to postgres 18
-  * *svc-db-mariadb*: 12.3 to 13.0
-  * *svc-db-redis*: 8.10.1-alpine to 8.10.2-alpine
-  * *svc-db-openldap* (Debian base): 12.15-slim to 13.7-slim
-  * *svc-ai-ollama*: 0.34.2 to 0.35.0
-  * *svc-runner* (BuildKit): v0.33.0 to v0.33.1
-  * *svc-net-tor-smtp*: newly on python 3.14-slim
-  * *web-app-stalwart*: newly pinned to Stalwart v0.16.24, Roundcube 1.7.4-apache, ClamAV
+- Image and dependency version jumps (net since 14.2.0):
+  - *svc-db-postgres*: postgis/postgis 17-3.5 to postgres 18
+  - *svc-db-mariadb*: 12.3 to 13.0
+  - *svc-db-redis*: 8.10.1-alpine to 8.10.2-alpine
+  - *svc-db-openldap* (Debian base): 12.15-slim to 13.7-slim
+  - *svc-ai-ollama*: 0.34.2 to 0.35.0
+  - *svc-runner* (BuildKit): v0.33.0 to v0.33.1
+  - *svc-net-tor-smtp*: newly on python 3.14-slim
+  - *web-app-stalwart*: newly pinned to Stalwart v0.16.24, Roundcube 1.7.4-apache, ClamAV
     1.5.4 and postgres 18
-  * *web-app-dashboard* (port-ui): 2.1.3 to 2.2.2
-  * *web-app-erpnext*: v16.35.0 to v16.37.0
-  * *web-app-espocrm*: 10.0.8 to 10.0.9
-  * *web-app-gitlab*: v19.3.2 to v19.4.1 (all six CNG component images)
-  * *web-app-joomla*: 6.1.3-php8.3-apache to 6.1.4-php8.3-apache
-  * *web-app-keycloak*: 26.7.4 to 26.8.0, oauth2-proxy v7.15.4 to v7.15.5
-  * *web-app-magento*: OpenSearch 3.8.0 to 3.9.0
-  * *web-app-matomo*: 5.13.0 to 5.14.0
-  * *web-app-matrix*: Synapse v1.160.0 to v1.162.0, Element v1.12.28 to v1.12.30
-  * *web-app-odoo*: 19.0 to 20.0
-  * *web-app-peertube*: v8.3.0 to v8.3.1
-  * *web-app-seaweedfs*: 4.46 to 4.48
-  * *web-app-shopware*: OpenSearch 3.8.0 to 3.9.0
-  * *web-app-snipe-it*: v8.7.2-alpine to v8.8.0-alpine
-  * *web-app-socialhome*: 2026.9.18 to 2026.10.2
-  * *web-app-xwiki*: 17.10.13 to 18.8.0
-  * *web-app-bluesky* (view): 1.132.0 to 1.134.0
-  * *web-app-discourse*: v2026.8.0 to v2026.9.0
-  * *web-svc-logout*: universal-logout v1.3.1 to v1.4.1
-  * *web-svc-xmpp*: 26.07 to 26.09
-  * *pkgmgr*: v1.16.1 to v2.0.2
-  * *backup-docker-to-local* (*baudolo*): 7.0.1 to 7.0.2
-  * *ruff* (dev): 0.16.7 to 0.16.9
-  * *brace-expansion* (dev): ^5.0.9 to ^5.0.12
+  - *web-app-dashboard* (port-ui): 2.1.3 to 2.2.2
+  - *web-app-erpnext*: v16.35.0 to v16.37.0
+  - *web-app-espocrm*: 10.0.8 to 10.0.9
+  - *web-app-gitlab*: v19.3.2 to v19.4.1 (all six CNG component images)
+  - *web-app-joomla*: 6.1.3-php8.3-apache to 6.1.4-php8.3-apache
+  - *web-app-keycloak*: 26.7.4 to 26.8.0, oauth2-proxy v7.15.4 to v7.15.5
+  - *web-app-magento*: OpenSearch 3.8.0 to 3.9.0
+  - *web-app-matomo*: 5.13.0 to 5.14.0
+  - *web-app-matrix*: Synapse v1.160.0 to v1.162.0, Element v1.12.28 to v1.12.30
+  - *web-app-odoo*: 19.0 to 20.0
+  - *web-app-peertube*: v8.3.0 to v8.3.1
+  - *web-app-seaweedfs*: 4.46 to 4.48
+  - *web-app-shopware*: OpenSearch 3.8.0 to 3.9.0
+  - *web-app-snipe-it*: v8.7.2-alpine to v8.8.0-alpine
+  - *web-app-socialhome*: 2026.9.18 to 2026.10.2
+  - *web-app-xwiki*: 17.10.13 to 18.8.0
+  - *web-app-bluesky* (view): 1.132.0 to 1.134.0
+  - *web-app-discourse*: v2026.8.0 to v2026.9.0
+  - *web-svc-logout*: universal-logout v1.3.1 to v1.4.1
+  - *web-svc-xmpp*: 26.07 to 26.09
+  - *pkgmgr*: v1.16.1 to v2.0.2
+  - *backup-docker-to-local* (*baudolo*): 7.0.1 to 7.0.2
+  - *ruff* (dev): 0.16.7 to 0.16.9
+  - *brace-expansion* (dev): ^5.0.9 to ^5.0.12
 
 **Contributors**
 
-* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): Stalwart as the default
+- [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): Stalwart as the default
   mail provider in compose and swarm mode, the Tor SMTP gateway, onion mail delivery for
   every mail-sending role, the Mailu import and the provider resolution
-* [Kevin Veen-Birkenbach](https://veen.world): PostgreSQL 18, release-aware CI cancellation
+- [Kevin Veen-Birkenbach](https://veen.world): PostgreSQL 18, release-aware CI cancellation
   and chunk gating, the release tag test, the Mailu deprecation and the untested deprecated
   stage, the agent sandbox policy, review and version maintenance
 
@@ -145,7 +472,7 @@
 
 **For Users**
 
-* **Secrets management with OpenBao.** The new *web-app-openbao* role deploys OpenBao at
+- **Secrets management with OpenBao.** The new *web-app-openbao* role deploys OpenBao at
   *openbao.<domain>*. It stores application credentials, API keys and machine identities.
   People sign in through Keycloak, or through LDAP when OpenLDAP is deployed. Their
   *administrator*, *operator* or *reader* group decides what they can reach, and signing in
@@ -158,45 +485,45 @@
   the store cannot be read without it, so back up the inventory together with the volume.
   See [web-app-openbao](roles/web-app-openbao/README.md).
 
-* **LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy
+- **LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy
   blocked the inline script that checks on LAM's background jobs, so these tools stayed
   "in progress" forever. That script is allowed again.
 
-* **Swarm deploys no longer abort on a network that already exists.** Some networks are
+- **Swarm deploys no longer abort on a network that already exists.** Some networks are
   created before their application's stack, as Prometheus does for every application it
   scrapes. Those networks now carry the stack label, so the application's own deploy uses
   the existing network instead of failing with "network with name <entity> already exists".
 
 **For Developers**
 
-* **Alert rules live in the role that owns the metric.** A role ships its Prometheus rules
+- **Alert rules live in the role that owns the metric.** A role ships its Prometheus rules
   in *templates/prometheus/alert_rules.yml.j2*. The new *alert_rule_roles* lookup includes
   them only for roles that Prometheus actually scrapes, so a rules file needs no activation
   check of its own. It must start at the *groups:* item level. OpenBao's seal alert is the
   first rule to use it.
 
-* **Video for hand-built Playwright contexts.** A context created with
+- **Video for hand-built Playwright contexts.** A context created with
   *browser.newContext()* ignored the project's video setting, so its artefact had a trace
   but no video. Spread *recordVideoOptions(testInfo)* from *personas/utils/env.js* into the
   context options to record one.
 
-* Image and dependency version jumps (net since 14.1.0):
-  * *web-app-pgadmin*: 9.17 to 9.18
+- Image and dependency version jumps (net since 14.1.0):
+  - *web-app-pgadmin*: 9.17 to 9.18
 
 **Contributors**
 
-* [Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal,
+- [Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal,
   credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert
   rules, and the LAM and swarm network fixes that work uncovered
-* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for
+- [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for
   hand-built Playwright contexts
-* [Kevin Veen-Birkenbach](https://veen.world): review and version maintenance
+- [Kevin Veen-Birkenbach](https://veen.world): review and version maintenance
 
 ## [14.1.0] - 2026-09-21
 
 **For Users**
 
-* **Local models reach the gateway again.** Upstream re-pushed the *svc-ai-lmstudio* CPU
+- **Local models reach the gateway again.** Upstream re-pushed the *svc-ai-lmstudio* CPU
   image with a server that listens on loopback only, so the role stayed green while litellm
   could not connect and the AI features of Mattermost, Matrix, xWiki, Moodle and Zammad
   failed their warm-up. The server binds the container network again and stays unpublished.
@@ -207,7 +534,7 @@
 
 **For Developers**
 
-* **CI deploys only the variants a change reaches.** An image bump in a provider no longer
+- **CI deploys only the variants a change reaches.** An image bump in a provider no longer
   redeploys the variants of its consumers that switch that provider off. The diff-derived
   whitelist, used by the weekly update PRs, Dependabot and every other diff-driven run,
   narrows each affected role to the variants whose round closure still reaches a changed
@@ -216,37 +543,37 @@
   not return now warns instead of aborting the run; role names are still checked against
   *roles/* before the run starts.
 
-* **One instruction file for every agent.** *AGENTS.md* now holds every agent rule, and
+- **One instruction file for every agent.** *AGENTS.md* now holds every agent rule, and
   *CLAUDE.md* and *GEMINI.md* are gone. The rules they carried bind every runtime anyway,
   and the PR templates, scope tables, requirement documents and docs that named the old
   files now name *AGENTS.md*.
 
-* Image and dependency version jumps (net since 14.0.0):
-  * *svc-ai-ollama*: 0.34.0 to 0.34.2
-  * *svc-net-tor* (Debian base): 13.6-slim to 13.7-slim
-  * *web-app-baserow*: 2.3.3 to 2.3.4
-  * *web-app-erpnext*: v16.34.2 to v16.35.0
-  * *web-app-funkwhale* (front, api): 2.0.10 to 2.0.11
-  * *web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031
-  * *web-app-keycloak*: 26.7.3 to 26.7.4
-  * *web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7
-  * *web-app-opentalk* (RabbitMQ): 4.3.5 to 4.3.6
-  * *web-app-peertube*: v8.2.4 to v8.3.0
-  * *web-app-pihole*: 2026.07.2 to 2026.09.0
-  * *web-app-prometheus* (Alertmanager): v0.34.0 to v0.34.1
-  * Ansible collection *hetzner.hcloud*: 7.0.1 to 7.1.0
-  * *ruff* (dev): 0.16.6 to 0.16.7
+- Image and dependency version jumps (net since 14.0.0):
+  - *svc-ai-ollama*: 0.34.0 to 0.34.2
+  - *svc-net-tor* (Debian base): 13.6-slim to 13.7-slim
+  - *web-app-baserow*: 2.3.3 to 2.3.4
+  - *web-app-erpnext*: v16.34.2 to v16.35.0
+  - *web-app-funkwhale* (front, api): 2.0.10 to 2.0.11
+  - *web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031
+  - *web-app-keycloak*: 26.7.3 to 26.7.4
+  - *web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7
+  - *web-app-opentalk* (RabbitMQ): 4.3.5 to 4.3.6
+  - *web-app-peertube*: v8.2.4 to v8.3.0
+  - *web-app-pihole*: 2026.07.2 to 2026.09.0
+  - *web-app-prometheus* (Alertmanager): v0.34.0 to v0.34.1
+  - Ansible collection *hetzner.hcloud*: 7.0.1 to 7.1.0
+  - *ruff* (dev): 0.16.6 to 0.16.7
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): LM Studio reachability and startup,
+- [Kevin Veen-Birkenbach](https://veen.world): LM Studio reachability and startup,
   variant-narrowed CI selection, the single agent instruction file, and version maintenance
 
 ## [14.0.0] - 2026-09-19
 
 **For Users**
 
-* **AI assistance inside the applications you already run.** A gateway role,
+- **AI assistance inside the applications you already run.** A gateway role,
   *svc-ai-litellm*, fronts OpenAI, Anthropic and OpenRouter from declared keys, with
   *svc-ai-ollama* and the new *svc-ai-lmstudio* serving local models from one shared
   catalogue, so inference can stay inside the deployment. Sixteen applications use it for
@@ -257,7 +584,7 @@
   [svc-ai-litellm](roles/svc-ai-litellm/README.md) and
   [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md).
 
-* **Your tools reachable from your assistants.** About twenty applications now speak MCP.
+- **Your tools reachable from your assistants.** About twenty applications now speak MCP.
   Gitea, GitLab, Mattermost, Nextcloud, n8n, Baserow, Jenkins, Home Assistant, Moodle,
   Snipe-IT and WordPress serve their own endpoints; ten more get one through a locked-down
   sidecar. Open WebUI, Flowise and the agents discover what the deployment offers and
@@ -266,7 +593,7 @@
   reader and writer roles are separate, and each provider authenticates callers as its own
   service account. See [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md).
 
-* **Agents as employees, with a kernel between them and the host.** *web-app-hermes* and
+- **Agents as employees, with a kernel between them and the host.** *web-app-hermes* and
   *web-app-openclaw* deploy agents behind the single sign-on gate, wired to the gateway's
   models and to the MCP servers discovery hands them, each proving on deploy that it can
   actually reach them. *svc-virt-kata* runs that tier under a kernel-isolating container
@@ -276,11 +603,11 @@
   [web-app-openclaw](roles/web-app-openclaw/README.md) and
   [svc-virt-kata](roles/svc-virt-kata/README.md).
 
-* **Home automation joins the platform.** *web-app-homeassistant* deploys the automation
+- **Home automation joins the platform.** *web-app-homeassistant* deploys the automation
   hub, exposes it as an MCP server so agents can drive it, persists the token it mints, and
   is reachable over tor. See [web-app-homeassistant](roles/web-app-homeassistant/README.md).
 
-* **Changing a password changes it everywhere.** A user declares how its password must be
+- **Changing a password changes it everywhere.** A user declares how its password must be
   generated, the inventory pins one for every declared user, a new generator produces
   API-key shapes, the deploy rotates credentials between its two passes, and a reset command
   exists. Applications that persist an administrator password at install now realign it when
@@ -288,7 +615,7 @@
   Checkmk, xWiki, n8n, Matrix and the dedicated MariaDB and Postgres engines. Checkmk keeps
   a 401 fatal so a wrong password cannot lock the account out.
 
-* **Onions, firewall and name resolution.** *svc-net-firewall* owns the packet filter as one
+- **Onions, firewall and name resolution.** *svc-net-firewall* owns the packet filter as one
   nftables table per role. Tor carries mail to a .onion in both deploy modes, rejects forged
   sources on the guarded ports, and binds its dnsmasq listeners statically so a failed
   re-enumeration can no longer drop every one of them. The deployment declares its own
@@ -297,7 +624,7 @@
   requires an explicit onion decision. See
   [svc-net-firewall](roles/svc-net-firewall/README.md).
 
-* **Application fixes you will notice.** Nextcloud installs an OnlyOffice release upstream
+- **Application fixes you will notice.** Nextcloud installs an OnlyOffice release upstream
   actually published, keeps social login working over tor, and makes its OIDC account an
   administrator. Element shows invites again through the new room list. Moodle survives the
   container roll during installation. Mattermost keeps its configuration in Postgres instead
@@ -307,7 +634,7 @@
   allowed-origins claim out of the access token, and no longer caches LDAP federation past a
   fresh grant. The platform's own health mail no longer eats the sender quota.
 
-* **Operating a deployment.** New make targets reach a single deployed application:
+- **Operating a deployment.** New make targets reach a single deployed application:
   *compose-app-exec*, *compose-app-logs* and *compose-app-restart*. Diagnostics collect the
   logs an application writes to a file, including from busybox containers. Health probes use
   a fast start cadence with a window that outlasts a real boot, so a slow starter is no
@@ -316,7 +643,7 @@
 
 **For Developers**
 
-* **MCP is declared, not wired.** A role states an *mcp* block in *meta/services.yml*, and
+- **MCP is declared, not wired.** A role states an *mcp* block in *meta/services.yml*, and
   the vocabulary, discovery and rendering layer derives endpoints, clients, credentials and
   network edges from it. A client-provider pairing is declared once, on the provider;
   *sys-svc-mcp-reconcile* converges clients from the complete provider set; a refused pairing
@@ -326,14 +653,14 @@
   its delegation rules and a machine-checkable audit live under
   [docs/contributing/design/role/services/mcp.md](docs/contributing/design/role/services/mcp.md).
 
-* **Registry and variant changes.** A variant can dictate the configuration of the providers
+- **Registry and variant changes.** A variant can dictate the configuration of the providers
   it pulls in, and an MCP round decides for itself what it carries, which is the breaking
   change in this release. Fifteen moving pins gained names the registry can order, every MCP
   provider is registered as a shared service, *meta/schema.yml* finished its rename to
   *meta/secrets.yml*, role scripts are sorted into per-language folders, and *meta/addons* is
   now an accepted declaration site for pins and plugins.
 
-* **Lints that fail closed.** Five properties that used to pass silently now fail. The PHP
+- **Lints that fail closed.** Five properties that used to pass silently now fail. The PHP
   and Ruby that roles ship are syntax-checked, and so are shell scripts that ship as Jinja
   templates. *sys-service* owns every systemd unit a role installs. Healthcheck timings are
   judged against what the base image was measured to hold, a variable-free healthcheck
@@ -342,7 +669,7 @@
   declared non-secret, *no_log* is required on every task carrying one and forbidden in the
   test roles, and a JavaScript default for an unset environment variable is rejected.
 
-* **Pins that cannot age unnoticed.** Image pins are classified and pull references built
+- **Pins that cannot age unnoticed.** Image pins are classified and pull references built
   from the class, a moving tag declares itself with the marker it already carries, and a
   role's images move as one release or not at all. The updater reads addon declarations,
   orders vendor patch counters and five-component versions, reads a release line written
@@ -351,7 +678,7 @@
   mirror list with failover, a short timeout and a health test serves both the package cache
   and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh.
 
-* **CI selects, resumes and proves.** A fourth deploy chunk stops a short priority chunk
+- **CI selects, resumes and proves.** A fourth deploy chunk stops a short priority chunk
   stranding budget, a manual run can set the chunk size the formula would derive, and a
   retrigger can override the chunk gate. Retriggering works by role and by what never got a
   verdict, resumes behind the green window rather than the deployed one, retires suites the
@@ -360,7 +687,7 @@
   *services.yml* declares. Distro images build concurrently on one runner, the matrix job
   folds into the image job, and the deploy chunks no longer wait on the DNS test.
 
-* **Swarm, measured rather than assumed.** The deploy waits for its own update instead of
+- **Swarm, measured rather than assumed.** The deploy waits for its own update instead of
   guessing after it, refuses to call a stack converged while it is still updating, survives a
   task that failed and came back, reports what converged rather than only what did not, and
   says why the convergence probe refused. Placement is constrained to a role's declared
@@ -370,14 +697,14 @@
   kata-capable only when the app is sandboxed, NFS detaches before the node containers die,
   and the sandbox tier gets a second node.
 
-* **Faster gates.** Per-host setup runs once per host instead of once per application, a
+- **Faster gates.** Per-host setup runs once per host instead of once per application, a
   role's volumes are answered from its own file instead of a whole-tree build, the Keycloak
   RBAC root group resolves once rather than once per app, the Playwright fixture copy the
   tree copy already made is dropped, logout helpers wait for a control instead of sleeping,
   and the OIDC login helper stops waiting out probes that cannot match. Onion timeouts scale
   by tor flavor instead of a flat multiplier, and every Playwright timeout has one source.
 
-* **Documentation and agent instructions.** Six new requirement documents cover the LLM
+- **Documentation and agent instructions.** Six new requirement documents cover the LLM
   gateway and model backends, agent employees, Home Assistant, the robot role, the MCP proxy
   expansion and native AI gateway integration. The MCP design docs are nested under their own
   folder with an audit the lints can check. The role README template asks the reader for a
@@ -385,40 +712,40 @@
   dash. Documentation generators are gathered under *cli/build/docs*, and a new CLI edits role
   bonds in a matrix instead of hunting through files.
 
-* Image and dependency version jumps (net since 13.0.0):
-  * *svc-ai-ollama*: 0.32.15 to 0.34.0
-  * *svc-db-elasticsearch*: 9.5.2 to 9.5.3
-  * *svc-db-qdrant*: v1.19.0 to v1.19.1
-  * *sys-ctl-hlth-csp* (csp-checker): 2.2.1 to 3.0.4
-  * *sys-lint* (shfmt): v3.13.1 to v3.14.1
-  * *test-e2e-playwright*: v1.62.1-noble to v1.63.0-noble
-  * *web-app-bluesky* (view): 1.131.1 to 1.132.0
-  * *web-app-bookwyrm*: v0.9.2 to v0.9.3
-  * *web-app-confluence*: 10.2.15 to 10.2.18
-  * *web-app-dashboard*: 2.0.0 to 2.1.3
-  * *web-app-erpnext*: v16.32.3 to v16.34.2
-  * *web-app-espocrm*: 10.0.6 to 10.0.8
-  * *web-app-funkwhale*: 2.0.9 to 2.0.10
-  * *web-app-gitea*: 1.27.2 to 1.27.3
-  * *web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2
-  * *web-app-jira*: 11.3.10 to 11.3.11
-  * *web-app-keycloak*: 26.7.2 to 26.7.3
-  * *web-app-matrix* (Synapse): v1.159.0 to v1.160.0
-  * *web-app-matrix* (Element): v1.12.26 to v1.12.28
-  * *web-app-mattermost*: 11.10.1 to 11.11.0
-  * *web-app-n8n*: 1.95.3 to 1.100.1
-  * *web-app-nextcloud* (proxy): 1.31.3-alpine to 1.31.5-alpine
-  * *web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6
-  * *web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5
-  * *web-app-penpot* (frontend, backend, exporter): 2.17.1 to 2.17.2
-  * *web-app-seaweedfs*: 4.44 to 4.46
-  * *web-app-semaphore*: v2.19.8 to v2.19.14
-  * *web-app-socialhome*: 2026.6.16 to 2026.9.18
-  * *web-app-yourls*: 1.10.4-apache to 1.10.6-apache
-  * *web-app-zammad*: 6.5.0 to 7.1.2
-  * *web-svc-coturn*: 4.17.2 to 4.18.0
+- Image and dependency version jumps (net since 13.0.0):
+  - *svc-ai-ollama*: 0.32.15 to 0.34.0
+  - *svc-db-elasticsearch*: 9.5.2 to 9.5.3
+  - *svc-db-qdrant*: v1.19.0 to v1.19.1
+  - *sys-ctl-hlth-csp* (csp-checker): 2.2.1 to 3.0.4
+  - *sys-lint* (shfmt): v3.13.1 to v3.14.1
+  - *test-e2e-playwright*: v1.62.1-noble to v1.63.0-noble
+  - *web-app-bluesky* (view): 1.131.1 to 1.132.0
+  - *web-app-bookwyrm*: v0.9.2 to v0.9.3
+  - *web-app-confluence*: 10.2.15 to 10.2.18
+  - *web-app-dashboard*: 2.0.0 to 2.1.3
+  - *web-app-erpnext*: v16.32.3 to v16.34.2
+  - *web-app-espocrm*: 10.0.6 to 10.0.8
+  - *web-app-funkwhale*: 2.0.9 to 2.0.10
+  - *web-app-gitea*: 1.27.2 to 1.27.3
+  - *web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2
+  - *web-app-jira*: 11.3.10 to 11.3.11
+  - *web-app-keycloak*: 26.7.2 to 26.7.3
+  - *web-app-matrix* (Synapse): v1.159.0 to v1.160.0
+  - *web-app-matrix* (Element): v1.12.26 to v1.12.28
+  - *web-app-mattermost*: 11.10.1 to 11.11.0
+  - *web-app-n8n*: 1.95.3 to 1.100.1
+  - *web-app-nextcloud* (proxy): 1.31.3-alpine to 1.31.5-alpine
+  - *web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6
+  - *web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5
+  - *web-app-penpot* (frontend, backend, exporter): 2.17.1 to 2.17.2
+  - *web-app-seaweedfs*: 4.44 to 4.46
+  - *web-app-semaphore*: v2.19.8 to v2.19.14
+  - *web-app-socialhome*: 2026.6.16 to 2026.9.18
+  - *web-app-yourls*: 1.10.4-apache to 1.10.6-apache
+  - *web-app-zammad*: 6.5.0 to 7.1.2
+  - *web-svc-coturn*: 4.17.2 to 4.18.0
 
-* Moving tags that now carry a release, one per role: *web-app-discourse* master to
+- Moving tags that now carry a release, one per role: *web-app-discourse* master to
   v2026.8.0, *web-app-jenkins* lts to 2.568.3-lts, *web-app-openwebui* main to 0.11.0,
   *web-app-pretix* stable to 2026.7.0, *web-app-xwiki* lts-postgres-tomcat to
   17.10.13-postgres-tomcat, *web-app-pixelfed* latest to 20260917, *web-app-matrix* (upstream
@@ -434,16 +761,16 @@
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): LLM gateway and model backends, the declared
+- [Kevin Veen-Birkenbach](https://veen.world): LLM gateway and model backends, the declared
   MCP layer and its sidecar, agent employees and the kernel-isolated tier, Home Assistant,
   credential declaration and rotation, firewall/tor/DNS ownership, variant-dictated provider
   configuration, the fail-closed lints, CI selection and resume, swarm convergence, and
   version maintenance
-* [Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored
+- [Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored
 
 ## [13.0.0] - 2026-08-26
 
-* **Tor as a first-class deployment axis.** The new *svc-net-tor* role routes onion
+- **Tor as a first-class deployment axis.** The new *svc-net-tor* role routes onion
   names through Tor via DNS instead of per-app proxies, offers a chutney flavor for
   private-net test deployments, and ties its dnsmasq listener to ownership rather than
   the deploy mode. Applications follow: server-side OIDC discovery and token exchange
@@ -454,7 +781,7 @@
   onion marker plus enforced and exclusive modes, and lint now requires the onion in
   every variant. See the [svc-net-tor](roles/svc-net-tor/README.md) README.
 
-* **Single sign-on across protocols and domains.** Keycloak imports a SAML client for
+- **Single sign-on across protocols and domains.** Keycloak imports a SAML client for
   every app that asks for one; SuiteCRM authenticates against it via SAML instead of a
   proxy, and Shopware provisions its admin through AdminOpenAuth with the front and
   back channel split. Sessions are shared across app domains, the issuer is pinned to
@@ -462,7 +789,7 @@
   the logout sweep runs where the visitor is looking. Directory users are read through
   one lookup so seeding cannot diverge.
 
-* **One CI chain instead of four workflows.** The deploy workflows collapse into a
+- **One CI chain instead of four workflows.** The deploy workflows collapse into a
   single chunk chain gated by one validation job, with every variant getting its own
   row and rotating distro, filesystem and tor axes. Selection tokens pin deploy axes,
   retriggers reproduce the exact selection of the source run in every mode, and the
@@ -471,14 +798,14 @@
   runs are force-cancelled, and a mid-run budget SIGKILL is counted as skipped rather
   than green. Apt call sites are bounded so a stalled mirror cannot burn a job budget.
 
-* **Restore verified against real dumps.** The *recover* CLI replays a generation's
+- **Restore verified against real dumps.** The *recover* CLI replays a generation's
   database and cluster dumps, reads the generation's own layout instead of guessing it,
   and places each dump by the engine the backup observed rather than by name alone. The
   *svc-bkp-volume-2-local* drill now empties every volume it claims to test, fails on a
   database that was never dumped, and stops the backup timers before it goes
   destructive. Baudolo is pinned per host, its contract read from baudolo itself.
 
-* **A probe for every container.** Health checks are composed from prefixes and are
+- **A probe for every container.** Health checks are composed from prefixes and are
   mandatory: every declared image either carries a probe or states why it cannot have
   one, enforced from both sides. Probes hit the port the container actually binds, no
   longer derive an HTTP Host from a kernel hostname, and are defined once instead of per
@@ -486,7 +813,7 @@
   resolver answers rather than just its socket, probe the daemon.json upstreams, and
   record the whole boot instead of the last 10 000 lines.
 
-* **Single points of truth, enforced by lint.** The new *sys-lint* role pins the
+- **Single points of truth, enforced by lint.** The new *sys-lint* role pins the
   GitHub-release lint tools. Every mount target has one spot in *meta/volumes.yml* and
   container paths are derived from it, *default.env* is the enforced source of the
   primary domain, *container_backup* is rejected where no volume exists, and role
@@ -494,103 +821,103 @@
   output, comments are checked in every file rather than only changed ones, and every
   shipped script requires a mirrored unit test.
 
-* **Tests in every language the project ships.** The quality gate parses each shipped
+- **Tests in every language the project ships.** The quality gate parses each shipped
   language and runs its unit suite; the PHP and Ruby interpreters are baked into the
   image, and the JavaScript, PHP and Ruby suites are reported in the CI summary
   alongside Python. Playwright stages the persona flows once per run and mounts them
   read-only, and the workspace environment suite splits into base, compose and swarm
   tracks.
 
-* **Swarm and proxy operation.** Convergence gates read one budget sized for a real
+- **Swarm and proxy operation.** Convergence gates read one budget sized for a real
   stack, print every task row when a stack fails to converge, and give up on a terminal
   task; the deployment mode a stack was deployed with is resolved instead of assumed.
   OpenResty reloads a vhost, lua or redirect config instead of redeploying the task.
   GitLab ships its config trees as swarm configs rather than host binds, and role
   templates expand through a lookup instead of inline Jinja.
 
-* **New and reshaped roles.** *sys-svc-nss* is split out of *sys-hostname*,
+- **New and reshaped roles.** *sys-svc-nss* is split out of *sys-hostname*,
   *web-svc-mirror* serves frontend assets as a privacy proxy, PeerTube becomes
   clearnet-only, and roles that could not run were deleted rather than repaired. CLI
   tools install via pip instead of pkgmgr.
 
-* **Image and dependency version jumps (net since 12.0.0):**
+- **Image and dependency version jumps (net since 12.0.0):**
 
   *Applications*
-  * *web-app-erpnext*: v16.26.2 to v16.32.3
-  * *web-app-gitlab*: v19.1.2 to v19.3.0 (all six CNG component images)
-  * *web-app-semaphore*: v2.18.25 to v2.19.8
-  * *web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3
-  * *web-app-shopware*: 6.7.8.2 to 6.7.13.0, OpenSearch 3.7.0 to 3.8.0
-  * *web-app-matomo*: 5.11.2 to 5.13.0
-  * *web-app-matrix*: Synapse v1.156.0 to v1.159.0, Element v1.12.23 to v1.12.26
-  * *web-app-mattermost*: 11.9.0 to 11.10.1
-  * *web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4
-  * *web-app-gitea*: 1.26.4 to 1.27.2
-  * *web-app-funkwhale*: 2.0.6 to 2.0.9 (api and front)
-  * *web-app-penpot*: 2.16.2 to 2.17.1 (frontend, backend, exporter)
-  * *web-app-espocrm*: 10.0.2 to 10.0.6
-  * *web-app-opencloud*: 7.2.1 to 7.2.4
-  * *web-app-seaweedfs*: 4.39 to 4.44
-  * *web-app-snipe-it*: v8.6.3-alpine to v8.7.2-alpine
-  * *web-app-wordpress*: 7.0.1 to 7.1.0
-  * *web-app-peertube*: v8.2.2 to v8.2.4
-  * *web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache
-  * *web-app-jira*: 11.3.8 to 11.3.10
-  * *web-app-confluence*: 10.2.14 to 10.2.15
-  * *web-app-baserow*: 2.3.1 to 2.3.3
-  * *web-app-flowise*: 3.1.3 to 3.1.4
-  * *web-app-mailu*: 1.5.3 to 1.5.4
-  * *web-app-pgadmin*: 9.16 to 9.17
-  * *web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to
+  - *web-app-erpnext*: v16.26.2 to v16.32.3
+  - *web-app-gitlab*: v19.1.2 to v19.3.0 (all six CNG component images)
+  - *web-app-semaphore*: v2.18.25 to v2.19.8
+  - *web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3
+  - *web-app-shopware*: 6.7.8.2 to 6.7.13.0, OpenSearch 3.7.0 to 3.8.0
+  - *web-app-matomo*: 5.11.2 to 5.13.0
+  - *web-app-matrix*: Synapse v1.156.0 to v1.159.0, Element v1.12.23 to v1.12.26
+  - *web-app-mattermost*: 11.9.0 to 11.10.1
+  - *web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4
+  - *web-app-gitea*: 1.26.4 to 1.27.2
+  - *web-app-funkwhale*: 2.0.6 to 2.0.9 (api and front)
+  - *web-app-penpot*: 2.16.2 to 2.17.1 (frontend, backend, exporter)
+  - *web-app-espocrm*: 10.0.2 to 10.0.6
+  - *web-app-opencloud*: 7.2.1 to 7.2.4
+  - *web-app-seaweedfs*: 4.39 to 4.44
+  - *web-app-snipe-it*: v8.6.3-alpine to v8.7.2-alpine
+  - *web-app-wordpress*: 7.0.1 to 7.1.0
+  - *web-app-peertube*: v8.2.2 to v8.2.4
+  - *web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache
+  - *web-app-jira*: 11.3.8 to 11.3.10
+  - *web-app-confluence*: 10.2.14 to 10.2.15
+  - *web-app-baserow*: 2.3.1 to 2.3.3
+  - *web-app-flowise*: 3.1.3 to 3.1.4
+  - *web-app-mailu*: 1.5.3 to 1.5.4
+  - *web-app-pgadmin*: 9.16 to 9.17
+  - *web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to
     v0.34.0, node-exporter v1.12.0 to v1.12.1
-  * *web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the
+  - *web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the
     frontend (v2.9.0), controller (v0.34.1) and recorder (v0.16.2) stay pinned until
     the set is released as a bundle and *recorder.toml* is migrated
-  * *web-app-magento*: OpenSearch 3.7.0 to 3.8.0; PHP held at 8.4-fpm and MariaDB at
+  - *web-app-magento*: OpenSearch 3.7.0 to 3.8.0; PHP held at 8.4-fpm and MariaDB at
     11.4, both deliberately fenced against the image bot
-  * *web-app-socialhome*: newly pinned to 2026.6.16
-  * *web-app-bluesky* and *web-app-bridgy-fed*: upstream git refs pinned to commits
+  - *web-app-socialhome*: newly pinned to 2026.6.16
+  - *web-app-bluesky* and *web-app-bridgy-fed*: upstream git refs pinned to commits
 
   *Services and infrastructure*
-  * *svc-ai-ollama*: 0.31.2 to 0.32.15
-  * *svc-db-elasticsearch*: 9.4.3 to 9.5.2
-  * *svc-db-qdrant*: v1.18.2 to v1.19.0
-  * *svc-runner*: Ubuntu 24.04 to 26.04
-  * *sys-ctl-hlth-csp*: 2.1.2 to 2.2.1
-  * *web-svc-coturn*: 4.14.0 to 4.17.2
-  * *web-svc-logout*: *latest* to universal-logout v1.3.1
-  * *web-svc-xmpp*: 26.04 to 26.07
-  * *test-e2e-playwright*: v1.61.1-noble to v1.62.1-noble
-  * *svc-net-tor*: newly on debian trixie-slim
-  * *svc-bkp-volume-2-local*: newly on alpine 3.24
+  - *svc-ai-ollama*: 0.31.2 to 0.32.15
+  - *svc-db-elasticsearch*: 9.4.3 to 9.5.2
+  - *svc-db-qdrant*: v1.18.2 to v1.19.0
+  - *svc-runner*: Ubuntu 24.04 to 26.04
+  - *sys-ctl-hlth-csp*: 2.1.2 to 2.2.1
+  - *web-svc-coturn*: 4.14.0 to 4.17.2
+  - *web-svc-logout*: *latest* to universal-logout v1.3.1
+  - *web-svc-xmpp*: 26.04 to 26.07
+  - *test-e2e-playwright*: v1.61.1-noble to v1.62.1-noble
+  - *svc-net-tor*: newly on debian trixie-slim
+  - *svc-bkp-volume-2-local*: newly on alpine 3.24
 
   *Toolchain and dependencies*
-  * *backup-docker-to-local* (*baudolo*): pinned to 7.0.1, via 6.0.0 and 7.0.0
-  * *ruff*: 0.16.0 to 0.16.4
-  * *@playwright/test*: ^1.61.1 to ^1.62.1
-  * *eslint*: ^10.6.0 to ^10.9.0, *globals*: ^17.7.0 to ^17.9.0
-  * *stylelint*: ^16.0.0 added
-  * *brace-expansion*: overridden to ^5.0.9, past three DoS advisories
-  * *keycloak-js*: 24.0.5 to 26.2.4, loaded as an ES module
-  * *bootstrap*: 5.3.3 to 5.3.8, *@fortawesome/fontawesome-free*: 6.5.1 to 7.3.1
-  * *roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12,
+  - *backup-docker-to-local* (*baudolo*): pinned to 7.0.1, via 6.0.0 and 7.0.0
+  - *ruff*: 0.16.0 to 0.16.4
+  - *@playwright/test*: ^1.61.1 to ^1.62.1
+  - *eslint*: ^10.6.0 to ^10.9.0, *globals*: ^17.7.0 to ^17.9.0
+  - *stylelint*: ^16.0.0 added
+  - *brace-expansion*: overridden to ^5.0.9, past three DoS advisories
+  - *keycloak-js*: 24.0.5 to 26.2.4, loaded as an ES module
+  - *bootstrap*: 5.3.3 to 5.3.8, *@fortawesome/fontawesome-free*: 6.5.1 to 7.3.1
+  - *roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12,
     hadolint v2.15.1, shfmt v3.13.1
 
 **Renamed**
 
-* Role credential declarations move from *meta/credentials.yml* to *meta/secrets.yml*,
+- Role credential declarations move from *meta/credentials.yml* to *meta/secrets.yml*,
   addressed at *secrets.credentials* like every other meta file.
-* The NSS half of *sys-hostname* becomes its own role, *sys-svc-nss*.
+- The NSS half of *sys-hostname* becomes its own role, *sys-svc-nss*.
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): Tor deployment axis, SAML and
+- [Kevin Veen-Birkenbach](https://veen.world): Tor deployment axis, SAML and
   cross-domain SSO, CI chunk chain, generation-level recovery, health-check and
   lint enforcement, multi-language test suites
 
 ## [12.0.0] - 2026-08-08
 
-* **Docker Swarm as a second deployment mode.** Roles can now be deployed across
+- **Docker Swarm as a second deployment mode.** Roles can now be deployed across
   multiple hosts instead of being limited to a single Compose stack. New
   *svc-swarm-node* initializes the cluster, while *svc-swarm-manager* marks the Raft
   managers in the inventory. Shared state is provided through
@@ -602,7 +929,7 @@
   [svc-swarm-node](roles/svc-swarm-node/README.md) and
   [svc-storage-nfs-server](roles/svc-storage-nfs-server/README.md) READMEs.
 
-* **Central engines and object storage.** A new *engine* lookup extends the existing
+- **Central engines and object storage.** A new *engine* lookup extends the existing
   shared-database pattern to non-RDBMS services. Consumers can use centrally
   provisioned Redis, Memcached, RabbitMQ, Elasticsearch, Typesense, Qdrant and Unbound
   instances with isolated credentials, or retain an embedded sidecar.
@@ -610,7 +937,7 @@
   SeaweedFS and MinIO, with lazy provider inclusion and object-storage integration
   across fourteen application roles.
 
-* **Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by
+- **Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by
   *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers
   filesystem snapshots when available and can prepare btrfs hosts for snapshot-based
   backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export,
@@ -620,19 +947,19 @@
   disaster-recovery drill continuously verify the path. Rsync no longer retains
   superseded files as *~* copies.
 
-* **Deployment and packaging foundations.** A host deployment mode joins Compose and
+- **Deployment and packaging foundations.** A host deployment mode joins Compose and
   Swarm in the deployment tooling. The former *sys-package*, *sys-aur* and
   *sys-aur-install* roles were replaced by a distribution-independent package
   registry. Volume metadata now uses one canonical schema, single-file mounts become
   Swarm configs, and service placement, replica counts, dependencies, addresses and
   health probes resolve through deployment-aware lookups.
 
-* **Isolated development worktrees.** Parallel branches can use independent stacks
+- **Isolated development worktrees.** Parallel branches can use independent stacks
   while sharing one cache layer, preventing containers and network state from
   colliding. New *swarm-app-exec*, *swarm-diagnostic*, zombie-cluster and cross-mode
   roundtrip targets improve live inspection and Compose/Swarm parity testing.
 
-* **CI and diagnostics.** Deployment runs are planned separately per mode and divided
+- **CI and diagnostics.** Deployment runs are planned separately per mode and divided
   into starred priority and regular lines, with branch-new roles scheduled first.
   Matrix entries serialize across branches, large lines serialize their deployment
   modes, and failed roles can be retriggered on the original distribution set;
@@ -647,13 +974,13 @@
   Docker's data-root filesystem so ext4, btrfs and ZFS-specific paths receive real
   coverage.
 
-* **Testing and documentation tooling.** New *test-e2e-cli* exercises the command-line
+- **Testing and documentation tooling.** New *test-e2e-cli* exercises the command-line
   interface end to end. Lint and test jobs publish per-target and per-test summaries,
   failed target logs are replayed after the summary, and the complexity matrix shows
   whether a role already exists on *origin/main*. Generated role READMEs now provide
   consistent status tables, quick-start instructions and dependency diagrams.
 
-* **New lint contracts.** Port variables must resolve through lookups, scheduler
+- **New lint contracts.** Port variables must resolve through lookups, scheduler
   services must declare *replicas: 1*, and volume-owning stack roles must declare
   their backup policy. *role_path* is forbidden in shell and command bodies.
   Deployment-mode defaults, container-inspection resolvers, asynchronous-task
@@ -661,13 +988,13 @@
   directives and documented *nocheck* exceptions are recognized instead of producing
   false positives.
 
-* **Image delivery and frontend dependencies.** Image references now resolve from
+- **Image delivery and frontend dependencies.** Image references now resolve from
   *meta/services.yml* as their single source of truth, replacing unpinned *latest*
   tags. *web-app-bigbluebutton* pins its component images separately. *web-svc-cdn*
   builds and serves mirrored frontend packages through an internal one-shot service,
   with the package-cache CA trusted by build containers.
 
-* **Application improvements.** Penpot gained hardened OIDC, LDAP and native-login
+- **Application improvements.** Penpot gained hardened OIDC, LDAP and native-login
   variants, SeaweedFS-backed asset tests and Swarm-ready health checks. Pi-hole
   received its v6-compatible login and password flow, Keycloak RBAC integration and
   expanded persona coverage. Further deployment, replication and startup fixes landed
@@ -675,294 +1002,294 @@
   Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semaphore, Taiga, WordPress,
   XWiki and the internal CDN.
 
-* **Lifecycle promotions:** *web-app-checkmk*, *web-app-jellyfin*, *web-app-n8n*,
+- **Lifecycle promotions:** *web-app-checkmk*, *web-app-jellyfin*, *web-app-n8n*,
   *svc-registry-docker* and *svc-registry-cache* advance to *beta*.
 
-* **Image and dependency version jumps (net since 11.6.0):**
-  * *web-app-gitlab*: omnibus *gitlab-ee* 19.1.1 to CNG component images v19.1.2
-  * *web-app-mattermost*: 11.8.3 to 11.9.0
-  * *web-app-opentalk*: v2.8.1 to v2.9.0
-  * *web-app-prometheus*: v3.13.0 to v3.13.1
-  * *web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache
-  * *web-app-baserow*: 2.3.0 to 2.3.1
-  * *web-app-magento*: PHP 8.5-fpm to 8.4-fpm
-  * *backup-docker-to-local*: 3.1.1 to 3.1.3
-  * *baudolo*: pinned to 3.4.1
+- **Image and dependency version jumps (net since 11.6.0):**
+  - *web-app-gitlab*: omnibus *gitlab-ee* 19.1.1 to CNG component images v19.1.2
+  - *web-app-mattermost*: 11.8.3 to 11.9.0
+  - *web-app-opentalk*: v2.8.1 to v2.9.0
+  - *web-app-prometheus*: v3.13.0 to v3.13.1
+  - *web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache
+  - *web-app-baserow*: 2.3.0 to 2.3.1
+  - *web-app-magento*: PHP 8.5-fpm to 8.4-fpm
+  - *backup-docker-to-local*: 3.1.1 to 3.1.3
+  - *baudolo*: pinned to 3.4.1
 
 **Removed**
 
-* *sys-package*, *sys-aur* and *sys-aur-install*, superseded by the
+- *sys-package*, *sys-aur* and *sys-aur-install*, superseded by the
   distribution-independent package registry.
-* *svc-bkp-container-2-local*, superseded by the volume-oriented backup roles.
+- *svc-bkp-container-2-local*, superseded by the volume-oriented backup roles.
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): Swarm and NFS deployment mode,
+- [Kevin Veen-Birkenbach](https://veen.world): Swarm and NFS deployment mode,
   central engines and object storage, backup and recovery rework, CI pipeline,
   linting and tooling
 
 ## [11.6.0] - 2026-07-08
 
-* New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md).
+- New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md).
 
-* CI fixes: resolved four CI failures across the *web-app-n8n*, *web-app-pihole* and *web-app-mastodon* roles.
+- CI fixes: resolved four CI failures across the *web-app-n8n*, *web-app-pihole* and *web-app-mastodon* roles.
 
-* Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*.
+- Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*.
 
-* Image and dependency version jumps (net since 11.5.0):
-  * *web-app-baserow*: 2.2.2 to 2.3.0
-  * *web-app-semaphore*: v2.18.16 to v2.18.21
-  * *web-app-pihole*: 2026.06.0 to 2026.07.2
-  * *web-app-seaweedfs*: 4.37 to 4.38
-  * *web-app-opencloud*: 7.2.0 to 7.2.1
-  * *web-app-mattermost*: 11.8.2 to 11.8.3
-  * *web-app-decidim*: 0.31.5 to 0.31.6
-  * *web-app-prometheus* (Alertmanager): v0.33.0 to v0.33.1
-  * *web-app-bluesky* (git ref): 1.126.0 to 1.127.0
+- Image and dependency version jumps (net since 11.5.0):
+  - *web-app-baserow*: 2.2.2 to 2.3.0
+  - *web-app-semaphore*: v2.18.16 to v2.18.21
+  - *web-app-pihole*: 2026.06.0 to 2026.07.2
+  - *web-app-seaweedfs*: 4.37 to 4.38
+  - *web-app-opencloud*: 7.2.0 to 7.2.1
+  - *web-app-mattermost*: 11.8.2 to 11.8.3
+  - *web-app-decidim*: 0.31.5 to 0.31.6
+  - *web-app-prometheus* (Alertmanager): v0.33.0 to v0.33.1
+  - *web-app-bluesky* (git ref): 1.126.0 to 1.127.0
 
 **Contributors**
 
-* [Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)
-* [Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance
+- [Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)
+- [Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance
 
 ## [11.5.0] - 2026-07-04
 
-* Three new web-app roles, each with SSO/LDAP wiring and per-scenario Playwright coverage:
-  * *web-app-semaphore*: Semaphore UI with OIDC SSO + LDAP. The break-glass admin is sourced from the users model, OIDC admin seeding is idempotent, and the OIDC callback strips a trailing base-URL slash. Shipped at lifecycle *beta*. See the [web-app-semaphore README](roles/web-app-semaphore/README.md).
-  * *web-app-checkmk*: Checkmk behind oauth2-proxy SSO with LDAP; the SSO variant injects a reachable logout control. See the [web-app-checkmk README](roles/web-app-checkmk/README.md).
-  * *web-app-jellyfin*: Jellyfin media server; LDAP and OIDC auth are modelled as *meta/addons* with per-addon integration hooks and specs. See the [web-app-jellyfin README](roles/web-app-jellyfin/README.md).
+- Three new web-app roles, each with SSO/LDAP wiring and per-scenario Playwright coverage:
+  - *web-app-semaphore*: Semaphore UI with OIDC SSO + LDAP. The break-glass admin is sourced from the users model, OIDC admin seeding is idempotent, and the OIDC callback strips a trailing base-URL slash. Shipped at lifecycle *beta*. See the [web-app-semaphore README](roles/web-app-semaphore/README.md).
+  - *web-app-checkmk*: Checkmk behind oauth2-proxy SSO with LDAP; the SSO variant injects a reachable logout control. See the [web-app-checkmk README](roles/web-app-checkmk/README.md).
+  - *web-app-jellyfin*: Jellyfin media server; LDAP and OIDC auth are modelled as *meta/addons* with per-addon integration hooks and specs. See the [web-app-jellyfin README](roles/web-app-jellyfin/README.md).
 
-* Users-model rework: the per-user *reserved* flag is replaced by an *accounts* list (*host*/*mailbox*/*identity*) with role-derived defaults, so inventory-only users keep their LDAP/Keycloak accounts. A new *forward* field makes Mailu create *username@domain* forward aliases via a new create-only alias task. Mailbox creation and password rotation now gate on *mailbox* in *accounts*, the Mailu RBAC role *mail-bot* is renamed *bot*, and *svc-db-openldap* always provisions the identity subset.
+- Users-model rework: the per-user *reserved* flag is replaced by an *accounts* list (*host*/*mailbox*/*identity*) with role-derived defaults, so inventory-only users keep their LDAP/Keycloak accounts. A new *forward* field makes Mailu create *username@domain* forward aliases via a new create-only alias task. Mailbox creation and password rotation now gate on *mailbox* in *accounts*, the Mailu RBAC role *mail-bot* is renamed *bot*, and *svc-db-openldap* always provisions the identity subset.
 
-* Fixes: *web-app-odoo* restarts after auth provisioning so workers drop stale config; *web-app-roulette-wheel* builds with *npm ci* against the app lockfile; *web-app-discourse* allows *data:* script sources in the CSP.
+- Fixes: *web-app-odoo* restarts after auth provisioning so workers drop stale config; *web-app-roulette-wheel* builds with *npm ci* against the app lockfile; *web-app-discourse* allows *data:* script sources in the CSP.
 
-* New lint: git branch names are validated against the naming convention. Agent docs gained a hard pre-redeploy verification gate in the role iteration loop.
+- New lint: git branch names are validated against the naming convention. Agent docs gained a hard pre-redeploy verification gate in the role iteration loop.
 
-* Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh.
+- Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh.
 
-* Image and dependency version jumps (net since 11.4.0):
-  * *web-app-mediawiki*: 1.45 to 1.46
-  * *web-app-erpnext*: v16.25.0 to v16.26.2
-  * *web-app-peertube*: v8.2.1 to v8.2.2
-  * *web-app-prometheus*: v3.12.0 to v3.13.0
-  * *web-app-opentalk* (LiveKit): v1.13.2 to v1.13.3
-  * *web-app-semaphore*: pinned v2.18.16 (new role)
+- Image and dependency version jumps (net since 11.4.0):
+  - *web-app-mediawiki*: 1.45 to 1.46
+  - *web-app-erpnext*: v16.25.0 to v16.26.2
+  - *web-app-peertube*: v8.2.1 to v8.2.2
+  - *web-app-prometheus*: v3.12.0 to v3.13.0
+  - *web-app-opentalk* (LiveKit): v1.13.2 to v1.13.3
+  - *web-app-semaphore*: pinned v2.18.16 (new role)
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): Semaphore, Checkmk and Jellyfin roles, users-model rework, fixes and version maintenance
+- [Kevin Veen-Birkenbach](https://veen.world): Semaphore, Checkmk and Jellyfin roles, users-model rework, fixes and version maintenance
 
 ## [11.4.0] - 2026-07-01
 
-* Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README.
+- Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README.
 
-* Fork PRs can now scope the CI matrix: a 🧩 *Subset* label reads a *roles:* block from the PR body and narrows the deploy whitelist. Gives forks the maintainer-only manual dispatch they could not trigger before. Without the label nothing changes. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md).
+- Fork PRs can now scope the CI matrix: a 🧩 *Subset* label reads a *roles:* block from the PR body and narrows the deploy whitelist. Gives forks the maintainer-only manual dispatch they could not trigger before. Without the label nothing changes. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md).
 
-* GitHub-hosted runner fixes: free disk before deploys and drop a dead 404 URL from the external tests.
+- GitHub-hosted runner fixes: free disk before deploys and drop a dead 404 URL from the external tests.
 
-* *make local* reinstall now works correctly when all services are disabled.
+- *make local* reinstall now works correctly when all services are disabled.
 
-* Image and dependency version jumps (net since 11.3.0):
-  * *web-app-funkwhale*: 2.0.4 to 2.0.6
-  * *web-app-mobilizon*: 5.2.3 to 5.2.4
-  * *web-app-bluesky* (git ref): 1.125.0 to 1.126.0
+- Image and dependency version jumps (net since 11.3.0):
+  - *web-app-funkwhale*: 2.0.4 to 2.0.6
+  - *web-app-mobilizon*: 5.2.3 to 5.2.4
+  - *web-app-bluesky* (git ref): 1.125.0 to 1.126.0
 
 **Contributors**
 
-* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners
-* [Kevin Veen-Birkenbach](https://veen.world): Subset-label CI scoping, runner disk fixes, version maintenance
+- [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners
+- [Kevin Veen-Birkenbach](https://veen.world): Subset-label CI scoping, runner disk fixes, version maintenance
 
 ## [11.3.0] - 2026-06-29
 
-* Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet.
+- Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet.
 
-* CI flakiness and fork-PR fixes: added *.first()* to the Odoo *sale_management* spec to end a strict-mode violation; made Nextcloud GitLab-OAuth Organization provisioning and the Jenkins/Moodle systemd steps defensive with *retries/until*; restored *secrets: inherit* on the fork image mirror so fork PRs authenticate to Docker Hub; and adjusted stale-branches for *crs-k/stale-branches@v9.0.1* (stale 350 / delete 360 days). See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+- CI flakiness and fork-PR fixes: added *.first()* to the Odoo *sale_management* spec to end a strict-mode violation; made Nextcloud GitLab-OAuth Organization provisioning and the Jenkins/Moodle systemd steps defensive with *retries/until*; restored *secrets: inherit* on the fork image mirror so fork PRs authenticate to Docker Hub; and adjusted stale-branches for *crs-k/stale-branches@v9.0.1* (stale 350 / delete 360 days). See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
 
-* Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0.
+- Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0.
 
-* Image and dependency version jumps (net since 11.2.0):
-  * *web-app-seaweedfs*: 4.36 to 4.37
-  * *pkgmgr* (package-manager git ref): v1.15.2 to v1.16.0
+- Image and dependency version jumps (net since 11.2.0):
+  - *web-app-seaweedfs*: 4.36 to 4.37
+  - *pkgmgr* (package-manager git ref): v1.15.2 to v1.16.0
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): code-scanning alert resolution and recurrence guards, CI/fork-PR fixes and version maintenance
+- [Kevin Veen-Birkenbach](https://veen.world): code-scanning alert resolution and recurrence guards, CI/fork-PR fixes and version maintenance
 
 ## [11.2.0] - 2026-06-28
 
-* Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+- Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md).
 
-* Fork-PR CI hardening (follow-up to the 11.1.0 trusted-fork flow): the privileged *pull_request_target* image producer and mirror now set *allow-unsafe-pr-checkout* so *actions/checkout* stops refusing the merged fork ref it had begun rejecting. Untrusted fork builds run without organization secrets — they authenticate to GHCR with the per-job *GITHUB_TOKEN* only and mirror Docker Hub anonymously — while the maintainer-trusted path keeps full credentials and builds the raw PR head. The trust switch moved to the *🛡️ Trusted* label. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the GHCR authentication reference](docs/contributing/tools/ghcr/authentication.md).
+- Fork-PR CI hardening (follow-up to the 11.1.0 trusted-fork flow): the privileged *pull_request_target* image producer and mirror now set *allow-unsafe-pr-checkout* so *actions/checkout* stops refusing the merged fork ref it had begun rejecting. Untrusted fork builds run without organization secrets — they authenticate to GHCR with the per-job *GITHUB_TOKEN* only and mirror Docker Hub anonymously — while the maintainer-trusted path keeps full credentials and builds the raw PR head. The trust switch moved to the *🛡️ Trusted* label. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the GHCR authentication reference](docs/contributing/tools/ghcr/authentication.md).
 
-* Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present.
+- Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present.
 
-* Cleanup-workflow fixes (follow-up to the 11.1.0 cleanup automation): the *crs-k/stale-branches* action is pinned to *v9.0.1* (the previous *@v8* was unresolvable and failed the job) and its non-existent *protected-branches* input is replaced with the action's real *branches-filter-regex*; the GHCR CI-image cleanup script now reports what it scans, keeps and deletes with a per-package summary and a *DRY_RUN* mode, so a no-op run is no longer indistinguishable from a broken one.
+- Cleanup-workflow fixes (follow-up to the 11.1.0 cleanup automation): the *crs-k/stale-branches* action is pinned to *v9.0.1* (the previous *@v8* was unresolvable and failed the job) and its non-existent *protected-branches* input is replaced with the action's real *branches-filter-regex*; the GHCR CI-image cleanup script now reports what it scans, keeps and deletes with a per-package summary and a *DRY_RUN* mode, so a no-op run is no longer indistinguishable from a broken one.
 
-* Routine maintenance: YAML normalization of the *web-app-pihole* role's *meta/services.yml* (document start, list indentation) and an autoformat pass.
+- Routine maintenance: YAML normalization of the *web-app-pihole* role's *meta/services.yml* (document start, list indentation) and an autoformat pass.
 
-* Image and dependency version jumps (net since 11.1.0):
-  * *web-app-matomo*: 5.3.2 to 5.11.2
-  * *web-app-mattermost*: 11.8.1 to 11.8.2
-  * *web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2
+- Image and dependency version jumps (net since 11.1.0):
+  - *web-app-matomo*: 5.3.2 to 5.11.2
+  - *web-app-mattermost*: 11.8.1 to 11.8.2
+  - *web-app-opentalk* (LiveKit): v1.13.1 to v1.13.2
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance
+- [Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance
 
 ## [11.1.0] - 2026-06-27
 
-* Trusted fork PRs: a maintainer-applied *trusted-pr* label runs a fork PR as deliberately released code — the orchestrator skips the fork-prerequisite wait and the privileged *pull_request_target* build switches its source from the base merge ref to the raw PR head, while the built image keeps the merge-SHA tag so every downstream consumer is unchanged. The label is the only switch (applying a label is collaborator-only on GitHub, so fork authors cannot grant it), build-orchestration scripts always come from the base repository, and both unlabeled fork PRs and same-repository PRs are untouched. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the contributor fork workflow](docs/contributing/artefact/git/pull-request.md).
+- Trusted fork PRs: a maintainer-applied *trusted-pr* label runs a fork PR as deliberately released code — the orchestrator skips the fork-prerequisite wait and the privileged *pull_request_target* build switches its source from the base merge ref to the raw PR head, while the built image keeps the merge-SHA tag so every downstream consumer is unchanged. The label is the only switch (applying a label is collaborator-only on GitHub, so fork authors cannot grant it), build-orchestration scripts always come from the base repository, and both unlabeled fork PRs and same-repository PRs are untouched. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the contributor fork workflow](docs/contributing/artefact/git/pull-request.md).
 
-* Fork main-branch sync: the push entry workflow now synchronizes the current repository's *main* from a configured source repository (default *infinito-nexus/core*) before CI scope and deploy discovery run, so a fork branch push sees only its own changes against an up-to-date base. The source is overridable or disablable through the *CI_SYNC_MAIN_SOURCE_REPOSITORY* repository variable, and the sync force-overwrites *main*, so a synced repository must not be used as a working branch. See [the Actions configuration reference](docs/contributing/tools/github/actions/configuration.md).
+- Fork main-branch sync: the push entry workflow now synchronizes the current repository's *main* from a configured source repository (default *infinito-nexus/core*) before CI scope and deploy discovery run, so a fork branch push sees only its own changes against an up-to-date base. The source is overridable or disablable through the *CI_SYNC_MAIN_SOURCE_REPOSITORY* repository variable, and the sync force-overwrites *main*, so a synced repository must not be used as a working branch. See [the Actions configuration reference](docs/contributing/tools/github/actions/configuration.md).
 
-* Package-changelog generator hardening: the Debian changelog and the Fedora spec *%changelog* are mirrored from CHANGELOG.md without tripping their native parsers — every change line is indented for Debian, every body line gains a dash continuation for RPM, and the archived-releases notice is folded into the oldest kept entry instead of trailing after the final entry. Previously the un-indented bodies made *dpkg-buildpackage* abort the Debian package build with an empty maintainer. The *Changelog* title is also preserved when the active window is trimmed. See [the release procedure](docs/contributing/actions/release.md).
+- Package-changelog generator hardening: the Debian changelog and the Fedora spec *%changelog* are mirrored from CHANGELOG.md without tripping their native parsers — every change line is indented for Debian, every body line gains a dash continuation for RPM, and the archived-releases notice is folded into the oldest kept entry instead of trailing after the final entry. Previously the un-indented bodies made *dpkg-buildpackage* abort the Debian package build with an empty maintainer. The *Changelog* title is also preserved when the active window is trimmed. See [the release procedure](docs/contributing/actions/release.md).
 
-* New packaging lint: a *lint-packages* check, wired into *make lint* and its own CI workflow, validates the generated *debian/changelog* with *dpkg-parsechangelog*, the Fedora spec with *rpmspec* and the Arch *PKGBUILD* with a *bash -n* syntax pass, failing on any parser warning rather than only on a non-zero exit. A complementary *test-lint* check asserts that both package changelogs list every released version and that their inline window matches CHANGELOG.md. See [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
+- New packaging lint: a *lint-packages* check, wired into *make lint* and its own CI workflow, validates the generated *debian/changelog* with *dpkg-parsechangelog*, the Fedora spec with *rpmspec* and the Arch *PKGBUILD* with a *bash -n* syntax pass, failing on any parser warning rather than only on a non-zero exit. A complementary *test-lint* check asserts that both package changelogs list every released version and that their inline window matches CHANGELOG.md. See [the workflow catalog](docs/contributing/tools/github/actions/workflows.md).
 
-* Repository cleanup automation: a scheduled cleanup workflow plus a GHCR helper prune stale CI images so the container registry does not accumulate per-commit build artefacts.
+- Repository cleanup automation: a scheduled cleanup workflow plus a GHCR helper prune stale CI images so the container registry does not accumulate per-commit build artefacts.
 
-* Routine maintenance: YAML normalization of the *web-app-pihole* role variables (document start, single-space keys).
+- Routine maintenance: YAML normalization of the *web-app-pihole* role variables (document start, single-space keys).
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): trusted-fork-PR flow, fork main sync, package-changelog generator and packaging lint, cleanup automation
+- [Kevin Veen-Birkenbach](https://veen.world): trusted-fork-PR flow, fork main sync, package-changelog generator and packaging lint, cleanup automation
 
 ## [11.0.0] - 2026-06-27
 
-* Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
-* New centralized API single-point-of-truth: an *api* lookup plugin plus a global API dict so API tokens and endpoints (Cloudflare, the Nextcloud proprietary OAuth integrations) resolve from one place instead of scattered role lookups.
-* Real Nextcloud integration coupling: end-to-end tests now assert genuine two-way OAuth/API coupling for *gitlab*, *mattermost*, *openproject*, *zammad*, *peertube*, *discourse*, *github*, *google*, *jira*, *mastodon*, *matrix*, *moodle* and *suitecrm*, rather than the mere presence of a connect button. All integration OAuth credentials are stored Nextcloud-encrypted via ICrypto (sensitive app values), OpenProject and Zammad secrets survive a re-deploy, and OpenWebUI/Ollama is wired in as a real *integration_openai* chat backend. Bridges with no Nextcloud-33 plugin (Moodle, SuiteCRM) are disabled.
-* Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence.
-* Storage- and runtime-aware CI variant matrix: variant bundles are split per runner by a storage-aware job splitter driven by an explicit variant CSV, behind a unified variant selector (*variant_select.py*). The default per-bundle storage cap is centralized at 350GB, per-variant memory budgets are guarded against the host budget, shared database providers are enforced by a shared-false-once lint, and the full variant matrix always runs (the earlier runtime time-cut was removed).
-* Container resource governance: self-run and shared-provider services declare explicit compose mem/pids limits, container limits were right-sized across roles, and Node-heap services respect a floor via a new *node_max_old_space_size* lookup (Nextcloud whiteboard raised to 1g). A reworked *ressources* CLI emits per-variant and all-role resource summaries, the footprint tool gains a *min_storage* column, and shared services carry a *bond* integration-importance factor.
-* Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream.
-* CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA.
-* Image and dependency version jumps (net since 10.1.1):
-  * *web-app-erpnext*: v16.23.1 to v16.25.0
-  * *web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0
-  * *web-app-opencloud*: 4.0.7 to 7.2.0
-  * *web-app-seaweedfs*: 4.35 to 4.36
-  * *web-app-matomo*: unpinned *latest* to pinned 5.3.2 (matches the bootstrap installer)
-  * *web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine
-  * *web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9
-  * *svc-ai-ollama*: switched to the official *ollama* image so inference works
-  * *web-app-pretix* and *web-app-xwiki*: their inline plugin/extension version pins (2.3.1; 2.19.6, 9.15.7, 1.0) were removed as those addons moved into *meta/addons*
-  * Dev/CI dependencies: *globals* 15.15.0 to 17.7.0, *@playwright/test* 1.61.0 to 1.61.1, *actions/cache* 5 to 6
-  * Intermediate bot bumps were corrected back down: Mattermost 11.8.2 to 11.8.1 and Nextcloud 34 to 33 (kept at 33 because of plugin incompatibilities, same pin as 10.0.0)
+- Unified addon syntax (requirement 026): every role-level plugin, browser/GNOME extension, Matrix bridge and cross-role integration was migrated to a single declarative *meta/addons/* contract, replacing the per-role ad-hoc plugin definitions. 86 addon files now describe addons for *desk-chromium*, *desk-firefox*, *desk-gnome*, *web-app-discourse*, *web-app-friendica*, *web-app-joomla*, *web-app-mediawiki*, *web-app-pretix*, *web-app-wordpress*, *web-app-xwiki*, *web-app-nextcloud*, *web-app-odoo* and *web-app-matrix*. Each service-coupled addon gets a *tasks/addons* integration hook and its own Playwright spec (87 per-addon specs added), addon flags are gated on actual partner deployment through a new *addon_env_flags* lookup, and a lint requires a hook plus a spec for every coupled addon. The cross-role integration matrix is regenerated from a dedicated data module (*integration_matrix_data.py*).
+- New centralized API single-point-of-truth: an *api* lookup plugin plus a global API dict so API tokens and endpoints (Cloudflare, the Nextcloud proprietary OAuth integrations) resolve from one place instead of scattered role lookups.
+- Real Nextcloud integration coupling: end-to-end tests now assert genuine two-way OAuth/API coupling for *gitlab*, *mattermost*, *openproject*, *zammad*, *peertube*, *discourse*, *github*, *google*, *jira*, *mastodon*, *matrix*, *moodle* and *suitecrm*, rather than the mere presence of a connect button. All integration OAuth credentials are stored Nextcloud-encrypted via ICrypto (sensitive app values), OpenProject and Zammad secrets survive a re-deploy, and OpenWebUI/Ollama is wired in as a real *integration_openai* chat backend. Bridges with no Nextcloud-33 plugin (Moodle, SuiteCRM) are disabled.
+- Nextcloud deploy-variant rebalancing: Discourse and OnlyOffice are each isolated into their own loosely-coupled partner variant, the matrix is repacked to five variants overriding only the dynamic flags, LDAP is enabled wherever SSO is on, and the database is shared outside variant 1. The GitLab 19 OAuth app now carries an organization, and *fileslibreofficeedit* is gated on OnlyOffice absence.
+- Storage- and runtime-aware CI variant matrix: variant bundles are split per runner by a storage-aware job splitter driven by an explicit variant CSV, behind a unified variant selector (*variant_select.py*). The default per-bundle storage cap is centralized at 350GB, per-variant memory budgets are guarded against the host budget, shared database providers are enforced by a shared-false-once lint, and the full variant matrix always runs (the earlier runtime time-cut was removed).
+- Container resource governance: self-run and shared-provider services declare explicit compose mem/pids limits, container limits were right-sized across roles, and Node-heap services respect a floor via a new *node_max_old_space_size* lookup (Nextcloud whiteboard raised to 1g). A reworked *ressources* CLI emits per-variant and all-role resource summaries, the footprint tool gains a *min_storage* column, and shared services carry a *bond* integration-importance factor.
+- Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream.
+- CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA.
+- Image and dependency version jumps (net since 10.1.1):
+  - *web-app-erpnext*: v16.23.1 to v16.25.0
+  - *web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0
+  - *web-app-opencloud*: 4.0.7 to 7.2.0
+  - *web-app-seaweedfs*: 4.35 to 4.36
+  - *web-app-matomo*: unpinned *latest* to pinned 5.3.2 (matches the bootstrap installer)
+  - *web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine
+  - *web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9
+  - *svc-ai-ollama*: switched to the official *ollama* image so inference works
+  - *web-app-pretix* and *web-app-xwiki*: their inline plugin/extension version pins (2.3.1; 2.19.6, 9.15.7, 1.0) were removed as those addons moved into *meta/addons*
+  - Dev/CI dependencies: *globals* 15.15.0 to 17.7.0, *@playwright/test* 1.61.0 to 1.61.1, *actions/cache* 5 to 6
+  - Intermediate bot bumps were corrected back down: Mattermost 11.8.2 to 11.8.1 and Nextcloud 34 to 33 (kept at 33 because of plugin incompatibilities, same pin as 10.0.0)
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API single-point-of-truth, Nextcloud integrations and variant rebalancing, CI variant bundling, resource governance, Matrix bridge migration and version maintenance
+- [Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API single-point-of-truth, Nextcloud integrations and variant rebalancing, CI variant bundling, resource governance, Matrix bridge migration and version maintenance
 
 ## [10.1.1] - 2026-06-24
 
-* Disabled the *email* service in the *web-app-pihole* role by pinning *services.email* to a static *enabled: false* / *shared: false* with the matching *dynamic-flag* and *email* nocheck suppressions, removing the now-static email overrides from *meta/variants.yml*, and adding *javascript* true/false variant pins to keep the dynamic-flag matrix-coverage guard green.
+- Disabled the *email* service in the *web-app-pihole* role by pinning *services.email* to a static *enabled: false* / *shared: false* with the matching *dynamic-flag* and *email* nocheck suppressions, removing the now-static email overrides from *meta/variants.yml*, and adding *javascript* true/false variant pins to keep the dynamic-flag matrix-coverage guard green.
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole email service disablement
+- [Kevin Veen-Birkenbach](https://veen.world): Pi-hole email service disablement
 
 ## [10.1.0] - 2026-06-23
 
-* New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
-* Routine maintenance: Docker image version bumps, a dependabot update of *globals* from 15.15.0 to 17.7.0, and minor *services.yml* self-provider flag corrections for ERPNext, GitLab, SeaweedFS and the Playwright end-to-end role.
+- New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta.
+- Routine maintenance: Docker image version bumps, a dependabot update of *globals* from 15.15.0 to 17.7.0, and minor *services.yml* self-provider flag corrections for ERPNext, GitLab, SeaweedFS and the Playwright end-to-end role.
 
 **Contributors**
 
-* [Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite
-* [Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review
+- [Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite
+- [Kevin Veen-Birkenbach](https://veen.world): Pi-hole role hardening and review
 
 ## [10.0.1] - 2026-06-19
 
-* Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
+- Mark the *web-app-erpnext* role's own *erpnext* provider service with the *playwright-service-flag* self-provider suppression in *meta/services.yml*, fixing the Playwright service-flag integration guard that 10.0.0 tripped by exposing ERPNext as a consumable shared service.
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix
+- [Kevin Veen-Birkenbach](https://veen.world): ERPNext self-provider test fix
 
 ## [10.0.0] - 2026-06-19
 
-* New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload.
-* Trusted-header single-sign-on bridges (wave 1) for *web-app-openproject*, *web-app-snipe-it*, *web-app-postmarks* and *web-app-yourls*, with *web-app-baserow* and *web-app-bookwyrm* migrating to the header bridge and dropping their LDAP configuration. The shared proxy (*sys-svc-proxy*) now strips forgeable identity headers on every location to close trusted-header injection.
-* ERPNext is exposed as a consumable shared service and renders the Keycloak SSO button on */login* under gunicorn *--preload*. Nextcloud is provisioned on the SeaweedFS S3 object store with a dedicated consumer end-to-end test and has its OIDC plugins gated as mandatory; the upgrade to version 34 is deliberately not carried out because of plugin incompatibilities, so it stays pinned at 33.
-* Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0.
-* Routine maintenance: Docker image and git-reference bumps, skills-lock refreshes, and dependabot updates (actions/checkout 6 to 7, @playwright/test 1.60.0 to 1.61.0, eslint 10.4.1 to 10.5.0).
+- New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload.
+- Trusted-header single-sign-on bridges (wave 1) for *web-app-openproject*, *web-app-snipe-it*, *web-app-postmarks* and *web-app-yourls*, with *web-app-baserow* and *web-app-bookwyrm* migrating to the header bridge and dropping their LDAP configuration. The shared proxy (*sys-svc-proxy*) now strips forgeable identity headers on every location to close trusted-header injection.
+- ERPNext is exposed as a consumable shared service and renders the Keycloak SSO button on */login* under gunicorn *--preload*. Nextcloud is provisioned on the SeaweedFS S3 object store with a dedicated consumer end-to-end test and has its OIDC plugins gated as mandatory; the upgrade to version 34 is deliberately not carried out because of plugin incompatibilities, so it stays pinned at 33.
+- Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0.
+- Routine maintenance: Docker image and git-reference bumps, skills-lock refreshes, and dependabot updates (actions/checkout 6 to 7, @playwright/test 1.60.0 to 1.61.0, eslint 10.4.1 to 10.5.0).
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review
+- [Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review
 
 ## [9.3.0] - 2026-06-11
 
-* New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range.
-* The Matrix role gains an ansible flavor (requirement 025) built on a unified compose template, with full Docker-in-Docker isolation, host-network mode cascaded to the addons and Jitsi, a central Postgres backend sharing the MATRIX_POSTGRES variables, and a central coturn aligned to the shared coturn variables for the MASH role. A dedicated MDAD runner image (python 3.13-slim with docker 28.0.4 CLI, migration validated against v2026.05.18.0) mounts the Infinito self-signed CA into both the runner and Synapse, and bootstrap now recovers cleanly from a stale marker.
-* Smaller role fixes: ERPNext bypasses the v16 setup wizard per app and clears the Frappe cache after applying social-login, LDAP and email configuration; Friendica strips a trailing slash from the base URL and makes the admin-follow Playwright test idempotent; Funkwhale starts its API with gunicorn and binds the port.
-* Routine maintenance: a lint that enforces a parameterised FROM in role Dockerfiles, a re-sync of the Claude settings allow-list with upstream, git references bumped to the latest semver tags (Bluesky 1.122.0 to 1.123.0, Bookwyrm v0.8.6 to v0.8.7), and Docker image version bumps across ERPNext v15.45.0 to v16.22.0, Friendica 2026.01 to 2026.05, Funkwhale 2.0.2 to 2.0.4, GitLab 19.0.1-ee.0 to 19.0.2-ee.0, Mattermost 11.7.2 to 11.8.0, OpenTalk v1.12.0 to v1.13.1, Prometheus v0.32.1 to v0.32.2, Shopware 3.6.0 to 3.7.0, MariaDB 12.2 to 12.3 and CoreDNS 1.14.3 to 1.14.4.
+- New Penpot role (web-app-penpot, requirement 235) that ships the upstream Penpot design platform comprising frontend, backend, exporter and Redis at image version 2.5.4, wired into the central Keycloak via OIDC and into the central OpenLDAP. Native local-password login is available as a toggle that is disabled automatically under OIDC, with the native-login and registration flags derived from the SSO flag. A custom JVM truststore imports the Infinito self-signed CA so OIDC over TLS succeeds, and the role is exercised end-to-end with Playwright covering OIDC login, logout and project creation. The local subnet was moved to 192.168.105.192/28 to avoid a collision with the ERPNext range.
+- The Matrix role gains an ansible flavor (requirement 025) built on a unified compose template, with full Docker-in-Docker isolation, host-network mode cascaded to the addons and Jitsi, a central Postgres backend sharing the MATRIX_POSTGRES variables, and a central coturn aligned to the shared coturn variables for the MASH role. A dedicated MDAD runner image (python 3.13-slim with docker 28.0.4 CLI, migration validated against v2026.05.18.0) mounts the Infinito self-signed CA into both the runner and Synapse, and bootstrap now recovers cleanly from a stale marker.
+- Smaller role fixes: ERPNext bypasses the v16 setup wizard per app and clears the Frappe cache after applying social-login, LDAP and email configuration; Friendica strips a trailing slash from the base URL and makes the admin-follow Playwright test idempotent; Funkwhale starts its API with gunicorn and binds the port.
+- Routine maintenance: a lint that enforces a parameterised FROM in role Dockerfiles, a re-sync of the Claude settings allow-list with upstream, git references bumped to the latest semver tags (Bluesky 1.122.0 to 1.123.0, Bookwyrm v0.8.6 to v0.8.7), and Docker image version bumps across ERPNext v15.45.0 to v16.22.0, Friendica 2026.01 to 2026.05, Funkwhale 2.0.2 to 2.0.4, GitLab 19.0.1-ee.0 to 19.0.2-ee.0, Mattermost 11.7.2 to 11.8.0, OpenTalk v1.12.0 to v1.13.1, Prometheus v0.32.1 to v0.32.2, Shopware 3.6.0 to 3.7.0, MariaDB 12.2 to 12.3 and CoreDNS 1.14.3 to 1.14.4.
 
 **Contributors**
 
-* [Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite
-* [Kevin Veen-Birkenbach](https://veen.world): Matrix ansible flavor, role fixes and review
+- [Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite
+- [Kevin Veen-Birkenbach](https://veen.world): Matrix ansible flavor, role fixes and review
 
 ## [9.2.0] - 2026-06-03
 
-* New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters.
-* New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith.
-* Outbound mail and Nix install resilience: the dev-nix role guards its set_fact against getent returning None on hosts without an nixbld group, and the host-stack mail health checks keep behaving cleanly on minimal images.
-* Routine maintenance: Docker image version bumps including Friendica 2026.01, eslint 10.4.0 to 10.4.1, and a dockerignore re-sync after the recent claude hooks addition.
+- New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters.
+- New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith.
+- Outbound mail and Nix install resilience: the dev-nix role guards its set_fact against getent returning None on hosts without an nixbld group, and the host-stack mail health checks keep behaving cleanly on minimal images.
+- Routine maintenance: Docker image version bumps including Friendica 2026.01, eslint 10.4.0 to 10.4.1, and a dockerignore re-sync after the recent claude hooks addition.
 
 **Contributors**
 
-* Release maintained by Kevin Veen-Birkenbach, <https://veen.world>.
+- Release maintained by Kevin Veen-Birkenbach, <https://veen.world>.
 
 ## [9.1.0] - 2026-06-01
 
-* More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved.
-* Outbound mail health checks no longer fail silently on minimal container images: the heartbeat-email script copes with images that ship without the hostname binary, and the SSL trust file path is detected automatically across Red Hat, Debian, Ubuntu, Alpine and NixOS layouts.
-* The Zammad helpdesk role completes its single-sign-on schema unification, with the variant matrix and Playwright test suite brought in line with the new shape.
-* Internal infrastructure cleanups: re-synchronised .dockerignore and a shifted weekly CI schedule.
+- More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved.
+- Outbound mail health checks no longer fail silently on minimal container images: the heartbeat-email script copes with images that ship without the hostname binary, and the SSL trust file path is detected automatically across Red Hat, Debian, Ubuntu, Alpine and NixOS layouts.
+- The Zammad helpdesk role completes its single-sign-on schema unification, with the variant matrix and Playwright test suite brought in line with the new shape.
+- Internal infrastructure cleanups: re-synchronised .dockerignore and a shifted weekly CI schedule.
 
 **Contributors**
 
-* Release maintained by [Kevin Veen-Birkenbach](https://veen.world).
+- Release maintained by [Kevin Veen-Birkenbach](https://veen.world).
 
 ## [9.0.2] - 2026-05-29
 
-* Restores the Debian dev-image build by introducing the INFINITO_VENV_DIR SPOT and calling infinito via its absolute venv path in scripts/docker/entry.sh, so the post-`make install` version check no longer trips on the PATH that bash -lc clobbers via /etc/profile; also scopes the auto-update PR dedup fingerprint to the files a run actually committed (instead of the whole commit tree) so unrelated drift on main no longer forces a fresh PR on every daily cron, nests web-app-bluesky's nocheck markers under the acl block they describe, and rolls up dependabot bumps (actions/cache 4→5, actions/setup-node 4→6) plus routine Docker image / git ref refreshes.
+- Restores the Debian dev-image build by introducing the INFINITO_VENV_DIR SPOT and calling infinito via its absolute venv path in scripts/docker/entry.sh, so the post-`make install` version check no longer trips on the PATH that bash -lc clobbers via /etc/profile; also scopes the auto-update PR dedup fingerprint to the files a run actually committed (instead of the whole commit tree) so unrelated drift on main no longer forces a fresh PR on every daily cron, nests web-app-bluesky's nocheck markers under the acl block they describe, and rolls up dependabot bumps (actions/cache 4→5, actions/setup-node 4→6) plus routine Docker image / git ref refreshes.
 
 ## [9.0.1] - 2026-05-28
 
-* CI pipeline pass: PR flow now gates the env-matrix via a new detect-affected-roles resolver (skipped on role-only diffs); push CI skipped when an open PR exists (with 20s race retry for bot branches); pip cache + python 3.12 across all 16 workflows, plus npm and ansible-galaxy caches where missing. Update bot now deletes its own branches when closing superseded PRs.
+- CI pipeline pass: PR flow now gates the env-matrix via a new detect-affected-roles resolver (skipped on role-only diffs); push CI skipped when an open PR exists (with 20s race retry for bot branches); pip cache + python 3.12 across all 16 workflows, plus npm and ansible-galaxy caches where missing. Update bot now deletes its own branches when closing superseded PRs.
 
 ## [9.0.0] - 2026-05-28
 
-* Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*).
+- Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*).
 
 **Removed**
 
-* The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**.
-* The two mutual-exclusion guards (*tests/integration/iam/oauth2_oidc/test_mutual_exclusive.py*, *test_acl_mutual_exclusive.py*) — obsolete under the single-block schema.
+- The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**.
+- The two mutual-exclusion guards (*tests/integration/iam/oauth2_oidc/test_mutual_exclusive.py*, *test_acl_mutual_exclusive.py*) — obsolete under the single-block schema.
 
 **Added**
 
-* *utils/roles/applications/services/sso.py* — central resolver for **is_enabled** / **is_proxy_gated** / **is_oidc_native** plus the oauth2 sub-values (*oauth2_origin_{host,port}*, *oauth2_acl*, *oauth2_allowed_groups*).
-* Three lookup plugins on top of the resolver: **sso** (single-app predicate access), **sso_proxy_consumers** (enumerates oauth2-flavored consumers), **sso_oidc_plugin** (renamed from **oidc_flavor**, Nextcloud selector).
-* *tests/lint/repository/no_legacy_sso_paths/* static guard against the legacy strings re-entering the source tree.
+- *utils/roles/applications/services/sso.py* — central resolver for **is_enabled** / **is_proxy_gated** / **is_oidc_native** plus the oauth2 sub-values (*oauth2_origin_{host,port}*, *oauth2_acl*, *oauth2_allowed_groups*).
+- Three lookup plugins on top of the resolver: **sso** (single-app predicate access), **sso_proxy_consumers** (enumerates oauth2-flavored consumers), **sso_oidc_plugin** (renamed from **oidc_flavor**, Nextcloud selector).
+- *tests/lint/repository/no_legacy_sso_paths/* static guard against the legacy strings re-entering the source tree.
 
 **Renamed**
 
-* *services.<entity>.ports.local.oauth2* → *ports.local.sso*
-* *PORT_BANDS.local.oauth2* → *PORT_BANDS.local.sso*
-* **OAUTH2_PROXY_\*** env / Jinja vars → **SSO_PROXY_\***
-* *oauth2_proxy_cookie_secret* → *sso_proxy_cookie_secret*
-* **OAUTH2_SERVICE_ENABLED** + **OIDC_SERVICE_ENABLED** → single **SSO_SERVICE_ENABLED**
-* Playwright gating helpers (*isServiceEnabled*, *skipUnlessServiceEnabled*, *requireService*, *safeIsEnabled*, *safeSkipUnlessEnabled*) move from service *oidc* / *oauth2* to *sso*
-* *test_oauth2_contract.py* → *test_sso_contract.py*
+- *services.<entity>.ports.local.oauth2* → *ports.local.sso*
+- *PORT_BANDS.local.oauth2* → *PORT_BANDS.local.sso*
+- **OAUTH2_PROXY_\*** env / Jinja vars → **SSO_PROXY_\***
+- *oauth2_proxy_cookie_secret* → *sso_proxy_cookie_secret*
+- **OAUTH2_SERVICE_ENABLED** + **OIDC_SERVICE_ENABLED** → single **SSO_SERVICE_ENABLED**
+- Playwright gating helpers (*isServiceEnabled*, *skipUnlessServiceEnabled*, *requireService*, *safeIsEnabled*, *safeSkipUnlessEnabled*) move from service *oidc* / *oauth2* to *sso*
+- *test_oauth2_contract.py* → *test_sso_contract.py*
 
 **Changed**
 
-* **sys-stk-backend**, **sys-svc-compose**, **sys-svc-proxy** and *plugins/filter/compose_volumes.py* now gate on **lookup(sso, …, is_proxy_gated)** instead of hand-combining **enabled** + **flavor**.
-* Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved.
+- **sys-stk-backend**, **sys-svc-compose**, **sys-svc-proxy** and *plugins/filter/compose_volumes.py* now gate on **lookup(sso, …, is_proxy_gated)** instead of hand-combining **enabled** + **flavor**.
+- Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved.
 
 **Migration**
 
@@ -974,60 +1301,60 @@ End-to-end against *web-app-{keycloak,nextcloud,bookwyrm,gitea,friendica,dashboa
 
 **Contributors**
 
-* [Kevin Veen-Birkenbach](https://www.veen.world/)
+- [Kevin Veen-Birkenbach](https://www.veen.world/)
 
 ## [8.0.5] - 2026-05-28
 
-* Adds --version / -V flag to the infinito CLI, drops a dead Compose-CLI reference link, and fixes the dev-deploy router so per-invocation routing knobs (apps, mode, purge, bundles, disable, full_cycle, variant) no longer leak into the persistent .env and the make-alias / env-var surface is unified 1:1.
+- Adds --version / -V flag to the infinito CLI, drops a dead Compose-CLI reference link, and fixes the dev-deploy router so per-invocation routing knobs (apps, mode, purge, bundles, disable, full_cycle, variant) no longer leak into the persistent .env and the make-alias / env-var surface is unified 1:1.
 
 ## Older Releases
 
-* [008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)
-* [008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)
-* [008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)
-* [008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)
-* [008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)
-* [007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)
-* [006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)
-* [005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)
-* [005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)
-* [005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)
-* [004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)
-* [004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)
-* [004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)
-* [004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)
-* [004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)
-* [003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)
-* [002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)
-* [002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)
-* [002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)
-* [002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)
-* [002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)
-* [002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)
-* [002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)
-* [002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)
-* [002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)
-* [002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)
-* [002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)
-* [001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)
-* [000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)
-* [000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)
-* [000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)
-* [000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)
-* [000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)
-* [000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)
-* [000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)
-* [000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)
-* [000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)
-* [000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)
-* [000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)
-* [000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)
-* [000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)
-* [000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)
-* [000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)
-* [000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)
-* [000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)
-* [000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)
-* [000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)
-* [000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)
-* [000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)
+- [008.000.004-2026-05-28.md](docs/changelog/008.000.004-2026-05-28.md)
+- [008.000.003-2026-05-28.md](docs/changelog/008.000.003-2026-05-28.md)
+- [008.000.002-2026-05-28.md](docs/changelog/008.000.002-2026-05-28.md)
+- [008.000.001-2026-05-28.md](docs/changelog/008.000.001-2026-05-28.md)
+- [008.000.000-2026-05-27.md](docs/changelog/008.000.000-2026-05-27.md)
+- [007.000.000-2026-05-08.md](docs/changelog/007.000.000-2026-05-08.md)
+- [006.000.000-2026-04-25.md](docs/changelog/006.000.000-2026-04-25.md)
+- [005.002.000-2026-03-21.md](docs/changelog/005.002.000-2026-03-21.md)
+- [005.001.000-2026-02-28.md](docs/changelog/005.001.000-2026-02-28.md)
+- [005.000.000-2026-02-25.md](docs/changelog/005.000.000-2026-02-25.md)
+- [004.001.000-2026-02-17.md](docs/changelog/004.001.000-2026-02-17.md)
+- [004.000.003-2026-02-16.md](docs/changelog/004.000.003-2026-02-16.md)
+- [004.000.002-2026-02-15.md](docs/changelog/004.000.002-2026-02-15.md)
+- [004.000.001-2026-02-15.md](docs/changelog/004.000.001-2026-02-15.md)
+- [004.000.000-2026-02-13.md](docs/changelog/004.000.000-2026-02-13.md)
+- [003.000.000-2026-02-11.md](docs/changelog/003.000.000-2026-02-11.md)
+- [002.001.009-2026-02-10.md](docs/changelog/002.001.009-2026-02-10.md)
+- [002.001.008-2026-02-09.md](docs/changelog/002.001.008-2026-02-09.md)
+- [002.001.007-2026-02-09.md](docs/changelog/002.001.007-2026-02-09.md)
+- [002.001.006-2026-02-09.md](docs/changelog/002.001.006-2026-02-09.md)
+- [002.001.005-2026-02-09.md](docs/changelog/002.001.005-2026-02-09.md)
+- [002.001.004-2026-02-08.md](docs/changelog/002.001.004-2026-02-08.md)
+- [002.001.003-2026-02-08.md](docs/changelog/002.001.003-2026-02-08.md)
+- [002.001.002-2026-02-08.md](docs/changelog/002.001.002-2026-02-08.md)
+- [002.001.001-2026-02-08.md](docs/changelog/002.001.001-2026-02-08.md)
+- [002.001.000-2026-02-08.md](docs/changelog/002.001.000-2026-02-08.md)
+- [002.000.000-2026-02-08.md](docs/changelog/002.000.000-2026-02-08.md)
+- [001.000.000-2026-02-03.md](docs/changelog/001.000.000-2026-02-03.md)
+- [000.012.000-2026-01-25.md](docs/changelog/000.012.000-2026-01-25.md)
+- [000.011.000-2026-01-10.md](docs/changelog/000.011.000-2026-01-10.md)
+- [000.010.000-2026-01-08.md](docs/changelog/000.010.000-2026-01-08.md)
+- [000.009.000-2026-01-07.md](docs/changelog/000.009.000-2026-01-07.md)
+- [000.008.000-2026-01-06.md](docs/changelog/000.008.000-2026-01-06.md)
+- [000.007.002-2026-01-06.md](docs/changelog/000.007.002-2026-01-06.md)
+- [000.007.001-2026-01-06.md](docs/changelog/000.007.001-2026-01-06.md)
+- [000.007.000-2026-01-05.md](docs/changelog/000.007.000-2026-01-05.md)
+- [000.006.000-2025-12-31.md](docs/changelog/000.006.000-2025-12-31.md)
+- [000.005.000-2025-12-30.md](docs/changelog/000.005.000-2025-12-30.md)
+- [000.004.000-2025-12-29.md](docs/changelog/000.004.000-2025-12-29.md)
+- [000.003.005-2025-12-21.md](docs/changelog/000.003.005-2025-12-21.md)
+- [000.003.004-2025-12-21.md](docs/changelog/000.003.004-2025-12-21.md)
+- [000.003.003-2025-12-21.md](docs/changelog/000.003.003-2025-12-21.md)
+- [000.003.002-2025-12-19.md](docs/changelog/000.003.002-2025-12-19.md)
+- [000.003.001-2025-12-18.md](docs/changelog/000.003.001-2025-12-18.md)
+- [000.003.000-2025-12-17.md](docs/changelog/000.003.000-2025-12-17.md)
+- [000.002.001-2025-12-10.md](docs/changelog/000.002.001-2025-12-10.md)
+- [000.002.000-2025-12-10.md](docs/changelog/000.002.000-2025-12-10.md)
+- [000.001.001-2025-12-10.md](docs/changelog/000.001.001-2025-12-10.md)
+- [000.001.000-2025-12-09.md](docs/changelog/000.001.000-2025-12-09.md)

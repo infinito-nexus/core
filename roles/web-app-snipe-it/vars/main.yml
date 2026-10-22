@@ -18,7 +18,9 @@ SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabl
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 
 SNIPE_IT_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
-SNIPE_IT_SSO_HEADER_NAME: "HTTP_X_FORWARDED_PREFERRED_USERNAME"
+SNIPE_IT_SSO_HEADER_NAME: "INFINITO_SSO_USER"
+SNIPE_IT_SSO_PROXY_HEADER: "X-Infinito-Sso-Proxy"
+SNIPE_IT_SSO_PROXY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.sso_proxy_secret') }}"
 SNIPE_IT_SSO_LOGOUT_URL: "{{ OIDC.CLIENT.LOGOUT_URL }}"
 
 SNIPE_IT_LDAP_FILTER_FRAGMENT: "&(objectClass=inetOrgPerson)"

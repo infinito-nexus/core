@@ -8,8 +8,8 @@ whitelist:
     - https://plc.directory
     - https://bsky.social
     - https://api.bsky.app
-    - https://public.api.bsky.app
     - https://events.bsky.app
+    - https://public.api.bsky.app # nocheck: url  Reason: CSP origin, not a page; its root intermittently answers HTTP 404 to CI runners
     - https://*.workers.bsky.app # nocheck: url
     - https://statsigapi.net # nocheck: url
     - https://ip.bsky.app # nocheck: url

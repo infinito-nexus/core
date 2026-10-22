@@ -32,6 +32,12 @@ dexec() {
 	timeout 30 docker exec "$@"
 }
 
+sep "node-package-manager" "package manager logs (a failed download names the mirror, the URL and the status)"
+for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+	echo "=== ${node} ==="
+	dexec "${node}" sh -c "tail -n 3000 /var/log/dnf5.log /var/log/dnf.librepo.log 2>&1"
+done
+
 for node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	sep "compose-tree" "${node}: /opt/compose tree"
 	dexec "${node}" find /opt/compose -maxdepth 3 -type f -name '*.yml' 2>/dev/null
@@ -88,6 +94,7 @@ dexec "${NFS_SERVER}" mountpoint "${INFINITO_SWARM_NFS_STATE_PATH:?}" 2>&1
 dexec "${NFS_SERVER}" cat /proc/fs/nfsd/exports 2>&1
 dexec "${NFS_SERVER}" cat /proc/fs/nfsd/versions 2>&1
 dexec "${NFS_SERVER}" sh -c "journalctl -u nfs-server -u nfs-ganesha -u rpcbind --no-pager 2>&1 | tail -50"
+dexec "${NFS_SERVER}" sh -c "tail -n 600 /var/log/ganesha/ganesha.log 2>&1"
 dexec "${NFS_SERVER}" sh -c "command -v ss >/dev/null 2>&1 && { ss -lntp | grep -E ':(2049|111)' || echo '(ss ran: nothing listening on 2049/111)'; } || echo '(ss not installed on this node)'"
 
 sep "ganesha-threads" "nfs-server: ganesha thread states (pins where a wedged startup blocks)"
