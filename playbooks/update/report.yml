@@ -6,7 +6,6 @@
   vars:
     update_check_roles_dir: "{{ lookup('path_absolute', '../../roles') }}"
     update_check_deployed: "{{ lookup('application_closure', group_names) }}"
-    update_check_redirects: "{{ lookup('current_play_redirect_domains') | map(attribute='source') | list }}"
     update_check_compose_volumes: {}
     update_check_secret_files: >-
       {{ query('ansible.builtin.fileglob',
@@ -60,6 +59,10 @@
       loop_control:
         label: "{{ item }}"
 
+    - name: "🔀 Resolve the redirect domains the deploy serves"
+      ansible.builtin.set_fact:
+        update_check_redirect_mappings: "{{ lookup('current_play_redirect_domains') }}"
+
     - name: "🚦 Judge the host against the current code"
       ansible.builtin.set_fact:
         update_check: >-
@@ -68,7 +71,7 @@
                group_names,
                update_check_deployed,
                update_check_compose_volumes,
-               update_check_redirects,
+               update_check_redirect_mappings | map(attribute='source') | list,
                lookup('nginx', 'directories.configuration.http_includes'),
                update_check_secret_schemas,
                update_inventory.rc,
