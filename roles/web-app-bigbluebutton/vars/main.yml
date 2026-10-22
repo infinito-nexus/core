@@ -9,11 +9,11 @@ http_port: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.lo
 
 BBB_REPOSITORY: "{{ lookup('config', 'web-app-bigbluebutton', 'services.' ~ ('web-app-bigbluebutton' | entity_name) ~ '.repository') }}"
 BBB_REF: "{{ lookup('config', 'web-app-bigbluebutton', 'services.' ~ ('web-app-bigbluebutton' | entity_name) ~ '.ref') }}"
+BBB_PINNED_SERVICES: "{{ lookup('config', application_id, 'services') | dict2items | selectattr('value.image', 'defined') | map(attribute='key') | list }}"
 
 _BBB_COTURN_ROLE: "web-svc-coturn"
 
 BBB_SHARED_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.shared_secret') }}"
-BBB_ETHERPAD_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.etherpad_api_key') }}"
 BBB_RAILS_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.rails_secret') }}"
 BBB_POSTGRESQL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.postgresql_secret') }}"
 BBB_FSESL_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.fsesl_password') }}"

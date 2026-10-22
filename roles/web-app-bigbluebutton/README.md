@@ -21,7 +21,7 @@ By default, BigBlueButton is deployed with best-practice hardening, modular secr
 - 🛠 Volume patching and Docker Compose customization
 - 📬 SMTP integration and Greenlight admin creation: the administrator is verified and active, and its password converges on every deploy
 - 🎨 Corporate design for Greenlight: brand color and logo through the Greenlight site settings, the configured title through the design script, dark mode through the role stylesheet; the meeting client (`/html5client`) takes the palette and the configured title through its own `customStyleUrl` and `clientTitle` settings
-- 🧪 Workarounds for known Docker Compose or Etherpad issues
+- 🧪 Workarounds for known Docker Compose issues
 
 ## Single Sign-On (SSO)
 

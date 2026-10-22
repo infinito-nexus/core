@@ -7,14 +7,13 @@
     resolve_compose_cid: "{{ PENPOT_BACKEND_CONTAINER_ADDRESS }}"
 
 - name: "🥾 Bootstrap the Penpot administrator's local account (idempotent)"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e PENPOT_ADMIN_PASSWORD {{ PENPOT_BACKEND_LOCAL_CID | quote }}
-    sh -lc 'python3 manage.py create-profile
-    -n "{{ PENPOT_ADMIN_FULLNAME }}"
-    -e "{{ PENPOT_ADMIN_EMAIL }}"
-    -p "$PENPOT_ADMIN_PASSWORD"'
-  environment:
-    PENPOT_ADMIN_PASSWORD: "{{ PENPOT_ADMIN_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ PENPOT_BACKEND_LOCAL_CID | quote }}
+      python3 manage.py create-profile
+      -n {{ PENPOT_ADMIN_FULLNAME | quote }}
+      -e {{ PENPOT_ADMIN_EMAIL | quote }}
+    stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
   register: penpot_admin_create
   retries: 30
   delay: 5
@@ -29,13 +28,12 @@
   delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"
 
 - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e PENPOT_ADMIN_PASSWORD {{ PENPOT_BACKEND_LOCAL_CID | quote }}
-    sh -lc 'python3 manage.py update-profile
-    -e "{{ PENPOT_ADMIN_EMAIL }}"
-    -p "$PENPOT_ADMIN_PASSWORD"'
-  environment:
-    PENPOT_ADMIN_PASSWORD: "{{ PENPOT_ADMIN_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ PENPOT_BACKEND_LOCAL_CID | quote }}
+      python3 manage.py update-profile
+      -e {{ PENPOT_ADMIN_EMAIL | quote }}
+    stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
   when: "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
   register: penpot_admin_update
   changed_when: "'Updated' in penpot_admin_update.stdout"

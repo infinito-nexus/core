@@ -3,7 +3,9 @@ import re
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 
-def compose_mods(yml_text, compose_repository_path, env_file, extra_hosts=None):
+def compose_mods(
+    yml_text, compose_repository_path, env_file, extra_hosts=None, pinned=None
+):
     """Normalize the upstream-generated bigbluebutton compose file.
 
     Args:
@@ -14,6 +16,9 @@ def compose_mods(yml_text, compose_repository_path, env_file, extra_hosts=None):
         env_file: env file broadcast to every service via ``env_file``.
         extra_hosts: optional host mappings added to every service that is
             not on the host network.
+        pinned: names of services whose image the role pins in
+            compose.override.yml; their upstream ``build`` is dropped even
+            where the upstream file names no image.
 
     Returns:
         Transformed compose YAML text. Structural deltas (named data
@@ -32,7 +37,7 @@ def compose_mods(yml_text, compose_repository_path, env_file, extra_hosts=None):
     data = load_yaml_str(yml_text) or {}
     services = data.get("services", {}) or {}
 
-    for svc in services.values():
+    for name, svc in services.items():
         if not isinstance(svc, dict):
             continue
 
@@ -49,7 +54,7 @@ def compose_mods(yml_text, compose_repository_path, env_file, extra_hosts=None):
                     hosts.append(entry)
             svc["extra_hosts"] = hosts
 
-        if "build" in svc and svc.get("image"):
+        if "build" in svc and (svc.get("image") or name in (pinned or [])):
             svc.pop("build")
 
     data["services"] = services
