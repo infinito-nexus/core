@@ -7,6 +7,7 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 CONFLUENCE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 CONFLUENCE_HOSTNAME: "{{ container_hostname }}"
 CONFLUENCE_HOME: "{{ lookup('volume', 'web-app-confluence', 'data').target }}"
+CONFLUENCE_INSTALL_DIR: "/opt/atlassian/confluence"
 
 CONFLUENCE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 CONFLUENCE_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
@@ -24,6 +25,10 @@ CONFLUENCE_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 CONFLUENCE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 CONFLUENCE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 CONFLUENCE_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+CONFLUENCE_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
+CONFLUENCE_GUARD_DIR: "{{ [ lookup('container', application_id, 'directories.services'), 'build-guard' ] | path_join }}"
+CONFLUENCE_GUARD_MOUNT: "/opt/infinito-build-guard"
+CONFLUENCE_GUARD_DOWNGRADE_RC: 3
 
 CONFLUENCE_JVM_MAX: "{{ lookup('service_memory_mb', application_id, entity_name, 0.7) }}m"
 CONFLUENCE_JVM_MIN: "{{ lookup('service_memory_mb', application_id, entity_name, 0.35) }}m"

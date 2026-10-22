@@ -1,0 +1,15 @@
+---
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🛡️ Refuse a pinned Jira older than its data"
+  include_tasks: "utils/build_guard.yml"
+  when: IS_STACK_HOST | bool
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
+
+- include_tasks: utils/once/flag.yml

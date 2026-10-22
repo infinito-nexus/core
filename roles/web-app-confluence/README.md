@@ -104,6 +104,14 @@ docker run --rm -it \
       --diff -vv'
 ```
 
+## Version pin and downgrades
+
+Confluence refuses to start on a home directory that a newer build wrote. Before the stack starts, every deploy runs [build_guard.py](files/python/build_guard.py) in the pinned upstream image against `confluence_data`:
+
+- It reads `buildNumber` from `confluence.cfg.xml` in the home and the build number of the Confluence installation in the image.
+- When the home build is newer, the deploy stops and names both build numbers. Raise `services.confluence.version` to the release of the home build or newer, or restore `confluence_data` and the database from the backup taken before that release.
+- A home without a recorded build, such as one before the setup wizard finished, passes.
+
 ## Further Resources
 
 - Product page: [Atlassian Confluence](https://www.atlassian.com/software/confluence)

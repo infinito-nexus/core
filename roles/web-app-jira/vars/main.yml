@@ -7,6 +7,7 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 JIRA_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JIRA_HOSTNAME: "{{ container_hostname }}"
 JIRA_STORAGE_PATH: "{{ lookup('volume', 'web-app-jira', 'data').target }}"
+JIRA_INSTALL_DIR: "/opt/atlassian/jira"
 
 JIRA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 JIRA_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"
@@ -24,6 +25,10 @@ JIRA_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 JIRA_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 JIRA_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 JIRA_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+JIRA_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
+JIRA_GUARD_DIR: "{{ [ lookup('container', application_id, 'directories.services'), 'build-guard' ] | path_join }}"
+JIRA_GUARD_MOUNT: "/opt/infinito-build-guard"
+JIRA_GUARD_DOWNGRADE_RC: 3
 
 JIRA_JVM_MAX: "{{ lookup('service_memory_mb', application_id, entity_name, 0.7) }}m"
 JIRA_JVM_MIN: "{{ lookup('service_memory_mb', application_id, entity_name, 0.35) }}m"

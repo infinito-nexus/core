@@ -104,6 +104,14 @@ docker run --rm -it \
       --diff -vv'
 ```
 
+## Version pin and downgrades
+
+Jira refuses to start on data that a newer build wrote. Jira records that build as `jira.version.patched` in its database, not in the home directory. Before the stack starts, every deploy reads it with [data_build.sql](files/sql/data_build.sql) and runs [build_guard.py](files/python/build_guard.py) in the pinned upstream image:
+
+- It compares the recorded build with the build number of the Jira installation in the image.
+- When the recorded build is newer, the deploy stops and names both build numbers. Raise `services.jira.version` to the release of the recorded build or newer, or restore the database and `jira_data` from the backup taken before that release.
+- A database without the property, such as one before the first start, and a host without `jira_data` pass.
+
 ## Further Resources
 
 - Docker Hub (official image): [atlassian/jira-software](https://hub.docker.com/r/atlassian/jira-software)
