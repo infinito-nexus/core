@@ -22,6 +22,7 @@ while IFS=$'\t' read -r name mountpoint; do
 	printf 'volume\t%s\t%s\n' "$name" "$data"
 done < <(docker volume ls -q 2>/dev/null | xargs -r docker volume inspect --format '{{.Name}}{{"\t"}}{{.Mountpoint}}' 2>/dev/null)
 
+# shellcheck disable=SC2016
 docker ps -aq 2>/dev/null | xargs -r docker inspect --type container --format \
 	'container{{"\t"}}{{.Name}}{{"\t"}}{{.Config.Image}}{{"\t"}}{{.State.Status}}{{"\t"}}{{index .Config.Labels "com.docker.compose.project"}}{{$n := .Name}}{{range $p, $bs := .HostConfig.PortBindings}}{{range $bs}}{{"\n"}}binding{{"\t"}}{{$n}}{{"\t"}}{{.HostIp}}{{"\t"}}{{.HostPort}}{{"\t"}}{{$p}}{{end}}{{end}}' 2>/dev/null
 
