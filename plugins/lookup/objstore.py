@@ -10,7 +10,11 @@ from ansible.plugins.lookup import LookupBase
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.entity.name import entity_name
-from utils.tls_common import resolve_enabled
+from utils.tls_common import (
+    collect_domains_for_app,
+    is_onion_domain,
+    resolve_enabled,
+)
 
 OBJSTORE_ENGINES = ("seaweedfs", "minio")
 OBJSTORE_PROVIDER_ROLE = {
@@ -23,6 +27,7 @@ OBJSTORE_DEFAULT_IMAGE = {
     "minio": "quay.io/minio/minio",
 }
 OBJSTORE_DEFAULT_REGION = "us-east-1"
+OBJSTORE_PROXY_PREFIX = "/objstore"
 
 
 def _is_enabled(applications: dict[str, Any], consumer_id: str, engine: str) -> bool:
@@ -114,6 +119,10 @@ class LookupModule(LookupBase):
                 "public_bucket": "",
                 "public_endpoint": "",
                 "public_url": "",
+                "proxy_required": False,
+                "proxy_prefix": "",
+                "upstream_domain": "",
+                "upstream_scheme": "",
                 "reach_host": "127.0.0.1",
             }
             return [resolved if want == "all" else resolved.get(want, "")]
@@ -228,7 +237,6 @@ class LookupModule(LookupBase):
         public_domain = (
             str(public_domain) if public_domain is not None else ""
         ).strip()
-        public_bucket = f"{public_domain}/{bucket}" if public_domain else ""
         provider_app = applications.get(provider_role) or {}
         if not isinstance(provider_app, dict):
             provider_app = {}
@@ -237,6 +245,34 @@ class LookupModule(LookupBase):
             if resolve_enabled(provider_app, bool(vars_.get("TLS_ENABLED", True)))
             else "http"
         )
+
+        def _lookup(name: str, args: list[Any]) -> Any:
+            return lookup_loader.get(
+                name, loader=self._loader, templar=getattr(self, "_templar", None)
+            ).run(args, variables=vars_)[0]
+
+        def _consumer_is_onion_only() -> bool:
+            domains_map = _lookup("domains", [])
+            if consumer_id not in domains_map:
+                return False
+            served_on = collect_domains_for_app(
+                domains_map, consumer_id, err_prefix="objstore"
+            )
+            return bool(served_on) and all(is_onion_domain(d) for d in served_on)
+
+        proxy_required = bool(
+            public_domain
+            and not is_onion_domain(public_domain)
+            and _consumer_is_onion_only()
+        )
+        upstream_domain = public_domain
+        upstream_scheme = scheme
+        if proxy_required:
+            consumer_tls = _lookup("tls", [consumer_id])
+            public_domain = f"{consumer_tls['domain']}{OBJSTORE_PROXY_PREFIX}"
+            scheme = consumer_tls["protocols"]["web"]
+
+        public_bucket = f"{public_domain}/{bucket}" if public_domain else ""
         public_endpoint = f"{scheme}://{public_domain}" if public_domain else ""
         public_url = f"{scheme}://{public_bucket}" if public_bucket else ""
 
@@ -266,6 +302,10 @@ class LookupModule(LookupBase):
             "public_bucket": public_bucket,
             "public_endpoint": public_endpoint,
             "public_url": public_url,
+            "proxy_required": proxy_required,
+            "proxy_prefix": OBJSTORE_PROXY_PREFIX,
+            "upstream_domain": upstream_domain,
+            "upstream_scheme": upstream_scheme,
             "reach_host": "127.0.0.1",
         }
         return [resolved if want == "all" else resolved.get(want, "")]

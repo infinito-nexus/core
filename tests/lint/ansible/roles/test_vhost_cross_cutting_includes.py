@@ -108,9 +108,29 @@ def scraped(role: str) -> bool:
     )
 
 
+def consumes_objstore(role: str) -> bool:
+    """Return whether the role's own vhost has to route an object store.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return False
+    block = load_yaml_any(str(meta), default_if_missing={})
+    if not isinstance(block, Mapping):
+        return False
+    for engine in ("seaweedfs", "minio"):
+        entry = block.get(engine)
+        if isinstance(entry, Mapping) and entry.get("enabled") is not False:
+            return True
+    return False
+
+
 APPLIES = {
     "roles/sys-svc-proxy/templates/mcp/vhost.conf.j2": serves_mcp,
     "roles/web-app-prometheus/templates/nginx/locations.conf.j2": scraped,
+    "roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2": consumes_objstore,
 }
 
 SATISFIED_BY = {

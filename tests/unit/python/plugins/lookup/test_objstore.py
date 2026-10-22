@@ -8,6 +8,7 @@ consumer has enabled and yields a uniform S3 connection payload.
 import importlib.util
 import unittest
 import unittest.mock as mock
+from typing import ClassVar
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -294,6 +295,96 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(
             self._run(["web-app-foo", "secret_key"], applications)[0], "s3cr3t"
         )
+
+
+class ObjstoreSameOriginProxyTests(unittest.TestCase):
+    """Pins the rebase of the browser-facing values onto the consumer's own
+    origin. web-svc-seaweedfs publishes no onion vhost (the tor-contract in its
+    meta/services.yml), so a page served only on an onion reaches the provider's
+    clearnet host through no route at all.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_module("plugins/lookup/objstore.py", "lookup_objstore")
+
+    APPLICATIONS: ClassVar[dict] = {
+        "web-app-foo": {
+            "services": {"seaweedfs": {"enabled": True, "shared": True}},
+            "secrets": {"credentials": {"objstore_secret_key": "sk"}},
+        },
+        "web-svc-seaweedfs": {
+            "services": {"seaweedfs": {"name": "seaweedfs-central"}},
+            "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}},
+        },
+    }
+
+    def _resolve(self, *, consumer_domains, consumer_web="http"):
+        vars_ = {"DIR_COMPOSITIONS": "/opt/compose/", "TLS_ENABLED": True}
+        lm = self.mod.LookupModule()
+        lm._templar = _DummyTemplar(vars_)
+        lm._loader = mock.MagicMock()
+
+        payloads = {
+            "applications": self.APPLICATIONS,
+            "domains": {"web-app-foo": consumer_domains},
+            "tls": {
+                "domain": consumer_domains[0],
+                "protocols": {"web": consumer_web},
+            },
+        }
+
+        def fake_get(name, **_kwargs):
+            return mock.MagicMock(run=lambda *_a, **_k: [payloads[name]])
+
+        with (
+            mock.patch.object(self.mod, "lookup_loader") as loader_mock,
+            patch.object(
+                self.mod,
+                "entity_name",
+                side_effect=lambda r: r.split("-", 2)[-1],
+            ),
+        ):
+            loader_mock.get.side_effect = fake_get
+            return lm.run(["web-app-foo"], variables=vars_)[0]
+
+    def test_an_onion_only_consumer_gets_the_bucket_on_its_own_origin(self):
+        out = self._resolve(consumer_domains=["foo.abcdefghij.onion"])
+
+        self.assertTrue(out["proxy_required"])
+        self.assertEqual(out["proxy_prefix"], "/objstore")
+        self.assertEqual(out["public_domain"], "foo.abcdefghij.onion/objstore")
+        self.assertEqual(
+            out["public_url"],
+            "http://foo.abcdefghij.onion/objstore/foo",
+            "the browser must dial the page's own origin, never the provider's "
+            "clearnet host it cannot resolve through Tor",
+        )
+        self.assertEqual(
+            (out["upstream_domain"], out["upstream_scheme"]),
+            ("api.seaweedfs.s3.example.com", "https"),
+            "the nginx fragment still has to reach the provider's own vhost, so "
+            "the rebase must not overwrite the upstream it proxies to",
+        )
+
+    def test_a_clearnet_consumer_keeps_the_provider_host(self):
+        out = self._resolve(consumer_domains=["foo.example.com"], consumer_web="https")
+
+        self.assertFalse(
+            out["proxy_required"],
+            "a clearnet page reaches the provider directly, so no deployment "
+            "pays for a proxy hop it does not need",
+        )
+        self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
+        self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
+
+    def test_a_consumer_on_both_families_keeps_the_provider_host(self):
+        out = self._resolve(
+            consumer_domains=["foo.example.com", "foo.abcdefghij.onion"],
+        )
+
+        self.assertFalse(out["proxy_required"])
+        self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
 
 
 if __name__ == "__main__":
