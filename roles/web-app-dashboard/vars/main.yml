@@ -7,6 +7,7 @@ DASHBOARD_INSTANCES: "{{ lookup('domains')[DASHBOARD_APPLICATION_ID] | network_i
 DASHBOARD_INSTANCE_DOMAIN: "{{ lookup('domains')[DASHBOARD_APPLICATION_ID] | domain_strings | in_network(dashboard_instance.network) | first }}"
 DASHBOARD_NETWORK_LABEL: "{{ (DASHBOARD_INSTANCES | selectattr('network', 'equalto', domain | network_of) | first).label }}"
 
+DASHBOARD_ASSET_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.asset.enabled') }}"
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
 DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |

@@ -1,0 +1,102 @@
+<svg viewBox="0 0 1500 1000" width="1500" height="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <radialGradient id="bg" cx="750" cy="330" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1D34C9" stop-opacity=".75"/>
+      <stop offset=".45" stop-color="#0B1233"/>
+      <stop offset="1" stop-color="#050812"/>
+    </radialGradient>
+    <linearGradient id="title" x1="980" y1="0" x2="1240" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="sub" x1="290" y1="0" x2="1210" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset=".55" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#7d96ff"/>
+    </pattern>
+    <clipPath id="globe"><circle cx="750" cy="330" r="330"/></clipPath>
+    <clipPath id="logo"><circle cx="750" cy="330" r="170"/></clipPath>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+    <g id="panel">
+      <rect x="-110" y="-75" width="220" height="150" rx="20" fill="#4f6bff" fill-opacity=".09" stroke="#8ea2ff" stroke-opacity=".55" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect width="1500" height="1000" fill="url(#bg)"/>
+
+  <g clip-path="url(#globe)" opacity=".22">
+    <rect x="420" y="0" width="660" height="660" fill="url(#dots)"/>
+  </g>
+  <g fill="none" stroke="#7d96ff" stroke-opacity=".28" stroke-width="2">
+    <circle cx="750" cy="330" r="330"/>
+    <ellipse cx="750" cy="330" rx="330" ry="120"/>
+    <ellipse cx="750" cy="330" rx="140" ry="330"/>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#4f6bff" stroke-width="12" opacity=".7" filter="url(#glow)">
+      <path d="M335 245 C 450 245, 500 290, 584 318"/>
+      <path d="M335 545 C 450 545, 500 420, 590 385"/>
+      <path d="M1165 245 C 1050 245, 1000 290, 916 318"/>
+      <path d="M1165 545 C 1050 545, 1000 420, 910 385"/>
+    </g>
+    <g stroke="#9fb0ff" stroke-width="4">
+      <path d="M335 245 C 450 245, 500 290, 584 318"/>
+      <path d="M335 545 C 450 545, 500 420, 590 385"/>
+      <path d="M1165 245 C 1050 245, 1000 290, 916 318"/>
+      <path d="M1165 545 C 1050 545, 1000 420, 910 385"/>
+    </g>
+  </g>
+  <g fill="#e0f2fe">
+    <circle cx="470" cy="262" r="6"/>
+    <circle cx="470" cy="500" r="6"/>
+    <circle cx="1030" cy="262" r="6"/>
+    <circle cx="1030" cy="500" r="6"/>
+  </g>
+
+  <use href="#panel" xlink:href="#panel" x="225" y="245"/>
+  <use href="#panel" xlink:href="#panel" x="225" y="545"/>
+  <use href="#panel" xlink:href="#panel" x="1275" y="245"/>
+  <use href="#panel" xlink:href="#panel" x="1275" y="545"/>
+  <g fill="none" stroke="#67e8f9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(189 209) scale(3)">{{ICON_1}}</g>
+    <g transform="translate(189 509) scale(3)">{{ICON_2}}</g>
+    <g transform="translate(1239 209) scale(3)">{{ICON_3}}</g>
+    <g transform="translate(1239 509) scale(3)">{{ICON_4}}</g>
+  </g>
+  <g font-family="'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="22" font-weight="600" fill="#a5b4fc" text-anchor="middle">
+    <text x="225" y="356">{{LABEL_1}}</text>
+    <text x="225" y="656">{{LABEL_2}}</text>
+    <text x="1275" y="356">{{LABEL_3}}</text>
+    <text x="1275" y="656">{{LABEL_4}}</text>
+  </g>
+
+  <ellipse cx="750" cy="636" rx="300" ry="30" fill="none" stroke="#4f6bff" stroke-width="10" opacity=".55" filter="url(#glow)"/>
+  <ellipse cx="750" cy="636" rx="300" ry="30" fill="#0b1233" stroke="#6d83ff" stroke-width="3"/>
+  <rect x="560" y="520" width="380" height="54" rx="14" fill="#0e1430" stroke="#3b4fc4" stroke-width="2"/>
+  <rect x="560" y="580" width="380" height="54" rx="14" fill="#0e1430" stroke="#3b4fc4" stroke-width="2"/>
+  <rect x="592" y="544" width="66" height="6" rx="3" fill="#22d3ee"/>
+  <rect x="592" y="604" width="66" height="6" rx="3" fill="#22d3ee"/>
+  <g fill="#7dd3fc">
+    <circle cx="896" cy="547" r="4"/><circle cx="912" cy="547" r="4"/>
+    <circle cx="896" cy="607" r="4"/><circle cx="912" cy="607" r="4"/>
+  </g>
+
+  <circle cx="750" cy="330" r="186" fill="#4f6bff" opacity=".6" filter="url(#soft)"/>
+  <circle cx="750" cy="330" r="176" fill="#ffffff"/>
+  <image href="{{LOGO}}" xlink:href="{{LOGO}}" x="576" y="156" width="348" height="348" preserveAspectRatio="xMidYMid slice" clip-path="url(#logo)"/>
+  <circle cx="750" cy="330" r="176" fill="none" stroke="#8ea2ff" stroke-width="5"/>
+
+  <rect x="636" y="686" width="228" height="52" rx="26" fill="#22d3ee" fill-opacity=".08" stroke="#22d3ee" stroke-width="2"/>
+  <text x="750" y="720" text-anchor="middle" font-family="Inter,'Segoe UI',Roboto,system-ui,sans-serif" font-size="22" font-weight="700" letter-spacing="4" fill="#67e8f9">RELEASE {{VERSION}}</text>
+
+  <text x="750" y="828" text-anchor="middle" font-family="Inter,'Segoe UI',Roboto,system-ui,sans-serif" font-size="96" font-weight="800" letter-spacing="-2" fill="#f8fafc">Infinito.Nexus <tspan fill="url(#title)">{{VERSION}}</tspan></text>
+  <g font-family="Inter,'Segoe UI',Roboto,system-ui,sans-serif" font-size="50" font-weight="800" fill="url(#sub)" text-anchor="middle">
+    <text x="750" y="904">{{SUBTITLE_1}}</text>
+    <text x="750" y="964">{{SUBTITLE_2}}</text>
+  </g>
+</svg>

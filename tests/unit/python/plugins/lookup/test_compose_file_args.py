@@ -1,5 +1,7 @@
 import importlib.util
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
@@ -205,6 +207,16 @@ class TestComposeFArgs(unittest.TestCase):
             out = self.lookup.run(["web-app-a"], variables=self.vars)[0]
 
         self.assertEqual(out, "-f /x/compose.yml")
+
+    def test_role_provides_override_reads_the_role_of_the_given_application(self):
+        with (
+            tempfile.TemporaryDirectory() as role,
+            patch.object(self.m, "abs_role_path_by_application_id", return_value=role),
+        ):
+            self.assertFalse(self.m._role_provides_override(application_id="x"))
+            (Path(role) / "templates").mkdir()
+            (Path(role) / "templates" / "compose.override.yml.j2").write_text("")
+            self.assertTrue(self.m._role_provides_override(application_id="x"))
 
     def test_requires_one_term(self):
         with self.assertRaises(AnsibleError):

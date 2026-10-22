@@ -31,3 +31,10 @@ client_custom:
       target: *var_www_html_client_custom_target
     - service: websocket
       target: *var_www_html_client_custom_target
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: espocrm
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

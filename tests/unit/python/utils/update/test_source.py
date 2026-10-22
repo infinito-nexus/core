@@ -179,7 +179,10 @@ class TestOutdated(unittest.TestCase):
 class TestTemplate(unittest.TestCase):
     def _outdated(self, services: str, upstream: str) -> list[str]:
         root = _repo(services)
-        with mock.patch.object(module, "documents", return_value=upstream):
+        with (
+            mock.patch.object(module, "documents", return_value=upstream),
+            mock.patch.object(module, "manifest_exists", return_value=True),
+        ):
             updates = module.outdated(module.collect_entries(root), root)
         return [update.latest for update in updates]
 
@@ -204,6 +207,31 @@ class TestTemplate(unittest.TestCase):
         self.assertEqual(
             self._outdated(SUFFIXED, "part v1.11.3-v3.0.23\n"), ["v1.11.3-v3.0.23"]
         )
+
+
+class TestPulledImage(unittest.TestCase):
+    def _outdated(self, exists: bool | None) -> tuple[list[str], mock.MagicMock]:
+        root = _repo(COMPOUND)
+        with (
+            mock.patch.object(
+                module, "documents", return_value="core v3.0.39\npart v1.11.3\n"
+            ),
+            mock.patch.object(module, "manifest_exists", return_value=exists) as probe,
+        ):
+            updates = module.outdated(module.collect_entries(root), root)
+        return [update.latest for update in updates], probe
+
+    def test_a_tag_the_image_registry_lacks_is_not_pinned(self) -> None:
+        latest, probe = self._outdated(False)
+        self.assertEqual(latest, [])
+        probe.assert_called_once_with("example/part", "v1.11.3-v3.0.39")
+
+    def test_an_indeterminate_registry_answer_keeps_the_bump(self) -> None:
+        self.assertEqual(self._outdated(None)[0], ["v1.11.3-v3.0.39"])
+
+    def test_only_the_version_of_a_pulled_image_carries_the_image(self) -> None:
+        entries = {e.key: e.image for e in module.collect_entries(_repo())}
+        self.assertEqual(entries, {"app_version": "", "version": "example"})
 
 
 class TestAddons(unittest.TestCase):

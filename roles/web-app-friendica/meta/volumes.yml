@@ -19,3 +19,10 @@ ldapauth_config:
     - service: friendica
       target: /var/www/html/config/ldapauth.config.php
       when: "{{ lookup('config', 'web-app-friendica', 'services.ldap.enabled') | bool }}"
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: friendica
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

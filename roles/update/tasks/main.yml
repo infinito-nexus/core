@@ -10,7 +10,7 @@
               'Debian':    'debian.yml',
               'Ubuntu':    'debian.yml',
               'Fedora':    'fedora.yml',
-              'CentOS':    'fedora.yml',
+              'CentOS':    'centos.yml',
             }[ansible_facts['distribution']] | default('unsupported.yml')
           }}
 

@@ -37,5 +37,6 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Staged changes are ready to be committed | `i8-commit` |
 | A branch is ready to be opened as a pull request | `i8-pull-request` |
 | Pushing a branch through the manual-CI draft → ready-for-review cycle | `i8-push-trigger-pull` |
+| Writing the blog article, banner image and social posts for a release | `i8-release-article` |
 | Writing a new requirement | `i8-requirement-create` |
 | Implementing an existing requirement file end to end | `i8-requirement-implement` |

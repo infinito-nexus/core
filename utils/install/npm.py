@@ -10,6 +10,9 @@ from utils.install.primitives import ensure_dir_on_path, install_with_optional_s
 
 
 def ensure_npm_present() -> None:
+    from utils.install.node import ensure_node_present
+
+    ensure_node_present()
     if shutil.which("npm") is not None:
         return
 

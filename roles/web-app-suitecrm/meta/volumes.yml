@@ -30,3 +30,10 @@ ldap_config:
     - service: suitecrm
       target: "{{ ['/var/www/html/extensions', SOFTWARE_DOMAIN | replace('.', '-'), 'config/services/ldap/ldap.yaml'] | path_join }}"
       when: "{{ lookup('config', 'web-app-suitecrm', 'services.ldap.enabled') | bool }}"
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: suitecrm
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

@@ -48,8 +48,7 @@ flowchart LR
         svc_bbb_web["bbb-web"]
         svc_freeswitch["freeswitch"]
         svc_nginx["nginx"]
-        svc_etherpad["etherpad"]
-        svc_bbb_pads["bbb-pads"]
+        svc_bbb_shared_notes_server["bbb-shared-notes-server"]
         svc_bbb_export_annotations["bbb-export-annotations"]
         svc_webrtc_sfu["webrtc-sfu"]
         svc_fsesl_akka["fsesl-akka"]
@@ -91,7 +90,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - 🧱 Automatic `.env` templating and domain/NGINX integration
 - 🛠 Volume patching and Docker Compose customization
 - 📬 SMTP integration and Greenlight admin creation
-- 🧪 Workarounds for known Docker Compose or Etherpad issues
+- 🧪 Workarounds for known Docker Compose issues
 
 ## Quick Setup
 
