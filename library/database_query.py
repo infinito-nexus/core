@@ -109,7 +109,7 @@ _ENGINES: dict[str, dict[str, object]] = {
         "user_flag": "-U",
         "db_flag": "-d",
         "shared_flags": ["-v", "ON_ERROR_STOP=1"],
-        "rows_flags": ["-tA"],
+        "rows_flags": ["-qtA"],
         "row_separator": "|",
         "password_env": "PGPASSWORD",
         "string_quote": "'",
