@@ -34,6 +34,12 @@ ARG MOODLE_TARBALL_URL
 ARG MOODLE_VERSION_FILE
 ARG MOODLE_AUTH_SUBDIR
 ARG MOODLE_WEBSERVICE_SUBDIR
+ARG MOODLE_CLI_RELPATH
+ARG MOODLE_RELEASE_LIB
+ARG MOODLE_TRANSIT_DIR
+ARG MOODLE_TRANSIT_RELEASE
+ARG MOODLE_TRANSIT_TARBALL_URL
+ARG MOODLE_UPGRADE_PATH
 
 ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
     MOODLE_DATA_DIR=${MOODLE_DATA_DIR} \
@@ -48,7 +54,13 @@ ENV MOODLE_CODE_DIR=${MOODLE_CODE_DIR} \
     MOODLE_TARBALL_URL=${MOODLE_TARBALL_URL} \
     MOODLE_VERSION_FILE=${MOODLE_VERSION_FILE} \
     MOODLE_AUTH_SUBDIR=${MOODLE_AUTH_SUBDIR} \
-    MOODLE_WEBSERVICE_SUBDIR=${MOODLE_WEBSERVICE_SUBDIR}
+    MOODLE_WEBSERVICE_SUBDIR=${MOODLE_WEBSERVICE_SUBDIR} \
+    MOODLE_CLI_RELPATH=${MOODLE_CLI_RELPATH} \
+    MOODLE_RELEASE_LIB=${MOODLE_RELEASE_LIB} \
+    MOODLE_TRANSIT_DIR=${MOODLE_TRANSIT_DIR} \
+    MOODLE_TRANSIT_RELEASE=${MOODLE_TRANSIT_RELEASE} \
+    MOODLE_TRANSIT_TARBALL_URL=${MOODLE_TRANSIT_TARBALL_URL} \
+    MOODLE_UPGRADE_PATH=${MOODLE_UPGRADE_PATH}
 
 # hadolint ignore=DL3008
 RUN rm -rf /var/lib/apt/lists/* \
@@ -98,8 +110,12 @@ COPY build/php-conf/zz-moodle-pool.conf     /usr/local/etc/php-fpm.d/zz-moodle-p
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY build/install/moodle-source.sh /tmp/install-moodle-source.sh
+COPY build/install/moodle/source.sh /tmp/install-moodle-source.sh
 RUN bash /tmp/install-moodle-source.sh && rm /tmp/install-moodle-source.sh
+
+COPY build/moodle/release.sh ${MOODLE_RELEASE_LIB}
+COPY build/install/moodle/upgrade-path.sh /tmp/install-moodle-upgrade-path.sh
+RUN bash /tmp/install-moodle-upgrade-path.sh && rm /tmp/install-moodle-upgrade-path.sh
 
 COPY build/install/auth-oidc.sh /tmp/install-auth-oidc.sh
 RUN if [ "${MOODLE_OIDC_ENABLED}" = "1" ] || [ "${MOODLE_OIDC_ENABLED}" = "true" ]; then \
@@ -117,7 +133,7 @@ COPY build/config.php ${MOODLE_SOURCE_DIR}/config.php
 RUN chown ${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER} ${MOODLE_SOURCE_DIR}/config.php \
  && chmod 0640 ${MOODLE_SOURCE_DIR}/config.php
 
-COPY build/moodle-entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
+COPY build/moodle/entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
 RUN chmod 0755 /usr/local/bin/moodle-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/moodle-entrypoint.sh"]
