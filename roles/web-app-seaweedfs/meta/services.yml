@@ -44,10 +44,12 @@ prometheus:
   enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
   shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: variants-coverage  the onion gate of the sso flag above reaches here: without that gate the vhost answers 403 and carries no design surface, so no variant may force it on a tor node.
+# nocheck: bond-baseline  same reason: variant 0 must not pin this surface on.
 design:
   bond: 1
-  enabled: "{{ 'web-svc-design' in group_names }}"
-  shared: "{{ 'web-svc-design' in group_names }}"
+  enabled: "{{ ('web-svc-design' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-svc-design' in group_names) and ('svc-net-tor' not in group_names) }}"
   slots:
     logo:
       width: 50

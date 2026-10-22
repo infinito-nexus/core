@@ -13,8 +13,8 @@
       enabled: "{{ 'svc-net-tor' not in group_names }}"
       shared: "{{ 'svc-net-tor' not in group_names }}"
     design:
-      enabled: true
-      shared: true
+      enabled: "{{ 'svc-net-tor' not in group_names }}"
+      shared: "{{ 'svc-net-tor' not in group_names }}"
     tor:
       enabled: true
 - services:
