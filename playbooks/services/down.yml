@@ -1,0 +1,42 @@
+---
+- name: "🛑 Stop every timer and service of the stack"
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: "🔍 Collect {{ SOFTWARE_DOMAIN }} timers"
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - list-unit-files
+          - "*.{{ SOFTWARE_DOMAIN }}.timer"
+          - --no-legend
+          - --no-pager
+      register: services_down_timers
+      changed_when: false
+      check_mode: false
+
+    - name: "🔍 Collect {{ SOFTWARE_DOMAIN }} services"
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - list-unit-files
+          - "*.{{ SOFTWARE_DOMAIN }}.service"
+          - --no-legend
+          - --no-pager
+      register: services_down_services
+      changed_when: false
+      check_mode: false
+
+    - name: "⏸️ Stop and disable {{ SOFTWARE_DOMAIN }} timers"
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop: "{{ services_down_timers.stdout_lines | map('split') | map('first') | list }}"
+
+    - name: "🛑 Stop {{ SOFTWARE_DOMAIN }} services"
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+      loop: "{{ services_down_services.stdout_lines | map('split') | map('first') | list }}"

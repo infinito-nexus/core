@@ -1,0 +1,19 @@
+---
+- name: "📋 Report the update-relevant state of every host"
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: "📋 Collect the update report"
+      ansible.builtin.script: # nocheck: stack-host-consumer (read-only report for legacy hosts that never ran stack_host_template; report.sh tolerates a missing directory)
+        cmd: "report.sh {{ DIR_COMPOSITIONS | quote }} {{ DIR_BACKUPS | quote }}"
+      register: update_report
+      changed_when: false
+
+    - name: "💾 Save the report to /tmp/infinito-update-report-{{ inventory_hostname }}.txt"
+      ansible.builtin.copy:
+        content: "{{ update_report.stdout }}"
+        dest: "/tmp/infinito-update-report-{{ inventory_hostname }}.txt"
+        mode: "0600"
+      delegate_to: localhost
+      become: false

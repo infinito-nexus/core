@@ -1,0 +1,24 @@
+---
+- name: "▶️ Start every timer of the stack"
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: "🔍 Collect {{ SOFTWARE_DOMAIN }} timers"
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - list-unit-files
+          - "*.{{ SOFTWARE_DOMAIN }}.timer"
+          - --no-legend
+          - --no-pager
+      register: services_up_timers
+      changed_when: false
+      check_mode: false
+
+    - name: "⏰ Enable and start {{ SOFTWARE_DOMAIN }} timers"
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop: "{{ services_up_timers.stdout_lines | map('split') | map('first') | list }}"
