@@ -22,6 +22,7 @@ _PIDS_LIMIT = 512
 _POSTGRES_SUPERUSER_RESERVED_CONNECTIONS = 3
 _POSTGRES_DELAY = 2
 _POSTGRES_MAX_LOCKS_PER_TRANSACTION = 256
+_PHP_FPM_MAX_REQUESTS = 200
 
 _CONTAINER_PREFIX_REGEX = r"^(web-|svc-).*"
 
@@ -194,6 +195,7 @@ def _build(
         "postgres_maintenance_work_mem": f"{maintenance_work_mem_mb}MB",
         "postgres_delay": _POSTGRES_DELAY,
         "postgres_max_locks_per_transaction": _POSTGRES_MAX_LOCKS_PER_TRANSACTION,
+        "php_fpm_max_requests": _PHP_FPM_MAX_REQUESTS,
     }
 
     if containers is not None:
