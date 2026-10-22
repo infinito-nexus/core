@@ -9,6 +9,7 @@ const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL,
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const translatedRole = requireDotenvValue(process.env.TRANSLATED_ROLE, "TRANSLATED_ROLE");
+const languageCount = Number(requireDotenvValue(process.env.API_LANGUAGE_COUNT, "API_LANGUAGE_COUNT"));
 const SEMVER_TAG = /^v\d+\.\d+\.\d+$/;
 
 function apiUrl(path, params = {}) {
@@ -61,6 +62,7 @@ module.exports = {
   canonicalDomain,
   adminPassword,
   translatedRole,
+  languageCount,
   apiUrl,
   getJson,
   statusOf,

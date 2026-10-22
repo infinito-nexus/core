@@ -24,9 +24,9 @@ exports.register = function (shared) {
     expect(catalog.messages[context][english.role.description]).toBe(byParameter.body.role.description);
   });
 
-  test("languages list all 184 ISO languages with their translated share", async ({ request }) => {
+  test("languages list every ISO language of the table with its translated share", async ({ request }) => {
     const { body } = await shared.getJson(request, "/v1/languages", { ref: "deployed" });
-    expect(body.languages).toHaveLength(184);
+    expect(body.languages).toHaveLength(shared.languageCount);
     const byCode = Object.fromEntries(body.languages.map((language) => [language.code, language]));
     expect(byCode.de.native).toBe("Deutsch");
     expect(byCode.de.translated).toBeGreaterThan(0.9);
