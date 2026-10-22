@@ -39,3 +39,11 @@ design_theme_jquery_ui_css:
     - service: phpmyadmin
       target: /var/www/html/themes/infinito/jquery/jquery-ui.css
       when: *phpmyadmin_design_when
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: phpmyadmin
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

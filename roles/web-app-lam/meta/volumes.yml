@@ -15,3 +15,11 @@ design_js:
     - service: lam
       target: /usr/share/ldap-account-manager/templates/lib/900_infinito.js
       when: "{{ lookup('config', 'web-app-lam', 'services.design.enabled') | bool }}"
+
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: lam
+      target: /etc/php/8.4/apache2/conf.d/zz-infinito-hardening.ini

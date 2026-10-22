@@ -6,6 +6,10 @@
     mode: "0755"
   with_dict: "{{ lookup('container', application_id, 'directories') }}"
 
+- name: "🛡️ Ensure PHP hardening assets are installed"
+  ansible.builtin.include_role:
+    name: sys-svc-compose-php
+
 - name: "📂 Include git-repo based installation routines for '{{ application_id }}'."
   include_tasks: "03_repository.yml"
   when: compose_repository_pull | bool

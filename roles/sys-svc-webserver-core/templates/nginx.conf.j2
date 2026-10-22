@@ -19,6 +19,7 @@ http
   }
   include mime.types;
   default_type text/html;
+  server_tokens off;
   add_header 'Vary' 'Origin' always;
   proxy_cache_path {{ lookup('nginx','directories.cache.general') }} levels=1:2 keys_zone=cache:20m max_size=20g inactive=14d use_temp_path=off;
   proxy_cache_path {{ lookup('nginx','directories.cache.image') }} levels=1:2 keys_zone=imgcache:10m inactive=60m use_temp_path=off;

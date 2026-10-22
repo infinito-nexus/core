@@ -66,3 +66,10 @@ webmail_oauth:
   mounts:
     - service: webmail
       target: /var/roundcube/config/oauth.inc.php
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: webmail
+      target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini

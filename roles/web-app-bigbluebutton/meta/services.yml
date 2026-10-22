@@ -39,7 +39,7 @@ bigbluebutton:
   enabled: true
   shared: true
   repository: https://github.com/bigbluebutton/docker.git
-  ref: v3.0.23
+  ref: v3.0.39
   update:
     key: ref
     type: http_regex
@@ -114,7 +114,7 @@ prometheus:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-web:
   image: alangecker/bbb-docker-web
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -124,7 +124,7 @@ bbb-web:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 freeswitch:
   image: alangecker/bbb-docker-freeswitch
-  version: "v1.10.12-v3.0.23"
+  version: "v1.11.3-v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -135,7 +135,7 @@ freeswitch:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 nginx:
   image: alangecker/bbb-docker-nginx
-  version: "v3.0.23-v5.4.4-1.29"
+  version: "v3.0.39-v5.4.8-1.29"
   update:
     type: http_regex
     url:
@@ -161,7 +161,7 @@ etherpad:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-pads:
   image: alangecker/bbb-docker-pads
-  version: "v1.5.8"
+  version: "v1.5.11"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -171,7 +171,7 @@ bbb-pads:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
   image: alangecker/bbb-docker-bbb-export-annotations
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -181,7 +181,7 @@ bbb-export-annotations:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
   image: alangecker/bbb-docker-webrtc-sfu
-  version: "v2.22.0"
+  version: "v2.24.0"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -191,7 +191,7 @@ webrtc-sfu:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 fsesl-akka:
   image: alangecker/bbb-docker-fsesl-akka
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -201,7 +201,7 @@ fsesl-akka:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
   image: alangecker/bbb-docker-apps-akka
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -216,7 +216,7 @@ bbb-graphql-server:
     timeout: 10s
     retries: 5
   image: alangecker/bbb-docker-graphql-server
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -226,7 +226,7 @@ bbb-graphql-server:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
   image: alangecker/bbb-docker-graphql-actions
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -236,7 +236,7 @@ bbb-graphql-actions:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
   image: alangecker/bbb-docker-graphql-middleware
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -256,7 +256,7 @@ periodic:
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
   image: alangecker/bbb-docker-recordings
-  version: "v3.0.23"
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
@@ -276,7 +276,7 @@ bbb-webrtc-recorder:
 # nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated
 dockerize:
   image: ghcr.io/jwilder/dockerize
-  version: "v0.15.2"
+  version: "v0.16.0"
   enabled: false
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer

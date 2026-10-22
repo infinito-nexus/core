@@ -31,6 +31,12 @@ FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
 
 DIR_METRICS_TEXTFILE: "{{ [DIR_VAR_LIB, 'metrics'] | path_join }}"
 
+DIR_PHP_HARDENING: "/etc/{{ SOFTWARE_DOMAIN }}/php"
+PHP_HARDENING_INI_DIGEST: "{{ (lookup('file', lookup('path_absolute', 'roles/sys-svc-compose-php/files/hardening.ini')) | hash('sha1'))[:8] }}"
+PHP_FPM_HARDENING_CONF_DIGEST: "{{ (lookup('template', lookup('path_absolute', 'roles/sys-svc-compose-php/templates/fpm-hardening.conf.j2')) | hash('sha1'))[:8] }}"
+FILE_PHP_HARDENING_INI: "{{ [DIR_PHP_HARDENING, 'hardening-' ~ PHP_HARDENING_INI_DIGEST ~ '.ini'] | path_join }}"
+FILE_PHP_FPM_HARDENING_CONF: "{{ [DIR_PHP_HARDENING, 'fpm-hardening-' ~ PHP_FPM_HARDENING_CONF_DIGEST ~ '.conf'] | path_join }}"
+
 DIR_RESCUE_DIAGNOSTICS: "/tmp/infinito-rescue-diagnostics"
 FILE_DNS53_SAMPLER_LOG: "/var/log/infinito/dns53-sampler.log"
 
