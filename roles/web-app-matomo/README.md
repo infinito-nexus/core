@@ -87,6 +87,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Privacy-First:** Enjoy a self-hosted solution that prioritizes data ownership and privacy.
 - **Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and a TOML configuration file.
 - **Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands.
+- **Version Upgrades:** When the pinned image ships a newer Matomo than the data volume holds, the deploy installs that release into the volume, keeps `config/config.ini.php`, `misc/user/` and Marketplace plugins, and runs `core:update`; a volume newer than the image stops the deploy.
 
 ## Quick Setup
 
