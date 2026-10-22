@@ -67,6 +67,25 @@
   failed_when: pixelfed_admin_id.rows | length == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔑 Converge the Pixelfed administrator password"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  PIXELFED_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e PIXELFED_APP_DIR -e PIXELFED_ADMIN_USERNAME -e PIXELFED_ADMIN_PASSWORD
+    -u {{ PIXELFED_APP_USER }}
+    {{ PIXELFED_LOCAL_CID | quote }} php --
+  args:
+    stdin: "{{ lookup('file', role_path + '/files/php/converge_admin_password.php') }}"
+  environment:
+    PIXELFED_APP_DIR: "{{ PIXELFED_APP_DIR }}"
+    PIXELFED_ADMIN_USERNAME: "{{ PIXELFED_ADMIN_USERNAME }}"
+    PIXELFED_ADMIN_PASSWORD: "{{ PIXELFED_ADMIN_PASSWORD }}"
+  delegate_to: "{{ PIXELFED_HOST_NODE }}"
+  register: pixelfed_admin_password
+  changed_when: "'PASSWORD_SET' in pixelfed_admin_password.stdout"
+  failed_when: >-
+    pixelfed_admin_password.rc != 0
+    or pixelfed_admin_password.stdout is not search('(?m)^PASSWORD_(SET|KEPT)$')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "👑 Ensure the Pixelfed administrator carries the admin flag"
   database_query:
     config: "{{ lookup('database', application_id) }}"
