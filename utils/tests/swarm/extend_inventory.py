@@ -155,6 +155,11 @@ def main() -> int:
     backup_path = inv_path.parent / "backup.yml"
     dump_yaml(str(backup_path), backup_inv)
     print(backup_path.read_text())  # nocheck: cache-read
+
+    backup_vars_path = inv_path.parent / "host_vars" / f"{_BACKUP}.yml"
+    backup_vars = load_yaml_any(str(backup_vars_path), default_if_missing={})
+    if backup_vars.pop("NETWORK_MODE", None) is not None:
+        dump_yaml(str(backup_vars_path), backup_vars)
     return 0
 
 

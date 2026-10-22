@@ -57,6 +57,36 @@ class TestBackupLegGating(unittest.TestCase):
         self.assertNotIn("svc-bkp-volume-2-local", children)
 
 
+class TestBackupHostNetworkMode(unittest.TestCase):
+    def _backup_vars(self, seeded: dict) -> dict:
+        with tempfile.TemporaryDirectory() as td:
+            inv_path = Path(td) / "devices.yml"
+            vars_path = Path(td) / "host_vars" / f"{ei._BACKUP}.yml"
+            vars_path.parent.mkdir()
+            ei.dump_yaml(str(vars_path), seeded)
+            env = {
+                "SWARM_NAME": "t",
+                "APP_ID": "svc-registry-docker",
+                "INV_PATH": str(inv_path),
+            }
+            with (
+                mock.patch.dict("os.environ", env),
+                mock.patch.object(ei, "derive_includes", return_value=[]),
+                mock.patch.object(ei, "_host_topology", return_value=[]),
+                mock.patch.object(ei, "get_role_placement", return_value=""),
+            ):
+                ei.main()
+            return ei.load_yaml_any(str(vars_path))
+
+    def test_manager_network_mode_is_dropped_from_the_backup_copy(self):
+        self.assertEqual(
+            self._backup_vars({"NETWORK_MODE": "multi", "keep": 1}), {"keep": 1}
+        )
+
+    def test_backup_vars_without_network_mode_stay_untouched(self):
+        self.assertEqual(self._backup_vars({"keep": 1}), {"keep": 1})
+
+
 class TestSandboxWorkerLabelling(unittest.TestCase):
     def _workers(self, kata_enabled: object) -> tuple[str, ...]:
         apps = {"an-app": {"services": {"kata": {"enabled": kata_enabled}}}}
