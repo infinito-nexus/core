@@ -81,7 +81,8 @@ class TestDumpDocument(unittest.TestCase):
 
             dump_document(path, document)
 
-            lines = path.read_text(encoding="utf-8").splitlines()
+            text = path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+            lines = text.splitlines()
             self.assertEqual(3, len(lines))
             self.assertEqual(f"- {key}", lines[1])
             self.assertEqual(key, load_document(path)["authorized_keys"][0])
