@@ -10,7 +10,9 @@ CATCH_ALL_LOCAL = ""
 def _split(address: str, where: str) -> tuple[str, str]:
     local, at, domain = address.rpartition("@")
     if not at or not domain or "." not in domain or "@" in local:
-        raise AnsibleFilterError(f"stalwart aliases: invalid address {address!r} in {where}")
+        raise AnsibleFilterError(
+            f"stalwart aliases: invalid address {address!r} in {where}"
+        )
     return local, domain
 
 
@@ -29,7 +31,9 @@ def stalwart_aliases(aliases: list[dict[str, Any]]) -> list[dict[str, Any]]:
             catch-all with other than exactly one destination.
     """
     if not isinstance(aliases, list):
-        raise AnsibleFilterError(f"stalwart aliases: a list is required, got {aliases!r}")
+        raise AnsibleFilterError(
+            f"stalwart aliases: a list is required, got {aliases!r}"
+        )
     normalised: list[dict[str, Any]] = []
     seen: set[str] = set()
     for entry in aliases:
@@ -104,7 +108,9 @@ def stalwart_alias_plan(
         domain_id = domain_ids[alias["domain"]]
         if alias["local"] == CATCH_ALL_LOCAL:
             if live_catch_all.get(domain_id) != alias["destinations"][0]:
-                plan["domains"][domain_id] = {"catchAllAddress": alias["destinations"][0]}
+                plan["domains"][domain_id] = {
+                    "catchAllAddress": alias["destinations"][0]
+                }
             continue
         key = (alias["local"], domain_id)
         declared.add(key)

@@ -23,7 +23,9 @@ class TestFlagMapping(unittest.TestCase):
         self.m = _load_module()
 
     def test_system_flags(self):
-        self.assertEqual(self.m.maildir_flags_to_imap("1.host:2,FS", {}), "(\\Flagged \\Seen)")
+        self.assertEqual(
+            self.m.maildir_flags_to_imap("1.host:2,FS", {}), "(\\Flagged \\Seen)"
+        )
 
     def test_no_info_means_no_flags(self):
         self.assertEqual(self.m.maildir_flags_to_imap("1.host", {}), "")
@@ -37,12 +39,18 @@ class TestFlagMapping(unittest.TestCase):
 
     def test_read_keywords(self):
         with tempfile.TemporaryDirectory() as tmp:
-            Path(tmp, "dovecot-keywords").write_text("0 $Forwarded\n1 Work\n30 Ignored\n")
-            self.assertEqual(self.m.read_keywords(Path(tmp)), {"a": "$Forwarded", "b": "Work"})
+            Path(tmp, "dovecot-keywords").write_text(
+                "0 $Forwarded\n1 Work\n30 Ignored\n"
+            )
+            self.assertEqual(
+                self.m.read_keywords(Path(tmp)), {"a": "$Forwarded", "b": "Work"}
+            )
 
     def test_folder_names(self):
         self.assertEqual(self.m.maildir_folder_to_imap("", "/"), "INBOX")
-        self.assertEqual(self.m.maildir_folder_to_imap(".Archive.2024", "/"), "Archive/2024")
+        self.assertEqual(
+            self.m.maildir_folder_to_imap(".Archive.2024", "/"), "Archive/2024"
+        )
 
 
 class TestDedupKey(unittest.TestCase):
@@ -50,7 +58,9 @@ class TestDedupKey(unittest.TestCase):
         self.m = _load_module()
 
     def test_message_id_wins(self):
-        self.assertEqual(self.m.dedup_key(b"Message-ID: <x@y>\r\nSubject: s\r\n\r\nb"), "<x@y>")
+        self.assertEqual(
+            self.m.dedup_key(b"Message-ID: <x@y>\r\nSubject: s\r\n\r\nb"), "<x@y>"
+        )
 
     def test_fallback_digest_ignores_line_endings_and_folding(self):
         lf = b"Date: Mon, 1 Jan 2024\nFrom: a@b.c\nSubject: long\n subject\n\nbody"
@@ -77,8 +87,14 @@ class TestMaildirWalk(unittest.TestCase):
         (self.account / ".sieve.d").mkdir()
 
     def test_folders_and_messages(self):
-        self.assertEqual([name for name, _ in self.m.iter_maildir_folders(self.account)], ["", ".Archive"])
-        self.assertEqual([p.name for p in self.m.iter_messages(self.account)], ["1.host:2,S", "2.host"])
+        self.assertEqual(
+            [name for name, _ in self.m.iter_maildir_folders(self.account)],
+            ["", ".Archive"],
+        )
+        self.assertEqual(
+            [p.name for p in self.m.iter_messages(self.account)],
+            ["1.host:2,S", "2.host"],
+        )
 
 
 class TestSieve(unittest.TestCase):
@@ -93,11 +109,15 @@ class TestSieve(unittest.TestCase):
         (self.mailbox / "sieve" / "roundcube.sieve").write_text('require "fileinto";\n')
         (self.mailbox / ".dovecot.sieve").symlink_to("sieve/roundcube.sieve")
         script = self.m.read_active_sieve(self.mailbox)
-        self.assertEqual((script.name, script.content), ("roundcube", 'require "fileinto";\n'))
+        self.assertEqual(
+            (script.name, script.content), ("roundcube", 'require "fileinto";\n')
+        )
 
     def test_absolute_link_from_the_mailu_container_resolves_by_name(self):
         (self.mailbox / "sieve" / "x.sieve").write_text("keep;\n")
-        (self.mailbox / ".dovecot.sieve").symlink_to("/mail/alice@example.test/sieve/x.sieve")
+        (self.mailbox / ".dovecot.sieve").symlink_to(
+            "/mail/alice@example.test/sieve/x.sieve"
+        )
         self.assertEqual(self.m.read_active_sieve(self.mailbox).name, "x")
 
     def test_plain_file_is_named_dovecot(self):
@@ -110,9 +130,16 @@ class TestSieve(unittest.TestCase):
         self.assertIsNone(self.m.read_active_sieve(self.mailbox))
 
     def test_script_names(self):
-        self.assertEqual(self.m.sieve_script_name("a@x.org", "a@x.org", "roundcube"), "roundcube")
-        self.assertEqual(self.m.sieve_script_name("old@x.org", "a@x.org", "roundcube"), "old-roundcube")
-        self.assertEqual(self.m.sieve_script_name("a@x.org", "a@x.org", "Vacation"), "mailu-Vacation")
+        self.assertEqual(
+            self.m.sieve_script_name("a@x.org", "a@x.org", "roundcube"), "roundcube"
+        )
+        self.assertEqual(
+            self.m.sieve_script_name("old@x.org", "a@x.org", "roundcube"),
+            "old-roundcube",
+        )
+        self.assertEqual(
+            self.m.sieve_script_name("a@x.org", "a@x.org", "Vacation"), "mailu-Vacation"
+        )
 
 
 class TestPlanning(unittest.TestCase):
@@ -121,34 +148,51 @@ class TestPlanning(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         root = Path(self.tmp.name)
-        for name in ("Alice@example.org", "kb@example.org", "v@example.net", "lost+found", "notes"):
+        for name in (
+            "Alice@example.org",
+            "kb@example.org",
+            "v@example.net",
+            "lost+found",
+            "notes",
+        ):
             (root / name).mkdir()
         (root / "file@example.org").write_text("")
         self.mailboxes = self.m.discover_mailboxes(root)
 
     def test_discovers_every_address_directory(self):
         self.assertEqual(
-            [m.address for m in self.mailboxes], ["alice@example.org", "kb@example.org", "v@example.net"]
+            [m.address for m in self.mailboxes],
+            ["alice@example.org", "kb@example.org", "v@example.net"],
         )
 
     def test_unserved_domain_is_skipped_by_address(self):
         plan = self.m.plan_imports(self.mailboxes, {}, {"example.org"})
-        self.assertEqual(plan.skipped, [("v@example.net", "domain example.net is not served by Stalwart")])
+        self.assertEqual(
+            plan.skipped,
+            [("v@example.net", "domain example.net is not served by Stalwart")],
+        )
         self.assertEqual(sorted(plan.targets), ["alice@example.org", "kb@example.org"])
 
     def test_mapped_mailbox_merges_after_the_target_own_mailbox(self):
-        plan = self.m.plan_imports(self.mailboxes, {"alice@example.org": "kb@example.org"}, {"example.org"})
+        plan = self.m.plan_imports(
+            self.mailboxes, {"alice@example.org": "kb@example.org"}, {"example.org"}
+        )
         self.assertEqual(list(plan.targets), ["kb@example.org"])
         self.assertEqual(
-            [m.address for m in plan.targets["kb@example.org"]], ["kb@example.org", "alice@example.org"]
+            [m.address for m in plan.targets["kb@example.org"]],
+            ["kb@example.org", "alice@example.org"],
         )
 
     def test_mapping_into_an_unserved_domain_fails(self):
         with self.assertRaises(ValueError):
-            self.m.plan_imports(self.mailboxes, {"alice@example.org": "k@example.net"}, {"example.org"})
+            self.m.plan_imports(
+                self.mailboxes, {"alice@example.org": "k@example.net"}, {"example.org"}
+            )
 
     def test_unknown_mapping_source_is_reported(self):
-        plan = self.m.plan_imports(self.mailboxes, {"gone@example.org": "kb@example.org"}, {"example.org"})
+        plan = self.m.plan_imports(
+            self.mailboxes, {"gone@example.org": "kb@example.org"}, {"example.org"}
+        )
         self.assertEqual(plan.missing_sources, ["gone@example.org"])
 
 
@@ -158,7 +202,9 @@ class TestMailboxMap(unittest.TestCase):
 
     def test_parses_and_lowercases(self):
         raw = json.dumps([{"source": "Alice@example.org", "target": "KB@example.org"}])
-        self.assertEqual(self.m.parse_mailbox_map(raw), {"alice@example.org": "kb@example.org"})
+        self.assertEqual(
+            self.m.parse_mailbox_map(raw), {"alice@example.org": "kb@example.org"}
+        )
 
     def test_rejects_repeated_source(self):
         raw = json.dumps([{"source": "a@x.org", "target": "b@x.org"}] * 2)
@@ -166,13 +212,20 @@ class TestMailboxMap(unittest.TestCase):
             self.m.parse_mailbox_map(raw)
 
     def test_rejects_chains(self):
-        raw = json.dumps([{"source": "a@x.org", "target": "b@x.org"}, {"source": "b@x.org", "target": "c@x.org"}])
+        raw = json.dumps(
+            [
+                {"source": "a@x.org", "target": "b@x.org"},
+                {"source": "b@x.org", "target": "c@x.org"},
+            ]
+        )
         with self.assertRaises(ValueError):
             self.m.parse_mailbox_map(raw)
 
     def test_rejects_self_mapping(self):
         with self.assertRaises(ValueError):
-            self.m.parse_mailbox_map(json.dumps([{"source": "a@x.org", "target": "a@x.org"}]))
+            self.m.parse_mailbox_map(
+                json.dumps([{"source": "a@x.org", "target": "a@x.org"}])
+            )
 
 
 if __name__ == "__main__":

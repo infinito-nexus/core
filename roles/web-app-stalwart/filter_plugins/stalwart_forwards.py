@@ -32,7 +32,9 @@ def stalwart_forwards(forwards: list[dict[str, Any]]) -> list[dict[str, Any]]:
             destination equal to the forwarding account.
     """
     if not isinstance(forwards, list):
-        raise AnsibleFilterError(f"stalwart forwards: a list is required, got {forwards!r}")
+        raise AnsibleFilterError(
+            f"stalwart forwards: a list is required, got {forwards!r}"
+        )
     normalised: list[dict[str, Any]] = []
     seen: set[str] = set()
     for entry in forwards:
@@ -42,13 +44,19 @@ def stalwart_forwards(forwards: list[dict[str, Any]]) -> list[dict[str, Any]]:
             )
         address = str(entry["address"]).strip().lower()
         destinations = entry["destinations"]
-        if not _is_address(address) or not isinstance(destinations, list) or not destinations:
+        if (
+            not _is_address(address)
+            or not isinstance(destinations, list)
+            or not destinations
+        ):
             raise AnsibleFilterError(
                 f"stalwart forwards: {entry!r} needs an address and a non-empty destinations list"
             )
         destinations = sorted({str(d).strip().lower() for d in destinations})
         if not all(_is_address(d) for d in destinations) or address in destinations:
-            raise AnsibleFilterError(f"stalwart forwards: invalid destinations for {address}")
+            raise AnsibleFilterError(
+                f"stalwart forwards: invalid destinations for {address}"
+            )
         if address in seen:
             raise AnsibleFilterError(f"stalwart forwards: {address} is declared twice")
         seen.add(address)

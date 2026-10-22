@@ -203,7 +203,9 @@ class Jmap:
 
     def _send(self, url: str, payload: object | None) -> dict:
         data = None if payload is None else json.dumps(payload).encode()
-        request = urllib.request.Request(url, data=data, headers=self.headers)
+        request = urllib.request.Request(  # noqa: S310 fixed internal JMAP origin
+            url, data=data, headers=self.headers
+        )
         with _LOOPBACK_OPENER.open(request, timeout=_HTTP_TIMEOUT) as response:
             return json.loads(response.read())
 
@@ -217,7 +219,10 @@ class Jmap:
         name, result, _ = body["methodResponses"][0]
         if name == "error":
             raise MigrationError(f"{method} refused: {result}")
-        rejected = {**(result.get("notCreated") or {}), **(result.get("notUpdated") or {})}
+        rejected = {
+            **(result.get("notCreated") or {}),
+            **(result.get("notUpdated") or {}),
+        }
         if rejected:
             raise MigrationError(f"{method} rejected: {rejected}")
         return result
@@ -262,7 +267,10 @@ class Stalwart:
             _SIEVE_USING, "SieveScript/get", {"accountId": account_id, "ids": None}
         )["list"]
         current = next((s for s in listed if s["name"] == script.name), None)
-        if current and _blob_text(jmap, account_id, current["blobId"]) == script.content:
+        if (
+            current
+            and _blob_text(jmap, account_id, current["blobId"]) == script.content
+        ):
             return f"unchanged:{script.name}"
         blob_id = jmap.call(
             _BLOB_USING,
@@ -314,7 +322,9 @@ def import_mailbox(
     stats = AccountStats()
     imap = connect(args.imap_host, args.imap_port, args.imap_insecure)
     try:
-        imap.login(imap_quote(stalwart.impersonation_login(target)), stalwart.admin_password)
+        imap.login(
+            imap_quote(stalwart.impersonation_login(target)), stalwart.admin_password
+        )
         migrate_account(imap, source.path, stats)
     finally:
         with suppress(imaplib.IMAP4.error, OSError):

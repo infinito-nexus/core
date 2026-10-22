@@ -31,7 +31,12 @@ class TestStalwartAliases(unittest.TestCase):
 
     def test_normalises_case_and_dedups_destinations(self):
         result = self.aliases(
-            [{"address": "Admin@Example.ORG", "destinations": ["B@x.org", "a@x.org", "b@x.org"]}]
+            [
+                {
+                    "address": "Admin@Example.ORG",
+                    "destinations": ["B@x.org", "a@x.org", "b@x.org"],
+                }
+            ]
         )
         self.assertEqual(
             result,
@@ -46,12 +51,21 @@ class TestStalwartAliases(unittest.TestCase):
         )
 
     def test_catch_all_has_empty_local_part(self):
-        result = self.aliases([{"address": "@example.org", "destinations": ["k@example.org"]}])
+        result = self.aliases(
+            [{"address": "@example.org", "destinations": ["k@example.org"]}]
+        )
         self.assertEqual(result[0]["local"], "")
 
     def test_catch_all_with_two_destinations_is_rejected(self):
         with self.assertRaises(AnsibleFilterError):
-            self.aliases([{"address": "@example.org", "destinations": ["a@example.org", "b@x.org"]}])
+            self.aliases(
+                [
+                    {
+                        "address": "@example.org",
+                        "destinations": ["a@example.org", "b@x.org"],
+                    }
+                ]
+            )
 
     def test_empty_destinations_are_rejected(self):
         with self.assertRaises(AnsibleFilterError):
@@ -64,7 +78,15 @@ class TestStalwartAliases(unittest.TestCase):
 
     def test_unknown_key_is_rejected(self):
         with self.assertRaises(AnsibleFilterError):
-            self.aliases([{"address": "a@example.org", "destinations": ["b@x.org"], "keep": True}])
+            self.aliases(
+                [
+                    {
+                        "address": "a@example.org",
+                        "destinations": ["b@x.org"],
+                        "keep": True,
+                    }
+                ]
+            )
 
     def test_catch_all_as_destination_is_rejected(self):
         with self.assertRaises(AnsibleFilterError):
@@ -85,7 +107,15 @@ class TestStalwartAliasPlan(unittest.TestCase):
         return self.plan(self.aliases(declared), DOMAINS, lists, MARKER)
 
     def test_new_alias_becomes_a_marked_mailing_list(self):
-        plan = self._plan([{"address": "team@example.org", "destinations": ["a@example.org", "b@x.org"]}], [])
+        plan = self._plan(
+            [
+                {
+                    "address": "team@example.org",
+                    "destinations": ["a@example.org", "b@x.org"],
+                }
+            ],
+            [],
+        )
         self.assertEqual(
             plan["create"],
             {
@@ -97,42 +127,101 @@ class TestStalwartAliasPlan(unittest.TestCase):
                 }
             },
         )
-        self.assertEqual((plan["update"], plan["destroy"], plan["domains"]), ({}, [], {}))
+        self.assertEqual(
+            (plan["update"], plan["destroy"], plan["domains"]), ({}, [], {})
+        )
 
     def test_unchanged_alias_plans_nothing(self):
-        live = [{"id": "l1", "name": "team", "domainId": "d1", "description": MARKER, "recipients": {"a@example.org": True}}]
-        plan = self._plan([{"address": "team@example.org", "destinations": ["a@example.org"]}], live)
-        self.assertEqual(plan, {"create": {}, "update": {}, "destroy": [], "domains": {}})
+        live = [
+            {
+                "id": "l1",
+                "name": "team",
+                "domainId": "d1",
+                "description": MARKER,
+                "recipients": {"a@example.org": True},
+            }
+        ]
+        plan = self._plan(
+            [{"address": "team@example.org", "destinations": ["a@example.org"]}], live
+        )
+        self.assertEqual(
+            plan, {"create": {}, "update": {}, "destroy": [], "domains": {}}
+        )
 
     def test_changed_destinations_update_the_list(self):
-        live = [{"id": "l1", "name": "team", "domainId": "d1", "description": MARKER, "recipients": {"a@example.org": True}}]
-        plan = self._plan([{"address": "team@example.org", "destinations": ["c@example.org"]}], live)
-        self.assertEqual(plan["update"], {"l1": {"recipients": {"c@example.org": True}}})
+        live = [
+            {
+                "id": "l1",
+                "name": "team",
+                "domainId": "d1",
+                "description": MARKER,
+                "recipients": {"a@example.org": True},
+            }
+        ]
+        plan = self._plan(
+            [{"address": "team@example.org", "destinations": ["c@example.org"]}], live
+        )
+        self.assertEqual(
+            plan["update"], {"l1": {"recipients": {"c@example.org": True}}}
+        )
 
     def test_undeclared_marked_list_is_destroyed(self):
-        live = [{"id": "l1", "name": "old", "domainId": "d1", "description": MARKER, "recipients": {}}]
+        live = [
+            {
+                "id": "l1",
+                "name": "old",
+                "domainId": "d1",
+                "description": MARKER,
+                "recipients": {},
+            }
+        ]
         self.assertEqual(self._plan([], live)["destroy"], ["l1"])
 
     def test_foreign_list_is_left_alone(self):
-        live = [{"id": "l9", "name": "sales", "domainId": "d1", "description": "manual", "recipients": {}}]
+        live = [
+            {
+                "id": "l9",
+                "name": "sales",
+                "domainId": "d1",
+                "description": "manual",
+                "recipients": {},
+            }
+        ]
         self.assertEqual(self._plan([], live)["destroy"], [])
 
     def test_declared_address_held_by_foreign_list_fails(self):
-        live = [{"id": "l9", "name": "team", "domainId": "d1", "description": "manual", "recipients": {}}]
+        live = [
+            {
+                "id": "l9",
+                "name": "team",
+                "domainId": "d1",
+                "description": "manual",
+                "recipients": {},
+            }
+        ]
         with self.assertRaises(AnsibleFilterError):
-            self._plan([{"address": "team@example.org", "destinations": ["a@example.org"]}], live)
+            self._plan(
+                [{"address": "team@example.org", "destinations": ["a@example.org"]}],
+                live,
+            )
 
     def test_catch_all_updates_the_domain(self):
-        plan = self._plan([{"address": "@example.org", "destinations": ["k@example.org"]}], [])
+        plan = self._plan(
+            [{"address": "@example.org", "destinations": ["k@example.org"]}], []
+        )
         self.assertEqual(plan["domains"], {"d1": {"catchAllAddress": "k@example.org"}})
 
     def test_matching_catch_all_plans_nothing(self):
-        plan = self._plan([{"address": "@example.com", "destinations": ["contact@example.com"]}], [])
+        plan = self._plan(
+            [{"address": "@example.com", "destinations": ["contact@example.com"]}], []
+        )
         self.assertEqual(plan["domains"], {})
 
     def test_alias_in_unserved_domain_fails(self):
         with self.assertRaises(AnsibleFilterError):
-            self._plan([{"address": "a@example.net", "destinations": ["b@example.org"]}], [])
+            self._plan(
+                [{"address": "a@example.net", "destinations": ["b@example.org"]}], []
+            )
 
 
 if __name__ == "__main__":

@@ -171,9 +171,7 @@ def joomla_core_upgrade_steps(database, files, target, bridges) -> list[dict]:
                 f"{_render(current)} has no update path to {_render(goal)}"
             )
         else:
-            steps.append(
-                _step(current, landing["version"], landing, bridge["plugins"])
-            )
+            steps.append(_step(current, landing["version"], landing, bridge["plugins"]))
             current = landing["version"]
     if current < goal or (not steps and laid != goal):
         steps.append(_step(current, goal, None, {}))

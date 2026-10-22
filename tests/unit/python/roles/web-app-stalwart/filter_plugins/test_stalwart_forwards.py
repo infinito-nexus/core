@@ -24,12 +24,19 @@ class TestStalwartForwards(unittest.TestCase):
         self.forwards = _load().stalwart_forwards
 
     def test_normalises_and_sorts_destinations(self):
-        result = self.forwards([{"address": "A@example.org", "destinations": ["Z@x.org", "b@x.org"]}])
-        self.assertEqual(result, [{"address": "a@example.org", "destinations": ["b@x.org", "z@x.org"]}])
+        result = self.forwards(
+            [{"address": "A@example.org", "destinations": ["Z@x.org", "b@x.org"]}]
+        )
+        self.assertEqual(
+            result,
+            [{"address": "a@example.org", "destinations": ["b@x.org", "z@x.org"]}],
+        )
 
     def test_forward_to_itself_is_rejected(self):
         with self.assertRaises(AnsibleFilterError):
-            self.forwards([{"address": "a@example.org", "destinations": ["A@example.org"]}])
+            self.forwards(
+                [{"address": "a@example.org", "destinations": ["A@example.org"]}]
+            )
 
     def test_empty_destinations_are_rejected(self):
         with self.assertRaises(AnsibleFilterError):
@@ -42,7 +49,9 @@ class TestStalwartForwards(unittest.TestCase):
 
     def test_invalid_destination_is_rejected(self):
         with self.assertRaises(AnsibleFilterError):
-            self.forwards([{"address": "a@example.org", "destinations": ["not-an-address"]}])
+            self.forwards(
+                [{"address": "a@example.org", "destinations": ["not-an-address"]}]
+            )
 
 
 class TestForwardInclude(unittest.TestCase):
@@ -50,11 +59,17 @@ class TestForwardInclude(unittest.TestCase):
         self.include = _load().stalwart_forward_include
 
     def test_active_user_script_is_included(self):
-        scripts = [{"name": "roundcube", "isActive": True}, {"name": OWN, "isActive": False}]
+        scripts = [
+            {"name": "roundcube", "isActive": True},
+            {"name": OWN, "isActive": False},
+        ]
         self.assertEqual(self.include(scripts, OWN, ""), "roundcube")
 
     def test_include_survives_while_the_forward_script_is_active(self):
-        scripts = [{"name": "roundcube", "isActive": False}, {"name": OWN, "isActive": True}]
+        scripts = [
+            {"name": "roundcube", "isActive": False},
+            {"name": OWN, "isActive": True},
+        ]
         own = 'require ["copy", "include"];\nredirect :copy "a@x.org";\ninclude :personal "roundcube";\n'
         self.assertEqual(self.include(scripts, OWN, own), "roundcube")
 
@@ -87,8 +102,13 @@ class TestForwardScript(unittest.TestCase):
     def test_rendered_include_is_read_back(self):
         module = _load()
         rendered = module.stalwart_forward_script(["a@x.org"], 'my "rules"')
-        scripts = [{"name": 'my "rules"', "isActive": False}, {"name": OWN, "isActive": True}]
-        self.assertEqual(module.stalwart_forward_include(scripts, OWN, rendered), 'my "rules"')
+        scripts = [
+            {"name": 'my "rules"', "isActive": False},
+            {"name": OWN, "isActive": True},
+        ]
+        self.assertEqual(
+            module.stalwart_forward_include(scripts, OWN, rendered), 'my "rules"'
+        )
 
 
 if __name__ == "__main__":

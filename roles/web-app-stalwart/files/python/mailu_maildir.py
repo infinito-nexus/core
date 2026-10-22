@@ -5,9 +5,11 @@ from __future__ import annotations
 import email.parser
 import hashlib
 import json
-import os
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _MAILDIR_FLAG_MAP = {
     "S": "\\Seen",
@@ -175,7 +177,7 @@ def dedup_key(raw: bytes) -> str:
 def read_active_sieve(mailbox_dir: Path) -> SieveScript | None:
     link = mailbox_dir / _SIEVE_ACTIVE_LINK
     if link.is_symlink():
-        script = mailbox_dir / "sieve" / Path(os.readlink(link)).name
+        script = mailbox_dir / "sieve" / link.readlink().name
         name = script.stem
     elif link.is_file():
         script, name = link, "dovecot"

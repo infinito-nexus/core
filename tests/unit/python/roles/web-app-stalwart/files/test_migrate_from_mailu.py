@@ -54,7 +54,9 @@ class _FakeImap:
         return "OK", [str(len(self._existing_headers)).encode()]
 
     def search(self, charset, *criteria):
-        nums = b" ".join(str(i + 1).encode() for i in range(len(self._existing_headers)))
+        nums = b" ".join(
+            str(i + 1).encode() for i in range(len(self._existing_headers))
+        )
         return "OK", [nums]
 
     def fetch(self, message_set, message_parts):
@@ -76,10 +78,14 @@ class TestServerLayout(unittest.TestCase):
 
     def test_reads_separator_and_special_use(self):
         self.assertEqual(self.layout.separator, "/")
-        self.assertEqual(self.layout.special_use, {"\\Sent": "Sent Items", "\\Junk": "Junk Mail"})
+        self.assertEqual(
+            self.layout.special_use, {"\\Sent": "Sent Items", "\\Junk": "Junk Mail"}
+        )
 
     def test_nested_folder_uses_the_server_separator(self):
-        self.assertEqual(self.m.destination_mailbox(".Archive.2024", self.layout), "Archive/2024")
+        self.assertEqual(
+            self.m.destination_mailbox(".Archive.2024", self.layout), "Archive/2024"
+        )
 
     def test_special_folder_lands_in_the_special_use_folder(self):
         self.assertEqual(self.m.destination_mailbox(".Sent", self.layout), "Sent Items")
@@ -109,9 +115,13 @@ class TestMigrateAccount(unittest.TestCase):
                 (base / sub).mkdir(parents=True)
         (self.account / "cur" / "1.host:2,S").write_bytes(b"Message-ID: <1@x>\r\n\r\na")
         (self.account / "new" / "2.host").write_bytes(b"Message-ID: <2@x>\r\n\r\nb")
-        (self.account / ".Archive" / "cur" / "3.host:2,a").write_bytes(b"Message-ID: <3@x>\r\n\r\nc")
+        (self.account / ".Archive" / "cur" / "3.host:2,a").write_bytes(
+            b"Message-ID: <3@x>\r\n\r\nc"
+        )
         (self.account / ".Archive" / "dovecot-keywords").write_text("0 $Forwarded\n")
-        (self.account / ".Sent" / "cur" / "4.host:2,S").write_bytes(b"Message-ID: <4@x>\r\n\r\nd")
+        (self.account / ".Sent" / "cur" / "4.host:2,S").write_bytes(
+            b"Message-ID: <4@x>\r\n\r\nd"
+        )
         os.utime(self.account / "cur" / "1.host:2,S", (1700000000, 1700000000))
 
     def test_appends_with_flags_folders_and_internal_date(self):
@@ -121,13 +131,25 @@ class TestMigrateAccount(unittest.TestCase):
         self.assertEqual(imap.created, ["Archive", "Sent Items"])
         self.assertEqual(
             [(mailbox, flags) for mailbox, flags, _, _ in imap.appended],
-            [("INBOX", "(\\Seen)"), ("INBOX", None), ("Archive", "($Forwarded)"), ("Sent Items", "(\\Seen)")],
+            [
+                ("INBOX", "(\\Seen)"),
+                ("INBOX", None),
+                ("Archive", "($Forwarded)"),
+                ("Sent Items", "(\\Seen)"),
+            ],
         )
-        self.assertEqual(imap.appended[0][2], self.m.imaplib.Time2Internaldate(1700000000))
+        self.assertEqual(
+            imap.appended[0][2], self.m.imaplib.Time2Internaldate(1700000000)
+        )
         self.assertEqual((stats.total("found"), stats.total("appended")), (4, 4))
 
     def test_existing_messages_are_skipped(self):
-        imap = _FakeImap(existing_headers=[b"Message-ID: <1@x>\r\n\r\n", b"Message-ID: <3@x>\r\n\r\n"])
+        imap = _FakeImap(
+            existing_headers=[
+                b"Message-ID: <1@x>\r\n\r\n",
+                b"Message-ID: <3@x>\r\n\r\n",
+            ]
+        )
         stats = self.m.AccountStats()
         self.m.migrate_account(imap, self.account, stats)
         self.assertEqual(stats.folder("INBOX").appended, 1)
@@ -136,7 +158,9 @@ class TestMigrateAccount(unittest.TestCase):
         self.assertEqual(stats.total("found"), 4)
 
     def test_existing_keys_collects_the_server_side_keys(self):
-        imap = _FakeImap(existing_headers=[b"Message-ID: <a@x>\r\n\r\n", b"X: 1\r\n\r\n"])
+        imap = _FakeImap(
+            existing_headers=[b"Message-ID: <a@x>\r\n\r\n", b"X: 1\r\n\r\n"]
+        )
         self.assertEqual(self.m.existing_keys(imap), {"<a@x>"})
 
 
@@ -179,16 +203,24 @@ class TestImportSieve(unittest.TestCase):
         self.assertEqual(self._run(jmap), "imported:roundcube (active)")
         method, arguments = jmap.calls[-1]
         self.assertEqual(method, "SieveScript/set")
-        self.assertEqual(arguments["create"], {"s": {"name": "roundcube", "blobId": "blob1"}})
+        self.assertEqual(
+            arguments["create"], {"s": {"name": "roundcube", "blobId": "blob1"}}
+        )
         self.assertEqual(arguments["onSuccessActivateScript"], "#s")
 
     def test_identical_script_is_left_alone(self):
-        jmap = _FakeJmap([{"id": "s1", "name": "roundcube", "blobId": "b0", "isActive": False}], "keep;\n")
+        jmap = _FakeJmap(
+            [{"id": "s1", "name": "roundcube", "blobId": "b0", "isActive": False}],
+            "keep;\n",
+        )
         self.assertEqual(self._run(jmap), "unchanged:roundcube")
         self.assertNotIn("SieveScript/set", [method for method, _ in jmap.calls])
 
     def test_changed_script_is_updated_and_activated(self):
-        jmap = _FakeJmap([{"id": "s1", "name": "roundcube", "blobId": "b0", "isActive": False}], "old;\n")
+        jmap = _FakeJmap(
+            [{"id": "s1", "name": "roundcube", "blobId": "b0", "isActive": False}],
+            "old;\n",
+        )
         self.assertEqual(self._run(jmap), "updated:roundcube (active)")
         _, arguments = jmap.calls[-1]
         self.assertEqual(arguments["update"], {"s1": {"blobId": "blob1"}})
@@ -212,16 +244,30 @@ class TestEnsureAccount(unittest.TestCase):
         self.stalwart = _FakeStalwart()
 
     def test_missing_account_is_created_in_its_domain(self):
-        self.m.ensure_account(self.stalwart, "new@example.org", {"example.org": "d1"}, set(), set())
+        self.m.ensure_account(
+            self.stalwart, "new@example.org", {"example.org": "d1"}, set(), set()
+        )
         self.assertEqual(self.stalwart.created, [("new@example.org", "d1")])
 
     def test_existing_account_is_kept(self):
-        self.m.ensure_account(self.stalwart, "a@example.org", {"example.org": "d1"}, {"a@example.org"}, set())
+        self.m.ensure_account(
+            self.stalwart,
+            "a@example.org",
+            {"example.org": "d1"},
+            {"a@example.org"},
+            set(),
+        )
         self.assertEqual(self.stalwart.created, [])
 
     def test_alias_address_is_refused(self):
         with self.assertRaises(self.m.MigrationError):
-            self.m.ensure_account(self.stalwart, "a@example.org", {"example.org": "d1"}, set(), {"a@example.org"})
+            self.m.ensure_account(
+                self.stalwart,
+                "a@example.org",
+                {"example.org": "d1"},
+                set(),
+                {"a@example.org"},
+            )
 
 
 if __name__ == "__main__":

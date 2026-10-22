@@ -49,7 +49,20 @@ POLL_DELAY = 5
 ADMIN_USING = ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"]
 SIEVE_USING = ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:sieve"]
 BLOB_USING = ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:blob"]
-MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+MONTHS = (
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
 _FLAGS = re.compile(rb"FLAGS \(([^)]*)\)")
 _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -71,7 +84,9 @@ def login(address: str) -> imaplib.IMAP4_SSL:
     context.verify_mode = ssl.CERT_NONE
     imap = imaplib.IMAP4_SSL(HOST, IMAPS_PORT, ssl_context=context, timeout=TIMEOUT)
     imap._encoding = "utf-8"
-    imap.login(f'"{address}%{env("STALWART_ADMIN_USER")}"', env("STALWART_ADMIN_PASSWORD"))
+    imap.login(
+        f'"{address}%{env("STALWART_ADMIN_USER")}"', env("STALWART_ADMIN_PASSWORD")
+    )
     return imap
 
 
@@ -83,10 +98,14 @@ def matching(imap: imaplib.IMAP4, mailbox: str, subject: str) -> list[bytes]:
     numbers = (data[0] or b"").split() if typ == "OK" and data else []
     found: list[bytes] = []
     for number in numbers:
-        typ, parts = imap.fetch(number, "(FLAGS INTERNALDATE BODY.PEEK[HEADER.FIELDS (SUBJECT)])")
-        for part in parts or []:
-            if isinstance(part, tuple) and subject.encode() in part[1]:
-                found.append(part[0])
+        typ, parts = imap.fetch(
+            number, "(FLAGS INTERNALDATE BODY.PEEK[HEADER.FIELDS (SUBJECT)])"
+        )
+        found.extend(
+            part[0]
+            for part in parts or []
+            if isinstance(part, tuple) and subject.encode() in part[1]
+        )
     return found
 
 
@@ -98,13 +117,19 @@ def message(address: str, mailbox: str, subject: str, flags: str, epoch: str) ->
         with contextlib.suppress(imaplib.IMAP4.error, OSError):
             imap.logout()
     if len(hits) != 1:
-        print(f"{address}/{mailbox}: {len(hits)} messages titled {subject}", file=sys.stderr)
+        print(
+            f"{address}/{mailbox}: {len(hits)} messages titled {subject}",
+            file=sys.stderr,
+        )
         return 1
     flag_match = _FLAGS.search(hits[0])
     seen = set(flag_match.group(1).decode().split()) if flag_match else set()
     wanted = set() if flags == "-" else set(flags.split(","))
     if not wanted <= seen:
-        print(f"{subject}: flags {sorted(seen)} lack {sorted(wanted - seen)}", file=sys.stderr)
+        print(
+            f"{subject}: flags {sorted(seen)} lack {sorted(wanted - seen)}",
+            file=sys.stderr,
+        )
         return 1
     if epoch == "-":
         return 0
@@ -116,9 +141,15 @@ def message(address: str, mailbox: str, subject: str, flags: str, epoch: str) ->
 
 
 def http(path: str, payload: dict | None, act_as: str) -> dict:
-    login = f"{act_as}%{env('STALWART_ADMIN_USER')}" if act_as else env("STALWART_ADMIN_USER")
-    token = base64.b64encode(f"{login}:{env('STALWART_ADMIN_PASSWORD')}".encode()).decode()
-    request = urllib.request.Request(
+    login = (
+        f"{act_as}%{env('STALWART_ADMIN_USER')}"
+        if act_as
+        else env("STALWART_ADMIN_USER")
+    )
+    token = base64.b64encode(
+        f"{login}:{env('STALWART_ADMIN_PASSWORD')}".encode()
+    ).decode()
+    request = urllib.request.Request(  # noqa: S310 fixed internal JMAP origin
         env("STALWART_JMAP_URL") + path,
         data=None if payload is None else json.dumps(payload).encode(),
         headers={"Authorization": f"Basic {token}", "Content-Type": "application/json"},
@@ -128,7 +159,9 @@ def http(path: str, payload: dict | None, act_as: str) -> dict:
 
 
 def call(using: list[str], method: str, arguments: dict, act_as: str) -> dict:
-    body = http("", {"using": using, "methodCalls": [[method, arguments, "c0"]]}, act_as)
+    body = http(
+        "", {"using": using, "methodCalls": [[method, arguments, "c0"]]}, act_as
+    )
     return body["methodResponses"][0][1]
 
 
@@ -138,11 +171,18 @@ def jmap(method: str) -> list[dict]:
 
 def active_sieve(address: str) -> str:
     account = http("session", None, address)["primaryAccounts"][SIEVE_USING[1]]
-    scripts = call(SIEVE_USING, "SieveScript/get", {"accountId": account, "ids": None}, address)["list"]
+    scripts = call(
+        SIEVE_USING, "SieveScript/get", {"accountId": account, "ids": None}, address
+    )["list"]
     active = [s["blobId"] for s in scripts if s.get("isActive")]
     if not active:
         return ""
-    blobs = call(BLOB_USING, "Blob/get", {"accountId": account, "ids": active, "properties": ["data:asText"]}, address)
+    blobs = call(
+        BLOB_USING,
+        "Blob/get",
+        {"accountId": account, "ids": active, "properties": ["data:asText"]},
+        address,
+    )
     return blobs["list"][0].get("data:asText", "")
 
 
@@ -197,7 +237,11 @@ def bounced(address: str, destination: str, subject: str) -> bool:
             for number in (data[0] or b"").split() if typ == "OK" and data else []:
                 typ, parts = imap.fetch(number, "(BODY.PEEK[])")
                 for part in parts or []:
-                    if isinstance(part, tuple) and destination.encode() in part[1] and subject.encode() in part[1]:
+                    if (
+                        isinstance(part, tuple)
+                        and destination.encode() in part[1]
+                        and subject.encode() in part[1]
+                    ):
                         return True
     finally:
         with contextlib.suppress(imaplib.IMAP4.error, OSError):
@@ -208,7 +252,7 @@ def bounced(address: str, destination: str, subject: str) -> bool:
 def queued(destination: str, since: float) -> bool:
     return any(
         destination in json.dumps(item.get("recipients"))
-        and datetime.fromisoformat(item["createdAt"].replace("Z", "+00:00")).timestamp() >= since
+        and datetime.fromisoformat(item["createdAt"]).timestamp() >= since
         for item in jmap("x:QueuedMessage/get")
     )
 
@@ -232,11 +276,27 @@ def routing() -> int:
     domain, sender, run_id = env("MAIL_DOMAIN"), env("ADMIN_EMAIL"), int(time.time())
     cases: list[tuple[str, str, list[str], bool]] = []
     for index, alias in enumerate(aliases):
-        recipient = alias["address"] if alias["local"] else f"nobody-{run_id}{alias['address']}"
-        cases.append((f"infinito-alias-{run_id}-{index}", recipient, alias["destinations"], False))
+        recipient = (
+            alias["address"] if alias["local"] else f"nobody-{run_id}{alias['address']}"
+        )
+        cases.append(
+            (
+                f"infinito-alias-{run_id}-{index}",
+                recipient,
+                alias["destinations"],
+                False,
+            )
+        )
     for index, forward in enumerate(forwards):
         destinations = [forward["address"], *forward["destinations"]]
-        cases.append((f"infinito-forward-{run_id}-{index}", forward["address"], destinations, True))
+        cases.append(
+            (
+                f"infinito-forward-{run_id}-{index}",
+                forward["address"],
+                destinations,
+                True,
+            )
+        )
     started = time.time() - POLL_DELAY
     for subject, recipient, _, _ in cases:
         send(sender, recipient, subject)
@@ -244,20 +304,30 @@ def routing() -> int:
     for subject, recipient, destinations, forwarded in cases:
         for destination in destinations:
             if domain_of(destination) == domain:
-                results.append(wait_for(
-                    f"{subject} ({recipient}) reached {destination}",
-                    lambda d=destination, s=subject: received(d, s),
-                ))
+                results.append(
+                    wait_for(
+                        f"{subject} ({recipient}) reached {destination}",
+                        lambda d=destination, s=subject: received(d, s),
+                    )
+                )
             elif forwarded:
-                results.append(wait_for(
-                    f"{recipient}'s active Sieve script redirects a copy to {destination}",
-                    lambda d=destination, r=recipient: f'redirect :copy "{d}";' in active_sieve(r),
-                ))
+                results.append(
+                    wait_for(
+                        f"{recipient}'s active Sieve script redirects a copy to {destination}",
+                        lambda d=destination, r=recipient: (
+                            f'redirect :copy "{d}";' in active_sieve(r)
+                        ),
+                    )
+                )
             else:
-                results.append(wait_for(
-                    f"{subject} ({recipient}) left for {destination}",
-                    lambda d=destination, s=subject: queued(d, started) or bounced(sender, d, s),
-                ))
+                results.append(
+                    wait_for(
+                        f"{subject} ({recipient}) left for {destination}",
+                        lambda d=destination, s=subject: (
+                            queued(d, started) or bounced(sender, d, s)
+                        ),
+                    )
+                )
     return 0 if all(results) else 1
 
 
