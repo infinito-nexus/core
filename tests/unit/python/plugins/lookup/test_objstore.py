@@ -353,12 +353,17 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
 
         self.assertTrue(out["proxy_required"])
         self.assertEqual(out["proxy_prefix"], "/objstore")
-        self.assertEqual(out["public_domain"], "foo.abcdefghij.onion/objstore")
         self.assertEqual(
             out["public_url"],
             "http://foo.abcdefghij.onion/objstore/foo",
             "the browser must dial the page's own origin, never the provider's "
             "clearnet host it cannot resolve through Tor",
+        )
+        self.assertEqual(
+            out["public_endpoint"],
+            "https://api.seaweedfs.s3.example.com",
+            "a server-side S3 client runs in the container, which has no Tor "
+            "resolver, so its endpoint must stay on the provider's own host",
         )
         self.assertEqual(
             (out["upstream_domain"], out["upstream_scheme"]),

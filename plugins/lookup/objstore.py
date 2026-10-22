@@ -265,16 +265,16 @@ class LookupModule(LookupBase):
             and not is_onion_domain(public_domain)
             and _consumer_is_onion_only()
         )
-        upstream_domain = public_domain
-        upstream_scheme = scheme
+        browser_domain = public_domain
+        browser_scheme = scheme
         if proxy_required:
             consumer_tls = _lookup("tls", [consumer_id])
-            public_domain = f"{consumer_tls['domain']}{OBJSTORE_PROXY_PREFIX}"
-            scheme = consumer_tls["protocols"]["web"]
+            browser_domain = f"{consumer_tls['domain']}{OBJSTORE_PROXY_PREFIX}"
+            browser_scheme = consumer_tls["protocols"]["web"]
 
-        public_bucket = f"{public_domain}/{bucket}" if public_domain else ""
+        public_bucket = f"{browser_domain}/{bucket}" if browser_domain else ""
         public_endpoint = f"{scheme}://{public_domain}" if public_domain else ""
-        public_url = f"{scheme}://{public_bucket}" if public_bucket else ""
+        public_url = f"{browser_scheme}://{public_bucket}" if public_bucket else ""
 
         resolved = {
             "id": provider_role,
@@ -304,8 +304,8 @@ class LookupModule(LookupBase):
             "public_url": public_url,
             "proxy_required": proxy_required,
             "proxy_prefix": OBJSTORE_PROXY_PREFIX,
-            "upstream_domain": upstream_domain,
-            "upstream_scheme": upstream_scheme,
+            "upstream_domain": public_domain,
+            "upstream_scheme": scheme,
             "reach_host": "127.0.0.1",
         }
         return [resolved if want == "all" else resolved.get(want, "")]
