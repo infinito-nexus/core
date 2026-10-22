@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch film</title>
+<link rel="stylesheet" href="film.css">
+<style>
+  html:not(.render) body { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; min-height: 100vh; background: #E9ECE6; }
+  html:not(.render) #frame { position: relative; overflow: hidden; border-radius: 12px; box-shadow: 0 10px 40px rgba(20, 26, 21, 0.12); }
+  html:not(.render) #stage { transform-origin: 0 0; }
+  html.render body { overflow: hidden; }
+  #player { display: flex; align-items: center; gap: 12px; font: 600 14px system-ui, sans-serif; color: #4E574F; }
+  #player button { font: inherit; border: 0; border-radius: 999px; padding: 8px 18px; background: #151A16; color: #fff; cursor: pointer; }
+  #player input { width: min(60vw, 520px); }
+  #player span { min-width: 120px; font-variant-numeric: tabular-nums; }
+</style>
+<script src="assets.js"></script>
+<script src="timing.js"></script>
+<script src="core.js"></script>
+<script src="fx.js"></script>
+<script src="preset-defaults.js"></script>
+<script src="presets.js"></script>
+<script src="device.js"></script>
+<script src="scenes.js"></script>
+</head>
+<body>
+<div id="frame"><div id="stage"></div></div>
+<div id="player" hidden><button id="play" type="button">Play</button><input id="scrub" type="range" min="0" step="0.001" value="0"><span id="time"></span></div>
+<audio id="music" src="../audio/edit.m4a" preload="auto"></audio>
+<script src="main.js"></script>
+</body>
+</html>
