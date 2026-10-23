@@ -12,7 +12,7 @@
 #   APP_URL, APP_HOST         that app's local HTTP port and its Host header
 #   CANARY_MARKER, CANARY_RULE  the canary text and the self-test canary rule
 #   FOREIGN_ENTITY            a role's entity that is not opted in
-#   OPTED_ENTITIES            every opted-in entity, space separated
+#   OPTED_ENTITIES            every opted-in entity, space separated; empty skips the test
 #   INDEXER_URL, INDEXER_USER, INDEXER_PASSWORD  the indexer API
 #   MANAGER_LOGS_VOLUME       the Docker volume holding the manager's logs
 #   SELFTEST_TAG, SELFTEST_DECODER  the reserved self-test tag and its decoder
@@ -21,6 +21,12 @@
 #   WAZUH_CONTAINERS          the Wazuh containers' names, space separated
 
 set -euo pipefail
+
+: "${OPTED_ENTITIES?}"
+if [[ -z "${OPTED_ENTITIES}" ]]; then
+	echo "SKIP: no opted-in app"
+	exit 0
+fi
 
 : "${APP_ENTITY:?}" "${APP_DECODER:?}" "${APP_URL:?}" "${APP_HOST:?}"
 : "${CANARY_MARKER:?}" "${CANARY_RULE:?}" "${FOREIGN_ENTITY:?}" "${OPTED_ENTITIES:?}"

@@ -26,6 +26,10 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+pixelfed:
+  bond: 1
+  enabled: "{{ 'web-app-pixelfed' in group_names }}"
+  shared: "{{ 'web-app-pixelfed' in group_names }}"
 # nocheck: playwright-service-flag  Wazuh exposes no native /metrics endpoint; nothing for a consumer-role spec to assert here.
 prometheus:
   bond: 1
