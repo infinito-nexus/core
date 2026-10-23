@@ -5,7 +5,6 @@
     path: "{{ item.path }}"
     state: directory
     mode: "{{ item.mode }}"
-    recurse: true
   loop: "{{ lookup('nginx','directories.ensure') }}"
   loop_control:
     label: "{{ item.path }}"
