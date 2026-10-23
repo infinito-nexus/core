@@ -147,7 +147,7 @@ def services_overrides_for_round(
     eliminates the topology-vs-host_vars drift that variant-blind
     resolution produced.
     """
-    variants_per_app = get_variants(roles_dir=roles_dir)
+    variants_per_app = get_variants(roles_dir=roles_dir, readonly=True)
     overrides: dict[str, dict] = {}
     roles_path = Path(roles_dir)
 

@@ -339,19 +339,28 @@ def get_application_defaults(
 
 
 def get_variants(
-    *, roles_dir: str | os.PathLike[str] | None = None
+    *, roles_dir: str | os.PathLike[str] | None = None, readonly: bool = False
 ) -> dict[str, list[Any]]:
     """Return ``{application_id: [variant_0, ...]}`` cached per
     ``roles_dir``. Each variant is the role's effective configuration
     after the corresponding `meta/variants.yml` override has been
-    deep-merged on top of `meta/services.yml`."""
+    deep-merged on top of `meta/services.yml`.
+
+    Args:
+        roles_dir: roles tree to read, defaulting to the project's own.
+        readonly: hand out the cached structure itself instead of a deep
+            copy. The copy is what keeps one caller's mutation out of every
+            later caller's data, so this is only for a caller that provably
+            reads: a sweep resolves hundreds of rounds, and copying the whole
+            map per round costs more than building it once did.
+    """
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     key = _cache_key(resolved_roles_dir)
     cached = _VARIANTS_CACHE.get(key)
     if cached is None:
         cached = _build_variants(resolved_roles_dir)
         _VARIANTS_CACHE[key] = cached
-    return copy.deepcopy(cached)
+    return cached if readonly else copy.deepcopy(cached)
 
 
 def _build_variant_overrides_only(
