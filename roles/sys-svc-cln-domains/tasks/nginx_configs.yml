@@ -17,10 +17,16 @@
   register: cln_domains_server_configs
 
 - name: 🗑️ Remove the nginx configs of domains the host no longer serves
-  ansible.builtin.file:
-    path: "{{ unserved_config }}"
-    state: absent
-  loop: "{{ cln_domains_server_configs.files | map(attribute='path') | list | unserved_nginx_configs(CURRENT_PLAY_DOMAINS_ALL) }}"
-  loop_control:
-    loop_var: unserved_config
+  ansible.builtin.command:
+    argv: "{{ ['rm', '-f', '-v', '--'] + cln_domains_unserved_configs }}"
+  vars:
+    cln_domains_unserved_configs: "{{ cln_domains_server_configs.files | map(attribute='path') | list | unserved_nginx_configs(CURRENT_PLAY_DOMAINS_ALL) }}"
+  register: cln_domains_removed
+  changed_when: cln_domains_removed.stdout_lines | length > 0
+  when: cln_domains_unserved_configs | length > 0
   notify: restart-openresty
+
+- name: 📋 List the removed nginx configs
+  ansible.builtin.debug:
+    msg: "{{ cln_domains_removed.stdout_lines }}"
+  when: cln_domains_removed is changed
