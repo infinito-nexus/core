@@ -1,4 +1,23 @@
 ---
+- name: ⬇️ Read the client scopes of the realm
+  shell: "{{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --format json"
+  register: kc_realm_client_scopes
+  changed_when: false
+
+- name: ✅ Create the client scopes the realm dictionary declares and the realm lacks
+  shell: |
+    cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} create client-scopes -r {{ KEYCLOAK_REALM }} -f -
+    {{ kc_client_scope | to_json }}
+    JSON
+  loop: >-
+    {{ KEYCLOAK_DICTIONARY_REALM.clientScopes
+       | rejectattr('name', 'in', kc_realm_client_scopes.stdout | kcadm_json | map(attribute='name') | list)
+       | list }}
+  loop_control:
+    loop_var: kc_client_scope
+    label: "{{ kc_client_scope.name }}"
+  changed_when: true
+
 - name: "🔄 Update Client settings"
   vars:
     kc_object_kind: "client"
