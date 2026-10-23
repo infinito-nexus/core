@@ -245,11 +245,11 @@ def get_merged_domains(
     def _render_raw(raw: Any, name: str) -> Any:
         if isinstance(raw, str) and ("{{" in raw or "{%" in raw):
             return render_ansible_strict(
-                templar=None,
+                templar=templar,
                 raw=raw,
                 var_name=name,
                 err_prefix="get_merged_domains",
-                variables={},
+                variables=variables,
             )
         return raw
 

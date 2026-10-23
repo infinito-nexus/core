@@ -72,6 +72,40 @@ class TestMissingPrimaryDomain(unittest.TestCase):
             self.assertIsInstance(result, dict)
 
 
+class TestTemplatedPrimaryDomain(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_a_templated_domain_primary_resolves_against_the_play_variables(self):
+        captured: list[str] = []
+
+        def _capture(_self, _apps, primary_domain):
+            captured.append(primary_domain)
+            return {}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with (
+                patch(
+                    "utils.cache.applications.get_merged_applications",
+                    return_value={},
+                ),
+                patch(
+                    "plugins.filter.canonical_domains_map.FilterModule.canonical_domains_map",
+                    _capture,
+                ),
+            ):
+                cache_domains.get_merged_domains(
+                    variables={
+                        "DOMAIN_PRIMARY": "{{ SOFTWARE_NAME | lower }}",
+                        "SOFTWARE_NAME": "Infinito.Nexus",
+                    },
+                    roles_dir=roles,
+                    templar=None,
+                )
+        self.assertEqual(captured, ["infinito.nexus"])
+
+
 class TestCachingPerVariablesSignature(unittest.TestCase):
     def setUp(self) -> None:
         _reset_cache_for_tests()
