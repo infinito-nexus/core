@@ -10,6 +10,7 @@ CDN_GLOBAL_DIRS:
   - "{{ _cdn_shared.shared.img }}"
   - "{{ _cdn_shared.shared.fonts }}"
   - "{{ _cdn_shared.vendor }}"
+  - "{{ _cdn_shared.root }}/roles"
 
 # Role-specific CDN dirs for the current application
 CDN_ROLE_DIRS: "{{ lookup('cdn', application_id).role | cdn_dirs }}"
