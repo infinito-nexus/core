@@ -72,3 +72,7 @@
 
 - name: "📮 Provision the declared mail aliases and catch-alls"
   include_tasks: 15_aliases.yml
+
+- name: "🔀 Deliver the mail of the alias domains to their target domains"
+  include_tasks: 17_alias_domains.yml
+  when: STALWART_ALIAS_DOMAINS | length > 0

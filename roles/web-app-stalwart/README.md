@@ -331,6 +331,25 @@ applications:
 
 [`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward and waits until each destination inside the mail domain holds its copy. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
 
+### Alias domains
+
+A legacy domain that only receives mail is declared under `services.stalwart.alias_domains`; `<local>@<source>` is then delivered to `<local>@<target>`:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        alias_domains:
+          - source: legacy.example
+            target: example.org
+```
+
+- The deploy sets the `rewrite` expression of Stalwart's RCPT stage to one `matches()` rule per alias domain and reads it back.
+- With Cloudflare as `DNS_PROVIDER`, the deploy points the MX record of every source at the mail hostname.
+- The source is not served by Stalwart and gets no DKIM key; it receives mail but sends none.
+- Removing every alias domain leaves the last rewrite in Stalwart; set the RCPT stage's rewrite back to `false` in WebAdmin.
+
 ## Verifying a production server
 
 Deploying against a publicly reachable mail server additionally asserts that server's live **hard facts** — the records and listeners either match the deployed configuration or they do not. There is no mail-flow scenario here; that is what the suites above are for.
