@@ -3,7 +3,7 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -i
-      -e PGPASSWORD={{ lookup('database', application_id, 'password') | quote }}
+      -e PGPASSWORD
       {{ lookup('database', application_id, 'address') }}
       psql -X -v ON_ERROR_STOP=1 -tA
       -U {{ lookup('database', application_id, 'username') | quote }}
@@ -11,6 +11,8 @@
       -f -
     stdin: "{{ lookup('file', 'sql/data_build.sql') }}"
     executable: /bin/bash
+  environment:
+    PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
   register: jira_data_build
   changed_when: false
   failed_when: >-

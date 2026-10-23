@@ -1,4 +1,4 @@
-# include-gated: when: DEPLOYMENT_MODE == 'compose'
+# include-gated: when: IS_COMPOSE_MODE
 ---
 - name: "⬆️ OpenProject {{ openproject_upgrade_major }} | Migrate and seed the schema"
   ansible.builtin.command:

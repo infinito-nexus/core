@@ -9,6 +9,9 @@
 # variant 0: every dynamic flag on so the matrix exercises the
 # in-group_names branch.
 - services:
+    docs:
+      enabled: false
+      shared: false
     dashboard:
       enabled: true
       shared: true

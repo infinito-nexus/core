@@ -1,5 +1,8 @@
 ---
 - services:
+    docs:
+      enabled: false
+      shared: false
     sso:
       enabled: "{{ lookup('network_served', 'clearnet') }}"
       shared: "{{ lookup('network_served', 'clearnet') }}"

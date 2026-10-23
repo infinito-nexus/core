@@ -10,6 +10,9 @@
 # variant 0: OIDC variant (canonical default; native plg_system_keycloak).
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:

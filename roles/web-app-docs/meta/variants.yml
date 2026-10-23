@@ -5,6 +5,7 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-docs.
 - services:
+    # variant-pin: web-app-dashboard#reciprocal
     dashboard:
       enabled: true
       shared: true
@@ -14,6 +15,7 @@
     prometheus:
       enabled: true
       shared: true
+    # variant-pin: web-svc-design#reciprocal
     design:
       enabled: true
       shared: true

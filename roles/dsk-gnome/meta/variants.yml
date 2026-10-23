@@ -12,3 +12,7 @@
 - addons:
     dash-to-dock:
       enabled: false
+  services:
+    docs:
+      enabled: false
+      shared: false

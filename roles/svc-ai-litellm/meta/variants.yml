@@ -32,6 +32,9 @@
           context: 131072
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     postgres:
       shared: false
     ollama:
@@ -54,6 +57,9 @@
           context: 131072
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     ollama:
       enabled: false
       shared: false

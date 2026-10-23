@@ -3,6 +3,9 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     api:
       enabled: true
       shared: true

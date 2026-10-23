@@ -28,6 +28,9 @@
       enabled: false
       shared: false
 - services:
+    docs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
     openwebui:

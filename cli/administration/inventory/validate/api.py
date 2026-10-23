@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from utils.api import declared_api
+from utils.cache.api import declared_api
 
 from .loaders import load_yaml_file
 

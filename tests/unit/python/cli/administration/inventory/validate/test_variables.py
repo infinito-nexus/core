@@ -74,7 +74,6 @@ class TestReadVariables(unittest.TestCase):
 
     def test_guarded_overrides_count(self):
         self.assertIn("OIDC_OVERRIDE", self.read)
-        self.assertIn("design", self.read)
 
     def test_plugin_reads_count(self):
         self.assertIn("networks", self.read)

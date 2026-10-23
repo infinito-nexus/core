@@ -79,6 +79,9 @@
     tor:
       enabled: true
 - services: # nocheck: variants-auth-isolation
+    docs:
+      enabled: false
+      shared: false
     litellm:
       enabled: true
     container_backup:

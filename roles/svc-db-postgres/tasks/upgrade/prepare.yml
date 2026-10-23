@@ -11,20 +11,20 @@
     apply:
       run_once: true
 
-- name: "🛑 POSTGRES | Stop: swarm cannot upgrade an older cluster in place"
-  ansible.builtin.fail:
-    msg: >-
-      {{ postgres_cluster.source_path }} holds a PostgreSQL
-      {{ postgres_cluster.major }} cluster, but this deploy pins PostgreSQL {{ POSTGRES_VERSION_MAJOR }}.
-      The in-place upgrade runs in compose mode only; upgrade the cluster on a compose host
-      or restore a dump into PostgreSQL {{ POSTGRES_VERSION_MAJOR }}.
-  when:
-    - postgres_cluster.state == 'upgrade'
-    - DEPLOYMENT_MODE == 'swarm'
-
-- name: "⬆️ POSTGRES | Upgrade the older cluster to the pinned major"
-  ansible.builtin.include_tasks:
-    file: run.yml
-    apply:
-      run_once: true
+- name: "⬆️ POSTGRES | Bring an older cluster up to the pinned major"
   when: postgres_cluster.state == 'upgrade'
+  block:
+    - name: "🛑 POSTGRES | Stop: swarm cannot upgrade an older cluster in place"
+      ansible.builtin.fail:
+        msg: >-
+          {{ postgres_cluster.source_path }} holds a PostgreSQL
+          {{ postgres_cluster.major }} cluster, but this deploy pins PostgreSQL {{ POSTGRES_VERSION_MAJOR }}.
+          The in-place upgrade runs in compose mode only; upgrade the cluster on a compose host
+          or restore a dump into PostgreSQL {{ POSTGRES_VERSION_MAJOR }}.
+      when: IS_SWARM_MODE
+
+    - name: "⬆️ POSTGRES | Upgrade the older cluster to the pinned major"
+      ansible.builtin.include_tasks:
+        file: run.yml
+        apply:
+          run_once: true

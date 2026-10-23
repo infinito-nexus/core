@@ -104,7 +104,7 @@ end
 
 {% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}
+{% set _cdn_onion = (lookup('network_urls', _cdn_base) | select('search', '\\.onion') | list | first) | default(_cdn_base, true) %}
 local function onionize(s)
 {% if _tor_node and _cdn_onion != _cdn_base %}
     local host = ngx.var.http_host or ""

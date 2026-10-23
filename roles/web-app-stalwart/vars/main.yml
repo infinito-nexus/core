@@ -108,7 +108,7 @@ STALWART_IMPORT_SCRIPTS:
   - mailu_maildir.py
 STALWART_IMPORT_ADMIN_FILE: "{{ [ STALWART_IMPORT_DIR, 'admin.json' ] | path_join }}"
 STALWART_IMPORT_UNIT: "stalwart-mailu-import"
-STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart.migration.workers') or ([[RESOURCE_HOST_CPUS | int - 1, 1] | max, 8] | min) }}"
+STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart.migration.workers', '') or ([[RESOURCE_HOST_CPUS | int - 1, 1] | max, 8] | min) }}" # parallel IMAP sessions of the import; unset takes one fewer than the host's vCPUs, at most 8
 
 STALWART_ALIASES: "{{ lookup('config', application_id, 'services.stalwart.aliases') | stalwart_aliases }}"
 STALWART_ALIAS_DESCRIPTION: "Infinito.Nexus alias"

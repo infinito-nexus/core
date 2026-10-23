@@ -60,4 +60,4 @@
 
 - name: "🧹 POSTGRES | Finish an upgrade once the pinned major runs"
   include_tasks: upgrade/finalize.yml
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE

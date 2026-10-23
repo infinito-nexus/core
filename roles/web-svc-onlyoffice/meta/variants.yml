@@ -6,6 +6,9 @@
 # matrix exercises the in-group_names branch of web-svc-onlyoffice.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     matomo:

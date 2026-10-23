@@ -19,6 +19,9 @@
 
 # Variant 0: baseline - all tightly-coupled (bond>=1) services
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     sso:

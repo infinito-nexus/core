@@ -1,4 +1,4 @@
-# include-gated: when: DEPLOYMENT_MODE == 'compose'
+# include-gated: when: IS_COMPOSE_MODE
 ---
 - name: "🔍 OpenProject | Find the running database engine"
   ansible.builtin.command:

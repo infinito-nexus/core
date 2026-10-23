@@ -28,7 +28,7 @@
 
 - name: "⬆️ Step an older schema through the majors before the pinned one"
   include_tasks: upgrade/main.yml
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: 🚿 flush docker service
   meta: flush_handlers

@@ -1,5 +1,8 @@
 ---
 - services:
+    docs:
+      enabled: false
+      shared: false
     nfs_backup:
       enabled: true
       shared: true

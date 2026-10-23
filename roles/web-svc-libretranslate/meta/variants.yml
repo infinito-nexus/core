@@ -6,6 +6,9 @@
 # matrix exercises the in-group_names branch of web-svc-libretranslate.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     libretranslate:
       load_only:
         - en

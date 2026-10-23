@@ -5,6 +5,9 @@
 # Variant pinning every dynamic services.yml flag to true so the matrix
 # exercises the in-group_names branch of web-app-penpot.
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     design:

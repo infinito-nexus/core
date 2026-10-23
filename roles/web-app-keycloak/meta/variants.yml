@@ -7,6 +7,9 @@
 # the extra TOTP enrollment step.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     keycloak:
       realm:
         totp_enabled: false

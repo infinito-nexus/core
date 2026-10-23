@@ -53,6 +53,7 @@ tor:
   enabled: false # nocheck: dynamic-flag  an engine consumed over the internal network publishes no onion surface
   shared: false # nocheck: dynamic-flag  same
 
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
 docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"

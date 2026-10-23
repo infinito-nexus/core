@@ -1,5 +1,8 @@
 ---
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     design:

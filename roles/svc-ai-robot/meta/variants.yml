@@ -13,6 +13,9 @@
 
 # nocheck: variants-explicit-disables shared stays true for both agents by contract; enabled alone selects the embodied one
 - services:
+    docs:
+      enabled: false
+      shared: false
     hermes:
       enabled: false
     openclaw:

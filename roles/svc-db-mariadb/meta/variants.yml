@@ -8,5 +8,8 @@
     mariadb:
       exposed: true # nocheck: variants-static-override
 - services:
+    docs:
+      enabled: false
+      shared: false
     tor:
       enabled: true

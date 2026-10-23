@@ -67,6 +67,9 @@
       enabled: false # nocheck: variants-static-override
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     design:
       enabled: false
       shared: false

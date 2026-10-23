@@ -54,8 +54,10 @@
       include_role:
         name: sys-front-tls
       vars:
-        domain: "{{ item }}"
-        application_id: "{{ item }}"
+        domain: "{{ redirect_tls_source }}"
+        application_id: "{{ redirect_tls_source }}"
+      loop_control:
+        loop_var: redirect_tls_source
       loop: >-
         {{ redirect_sources | selectattr('enabled')
            | rejectattr('certs', 'subset', redirect_certs_found.files | map(attribute='path') | list)

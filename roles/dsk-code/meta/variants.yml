@@ -6,3 +6,9 @@
     docs:
       enabled: true
       shared: true
+    claude:
+      enabled: true
+      shared: true
+    codex:
+      enabled: true
+      shared: true

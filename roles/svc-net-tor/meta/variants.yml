@@ -22,6 +22,9 @@
       pids_limit: 512
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     tor:
       use_entry_guards: false
       flavor: public

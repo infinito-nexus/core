@@ -16,6 +16,9 @@
 # variant 0: canonical Single-Site deploy.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     design:

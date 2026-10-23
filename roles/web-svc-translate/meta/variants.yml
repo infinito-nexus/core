@@ -12,6 +12,9 @@
 # translation engines each need a round of their own.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     ltengine:
       enabled: false
       shared: false

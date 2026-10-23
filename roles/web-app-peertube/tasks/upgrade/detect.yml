@@ -12,7 +12,7 @@
 
 - name: "🔍 PEERTUBE | Check whether the stack's own database already runs"
   ansible.builtin.shell: >-
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     container service ps -q --filter desired-state=running
     {{ lookup('database', application_id, 'service_name') | quote }}
     {% else %}

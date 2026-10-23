@@ -1,4 +1,4 @@
-# include-gated: when: DEPLOYMENT_MODE == 'compose'
+# include-gated: when: IS_COMPOSE_MODE
 ---
 - name: "🔍 OpenProject | Read the migrations of the schema"
   ansible.builtin.shell: >-

@@ -6,6 +6,9 @@
 # the phpMyAdmin home view without re-entering the dev password.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     phpmyadmin:
       autologin: true
     design:

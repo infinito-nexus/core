@@ -6,6 +6,9 @@
 # variant 0: OIDC variant (canonical default).
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:

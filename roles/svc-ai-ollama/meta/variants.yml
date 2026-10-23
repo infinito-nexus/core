@@ -34,6 +34,9 @@
       preload_models: []
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     ollama:

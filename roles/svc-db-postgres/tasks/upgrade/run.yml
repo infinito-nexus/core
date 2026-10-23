@@ -91,21 +91,22 @@
     - "'no such container' not in (postgres_old_rm.stderr | lower)"
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "💾 POSTGRES | Keep a reflink copy of {{ postgres_cluster.root }}"
-  ansible.builtin.script:
-    cmd: >-
-      python/cluster.py backup
-      --root {{ postgres_cluster.root | quote }}
-      --major {{ postgres_cluster.major | quote }}
-  register: postgres_backup
+- name: "💾 POSTGRES | Keep a reflink copy of the cluster where the filesystem allows it"
   when: postgres_reflink.supported
-  timeout: "{{ lookup('timeout', 3600) | int }}"
-  delegate_to: "{{ STACK_HOST }}"
+  block:
+    - name: "💾 POSTGRES | Keep a reflink copy of {{ postgres_cluster.root }}"
+      ansible.builtin.script:
+        cmd: >-
+          python/cluster.py backup
+          --root {{ postgres_cluster.root | quote }}
+          --major {{ postgres_cluster.major | quote }}
+      register: postgres_backup
+      timeout: "{{ lookup('timeout', 3600) | int }}"
+      delegate_to: "{{ STACK_HOST }}"
 
-- name: "💾 POSTGRES | Report the reflink copy"
-  ansible.builtin.debug:
-    msg: "Reflink copy of the PostgreSQL {{ postgres_cluster.major }} volume: {{ (postgres_backup.stdout | from_json).path }}"
-  when: postgres_reflink.supported
+    - name: "💾 POSTGRES | Report the reflink copy"
+      ansible.builtin.debug:
+        msg: "Reflink copy of the PostgreSQL {{ postgres_cluster.major }} volume: {{ (postgres_backup.stdout | from_json).path }}"
 
 - name: "⬆️ POSTGRES | Run pg_upgrade --link through every major"
   ansible.builtin.command:

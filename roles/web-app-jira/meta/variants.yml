@@ -11,6 +11,9 @@
     status_codes:
       default: 302
   services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:

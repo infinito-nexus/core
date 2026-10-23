@@ -8,6 +8,9 @@
 # local deploy, pin one: `make compose-deploy apps=web-app-stalwart variant=0`.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     design:
       enabled: true
       shared: true

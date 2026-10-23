@@ -23,7 +23,7 @@ import urllib.parse
 import urllib.request
 from typing import NamedTuple
 
-from utils.packages.schema import SOURCE_AUR, SOURCE_FLATPAK
+from utils.packages.schema import SOURCE_AUR, SOURCE_DOWNLOAD, SOURCE_FLATPAK
 
 from ._host_gate import host_gate
 
@@ -34,6 +34,10 @@ _PER_HOST_REQUESTS = 2
 _RETRY_ATTEMPTS = 4
 _RETRY_BACKOFF = 1.0
 _RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+_DOWNLOAD_ABSENT = frozenset({403, 404})
+"""Statuses that mean the vendor no longer serves the pinned artefact. The
+CDN behind downloads.cursor.com answers 403, not 404, for an object that is
+not there, so treating only 404 as absent would miss a rotated release."""
 
 DEBIAN_SUITE = "stable"
 UBUNTU_SUITE = "noble"
@@ -64,6 +68,7 @@ class Probe(NamedTuple):
     repo: dict | None
     source: str
     virtual: bool = False
+    url: str | None = None
 
 
 class Outcome(NamedTuple):
@@ -345,12 +350,41 @@ def _externally_managed(repo: dict | None) -> str | None:
     return None
 
 
+def _probe_download(url: str) -> tuple[bool | None, str]:
+    """Ask whether the vendor still serves the pinned artefact.
+
+    Args:
+        url: the https URL the declaration pins.
+
+    Returns:
+        Whether the artefact is served, and the host that answered.
+    """
+    request = urllib.request.Request(  # noqa: S310 - the schema admits https URLs only
+        url, method="HEAD", headers={"User-Agent": _USER_AGENT}
+    )
+    host = urllib.parse.urlsplit(url).netloc
+    with host_gate(url, _PER_HOST_REQUESTS):
+        for attempt in range(_RETRY_ATTEMPTS):
+            try:
+                with urllib.request.urlopen(request, timeout=_TIMEOUT) as response:  # noqa: S310 - the schema admits https URLs only
+                    return response.getcode() == 200, host
+            except urllib.error.HTTPError as exc:
+                if exc.code in _RETRY_STATUS and attempt < _RETRY_ATTEMPTS - 1:
+                    time.sleep(_RETRY_BACKOFF * 2**attempt)
+                    continue
+                absent = False if exc.code in _DOWNLOAD_ABSENT else None
+                return absent, f"{host} (HTTP {exc.code})"
+    raise AssertionError("unreachable")
+
+
 def _probe(probe: Probe) -> Outcome:
     external = _externally_managed(probe.repo)
     if external:
         return Outcome(probe, None, f"third-party repository: {external}", True)
     try:
-        if probe.source == SOURCE_AUR:
+        if probe.source == SOURCE_DOWNLOAD:
+            available, detail = _probe_download(probe.url)
+        elif probe.source == SOURCE_AUR:
             available, detail = _probe_aur(probe.name)
         elif probe.source == SOURCE_FLATPAK:
             available, detail = _probe_flathub(probe.name)

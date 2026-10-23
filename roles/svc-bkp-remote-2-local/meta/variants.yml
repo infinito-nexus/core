@@ -6,3 +6,5 @@
     docs:
       enabled: true
       shared: true
+    local-2-device:
+      enabled: true

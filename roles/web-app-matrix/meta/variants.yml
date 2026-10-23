@@ -12,6 +12,9 @@
 # pairs the onion with SSO.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     matrix:

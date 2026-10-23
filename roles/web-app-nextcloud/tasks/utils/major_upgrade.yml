@@ -62,8 +62,8 @@
       services.nextcloud.version to one major above the installed one per deploy.
   when:
     - nextcloud_upgrade_tags | length > 0
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
 
 - name: ⏫ Upgrade the Nextcloud data one major at a time
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/major_upgrade/compose.yml"
-  when: DEPLOYMENT_MODE == 'compose' and nextcloud_upgrade_tags | length > 0
+  when: IS_COMPOSE_MODE and nextcloud_upgrade_tags | length > 0

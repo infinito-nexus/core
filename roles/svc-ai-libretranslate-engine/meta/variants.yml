@@ -12,12 +12,18 @@
         - en
         - de
 - services:
+    docs:
+      enabled: false
+      shared: false
     libretranslate-engine:
       loading_model: build
       load_only:
         - en
         - de
 - services:
+    docs:
+      enabled: false
+      shared: false
     libretranslate-engine:
       loading_model: task
       load_only:

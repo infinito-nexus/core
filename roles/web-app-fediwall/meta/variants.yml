@@ -27,6 +27,9 @@
 # See docs/contributing/artefact/files/role/variants.md for the format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     mastodon:
       enabled: true
       shared: true

@@ -78,3 +78,7 @@ def entity_name(role_name):
         if role_name_lc == cat:
             empty_match = True
     return "" if empty_match else role_name
+
+
+get_entity_name = entity_name
+"""The name the update filters and the image lookup import it by."""

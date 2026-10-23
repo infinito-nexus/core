@@ -33,6 +33,9 @@
       enabled: false
       shared: false
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

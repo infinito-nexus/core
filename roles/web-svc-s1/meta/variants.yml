@@ -3,6 +3,9 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     prometheus:
       enabled: true
       shared: true

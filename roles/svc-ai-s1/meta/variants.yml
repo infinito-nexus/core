@@ -10,6 +10,9 @@
       flavor: laya
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     s1:
       flavor: torch
       healthcheck:
