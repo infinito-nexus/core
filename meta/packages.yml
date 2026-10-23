@@ -104,7 +104,7 @@ gamemode:
     - gamemode
   Debian:
     - gamemode
-  centos: [] # nocheck: empty - gaming daemons are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  centos: [] # nocheck: empty - no source carries it: CentOS Stream 10 ships no gaming daemon, and RPM Fusion's el/updates/10 tree holds none either, in free or nonfree
   fedora:
     - gamemode
 
@@ -188,7 +188,7 @@ mangohud:
     - mangohud
   Debian:
     - mangohud
-  centos: [] # nocheck: empty - gaming overlays are outside the CentOS Stream 10 package set; TODO: install from RPM Fusion free
+  centos: [] # nocheck: empty - no source carries it: CentOS Stream 10 ships no Vulkan overlay, and RPM Fusion's el/updates/10 tree holds none either, in free or nonfree
   fedora:
     - mangohud
 
@@ -198,14 +198,14 @@ mangohud-lib32:
       - lib32-mangohud
     repo:
       pacman_section: multilib
-  Debian: [] # nocheck: empty - Debian and Ubuntu ship the 32-bit overlay through multiarch on the mangohud package, not as a separate name; TODO: install the i386 multiarch variant once the plan can request an architecture
-  RedHat: [] # nocheck: empty - Fedora ships the 32-bit overlay as mangohud.i686 of the same package, and CentOS Stream carries neither; TODO: install the i686 variant once the plan can request an architecture
+  Debian: [] # nocheck: empty - nothing separate exists to install: Debian and Ubuntu carry the 32-bit overlay as the i386 multiarch build of the mangohud package above, under that same name
+  RedHat: [] # nocheck: empty - nothing separate exists to install: Fedora carries the 32-bit overlay as the i686 build of the mangohud package above, under that same name, and CentOS Stream carries no mangohud at all
 
 mari0:
   Archlinux:
     - mari0
-  Debian: [] # nocheck: empty - mari0 is carried by neither the Debian nor the Ubuntu archives; TODO: package the upstream LOVE bundle through a build source
-  RedHat: [] # nocheck: empty - mari0 is carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: package the upstream LOVE bundle through a build source
+  Debian: [] # nocheck: empty - nothing installable exists: neither Debian nor Ubuntu carries mari0, and upstream tags no release asset and declares no licence, so there is no artefact to pin and none this project may redistribute
+  RedHat: [] # nocheck: empty - nothing installable exists: neither Fedora nor CentOS Stream 10 nor EPEL 10 carries mari0, and upstream tags no release asset and declares no licence, so there is no artefact to pin and none this project may redistribute
 
 nfs-client:
   Archlinux:
@@ -261,7 +261,12 @@ sauerbraten:
     - sauerbraten
   Debian:
     - sauerbraten
-  RedHat: [] # nocheck: empty - sauerbraten is carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: package the upstream release through a build source
+  RedHat:
+    source: flatpak
+    names:
+      - org.sauerbraten.Sauerbraten
+    flatpak:
+      command: sauerbraten
 
 shellcheck:
   Archlinux:

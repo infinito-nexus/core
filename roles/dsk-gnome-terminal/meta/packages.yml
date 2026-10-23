@@ -6,4 +6,5 @@ gnome-terminal:
     - gnome-terminal
   RedHat:
     - gnome-terminal
-  centos: [] # nocheck: empty - CentOS Stream 10 dropped gnome-terminal in favour of ptyxis and EPEL 10 does not carry it; TODO: install ptyxis instead once the role stops assuming gnome-terminal
+  centos:
+    - ptyxis
