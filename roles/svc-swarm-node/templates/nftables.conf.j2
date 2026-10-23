@@ -1,0 +1,32 @@
+table inet {{ FIREWALL_TABLE }}
+delete table inet {{ FIREWALL_TABLE }}
+table inet {{ FIREWALL_TABLE }} {
+{% for protocol in ['tcp', 'udp'] %}
+{% set _ports = SWARM_INGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', protocol) | map(attribute='port') | list %}
+  set guarded_{{ protocol }} {
+    type inet_service
+{% if _ports | length > 0 %}
+    elements = { {{ _ports | join(', ') }} }
+{% endif %}
+  }
+
+{% endfor %}
+{% for family in ['ipv4', 'ipv6'] %}
+{% set _addresses = SWARM_INGRESS_PEER_ADDRESSES[family] %}
+  set peers_{{ family }} {
+    type {{ family }}_addr
+{% if _addresses | length > 0 %}
+    elements = { {{ _addresses | join(', ') }} }
+{% endif %}
+  }
+
+{% endfor %}
+  chain prerouting {
+    type filter hook prerouting priority -150; policy accept;
+{% for family, match in [('ipv4', 'ip'), ('ipv6', 'ip6')] %}
+{% for protocol in ['tcp', 'udp'] %}
+    iifname != { "lo", "docker0", "docker_gwbridge" } iifname != "br-*" {{ match }} saddr != @peers_{{ family }} fib daddr type local {{ protocol }} dport @guarded_{{ protocol }} drop
+{% endfor %}
+{% endfor %}
+  }
+}

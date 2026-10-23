@@ -184,6 +184,12 @@
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
+- name: "🛡️ swarm: bound the ports the routing mesh now publishes on every node"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/refresh.yml') }}"
+  listen:
+    - compose-up
+    - swarm-deploy
+
 - name: "🔄 swarm: force task recreation so in-container state is reloaded"
   ansible.builtin.shell: |
     set -euo pipefail
