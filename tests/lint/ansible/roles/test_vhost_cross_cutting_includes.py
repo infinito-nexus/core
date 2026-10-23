@@ -49,6 +49,23 @@ def flavour_includes() -> dict[str, set[str]]:
     }
 
 
+def carried_includes(content: str) -> set[str]:
+    """Return the concerns an override carries, its own and a flavour's.
+
+    An override that delegates to a shared flavour instead of replacing it
+    carries everything that flavour includes. Reading its own text alone would
+    report every concern the flavour holds as dropped, which is what the
+    per-network dashboard and logout wrappers are.
+    """
+    present = set(_INCLUDE_RE.findall(content))
+    flavours = flavour_includes()
+    base = str(FLAVOUR_DIR.relative_to(PROJECT_ROOT))
+    for include in tuple(present):
+        if include.startswith(f"{base}/"):
+            present |= flavours.get(include.rsplit("/", 1)[-1], set())
+    return present
+
+
 def required_includes() -> set[str]:
     """Return the includes every shared flavour carries.
 
@@ -160,7 +177,7 @@ def missing_includes() -> list[str]:
         content = read_text(str(path))
         if is_suppressed_in_head(content.splitlines(), _RULE):
             continue
-        present = set(_INCLUDE_RE.findall(content))
+        present = carried_includes(content)
         for missing in sorted(required_includes() - present):
             if not APPLIES.get(missing, lambda _role: True)(role):
                 continue
