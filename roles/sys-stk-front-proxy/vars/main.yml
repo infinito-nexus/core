@@ -1,0 +1,2 @@
+---
+front_proxy_probe_status_codes: "{{ front_proxy_status_codes + front_proxy_upstream_down_status_codes }}"
