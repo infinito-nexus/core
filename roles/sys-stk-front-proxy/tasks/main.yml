@@ -112,7 +112,7 @@
     - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
       uri_probe:
         url: "{{ front_proxy_probe_url }}"
-        status_code: "{{ front_proxy_status_codes }}"
+        status_code: "{{ front_proxy_probe_status_codes }}"
       register: site_check
       failed_when: false
       changed_when: false
@@ -132,7 +132,7 @@
 - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
   uri_probe:
     url: "{{ front_proxy_probe_url }}"
-    status_code: "{{ front_proxy_status_codes }}"
+    status_code: "{{ front_proxy_probe_status_codes }}"
   register: front_proxy_reload_check
   failed_when: false
   changed_when: false
