@@ -54,6 +54,7 @@ stalwart:
   migration:
     import_mailu: false
     mailbox_map: []
+    workers: null # Parallel IMAP sessions of the import; null takes one fewer than the host's vCPUs, at most 8
   aliases: []
   forwards: []
   ban_period_seconds: 3600

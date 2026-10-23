@@ -101,6 +101,8 @@ STALWART_IMPORT_SCRIPTS:
   - migrate_from_mailu.py
   - mailu_maildir.py
 STALWART_IMPORT_ADMIN_FILE: "{{ [ STALWART_IMPORT_DIR, 'admin.json' ] | path_join }}"
+STALWART_IMPORT_UNIT: "stalwart-mailu-import"
+STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart.migration.workers') or ([[RESOURCE_HOST_CPUS | int - 1, 1] | max, 8] | min) }}"
 
 STALWART_ALIASES: "{{ lookup('config', application_id, 'services.stalwart.aliases') | stalwart_aliases }}"
 STALWART_ALIAS_DESCRIPTION: "Infinito.Nexus alias"

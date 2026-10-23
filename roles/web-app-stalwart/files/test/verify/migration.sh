@@ -143,7 +143,8 @@ run_migration() {
 		--imap-host 127.0.0.1 --imap-port 993 --imap-insecure \
 		--jmap-url "${STALWART_JMAP_URL}" \
 		--admin-file "${WORKDIR}/admin.json" \
-		--mailbox-map "${STALWART_MAILBOX_MAP}" | tee "${log}"
+		--mailbox-map "${STALWART_MAILBOX_MAP}" \
+		--workers "${STALWART_IMPORT_WORKERS}" | tee "${log}"
 
 	rm -f "${WORKDIR}/admin.json"
 }

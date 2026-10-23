@@ -9,6 +9,7 @@ Args:
     --jmap-url: Stalwart JMAP API endpoint, e.g. ``http://127.0.0.1:8095/jmap/``.
     --admin-file: JSON ``{"user": ..., "password": ...}`` of Stalwart's recovery administrator.
     --mailbox-map: JSON list ``[{"source": ..., "target": ...}]`` merging a mailbox into another account.
+    --workers: IMAP sessions appending in parallel per mailbox.
 """
 
 from __future__ import annotations
@@ -20,8 +21,10 @@ import json
 import re
 import ssl
 import sys
+import threading
 import time
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -61,6 +64,7 @@ _SIEVE_USING = ["urn:ietf:params:jmap:core", _SIEVE_CAPABILITY]
 _BLOB_USING = ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:blob"]
 _HTTP_TIMEOUT = 60
 _IMAP_TIMEOUT = 60
+_PROGRESS_EVERY = 1000
 _LOOPBACK_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
@@ -155,9 +159,53 @@ def existing_keys(imap: imaplib.IMAP4) -> set[str]:
     return keys
 
 
-def migrate_account(
-    imap: imaplib.IMAP4, account_dir: Path, stats: AccountStats
+def append_messages(
+    imaps: list[imaplib.IMAP4],
+    mailbox: str,
+    messages: list[Path],
+    keywords: dict[str, str],
+    present: set[str],
+    fstats: FolderStats,
 ) -> None:
+    lock = threading.Lock()
+    pending = iter(messages)
+
+    def worker(imap: imaplib.IMAP4) -> None:
+        while True:
+            with lock:
+                msg_path = next(pending, None)
+            if msg_path is None:
+                return
+            raw = msg_path.read_bytes()
+            key = dedup_key(raw)
+            with lock:
+                if key and key in present:
+                    fstats.skipped += 1
+                    continue
+                present.add(key)
+            flags = maildir_flags_to_imap(msg_path.name, keywords)
+            internal_date = imaplib.Time2Internaldate(msg_path.stat().st_mtime)
+            typ, data = imap.append(
+                imap_quote(mailbox), flags or None, internal_date, raw
+            )
+            with lock:
+                if typ == "OK":
+                    fstats.appended += 1
+                else:
+                    print(f"  [FAIL] APPEND {msg_path.name}: {data}", file=sys.stderr)
+                    fstats.failed += 1
+                done = fstats.appended + fstats.skipped + fstats.failed
+                if done % _PROGRESS_EVERY == 0:
+                    print(f"  [PROGRESS] {mailbox}: {done}/{fstats.found}")
+
+    with ThreadPoolExecutor(max_workers=len(imaps)) as pool:
+        list(pool.map(worker, imaps))
+
+
+def migrate_account(
+    imaps: list[imaplib.IMAP4], account_dir: Path, stats: AccountStats
+) -> None:
+    imap = imaps[0]
     layout = server_layout(imap)
     for maildir_name, folder_dir in iter_maildir_folders(account_dir):
         mailbox = destination_mailbox(maildir_name, layout)
@@ -171,25 +219,14 @@ def migrate_account(
             print(f"  [FAIL] cannot SELECT {mailbox!r}", file=sys.stderr)
             fstats.failed += len(messages)
             continue
-        keywords = read_keywords(folder_dir)
-        present = existing_keys(imap)
-        for msg_path in messages:
-            raw = msg_path.read_bytes()
-            key = dedup_key(raw)
-            if key and key in present:
-                fstats.skipped += 1
-                continue
-            present.add(key)
-            flags = maildir_flags_to_imap(msg_path.name, keywords)
-            internal_date = imaplib.Time2Internaldate(msg_path.stat().st_mtime)
-            typ, data = imap.append(
-                imap_quote(mailbox), flags or None, internal_date, raw
-            )
-            if typ == "OK":
-                fstats.appended += 1
-            else:
-                print(f"  [FAIL] APPEND {msg_path.name}: {data}", file=sys.stderr)
-                fstats.failed += 1
+        append_messages(
+            imaps,
+            mailbox,
+            messages,
+            read_keywords(folder_dir),
+            existing_keys(imap),
+            fstats,
+        )
 
 
 class Jmap:
@@ -316,19 +353,40 @@ def connect(host: str, port: int, insecure: bool) -> imaplib.IMAP4_SSL:
     return imap
 
 
+def open_session(
+    args: argparse.Namespace, stalwart: Stalwart, target: str
+) -> imaplib.IMAP4_SSL:
+    imap = connect(args.imap_host, args.imap_port, args.imap_insecure)
+    imap.login(
+        imap_quote(stalwart.impersonation_login(target)), stalwart.admin_password
+    )
+    return imap
+
+
+def open_sessions(
+    args: argparse.Namespace, stalwart: Stalwart, target: str
+) -> list[imaplib.IMAP4_SSL]:
+    imaps = [open_session(args, stalwart, target)]
+    for _ in range(args.workers - 1):
+        try:
+            imaps.append(open_session(args, stalwart, target))
+        except (imaplib.IMAP4.error, OSError) as error:
+            print(f"[WARN] {target}: continuing with {len(imaps)} sessions: {error}")
+            break
+    return imaps
+
+
 def import_mailbox(
     args: argparse.Namespace, stalwart: Stalwart, source: Mailbox, target: str
 ) -> AccountStats:
     stats = AccountStats()
-    imap = connect(args.imap_host, args.imap_port, args.imap_insecure)
+    imaps = open_sessions(args, stalwart, target)
     try:
-        imap.login(
-            imap_quote(stalwart.impersonation_login(target)), stalwart.admin_password
-        )
-        migrate_account(imap, source.path, stats)
+        migrate_account(imaps, source.path, stats)
     finally:
-        with suppress(imaplib.IMAP4.error, OSError):
-            imap.logout()
+        for imap in imaps:
+            with suppress(imaplib.IMAP4.error, OSError):
+                imap.logout()
     return stats
 
 
@@ -429,6 +487,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--jmap-url", required=True)
     parser.add_argument("--admin-file", required=True)
     parser.add_argument("--mailbox-map", required=True)
+    parser.add_argument("--workers", type=int, required=True)
     return parser.parse_args(argv)
 
 

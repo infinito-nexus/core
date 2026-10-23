@@ -2,6 +2,7 @@ import importlib.util
 import os
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -71,6 +72,12 @@ class _FakeImap:
         return "OK", [b""]
 
 
+class _SlowImap(_FakeImap):
+    def append(self, mailbox, flags, date_time, message):
+        time.sleep(0.002)
+        return super().append(mailbox, flags, date_time, message)
+
+
 class TestServerLayout(unittest.TestCase):
     def setUp(self):
         self.m = _load_module()
@@ -127,7 +134,7 @@ class TestMigrateAccount(unittest.TestCase):
     def test_appends_with_flags_folders_and_internal_date(self):
         imap = _FakeImap()
         stats = self.m.AccountStats()
-        self.m.migrate_account(imap, self.account, stats)
+        self.m.migrate_account([imap], self.account, stats)
         self.assertEqual(imap.created, ["Archive", "Sent Items"])
         self.assertEqual(
             [(mailbox, flags) for mailbox, flags, _, _ in imap.appended],
@@ -151,7 +158,7 @@ class TestMigrateAccount(unittest.TestCase):
             ]
         )
         stats = self.m.AccountStats()
-        self.m.migrate_account(imap, self.account, stats)
+        self.m.migrate_account([imap], self.account, stats)
         self.assertEqual(stats.folder("INBOX").appended, 1)
         self.assertEqual(stats.folder("INBOX").skipped, 1)
         self.assertEqual(stats.folder("Archive").skipped, 1)
@@ -162,6 +169,68 @@ class TestMigrateAccount(unittest.TestCase):
             existing_headers=[b"Message-ID: <a@x>\r\n\r\n", b"X: 1\r\n\r\n"]
         )
         self.assertEqual(self.m.existing_keys(imap), {"<a@x>"})
+
+    def test_parallel_sessions_append_every_message_once(self):
+        for index in range(5, 45):
+            (self.account / "cur" / f"{index}.host:2,").write_bytes(
+                f"Message-ID: <{index}@x>\r\n\r\nbody".encode()
+            )
+        (self.account / "cur" / "99.host:2,").write_bytes(
+            b"Message-ID: <5@x>\r\n\r\nduplicate"
+        )
+        imaps = [_SlowImap() for _ in range(4)]
+        stats = self.m.AccountStats()
+        self.m.migrate_account(imaps, self.account, stats)
+        appended = [entry for imap in imaps for entry in imap.appended]
+        bodies = sorted(message for _, _, _, message in appended)
+        self.assertEqual(len(bodies), len(set(bodies)))
+        self.assertEqual(stats.total("appended"), 44)
+        self.assertEqual(stats.folder("INBOX").skipped, 1)
+        self.assertEqual(imaps[0].created, ["Archive", "Sent Items"])
+        self.assertTrue(all(not imap.created for imap in imaps[1:]))
+        self.assertGreater(sum(1 for imap in imaps if imap.appended), 1)
+
+
+class TestOpenSessions(unittest.TestCase):
+    def setUp(self):
+        self.m = _load_module()
+
+    def _args(self, workers):
+        return self.m.parse_args(
+            [
+                "--maildir-root=/x",
+                "--imap-host=127.0.0.1",
+                "--imap-port=993",
+                "--jmap-url=http://127.0.0.1/jmap/",
+                "--admin-file=/x/admin.json",
+                "--mailbox-map=[]",
+                f"--workers={workers}",
+            ]
+        )
+
+    def test_opens_one_session_per_worker(self):
+        self.m.open_session = lambda args, stalwart, target: "s"
+        self.assertEqual(self.m.open_sessions(self._args(3), None, "a@x"), ["s"] * 3)
+
+    def test_refused_extra_session_keeps_the_open_ones(self):
+        calls = []
+
+        def open_session(args, stalwart, target):
+            calls.append(1)
+            if len(calls) > 2:
+                raise self.m.imaplib.IMAP4.error("too many connections")
+            return "s"
+
+        self.m.open_session = open_session
+        self.assertEqual(self.m.open_sessions(self._args(4), None, "a@x"), ["s", "s"])
+
+    def test_refused_first_session_fails(self):
+        def open_session(args, stalwart, target):
+            raise self.m.imaplib.IMAP4.error("login failed")
+
+        self.m.open_session = open_session
+        with self.assertRaises(self.m.imaplib.IMAP4.error):
+            self.m.open_sessions(self._args(4), None, "a@x")
 
 
 class _FakeJmap:
