@@ -8,3 +8,8 @@ update:
     swarm:
       enabled: false
   lifecycle: beta
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

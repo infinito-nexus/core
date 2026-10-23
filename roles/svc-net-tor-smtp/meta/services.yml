@@ -28,3 +28,8 @@ tor-smtp: # nocheck: category-modes
   mem_limit: 128m
   pids_limit: 64
   lifecycle: alpha
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

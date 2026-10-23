@@ -29,12 +29,21 @@ if TYPE_CHECKING:
     from typing import Any
 
 
+GUIDE_SERVICE_KEY = "docs"
+"""The guide host is the replay's own carrier, not a provider the README's
+Production block describes. Counting it would make the measure circular: the
+variant this function picks is the one that then switches the guide on, which
+on the next read makes that variant one service larger than it was."""
+
+
 def _enabled_services(variant: Mapping[str, Any]) -> int:
     services = variant.get("services") or {}
     return sum(
         1
-        for config in services.values()
-        if isinstance(config, dict) and config.get("enabled")
+        for key, config in services.items()
+        if key != GUIDE_SERVICE_KEY
+        and isinstance(config, dict)
+        and config.get("enabled")
     )
 
 

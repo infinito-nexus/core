@@ -244,3 +244,8 @@ mattermost:
   bond: 0.5
   enabled: "{{ 'web-app-mattermost' in group_names }}"
   shared: "{{ 'web-app-mattermost' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

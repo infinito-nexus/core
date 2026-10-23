@@ -817,6 +817,9 @@
   addons: *addons_static_off
 # Variant 8: peertube - clearnet, because the OIDC plugin rejects a plaintext onion issuer
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

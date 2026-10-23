@@ -5,6 +5,10 @@
 - addons:
     dash-to-dock:
       enabled: true
+  services:
+    docs:
+      enabled: true
+      shared: true
 - addons:
     dash-to-dock:
       enabled: false

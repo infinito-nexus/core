@@ -96,3 +96,8 @@ seaweedfs-console:
     - web-svc-seaweedfs
     - web-app-keycloak
   lifecycle: beta
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

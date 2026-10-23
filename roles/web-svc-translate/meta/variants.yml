@@ -42,6 +42,9 @@
       shared: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     ltengine:
       enabled: true
       shared: true

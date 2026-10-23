@@ -15,6 +15,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     matomo:
       enabled: false
       shared: false

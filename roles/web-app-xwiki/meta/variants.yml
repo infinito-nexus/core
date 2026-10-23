@@ -40,6 +40,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     litellm:
       enabled: false
     container_backup:

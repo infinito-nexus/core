@@ -37,3 +37,8 @@ act-runner:
   image: catthehacker/ubuntu
   # nocheck: docker-version
   version: "act-latest"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

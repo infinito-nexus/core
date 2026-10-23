@@ -31,6 +31,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     design:
       enabled: false
       shared: false

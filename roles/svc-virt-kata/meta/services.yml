@@ -16,3 +16,8 @@ kata:
   mem_limit: "256m"
   pids_limit: 256
   lifecycle: beta
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -29,3 +29,8 @@ codex:
   bond: 0.5
   enabled: "{{ 'dsk-gnt-codex' in group_names }}"
   shared: "{{ 'dsk-gnt-codex' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

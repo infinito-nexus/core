@@ -49,3 +49,8 @@ design:
 logout:
   enabled: false
   shared: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

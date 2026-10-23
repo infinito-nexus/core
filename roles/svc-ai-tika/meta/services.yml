@@ -24,3 +24,8 @@ tika:
     internal:
       http: 9998
   lifecycle: alpha
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

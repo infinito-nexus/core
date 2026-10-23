@@ -36,6 +36,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     libretranslate:
       load_only:
         - en

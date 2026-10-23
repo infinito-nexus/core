@@ -6,6 +6,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     prometheus:
       enabled: false
       shared: false

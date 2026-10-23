@@ -14,3 +14,8 @@ keepassxc:
   mem_reservation: "64m"
   mem_limit: "256m"
   pids_limit: 128
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

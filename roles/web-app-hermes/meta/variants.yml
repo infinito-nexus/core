@@ -52,6 +52,9 @@
     webui:
       enabled: false # nocheck: variants-static-override variant pins a literal off-switch
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch

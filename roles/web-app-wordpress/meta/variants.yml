@@ -138,6 +138,9 @@
         - biber.blog.{{ DOMAIN_PRIMARY }}
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override base shared is a static literal and this round joins no backup host

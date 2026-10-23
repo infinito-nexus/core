@@ -1,4 +1,7 @@
 ---
 - services:
+    docs:
+      enabled: true
+      shared: true
     tor:
       enabled: true

@@ -46,6 +46,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     asset:
       enabled: false
       shared: false

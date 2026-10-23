@@ -14,3 +14,8 @@ firefox:
   mem_reservation: "512m"
   mem_limit: "2g"
   pids_limit: 2048
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

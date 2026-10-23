@@ -23,6 +23,9 @@
 # must exclude, and the model answering instead is what shows the filter ran.
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: true
     ollama:

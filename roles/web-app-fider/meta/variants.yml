@@ -45,6 +45,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false

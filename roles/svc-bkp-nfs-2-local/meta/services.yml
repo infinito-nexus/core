@@ -24,3 +24,8 @@ nfs-2-local:
   mem_reservation: "256m"
   mem_limit: "512m"
   pids_limit: 256
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

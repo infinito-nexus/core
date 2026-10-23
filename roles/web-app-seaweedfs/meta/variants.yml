@@ -18,6 +18,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     sso:
       enabled: false
       shared: false

@@ -17,3 +17,8 @@ wireguard:
   mem_reservation: "8m"
   mem_limit: "16m"
   pids_limit: 8
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -130,3 +130,8 @@ jvb:
 tor:
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

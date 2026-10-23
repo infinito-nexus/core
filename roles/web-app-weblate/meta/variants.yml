@@ -37,6 +37,9 @@
       enabled: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     translate:
       enabled: false
       shared: false

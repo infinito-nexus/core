@@ -20,6 +20,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     api:
       enabled: false
       shared: false

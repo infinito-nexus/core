@@ -33,6 +33,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: true
     dashboard:

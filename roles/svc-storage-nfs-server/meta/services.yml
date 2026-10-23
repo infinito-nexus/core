@@ -24,3 +24,8 @@ nfs_backup:
   bond: 1
   enabled: "{{ 'svc-bkp-nfs-2-local' in group_names }}"
   shared: "{{ 'svc-bkp-nfs-2-local' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

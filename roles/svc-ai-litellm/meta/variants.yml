@@ -10,6 +10,9 @@
 # flags. With nothing preloaded the chat model falls through to the mock here.
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     ollama:
       enabled: true
       shared: true

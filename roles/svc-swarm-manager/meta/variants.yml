@@ -4,6 +4,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     node:
       enabled: false
       shared: false

@@ -1,2 +1,5 @@
 ---
-- services: {}
+- services:
+    docs:
+      enabled: true
+      shared: true

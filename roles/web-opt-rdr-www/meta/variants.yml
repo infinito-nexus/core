@@ -6,6 +6,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard: # nocheck: variants-services-match
       enabled: false
       shared: false # nocheck: variants-static-override

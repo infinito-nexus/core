@@ -52,3 +52,8 @@ ltengine:
 tor:
   enabled: false # nocheck: dynamic-flag  an engine consumed over the internal network publishes no onion surface
   shared: false # nocheck: dynamic-flag  same
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -19,6 +19,9 @@
       enabled: true
 
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

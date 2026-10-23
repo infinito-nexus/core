@@ -2,4 +2,7 @@
 # Matrix-deploy variant overrides for this role.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
-- services: {}
+- services:
+    docs:
+      enabled: true
+      shared: true

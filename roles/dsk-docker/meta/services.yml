@@ -14,3 +14,8 @@ docker:
   mem_reservation: "128m"
   mem_limit: "512m"
   pids_limit: 512
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -6,6 +6,9 @@
 # plug-triggered backup service deploys. No device appears in CI, so the .mount
 # unit only waits and the oneshot backup never fires.
 - services:
+    docs:
+      enabled: true
+      shared: true
     local-2-device:
       mount: /mnt/backup-to-device
       target: /infinito
