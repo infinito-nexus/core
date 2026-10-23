@@ -14,6 +14,12 @@ allowlist (``allowed_hosts``). A deny list mixes CIDRs with names and a
 reachability probe takes a resolver argument, so neither is a loopback host
 list and neither is flagged.
 
+Two lookups compose such a list from the registry rather than by hand, and a
+variable built from either is not flagged: ``proxy_excluded_hosts`` for the
+internal hosts an application's own client must reach directly, and
+``browser_proxy_bypass`` for the hosts a browser on an onion page reaches
+without its SOCKS proxy, which it derives from the networks the node serves.
+
 Per-line opt-out: ``# nocheck: loopback-hosts-literal``.
 """
 
@@ -41,6 +47,7 @@ _HOST_LIST = re.compile(
     r"(?i)^[\s\-]*[\w.]*(?:no_proxy|allowed_hosts)\s*[:=]\s*(?P<value>.+)$"
 )
 _LOOKUP = "proxy_excluded_hosts"
+_COMPOSERS = (_LOOKUP, "browser_proxy_bypass")
 _INTERNAL_EXCLUSION = re.compile(
     r"^(?P<key>[A-Z][A-Z0-9_]*PROXY[A-Z0-9_]*(?:EXCLUDED|BYPASS)[A-Z0-9_]*)\s*:"
 )
@@ -115,7 +122,7 @@ class TestLoopbackHostsSpot(unittest.TestCase):
                 if not match or "PUBLIC" in match.group("key"):
                     continue
                 block = "\n".join(lines[idx : idx + 6])
-                if _LOOKUP in block:
+                if any(composer in block for composer in _COMPOSERS):
                     continue
                 value = stripped[len(match.group(0)) :]
                 if _COMPOSITION.search(value):
