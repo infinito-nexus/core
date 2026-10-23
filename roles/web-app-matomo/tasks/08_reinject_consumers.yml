@@ -1,28 +1,25 @@
 ---
-- name: "🔎 Matomo | Stat rendered body_filter Lua of candidate web-svc matomo consumers"
-  ansible.builtin.stat:
-    path: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ matomo_inj_consumer.id }}.lua"
-  loop: "{{ lookup('roles_with_service', 'matomo', scope='all') | selectattr('id', 'match', '^web-svc-') | list }}"
-  loop_control:
-    loop_var: matomo_inj_consumer
-    label: "{{ matomo_inj_consumer.id }}"
-  register: matomo_inj_candidates
-  changed_when: false
+- name: "🔁 Matomo | Re-inject the tracker into the deployed web-svc consumers"
   when:
     - matomo_token_value is defined
     - matomo_token_value | length > 0
-
-- name: "📄 Matomo | Re-render injection for deployed web-svc consumers"
-  ansible.builtin.include_role:
-    name: sys-front-inj-all
   vars:
-    application_id: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
-    domain: "{{ lookup('domain', matomo_inj_dir.matomo_inj_consumer.id) }}"
-    matomo_token_override: "{{ matomo_token_value }}"
-  loop: "{{ matomo_inj_candidates.results | default([]) | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | list }}"
-  loop_control:
-    loop_var: matomo_inj_dir
-    label: "{{ matomo_inj_dir.matomo_inj_consumer.id }}"
-  when:
-    - matomo_token_value is defined
-    - matomo_token_value | length > 0
+    matomo_inj_consumer_ids: "{{ lookup('roles_with_service', 'matomo', scope='all') | selectattr('id', 'match', '^web-svc-') | map(attribute='id') | list }}"
+  block:
+    - name: "🔎 Matomo | Find the rendered body_filter Lua of the web-svc matomo consumers"
+      ansible.builtin.find:
+        paths: "{{ lookup('nginx', 'directories.configuration.lua') }}"
+        patterns: "{{ matomo_inj_consumer_ids | map('regex_replace', '$', '.lua') | list }}"
+      register: matomo_inj_lua
+      when: matomo_inj_consumer_ids | length > 0
+
+    - name: "📄 Matomo | Re-render injection for deployed web-svc consumers"
+      ansible.builtin.include_role:
+        name: sys-front-inj-all
+      vars:
+        application_id: "{{ matomo_inj_consumer_id }}"
+        domain: "{{ lookup('domain', matomo_inj_consumer_id) }}"
+        matomo_token_override: "{{ matomo_token_value }}"
+      loop: "{{ matomo_inj_lua.files | default([]) | map(attribute='path') | map('basename') | map('splitext') | map('first') | list }}"
+      loop_control:
+        loop_var: matomo_inj_consumer_id
