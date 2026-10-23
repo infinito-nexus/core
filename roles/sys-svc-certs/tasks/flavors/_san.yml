@@ -54,6 +54,11 @@
       WARNING: Let's Encrypt rate limit reached ("too many certificates").
       No changes recorded; adjust batching or retry later.
 
+- name: 🔗 Link each domain to the certbundle lineage that covers it
+  cert_link_domains:
+    domains: "{{ CURRENT_PLAY_DOMAINS_ALL }}"
+    cert_base_path: "{{ LETSENCRYPT_LIVE_PATH }}"
+
 - name: ▶️ run the san tasks once
   set_fact:
     run_once_san_certs: true
