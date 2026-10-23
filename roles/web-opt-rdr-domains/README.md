@@ -8,6 +8,18 @@ This Ansible role configures NGINX to perform 301 redirects from one domain to a
 
 This role configures Nginx to perform 301 redirects based on a list of source→target domain mappings.
 
+Extra mappings go into the inventory as `redirect_domain_mappings`. A source may be a whole zone through `*.<zone>`, and `keep_path: false` sends every request to the bare target instead of appending its path:
+
+```yaml
+redirect_domain_mappings:
+  - source: legacy.example
+    target: example.org
+    keep_path: false
+  - source: "*.legacy.example"
+    target: example.org
+    keep_path: false
+```
+
 ## Cosmos
 
 The diagram places Redirector in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).

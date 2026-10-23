@@ -27,7 +27,8 @@
       files: >-
         {{ [{'path': lookup('nginx', 'files.domain', item.source),
              'content': lookup('template', 'redirect-domain.conf.j2',
-                               template_vars={'domain': item.source, 'target': item.target})}]
+                               template_vars={'domain': item.source, 'target': item.target,
+                                              'keep_path': item.get('keep_path', true)})}]
            + ([{'path': lookup('nginx', 'files.domain', item.source, protocol='http'),
                 'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
                                   template_vars={'domain': item.source})}]

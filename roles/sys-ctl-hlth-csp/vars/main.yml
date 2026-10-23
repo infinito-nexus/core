@@ -10,4 +10,5 @@ HEALTH_CSP_SKIP_DOMAINS: >-
        + (CURRENT_PLAY_REDIRECT_DOMAINS | default([])
           | rejectattr('target', 'in', CURRENT_PLAY_DOMAINS_ALL)
           | map(attribute='source') | list)
+       + (CURRENT_PLAY_DOMAINS_ALL | select('match', '[*][.]') | list)
      ) | unique }}

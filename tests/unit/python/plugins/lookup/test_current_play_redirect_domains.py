@@ -55,6 +55,50 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             [{"source": "old.example.com", "target": "new.example.com"}],
         )
 
+    def test_user_wildcard_mapping_keeps_its_keep_path_flag(self):
+        lm = self._make_lookup()
+        variables = {
+            "redirect_domain_mappings": [
+                {
+                    "source": "*.old.example",
+                    "target": "new.example",
+                    "keep_path": False,
+                },
+            ],
+        }
+        with self._patch_lookups(deployed=[], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [{"source": "*.old.example", "target": "new.example", "keep_path": False}],
+        )
+
+    def test_user_mapping_values_are_templated(self):
+        class _ResolvingTemplar:
+            def __init__(self, mapping):
+                self._mapping = mapping
+                self.available_variables = {}
+
+            def template(self, value):
+                return self._mapping.get(value, value)
+
+        lm = LookupModule()
+        lm._templar = _ResolvingTemplar(
+            {
+                "*.{{ OLD_DOMAIN }}": "*.old.example",
+                "{{ DOMAIN_PRIMARY }}": "new.example",
+            }
+        )
+        lm._loader = None
+        variables = {
+            "redirect_domain_mappings": [
+                {"source": "*.{{ OLD_DOMAIN }}", "target": "{{ DOMAIN_PRIMARY }}"},
+            ],
+        }
+        with self._patch_lookups(deployed=[], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(result, [{"source": "*.old.example", "target": "new.example"}])
+
     def test_primary_redirect_appended_when_both_domains_set(self):
         lm = self._make_lookup()
         variables = {
