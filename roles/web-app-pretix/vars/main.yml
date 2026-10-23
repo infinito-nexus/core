@@ -33,6 +33,7 @@ PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-
 PRETIX_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
 PRETIX_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if PRETIX_OIDC_ONION_ISSUER | bool else '' }}"
 PRETIX_OIDC_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [PRETIX_MCP_UPSTREAM_HOST] }}"
+PRETIX_ALLOW_PRIVATE_NETWORKS: "{{ (ENVIRONMENT | lower) == 'development' }}"
 
 PRETIX_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 PRETIX_REDIS_CACHE_DB: 1
