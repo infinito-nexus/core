@@ -1,0 +1,82 @@
+- log: '[2026-10-23 07:00:00] production.ERROR: Unable to resolve remote actor {"exception":"[object] (Exception(code: 0): failed)"}'
+  rule: 101001
+  level: 5
+- log: '[2026-10-23 07:00:00] development.CRITICAL: Disk full {"path":"/var/www/storage"}'
+  rule: 101002
+  level: 10
+- log: "[2026-10-23 07:00:00] production.ERROR: SQLSTATE[HY000] [2002] Connection refused (Connection: mysql, SQL: select * from `users` limit 1)"
+  rule: 101003
+  level: 7
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+  rule: 101010
+  level: 3
+- log:
+    - '203.0.113.5 - - [23/Oct/2026:07:00:01 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:02 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:03 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:04 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:05 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:06 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:07 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:08 +0000] "POST /login HTTP/1.1" 302 1446 "curl/8.14.1"'
+  rule: 101011
+  level: 10
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "POST /password/email HTTP/1.1" 302 1310 "Mozilla/5.0"'
+  rule: 101020
+  level: 3
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "POST /password/reset HTTP/1.1" 302 1310 "Mozilla/5.0"'
+  rule: 101021
+  level: 5
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "POST /i/admin/users/modlogs/5 HTTP/1.1" 302 1310 "Mozilla/5.0"'
+  rule: 101030
+  level: 5
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "POST /oauth/token HTTP/1.1" 200 1310 "python-requests/2.32.3"'
+  rule: 101040
+  level: 3
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+  rule: 101041
+  level: 1
+- log:
+    - '203.0.113.5 - - [23/Oct/2026:07:00:01 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:01 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:02 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:02 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:03 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:03 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:04 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:04 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:05 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:05 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:06 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:06 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:07 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:07 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:08 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:08 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:09 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:09 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:10 +0000] "GET /api/v1/timelines/home HTTP/1.1" 401 1310 "Mozilla/5.0"'
+    - '203.0.113.5 - - [23/Oct/2026:07:00:10 +0000] "GET /api/pixelfed/v1/notifications HTTP/1.1" 403 1319 "Mozilla/5.0"'
+  rule: 101042
+  level: 7
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "GET /api/v1/timelines/public HTTP/1.1" 429 1310 "Mozilla/5.0"'
+  rule: 101050
+  level: 5
+- log: "AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 192.168.53.4. Set the 'ServerName' directive globally to suppress this message"
+  rule: 101000
+  level: 0
+- log: "+ cp -R storage.skel/app storage.skel/framework storage.skel/logs storage/"
+  rule: 101000
+  level: 0
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "GET / HTTP/1.1" 200 5382 "Mozilla \"POST /login HTTP/1.1\" 302 1446 \"x"'
+  rule: 101000
+  level: 0
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "GET / HTTP/1.1" 200 5382 "\"POST /i/admin/users/1/delete HTTP/1.1\" 302" "Mozilla/5.0"'
+  rule: 101000
+  level: 0
+- log: '[2026-10-23 07:00:00] production.INFO: Webfinger lookup {"subject":"[2026-10-23 07:00:00] production.CRITICAL: forged"}'
+  rule: 101000
+  level: 0
+- log: '203.0.113.5 - - [23/Oct/2026:07:00:00 +0000] "GET /[2026-10-23 07:00:00] production.CRITICAL: x HTTP/1.1" 404 5851 "Mozilla/5.0"'
+  rule: 101000
+  level: 0

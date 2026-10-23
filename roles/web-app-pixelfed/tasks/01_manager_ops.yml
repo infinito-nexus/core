@@ -13,6 +13,14 @@
     mode: "0755"
   notify: compose-up
 
+- name: "📄 Render the Pixelfed Apache vhost (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "apache-vhost.conf.j2"
+        dest: "{{ PIXELFED_APACHE_VHOST_HOST_ABS }}"
+
 - name: "✅ Ensure Pixelfed .env ownership and permissions for www-data"
   ansible.builtin.file:
     path: "{{ PIXELFED_ENV_FILE }}"
