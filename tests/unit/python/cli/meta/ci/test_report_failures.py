@@ -31,24 +31,30 @@ class TestReportFailures(unittest.TestCase):
         self.assertEqual(
             failed_roles(jobs),
             {
-                "web-app-xwiki": [Failure("swarm", "0", True, "", "", "")],
-                "web-app-openproject": [Failure("compose", "0-1-2", False, "", "", "")],
-                "web-svc-logout": [Failure("swarm", "1", False, "", "", "")],
-                "sys-front-proxy": [Failure("host", "", False, "", "", "")],
+                "web-app-xwiki": [Failure("swarm", "0", "tor", "", "", "")],
+                "web-app-openproject": [
+                    Failure("compose", "0-1-2", "clearnet", "", "", "")
+                ],
+                "web-svc-logout": [Failure("swarm", "1", "clearnet", "", "", "")],
+                "sys-front-proxy": [Failure("host", "", "clearnet", "", "", "")],
             },
         )
 
-    def test_the_same_variant_in_both_onion_states_stays_two_failures(self) -> None:
+    def test_the_same_variant_in_every_network_mode_stays_separate_failures(
+        self,
+    ) -> None:
         jobs = [
             {"name": "🐳🧅 web-app-xwiki#0 ⭐", "conclusion": "failure"},
             {"name": "🐳🌐 web-app-xwiki#0 ⭐", "conclusion": "failure"},
+            {"name": "🐳🌈 web-app-xwiki#0 ⭐", "conclusion": "failure"},
         ]
         self.assertEqual(
             failed_roles(jobs),
             {
                 "web-app-xwiki": [
-                    Failure("compose", "0", True, "", "", ""),
-                    Failure("compose", "0", False, "", "", ""),
+                    Failure("compose", "0", "tor", "", "", ""),
+                    Failure("compose", "0", "clearnet", "", "", ""),
+                    Failure("compose", "0", "multi", "", "", ""),
                 ]
             },
         )
@@ -57,32 +63,44 @@ class TestReportFailures(unittest.TestCase):
         jobs = [{"name": "🐳🌐🌀🦓 web-app-xwiki#0", "conclusion": "failure"}]
         self.assertEqual(
             failed_roles(jobs),
-            {"web-app-xwiki": [Failure("compose", "0", False, "debian", "zfs", "")]},
+            {
+                "web-app-xwiki": [
+                    Failure("compose", "0", "clearnet", "debian", "zfs", "")
+                ]
+            },
         )
 
     def test_artifact_name(self) -> None:
         self.assertEqual(
-            artifact_name("web-app-xwiki", Failure("swarm", "0", False, "", "", "")),
+            artifact_name(
+                "web-app-xwiki", Failure("swarm", "0", "clearnet", "", "", "")
+            ),
             "rescue-diagnostics-swarm-web-app-xwiki-0",
         )
         self.assertEqual(
-            artifact_name("web-app-x", Failure("compose", "", False, "", "", "")),
+            artifact_name("web-app-x", Failure("compose", "", "clearnet", "", "", "")),
             "rescue-diagnostics-compose-web-app-x",
         )
 
-    def test_the_onion_state_keeps_the_artifact_names_apart(self) -> None:
-        onion = artifact_name("web-app-x", Failure("compose", "0", True, "", "", ""))
-        clear = artifact_name("web-app-x", Failure("compose", "0", False, "", "", ""))
-        self.assertNotEqual(onion, clear)
-        self.assertTrue(onion.endswith("-tor"))
+    def test_the_network_mode_keeps_the_artifact_names_apart(self) -> None:
+        names = {
+            network: artifact_name(
+                "web-app-x", Failure("compose", "0", network, "", "", "")
+            )
+            for network in ("clearnet", "tor", "multi")
+        }
+        self.assertEqual(len(set(names.values())), 3)
+        self.assertEqual(names["clearnet"], "rescue-diagnostics-compose-web-app-x-0")
+        self.assertTrue(names["tor"].endswith("-tor"))
+        self.assertTrue(names["multi"].endswith("-multi"))
 
     def test_the_distro_keeps_two_deploys_of_one_row_apart(self) -> None:
         self.assertNotEqual(
             artifact_name(
-                "web-app-x", Failure("compose", "0", True, "debian", "zfs", "")
+                "web-app-x", Failure("compose", "0", "tor", "debian", "zfs", "")
             ),
             artifact_name(
-                "web-app-x", Failure("compose", "0", True, "fedora", "zfs", "")
+                "web-app-x", Failure("compose", "0", "tor", "fedora", "zfs", "")
             ),
         )
 
@@ -103,8 +121,9 @@ class TestReportFailures(unittest.TestCase):
         body = issue_body(
             "web-app-xwiki",
             [
-                Failure("swarm", "0", False, "", "", ""),
-                Failure("compose", "", True, "", "", ""),
+                Failure("swarm", "0", "clearnet", "", "", ""),
+                Failure("compose", "", "tor", "", "", ""),
+                Failure("swarm", "1", "multi", "", "", ""),
             ],
             run_url="https://gh/run/1",
             excerpt="EXCERPT",
@@ -113,6 +132,10 @@ class TestReportFailures(unittest.TestCase):
         self.assertIn("https://gh/run/1", body)
         self.assertIn("rescue-diagnostics-swarm-web-app-xwiki-0", body)
         self.assertIn("rescue-diagnostics-compose-web-app-xwiki-tor", body)
+        self.assertIn("rescue-diagnostics-swarm-web-app-xwiki-1-multi", body)
+        self.assertIn("on a `tor` node", body)
+        self.assertIn("on a `multi` node", body)
+        self.assertNotIn("on a `clearnet` node", body)
         self.assertIn("EXCERPT", body)
 
     def test_decisive_excerpt_prefers_error_context(self) -> None:

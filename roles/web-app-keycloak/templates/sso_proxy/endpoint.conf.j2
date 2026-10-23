@@ -1,6 +1,7 @@
 # OAuth2-Proxy-Endpoint
+{% set sso_proxy_instance = lookup('sso', application_id, 'proxy_instances') | selectattr('network', 'equalto', domain | network_of) | first %}
 location /oauth2/ {
-    {{ lookup('proxy_pass', application_id, 'sso-proxy', 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.sso'), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
+    {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 

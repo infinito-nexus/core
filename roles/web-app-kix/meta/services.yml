@@ -85,6 +85,7 @@ kix:
     local:
       http: 8083
       sso: 16500
+      sso_onion: 16532
   run_after:
     - web-app-keycloak
   lifecycle: beta

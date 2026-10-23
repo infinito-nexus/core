@@ -82,6 +82,7 @@ flowise:
     local:
       http: 8056
       sso: 16480
+      sso_onion: 16525
     internal:
       http: 3000
   proxy:

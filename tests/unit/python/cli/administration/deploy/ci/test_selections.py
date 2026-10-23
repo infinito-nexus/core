@@ -13,12 +13,12 @@ def _job(name: str, conclusion: str | None, status: str = "completed") -> dict:
     return {"name": name, "status": status, "conclusion": conclusion}
 
 
-def _row(app: str, variant: str, mode: str, tor: bool = False) -> dict:
+def _row(app: str, variant: str, mode: str, network: str = "clearnet") -> dict:
     return {
         "apps": app,
         "variant": variant,
         "mode": mode,
-        "tor": "true" if tor else "false",
+        "network": network,
         "distro": DISTROS[0],
         "filesystem": FILESYSTEMS[0],
         "priority": "false",
@@ -33,16 +33,18 @@ class TestResumeOffset(unittest.TestCase):
 
     _REGULAR: ClassVar[list[dict]] = [
         _row("web-app-a", "0", "compose"),
-        _row("web-app-b", "1", "swarm", tor=True),
+        _row("web-app-b", "1", "swarm", network="tor"),
         _row("web-app-c", "0", "host"),
     ]
 
     def test_a_row_proven_under_the_source_sweeps_axes_still_counts(self) -> None:
         """The retrigger is a new run with a new sweep number, so its ranking
-        assigns row a a different mode, onion state and distro than the run
+        assigns row a a different mode, network mode and distro than the run
         that proved it. Comparing the full tokens stopped every walk on its
         first row and pinned the regular line to the head forever."""
-        jobs = [_job(deploy_job_name("swarm", "web-app-a", "0", tor=True), "success")]
+        jobs = [
+            _job(deploy_job_name("swarm", "web-app-a", "0", network="tor"), "success")
+        ]
         self.assertEqual(
             selections.resume_offset(self._REGULAR, selections.proven_rows(jobs)),
             "web-app-a#0",
@@ -58,7 +60,7 @@ class TestResumeOffset(unittest.TestCase):
     def test_a_red_row_stops_the_scan_so_the_line_walks_it_again(self) -> None:
         jobs = [
             _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
-            _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
+            _job(deploy_job_name("swarm", "web-app-b", "1", network="tor"), "failure"),
             _job(deploy_job_name("host", "web-app-c", "0"), "success"),
         ]
         self.assertEqual(
@@ -137,7 +139,7 @@ class TestCarriedOffset(unittest.TestCase):
 
     _REGULAR: ClassVar[list[dict]] = [
         _row("web-app-a", "0", "compose"),
-        _row("web-app-b", "1", "swarm", tor=True),
+        _row("web-app-b", "1", "swarm", network="tor"),
         _row("web-app-c", "0", "host"),
     ]
 
@@ -158,7 +160,9 @@ class TestCarriedOffset(unittest.TestCase):
         """The priority line takes the whole role, so naming that row would
         emit an offset resolving against nothing; the next free row is the
         answer, and it is still ahead of where the source run started."""
-        jobs = [_job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure")]
+        jobs = [
+            _job(deploy_job_name("swarm", "web-app-b", "1", network="tor"), "failure")
+        ]
         self.assertEqual(
             selections.resume_offset(
                 self._REGULAR,
@@ -194,13 +198,15 @@ class TestProvenRows(unittest.TestCase):
     def test_only_the_successes_are_kept(self) -> None:
         jobs = [
             _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
-            _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
+            _job(deploy_job_name("swarm", "web-app-b", "1", network="tor"), "failure"),
             _job(deploy_job_name("host", "web-app-c", "0"), "cancelled"),
         ]
         self.assertEqual(selections.proven_rows(jobs), {"web-app-a#0"})
 
     def test_the_axes_are_dropped_so_the_row_survives_a_new_sweep(self) -> None:
-        jobs = [_job(deploy_job_name("swarm", "web-app-a", "0", tor=True), "success")]
+        jobs = [
+            _job(deploy_job_name("swarm", "web-app-a", "0", network="multi"), "success")
+        ]
         self.assertEqual(selections.proven_rows(jobs), {"web-app-a#0"})
 
     def test_one_red_axis_un_proves_the_whole_row(self) -> None:
@@ -209,7 +215,7 @@ class TestProvenRows(unittest.TestCase):
         swarm one past the regular line."""
         jobs = [
             _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
-            _job(deploy_job_name("swarm", "web-app-a", "0", tor=True), "failure"),
+            _job(deploy_job_name("swarm", "web-app-a", "0", network="tor"), "failure"),
         ]
         self.assertEqual(selections.proven_rows(jobs), set())
 
@@ -218,7 +224,9 @@ class TestProvenRows(unittest.TestCase):
         stops the walk."""
         jobs = [
             _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
-            _job(deploy_job_name("swarm", "web-app-a", "0", tor=True), "cancelled"),
+            _job(
+                deploy_job_name("swarm", "web-app-a", "0", network="tor"), "cancelled"
+            ),
         ]
         self.assertEqual(selections.proven_rows(jobs), set())
 

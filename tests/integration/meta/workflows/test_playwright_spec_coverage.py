@@ -16,7 +16,7 @@ import unittest
 
 from cli.meta.ci import matrix, query
 from utils import PROJECT_ROOT
-from utils.github.variant import axes, pools, tor, vpn
+from utils.github.variant import axes, network, pools, vpn
 from utils.roles.display import display_names
 from utils.roles.playwright_coverage import (
     chunk_index,
@@ -34,7 +34,7 @@ def _coverage():
         priority=codec.decode_list(""),
         lifecycles="",
         sweep=axes.resolve_sweep(),
-        tor_mode=tor.resolve_tor_mode(None),
+        network_input=network.resolve_network_input(None),
         vpn_mode=vpn.resolve_vpn_mode(None),
         distros=pools.resolve_distros(""),
         filesystems=pools.resolve_filesystems(""),

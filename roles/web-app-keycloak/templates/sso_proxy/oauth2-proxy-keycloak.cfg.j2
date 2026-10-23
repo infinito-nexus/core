@@ -1,6 +1,9 @@
 http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}"
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'secrets.credentials.sso_proxy_cookie_secret') }}"
-cookie_secure           =   "{{ lookup('tls', sso_proxy_application_id, 'enabled') | string | lower }}"
+{% set _domain_list = lookup('domains', sso_proxy_application_id) | domain_strings %}
+{% set _network_domains = _domain_list | in_network(sso_proxy_network) %}
+{% set _network_primary = _network_domains | first %}
+cookie_secure           =   "{{ lookup('tls', _network_primary, 'enabled') | string | lower }}"
 {% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
 upstreams               =   "http://{{ ((sso_proxy_application_id | entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
 {% set _cookie_domains = lookup('sso_cookie_domains', sso_proxy_application_id) %}
@@ -11,7 +14,7 @@ whitelist_domains       =   {{ lookup('sso_whitelist_domains', sso_proxy_applica
 
 client_secret           =   "{{ OIDC.CLIENT.SECRET }}"
 client_id               =   "{{ OIDC.CLIENT.ID }}"
-redirect_url            =   "{{ lookup('tls', sso_proxy_application_id, 'protocols.web') }}://{{ lookup('domain', sso_proxy_application_id) }}/oauth2/callback"
+redirect_url            =   "{{ lookup('tls', _network_primary, 'protocols.web') }}://{{ _network_primary }}/oauth2/callback"
 oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
 skip_oidc_discovery     =   true
 login_url               =   "{{ OIDC.CLIENT.AUTHORIZE_URL }}"

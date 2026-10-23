@@ -20,6 +20,7 @@ set -euo pipefail
 #   variant                             optional matrix variant pin
 #   disable                             optional provider keys to render disabled,
 #                                       minus SWARM_REQUIRED_SERVICES
+#   network                             optional node NETWORK_MODE of the row
 #   INFINITO_SWARM_VPN                  'true' deploys the WireGuard mesh with the
 #                                       cluster; anything else leaves it out entirely
 #
@@ -176,6 +177,7 @@ if [ "$(id -u)" -ne 0 ]; then
 		"NFS_IP=${NFS_IP}"
 		"variant=${variant:-}"
 		"disable=${disable:-}"
+		"network=${network:-}"
 		"INFINITO_SWARM_VPN=${INFINITO_SWARM_VPN:-}"
 		"${matrix_cmd[@]}"
 	)

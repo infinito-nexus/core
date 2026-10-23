@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
+from utils.networks.instances import labelled, labelled_file, network_instances
 from utils.roles.applications.config import get
 
 if TYPE_CHECKING:
@@ -148,6 +149,37 @@ def get_sso_config(
         ),
         "oauth2_pass_access_token": _as_bool(raw_pass_access_token),
     }
+
+
+def proxy_instances(app_domains: Any, config_file: str) -> list[dict[str, str]]:
+    """Return the oauth2-proxy instances a gated application runs.
+
+    One oauth2-proxy applies one cookie-secure flag to every host it answers,
+    and a secure flag drops the CSRF cookie on a plaintext onion sibling, so an
+    application served on several networks runs one instance per network.
+
+    Args:
+        app_domains: the application's entry of ``lookup('domains')``: a
+            domain, a list of domains or a ``{key: domain}`` mapping.
+        config_file: ``web-app-keycloak``'s
+            ``services.sso_proxy.configuration_file``.
+
+    Returns:
+        One mapping per network, in the order the domains name them, with
+        ``network``, the compose ``service``, the ``port_key`` under
+        ``ports.local`` and the ``config_file`` the instance reads. The
+        canonical network keeps the unsuffixed names; each further network
+        appends its registry label.
+    """
+    return [
+        {
+            "network": instance["network"],
+            "service": labelled("sso-proxy", instance["label"], "-"),
+            "port_key": labelled("sso", instance["label"], "_"),
+            "config_file": labelled_file(config_file, instance["label"]),
+        }
+        for instance in network_instances(app_domains)
+    ]
 
 
 def logout_url(oidc_logout_url: str, is_proxy_gated: bool) -> str:

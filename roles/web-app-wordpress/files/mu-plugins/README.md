@@ -37,16 +37,9 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`.
 
-## Corporate design (infinito-design.php) 🎨
+## Network origins (infinito-network-origins.php) 🌐
 
-[infinito-design.php](infinito-design.php) reads the `infinito_design` option that [08_design.yml](../../tasks/08_design.yml) writes through [design.php](../php/design.php) and stays inert while that option is absent:
-
-- It registers the admin color scheme `infinito` with `wp_admin_css_color()`. The scheme stylesheet is `wp-content/infinito-design/admin.css`; `extras.css` and `editor.css` are linked at the end of `<head>` for accounts on that scheme, and `admin-bar.css` follows the admin bar onto the site for them.
-- New accounts start on the scheme through the `insert_user_meta` filter. An account that picks another scheme in its profile keeps it.
-- The sign-in page gets `login.css`, the site logo as its logo, the site as the logo link and the site title as its text.
-- `enqueue_block_assets` hands the token stylesheet to the editor canvas.
-
-The stylesheets under `files/css` are generated and hold `var(--design-*)` references only.
+[infinito-network-origins.php](infinito-network-origins.php) answers the `home` and `siteurl` options with the base URL of the network sibling the request's `Host` names, taken from `INFINITO_NETWORK_BASE_URLS` in [env.j2](../../templates/env.j2). It also rewrites `content_url` and `plugins_url` results on a sibling host to that origin, because WordPress fixes `WP_CONTENT_URL` and `WP_PLUGIN_URL` from `siteurl` before any mu-plugin loads. The stored options keep the canonical URL, so WP-CLI and requests on any other host read them unchanged. Multisite keeps its per-site URLs and is left alone.
 
 ## Deployment 🚚
 

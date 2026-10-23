@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
@@ -33,8 +34,7 @@ test("Magento front page is served under canonical domain with TLS", async ({ pa
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Magento URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Magento");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Magento");
 });
 
 test("Magento returns HTML content under canonical domain", async ({ request }) => {

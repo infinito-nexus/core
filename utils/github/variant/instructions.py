@@ -50,7 +50,7 @@ def mark(
     """Hand one entry per role the replay.
 
     Only the first entry of the chosen variant: a priority row runs every mode
-    and onion state it offers, and replaying the same README block in each of
+    and network mode it offers, and replaying the same README block in each of
     them proves nothing the first replay did not.
 
     The row has to run in the guide's own mode. The replay is a second deploy

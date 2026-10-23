@@ -31,6 +31,10 @@ from pathlib import Path
 
 import jinja2
 
+from plugins.filter.swarm_ingress_guard import (
+    swarm_ingress_published,
+    swarm_node_addresses,
+)
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
@@ -79,6 +83,15 @@ COMMON = {
         "172.16.0.0/12",
         "192.168.0.0/16",
     ],
+    "SWARM_INGRESS_GUARDED_PORTS": swarm_ingress_published(
+        [
+            (
+                '[{"Protocol":"tcp","TargetPort":5432,"PublishedPort":5432,"PublishMode":"ingress"},'
+                '{"Protocol":"udp","TargetPort":3478,"PublishedPort":3478,"PublishMode":"ingress"}]'
+            )
+        ]
+    ),
+    "SWARM_INGRESS_PEER_ADDRESSES": swarm_node_addresses(["10.0.0.2"]),
 }
 
 MODES = ("compose", "swarm")

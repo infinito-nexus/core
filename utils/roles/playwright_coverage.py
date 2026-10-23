@@ -104,7 +104,9 @@ def classify(
             continue
         chunk = chunks.get(id(entry), "-")
         triggered.extend(
-            Triggered(role, name, entry.get("variant", ""), entry.get("mode", ""), chunk)
+            Triggered(
+                role, name, entry.get("variant", ""), entry.get("mode", ""), chunk
+            )
             for name in names
         )
     return Coverage(triggered, uncovered, excluded)

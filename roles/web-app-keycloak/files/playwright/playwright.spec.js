@@ -33,9 +33,9 @@ async function keycloakSignOutFromAccountConsole(page) {
   await page.waitForLoadState("networkidle").catch(() => {});
 }
 
-async function keycloakSignOutFromMasterAdminConsole(page, appBaseUrl) {
+async function keycloakSignOutFromMasterAdminConsole(page, issuerBaseUrl) {
   await page
-    .goto(`${appBaseUrl}/realms/master/protocol/openid-connect/logout`, { waitUntil: "commit" })
+    .goto(`${issuerBaseUrl}/realms/master/protocol/openid-connect/logout`, { waitUntil: "commit" })
     .catch(() => {});
   await page.context().clearCookies().catch(() => {});
 }
@@ -45,6 +45,7 @@ async function keycloakSignOutFromMasterAdminConsole(page, appBaseUrl) {
 // -----------------------------------------------------------------------------
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
+const issuerBaseUrl = normalizeBaseUrl(process.env.ISSUER_BASE_URL || "");
 const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
 const superAdminUsername = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME);
 const superAdminPassword = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD);
@@ -61,6 +62,7 @@ test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
 
   expect(appBaseUrl, "APP_BASE_URL must be set in the Playwright env file").toBeTruthy();
+  expect(issuerBaseUrl, "ISSUER_BASE_URL must be set in the Playwright env file").toBeTruthy();
   expect(realmName, "KEYCLOAK_REALM_NAME must be set in the Playwright env file").toBeTruthy();
   expect(superAdminUsername, "SUPER_ADMIN_USERNAME must be set in the Playwright env file").toBeTruthy();
   expect(superAdminPassword, "SUPER_ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
@@ -76,18 +78,33 @@ test.beforeEach(async ({ page }) => {
 
 test("keycloak enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
+  const accountUrl = `${appBaseUrl}/realms/${realmName}/account/`;
 
-  const response = await gotoOnion(page, `${appBaseUrl}/realms/${realmName}/account/`);
+  // The account console navigates to the issuer login as soon as its script runs, which discards this document's body, so it is read as soon as it arrives.
+  const documentHtmlPromise = page
+    .waitForResponse(
+      (candidate) =>
+        candidate.request().isNavigationRequest() &&
+        candidate.frame() === page.mainFrame() &&
+        candidate.status() < 300
+    )
+    .then((candidate) => candidate.text());
+  const response = await gotoOnion(page, accountUrl);
   expect(response, "Expected Keycloak account page response").toBeTruthy();
   expect(response.status(), "Expected Keycloak account page to respond successfully").toBeLessThan(400);
-  const documentHtml = await response.text();
+  const documentHtml = await documentHtmlPromise;
 
   const directives = assertCspResponseHeader(response, "keycloak account page");
   await assertCspMetaParity(page, directives, "keycloak account page");
 
+  const issuerDomain = new URL(issuerBaseUrl).hostname;
   expect(
-    documentHtml.includes(canonicalDomain) || (await page.content()).includes(canonicalDomain),
-    `Expected canonical domain "${canonicalDomain}" (from applications lookup) to appear in the Keycloak UI`
+    new URL(response.url()).hostname,
+    `Expected ${canonicalDomain} to serve the account page itself or hand it to the issuer`
+  ).toBe(issuerDomain);
+  expect(
+    documentHtml.includes(issuerDomain) || (await page.content()).includes(issuerDomain),
+    `Expected issuer domain "${issuerDomain}" (from applications lookup) to appear in the Keycloak UI`
   ).toBe(true);
 
   await expectNoCspViolations(page, diagnostics, "keycloak account page");
@@ -113,7 +130,7 @@ test("master-realm super administrator logs into Keycloak admin console and logs
 
   await expect(page.locator("body")).toContainText(/master|realm|clients|users/i, { timeout: resolveTimeout(60_000) });
 
-  await keycloakSignOutFromMasterAdminConsole(page, appBaseUrl);
+  await keycloakSignOutFromMasterAdminConsole(page, issuerBaseUrl);
 
   await gotoOnion(page,`${appBaseUrl}/admin/master/console/`);
   await expect(
@@ -179,7 +196,7 @@ test("super administrator onboards mapache in the admin console and mapache sign
 
   const mapacheUsername = MAPACHE.username;
   await provisionKeycloakUser(browser, {
-    baseUrl: appBaseUrl,
+    baseUrl: issuerBaseUrl,
     realm: realmName,
     adminUsername: superAdminUsername,
     adminPassword: superAdminPassword,

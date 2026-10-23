@@ -13,6 +13,7 @@ from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
+from utils.networks.reachability import network, network_of
 from utils.roles.entity.name import entity_name
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
@@ -161,7 +162,9 @@ class LookupModule(LookupBase):
             if not external:
                 return False
             mail_host = str(resolved.get("host") or "").lower()
-            if mail_host.endswith(".onion") or self._provider_onion_primary(variables):
+            if not network(network_of(mail_host)).tls or self._provider_onion_primary(
+                variables
+            ):
                 return False
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
@@ -291,11 +294,11 @@ class LookupModule(LookupBase):
     def _provider_onion_primary(self, variables: dict[str, Any]) -> bool:
         """True when the provider's own host serves it onion-first.
 
-        Resolved from the provider host's ``group_names`` rather than this
-        host's: in swarm only the manager is in ``svc-net-tor``, and the
-        provider's ``tor.enabled`` renders against ``group_names``, so a
-        worker would otherwise see the clearnet name the provider never
-        serves a certificate for.
+        Resolved from the provider host's ``group_names`` and ``NETWORK_MODE``
+        rather than this host's: in swarm only the manager is in
+        ``svc-net-tor``, and the provider's ``tor.enabled`` renders against
+        ``group_names``, so a worker would otherwise see the clearnet name the
+        provider never serves a certificate for.
         """
         groups = variables.get("groups") or {}
         provider = self._mail_provider(variables)
@@ -308,11 +311,15 @@ class LookupModule(LookupBase):
             g for g in ("svc-net-tor", provider) if g not in own_groups
         ]
         try:
-            provider_groups = variables["hostvars"][provider_hosts[0]]["group_names"]
+            provider_vars = variables["hostvars"][provider_hosts[0]]
+            provider_groups = provider_vars["group_names"]
         except (KeyError, TypeError):
+            provider_vars = {}
             provider_groups = fallback
         provider_view = dict(variables)
         provider_view["group_names"] = list(provider_groups or fallback)
+        if provider_vars.get("NETWORK_MODE"):
+            provider_view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
@@ -325,7 +332,7 @@ class LookupModule(LookupBase):
             domain = get_domain(domains, provider)
         except Exception:
             return False
-        return str(domain or "").lower().endswith(".onion")
+        return not network(network_of(domain)).tls
 
     def _lookup_mail_provider_domain(self, variables: dict[str, Any]) -> Any:
         domain_lookup = DomainLookup()

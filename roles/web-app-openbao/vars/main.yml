@@ -61,10 +61,9 @@ OPENBAO_OIDC_GROUPS_CLAIM: "groups"
 OPENBAO_OIDC_DEFAULT_ROLE: "default"
 
 OPENBAO_OIDC_REDIRECT_URIS: >-
-  {{ [
-       OPENBAO_BASE_URL ~ '/v1/auth/oidc/callback',
-       OPENBAO_BASE_URL ~ '/ui/vault/auth/oidc/oidc/callback'
-     ] | join(',') }}
+  {{ lookup('network_urls', OPENBAO_BASE_URL)
+     | product(['/v1/auth/oidc/callback', '/ui/vault/auth/oidc/oidc/callback'])
+     | map('join') | join(',') }}
 
 OPENBAO_LDAP_URL: "ldap://{{ LDAP.SERVER.DOMAIN }}:{{ LDAP.SERVER.PORT }}"
 OPENBAO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"

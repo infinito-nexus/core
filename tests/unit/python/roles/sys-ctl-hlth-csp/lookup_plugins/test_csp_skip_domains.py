@@ -39,15 +39,27 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
             "csp_skip_domains_lookup",
         )
 
-    def _run(self, applications, **kwargs):
+    def _run(self, applications, domains=None, **kwargs):
         lm = self.module.LookupModule()
         lm._templar = _DummyTemplar()
         lm._loader = mock.MagicMock()
+        results = {"applications": applications, "domains": domains or {}}
         with patch.object(self.module, "lookup_loader") as loader_mock:
-            loader_mock.get.return_value = mock.MagicMock(
-                run=lambda *_a, **_k: [applications]
+            loader_mock.get.side_effect = lambda name, **_k: mock.MagicMock(
+                run=lambda *_a, **_kw: [results[name]]
             )
             return lm.run(terms=[], variables={}, **kwargs)[0]
+
+    def test_a_handover_role_skips_its_siblings_outside_the_canonical_network(self):
+        apps = {
+            "web-app-chat": {"networks": {"reachability": {"handover": True}}},
+            "web-app-wiki": {},
+        }
+        domains = {
+            "web-app-chat": ["chat.example.com", "chat.node.onion"],
+            "web-app-wiki": ["wiki.example.com", "wiki.node.onion"],
+        }
+        self.assertEqual(self._run(apps, domains), ["chat.node.onion"])
 
     def test_empty_applications_returns_empty_list(self):
         self.assertEqual(self._run({}), [])

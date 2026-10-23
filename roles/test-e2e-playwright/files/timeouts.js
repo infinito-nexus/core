@@ -5,15 +5,23 @@
  * (Tor) service, by an extra multiplier — Tor circuits add per-request latency.
  */
 
-function _canonicalDomain() {
-  const raw = process.env.CANONICAL_DOMAIN || "";
+function _unquoted(name) {
+  const raw = process.env[name] || "";
   const unquoted =
     raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
   return unquoted.trim();
 }
 
+function _targetHost() {
+  try {
+    return new URL(_unquoted("APP_BASE_URL")).hostname;
+  } catch {
+    return _unquoted("CANONICAL_DOMAIN");
+  }
+}
+
 function isOnionTarget() {
-  return /\.onion$/i.test(_canonicalDomain());
+  return /\.onion$/i.test(_targetHost());
 }
 
 function isSplitRealmOidc() {

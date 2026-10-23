@@ -43,6 +43,7 @@ lam:
   ports:
     local:
       sso: 16482
+      sso_onion: 16533
       http: 8033
     internal:
       http: 80

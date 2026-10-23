@@ -78,6 +78,7 @@ baserow:
     local:
       http: 8017
       sso: 16495
+      sso_onion: 16521
     internal:
       http: 80
   proxy:

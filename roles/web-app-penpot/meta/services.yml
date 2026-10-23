@@ -67,6 +67,7 @@ penpot:
     local:
       http: 8041
       sso: 16506
+      sso_onion: 16538
     internal:
       http: 8080
   proxy:

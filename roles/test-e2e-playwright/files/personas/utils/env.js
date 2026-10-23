@@ -27,7 +27,6 @@ function readEnv(name) {
   return decodeDotenvQuoted(process.env[name] || "");
 }
 
-/** True when the role under test is served over a `.onion` (Tor) canonical domain. */
 /**
  * Tolerant variant of `skipUnlessServiceEnabled`: treats an unknown
  * service (i.e. one whose `<NAME>_SERVICE_ENABLED` flag is not declared

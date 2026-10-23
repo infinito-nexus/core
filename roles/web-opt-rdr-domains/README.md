@@ -6,7 +6,7 @@ This Ansible role configures NGINX to perform 301 redirects from one domain to a
 
 ## Overview
 
-This role configures Nginx to perform 301 redirects based on a list of source→target domain mappings.
+This role configures Nginx to perform 301 redirects based on a list of source→target domain mappings. Each source is served on every network sibling, and each sibling redirects to the target's sibling in the same network.
 
 ## Features
 

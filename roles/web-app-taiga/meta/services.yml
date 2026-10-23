@@ -59,6 +59,7 @@ taiga:
   ports:
     local:
       sso: 16491
+      sso_onion: 16546
       http: 8027
     internal:
       http: 80

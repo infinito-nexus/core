@@ -74,6 +74,7 @@ prometheus:
   ports:
     local:
       sso: 16492
+      sso_onion: 16544
       http: 8066
     internal:
       http: 9090

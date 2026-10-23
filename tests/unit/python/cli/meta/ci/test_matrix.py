@@ -12,6 +12,7 @@ def _entry(
     variant: str,
     mode: str,
     *,
+    network: str = "clearnet",
     priority: bool = False,
     covered: str = "0",
     clone: bool = False,
@@ -20,7 +21,7 @@ def _entry(
         "apps": app,
         "variant": variant,
         "mode": mode,
-        "tor": "false",
+        "network": network,
         "priority": "true" if priority else "false",
         "covered": covered,
         "clone": "true" if clone else "false",
@@ -91,7 +92,7 @@ class TestChunksOf(unittest.TestCase):
 
 _REGULAR = [
     _entry("web-app-a", "0", "compose"),
-    _entry("web-app-b", "1", "swarm"),
+    _entry("web-app-b", "1", "swarm", network="tor"),
     _entry("web-app-b", "2", "compose"),
 ]
 
@@ -142,6 +143,12 @@ class TestOffsetIndex(unittest.TestCase):
 
     def test_a_pinned_mode_picks_the_row_of_that_mode(self) -> None:
         self.assertEqual(matrix.offset_index("web-app-b#1@swarm", _REGULAR), 1)
+
+    def test_a_pinned_network_mode_picks_the_row_of_that_network_mode(self) -> None:
+        self.assertEqual(matrix.offset_index("web-app-b+tor", _REGULAR), 1)
+        self.assertEqual(matrix.offset_index("web-app-b+clearnet", _REGULAR), 2)
+        with self.assertRaises(SystemExit):
+            matrix.offset_index("web-app-b+multi", _REGULAR)
 
     def test_a_token_naming_no_regular_row_aborts(self) -> None:
         with self.assertRaises(SystemExit):

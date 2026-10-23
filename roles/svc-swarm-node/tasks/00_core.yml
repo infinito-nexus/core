@@ -4,8 +4,8 @@
 - name: "🐝 Swarm-only node setup (cluster bootstrap + shared CA anchor)"
   when: IS_SWARM_MODE
   block:
-    - name: "🥾 Bootstrap docker swarm cluster"
-      ansible.builtin.include_tasks: 00_core/bootstrap_cluster.yml
+    - name: "🥾 Join the swarm behind the ingress guard"
+      ansible.builtin.include_tasks: 00_core/join.yml
 
     - name: "✅ Ensure shared Root CA on every swarm node (manager mints, workers fetch)"
       ansible.builtin.include_role:

@@ -414,7 +414,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
             ports: the mail provider's published SMTP ports.
             node: svc-net-tor's node onion; defaults to ``ONION``.
             provider_tor: the mail provider's ``tor`` block; defaults to
-                enabled on svc-net-tor hosts, inheriting exclusive/primary.
+                enabled on svc-net-tor hosts.
         """
         _write_role_config(
             self._tmp,
@@ -423,8 +423,6 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
                 "tor": {
                     "enabled": True,
                     "shared": True,
-                    "exclusive": True,
-                    "primary": True,
                     "node": self.ONION if node is None else node,
                 }
             },
@@ -443,7 +441,10 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def _worker(self, *, tor_hosts=("mgr",)) -> dict:
+    def _worker(self, *, tor_hosts=("mgr",), network_mode="") -> dict:
+        manager = {"group_names": ["web-app-mailprov", "svc-net-tor"]}
+        if network_mode:
+            manager["NETWORK_MODE"] = network_mode
         return {
             "MAIL_PROVIDER": "web-app-mailprov",
             "group_names": ["svc-swarm-node"],
@@ -452,7 +453,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
                 "svc-net-tor": list(tor_hosts),
             },
             "hostvars": {
-                "mgr": {"group_names": ["web-app-mailprov", "svc-net-tor"]},
+                "mgr": manager,
                 "other": {"group_names": ["svc-net-tor"]},
             },
             "SYSTEM_EMAIL_HOST": "mail.x.test",
@@ -469,7 +470,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
     def test_worker_of_an_onion_stalwart_drops_tls_and_auth(self) -> None:
         self._seed(ports=self.STALWART_PORTS)
 
-        result = self._run(self._worker())
+        result = self._run(self._worker(network_mode="tor"))
 
         self.assertFalse(result["tls"])
         self.assertFalse(result["start_tls"])
@@ -479,7 +480,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
     def test_worker_of_an_onion_mailu_keeps_plain_submission(self) -> None:
         self._seed(ports=self.MAILU_PORTS)
 
-        result = self._run(self._worker())
+        result = self._run(self._worker(network_mode="tor"))
 
         self.assertFalse(result["tls"])
         self.assertEqual(result["port"], 587)
@@ -495,10 +496,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         self.assertEqual(result["port"], 465)
 
     def test_dual_stack_provider_keeps_tls(self) -> None:
-        self._seed(
-            ports=self.STALWART_PORTS,
-            provider_tor={"enabled": self.TOR_ON, "exclusive": False, "primary": False},
-        )
+        self._seed(ports=self.STALWART_PORTS)
 
         result = self._run(self._worker())
 

@@ -50,7 +50,7 @@ def emitted_keys() -> set[str]:
     entry = axes.assign(
         [{"name": "web-app-lint-probe", "variant": 0, "modes": ("compose",)}],
         sweep=0,
-        tor_mode="auto",
+        network_input="auto",
         distros=axes.DISTROS,
         filesystems=axes.FILESYSTEMS,
     )[0]

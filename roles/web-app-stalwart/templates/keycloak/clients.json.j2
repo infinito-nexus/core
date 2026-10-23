@@ -15,8 +15,10 @@
   limit. Reuses the shared client secret. Keep `description` under Keycloak's
   255-char column.
 #}
-{% set stalwart_kc_webmail_base = lookup('canonical_url', 'web-app-stalwart', 'webmail') %}
-{% set stalwart_kc_webui_base = lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') %}
+{% set stalwart_kc_webui = lookup('network_urls', lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '')) %}
+{% set stalwart_kc_webmail = lookup('network_urls', lookup('canonical_url', 'web-app-stalwart', 'webmail')) %}
+{% set stalwart_kc_webui_redirects = stalwart_kc_webui | map('regex_replace', '$', '/*') | list %}
+{% set stalwart_kc_webmail_redirects = stalwart_kc_webmail | map('regex_replace', '$', '/*') | list %}
 {
   "clientId": "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.clients.webui') }}",
   "name": "Stalwart WebAdmin",
@@ -25,8 +27,8 @@
   "surrogateAuthRequired": false,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
-  "redirectUris": ["{{ stalwart_kc_webui_base }}/*"],
-  "webOrigins": ["{{ stalwart_kc_webui_base }}"],
+  "redirectUris": {{ stalwart_kc_webui_redirects | to_json }},
+  "webOrigins": {{ stalwart_kc_webui | to_json }},
   "notBefore": 0,
   "bearerOnly": false,
   "consentRequired": false,
@@ -38,7 +40,7 @@
   "frontchannelLogout": false,
   "protocol": "openid-connect",
   "attributes": {
-    "post.logout.redirect.uris": "{{ stalwart_kc_webui_base }}/*",
+    "post.logout.redirect.uris": "{{ stalwart_kc_webui_redirects | join('##') }}",
     "oauth2.device.authorization.grant.enabled": "false",
     "oidc.ciba.grant.enabled": "false",
     "backchannel.logout.session.required": "true",
@@ -84,8 +86,8 @@
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
   "secret": "{{ OIDC.CLIENT.SECRET }}",
-  "redirectUris": ["{{ stalwart_kc_webmail_base }}/*"],
-  "webOrigins": ["{{ stalwart_kc_webmail_base }}"],
+  "redirectUris": {{ stalwart_kc_webmail_redirects | to_json }},
+  "webOrigins": {{ stalwart_kc_webmail | to_json }},
   "notBefore": 0,
   "bearerOnly": false,
   "consentRequired": false,
@@ -97,7 +99,7 @@
   "frontchannelLogout": false,
   "protocol": "openid-connect",
   "attributes": {
-    "post.logout.redirect.uris": "{{ stalwart_kc_webmail_base }}/*",
+    "post.logout.redirect.uris": "{{ stalwart_kc_webmail_redirects | join('##') }}",
     "oauth2.device.authorization.grant.enabled": "false",
     "oidc.ciba.grant.enabled": "false",
     "backchannel.logout.session.required": "true",

@@ -145,6 +145,7 @@ bluesky:
   ports:
     local:
       sso: 16497
+      sso_onion: 16522
   run_after:
     - web-app-matomo
     - web-app-keycloak

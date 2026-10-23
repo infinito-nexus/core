@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
@@ -29,8 +30,7 @@ test("phpLDAPadmin front page is served under canonical domain with TLS", async 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the phpLDAPadmin URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "phpLDAPadmin");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "phpLDAPadmin");
 });
 
 test("phpLDAPadmin returns HTML content under canonical domain", async ({ request }) => {

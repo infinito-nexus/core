@@ -88,7 +88,9 @@ function isKeycloak3pCookieNoise(record) {
   const url = typeof record === "string" ? "" : record.url || "";
   return (
     /\/3p-cookies\//.test(url) ||
-    /requestStorageAccess/i.test(text)
+    /requestStorageAccess/i.test(text) ||
+    (/rejected because it is in a cross-site context/i.test(text) &&
+      /\/protocol\/openid-connect\//.test(`${url} ${text}`))
   );
 }
 

@@ -3,6 +3,9 @@ import unittest
 from ansible.errors import AnsibleFilterError
 
 from plugins.filter.canonical_domains_map import FilterModule
+from utils.domains.default_primary import default_domain_primary
+
+DOMAIN = default_domain_primary()
 
 
 class TestDomainFilters(unittest.TestCase):
@@ -117,14 +120,14 @@ class TestDomainFilters(unittest.TestCase):
         import os
 
         prev = os.environ.get("DOMAIN")
-        os.environ["DOMAIN"] = "infinito.test"
+        os.environ["DOMAIN"] = DOMAIN
         try:
             primary = (
                 "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
             )
             apps = {"web-app-app1": {}}
             result = self.filter_module.canonical_domains_map(apps, primary)
-            self.assertEqual(result, {"web-app-app1": ["app1.infinito.test"]})
+            self.assertEqual(result, {"web-app-app1": [f"app1.{DOMAIN}"]})
         finally:
             if prev is None:
                 os.environ.pop("DOMAIN", None)

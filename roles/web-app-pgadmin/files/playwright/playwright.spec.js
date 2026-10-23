@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
@@ -31,8 +32,7 @@ test("pgAdmin front page is served under canonical domain with TLS", async ({ pa
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the pgAdmin URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "pgAdmin");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "pgAdmin");
 });
 
 test("pgAdmin returns HTML content under canonical domain", async ({ request }) => {

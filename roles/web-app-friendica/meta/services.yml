@@ -20,6 +20,7 @@ friendica:
   ports:
     local:
       sso: 16501
+      sso_onion: 16526
       http: 8028
     internal:
       http: 80

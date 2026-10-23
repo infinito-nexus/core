@@ -11,8 +11,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from utils.domains.default_primary import default_domain_primary
 from utils.env.builder import BuildContext, EnvBuilder
 from utils.env.handlers.infinito import domain as handler
+
+DOMAIN = default_domain_primary()
+DNS_DOMAIN = DOMAIN.split(".", maxsplit=1)[1]
 
 _GIT = [
     "git",
@@ -54,7 +58,7 @@ def _apply(
         on_act=on_act,
     )
     eb = EnvBuilder()
-    eb.set("INFINITO_DNS_DOMAIN", "infinito.test")
+    eb.set("INFINITO_DNS_DOMAIN", DNS_DOMAIN)
     handler.apply(eb, ctx)
     return eb.values.get(handler.KEY)
 
@@ -62,11 +66,11 @@ def _apply(
 class TestDomain(unittest.TestCase):
     def test_primary_checkout_is_main(self) -> None:
         with TemporaryDirectory() as td:
-            self.assertEqual(_apply(_repository(Path(td))), "main.infinito.test")
+            self.assertEqual(_apply(_repository(Path(td))), DOMAIN)
 
     def test_directory_without_git_is_main(self) -> None:
         with TemporaryDirectory() as td:
-            self.assertEqual(_apply(Path(td)), "main.infinito.test")
+            self.assertEqual(_apply(Path(td)), DOMAIN)
 
     def test_worktree_is_its_normalised_branch(self) -> None:
         with TemporaryDirectory() as td:

@@ -1,4 +1,6 @@
 {% set application_id = domain %}
+{% set _target = namespace(host=target) %}
+{% for _sibling in lookup('network_siblings', target) if (_sibling | network_of) == (domain | network_of) %}{% set _target.host = _sibling %}{% endfor %}
 server {
 
   server_name {{ domain }};
@@ -8,6 +10,6 @@ server {
   {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
   {% endif %}
   location / {
-    return 301 {{ lookup('tls', application_id, 'protocols.web') }}://{{ target }}$request_uri;
+    return 301 {{ lookup('tls', application_id, 'protocols.web') }}://{{ _target.host }}$request_uri;
   }
 }

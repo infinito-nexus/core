@@ -31,6 +31,7 @@ yourls:
   ports:
     local:
       sso: 16484
+      sso_onion: 16547
       http: 8006
     internal:
       http: 8080

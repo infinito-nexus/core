@@ -12,9 +12,12 @@ import unittest
 
 from ansible.errors import AnsibleError
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
-RELAY = "mail.infinito.test"
+DOMAIN = default_domain_primary()
+RELAY = f"mail.{DOMAIN}"
 MANAGER = "swarm-manager-01"
 
 

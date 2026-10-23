@@ -1,20 +1,20 @@
 ---
 - services:
     sso:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
     logout:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
     dashboard:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
     prometheus:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
     design:
-      enabled: "{{ 'svc-net-tor' not in group_names }}"
-      shared: "{{ 'svc-net-tor' not in group_names }}"
+      enabled: "{{ lookup('network_served', 'clearnet') }}"
+      shared: "{{ lookup('network_served', 'clearnet') }}"
     tor:
       enabled: true
 - services:

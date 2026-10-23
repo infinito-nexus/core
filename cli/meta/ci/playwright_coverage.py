@@ -12,7 +12,7 @@ import sys
 from cli.meta.ci import matrix, query
 from cli.meta.roles.applications.complexity.render import _dwidth
 from utils import PROJECT_ROOT
-from utils.github.variant import axes, pools, tor, vpn
+from utils.github.variant import axes, network, pools, vpn
 from utils.roles.display import display_names
 from utils.roles.playwright_coverage import (
     Coverage,
@@ -33,7 +33,7 @@ def sweep_entries(args: argparse.Namespace) -> list[dict[str, str]]:
         priority=codec.decode_list(""),
         lifecycles="",
         sweep=axes.resolve_sweep() if args.sweep is None else args.sweep,
-        tor_mode=tor.resolve_tor_mode(args.tor),
+        network_input=network.resolve_network_input(args.network),
         vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
@@ -80,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--distros", default="")
     parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--sweep", type=int, default=None)
-    parser.add_argument("--tor", default=None)
+    parser.add_argument("--network", default=None)
     parser.add_argument("--vpn", default=None)
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--architectures", default="")

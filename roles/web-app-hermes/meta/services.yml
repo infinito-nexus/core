@@ -28,6 +28,7 @@ hermes:
       http: 8092
       sso: 16512
       agent: 8501
+      sso_onion: 16530
     internal:
       http: 8642
       agent: 9119

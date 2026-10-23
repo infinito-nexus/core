@@ -1,4 +1,3 @@
-{# Jinja macro: expands feature snippets into Lua array pushes at render time #}
 {% macro push_snippets(list_name, features) -%}
 {% set kind = list_name | regex_replace('_snippets$','') %}
 {% for f in features if inj_enabled.get(f) -%}
@@ -12,7 +11,6 @@ if not (ngx.ctx.is_html or ngx.ctx.is_css) then
     return
 end
 
--- Buffer all chunks until EOF
 ngx.ctx.buf = ngx.ctx.buf or {}
 local chunk, eof = ngx.arg[1], ngx.arg[2]
 
@@ -21,12 +19,10 @@ if chunk ~= "" then
 end
 
 if not eof then
-    -- Swallow intermediate chunks; emit once at EOF
     ngx.arg[1] = nil
     return
 end
 
--- Concatenate the full HTML
 local whole = table.concat(ngx.ctx.buf)
 ngx.ctx.buf = nil
 
@@ -91,30 +87,21 @@ if ngx.ctx.gunzip and whole ~= "" then
     end
 end
 
-{% set _mirror_tor_enabled = lookup('config', application_id, 'services.tor.enabled', False) | bool %}
-{% if _mirror_tor_enabled %}
+{% if (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (domain | network_of) == 'tor' %}
 {% set _mirror_origins = lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY) %}
-{% set _mirror_tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _mirror_onion = lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') | to_onion_url(_mirror_tor_node, DOMAIN_PRIMARY) %}
-{% if _mirror_origins %}
--- Onion sessions: rewrite external asset origins to the local mirror (privacy proxy)
-do
-    local host = ngx.var.http_host or ""
-    if host:sub(-6) == ".onion" then
+{% set _mirror_base = lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') %}
 {% for origin in _mirror_origins %}
-        do
-            local pat = ([=[https://{{ origin }}]=]):gsub("([^%w])", "%%%1")
-            whole = (whole:gsub(pat, [=[{{ _mirror_onion }}/{{ origin }}]=]))
-        end
-{% endfor %}
-    end
+do
+    local pat = ([=[https://{{ origin }}]=]):gsub("([^%w])", "%%%1")
+    whole = (whole:gsub(pat, [=[{{ _mirror_base }}/{{ origin }}]=]))
 end
-{% endif %}
+{% endfor %}
 {% endif %}
 if ngx.ctx.is_css then
     ngx.arg[1] = whole
     return
 end
+
 {% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}
@@ -153,14 +140,12 @@ local head_snippets = {}
 {{ push_snippets('head_snippets', inj_head_features) }}
 local head_payload = onionize(marked(head_snippets)) .. "</head>"
 
--- Inject before </head> (first occurrence)
 local function repl_head(_) return head_payload end
 local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
 if new then
     whole = new
 else
     ngx.log(ngx.WARN, "No </head> found; trying <body> fallback: ", err or "nil")
-    -- Fallback: inject right AFTER the opening <body ...> tag
     local body_open_re = [[<body\b[^>]*>]]
     new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. marked(head_snippets), "ijo")
     if new then
@@ -170,12 +155,10 @@ else
     end
 end
 
--- Build body snippets (rendered by Jinja at template time)
 local body_snippets = {}
 {{ push_snippets('body_snippets', inj_body_features) }}
 local body_payload = onionize(marked(body_snippets)) .. "</body>"
 
--- Inject before </body> (first occurrence), or append if missing
 local function repl_body(_) return body_payload end
 new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")
 if new then
@@ -185,5 +168,4 @@ else
     whole = whole .. marked(body_snippets)
 end
 
--- Emit the modified HTML
 ngx.arg[1] = whole or ""

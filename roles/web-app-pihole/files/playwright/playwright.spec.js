@@ -2,20 +2,14 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const {
+  decodeDotenvQuotedValue,
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   requireDotenvValue,
 } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
-
-function decodeDotenvQuotedValue(value) {
-  if (typeof value !== "string" || value.length < 2) return value;
-  if (!(value.startsWith('"') && value.endsWith('"'))) return value;
-  const encoded = value.slice(1, -1);
-  try { return JSON.parse(`"${encoded}"`).replace(/\$\$/g, "$"); }
-  catch { return encoded.replace(/\$\$/g, "$"); }
-}
 
 const piholeBaseUrl = decodeDotenvQuotedValue(process.env.PIHOLE_BASE_URL);
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
@@ -35,8 +29,7 @@ test("Pi-hole front page is served under canonical domain with TLS", async ({ pa
       `Expected canonical domain "${canonicalDomain}" to back the Pi-hole URL`
     ).toBe(true);
   }
-  const headers = response.headers();
-  expectHstsWhenTls(headers, piholeBaseUrl, "Pi-hole");
+  expectHstsWhenTls(await ownResponseHeaders(response), piholeBaseUrl, "Pi-hole");
 });
 
 test("Pi-hole returns HTML content under canonical domain", async ({ request }) => {

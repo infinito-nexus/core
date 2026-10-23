@@ -25,6 +25,10 @@ http {
     fastcgi_send_timeout  900s;
     fastcgi_read_timeout  900s;
     proxy_buffering       off;
+    map $http_x_forwarded_proto $nextcloud_forwarded_https {
+        https   on;
+        default off;
+    }
     server {
         listen 80;
         {% if lookup('tls', application_id, 'enabled') | bool %}
@@ -76,6 +80,7 @@ http {
             set $path_info $fastcgi_path_info;
             try_files $fastcgi_script_name =404;
             include fastcgi_params;
+            fastcgi_param HTTPS $nextcloud_forwarded_https;
             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
             fastcgi_param PATH_INFO $path_info;
             fastcgi_param modHeadersAvailable true;         # Avoid sending the security headers twice

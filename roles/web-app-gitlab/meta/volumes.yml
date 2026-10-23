@@ -246,6 +246,13 @@ smtp_initializer:
     - service: sidekiq
       target: *smtp_initializer_target
       when: *smtp_initializer_when
+network_origins_initializer:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'network_origins.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: /srv/gitlab/config/initializers/zz_network_origins.rb
 oidc_http_discovery_initializer:
   type: config
   source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'oidc_http_discovery.rb'] | path_join }}"

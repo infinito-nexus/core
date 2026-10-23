@@ -25,10 +25,8 @@ test("biber: a .onion recipient is accepted and routed through the Tor gateway",
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
   const testSubject = `Playwright onion route ${Date.now()}`;
-  const proxyServer = process.env.PLAYWRIGHT_PROXY;
   const context = await browser.newContext({
     ignoreHTTPSErrors: true,
-    ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
     ...recordVideoOptions(testInfo),
   });
 

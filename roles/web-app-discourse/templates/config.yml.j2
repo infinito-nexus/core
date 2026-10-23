@@ -54,6 +54,8 @@ env:
   ## URLs that violate the CSP (font-src https://...).
   DISCOURSE_FORCE_HTTPS: "{{ DISCOURSE_TLS_ENABLED | bool | string | lower }}"
 
+  INFINITO_NETWORK_BASE_URLS: "{{ DISCOURSE_NETWORK_BASE_URLS | join(' ') }}"
+
   ## Uncomment if you want the container to be started with the same
   ## hostname (-h option) as specified above (default "$hostname-$config")
   #DOCKER_USE_HOSTNAME: true
@@ -120,6 +122,9 @@ volumes:
   - volume:
       host: /var/discourse/shared/standalone/log/var-log
       guest: /var/log
+  - volume:
+      host: {{ DISCOURSE_NETWORK_PLUGIN_HOST_DIR }}
+      guest: /var/www/discourse/plugins/infinito-network-origins
 
 {% if DISCOURSE_TLS_SELFSIGNED_ENABLED | bool %}
   - volume:

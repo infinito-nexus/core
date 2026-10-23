@@ -152,7 +152,3 @@ BLUESKY_BROKER_PORT: "{{ lookup('config', application_id, 'services.broker.ports
 BLUESKY_BROKER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.broker.ports.internal.http') }}"
 
 BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.bridge_encryption_key') }}"
-
-BLUESKY_SSO_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.sso-proxy.name') }}"
-BLUESKY_SSO_PROXY_CFG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file')
-  ] | path_join }}"

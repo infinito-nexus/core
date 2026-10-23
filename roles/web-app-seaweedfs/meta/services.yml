@@ -12,8 +12,8 @@ seaweedfs:
 # nocheck: bond-baseline  same reason: variant 0 must not pin this consumer on.
 sso:
   bond: 1
-  enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-keycloak') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-keycloak') }}"
   flavor: oauth2
   oauth2:
     origin:
@@ -29,27 +29,27 @@ ldap:
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 logout:
   bond: 1
-  enabled: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-svc-logout' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-svc-logout') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-svc-logout') }}"
 # nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force this consumer on a tor node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 dashboard:
   bond: 1
-  enabled: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-dashboard' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-dashboard') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-dashboard') }}"
 # nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force this consumer on a tor node.
 # nocheck: bond-baseline — same reason: variant 0 must not pin this consumer on.
 prometheus:
   bond: 1
-  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-app-prometheus') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-app-prometheus') }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 # nocheck: variants-coverage  the onion gate of the sso flag above reaches here: without that gate the vhost answers 403 and carries no design surface, so no variant may force it on a tor node.
 # nocheck: bond-baseline  same reason: variant 0 must not pin this surface on.
 design:
   bond: 1
-  enabled: "{{ ('web-svc-design' in group_names) and ('svc-net-tor' not in group_names) }}"
-  shared: "{{ ('web-svc-design' in group_names) and ('svc-net-tor' not in group_names) }}"
+  enabled: "{{ lookup('network_served', 'clearnet', 'web-svc-design') }}"
+  shared: "{{ lookup('network_served', 'clearnet', 'web-svc-design') }}"
   slots:
     logo:
       width: 50
@@ -69,7 +69,7 @@ seaweedfs-console:
   name: seaweedfs-console
   image: nginx
   version: 1.31-alpine
-  enabled: "{{ 'svc-net-tor' not in group_names }}"
+  enabled: "{{ lookup('network_served', 'clearnet') }}"
   shared: false
   domains:
     - filer

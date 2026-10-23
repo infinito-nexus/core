@@ -1,4 +1,6 @@
 ---
+# clearnet | tor | multi; empty derives multi when svc-net-tor is deployed, else clearnet.
+NETWORK_MODE: ""
 NETWORK_IPV6_ENABLED: false
 NETWORK_PUBLIC_DNS_RESOLVERS:
   - 1.1.1.1 # nocheck: hardcoded-dns-resolver
@@ -51,6 +53,12 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     sso:
       start: 16480
       end: 16519
+    sso_onion:
+      start: 16520
+      end: 16559
+    http_onion:
+      start: 16560
+      end: 16599
     mariadb:
       start: 3306
       end: 3306

@@ -15,9 +15,9 @@ $config['imap_conn_options'] = $stalwart_tls_conn_options;
 $config['smtp_conn_options'] = $stalwart_tls_conn_options;
 {% if STALWART_SSO_ENABLED | bool %}
 
-{% if STALWART_WEBMAIL_BASE_URL.startswith('https://') %}
-$_SERVER['HTTPS'] = 'on';
-{% endif %}
+if (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
 
 $config['oauth_provider'] = 'generic';
 $config['oauth_provider_name'] = '{{ OIDC.BUTTON_TEXT }}';

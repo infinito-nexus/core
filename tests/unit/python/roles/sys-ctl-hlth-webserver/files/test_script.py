@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import json
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -12,6 +13,15 @@ def load_module_from_path(mod_name: str, path: str):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[attr-defined]
     return module
+
+
+def _target(codes, scheme="https", timeout=10):
+    return {"codes": codes, "scheme": scheme, "timeout": timeout}
+
+
+class _Response:
+    def __init__(self, status_code):
+        self.status_code = status_code
 
 
 class TestStandaloneCheckerScript(unittest.TestCase):
@@ -31,53 +41,41 @@ class TestStandaloneCheckerScript(unittest.TestCase):
             raise FileNotFoundError(f"Cannot find script.py at {cls.script_path}")
         cls.script = load_module_from_path("health_script", cls.script_path)
 
-    # ------------- JSON parsing ------------------
-
     def test_rejects_invalid_json(self):
         with self.assertRaises(SystemExit):
-            self.script.main(
-                [
-                    "--expectations",
-                    '{"bad json": [200, 301]',
-                ]
-            )
+            self.script.main(["--targets", '{"bad json": {'])
 
     def test_rejects_non_mapping_json(self):
         with self.assertRaises(SystemExit):
+            self.script.main(["--targets", '["not", "a", "mapping"]'])
+
+    def test_rejects_unknown_scheme(self):
+        with self.assertRaises(SystemExit):
+            self.script.main(
+                ["--targets", json.dumps({"a.example.org": _target([200], "ftp")})]
+            )
+
+    def test_rejects_missing_timeout(self):
+        with self.assertRaises(SystemExit):
             self.script.main(
                 [
-                    "--expectations",
-                    '["not", "a", "mapping"]',
+                    "--targets",
+                    json.dumps({"a.example.org": {"codes": [200], "scheme": "https"}}),
                 ]
             )
 
-    # ------------- Happy path / mismatches -------
-
     @patch("requests.head")
     def test_all_ok_returns_zero(self, mock_head):
-        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
-            class R:
-                pass
+        statuses = {"ok1.example.org": 200, "ok2.example.org": 301}
+        mock_head.side_effect = lambda url, **_: _Response(
+            statuses[url.split("://", 1)[1]]
+        )
 
-            r = R()
-            domain = url.split("://", 1)[1]
-            mapping = {"ok1.example.org": 200, "ok2.example.org": 301}
-            r.status_code = mapping.get(domain, 200)
-            return r
-
-        mock_head.side_effect = head_side_effect
-
-        exp = {
-            "ok1.example.org": [200, 302, 301],
-            "ok2.example.org": [301],
-        }
         exit_code, output = self._run_main(
-            [
-                "--web-protocol",
-                "https",
-                "--expectations",
-                self._to_json(exp),
-            ]
+            {
+                "ok1.example.org": _target([200, 302, 301]),
+                "ok2.example.org": _target([301]),
+            }
         )
         self.assertEqual(exit_code, 0)
         self.assertIn("ok1.example.org: OK", output)
@@ -85,109 +83,51 @@ class TestStandaloneCheckerScript(unittest.TestCase):
 
     @patch("requests.head")
     def test_mismatches_counted(self, mock_head):
-        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
-            class R:
-                pass
+        mock_head.side_effect = lambda url, **_: _Response(200)
 
-            r = R()
-            domain = url.split("://", 1)[1]
-            mapping = {"bad.example.org": 200, "ok301.example.org": 301}
-            r.status_code = mapping.get(domain, 200)
-            return r
-
-        mock_head.side_effect = head_side_effect
-
-        exp = {
-            "bad.example.org": [404],
-            "ok301.example.org": [301],
-            "never.example.org": [200],
-        }
         exit_code, output = self._run_main(
-            [
-                "--expectations",
-                self._to_json(exp),
-            ]
+            {"bad.example.org": _target([404]), "ok.example.org": _target([200])}
         )
         self.assertEqual(exit_code, 1)
         self.assertIn("bad.example.org: ERROR: Expected [404]. Got 200.", output)
 
     @patch("requests.head")
-    def test_non_list_values_sanitize_to_empty_and_fail(self, mock_head):
-        # If a domain maps to a non-list, it becomes [] and is treated as a failure
-        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
-            class R:
-                pass
+    def test_non_list_codes_sanitize_to_empty_and_fail(self, mock_head):
+        mock_head.side_effect = lambda url, **_: _Response(200)
 
-            r = R()
-            r.status_code = 200
-            return r
-
-        mock_head.side_effect = head_side_effect
-
-        exp_json = '{"foo.example.org": "not-a-list", "bar.example.org": 200}'
-        exit_code, output = self._run_main(
-            [
-                "--expectations",
-                exp_json,
-            ]
-        )
+        exit_code, output = self._run_main({"foo.example.org": _target("not-a-list")})
         self.assertEqual(exit_code, 1)
         self.assertIn(
             "foo.example.org: ERROR: No expectations provided. Got 200.", output
         )
-        self.assertIn(
-            "bar.example.org: ERROR: No expectations provided. Got 200.", output
-        )
 
     @patch("requests.head")
-    def test_onion_domains_probed_over_http_with_longer_timeout(self, mock_head):
+    def test_each_domain_uses_its_own_scheme_and_timeout(self, mock_head):
         seen = {}
 
-        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
-            class R:
-                pass
+        def head(url, allow_redirects=False, timeout=None, verify=True):
+            seen[url.split("://", 1)[1]] = (url, timeout)
+            return _Response(200)
 
-            r = R()
-            domain = url.split("://", 1)[1]
-            seen[domain] = {"url": url, "timeout": timeout}
-            r.status_code = 200
-            return r
+        mock_head.side_effect = head
 
-        mock_head.side_effect = head_side_effect
-
-        exp = {
-            "clear.example.org": [200],
-            "svc.abcd1234efgh.onion": [200],
-        }
         exit_code, _ = self._run_main(
-            [
-                "--web-protocol",
-                "https",
-                "--expectations",
-                self._to_json(exp),
-            ]
+            {
+                "clear.example.org": _target([200], "https", 10),
+                "svc.abcd1234efgh.onion": _target([200], "http", 30),
+            }
         )
         self.assertEqual(exit_code, 0)
         self.assertEqual(
-            seen["svc.abcd1234efgh.onion"]["url"], "http://svc.abcd1234efgh.onion"
+            seen["svc.abcd1234efgh.onion"], ("http://svc.abcd1234efgh.onion", 30)
         )
-        self.assertEqual(seen["svc.abcd1234efgh.onion"]["timeout"], 30)
-        self.assertEqual(seen["clear.example.org"]["url"], "https://clear.example.org")
-        self.assertEqual(seen["clear.example.org"]["timeout"], 10)
+        self.assertEqual(seen["clear.example.org"], ("https://clear.example.org", 10))
 
-    # ------------- Helpers -----------------------
-
-    def _run_main(self, argv):
+    def _run_main(self, targets):
         buffer = io.StringIO()
         with redirect_stdout(buffer):
-            exit_code = self.script.main(argv)
+            exit_code = self.script.main(["--targets", json.dumps(targets)])
         return exit_code, buffer.getvalue()
-
-    @staticmethod
-    def _to_json(obj) -> str:
-        import json
-
-        return json.dumps(obj, separators=(",", ":"))
 
 
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ import sys
 
 from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
-from utils.github.variant import axes, instructions, pools, tor, vpn
+from utils.github.variant import axes, instructions, network, pools, vpn
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -54,14 +54,19 @@ _COLUMNS = (
     "distro",
     "filesystem",
     "architecture",
-    "tor",
+    "network",
     "vpn",
     "triggered",
     "covered_by",
     "instructions",
     "clone",
 )
-_GLYPH = {"triggered": "enabled", "distro": "distros", "architecture": "architectures"}
+_GLYPH = {
+    "triggered": "enabled",
+    "distro": "distros",
+    "architecture": "architectures",
+    "network": "multi",
+}
 _HEADERS = tuple(
     f"{to_emoji(_GLYPH.get(key, key))} {key.replace('_', ' ').capitalize()}"
     for key in _COLUMNS
@@ -81,7 +86,7 @@ def _key(entry: dict[str, str]) -> tuple[str, ...]:
         entry["apps"],
         entry["variant"],
         entry["mode"],
-        entry["tor"],
+        entry["network"],
         entry["vpn"],
         entry["distro"],
         entry["filesystem"],
@@ -128,7 +133,7 @@ def cells(
                 to_emoji(entry["distro"]),
                 to_emoji(entry["filesystem"]),
                 to_emoji(entry["architecture"]),
-                to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
+                to_emoji(entry["network"]),
                 to_emoji("vpn" if entry["vpn"] == "true" else "direct"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
@@ -186,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--sweep", type=int, default=None)
-    parser.add_argument("--tor", default=None)
+    parser.add_argument("--network", default=None)
     parser.add_argument("--vpn", default=None)
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--architectures", default="")
@@ -205,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
         priority=codec.decode_list(args.priority),
         lifecycles=args.lifecycles,
         sweep=sweep,
-        tor_mode=tor.resolve_tor_mode(args.tor),
+        network_input=network.resolve_network_input(args.network),
         vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),

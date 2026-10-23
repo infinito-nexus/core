@@ -20,8 +20,11 @@ import unittest
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
+from utils.domains.default_primary import default_domain_primary
 
 from . import PROJECT_ROOT
+
+DOMAIN = default_domain_primary()
 
 TEMPLATE = (
     PROJECT_ROOT
@@ -33,11 +36,11 @@ TEMPLATE = (
 )
 
 RELAY = {
-    "host": "mail.infinito.test",
+    "host": f"mail.{DOMAIN}",
     "port": 25,
-    "username": "no-reply@infinito.test",
+    "username": f"no-reply@{DOMAIN}",
     "password": "s3cr3t",
-    "domain": "infinito.test",
+    "domain": DOMAIN,
     "auth": False,
     "start_tls": True,
     "tls": False,
@@ -84,7 +87,7 @@ class TestGitlabSmtpSettings(unittest.TestCase):
 
     def test_authenticated_submission_still_sends_credentials(self):
         rendered = _render(SUBMISSION)
-        self.assertIn('user_name: "no-reply@infinito.test"', rendered)
+        self.assertIn(f'user_name: "no-reply@{DOMAIN}"', rendered)
         self.assertIn("authentication: :login", rendered)
 
     def test_tls_and_starttls_are_never_both_on(self):

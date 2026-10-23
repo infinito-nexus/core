@@ -71,6 +71,7 @@ snipe-it:
   ports:
     local:
       sso: 16489
+      sso_onion: 16545
       http: 8035
     internal:
       http: 80

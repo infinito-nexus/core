@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
@@ -31,8 +32,7 @@ test("OpenProject front page is served under canonical domain with TLS", async (
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the OpenProject URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "OpenProject");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "OpenProject");
 });
 
 test("OpenProject returns HTML content under canonical domain", async ({ request }) => {

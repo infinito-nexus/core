@@ -1,9 +1,14 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Include JS routines"
+- name: "📂 Include JS routines per network"
   include_tasks: "01_javascript.yml"
   when: IS_STACK_HOST | bool
+  loop: "{{ DASHBOARD_INSTANCES }}"
+  loop_control:
+    loop_var: dashboard_instance
+  vars:
+    domain: "{{ DASHBOARD_INSTANCE_DOMAIN }}"
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:

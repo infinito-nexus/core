@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
   gotoOnion,
+  ownResponseHeaders,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
@@ -29,8 +30,7 @@ test("LAM front page is served under canonical domain with TLS", async ({ page }
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the LAM URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "LAM");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "LAM");
 });
 
 test("LAM returns HTML content under canonical domain", async ({ request }) => {

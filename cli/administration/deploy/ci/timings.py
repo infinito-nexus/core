@@ -47,7 +47,7 @@ from utils.github.variant import axes
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-AXES: tuple[str, ...] = ("mode", "tor", "distro", "filesystem")
+AXES: tuple[str, ...] = ("mode", "network", "distro", "filesystem", "architecture")
 
 
 def _seconds(job: Mapping[str, object]) -> float | None:
@@ -69,9 +69,10 @@ def _values(label: axes.Label) -> dict[str, str]:
     """The axis values one parsed job title carries."""
     return {
         "mode": label.mode,
-        "tor": "tor" if label.tor else "clearnet",
+        "network": label.network,
         "distro": label.distro,
         "filesystem": label.filesystem,
+        "architecture": label.architecture,
     }
 
 

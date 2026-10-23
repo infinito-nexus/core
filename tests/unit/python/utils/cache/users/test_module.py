@@ -21,7 +21,10 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write(path: Path, content: str) -> None:
@@ -314,12 +317,12 @@ class TestMaterializeBuiltinUserAliases(unittest.TestCase):
     def test_every_domain_label_becomes_a_reserved_username(self):
         out = cache_users._materialize_domain_label_reservations(
             {},
-            variables={"DOMAIN_PRIMARY": "main.infinito.test"},
+            variables={"DOMAIN_PRIMARY": DOMAIN},
             templar=None,
         )
         self.assertEqual(
             [out[key]["username"] for key in sorted(out)],
-            ["main", "infinito", "test"],
+            DOMAIN.split("."),
         )
         self.assertTrue(all(out[key]["accounts"] == [] for key in out))
 

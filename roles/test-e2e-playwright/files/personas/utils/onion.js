@@ -2,12 +2,11 @@
  * Tor-resilient navigation and request helpers.
  */
 
-const { resolveTimeout } = require("../../timeouts");
+const { isOnionTarget, resolveTimeout } = require("../../timeouts");
 const { installCspHeaderRecorder } = require("./csp");
-const { readEnv } = require("./env");
 
 function isOnionCanonical() {
-  return /\.onion$/i.test(readEnv("CANONICAL_DOMAIN").trim());
+  return isOnionTarget();
 }
 
 function isOnionUrl(url) {

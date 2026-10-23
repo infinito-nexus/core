@@ -1,6 +1,10 @@
-proxy_set_header Host $host;
+{% set _handover = lookup('network_handover', application_id, domain) %}
+{% set _forward_domain = lookup('domain', application_id) if _handover else domain %}
+{% set _forward_host = _forward_domain if _handover else '$host' %}
+proxy_set_header Host {{ _forward_host }};
 proxy_set_header X-Real-IP $remote_addr;
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_set_header X-Forwarded-Proto {{ proxy_x_forwarded_proto | default('$scheme') }};
-proxy_set_header X-Forwarded-Port {{ lookup('tls', application_id, 'ports.web') }};
-proxy_set_header X-Forwarded-Ssl {{ lookup('tls', application_id, 'enabled') | on_off }};
+proxy_set_header X-Forwarded-Host {{ _forward_host }};
+proxy_set_header X-Forwarded-Proto {{ lookup('tls', _forward_domain, 'protocols.web') if _handover else (proxy_x_forwarded_proto | default('$scheme')) }};
+proxy_set_header X-Forwarded-Port {{ lookup('tls', _forward_domain, 'ports.web') }};
+proxy_set_header X-Forwarded-Ssl {{ lookup('tls', _forward_domain, 'enabled') | on_off }};

@@ -17,8 +17,6 @@ tor: # nocheck: category-modes
   bond: 0.5
   enabled: true
   shared: true
-  exclusive: true
-  primary: true
   image: debian
   version: 13.7-slim
   custom: true

@@ -93,6 +93,7 @@ n8n:
     local:
       http: 8080
       sso: 16510
+      sso_onion: 16535
   run_after:
     - web-app-keycloak
     - web-app-matomo

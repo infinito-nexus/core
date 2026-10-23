@@ -9,6 +9,7 @@
       CONFIG_DIRECTORY: "/srv/gitlab/config"
       GITLAB_WEBSERVER: "PUMA"
       ACTION_CABLE_IN_APP: "true"
+      INFINITO_NETWORK_BASE_URLS: "{{ GITLAB_NETWORK_BASE_URLS | join(' ') }}"
     command: ["/scripts/wait-for-deps", "/scripts/process-wrapper"]
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={

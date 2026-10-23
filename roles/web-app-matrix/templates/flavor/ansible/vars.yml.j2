@@ -1,6 +1,6 @@
 ---
 {% set _matrix_onion_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
-{% set _matrix_is_onion = (_matrix_onion_node and lookup('domain', application_id) is search('\.onion$')) %}
+{% set _matrix_is_onion = (_matrix_onion_node and (lookup('domain', application_id) | network_of) == 'tor') %}
 matrix_domain: {{ MATRIX_SERVER_NAME }}
 matrix_admin: "{{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) }}"
 matrix_playbook_ssl_enabled: {{ 'false' if _matrix_is_onion else 'true' }}

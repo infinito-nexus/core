@@ -57,9 +57,7 @@ def _variants(path: Path) -> list[Any] | None:
 def _suppressed(path: Path) -> bool:
     if not path.is_file():
         return False
-    return any(
-        line_has_rule(line, _RULE) for line in read_text(str(path)).splitlines()
-    )
+    return any(line_has_rule(line, _RULE) for line in read_text(str(path)).splitlines())
 
 
 def _declaring(variants: list[Any]) -> list[int]:

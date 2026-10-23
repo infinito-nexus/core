@@ -119,7 +119,8 @@ else
 fi
 
 proxy_env=()
-if grep -qiE '\.onion' "$env_file"; then
+base_url="$(sed -n 's/^APP_BASE_URL=//p' "$env_file" | tr -d '"')"
+if [[ "$base_url" =~ \.onion(/|$) ]]; then
 	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
 	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
 fi

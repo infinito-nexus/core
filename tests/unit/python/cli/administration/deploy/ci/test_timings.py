@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from cli.administration.deploy.ci import timings
 from tests.utils.ci.job_names import deploy_job_name
-from utils.github.variant.pools import DISTROS, FILESYSTEMS
+from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS
 
 
 def _job(
@@ -59,17 +59,19 @@ class TestSamples(unittest.TestCase):
                 "swarm",
                 "web-app-matomo",
                 "0",
-                tor=True,
+                network="tor",
                 distro=DISTROS[0],
                 filesystem=FILESYSTEMS[0],
+                architecture=ARCHITECTURES[0],
             ),
             minutes=30,
         )
         grouped = timings.samples([job])
         self.assertEqual(sorted(grouped["mode"]), ["swarm"])
-        self.assertEqual(sorted(grouped["tor"]), ["tor"])
+        self.assertEqual(sorted(grouped["network"]), ["tor"])
         self.assertEqual(sorted(grouped["distro"]), [DISTROS[0]])
         self.assertEqual(sorted(grouped["filesystem"]), [FILESYSTEMS[0]])
+        self.assertEqual(sorted(grouped["architecture"]), [ARCHITECTURES[0]])
 
 
 class TestRanking(unittest.TestCase):

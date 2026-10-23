@@ -1,4 +1,4 @@
 lua_need_request_body on;
 
 set_by_lua_block $inj_inflate { ngx.ctx.inj_inflate = true return "1" }
-body_filter_by_lua_file {{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}.lua;
+body_filter_by_lua_file {{ lookup('nginx', 'directories.configuration.lua') }}{{ domain }}.lua;

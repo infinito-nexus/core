@@ -3,18 +3,23 @@ application's containers.
 
     {{ lookup('ca_injected', application_id) }}
 
-The CA override that bind-mounts ``CA_TRUST.inject_cert_container`` is emitted
-under three conditions, and anything that reads the mounted file must ask the
-same three or it will point at a path that was never mounted. The conditions
-lived as four hand-copied expressions - both `sys-svc-compose` handlers,
-`sys-svc-compose-ca/vars/main.yml` and the msmtp template - which is one copy
-per place that can drift.
+Anything that reads the mounted ``CA_TRUST.inject_cert_container`` must ask this
+lookup, or it points at a path that was never mounted.
+
+An application with a domain and TLS of its own gets the CA when its resolved
+TLS mode is self-signed. Otherwise it gets it only when one of its services
+declares ``ca_client: true`` and the SSO issuer application it calls resolves
+TLS enabled and self-signed.
 
 Those three ask whether the application is *served* over the self-signed CA.
 An application that only *calls* one resolves no mode of its own and would be
 skipped, so a service may declare ``ca_client: true`` and be answered on the
-deployment's TLS mode alone. Without it such a container verifies against an
-empty trust store and fails every outbound call at the TLS handshake.
+deployment's TLS mode, or on an SSO issuer that resolves self-signed TLS.
+Either peer is enough: the object store a container signs media against and
+the issuer it authenticates through are different hosts, and answering for
+only one leaves the other's handshake unverifiable. Without the CA such a
+container verifies against an empty trust store and fails every outbound call
+at the TLS handshake.
 
 Resolving no mode of its own covers two shapes, and the declaration answers
 for both: an application with no domain at all, and one whose own TLS is
@@ -40,7 +45,12 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.has.domain import has_domain
-from utils.tls_common import AVAILABLE_FLAVORS, as_str, require
+from utils.tls_common import (
+    AVAILABLE_FLAVORS,
+    as_str,
+    issuer_applications,
+    require,
+)
 
 SELF_SIGNED_MODE = "self_signed"
 
@@ -84,13 +94,22 @@ class LookupModule(LookupBase):
                 )
             return mode == SELF_SIGNED_MODE
 
-        if not has_domain(_run("domains", []), application_id):
-            if not _declares_ca_client():
-                return [False]
-            return [_on_the_deployment_mode()]
+        def _an_issuer_is_self_signed() -> bool:
+            return any(
+                _to_bool(_run("tls", [peer, "enabled"]))
+                and _run("tls", [peer, "mode"]) == SELF_SIGNED_MODE
+                for peer in issuer_applications()
+            )
 
-        if not _to_bool(_run("tls", [application_id, "enabled"])):
-            if not _declares_ca_client():
-                return [False]
-            return [_on_the_deployment_mode()]
-        return [_run("tls", [application_id, "mode"]) == SELF_SIGNED_MODE]
+        own_tls = has_domain(_run("domains", []), application_id) and _to_bool(
+            _run("tls", [application_id, "enabled"])
+        )
+        if own_tls and _run("tls", [application_id, "mode"]) == SELF_SIGNED_MODE:
+            return [True]
+        if not _declares_ca_client():
+            return [False]
+        if _an_issuer_is_self_signed():
+            return [True]
+        if own_tls:
+            return [False]
+        return [_on_the_deployment_mode()]

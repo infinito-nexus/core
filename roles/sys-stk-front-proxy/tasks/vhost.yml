@@ -1,0 +1,100 @@
+---
+- name: "🧊 Freeze the probe target for '{{ front_proxy_domain }}'"
+  ansible.builtin.set_fact:
+    front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
+    front_proxy_probe_url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
+  changed_when: false
+
+- name: "📌 TLS | Apply tls layer for '{{ front_proxy_domain }}'"
+  include_role:
+    name: sys-front-tls
+  when: lookup('tls', front_proxy_domain, 'enabled') | bool
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+
+- name: "📌 CSP/INJ | Apply global injections for {{ front_proxy_domain }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-all
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+
+- name: 🔍 Resolve application-specific front proxy template path
+  ansible.builtin.set_fact:
+    front_proxy_application_template: "{{ front_proxy_application_id | abs_role_path_by_application_id }}/templates/proxy.conf.j2"
+
+- name: 🔍 Resolve front proxy template source
+  ansible.builtin.set_fact:
+    front_proxy_template_src: >-
+      {{
+        front_proxy_application_template
+        if (
+          lookup('fileglob', front_proxy_application_template, wantlist=True) | length
+        ) > 0
+        else "roles/sys-svc-proxy/templates/vhost/%s.conf.j2" | format(webserver_vhost_flavour)
+      }}
+  vars:
+    webserver_vhost_flavour: basic
+
+- name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
+  stack_host_template:
+    src: "{{ front_proxy_template_src }}"
+    dest: "{{ front_proxy_domain_conf_dst_resolved }}"
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+    http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
+    proxy_internal_port: "{{ front_proxy_internal_port }}"
+    webserver_extra_configuration: ""
+    webserver_websocket_location: ""
+    webserver_client_max_body_size: "{{ lookup('config', front_proxy_application_id, 'server.client_max_body_size', '100m') }}"
+  register: nginx_conf
+  notify: reload-openresty
+
+- block:
+    - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
+      uri_probe:
+        url: "{{ front_proxy_probe_url }}"
+        status_code: "{{ front_proxy_status_codes }}"
+      register: site_check
+      failed_when: false
+      changed_when: false
+
+    - name: "🔄 Redeploy: site answered {{ site_check.status | default('none') }}"
+      ansible.builtin.command:
+        cmd: "true"
+      notify: restart-openresty
+      when:
+        - site_check.status | default(-1) not in front_proxy_status_codes
+        - site_check.status | default(-1) in front_proxy_stale_config_status_codes
+  when: not nginx_conf.changed
+
+- name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
+  uri_probe:
+    url: "{{ front_proxy_probe_url }}"
+    status_code: "{{ front_proxy_status_codes }}"
+  register: front_proxy_reload_check
+  failed_when: false
+  changed_when: false
+  when: nginx_conf.changed
+
+- name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
+  ansible.builtin.command:
+    cmd: "true"
+  notify: restart-openresty
+  when:
+    - nginx_conf.changed
+    - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
+    - >-
+      not openresty_reload.changed
+      or front_proxy_reload_check.status | default(-1) in front_proxy_stale_config_status_codes
+
+- name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
+  ansible.builtin.meta: flush_handlers
+  when: nginx_conf.changed

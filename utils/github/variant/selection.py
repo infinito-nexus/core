@@ -1,29 +1,30 @@
 """Read the deploy axes an operator pins in ``whitelist`` and ``priority``.
 
 A selection token names a role and MAY narrow the axes that role's rows would
-otherwise be assigned: which variants run, which deploy mode, whether the row
-goes behind the node onion, whether it runs over the WireGuard mesh, which
-distribution it deploys on, which filesystem its docker data root runs on and
-which CPU architecture it lands on. What a token leaves open stays open,
-exactly as an unpinned run leaves it: the priority line covers every mode and
-onion state the row can take, and the sweep rotation picks the distro, the
-filesystem and the architecture on both lines.
+otherwise be assigned: which variants run, which deploy mode, which node
+network mode, whether it runs over the WireGuard mesh, which distribution it
+deploys on, which filesystem its docker data root runs on and which CPU
+architecture it lands on. What a token leaves open stays open, exactly as an
+unpinned run leaves it: the priority line covers every mode and network mode
+the row can take, and the sweep rotation picks the distro, the filesystem and
+the architecture on both lines.
 
 Two spellings are accepted, so an operator can either type the token or paste
 back the job title of the run they want repeated:
 
-* the job label CI emits (``🐳🧅🌀🦓🦾𓏴𓏛·Nextcloud#2``) -- the glyphs carry
-  mode, onion state, mesh state, distro, filesystem and architecture, the
+* the job label CI emits (``🐝🧅🚇🌀🦓🦾𓏴𓏛·Nextcloud#2``) -- the glyphs carry
+  mode, network mode, mesh state, distro, filesystem and architecture, the
   ``#`` shard the variants;
 * an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&vpn``).
 
-The onion state spells out as ``+tor``/``+clearnet`` rather than as a ``-tor``
-suffix: a role id may itself end in ``-tor`` (``svc-net-tor``), and a suffix
-that eats the tail of a role name selects a different role in silence.
+The network mode spells out as ``+clearnet``/``+tor``/``+multi`` rather than
+as a ``-tor`` suffix: a role id may itself end in ``-tor`` (``svc-net-tor``),
+and a suffix that eats the tail of a role name selects a different role in
+silence.
 
 Everything a token pins is checked against what the row can actually do
 (:func:`utils.github.variant.axes.assign`) and against the run's own mode and
-tor inputs. A contradiction aborts the matrix instead of quietly deploying
+network inputs. A contradiction aborts the matrix instead of quietly deploying
 something else or nothing at all.
 """
 
@@ -33,6 +34,7 @@ import re
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.github.variant.axes import ARCHITECTURES, DISTROS, FILESYSTEMS, MODES
+from utils.networks.reachability import NODE_MODES
 from utils.roles.display import VARIANT_SEPARATOR, display_names
 from utils.symbol_glossary import to_emoji
 
@@ -42,7 +44,7 @@ if TYPE_CHECKING:
 
 MODE_SEPARATOR = "@"
 
-TOR_SEPARATOR = "+"
+NETWORK_SEPARATOR = "+"
 
 DISTRO_SEPARATOR = "%"
 
@@ -52,7 +54,7 @@ ARCHITECTURE_SEPARATOR = ":"
 
 VPN_SEPARATOR = "&"
 
-TOR_WORDS = {"tor": True, "clearnet": False}
+NETWORK_WORDS = tuple(NODE_MODES)
 
 VPN_WORDS = {"vpn": True, "direct": False}
 
@@ -63,7 +65,7 @@ _VARIATION = re.compile("[︎️]")
 _SEPARATORS = (
     VARIANT_SEPARATOR
     + MODE_SEPARATOR
-    + TOR_SEPARATOR
+    + NETWORK_SEPARATOR
     + DISTRO_SEPARATOR
     + FILESYSTEM_SEPARATOR
     + ARCHITECTURE_SEPARATOR
@@ -74,7 +76,7 @@ _TOKEN = re.compile(
     r"^(?P<name>[^" + re.escape(_SEPARATORS) + r"\s]+)"
     r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variants>\d+(?:,\d+)*))?"
     r"(?:" + re.escape(MODE_SEPARATOR) + r"(?P<mode>[a-z]+))?"
-    r"(?:" + re.escape(TOR_SEPARATOR) + r"(?P<tor>[a-z]+))?"
+    r"(?:" + re.escape(NETWORK_SEPARATOR) + r"(?P<network>[a-z]+))?"
     r"(?:" + re.escape(DISTRO_SEPARATOR) + r"(?P<distro>[a-z0-9]+))?"
     r"(?:" + re.escape(FILESYSTEM_SEPARATOR) + r"(?P<filesystem>[a-z0-9]+))?"
     r"(?:" + re.escape(ARCHITECTURE_SEPARATOR) + r"(?P<architecture>[a-z0-9]+))?"
@@ -84,7 +86,7 @@ _TOKEN = re.compile(
 _SYNTAX = (
     f"<role>[{VARIANT_SEPARATOR}<variant,variant>]"
     f"[{MODE_SEPARATOR}<{'|'.join(MODES)}>]"
-    f"[{TOR_SEPARATOR}<{'|'.join(TOR_WORDS)}>]"
+    f"[{NETWORK_SEPARATOR}<{'|'.join(NETWORK_WORDS)}>]"
     f"[{DISTRO_SEPARATOR}<{'|'.join(DISTROS)}>]"
     f"[{FILESYSTEM_SEPARATOR}<{'|'.join(FILESYSTEMS)}>]"
     f"[{ARCHITECTURE_SEPARATOR}<{'|'.join(ARCHITECTURES)}>]"
@@ -95,7 +97,7 @@ _SYNTAX = (
 class Pin(NamedTuple):
     """One selection token, taken apart.
 
-    ``variants`` empty and ``mode``/``tor``/``distro``/``filesystem``/
+    ``variants`` empty and ``mode``/``network``/``distro``/``filesystem``/
     ``architecture``/``vpn`` ``None`` each mean "not pinned": that axis keeps
     whatever the line it stands in would assign.
     """
@@ -103,7 +105,7 @@ class Pin(NamedTuple):
     app: str
     variants: tuple[int, ...] = ()
     mode: str | None = None
-    tor: bool | None = None
+    network: str | None = None
     distro: str | None = None
     filesystem: str | None = None
     architecture: str | None = None
@@ -116,7 +118,7 @@ class Pin(NamedTuple):
             axis is not None
             for axis in (
                 self.mode,
-                self.tor,
+                self.network,
                 self.distro,
                 self.filesystem,
                 self.architecture,
@@ -127,13 +129,11 @@ class Pin(NamedTuple):
     @property
     def axes(
         self,
-    ) -> tuple[
-        str | None, bool | None, str | None, str | None, str | None, bool | None
-    ]:
+    ) -> tuple[str | None, str | None, str | None, str | None, str | None, bool | None]:
         """What the token narrows, as the key two tokens are equal under."""
         return (
             self.mode,
-            self.tor,
+            self.network,
             self.distro,
             self.filesystem,
             self.architecture,
@@ -148,11 +148,7 @@ def describe(pin: Pin) -> str:
         pin.app
         + (f"{VARIANT_SEPARATOR}{variants}" if variants else "")
         + (f"{MODE_SEPARATOR}{pin.mode}" if pin.mode else "")
-        + (
-            f"{TOR_SEPARATOR}{'tor' if pin.tor else 'clearnet'}"
-            if pin.tor is not None
-            else ""
-        )
+        + (f"{NETWORK_SEPARATOR}{pin.network}" if pin.network else "")
         + (f"{DISTRO_SEPARATOR}{pin.distro}" if pin.distro else "")
         + (f"{FILESYSTEM_SEPARATOR}{pin.filesystem}" if pin.filesystem else "")
         + (f"{ARCHITECTURE_SEPARATOR}{pin.architecture}" if pin.architecture else "")
@@ -177,11 +173,11 @@ def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
 def _glyphs(
     text: str,
 ) -> tuple[
-    str, str | None, bool | None, str | None, str | None, str | None, bool | None
+    str, str | None, str | None, str | None, str | None, str | None, bool | None
 ]:
     """Take the label glyphs off a pasted job title and read them as axes."""
     text, mode = _word_glyph(text, MODES)
-    text, onion = _word_glyph(text, TOR_WORDS)
+    text, network = _word_glyph(text, NETWORK_WORDS)
     text, distro = _word_glyph(text, DISTROS)
     text, filesystem = _word_glyph(text, FILESYSTEMS)
     text, architecture = _word_glyph(text, ARCHITECTURES)
@@ -191,7 +187,7 @@ def _glyphs(
     return (
         text.strip(),
         mode,
-        None if onion is None else TOR_WORDS[onion],
+        network,
         distro,
         filesystem,
         architecture,
@@ -217,14 +213,14 @@ def parse(token: str) -> Pin:
             nothing and selects every row of that role.
 
     Raises:
-        SystemExit: the token is unparsable, or names a mode or onion state
+        SystemExit: the token is unparsable, or names a mode or network mode
             that does not exist. A typo must abort the run rather than narrow
             it to nothing.
     """
     (
         text,
         glyph_mode,
-        glyph_tor,
+        glyph_network,
         glyph_distro,
         glyph_fs,
         glyph_arch,
@@ -236,7 +232,7 @@ def parse(token: str) -> Pin:
 
     for group, axis, declared in (
         ("mode", "deploy mode", MODES),
-        ("tor", "onion state", TOR_WORDS),
+        ("network", "network mode", NETWORK_WORDS),
         ("distro", "distro", DISTROS),
         ("filesystem", "filesystem", FILESYSTEMS),
         ("architecture", "architecture", ARCHITECTURES),
@@ -251,13 +247,12 @@ def parse(token: str) -> Pin:
 
     name = match.group("name")
     variants = match.group("variants")
-    word = match.group("tor")
     mesh_word = match.group("vpn")
     return Pin(
         display_names().decode(name) or name,
         tuple(int(index) for index in variants.split(",")) if variants else (),
         _agree(match.group("mode"), glyph_mode, token, "mode"),
-        _agree(TOR_WORDS[word] if word else None, glyph_tor, token, "onion"),
+        _agree(match.group("network"), glyph_network, token, "network"),
         _agree(match.group("distro"), glyph_distro, token, "distro"),
         _agree(match.group("filesystem"), glyph_fs, token, "filesystem"),
         _agree(match.group("architecture"), glyph_arch, token, "architecture"),
@@ -281,16 +276,14 @@ def covers(pin: Pin, entry: Mapping[str, Any]) -> bool:
         return False
     for value, key in (
         (pin.mode, "mode"),
+        (pin.network, "network"),
         (pin.distro, "distro"),
         (pin.filesystem, "filesystem"),
         (pin.architecture, "architecture"),
     ):
         if value is not None and entry.get(key) != value:
             return False
-    for pinned, key in ((pin.tor, "tor"), (pin.vpn, "vpn")):
-        if pinned is not None and (entry.get(key) == "true") != pinned:
-            return False
-    return True
+    return pin.vpn is None or (entry.get("vpn") == "true") == pin.vpn
 
 
 def parse_list(tokens: str) -> list[Pin]:
@@ -317,8 +310,8 @@ def apply(
 
     Returns:
         one entry per (row, pin) the selection asks for, each carrying
-        ``pin_mode``, ``pin_tor``, ``pin_distro`` and ``pin_filesystem`` for
-        :func:`utils.github.variant.axes.assign` to honour. Order is the
+        ``pin_mode``, ``pin_network``, ``pin_distro`` and ``pin_filesystem``
+        for :func:`utils.github.variant.axes.assign` to honour. Order is the
         query's -- a selection narrows what runs, it never re-ranks it.
 
         A row several tokens name is emitted once per token, which is the whole
@@ -369,7 +362,7 @@ def apply(
                 {
                     **row,
                     "pin_mode": pin.mode,
-                    "pin_tor": pin.tor,
+                    "pin_network": pin.network,
                     "pin_distro": pin.distro,
                     "pin_filesystem": pin.filesystem,
                     "pin_architecture": pin.architecture,

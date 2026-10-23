@@ -90,6 +90,13 @@
         group: "1000"
         mode: "0440"
 
+- name: "📄 Copy the GitLab network origins initializer"
+  stack_host_copy:
+    src: "ruby/network_origins.rb"
+    dest: "{{ [GITLAB_CONFIG_DIR, 'network_origins.rb'] | path_join }}"
+    mode: "0444"
+  notify: compose-up
+
 - name: "🔑 Generate GitLab SSH host keys (on stack host)"
   community.crypto.openssh_keypair:
     path: "{{ [GITLAB_CONFIG_HOSTKEYS_DIR, item.name] | path_join }}"

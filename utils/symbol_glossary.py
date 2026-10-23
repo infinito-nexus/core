@@ -37,6 +37,7 @@ SYMBOLS: dict[str, str] = {
     "swarm": "🐝",
     "tor": "🧅",
     "clearnet": "🌐",
+    "multi": "🌈",
     "vpn": "🚇",
     "direct": "🛣️",
     "stack": "🥞",

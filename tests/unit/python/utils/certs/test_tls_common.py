@@ -287,6 +287,81 @@ class TestTlsCommon(unittest.TestCase):
             "cdn.example",
         )
 
+    def test_align_domain_to_consumer_onion_consumer_gets_onion_sibling(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-dashboard": ["dash.abc.onion"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", consumer="web-app-dashboard"
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_follows_the_rendered_vhost(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "wazuh.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", variables=variables
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_ignores_a_foreign_vhost(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "other.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", variables=variables
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_renders_a_templated_vhost(self):
+        class _FakeTemplar:
+            def template(self, value):
+                return {"{{ front_proxy_domain }}": "wazuh.abc.onion"}.get(value, value)
+
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {
+            "application_id": "web-app-wazuh",
+            "domain": "{{ front_proxy_domain }}",
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.example",
+                variables=variables,
+                templar=_FakeTemplar(),
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_never_moves_the_sso_issuer(self):
+        domains = {
+            "web-app-keycloak": ["auth.example", "auth.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "wazuh.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-app-keycloak", "auth.example", variables=variables
+            ),
+            "auth.example",
+        )
+
     def test_align_domain_to_consumer_dict_target_picks_clearnet_value(self):
         domains = {
             "web-app-matrix": {

@@ -14,6 +14,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.networks.reachability import network, network_of
 from utils.templating.jinja import render_strict
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
@@ -209,6 +210,8 @@ class LookupModule(LookupBase):
 
         else:
             raise AnsibleError(f"cert: unsupported mode '{mode}'")
+
+        san_domains = [d for d in san_domains if network(network_of(d)).tls]
 
         resolved: dict[str, Any] = {
             "application_id": app_id,

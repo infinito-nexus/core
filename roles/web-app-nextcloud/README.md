@@ -36,6 +36,12 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
 
+## Networks
+
+On a node that serves Nextcloud on several networks, Nextcloud builds every absolute URL from the request: the host comes from the forwarded `Host`, the scheme from `X-Forwarded-Proto`, which the internal nginx passes to PHP as `HTTPS`. `trusted_domains` lists every network sibling, and `overwrite.cli.url` stays on the canonical clearnet URL for CLI jobs and mail links.
+
+The Talk signaling server accepts the backend URL of every sibling with the same secret. Talk calls work on the clearnet sibling only.
+
 ## MCP Server
 
 Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the `context_agent` ExApp.
