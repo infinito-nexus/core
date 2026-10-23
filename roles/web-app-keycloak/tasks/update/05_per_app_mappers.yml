@@ -58,6 +58,7 @@
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
     DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
+    KC_PURGE_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
   changed_when: true
   failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
