@@ -1,8 +1,4 @@
 ---
-# Exception logic only: the generic loader writes the Service URL (config SPOT),
-# but the LiteLLM gateway's /v1 endpoint is guarded by a per-consumer virtual
-# key (this role's credentials.litellm_api_key). That credential must be
-# written into integration_openai api_key here; the loader cannot derive it.
 - name: 🔍 Resolve LiteLLM backend selection for integration_openai
   set_fact:
     nextcloud_openai_use_litellm: "{{ ('svc-ai-litellm' in group_names) and ('web-app-openwebui' not in group_names) }}"

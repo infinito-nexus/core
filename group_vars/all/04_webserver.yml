@@ -1,14 +1,7 @@
 ---
 # Webserver Configuration
 
-# Effective CPUs (float) across proxy and the current app
-WEBSERVER_CPUS_EFFECTIVE: >-
-  {{
-    [
-      (lookup('applications') | resource_filter('svc-prx-openresty',  'cpus', service_name | default(''), RESOURCE_CPUS)) | float,
-      (lookup('applications') | resource_filter(application_id,       'cpus', service_name | default(''), RESOURCE_CPUS)) | float
-    ] | min
-  }}
+WEBSERVER_CPUS_EFFECTIVE: "{{ lookup('webserver_resource', 'cpus') }}"
 
 WEBSERVER_WORKER_PROCESSES: >-
   {{
@@ -16,11 +9,4 @@ WEBSERVER_WORKER_PROCESSES: >-
     else (WEBSERVER_CPUS_EFFECTIVE | float | int)
   }}
 
-# worker_connections from pids_limit (use the smaller one), with correct key/defaults
-WEBSERVER_WORKER_CONNECTIONS: >-
-  {{
-    [
-      (lookup('applications') | resource_filter('svc-prx-openresty', 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT)) | int,
-      (lookup('applications') | resource_filter(application_id,      'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT)) | int
-    ] | min
-  }}
+WEBSERVER_WORKER_CONNECTIONS: "{{ lookup('webserver_resource', 'pids_limit') }}"

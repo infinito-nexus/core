@@ -326,7 +326,7 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(
         out / "containers",
         "_events.txt",
-        ["timeout", "15", rt, "events", "--since", "6h"],
+        ["timeout", "--foreground", "15", rt, "events", "--since", "6h"],
         timeout=40,
     )
     containers = list_lines([rt, "ps", "-a", "--format", "{{.Names}}"])
@@ -466,7 +466,7 @@ def main(argv: list[str]) -> int:
             file=sys.stderr,
         )
         return 1
-    depth = int(os.environ.get("RESCUE_DEPTH", "0"))
+    depth = int(os.environ.get("RESCUE_DEPTH", 0))
     seen = [cid for cid in os.environ.get("RESCUE_SEEN", "").split(",") if cid]
     stamp = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%SZ")
     out = Path(out_base) / f"{app_id}-{stamp}-{os.getpid()}"

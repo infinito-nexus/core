@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.jenkins.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - jenkins
+config:
+  jenkins_url: "{{ lookup('tls', 'web-app-jenkins', 'url.base') }}"

@@ -1,0 +1,29 @@
+---
+- name: "🧩 Load docker cards for the {{ dashboard_instance.network }} instance"
+  set_fact:
+    portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
+
+- name: "📄 Load Dashboard Brand logos for the {{ dashboard_instance.network }} instance"
+  set_fact:
+    portfolio_cards: >-
+      {{ portfolio_cards | add_simpleicon_source(
+           dashboard_simpleicons_probe.status
+             | dict2items
+             | selectattr('value', 'equalto', 200)
+             | map(attribute='key')
+             | list,
+           DASHBOARD_SIMPLEICONS_URL_BASE) }}
+  when: DASHBOARD_SIMPLEICONS_ENABLED | bool
+  changed_when: false
+
+- name: "👥 Group docker cards for the {{ dashboard_instance.network }} instance"
+  set_fact:
+    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
+
+- name: "📄 Render {{ DASHBOARD_CONFIG_YML_DEST | basename }} (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
+        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"

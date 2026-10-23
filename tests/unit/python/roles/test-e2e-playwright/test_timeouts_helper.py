@@ -13,11 +13,14 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 HELPER_PATH = str(
     PROJECT_ROOT / "roles" / "test-e2e-playwright" / "files" / "timeouts.js"
 )
+DOMAIN = default_domain_primary()
 
 
 def _have_node():
@@ -60,7 +63,7 @@ class TestTimeoutsHelper(unittest.TestCase):
     def test_clearnet_default_factor_is_identity(self):
         out = self._run(
             "t.resolveTimeout(60000)",
-            {"CANONICAL_DOMAIN": '"x.infinito.test"'},
+            {"CANONICAL_DOMAIN": f'"x.{DOMAIN}"'},
         )
         self.assertIn("RESULT:60000", out)
 
@@ -75,7 +78,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.test",
+                "CANONICAL_DOMAIN": f"x.{DOMAIN}",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "2",
             },
         )
@@ -96,11 +99,46 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.test",
+                "CANONICAL_DOMAIN": f"x.{DOMAIN}",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "0",
             },
         )
         self.assertIn("RESULT:60000", out)
+
+    def test_a_waiter_may_not_outlive_the_suite_that_contains_it(self):
+        """The onion run that starved web-app-docs: base 2_700_000 at
+        multiplier 2 asked for 5_400_000 against a 5_340_000 suite budget, so
+        the global timeout fired first and every remaining spec was reported
+        "did not run" without naming the waiter."""
+        out = self._run(
+            "t.resolveTimeout(2700000) + ':' + t.SUITE_RESERVE_MS",
+            {
+                "CANONICAL_DOMAIN": '"docs.abc123.onion"',
+                "PLAYWRIGHT_TIMEOUT_FACTOR": "1",
+                "PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER": "2",
+                "INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS": "5340000",  # nocheck: the playwright role passes this into the sidecar container, it is not a .env key
+            },
+        )
+        capped, reserve = out.split("RESULT:")[1].strip().strip('"').split(":")
+        self.assertEqual(int(capped), 5340000 - int(reserve))
+
+    def test_a_timeout_inside_the_budget_is_left_alone(self):
+        out = self._run(
+            "t.resolveTimeout(30000)",
+            {
+                "CANONICAL_DOMAIN": '"docs.abc123.onion"',
+                "PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER": "2",
+                "INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS": "5340000",  # nocheck: the playwright role passes this into the sidecar container, it is not a .env key
+            },
+        )
+        self.assertIn("RESULT:60000", out)
+
+    def test_without_a_declared_budget_nothing_is_capped(self):
+        out = self._run(
+            "t.resolveTimeout(5400000)",
+            {"CANONICAL_DOMAIN": '"x.infinito.test"'},
+        )
+        self.assertIn("RESULT:5400000", out)
 
     def test_is_onion_target_detects_quoted_and_bare(self):
         self.assertIn(
@@ -113,7 +151,23 @@ class TestTimeoutsHelper(unittest.TestCase):
         )
         self.assertIn(
             "RESULT:false",
-            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.test"'}),
+            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": f'"x.{DOMAIN}"'}),
+        )
+
+    def test_is_onion_target_reads_app_base_url_first(self):
+        self.assertIn(
+            "RESULT:true",
+            self._run("t.isOnionTarget()", {"APP_BASE_URL": '"https://x.abc.onion/"'}),
+        )
+        self.assertIn(
+            "RESULT:false",
+            self._run(
+                "t.isOnionTarget()",
+                {
+                    "APP_BASE_URL": f'"https://x.{DOMAIN}/"',
+                    "CANONICAL_DOMAIN": '"x.abc.onion"',
+                },
+            ),
         )
 
 

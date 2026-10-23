@@ -1,6 +1,6 @@
 ---
 application_id: "svc-bkp-local-2-device"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 system_service_id: "{{ application_id }}"
 
 BACKUP_TO_USB_DESTINATION: "{{ BACKUP_TO_USB_MOUNT}}{{ BACKUP_TO_USB_TARGET }}"

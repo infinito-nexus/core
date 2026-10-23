@@ -26,8 +26,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.distros import (
     FILE_META_DISTROS,
-    IMAGE_PKGMGR,
-    IMAGE_PKGMGR_VIRGIN,
+    IMAGE_BASE,
     dev_runtime_images,
     distro_names,
     image_template,
@@ -45,7 +44,7 @@ _MATRIX_REF_RE = re.compile(
 _STEP_REF_RE = re.compile(r"^\$\{\{\s*steps\.([\w-]+)\.outputs\.([\w-]+)\s*\}\}$")
 _GITHUB_SHELL = ("bash", "--noprofile", "--norc", "-eo", "pipefail", "-c")
 
-_INTERPOLATED_PKGMGR_RE = re.compile(r"pkgmgr-[{$]")
+_INTERPOLATED_PKGMGR_RE = re.compile(r"(?:pkgmgr|base)-[{$]")
 _SHELL_LOOP_SLUG = "${d}"
 _LIST_SOURCES = ("*.yml", "*.sh", "*.md", "Makefile", "default.env")
 
@@ -182,7 +181,7 @@ class TestDistrosSpot(unittest.TestCase):
             body = "\n".join(f"  - {o}" for o in offenders)
             self.fail(
                 f"pkgmgr image reference composed outside {FILE_META_DISTROS}:\n"
-                f"{body}\n\nRender it via utils.distros.pkgmgr_image() or read "
+                f"{body}\n\nRender it via utils.distros.base_image() or read "
                 "INFINITO_PARENT_IMAGE from the env layer."
             )
 
@@ -197,7 +196,7 @@ class TestDistrosSpot(unittest.TestCase):
                 slug=_SHELL_LOOP_SLUG,
                 tag=static["INFINITO_PARENT_IMAGE_TAG"],
             )
-            for kind in (IMAGE_PKGMGR, IMAGE_PKGMGR_VIRGIN)
+            for kind in (IMAGE_BASE,)
         }
 
         offenders = [

@@ -38,6 +38,7 @@ make network-trust-ca
 | Host preparation | `make environment-bootstrap` | Prepares the local development machine for the project workflow. |
 | Start stack | `make compose-up` | Starts the local development stack. |
 | Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.test` works correctly in your browser. |
+| Stack domains | `make network-dns-setup` | Routes each stack's domain to its bind IP: `main.infinito.test` for the primary checkout, `<branch>.infinito.test` for every worktree. Re-run it after `make worktree-up` or `make worktree-down`. |
 
 The `pre-commit` hooks are installed automatically by `make environment-bootstrap`.
 Per-machine overrides go into the process environment before invoking `make` (e.g. `export INFINITO_FOO=…`); `make dotenv` honors caller-set values via setdefault semantics.

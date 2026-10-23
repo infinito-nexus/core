@@ -10,7 +10,6 @@
   include_tasks: wp-discourse-stack-host.yml
   when: IS_STACK_HOST | bool
 
-# Exception: include_vars (not lookup('file')|from_yaml) so values lazy-render and the deploy-time vault_discourse_api_key resolves in this scope.
 - name: "📄 Load WP Discourse addon spec from meta/addons/wp-discourse.yml"
   ansible.builtin.include_vars:
     file: "{{ [role_path, 'meta/addons', 'wp-discourse.yml'] | path_join }}"
@@ -20,40 +19,41 @@
     discourse_settings: "{{ wp_discourse_addon.config.discourse_settings | default([]) }}"
   changed_when: false
 
-- name: "📦 Install WP Discourse plugin"
-  ansible.builtin.include_tasks: ../utils/install/plugin.yml
-  vars:
-    plugin_name: wp-discourse
+- name: "🖥️ WP Discourse: install and configure the plugin on the stack host"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "📦 Install WP Discourse plugin"
+      ansible.builtin.include_tasks: ../utils/install/plugin.yml
+      vars:
+        plugin_name: wp-discourse
 
-- name: "🔧 Configure WP Discourse settings"
-  loop: "{{ discourse_settings | map(attribute='name') | unique | list }}"
-  loop_control:
-    label: "{{ item }}"
-  vars:
-    option_name: "{{ item }}"
+    - name: "🔧 Configure WP Discourse settings"
+      loop: "{{ discourse_settings | map(attribute='name') | unique | list }}"
+      loop_control:
+        label: "{{ item }}"
+      vars:
+        option_name: "{{ item }}"
 
-    option_items: >-
-      {{ discourse_settings
-         | selectattr('name', 'equalto', option_name)
-         | list
-      }}
+        option_items: >-
+          {{ discourse_settings
+             | selectattr('name', 'equalto', option_name)
+             | list
+          }}
 
-    option_kv: >-
-      {{ dict(
-           option_items | map(attribute='key')
-           | zip(option_items | map(attribute='value'))
-         ) }}
+        option_kv: >-
+          {{ dict(
+               option_items | map(attribute='key')
+               | zip(option_items | map(attribute='value'))
+             ) }}
 
-    option_json_b64: "{{ option_kv | to_json | b64encode }}"
+        option_json_b64: "{{ option_kv | to_json | b64encode }}"
 
-  ansible.builtin.shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
-    "wp eval \"update_option(
-    '{{ option_name }}',
-    json_decode(
-    base64_decode('{{ option_json_b64 }}'),
-    true
-    )
-    );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
-  when: IS_STACK_HOST | bool
+      ansible.builtin.shell: >
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+        "wp eval \"update_option(
+        '{{ option_name }}',
+        json_decode(
+        base64_decode('{{ option_json_b64 }}'),
+        true
+        )
+        );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"

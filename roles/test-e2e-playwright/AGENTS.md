@@ -12,7 +12,7 @@ Changes here affect every application role that uses it.
 
 ## File-Specific Rules
 
-### `tasks/02_run_one.yml`
+### `tasks/02_run_one.yml` and `tasks/03_run_pass.yml`
 
 - You MUST NOT add new `set_fact` variables that shadow or wrap existing `TEST_E2E_PLAYWRIGHT_*` variables.
 - You MUST NOT read from role `vars/main.yml` mappings of consuming roles (e.g. `test_e2e_playwright.*`) to override runner behaviour.

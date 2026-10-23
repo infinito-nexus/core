@@ -30,7 +30,7 @@ A proxy repo that holds a cached copy serves it when its remote is unreachable, 
 
 Every apt suite exists twice, once per upstream mirror. Nexus has no group repository type for `apt` (only maven, raw, docker, yum, npm, pypi, rubygems, go and friends), so the failover lives in the frontend: a request that the primary repo answers with `502`/`503`/`504` is re-run against the `-mirror` repo, which proxies a different host. `404` deliberately does not retry, because a missing file is missing on both mirrors and apt probes for missing files often. The frontend waits at most 8 s for a primary before it re-runs the request against the mirror; the `-mirror` locations keep the global 300 s.
 
-Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache/package.sh) once the stack is healthy.
+Bootstrap is idempotent and runs from [bootstrap.sh](../../../roles/svc-cache-package/files/shell/bootstrap.sh) once the stack is healthy. It loops over `INFINITO_CACHE_UPSTREAMS` and holds no repository of its own.
 
 ### Package Cache Frontend 🔐
 
@@ -38,10 +38,10 @@ Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache
 
 Two listener layers:
 
-- HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh).
+- HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh).
 - HTTP (port 80): plain mirrors for `deb.debian.org`, `archive.ubuntu.com`, `security.ubuntu.com`, `dl-cdn.alpinelinux.org`. Used by inner-`dockerd` Dockerfile builds via `build.extra_hosts` DNS-hijack. No CA-trust required in the build container.
 
-Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts.
+Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own.
 
 ## Activation 🎚️
 
@@ -103,9 +103,11 @@ Per-variable defaults and purposes are in [compose.yml.md](../artefact/files/com
 |---|---|
 | Start the stack with caches | `make compose-up` |
 | Stop the stack | `make compose-down` |
+| Install this checkout's `cache:` declarations into the running stack | `make cache-apply` |
 | Wipe local cache state | `make clean-cache` |
-| Manually re-bootstrap Nexus repos | `bash scripts/docker/cache/package.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |
-| Manually regenerate frontend certs | `bash scripts/docker/cache/package-frontend/certs.sh` |
+| Manually re-bootstrap Nexus repos | `bash roles/svc-cache-package/files/shell/bootstrap.sh` (after `make dotenv` or sourcing `scripts/meta/env/load.sh`) |
+| Manually regenerate frontend certs | `bash roles/svc-cache-package/files/shell/certs.sh` |
+| Regenerate every derived cache file | `make dotenv` |
 | Reload nginx in the frontend | `docker exec infinito-package-cache-frontend nginx -s reload` |
 | Inspect cache hits | `docker logs -f infinito-package-cache` and `docker logs -f infinito-package-cache-frontend` |
 
@@ -115,11 +117,28 @@ Cache state persists under `/var/cache/infinito/core/cache/`. Paths are configur
 
 When a new package manager or upstream needs caching:
 
-1. Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh).
-2. If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued.
-3. Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path).
-4. Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic.
-5. If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`.
+Declare it under `cache:` in a `meta/networks.yml`, then run `make dotenv` followed by `make cache-apply`. That file is the single point of truth; the Nexus repo, the leaf cert, the nginx server block, the `extra_hosts` entries, `pip.conf`, `.npmrc` and the apt sources are all derived from it. `make dotenv` renders them, `make cache-apply` installs them into the running stack: it creates the Nexus proxy repositories, issues the frontend's leaf certificates, copies the upstream map onto the path the frontend mounts and reloads it. Recreate the checkout's runner with `make compose-up` afterwards so the new DNS hijacks reach it.
+
+Every checkout renders and applies its own map, so a branch that declares a new host serves it without waiting for a merge. The frontend mounts one map and `make cache-apply` replaces it, so whichever checkout applied last is the one it serves. Two checkouts sharing a stack therefore overwrite each other: run `make cache-apply` from the one whose declarations you need.
+
+A TLS upstream only reaches an inner image build when that build trusts the frontend's CA: the compose wrapper hands a build the plain-HTTP hosts by default and the full host list only when its Dockerfile runs `package-frontend-ca.sh` (see [svc-ai-ltengine](../../../roles/svc-ai-ltengine/files/Dockerfile) for the three lines and the two staging tasks that go with them).
+
+Put the declaration in the role that needs the upstream. An upstream no single role owns goes in [svc-cache-package](../../../roles/svc-cache-package/meta/networks.yml).
+
+```yaml
+cache:
+  repos:
+    raw-example:
+      flavor: raw
+      upstream: https://example.org/
+  hosts:
+    example.org:
+      repo: raw-example
+```
+
+A repository is proxied by Nexus. A host is additionally answered for by the frontend, so a client keeps addressing its real upstream URL. `listen: [80]` serves it over plain HTTP and issues no certificate; `paths:` maps several repositories under one host; `mirror:` on a repository names the sibling the frontend retries against on `502`, `503` or `504`; `passthrough: true` suits an upstream that hands out URLs already carrying the repository prefix.
+
+A deployed host may correct or extend any of this from its inventory under `applications.svc-cache-package.repos` and `.upstreams`; the dev stack has no inventory and uses the declarations unchanged.
 
 ## Background 📚
 

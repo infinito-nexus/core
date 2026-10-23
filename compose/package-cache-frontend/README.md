@@ -6,4 +6,4 @@ For services, activation, coverage, and operations of the local cache stack, see
 
 ## Files 📄
 
-- [upstreams.conf](upstreams.conf): nginx server-blocks. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`.
+- `upstreams.conf`: nginx server-blocks, generated from the `cache:` declarations by [render.py](../../utils/cache/render.py) and therefore untracked. HTTPS (port 443) per hostname for runner-side traffic, HTTP (port 80) for inner-`dockerd` Dockerfile builds. Bind-mounted at `/etc/nginx/conf.d/upstreams.conf`.

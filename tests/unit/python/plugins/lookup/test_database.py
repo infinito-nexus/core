@@ -44,7 +44,7 @@ class DatabaseLookupTests(unittest.TestCase):
         return lm
 
     @staticmethod
-    def _fake_get_entity_name(role_name: str) -> str:
+    def _fake_entity_name(role_name: str) -> str:
         """
         Make entity resolution deterministic for unit tests (no filesystem access).
         Mirrors the typical behavior for your role naming.
@@ -90,8 +90,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -117,8 +117,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             self.assertEqual(
                 lookup.run(["web-app-foo", "url_full"], variables=vars_)[0], ""
@@ -152,8 +152,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -185,8 +185,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             self.assertEqual(
                 lookup.run(["web-app-foo", "url_full"], variables=vars_)[0],
@@ -231,8 +231,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -268,8 +268,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -318,8 +318,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -363,8 +363,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -409,8 +409,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -435,8 +435,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
@@ -447,8 +447,8 @@ class DatabaseLookupTests(unittest.TestCase):
 
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             self.assertFalse(lookup.run(["web-app-foo", "local"], variables=vars_)[0])
 
@@ -527,8 +527,8 @@ class DatabaseLookupTests(unittest.TestCase):
         lookup = self._make_lookup(vars_)
         with patch.object(
             self.db_lookup_mod,
-            "get_entity_name",
-            side_effect=self._fake_get_entity_name,
+            "entity_name",
+            side_effect=self._fake_entity_name,
         ):
             return lookup.run(["web-app-foo"], variables=vars_)[0]
 

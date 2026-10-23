@@ -1,8 +1,10 @@
 """Injected JavaScript must still parse after ``to_one_liner`` collapses it.
 
 ``sys-front-inj-javascript`` loads a role's ``javascript.js`` or its ``.j2``
-template, runs it through ``to_one_liner`` - which strips every comment and
-newline - and inlines the result under a CSP hash. A script that parses only
+template and ``sys-front-inj-design`` loads its ``design.js`` behind the
+per-app config prelude, runs it through ``to_one_liner`` - which strips every
+comment and newline - and inlines the result under a CSP hash. A script that
+parses only
 before that collapse is served broken *with a matching hash*: the browser
 rejects nothing and executes nothing, so the page loses its injection without
 a single error anywhere in the deploy. Parsing the collapsed form is the only
@@ -33,6 +35,9 @@ PATTERNS = (
     "*/templates/javascript.js.j2",
     "*/templates/javascript.js",
     "*/files/javascript/javascript.js",
+    "*/templates/design.js.j2",
+    "*/templates/design.js",
+    "*/templates/js/design.js.j2",
 )
 EXPRESSION = re.compile(r"\{\{.*?\}\}", re.DOTALL)
 STATEMENT = re.compile(r"\{%.*?%\}", re.DOTALL)

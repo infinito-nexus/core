@@ -1,13 +1,14 @@
 """Derive a Node.js ``--max-old-space-size`` (MB) from a service's mem_limit.
 
 Lookup form — the app config is resolved internally, so callers no longer pipe
-``lookup('applications')`` in:
+``lookup('applications')`` in::
 
     {{ lookup('node_max_old_space_size', application_id, service_name) }}
     {{ lookup('node_max_old_space_size', application_id, service_name,
               pct=0.125, min_mb=256, hardcap_mb=1024) }}
 
 Heuristics (defaults):
+
   - candidate = 35% of mem_limit
   - min       = 768 MB (required minimum)
   - cap       = min(3072 MB, 60% of mem_limit)

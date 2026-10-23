@@ -1,0 +1,26 @@
+---
+application_id: "svc-ai-nllb-engine"
+entity_name: "{{ application_id | entity_name }}"
+
+NLLB_SERVICE: "{{ entity_name }}"
+NLLB_CONTAINER: "{{ lookup('config', application_id, 'services.nllb-engine.name') }}"
+NLLB_PORT: "{{ lookup('config', application_id, 'services.nllb-engine.ports.internal.http') }}"
+
+NLLB_BASE_IMAGE: "{{ lookup('config', application_id, 'services.nllb-engine.image') }}"
+NLLB_BASE_VERSION: "{{ lookup('config', application_id, 'services.nllb-engine.version') }}"
+
+NLLB_MODEL: "{{ lookup('config', application_id, 'services.nllb-engine.model') }}"
+NLLB_BEAMS: "{{ lookup('config', application_id, 'services.nllb-engine.beams') }}"
+NLLB_MAX_INPUT_TOKENS: "{{ lookup('config', application_id, 'services.nllb-engine.max_input_tokens') }}"
+NLLB_MAX_OUTPUT_TOKENS: "{{ lookup('config', application_id, 'services.nllb-engine.max_output_tokens') }}"
+
+NLLB_GPU: "{{ lookup('gpu', application_id, 'nllb-engine') }}"
+NLLB_DEVICE: "{{ 'cuda' if NLLB_GPU | bool else 'cpu' }}"
+NLLB_IMAGE_VERSION: "{{ NLLB_BASE_VERSION ~ ('-cuda' if NLLB_GPU | bool else '') }}"
+NLLB_THREADS: "{{ [(lookup('cpus', application_id, 'nllb-engine') | float) | round(0, 'ceil') | int, 1] | max }}"
+
+NLLB_MODELS_TARGET: "{{ lookup('volume', application_id, 'nllb_models').target }}"
+
+NLLB_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+NLLB_CACHE_CA_FILE: /opt/package-frontend-ca.crt
+NLLB_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

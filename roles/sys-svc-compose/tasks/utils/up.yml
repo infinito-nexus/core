@@ -23,23 +23,24 @@
     - compose_mode == 'compose'
   notify: compose-up
 
-- name: "🔍 Check for a compose up a failed run left pending"
-  ansible.builtin.stat:
-    path: "{{ COMPOSE_UP_PENDING_MARKER }}"
-  register: compose_up_pending
+- name: "🔁 Resume a compose up that a failed run left pending"
   when: compose_mode == 'compose'
+  block:
+    - name: "🔍 Check for a compose up a failed run left pending"
+      ansible.builtin.stat:
+        path: "{{ COMPOSE_UP_PENDING_MARKER }}"
+      register: compose_up_pending
 
-- name: "🔔 Resume the compose up a failed run left pending"
-  ansible.builtin.debug:
-    msg: "{{ COMPOSE_UP_PENDING_MARKER }} is still present, so the last compose up never completed"
-  changed_when: true
-  notify:
-    - compose-build
-    - compose-up
-  when:
-    - compose_mode == 'compose'
-    - compose_up_pending.stat.exists
-    - compose_up_marker is not changed
+    - name: "🔔 Resume the compose up a failed run left pending"
+      ansible.builtin.debug:
+        msg: "{{ COMPOSE_UP_PENDING_MARKER }} is still present, so the last compose up never completed"
+      changed_when: true
+      notify:
+        - compose-build
+        - compose-up
+      when:
+        - compose_up_pending.stat.exists
+        - compose_up_marker is not changed
 
 - name: "🔔 Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"
   ansible.builtin.debug:
@@ -48,14 +49,15 @@
   when: compose_mode == 'swarm'
   notify: swarm-deploy
 
-- name: "🔄 Flush compose up handlers for '{{ application_id }}'"
-  meta: flush_handlers
+- name: "🏁 Settle the compose deployment of '{{ application_id }}'"
   when: compose_handlers_flush | bool
+  block:
+    - name: "🔄 Flush compose up handlers for '{{ application_id }}'"
+      meta: flush_handlers
 
-- name: "🚀 Post-deploy steps for '{{ application_id }}'"
-  ansible.builtin.include_tasks:
-    file: post_deploy.yml
-    apply:
-      delegate_to: "{{ STACK_HOST }}"
-      run_once: true
-  when: compose_handlers_flush | bool
+    - name: "🚀 Post-deploy steps for '{{ application_id }}'"
+      ansible.builtin.include_tasks:
+        file: post_deploy.yml
+        apply:
+          delegate_to: "{{ STACK_HOST }}"
+          run_once: true

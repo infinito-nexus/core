@@ -16,6 +16,9 @@ _ldap_server_port: "{{ lookup('config', 'svc-db-openldap', 'services.openldap.po
 _ldap_name: "{{ lookup('config','svc-db-openldap', 'services.openldap.name') }}"
 _ldap_domain: "{{ DOMAIN_PRIMARY }}" # LDAP is jsut listening to a port not to a dedicated domain, so primary domain should be sufficient
 _ldap_user_id: "uid"
+_ldap_ou_users: "ou=users"
+_ldap_ou_groups: "ou=groups"
+_ldap_ou_roles: "ou=roles"
 _ldap_filters_users_all: "(|(objectclass=inetOrgPerson))"
 
 LDAP:
@@ -27,9 +30,13 @@ LDAP:
       CONFIGURATION: "cn={{ lookup('users', 'administrator').username }},cn=config"
 
     OU:
-      USERS: "ou=users,{{ LDAP_DN_BASE }}"
-      GROUPS: "ou=groups,{{ LDAP_DN_BASE }}"
-      ROLES: "ou=roles,{{ LDAP_DN_BASE }}"
+      USERS: "{{ _ldap_ou_users }},{{ LDAP_DN_BASE }}"
+      GROUPS: "{{ _ldap_ou_groups }},{{ LDAP_DN_BASE }}"
+      ROLES: "{{ _ldap_ou_roles }},{{ LDAP_DN_BASE }}"
+  OU:
+    USERS: "{{ _ldap_ou_users }}"
+    GROUPS: "{{ _ldap_ou_groups }}"
+    ROLES: "{{ _ldap_ou_roles }}"
 
   BIND_CREDENTIAL: "{{ lookup('config','svc-db-openldap', 'secrets.credentials.administrator_database_password') }}"
   SERVER:

@@ -1,0 +1,3 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+STALWART_RECOVERY_ADMIN={{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | dotenv_quote }}

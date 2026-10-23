@@ -26,6 +26,10 @@
     state: directory
     mode: "0755"
 
+- name: "⬆️ Step an older schema through the majors before the pinned one"
+  include_tasks: upgrade/main.yml
+  when: IS_COMPOSE_MODE
+
 - name: 🚿 flush docker service
   meta: flush_handlers
 
@@ -38,3 +42,7 @@
 
 - name: 📁 Create OpenProject Administrator
   include_tasks: 04_admin.yml
+
+- name: "🧩 Provision the OpenProject addons"
+  include_tasks: 05_addons.yml
+  when: OPENPROJECT_ADDONS_ENABLED | length > 0

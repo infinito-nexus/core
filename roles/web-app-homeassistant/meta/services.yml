@@ -1,6 +1,9 @@
 ---
 # nocheck: playwright-service-flag
 homeassistant:
+  healthcheck:
+    flavor: curl
+    path: manifest.json
   modes:
     compose:
       enabled: true
@@ -46,6 +49,16 @@ dashboard:
   enabled: "{{ 'web-app-dashboard' in group_names }}"
   shared: "{{ 'web-app-dashboard' in group_names }}"
 
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Smart Home"
+  slots:
+    logo:
+      width: 192
+      height: 192
+
 # nocheck: playwright-service-flag
 prometheus:
   bond: 1
@@ -84,3 +97,8 @@ flowise:
   bond: 0.5
   enabled: "{{ 'web-app-flowise' in group_names }}"
   shared: "{{ 'web-app-flowise' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

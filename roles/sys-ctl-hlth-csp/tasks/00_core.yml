@@ -43,14 +43,11 @@
       {{
         [
           system_service_script_exec,
-          '--nginx-config-dir=' ~ (
-            [
-              lookup('nginx','directories.configuration.servers'),
-              lookup('tls', DOMAIN_PRIMARY, 'protocols.web')
-            ] | path_join
-          ),
+          '--nginx-config-dir=' ~ lookup('nginx','directories.configuration.servers'),
+          '--proxy-suffix=' ~ ('tor' | network_suffix),
           '--image=' ~ HEALTH_CSP_IMAGE,
           '--short',
+          '--clearnet-timeout=' ~ HEALTH_CSP_CLEARNET_TIMEOUT_MS,
           (HEALTH_CSP_ALWAYS_PULL | bool) | ternary('--always-pull', ''),
           (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | length > 0) | ternary(
             '--ignore-network-blocks-from ' ~ (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | join(' ')),
@@ -66,7 +63,9 @@
           ),
           (lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0) | ternary(
             '--tor-proxy=socks5://' ~ lookup('tor_socks')
-            ~ ' --onion-timeout=' ~ HEALTH_CSP_ONION_TIMEOUT_MS,
+            ~ ' --onion-timeout=' ~ HEALTH_CSP_ONION_TIMEOUT_MS
+            ~ ' --tor-proxy-bypass=' ~ (HEALTH_CSP_TOR_PROXY_BYPASS | join(','))
+            ~ ' --tor-confine-allow=' ~ (HEALTH_CSP_TOR_CONFINE_ALLOW | join(',')),
             ''
           )
         ]

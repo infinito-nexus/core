@@ -51,7 +51,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
     def test_all_web_roles_have_prometheus_service(self):
         """Every web-app-* and web-svc-* role must have services.prometheus."""
         configs = self._web_role_configs()
-        self.assertTrue(configs, "No web-app-*/web-svc-* config/main.yml files found")
+        self.assertTrue(configs, "No web-app-*/web-svc-* meta/services.yml files found")
 
         errors = []
         for file_path in configs:
@@ -130,7 +130,7 @@ class TestPrometheusServicePresence(unittest.TestCase):
             "prom/blackbox-exporter:latest",
             content,
             "compose.yml.j2 must not use :latest for blackbox-exporter — pin to a version "
-            "via config/main.yml (services.blackbox-exporter.version)",
+            "via meta/services.yml (services.blackbox-exporter.version)",
         )
         self.assertIn(
             "lookup('container_image', application_id, 'blackbox-exporter')",

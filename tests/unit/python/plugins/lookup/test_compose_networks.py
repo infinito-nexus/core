@@ -49,6 +49,8 @@ class TestComposeNetworksLookup(unittest.TestCase):
         vars_ = {
             "application_id": "web-app-baserow",
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
             "swarm": {"network": {"encryption": False}},
         }
         lm = _make_lookup(vars_)
@@ -78,6 +80,8 @@ class TestComposeNetworksLookup(unittest.TestCase):
         vars_ = {
             "application_id": "web-app-x",
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
         }
         lm = _make_lookup(vars_)
 
@@ -103,6 +107,8 @@ class TestComposeNetworksLookup(unittest.TestCase):
         vars_ = {
             "application_id": "web-app-x",
             "DEPLOYMENT_MODE": "swarm",
+            "IS_COMPOSE_MODE": False,
+            "IS_SWARM_MODE": True,
         }
         lm = _make_lookup(vars_)
 

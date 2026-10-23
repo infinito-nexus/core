@@ -20,7 +20,9 @@
   loop:
     - svc-swarm-node
     - svc-storage-nfs-client
-  when: "'svc-swarm-node' in group_names"
+  when:
+    - "'svc-swarm-node' in group_names"
+    - item != 'svc-storage-nfs-client' or 'svc-storage-nfs-client' in group_names
 
 - name: "📂 Include server roles"
   include_tasks: ./tasks/utils/setup/group.yml

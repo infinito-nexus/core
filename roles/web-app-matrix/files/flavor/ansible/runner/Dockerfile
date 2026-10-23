@@ -27,6 +27,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       iptables \
       openssh-client \
       python3-venv \
+      sudo \
       systemd \
       systemd-sysv \
  && rm -rf /var/lib/apt/lists/*
@@ -49,6 +50,7 @@ RUN systemctl mask \
       kmod-static-nodes.service \
       console-getty.service \
       getty.target \
+      getty-static.service \
       getty@.service
 
 RUN python3 -m venv "$VIRTUAL_ENV" \

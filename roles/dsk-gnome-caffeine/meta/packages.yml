@@ -1,0 +1,9 @@
+---
+caffeine:
+  Archlinux:
+    source: aur
+    names:
+      - caffeine-ng
+  Debian:
+    - caffeine
+  RedHat: [] # nocheck: empty - Fedora and EPEL package caffeine only as the GNOME Shell extension, gnome-shell-extension-caffeine, which ships no binary for the package manager to install or for the autostart entry to launch

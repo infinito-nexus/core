@@ -8,20 +8,49 @@
 
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
-const { gotoOnion } = require("./personas");
+const { decodeDotenvJsonList, gotoOnion } = require("./personas");
 
-const dashboardTargetRoles = (() => {
-  const raw = process.env.DASHBOARD_TARGET_ROLES_JSON || "[]";
+const dashboardTargetRoles = decodeDotenvJsonList(
+  process.env.DASHBOARD_TARGET_ROLES_JSON,
+  "DASHBOARD_TARGET_ROLES_JSON"
+);
+// docs.<onion> ends with s.<onion>, so `a[href*="<domain>"]` picks the
+// Documentation card for the web-app-yourls tile.
+function tileSelector(canonicalDomain) {
+  return ["http", "https"]
+    .flatMap((scheme) => {
+      const origin = `${scheme}://${canonicalDomain}`;
+      return [
+        `a[href="${origin}"]:visible`,
+        `a[href^="${origin}/"]:visible`,
+        `a[href^="${origin}?"]:visible`,
+        `a[href^="${origin}#"]:visible`,
+      ];
+    })
+    .join(", ");
+}
+
+/**
+ * Args:
+ *   rawUrl: a URL, possibly percent-encoded inside a `?iframe=` parameter.
+ *   canonicalDomain: the host the URL must name.
+ * Returns: true when that host carries the URL's own path, or the path of a
+ *   URL nested in it (a `?iframe=` value, an SSO `redirect_uri`). A host that
+ *   only ends with canonicalDomain does not match.
+ */
+function referencesHost(rawUrl, canonicalDomain) {
+  let candidate = rawUrl || "";
   try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    candidate = decodeURIComponent(candidate);
   } catch {
-    return [];
+    candidate = rawUrl || "";
   }
-})();
+  const escaped = canonicalDomain.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`//${escaped}(?=[/?#&]|$)`).test(candidate);
+}
 
 async function findVisibleTile(page, canonicalDomain) {
-  const tile = page.locator(`a[href*="${canonicalDomain}"]:visible`).first();
+  const tile = page.locator(tileSelector(canonicalDomain)).first();
   const visible = await tile.isVisible().catch(() => false);
 
   if (!visible) {
@@ -49,22 +78,19 @@ async function assertTileLoadsInIframe(page, target) {
 
   const href = await tile.getAttribute("href");
   expect(href, `tile for ${target.id} MUST carry an href`).toBeTruthy();
-  expect(href, `tile href MUST point at ${target.canonical_domain}`).toContain(
-    target.canonical_domain
-  );
+  expect(
+    referencesHost(href, target.canonical_domain),
+    `tile href MUST point at ${target.canonical_domain}, got ${href}`
+  ).toBe(true);
 
   await tile.click();
 
-  // The dashboard's iframe.js listener updates the outer URL's `?iframe=`
-  // query param via the iframeLocationChange postMessage from the embedded
-  // app — this confirms the click triggered an in-page embed, not a
-  // top-level navigation.
   await expect
-    .poll(() => page.url(), {
+    .poll(() => referencesHost(page.url(), target.canonical_domain), {
       timeout: resolveTimeout(30_000),
       message: `Expected dashboard URL to embed ${target.canonical_domain} via ?iframe=... after clicking the ${target.id} tile`,
     })
-    .toContain(target.canonical_domain);
+    .toBe(true);
 
   const iframe = page.locator("#main iframe").first();
   await expect(
@@ -74,9 +100,9 @@ async function assertTileLoadsInIframe(page, target) {
 
   const iframeSrc = await iframe.getAttribute("src");
   expect(
-    iframeSrc || "",
+    referencesHost(iframeSrc, target.canonical_domain),
     `Expected #main iframe src to point at ${target.canonical_domain}, got ${iframeSrc}`
-  ).toContain(target.canonical_domain);
+  ).toBe(true);
 }
 
 async function assertTileNavigatesTopLevel(page, context, target) {
@@ -84,9 +110,10 @@ async function assertTileNavigatesTopLevel(page, context, target) {
 
   const href = await tile.getAttribute("href");
   expect(href, `tile for ${target.id} MUST carry an href`).toBeTruthy();
-  expect(href, `tile href MUST point at ${target.canonical_domain}`).toContain(
-    target.canonical_domain
-  );
+  expect(
+    referencesHost(href, target.canonical_domain),
+    `tile href MUST point at ${target.canonical_domain}, got ${href}`
+  ).toBe(true);
 
   const framingProbe = await page.request.get(
     target.canonical_url || `https://${target.canonical_domain}`,
@@ -122,19 +149,19 @@ async function assertTileNavigatesTopLevel(page, context, target) {
       .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) })
       .catch(() => {});
     expect(
-      popup.url(),
-      `Expected new-tab URL to contain ${target.canonical_domain}, got ${popup.url()}`
-    ).toContain(target.canonical_domain);
+      referencesHost(popup.url(), target.canonical_domain),
+      `Expected new-tab URL to address ${target.canonical_domain}, got ${popup.url()}`
+    ).toBe(true);
     await popup.close();
     return;
   }
 
   await expect
-    .poll(() => page.url(), {
+    .poll(() => referencesHost(page.url(), target.canonical_domain), {
       timeout: resolveTimeout(30_000),
       message: `Expected top-level navigation to ${target.canonical_domain} after clicking the ${target.id} tile`,
     })
-    .toContain(target.canonical_domain);
+    .toBe(true);
 
   await expect(
     page.locator("#main iframe"),
@@ -173,9 +200,9 @@ async function assertTabButtonOpensNewTab(page, context, target) {
 
   await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
   expect(
-    popup.url(),
-    `Expected popup tab URL to contain ${target.canonical_domain}, got ${popup.url()}`
-  ).toContain(target.canonical_domain);
+    referencesHost(popup.url(), target.canonical_domain),
+    `Expected popup tab URL to address ${target.canonical_domain}, got ${popup.url()}`
+  ).toBe(true);
   await popup.close();
 }
 

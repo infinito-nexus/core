@@ -21,7 +21,7 @@ if [[ "${MCP_TEST_ENABLED}" != "true" ]]; then
 fi
 
 mapfile -t servers < <(printf '%s' "${MCP_SERVER_IDS}" |
-    python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)))')
+    python3 -c 'import json,sys; [print(server) for server in json.load(sys.stdin)]')
 
 if [[ ${#servers[@]} -eq 0 ]]; then
     echo "[FATAL] MCP is on but no server was discovered; a client with an" \

@@ -36,6 +36,17 @@ echo "  VERSION_TAG = ${VERSION_TAG}"
 echo "  INFINITO_DISTROS     = ${INFINITO_DISTROS}"
 echo "  PUBLISH_LATEST = ${PUBLISH_LATEST}"
 
+assert_architectures() {
+	local ref="$1"
+	local missing
+
+	missing="$(scripts/meta/resolve/missing/architectures.sh "${ref}")"
+	[[ -z "${missing}" ]] || {
+		echo "ERROR: ${ref} does not serve: ${missing}"
+		exit 1
+	}
+}
+
 retag_set() {
 	local src="$1"
 	local dst_ver="$2"
@@ -54,6 +65,11 @@ retag_set() {
 	docker buildx imagetools create \
 		"${args[@]}" \
 		"${src}"
+
+	assert_architectures "${dst_ver}"
+	if [[ -n "${dst_latest}" ]]; then
+		assert_architectures "${dst_latest}"
+	fi
 }
 
 for distro in ${INFINITO_DISTROS}; do

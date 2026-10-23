@@ -16,7 +16,7 @@ from typing import Any
 from humanfriendly import parse_size
 
 from utils.roles.applications.topics import apply_topic
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 _RESOURCE_KEYS = ("mem_reservation", "mem_limit", "pids_limit", "cpus")
 _CONTAINER_KEYS = ("image", "name", "version", "container")
@@ -76,13 +76,30 @@ def _parse_bond(value: Any) -> float | None:
         return None
 
 
-def _is_enabled(service_conf: dict[str, Any], default_enabled: bool) -> bool:
+def _is_enabled(
+    service_conf: dict[str, Any],
+    default_enabled: bool,
+    dynamic_enabled: bool = True,
+) -> bool:
+    """Whether a service counts as running.
+
+    Args:
+        service_conf: the service's merged configuration.
+        default_enabled: what an absent ``enabled`` key means.
+        dynamic_enabled: how to read an ``enabled`` that is a template rather
+            than a literal. True counts it, which is the safe reading wherever
+            an under-count would hide a service. A caller that scopes itself to
+            one variant passes False, because a variant that means to run such
+            a service pins it literally: the bond guard requires exactly that.
+    """
     if "enabled" not in service_conf:
         return default_enabled
     raw = service_conf.get("enabled")
     if isinstance(raw, bool):
         return raw
     text = str(raw).strip().lower()
+    if "{{" in text:
+        return dynamic_enabled
     return text not in ("false", "0", "no", "off")
 
 
@@ -138,6 +155,7 @@ def collect_role_resources(
     max_depth: int = 0,
     dedup: bool = True,
     loaded: set | None = None,
+    dynamic_enabled: bool = True,
 ) -> None:
     if loaded is None:
         loaded = set()
@@ -151,7 +169,7 @@ def collect_role_resources(
 
     config = _as_mapping(applications[role_name])
     services = _as_mapping(config.get("services"))
-    entity_name = get_entity_name(role_name)
+    entity = entity_name(role_name)
 
     def add(service_key: str, service_conf: dict[str, Any]) -> None:
         if dedup and service_key in loaded:
@@ -159,24 +177,26 @@ def collect_role_resources(
         loaded.add(service_key)
         rows.append(_row_for_service(role_name, service_key, service_conf, depth))
 
-    if entity_name and entity_name in services:
-        add(entity_name, _as_mapping(services.get(entity_name)))
+    if entity and entity in services:
+        add(entity, _as_mapping(services.get(entity)))
     else:
         warnings.append(
-            f"role '{role_name}' has no services.{entity_name or '<entity>'} entry"
+            f"role '{role_name}' has no services.{entity or '<entity>'} entry"
         )
 
     shared_dependencies: list[str] = []
     nested_maps: dict[str, dict[str, Any]] = {}
     for service_key, raw_service_conf in services.items():
-        if service_key == entity_name:
+        if service_key == entity:
             continue
         service_conf = _as_mapping(raw_service_conf)
         if not service_conf:
             continue
 
         if not _is_enabled(
-            service_conf, default_enabled=_looks_like_container(service_conf)
+            service_conf,
+            default_enabled=_looks_like_container(service_conf),
+            dynamic_enabled=dynamic_enabled,
         ):
             continue
 
@@ -220,6 +240,7 @@ def collect_role_resources(
             max_depth=max_depth,
             dedup=dedup,
             loaded=loaded,
+            dynamic_enabled=dynamic_enabled,
         )
 
 

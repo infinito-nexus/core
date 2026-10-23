@@ -23,6 +23,8 @@ set -o pipefail
 : "${PAYLOAD_FILE:?PAYLOAD_FILE is required}"
 [ -r "$PAYLOAD_FILE" ] || { echo "PAYLOAD_FILE not readable: $PAYLOAD_FILE" >&2; exit 1; }
 
+exec </dev/null
+
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh get components \
   -r "$KC_REALM" \
   -q "parentId=$LDAP_COMPONENT_ID" \

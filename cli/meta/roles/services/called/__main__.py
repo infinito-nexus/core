@@ -26,7 +26,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--apps",
         required=True,
-        help="Comma-separated deployed role ids (e.g. `web-app-yourls,web-svc-css`).",
+        help="Comma-separated deployed role ids (e.g. `web-app-yourls,web-svc-design`).",
     )
     return p
 

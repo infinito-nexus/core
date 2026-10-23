@@ -55,6 +55,58 @@ def tasks_of(name: str) -> list[dict]:
     return load_yaml_any(str(TASKS_DIR / name))
 
 
+def leaf_tasks_of(name: str) -> list[dict]:
+    """Leaf tasks of a file, each carrying the conditions it inherits.
+
+    A guard shared by consecutive siblings lives on a `block:`, so a leaf's
+    own `when:` is only part of what gates it. Ansible prepends the parent's
+    conditions, and so does this.
+
+    Returns: leaves whose `when` is the accumulated condition list, absent
+    when nothing gates the task.
+    """
+
+    def walk(tasks: list[dict], inherited: list[str]) -> list[dict]:
+        leaves: list[dict] = []
+        for task in tasks or []:
+            own = task.get("when", [])
+            own = [own] if isinstance(own, str) else list(own)
+            conditions = inherited + own
+            if isinstance(task.get("block"), list):
+                leaves.extend(walk(task["block"], conditions))
+                continue
+            leaf = {k: v for k, v in task.items() if k != "when"}
+            if conditions:
+                leaf["when"] = conditions
+            leaves.append(leaf)
+        return leaves
+
+    return walk(load_yaml_any(str(TASKS_DIR / name)), [])
+
+
+def guarded_blocks_of(name: str) -> list[dict]:
+    """Every `block:` task of a file, outermost first.
+
+    Returns: each block with `when` replaced by the conditions that actually
+    gate it, its own plus every ancestor's, so a guard hoisted onto a parent
+    still reads as guarding the block below it.
+    """
+
+    def walk(tasks: list[dict], inherited: list[str]) -> list[dict]:
+        found: list[dict] = []
+        for task in tasks or []:
+            if not isinstance(task.get("block"), list):
+                continue
+            own = task.get("when", [])
+            own = [own] if isinstance(own, str) else list(own)
+            conditions = inherited + own
+            found.append({**task, "when": conditions})
+            found.extend(walk(task["block"], conditions))
+        return found
+
+    return walk(load_yaml_any(str(TASKS_DIR / name)), [])
+
+
 class TestWhichCredentialsRotate(unittest.TestCase):
     """The seal key survives a deploy; the AppRole does not.
 
@@ -151,7 +203,7 @@ class TestAppliedStateIsReadBeforeTheConfigIsRendered(unittest.TestCase):
 
 class TestAppRoleLoginToleratesRotation(unittest.TestCase):
     def setUp(self):
-        self.tasks = tasks_of("01_init.yml")
+        self.tasks = leaf_tasks_of("01_init.yml")
 
     def test_the_inventory_login_does_not_abort_the_play(self):
         login = next(
@@ -225,7 +277,7 @@ class TestTheSecretIdSwapIsGuarded(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tasks = tasks_of("06_rotate.yml")
+        self.tasks = leaf_tasks_of("06_rotate.yml")
 
     def _guarded(self, fragment: str) -> dict:
         return next(
@@ -236,12 +288,12 @@ class TestTheSecretIdSwapIsGuarded(unittest.TestCase):
 
     def test_the_new_secret_id_is_registered_only_while_rotating(self):
         task = self._guarded("custom-secret-id")
-        self.assertEqual(task["when"], "OPENBAO_SECRET_ID_ROTATING | bool")
+        self.assertEqual(task["when"], ["OPENBAO_SECRET_ID_ROTATING | bool"])
         self.assertIn("OPENBAO_APPROLE_SECRET_ID", task["args"]["stdin"])
 
     def test_the_previous_secret_id_is_destroyed_while_rotating(self):
         task = self._guarded("secret-id/destroy")
-        self.assertEqual(task["when"], "OPENBAO_SECRET_ID_ROTATING | bool")
+        self.assertEqual(task["when"], ["OPENBAO_SECRET_ID_ROTATING | bool"])
         self.assertIn("OPENBAO_SECRET_ID_REGISTERED", task["args"]["stdin"])
 
     def test_the_role_id_is_re_pinned_unconditionally(self):
@@ -262,6 +314,16 @@ class TestTheRecoveryKeyIsKeptAndUsable(unittest.TestCase):
 
     def setUp(self):
         self.tasks = tasks_of("01_init.yml")
+
+    def _recovery_block(self) -> dict:
+        return next(
+            block
+            for block in guarded_blocks_of("01_init.yml")
+            if any(
+                child.get("register") == "openbao_approle_login_recovered"
+                for child in block["block"]
+            )
+        )
 
     def _init_block(self) -> list[dict]:
         return next(
@@ -297,12 +359,7 @@ class TestTheRecoveryKeyIsKeptAndUsable(unittest.TestCase):
         self.assertLess(load, login)
 
     def test_recovery_runs_only_when_both_logins_failed_and_a_key_exists(self):
-        block = next(
-            task
-            for task in self.tasks
-            if "openbao_approle_login_recovered" in str(task)
-        )
-        conditions = " ".join(block["when"])
+        conditions = " ".join(self._recovery_block()["when"])
         self.assertIn("openbao_approle_login.rc != 0", conditions)
         self.assertIn("openbao_approle_login_previous.rc", conditions)
         self.assertIn("OPENBAO_RECOVERY_KEY", conditions)
@@ -313,14 +370,9 @@ class TestTheRecoveryKeyIsKeptAndUsable(unittest.TestCase):
         02_auth.yml re-pins both halves to the inventory values, so the login
         that proves recovery worked has to use those, not the applied ones.
         """
-        block = next(
-            task
-            for task in self.tasks
-            if "openbao_approle_login_recovered" in str(task)
-        )
         login = next(
             task
-            for task in block["block"]
+            for task in self._recovery_block()["block"]
             if task.get("register") == "openbao_approle_login_recovered"
         )
         self.assertIn("OPENBAO_APPROLE_ROLE_ID", login["ansible.builtin.shell"])

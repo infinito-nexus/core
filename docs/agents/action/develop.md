@@ -12,7 +12,7 @@
 ## New Apps
 
 - You MUST use [CONTRIBUTING.md](../../../CONTRIBUTING.md) as the SPOT for the general development workflow, testing, review, and the code and development guides.
-- You MUST treat the matching Pull Request template described in [Pull Request Templates](../../contributing/artefact/git/pull-request.md) and stored in [PULL_REQUEST_TEMPLATE](../../../.github/PULL_REQUEST_TEMPLATE) as the SPOT for requirements, file checks, validation expectations, and the Definition of Done.
+- You MUST treat the matching Pull Request template described in [Pull Request Templates](../../contributing/artefact/git/pull-request.md) and stored in `.github/PULL_REQUEST_TEMPLATE` as the SPOT for requirements, file checks, validation expectations, and the Definition of Done.
 - You MUST read [Role `style.css`](../files/role/style.css.md) BEFORE you implement role-local CSS so you can see how CSS should be implemented before you add or rewrite overrides.
 - You MUST read [Role `javascript.js`](../files/role/javascript.js.md) BEFORE you implement role-local JavaScript so you can see how browser-side behavior should be implemented before you add or rewrite injected scripts.
 - You MUST read [Role `playwright.env.j2`](../files/role/playwright.env.j2.md) BEFORE you implement role-local Playwright environment templates so the rendered test inputs match the supported user journey.

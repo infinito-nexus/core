@@ -3,13 +3,15 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ item }}"
+    name: "{{ dependency_role }}"
   loop:
     - sys-svc-container
     - sys-lock
     - user-backup
     - sys-ctl-alm-compose
     - sys-ctl-cln-bkps
+  loop_control:
+    loop_var: dependency_role
 
 - include_tasks: 01_install.yml
   when: backup_docker_to_local_folder is not defined

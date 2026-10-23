@@ -1,11 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceEnabled } = require("../service-gating");
 const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon ai-engine: WordPress answers a prompt through the in-cluster LiteLLM gateway", async ({ browser }) => {
   skipUnlessAddonEnabled("ai-engine");
+  skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(180_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });

@@ -6,6 +6,7 @@ csp:
       categories: [web]
     swarm:
       categories: [web]
+# nocheck: image-healthcheck  crawler run as `container run --rm` from a systemd timer, it exits; the role renders no compose service to carry a probe
 csp-checker:
   image: ghcr.io/kevinveenbirkenbach/csp-checker
   version: 3.1.0

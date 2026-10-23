@@ -67,7 +67,6 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
     print(f"backup root:          {backups_dir}")
     print(f"backup dir:           {general_backup_machine_dir}")
 
-    # Exception: the remote command must byte-match the ssh-wrapper.sh allowlist arm; any drift falls through to its reject echo and corrupts the session.
     remote_backup_types = run_command(
         f'ssh {SSH_OPTS} "{remote_host}" '
         f'"find {general_backup_machine_dir} -maxdepth 1 -type d -execdir basename {{}} ;"'

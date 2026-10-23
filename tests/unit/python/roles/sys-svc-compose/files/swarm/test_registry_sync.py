@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,7 +30,13 @@ class TestSwarmRegistrySync(unittest.TestCase):
         )
 
     def _sync(
-        self, services: dict, *, prefix: str = PREFIX, manifest=lambda img: False
+        self,
+        services: dict,
+        *,
+        prefix: str = PREFIX,
+        manifest=lambda img: False,
+        image_id: str = "sha256:new",
+        pushed: dict | None = None,
     ):
         """Run sync() against a temp compose with docker mocked out; return the
         list of docker argv lists the script issued."""
@@ -42,9 +49,12 @@ class TestSwarmRegistrySync(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             cf = Path(td) / "compose.yml"
             dump_yaml(cf, {"services": services})
+            if pushed is not None:
+                (Path(td) / ".pushed-images.json").write_text(json.dumps(pushed))
             with (
                 patch.object(self.m, "run", side_effect=fake_run),
                 patch.object(self.m, "manifest_exists", side_effect=manifest),
+                patch.object(self.m, "local_image_id", return_value=image_id),
             ):
                 rc = self.m.sync(compose_file=cf, prefix=prefix)
         self.assertEqual(rc, 0)
@@ -100,6 +110,24 @@ class TestSwarmRegistrySync(unittest.TestCase):
         calls = self._sync({"web": {"image": img}}, manifest=lambda i: True)
         self.assertNotIn(["docker", "pull", "nginx:1.25"], calls)
         self.assertNotIn(["docker", "push", img], calls)
+
+    def test_a_built_image_is_pushed_only_when_its_id_changed(self) -> None:
+        img = f"{PREFIX}mattermost_custom:13.7-slim"
+        services = {"mattermost": {"build": {"context": "."}, "image": img}}
+        push = ["docker", "push", img]
+        for pushed, in_registry, expected in (
+            ({img: "sha256:old"}, True, True),
+            ({img: "sha256:new"}, True, False),
+            ({img: "sha256:new"}, False, True),
+            ({}, True, True),
+        ):
+            with self.subTest(pushed=pushed, in_registry=in_registry):
+                calls = self._sync(
+                    services,
+                    manifest=lambda image, found=in_registry: found,
+                    pushed=pushed,
+                )
+                self.assertEqual(push in calls, expected)
 
     def test_main_empty_prefix_short_circuits(self) -> None:
         """Compose mode passes an empty --registry-prefix; main() returns early

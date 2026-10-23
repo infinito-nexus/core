@@ -1,0 +1,12 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
+
+- name: "🔑 Hand the gateway the token it reads the memory with"
+  ansible.builtin.include_tasks: utils/token.yml
+  when: IS_STACK_HOST | bool

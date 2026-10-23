@@ -50,6 +50,8 @@ defaults_oidc:
 
   # Keycloak's own built-in admin realm/client (password-grant Admin REST API automation), distinct from the app's own CLIENT.REALM/CLIENT.ID above.
   ADMIN:
+    USERNAME: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
+    PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     REALM: "master"
     CLI_CLIENT_ID: "admin-cli"
 

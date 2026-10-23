@@ -31,21 +31,8 @@ This role:
 - Optionally waits until the application responds with HTTP `200` or `302`
 - Injects CA trust automatically for `TLS_MODE=self_signed` (via `CA_TRUST.*`), so Playwright accepts self-signed cert chains
 - Runs Playwright in Docker with stable browser settings (`--ipc=host`, `--shm-size=1g`)
-- Stores per-role reports/artifacts under `TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR/<application_id>`
-
-## Cosmos
-
-The diagram places Test: E2E Playwright Runner in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [test-e2e-playwright 💻]
-        svc_test_e2e_playwright["test-e2e-playwright"]
-        svc_playwright["playwright"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+- Runs the suite once per role on one network it is served on (`lookup('network_siblings', ...)`), picked at random when there are several and kept for the flake retry, with the `.env` rendered for that network's vhost
+- Stores per-role reports/artifacts under `TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR/<application_id>`, or under `<application_id>+<network>` when the pick is not the canonical network
 
 ## Features
 
@@ -83,8 +70,9 @@ This role ships central Playwright defaults:
 
 - `templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`
 - `files/playwright.config.js`: shared Playwright configuration
+- `files/network-leak.spec.js`: guest persona and cross-network leak check, staged next to every role spec and skipped unless `PLAYWRIGHT_NETWORK_LEAK=true`, which the runner sets when the role is served on more than one network
 
-Both are used as central defaults for every app role.
+All three are used as central defaults for every app role.
 
 ## Variables
 
@@ -132,9 +120,3 @@ For interactive Playwright recording, use the external repository:
 [playwright-recorder](https://github.com/kevinveenbirkenbach/playwright-recorder)
 
 This role no longer ships its own local recording wrapper.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

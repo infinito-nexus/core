@@ -1,0 +1,16 @@
+{#
+  Rendered from the cache: declarations, one file per distribution. apt fails
+  the whole `apt-get update` when a single source is unreachable, so a runner
+  must never carry another distribution's entry.
+
+  The source names the real mirror, not the service name, which coredns, the
+  container's resolver, cannot resolve; the compose overrides map the
+  hostname to the frontend via extra_hosts.
+
+  A distribution that does not install through apt renders an empty file. The
+  bind mount is unconditional in the compose overrides, and docker would
+  create a host directory here if the source were missing.
+#}
+{% if CACHE_PACKAGE_APT_SOURCE %}
+deb [trusted=yes] {{ CACHE_PACKAGE_APT_SOURCE }} {{ CACHE_PACKAGE_APT_SUITE }} main
+{% endif %}

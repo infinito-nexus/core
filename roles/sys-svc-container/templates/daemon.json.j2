@@ -1,7 +1,7 @@
 {# Aggregate plain-HTTP registries (cluster build registry + Hub pull-through
    mirror) into a single insecure_registries list so docker accepts them. #}
 {% set _insecure = [] %}
-{% if DEPLOYMENT_MODE == 'swarm' and (swarm.registry.host | length > 0) %}
+{% if IS_SWARM_MODE and (swarm.registry.host | length > 0) %}
 {% set _ = _insecure.append(swarm.registry.host ~ ':' ~ swarm.registry.port) %}
 {% endif %}
 {% set _cache_hosts = groups['svc-registry-cache'] | default([]) %}
@@ -27,7 +27,7 @@
 {% if SYS_DOCKER_DAEMONM_MTU is defined and SYS_DOCKER_DAEMONM_MTU | int > 0 %},
   "mtu": {{ SYS_DOCKER_DAEMONM_MTU | int }}
 {% endif %}
-{% set firewall_backend = none if DEPLOYMENT_MODE == 'swarm' else SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY.get(ansible_facts['os_family']) %}
+{% set firewall_backend = none if IS_SWARM_MODE else SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY.get(ansible_facts['os_family']) %}
 {% if firewall_backend %},
   "firewall-backend": "{{ firewall_backend }}"
 {% endif %}
@@ -37,10 +37,11 @@
 {% if _cache_hosts | length > 0 %},
   "registry-mirrors": ["http://{{ _cache_hosts[0] }}:{{ _cache_port }}"]
 {% endif %}
-{% set _shim_paths = {'kata': KATA_SHIM_BINARY, 'runsc': RUNSC_SHIM_BINARY} %}
+{% set _shim_paths = {'kata': KATA_SHIM_BINARY, 'runsc': RUNSC_SHIM_BINARY, 'nvidia': NVIDIA_RUNTIME_BINARY} %}
 {% set _present = [] %}
 {% if sys_svc_container_kata_shim.stat.exists %}{% set _ = _present.append('kata') %}{% endif %}
 {% if sys_svc_container_runsc_shim.stat.exists %}{% set _ = _present.append('runsc') %}{% endif %}
+{% if sys_svc_container_nvidia_shim.stat.exists %}{% set _ = _present.append('nvidia') %}{% endif %}
 {% if _present | length > 0 %},
   "runtimes": {
 {% for _name in _present %}
@@ -48,7 +49,7 @@
 
 {% endfor %}
   }
-{% if DEPLOYMENT_MODE == 'swarm' and not (IS_STACK_HOST | bool) and (SANDBOX_RUNTIME | trim) in _present %},
+{% if IS_SWARM_MODE and not (IS_STACK_HOST | bool) and (SANDBOX_RUNTIME | trim) in _present %},
   "default-runtime": "{{ SANDBOX_RUNTIME | trim }}"
 {% endif %}
 {% endif %}

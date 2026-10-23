@@ -22,10 +22,12 @@
       container exec -i
       -e NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') | quote }}
       -e STORAGE_NAME={{ nextcloud_op_storage_name | quote }}
-      -e NC_HAS_OP_SECRET={{ nextcloud_op_client_secret_current.stdout | trim | quote }}
+      -e NC_HAS_OP_SECRET
       {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
       bash -lc 'cd /app && bundle exec rails runner -'
     stdin: "{{ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/openproject/ensure_nextcloud_storage.rb') }}"
+  environment:
+    NC_HAS_OP_SECRET: "{{ nextcloud_op_client_secret_current.stdout | trim }}"
   delegate_to: "{{ NEXTCLOUD_OPENPROJECT_HOST_NODE }}"
   register: nextcloud_op_storage_create
   changed_when: "'\"oauth_application_created\":true' in nextcloud_op_storage_create.stdout"
@@ -99,11 +101,13 @@
           -e NEXTCLOUD_HOST={{ lookup('tls', 'web-app-nextcloud', 'url.base') | quote }}
           -e STORAGE_NAME={{ nextcloud_op_storage_name | quote }}
           -e NC_OAUTH_CLIENT_ID={{ nextcloud_op_ncclient.clientId | quote }}
-          -e NC_OAUTH_CLIENT_SECRET={{ nextcloud_op_ncclient.clientSecret | quote }}
+          -e NC_OAUTH_CLIENT_SECRET
           {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
           bash -lc 'cd /app && bundle exec rails runner -'
         stdin: "{{ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/openproject/ensure_nextcloud_storage.rb')
           }}"
+      environment:
+        NC_OAUTH_CLIENT_SECRET: "{{ nextcloud_op_ncclient.clientSecret }}"
       delegate_to: "{{ NEXTCLOUD_OPENPROJECT_HOST_NODE }}"
       register: nextcloud_op_client_store
       changed_when: true

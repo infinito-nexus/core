@@ -1,0 +1,28 @@
+---
+services:
+  machine:
+    build:
+      context: .
+      args:
+        MACHINE_BASE_IMAGE: ${MACHINE_BASE_IMAGE}
+    init: false
+    privileged: true
+    cgroup: host
+    network_mode: bridge
+    tmpfs:
+      - /run
+      - /run/lock
+    volumes:
+      - ${DOCS_TEST_SRC_DIR}:${DOCS_TEST_SRC_DIR}
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - engine:/var/lib/docker
+
+  resolver:
+    image: coredns/coredns:1.14.4
+    command: ["-conf", "/Corefile"]
+    network_mode: "service:machine"
+    volumes:
+      - ${DOCS_TEST_WORK}/Corefile:/Corefile:ro
+
+volumes:
+  engine:

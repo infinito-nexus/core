@@ -1,0 +1,2 @@
+# nocheck: license-declared mhwd picks the nonfree PCI 0300 profile from the host's GPU at deploy time, so the installed payload differs per machine and no single licence covers it; Manjaro's mhwd repositories are not publicly indexed, so no declaration could be read
+---

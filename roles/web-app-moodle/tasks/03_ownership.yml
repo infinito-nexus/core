@@ -8,9 +8,20 @@
 # stream PHP files to FPM. Data dir stays restrictive (0770 / 0660)
 # because only Moodle FPM (running as MOODLE_RUNTIME_USER) needs to
 # read/write user-uploaded content.
+#
+- name: "⏳ Wait until no container is still bootstrapping the shared code volume"
+  shell: >
+    container exec --user root {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -c 'test ! -e {{ MOODLE_BOOTSTRAP_STAGE }} && test "$(cat {{ MOODLE_BOOTSTRAP_SENTINEL }} 2>/dev/null)" = "{{ MOODLE_RELEASE }}"'
+  register: moodle_bootstrap_settled
+  until: moodle_bootstrap_settled.rc == 0
+  retries: 120
+  delay: 5
+  changed_when: false
 
 - name: "✅ Ensure ownership is correct on Moodle code dir"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} chown -R {{ MOODLE_RUNTIME_USER_GROUP }} {{ MOODLE_CODE_DIR }}"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -exec chown -h {{ MOODLE_RUNTIME_USER_GROUP
+    }} {} +"
   changed_when: false
 
 - name: "✅ Ensure ownership is correct on Moodle data dir"
@@ -18,11 +29,13 @@
   changed_when: false
 
 - name: "📁 Code dir: 0755 dirs (nginx-readable)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -type d -exec chmod 0755 {} \\;"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type d -exec chmod 0755
+    {} +"
   changed_when: false
 
 - name: "📁 Code dir: 0644 files (nginx-readable)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -type f -exec chmod 0644 {} \\;"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_CODE_DIR }} -path {{ MOODLE_BOOTSTRAP_STAGE }} -prune -o -type f -exec chmod 0644
+    {} +"
   changed_when: false
 
 - name: "📁 Code dir: 0640 config.php (FPM-only)"

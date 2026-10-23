@@ -1,7 +1,7 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- when: DEPLOYMENT_MODE == 'swarm'
+- when: IS_SWARM_MODE
   block:
     - name: "🔎 Stat the docker socket so the swarm openresty worker can be group-added to it"
       ansible.builtin.stat:
@@ -62,7 +62,7 @@
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - OPENRESTY_DOCKER_SOCK_GID is defined
 
 - name: "✅ Verify that '{{ role_name }}' works"

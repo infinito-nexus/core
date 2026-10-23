@@ -38,8 +38,26 @@ static:
     - service: api
       target: *var_lib_funkwhale_static_target
     - service: front
-      target: *var_lib_funkwhale_static_target
+      target: /usr/share/nginx/html/staticfiles
       read_only: true
+
+front_nginx_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'nginx.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: front
+      target: /etc/nginx/templates/default.conf.template
+      when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
+
+design_admin_template:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'design', 'admin_base_site.html'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: /app/funkwhale_api/templates/admin/base_site.html
+      when: "{{ lookup('config', 'web-app-funkwhale', 'services.design.enabled') | bool }}"
 
 typesense_data:
   type: volume

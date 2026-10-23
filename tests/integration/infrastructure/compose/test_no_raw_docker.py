@@ -27,6 +27,7 @@ class Finding:
 
 WHITELIST_SUFFIXES: tuple[str, ...] = (
     ".md",
+    ".po",
     ".js",
     ".json",
     ".png",
@@ -54,6 +55,7 @@ WHITELIST_PATH_FRAGMENTS: tuple[str, ...] = (
     "/.tox/",
     "/cli/",
     "infinito_nexus.egg-info/",
+    "/playbooks/update/files/",
 )
 
 

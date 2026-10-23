@@ -1,0 +1,38 @@
+{% if not (HERMES_WEBUI_ENABLED | bool) %}
+{% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}
+{% else %}
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+    {% include 'roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2'%}
+  {% endif %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% set api_port_local = http_port %}
+  {% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
+  {% set location = "/" %}
+  {% set http_port = HERMES_WEBUI_PORT_LOCAL %}
+  {% set proxy_internal_port = HERMES_WEBUI_PORT_INTERNAL %}
+  {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+
+  {% set sso_proxy_enabled = false %}
+  {% set http_port = api_port_local %}
+  {% set proxy_internal_port = HERMES_PORT_INTERNAL %}
+  {% for api_location in lookup('sso', application_id, 'oauth2_acl').whitelist %}
+    {% set location = api_location %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+  {% endfor %}
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
+}
+{% endif %}

@@ -11,7 +11,7 @@
   command: >-
     certbundle
     --domains "{{ CURRENT_PLAY_DOMAINS_ALL | join(',') }}"
-    --certbot-email "{{ lookup('users', 'administrator').email }}"
+    --certbot-email "{{ lookup('users', 'platform_administrator').email }}"
     --certbot-acme-challenge-method "{{ CERTBOT_ACME_CHALLENGE_METHOD }}"
     --chunk-size 100
     {% if CERTBOT_ACME_CHALLENGE_METHOD != 'webroot' %}
@@ -53,6 +53,11 @@
     msg: >
       WARNING: Let's Encrypt rate limit reached ("too many certificates").
       No changes recorded; adjust batching or retry later.
+
+- name: 🔗 Link each domain to the certbundle lineage that covers it
+  cert_link_domains:
+    domains: "{{ CURRENT_PLAY_DOMAINS_ALL }}"
+    cert_base_path: "{{ LETSENCRYPT_LIVE_PATH }}"
 
 - name: ▶️ run the san tasks once
   set_fact:

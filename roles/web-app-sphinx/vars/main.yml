@@ -1,5 +1,0 @@
----
-application_id: "web-app-sphinx"
-entity_name: "{{ application_id | get_entity_name }}"
-
-SPHINX_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"

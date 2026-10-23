@@ -15,7 +15,9 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 phpldapadmin:
+  enabled: false
   healthcheck:
     flavor: curl
   modes:
@@ -29,6 +31,7 @@ phpldapadmin:
   ports:
     local:
       sso: 16486
+      sso_onion: 16540
       http: 8037
     internal:
       http: 8080
@@ -51,10 +54,10 @@ sso:
       port: 8080
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-phpldapadmin', role='administrator') }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -66,3 +69,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

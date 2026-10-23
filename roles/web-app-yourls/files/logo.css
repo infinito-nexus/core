@@ -1,0 +1,4 @@
+#yourls-logo {
+  content: var(--design-url-logo-svg);
+  height: auto;
+}

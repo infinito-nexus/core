@@ -1,5 +1,6 @@
 ---
 admin: {}
+platform_administrator: {}
 web-app-wazuh-dashboard:
   username: kibanaserver
   accounts: []

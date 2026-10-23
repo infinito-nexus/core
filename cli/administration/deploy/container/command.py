@@ -228,6 +228,7 @@ def run_in_container(
         )
 
         print(">>> Mocking backup authorized_keys file inside CI inventory...")
+        # nocheck: environ-get-default  the CI inventory has no real backup key to copy; this placeholder is the mock itself, and nothing in the repo sets AUTHORIZED_KEYS
         mock_key = os.environ.get(
             "AUTHORIZED_KEYS",
             "ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito",

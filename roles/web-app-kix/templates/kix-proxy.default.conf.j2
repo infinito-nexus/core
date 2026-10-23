@@ -16,7 +16,6 @@ server {
     listen 80;
     server_name _;
 
-    # Exception: strip client-supplied Remote-User; otherwise a client could spoof it past the oauth2-proxy hop that sets it below.
     proxy_set_header Remote-User "";
 
     client_max_body_size 64m;

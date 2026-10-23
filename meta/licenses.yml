@@ -1,0 +1,602 @@
+---
+# Rights per licence, one entry per SPDX id. A role names an id in its
+# meta/license.yml; field meanings and the AND/OR folding live in
+# utils/licensing/rights.py.
+#
+# A LicenseRef- id belongs here only when it recurs or appears inside an
+# expression; a one-off vendor EULA writes its rights inline in the role's
+# meta/license.yml instead.
+
+MIT:
+  url: https://spdx.org/licenses/MIT.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+BSD-2-Clause:
+  url: https://spdx.org/licenses/BSD-2-Clause.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+BSD-3-Clause:
+  url: https://spdx.org/licenses/BSD-3-Clause.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+PostgreSQL:
+  url: https://spdx.org/licenses/PostgreSQL.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+OLDAP-2.8:
+  url: https://spdx.org/licenses/OLDAP-2.8.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+CC0-1.0:
+  url: https://spdx.org/licenses/CC0-1.0.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: false
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+Apache-2.0:
+  url: https://spdx.org/licenses/Apache-2.0.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+MPL-1.1:
+  url: https://spdx.org/licenses/MPL-1.1.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+MPL-2.0:
+  url: https://spdx.org/licenses/MPL-2.0.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+EPL-1.0:
+  url: https://spdx.org/licenses/EPL-1.0.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LGPL-2.1-only:
+  url: https://spdx.org/licenses/LGPL-2.1-only.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LGPL-2.1-or-later:
+  url: https://spdx.org/licenses/LGPL-2.1-or-later.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LGPL-3.0-only:
+  url: https://spdx.org/licenses/LGPL-3.0-only.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LGPL-3.0-or-later:
+  url: https://spdx.org/licenses/LGPL-3.0-or-later.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+GPL-2.0-only:
+  url: https://spdx.org/licenses/GPL-2.0-only.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+GPL-2.0-or-later:
+  url: https://spdx.org/licenses/GPL-2.0-or-later.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+GPL-3.0-only:
+  url: https://spdx.org/licenses/GPL-3.0-only.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+GPL-3.0-or-later:
+  url: https://spdx.org/licenses/GPL-3.0-or-later.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+OSL-3.0:
+  url: https://spdx.org/licenses/OSL-3.0.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: true
+  network_use_disclose: true
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+EUPL-1.2:
+  url: https://spdx.org/licenses/EUPL-1.2.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: true
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+AGPL-3.0-only:
+  url: https://spdx.org/licenses/AGPL-3.0-only.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: true
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+AGPL-3.0-or-later:
+  url: https://spdx.org/licenses/AGPL-3.0-or-later.html
+  open_source: true
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: true
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: true
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+Elastic-2.0:
+  url: https://www.elastic.co/licensing/elastic-license
+  open_source: false
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+BUSL-1.1:
+  url: https://spdx.org/licenses/BUSL-1.1.html
+  open_source: false
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: true
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+SSPL-1.0:
+  url: https://spdx.org/licenses/SSPL-1.0.html
+  open_source: false
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: true
+  network_use_disclose: true
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false
+
+CC-BY-NC-4.0:
+  url: https://spdx.org/licenses/CC-BY-NC-4.0.html
+  open_source: false
+  commercial_use: false
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: true
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+CC-BY-NC-ND-4.0:
+  url: https://spdx.org/licenses/CC-BY-NC-ND-4.0.html
+  open_source: false
+  commercial_use: false
+  modifications: false
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-RSALv2:
+  url: https://redis.io/legal/rsalv2-agreement/
+  open_source: false
+  commercial_use: true
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-Baserow-Premium:
+  url: https://github.com/bram2w/baserow/blob/master/premium/LICENSE
+  open_source: false
+  commercial_use: true
+  modifications: false
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-Baserow-Enterprise:
+  url: https://github.com/bram2w/baserow/blob/master/enterprise/LICENSE
+  open_source: false
+  commercial_use: true
+  modifications: false
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-BerriAI-Enterprise:
+  url: https://github.com/BerriAI/litellm/blob/main/LICENSE
+  open_source: false
+  commercial_use: true
+  modifications: false
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-FlowiseAI-Commercial:
+  url: https://github.com/FlowiseAI/Flowise/blob/main/LICENSE.md
+  open_source: false
+  commercial_use: true
+  modifications: false
+  distribution: false
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: false
+  liability: true
+  warranty: true
+  trademark_use: false
+
+LicenseRef-Infinito-Nexus-Community:
+  url: https://s.infinito.nexus/license
+  open_source: false
+  commercial_use: false
+  modifications: true
+  distribution: true
+  private_use: true
+  patent_use: false
+  self_host: true
+  include_copyright: true
+  document_changes: false
+  disclose_source: false
+  network_use_disclose: false
+  same_license: true
+  liability: true
+  warranty: true
+  trademark_use: false

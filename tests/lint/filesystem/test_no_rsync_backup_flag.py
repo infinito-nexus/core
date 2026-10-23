@@ -70,6 +70,8 @@ def _scan_file(path: Path) -> list[Violation]:
     rel = path.relative_to(PROJECT_ROOT).as_posix()
     try:
         text = read_text(str(path))
+    except FileNotFoundError:
+        return []
     except (OSError, UnicodeDecodeError) as exc:
         return [Violation(rel, 0, str(exc))]
 
@@ -102,7 +104,9 @@ def _scan_targets() -> list[Path]:
     return [
         PROJECT_ROOT / rel
         for rel in _git_ls_files()
-        if rel.endswith(_SCANNED_SUFFIXES) and rel != _SELF_REL
+        if rel.endswith(_SCANNED_SUFFIXES)
+        and rel != _SELF_REL
+        and (PROJECT_ROOT / rel).exists()
     ]
 
 

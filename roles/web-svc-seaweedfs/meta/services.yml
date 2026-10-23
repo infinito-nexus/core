@@ -1,0 +1,63 @@
+---
+# nocheck: tor-contract — an onion vhost is not servable for this role: the
+# node hidden service publishes http only (svc-prx-openresty
+# ports.onion.https is false) while sys-front-tls/templates/nginx_ssl_header.j2
+# keys listen/ssl on application_id rather than on the rendered domain, so the
+# onion vhost would listen on 443 while Tor forwards only 80.
+# nocheck: playwright-service-flag — central object-store provider entity
+seaweedfs:
+  healthcheck:
+    flavor: curl
+    path: status
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  /data IS the storage engine: leveldb2 filer LSM, master raft metadata, needle blob volumes; all NFS-unsafe, so the central provider stays node-local like the svc-db-* engines
+  placement: manager
+  # nocheck: single-replica
+  replicas: 1
+  bond: 1
+  enabled: true
+  shared: true
+  image: chrislusf/seaweedfs
+  version: "4.47"
+  name: seaweedfs
+  api_port: 8333
+  region: us-east-1
+  min_storage: 304MB
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  lifecycle: beta
+  ports:
+    local:
+      http: 8085
+    internal:
+      http: 8333
+      filer: 8888
+      master: 9333
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: S3 and filer API endpoints, so there is no HTML surface the shared stylesheet could reach
+design:
+  enabled: false
+  shared: false
+# nocheck: variants-coverage — the tor conjunct is the tor-contract invariant above, so no variant may pin the true polarity on an onion node
+# nocheck: bond-baseline — same reason: variant 0 must not pin the scrape consumer on
+prometheus:
+  bond: 1
+  enabled: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-prometheus' in group_names) and ('svc-net-tor' not in group_names) }}"
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

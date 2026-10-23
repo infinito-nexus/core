@@ -6,14 +6,18 @@
 # matrix exercises the in-group_names branch of web-app-matomo.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
-    css:
+    design:
       enabled: true
       shared: true
     dashboard:
       enabled: true
       shared: true
+    # variant-pin: web-svc-logout#reciprocal
     logout:
       enabled: true
       shared: true
@@ -30,10 +34,14 @@
     tor:
       enabled: true
 - services:
+    # variant-pin: web-app-docs#reciprocal
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:

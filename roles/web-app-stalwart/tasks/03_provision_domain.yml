@@ -1,5 +1,4 @@
 ---
-# Provision the mail domain, accounts, TLS, OIDC, antivirus and DNS (JMAP).
 # The domain was asserted provisionable in 00_core.yml before any state change.
 - name: "📖 List existing Stalwart domains"
   include_tasks: jmap_call.yml
@@ -15,19 +14,20 @@
           | selectattr('name', 'equalto', STALWART_DOMAIN)
           | map(attribute='id') | first) | default('') }}
 
-- name: "📁 Create Stalwart domain '{{ STALWART_DOMAIN }}'"
-  include_tasks: jmap_call.yml
-  vars:
-    stalwart_jmap_body: >-
-      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Domain/set',
-            {'create': {'d': {'name': STALWART_DOMAIN}}}, 'c0']]} | to_json }}
+- name: "📁 Create the Stalwart domain when it does not exist yet"
   when: stalwart_domain_id | length == 0
+  block:
+    - name: "📁 Create Stalwart domain '{{ STALWART_DOMAIN }}'"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Domain/set',
+                {'create': {'d': {'name': STALWART_DOMAIN}}}, 'c0']]} | to_json }}
 
-- name: "📖 Capture newly created domain id"
-  ansible.builtin.set_fact:
-    stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
-  when: stalwart_domain_id | length == 0
+    - name: "📖 Capture newly created domain id"
+      ansible.builtin.set_fact:
+        stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
 
 - name: "⚙️ Provision Stalwart accounts"
   include_tasks:
@@ -70,3 +70,10 @@
 - name: "🧅 Route .onion recipients through the Tor SMTP gateway"
   include_tasks: 14_onion_route.yml
   when: STALWART_ONION_ACTIVE | bool
+
+- name: "📮 Provision the declared mail aliases and catch-alls"
+  include_tasks: 15_aliases.yml
+
+- name: "🔀 Deliver the mail of the alias domains to their target domains"
+  include_tasks: 17_alias_domains.yml
+  when: STALWART_ALIAS_DOMAINS | length > 0

@@ -1,0 +1,40 @@
+module InfinitoNetworkOrigins
+  ORIGINS = {{ ZAMMAD_NETWORK_BASE_URLS | to_json }}.to_h { |url| uri = URI(url); [uri.host, uri.origin] }.freeze
+  PLAINTEXT_HOSTS = ORIGINS.select { |_, origin| origin.start_with?("http://") }.keys.freeze
+
+  class PlaintextRequest
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      Thread.current[:infinito_plaintext_request] = PLAINTEXT_HOSTS.include?(Rack::Request.new(env).host)
+      @app.call(env)
+    ensure
+      Thread.current[:infinito_plaintext_request] = nil
+    end
+  end
+
+  module PlaintextSecureFlag
+    def secure_flag?
+      !Thread.current[:infinito_plaintext_request] && super
+    end
+  end
+
+  module RequestOriginCallback
+    def redirect_uri
+      super.sub(client_options.redirect_uri, "#{full_host}#{callback_path}")
+    end
+  end
+end
+
+Rails.application.config.middleware.insert_before(0, InfinitoNetworkOrigins::PlaintextRequest)
+
+OmniAuth.config.full_host = lambda do |env|
+  InfinitoNetworkOrigins::ORIGINS.fetch(Rack::Request.new(env).host) { "#{Setting.get('http_type')}://#{Setting.get('fqdn')}" }
+end
+
+Rails.application.reloader.to_prepare do
+  Session.singleton_class.prepend(InfinitoNetworkOrigins::PlaintextSecureFlag)
+  OmniAuth::Strategies::OidcDatabase.prepend(InfinitoNetworkOrigins::RequestOriginCallback)
+end

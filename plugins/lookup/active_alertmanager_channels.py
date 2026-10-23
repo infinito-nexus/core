@@ -13,12 +13,15 @@ class LookupModule(LookupBase):
     Return a sorted list of communication-channel app IDs that are deployed on
     this host.
 
-    Deployment check  : app ID must appear in group_names.
-    Channel check     : app must declare services.prometheus.communication.channel: true
-                        in its own role config — the self-declaration pattern (SPOT per app,
-                        no hardcoded list anywhere).
+    Checks::
 
-    Usage in a template:
+      Deployment check  : app ID must appear in group_names.
+      Channel check     : app must declare services.prometheus.communication.channel: true
+                          in its own role config — the self-declaration pattern (SPOT per
+                          app, no hardcoded list anywhere).
+
+    Usage in a template::
+
       {% set _comm_channels = lookup('active_alertmanager_channels') %}
 
     'applications' is obtained via lookup('applications'), the merged-config SPOT.

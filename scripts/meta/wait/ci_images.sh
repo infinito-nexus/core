@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Env:
-#   REGISTRY, OWNER, REPO_PREFIX, CI_TAG, INFINITO_DISTROS
+#   REGISTRY, OWNER, REPO_PREFIX, CI_TAG, INFINITO_DISTROS, IMAGE_ARCHITECTURES
 #     image coordinates, as scripts/meta/resolve/missing/ci_images.sh reads them
 #   WAIT_ATTEMPTS        polls before giving up (default 60)
 #   WAIT_SLEEP_SECONDS   seconds between polls (default 10)

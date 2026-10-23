@@ -13,6 +13,10 @@
 # `--list` skips the browser launch and any test body, so this is a
 # fast structural check (catches refactor regressions like missing
 # helpers, broken exports, or syntax errors) — not a functional one.
+#
+# Playwright's transform cache lives inside the stage dir
+# (PWTEST_CACHE_DIR): the stage path changes with every run, so the
+# default cache in $TMPDIR never hits and grows by one copy per run.
 
 set -euo pipefail
 
@@ -62,6 +66,7 @@ fi
 
 STAGE_ROOT="$(mktemp -d -t infinito-lint-playwright.XXXXXX)"
 trap 'rm -rf "${STAGE_ROOT}"' EXIT
+export PWTEST_CACHE_DIR="${STAGE_ROOT}/transform-cache"
 
 # Stub env values keyed off the variable-name suffix. Some specs evaluate
 # `new URL(process.env.FOO_URL)` or `process.env.BAR.replace(...)` at

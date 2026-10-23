@@ -1,6 +1,7 @@
 {
   "gateway": {
     "mode": "local",
+    "trustedProxies": {{ NETWORK_TRUSTED_PROXY_CIDRS | to_json }},
     "controlUi": {
       "allowedOrigins": [{{ OPENCLAW_URL | to_json }}]
     }

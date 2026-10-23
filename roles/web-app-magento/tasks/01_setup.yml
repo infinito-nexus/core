@@ -37,9 +37,6 @@
   delay: 5
   until: magento_composer_install is succeeded
 
-# Exception: magento2-base ships nginx.conf.sample, so it only exists after
-# composer install -- inside the bootstrap the file is not there yet and the
-# bootstrap's own creates: guard would make the miss permanent.
 - name: "📄 Publish Magento's nginx vhost into the volume"
   ansible.builtin.shell: >-
     container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
@@ -84,20 +81,54 @@
   register: magento_db_password_realign
   changed_when: "'You saved the new configuration' in magento_db_password_realign.stdout"
 
-- name: "📤 Stage Magento's remote-storage configurator into the volume"
-  ansible.builtin.copy:
-    src: php/remote-storage.php
-    dest: "{{ [ magento_volume_mountpoint.stdout | trim, 'remote-storage.php' ] | path_join }}"
-    mode: "0644"
-  when: MAGENTO_OBJSTORE_ENABLED | bool
+- name: "🔑 Realign the Magento administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ MAGENTO_USER }}
+      -e MAGENTO_REALIGN_ROOT -e MAGENTO_REALIGN_USERNAME -e MAGENTO_REALIGN_PASSWORD
+      {{ MAGENTO_PHP_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    MAGENTO_REALIGN_ROOT: "{{ MAGENTO_ROOT }}"
+    MAGENTO_REALIGN_USERNAME: "{{ MAGENTO_ADMIN_USERNAME }}"
+    MAGENTO_REALIGN_PASSWORD: "{{ MAGENTO_ADMIN_PASSWORD }}"
+  register: magento_admin_password_realign
+  changed_when: magento_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    magento_admin_password_realign.rc != 0
+    or magento_admin_password_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🪣 Point Magento at the S3 remote storage"
+- name: "🗂️ Index on save, so catalog changes reach the storefront without a cron"
   ansible.builtin.shell: >-
     container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
-    php {{ MAGENTO_ROOT | dirname }}/remote-storage.php
-  register: magento_remote_storage
-  changed_when: "'updated' in magento_remote_storage.stdout"
+    bash -lc "cd {{ MAGENTO_ROOT }} && bin/magento indexer:set-mode realtime"
+  register: magento_indexer_mode
+  changed_when: "'was changed from' in magento_indexer_mode.stdout"
+
+- name: "🗂️ Rebuild the indexes the schedule left behind"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+    bash -lc "cd {{ MAGENTO_ROOT }} && bin/magento indexer:reindex"
+  register: magento_indexer_reindex
+  changed_when: "'rebuilt successfully' in magento_indexer_reindex.stdout"
+  when: magento_indexer_mode is changed
+
+- name: "🪣 Wire Magento to its S3 remote storage"
   when: MAGENTO_OBJSTORE_ENABLED | bool
+  block:
+    - name: "📤 Stage Magento's remote-storage configurator into the volume"
+      ansible.builtin.copy:
+        src: php/remote-storage.php
+        dest: "{{ [ magento_volume_mountpoint.stdout | trim, 'remote-storage.php' ] | path_join }}"
+        mode: "0644"
+
+    - name: "🪣 Point Magento at the S3 remote storage"
+      ansible.builtin.shell: >-
+        container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+        php {{ MAGENTO_ROOT | dirname }}/remote-storage.php
+      register: magento_remote_storage
+      changed_when: "'updated' in magento_remote_storage.stdout"
 
 - name: "🔄 Reload nginx so it picks up Magento's vhost (compose)"
   ansible.builtin.shell: >-
@@ -105,7 +136,7 @@
   register: magento_nginx_restart_compose
   changed_when: magento_nginx_restart_compose.rc == 0
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - magento_nginx_conf is changed or magento_install is changed
 
 - name: "🔄 Restart nginx so it picks up Magento's vhost (swarm)"
@@ -116,5 +147,5 @@
   changed_when: magento_nginx_restart_swarm.rc == 0
   timeout: "{{ lookup('timeout', 600) | int }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - magento_nginx_conf is changed or magento_install is changed

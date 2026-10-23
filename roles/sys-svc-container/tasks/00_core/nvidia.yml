@@ -1,0 +1,28 @@
+---
+- name: "🔧 Configure the NVIDIA container toolkit repository on Debian and Ubuntu"
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia/debian.yml"
+  when: ansible_facts['distribution'] in ['Debian', 'Ubuntu']
+
+- name: "🔧 Configure the NVIDIA container toolkit repository on the RedHat family"
+  include_tasks: "{{ role_path }}/tasks/00_core/nvidia/redhat.yml"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: "📦 Install the NVIDIA container toolkit"
+  package_install:
+    id: nvidia-container-toolkit
+  register: sys_svc_container_nvidia_install
+  until: sys_svc_container_nvidia_install is succeeded
+  retries: 5
+  delay: 15
+
+- name: "🎮 Skip the cgroup setup nvidia-container-cli cannot own in a container"
+  ansible.builtin.lineinfile:
+    path: /etc/nvidia-container-runtime/config.toml
+    regexp: "^#?\\s*no-cgroups\\s*="
+    line: "no-cgroups = true"
+    owner: root
+    group: root
+    mode: "0644"
+  when: >-
+    ansible_facts['virtualization_type']
+    in SYS_SVC_CONTAINER_NESTED_VIRTUALIZATION

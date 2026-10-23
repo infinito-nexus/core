@@ -45,7 +45,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -153,11 +153,11 @@ def _collect_findings(root: Path) -> list[MissingKeyFinding]:
         if not isinstance(services, dict):
             continue
 
-        entity_name = get_entity_name(role_dir.name)
+        entity = entity_name(role_dir.name)
         for service_key, raw_conf in services.items():
             if not isinstance(raw_conf, dict):
                 continue
-            is_entity = service_key == entity_name
+            is_entity = service_key == entity
 
             if not is_entity:
                 if not _is_enabled(raw_conf):

@@ -13,10 +13,6 @@ if [ ! -e "${ready}" ] && [ ! -e "${target}/configuration.php" ]; then
   if mkdir "${lock}" 2>/dev/null; then
     /entrypoint.sh apache2 -v || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
     if [ -e "${target}/configuration.php" ]; then
-      # Exception: the root-run auto-install leaves these dirs root-owned on the
-      # shared NFS docroot; apache (www-data) then wedges every request in a
-      # cache-write permission loop and the swarm converge wait expires. The
-      # role-side chown runs only AFTER converge, so it can never break the tie.
       chown -R www-data:www-data \
         "${target}/administrator/cache" "${target}/administrator/logs" \
         "${target}/cache" "${target}/tmp" 2>/dev/null || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

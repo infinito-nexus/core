@@ -24,7 +24,10 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("form#auth, #header h1").first(),
+    "Expected Akaunting's own sign-in form or its admin header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(60_000) })

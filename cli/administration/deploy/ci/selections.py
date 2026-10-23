@@ -1,8 +1,19 @@
 """Turn a run's deploy jobs back into selection tokens.
 
 A deploy job title carries the whole row it deployed -- role, variant, mode,
-onion state, distro, filesystem -- and :mod:`utils.github.variant.selection`
-is the grammar that writes it back down.
+network mode, mesh state, distro, filesystem, architecture -- and
+:mod:`utils.github.variant.selection` is the grammar that writes it back down.
+
+The architecture is replayed like the distro rather than left to the rotation:
+it is the machine the job ran on, not a preference the deploy may fall back
+from, so the title states what it actually was.
+
+The mesh state is replayed the same way, and as the boolean the title carried
+rather than only when it is true. These tokens feed the priority line, where
+an unpinned mesh axis offers both states: a failed direct swarm row came back
+as itself *and* as a meshed sibling, spending two jobs to reproduce one. The
+pin halves that to the arm that actually failed. Only a mode the mesh axis
+covers takes it, so a compose token stays as short as it was.
 
 The filesystem is the one axis a token built here leaves out. The title states
 the kind the matrix *assigned*, which a deploy is allowed to fall back from
@@ -20,6 +31,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.github.variant import axes, selection
+from utils.github.variant.vpn import VPN_DEPLOY_MODES
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -32,10 +44,10 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
     """The selection tokens that reproduce exactly what did not pass.
 
     A role aggregated to its id loses what actually broke: the retrigger then
-    redeploys every variant of it, in whatever mode and onion state the sweep
+    redeploys every variant of it, in whatever mode and network mode the sweep
     rotation happens to pick, and the combination that failed may not be among
     them. Each failed job therefore contributes its own
-    ``role#variant@mode+tor`` token (:mod:`utils.github.variant.selection`), so
+    ``role#variant@mode+network`` token (:mod:`utils.github.variant.selection`), so
     the priority line replays that job and nothing else.
 
     Every mode is read; there is no scope to narrow to. A run that failed in
@@ -61,8 +73,10 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
                     app,
                     tuple(int(part) for part in label.variant.split(",") if part),
                     label.mode,
-                    label.tor,
+                    label.network,
                     label.distro or None,
+                    architecture=label.architecture or None,
+                    vpn=label.vpn if label.mode in VPN_DEPLOY_MODES else None,
                 )
             )
         )
@@ -90,6 +104,32 @@ def collapse_to_roles(tokens: Iterable[str]) -> list[str]:
     return sorted({selection.parse(token).app for token in tokens})
 
 
+def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
+    """Role ids for what really failed, exact selections for the rest.
+
+    A hard failure is evidence against the role, so the whole role comes back
+    and the rotation picks its axes. A cancelled or still-running job is
+    evidence against nothing: it never reached a verdict, and the only thing
+    known about it is the combination it had been given. Collapsing that to a
+    role name would spend the priority budget re-deploying combinations the
+    run already proved green, and would drop the one it never got to.
+
+    A role with a hard failure absorbs its own unfinished rows: the collapsed
+    name already covers every variant of it.
+
+    Args:
+        tokens: every selection to bring back, as :func:`failed_selections`
+            returns them without ``strict``.
+        hard: the subset that failed outright, the same call with ``strict``.
+
+    Returns:
+        sorted, deduplicated role ids and selection tokens.
+    """
+    roles = set(collapse_to_roles(hard))
+    pinned = {token for token in tokens if selection.parse(token).app not in roles}
+    return sorted(roles | pinned)
+
+
 def _variants(entry: Mapping[str, Any]) -> tuple[int, ...]:
     """The variant shards one matrix row covers."""
     return tuple(int(part) for part in str(entry.get("variant", "")).split(",") if part)
@@ -107,7 +147,7 @@ def row_identity(entry: Mapping[str, Any]) -> str:
 def proven_rows(jobs: list[dict]) -> set[str]:
     """The rows the source run proved, as ``role#variant``, axes dropped.
 
-    Mode, onion state, distro and filesystem are assigned by the rotation over
+    Mode, network mode, distro and filesystem are assigned by the rotation over
     the sweep number, and a retrigger is a new run with a new number
     (``call-orchestrator.yml`` falls back to ``github.run_number``). Comparing
     the full deploy tokens therefore compares two different sweeps: measured

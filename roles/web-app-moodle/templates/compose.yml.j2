@@ -14,6 +14,8 @@
         MOODLE_DATA_DIR: "{{ MOODLE_DATA_DIR }}"
         MOODLE_LOCAL_CACHE_DIR: "{{ MOODLE_LOCAL_CACHE_DIR }}"
         MOODLE_SOURCE_DIR: "{{ MOODLE_SOURCE_DIR }}"
+        MOODLE_BOOTSTRAP_STAGE: "{{ MOODLE_BOOTSTRAP_STAGE }}"
+        MOODLE_BOOTSTRAP_SENTINEL: "{{ MOODLE_BOOTSTRAP_SENTINEL }}"
         MOODLE_RUNTIME_USER: "{{ MOODLE_RUNTIME_USER }}"
         MOODLE_OIDC_ENABLED: "{{ MOODLE_OIDC_ENABLED | bool | ternary('1','0') }}"
         MOODLE_OIDC_PLUGIN_RELPATH: "{{ MOODLE_OIDC_PLUGIN_RELPATH }}"
@@ -21,11 +23,21 @@
         MOODLE_MCP_PLUGIN_RELPATH: "{{ MOODLE_MCP_PLUGIN_RELPATH }}"
         MOODLE_MCP_PLUGIN_ARCHIVE_URL: "{{ MOODLE_MCP_PLUGIN_ARCHIVE_URL }}"
         MOODLE_OIDC_PLUGIN_ARCHIVE_URL: "{{ MOODLE_OIDC_PLUGIN_ARCHIVE_URL }}"
+        MOODLE_OBJECTFS_ENABLED: "{{ MOODLE_OBJECTFS_ENABLED | bool | ternary('1','0') }}"
+        MOODLE_OBJECTFS_PLUGIN_RELPATH: "{{ MOODLE_OBJECTFS_PLUGIN_RELPATH }}"
+        MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL: "{{ MOODLE_OBJECTFS_PLUGIN_ARCHIVE_URL }}"
         MOODLE_RELEASE: "{{ MOODLE_RELEASE }}"
         MOODLE_TARBALL_URL: "{{ MOODLE_TARBALL_URL }}"
         MOODLE_VERSION_FILE: "{{ MOODLE_VERSION_FILE }}"
         MOODLE_AUTH_SUBDIR: "{{ MOODLE_AUTH_SUBDIR }}"
         MOODLE_WEBSERVICE_SUBDIR: "{{ MOODLE_WEBSERVICE_SUBDIR }}"
+        MOODLE_ADMIN_TOOL_SUBDIR: "{{ MOODLE_ADMIN_TOOL_SUBDIR }}"
+        MOODLE_CLI_RELPATH: "{{ MOODLE_CLI_RELPATH }}"
+        MOODLE_RELEASE_LIB: "{{ MOODLE_RELEASE_LIB }}"
+        MOODLE_TRANSIT_DIR: "{{ MOODLE_TRANSIT_DIR }}"
+        MOODLE_TRANSIT_RELEASE: "{{ MOODLE_TRANSIT_RELEASE }}"
+        MOODLE_TRANSIT_TARBALL_URL: "{{ MOODLE_TRANSIT_TARBALL_URL }}"
+        MOODLE_UPGRADE_PATH: "{{ MOODLE_UPGRADE_PATH }}"
     {{ lookup('container_image', application_id, 'moodle') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
@@ -60,8 +72,16 @@
       - bash
       - -c
       - |
+        fails=0
+        ok=0
         while true; do
-          php {{ MOODLE_CLI_DIR }}/cron.php >/proc/1/fd/1 2>/proc/1/fd/2 || true
+          if php {{ MOODLE_CLI_DIR }}/cron.php; then
+            ok=1
+            fails=0
+          else
+            fails=$$((fails + 1))
+            test "$$ok" -eq 0 || test "$$fails" -lt {{ MOODLE_CRON_FAILURE_LIMIT }} || exit 1
+          fi
           sleep 60
         done
     {{ lookup('compose_restart') }}

@@ -13,6 +13,8 @@ set -o pipefail
 : "${APP_ID:?APP_ID is required}"
 : "${ROOT_GROUP_ID:?ROOT_GROUP_ID is required}"
 
+exec </dev/null
+
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh get \
   "groups/$ROOT_GROUP_ID/children" -r "$KC_REALM" \
   -q max=500 --fields id,name --format csv --noquotes \

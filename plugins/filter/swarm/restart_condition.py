@@ -9,11 +9,8 @@ Translating between the two used to be inline Jinja in
 pulls it out so the call site reads as a single expression and is
 unit-testable.
 
-MAPPING
-=======
+Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:
 
-    compose ``docker_restart_policy`` -> swarm ``condition``
-    ----------------------------------------------------------
     ``'no'``                          -> ``'none'``
         One-shot containers (matomo bootstrap, erpnext configurator,
         shopware init). They exit 0 and must never be respawned.

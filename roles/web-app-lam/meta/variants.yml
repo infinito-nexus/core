@@ -6,12 +6,10 @@
 # because LDAP IS the storage backend for LAM — every variant inherits
 # it, so the variant blocks below don't override it.
 
-# variant 0: development credentials so the Playwright admin
-# scenario can sign in without an out-of-band password handoff.
-- secrets:
-    credentials:
-      administrator_password: "'$tr0ng€xampl3PW!"
-  services:
+- services:
+    docs:
+      enabled: false
+      shared: false
     dashboard:
       enabled: true
       shared: true
@@ -27,13 +25,18 @@
     prometheus:
       enabled: true
       shared: true
+    redis:
+      shared: true
 
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false
@@ -48,33 +51,11 @@
       shared: false
     prometheus:
       enabled: false
+      shared: false
+    redis:
       shared: false
 
-    css:
-      enabled: false
-      shared: false
-    tor:
-      enabled: true
-  secrets:
-    credentials:
-      administrator_password: "'$tr0ng€xampl3PW!"
-- services:
-    sso:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    prometheus:
+    design:
       enabled: false
       shared: false
     tor:

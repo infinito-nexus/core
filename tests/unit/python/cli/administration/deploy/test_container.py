@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import unittest
+import unittest.mock
 
 from cli.administration.deploy.container import command as deploy_container
 

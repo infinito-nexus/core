@@ -1,9 +1,9 @@
 ---
 application_id: "web-app-baserow"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
-BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 BASEROW_VERSION: "{{ lookup('config', application_id, 'services.baserow.version') }}"
 BASEROW_IMAGE: "{{ lookup('config', application_id, 'services.baserow.image') }}"
 BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name') }}"
@@ -34,6 +34,7 @@ BASEROW_SERVICE_NAME: "baserow"
 BASEROW_INTERNAL_URL: "http://{{ BASEROW_CONTAINER }}:{{ lookup('config', application_id, 'services.baserow.ports.internal.http') }}"
 
 BASEROW_MCP_ENABLED: "{{ lookup('config', application_id, 'services.baserowmcp.enabled') | bool }}"
+BASEROW_EXTRA_PUBLIC_URLS: "{{ lookup('network_urls', BASEROW_PUBLIC_URL)[1:] + ([BASEROW_INTERNAL_URL] if BASEROW_MCP_ENABLED | bool else []) }}"
 BASEROW_MCP_ENDPOINT_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mcp_endpoint_key') }}"
 BASEROW_MCP_UPSTREAM_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
 BASEROW_MCP_ENDPOINT_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
@@ -56,6 +57,6 @@ BASEROW_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 
-BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-BASEROW_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+BASEROW_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"

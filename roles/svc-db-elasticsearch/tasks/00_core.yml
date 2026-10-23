@@ -24,6 +24,8 @@
     {{ ELASTICSEARCH_EXEC_SHELL }}
     '{{ 30 | curl }} -fS -u "elastic:$ELASTIC_PW"
     "{{ ELASTICSEARCH_API_BASE }}/_cluster/health?wait_for_status=yellow&timeout=5s" >/dev/null'
+  environment:
+    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
   register: es_health_ready
   retries: 60
   delay: 5

@@ -6,21 +6,22 @@
 
   Required context:
     application_id           Role id used in the Quick Setup commands (e.g. web-app-matrix).
+    application_deploy_ids   That id plus meta/services.yml guide_companions, comma-joined,
+                             because --include filters the inventory literally.
     application_name         Human-readable software name (H1, no role id).
     application_url          Official website; linked on first use in Description.
     application_description  One paragraph about the SOFTWARE (not the role).
     application_overview     One paragraph about what the ROLE deploys/integrates.
     application_features     List of {name, description} capability bullets.
     application_author       Author name; MUST equal meta/main.yml galaxy_info.author.
-    cosmos_mermaid           Mermaid flowchart SOURCE (no ``` fences); groups
-                             Capabilities / Dependencies / Cosmos. Node ids MUST NOT
-                             be reserved words (call, end, class, graph, style).
 
   Optional context:
-    application_invokable          When true, emit the Quick Setup section
-                                   (invokable roles only; forbidden otherwise).
-    cosmos_intro                   Sentence above the Cosmos diagram.
-    application_author_url         Wraps the Credits author in a Markdown link.
+    application_invokable          When true, emit the Architecture and Quick
+                                   Setup sections (invokable roles only;
+                                   forbidden otherwise).
+    application_author_url         The author's social profile, derived from the
+                                   address .mailmap folds their commits into.
+    architecture_intro             Sentence above the Architecture links.
     application_use_cases          Paragraph for the optional Use Cases section.
     application_developer_notes    List of {file, description} local-doc links.
     application_further_resources  List of {label, url} external links.
@@ -35,16 +36,19 @@
 
 {{ application_overview }}
 
-## Cosmos
+{% if application_invokable -%}
+## Architecture
 
-{{ cosmos_intro | default('The diagram places ' ~ application_name ~ ' in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).') }}
+{{ architecture_intro | default('[ARCHITECTURE.md](ARCHITECTURE.md) draws ' ~ application_name ~ ' from its own metadata: the containers it runs under compose, what changes under swarm, how each volume is backed, and every role it depends on or is depended upon by.') }}
 
-```mermaid
-{{ cosmos_mermaid }}
-```
+| Section | Drawn from |
+| --- | --- |
+| [Compose](ARCHITECTURE.md#compose-) | `meta/services.yml` |
+| [Swarm](ARCHITECTURE.md#swarm-) | `meta/services.yml` replicas and placement |
+| [Volumes](ARCHITECTURE.md#volumes) | `meta/volumes.yml` against the NFS decision chain |
+| [Dependencies](ARCHITECTURE.md#dependencies) | `meta/services.yml` and `meta/main.yml` of every role |
 
-{{ cosmos_legend | default('') }}
-
+{% endif -%}
 ## Features
 
 {% for feature in application_features -%}
@@ -64,10 +68,10 @@
 Clone, set up the workstation, and deploy {{ application_name }} onto the local stack:
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 make onboard
-make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
+make compose-deploy mode=reinstall apps={{ application_deploy_ids }} full_cycle=false
 ```
 
 ### Production
@@ -76,16 +80,19 @@ make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
 Install {{ application_name }} directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 bash scripts/install/package.sh
 make install
 source scripts/meta/env/load.sh
 
-APP={{ application_id }}
-DOMAIN=<your-domain>
+APP={{ application_deploy_ids }}
+DOMAIN="<your-domain>"
 {% if application_needs_clearnet_resolver -%}
-DNS=<your-clearnet-resolver>
+DNS="<your-clearnet-resolver>"
+{% endif -%}
+{% if application_needs_service_provider_country -%}
+COUNTRY=<your-country>
 {% endif -%}
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
@@ -94,38 +101,48 @@ infinito administration inventory provision "$INVENTORY" \
   --inventory-file "$INVENTORY/devices.yml" \
   --host localhost \
   --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
+  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}{% if application_needs_service_provider_country %}\"service_provider\": {\"company\": {\"address\": {\"country\": \"$COUNTRY\"}}}, {% endif %}\"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
 infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --password-file "$INVENTORY/.password" \
   --diff -vv
 ```
 {% else -%}
-Run the published image to provision the inventory and deploy {{ application_name }} to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy {{ application_name }} to a managed server over SSH. The image logs in as `root`, so the server must accept root over a public key, and the two key variables are the two halves of one key pair: the private half authenticates the deploy, and the public half is what the deploy keeps authorized for `root` and installs for the administrator account. Naming a public half that does not belong to the private one locks the running deploy out at its next reconnect.
 
 ```bash
-APP={{ application_id }}
-HOST=<your-server>
-DOMAIN=<your-domain>
+APP={{ application_deploy_ids }}
+HOST="<your-server>"
+DOMAIN="<your-domain>"
 {% if application_needs_clearnet_resolver -%}
-DNS=<your-clearnet-resolver>
+DNS="<your-clearnet-resolver>"
+{% endif -%}
+{% if application_needs_service_provider_country -%}
+COUNTRY=<your-country>
 {% endif -%}
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
+SSH_PRIVATE_KEY="<your-ssh-private-key-file>"
+WORKDIR="$HOME/.infinito.nexus"
 
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" {% if application_needs_clearnet_resolver %}-e DNS="$DNS" {% endif %}-e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
+mkdir -p "$WORKDIR/inventories"
+docker run --rm \
+  -v "$WORKDIR/inventories:/etc/infinito.nexus/inventories" \
+  -v "$SSH_PRIVATE_KEY:/run/secrets/deploy_key:ro" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" {% if application_needs_clearnet_resolver %}-e DNS="$DNS" {% endif %}{% if application_needs_service_provider_country %}-e COUNTRY="$COUNTRY" {% endif %}-e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  {{ application_deploy_image }} bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}\"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"SYS_SVC_SSHD_PERMIT_ROOT_LOGIN\": \"prohibit-password\", {% if application_needs_clearnet_resolver %}\"networks\": {\"internet\": {\"dns\": \"$DNS\"}}, {% endif %}{% if application_needs_service_provider_country %}\"service_provider\": {\"company\": {\"address\": {\"country\": \"$COUNTRY\"}}}, {% endif %}\"users\": {\"root\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}, \"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
+      -u root --private-key /run/secrets/deploy_key \
       --diff -vv'
 ```
+
+The inventory under `$WORKDIR` is written by the container as `root`, including the vault password at `inventories/production/.password`. Run `sudo chown -R "$USER" "$WORKDIR"` afterwards to read it.
 {% endif -%}
 {% endif -%}
 {% if application_developer_notes is defined %}
@@ -144,6 +161,14 @@ docker run --rm -it \
 {%- endif %}
 ## Credits
 
-{% if application_author_url %}Implemented by **[{{ application_author }}]({{ application_author_url }})**.{% else %}Implemented by **{{ application_author }}**.{% endif %}
+{% if application_author_url %}**[{{ application_author }}]({{ application_author_url }})**{% else %}**{{ application_author }}**{% endif %}
+
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+{% if application_license %}
+{% if application_license.is_own -%}
+This role deploys no third-party application, so the licence above is the only one that applies.
+{%- else -%}
+That licence covers this role. The software it deploys is a separate grant: [{{ application_license.spdx }}]({{ application_license.source }}), under which commercial use is {{ application_license.commercial }}. You owe its authors this much: {{ application_license.duties }}. Permission for one of the two is not permission for the other.
+{%- endif %}
+{%- endif %}

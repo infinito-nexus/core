@@ -1,0 +1,14 @@
+---
+- name: "⬇️ clone the pretix sources for '{{ application_id }}'"
+  git:
+    repo: "{{ PRETIX_SOURCE_REPOSITORY }}"
+    dest: "{{ PRETIX_SOURCE_DIR }}"
+    version: "{{ PRETIX_SOURCE_VERSION }}"
+    depth: 1
+    force: true
+
+- name: "🐳 Stage the build recipe beside the pretix sources"
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: "{{ PRETIX_SOURCE_DOCKERFILE }}"
+    mode: "0644"

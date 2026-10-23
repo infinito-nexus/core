@@ -1,13 +1,21 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set service_name = 'logout' %}
+  {% for logout_instance in LOGOUT_INSTANCES %}
+  {% set service_name = 'logout' | labelled(logout_instance.label, '-') %}
+  {% set logout_urls = [] %}
+  {% for logout_domain in lookup('applications') | logout_domains(group_names, lookup('domains'), logout_instance.network) | unique | sort %}
+  {% set _ = logout_urls.append(lookup('tls', logout_domain, 'url.base') | regex_replace('/+$', '')) %}
+  {% endfor %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'logout') }}
-    {{ lookup('compose_only', 'container_name', LOGOUT_CONTAINER) }}
-    {{ lookup('container_ports', ['logout', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('compose_only', 'container_name', LOGOUT_CONTAINER | labelled(logout_instance.label, '-')) }}
+    {{ lookup('container_ports', ['logout', 'http' | labelled(logout_instance.label, '_'), DOCKER_BIND_HOST]) | indent(4) }}
+    environment: # nocheck: compose-environment-from-env-file  one conductor per served network and LOGOUT_DOMAINS is derived rather than configured; a per-service env file is possible but costs a render loop and a second name binding for this one computed line
+      LOGOUT_DOMAINS: "{{ logout_urls | join(',') }}"
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', 'logout') | indent(4) }}
 
+  {% endfor %}
 {{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}

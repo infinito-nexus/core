@@ -1,0 +1,2198 @@
+# Corsican translations for infinito-nexus.
+# Copyright (C) 2026 Kevin Veen-Birkenbach
+# This file is distributed under the Infinito.Nexus Community License (Non-Commercial).
+# Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>, 2026.
+# https://infinito.nexus
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: infinito-nexus VERSION\n"
+"Report-Msgid-Bugs-To: contact@infinito.nexus\n"
+"POT-Creation-Date: 2026-01-01 00:00+0000\n"
+"PO-Revision-Date: 2026-01-01 00:00+0000\n"
+"Last-Translator: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Language: co\n"
+"Language-Team: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-certbot:description"
+msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
+msgstr "ACME client para emisión y renovación de certificados SSL/TLS de Let's Encrypt a través de desafíos de webroot o DNS-01"
+
+# translated-by: ollama
+msgctxt "category:svc.ai:title"
+msgid "AI Services"
+msgstr "Serviços de AI"
+
+# translated-by: ollama
+msgctxt "menu:Artificial Intelligence:description"
+msgid "AI tools and frameworks for running, managing, and experimenting with models."
+msgstr "AI hulda og nivåeringsverktyg for kjøring, administrering og eksperimentelle prosesser med modellar."
+
+# translated-by: ollama
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr "AI-fisht code editor instalhod on teh workstation, whoshe endpoint ovahre staysh an operahor stepp"
+
+# translated-by: ollama
+msgctxt "menu:Server Administration:description"
+msgid "Administration Tools für servers"
+msgstr "Admin herramientar para servers"
+
+# translated-by: ollama
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Agent"
+
+msgctxt "role:sys-front-inj-all:description"
+msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:dsk-gnome:description"
+msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
+msgstr "Entombamento de entorno de escritorio desktop agrupando café, extensões de shell e terminal em uma configuração completa de GNOME em Linux"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.alm:title"
+msgid "Alerting"
+msgstr "Alertado"
+
+# translated-by: ollama
+msgctxt "role:web-app-stalwart:description"
+msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
+msgstr "All-in-one Stalwart mail server con SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV e filtraggio incorporato di spam"
+
+# translated-by: ollama
+msgctxt "menu:Analytics:title"
+msgid "Analytics"
+msgstr "Analisys"
+
+# translated-by: ollama
+msgctxt "role:sys-token-store:description"
+msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
+msgstr "Ansible rol para ajuda ao persistir e consulta de tokens de aplicações por usuário em armazenamento YAML local que são idempotentes"
+
+# translated-by: ollama
+msgctxt "category:web.app:title"
+msgid "Applications"
+msgstr "Aplicaciones"
+
+# translated-by: ollama
+msgctxt "menu:Sales:description"
+msgid "Applications for e-commerce, ticketing, and sales management."
+msgstr "Aplicaciones para comercio electrónico, venta de entradas y gestión de ventas."
+
+# translated-by: ollama
+msgctxt "role:drv-epson-multiprinter:description"
+msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
+msgstr "Arch Linus driver bündel vir Epson multifunktionaal print en scanner via escpr en imagescan"
+
+# translated-by: ollama
+msgctxt "menu:Artificial Intelligence:title"
+msgid "Artificial Intelligence"
+msgstr "Inteligencia Artificial"
+
+msgctxt "menu:Asset Management:title"
+msgid "Asset Management"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-rpr-container-soft:description"
+msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
+msgstr ""
+"Automated recovery service restarting exited or unhealthy stacks and resolving port conflicts\n"
+"Docker Compose"
+
+# translated-by: ollama
+msgctxt "role:sys-dns-hetzner-rdns:description"
+msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
+msgstr "Automation role para records PTR reverse DNS (PTR) para servidores Hetzner Cloud, IPs primários, IPs flutuantes e balancers"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.bkp:title"
+msgid "Backup & Restore"
+msgstr "Backup & Restaurar"
+
+# translated-by: ollama
+msgctxt "category:svc.bkp:title"
+msgid "Backup Services"
+msgstr "Serviços de Backup"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.bkp:description"
+msgid "Backup strategies & restore procedures"
+msgstr "Estrategias de recuperación y procedimientos de restauración"
+
+# translated-by: ollama
+msgctxt "role:dev-core:description"
+msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
+msgstr "Entida de desenvolvimento base para engenheiros de software em Linux, com editoras core e ferramentas linguagem-ignorante"
+
+# translated-by: ollama
+msgctxt "role:sys-daemon:description"
+msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
+msgstr "Role baz para configuración de systemd administrador mediante drop-ins, configuraciones por defecto e validación de unidad"
+
+# translated-by: ollama
+msgctxt "role:dsk-blender:description"
+msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
+msgstr "Blender karne wala工作站通过模型上下文协议与主机上的代理连接 wiring"
+
+# translated-by: ollama
+msgctxt "role:web-app-seaweedfs:description"
+msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
+msgstr "Browser administracion interfaz para el almacén de objetos SeaweedFS, sirviendo las consolas de filer y consola maestra detrás de SSO"
+
+# translated-by: ollama
+msgctxt "role:web-app-roulette-wheel:description"
+msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
+msgstr "Aplicación de rueda giratoria basada en navegador para toma de decisiones, selección al azar y gamificación"
+
+# translated-by: ollama
+msgctxt "role:web-app-litellm:description"
+msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr "Interface de administración hacia el navegador para el gateway LLM compartido, publicado en su propio dominio detrás del proxy frontal"
+
+# translated-by: ollama
+msgctxt "role:dev-fakeroot:description"
+msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
+msgstr "Tool de joc durata construcției pentru simula operații asigurate de proprietar asupra fișierelor fără privilegii de echipediere în timpul construcției pacientelor"
+
+# translated-by: ollama
+msgctxt "category:svc.runner:title"
+msgid "CI Runner"
+msgstr "CI_runner"
+
+# translated-by: ollama
+msgctxt "role:svc-db-typesense:description"
+msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
+msgstr "Central Dockerizado search engine shared by multiple apps con clave de ámbito per-consumidor API"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr "Central documento extracción de documentos que convierte los archivos subidos en texto para una conversación reforzada por el chat"
+
+# translated-by: ollama
+msgctxt "menu:Help:description"
+msgid "Central help resources, including documentation, support tools, and guidance."
+msgstr "Central resursos de ajuda, incluyendo documentación, herramientas de soporte y guía."
+
+# translated-by: ollama
+msgctxt "role:svc-db-memcached:description"
+msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
+msgstr "Central engine de xarxa en memòria sense interrupció amb isolació per prefix de llave per consumidor, utilitzable centralment o com un carrusell després"
+
+# translated-by: ollama
+msgctxt "role:sys-service-loader:description"
+msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
+msgstr "Central loader rol fo ordeñ ad shar ñe prellod y rol enclu dien quéd e pos ñod enclu dien cos la dépléchiñon"
+
+# translated-by: ollama
+msgctxt "role:web-svc-logout:description"
+msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
+msgstr "Central logout proxy para saindo de uma ação única em todos os apps conectados a OIDC, com snippets do Nginx e uma interface de status em tempo real"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-mail:description"
+msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
+msgstr "Central mail orchestration role para Infinito.Nexus, integrando Email SaaS, msmtp e um relay SMTP local opcional"
+
+msgctxt "category:svc.dns:description"
+msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:svc-dns-unbound:description"
+msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
+msgstr "Central recursivo/avanzado resolutor de DNSSEC con IP estática para stacks de consumidor para que los DNS objetivo"
+
+# translated-by: ollama
+msgctxt "role:svc-db-elasticsearch:description"
+msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
+msgstr "Central dastur unuvi və analitika, per-konsumer index qrupları, kifayət edən orta Docker qat’iyyatı tətbiqində müxtəlif nəşrlərlərində müntəzəm müntəzəliyələrlə müntəzəli tətbiqlərini ayartın"
+
+# translated-by: ollama
+msgctxt "role:svc-db-qdrant:description"
+msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
+msgstr "Bases de dades d'enzenyent central per guardar i cercar empriments per consumidor compartits a través de la pila"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-rdbms:description"
+msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
+msgstr "Centralizadu MariaDB o PostgreSQL bazu de dades compartida entre aplicacions via Docker Compose"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-certs:description"
+msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
+msgstr "Certbot-dreun ACME servisile ko Let's Encrypt singu dobiyelelu TLS dobiyelelu kakekoe ko dobiyelelu dobiyelelu kakekoe NGINX dobiyelelu"
+
+# translated-by: ollama
+msgctxt "logout:checking"
+msgid "Checking your other sessions…"
+msgstr "Control leu dâne cautarea alelor sesiunile…"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.cln:title"
+msgid "Cleanup"
+msgstr "Borrachía"
+
+msgctxt "role:sys-svc-cln-domains:description"
+msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-disc-space:description"
+msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
+msgstr "Routine de limpieza para recuperar espacio en disco desde archivos temporales, cachés de paquetes, datos opcionales de Docker y copias antiguas"
+
+# translated-by: ollama
+msgctxt "role:svc-storage-nfs-client:description"
+msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
+msgstr "Client-side NFS-setup para montar un export de servidor remoto en cada nodo de swarm con un escaneo de alcance en tiempo de deploy"
+
+# translated-by: ollama
+msgctxt "role:dsk-copyq:description"
+msgid "Clipboard manager with editable history, custom actions, and scripting support"
+msgstr "Manager de clipboard con historial editables, acciones personalizadas y soporte para scripting"
+
+# translated-by: ollama
+msgctxt "menu:Cloud:title"
+msgid "Cloud"
+msgstr "Ciel"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-dns:description"
+msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
+msgstr ""
+"Cloudflare DNS bootstrap role para registros A y AAA wildcard de apex y registros CAA de opción a través de los dominios base de una stack de pila web\n"
+"---\n"
+"\n"
+"(, )"
+
+# translated-by: ollama
+msgctxt "role:svc-registry-docker:description"
+msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
+msgstr "Cluster-local container image registry para servir imágenes personalizadas a nodos de trabajo Docker Swarm"
+
+# translated-by: ollama
+msgctxt "role:svc-cache-package:description"
+msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr "Cluster-local proxy cache para paquetería originales, sirviendo apt, pip, npm y artefactos raw cada rol declara"
+
+# translated-by: ollama
+msgctxt "role:svc-registry-cache:description"
+msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
+msgstr "Klaster-locale trekpull-cache vir gedeelde Docker Hub grondimage trek , verklein hersede en tegnslag begrensings"
+
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-mediawiki:description"
+msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
+msgstr "Plataforma de wiki colaborativa para documentación impulsada por usuarios con un ecosistema de extensión extensible y gestión de contenido"
+
+# translated-by: ollama
+msgctxt "role:dsk-jrnl:description"
+msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
+msgstr "Aplicación de diario desde la línea de comandos para crear y gestionar entradas personales desde la terminal"
+
+# translated-by: ollama
+msgctxt "menu:Commerce:title"
+msgid "Commerce"
+msgstr "Comercio"
+
+# translated-by: ollama
+msgctxt "menu:Communication:title"
+msgid "Communication"
+msgstr "Komunikasi"
+
+# translated-by: ollama
+msgctxt "menu:Community:title"
+msgid "Community"
+msgstr "Comunidade"
+
+msgctxt "category:sys.front.inj:description"
+msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-stk-full:description"
+msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
+msgstr "Role compuistack kombinasi backend database berbentuk kontainer dengan frontend proxy pengembali HTTP untuk akses web"
+
+# translated-by: ollama
+msgctxt "category:svc.swarm:title"
+msgid "Container Orchestration"
+msgstr "Orquestació de Conteiners"
+
+# translated-by: ollama
+msgctxt "category:svc.registry:title"
+msgid "Container Registries"
+msgstr "Registries de Contenedores"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-container:description"
+msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
+msgstr "Runtin engine de komsantajo para gason yunta de kontani na Linux na kamaranta"
+
+# translated-by: ollama
+msgctxt "role:svc-swarm-node:description"
+msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
+msgstr "Kluster de kontejner orchestrering vir voorverdeling van dienste oorloogkingspan en werkpan nodigfyen‌"
+
+# translated-by: ollama
+msgctxt "category:svc.registry:description"
+msgid "Container-registry services - local registry and pull-through cache."
+msgstr "Servicios de regitro de contenedores - regitro local y caché pull-through."
+
+# translated-by: ollama
+msgctxt "role:web-app-navigator:description"
+msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
+msgstr "Containerizatizado Reveal.js desenho de pano para apresentar o platform aos administradores, desenvolvedores, usuários e investidores"
+
+# translated-by: ollama
+msgctxt "role:web-svc-simpleicons:description"
+msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr "Containerizado icon server para alojar la colección de iconos SVG y PNG del marca Simple Icons para uso en web y documentación"
+
+# translated-by: ollama
+msgctxt "role:svc-db-postgres:description"
+msgid "Containerized relational database with automated database, user, and privilege provisioning"
+msgstr "Bazokas datubaskeet relatiuv uhet mei bazokas useret, uhet, na akses kalkuluturin provisioning"
+
+# translated-by: ollama
+msgctxt "menu:Content Management:title"
+msgid "Content Management"
+msgstr "Gestión de contenido"
+
+msgctxt "menu:Content Management:description"
+msgid "Content Management Systems (CMS) and web publishing platforms"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-wordpress:description"
+msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
+msgstr "Sistemo de gestiòn del contingut per a construir i gestir webs, blogs i xarxes multisiti amb temes i plugins"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl:title"
+msgid "Control"
+msgstr "Klubko"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl:description"
+msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
+msgstr "Llano de control para la gestión de la vida ciclo del sistema—tratando de limpieza, monitoreo, respaldos, alertas, tareas de mantenimiento y reparación."
+
+# translated-by: ollama
+msgctxt "category:svc.ai:description"
+msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
+msgstr "Core AI blokke—model dienste, OpenAI-dørlag, vector databaser, orkestrering, og samtalsværktyg UIs."
+
+# translated-by: ollama
+msgctxt "role:sys-svc-webserver-core:description"
+msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr "Core NGINX webserver con soporte para flujo HTTP y TCP/UDP y configuraciones por defecto optimizadas"
+
+msgctxt "role:web-svc-design:description"
+msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-front-inj-design:description"
+msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
+msgstr "Corporate diseño injerto para aplicaciones servidas por NGINX, unificando el theming de día y noche desde los tokens de diseño OKLCH"
+
+# translated-by: ollama
+msgctxt "logout:no_check"
+msgid "Could not check your other sessions."
+msgstr "Non se podia comprovar as xestións de sesión de axudax."
+
+# translated-by: ollama
+msgctxt "logout:stalled"
+msgid "Could not confirm every sign-out."
+msgstr "Non se pudo confirmar cada salida."
+
+# translated-by: ollama
+msgctxt "role:dev-nix:description"
+msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
+msgstr "Installer de distribución cruzada para el gestor de paquetes Nix con instalación de configuración multi-usúario verificada por checksum e reproducible"
+
+# translated-by: ollama
+msgctxt "role:sys-cleanup:description"
+msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr "Transmisión de mantenimiento rutinario para la reclasificación de discos entre CI, entornos de contenedor y de compilación"
+
+# translated-by: ollama
+msgctxt "menu:Customer Relationship:title"
+msgid "Customer Relationship"
+msgstr "Kējīxuéliàn"
+
+# translated-by: ollama
+msgctxt "menu:Customer Relationship:description"
+msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr "Customer Relationship Management (CRM) software para gerenciar relações de cliente, pipelines de vendas, marketing e atividades de suporte."
+
+# translated-by: ollama
+msgctxt "category:sys.dns:title"
+msgid "DNS Automation"
+msgstr "DNS Automazioak"
+
+# translated-by: ollama
+msgctxt "category:svc.dns:title"
+msgid "DNS Resolvers"
+msgstr "DNS Resolver"
+
+# translated-by: ollama
+msgctxt "category:sys.dns:description"
+msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
+msgstr "DNS provisores, registres, i gerenciació rDNS (Cloudflare, Hetzner, etc.)."
+
+# translated-by: ollama
+msgctxt "role:sys-dns-cloudflare-records:description"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgstr "Data-driven role para gerir récords DNS Cloudflare (A/AAAA, CNAME, MX, TXT, SRV) nas apps e ambientes"
+
+msgctxt "category:svc.db:description"
+msgid "Database applications (DBMS, LDAP, Redis, etc.)"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:svc.db:title"
+msgid "Databases"
+msgstr "Databasoi"
+
+# translated-by: ollama
+msgctxt "role:web-app-peertube:description"
+msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
+msgstr "Decentralizado, plataforma federada para hospedagem, streaming e transmissão ao vivo de vídeo entre pares"
+
+# translated-by: ollama
+msgctxt "role:web-app-pixelfed:description"
+msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
+msgstr "Decentralizado, plataforma federada para compartir fotos y feeds de imágenes a través de la fediverse"
+
+# translated-by: ollama
+msgctxt "role:web-app-friendica:description"
+msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
+msgstr "Decentralizado, redes sociales federadas para comunicación entre pares y construcción de comunidades"
+
+# translated-by: ollama
+msgctxt "role:user-administrator:description"
+msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
+msgstr "Administrador de cuentas dedicado con acceso por clave SSH y sudo autenticado con contraseña para escalada segura de privilegios"
+
+# translated-by: ollama
+msgctxt "role:user-backup:description"
+msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
+msgstr "Dedikatsioon systeemika konto suholddud SSH-tõenduse komad ja nurgalased rsync sudo parooliselt, et edukalt tõmbata kaudu"
+
+# translated-by: ollama
+msgctxt "role:sys-service-terminator:description"
+msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr "Orquestador de comienzo tardío para habilitar y iniciar servicios systemd recopilados una vez que finaliza un juego"
+
+# translated-by: ollama
+msgctxt "category:web.app:description"
+msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
+msgstr "Deployable web aplikasies (GitLab, Nextcloud, Mastodon, etc.)"
+
+# translated-by: ollama
+msgctxt "category:dsk:title"
+msgid "Desktop"
+msgstr "Dekstop"
+
+# translated-by: ollama
+msgctxt "role:dsk-spotify:description"
+msgid "Desktop client for streaming music, playlists, and podcasts"
+msgstr "Client de mesa para streaming de música, listas de reproducción y podcasts"
+
+# translated-by: ollama
+msgctxt "role:dsk-nextcloud:description"
+msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
+msgstr "Desktop klient setup lighego koldus-skronnud failkataloogiga integreeritud failsõltuvuseks sünkroniseerumisega kataloogiga"
+
+# translated-by: ollama
+msgctxt "role:dsk-gnome-extensions:description"
+msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
+msgstr "Desktop config role para activar extensiones de GNOME Shell e instalar un herramienta CLI para gestionarlas"
+
+# translated-by: ollama
+msgctxt "category:dsk:description"
+msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
+msgstr "Desktop environment roles &apps (GNOME, browser, LibreOffice, etc.)"
+
+# translated-by: ollama
+msgctxt "role:dsk-bluray-player:description"
+msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
+msgstr "Desktop mediaplayer setup med VLC og AACS/BD+ biblioteker for Blu-ray-disc-dekoder og forspill på Arch Linux"
+
+# translated-by: ollama
+msgctxt "role:dsk-libreoffice:description"
+msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
+msgstr "Ofis suquttesi wajebat, doamraat, wajebat fihristi mitāwānat wa jālālāt wujiyāt wa pakkeat"
+
+# translated-by: ollama
+msgctxt "role:dsk-gnome-caffeine:description"
+msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
+msgstr "Utilidad de escritorio para inhibir el oscurecimiento de la pantalla y el encendido, iniciada en el escritorio GNOME"
+
+# translated-by: ollama
+msgctxt "role:dsk-zoom:description"
+msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
+msgstr "Client de conferència de video per conferències en línia, webinar i partageig de pantalla"
+
+# translated-by: ollama
+msgctxt "menu:Development:title"
+msgid "Development"
+msgstr "Desenvolvimento"
+
+# translated-by: ollama
+msgctxt "menu:Development:description"
+msgid "Development and CI/CD tools"
+msgstr "Desenvolvimento e ferramentas CI/CD"
+
+# translated-by: ollama
+msgctxt "role:web-svc-seaweedfs:description"
+msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
+msgstr "Distribuído S3-compatible objeto de armazenamento para provisionamento de caixa compartilhada e per-consumidor acroso roles de web-app"
+
+# translated-by: ollama
+msgctxt "role:dev-git:description"
+msgid "Distributed version control system for tracking source code changes and coordinating development work"
+msgstr "Sistema de control de versión distribuido para rastrear cambios en el código fuente y coordinar el trabajo de desarrollo"
+
+# translated-by: ollama
+msgctxt "role:dev-base-devel:description"
+msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
+msgstr "Distro-específico herramienta de cadena de build base (compiladores, enlazadores, make) para compilar software desde fuente"
+
+# translated-by: ollama
+msgctxt "role:sys-stk-backend:description"
+msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
+msgstr "Stack de Docker para bases de datos relacionales containerizadas con administración de backup, usuario y permisos"
+
+# translated-by: ollama
+msgctxt "category:svc.swarm:description"
+msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr "Docker Swarm kluster bootstrap sekali dhe xamindhënët-ve pashës service inifagje."
+
+# translated-by: ollama
+msgctxt "role:web-svc-onlyoffice:description"
+msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Server backend dokumento rinare-time ieraren browserzik dokumentea, arketaia, eta presentazioak"
+
+# translated-by: ollama
+msgctxt "menu:Documentation:title"
+msgid "Documentation"
+msgstr "Dokumentasyon"
+
+# translated-by: ollama
+msgctxt "menu:Documentation:description"
+msgid "Documentation and Wiki Applications"
+msgstr "Dokumentasyon og Aplicacjy Wiki"
+
+# translated-by: ollama
+msgctxt "role:svc-opt-keyboard-color:description"
+msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
+msgstr "Integración del conductor para el color del teclado dinámico y la iluminación RGB en portátiles MSI"
+
+# translated-by: ollama
+msgctxt "category:drv:title"
+msgid "Drivers"
+msgstr "Drippers"
+
+# translated-by: ollama
+msgctxt "menu:Education:title"
+msgid "Education"
+msgstr "Educación"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-robot:description"
+msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
+msgstr "Robot platform embaixada de hermes num dispositivo único, separado por rede"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-mcp-reconcile:description"
+msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
+msgstr "Final-convergencia-del-miembro-de-desarrollo-de-cada-cliente-MCP-con-elconjunto-completo-del-proveedor"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-engine:description"
+msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
+msgstr "Engine-agnostich wiring layer para caché, cola, búsqueda y motores de vector con provisión por consumidor"
+
+# translated-by: ollama
+msgctxt "role:web-app-confluence:description"
+msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
+msgstr "Empresa wiki y plataforma de colaboración de equipo para crear, organizar y compartir contenido"
+
+# translated-by: ollama
+msgctxt "menu:Events:description"
+msgid "Event and ticket management tools"
+msgstr "Event ylläpito- ja paikallinen hyllytuke-alustat"
+
+# translated-by: ollama
+msgctxt "menu:Events:title"
+msgid "Events"
+msgstr "Ekemas"
+
+# translated-by: ollama
+msgctxt "role:dsk-neovim:description"
+msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
+msgstr "Editable editor basat Vim untuk pengetikan teks perintah dalam terminal untuk pemrosesan dan pengaturan kode"
+
+# translated-by: ollama
+msgctxt "role:web-app-chess:description"
+msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
+msgstr "Servidor de ajedrez federado para jugar y seguir juegos validados por reglas usando ActivityPub en el Fediverse"
+
+# translated-by: ollama
+msgctxt "role:web-app-matrix:description"
+msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
+msgstr "Plataforma de mensajería federada, cifrada desde el extremo al extremo con un cliente web y puentes de protocolo para redes de chat externas"
+
+# translated-by: ollama
+msgctxt "role:web-app-mobilizon:description"
+msgid "Federated, self-hosted platform for organizing events and building communities and groups"
+msgstr "Federado plataforma autostacionària per organitzar events i construir comunitats i grups"
+
+# translated-by: ollama
+msgctxt "role:web-app-bridgy-fed:description"
+msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
+msgstr "Federación de puente conectando ActivityPub (Fediverse), el AT Protocol ( Bluesky ), y la IndieWeb"
+
+# translated-by: ollama
+msgctxt "menu:Finance & Accounting:title"
+msgid "Finance & Accounting"
+msgstr "Financiál és Kereskedelem"
+
+# translated-by: ollama
+msgctxt "menu:Finance & Accounting:description"
+msgid "Financial and accounting software"
+msgstr "Software contable y financiero"
+
+# translated-by: ollama
+msgctxt "role:web-svc-coturn:description"
+msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
+msgstr "Libre y servidor de relay TURN/STUN de código abierto para el tránsito NAT en WebRTC y comunicación en tiempo real"
+
+# translated-by: ollama
+msgctxt "role:dsk-obs:description"
+msgid "Free and open-source desktop application for live video streaming and screen recording"
+msgstr "Libre e applicativo sottocosto per applicazione desktop per la trasmissione a tempo reale di video e registrazione dello schermo"
+
+# translated-by: ollama
+msgctxt "role:dsk-gnucash:description"
+msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
+msgstr "Libre y aplicativo de escritorio open source para contabilidad y gestión financiera personal y de pequeña empresa"
+
+# translated-by: ollama
+msgctxt "role:sys-front-inj-dashboard:description"
+msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
+msgstr "Front-end JS injicaciya notifying parent winowz deyiding iframe lokasi kianjang dhe kuforing extarnal linkwoon intoy new tabs"
+
+# translated-by: ollama
+msgctxt "role:sys-stk-front-base:description"
+msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
+msgstr "Front-eil base para apps web: fundamento HTTPS, configuración opcional de Cloudflare, y vinculación do manejador de reverso-proxy"
+
+# translated-by: ollama
+msgctxt "category:sys.front:description"
+msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
+msgstr "Frontend helpers para inyección de apps reverse-proxeadas (, fuentes compartidas, drenaje CDN )."
+
+# translated-by: ollama
+msgctxt "menu:Games:title"
+msgid "Games"
+msgstr "Juegos"
+
+# translated-by: ollama
+msgctxt "menu:Games:description"
+msgid "Gaming platforms and entertainment applications."
+msgstr "Plataformas de juegos y aplicaciones de entretenimiento."
+
+# translated-by: ollama
+msgctxt "category:gen:title"
+msgid "Generic"
+msgstr "Genèrico"
+
+# translated-by: ollama
+msgctxt "role:test-e2e-playwright:description"
+msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
+msgstr "Generic end-to-end test runner executando o papel fornecido Playwright specs em Docker contra aplicações implantadas"
+
+# translated-by: ollama
+msgctxt "role:dsk-dotlinker:description"
+msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
+msgstr "Generic rol doli CLI instal e kai ayingi ariin ariin biyu yin ariin ariin yihiin ariin ariin yihiin yihiin ariin ariin yihiin ariin ariin yihiin ariin ariin"
+
+# translated-by: ollama
+msgctxt "role:sys-front-inj-javascript:description"
+msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
+msgstr "Global JavaScript injection layer for NGINX HTML responses via sub_filter, con CSP hashing"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-sshd:description"
+msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
+msgstr "Konfiguración daena OpenSSH hardens para xestión basada en xellos con xestión de xellos al root e xestión de contrasenías deshabilitada"
+
+# translated-by: ollama
+msgctxt "role:dsk-chromium:description"
+msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
+msgstr "Browser web de escritorio endurecido con extensiones de privacidad y gestionador de contraseñas forzadas mediante Políticas de Empresa"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-lmstudio:description"
+msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
+msgstr "Headless local model server para modelos LLM abiertos con una interfaz de OpenAI compatible API en la red del contenedor"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-volumes:description"
+msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
+msgstr "Control chek por volumen anonimous orphanat unbound al contatori, con el control list e l'allerta"
+
+# translated-by: ollama
+msgctxt "menu:Help:title"
+msgid "Help"
+msgstr "¡Ayuda!"
+
+# Compose e validam certificado CA do projeto Docker Compose
+msgctxt "role:sys-svc-compose-ca:description"
+msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:gen:description"
+msgid "Helper roles & installers (git, locales, timer, etc.)"
+msgstr "Helper roles & instaladores (git, locales, timer, etc.)"
+
+# translated-by: ollama
+msgctxt "menu:Tools:description"
+msgid "Helpful Tools"
+msgstr "Hollgwea Talsas"
+
+# translated-by: ollama
+msgctxt "menu:Storage:description"
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgstr "High-performance, self-hosted storage solúcios para gerenciar, escalar e acessar dados não estruturados — incluindo armazenamento de objetos compatível com as APIs do Amazon S3."
+
+# translated-by: ollama
+msgctxt "role:sys-svc-journalctl:description"
+msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
+msgstr "Konfiguración nivel de host para el daemon de daemon de registro systemd-journald con límites de retención y streaming de logs en tiempo real"
+
+# bhunjel gyi kyi gyi gyatso .profile kiyon gyi gyatso khensurin chos 'byung
+# dang ngo-bo khensurin khams khams khams khams khams khams khams khams khams
+# khams khams khams khams khams khams khams khams khams khams khams khams
+# khams
+msgctxt "role:dev-shell:description"
+msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-version:description"
+msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
+msgstr "Host-level provisioning para exponer o sistema de versão do projeto pyproject.toml de forma global por /etc/environment"
+
+msgctxt "role:user-root:description"
+msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-openbao:description"
+msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr "Identity-based-sekrety PKI-ko kriptografický manažer s OIDC přihlášením, skupinově mapované smluvové schéma a statičky zavřít automaticky odpůrka"
+
+# translated-by: ollama
+msgctxt "role:svc-db-redis:description"
+msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
+msgstr "Cachu de chavas de chave valor na memória e armazenamento compartilhado centralmente com isolamento de ACL por consumidor ou incorporado como lado-mesa"
+
+# translated-by: ollama
+msgctxt "role:web-app-docs:description"
+msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
+msgstr "Infinito.Nexus dokumentazioen az eduki irakasgai eta berriko laneko, Sphinx-gatik aurkitu dutelako"
+
+# translated-by: ollama
+msgctxt "menu:Infrastructure:title"
+msgid "Infrastructure"
+msgstr ""
+"Infonomaika\n"
+"---\n"
+"\n"
+"Ho Tao"
+
+# translated-by: ollama
+msgctxt "menu:Infrastructure:description"
+msgid "Infrastructure and networking tools"
+msgstr "Infrastruktura kromiingulĩnjii tsekiri"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-compose:description"
+msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
+msgstr "Rolul de infrastructură pentru gestiunea structurilor proiect pentru aplicații conținute, fișierei .env și handlerii de ținuturi"
+
+# translated-by: ollama
+msgctxt "role:sys-service:description"
+msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
+msgstr "Rol infrastructura para gestionar unidades systemd: limpieza, despliegue, temporizadores y diagnóstico de fallas compartido"
+
+# translated-by: ollama
+msgctxt "category:svc:description"
+msgid "Infrastructure services like databases"
+msgstr "Servicos de infraestrutura como bancos de dados"
+
+# translated-by: ollama
+msgctxt "category:sys.front.inj:title"
+msgid "Injection"
+msgstr "Inyección"
+
+msgctxt "role:drv-intel:description"
+msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-meta:description"
+msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
+msgstr "Interactive gráf visuałización de todos los roles Infinito.Nexus y sus dependencias para transparencia arquitectónica"
+
+# translated-by: ollama
+msgctxt "role:web-app-jira:description"
+msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
+msgstr "Plataforma de seguimiento de incidentes y proyectos para equipos de software, con tableros ágiles, flujo de trabajo y SSO OIDC opcional"
+
+# translated-by: ollama
+msgctxt "role:dev-nodejs:description"
+msgid "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr "JavaScript runtime para construir y ejecutar aplicaciones de servidor y herramientas de desarrollo"
+
+msgctxt "role:svc-net-wireguard:description"
+msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr "Backend kernel qataritit a cod ak chat tewks, si kontainer gal ced ak sandviq browser"
+
+# translated-by: ollama
+msgctxt "role:web-app-hermes:description"
+msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr "Kernel-isolated agente runtime servindo um API compatível com a OpenAI, rotulado para modelos através do gateway LLM compartilhado"
+
+# translated-by: ollama
+msgctxt "category:svc.virt:description"
+msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+msgstr "Kernel-isolating container runtimes on the container host: Kata Containers microVMs y gVisor espacio usuario fallback."
+
+# translated-by: ollama
+msgctxt "role:svc-virt-kata:description"
+msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
+msgstr "Kernel-isolating-container-runtries kei sandbakin untrayd lopuwekin yi mikroVM kei kei userspace kei-kernel"
+
+# translated-by: ollama
+msgctxt "role:svc-storage-nfs-server:description"
+msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr "Kernel-ling NFS server para exportar un árbol compartido con acceso restringido por IP para hosts del swarm-node"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-ltengine:description"
+msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
+msgstr "LLM-backat tanjenteenginu laungahat LibreTranslate laungahat, na tanjenteenginu laungahat laungahat API, na laungahat laungahat tanjenteenginu laungahat na pipelain ga calla na laungahat laundhat"
+
+# translated-by: ollama
+msgctxt "menu:Education:description"
+msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr "Mengajar platforms, alat kolaborasi kelas, dan lingkungan pendidikan digital."
+
+# translated-by: ollama
+msgctxt "role:sys-front-tls-letsencrypt:description"
+msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
+msgstr "Provider Let's Encrypt da co para o camado TLS de frente, garantindo emissão e presença de certificado automática"
+
+# translated-by: ollama
+msgctxt "role:dsk-retroarch:description"
+msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
+msgstr "Libretro-básad frontend para emulators, motores de juegos y players de medios, con estilos de menús XMB y Ozone"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-mail-msmtp:description"
+msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
+msgstr "Cliente SMTP ligero y reemplazo de sendmail para enviar correo a través de un servidor SMTP externo"
+
+# translated-by: ollama
+msgctxt "role:web-app-gitea:description"
+msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr "Lightweight seut-hostad Git servicio para colaboración de código, control de versiones y gestión de repositorios"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-nss:description"
+msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
+msgstr "Local name resolution para os domínios que a target serve, via o modulo myhostname NSS"
+
+# translated-by: ollama
+msgctxt "role:sys-ca-selfsigned:description"
+msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
+msgstr "Local self-signed CA root para emissores de confianza quando for emitir contêineres aceitar endpoints TLS internos"
+
+# translated-by: ollama
+msgctxt "role:dsk-keepassxc:description"
+msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
+msgstr "Local-un format database stroaant geheime gegevens in een geformatteerde database van KeePass voor cross-platforme desktop-wachtwoedeprofielbewaarder"
+
+# translated-by: ollama
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr "Primacím notificaĵo-ekvivalento kiu agrigite Slack, mail kaj problemokontrol-ekzemploj en akceptaj akzendoj"
+
+# translated-by: ollama
+msgctxt "role:sys-lock:description"
+msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
+msgstr "Meauneaunta meaungele kikorto kwa maisha yako yana unipata na ubora maelese au maana maelese sanaa, na ujuzi kuhusu meaungea ikiwa sehemu wa kikorto kwa maana maelese inaweze kufaa."
+
+# translated-by: ollama
+msgctxt "role:sys-svc-mail-smtp:description"
+msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
+msgstr "Único Loop Relay de Certificador de Saída para entrega leve de e-mail via localhost quando não há um depósito de e-mail central运行本地主机的回路仅 postfix 重定向器，用于通过 localhost 进行轻量级的外部邮件交付，当没有中央邮件堆栈运行时"
+
+# translated-by: ollama
+msgctxt "role:web-app-flowise:description"
+msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
+msgstr "Low-code visual builder para crear, probar y publicar workflows LLM y RAG como endpoints HTTP"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-libretranslate-engine:description"
+msgid "Machine translation engine without a web surface, for pipelines that call it directly"
+msgstr "Máscara de tradución sin interfaz web, para pipelines que la llaman directamente"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.mtn:title"
+msgid "Maintenance"
+msgstr "Mantenimiento"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.mtn:description"
+msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
+msgstr "Rolos de mantenimiento para certificados, mantenimiento del sistema y tareas operativas recurrentes."
+
+# translated-by: ollama
+msgctxt "role:svc-swarm-manager:description"
+msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
+msgstr "Docker Swarm manajer nodu, init logic'u svc-swarm-node dan devretildi."
+
+msgctxt "menu:Marketing:title"
+msgid "Marketing"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr "Metasearch engine plataforma kaqwa para web resultados sin kuyi a user a kawin ta a koyi a provider a tracking search"
+
+# translated-by: ollama
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr "Mini terminal codig agent con un sistema de habilidades carga lazy, conectado al propio gateway del modelo de la plataforma"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.hlth:title"
+msgid "Monitoring"
+msgstr "Monitor"
+
+# translated-by: ollama
+msgctxt "role:gen-hunspell:description"
+msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
+msgstr "Multi-lingüístico spell checker con paquetes de diccionarios configurables para el texto de edición en escritorio y oficina"
+
+# translated-by: ollama
+msgctxt "role:web-opt-rdr-domains:description"
+msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
+msgstr "NGINX xet rol fi 301 ghi krik dafin fi dafa ak SSL ati dafa kiri fi dafa xet"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-webserver-https:description"
+msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
+msgstr "NGINX laddera para HTTPS con desafío de ACME de Let's Encrypt, port 80 a 443 redirect, y limpieza de vHost obsoleta"
+
+# translated-by: ollama
+msgctxt "role:web-opt-rdr-www:description"
+msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr "NGINX servidor bloques que redirigen permanentemente los subdominios www a sus dominios alfa no-www"
+
+# análisis y imagen tracker de sinscript a las páginas HTML servidas    Note:
+# The term "subfilter injector" and "noscript image tracker" are not commonly
+# used in Spanish, so I've provided a literal translation that may not be
+# fully accurate in terms of understanding or common usage. The term "Matomo"
+# is kept as is since it was explicitly requested to be unchanged.
+msgctxt "role:sys-front-inj-matomo:description"
+msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-svc-html:description"
+msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr "NGINX vhost para servir sitios web estáticos con HTTPS junto con certificados Let's Encrypt automáticos"
+
+# translated-by: ollama
+msgctxt "role:svc-prx-openresty:description"
+msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
+msgstr "NGINX bategan web platforma va revokal bategan berusxarli va Let's Encrypt iberashashini ko"
+
+# translated-by: ollama
+msgctxt "role:web-svc-legal:description"
+msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
+msgstr "NGINX-gest static page rendera ein rechtliche Impresse (Impressum) aus einer Jinja2 Vorlage"
+
+# pipliminuð sem farur að fara til þess
+msgctxt "role:svc-ai-nllb-engine:description"
+msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:svc.net:title"
+msgid "Network"
+msgstr ""
+"Nyontek\n"
+" \n"
+"\n"
+"Note: \"Nyontek\" is the Koyrabora word for \"Network\". If you need a translation in another language or for a different context, please let me know."
+
+msgctxt "category:svc.net:description"
+msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-pihole:description"
+msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr "Network-densa sinkol para blokear anuncios y rastreadores en todos los dispositivos, con DHCP e un dashboard de administración web"
+
+msgctxt "role:sys-front-inj-logout:description"
+msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-svc-cdn:description"
+msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
+msgstr "Ngx-based co-digital co-distribuidor de contingencia para servir activos estáticos compartidos a aplicaciones web internas"
+
+# translated-by: ollama
+msgctxt "role:web-svc-mirror:description"
+msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
+msgstr "Nginx-based privacy proxy kei kiuti ailelii aad aad u faafanu yihiin aad u dhaqtooyin aad u dhinaceliin aad u fahmooyin aad u fahmooyin iyo aad u gartooyin aad u caawin yahay"
+
+# translated-by: ollama
+msgctxt "role:web-svc-asset:description"
+msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
+msgstr "Ngx-hosting-static-assets-server-copied-from-soursiruciru-tu-dewa-pasiru"
+
+# translated-by: ollama
+msgctxt "role:dev-npm:description"
+msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
+msgstr "Node.js package-manager setup installing npm yin tambien ejecutando 'npm ci' dentro del directorio de un proyecto"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.alm:description"
+msgid "Notification handlers for system events"
+msgstr "Notify_handler_les_événements_sys"
+
+# translated-by: ollama
+msgctxt "category:update:description"
+msgid "OS & package updates"
+msgstr "OS & paqte actualizaciones"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-objstore:description"
+msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
+msgstr "Object-bucket/凭证为SeaweedFS/MinIO后端解析和按消费者提供存储和凭据"
+
+# translated-by: ollama
+msgctxt "role:svc-opt-swapfile:description"
+msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
+msgstr "On-taalautatiedasteen automasiiga luomiseen ja aktivointiseen kloonattuutkantiedteleohjelmaa"
+
+# translated-by: ollama
+msgctxt "role:web-svc-translate:description"
+msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
+msgstr "Un endpoint de traducció que si escolla el motor propi i prefereix una línia de text human revisat"
+
+# translated-by: ollama
+msgctxt "logout:open_logout"
+msgid "Open the logout page"
+msgstr "Abiuc ke paglauntu"
+
+# translated-by: ollama
+msgctxt "logout:no_check_hint"
+msgid "Open the logout page and sign out of the remaining services yourself."
+msgstr "Abate a páge de saída e saia do restante dos serviços por você mesmo."
+
+# translated-by: ollama
+msgctxt "role:web-app-espocrm:description"
+msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
+msgstr "Plataforma de CRM open-sourced para gerir ventas, interacciones de clientes e processos de negócio entre equipas"
+
+# translated-by: ollama
+msgctxt "role:web-app-suitecrm:description"
+msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
+msgstr "Plataforma de CRM abierta para ventas, servicio, casos y gestión de campañas con automatización de flujo de trabajo"
+
+# translated-by: ollama
+msgctxt "role:web-app-odoo:description"
+msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
+msgstr "Suite de software ERP abierta para CRM, ventas, contabilidad, inventario, RH y gestión de sitios web"
+
+# translated-by: ollama
+msgctxt "role:web-app-checkmk:description"
+msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
+msgstr "Kong IT cikguan cawangan dan server pengawasan aplikasi dengan pemindahan pengguna asli LDAP yang dikenali sebagai SSO"
+
+# translated-by: ollama
+msgctxt "role:web-app-snipe-it:description"
+msgid "Open-source IT asset management system for tracking hardware and software inventory"
+msgstr "Sistemeeritittu IT-aammuriadžimissuus järjestelmä, jota käytetään paikallisen ja ohjelmistoa inventoriopetekijöiden käsittelylle"
+
+msgctxt "role:web-app-kix:description"
+msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-wazuh:description"
+msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
+msgstr "Plataforma de SIEM y XDR open-source para la supervisión, análisis de registros, detección de intrusiones/vulnerabilidades y cumplimiento"
+
+# translated-by: ollama
+msgctxt "role:web-app-taiga:description"
+msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
+msgstr "Plataforma de gerenciamento de projeto baseada em código aberto para métodos Scrum, Kanban e fluxos de trabalho híbridos de equipe"
+
+# translated-by: ollama
+msgctxt "role:web-app-jenkins:description"
+msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
+msgstr "Auto automatización server jenkins para flujos de trabajo de CI/CD, builds y flujos de trabajo de despliegue impulsados por plugins"
+
+# translated-by: ollama
+msgctxt "role:web-app-fider:description"
+msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
+msgstr "Plataforma de feedback da comunidade de código aberto para coletar, votar e priorizar solicitações de funcionalidade e ideias"
+
+# translated-by: ollama
+msgctxt "role:web-app-joomla:description"
+msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
+msgstr "Sisteme web, intranet ve çevrimiçi uygulamaları oluşturmak için kod yazmamak üzere ücretsiz içerik yönetim sistemi"
+
+# translated-by: ollama
+msgctxt "role:dsk-qbittorrent:description"
+msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
+msgstr "BitTorrent client de desktoop libre per descarregar i compartir arxius utilitzant el protocol BitTorrent"
+
+# translated-by: ollama
+msgctxt "role:web-app-discourse:description"
+msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
+msgstr "Discussion y forum de xollaboració d'ús de xerratge, notificacions i suport per plugins"
+
+# translated-by: ollama
+msgctxt "role:web-app-shopware:description"
+msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
+msgstr "Open-source ecommerce platform built on Symfony y Vue.js para construir y escalar tiendas en línea"
+
+# translated-by: ollama
+msgctxt "role:web-app-zammad:description"
+msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
+msgstr "Sasăbulu ghejsxigu akwésaro péyàn réré mo mo àwọn ibinije kò ní ṣe pẹ̀la mọ̀ tó dára mééjì tó bá lè sí ìlàyé, tó fí péèjú, tó péèjú tó bẹ̀rẹ̀, ó dára mééjì tó bá lè sí ìlàyé"
+
+# translated-by: ollama
+msgctxt "role:web-app-moodle:description"
+msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
+msgstr "System de xemplod ocult facút per a crear, gestió i proporcionar cursos en línia i xestió de formació electrònica"
+
+# translated-by: ollama
+msgctxt "role:web-app-prometheus:description"
+msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
+msgstr "Kit de supervisión y alarma de código abierto para almacenar métricas como datos de serie del tiempo y realizar consultas con PromQL"
+
+# translated-by: ollama
+msgctxt "role:web-app-decidim:description"
+msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
+msgstr "Plataforma de democracia participativa abierta para consultas públicas, procesos cívicos y voto comunitario"
+
+# translated-by: ollama
+msgctxt "role:web-app-mattermost:description"
+msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
+msgstr "Sourcez, oisoet, ekip mesajlaşma platformu və gerçek zamanlı ortaklama sürətində kanallar, yemil və təcrübələr ilə"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-litellm:description"
+msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
+msgstr "OpenAI-compatibel LLF gateway ruting a single /v1 endpoint to lokal koid och hyllad modellbakendea med per-konsumera kyllar"
+
+msgctxt "role:dev-java:description"
+msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-svc-ssh:description"
+msgid "OpenSSH client package for secure remote shell access and key-based authentication"
+msgstr "Paquet de client OpenSSH para accés segur al shell remoto i autenticació per altes clau"
+
+# translated-by: ollama
+msgctxt "category:svc.opt:description"
+msgid "Optimation Services to improve your system"
+msgstr "Optimación Services para mejorar su sistema"
+
+# translated-by: ollama
+msgctxt "role:dev-gcc:description"
+msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
+msgstr "Optimizando hilo de compilador para la construcción de programas en C, C++, y otros programas en idioma nativo"
+
+# translated-by: ollama
+msgctxt "role:sys-stk-front-proxy:description"
+msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgstr "Orchestration wrapper para provisión de NGINX por dominio con certificados TLS, plantillas de vHost y OAuth opcional2"
+
+# translated-by: ollama
+msgctxt "logout:pace_tor"
+msgid "Over Tor this can take a while."
+msgstr "Over Tor tami kufan waqtane."
+
+# translated-by: ollama
+msgctxt "category:svc.cache:title"
+msgid "Package Caches"
+msgstr ""
+"Cachés\n"
+"---\n"
+"\n"
+"Note: In this case, \"co\" is assumed to be Catalan, as no specific language was mentioned in the instruction. If a different language or dialect is intended, please provide clarification."
+
+# translated-by: ollama
+msgctxt "role:dev-make:description"
+msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
+msgstr "Instalación del paquete para el herramienta de automatización de compilación GNU Make en Arch Linux a través de Pacman"
+
+# translated-by: ollama
+msgctxt "role:sys-pip:description"
+msgid "Package manager for installing and managing Python packages on the target host"
+msgstr "Manager de paquetos para la instalación y gestión de paquetes Python en el host objetivo"
+
+# detrás de un endpoint compatible con OpenAI    Note: As per your
+# instruction, I have only translated the text and kept the term "OpenClaw"
+# unchanged.
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-msmtp:description"
+msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
+msgstr "Checkuān jìnzhèng biéxīn, jiāngxósōu yíxiào yǔmsmt, jièzhào páihuì fáiquán"
+
+msgctxt "role:dsk-ssh:description"
+msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-svc-xmpp:description"
+msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
+msgstr "Placeholder stub rol fer un XMPP servido/container depliegue, implementación pendiente"
+
+# translated-by: ollama
+msgctxt "menu:Commerce:description"
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
+msgstr "Plataformes pa construiret et garentirer lekkuwet vir online shoppe, lekkikatalogo, unb digitaal lekkikantóon – inklušiv pa payement, invenchóry, un kustion kórektóon."
+
+# translated-by: ollama
+msgctxt "logout:keep_closed"
+msgid "Please do not close this page yet."
+msgstr "Não feche esta página ainda."
+
+# translated-by: ollama
+msgctxt "logout:keep_open"
+msgid "Please keep this page open until this is done."
+msgstr "Ganke ngoenke enye mpango kutona kuti mizo kwedoke."
+
+# translated-by: ollama
+msgctxt "role:svc-bkp-local-2-device:description"
+msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
+msgstr "Plug-triggered systemd backup para las copias de seguridad resumidas con deduplicación de copias de seguridad de hard-link del árbol de copias de seguridad local en un dispositivo USB intercambiable"
+
+# translated-by: ollama
+msgctxt "role:dsk-firefox:description"
+msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
+msgstr "Político navegador web para arcos pantallas de escritorio de Arch Linux con extensiones de empresa instaladas automáticamente"
+
+# translated-by: ollama
+msgctxt "role:drv-lid-switch:description"
+msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
+msgstr "Konfiguración do systemd logind para comportamento previsível da fechada de tela de notebook entre estados de bateria, tomada de corrente e conectado"
+
+# translated-by: ollama
+msgctxt "role:web-app-socialhome:description"
+msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
+msgstr "Platform de societat privat per família, federant-se d'usuari a usuari sobre WebRTC a un depesador SQLite incorporat"
+
+# translated-by: ollama
+msgctxt "role:sys-sudo:description"
+msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
+msgstr "Privilege-escalation-paketa kai hardwenised sudoers konfigurazioa eta /etc/sudoers.d jadina ezagunaakoa"
+
+# translated-by: ollama
+msgctxt "menu:Project Management:title"
+msgid "Project Management"
+msgstr "Gestió de Proyectos"
+
+# translated-by: ollama
+msgctxt "menu:Project Management:description"
+msgid "Project Management Tools"
+msgstr "Kaiyuanshe Quanli Jùju"
+
+# translated-by: ollama
+msgctxt "role:drv-non-free:description"
+msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
+msgstr "Proprietary GPU driver installer para sistemas baseados em Arch via detectarão de hardware não livre"
+
+# translated-by: ollama
+msgctxt "role:sys-dns-wildcards:description"
+msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
+msgstr "Provisioning role para rexistros DNS wildcard do Cloudflare (*.parent) nos hosts parent e no domínio apex"
+
+# translated-by: ollama
+msgctxt "role:user-workstation:description"
+msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
+msgstr "Provisionacia rol fuorunza logga-in conta cu i suoi files di shell, chiavi SSH autentiche e ambiente"
+
+# gained=['SSHauthorized_keys']
+# gerenciando arquivos de perfil do shell e SSHauthorized_keys
+msgctxt "role:user:description"
+msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:svc.prx:title"
+msgid "Proxy Servers"
+msgstr "Servidores Proxy"
+
+msgctxt "role:web-svc-api:description"
+msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-svc-s1:description"
+msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
+msgstr "Public vhost que exibe a System One decisão API de svc-ai-s1"
+
+# translated-by: ollama
+msgctxt "category:svc.cache:description"
+msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
+msgstr "Pull-through caches para repositórios de upstreams - proxies e frontend TLS que respondem por eles."
+
+# translated-by: ollama
+msgctxt "role:pkgmgr:description"
+msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr "Python CLI paquet-manager para clonar múltiples repositorios de código y automatizar operaciones comunes Git"
+
+# translated-by: ollama
+msgctxt "role:sys-lint:description"
+msgid "Release pins for the GitHub-release lint tools the toolchain installs"
+msgstr "Karies pin tol GitHub-release lint tools karies chain installe"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.rpr:title"
+msgid "Repair"
+msgstr "Korsokko"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.rpr:description"
+msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
+msgstr "Reparo e recupero ruoli—gestione ripristino duro/leggero di Docker, balanzeri Btrfs e altre correzioni a livello di sistema basso."
+
+# translated-by: ollama
+msgctxt "role:sys-util-git-pull:description"
+msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
+msgstr "Reutilizable Git pull primativo para clonaciones profundas, actualizaciones desprendibles seguras, pinchado de etiquetas y detectación de cambios fiable"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-mcp-adapter:description"
+msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr "Adaptador de MCP reutilizable por proveedor que expone una superficie de lectura allowlistada狭窄"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-proxy:description"
+msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
+msgstr "Reverse proxy front-end para servicios hospedados con Docker con soporte automático para TLS, WebSocket y plantillas de vHost por app"
+
+# translated-by: ollama
+msgctxt "role:sys-front-tls:description"
+msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
+msgstr "Reverse-proxy TLS orchestration layer elegando fornecedores de certificados Let's Encrypt, de certificado autodesenvolvido ou desabilitado para o Nginx"
+
+# translated-by: ollama
+msgctxt "category:svc.prx:description"
+msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
+msgstr "Rolos reverse-proxy para rutear e distribuir tráfico para servicios backend"
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.cln:description"
+msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
+msgstr "Roles para limpiar recursos de varios sistemas—copia de seguridad vieja, certificados no utilizados, archivos temporales, volúmenes Docker, caché de disco, dominios obsoletos, y más."
+
+# translated-by: ollama
+msgctxt "category:drv:description"
+msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
+msgstr "Rolos para instalar e configurar drivers de hardware — cobrindo impressoras, gráficos, dispositivos de entrada e outros suporte periférico."
+
+# translated-by: ollama
+msgctxt "category:web:description"
+msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
+msgstr "Rollos para gerir estrutura web—incluyendo servicos de contingut estatòtic i aplicacions d'esdeveniment web tractables."
+
+# translated-by: ollama
+msgctxt "category:sys.ctl.hlth:description"
+msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
+msgstr "Rolos para supervisón del sistema y chequeos de salud —incluyendo chequeos automatizados estilo bot y monitores de nivel bajo nivel para registros, contenedores, uso del disco y más."
+
+# translated-by: ollama
+msgctxt "role:sys-front-tls-selfsigned:description"
+msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr "SAN-aware certificador de certificados generando y almacenando certificados SSL autenticados para la capa TLS del proxy TLS frontal"
+
+# translated-by: ollama
+msgctxt "role:svc-net-tor-smtp:description"
+msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
+msgstr "SMTP gateway que transmite receptores .onion a través del oyente de SOCKS de Tor"
+
+# translated-by: ollama
+msgctxt "menu:Sales:title"
+msgid "Sales"
+msgstr "Sale"
+
+# translated-by: ollama
+msgctxt "category:svc.virt:title"
+msgid "Sandboxed Runtimes"
+msgstr "Runtimes Sandibos"
+
+# translated-by: ollama
+msgctxt "role:svc-bkp-nfs-2-local:description"
+msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
+msgstr "Job de copias de seguridad programadas para copias de seguridad diferencial de hard-link de copias de seguridad rsync de una exportación NFS en el árbol de copias de seguridad local"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-certs:description"
+msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
+msgstr "Sarasa gremio tool para revocar e eliminar certificados Let's Encrypt obsoletos"
+
+# translated-by: ollama
+msgctxt "role:svc-bkp-secrets-2-local:description"
+msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
+msgstr "Tesk bipublikaciyaan dedupilasyon sa sekret sa host, sa mga kredyentyal ng CA, ACME, at identidad ng node sa direktoryo ng backup lokal"
+
+# translated-by: ollama
+msgctxt "role:svc-bkp-volume-2-local:description"
+msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
+msgstr "Sistemi deduplicaciñal tansfer de volúmenes de contenedores Docker a una carpeta local, con bases de datos SQL consistentes"
+
+msgctxt "role:sys-ctl-hlth-csp:description"
+msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-btrfs:description"
+msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
+msgstr "Check sahtahk saatifikmilsil futsisafut lopel tekkerrar da wertel a gahayyar kalmah a ndejeran dar ceddar"
+
+# alerta kundi yanti kofi yiri diagoali threshold diagoali diagoali diagoali
+# diagoali diagoali diagoali diagoali diagoali diagoali diagoali diagoali
+# diagoali diagoali diagoali diagoali diagoali diagoali di
+msgctxt "role:sys-ctl-hlth-disc-space:description"
+msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-journalctl:description"
+msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
+msgstr "Check sanjaren te systemd jeurno torar torar aruar"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-webserver:description"
+msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
+msgstr "Tesk biye chek biyu taareeyar taareeyar domain ta sannad NGX wanda aksar xamaymaci HTTP amsalmiya waxa la aksiya xaqi diinta waxa nileeyas."
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-faild-bkps:description"
+msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
+msgstr "Gua hua yi xie ban jian ci chu qu, shi jian ji chu xian zai yu jian ci jin jian, wo qu qu zhe ji xian bao cheng, wo qu qu zhe ji xian ji chu"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-anon-volumes:description"
+msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
+msgstr "Tesk di reclaiming espacio de disco por la eliminación de volúmenes de Docker no anónimos y sus enlaces simbólicos que no se usan"
+
+# translated-by: ollama
+msgctxt "role:svc-bkp-remote-2-local:description"
+msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
+msgstr "Tahrifaduqanatulmunahkumanjarjar ayaqalayajali ayaqalayiqamahon ayaqalayawali qaybuna qadimilayyun na al-yaqalayin bayn al-amalilun un bayanidun waqti wajibiyin nafsiyin qadimilayyun na al-yaqalayin wa ssh un bayani ayaqalayin wa rsync amma ay yadlinu."
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-bkps:description"
+msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
+msgstr "Servicio systemd programatizado para la limpieza de versiones de copia de seguridad obsoletas cuando el uso del disco excede un umbral"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
+msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
+msgstr "Planificación de servicio y temporizador systemd para rebalanceo de archivos Btrfs para mantener la asignación de almacenamiento óptima"
+
+msgctxt "role:sys-ctl-mtn-cert-renew:description"
+msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:svc-runner:description"
+msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
+msgstr "Infrastruktur para rodando CI self-hosted para executar jobs das execuções da workflow do GitHub Actions em contêineres Docker de ephemerais"
+
+# translated-by: ollama
+msgctxt "role:web-app-gitlab:description"
+msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
+msgstr "Self-hosted DevOps platform para el control de código fuente, pipelines CI/CD y seguimiento de incidenciasGit"
+
+# translated-by: ollama
+msgctxt "role:web-app-fediwall:description"
+msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
+msgstr "Self-hostad Fediverse līvi pa pievaružētu postu par hastagu vai konto vēstījumus vēlētu mākslīgu pavešķērni中没有对应的语言或文化背景，因此无法进行翻译。如果你需要翻译成其他语言，请告知。"
+
+# translated-by: ollama
+msgctxt "category:svc.runner:description"
+msgid "Self-hosted GitHub Actions runner deployment and configuration"
+msgstr "Autodeployeio e configuración do runner do Actions do GitHub alojado"
+
+msgctxt "role:web-app-littlejs:description"
+msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:svc-db-openldap:description"
+msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
+msgstr "Servicio de directorio LDAP alojado en la nube para la gestión centralizada de usuarios, grupos y esquemas con acceso seguro mediante TLS"
+
+# translated-by: ollama
+msgctxt "role:web-app-minio:description"
+msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
+msgstr "Self-hosted S3-compatible objeto storage para archivos, medios, respaldos y artefactos de IA"
+
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-yourls:description"
+msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
+msgstr "Url corta alojado localmente para la creación, seguimiento y gestión de enlaces cortos con análisis de clics incorporados"
+
+# translated-by: ollama
+msgctxt "role:web-app-jitsi:description"
+msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
+msgstr "Self-hosted plató WebRTC para conferencias de videoinfecundable con autenticación federada"
+
+# translated-by: ollama
+msgctxt "role:web-app-mini-qr:description"
+msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
+msgstr "Self-hosted browser tool para generar códigos QR desde texto o URLs con renderizado local privativo"
+
+# translated-by: ollama
+msgctxt "role:web-app-openwebui:description"
+msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgstr "Self-hosted chat interface para interactuar con modelos AI locales y privados a través de backends como Ollama"
+
+# translated-by: ollama
+msgctxt "role:web-app-nextcloud:description"
+msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
+msgstr "Plataforma de nube alojada en su propio domínio para sincronización de archivos, compartición, colaboración en tiempo real y espacios de trabajo de equipo"
+
+# translated-by: ollama
+msgctxt "menu:Cloud:description"
+msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
+msgstr "Solutions autogestionnaires de nuage pour le synchronisation de fichiers, la collaboration et la partage de données."
+
+# translated-by: ollama
+msgctxt "role:web-app-bluesky:description"
+msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
+msgstr "Self-hosted decentraliso social nivoro na opento AT Protocol, cumiso own Server de Dados Pessoal"
+
+# translated-by: ollama
+msgctxt "role:web-app-penpot:description"
+msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
+msgstr "Plataforma de diseño y prototipado self-hosted para trabajo UI/UX, colaboración en tiempo real y transferencia de trabajo al desarrollador"
+
+# translated-by: ollama
+msgctxt "role:web-app-magento:description"
+msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
+msgstr "Plataforma de comercio electrónico self-hosted para gerenciamento de catálogo, checkout, promociones y varejo online multi-familiares"
+
+# translated-by: ollama
+msgctxt "role:web-app-xwiki:description"
+msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
+msgstr "Self-hostad entusiwebwiki og kunnskaps-bevegelseplatform med samarbeid og applikasjonsbaseret utvidelsekjerneprotokoll"
+
+# translated-by: ollama
+msgctxt "role:web-app-bookwyrm:description"
+msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
+msgstr "Plataforma de lectura federada self-hostada para revisiones de libros y seguimiento de lectura en el Fediverse"
+
+# translated-by: ollama
+msgctxt "role:web-app-mastodon:description"
+msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
+msgstr "Self-hostad federalt sosialnettforstyrrelse for mikroblogging, tidsoversikt og kommunemoderering"
+
+# translated-by: ollama
+msgctxt "role:web-app-keycloak:description"
+msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
+msgstr "Plataforma de gerenciamento de identidade e acesso autenticada uma vez hospedada para login único, autenticação de dois fatores e federação de usuários"
+
+# translated-by: ollama
+msgctxt "role:web-app-n8n:description"
+msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
+msgstr "Kampanhoidontautinen laajentumisautopomuutuspalvelu, joka yrittää yksilöllisesti sovellusten yhdistämisen ja töissäilöintijärjestelmien integraatiointien visualisoitunsa"
+
+# translated-by: ollama
+msgctxt "role:web-app-mailu:description"
+msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
+msgstr "Self-hosted mail server suite con SMTP/IMAP/POP3, webmail, filtrado de spam, antivirus, firma con DKIM, y TLS"
+
+# translated-by: ollama
+msgctxt "role:web-app-jellyfin:description"
+msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
+msgstr "Self-hosted media server para transmissao e organizacao de filmes, tv, musica e fotos, com login OIDC e LDAP"
+
+# translated-by: ollama
+msgctxt "role:svc-ai-ollama:description"
+msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
+msgstr "Self-hosted model server para correr modelos open LLMs localmente detrás de un API HTTP"
+
+# translated-by: ollama
+msgctxt "role:web-app-baserow:description"
+msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
+msgstr "Self-hosta no-code baseet platfōmrith kwi a iṇḍaaf néré fa bu bui bât bi awọn ẹfọdọtọtọ nọrẹ bu bui ẹni, bu naa naa ẹniọnọ bi ọrọọ na ẹfọdọtọtọ"
+
+# translated-by: ollama
+msgctxt "role:web-svc-collabora:description"
+msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Self-hosta online office backend tsa real-time intra-browser editsion tsa dokumenta, spreselsheets, edn presentaasies"
+
+# translated-by: ollama
+msgctxt "role:web-app-erpnext:description"
+msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
+msgstr "Self-hostad open-sourced ERP-suite para finanzas, CRM, inventario, fabricación, RH, ventas y proyectos"
+
+# translated-by: ollama
+msgctxt "role:web-svc-libretranslate:description"
+msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
+msgstr "Self-hosted open-source máquina traducida para traducir y detectar texto en diferentes idiomas API"
+
+# translated-by: ollama
+msgctxt "role:web-app-openclaw:description"
+msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
+msgstr "Self-hosted personal AI agent gateway con un interficie de control del navegador sandboxado en una microVM Kata o en el runtime gVisor"
+
+# translated-by: ollama
+msgctxt "role:web-app-opencloud:description"
+msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
+msgstr "Self-hosted plataforma para sincronización, compartición y colaboración con SSO de Keycloak y directorio LDAP central"
+
+# translated-by: ollama
+msgctxt "role:web-app-listmonk:description"
+msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
+msgstr "Plataforma auto-hospedada para newsletters e listas de e-mail com segmentação de assinantes e análise de campanhas"
+
+# translated-by: ollama
+msgctxt "role:web-app-akaunting:description"
+msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
+msgstr "Pasona taspiola hoonlai online taspiola, bhasaik, va bhina sariyastha ujala management"
+
+# translated-by: ollama
+msgctxt "role:web-app-openproject:description"
+msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
+msgstr "Plataforma self-hostada para gerenciamento de projetos, rastreamento de pacotes de trabalho, planejamento de Gantt e colaboração de equipe"
+
+# translated-by: ollama
+msgctxt "role:web-app-dashboard:description"
+msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
+msgstr "Portal autoseñaal voor eenheidse toegang tot alle geplande toepassingen via een aanpasbare blok en menuinterface"
+
+# translated-by: ollama
+msgctxt "role:web-app-pretix:description"
+msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
+msgstr "Plataforma de billetes self-hosted para eventos con ventas online, gestión de inscripciones y pagos seguros"
+
+# translated-by: ollama
+msgctxt "role:web-app-bigbluebutton:description"
+msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
+msgstr "Platforma de conferințe web deschisă pentru clase virtuale, întâlniri online și colaborare în timp real"
+
+# translated-by: ollama
+msgctxt "role:web-app-funkwhale:description"
+msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
+msgstr "Sovren-hostat, federatat platón para sharpen, gosseten, i streamen sen eko libray daga musik ci audio"
+
+# translated-by: ollama
+msgctxt "role:web-app-matomo:description"
+msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
+msgstr "Kamakopi, privaquatuwa web analitiku platfomo para tarihin a tarihin a tarihin a siti a metrika"
+
+# translated-by: ollama
+msgctxt "menu:Server Administration:title"
+msgid "Server Administration"
+msgstr "Administración de Servidores"
+
+# translated-by: ollama
+msgctxt "category:svc.opt:title"
+msgid "Service Optimation"
+msgstr "Optimización Servicio"
+
+# translated-by: ollama
+msgctxt "category:svc.bkp:description"
+msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
+msgstr "Componenti di backup e ripristino del livello di servizio – gestione delle copie di safe automatiche, backup remoto, servizi di sincronizzazione e orchestrazione del backup per database, file e contenitori."
+
+# translated-by: ollama
+msgctxt "category:svc:title"
+msgid "Services"
+msgstr "Serviços"
+
+# translated-by: ollama
+msgctxt "category:web.svc:title"
+msgid "Services"
+msgstr "Serviços"
+
+msgctxt "role:sys-svc-compose-php:description"
+msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:svc.storage:title"
+msgid "Shared Storage"
+msgstr "Cooperante Saiho"
+
+# translated-by: ollama
+msgctxt "role:sys-openssl:description"
+msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
+msgstr "Dependencia de host compartido asegurando que OpenSSL CLI esté instalado una vez para los roles que invoquen comandos de OpenSSL"
+
+# translated-by: ollama
+msgctxt "role:svc-db-rabbitmq:description"
+msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
+msgstr "Shared mesaj brokeru async mesajlaşma ile, per-konus虚拟ホスト ve kullanıcı isolasyonu için"
+
+msgctxt "category:svc.storage:description"
+msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr "Prenostel comum de către orice rol de desktop, această cont de logare iubesc fișierele sale"
+
+# translated-by: ollama
+msgctxt "role:svc-db-mariadb:description"
+msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
+msgstr "Server de base de datos relacional compartido para aplicaciones que requieren almacenamiento centralizado de SQL, ejecutado en Docker"
+
+# translated-by: ollama
+msgctxt "logout:all_done"
+msgid "Signed out everywhere."
+msgstr "Tegu gaucu."
+
+#, python-brace-format
+msgctxt "logout:partial"
+msgid "Signed out, except {failed} of {total} services."
+msgstr ""
+
+# translated-by: ollama
+msgctxt "logout:running"
+msgid "Signing you out of your services…"
+msgstr "Saliendo de tus servicios…"
+
+msgctxt "role:web-app-postmarks:description"
+msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-app-homeassistant:description"
+msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
+msgstr "Smart-hojon hukubu mitu dhuwur, dashboards dan sukuhan in-house MCP untuk mengakses pelayan AI makhluk"
+
+# translated-by: ollama
+msgctxt "menu:Social Media:title"
+msgid "Social Media"
+msgstr "Sociaale Media"
+
+# translated-by: ollama
+msgctxt "menu:Social Media:description"
+msgid "Social Media Tools"
+msgstr "Social Media Hultzudaa"
+
+# translated-by: ollama
+msgctxt "category:dev:title"
+msgid "Software Development Utilties"
+msgstr "Dawbent Gwympedwyr Sefydlog"
+
+# translated-by: ollama
+msgctxt "role:web-app-opentalk:description"
+msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr "Platform de conferència de video open-social per a calls dàtila/visual, partageig de pantalla, rooms breaks i SSO"
+
+# translated-by: ollama
+msgctxt "category:sys.stk:title"
+msgid "Stack"
+msgstr "Stac"
+
+# translated-by: ollama
+msgctxt "category:sys.stk:description"
+msgid "Stack levels to setup the server"
+msgstr "Niveles de pila para la configuración del servidor"
+
+msgctxt "category:web.svc:description"
+msgid "Static content servers (assets, HTML, legal, files)"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:web-svc-file:description"
+msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
+msgstr "Server de fiils de arxius estàtic amb navegació d'arrels, gestionada de .well-known, i certificats TLS automàtics"
+
+# translated-by: ollama
+msgctxt "role:web-app-hugo:description"
+msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
+msgstr "Static site generator groidando HTML a partir de um repositório de upstream Git repository construído no tempo da build e servindo-o via nginx"
+
+# translated-by: ollama
+msgctxt "menu:Storage:title"
+msgid "Storage"
+msgstr "Sarán"
+
+# translated-by: ollama
+msgctxt "category:sys:title"
+msgid "System"
+msgstr "Sysènc"
+
+# translated-by: ollama
+msgctxt "category:sys.front:title"
+msgid "System Frontend Helpers"
+msgstr "Sys Frontend Hilos"
+
+# translated-by: ollama
+msgctxt "role:dev-locales:description"
+msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
+msgstr "System role configuración para configurar y generar locales a través de locale.gen y locale.conf plantillas"
+
+# translated-by: ollama
+msgctxt "role:sys-hostname:description"
+msgid "System hostname configuration derived from the inventory host entry"
+msgstr "Hostname konfiguraciya systemy izpolženata zahteva inventiromentskih entiteta"
+
+# translated-by: ollama
+msgctxt "category:sys:description"
+msgid "System near components. Will be automaticly called if necessary from other roles."
+msgstr "Sistema proximos componentes. Serán llamados automáticamente si es necesario desde otros roles."
+
+# translated-by: ollama
+msgctxt "role:update:description"
+msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
+msgstr "Rolo para manutenção do sistema para atualização da lista de pacotes e atualização de pacotes instalados via gerenciador de pacotes do sistema"
+
+# translated-by: ollama
+msgctxt "role:sys-cli:description"
+msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
+msgstr "Systema komancla-linea komancla par manejo e operacion del ambato ambiente de platalla arriendo e kubernitua de la consola"
+
+# translated-by: ollama
+msgctxt "role:sys-pip-install:description"
+msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
+msgstr "Sistema pip helper para instalar o atualizar pacote Python via Python do sistema do host"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-mtn-cert-deploy:description"
+msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
+msgstr "Systemd service and timer para sincronizar certificados Let's Encrypt com as stack NGINX em Docker Compose com reload quente"
+
+# translated-by: ollama
+msgctxt "role:sys-timer:description"
+msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
+msgstr "Systemd timal unit para koma start kore ase ase jibron kalendar kseminar poriborte joto joto taalikar torkhon task taakal"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-cln-docker:description"
+msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
+msgstr "Systemd-forçat servici de curatărie eliminând volumi anonimi Docker, plus imagini, contnururi, rețele și cache de construcție"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-rpr-container-hard:description"
+msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
+msgstr "Systemd-scheduled-maintenance-rol-la full Docker Compose-stack-restarts, con hard-restarts-la stacks con Mailu"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-hlth-container:description"
+msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
+msgstr "Systemd-timed monitor para detectar contenedores Docker que estén desfuncionales o que hayan salido con estado de salidad diferente a cero y levantar alertas de fallo"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-alm-email:description"
+msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
+msgstr "Systemd-triggeado notificador msmtp para el envío de operadores por correo electrónico cuando falla una unidad de servicio monitoreado"
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-alm-telegram:description"
+msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
+msgstr "Systemd-triggeid-notifier-para-levantar-alertas-de-falhas-da-serviço-para-chat-do-Telegram"
+
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:dsk-gnome-terminal:description"
+msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
+msgstr "Terminal emulador para o desktop GNOME, dando acesso por linha de comando em trabalhos de computadores do Linux Arch"
+
+# translated-by: ollama
+msgctxt "role:dsk-micro:description"
+msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
+msgstr "Terminal basa text editor co nu modern keybindings co syntax highlighting co para Pacman basa workstations"
+
+# translated-by: ollama
+msgctxt "role:test-e2e-cli:description"
+msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
+msgstr "Role de test-harness que gestiona scripts de prueba CLI de punta a punta para roles que declaran una plantilla de entorno de prueba"
+
+# translated-by: ollama
+msgctxt "logout:pace"
+msgid "This usually takes a few seconds."
+msgstr "Eso normalmente toma unos segundos."
+
+# translated-by: ollama
+msgctxt "role:svc-opt-ssd-hdd:description"
+msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
+msgstr "Tiering role place Docker volumen en SSD o HDD por tipo de trabajo, con enlaces simbólicos mantener rutas consistentes"
+
+# translated-by: ollama
+msgctxt "role:dev-python:description"
+msgid "Toolchain for Python scripting, application development, and data science on Linux"
+msgstr "Toolchain para scripteo en Python, desarrollo de aplicaciones y ciencia de datos en Linux"
+
+# translated-by: ollama
+msgctxt "menu:Tools:title"
+msgid "Tools"
+msgstr "Alxòm"
+
+# translated-by: ollama
+msgctxt "menu:User Management:description"
+msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+msgstr "Toolabora para o Identidade e Controlo de Acesso, incluindo autenticação, provisão de utilizadores e controlo de acesso segura."
+
+# translated-by: ollama
+msgctxt "menu:Communication:description"
+msgid "Tools for communication"
+msgstr "Tornaminintsoana dia fanazavana"
+
+# translated-by: ollama
+msgctxt "menu:Marketing:description"
+msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
+msgstr "Toolabor para campanas por correo electrónico, desempeño de audiencia, automatización, y flujos de trabajo de marketing digital."
+
+# translated-by: ollama
+msgctxt "menu:Asset Management:description"
+msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
+msgstr "Toolz za inventariro, trakhtsa vaaratsi i vaaratsi asetitikot kopte vaychekhulayevani organaghto."
+
+# translated-by: ollama
+msgctxt "menu:Community:description"
+msgid "Tools to manage the community"
+msgstr "Tolokoens komando la toelokoeko"
+
+# translated-by: ollama
+msgctxt "menu:Analytics:description"
+msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
+msgstr "Toolaz para koma, visuałizme oke, e optimizme oke sese sitet o koma okebebe azo a boma a jodi a ndege koma okebebe azo a boma a user."
+
+# translated-by: ollama
+msgctxt "category:web.opt:description"
+msgid "Tools which help to optimize webservers"
+msgstr "Toolz ke maunu web webserbers shoimize"
+
+msgctxt "role:svc-net-tor:description"
+msgid "Tor daemon publishing the node as a v3 onion service"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:dsk-torbrowser:description"
+msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
+msgstr "Klient del Tor y lanchador de navegador para navegación web anónima y orientada a la privacidad"
+
+# translated-by: ollama
+msgctxt "role:web-app-weblate:description"
+msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
+msgstr "Transkriptioavutus, glosarium ja kuningaskengu workflows bakalüüs edasistentitekstaamisesta gatewayessä"
+
+msgctxt "role:dsk-virtualbox:description"
+msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:sys-ctl-alm-compose:description"
+msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
+msgstr "Sistema de notificación systemd de unificado envía alertas de servicio fallido a través de ambos canales de Telegram y correo electrónico"
+
+# translated-by: ollama
+msgctxt "category:update:title"
+msgid "Updates & Package Management"
+msgstr "Meltu & Management de Pakak"
+
+# translated-by: ollama
+msgctxt "logout:partial_hint"
+msgid "Use the links below to sign out of the rest yourself."
+msgstr "Utiliza los enlaces abaixo para cerrar sesión de ti mismo."
+
+# translated-by: ollama
+msgctxt "logout:stalled_hint"
+msgid "Use the links below to sign out of the services still listed."
+msgstr "Use the links aici pentru a se deconecta din serviciile încă menționate."
+
+# translated-by: ollama
+msgctxt "menu:User Management:title"
+msgid "User Management"
+msgstr "Administración de Usuarios"
+
+# translated-by: ollama
+msgctxt "category:user:description"
+msgid "User accounts & access control"
+msgstr "Usuariocasos i control d'accés"
+
+# translated-by: ollama
+msgctxt "category:user:title"
+msgid "Users & Access"
+msgstr "Userz & Acces"
+
+# translated-by: ollama
+msgctxt "role:dsk-git:description"
+msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
+msgstr "Client de control de version para ordenadores personales preconfigurado con valores por defecto de identidad, firma y fusión"
+
+# translated-by: ollama
+msgctxt "role:sys-svc-cdn:description"
+msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr "Versiono tree deka layout fóra layaway CDN layaway bi kasa shared, vendo, dan per-roli release layaway bi"
+
+# translated-by: ollama
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr ""
+"Visual Studio workstation editor en una versión seleccionable, llevando las extensiones que el anfitrión despliega\n"
+"Code"
+
+# translated-by: ollama
+msgctxt "category:web:title"
+msgid "Web Infrastructure"
+msgstr "Web Development"
+
+# translated-by: ollama
+msgctxt "role:web-app-semaphore:description"
+msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
+msgstr "Web UI e API para executar Ansible, Terraform/OpenTofu e automação de shell em ciclo ou a pedido"
+
+# translated-by: ollama
+msgctxt "role:web-app-lam:description"
+msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
+msgstr "Interaçant interfaca para gerir directorios LDAP: gerir usuaris, grups i altas objectes de directorio"
+
+# translated-by: ollama
+msgctxt "role:web-app-fusiondirectory:description"
+msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
+msgstr "Interfejs de administración de LDAP en línea para gestionar usuarios, grupos y objetos de directorio"
+
+# translated-by: ollama
+msgctxt "role:web-app-phpldapadmin:description"
+msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
+msgstr "Client webde LDAP para navegar, buscar y administrar entradas de directorio en servidores LDAP"
+
+# translated-by: ollama
+msgctxt "role:web-app-pgadmin:description"
+msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
+msgstr "Web-based administració i platlla de desenvolupament per gestionar més de una或多�多個PostgreSQL servers, amb opció a login OAuth2"
+
+msgctxt "role:web-app-phpmyadmin:description"
+msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "category:web.opt:title"
+msgid "Webserver Optimation"
+msgstr "Webserver Optimización"
+
+msgctxt "role:dsk-docker:description"
+msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
+msgstr ""
+
+# translated-by: ollama
+msgctxt "role:dev-arduino:description"
+msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
+msgstr "Toolchain de工作站和串行端口权限用于在Linux上开发Arduino板开发"
+
+# translated-by: ollama
+msgctxt "role:pkgmgr-install:description"
+msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
+msgstr "Rol pakket aanroep voor idempotente pakketinstallaties en -bijwerkingen via de universele pakketbeheeringslaag voor pkgmgr"
+
+# translated-by: ollama
+msgctxt "logout:may_close"
+msgid "You can close this page now."
+msgstr "Puedes cerrar esta página ahora."
+
+# translated-by: ollama
+msgctxt "logout:st_failed"
+msgid "failed"
+msgstr "fallos"
+
+# translated-by: ollama
+msgctxt "role:svc-net-firewall:description"
+msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
+msgstr "nft co reglaaas ekkoom ekoom ko reklaaym tseetseet oot oo arkooloo hooydey"
+
+# translated-by: ollama
+msgctxt "logout:st_unconfirmed"
+msgid "not confirmed"
+msgstr ""
+"nekonotu fusinesu \n"
+"nekonotu fusinesu"
+
+# translated-by: ollama
+msgctxt "logout:manual"
+msgid "sign out manually"
+msgstr "saufi sauti woɗa"
+
+# translated-by: ollama
+msgctxt "logout:st_done"
+msgid "signed out"
+msgstr "soltu"
+
+# translated-by: ollama
+msgctxt "logout:st_pending"
+msgid "signing out"
+msgstr "significandoút"
+
+# translated-by: ollama
+#, python-brace-format
+msgctxt "logout:counter"
+msgid "{done} of {total} services signed out"
+msgstr "{done} de {total} serviços assinados"
+

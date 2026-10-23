@@ -1,7 +1,7 @@
 ---
 # General
 application_id: "web-app-penpot"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 PENPOT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 PENPOT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
@@ -50,9 +50,9 @@ PENPOT_FLAGS: >-
   {{ 'enable-login-with-oidc' if PENPOT_SSO_ENABLED | bool else '' }}
   {{ 'enable-login-with-ldap' if PENPOT_LDAP_ENABLED | bool else '' }}
 
-PENPOT_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-PENPOT_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
-PENPOT_ADMIN_FULLNAME: "{{ lookup('users', 'administrator').username }}"
+PENPOT_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+PENPOT_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+PENPOT_ADMIN_FULLNAME: "{{ lookup('users', 'platform_administrator').username }}"
 
 PENPOT_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 PENPOT_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"

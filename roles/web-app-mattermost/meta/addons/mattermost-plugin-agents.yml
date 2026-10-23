@@ -1,0 +1,10 @@
+---
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.openwebui.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - openwebui
+config:
+  plugin_id: mattermost-ai
+  partner_url: "{{ lookup('tls', 'web-app-openwebui', 'url.base') | regex_replace('/+$', '') ~ '/api' }}"

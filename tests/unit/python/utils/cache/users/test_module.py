@@ -4,7 +4,7 @@ Pins the public API (`get_user_defaults`, `get_merged_users`) plus the
 internal helpers that only this module owns: `_load_user_defs`,
 `_build_users`, `_compute_reserved_usernames`, `_load_store_users`,
 `_resolve_tokens_file`, `_hydrate_users_tokens`, `_merge_users`,
-`_materialize_builtin_user_aliases`. Module name is `test_users_module`
+`_materialize_domain_label_reservations`. Module name is `test_users_module`
 to disambiguate from the existing `tests/unit/python/plugins/lookup/test_users.py`
 which targets the lookup plugin.
 """
@@ -21,7 +21,10 @@ from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write(path: Path, content: str) -> None:
@@ -225,9 +228,16 @@ class TestMergeUsers(unittest.TestCase):
             {
                 "invuser": {"username": "invuser"},
                 "invbot": {"username": "invbot", "roles": ["bot"]},
-                "pinned": {"username": "pinned", "accounts": [], "forward": "x"},
+                "pinned": {
+                    "username": "pinned",
+                    "accounts": [],
+                    "forward": "x",
+                    "email": "pinned@example.org",
+                },
             }
         )
+        self.assertEqual(merged["invuser"]["email"], "invuser@{{ DOMAIN_PRIMARY }}")
+        self.assertEqual(merged["pinned"]["email"], "pinned@example.org")
         self.assertEqual(merged["invuser"]["accounts"], ["identity"])
         self.assertEqual(merged["invuser"]["forward"], "")
         self.assertEqual(merged["invbot"]["accounts"], ["mailbox", "identity"])
@@ -299,21 +309,22 @@ class TestLoadStoreUsers(unittest.TestCase):
 class TestMaterializeBuiltinUserAliases(unittest.TestCase):
     def test_no_primary_domain_returns_users_unchanged(self):
         users = {"alice": {"username": "alice"}}
-        out = cache_users._materialize_builtin_user_aliases(
+        out = cache_users._materialize_domain_label_reservations(
             users, variables={}, templar=None
         )
         self.assertEqual(out, users)
 
-    def test_sld_alias_username_resolved_from_domain_primary(self):
-        users = {
-            "sld": {"username": "{{ DOMAIN_PRIMARY.split('.') | first }}"},
-        }
-        out = cache_users._materialize_builtin_user_aliases(
-            users,
-            variables={"DOMAIN_PRIMARY": "infinito.test"},
+    def test_every_domain_label_becomes_a_reserved_username(self):
+        out = cache_users._materialize_domain_label_reservations(
+            {},
+            variables={"DOMAIN_PRIMARY": DOMAIN},
             templar=None,
         )
-        self.assertEqual(out["sld"]["username"], "infinito")
+        self.assertEqual(
+            [out[key]["username"] for key in sorted(out)],
+            DOMAIN.split("."),
+        )
+        self.assertTrue(all(out[key]["accounts"] == [] for key in out))
 
 
 class TestGetUserDefaults(unittest.TestCase):

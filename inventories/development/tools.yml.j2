@@ -1,0 +1,66 @@
+---
+# Host vars the tools runner deploys its toolchain services with.
+# Rendered by utils.inventory.tools with square-bracket delimiters, so the
+# curly-brace expressions below stay untouched for the deploy to resolve.
+
+TLS_MODE: self_signed
+
+TIMEOUT_FACTOR: 4
+
+DOCKER_BIND_HOST: 0.0.0.0
+
+RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_facts['processor_nproc'] }}"
+
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 98
+
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+
+applications:
+  svc-ai-libretranslate-engine:
+    services:
+      libretranslate-engine:
+        models_dir: [[ models_dir ]]/libretranslate
+        loading_model: task
+        directions: from_source
+        load_only:
+[% for code in load_only %]
+          - [[ code ]]
+[% endfor %]
+        cpus: "{{ lookup('resource', 'host_cpus') }}"
+        mem_limit: "{{ lookup('resource', 'mem_limit') }}"
+        pids_limit: 4096
+  svc-ai-litellm:
+    secrets:
+      credentials:
+        master_key: [[ litellm_master_key ]]
+  svc-ai-ollama:
+    services:
+      ollama:
+        cpus: "{{ lookup('resource', 'host_cpus') }}"
+        min_storage: 4600MB
+        preload_models:
+          - alias: qwen2.5:3b
+            context: 32768
+            name: qwen2.5-3b-instruct
+            repo: lmstudio-community/Qwen2.5-3B-Instruct-GGUF
+            url: https://huggingface.co/lmstudio-community/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf
+            source: https://huggingface.co/lmstudio-community/Qwen2.5-3B-Instruct-GGUF
+            quant: q4_k_m
+            file: Qwen2.5-3B-Instruct-Q4_K_M.gguf
+            sha256: "d44e2c5d1ec3cae1d5cf6a744bee528e46c65a1e66e741fa92730967e7d625bb"
+            bytes: 1929903008
+  svc-ai-s1:
+    secrets:
+      credentials:
+        api_key: [[ s1_api_key ]]
+    services:
+      s1:
+        models_dir: [[ models_dir ]]/s1
+  web-svc-translate:
+    services:
+      translate:
+        router:
+          strategy: preference

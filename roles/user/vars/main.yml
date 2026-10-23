@@ -1,12 +1,5 @@
 ---
-# Effective user config for this role invocation.
 user_config_effective: "{{ user_config | default(lookup('users', user_key, {})) }}"
-
-# Actual system username (can differ from key)
 user_username: "{{ user_config_effective.username | default(user_key) }}"
-
-# Primary group (convention: same as username)
 user_group: "{{ user_username }}"
-
-# Home directory (root special case)
 user_home: "{{ (user_username == 'root') | ternary('/root', '/home/' ~ user_username) }}"

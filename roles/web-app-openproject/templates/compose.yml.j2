@@ -23,8 +23,6 @@ x-op-app: &app
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     command: "./docker/prod/proxy"
     {{ lookup('container_ports', ['openproject', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    environment:
-      APP_HOST: {{ OPENPROJECT_WEB_SERVICE }}
     {{ lookup('depends_on', [OPENPROJECT_WEB_SERVICE]) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 

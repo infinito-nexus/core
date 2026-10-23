@@ -12,6 +12,8 @@ set -o pipefail
 : "${LDAP_COMPONENT_ID:?LDAP_COMPONENT_ID is required}"
 : "${MAPPER_ID:?MAPPER_ID is required}"
 
+exec </dev/null
+
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh create \
   "user-storage/$LDAP_COMPONENT_ID/mappers/$MAPPER_ID/sync?direction=fedToKeycloak" \
   -r "$KC_REALM" 2>&1

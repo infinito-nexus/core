@@ -1,0 +1,5 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.seaweedfs.enabled') | bool }}"
+required: true
+mechanism: mu_plugin
+source: vendored

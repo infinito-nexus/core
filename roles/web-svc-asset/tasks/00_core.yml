@@ -5,6 +5,8 @@
   ansible.builtin.copy:
     src: "{{ source_directory }}"
     dest: "{{ target_directory }}"
+    mode: "u=rwX,go=rX"
+    directory_mode: "0755"
 
 - name: "🔍 Redirect {{ lookup('domain', 'web-svc-asset') }} to web-svc-file"
   include_role:

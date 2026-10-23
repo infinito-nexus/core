@@ -1,5 +1,5 @@
 ---
-# nocheck: run-once — per-application role: every invocation must (re)apply CDN dirs, inj-*, body_filter.lua for the current `application_id`.
+# nocheck: run-once  runs once per vhost: every invocation re-applies the CDN dirs, inj-* and the body_filter Lua for the current `domain`.
 - name: 📂 Include dependency 'sys-svc-webserver-core'
   include_role:
     name: sys-svc-webserver-core
@@ -13,6 +13,7 @@
 - name: 🔨 Build injection facts for '{{ domain }}'
   set_fact:
     inj_enabled: "{{ lookup('applications') | inj_enabled(application_id, SRV_WEB_INJ_COMP_FEATURES_ALL) }}"
+    inj_top_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('top') }}"
     inj_head_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('head') }}"
     inj_body_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('body') }}"
 
@@ -28,10 +29,10 @@
     public: true
   when: inj_enabled.dashboard
 
-- name: "🟢 Activate Corporate CSS for '{{ domain }}'"
+- name: "🟢 Activate Corporate Design for '{{ domain }}'"
   include_role:
-    name: sys-front-inj-css
-  when: inj_enabled.css
+    name: sys-front-inj-design
+  when: inj_enabled.design
 
 - name: "🟢 Activate Matomo Tracking for '{{ domain }}'"
   include_role:
@@ -43,9 +44,9 @@
     name: sys-front-inj-javascript
   when: inj_enabled.javascript
 
-- name: "📄 Render body_filter Lua for '{{ application_id }}'"
+- name: "📄 Render body_filter Lua for '{{ domain }}'"
   stack_host_template:
     src: body_filter.lua.j2
-    dest: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}.lua"
+    dest: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ domain }}.lua"
     mode: "0644"
   notify: reload-openresty

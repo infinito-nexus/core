@@ -7,6 +7,8 @@
   * file-root convention: the file's content IS the value of
     ``applications.<role>.info`` — there is NO wrapping ``info:`` key;
   * allowed top-level keys: ``logo``, ``homepage``, ``video``, ``display``;
+    the licence of the deployed software lives in ``meta/license.yml``,
+    which ``test_license_declared.py`` guards;
   * ``logo`` is a mapping with at least a string ``class:`` field;
   * ``homepage`` and ``video`` are non-empty strings;
   * ``display`` is a bool;

@@ -17,7 +17,7 @@ all:
   hosts:
     workstation:
   children:
-    desk-git:
+    dsk-git:
       hosts:
         workstation:
     dev-core:

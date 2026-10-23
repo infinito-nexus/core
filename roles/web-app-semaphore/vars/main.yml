@@ -16,9 +16,9 @@ SEMAPHORE_ADMIN_PASSWORD: "{{ lookup('users', 'web-app-semaphore-breakglass').pa
 SEMAPHORE_ADMIN_EMAIL: "{{ lookup('users', 'web-app-semaphore-breakglass').email }}"
 SEMAPHORE_ADMIN_NAME: "Semaphore Break-glass Admin"
 
-SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'administrator').username }}"
-SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
-SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'platform_administrator').username }}"
+SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 
 SEMAPHORE_OIDC_PROVIDERS_JSON: >-
   {{ {
@@ -28,7 +28,7 @@ SEMAPHORE_OIDC_PROVIDERS_JSON: >-
          "client_id":      OIDC.CLIENT.ID,
          "client_secret":  OIDC.CLIENT.SECRET,
          "redirect_url":   (lookup('tls', application_id, 'url.base') | regex_replace('/+$', '')) ~ "/api/auth/oidc/keycloak/redirect",
-         "username_claim": "preferred_username",
+         "username_claim": OIDC.ATTRIBUTES.USERNAME,
          "email_claim":    "email",
          "name_claim":     "name",
          "scopes":         ["openid", "profile", "email"]

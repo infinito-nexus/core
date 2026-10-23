@@ -22,7 +22,7 @@ canonical helpers, both under
      (mariadb, postgres, ollama).
 
 Both helpers derive the docker-side network name from
-``role_id | get_entity_name`` and the subnet from
+``role_id | entity_name`` and the subnet from
 ``meta/server.yml.networks.local.subnet``, so the mapping stays in one
 place. Ad-hoc ``community.docker.docker_network`` calls or shell-out
 to ``docker network create`` / ``container network create`` reintroduce
@@ -133,7 +133,7 @@ class TestNetworkCreateViaUtil(unittest.TestCase):
                  vars:
                    compose_handlers_flush: true
 
-        Both derive name (``role_id | get_entity_name``) and subnet
+        Both derive name (``role_id | entity_name``) and subnet
         (``meta/server.yml.networks.local.subnet``) automatically.
         Calling ``community.docker.docker_network`` directly or
         shelling out to ``docker network create`` re-introduces the

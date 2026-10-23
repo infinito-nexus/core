@@ -1,0 +1,16 @@
+---
+- name: "👤 Onboard the hub or check the owner password it holds"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/owner/provision.yml"
+
+- name: "🔑 Realign the owner password the hub still holds"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/owner/realign.yml"
+  when: HOMEASSISTANT_LOGIN_REFUSED in homeassistant_owner.stderr
+
+- name: "🛑 Refuse a hub the deployment cannot sign in to as its owner"
+  ansible.builtin.assert:
+    that:
+      - homeassistant_owner.rc == 0
+    fail_msg: >-
+      The hub of {{ application_id }} neither finished its onboarding nor
+      accepted the owner password of the deployment, so nobody the deployment
+      knows could sign in.

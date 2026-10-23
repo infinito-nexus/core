@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-gitlab', 'services.mattermost.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: bundled
+bridges:
+  - mattermost
+config:
+  mattermost_url: "{{ lookup('tls', 'web-app-mattermost', 'url.base') }}"

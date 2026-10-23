@@ -1,0 +1,14 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.listmonk.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - listmonk
+update:
+  monitored: true
+  catalog: wordpress-org
+  upstream_id: integration-for-listmonk-mailing-list-and-newsletter-manager
+config:
+  listmonk_settings:
+    api_url: "{{ lookup('tls', 'web-app-listmonk', 'url.base') }}/api"

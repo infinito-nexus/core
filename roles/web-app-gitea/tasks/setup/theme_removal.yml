@@ -1,0 +1,15 @@
+---
+- name: "🧹 Remove the corporate themes of {{ application_id }}"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ GITEA_LOCAL_CID | quote }}
+    sh -c {{ lookup('file', 'shell/theme_sync.sh') | quote }} theme_sync
+    {{ [GITEA_THEME_DIR, 'theme-' ~ item ~ '.css'] | path_join | quote }}
+    < /dev/null
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  loop: "{{ GITEA_THEMES.values() | list }}"
+  register: gitea_theme_removal
+  changed_when: "'CHANGED' in gitea_theme_removal.stdout"
+
+- name: "🔄 Restart {{ application_id }} to forget the removed themes"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/restart.yml"
+  when: gitea_theme_removal is changed

@@ -1,4 +1,6 @@
 ---
+- include_tasks: utils/once/flag.yml
+
 - name: ✅ Validate WORKSTATION_USER is defined
   ansible.builtin.fail:
     msg: "WORKSTATION_USER must be defined (e.g. WORKSTATION_USER: biber)."
@@ -45,5 +47,3 @@
     group: root
     mode: "0440"
   when: USER_WORKSTATION_ENABLE_SUDO | bool
-
-- include_tasks: utils/once/flag.yml

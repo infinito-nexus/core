@@ -1,12 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
+const { apiGetOnion, decodeDotenvJsonList, decodeDotenvQuotedValue, gotoOnion, inAppLogout, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({
   ignoreHTTPSErrors: true
 });
 
 require("./test-mcp-guest").register();
+require("./test-design").register();
 
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
@@ -210,15 +211,10 @@ test("prometheus: biber is denied access after sso login", async ({ browser }) =
 // roles' personas no longer drive the prometheus surface.
 // -----------------------------------------------------------------------------
 
-const prometheusTargetRoles = (() => {
-  const raw = decodeDotenvQuotedValue(process.env.PROMETHEUS_TARGET_ROLES_JSON || "[]");
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-})();
+const prometheusTargetRoles = decodeDotenvJsonList(
+  process.env.PROMETHEUS_TARGET_ROLES_JSON,
+  "PROMETHEUS_TARGET_ROLES_JSON"
+);
 
 test("prometheus scrape: every consumer role reports up=1 and passes its probe", async ({ page }) => {
   test.skip(prometheusTargetRoles.length === 0, "no prometheus consumer roles in inventory");
@@ -316,20 +312,13 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      // Prometheus admin-only interaction: open the targets / status page.
-      // Confirms the operator reaches the management surface; biber is
-      // covered by the deny-check inside runAdminFlow's sibling helper.
-      const statusLink = interactivePage
-        .getByRole("link", { name: /^(targets|status|alerts|graph|runtime|build)$/i })
-        .first();
-      if (await statusLink.isVisible().catch(() => false)) {
-        await statusLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(
-          /endpoint|state|labels|targets|alerts|series/i,
-          { timeout: resolveTimeout(30_000) },
-        );
-      }
+      const alertsLink = interactivePage.getByRole("link", { name: /^alerts$/i }).first();
+      await expect(alertsLink).toBeVisible({ timeout: resolveTimeout(30_000) });
+      await alertsLink.click({ timeout: resolveTimeout(30_000) });
+      await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+      await expect(interactivePage).toHaveURL(/\/alerts/, {
+        timeout: resolveTimeout(30_000),
+      });
     },
   });
 });

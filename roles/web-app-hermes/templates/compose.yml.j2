@@ -21,8 +21,15 @@
       retries: 5
       start_period: 10m
       start_interval: 5s
+    {% if HERMES_WEBUI_ENABLED | bool %}
+    {{ lookup('container_ports',
+              ['hermes', 'http', DOCKER_BIND_HOST],
+              ['hermes', 'agent', DOCKER_BIND_HOST]) | indent(4) }}
+    {% else %}
     {{ lookup('container_ports', ['hermes', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 

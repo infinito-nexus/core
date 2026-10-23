@@ -1,0 +1,20 @@
+---
+- name: "🔎 Keycloak | Look for the env file a previous deploy left"
+  ansible.builtin.stat:
+    path: "{{ KEYCLOAK_ENV_FILE }}"
+  register: keycloak_previous_env
+
+- name: "📥 Keycloak | Read the admin password that deploy rendered"
+  ansible.builtin.slurp:
+    src: "{{ KEYCLOAK_ENV_FILE }}"
+  register: keycloak_previous_env_content
+  when: keycloak_previous_env.stat.exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Keycloak | Hold that password for the convergence step"
+  ansible.builtin.set_fact:
+    KEYCLOAK_PREVIOUS_ADMIN_PASSWORD: >-
+      {{ (keycloak_previous_env_content.content | b64decode
+          | dotenv_value('KEYCLOAK_PERMANENT_ADMIN_PASSWORD') | dotenv_unquote)
+         if keycloak_previous_env.stat.exists else '' }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

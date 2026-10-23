@@ -10,3 +10,9 @@ rdr-domains:
   mem_reservation: "32m"
   mem_limit: "64m"
   pids_limit: 64
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

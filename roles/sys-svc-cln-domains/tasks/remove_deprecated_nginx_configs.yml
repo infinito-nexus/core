@@ -3,19 +3,15 @@
   ansible.builtin.find:
     paths: "{{ lookup('nginx','directories.configuration.servers') }}"
     recurse: true
-    patterns: "*.{{ domain }}.conf"
+    patterns:
+      - "{{ domain }}.conf"
+      - "*.{{ domain }}.conf"
   register: find_result
 
-- name: 🗑️ Remove wildcard nginx configs for {{ domain }}
+- name: 🗑️ Remove the nginx configs of {{ domain }} and its subdomains
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ find_result.files | default([]) }}"
   when: item is defined
-  notify: restart-openresty
-
-- name: 🗑️ Remove exact nginx config for {{ domain }}
-  ansible.builtin.file:
-    path: "{{ lookup('nginx', 'files.domain', domain) }}"
-    state: absent
   notify: restart-openresty

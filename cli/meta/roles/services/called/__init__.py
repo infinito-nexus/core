@@ -89,8 +89,18 @@ def required_role_ids(
     *,
     roles_dir: Path,
     deployed_role_ids: list[str],
+    runtime: str = "",
 ) -> set[str]:
-    """Return role ids whose `required_by` matches the current deploy."""
+    """Return role ids whose `required_by` matches the current deploy.
+
+    Args:
+        roles_dir: directory holding every role.
+        deployed_role_ids: the application ids this deploy covered.
+        runtime: the RUNTIME the play ran under. A `required_by.runtimes`
+            list waives the requirement for a runtime it does not name;
+            an empty runtime waives nothing, so an unknown one still
+            demands the role.
+    """
     deployed_categories: set[str] = set()
     for d in deployed_role_ids:
         deployed_categories.update(categories_of(d))
@@ -120,6 +130,9 @@ def required_role_ids(
                 continue
             rb = entry.get("required_by")
             if not isinstance(rb, dict):
+                continue
+            rb_runtimes = set(rb.get("runtimes") or [])
+            if rb_runtimes and runtime and runtime not in rb_runtimes:
                 continue
             if "compose" in rb or "swarm" in rb:
                 rb = rb.get(deploy_mode) or {}
@@ -222,6 +235,7 @@ def verify(
     deployed_role_ids: list[str],
     container: str | None = None,
     log_byte_offset: int = 0,
+    runtime: str = "",
 ) -> tuple[bool, list[str]]:
     """Returns (ok, missing_role_ids).
 
@@ -237,7 +251,9 @@ def verify(
     "missing" for every required role, so the operator notices.
     """
     required = required_role_ids(
-        roles_dir=roles_dir, deployed_role_ids=deployed_role_ids
+        roles_dir=roles_dir,
+        deployed_role_ids=deployed_role_ids,
+        runtime=runtime,
     )
     if not required:
         return True, []

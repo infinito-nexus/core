@@ -24,7 +24,6 @@ runner:
   install_dir: /opt/github-runner
   cpus: 2
 
-# Exception: mirror-only entries — CI pulls these images directly and never deploys them as services
 # nocheck: dynamic-flag
 buildkit:
   enabled: false
@@ -38,3 +37,9 @@ act-runner:
   image: catthehacker/ubuntu
   # nocheck: docker-version
   version: "act-latest"
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

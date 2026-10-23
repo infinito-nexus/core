@@ -12,6 +12,8 @@ set -eo pipefail
 : "${KC_REALM:?KC_REALM is required}"
 : "${KC_RBAC_ROOT_PATH:?KC_RBAC_ROOT_PATH is required}"
 
+exec </dev/null
+
 container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh get groups \
   -r "$KC_REALM" \
   -q max=500 --fields id,path --format csv --noquotes \

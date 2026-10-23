@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -21,9 +22,6 @@ def run(cmd: list[str], timeout: int = 600) -> int:
 
 
 def manifest_exists(image: str) -> bool:
-    # Exception: manifest inspect ignores the daemon's insecure-registries
-    # list, so without --insecure every manifest on the plain-HTTP swarm
-    # registry reads as "no such manifest" and the push skip never triggers.
     rc = subprocess.run(
         ["docker", "manifest", "inspect", "--insecure", image],
         check=False,
@@ -31,6 +29,16 @@ def manifest_exists(image: str) -> bool:
         stderr=subprocess.DEVNULL,
     ).returncode
     return rc == 0
+
+
+def local_image_id(image: str) -> str:
+    proc = subprocess.run(
+        ["docker", "image", "inspect", "--format", "{{.Id}}", image],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return proc.stdout.strip() if proc.returncode == 0 else ""
 
 
 def sync(*, compose_file: Path, prefix: str) -> int:
@@ -104,13 +112,21 @@ def sync(*, compose_file: Path, prefix: str) -> int:
                 doc, f, sort_keys=False, default_flow_style=False
             )  # nocheck: direct-yaml
 
+    pushed_file = compose_file.parent / ".pushed-images.json"
+    pushed = json.loads(pushed_file.read_text()) if pushed_file.is_file() else {}
     for image in targets:
-        if manifest_exists(image):
+        image_id = (
+            local_image_id(image) if image.removeprefix(prefix) in locally_built else ""
+        )
+        if manifest_exists(image) and pushed.get(image, "") == image_id:
             print(f">>> skip push (already in registry): {image}", file=sys.stderr)
             continue
         rc = run(["docker", "push", image])
         if rc != 0:
             raise RuntimeError(f"docker push {image} failed (rc={rc})")
+        if image_id:
+            pushed[image] = image_id
+    pushed_file.write_text(json.dumps(pushed, indent=2, sort_keys=True))
 
     for upstream, image in dict.fromkeys(pulled):
         run(["docker", "rmi", image, upstream])

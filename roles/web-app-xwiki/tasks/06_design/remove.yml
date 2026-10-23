@@ -1,0 +1,48 @@
+---
+- name: "↩️ XWIKI | Give the wiki its former color theme back"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  vars:
+    xwiki_property_value: "{{ xwiki_design_former.colorTheme }}"
+  when: _xwiki_design_color_theme.json.value == XWIKI_DESIGN_THEME_REFERENCE
+  changed_when: true
+
+- name: "↩️ XWIKI | Give the wiki its former title back"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [202]
+    headers: "{{ xwiki_rest_headers_write }}"
+    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  vars:
+    xwiki_property_value: "{{ xwiki_design_former.title }}"
+  when:
+    - _xwiki_design_title.json.value == XWIKI_DESIGN_TITLE
+    - xwiki_design_former.title != XWIKI_DESIGN_TITLE
+  changed_when: true
+
+- name: "🗑️ XWIKI | Delete the corporate theme page"
+  uri_retry:
+    url: "{{ XWIKI_REST_THEME_PAGE }}"
+    method: DELETE
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [204]
+    headers: "{{ xwiki_rest_headers_write }}"
+  changed_when: true
+
+- name: "🗑️ XWIKI | Remove the rendered logo set"
+  ansible.builtin.file:
+    path: "{{ XWIKI_DESIGN_DIR }}"
+    state: absent

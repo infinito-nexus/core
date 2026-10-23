@@ -1,0 +1,245 @@
+{% set design = lookup('design', application_id) %}
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --button-action-color: var(--design-text-muted);
+  --button-background: var(--design-surface-2);
+  --button-background-active: var(--design-surface-active);
+  --button-active: var(--design-primary);
+  --button-active-active: var(--design-primary-active);
+  --button-primary-text: var(--design-on-primary);
+  --button-primary-background: var(--design-primary);
+  --button-primary-background-active: var(--design-primary-active);
+  --header-primary: var(--design-text);
+  --header-secondary: var(--design-text-muted);
+  --text-normal: var(--design-text);
+  --text-muted: var(--design-text-muted);
+  --text-muted-highlight: var(--design-on-primary);
+  --text-muted-alt: var(--design-text-muted);
+  --text-link: var(--design-link);
+  --text-active: var(--design-text);
+  --text-nav: var(--design-link);
+  --text-button-primary: var(--design-link);
+  --text-button-primary-active: var(--design-text);
+  --text-button-secondary: var(--design-text-muted);
+  --nav-icon: var(--design-text-muted);
+  --highlight: var(--design-primary);
+  --interactive-primary: var(--design-text);
+  --interactive-muted: var(--design-text-muted);
+  --interactive-muted-active: var(--design-border-strong);
+  --interactive-muted-alt: var(--design-border-strong);
+  --interactive-muted-alt-selected: var(--design-text);
+  --background-primary: var(--design-surface-1);
+  --background-primary-alt: var(--design-surface-3);
+  --background-secondary: var(--design-surface-2);
+  --background-secondary-hover: var(--design-surface-hover);
+  --background-tertiary: var(--design-frame);
+  --background-quaternary: var(--design-frame);
+  --background-quaternary-alt: var(--design-surface-3);
+  --background-popover: var(--design-surface-2);
+  --background-active: var(--design-surface-active);
+  --background-highlight: var(--design-surface-active);
+  --background-article-meta: var(--design-surface-3);
+  --background-article-customer: var(--design-surface-3);
+  --background-article-customer-meta: var(--design-surface-hover);
+  --background-modifier-accent: var(--design-surface-3);
+  --background-modifier-accent-light: var(--design-surface-hover);
+  --background-modifier-border: var(--design-border);
+  --background-modifier-hover: var(--design-surface-hover);
+  --backdrop-clue-start: rgba(var(--design-primary-rgb), 0.1);
+  --backdrop-clue-end: rgba(var(--design-primary-rgb), 0.9);
+  --border: var(--design-border);
+  --border-alt: var(--design-border);
+  --border-highlight: var(--design-link);
+  --border-internal: var(--design-warning-border);
+  --border-internal-stripe: var(--design-warning-subtle);
+  --border-article-customer: var(--design-border);
+  --border-article-customer-selected: var(--design-border-strong);
+  --shadow-highlight: rgba(var(--design-link-rgb), 0.45);
+  --supergood-color: var(--design-success);
+  --good-color: var(--design-success-hover);
+  --ok-color: var(--design-warning);
+  --bad-color: var(--design-warning-hover);
+  --superbad-color: var(--design-danger);
+  --ghost-color: var(--design-text-muted);
+  --danger-color: var(--design-danger);
+  --pending-color: var(--design-text-muted);
+  --elevation-stroke: 0 1px var(--design-border);
+  --elevation-low: var(--design-shadow-1);
+  --elevation-high: var(--design-shadow-3);
+  --file-icon-background: var(--design-surface-2);
+  --file-icon-color: var(--design-border-strong);
+  --tag-text: var(--design-text);
+  --tag-background: var(--design-surface-3);
+  --fullscreen-background: var(--design-frame);
+  --fullscreen-text: var(--design-on-frame);
+  --fullscreen-text-link: var(--design-on-frame);
+  --fullscreen-text-muted: rgba(var(--design-on-frame-rgb), 0.6);
+  --fullscreen-drop-shadow: var(--design-shadow-3);
+  --menu-text: var(--design-on-frame);
+  --menu-text-active: var(--design-on-frame);
+  --menu-text-open: var(--design-on-warning);
+  --menu-text-closed: var(--design-on-success);
+  --menu-text-escalating: var(--design-on-danger);
+  --menu-background-active: var(--design-frame-active);
+  --menu-icon: rgba(var(--design-on-frame-rgb), 0.7);
+  --menu-icon-secondary: rgba(var(--design-on-frame-rgb), 0.7);
+  --menu-icon-secondary-hover-background: var(--design-frame-hover);
+  --menu-switch-background: var(--design-frame-active);
+  --menu-switch-pointer: var(--design-frame);
+  --menu-switch-pointer-active: var(--design-on-frame);
+  --menu-background-primary: var(--design-frame);
+  --menu-background-primary-hover: var(--design-frame-hover);
+  --menu-background-secondary: var(--design-frame);
+  --menu-close-tab-background: var(--design-frame-active);
+  --table-border: var(--design-border-strong);
+  --table-header-background: var(--design-surface-3);
+}
+.navigation {
+  --design-focus: var(--design-on-frame);
+  --nav-icon: rgba(var(--design-on-frame-rgb), 0.7);
+}
+.navigation .dropdown-menu {
+  --design-focus: var(--design-link);
+}
+.navigation a:focus-visible,
+.navigation input:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--design-focus);
+}
+.search .logo .activity-counter {
+  color: var(--design-on-danger);
+  background: var(--design-danger);
+  border-color: var(--design-frame);
+  text-shadow: none;
+}
+.user-menu > li:hover .user-menu-icon,
+.user-menu > li.open .user-menu-icon {
+  fill: var(--design-on-frame);
+}
+.btn,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="url"],
+textarea,
+.form-control {
+  border-color: var(--design-border-strong);
+}
+.btn--primary {
+  border-color: var(--design-primary);
+}
+.btn--primary:hover {
+  background: var(--design-primary-hover);
+}
+.btn--secondary {
+  color: var(--design-link);
+}
+.btn--active {
+  color: var(--design-on-primary);
+}
+.btn--positive,
+.btn--create,
+.btn--success {
+  color: var(--design-on-success);
+  background: var(--design-success);
+  border-color: var(--design-success);
+}
+.btn--positive:hover,
+.btn--create:hover,
+.btn--success:hover {
+  background: var(--design-success-hover);
+}
+.btn--positive:active,
+.btn--create:active,
+.btn--success:active {
+  background: var(--design-success-active);
+}
+.btn--danger {
+  color: var(--design-on-danger);
+  background: var(--design-danger);
+  border-color: var(--design-danger);
+}
+.btn--danger:hover {
+  background: var(--design-danger-hover);
+}
+.btn--danger:active {
+  background: var(--design-danger-active);
+}
+.dropdown li:hover,
+.dropdown li.is-active,
+.pop-selectable:hover,
+.icon_picker .dropdown-grid li:hover,
+.icon_picker .dropdown-grid li.is-active,
+.ui-menu .ui-menu-item.ui-state-focus,
+.searchableSelect.dropdown li.js-enter.is-highlighted span.searchableSelect-option-text,
+.searchableSelect.dropdown li span.searchableSelect-option-text:hover {
+  background: var(--design-surface-hover);
+}
+.token.active,
+.select-box .select-value.is-selected,
+.badge.badge--primary,
+.batch-dragger-counter,
+.status-field.is-active,
+.nav-tabs li.active {
+  color: var(--design-on-primary);
+}
+.label-highlight,
+.state-internal,
+.primary-email-switch:checked + label,
+.scheduled-widget[data-state="internal"] {
+  color: var(--design-link);
+}
+.table > thead > tr > th {
+  border-top-color: var(--design-border);
+}
+.table > tbody > tr > td {
+  border-color: var(--design-border);
+}
+.table-hover > tbody > tr:hover,
+.table-hover > tbody > tr.is-hover {
+  background: var(--design-surface-hover);
+}
+{% if design.logo is string %}
+.search .logo {
+  background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;
+}
+.search .logo .icon-logo,
+.splash > .icon-logo {
+  visibility: hidden;
+}
+.splash::before {
+  content: "";
+  width: 42px;
+  height: 36px;
+  margin-inline-end: 10px;
+  background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;
+}
+{% endif %}
+:root[data-design-surface="mobile"] {
+  --color-black: var(--design-surface-1);
+  --color-white: var(--design-text);
+  --color-gray: var(--design-text-muted);
+  --color-gray-100: var(--design-text-muted);
+  --color-gray-150: var(--design-text-muted);
+  --color-gray-200: var(--design-border-strong);
+  --color-gray-300: var(--design-border);
+  --color-gray-400: var(--design-surface-3);
+  --color-gray-500: var(--design-surface-2);
+  --color-gray-600: var(--design-surface-2);
+  --color-gray-highlight: var(--design-surface-hover);
+  --color-gray-light: rgba(var(--design-surface-2-rgb), 0.6);
+  --color-blue: var(--design-link);
+  --color-blue-dark: var(--design-primary-800);
+  --color-blue-highlight: var(--design-info-subtle);
+  --color-yellow: var(--design-warning);
+  --color-yellow-highlight: var(--design-warning-subtle);
+  --color-yellow-inactive: var(--design-warning-border);
+  --color-red: var(--design-danger);
+  --color-red-bright: var(--design-danger);
+  --color-red-highlight: var(--design-danger-subtle);
+  --color-red-dark: var(--design-danger-subtle);
+  --color-green: var(--design-success);
+  --color-green-highlight: var(--design-success-subtle);
+  --color-orange: var(--design-warning);
+}

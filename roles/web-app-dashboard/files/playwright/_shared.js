@@ -1,11 +1,14 @@
 const { expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
-const { normalizeBaseUrl } = require("./personas");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const dashboardJsBaseUrl = normalizeBaseUrl(process.env.DASHBOARD_JS_BASE_URL || "");
-const matomoBaseUrl = normalizeBaseUrl(process.env.MATOMO_BASE_URL || "");
+const matomoBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.MATOMO_BASE_URL, "MATOMO_BASE_URL"));
 
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -85,7 +88,9 @@ function isKeycloak3pCookieNoise(record) {
   const url = typeof record === "string" ? "" : record.url || "";
   return (
     /\/3p-cookies\//.test(url) ||
-    /requestStorageAccess/i.test(text)
+    /requestStorageAccess/i.test(text) ||
+    (/rejected because it is in a cross-site context/i.test(text) &&
+      /\/protocol\/openid-connect\//.test(`${url} ${text}`))
   );
 }
 

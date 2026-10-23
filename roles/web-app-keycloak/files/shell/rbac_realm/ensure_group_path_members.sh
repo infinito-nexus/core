@@ -16,6 +16,8 @@ set -o pipefail
 : "${KC_REALM:?KC_REALM is required}"
 : "${GROUP_PATH:?GROUP_PATH is required}"
 
+exec </dev/null
+
 kc() { container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh "$@"; }
 
 _uuid_re='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'

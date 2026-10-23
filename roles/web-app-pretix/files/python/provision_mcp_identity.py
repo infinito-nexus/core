@@ -18,9 +18,18 @@ a single organizer chosen deterministically by slug. With no organizer there is
 nothing to attach it to, and no tool call could name one either, so that case
 converges to a no-op instead of failing.
 
+``shell_scoped`` feeds this to IPython, which ends an indented block at the
+first blank or dedented line and leaves a block that ends the input unrun. A
+blank line inside a block therefore runs the rest of that block at top level,
+outside its guard, so the whole body lives in one blank-line-free function and
+the last statement is a top-level print of a marker the task matches on.
+
 Environment:
     MCP_TEAM:  team name to converge.
     MCP_TOKEN: token value to pin on it.
+
+Output:
+    PRETIX_RESULT=CHANGED or PRETIX_RESULT=UNCHANGED on its own line.
 """
 
 import os
@@ -32,13 +41,12 @@ TEAM = os.environ["MCP_TEAM"]
 TOKEN = os.environ["MCP_TOKEN"]
 TOKEN_NAME = "mcp-upstream"  # noqa: S105 a label, not a secret
 
-changed = False
 
-organizer = Organizer.objects.order_by("slug").first()
-if organizer is None:
-    print("UNCHANGED")
-else:
-    team, created = Team.objects.get_or_create(
+def converge():
+    organizer = Organizer.objects.order_by("slug").first()
+    if organizer is None:
+        return "UNCHANGED"
+    team, team_created = Team.objects.get_or_create(
         organizer=organizer,
         name=TEAM,
         defaults={
@@ -49,13 +57,12 @@ else:
             "limit_organizer_permissions": {},
         },
     )
-    changed = changed or created
-
-    _, created = TeamAPIToken.objects.update_or_create(
+    _, token_created = TeamAPIToken.objects.update_or_create(
         team=team,
         name=TOKEN_NAME,
         defaults={"token": TOKEN, "active": True},
     )
-    changed = changed or created
+    return "CHANGED" if team_created or token_created else "UNCHANGED"
 
-    print("CHANGED" if changed else "UNCHANGED")
+
+print("PRETIX_RESULT=" + converge())

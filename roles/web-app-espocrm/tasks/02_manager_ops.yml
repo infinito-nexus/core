@@ -9,7 +9,7 @@
 
 - name: "🚀 Deploy '{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}'"
   copy:
-    src: "php/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
+    src: "php/seed/config.php"
     dest: "{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}"
   notify:
     - compose-up
@@ -48,14 +48,16 @@
     apply:
       delegate_to: "{{ ESPOCRM_HOST_NODE }}"
   when: config_file_exists.rc == 0
-- name: ▶️ Run EspoCRM upgrade
-  shell: |
+- name: "✅ Wait until the EspoCRM data reports the image version"
+  ansible.builtin.shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }} \
-      php command.php upgrade -y
-  register: espocrm_upgrade
-  changed_when: "'Upgrading' in espocrm_upgrade.stdout or 'successfully' in espocrm_upgrade.stdout"
-  failed_when: false
+      sh -c 'd="$(bin/command config:get version)"; printf "%s %s\n" "$d" "$ESPOCRM_VERSION"; test "$d" = "$ESPOCRM_VERSION"'
+  register: espocrm_versions
+  changed_when: false
+  until: espocrm_versions.rc == 0
+  retries: 90
+  delay: 10
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
 - name: ▶️ Run flag setter as root (fallback)
@@ -70,14 +72,40 @@
 - name: 🚿 Flush handlers to make DB available before password reset
   meta: flush_handlers
 
+- name: 🪪 Carry the administrator EspoCRM installed onto the declared username
+  ansible.builtin.shell:
+    cmd: |
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ESPOCRM_ADMIN_USERNAME {{ ESPOCRM_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/carry_admin_username.php') }}"
+  environment:
+    ESPOCRM_ADMIN_USERNAME: "{{ ESPOCRM_ADMIN_USERNAME }}"
+  register: espocrm_admin_carry
+  changed_when: espocrm_admin_carry.stdout is search('\[CHANGED\]')
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
 - name: 🔑 Realign the administrator password EspoCRM persisted at install
   ansible.builtin.shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ ESPOCRM_LOCAL_CID | quote }} \
-      php command.php set-password {{ lookup('config', application_id, 'users.administrator.username') | quote }}
+      php command.php set-password {{ ESPOCRM_ADMIN_USERNAME | quote }}
   args:
-    stdin: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+    stdin: "{{ ESPOCRM_ADMIN_PASSWORD }}"
   register: espocrm_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: espocrm_admin_password.rc == 0
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
+- name: "📮 Provision the group email account EspoCRM sends system mail through"
+  ansible.builtin.shell:
+    cmd: |
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/seed/group_email_account.php') }}"
+  register: espocrm_group_email_account
+  changed_when: espocrm_group_email_account.stdout is search('\[CHANGED\]')
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+  when: lookup('email', application_id).enabled | bool
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  ansible.builtin.include_tasks: 03_design.yml

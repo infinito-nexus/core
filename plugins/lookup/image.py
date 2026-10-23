@@ -24,7 +24,7 @@ containers that do not appear in the services map).
 Locally-built images are declared once, in the service's config:
 ``services.<key>.custom: true`` names the image ``<entity_name>_custom``
 (where ``<entity_name>`` comes from
-``utils.roles.entity.name.get_entity_name``) shared across an app's
+``utils.roles.entity.name.entity_name``) shared across an app's
 custom services, while a non-empty STRING names it ``<custom>_custom``
 for a second, distinct custom image inside one app (where the shared
 ``<entity>_custom`` would collide). The compose template's ``build:``
@@ -51,13 +51,15 @@ Both terms (application_id, service_key) are required.
 from __future__ import annotations
 
 import contextlib
+from functools import partial
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.docker.image.custom import custom_image_name
+from utils.roles.entity.name import entity_name
 
 try:
     from ansible.utils.display import Display
@@ -164,16 +166,14 @@ class LookupModule(LookupBase):
 
         image_value = _as_str(image_override)
         if not image_value and custom:
-            if isinstance(custom, str) and custom.strip():
-                custom_base = custom.strip()
-            else:
-                custom_base = _as_str(get_entity_name(application_id))
-            if not custom_base:
+            image_value = custom_image_name(
+                custom, partial(entity_name, application_id)
+            )
+            if not image_value:
                 raise AnsibleError(
                     f"image: cannot derive entity name from "
                     f"application_id '{application_id}' for custom=True"
                 )
-            image_value = f"{custom_base}_custom"
         if not image_value:
             image_value = _as_str(entry.get("image"))
         if not image_value:

@@ -165,6 +165,95 @@ class TestRegistry(unittest.TestCase):
         with self.assertRaises(PackagesShapeError):
             resolve(self._declaration("git"), "debian")
 
+    def test_download_without_a_checksum_raises(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {"url": "https://vendor.example/editor.deb"},
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            resolve(self._declaration("editor"), "debian")
+        self.assertIn("checksum", str(ctx.exception))
+
+    def test_download_rejects_a_weak_digest(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "https://vendor.example/editor.deb",
+                            "checksum": "md5:" + "a" * 32,
+                        },
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("editor"), "debian")
+
+    def test_download_rejects_a_plaintext_url(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "http://vendor.example/editor.deb",
+                            "checksum": "sha256:" + "a" * 64,
+                        },
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            resolve(self._declaration("editor"), "debian")
+        self.assertIn("https", str(ctx.exception))
+
+    def test_download_source_without_its_block_raises(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {"editor": {"Debian": {"names": ["editor"], "source": "download"}}},
+        )
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("editor"), "debian")
+
+    def test_a_pinned_download_resolves(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "https://vendor.example/editor.deb",
+                            "checksum": "sha256:" + "a" * 64,
+                        },
+                    }
+                }
+            },
+        )
+        spec = resolve(self._declaration("editor"), "debian")
+        self.assertEqual(spec.source, "download")
+        self.assertEqual(spec.download["url"], "https://vendor.example/editor.deb")
+
     def test_unknown_distro_raises_without_family(self):
         _write_role(self.root, "role-a", {"git": {"Debian": ["git"]}})
         with self.assertRaises(PackagesShapeError):

@@ -1,6 +1,8 @@
 import importlib.util
 import unittest
 
+from utils.networks.reachability import network_of
+
 from . import PROJECT_ROOT
 
 DOMAIN_FILTERS_PATH = str(
@@ -20,25 +22,23 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_flatten_and_feature_flag(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": "single.domain.com"}},
+                "domains": {"canonical": "single.domain.com"},
                 "services": {"logout": {"enabled": True}},
             },
             "app2": {
-                "server": {"domains": {"canonical": ["list1.com", "list2.com"]}},
+                "domains": {"canonical": ["list1.com", "list2.com"]},
                 "services": {"logout": {"enabled": True}},
             },
             "app3": {
-                "server": {
-                    "domains": {"canonical": {"k1": "dictA.com", "k2": "dictB.com"}}
-                },
+                "domains": {"canonical": {"k1": "dictA.com", "k2": "dictB.com"}},
                 "services": {"logout": {"enabled": True}},
             },
             "app4": {
-                "server": {"domains": {"canonical": "no-logout.com"}},
+                "domains": {"canonical": "no-logout.com"},
                 "services": {"logout": {"enabled": False}},
             },
             "other": {
-                "server": {"domains": {"canonical": "ignored.com"}},
+                "domains": {"canonical": "ignored.com"},
                 "services": {"logout": {"enabled": True}},
             },
         }
@@ -56,7 +56,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_missing_canonical_defaults_empty(self):
         applications = {
             "app1": {
-                "server": {"domains": {}},
+                "domains": {},
                 "services": {"logout": {"enabled": True}},
             }
         }
@@ -66,7 +66,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_app_not_in_group(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": "domain.com"}},
+                "domains": {"canonical": "domain.com"},
                 "services": {"logout": {"enabled": True}},
             }
         }
@@ -76,7 +76,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_invalid_domain_type(self):
         applications = {
             "app1": {
-                "server": {"domains": {"canonical": 123}},
+                "domains": {"canonical": 123},
                 "services": {"logout": {"enabled": True}},
             }
         }
@@ -86,12 +86,12 @@ class TestLogoutDomainsFilter(unittest.TestCase):
     def test_onion_page_drops_clearnet_only_app(self):
         applications = {
             "web-svc-logout": {"services": {"logout": {"enabled": True}}},
-            "web-app-seaweedfs": {"services": {"logout": {"enabled": True}}},
+            "web-svc-seaweedfs": {"services": {"logout": {"enabled": True}}},
             "web-app-nextcloud": {"services": {"logout": {"enabled": True}}},
         }
         domains = {
             "web-svc-logout": ["logout.abc.onion"],
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "api": "api.s3.example",
                 "filer": "filer.s3.example",
                 "master": "master.s3.example",
@@ -125,10 +125,27 @@ class TestLogoutDomainsFilter(unittest.TestCase):
         result = self.filter_fn(applications, list(applications), domains=domains)
         self.assertEqual(set(result), {"logout.abc.onion", "app.abc.onion"})
 
+    def test_explicit_network_sweeps_only_that_network(self):
+        applications = {
+            "web-svc-logout": {"services": {"logout": {"enabled": True}}},
+            "app1": {"services": {"logout": {"enabled": True}}},
+        }
+        domains = {
+            "web-svc-logout": ["logout.example", "logout.abc.onion"],
+            "app1": ["app.example", "app.abc.onion"],
+        }
+        result = self.filter_fn(
+            applications,
+            list(applications),
+            domains=domains,
+            network_name=network_of("logout.abc.onion"),
+        )
+        self.assertEqual(set(result), {"logout.abc.onion", "app.abc.onion"})
+
     def test_disabled_entity_keys_excluded(self):
         applications = {
             "web-svc-logout": {"services": {"logout": {"enabled": True}}},
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "services": {
                     "logout": {"enabled": True},
                     "frontend": {"enabled": False, "domains": ["filer", "master"]},
@@ -137,7 +154,7 @@ class TestLogoutDomainsFilter(unittest.TestCase):
         }
         domains = {
             "web-svc-logout": ["logout.example"],
-            "web-app-seaweedfs": {
+            "web-svc-seaweedfs": {
                 "api": "api.s3.example",
                 "filer": "filer.s3.example",
                 "master": "master.s3.example",

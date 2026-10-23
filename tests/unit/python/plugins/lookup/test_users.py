@@ -11,8 +11,11 @@ from ansible.errors import AnsibleError
 from plugins.lookup.users import LookupModule, _reset_cache_for_tests
 from utils.cache import base as runtime_data_base
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.paths import FILE_TOKENS
 from utils.roles.mapping import ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write_users(base_dir: Path, role_name: str, users: dict) -> None:
@@ -141,7 +144,7 @@ class TestUsersLookup(unittest.TestCase):
         )
 
         result = self.lookup.run(
-            ["sld"],
+            ["domain_label_0"],
             variables={"SYSTEM_EMAIL_DOMAIN": "mail.example.org"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
@@ -165,14 +168,14 @@ class TestUsersLookup(unittest.TestCase):
         self.lookup._templar = None
 
         result = self.lookup.run(
-            ["sld"],
+            ["domain_label_0"],
             variables={"DOMAIN_PRIMARY": "portal.example.org"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
 
         self.assertEqual(result["username"], "portal")
 
-    def test_materializes_sld_from_role_domain_when_global_domain_is_missing(
+    def test_role_domain_no_longer_stands_in_for_the_primary_domain(
         self,
     ) -> None:
         _write_users(
@@ -188,15 +191,14 @@ class TestUsersLookup(unittest.TestCase):
         _reset_cache_for_tests()
         self.lookup._templar = None
 
-        result = self.lookup.run(
-            ["sld"],
-            variables={"domain": "auth.infinito.test"},
-            roles_dir=str(self._tmp / "roles"),
-        )[0]
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(
+                ["domain_label_0"],
+                variables={"domain": f"auth.{DOMAIN}"},
+                roles_dir=str(self._tmp / "roles"),
+            )
 
-        self.assertEqual(result["username"], "infinito")
-
-    def test_materializes_sld_from_env_backed_domain_primary(self) -> None:
+    def test_reserves_domain_labels_from_env_backed_domain_primary(self) -> None:
         _write_users(
             self._tmp,
             "templated",
@@ -212,7 +214,7 @@ class TestUsersLookup(unittest.TestCase):
 
         with patch.dict(os.environ, {"DOMAIN": "infinito.localhost"}, clear=False):
             result = self.lookup.run(
-                ["sld"],
+                ["domain_label_0"],
                 variables={
                     "DOMAIN_PRIMARY": "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
                 },

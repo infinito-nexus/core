@@ -30,7 +30,7 @@ DEFAULT_RULES: tuple[DeploymentTypeRule, ...] = (
     ),
     DeploymentTypeRule(
         name="workstation",
-        include_re=re.compile(r"^(desk-|util-desk-)"),
+        include_re=re.compile(r"^(dsk-|util-dsk-)"),
         exclude_re=None,
     ),
     DeploymentTypeRule(
@@ -138,7 +138,8 @@ def list_invokables_by_type(
     skip_mode: str | None = None,
 ) -> dict[str, list[str]]:
     """
-    Returns:
+    Returns::
+
       {
         "server": [...],
         "workstation": [...],
@@ -203,10 +204,12 @@ def types_from_group_names(
 ) -> list[str]:
     """
     SPOT:
+
       - invokable is defined by categories.yml via _get_invokable_paths()/_is_role_invokable()
       - server/workstation/universal classification is defined by DEFAULT_RULES
 
-    Semantics:
+    Semantics::
+
       universal = invokable AND NOT matched by any non-universal rule.
     """
     names = [str(g).strip() for g in (group_names or []) if str(g).strip()]

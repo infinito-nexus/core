@@ -2,7 +2,7 @@
 
 A role id is the machine handle (``web-app-nextcloud``); the display name is
 what a human reads off a GitHub Actions job or run title
-(``网络应用·Nextcloud``). The category path renders as the ``hanzi`` labels
+(``𓏴𓏛·Nextcloud``). The category path renders as the ``glyph`` labels
 ``meta/categories.yml`` declares, run together into one block, then a ``·``,
 then the role's own ``README.md`` heading or the part of the id the categories
 do not already carry.
@@ -13,7 +13,7 @@ make a two-role list unparseable.
 
 :meth:`RoleDisplayName.decode` accepts a raw role id unchanged, so every
 consumer can decode unconditionally and a human dispatching a run by hand
-never has to type hanzi.
+never has to type a glyph.
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ class RoleDisplayName:
         return "-".join(parts) or app_id
 
     def category_labels(self, app_id: str) -> list[str]:
-        """The ``hanzi`` label of every category the role id walks through.
+        """The ``glyph`` label of every category the role id walks through.
 
         Args:
             app_id: role id, e.g. ``'web-app-nextcloud'``.
@@ -107,9 +107,9 @@ class RoleDisplayName:
         labels: list[str] = []
         for part in app_id.split("-"):
             child = node.get(part)
-            if not isinstance(child, dict) or "hanzi" not in child:
+            if not isinstance(child, dict) or "glyph" not in child:
                 break
-            labels.append(child["hanzi"])
+            labels.append(child["glyph"])
             node = child
         return labels
 

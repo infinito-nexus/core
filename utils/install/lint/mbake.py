@@ -12,6 +12,7 @@ def ensure() -> None:
     if which("mbake"):
         return
     log("Missing command 'mbake'. Installing via pip.")
+    # nocheck: environ-get-default  the fallback is the package name this installer exists for; MBAKE_PIP_SPEC is the contributor's way to pin a version or a fork, and no deploy sets it
     spec = os.environ.get("MBAKE_PIP_SPEC", "mbake")
     install_pip_pkg(spec)
     if not which("mbake"):

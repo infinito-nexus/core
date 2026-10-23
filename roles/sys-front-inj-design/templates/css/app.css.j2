@@ -1,0 +1,20 @@
+{% set design = lookup('design', application_id) %}
+:root {
+  --design-url-favicon-ico: url("{{ design.urls.favicon_ico }}");
+{% for slot, urls in design.urls | dictsort if slot != 'favicon_ico' %}
+{% for kind, url in urls | dictsort %}
+  --design-url-{{ slot }}-{{ kind }}: url("{{ url }}");
+{% endfor %}
+{% endfor %}
+{% for slot, box in design.slots | dictsort %}
+  --design-slot-{{ slot }}-width: {{ box.width }}px;
+  --design-slot-{{ slot }}-height: {{ box.height }}px;
+{% endfor %}
+{% for name, url in design_css_urls | dictsort %}
+  --design-url-app-{{ name }}: url("{{ url }}");
+{% endfor %}
+}
+{{ app_body_css }}
+{% if design.logo is string %}
+{{ app_logo_css }}
+{% endif %}

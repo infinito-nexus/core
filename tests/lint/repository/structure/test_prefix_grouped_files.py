@@ -191,7 +191,12 @@ class TestPrefixGroupedFiles(unittest.TestCase):
                 f"{len(findings)} file group(s) share a name prefix with their "
                 "siblings. A shared delimiter-bounded prefix is a folder in "
                 "disguise: move the group into a subfolder named after the "
-                "prefix and drop the prefix from the file names.\n" + "\n".join(lines)
+                "prefix and drop the prefix from the file names. Do NOT rename "
+                "a member just to break the shared prefix: that hides the "
+                "grouping instead of expressing it. Order the files by what "
+                "they have in common, and when a new file joins an existing "
+                "prefix, move the existing files into the folder too.\n"
+                + "\n".join(lines)
             )
 
 

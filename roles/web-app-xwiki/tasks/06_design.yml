@@ -1,0 +1,69 @@
+---
+- name: "⬇️ XWIKI | Fetch REST session + form token (design write ops)"
+  include_tasks: utils/rest_session.yml
+
+- name: "🔎 XWIKI | Read the wiki color theme preference"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    headers:
+      Accept: application/json
+    return_content: true
+  register: _xwiki_design_color_theme
+  changed_when: false
+
+- name: "🔎 XWIKI | Read the wiki title preference"
+  uri_retry:
+    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+    headers:
+      Accept: application/json
+    return_content: true
+  register: _xwiki_design_title
+  changed_when: false
+
+- name: "🔎 XWIKI | Look for the corporate theme page"
+  uri_retry:
+    url: "{{ XWIKI_REST_THEME_PAGE }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200, 404]
+    return_content: false
+  register: _xwiki_design_page
+  changed_when: false
+
+- name: "🔎 XWIKI | Read the preferences the wiki had before the corporate theme"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, 'objects/XWiki.XWikiPreferences/0'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200, 404]
+    headers:
+      Accept: application/json
+    return_content: true
+  register: _xwiki_design_previous
+  changed_when: false
+
+- name: "🎨 XWIKI | Apply the corporate color theme"
+  include_tasks: 06_design/apply.yml
+  when: XWIKI_DESIGN_ENABLED | bool
+
+- name: "🧹 XWIKI | Remove the corporate color theme"
+  include_tasks: 06_design/remove.yml
+  vars:
+    xwiki_design_former: "{{ _xwiki_design_previous.json.properties | items2dict(key_name='name', value_name='value') }}"
+  when:
+    - not (XWIKI_DESIGN_ENABLED | bool)
+    - _xwiki_design_previous.status == 200

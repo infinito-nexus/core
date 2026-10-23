@@ -27,7 +27,17 @@ RUN set -eu; \
         npm install --no-audit --no-fund --no-progress; \
     fi
 
+COPY --chown=hugo:hugo ./services/design/ /design/
+
 RUN set -eu; \
+    if [ -f /design/apply.sh ]; then \
+        sh /design/apply.sh /src; \
+    fi
+
+RUN set -eu; \
+    if [ -f /design/env ]; then \
+        . /design/env; \
+    fi; \
     if [ "${HUGO_MINIFY}" = "true" ]; then \
         hugo --minify -e "${HUGO_ENVIRONMENT}" -b "${HUGO_BASE_URL}" -d /public; \
     else \

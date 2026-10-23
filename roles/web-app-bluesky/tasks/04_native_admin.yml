@@ -31,3 +31,31 @@
     - bluesky_admin_create.status != 200
     - "'Handle already taken' not in (bluesky_admin_create.content | default(''))"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Realign the password an existing native PDS administrator kept"
+  when: bluesky_admin_create.status != 200
+  block:
+    - name: "🔎 Resolve the DID of the native PDS administrator handle"
+      uri_retry:
+        url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.identity.resolveHandle?handle={{ BLUESKY_ADMIN_HANDLE | urlencode }}"
+        method: GET
+        status_code: 200
+        validate_certs: false
+      register: bluesky_admin_did
+      changed_when: false
+
+    - name: "🔑 Set the native administrator password through the admin API"
+      uri_retry:
+        url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.admin.updateAccountPassword"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Authorization: "Basic {{ ('admin:' ~ BLUESKY_ADMIN_PASSWORD) | b64encode }}"
+        body_format: json
+        body:
+          did: "{{ bluesky_admin_did.json.did }}"
+          password: "{{ BLUESKY_ADMIN_PASSWORD }}"
+        status_code: 200
+        validate_certs: false
+      changed_when: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

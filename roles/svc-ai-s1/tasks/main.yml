@@ -1,0 +1,5 @@
+---
+- include_tasks: 00_core.yml
+  when: run_once_svc_ai_s1 is not defined
+  vars:
+    application_id: svc-ai-s1

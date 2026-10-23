@@ -10,41 +10,27 @@
   until: simpleicons_http.status == 200
 
 - name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+  uri_probe_batch:
+    urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"
     method: HEAD
-    status_code: [200, 404]
+    status_codes: [200, 404]
+    attempts: 3
+    delay: 2
+    timeout: "{{ lookup('timeout', 10) | int }}"
     validate_certs: false
+    workers: 16
   register: dashboard_simpleicons_probe
-  loop: "{{ portfolio_cards | simpleicon_slugs }}"
-  loop_control:
-    label: "{{ item }}"
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   changed_when: false
 
-- name: 🔄 Reload docker cards once Simple Icons is reachable
-  set_fact:
-    portfolio_cards: >-
-      {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | selectattr('status', 'equalto', 200)
-             | map(attribute='item')
-             | list,
-           DASHBOARD_SIMPLEICONS_URL_BASE) }}
-  changed_when: false
-
-- name: 🐳 Regroup docker cards after Simple Icons refresh
-  set_fact:
-    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
-
-- name: "🔄 Refresh Dashboard config.yaml once Simple Icons is reachable (local + swarm)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+- name: "🔄 Refresh one Dashboard config per network once Simple Icons is reachable"
+  include_tasks: _instance_config.yml
+  loop: "{{ DASHBOARD_INSTANCES }}"
+  loop_control:
+    loop_var: dashboard_instance
   vars:
-    role_templates:
-      - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
-        dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
+    domain: "{{ DASHBOARD_INSTANCE_DOMAIN }}"
 
 - name: 🚿 Flush compose handlers after Simple Icons refresh
   meta: flush_handlers

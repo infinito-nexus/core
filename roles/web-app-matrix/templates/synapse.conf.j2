@@ -1,0 +1,16 @@
+server {
+    server_name {{ MATRIX_SYNAPSE_DOMAIN }};
+    {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+    listen {{ MATRIX_SYNAPSE_LISTEN_FLAGS }};
+    listen [::]:{{ MATRIX_SYNAPSE_LISTEN_FLAGS }};
+
+    {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
+
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+
+    {% include 'roles/sys-svc-proxy/templates/location/upload.conf.j2' %}
+
+  {% set container_name = MATRIX_SYNAPSE_NAME if matrix_flavor == 'compose' else MATRIX_MDAD_CONTAINER %}
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+}

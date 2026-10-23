@@ -74,8 +74,6 @@ class TestSeaweedfsConsumerPlaywright(unittest.TestCase):
             role_name = role_dir.name
             if not role_name.startswith("web-app-"):
                 continue
-            if role_name == "web-app-seaweedfs":
-                continue
 
             services_file: Path = role_dir / ROLE_FILE_META_SERVICES
             if not services_file.is_file():

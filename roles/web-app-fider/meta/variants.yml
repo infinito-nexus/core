@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-fider.
 - services:
+    docs:
+      enabled: false
+      shared: false
     dashboard:
       enabled: true
       shared: true
@@ -27,7 +30,7 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     seaweedfs:
@@ -45,6 +48,9 @@
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false
@@ -67,7 +73,7 @@
     prometheus:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     seaweedfs:

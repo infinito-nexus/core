@@ -125,6 +125,7 @@ def force_shared_true(host_vars_file: Path, db_keys: set[str]) -> bool:
 
 
 def main() -> int:
+    # nocheck: environ-get-default  swarm-test base: matrix.py exports INV_DIR per round, a contributor running this step standalone gets the same /tmp/inv base the routine scripts use
     inv_dir = Path(os.environ.get("INV_DIR", "/tmp/inv"))  # noqa: S108 - ephemeral swarm-test inventory path, overridable via INV_DIR
     host_vars_dir = inv_dir / "host_vars"
     if not host_vars_dir.is_dir():

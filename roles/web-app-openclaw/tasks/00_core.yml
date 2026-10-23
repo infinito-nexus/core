@@ -15,6 +15,10 @@
   include_role:
     name: sys-stk-full
 
+- name: "🎨 Stage the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design.yml
+  when: OPENCLAW_DESIGN_ENABLED | bool
+
 - name: "🔌 Configure the OpenClaw MCP surface"
   ansible.builtin.include_tasks: utils/mcp.yml
 
@@ -23,6 +27,6 @@
   vars:
     assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - "'svc-ai-robot' not in group_names"
     - lookup('config', application_id, 'services.kata.enabled') | bool

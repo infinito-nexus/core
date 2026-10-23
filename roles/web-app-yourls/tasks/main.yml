@@ -7,14 +7,14 @@
     compose_handlers_flush: false
     webserver_extra_configuration: "{{ lookup('template', 'redirect.conf.j2') }}"
 
-- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+- name: "🎬 Stage the user/cache.php drop-in build context for {{ application_id }}"
   stack_host_copy:
-    src: "{{ item.src }}"
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
+    src: "sso/infinito_sso.php"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'infinito_sso.php' ] | path_join }}"
     mode: "0644"
-  loop:
-    - { src: "Dockerfile", dest: "Dockerfile" }
-    - { src: "sso/infinito_sso.php", dest: "infinito_sso.php" }
+  notify:
+    - compose-build
+    - compose-up
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers

@@ -6,3 +6,22 @@ data:
   mounts:
     - service: fusiondirectory
       target: /assets/fusiondirectory
+design_css:
+  type: config
+  source: "{{ [lookup('container', 'web-app-fusiondirectory', 'directories.volumes'), 'theme.css'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: fusiondirectory
+      target: /www/fusiondirectory/html/themes/breezy/theme.css
+      when: "{{ lookup('config', 'web-app-fusiondirectory', 'services.design.enabled') | bool }}"
+design_headers:
+  type: config
+  source: "{{ [lookup('container', 'web-app-fusiondirectory', 'directories.volumes'), 'headers.tpl'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: fusiondirectory
+      target: /www/fusiondirectory/ihtml/themes/breezy/headers.tpl
+      when: >-
+        {{ (lookup('config', 'web-app-fusiondirectory', 'services.design.enabled') | bool)
+           and (lookup('config', 'web-app-fusiondirectory', 'services.design.title', lookup('config', 'web-svc-design', 'services.design.title')) | string | lower)
+           not in ['false', '0'] }}

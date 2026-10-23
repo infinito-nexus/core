@@ -9,22 +9,10 @@ This Ansible role removes NGINX configuration files and revokes and deletes Cert
 Optimized for idempotent cleanup operations, this role:
 
 - Deletes NGINX server configuration files in `/etc/NGINX/conf.d/http/servers/` for each domain listed in `deprecated_domains`.
+- Deletes every `<domain>.conf` below the servers directory whose domain is not in `CURRENT_PLAY_DOMAINS_ALL`, the domains of every application in the host's `group_names` and their dependencies, including redirect sources; files not named after a domain and `.onion` services stay. Both cleanups run only with `MODE_CLEANUP`.
 - Revokes and deletes corresponding Certbot certificates.
 - Ensures cleanup tasks execute only once per playbook run.
 - Notifies NGINX to restart after removing configurations.
-
-## Cosmos
-
-The diagram places sys-svc-cln-domains in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-svc-cln-domains 💻]
-        svc_svc_cln_domains["svc-cln-domains"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Purpose
 
@@ -36,9 +24,3 @@ Streamline the decommissioning of outdated or deprecated domains by automating t
 - **Certbot Integration:** Revokes and deletes certificates without manual intervention.
 - **Idempotent Execution:** Utilizes a `run_once` flag to prevent repeated runs.
 - **Service Notification:** Triggers an NGINX restart handler upon cleanup.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -18,6 +18,7 @@ test.use({
 
 test.beforeEach(shared.beforeEach);
 
+require("./test-design").register(shared);
 require("./test-talk-admin-settings").register(shared);
 require("./test-login-admin-oidc").register(shared);
 require("./test-login-admin-native").register(shared);

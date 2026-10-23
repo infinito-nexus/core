@@ -13,6 +13,12 @@ const {
 } = require("./_shared");
 const { assertInjectedAssetLoadsWithoutCspBlock, gotoOnion } = require("./personas");
 
+const SET_SITE_ID_CALL = /_paq\s*\.\s*push\s*\(\s*\[\s*['"]setSiteId['"]/g;
+
+function countTrackers(html) {
+  return (String(html).match(SET_SITE_ID_CALL) || []).length;
+}
+
 test.use({ ignoreHTTPSErrors: true });
 
 test.beforeEach(async ({ page }) => {
@@ -99,15 +105,22 @@ for (const target of matomoTargetRoles) {
       html,
       `Expected matomo tracker '_paq' marker in ${target.id} HTML body`
     ).toContain("_paq");
+
     expect(
       html,
       `Expected matomo tracker URL ('matomo.php') in ${target.id} HTML body`
     ).toContain("matomo.php");
+
     if (matomoCanonicalDomain) {
       expect(
         html,
         `Expected matomo host '${matomoCanonicalDomain}' referenced in ${target.id} HTML body`
       ).toContain(matomoCanonicalDomain);
     }
+
+    expect(
+      countTrackers(html),
+      `Exactly one Matomo tracker must reach ${target.id}. Two means the snippet was injected twice and every visit is double-counted.`
+    ).toBe(1);
   });
 }

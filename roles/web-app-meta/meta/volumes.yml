@@ -1,0 +1,9 @@
+# nocheck: backup-service-flag  holds a bare clone of a public repository plus CI artefacts fetched from GitHub, all re-downloadable
+---
+# nocheck: embedded-state-on-nfs  Reason: mig v1.0.3 creates the mirror by renaming a staging clone into place, and git locks its own config and ref writes, so replicas sharing it cannot corrupt each other; the worktree and artifact trees beside it are rebuilt on demand, so a replica pruning another's copy costs a re-checkout rather than data
+git:
+  type: volume
+  name: meta_git
+  mounts:
+    - service: meta
+      target: /var/lib/mig

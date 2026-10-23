@@ -7,7 +7,31 @@ from typing import Any
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.roles.entity.name import entity_name
 from utils.storage.nfs import swarm_nfs_backed
+
+
+def deployed_volume_name(
+    application_id: str, semantic_name: str, entry: Mapping
+) -> str:
+    """Return the name ``docker volume ls`` reports for a ``meta/volumes.yml`` entry.
+
+    ``compose_volumes`` writes a ``name:`` into the stack only when the entry
+    pins one; otherwise the semantic key stands alone and the engine prefixes
+    it with the project, which is the role's entity name. Emitting the bare
+    key for such an entry hands baudolo a name that matches no volume, and the
+    exclusion silently does nothing.
+
+    Args:
+        application_id: the role the entry belongs to.
+        semantic_name: the entry's key in ``meta/volumes.yml``.
+        entry: the entry itself.
+    """
+    pinned = entry.get("name")
+    if isinstance(pinned, str) and pinned:
+        return pinned
+    entity = entity_name(application_id)
+    return f"{entity}_{semantic_name}" if entity else semantic_name
 
 
 class LookupModule(LookupBase):
@@ -31,8 +55,9 @@ class LookupModule(LookupBase):
     export whose repository nobody deployed must keep its volumes here rather
     than lose them from both capture paths.
 
-    The emitted name is the entry's pinned ``name:``, which is what
-    ``docker volume ls`` reports and what baudolo matches. Exclusion is
+    The emitted name is what ``docker volume ls`` reports and what baudolo
+    matches: the entry's pinned ``name:``, or the project-prefixed semantic
+    key when it pins none (see ``deployed_volume_name``). Exclusion is
     per volume, not per image: a container may legitimately hold one
     derived tree next to the state that must be preserved.
 
@@ -92,7 +117,7 @@ class LookupModule(LookupBase):
                     )
                     if not excluded:
                         continue
-                    name = entry.get("name") or semantic_name
+                    name = deployed_volume_name(str(app_id), str(semantic_name), entry)
                     if isinstance(name, str) and name:
                         names.add(name)
         return [sorted(names)]

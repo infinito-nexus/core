@@ -1,8 +1,11 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl } = require("./personas");
+const {
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
-const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
+const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
 
 test.use({ ignoreHTTPSErrors: true });
 

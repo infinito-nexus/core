@@ -1,63 +1,95 @@
 #!/usr/bin/env python3
 """
-Ultra-thin checker: consume a JSON mapping of {domain: [expected_status_codes]}
-and verify HTTP HEAD responses. All mapping logic is done in the filter
-`web_health_expectations`.
+Ultra-thin checker: consume a JSON mapping of
+{domain: {"codes": [...], "scheme": "http"|"https", "timeout": seconds}} and
+verify HTTP HEAD responses. All mapping logic is done in the filters
+`web_health_expectations` and `web_health_targets`.
 """
 
 import argparse
 import json
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import requests
 
+WORKERS = 16
+
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
-        description="Web health checker (expects precomputed domain→codes mapping)."
+        description="Web health checker (expects precomputed per-domain targets)."
     )
     p.add_argument(
-        "--web-protocol",
-        default="https",
-        choices=["http", "https"],
-        help="Protocol to use",
-    )
-    p.add_argument(
-        "--expectations", required=True, help='JSON STRING: {"domain": [codes], ...}'
+        "--targets",
+        required=True,
+        help='JSON STRING: {"domain": {"codes": [...], "scheme": "https", "timeout": 10}}',
     )
     return p.parse_args(argv)
 
 
-def _protocol_for(domain: str, default_protocol: str) -> str:
-    """Onion services are plaintext-only (no TLS): probe them over http
-    regardless of the clearnet default. Everything else uses the default."""
-    return "http" if domain.endswith(".onion") else default_protocol
+def _codes(value) -> list[int]:
+    if not isinstance(value, list):
+        return []
+    try:
+        return [int(x) for x in value]
+    except (TypeError, ValueError):
+        return []
 
 
-def _parse_json_mapping(name: str, value: str) -> dict[str, list[int]]:
+def _parse_targets(value: str) -> dict[str, dict]:
     try:
         obj = json.loads(value)
     except json.JSONDecodeError as e:
-        raise SystemExit(f"--{name} must be a valid JSON string: {e}") from e
+        raise SystemExit(f"--targets must be a valid JSON string: {e}") from e
     if not isinstance(obj, dict):
-        raise SystemExit(f"--{name} must be a JSON object (mapping)")
+        raise SystemExit("--targets must be a JSON object (mapping)")
     clean = {}
-    for k, v in obj.items():
-        if isinstance(v, list):
-            try:
-                clean[k] = [int(x) for x in v]
-            except Exception:
-                clean[k] = []
-        else:
-            clean[k] = []
+    for domain, target in obj.items():
+        if not isinstance(target, dict):
+            raise SystemExit(f"--targets entry for {domain} must be a mapping")
+        scheme = target.get("scheme")
+        if scheme not in ("http", "https"):
+            raise SystemExit(f"--targets entry for {domain} has scheme {scheme!r}")
+        timeout = target.get("timeout")
+        if not isinstance(timeout, int) or timeout <= 0:
+            raise SystemExit(f"--targets entry for {domain} has timeout {timeout!r}")
+        clean[domain] = {
+            "codes": _codes(target.get("codes")),
+            "scheme": scheme,
+            "timeout": timeout,
+        }
     return clean
+
+
+def _probe(domain: str, target: dict, verify) -> tuple[str, bool]:
+    """Probe one domain and report its line and whether it failed.
+
+    Args:
+        domain: the host to probe.
+        target: its ``codes``, ``scheme`` and ``timeout``.
+        verify: what ``requests`` verifies the certificate against.
+    """
+    expected = target["codes"]
+    url = f"{target['scheme']}://{domain}"
+    try:
+        r = requests.head(
+            url, allow_redirects=False, timeout=target["timeout"], verify=verify
+        )
+    except requests.RequestException as e:
+        return f"{domain}: error due to {e}", True
+    if expected and r.status_code in expected:
+        return f"{domain}: OK", False
+    if not expected:
+        return f"{domain}: ERROR: No expectations provided. Got {r.status_code}.", True
+    return f"{domain}: ERROR: Expected {expected}. Got {r.status_code}.", True
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    expectations = _parse_json_mapping("expectations", args.expectations)
+    targets = _parse_targets(args.targets)
     verify = True
     ca_trust_cert_host = os.environ.get("CA_TRUST_CERT_HOST", "").strip()
     if ca_trust_cert_host:
@@ -68,29 +100,16 @@ def main(argv=None) -> int:
             return 1
         verify = ca_trust_cert_host
 
-    errors = 0
-    for domain in sorted(expectations.keys()):
-        expected = expectations[domain] or []
-        is_onion = domain.endswith(".onion")
-        url = f"{_protocol_for(domain, args.web_protocol)}://{domain}"
-        timeout = 30 if is_onion else 10
-        try:
-            r = requests.head(
-                url, allow_redirects=False, timeout=timeout, verify=verify
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        results = list(
+            pool.map(
+                lambda d: _probe(d, targets[d], verify),
+                sorted(targets),
             )
-            if expected and r.status_code in expected:
-                print(f"{domain}: OK")
-            elif not expected:
-                print(
-                    f"{domain}: ERROR: No expectations provided. Got {r.status_code}."
-                )
-                errors += 1
-            else:
-                print(f"{domain}: ERROR: Expected {expected}. Got {r.status_code}.")
-                errors += 1
-        except requests.RequestException as e:
-            print(f"{domain}: error due to {e}")
-            errors += 1
+        )
+    for line, _ in results:
+        print(line)
+    errors = sum(failed for _, failed in results)
 
     if errors:
         print(f"Warning: {errors} domains responded with an unexpected status code.")

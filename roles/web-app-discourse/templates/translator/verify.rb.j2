@@ -1,0 +1,6 @@
+hosts = SiteSetting.allowed_internal_hosts.to_s.split('|').map(&:strip)
+puts "translator_enabled=#{SiteSetting.translator_enabled}"
+puts "translator_provider=#{SiteSetting.translator_provider}"
+puts "translator_endpoint=#{SiteSetting.translator_libretranslate_endpoint}"
+puts "translator_host_allowed=#{hosts.include?('{{ DISCOURSE_TRANSLATE_HOST }}')}"
+puts "translator_support_uri=#{DiscourseTranslator::Provider::LibreTranslate.support_uri}"

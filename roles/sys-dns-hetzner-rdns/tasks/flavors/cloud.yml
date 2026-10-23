@@ -51,31 +51,32 @@
   loop: "{{ rdns_records }}"
   loop_control: { loop_var: rec }
 
-- name: ✅ Ensure server identifiers are resolved when required
-  assert:
-    that:
-      - >
-        (
-          (_rdns_records | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length)
-          ==
-          (_rdns_records | selectattr('resource','equalto','server') | list | length)
-        )
-    fail_msg: "Could not resolve hcloud server by IPv4 for one or more records."
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: ✅ Validate the normalized rDNS records (cloud)
   when: MODE_ASSERT | bool
+  block:
+    - name: ✅ Ensure server identifiers are resolved when required
+      assert:
+        that:
+          - >
+            (
+              (_rdns_records | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length)
+              ==
+              (_rdns_records | selectattr('resource','equalto','server') | list | length)
+            )
+        fail_msg: "Could not resolve hcloud server by IPv4 for one or more records."
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: ✅ Validate records (cloud)
-  ansible.builtin.assert:
-    that:
-      - (_rdns_records | default(rdns_records)) | length > 0
-      - (_rdns_records | default(rdns_records)) | selectattr('dns_ptr','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
-      - (_rdns_records | default(rdns_records)) | selectattr('ip_address','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
-      - (_rdns_records | default(rdns_records)) | selectattr('resource','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
-      - ( (_rdns_records | default(rdns_records)) | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length +
-        ((_rdns_records | default(rdns_records)) | rejectattr('resource','equalto','server') | list | length) ) == ((_rdns_records | default(rdns_records)) |
-        length)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: MODE_ASSERT | bool
+    - name: ✅ Validate records (cloud)
+      ansible.builtin.assert:
+        that:
+          - (_rdns_records | default(rdns_records)) | length > 0
+          - (_rdns_records | default(rdns_records)) | selectattr('dns_ptr','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
+          - (_rdns_records | default(rdns_records)) | selectattr('ip_address','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
+          - (_rdns_records | default(rdns_records)) | selectattr('resource','defined') | list | length == ((_rdns_records | default(rdns_records)) | length)
+          - ( (_rdns_records | default(rdns_records)) | selectattr('resource','equalto','server') | selectattr('identifier','defined') | list | length +
+            ((_rdns_records | default(rdns_records)) | rejectattr('resource','equalto','server') | list | length) ) == ((_rdns_records | default(rdns_records))
+            | length)
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 📌 Apply rDNS via hcloud
   hetzner.hcloud.hcloud_rdns:

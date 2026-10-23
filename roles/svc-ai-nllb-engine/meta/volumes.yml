@@ -1,0 +1,8 @@
+# nocheck: backup-service-flag the volume holds the checkpoint the engine re-downloads from its upstream repository
+---
+# nocheck: nfs-false-data-loss  Reason: a node that fetched the checkpoint holds the same files every other node would fetch, so nothing written here has to reach another node
+nllb_models: # nocheck: embedded-state-on-nfs content-addressed checkpoint, read-only after the first download
+  type: volume
+  mounts:
+    - service: nllb-engine
+      target: /models

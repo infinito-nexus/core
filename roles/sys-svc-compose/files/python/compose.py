@@ -76,11 +76,55 @@ def detect_compose_files(project_dir: Path) -> list[Path]:
     return files
 
 
-_CACHE_HTTP_HOSTNAMES = (
-    "deb.debian.org",
-    "archive.ubuntu.com",
-    "security.ubuntu.com",
-)
+_CACHE_HOSTS_KEY = "INFINITO_CACHE_HOSTS"
+_CACHE_HTTP_HOSTS_KEY = "INFINITO_CACHE_HTTP_HOSTS"
+_CA_INSTALLER = "package-frontend-ca.sh"
+
+
+def _cache_http_hostnames() -> list[str]:
+    """Return the hosts the frontend serves, as `make dotenv` derived them.
+
+    The list lives in the ``cache:`` entries of every role's meta/networks.yml
+    and reaches this script only through the environment, because the script
+    is installed as a standalone binary and cannot import the repository.
+    """
+    raw = os.environ.get(_CACHE_HOSTS_KEY) or ""
+    return [host for host in (part.strip() for part in raw.split(",")) if host]
+
+
+def _cache_http_only_hostnames() -> list[str]:
+    """Return the hosts the frontend serves without TLS."""
+    raw = os.environ.get(_CACHE_HTTP_HOSTS_KEY) or ""
+    return [host for host in (part.strip() for part in raw.split(",")) if host]
+
+
+def _installs_frontend_ca(service: dict) -> bool:
+    """Whether this service's image build trusts the frontend's CA.
+
+    Hijacking a TLS host for a build that does not install the CA turns every
+    `pip install` into CERTIFICATE_VERIFY_FAILED, so the plain-HTTP hosts are
+    the only ones safe by default. A Dockerfile that runs the CA installer
+    earns the rest.
+    """
+    build = service.get("build")
+    context = build.get("context", ".") if isinstance(build, dict) else str(build)
+    name = (
+        build.get("dockerfile", "Dockerfile")
+        if isinstance(build, dict)
+        else "Dockerfile"
+    )
+    path = Path(context) / name
+    try:
+        return _CA_INSTALLER in path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+
+
+def _buildable_hostnames(service: dict) -> list[str]:
+    """Return the hosts this service's build may safely resolve to the cache."""
+    if _installs_frontend_ca(service):
+        return _cache_http_hostnames()
+    return _cache_http_only_hostnames()
 
 
 def _cache_frontend_ca_present() -> bool:
@@ -112,10 +156,24 @@ def generate_cache_override(project_dir: Path, base_compose: Path) -> Path | Non
     if not services_with_build:
         return None
 
-    extra_hosts = [f"{host}:{cache_ip}" for host in _CACHE_HTTP_HOSTNAMES]
+    hostnames = _cache_http_hostnames()
+    if not hostnames:
+        raise SystemExit(
+            f"the package cache is active but {_CACHE_HOSTS_KEY} is empty, so "
+            "every build would silently fetch from upstream; run `make dotenv` "
+            "to derive it from the roles' cache: declarations"
+        )
+
     override_doc = {
         "services": {
-            name: {"build": {"extra_hosts": list(extra_hosts)}}
+            name: {
+                "build": {
+                    "extra_hosts": [
+                        f"{host}:{cache_ip}"
+                        for host in _buildable_hostnames(services[name])
+                    ]
+                }
+            }
             for name in services_with_build
         }
     }

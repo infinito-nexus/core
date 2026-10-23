@@ -1,0 +1,10 @@
+---
+gnome-terminal:
+  Archlinux:
+    - gnome-terminal
+  Debian:
+    - gnome-terminal
+  RedHat:
+    - gnome-terminal
+  centos:
+    - ptyxis

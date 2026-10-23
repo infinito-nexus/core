@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — Funkwhale writes to the bucket only through the audio-library import flow, which needs a persona-owned library and a real track upload the role does not provision; PROXY_MEDIA=true serves every read back through the API, so the bucket has no persona-reachable surface
+# nocheck: seaweedfs-playwright — the only objects this role writes are the branding images of tasks/01_manager.yml, and files/playwright/test-design.js fetches the sidebar logo from its bucket URL and compares it byte for byte with the configured asset; on an onion pick that fetch fails, because web-svc-seaweedfs publishes no onion vhost and the Tor-proxied browser cannot resolve its clearnet name; the document surface the shared scenario drives is the audio-library import flow, which needs a persona-owned library and a real track upload the role does not provision
 funkwhale:
   healthcheck:
     flavor: wget
@@ -18,6 +18,7 @@ funkwhale:
       http: 80
     local:
       sso: 16502
+      sso_onion: 16527
       http: 8012
   proxy:
     service_key: front
@@ -35,7 +36,9 @@ api:
   healthcheck:
     flavor: curl
     path: api/v1/instance/nodeinfo/2.0
+  name: funkwhale-api
   image: funkwhale/api
+  ca_client: true
   version: 2.0.12
   min_storage: 588MB
   ports:
@@ -107,8 +110,8 @@ minio:
 # nocheck: playwright-service-flag — object store, no Playwright surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -121,10 +124,14 @@ sso:
     acl:
       blacklist:
         - /login
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 80
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -142,3 +149,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

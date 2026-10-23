@@ -9,3 +9,7 @@ PHPMAYADMIN_AUTOLOGIN_ENABLED: "{{ lookup('config', application_id, 'services.ph
 PHPMAYADMIN_ROOT_PASSWORD: "{{ lookup('config','svc-db-mariadb', 'secrets.credentials.root_password') }}"
 PHPMAYADMIN_ROOT_USER: "root"
 PHPMAYADMIN_DB_HOST: "{{ lookup('config','svc-db-mariadb', 'services.mariadb.name') }}"
+PHPMYADMIN_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+PHPMYADMIN_THEME_NAME: "infinito"
+PHPMYADMIN_THEME_BASE: "pmahomme"
+PHPMYADMIN_THEME_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'theme'] | path_join }}"

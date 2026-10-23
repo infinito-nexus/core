@@ -1,0 +1,71 @@
+---
+# include-gated: when: STALWART_IMPORT_MAILU and 'web-app-mailu' in group_names
+#                and STALWART_ACTIVE_PROVIDER and IS_COMPOSE_MODE
+# Param: stalwart_mailu_maildir - registered result whose stdout is the maildir volume mountpoint.
+- name: "📁 Create the import working directory"
+  ansible.builtin.file:
+    path: "{{ STALWART_IMPORT_DIR }}"
+    state: directory
+    mode: "0700"
+
+- name: "📥 Stage and start the Mailu import in the background"
+  block:
+    - name: "📄 Stage the import scripts"
+      ansible.builtin.copy:
+        src: "{{ [ 'python', stalwart_import_script ] | path_join }}"
+        dest: "{{ [ STALWART_IMPORT_DIR, stalwart_import_script ] | path_join }}"
+        mode: "0600"
+      loop: "{{ STALWART_IMPORT_SCRIPTS }}"
+      loop_control:
+        loop_var: stalwart_import_script
+
+    - name: "📄 Stage the recovery administrator credentials for the import"
+      ansible.builtin.copy:
+        content: "{{ {'user': STALWART_ADMIN_USER, 'password': STALWART_ADMIN_PASSWORD} | to_json }}"
+        dest: "{{ STALWART_IMPORT_ADMIN_FILE }}"
+        mode: "0600"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "📥 Start the Mailu import as a background unit"
+      ansible.builtin.command:
+        argv:
+          - systemd-run
+          - --unit
+          - "{{ STALWART_IMPORT_UNIT }}"
+          - --collect
+          - --property
+          - "ExecStopPost=/usr/bin/rm -rf {{ STALWART_IMPORT_DIR }}"
+          - python3
+          - -u
+          - "{{ [ STALWART_IMPORT_DIR, STALWART_IMPORT_SCRIPTS[0] ] | path_join }}"
+          - --maildir-root
+          - "{{ stalwart_mailu_maildir.stdout | trim }}"
+          - --imap-host
+          - "{{ STALWART_IMPORT_IMAPS_HOST }}"
+          - --imap-port
+          - "{{ STALWART_IMPORT_IMAPS_PORT }}"
+          - --imap-insecure
+          - --jmap-url
+          - "{{ STALWART_IMPORT_JMAP_URL }}"
+          - --admin-file
+          - "{{ STALWART_IMPORT_ADMIN_FILE }}"
+          - --mailbox-map
+          - "{{ STALWART_MAILBOX_MAP | to_json }}"
+          - --workers
+          - "{{ STALWART_IMPORT_WORKERS }}"
+          - --done-file
+          - "{{ STALWART_IMPORT_DONE_FILE }}"
+      changed_when: true
+  rescue:
+    - name: "🧹 Remove the import working directory and its credentials" # nocheck: rescue-credentials the staged recovery administrator password would otherwise outlive a unit that never started, since only the unit's ExecStopPost removes it
+      ansible.builtin.file:
+        path: "{{ STALWART_IMPORT_DIR }}"
+        state: absent
+
+    - name: "🛑 Re-raise the failure that stopped the import start"
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg }}"
+
+- name: "📋 Report where the import logs its progress"
+  ansible.builtin.debug:
+    msg: "The Mailu import runs as {{ STALWART_IMPORT_UNIT }}; follow it with: journalctl -fu {{ STALWART_IMPORT_UNIT }}"

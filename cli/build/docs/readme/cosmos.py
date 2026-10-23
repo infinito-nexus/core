@@ -49,7 +49,6 @@ from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES
 from utils.symbol_glossary import to_emoji
 
 _GROUP_DEP_RE = re.compile(r"'([a-z0-9][a-z0-9-]*)'\s+in\s+group_names")
-_DEPENDENTS_CAP = 12
 _OFF_STROKE = "red"
 _MERMAID_RESERVED = {
     "call",
@@ -241,7 +240,7 @@ def _service_stopped(entry: dict) -> bool:
 
 
 def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
-    """Return a mermaid ``flowchart`` source (no ``` fences) for the role."""
+    """Return a mermaid ``flowchart`` source (no code fences) for the role."""
     role_dir = Path(role_dir)
     meta = _roles_meta(str(role_dir.parent))
     services = meta.get(role_name)
@@ -310,8 +309,6 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
 
     markers = _mode_markers(str(role_dir.parent))
     dependents = sorted(dpt_kind)
-    shown = dependents[:_DEPENDENTS_CAP]
-    overflow = len(dependents) - len(shown)
 
     gear = to_emoji("role_dependency")
 
@@ -340,10 +337,8 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
         lines.extend(
             f'        dpt_{_node_id(r)}["{_role_label(r, markers)}'
             f'{f" {gear}" if r in gear_dependents else ""}"]'
-            for r in shown
+            for r in dependents
         )
-        if overflow:
-            lines.append('        dpt_more["..."]')
         lines.append("    end")
 
     gear_edge_list = [
@@ -357,13 +352,9 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
     )
     dpt_edge_list = [
         (f"svc_{_node_id(s)}", f"dpt_{_node_id(o)}", dpt_kind[o])
-        for o in shown
+        for o in dependents
         for s in anchor
     ]
-    if overflow:
-        dpt_edge_list.extend(
-            (f"svc_{_node_id(s)}", "dpt_more", "fixed") for s in anchor
-        )
     dpt_pairs = _merge_edges(dpt_edge_list)
     emitted: list[str] = []
     for pairs in (dep_pairs, dpt_pairs):

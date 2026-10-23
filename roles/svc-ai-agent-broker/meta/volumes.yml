@@ -1,0 +1,17 @@
+# nocheck: backup-service-flag  the only named volume carries the socket proxy's transient unix socket, nothing to restore
+---
+docker_sock:
+  type: bind
+  source: /var/run/docker.sock
+  read_only: true
+  mounts:
+    - service: socket-proxy
+      target: /var/run/docker.sock
+
+engine_socket:
+  type: volume
+  mounts:
+    - service: socket-proxy
+      target: &engine_socket_dir /run/agent-engine
+    - service: agent-broker
+      target: *engine_socket_dir

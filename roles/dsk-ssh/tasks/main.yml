@@ -1,0 +1,3 @@
+---
+- include_tasks: 00_core.yml
+  when: run_once_dsk_ssh is not defined

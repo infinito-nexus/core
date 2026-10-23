@@ -23,6 +23,13 @@
     mode: "700"
     state: directory
 
+- name: "🌐 Deploy the network origins plugin to '{{ DISCOURSE_NETWORK_PLUGIN_HOST_DIR }}'"
+  stack_host_copy:
+    src: "ruby/plugins/infinito-network-origins/"
+    dest: "{{ DISCOURSE_NETWORK_PLUGIN_HOST_DIR }}/"
+    mode: "0644"
+  notify: recreate-discourse
+
 - name: "📋 copy configuration to '{{ DISCOURSE_APPLICATION_YML_DEST }}'"
   stack_host_template:
     src: config.yml.j2

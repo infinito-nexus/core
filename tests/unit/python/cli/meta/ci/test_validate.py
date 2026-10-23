@@ -6,7 +6,7 @@ import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 
 from cli.meta.ci import validate
-from utils.github.variant import axes
+from utils.github.variant import axes, network
 
 _ROWS = [
     {"name": "web-app-a", "variant": 0, "test_compose": True, "test_swarm": True},
@@ -15,12 +15,22 @@ _ROWS = [
 ]
 
 _VARIANTS = {
-    "web-app-a": [{"services": {}}, {"services": {"tor": {"enabled": False}}}],
-    "web-app-b": [{"services": {}}],
+    "web-app-a": [
+        {"services": {"tor": {"enabled": True}}},
+        {"services": {"tor": {"enabled": False}}},
+    ],
+    "web-app-b": [
+        {
+            "services": {"tor": {"enabled": True}},
+            "networks": {"reachability": {"single_mode": True}},
+        }
+    ],
 }
 
 
-def _problems(tokens: str, *, tor_mode: str = "auto") -> tuple[list[str], list[str]]:
+def _problems(
+    tokens: str, *, network_input: str = "auto", vpn_mode: str = "auto"
+) -> tuple[list[str], list[str]]:
     with (
         mock.patch.object(validate.query, "discover_rows", return_value=_ROWS),
         mock.patch.object(validate, "get_variants", return_value=_VARIANTS),
@@ -28,7 +38,8 @@ def _problems(tokens: str, *, tor_mode: str = "auto") -> tuple[list[str], list[s
         return validate.problems(
             tokens,
             modes=("compose", "swarm", "host"),
-            tor_mode=tor_mode,
+            network_input=network_input,
+            vpn_mode=vpn_mode,
             distros=axes.DISTROS,
             filesystems=axes.FILESYSTEMS,
             lifecycles="",
@@ -73,13 +84,43 @@ class TestProblems(unittest.TestCase):
             errors, warnings = validate.problems(
                 "web-app-c",
                 modes=("compose",),
-                tor_mode="auto",
+                network_input="auto",
+                vpn_mode="auto",
                 distros=axes.DISTROS,
                 filesystems=axes.FILESYSTEMS,
                 lifecycles="",
                 label="priority",
             )
         self.assertEqual((errors, warnings), ([], []))
+
+    def test_a_role_without_a_bond_may_pin_multi_when_its_deploy_pulls_tor(
+        self,
+    ) -> None:
+        rows = [
+            {
+                "name": "web-app-c",
+                "variant": 0,
+                "test_compose": True,
+                "services": [network.tor_provider()],
+            }
+        ]
+        with (
+            mock.patch.object(validate.query, "discover_rows", return_value=rows),
+            mock.patch.object(
+                validate, "get_variants", return_value={"web-app-c": [{"services": {}}]}
+            ),
+        ):
+            problems = validate.problems(
+                "web-app-c#0@compose+multi",
+                modes=("compose",),
+                network_input="auto",
+                vpn_mode="auto",
+                distros=axes.DISTROS,
+                filesystems=axes.FILESYSTEMS,
+                lifecycles="",
+                label="priority",
+            )
+        self.assertEqual(problems, ([], []))
 
     def test_a_warning_still_separates_a_missing_role_from_a_present_one(self) -> None:
         _errors, warnings = _problems("web-app-a web-app-gone web-app-b")
@@ -90,15 +131,27 @@ class TestProblems(unittest.TestCase):
         errors, _warnings = _problems("web-app-a#1@swarm+clearnet")
         self.assertIn("pinned mode 'swarm' is not available", errors[0])
 
-    def test_an_onion_state_the_variant_rules_out_is_an_error(self) -> None:
+    def test_a_network_mode_the_variant_rules_out_is_an_error(self) -> None:
         errors, _warnings = _problems("web-app-a#1@compose+tor")
-        self.assertIn("pinned onion state tor is impossible", errors[0])
+        self.assertIn("pinned network mode 'tor' is impossible", errors[0])
 
-    def test_an_onion_state_the_runs_tor_axis_rules_out_is_an_error(self) -> None:
+    def test_a_network_mode_the_runs_network_axis_rules_out_is_an_error(self) -> None:
         errors, _warnings = _problems(
-            "web-app-a#0@compose+clearnet", tor_mode="enforced"
+            "web-app-a#0@compose+clearnet", network_input="tor"
         )
-        self.assertIn("pinned onion state clearnet is impossible", errors[0])
+        self.assertIn("pinned network mode 'clearnet' is impossible", errors[0])
+
+    def test_a_network_mode_the_roles_reachability_rules_out_is_an_error(self) -> None:
+        self.assertEqual(_problems("web-app-b#0@swarm+tor"), ([], []))
+        errors, _warnings = _problems("web-app-b#0@swarm+multi")
+        self.assertIn("pinned network mode 'multi' is impossible", errors[0])
+
+    def test_a_mesh_state_the_mode_rules_out_is_an_error(self) -> None:
+        errors, _warnings = _problems("web-app-a#0@compose+clearnet&vpn")
+        self.assertIn("pinned mesh state vpn is impossible", errors[0])
+
+    def test_a_mesh_state_the_mode_allows_passes(self) -> None:
+        self.assertEqual(_problems("web-app-a#0@swarm+clearnet&vpn"), ([], []))
 
     def test_every_offender_is_reported_not_just_the_first(self) -> None:
         errors, _warnings = _problems(
@@ -133,6 +186,13 @@ class TestMain(unittest.TestCase):
         code, _out, err = self._main(["--priority", "web-app-a#7"])
         self.assertEqual(code, 1)
         self.assertIn("::error::", err)
+
+    def test_the_network_flag_is_the_runs_network_axis(self) -> None:
+        code, _out, err = self._main(
+            ["--network", "clearnet", "--priority", "web-app-a#0@swarm+tor"]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("pinned network mode 'tor' is impossible", err)
 
     def test_both_inputs_are_checked_and_named_in_the_message(self) -> None:
         code, _out, err = self._main(

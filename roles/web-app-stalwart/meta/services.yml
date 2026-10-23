@@ -45,14 +45,20 @@ stalwart:
   version: "v0.16.27"
   webui_version: "v1.0.11"
   update:
-    key: webui_version
-    type: git_tags
-    repository: https://github.com/stalwartlabs/webui.git
+    - key: webui_version
+      type: git_tags
+      repository: https://github.com/stalwartlabs/webui.git
+      match: "v"
   name: stalwart
   backup:
     project_hard_restart: true
   migration:
     import_mailu: false
+    mailbox_map: []
+    workers: 0 # Parallel IMAP sessions of the import; 0 takes one fewer than the host's vCPUs, at most 8
+  aliases: []
+  forwards: []
+  alias_domains: []
   ban_period_seconds: 3600
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB
@@ -89,7 +95,7 @@ stalwart:
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
-  shared: "{{ ('svc-db-postgres' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  shared: "{{ ('svc-db-postgres' in group_names) and (IS_COMPOSE_MODE) }}"
   image: postgres
   version: "18"
   cpus: "0.8"
@@ -120,7 +126,7 @@ webmail:
 clamav:
   enabled: true
   shared: false
-  image: clamav/clamav
+  image: clamav/clamav-debian
   version: "1.5.4"
   ports:
     internal:
@@ -129,11 +135,14 @@ clamav:
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 512
-# nocheck: playwright-service-flag — verified by web-svc-css provider spec
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 472
+      height: 80
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -151,3 +160,8 @@ tor-smtp:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

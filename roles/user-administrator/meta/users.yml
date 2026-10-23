@@ -1,4 +1,14 @@
 ---
+platform_administrator:
+  description: Application administrator for {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}
+  firstname: Platform
+  lastname: Administrator
+  username: platformadmin
+  roles:
+    - administrator
+  authorized_keys: []
+  accounts: [mailbox, identity]
+
 administrator:
   description: System Administrator for {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}
   firstname: Administrator

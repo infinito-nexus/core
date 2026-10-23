@@ -61,7 +61,6 @@ gitea:
   pids_limit: 1024
   healthcheck:
     flavor: curl
-  title: "{{ SOFTWARE_NAME }} Code Hub"
   configuration:
     repository:
       enable_push_create_user: true
@@ -73,6 +72,7 @@ gitea:
       ssh: 22
     local:
       sso: 16488
+      sso_onion: 16529
       http: 8002
     public:
       ssh: 2201
@@ -150,13 +150,21 @@ minio:
 # nocheck: playwright-service-flag — object store; storage check needs a UI login, but Gitea's personas are blocked (PERSONA_ADMINISTRATOR_BLOCKED/PERSONA_BIBER_BLOCKED), so it has no automatable Playwright login surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Code Hub"
+  slots:
+    logo:
+      width: 512
+      height: 512
+    favicon:
+      width: 180
+      height: 180
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -198,3 +206,8 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -4,11 +4,10 @@
     name: sys-ctl-mtn-cert-renew
   when:
     - run_once_sys_ctl_mtn_cert_renew is not defined
-    - lookup('tls', application_id, 'mode') == 'letsencrypt'
+    - lookup('tls', domain, 'mode') == 'letsencrypt'
 
 - name: 📁 Create HTTP->HTTPS handler per domain
   stack_host_template:
     src: "http.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain, protocol='http') }}"
   notify: reload-openresty
-  when: HTTPS_REDIRECT_ENABLED | bool

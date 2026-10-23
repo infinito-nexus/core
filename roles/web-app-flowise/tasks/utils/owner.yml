@@ -1,0 +1,52 @@
+---
+- name: "👤 Register the Flowise instance owner before a visitor can claim it"
+  uri_retry:
+    url: "{{ FLOWISE_INTERNAL_URL }}/api/v1/account/register"
+    method: POST
+    headers:
+      x-request-from: internal
+    body_format: json
+    body:
+      user:
+        email: "{{ FLOWISE_API_BOT_USER.email }}"
+        name: "{{ FLOWISE_API_BOT_USER.username }}"
+        credential: "{{ FLOWISE_API_BOT_PASSWORD }}"
+    status_code: [200, 201, 400]
+    return_content: true
+  register: flowise_owner
+  changed_when: flowise_owner.status in [200, 201]
+  failed_when: >-
+    flowise_owner.status not in [200, 201]
+    and (flowise_owner.status != 400 or 'only have one organization' not in flowise_owner.content)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: FLOWISE
+    resolve_compose_cid: "{{ FLOWISE_CONTAINER }}"
+
+- name: "🔐 Converge the password of the Flowise instance owner"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "NODE_PATH={{ FLOWISE_NODE_MODULES }}"
+      - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - node
+      - "-"
+    stdin: >-
+      {{ 'process.env.FLOWISE_ADMIN_EMAIL = ' ~ (FLOWISE_API_BOT_USER.email | to_json) ~ ';'
+      ~ ' process.env.FLOWISE_ADMIN_PASSWORD = ' ~ (FLOWISE_API_BOT_PASSWORD | to_json) ~ '; '
+      ~ lookup('file', 'javascript/reconcile/identity_password.js') }}
+  register: flowise_owner_password
+  retries: 30
+  delay: 10
+  until: flowise_owner_password.rc == 0
+  changed_when: flowise_owner_password.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FLOWISE_HOST_NODE }}"
+  run_once: true

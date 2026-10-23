@@ -17,10 +17,12 @@
 - name: "🔎 Check for Mailu DB domain table"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  MAILU_DB_LOCAL_CID resolved at delegate_to runtime
     container exec
-    -e MARIADB_PWD={{ lookup('database', application_id, 'password') | quote }}
+    -e MARIADB_PWD
     {{ MAILU_DB_LOCAL_CID | quote }} sh -c
     'mariadb -u {{ lookup('database', application_id, 'username') }} -p"$MARIADB_PWD"
     -e "SHOW TABLES FROM {{ lookup('database', application_id, 'name') }} LIKE \"domain\";"'
+  environment:
+    MARIADB_PWD: "{{ lookup('database', application_id, 'password') }}"
   register: mailu_db_schema_check
   retries: 30
   delay: 5

@@ -1,36 +1,33 @@
 ---
-- name: ✅ Validate user authorized_keys is a list when defined
-  ansible.builtin.fail:
-    msg: >-
-      Invalid SSH key configuration for user key '{{ user_key }}'.
-      If defined, lookup('users', '{{ user_key }}').authorized_keys must be a LIST of SSH public keys.
-  when:
-    - user_config_effective.authorized_keys is defined
-    - user_config_effective.authorized_keys is string or user_config_effective.authorized_keys is not iterable
+- name: 🔑 Install authorized_keys for '{{ user_username }}'
+  when: user_config_effective.authorized_keys is defined
+  block:
+    - name: ✅ Validate user authorized_keys is a list when defined
+      ansible.builtin.fail:
+        msg: >-
+          Invalid SSH key configuration for user key '{{ user_key }}'.
+          If defined, lookup('users', '{{ user_key }}').authorized_keys must be a LIST of SSH public keys.
+      when: user_config_effective.authorized_keys is string or user_config_effective.authorized_keys is not iterable
 
-- name: ✅ Ensure SSH directory exists for '{{ user_username }}'
-  ansible.builtin.file:
-    path: "{{ user_home }}/.ssh"
-    state: directory
-    owner: "{{ user_username }}"
-    group: "{{ user_group }}"
-    mode: "0700"
-  when:
-    - user_config_effective.authorized_keys is defined
+    - name: ✅ Ensure SSH directory exists for '{{ user_username }}'
+      ansible.builtin.file:
+        path: "{{ user_home }}/.ssh"
+        state: directory
+        owner: "{{ user_username }}"
+        group: "{{ user_group }}"
+        mode: "0700"
 
-- name: ✏️ Write authorized_keys for '{{ user_username }}'
-  ansible.builtin.copy:
-    dest: "{{ user_home }}/.ssh/authorized_keys"
-    content: |
-      {{
-        user_config_effective.authorized_keys
-        | default([])
-        | map('regex_replace', '\\\\n$', '')
-        | map('regex_replace', '\\s+$', '')
-        | join('\n')
-      }}
-    owner: "{{ user_username }}"
-    group: "{{ user_group }}"
-    mode: "0600"
-  when:
-    - user_config_effective.authorized_keys is defined
+    - name: ✏️ Write authorized_keys for '{{ user_username }}'
+      ansible.builtin.copy:
+        dest: "{{ user_home }}/.ssh/authorized_keys"
+        content: |
+          {{
+            user_config_effective.authorized_keys
+            | default([])
+            | map('regex_replace', '\\\\n$', '')
+            | map('regex_replace', '\\s+$', '')
+            | join('\n')
+          }}
+        owner: "{{ user_username }}"
+        group: "{{ user_group }}"
+        mode: "0600"

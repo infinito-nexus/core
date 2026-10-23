@@ -5,8 +5,8 @@ set -euo pipefail
 # (two discovery queries, the axis rotations, the chunk split) lives in
 # cli.meta.ci.matrix, shared with the deploy-plan table, so the matrix this
 # emits and the plan the summary renders can never disagree. Every entry is one
-# role#variant row carrying the mode, onion state, distro and filesystem it was
-# assigned.
+# role#variant row carrying the mode, onion state, distro, filesystem and CPU
+# architecture it was assigned, plus the runner label that architecture needs.
 #
 # Inputs via env (defaults live in default.env, the single source of truth):
 #   INFINITO_CI_CHUNK              chunk index to emit (required)
@@ -15,9 +15,10 @@ set -euo pipefail
 #   INFINITO_MODES                 'auto' or a subset of 'host compose swarm'
 #   INFINITO_WHITELIST             optional space-separated app ids to keep
 #   INFINITO_PRIORITY              optional space-separated app ids to lead
-#   INFINITO_TOR                   auto|enforced|exclusive|disabled
+#   INFINITO_NETWORK               auto|clearnet|tor|multi
 #   INFINITO_DISTROS               distro pool the rows are spread over; empty: all
 #   INFINITO_DOCKER_FILESYSTEM_ALLOWED  filesystem pool; empty: all
+#   INFINITO_ARCHITECTURES         architecture pool; empty: amd64 and arm64
 #   INFINITO_LIFECYCLES            lifecycle envelope for discovery
 #   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
 #   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
@@ -66,9 +67,10 @@ matrix_json="$(
 		--whitelist "${INFINITO_WHITELIST}" \
 		--priority "${INFINITO_PRIORITY}" \
 		--lifecycles "${INFINITO_LIFECYCLES}" \
-		--tor "${INFINITO_TOR}" \
+		--network "${INFINITO_NETWORK}" \
 		--distros "${INFINITO_DISTROS}" \
-		--filesystem "${INFINITO_DOCKER_FILESYSTEM_ALLOWED}"
+		--filesystem "${INFINITO_DOCKER_FILESYSTEM_ALLOWED}" \
+		--architectures "${INFINITO_ARCHITECTURES}"
 )"
 
 if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then

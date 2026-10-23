@@ -38,6 +38,8 @@ async function loginViaFriendicaForm(page, username, password) {
     .or(loginForm.getByRole("button", { name: /sign\s*in|log\s*in|anmelden|connexion|iniciar|entrar/i }))
     .first();
 
+  await expect(usernameField).toBeEditable({ timeout: resolveTimeout(30_000) });
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
   await Promise.all([

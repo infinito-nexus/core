@@ -22,17 +22,28 @@ class TestNfsHelpers(unittest.TestCase):
 
     def test_mount_opts_lab_runtimes_soft(self):
         for rt in ("dev", "act", "github"):
-            self.assertEqual(mount_opts(4, rt), "vers=4,rw,soft,timeo=50,retrans=3")
+            self.assertEqual(
+                mount_opts(4, rt), "vers=4,rw,noresvport,soft,timeo=50,retrans=3"
+            )
 
     def test_mount_opts_prod_hard(self):
-        self.assertEqual(mount_opts(4, "host"), "vers=4,rw,hard,timeo=600")
+        self.assertEqual(mount_opts(4, "host"), "vers=4,rw,noresvport,hard,timeo=600")
+
+    def test_mount_opts_keep_the_client_off_published_privileged_ports(self):
+        """A reserved source port can land on imaps/993 or pop3s/995 and then
+        blocks the whole ingress port set of the mail stack."""
+        for version in (3, 4):
+            for runtime in ("dev", "act", "github", "host"):
+                self.assertIn("noresvport", mount_opts(version, runtime))
 
     def test_mount_opts_v4_carries_no_v3_locking_token(self):
         self.assertNotIn("local_lock", mount_opts(4, "host"))
         self.assertNotIn("nolock", mount_opts(4, "host"))
 
     def test_mount_opts_v3_still_disables_nlm(self):
-        self.assertEqual(mount_opts(3, "host"), "vers=3,rw,hard,timeo=600,nolock")
+        self.assertEqual(
+            mount_opts(3, "host"), "vers=3,rw,noresvport,hard,timeo=600,nolock"
+        )
 
     def test_client_src_kernel_v4_is_root(self):
         self.assertEqual(
@@ -56,7 +67,7 @@ class TestSwarmNfsBacked(unittest.TestCase):
     """The predicate mirrors the compose_volumes rewrite decision: swarm mode
     with an nfs backend backs every volume of a non-manager-pinned role unless
     the entry opts out with ``nfs: false``. web-app-nextcloud carries no
-    placement pin; web-app-seaweedfs is pinned to the manager on purpose."""
+    placement pin; web-svc-seaweedfs is pinned to the manager on purpose."""
 
     def test_backed_in_swarm_with_nfs(self):
         self.assertTrue(
@@ -92,7 +103,7 @@ class TestSwarmNfsBacked(unittest.TestCase):
         self.assertFalse(
             swarm_nfs_backed(
                 {"name": "seaweedfs_data"},
-                application_id="web-app-seaweedfs",
+                application_id="web-svc-seaweedfs",
                 deployment_mode="swarm",
                 storage_backend="nfs",
             )

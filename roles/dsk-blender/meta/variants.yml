@@ -1,0 +1,14 @@
+---
+# Matrix-deploy variant overrides for dsk-blender.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    docs:
+      enabled: true
+      shared: true
+    claude:
+      enabled: true
+      shared: true
+    code:
+      enabled: true
+      shared: true

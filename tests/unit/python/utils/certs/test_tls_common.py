@@ -11,9 +11,11 @@ from utils.tls_common import (
     collect_domains_for_app,
     collect_domains_global,
     get_path,
+    is_domain_term,
     is_onion_domain,
     norm_domain,
     override_san_list,
+    redirect_targets,
     require,
     resolve_app_id_from_domain,
     resolve_enabled,
@@ -132,6 +134,66 @@ class TestTlsCommon(unittest.TestCase):
             resolve_term(
                 "x", domains=self.domains, forced_mode="invalid", err_prefix="t"
             )
+
+    def test_resolve_term_redirect_source_resolves_to_target(self):
+        app_id, primary = resolve_term(
+            "B-Auto.Example",
+            domains=self.domains,
+            applications={},
+            redirects=redirect_targets(
+                {
+                    "CURRENT_PLAY_REDIRECT_DOMAINS": [
+                        {"source": "b-auto.example", "target": "B.example"}
+                    ]
+                }
+            ),
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual(app_id, "web-app-b")
+        self.assertEqual(primary, "b.example")
+
+    def test_resolve_term_unknown_domain_still_fails_without_redirect(self):
+        for variables in ({}, {"CURRENT_PLAY_REDIRECT_DOMAINS": None}):
+            with self.assertRaises(AnsibleError):
+                resolve_term(
+                    "b-auto.example",
+                    domains=self.domains,
+                    applications={},
+                    redirects=redirect_targets(variables),
+                    forced_mode="auto",
+                    err_prefix="t",
+                )
+
+    def test_resolve_term_redirect_follows_a_chain(self):
+        app_id, primary = resolve_term(
+            "*.legacy.example",
+            domains=self.domains,
+            applications={},
+            redirects={"*.legacy.example": "two.example", "two.example": "b.example"},
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual((app_id, primary), ("web-app-b", "b.example"))
+
+    def test_resolve_term_redirect_cycle_fails(self):
+        with self.assertRaises(AnsibleError):
+            resolve_term(
+                "one.example",
+                domains=self.domains,
+                applications={},
+                redirects={"one.example": "two.example", "two.example": "one.example"},
+                forced_mode="auto",
+                err_prefix="t",
+            )
+
+    def test_is_domain_term(self):
+        self.assertTrue(is_domain_term("a.example", "auto", err_prefix="t"))
+        self.assertFalse(is_domain_term("web-app-a", "auto", err_prefix="t"))
+        self.assertTrue(is_domain_term("web-app-a", "domain", err_prefix="t"))
+        self.assertFalse(is_domain_term("a.example", "app", err_prefix="t"))
+        with self.assertRaises(AnsibleError):
+            is_domain_term("a.example", "other", err_prefix="t")
 
     def test_resolve_enabled_and_mode(self):
         app = {}
@@ -285,6 +347,81 @@ class TestTlsCommon(unittest.TestCase):
                 templar=_FakeTemplar(),
             ),
             "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_onion_consumer_gets_onion_sibling(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-dashboard": ["dash.abc.onion"],
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", consumer="web-app-dashboard"
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_follows_the_rendered_vhost(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "wazuh.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", variables=variables
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_ignores_a_foreign_vhost(self):
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "other.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-svc-cdn", "cdn.example", variables=variables
+            ),
+            "cdn.example",
+        )
+
+    def test_align_domain_to_consumer_renders_a_templated_vhost(self):
+        class _FakeTemplar:
+            def template(self, value):
+                return {"{{ front_proxy_domain }}": "wazuh.abc.onion"}.get(value, value)
+
+        domains = {
+            "web-svc-cdn": ["cdn.example", "cdn.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {
+            "application_id": "web-app-wazuh",
+            "domain": "{{ front_proxy_domain }}",
+        }
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains,
+                "web-svc-cdn",
+                "cdn.example",
+                variables=variables,
+                templar=_FakeTemplar(),
+            ),
+            "cdn.abc.onion",
+        )
+
+    def test_align_domain_to_consumer_never_moves_the_sso_issuer(self):
+        domains = {
+            "web-app-keycloak": ["auth.example", "auth.abc.onion"],
+            "web-app-wazuh": ["wazuh.example", "wazuh.abc.onion"],
+        }
+        variables = {"application_id": "web-app-wazuh", "domain": "wazuh.abc.onion"}
+        self.assertEqual(
+            align_domain_to_consumer(
+                domains, "web-app-keycloak", "auth.example", variables=variables
+            ),
+            "auth.example",
         )
 
     def test_align_domain_to_consumer_dict_target_picks_clearnet_value(self):

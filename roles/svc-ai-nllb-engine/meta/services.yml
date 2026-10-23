@@ -1,0 +1,50 @@
+---
+# nocheck: playwright-service-flag — translation engine without a browser surface of its own
+nllb-engine:
+  name: nllb-engine
+  healthcheck:
+    flavor: http_status
+    path: languages
+    # nocheck: healthcheck-timing-override  the server downloads the checkpoint into its volume and loads it into memory before it binds, and a cold node pays that once
+    start_period: 60m
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+    host:
+      enabled: false
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  # nocheck: dockerfile-custom  upstream publishes model weights and no server, so the role builds one
+  # nocheck: docker-version  base of the self-built inference server, not the served application
+  image: python
+  version: "3.13.15-slim"
+  custom: true
+  gpu: true
+  model: facebook/nllb-200-distilled-600M
+  beams: 4
+  max_input_tokens: 512
+  max_output_tokens: 512
+  request_timeout: 300
+  # nocheck: min-storage-headroom  Reason: the declared image is the Dockerfile base; the built image adds the CPU torch runtime (~1.3GB) and the checkpoint (~2.5GB) lands in the models volume beside it
+  min_storage: 7GB
+  ports:
+    internal:
+      http: 5060
+  lifecycle: alpha
+  cpus: "4.0"
+  mem_reservation: 3g
+  mem_limit: 6g
+  pids_limit: 512
+# nocheck: playwright-service-flag
+tor:
+  enabled: false # nocheck: dynamic-flag  an engine consumed over the internal network publishes no onion surface
+  shared: false # nocheck: dynamic-flag  same
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

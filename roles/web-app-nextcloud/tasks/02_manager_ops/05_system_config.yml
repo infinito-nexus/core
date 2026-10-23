@@ -11,12 +11,17 @@
       config:system:set {{ item.parameter }}{% if item.type is defined %} --type {{ item.type }}{% endif %} \
       --value '{{ (item.value | string) | regex_replace("'", "'" ~ '"' ~ "'" ~ '"' ~ "'") }}'
     {% endfor %}
+    {% for key in nextcloud_system_config_absent %}
+    if {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:system:get {{ key }} >/dev/null; then
+      {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:system:delete {{ key }}
+    fi
+    {% endfor %}
   args:
     executable: /bin/bash
   register: syscfg_shell
   changed_when: >
     ( ((syscfg_shell.stdout | default('')) ~ (syscfg_shell.stderr | default('')))
-      is search(' set to ') )
+      is search(' set to | deleted') )
   failed_when: syscfg_shell.rc != 0
   retries: 3
   delay: 5

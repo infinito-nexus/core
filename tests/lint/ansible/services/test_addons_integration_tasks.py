@@ -8,9 +8,8 @@ plugin. Its integration logic MUST live in the per-addon task hook
 ``roles/<role>/tasks/addons/<id>.yml`` so the wiring is explicit and greppable.
 
 The hook is mandatory even when the generic addon ``config:`` payload already
-covers everything: in that case the file MUST still exist and carry a short
-comment stating that no extra integration logic beyond the generic config is
-required. There is no exemption.
+covers everything: in that case the file MUST still exist, holding nothing but
+the document marker. There is no exemption.
 """
 
 from __future__ import annotations

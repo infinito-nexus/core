@@ -128,7 +128,7 @@ def build_mcp_discovery(
     servers: Sequence[Mapping[str, Any]] | None,
     consumer_id: str,
     consumer: Mapping[str, Any],
-    credentials: Mapping[str, tuple[str, str]],
+    credentials: Mapping[str, tuple[str, str, str]],
 ) -> dict[str, list[dict[str, Any]]]:
     """Return the selected and rejected MCP servers for one client role.
 
@@ -137,7 +137,7 @@ def build_mcp_discovery(
         consumer_id: ``application_id`` of the client doing the discovery.
         consumer: the client's own ``mcp`` block, carrying
             ``supported_transports`` and ``supported_auths``.
-        credentials: resolved ``(token, owner)`` per provider role id.
+        credentials: resolved ``(token, owner, login)`` per provider role id.
     """
     supported_transports = set(consumer.get("supported_transports") or [])
     supported_auths = set(consumer.get("supported_auths") or [])
@@ -183,7 +183,7 @@ def build_mcp_discovery(
             )
             continue
 
-        token, owner = credentials.get(server_id, ("", ""))
+        token, owner, login = credentials.get(server_id, ("", "", ""))
         if not token:
             reject(
                 server_id,
@@ -232,6 +232,7 @@ def build_mcp_discovery(
                 "auth": auth,
                 "auth_subject": server.get("auth_subject"),
                 "owner": owner,
+                "login": login,
                 "tools": tools,
                 "mutating": mutating,
                 "transport": transport.replace("_", "-"),
@@ -337,7 +338,7 @@ class LookupModule(LookupBase):
 
         consumer = (applications.get(consumer_id) or {}).get("mcp") or {}
 
-        credentials: dict[str, tuple[str, str]] = {}
+        credentials: dict[str, tuple[str, str, str]] = {}
         for server in servers:
             server_id = str(server.get("id") or "")
             role_credentials = role_credentials_of(applications, server_id)

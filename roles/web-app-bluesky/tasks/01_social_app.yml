@@ -1,4 +1,30 @@
 ---
+- name: 🔎 Probe the social app checkout against the pinned ref
+  ansible.builtin.git:
+    repo: "{{ BLUESKY_SOCIAL_APP_REPOSITORY }}"
+    dest: "{{ BLUESKY_SOCIAL_APP_DIR }}"
+    version: "{{ BLUESKY_SOCIAL_APP_REF }}"
+    force: true
+  check_mode: true
+  register: bluesky_social_app_probe
+
+- name: 🔎 Find design sources the configuration no longer wants in the checkout
+  ansible.builtin.find:
+    paths:
+      - "{{ BLUESKY_ALF_THEMES_PATH | dirname }}"
+      - "{{ BLUESKY_HEADINGS_PATH | dirname }}"
+      - "{{ BLUESKY_LOGOTYPE_PATH | dirname }}"
+    patterns:
+      - "{{ BLUESKY_ALF_THEMES_PATH | basename }}"
+      - "{{ BLUESKY_HEADINGS_PATH | basename }}"
+      - "{{ BLUESKY_LOGOTYPE_PATH | basename }}"
+    contains: "{{ BLUESKY_DESIGN_MARKERS_UNWANTED | join('|') }}"
+    read_whole_file: true
+  register: bluesky_social_app_theme_left
+  when:
+    - BLUESKY_DESIGN_MARKERS_UNWANTED | length > 0
+    - bluesky_social_app_probe is not changed
+
 - name: ⬇️ clone social app repository
   git:
     repo: "{{ BLUESKY_SOCIAL_APP_REPOSITORY }}"
@@ -6,15 +32,89 @@
     version: "{{ BLUESKY_SOCIAL_APP_REF }}"
     force: true
   register: bluesky_social_app_clone
+  when: >-
+    bluesky_social_app_probe is changed
+    or (bluesky_social_app_theme_left is not skipped and bluesky_social_app_theme_left.matched > 0)
 
-- name: 💪 Force BAPP_CONFIG_URL to same-origin /config
+- name: 💪 Force the boot-time config URLs to the same origin
   ansible.builtin.replace:
-    path: "{{ BLUESKY_GEOLOCATION_PATH }}"
-    regexp: "^\\s*const\\s+BAPP_CONFIG_URL\\s*=\\s*.*$"
-    replace: "const BAPP_CONFIG_URL = '/config'"
+    path: "{{ BLUESKY_ENV_PATH }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop: "{{ BLUESKY_SAME_ORIGIN_URL_PATCHES }}"
+  loop_control:
+    label: "{{ item.replace }}"
 
-- name: 💪 Force IPCC_URL to same-origin /ipcc
+- name: 🔎 Read the patched env module back
+  ansible.builtin.slurp:
+    src: "{{ BLUESKY_ENV_PATH }}"
+  register: bluesky_env_module
+
+- name: ✅ Require every boot-time config URL to be same-origin
+  ansible.builtin.assert:
+    that: item.replace in (bluesky_env_module.content | b64decode).splitlines()
+    fail_msg: >-
+      {{ BLUESKY_ENV_PATH }} still carries an absolute boot-time config URL
+      because upstream moved or renamed the constant. social-app renders
+      nothing until that fetch settles, so every visitor whose browser cannot
+      reach the public Bluesky hosts (a Tor client without an exit, for
+      instance) is left staring at the splash.
+  loop: "{{ BLUESKY_SAME_ORIGIN_URL_PATCHES }}"
+  loop_control:
+    label: "{{ item.replace }}"
+
+- name: 💪 Force GOARCH to the architecture the bskyweb build targets
   ansible.builtin.replace:
-    path: "{{ BLUESKY_GEOLOCATION_PATH }}"
-    regexp: "^\\s*const\\s+IPCC_URL\\s*=\\s*.*$"
-    replace: "const IPCC_URL = '/ipcc'"
+    path: "{{ BLUESKY_SOCIAL_APP_DOCKERFILE }}"
+    regexp: '^ENV GOARCH="amd64"$'
+    replace: |-
+      ARG TARGETARCH
+      ENV GOARCH=${TARGETARCH}
+
+- name: "🎨 Carry the corporate design into the social app build context"
+  when: BLUESKY_DESIGN_ENABLED | bool
+  block:
+    - name: 🎨 Render the corporate ALF theme into the social app build context
+      stack_host_template:
+        src: alf-themes.ts.j2
+        dest: "{{ BLUESKY_ALF_THEMES_PATH }}"
+        mode: "0644"
+      register: bluesky_social_app_theme
+
+    - name: "🎨 Point text and hover colors of the social app at the corporate slots"
+      ansible.builtin.replace:
+        path: "{{ [BLUESKY_SOCIAL_APP_DIR, item.path] | path_join }}"
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop: "{{ BLUESKY_DESIGN_SOURCE_PATCHES }}"
+      loop_control:
+        label: "{{ item.path }}"
+      register: bluesky_social_app_design_patches
+
+- name: 🏷️ Carry the corporate title into the social app build context
+  when: BLUESKY_DESIGN_TITLE_ENABLED | bool
+  block:
+    - name: 🏷️ Render the corporate screen title module
+      stack_host_template:
+        src: headings.ts.j2
+        dest: "{{ BLUESKY_HEADINGS_PATH }}"
+        mode: "0644"
+      register: bluesky_social_app_title_module
+
+    - name: 🏷️ Write the corporate title into the server-rendered page templates
+      ansible.builtin.replace:
+        path: "{{ [BLUESKY_SOCIAL_APP_DIR, item.path] | path_join }}"
+        regexp: "{{ item.regexp }}"
+        replace: "{{ item.replace }}"
+      loop: "{{ BLUESKY_DESIGN_TITLE_PATCHES }}"
+      loop_control:
+        label: "{{ item.path }}"
+      register: bluesky_social_app_title_patches
+
+    - name: 🏷️ Render the corporate wordmark component
+      stack_host_template:
+        src: logotype.tsx.j2
+        dest: "{{ BLUESKY_LOGOTYPE_PATH }}"
+        mode: "0644"
+      register: bluesky_social_app_logotype
+      when: BLUESKY_DESIGN_LOGOTYPE_ENABLED | bool

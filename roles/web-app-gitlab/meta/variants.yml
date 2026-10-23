@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-gitlab.
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -29,7 +32,7 @@
     prometheus:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     seaweedfs:
@@ -46,6 +49,15 @@
     openclaw:
       enabled: false
       shared: false
+    jenkins:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -72,7 +84,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
@@ -89,7 +101,19 @@
     openclaw:
       enabled: true
       shared: true
+    jenkins:
+      enabled: false
+      shared: false
+    matrix:
+      enabled: true
+      shared: true
+    mattermost:
+      enabled: false
+      shared: false
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -111,7 +135,7 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
@@ -126,5 +150,14 @@
       enabled: false
       shared: false
     openclaw:
+      enabled: false
+      shared: false
+    jenkins:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: false
+      shared: false
+    mattermost:
       enabled: false
       shared: false

@@ -17,6 +17,7 @@ from utils.tls_common import (
     as_str,
     collect_domains_for_app,
     norm_domain,
+    redirect_targets,
     require,
     resolve_enabled,
     resolve_mode,
@@ -62,6 +63,7 @@ class LookupModule(LookupBase):
             term,
             domains=domains,
             applications=applications,
+            redirects=redirect_targets(variables),
             forced_mode=forced_mode,
             err_prefix="tls",
         )

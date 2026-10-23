@@ -38,10 +38,29 @@ $wgResourceBasePath = $wgScriptPath;
 
 ## The URL paths to the logo.  Make sure you change this from the default,
 ## or else you'll overwrite your logo when you upgrade!
+{% set design = lookup('design', application_id) %}
+{% if lookup('config', application_id, 'services.design.enabled') | bool and design.logo is string %}
+$wgLogos = [
+	'1x' => "{{ design.urls.icon.svg }}",
+	'svg' => "{{ design.urls.icon.svg }}",
+	'icon' => "{{ design.urls.icon.svg }}",
+	'wordmark' => [
+		'src' => "{{ design.urls.wordmark.svg }}",
+		'width' => 160,
+		'height' => 32,
+	],
+];
+$wgFavicon = "{{ design.urls.favicon_ico }}";
+$wgAppleTouchIcon = "{{ design.urls['apple-touch-icon'].png }}";
+{% else %}
 $wgLogos = [
 	'1x' => "$wgResourceBasePath/resources/assets/change-your-logo.svg",
 	'icon' => "$wgResourceBasePath/resources/assets/change-your-logo-icon.svg",
 ];
+{% endif %}
+{% if lookup('config', application_id, 'services.design.enabled') | bool %}
+$wgDefaultUserOptions['vector-theme'] = 'os';
+{% endif %}
 
 ## UPO means: this is also a user preference option
 
@@ -75,11 +94,12 @@ $wgSharedTables[] = "actor";
 
 ## Shared memory settings
 $wgMainCacheType = CACHE_ACCEL;
+$wgSessionCacheType = CACHE_DB;
 $wgMemCachedServers = [];
 
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
-$wgEnableUploads = false;
+$wgEnableUploads = {{ 'true' if MEDIAWIKI_OBJSTORE_ENABLED | bool else 'false' }};
 $wgUseImageMagick = true;
 $wgImageMagickConvertCommand = "/usr/bin/convert";
 
@@ -134,6 +154,12 @@ wfLoadSkin( 'Vector' );
 require_once '{{ MEDIAWIKI_LOCAL_PATH }}/oidc.php';
 {% endif %}
 
+{% for _ext in MEDIAWIKI_EXT_GENERIC_LOAD %}
+if ( file_exists( "$IP/extensions/{{ _ext }}/extension.json" ) ) {
+	wfLoadExtension( '{{ _ext }}' );
+}
+{% endfor %}
+
 {% if MEDIAWIKI_LITELLM_ENABLED | bool %}
 if ( file_exists( "$IP/extensions/VisualEditorPlus/vendor/autoload.php" )
 	&& file_exists( "$IP/extensions/AIEditingAssistant/extension.json" ) ) {
@@ -143,6 +169,35 @@ if ( file_exists( "$IP/extensions/VisualEditorPlus/vendor/autoload.php" )
 	$wgAIEditingAssistantActiveProvider = '{{ MEDIAWIKI_LITELLM_PROVIDER }}';
 	$wgAIEditingAssistantActiveProviderConnection = '{{ MEDIAWIKI_LITELLM_CONNECTION | to_json }}';
 	$wgHTTPTimeout = {{ MEDIAWIKI_LITELLM_HTTP_TIMEOUT | int }};
+}
+{% endif %}
+
+{% if MEDIAWIKI_TRANSLATE_ENABLED | bool %}
+if ( file_exists( "$IP/extensions/MachineTranslation/extension.json" ) ) {
+	wfLoadExtension( 'MachineTranslation' );
+	$wgMachineTranslationServiceConfig = [
+		'type' => '{{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.type }}',
+		'url' => '{{ MEDIAWIKI_TRANSLATE_SERVICE_CONFIG.url }}',
+	];
+}
+{% endif %}
+
+{% if MEDIAWIKI_OBJSTORE_ENABLED | bool %}
+if ( file_exists( "$IP/extensions/AWS/vendor/autoload.php" ) ) {
+	wfLoadExtension( 'AWS' );
+	$wgAWSCredentials = [
+		'key' => '{{ MEDIAWIKI_OBJSTORE_ACCESS_KEY }}',
+		'secret' => '{{ MEDIAWIKI_OBJSTORE_SECRET_KEY }}',
+		'token' => false,
+	];
+	$wgAWSRegion = '{{ MEDIAWIKI_OBJSTORE_REGION }}';
+	$wgAWSBucketName = '{{ MEDIAWIKI_OBJSTORE_BUCKET }}';
+	$wgAWSUseHTTPS = false;
+	$wgAWSBucketDomain = '{{ MEDIAWIKI_OBJSTORE_PUBLIC_URL }}';
+	$wgFileBackends['s3']['endpoint'] = '{{ MEDIAWIKI_OBJSTORE_URL }}';
+	$wgFileBackends['s3']['use_path_style_endpoint'] = true;
+	putenv( 'AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED' );
+	putenv( 'AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED' );
 }
 {% endif %}
 

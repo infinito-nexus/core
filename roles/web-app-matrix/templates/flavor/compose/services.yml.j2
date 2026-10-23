@@ -66,7 +66,7 @@
       KEYV_BOT_ENCRYPTION: 'false'
       KEYV_BOT_STORAGE: 'true'
       MATRIX_HOMESERVER_URL: '{{ MATRIX_SYNAPSE_LOCAL_URL }}'
-      MATRIX_BOT_USERNAME: '@chatgptbot:{{ MATRIX_SERVER_NAME }}'
+      MATRIX_BOT_USERNAME: "{{ lookup('mxid', 'chatgptbot') }}"
       MATRIX_ACCESS_TOKEN: "{{ MATRIX_CHATGPT_ACCESS_TOKEN }}"
       MATRIX_BOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
       MATRIX_DEFAULT_PREFIX: '!chatgpt'

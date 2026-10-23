@@ -1,0 +1,15 @@
+---
+- name: 🎨 Derive the corporate design palette from the base color
+  set_fact:
+    CSS_PALETTE: "{{ lookup('design_palette', CSS_BASE_COLOR) }}"
+
+- name: 🚀 Deploy default CSS files
+  stack_host_template:
+    src: "{{ ['css', css_file ~ '.j2'] | path_join }}"
+    dest: "{{ [lookup('cdn', 'web-svc-cdn').shared.css, css_file] | path_join }}"
+    mode: "0644"
+  loop: "{{ CSS_FILES }}"
+  loop_control:
+    loop_var: css_file
+
+- include_tasks: utils/once/flag.yml

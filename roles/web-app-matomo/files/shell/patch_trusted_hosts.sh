@@ -1,6 +1,7 @@
 #!/bin/sh
 # Env: CFG     Path to config.ini.php on the matomo_data volume (host bind path).
 # Env: DOMAIN  Public canonical domain to land in the first trusted_hosts slot.
+# Env: SIBLINGS Space-separated network siblings of DOMAIN (each added as a trusted host).
 # Env: SERVICE Stack-internal service name (added as a trusted host).
 # Env: LOCAL   host:port the role uses for in-host probes (added as a trusted host).
 set -eu
@@ -30,6 +31,9 @@ ensure_host() {
 
 sed -i "0,/^trusted_hosts\[\].*/s//trusted_hosts[] = \"${DOMAIN}\"/" "$CFG"
 
+for sibling in ${SIBLINGS}; do
+  ensure_host "$sibling"
+done
 ensure_host "$SERVICE"
 ensure_host "$LOCAL"
 

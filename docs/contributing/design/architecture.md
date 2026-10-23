@@ -29,7 +29,7 @@ A role usually owns one capability:
 - `svc-*` for shared services such as databases, proxies, mail, DNS, VPN, backups, and identity support
 - `web-app-*` for end-user applications
 - `dev-*` for development tooling
-- `desk-*` for workstation setup
+- `dsk-*` for workstation setup
 - `web-svc-*` and `web-opt-*` for web-facing helpers and redirects
 
 For example, `web-app-nextcloud` owns the Nextcloud deployment, `sys-svc-webserver-https` owns the HTTPS plumbing, and `sys-ctl-cln-docker` handles Docker cleanup.
@@ -47,7 +47,7 @@ If a role cannot answer those questions, it is probably doing too much.
 
 Bundles are the assembly layer.
 
-[inventories/bundles/servers/](../../../inventories/bundles/servers) describe concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out.
+`inventories/bundles/servers/` describes concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out.
 
 For example, the repository already has server bundles such as `community-hub`, `personal-nexus`, and `sovereign-cloud`. Each one combines the same building blocks in a different way for a different operating model.
 

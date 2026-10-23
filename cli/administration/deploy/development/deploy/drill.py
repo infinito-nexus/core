@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from cli.administration.deploy.development.mirrors import CONTAINER_REPO_ROOT
+from cli.administration.deploy.development.mirrors import container_repo_root
 
 
 def _maybe_recover_drill(compose, plan_index: int) -> None:
@@ -21,10 +21,15 @@ def _maybe_recover_drill(compose, plan_index: int) -> None:
         return
     print("=== recover drill (backup/recover verification between passes) ===")
     drill_script = (
-        CONTAINER_REPO_ROOT / "scripts" / "tests" / "deploy" / "ci" / "recover_drill.sh"
+        container_repo_root()
+        / "scripts"
+        / "tests"
+        / "deploy"
+        / "ci"
+        / "recover_drill.sh"
     )
     compose.exec(
         ["bash", str(drill_script)],
-        extra_env={"INFINITO_REPO_ROOT": str(CONTAINER_REPO_ROOT)},
+        extra_env={"INFINITO_REPO_ROOT": str(container_repo_root())},
         live=True,
     )

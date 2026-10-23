@@ -7,6 +7,8 @@ description: >
   operator asks to pull and merge another branch. Infinito.Nexus specific.
 ---
 
+# Merge a Sibling Branch
+
 Follow the instructions from AGENTS.md, then run the sequence below. The branch
 to merge is the skill argument; default to `feature/swarm-nfs` when none is given.
 

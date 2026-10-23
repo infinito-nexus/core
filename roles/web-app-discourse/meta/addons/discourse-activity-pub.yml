@@ -4,6 +4,8 @@ enabled: true
 required: false
 mechanism: plugin
 source: upstream
+bridges:
+  - mastodon
 update:
   monitored: true
   catalog: discourse-meta

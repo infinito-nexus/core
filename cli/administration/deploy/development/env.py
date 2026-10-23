@@ -6,6 +6,14 @@ from utils.distros import distro_names
 
 VALID_DISTROS: tuple[str, ...] = distro_names()
 
+TOOLS_LANE_KEYS: tuple[str, ...] = (
+    "INFINITO_TOOLS_LIBRETRANSLATE_PORT",
+    "INFINITO_TOOLS_LITELLM_PORT",
+    "INFINITO_TOOLS_MODELS_HOST_PATH",
+    "INFINITO_TOOLS_S1_PORT",
+    "INFINITO_TOOLS_TRANSLATE_PORT",
+)
+
 
 def compose_file_args() -> list[str]:
     """Compose `-f` flags shared by up and down flows.
@@ -25,8 +33,13 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/cache.override.yml"]
         if profile.shared_cache_network():
             out += ["-f", "compose/cache.shared.override.yml"]
+    if profile.gpu_reservable():
+        out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
+    if all((os.environ.get(key) or "").strip() for key in TOOLS_LANE_KEYS):
+        out += ["-f", "compose/tools.override.yml"]
+
     if profile.image_mirror_enabled():
         from utils.cache.files import PROJECT_ROOT
 

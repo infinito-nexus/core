@@ -4,7 +4,7 @@ data:
   name: pixelfed_data
   mounts:
     - service: pixelfed
-      target: &var_www_storage_target /var/www/storage
+      target: &var_www_storage_target /var/www/html/storage
     - service: worker
       target: *var_www_storage_target
 
@@ -14,7 +14,7 @@ env:
   mode: "0444"
   mounts:
     - service: pixelfed
-      target: &var_www_env_target /var/www/.env
+      target: &var_www_env_target /var/www/html/.env
     - service: worker
       target: *var_www_env_target
 

@@ -1,0 +1,8 @@
+# nocheck: backup-service-flag the volume holds GGUF weights the engine re-downloads from their upstream repository
+---
+# nocheck: embedded-state-on-nfs content-addressed GGUF weights, downloaded once and read-only after
+ltengine_models:
+  type: volume
+  mounts:
+    - service: ltengine
+      target: /models

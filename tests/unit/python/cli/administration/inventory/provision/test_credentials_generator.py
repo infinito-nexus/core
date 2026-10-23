@@ -84,7 +84,7 @@ ansible_become_password: !vault |
     def test_generate_credentials_does_not_fail_for_roles_without_schema(self):
         """
         Schema-less roles may still be passed to cli.administration.inventory.credentials
-        because credentials generation can be driven transitively from config/main.yml.
+        because credentials generation can be driven transitively from meta/services.yml.
         The generator must not crash if the snippet is empty.
         """
         with tempfile.TemporaryDirectory() as tmpdir:

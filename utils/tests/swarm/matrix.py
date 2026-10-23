@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
@@ -22,7 +23,7 @@ from utils.tests.swarm.mesh import (
     switch_to_mesh_transport,
     write_mesh,
 )
-from utils.tests.swarm.run import DISK_FLOOR_MB, run_step
+from utils.tests.swarm.watchdog import DISK_FLOOR_MB, run_watched
 from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
@@ -30,6 +31,27 @@ _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
+
+
+def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
+    """Announce a matrix step, run it, and report what it cost.
+
+    Args:
+        cmd: argv of the step.
+        env: environment the step runs with.
+        label: phase name for the banners.
+
+    Returns:
+        The step's exit code.
+    """
+    print(f"=== swarm-matrix: {label} ===", flush=True)
+    started = time.monotonic()
+    rc = run_watched(cmd, env=env)
+    print(
+        f"=== swarm-matrix: {label} took {time.monotonic() - started:.0f}s (rc={rc}) ===",
+        flush=True,
+    )
+    return rc
 
 
 def _provision(
@@ -40,7 +62,7 @@ def _provision(
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
     env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload, sort_keys=True)
-    return run_step(
+    return _run(
         ["bash", str(_SWARM_SCRIPTS / "02_provision_inventory.sh")],
         env=env,
         label=f"provision inventory ({inv_dir})",
@@ -54,7 +76,7 @@ def _extend_inventory(
     env["APP_ID"] = app_id
     env["INV_PATH"] = f"{inv_dir}/devices.yml"
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
-    return run_step(
+    return _run(
         ["python3", "-m", "utils.tests.swarm.extend_inventory"],
         env=env,
         label="extend inventory (workers + group memberships)",
@@ -64,7 +86,7 @@ def _extend_inventory(
 def _force_shared_db(*, inv_dir: str) -> int:
     env = os.environ.copy()
     env["INV_DIR"] = inv_dir
-    return run_step(
+    return _run(
         ["python3", "-m", "utils.tests.swarm.force_shared_db"],
         env=env,
         label="force shared DB (swarm: embedded DB is compose-only)",
@@ -74,7 +96,7 @@ def _force_shared_db(*, inv_dir: str) -> int:
 def _write_extras(*, extras_path: str) -> int:
     env = os.environ.copy()
     env["OUT_PATH"] = extras_path
-    return run_step(
+    return _run(
         ["python3", "-m", "utils.tests.swarm.write.extras"],
         env=env,
         label=f"write runtime extras ({extras_path})",
@@ -85,7 +107,7 @@ def _reset_credentials(
     *, app_id: str, inv_dir: str, round_variants: dict[str, int]
 ) -> int:
     """Regenerate the round's credentials so the update pass has to carry them."""
-    return run_step(
+    return _run(
         [
             "python3",
             "-m",
@@ -158,7 +180,7 @@ def _deploy(
     else:
         label = f"deploy round {round_index + 1}/{total}"
         print(f"=== {pass_label} PASS 1 (sync) ===", flush=True)
-    return run_step(env=env, cmd=cmd, label=label)
+    return _run(env=env, cmd=cmd, label=label)
 
 
 def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
@@ -179,20 +201,20 @@ def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
         "-e",
         f"@{extras_path}",
     ]
-    return run_step(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
+    return _run(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
 
 
 def _converge_and_verify(*, app_id: str) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
-    rc = run_step(
+    rc = _run(
         ["bash", str(_SWARM_SCRIPTS / "03_wait_converge.sh")],
         env=env,
         label="wait for stack convergence",
     )
     if rc != 0:
         return rc
-    return run_step(
+    return _run(
         ["bash", str(_SWARM_SCRIPTS / "04_verify_reachable.sh")],
         env=env,
         label="verify reachability",
@@ -226,7 +248,7 @@ def _drill_is_coming(*, app_id: str, inv_dir: str, extras_path: str) -> bool:
 
 
 def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int:
-    return run_step(
+    return _run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
         env=_drill_env(app_id=app_id, inv_dir=inv_dir, extras_path=extras_path),
         label="backup + restore DR drill",
@@ -247,7 +269,7 @@ def _backup_phase(
 def _verify_recovered_marker(*, app_id: str) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
-    return run_step(
+    return _run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "verify_recovered_marker.sh")],
         env=env,
         label="verify recovered marker (post update pass)",
@@ -285,7 +307,7 @@ def _purge(*, purge_set: tuple[str, ...]) -> int:
         return 0
     env = os.environ.copy()
     env["apps"] = ",".join(purge_set)
-    return run_step(
+    return _run(
         ["bash", str(_SWARM_DIR / "utils" / "clean" / "purge_stacks.sh")],
         env=env,
         label=f"purge prior-round stacks ({', '.join(purge_set)})",
@@ -311,6 +333,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
     p.add_argument(
         "--inventory-dir",
+        # nocheck: environ-get-default  the fallback is this module's own _DEFAULT_INVENTORY_DIR constant, and matrix.py is itself the process that exports INFINITO_INVENTORY_DIR to the rounds below it
         default=os.environ.get(
             "INFINITO_INVENTORY_DIR", _DEFAULT_INVENTORY_DIR
         ),  # nocheck: swarm-test base; matrix sets it per round, compose resolves the key via its own handler

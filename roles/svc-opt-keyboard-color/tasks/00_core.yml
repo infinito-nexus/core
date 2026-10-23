@@ -5,6 +5,15 @@
 - name: 📦 Install MSI packages
   package_install:
     id: msi-perkeyrgb
+  register: msi_perkeyrgb_package
+
+- name: 📦 Install msi-perkeyrgb via pip (system-wide)
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: msi-perkeyrgb
+    global_install: true
+  when: msi_perkeyrgb_package is skipped
 
 - include_role:
     name: sys-service

@@ -13,6 +13,7 @@
 # Env (all required; the role's test.env carries them):
 #   TOR_SOCKS         SOCKS proxy for .onion (127.0.0.1:<svc-net-tor
 #                     services.tor.ports.local.socks>)
+#   ONION_SUFFIX      host suffix of the tor network, from the network registry
 #   NGINX_SERVERS_DIR the deployed OpenResty servers dir from the nginx lookup
 #   RETRIES           attempts per domain
 #   SLEEP_SECONDS     wait between attempts
@@ -24,6 +25,7 @@
 set -uo pipefail
 
 TOR_SOCKS="${TOR_SOCKS:?pass TOR_SOCKS as env (127.0.0.1:<svc-net-tor services.tor.ports.local.socks>)}"
+ONION_SUFFIX="${ONION_SUFFIX:?pass ONION_SUFFIX as env (the tor network suffix, from svc-net-tor test.env)}"
 NGINX_SERVERS_DIR="${NGINX_SERVERS_DIR:?pass NGINX_SERVERS_DIR as env (the deployed OpenResty vhost servers dir from the nginx lookup, e.g. /etc/nginx/conf.d/servers)}"
 RETRIES="${RETRIES:?pass RETRIES as env (attempts per domain, from svc-net-tor test.env)}"
 SLEEP_SECONDS="${SLEEP_SECONDS:?pass SLEEP_SECONDS as env (wait between attempts, from svc-net-tor test.env)}"
@@ -53,7 +55,7 @@ echo "[INFO] probing ${#domains[@]} domain(s); onion via socks5://${TOR_SOCKS}"
 # Probe one domain with retries. Echoes the final HTTP code; returns 0 on success.
 probe() {
 	local domain="$1" scheme curl_proxy=() attempt=1 code
-	if [[ "${domain}" == *.onion ]]; then
+	if [[ "${domain}" == *"${ONION_SUFFIX}" ]]; then
 		scheme="http"
 		curl_proxy=(--socks5-hostname "${TOR_SOCKS}")
 	else

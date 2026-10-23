@@ -1,0 +1,17 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.translate.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - translate
+update:
+  monitored: true
+  catalog: wordpress-org
+  upstream_id: freedomtranslate-wp
+config:
+  options:
+    - name: freedomtranslate_service
+      value: libretranslate
+    - name: freedomtranslate_api_url
+      value: "{{ lookup('tls', 'web-svc-translate', 'url.base') | regex_replace('/+$', '') ~ '/translate' }}"

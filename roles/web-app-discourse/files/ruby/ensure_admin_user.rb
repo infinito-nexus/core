@@ -5,8 +5,9 @@ email = ENV.fetch("DISCOURSE_ADMIN_EMAIL")
 username = ENV.fetch("DISCOURSE_ADMIN_USERNAME")
 password = ENV.fetch("DISCOURSE_ADMIN_PASSWORD")
 
-user = User.find_by_email(email) || User.new(email: email)
+user = User.find_by_username(username) || User.new
 user.username = username
+user.email = email
 user.password = password unless user.confirm_password?(password)
 user.active = true
 user.save!

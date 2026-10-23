@@ -33,7 +33,7 @@ if [[ "$current_sha" == "$declared_sha" ]]; then
   exit 0
 fi
 
-if ! container exec -u "$run_as" -e "OC_PASS=$OC_PASS" "$container" \
+if ! container exec -u "$run_as" -e OC_PASS "$container" \
   php "$occ" user:resetpassword --password-from-env "$admin_user" >/dev/null; then
   echo "[FAIL] occ user:resetpassword failed for '$admin_user'." >&2
   exit 1

@@ -1,0 +1,13 @@
+---
+pipx:
+  Archlinux:
+    - python-pipx
+  Debian:
+    - pipx
+  RedHat:
+    - pipx
+  centos:
+    names:
+      - pipx
+    repo:
+      bootstrap_package: epel-release

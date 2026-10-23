@@ -17,14 +17,20 @@ server {
   gzip_buffers 16 8k;
   gzip_http_version 1.1;
   gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+  {% if lookup('network_handover', application_id, domain) %}
+    {% include 'roles/sys-svc-proxy/templates/location/handover.conf.j2' %}
+  {% else %}
   {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
   {% if webserver_websocket_location | default(false) %}
     {% include 'roles/sys-svc-proxy/templates/location/ws.conf.j2' %}
   {% endif %}
+  {% endif %}
 
   error_page 500 501 502 503 504 /500.html;
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2' %}
 
   {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 }

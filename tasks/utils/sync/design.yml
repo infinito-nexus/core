@@ -1,0 +1,10 @@
+---
+- name: "📦 Load the role variables of '{{ sync_application_id }}'"
+  ansible.builtin.include_vars:
+    file: "{{ lookup('path_absolute', 'roles', sync_application_id, 'vars', 'main.yml') }}"
+
+- name: "🎨 Re-render the design files of '{{ sync_application_id }}'"
+  ansible.builtin.include_role:
+    name: sys-front-inj-design
+  vars:
+    application_id: "{{ sync_application_id }}"

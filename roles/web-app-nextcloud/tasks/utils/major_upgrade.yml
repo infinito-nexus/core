@@ -1,0 +1,69 @@
+---
+- name: 🔍 Check for an existing Nextcloud data volume
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - inspect
+      - "{{ NEXTCLOUD_DATA_VOLUME }}"
+  register: nextcloud_data_volume_inspect
+  changed_when: false
+  failed_when: >-
+    nextcloud_data_volume_inspect.rc != 0
+    and 'no such volume' not in (nextcloud_data_volume_inspect.stderr | lower)
+
+- name: 📖 Read version.php from the Nextcloud code volume
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --entrypoint
+      - cat
+      - --volume
+      - "{{ NEXTCLOUD_DATA_VOLUME }}:{{ NEXTCLOUD_DOCKER_WORK_DIRECTORY }}:ro"
+      - "{{ NEXTCLOUD_IMAGE }}:{{ NEXTCLOUD_VERSION }}"
+      - "{{ NEXTCLOUD_VERSION_PHP }}"
+  register: nextcloud_version_php_read
+  changed_when: false
+  failed_when: >-
+    nextcloud_version_php_read.rc != 0
+    and 'No such file' not in nextcloud_version_php_read.stderr
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+  when: nextcloud_data_volume_inspect.rc == 0
+
+- name: 🧮 Record the Nextcloud version the existing data was written by
+  ansible.builtin.set_fact:
+    nextcloud_installed_version: >-
+      {{
+        (nextcloud_version_php_read.stdout | nextcloud_version_php)
+        if (nextcloud_data_volume_inspect.rc == 0 and nextcloud_version_php_read.rc == 0)
+        else ''
+      }}
+    nextcloud_upgrade_disabled_apps: []
+
+- name: 🧮 Plan one upgrade step per Nextcloud major up to the pinned one
+  ansible.builtin.set_fact:
+    nextcloud_upgrade_tags: "{{ nextcloud_installed_version | nextcloud_major_steps(NEXTCLOUD_VERSION) }}"
+
+- name: 🧭 Report the Nextcloud major upgrade plan
+  ansible.builtin.debug:
+    msg: >-
+      Nextcloud data written by: {{ nextcloud_installed_version if nextcloud_installed_version else 'no installation' }};
+      pinned image tag: {{ NEXTCLOUD_VERSION }};
+      upgrade steps: {{ nextcloud_upgrade_tags | join(', ') if nextcloud_upgrade_tags else 'none' }}
+
+- name: 🛑 Stop when swarm data needs a Nextcloud major upgrade
+  ansible.builtin.fail:
+    msg: >-
+      The Nextcloud data was written by {{ nextcloud_installed_version }} and the pinned
+      image tag {{ NEXTCLOUD_VERSION }} needs the steps {{ nextcloud_upgrade_tags | join(', ') }}.
+      The step runs use compose; deploy this host in compose mode for the upgrade or pin
+      services.nextcloud.version to one major above the installed one per deploy.
+  when:
+    - nextcloud_upgrade_tags | length > 0
+    - IS_SWARM_MODE
+
+- name: ⏫ Upgrade the Nextcloud data one major at a time
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/major_upgrade/compose.yml"
+  when: IS_COMPOSE_MODE and nextcloud_upgrade_tags | length > 0

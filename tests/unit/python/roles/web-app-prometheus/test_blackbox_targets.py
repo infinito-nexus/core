@@ -6,17 +6,19 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_str
+from utils.domains.default_primary import default_domain_primary
 
 TEMPLATE_DIR = PROJECT_ROOT / "roles/web-app-prometheus/templates/configuration"
 ONION = "a" * 56 + ".onion"
+DOMAIN = default_domain_primary()
 
 DOMAINS = {
     "web-app-prometheus": [f"prometheus.{ONION}"],
     "web-app-nextcloud": {"nextcloud": f"next.cloud.{ONION}"},
-    "web-app-gitea": ["git.infinito.test"],
-    "web-app-matrix": ["matrix.infinito.test"],
-    "web-svc-cdn": ["cdn.infinito.test"],
-    "svc-db-postgres": ["postgres.infinito.test"],
+    "web-app-gitea": [f"git.{DOMAIN}"],
+    "web-app-matrix": [f"matrix.{DOMAIN}"],
+    "web-svc-cdn": [f"cdn.{DOMAIN}"],
+    "svc-db-postgres": [f"postgres.{DOMAIN}"],
 }
 TLS_MODES = {
     "web-app-nextcloud": "off",
@@ -66,7 +68,7 @@ def probed_groups(*, ca_injected: bool) -> dict[str, dict]:
         lookup=lookup,
         application_id="web-app-prometheus",
         CURRENT_PLAY_APPLICATIONS=list(DOMAINS),
-        DOMAIN_PRIMARY="infinito.test",
+        DOMAIN_PRIMARY=DOMAIN,
         ALERT_RULES_CONFIG_DOCKER="/etc/prometheus/alert_rules.yml",
     )
     jobs = {job["job_name"]: job for job in load_yaml_str(rendered)["scrape_configs"]}
@@ -92,7 +94,7 @@ class TestBlackboxTargets(unittest.TestCase):
     def test_a_clearnet_app_is_probed_under_its_own_scheme(self):
         self.assertEqual(
             probed_targets()["web-app-gitea"],
-            ["https://git.infinito.test/healthz/ready"],
+            [f"https://git.{DOMAIN}/healthz/ready"],
         )
 
     def test_only_the_roles_the_service_lookup_names_are_probed(self):

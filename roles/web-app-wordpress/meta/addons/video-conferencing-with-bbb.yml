@@ -1,0 +1,15 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.bigbluebutton.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+bridges:
+  - bigbluebutton
+update:
+  monitored: true
+  catalog: wordpress-org
+  upstream_id: video-conferencing-with-bbb
+config:
+  bbb_settings:
+    api_url: "{{ lookup('tls', 'web-app-bigbluebutton', 'url.base') }}{{ lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.api_suffix', '') }}"
+    api_secret: "{{ lookup('config', 'web-app-bigbluebutton', 'secrets.credentials.shared_secret', '') }}"

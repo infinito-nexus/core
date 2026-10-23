@@ -1,0 +1,16 @@
+<?php
+{% set design = lookup('design', application_id) %}
+{% if lookup('config', application_id, 'services.design.enabled') | bool %}
+{% if design.title is string %}
+$config['product_name'] = '{{ design.title | replace('\\', '\\\\') | replace("'", "\\'") }}';
+{% endif %}
+{% if design.logo is string %}
+$config['skin_logo'] = [
+    '*' => '{{ design.urls.icon.svg }}',
+    '[dark]' => '{{ design.urls.icon.svg }}',
+    '[small]' => '{{ design.urls.icon.svg }}',
+    '[small-dark]' => '{{ design.urls.icon.svg }}',
+    '[favicon]' => '{{ design.urls.favicon_ico }}',
+];
+{% endif %}
+{% endif %}

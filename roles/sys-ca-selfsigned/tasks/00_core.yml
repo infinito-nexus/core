@@ -158,4 +158,8 @@
     - regexp: "^CA_TRUST_NAME="
       line: "CA_TRUST_NAME={{ CA_TRUST.trust_name }}"
 
+- name: "📌 TLS | (self_signed) let the next letsencrypt role remove the env vars again"
+  ansible.builtin.set_fact:
+    tls_selfsigned_env_disabled: false
+
 - include_tasks: utils/once/flag.yml

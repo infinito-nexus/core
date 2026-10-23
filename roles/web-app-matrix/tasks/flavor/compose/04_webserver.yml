@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE == "compose"
+# include-gated: when: IS_COMPOSE_MODE
 - name: 📁 create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
   ansible.builtin.file:
     path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
@@ -28,14 +28,3 @@
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
     webserver_proxy_service_key: synapse
     proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-
-- name: 📁 create {{ MATRIX_SYNAPSE_DOMAIN }}.conf
-  stack_host_template:
-    src: "flavor/compose/synapse.conf.j2"
-    dest: "{{ lookup('nginx', 'files.domain', MATRIX_SYNAPSE_DOMAIN) }}"
-  vars:
-    domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
-    http_port: "{{ MATRIX_SYNAPSE_PORT }}"
-    proxy_service_key: synapse
-    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
-  notify: restart-openresty

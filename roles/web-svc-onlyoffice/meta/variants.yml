@@ -6,6 +6,9 @@
 # matrix exercises the in-group_names branch of web-svc-onlyoffice.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     matomo:
@@ -16,14 +19,14 @@
     redis:
       shared: true
     prometheus:
-      enabled: true
-      shared: true
-    css:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -35,9 +38,6 @@
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:

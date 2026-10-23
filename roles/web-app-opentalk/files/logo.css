@@ -1,0 +1,6 @@
+svg[viewBox="0 0 206.392 45.061"] {
+  background: var(--design-url-logo-svg) left center / contain no-repeat;
+}
+svg[viewBox="0 0 206.392 45.061"] > * {
+  display: none;
+}

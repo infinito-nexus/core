@@ -17,7 +17,16 @@ server
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
-  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+  {% set _issuer_host = OIDC.URL | urlsplit('hostname') %}
+  {% if lookup('domain', application_id) == _issuer_host and domain != _issuer_host %}
+  location / {
+    return 302 {{ OIDC.URL }}$request_uri;
+  }
+
+  {% elif lookup('network_handover', application_id, domain) %}
+    {% include 'roles/sys-svc-proxy/templates/location/handover.conf.j2' %}
+
+  {% elif lookup('sso', application_id, 'is_proxy_gated') %}
     {% set acl = lookup('sso', application_id, 'oauth2_acl') %}
 
     {% if acl.blacklist is defined %}
@@ -55,6 +64,8 @@ server
   {% endif %}
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/web-svc-seaweedfs/templates/nginx/locations.conf.j2' %}
 
   {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 

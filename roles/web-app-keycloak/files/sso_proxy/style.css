@@ -1,0 +1,12 @@
+.box {
+    background-color: var(--design-primary-100);
+    color: var(--design-primary-950);
+}
+
+.subtitle {
+    color: inherit;
+}
+
+.has-background-light {
+    background-color: var(--design-primary-50) !important;
+}

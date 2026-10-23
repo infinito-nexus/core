@@ -2,6 +2,8 @@
 flags:
   script-src-elem:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: set when the role first deployed, with no console error recorded against it; TODO: re-verify against the running admin UI and drop the flag if the login gate renders without it
+  script-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the gateway wires the "Show password" control on /fallback/login and /sso/key/generate through an inline onclick handler, which the directive refuses and which leaves the control dead; operator decision, and it admits every inline event handler the gateway ships, not only that one
 whitelist:
   font-src: []
   connect-src: []

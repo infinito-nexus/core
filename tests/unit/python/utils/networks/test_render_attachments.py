@@ -110,7 +110,7 @@ class TestComputeAttachments(unittest.TestCase):
                 },
             },
             "seaweedfs": {
-                "role": "web-app-seaweedfs",
+                "role": "web-svc-seaweedfs",
                 "entity_name": "seaweedfs",
                 "overlay": {
                     "modes": ["swarm"],

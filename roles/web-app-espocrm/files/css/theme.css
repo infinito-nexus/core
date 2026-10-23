@@ -1,0 +1,331 @@
+@import url("../../css/espo/espo.css");
+
+:root {
+    --body-bg: var(--design-surface-1);
+    --navbar-bg: var(--design-surface-1);
+    --modal-content-bg: var(--design-surface-1);
+    --modal-header-bg: var(--design-surface-1);
+    --modal-footer-bg: var(--design-surface-1);
+    --modal-header-border-color: var(--design-surface-1);
+    --scroll-bg: var(--design-surface-1);
+
+    --panel-bg: var(--design-surface-2);
+    --panel-default-bg: var(--design-surface-2);
+    --table-bg: var(--design-surface-2);
+    --well-bg: var(--design-surface-2);
+    --white-color: var(--design-surface-2);
+    --input-bg: var(--design-surface-2);
+    --popover-bg: var(--design-surface-2);
+    --dropdown-bg: var(--design-surface-2);
+    --btn-default-bg: var(--design-surface-2);
+    --collapsed-modal-bg: var(--design-text-muted);
+    --collapsed-modal-text-color: var(--design-surface-1);
+
+    --table-bg-accent: var(--design-surface-3);
+    --default-heading-bg-color: var(--design-surface-3);
+    --code-bg: var(--design-surface-3);
+    --input-bg-disabled: var(--design-surface-3);
+    --select-item-bg: var(--design-surface-3);
+    --state-default-bg: var(--design-surface-3);
+    --calendar-today-bg: var(--design-surface-3);
+
+    --white-color-3: var(--design-surface-hover);
+    --main-gray-5: var(--design-surface-hover);
+    --dropdown-link-hover-bg: var(--design-surface-hover);
+    --btn-default-hover-bg: var(--design-surface-hover);
+    --navbar-link-hover-bg: var(--design-surface-hover);
+
+    --white-color-5: var(--design-surface-active);
+    --gray-lighter-10: var(--design-surface-active);
+    --dropdown-link-active-bg: var(--design-surface-active);
+    --btn-default-active-bg: var(--design-surface-active);
+    --navbar-link-active-bg: var(--design-surface-active);
+
+    --text-color: var(--design-text);
+    --text-solid-color: var(--design-text);
+    --input-color: var(--design-text);
+    --code-color: var(--design-text);
+    --link-record-color: var(--design-text);
+    --link-record-hover-color: var(--design-text);
+    --dropdown-link-color: var(--design-text);
+    --dropdown-link-hover-color: var(--design-text);
+    --btn-default-color: var(--design-text);
+    --btn-text-color: var(--design-text);
+    --navbar-link-color: var(--design-text);
+    --navbar-link-hover-color: var(--design-text);
+    --select-item-text-color: var(--design-text);
+    --state-default-text: var(--design-text);
+    --panel-default-text: var(--design-text);
+    --gray-dark: var(--design-text);
+    --gray-dark-25: var(--design-text);
+
+    --text-muted-color: var(--design-text-muted);
+    --text-gray-color: var(--design-text-muted);
+    --input-color-disabled: var(--design-text-muted);
+    --site-footer-color: var(--design-text-muted);
+    --navbar-link-icon-color: var(--design-text-muted);
+    --gray: var(--design-text-muted);
+    --gray-light: var(--design-text-muted);
+    --gray-soft: var(--design-text-muted);
+    --gray-dark-25l: var(--design-text-muted);
+    --gray-light-10: var(--design-text-muted);
+
+    --link-color: var(--design-link);
+    --link-hover-color: var(--design-link);
+    --text-link-color: var(--design-link);
+    --text-link-hover-color: var(--design-link);
+    --input-border-focus: var(--design-link);
+    --input-border-focus-rgba: rgba(var(--design-link-rgb), 0.6);
+
+    --default-border-color: var(--design-border);
+    --main-gray: var(--design-border);
+    --panel-default-border: var(--design-border);
+    --dropdown-border: var(--design-border);
+    --dropdown-divider-bg: var(--design-border);
+    --code-border-color: var(--design-border);
+    --well-border: var(--design-border);
+    --calendar-border: var(--design-border);
+    --modal-border-color: var(--design-border);
+    --blockquote-border-color: var(--design-border);
+    --select-item-border: var(--design-border);
+    --gray-lighter: var(--design-border);
+
+    --input-border: var(--design-border-strong);
+    --btn-default-border: var(--design-border-strong);
+    --btn-default-hover-border: var(--design-border-strong);
+    --btn-default-active-border: var(--design-border-strong);
+    --scroll-thumb-bg: var(--design-border-strong);
+
+    --brand-primary: var(--design-primary);
+    --btn-primary-bg: var(--design-primary);
+    --btn-primary-border: var(--design-primary);
+    --select-item-active-bg: var(--design-primary);
+    --brand-primary-text: var(--design-on-primary);
+    --btn-primary-color: var(--design-on-primary);
+    --select-item-active-text-color: var(--design-on-primary);
+    --main-gray-lighten-40: var(--design-on-primary);
+    --brand-primary-5: var(--design-primary-hover);
+    --btn-primary-hover-bg: var(--design-primary-hover);
+    --btn-primary-hover-border: var(--design-primary-hover);
+    --brand-primary-10: var(--design-primary-active);
+    --btn-primary-active-bg: var(--design-primary-active);
+    --btn-primary-active-border: var(--design-primary-active);
+    --brand-primary-lighten-10: var(--design-primary-400);
+    --brand-primary-lighten-30: var(--design-primary-200);
+    --brand-primary-lighten-50: var(--design-primary-100);
+    --state-primary-bg: var(--design-primary-100);
+    --panel-primary-bg: var(--design-primary-100);
+    --state-primary-text: var(--design-primary-800);
+    --panel-primary-text: var(--design-primary-800);
+    --state-primary-border: var(--design-primary-300);
+    --panel-primary-border: var(--design-primary-300);
+
+    --navbar-inverse-bg: var(--design-frame);
+    --navbar-inverse-border: var(--design-frame);
+    --navbar-inverse-color: var(--design-on-frame);
+    --navbar-inverse-link-color: var(--design-on-frame);
+    --navbar-inverse-link-hover-color: var(--design-on-frame);
+    --navbar-inverse-link-icon-color: var(--design-on-frame);
+    --navbar-inverse-link-icon-hover-color: var(--design-on-frame);
+    --navbar-inverse-link-disabled-color: var(--design-on-frame);
+    --navbar-inverse-link-disabled-bg: transparent;
+    --navbar-inverse-link-hover-bg: var(--design-frame-hover);
+    --navbar-inverse-toggle-hover-bg: var(--design-frame-hover);
+    --navbar-inverse-link-active-bg: var(--design-frame-active);
+    --navbar-inverse-bg-7: var(--design-frame-active);
+    --login-panel-heading-bg: var(--design-frame);
+
+    --brand-success: var(--design-success);
+    --brand-danger: var(--design-danger);
+    --brand-warning: var(--design-warning);
+    --brand-info: var(--design-info);
+    --brand-success-10: var(--design-success-hover);
+    --brand-danger-10: var(--design-danger-hover);
+    --brand-warning-10: var(--design-warning-hover);
+    --brand-info-10: var(--design-info-hover);
+    --brand-danger-lighten-20: var(--design-danger-subtle);
+
+    --btn-success-bg: var(--design-success);
+    --btn-success-border: var(--design-success);
+    --btn-success-color: var(--design-on-success);
+    --btn-success-hover-bg: var(--design-success-hover);
+    --btn-success-hover-border: var(--design-success-hover);
+    --btn-success-active-bg: var(--design-success-active);
+    --btn-success-active-border: var(--design-success-active);
+
+    --btn-danger-bg: var(--design-danger);
+    --btn-danger-border: var(--design-danger);
+    --btn-danger-color: var(--design-on-danger);
+    --btn-danger-hover-bg: var(--design-danger-hover);
+    --btn-danger-hover-border: var(--design-danger-hover);
+    --btn-danger-active-bg: var(--design-danger-active);
+    --btn-danger-active-border: var(--design-danger-active);
+
+    --btn-warning-bg: var(--design-warning);
+    --btn-warning-border: var(--design-warning);
+    --btn-warning-color: var(--design-on-warning);
+    --btn-warning-hover-bg: var(--design-warning-hover);
+    --btn-warning-hover-border: var(--design-warning-hover);
+    --btn-warning-active-bg: var(--design-warning-active);
+    --btn-warning-active-border: var(--design-warning-active);
+
+    --btn-info-bg: var(--design-info);
+    --btn-info-border: var(--design-info);
+    --btn-info-color: var(--design-on-info);
+    --btn-info-hover-bg: var(--design-info-hover);
+    --btn-info-hover-border: var(--design-info-hover);
+    --btn-info-active-bg: var(--design-info-active);
+    --btn-info-active-border: var(--design-info-active);
+
+    --state-success-text: var(--design-success);
+    --state-success-text-10: var(--design-success);
+    --state-success-text-10l: var(--design-success);
+    --state-success-bg: var(--design-success-subtle);
+    --state-success-bg-5: var(--design-success-subtle);
+    --state-success-border: var(--design-success-border);
+    --panel-success-bg: var(--design-success-subtle);
+    --panel-success-text: var(--design-success);
+    --panel-success-border: var(--design-success-border);
+
+    --state-danger-text: var(--design-danger);
+    --state-danger-text-10: var(--design-danger);
+    --state-danger-text-10l: var(--design-danger);
+    --state-danger-bg: var(--design-danger-subtle);
+    --state-danger-bg-5: var(--design-danger-subtle);
+    --state-danger-bg-10: var(--design-danger-subtle);
+    --state-danger-border: var(--design-danger-border);
+    --panel-danger-bg: var(--design-danger-subtle);
+    --panel-danger-text: var(--design-danger);
+    --panel-danger-border: var(--design-danger-border);
+    --calendar-busy-bg: var(--design-danger-subtle);
+
+    --state-warning-text: var(--design-warning);
+    --state-warning-text-10: var(--design-warning);
+    --state-warning-text-10l: var(--design-warning);
+    --state-warning-bg: var(--design-warning-subtle);
+    --state-warning-bg-5: var(--design-warning-subtle);
+    --state-warning-bg-10: var(--design-warning-subtle);
+    --state-warning-border: var(--design-warning-border);
+    --panel-warning-bg: var(--design-warning-subtle);
+    --panel-warning-text: var(--design-warning);
+    --panel-warning-border: var(--design-warning-border);
+    --warning-bg: var(--design-warning-subtle);
+
+    --state-info-text: var(--design-info);
+    --state-info-text-10: var(--design-info);
+    --state-info-bg: var(--design-info-subtle);
+    --state-info-bg-5: var(--design-info-subtle);
+    --state-info-bg-10: var(--design-info-subtle);
+    --state-info-border: var(--design-info-border);
+    --panel-info-bg: var(--design-info-subtle);
+    --panel-info-text: var(--design-info);
+    --panel-info-border: var(--design-info-border);
+
+    --label-default-bg: var(--design-text-muted);
+    --label-color: var(--design-surface-1);
+    --text-white-color: var(--design-surface-1);
+
+    --tooltip-bg: var(--design-text);
+    --tooltip-color: var(--design-surface-1);
+
+    --modal-backdrop-bg: rgba(var(--design-neutral-950-rgb), 0.5);
+    --default-box-shadow: var(--design-shadow-1);
+    --top-bar-box-shadow: var(--design-shadow-1);
+    --dropdown-box-shadow: var(--design-shadow-2);
+    --modal-box-shadow: var(--design-shadow-3);
+
+    --border-radius: var(--design-radius);
+    --border-radius-small: var(--design-radius-sm);
+    --panel-border-radius: var(--design-radius-lg);
+    --dropdown-border-radius: var(--design-radius);
+}
+
+#navbar .navbar,
+#login .panel-heading {
+    --design-focus: var(--design-on-frame);
+    --input-border-focus-rgba: var(--design-on-frame);
+}
+
+#navbar .navbar .dropdown-menu {
+    --design-focus: var(--design-link);
+    --input-border-focus-rgba: rgba(var(--design-link-rgb), 0.6);
+    --navbar-inverse-link-color: var(--design-text);
+    --navbar-inverse-link-hover-color: var(--design-text);
+    --navbar-inverse-link-icon-color: var(--design-text-muted);
+    --navbar-inverse-link-icon-hover-color: var(--design-text);
+    --navbar-inverse-link-hover-bg: var(--design-surface-hover);
+    --navbar-inverse-link-active-bg: var(--design-surface-active);
+    --navbar-inverse-border: var(--design-border);
+}
+
+.bg-primary,
+.label-primary {
+    color: var(--design-on-primary);
+}
+
+.label-success {
+    color: var(--design-on-success);
+}
+
+.label-danger {
+    color: var(--design-on-danger);
+}
+
+.label-warning {
+    color: var(--design-on-warning);
+}
+
+.label-info {
+    color: var(--design-on-info);
+}
+
+.nav .nav-divider {
+    background-color: var(--design-border);
+}
+
+.selectize-dropdown,
+.selectize-dropdown-header,
+.iti__country-list {
+    border-color: var(--design-border);
+}
+
+.iti__country-list {
+    background-color: var(--design-surface-2);
+}
+
+.iti__dial-code {
+    color: var(--design-text-muted);
+}
+
+.note-editor.note-frame {
+    border-color: var(--design-border-strong);
+}
+
+.note-editor.note-frame .note-editing-area .note-editable {
+    background-color: var(--design-surface-2);
+    color: var(--design-text);
+}
+
+.note-editor.note-frame .note-statusbar {
+    background-color: var(--design-surface-3);
+}
+
+.datepicker table tr td.range,
+.datepicker table tr td.range:hover,
+.datepicker table tr td.range.focused,
+.datepicker table tr td.range.today,
+.datepicker table tr td.range.today:hover {
+    color: var(--design-text);
+    background-color: var(--design-surface-3);
+    border-color: var(--design-border);
+}
+
+.datepicker table tr td.selected,
+.datepicker table tr td.selected:hover,
+.datepicker table tr td.selected.highlighted,
+.datepicker table tr td.selected.highlighted:hover {
+    color: var(--design-on-primary);
+    background-color: var(--design-primary);
+    border-color: var(--design-primary);
+    text-shadow: none;
+}

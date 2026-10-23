@@ -1,0 +1,139 @@
+---
+# Matrix-deploy variant overrides for web-svc-translate.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — variant 1 is LTEngine's round, and svc-ai-ltengine
+# pins tor.enabled false because an engine consumed over the internal network
+# publishes no onion surface; a round binding it may not advertise one either.
+#
+# nocheck: variant-limit: folding nllb-engine into the LTEngine round was
+# measured and does not fit, at 33.04 GB reservation against the 32 GB cap and
+# 69.88 GB limit against the 64 GB cap on web-app-discourse variant 1. The two
+# translation engines each need a round of their own.
+
+- services:
+    docs:
+      enabled: false
+      shared: false
+    ltengine:
+      enabled: false
+      shared: false
+    nllb-engine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    sso:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    tor:
+      enabled: true
+      shared: true
+
+- services:
+    docs:
+      enabled: true
+      shared: true
+    ltengine:
+      enabled: true
+      shared: true
+    nllb-engine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    # nocheck: variant-tor-collateral docs rides the smallest round of each role because the README replay is the costliest partner in the matrix; the guide serves over the onion in both web-app-docs variants, which is where that is proven
+    tor:
+      enabled: false
+      shared: false
+
+- services:
+    nllb-engine:
+      enabled: true
+      shared: true
+    ltengine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: false
+      shared: false
+    litellm:
+      enabled: false
+    s1:
+      enabled: false
+      shared: false
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
+    tor:
+      enabled: false
+      shared: false
+
+- services:
+    ltengine:
+      enabled: false
+      shared: false
+    nllb-engine:
+      enabled: false
+      shared: false
+    ollama:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    s1:
+      enabled: true
+      shared: true
+    weblate:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: true
+      shared: true
+    sso:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
+    tor:
+      enabled: true
+      shared: true

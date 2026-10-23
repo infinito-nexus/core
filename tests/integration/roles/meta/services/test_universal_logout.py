@@ -4,6 +4,7 @@ import unittest
 import yaml
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.services.registry import is_explicit_truth
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 
@@ -35,7 +36,7 @@ class TestUniversalLogoutSetting(unittest.TestCase):
                 )
             else:
                 val = logout["enabled"]
-                is_dynamic = isinstance(val, str) and "in group_names" in val
+                is_dynamic = isinstance(val, str) and is_explicit_truth(val)
                 if not isinstance(val, bool) and not is_dynamic:
                     errors.append(
                         f"The 'services.logout.enabled' setting in '{file_path}' must be boolean true/false "

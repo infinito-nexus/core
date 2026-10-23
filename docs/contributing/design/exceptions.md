@@ -21,10 +21,14 @@ absent from the token store, so the variable arrives empty.
 
 ### Behaviour ⚙️
 
-When `lookup('users', 'administrator').tokens['web-app-matomo']` is empty, `sys-front-inj-matomo` sets
-`inj_enabled.matomo = false` for the current domain. This prevents the NGINX template from rendering
-the Matomo body snippet (which would reference `matomo_site_id`) and skips `inject.yml` entirely.
-The play continues without error.
+[`resolve_site.yml`](../../../roles/sys-front-inj-matomo/tasks/resolve_site.yml) resolves the token, queries
+`SitesManager.getSitesIdFromSiteUrl`, registers the site when it is unknown, and leaves `matomo_site_id`
+as the empty string whenever any of those steps cannot complete. An empty token short-circuits the API
+call, and an API answer that is not a 200 list leaves the id unresolved the same way.
+
+When `matomo_site_id` is empty, `sys-front-inj-matomo` sets `inj_enabled.matomo = false` for the current
+domain. This prevents the NGINX template from rendering the Matomo body snippet (which would reference
+`matomo_site_id`) and skips `inject.yml` entirely. The play continues without error.
 
 Failing instead of skipping would make the play non-idempotent on first deployment and would block every
 other application from being configured just because Matomo's bootstrap has not completed yet.

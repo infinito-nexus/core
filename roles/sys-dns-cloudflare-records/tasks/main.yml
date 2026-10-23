@@ -20,12 +20,17 @@
     solo: "{{ item.solo | default(false) }}"
   loop: "{{ cloudflare_records | selectattr('type','in',['A','AAAA']) | list }}"
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.content }}" }
-  # rationale: async; records apply overlapped, results reaped at the end of this file
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
+  delegate_to: localhost
+  become: false
+  # rationale: async; the jobs run on the controller and are reaped there below, before SRV and the rest of the play
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_a
   changed_when: false
+  failed_when:
+    - _cf_a.failed
+    - _cf_a.msg is not search('An identical record already exists|81058')
 
 - name: 📌 Apply CNAME/MX/TXT
   community.general.cloudflare_dns:
@@ -40,12 +45,30 @@
     solo: "{{ item.solo | default(false) }}"
   loop: "{{ cloudflare_records | selectattr('type','in',['CNAME','MX','TXT']) | list }}"
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.value }}" }
-  # rationale: async; records apply overlapped, results reaped at the end of this file
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
+  delegate_to: localhost
+  become: false
+  # rationale: async; the jobs run on the controller and are reaped there below, before SRV and the rest of the play
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_cname
   changed_when: false
+  failed_when:
+    - _cf_cname.failed
+    - _cf_cname.msg is not search('An identical record already exists|81058')
+
+- name: ⏳ Reap the Cloudflare record jobs on the controller
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: localhost
+      become: false
+  vars:
+    async_reap_jobs: "{{ _cf_a.results + _cf_cname.results }}"
+    async_reap_label: "Cloudflare records"
+    async_reap_tolerate:
+      - "An identical record already exists"
+      - "81058"
 
 - name: 📌 Apply SRV
   community.general.cloudflare_dns:
@@ -65,18 +88,7 @@
   loop: "{{ cloudflare_records | selectattr('type','equalto','SRV') | list }}"
   loop_control: { label: "SRV {{ item.service }}.{{ item.proto }} {{ item.name }} -> {{ item.value }}:{{ item.port }}" }
   ignore_errors: "{{ item.ignore_errors | default(true) }}"
-  # rationale: async; best effort per item via ignore_errors, nothing reads the result
-  async: "{{ cloudflare_async_enabled | ternary(cloudflare_async_time, omit) }}"
-  poll: "{{ cloudflare_async_enabled | ternary(cloudflare_async_poll, omit) }}"
+  delegate_to: localhost
+  become: false
   no_log: "{{ cloudflare_no_log | bool }}"
-  register: _cf_srv
   changed_when: false
-
-- name: "⏳ Reap the Cloudflare record jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ (_cf_a.results | default([])) + (_cf_cname.results | default([])) }}"
-    async_reap_label: "Cloudflare records"
-    async_reap_tolerate:
-      - "An identical record already exists"
-      - "81058"

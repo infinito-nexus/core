@@ -7,9 +7,66 @@
   vars:
     compose_handlers_flush: true
 
-- name: "📂 Include domains redirects"
-  include_tasks: redirect-domain.yml
+- name: 🧩 Start the list of redirect sources
+  ansible.builtin.set_fact:
+    redirect_sources: []
+
+- name: 🧩 Resolve the tls state and render the configuration of every redirect source
+  ansible.builtin.set_fact:
+    redirect_sources: "{{ redirect_sources + [redirect_source] }}"
+  loop: "{{ lookup('network_redirects', redirect_domain_mappings) }}"
   vars:
-    domain: "{{ item.source }}"
-    target: "{{ item.target }}"
-  loop: "{{ redirect_domain_mappings }}"
+    redirect_source_tls: "{{ lookup('tls', item.source, 'enabled') | bool }}"
+    redirect_source:
+      domain: "{{ item.source }}"
+      enabled: "{{ redirect_source_tls }}"
+      mode: "{{ lookup('tls', item.source, 'mode') }}"
+      certs:
+        - "{{ lookup('cert', item.source, 'files.cert') }}"
+        - "{{ lookup('cert', item.source, 'files.key') }}"
+      files: >-
+        {{ [{'path': lookup('nginx', 'files.domain', item.source),
+             'content': lookup('template', 'redirect-domain.conf.j2',
+                               template_vars={'domain': item.source, 'target': item.target,
+                                              'keep_path': item.get('keep_path', true)})}]
+           + ([{'path': lookup('nginx', 'files.domain', item.source, protocol='http'),
+                'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
+                                  template_vars={'domain': item.source})}]
+              if redirect_source_tls else []) }}
+
+- name: 📂 Include dependency 'sys-ctl-mtn-cert-renew'
+  include_role:
+    name: sys-ctl-mtn-cert-renew
+  when:
+    - run_once_sys_ctl_mtn_cert_renew is not defined
+    - redirect_sources | selectattr('enabled') | selectattr('mode', 'equalto', 'letsencrypt') | list | length > 0
+
+- name: 📜 TLS | Ensure the certificates of the redirect sources
+  when: redirect_sources | selectattr('enabled') | list | length > 0
+  block:
+    - name: 🔎 TLS | Find the certificates of the redirect sources
+      ansible.builtin.find:
+        paths: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('dirname') | unique }}"
+        patterns: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('basename') | unique }}"
+        file_type: any
+        follow: true
+      register: redirect_certs_found
+
+    - name: 📌 TLS | Apply the tls layer for redirect sources without a certificate
+      include_role:
+        name: sys-front-tls
+      vars:
+        domain: "{{ redirect_tls_source }}"
+        application_id: "{{ redirect_tls_source }}"
+      loop_control:
+        loop_var: redirect_tls_source
+      loop: >-
+        {{ redirect_sources | selectattr('enabled')
+           | rejectattr('certs', 'subset', redirect_certs_found.files | map(attribute='path') | list)
+           | map(attribute='domain') | list }}
+
+- name: 🌐 Deploy the NGINX redirect and HTTP handler configuration of every source
+  stack_host_contents:
+    files: "{{ redirect_sources | map(attribute='files') | flatten }}"
+    mode: "0644"
+  notify: reload-openresty

@@ -14,7 +14,7 @@ Returns a string safe to embed unchanged into a shell command:
 * Swarm mode    - `<stack>_<service_key>`, matching how Docker Swarm
   names every service and how `container service ps` accepts them.
   The stack name is derived from ``application_id`` via the
-  ``get_entity_name`` filter, mirroring how ``docker stack deploy``
+  ``entity_name`` filter, mirroring how ``docker stack deploy``
   composes the stack name in
   ``sys-svc-compose/handlers/main.yml``.
 
@@ -32,7 +32,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _as_str(value: Any) -> str:
@@ -54,7 +54,7 @@ def _resolve_bare_name(
         )
     entry = services.get(service_key)
     if not isinstance(entry, dict) and service_key == "application":
-        entity = get_entity_name(application_id)
+        entity = entity_name(application_id)
         if entity:
             entry = services.get(entity)
     if not isinstance(entry, dict):
@@ -113,7 +113,7 @@ class LookupModule(LookupBase):
         if deployment_mode != "swarm":
             return [bare_name]
 
-        stack_name = get_entity_name(application_id)
+        stack_name = entity_name(application_id)
         if not stack_name:
             raise AnsibleError(
                 f"container_service: cannot derive stack name from "
