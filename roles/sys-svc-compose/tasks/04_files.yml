@@ -74,6 +74,7 @@
     content: ""
     dest: "{{ COMPOSE_UP_PENDING_MARKER }}"
     mode: "0640"
+  register: compose_up_marker
   when:
     - compose_mode == 'compose'
     - dockerfile_template.changed or env_template.changed or compose_override_template.changed or docker_compose_template.changed

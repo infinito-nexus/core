@@ -39,6 +39,7 @@
   when:
     - compose_mode == 'compose'
     - compose_up_pending.stat.exists
+    - compose_up_marker is not changed
 
 - name: "🔔 Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"
   ansible.builtin.debug:
