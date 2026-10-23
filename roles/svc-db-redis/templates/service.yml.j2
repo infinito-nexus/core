@@ -3,8 +3,13 @@
     {{ lookup('container_image', 'svc-db-redis', 'redis') }}
     {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-redis')) }}
     {{ lookup('compose_restart') }}
+{# Exception: logging is inlined, not taken from sys-svc-container/templates/base.yml.j2; keep the condition and tag identical to it. #}
     logging:
       driver: journald
+{% if lookup('config', application_id, 'services.wazuh.enabled', False) %}
+      options:
+        tag: "{{ application_id | get_entity_name }}"
+{% endif %}
     volumes:
       - redis:/data
     command:

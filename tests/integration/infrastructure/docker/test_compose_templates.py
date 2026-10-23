@@ -14,7 +14,7 @@ from jinja2 import (
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.entity.name import get_entity_name
-from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
@@ -93,12 +93,18 @@ class TestDockerComposeTemplates(unittest.TestCase):
                     )
 
 
-class TestServiceBaseJournaldTag(unittest.TestCase):
-    SERVICE_BASE = "roles/sys-svc-container/templates/base.yml.j2"
+class TestServiceJournaldTag(unittest.TestCase):
     APPLICATION_ID = "web-app-pixelfed"
     MODES = ("compose", "swarm")
+    SERVICE_BASE_INCLUDE = "{% include 'roles/sys-svc-container/templates/base.yml.j2' %}"
+    SERVICE_NAME_RE: ClassVar[re.Pattern] = re.compile(r"\{%\s*set\s+service_name\s*=")
+    TEMPLATES: ClassVar[dict[str, tuple[str, str]]] = {
+        "roles/sys-svc-container/templates/base.yml.j2": ("services:\n  svc:\n", "svc"),
+        "roles/svc-db-redis/templates/service.yml.j2": ("services:\n", "redis"),
+        "roles/sys-svc-rdbms/templates/services/mariadb.yml.j2": ("services:\n", "database"),
+    }
 
-    def _render_logging(self, mode, wazuh_enabled):
+    def _render_logging(self, template, mode, wazuh_enabled):
         env = Environment(
             loader=ChoiceLoader(
                 [
@@ -119,40 +125,85 @@ class TestServiceBaseJournaldTag(unittest.TestCase):
         env.filters["has_env"] = lambda _app: False
         env.filters["get_entity_name"] = get_entity_name
 
-        def _lookup(name, *args):
-            if name == "compose_restart":
-                return "restart: unless-stopped"
+        def _lookup(name, *args, **_kwargs):
             if name == "config":
                 self.assertEqual(
                     args[:2], (self.APPLICATION_ID, "services.wazuh.enabled")
                 )
                 return args[2] if wazuh_enabled is _UNSET else wazuh_enabled
-            raise AssertionError(f"unexpected lookup: {name}")
+            if name == "database":
+                return {"local": True, "host": "database"}.get(args[1], "x")
+            return ""
 
         env.globals["lookup"] = _lookup
-        rendered = env.get_template(self.SERVICE_BASE).render(
+        rendered = env.get_template(template).render(
             application_id=self.APPLICATION_ID,
             DEPLOYMENT_MODE=mode,
             DOCKER_RESTART_POLICY="unless-stopped",
         )
-        service = load_yaml_str(f"svc:\n{rendered}")["svc"]
-        return service["logging"]
+        prefix, key = self.TEMPLATES[template]
+        return load_yaml_str(f"{prefix}{rendered}")["services"][key]["logging"]
 
     def test_logging_is_plain_journald_without_wazuh_opt_in(self):
-        for mode in self.MODES:
-            for flag in (_UNSET, False):
-                with self.subTest(mode=mode, wazuh_enabled=flag):
-                    self.assertEqual(
-                        self._render_logging(mode, flag), {"driver": "journald"}
-                    )
+        for template in self.TEMPLATES:
+            for mode in self.MODES:
+                for flag in (_UNSET, False):
+                    with self.subTest(template=template, mode=mode, wazuh_enabled=flag):
+                        self.assertEqual(
+                            self._render_logging(template, mode, flag),
+                            {"driver": "journald"},
+                        )
 
     def test_wazuh_opt_in_tags_journald_with_entity_name(self):
+        for template in self.TEMPLATES:
+            for mode in self.MODES:
+                with self.subTest(template=template, mode=mode):
+                    self.assertEqual(
+                        self._render_logging(template, mode, True),
+                        {"driver": "journald", "options": {"tag": "pixelfed"}},
+                    )
+
+    def test_sidecar_logging_blocks_match_the_service_base(self):
+        blocks = {}
+        for template in self.TEMPLATES:
+            lines = read_text(str(PROJECT_ROOT / template)).splitlines()
+            start = lines.index("    logging:")
+            end = lines.index("{% endif %}", start)
+            blocks[template] = lines[start : end + 1]
+        base, *sidecars = self.TEMPLATES
+        for sidecar in sidecars:
+            with self.subTest(template=sidecar):
+                self.assertEqual(blocks[sidecar], blocks[base])
+
+    def test_all_templates_render_the_same_logging(self):
         for mode in self.MODES:
-            with self.subTest(mode=mode):
+            for flag in (_UNSET, False, True):
+                with self.subTest(mode=mode, wazuh_enabled=flag):
+                    rendered = [
+                        self._render_logging(template, mode, flag)
+                        for template in self.TEMPLATES
+                    ]
+                    self.assertTrue(all(r == rendered[0] for r in rendered), rendered)
+
+    def test_every_service_of_an_opted_in_role_includes_the_service_base(self):
+        opted_in = []
+        for services_path in sorted(PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_SERVICES}")):
+            role = services_path.parent.parent.name
+            wazuh = (load_yaml_str(read_text(str(services_path))) or {}).get("wazuh")
+            if get_entity_name(role) == "wazuh" or not isinstance(wazuh, dict):
+                continue
+            if wazuh.get("enabled") is not True:
+                continue
+            opted_in.append(role)
+            template = read_text(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_TEMPL_COMPOSE))
+            with self.subTest(role=role):
                 self.assertEqual(
-                    self._render_logging(mode, True),
-                    {"driver": "journald", "options": {"tag": "pixelfed"}},
+                    template.count(self.SERVICE_BASE_INCLUDE),
+                    len(self.SERVICE_NAME_RE.findall(template)),
+                    f"{role}: every service block must include the service base, "
+                    "so its journald tag is set",
                 )
+        self.assertIn(self.APPLICATION_ID, opted_in)
 
 
 if __name__ == "__main__":
