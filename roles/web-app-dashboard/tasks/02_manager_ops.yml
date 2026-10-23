@@ -15,15 +15,16 @@
     portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
 
 - name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
+  uri_probe_batch:
+    urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"
     method: HEAD
-    status_code: [200, 404]
+    status_codes: [200, 404]
+    attempts: 3
+    delay: 2
+    timeout: "{{ lookup('timeout', 10) | int }}"
     validate_certs: false
+    workers: 16
   register: dashboard_simpleicons_probe
-  loop: "{{ portfolio_cards | simpleicon_slugs }}"
-  loop_control:
-    label: "{{ item }}"
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
@@ -33,9 +34,10 @@
   set_fact:
     portfolio_cards: >-
       {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | selectattr('status', 'equalto', 200)
-             | map(attribute='item')
+           dashboard_simpleicons_probe.status
+             | dict2items
+             | selectattr('value', 'equalto', 200)
+             | map(attribute='key')
              | list,
            DASHBOARD_SIMPLEICONS_URL_BASE) }}
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
