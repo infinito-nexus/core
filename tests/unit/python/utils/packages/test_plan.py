@@ -19,6 +19,14 @@ from utils.packages.sources import (
     PACMAN_CONF,
 )
 
+
+def _only(plan, module):
+    """Return the single call to *module*, failing when it is not unique."""
+    calls = [call for call in plan if call.module == module]
+    assert len(calls) == 1, f"{module} appears {len(calls)} times"
+    return calls[0]
+
+
 _DEB = {
     "url": "https://vendor.example/pool/editor_1.2.3_amd64.deb",
     "checksum": "sha256:" + "a" * 64,
@@ -223,13 +231,15 @@ class TestDownloadSource(unittest.TestCase):
         self.assertEqual(
             _modules(plan),
             [
+                "ansible.builtin.package",
                 "ansible.builtin.file",
                 "ansible.builtin.get_url",
                 "ansible.builtin.apt",
                 "ansible.builtin.package",
             ],
         )
-        cache, fetch, install, confirm = plan
+        tools, cache, fetch, install, confirm = plan
+        self.assertEqual(tools.args["name"], ["xz-utils"])
         self.assertEqual(cache.args["path"], DOWNLOAD_CACHE_DIR)
         self.assertEqual(cache.args["owner"], "root")
         self.assertEqual(confirm.args["name"], ["editor"])
@@ -276,9 +286,10 @@ class TestDownloadSource(unittest.TestCase):
             download={**_DEB, "url": _DEB["url"] + "?token=abc"},
         )
         plan = build_plan(spec, STATE_PRESENT)
-        self.assertEqual(plan[2].module, "ansible.builtin.apt")
+        self.assertIn("ansible.builtin.apt", _modules(plan))
+        fetch = _only(plan, "ansible.builtin.get_url")
         self.assertEqual(
-            plan[1].args["dest"], f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb"
+            fetch.args["dest"], f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb"
         )
 
     def test_the_source_without_its_block_is_refused(self):
@@ -291,7 +302,7 @@ class TestDownloadSource(unittest.TestCase):
             PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
             STATE_PRESENT,
         )
-        self.assertIsNotNone(plan[1].retry)
+        self.assertIsNotNone(_only(plan, "ansible.builtin.get_url").retry)
 
     def test_removal_goes_through_the_host_manager(self):
         plan = build_plan(

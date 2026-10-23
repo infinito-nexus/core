@@ -36,6 +36,11 @@ transfer."""
 
 DOWNLOAD_CACHE_MODE = "0755"
 
+DEB_CONTROL_TOOL = "xz-utils"
+"""Cursor and its kind compress the deb control member with xz, which
+``ansible.builtin.apt`` extracts through the ``xz`` binary rather than
+through dpkg's own library."""
+
 FLATPAK_PACKAGE = "flatpak"
 FLATPAK_METHOD = "system"
 FLATPAK_EXPORT_DIR = "/var/lib/flatpak/exports/bin"
@@ -113,8 +118,10 @@ def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCal
     dest = f"{DOWNLOAD_CACHE_DIR}/{artefact.name}"
 
     if artefact.suffix == ".deb":
+        prerequisites = [package_call([DEB_CONTROL_TOOL], STATE_PRESENT)]
         install = ModuleCall("ansible.builtin.apt", {"deb": dest})
     elif artefact.suffix == ".rpm":
+        prerequisites = []
         install = ModuleCall(
             "ansible.builtin.dnf",
             # A vendor that runs no repository ships no signing key either, so
@@ -128,6 +135,7 @@ def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCal
         )
 
     return [
+        *prerequisites,
         ModuleCall(
             "ansible.builtin.file",
             {
