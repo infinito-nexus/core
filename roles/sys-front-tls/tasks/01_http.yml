@@ -11,4 +11,3 @@
     src: "http.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain, protocol='http') }}"
   notify: reload-openresty
-  when: HTTPS_REDIRECT_ENABLED | bool
