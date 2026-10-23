@@ -26,7 +26,7 @@
     path: "{{ PIXELFED_ENV_FILE }}"
     owner: "{{ PIXELFED_APP_USER }}"
     group: "{{ PIXELFED_APP_USER }}"
-    mode: "0660"
+    mode: "0640"
 
 - name: "▶️ Start Pixelfed containers with the repo-managed entrypoint"
   ansible.builtin.meta: flush_handlers
