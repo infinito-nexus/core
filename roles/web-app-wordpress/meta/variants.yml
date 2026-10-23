@@ -187,6 +187,7 @@
     translate:
       enabled: false
       shared: false
+    # nocheck: variant-tor-collateral docs rides the smallest round of each role because the README replay is the costliest partner in the matrix; the guide serves over the onion in both web-app-docs variants, which is where that is proven
     tor:
       enabled: false
     hermes:
