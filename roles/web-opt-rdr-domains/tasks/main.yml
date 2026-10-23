@@ -47,6 +47,7 @@
       ansible.builtin.find:
         paths: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('dirname') | unique }}"
         patterns: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('basename') | unique }}"
+        file_type: any
         follow: true
       register: redirect_certs_found
 
