@@ -58,10 +58,11 @@ jitsi:
     internal:
       http: 8000
     local:
-      http: 8098
+      http: 8104
     public:
       media: 10001
 livekit:
+  enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.conferencing.element_call') | bool }}" # nocheck: dynamic-flag — the role renders the LiveKit services only inside its element_call branch
   ports:
     internal:
       websocket: 7880
@@ -74,11 +75,12 @@ livekit:
   mem_limit: 1g
   pids_limit: 512
 livekit_jwt:
+  enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.conferencing.element_call') | bool }}" # nocheck: dynamic-flag — the role renders the LiveKit services only inside its element_call branch
   ports:
     internal:
       http: 8030
     local:
-      http: 8099
+      http: 8105
   cpus: "0.2"
   mem_reservation: 32m
   mem_limit: 128m

@@ -12,54 +12,48 @@
     msg: "Mailu's maildir volume {{ STALWART_MAILU_MAILDIR_VOLUME }} does not exist on this host yet; there is nothing to import."
   when: STALWART_MAILU_MAILDIR_VOLUME not in stalwart_volume_names.stdout_lines
 
-- name: "🔍 Check whether a finished import left its marker"
-  ansible.builtin.stat:
-    path: "{{ STALWART_IMPORT_DONE_FILE }}"
-  register: stalwart_import_done
+- name: "📨 Handle the Mailu maildir volume this host carries"
   when: STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
-
-- name: "ℹ️ Report that the Mailu import is complete"
-  ansible.builtin.debug:
-    msg: "The Mailu import finished earlier; delete {{ STALWART_IMPORT_DONE_FILE }} to import again."
-  when:
-    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
-    - stalwart_import_done.stat.exists
-
-- name: "🔍 Read the state of the import unit"
-  ansible.builtin.command:
-    argv:
-      - systemctl
-      - show
-      - --property
-      - ActiveState
-      - --value
-      - "{{ STALWART_IMPORT_UNIT }}"
-  register: stalwart_import_unit_state
-  changed_when: false
-  when:
-    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
-    - not stalwart_import_done.stat.exists
-
-- name: "ℹ️ Report that the import of an earlier deploy still runs"
-  ansible.builtin.debug:
-    msg: "{{ STALWART_IMPORT_UNIT }} is {{ stalwart_import_unit_state.stdout }}; follow it with: journalctl -fu {{ STALWART_IMPORT_UNIT }}"
-  when:
-    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
-    - not stalwart_import_done.stat.exists
-    - stalwart_import_unit_state.stdout not in ['inactive', 'failed']
-
-- name: "📥 Import every Mailu mailbox into Stalwart"
-  when:
-    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
-    - not stalwart_import_done.stat.exists
-    - stalwart_import_unit_state.stdout in ['inactive', 'failed']
   block:
-    - name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
-      ansible.builtin.command: >-
-        container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}"
-        {{ STALWART_MAILU_MAILDIR_VOLUME | quote }}
-      register: stalwart_mailu_maildir
-      changed_when: false
+    - name: "🔍 Check whether a finished import left its marker"
+      ansible.builtin.stat:
+        path: "{{ STALWART_IMPORT_DONE_FILE }}"
+      register: stalwart_import_done
 
-    - name: "📥 Stage and start the import"
-      include_tasks: 12_import_mailu/run.yml
+    - name: "ℹ️ Report that the Mailu import is complete"
+      ansible.builtin.debug:
+        msg: "The Mailu import finished earlier; delete {{ STALWART_IMPORT_DONE_FILE }} to import again."
+      when: stalwart_import_done.stat.exists
+
+    - name: "📥 Import the Mailu mailboxes unless an earlier run finished"
+      when: not stalwart_import_done.stat.exists
+      block:
+        - name: "🔍 Read the state of the import unit"
+          ansible.builtin.command:
+            argv:
+              - systemctl
+              - show
+              - --property
+              - ActiveState
+              - --value
+              - "{{ STALWART_IMPORT_UNIT }}"
+          register: stalwart_import_unit_state
+          changed_when: false
+
+        - name: "ℹ️ Report that the import of an earlier deploy still runs"
+          ansible.builtin.debug:
+            msg: "{{ STALWART_IMPORT_UNIT }} is {{ stalwart_import_unit_state.stdout }}; follow it with: journalctl -fu {{ STALWART_IMPORT_UNIT }}"
+          when: stalwart_import_unit_state.stdout not in ['inactive', 'failed']
+
+        - name: "📥 Import every Mailu mailbox into Stalwart"
+          when: stalwart_import_unit_state.stdout in ['inactive', 'failed']
+          block:
+            - name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
+              ansible.builtin.command: >-
+                container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}"
+                {{ STALWART_MAILU_MAILDIR_VOLUME | quote }}
+              register: stalwart_mailu_maildir
+              changed_when: false
+
+            - name: "📥 Stage and start the import"
+              include_tasks: 12_import_mailu/run.yml
