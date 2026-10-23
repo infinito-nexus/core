@@ -62,8 +62,34 @@
 - name: "🔐 Matomo install | Make config writable by web user (entrypoint re-owns it root)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec --user root {{ MATOMO_LOCAL_CID | quote }}
-    chown www-data:www-data {{ MATOMO_CONFIG }}
+    chown {{ MATOMO_RUNTIME_OWNER }} {{ MATOMO_CONFIG }}
   changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "⏫ Matomo upgrade | Install the image's release into the data volume"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user root {{ MATOMO_LOCAL_CID | quote }}
+      sh -s -- {{ MATOMO_RELEASE_DIR | quote }} {{ MATOMO_HTML_DIR | quote }} {{ MATOMO_RUNTIME_OWNER | quote }}
+    stdin: "{{ lookup('file', 'shell/upgrade_code.sh') }}"
+  register: matomo_code_upgrade
+  changed_when: matomo_code_upgrade.stdout is match('upgraded ')
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "⏫ Matomo upgrade | Apply the database updates the installed code needs"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user {{ MATOMO_RUNTIME_OWNER | quote }} {{ MATOMO_LOCAL_CID | quote }}
+    php {{ MATOMO_CONSOLE | quote }} core:update --yes --no-ansi
+  register: matomo_core_update
+  changed_when: "'Everything is already up to date' not in matomo_core_update.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔐 Matomo upgrade | Recreate the web server security files"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user {{ MATOMO_RUNTIME_OWNER | quote }} {{ MATOMO_LOCAL_CID | quote }}
+    php {{ MATOMO_CONSOLE | quote }} core:create-security-files --no-ansi
+  changed_when: true
+  when: matomo_code_upgrade is changed
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
 - name: "🔧 Config '{{ application_id }}' via API"

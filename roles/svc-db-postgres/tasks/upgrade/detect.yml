@@ -1,0 +1,31 @@
+---
+- name: "🔍 POSTGRES | Resolve the mountpoint of {{ POSTGRES_VOLUME }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - inspect
+      - --format
+      - "{{ '{{' }} .Mountpoint {{ '}}' }}"
+      - "{{ POSTGRES_VOLUME }}"
+  register: postgres_volume_inspect
+  changed_when: false
+  failed_when:
+    - postgres_volume_inspect.rc != 0
+    - "'no such volume' not in (postgres_volume_inspect.stderr | lower)"
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔍 POSTGRES | Detect the cluster in {{ POSTGRES_VOLUME }}"
+  ansible.builtin.script:
+    cmd: >-
+      python/cluster.py detect
+      --root {{ postgres_volume_inspect.stdout | trim | quote }}
+      --target {{ POSTGRES_VERSION_MAJOR | quote }}
+  register: postgres_cluster_detect
+  changed_when: false
+  when: postgres_volume_inspect.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "📌 POSTGRES | Remember the cluster state"
+  ansible.builtin.set_fact:
+    postgres_cluster: "{{ (postgres_cluster_detect.stdout | from_json) if postgres_volume_inspect.rc == 0 else {'state': 'fresh', 'leftovers': []} }}"

@@ -61,7 +61,7 @@
         mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
         content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
       when: IS_SWARM_MODE
-      delegate_to: localhost
+      delegate_to: localhost # nocheck: localhost-become  FILE_TOKENS sits below the root-owned DIR_SECRETS
       run_once: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       register: sys_token_store_mirrored

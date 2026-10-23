@@ -24,6 +24,8 @@
     - "{{ [_moodle_build_dir, 'php-conf'] | path_join }}"
     - "{{ [_moodle_build_dir, 'install'] | path_join }}"
     - "{{ [_moodle_build_dir, 'patch'] | path_join }}"
+    - "{{ [_moodle_build_dir, 'moodle'] | path_join }}"
+    - "{{ [_moodle_build_dir, 'install', 'moodle'] | path_join }}"
 
 - name: "📋 Copy static build assets into compose context"
   ansible.builtin.copy:
@@ -32,10 +34,12 @@
     mode: "{{ item.mode }}"
   loop:
     - { path: "{{ MOODLE_BUILD_FILES.entrypoint }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.release_lib }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.config_php }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.opcache_ini }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.fpm_pool }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.install_source }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.install_upgrade_path }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_oidc }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_mcp }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_objectfs }}", mode: "0755" }

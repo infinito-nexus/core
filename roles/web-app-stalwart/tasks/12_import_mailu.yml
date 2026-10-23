@@ -1,42 +1,48 @@
 ---
 # include-gated: when: STALWART_IMPORT_MAILU and 'web-app-mailu' in group_names
 #                and STALWART_ACTIVE_PROVIDER and IS_COMPOSE_MODE
-- name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
+- name: "🔍 List the container volumes on the stack host"
   ansible.builtin.command: >-
-    container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}"
-    {{ lookup('volume', 'web-app-mailu', 'dovecot_mail').name | quote }}
-  register: stalwart_mailu_maildir
+    container volume ls --format "{{ '{{' }} .Name {{ '}}' }}"
+  register: stalwart_volume_names
   changed_when: false
 
-- name: "🔧 Assemble the migration account credentials"
-  ansible.builtin.set_fact:
-    stalwart_migration_accounts: >-
-      {%- set acc = {} -%}
-      {%- for key, u in STALWART_USERS.items() -%}
-      {%- set secret = u.password | hash('sha256') if 'bot' in (u.roles | default([])) else u.password -%}
-      {%- set _ = acc.update({u.email: secret}) -%}
-      {%- endfor -%}
-      {{ acc }}
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "ℹ️ Report that Mailu has no maildir volume to import yet"
+  ansible.builtin.debug:
+    msg: "Mailu's maildir volume {{ STALWART_MAILU_MAILDIR_VOLUME }} does not exist on this host yet; there is nothing to import."
+  when: STALWART_MAILU_MAILDIR_VOLUME not in stalwart_volume_names.stdout_lines
 
-- name: "📄 Stage the migration accounts file"
-  stack_host_copy:
-    content: "{{ stalwart_migration_accounts | to_json }}"
-    dest: "{{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join }}"
-    mode: "0600"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔍 Read the state of the import unit"
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - show
+      - --property
+      - ActiveState
+      - --value
+      - "{{ STALWART_IMPORT_UNIT }}"
+  register: stalwart_import_unit_state
+  changed_when: false
+  when: STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
 
-- name: "📥 Import the Mailu maildirs into Stalwart over IMAP"
-  ansible.builtin.script:
-    cmd: >-
-      {{ [ role_path, 'files/python/migrate_from_mailu.py' ] | path_join }}
-      --maildir-root {{ stalwart_mailu_maildir.stdout | trim | quote }}
-      --imap-host 127.0.0.1 --imap-port 993 --imap-insecure
-      --accounts-file {{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join | quote }}
-  register: stalwart_mailu_import
-  timeout: "{{ lookup('timeout', 3600) | int }}"
+- name: "ℹ️ Report that the import of an earlier deploy still runs"
+  ansible.builtin.debug:
+    msg: "{{ STALWART_IMPORT_UNIT }} is {{ stalwart_import_unit_state.stdout }}; follow it with: journalctl -fu {{ STALWART_IMPORT_UNIT }}"
+  when:
+    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - stalwart_import_unit_state.stdout not in ['inactive', 'failed']
 
-- name: "🧹 Remove the migration accounts file"
-  ansible.builtin.file:
-    path: "{{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join }}"
-    state: absent
+- name: "📥 Import every Mailu mailbox into Stalwart"
+  when:
+    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - stalwart_import_unit_state.stdout in ['inactive', 'failed']
+  block:
+    - name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
+      ansible.builtin.command: >-
+        container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}"
+        {{ STALWART_MAILU_MAILDIR_VOLUME | quote }}
+      register: stalwart_mailu_maildir
+      changed_when: false
+
+    - name: "📥 Stage and start the import"
+      include_tasks: 12_import_mailu/run.yml

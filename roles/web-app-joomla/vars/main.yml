@@ -14,6 +14,13 @@ JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
 JOOMLA_INSTALLER_CLI_FILE: "/var/www/html/installation/joomla.php"
 JOOMLA_CLI_FILE: "/var/www/html/cli/joomla.php"
 JOOMLA_INIT_READY_FILE: "/var/www/html/.infinito-init.ready"
+JOOMLA_CLI_EXTENSION_ENABLE_SINCE: "6.1.0"
+
+JOOMLA_DOCROOT: "{{ lookup('volume', application_id, 'data').target }}"
+JOOMLA_IMAGE_SOURCE_DIR: "/usr/src/joomla"
+JOOMLA_VERSION_PHP: "libraries/src/Version.php"
+JOOMLA_UPGRADE_BRIDGES: "{{ lookup('config', application_id, 'services.joomla.upgrade.bridges') }}"
+JOOMLA_UPGRADE_STAGING_DIR: "/tmp/infinito-joomla-upgrade"
 
 JOOMLA_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-joomla.sh"
 JOOMLA_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), JOOMLA_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"

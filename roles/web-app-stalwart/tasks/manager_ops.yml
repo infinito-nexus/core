@@ -48,3 +48,7 @@
     - "'web-app-mailu' in group_names"
     - STALWART_ACTIVE_PROVIDER | bool
     - IS_COMPOSE_MODE
+
+- name: "📨 Provision the declared per-account forwards"
+  include_tasks: 16_forwards.yml
+  when: STALWART_FORWARDS | length > 0

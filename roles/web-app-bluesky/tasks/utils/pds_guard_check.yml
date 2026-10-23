@@ -1,0 +1,39 @@
+---
+- name: "📁 Ensure the PDS guard directory exists"
+  ansible.builtin.file:
+    path: "{{ BLUESKY_PDS_GUARD_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Stage the PDS migration guard"
+  ansible.builtin.copy:
+    src: javascript/pds_migrations.js
+    dest: "{{ [BLUESKY_PDS_GUARD_DIR, 'pds_migrations.js'] | path_join }}"
+    mode: "0644"
+
+- name: "🛡️ Compare the applied PDS migrations with the pinned image"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --mount
+      - "type=volume,src={{ BLUESKY_PDS_VOLUME }},dst={{ BLUESKY_PDS_DATA_DIR }}"
+      - --mount
+      - "type=bind,src={{ BLUESKY_PDS_GUARD_DIR }},dst={{ BLUESKY_PDS_GUARD_MOUNT }},readonly"
+      - "{{ BLUESKY_PDS_IMAGE_REF }}"
+      - node
+      - "{{ [BLUESKY_PDS_GUARD_MOUNT, 'pds_migrations.js'] | path_join }}"
+      - "{{ BLUESKY_PDS_DATA_DIR }}"
+      - "{{ BLUESKY_PDS_VOLUME }}"
+      - "{{ BLUESKY_PDS_IMAGE }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: bluesky_pds_guard
+  changed_when: "'RECORDED:' in bluesky_pds_guard.stdout"
+  failed_when: bluesky_pds_guard.rc not in [0, BLUESKY_PDS_GUARD_DOWNGRADE_RC]
+
+- name: "⛔ Refuse to start PDS {{ BLUESKY_PDS_IMAGE_REF }} on newer data"
+  ansible.builtin.fail:
+    msg: "{{ bluesky_pds_guard.stdout }}"
+  when: bluesky_pds_guard.rc == BLUESKY_PDS_GUARD_DOWNGRADE_RC

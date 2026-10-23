@@ -7,6 +7,7 @@
         path: "{{ lookup('path_absolute', 'roles', application_id, 'templates/compose.yml.j2') }}"
       register: _app_db_compose_template
       delegate_to: localhost
+      become: false
       run_once: true # nocheck: run-once  the path is host-independent, one stat answers for the play
       changed_when: false
 

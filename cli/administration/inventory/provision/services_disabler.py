@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
 from utils.cache.yaml import load_yaml_any
@@ -15,7 +14,7 @@ from utils.roles.applications.services.registry import (
 )
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-from .ruamel_io import dump_document, load_document
+from .ruamel_io import dump_document, load_document, round_trip_yaml
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -140,8 +139,7 @@ def remove_roles_from_inventory(
     if not inventory_file.exists() or not application_ids:
         return
 
-    yaml_rt = YAML(typ="rt")
-    yaml_rt.preserve_quotes = True
+    yaml_rt = round_trip_yaml()
 
     with inventory_file.open("r", encoding="utf-8") as f:
         doc = yaml_rt.load(f)
@@ -194,8 +192,7 @@ def apply_services_disabled(
 
     services = expand_service_tokens(services, roles_dir)
 
-    yaml_rt = YAML(typ="rt")
-    yaml_rt.preserve_quotes = True
+    yaml_rt = round_trip_yaml()
 
     if not host_vars_file.exists():
         return

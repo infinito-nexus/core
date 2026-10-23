@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - imports frappe at module level and runs inside `bench
-# execute`; the framework is not installable outside the ERPNext image
 import os
 
 import frappe
@@ -11,6 +9,8 @@ API_BOT_FIRSTNAME = os.environ["API_BOT_FIRSTNAME"]
 API_BOT_LASTNAME = os.environ["API_BOT_LASTNAME"]
 API_BOT_PASSWORD = os.environ["API_BOT_PASSWORD"]
 API_KEY_SECRET = os.environ["API_KEY_SECRET"]
+COUNTRY = os.environ["COUNTRY"]
+CURRENCY = os.environ["CURRENCY"]
 
 API_KEY, API_SECRET = (
     API_KEY_SECRET[: len(API_KEY_SECRET) // 2],
@@ -51,9 +51,9 @@ def bypass_setup_wizard():
         if not ss.time_zone:
             ss.time_zone = "UTC"
         if not ss.country:
-            ss.country = "United States"
+            ss.country = COUNTRY
         if not ss.currency:
-            ss.currency = "USD"
+            ss.currency = CURRENCY
         ss.flags.ignore_permissions = True
         ss.flags.ignore_mandatory = True
         ss.save()

@@ -34,6 +34,8 @@ Both name surfaces EspoCRM ships itself, so their payload stays with [`templates
 - **WebSocket Notifications:** Real-time updates via ZeroMQ and WebSockets 🌐  
 - **Config via Templates:** Fully customizable `.env` and `compose.yml` with Jinja2 ⚙️  
 - **Health Checks & Logging:** Monitor service health and logs with built-in checks and journald 📈  
+- **Version Upgrades:** The first start of a new image migrates the data through EspoCRM's `migrate` command, and the deploy waits until the data reports the image version; data written by a newer EspoCRM than the image stops the start.
+- **Currency List:** Before and after each install or migration, the entrypoint adds the default and base currency to `currencyList` when they are missing from it.
 - **Modular Role Composition:** Leverages central roles for database and NGINX, ensuring consistency across deployments 🔄  
 
 ## AI Assistance

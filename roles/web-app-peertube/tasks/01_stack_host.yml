@@ -2,6 +2,42 @@
 - name: "🔧 PEERTUBE | Patch `application` table so bootstrap INSERT survives installs"
   include_tasks: 02_fix-application-schema.yml
 
+- name: "🔢 PEERTUBE | Read the schema version the server migrated to"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('file', role_path ~ '/files/sql/select-migration-version.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
+    expect_rows: true
+  register: _peertube_migrated
+  changed_when: false
+
+- name: "🛑 PEERTUBE | Fail unless the server reached the schema of the pinned release"
+  ansible.builtin.assert:
+    that:
+      - (_peertube_migrated.rows[0][0] | int) == (PEERTUBE_RELEASE | peertube_migration_version)
+    fail_msg: >-
+      PeerTube {{ PEERTUBE_RELEASE }} left its database at migration
+      {{ _peertube_migrated.rows[0][0] }}, expected
+      {{ PEERTUBE_RELEASE | peertube_migration_version }}.
+    quiet: true
+
+- name: "⬆️ PEERTUBE | Run the migration scripts above the release of the data"
+  include_tasks:
+    file: upgrade/scripts.yml
+    apply:
+      delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  when: _peertube_upgrade.upgrade | bool
+
+- name: "🖼️ PEERTUBE | Reseed the client assets from the pinned image"
+  include_tasks: upgrade/assets.yml
+  when: _peertube_upgrade.replace_assets | bool
+
+- name: "🏷️ PEERTUBE | Record the release the data reached"
+  ansible.builtin.copy:
+    content: "{{ PEERTUBE_RELEASE }}\n"
+    dest: "{{ PEERTUBE_RELEASE_MARKER }}"
+    mode: "0644"
+
 - name: "📦 Install and activate auth-openid-connect plugin if OIDC is enabled"
   include_tasks: oidc/enable.yml
   when: PEERTUBE_OIDC_ENABLED | bool

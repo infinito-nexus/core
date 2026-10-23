@@ -45,6 +45,11 @@ applications:
       credentials:
         admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
 
+service_provider:
+  company:
+    address:
+      country: "Germany"
+
 API:
   openai:
     api_key: "{{ lookup('env', 'INFINITO_API_OPENAI_KEY') }}"

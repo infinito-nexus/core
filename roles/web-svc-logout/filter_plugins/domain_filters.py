@@ -77,9 +77,7 @@ class FilterModule:
                 if domains is not None and app_id in domains:
                     domains_entry = domains.get(app_id, [])
                 else:
-                    domains_entry = (
-                        config.get("server", {}).get("domains", {}).get("canonical", [])
-                    )
+                    domains_entry = (config.get("domains") or {}).get("canonical", [])
 
                 if isinstance(domains_entry, dict):
                     disabled = _disabled_entity_keys(config)

@@ -7,9 +7,13 @@ matrix_playbook_ssl_enabled: {{ 'false' if _matrix_is_onion else 'true' }}
 matrix_homeserver_implementation: synapse
 matrix_playbook_docker_installation_enabled: false
 matrix_playbook_migration_validated_version: "{{ MATRIX_MDAD_MIGRATION_VALIDATED_VERSION }}"
+matrix_user_uid: {{ MATRIX_SYNAPSE_UID }}
+matrix_user_gid: {{ MATRIX_SYNAPSE_GID }}
 
 matrix_synapse_macaroon_secret_key: "{{ lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') }}"
 matrix_homeserver_generic_secret_key: "{{ lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') }}"
+
+matrix_synapse_http_listener_resource_names: ["client", "federation"]
 
 matrix_synapse_rc_login:
   address:

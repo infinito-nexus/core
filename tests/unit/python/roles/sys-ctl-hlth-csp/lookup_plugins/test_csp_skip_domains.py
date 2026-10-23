@@ -26,7 +26,7 @@ class _DummyTemplar:
 
 def _app(service_enabled, domain="filer.example.com"):
     return {
-        "server": {"domains": {"canonical": {"filer": domain}}},
+        "domains": {"canonical": {"filer": domain}},
         "services": {"filer": {"enabled": service_enabled, "domains": ["filer"]}},
     }
 
@@ -79,7 +79,7 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_a_service_without_domains_is_ignored(self):
         apps = {
             "web-app-foo": {
-                "server": {"domains": {"canonical": {"web": "foo.example.com"}}},
+                "domains": {"canonical": {"web": "foo.example.com"}},
                 "services": {"worker": {"enabled": False}},
             }
         }

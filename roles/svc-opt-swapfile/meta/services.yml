@@ -4,7 +4,7 @@ swapfile:
     host:
       enabled: true
   repository: https://github.com/kevinveenbirkenbach/swap-forge.git
-  ref: v1.0.0
+  ref: v1.0.1
   swapfile_size: "{{ lookup('resource', 'host_mem_mb') | int }}M"
   lifecycle: beta
   min_storage: "50MB"

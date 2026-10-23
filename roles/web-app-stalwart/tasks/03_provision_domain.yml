@@ -1,5 +1,4 @@
 ---
-# Provision the mail domain, accounts, TLS, OIDC, antivirus and DNS (JMAP).
 # The domain was asserted provisionable in 00_core.yml before any state change.
 - name: "📖 List existing Stalwart domains"
   include_tasks: jmap_call.yml
@@ -71,3 +70,6 @@
 - name: "🧅 Route .onion recipients through the Tor SMTP gateway"
   include_tasks: 14_onion_route.yml
   when: STALWART_ONION_ACTIVE | bool
+
+- name: "📮 Provision the declared mail aliases and catch-alls"
+  include_tasks: 15_aliases.yml

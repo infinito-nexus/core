@@ -56,7 +56,7 @@ class LookupModule(LookupBase):
     def _service_disabled_domains(self, applications: Mapping, app_id: str) -> set[str]:
         services = get(applications, app_id, "services", strict=False, default={})
         canonical = get(
-            applications, app_id, "server.domains.canonical", strict=False, default={}
+            applications, app_id, "domains.canonical", strict=False, default={}
         )
         if not isinstance(services, Mapping) or not isinstance(canonical, Mapping):
             return set()

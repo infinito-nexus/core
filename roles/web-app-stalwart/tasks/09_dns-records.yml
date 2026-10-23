@@ -17,7 +17,7 @@
         proxied: false
       - type: CNAME
         zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
-        name: "🔧 autoconfig.{{ STALWART_DOMAIN_DNS_ZONE }}"
+        name: "autoconfig.{{ STALWART_DOMAIN_DNS_ZONE }}"
         solo: true
         value: "{{ STALWART_HOSTNAME }}"
       - type: MX

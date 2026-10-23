@@ -22,3 +22,4 @@ The purpose of this role is to provide an effortless way to deploy a PostgreSQL 
 - **Robust Administration:** Automatically creates databases, users, and assigns privileges.
 - **Enhanced Security:** The service is bound to `127.0.0.1:5432`, restricting access and enhancing security.
 - **Seamless Docker Integration:** Works harmoniously with Docker Compose and other roles in your infrastructure.
+- **Automatic Major Upgrades:** Detects an older cluster in the data volume and upgrades it major by major with `pg_upgrade --link`, see [Upgrade.md](Upgrade.md).

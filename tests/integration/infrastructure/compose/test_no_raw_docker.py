@@ -55,6 +55,7 @@ WHITELIST_PATH_FRAGMENTS: tuple[str, ...] = (
     "/.tox/",
     "/cli/",
     "infinito_nexus.egg-info/",
+    "/playbooks/update/files/",
 )
 
 

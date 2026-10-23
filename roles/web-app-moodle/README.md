@@ -102,6 +102,18 @@ This role builds its own Moodle image from upstream Moodle source on top of the 
 
 The image carries the Moodle release pinned as `services.moodle.app_version` in `meta/services.yml`. On start the entrypoint compares that release with the one recorded in the code volume. When the image is newer, it copies the image's tree next to the old one and swaps them once the copy is complete. An image that is older than the recorded release refuses to start. `tasks/01_manager_ops.yml` then runs `admin/cli/upgrade.php`, which migrates the database.
 
+### Intermediate releases
+
+Moodle upgrades a site only from a minimum release, which its `admin/environment.xml` names per branch (5.3 needs 4.4). The image therefore also carries the archive of the release pinned as `services.moodle.transit_version` (the 4.5 LTS), and the build records each shipped release with its minimum source in `/opt/moodle-transit/upgrade-path`.
+
+The entrypoint reads the site's release from `.bootstrap.done` or, for a tree it did not write, from `version.php` or `public/version.php`. When the pinned release does not accept that release, it unpacks the transit release into the code volume, runs its `admin/cli/upgrade.php` and records the transit release only after that run succeeded, so a failed run is repeated on the next start. It then swaps in the pinned release as usual. A site older than every minimum source stops the container with both releases in the log.
+
+Before the swap of an existing site the entrypoint asks the pinned release with `admin/cli/upgrade.php --is-pending` whether the database holds an installed site, and refuses to start when it holds none.
+
+### Bitnami layout
+
+Infinito.Nexus up to v0.10.0 ran the Bitnami image with `moodle_code` at `/bitnami/moodle` and `moodle_data` at `/bitnami/moodledata`. Both volumes keep their names, and the code and the data sit at the volume root in both layouts, so nothing moves. The entrypoint names a code volume whose `config.php` points below `/bitnami` in its log, adopts its release, replaces the tree and the `config.php`, and hands the data volume to `www-data` (uid 33).
+
 Plugins installed through the web interface live only in the code volume and are not carried over to the next release. Declare a plugin under `meta/addons/` so the image ships it.
 
 ## Further Resources

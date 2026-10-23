@@ -7,6 +7,12 @@
     resolve_output_prefix: MEDIAWIKI
     resolve_compose_cid: "{{ MEDIAWIKI_CONTAINER }}"
 
+- name: "♻️ Reseed the extensions volume when the MediaWiki version changed"
+  include_tasks:
+    file: "{{ role_path }}/tasks/utils/refresh_extensions.yml"
+    apply:
+      delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
+
 - name: "📂 Load extensions procedures for '{{ application_id }}'"
   include_tasks:
     file: "{{ role_path }}/tasks/02_extensions.yml"
@@ -17,6 +23,7 @@
 - name: "📂 Load update procedures for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/03_install.yml"
   when: >-
+    (mediawiki_extensions_refresh is changed) or
     (_role_templates_render.changed | default(false)) or
     (_install_results.changed | default(false)) or
     (_ext_composer.changed | default(false)) or

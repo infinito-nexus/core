@@ -1,0 +1,25 @@
+---
+- name: "▶️ Start every compose stack"
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: "🔍 Find compose stacks in '{{ DIR_COMPOSITIONS }}'"
+      ansible.builtin.find:
+        paths: "{{ DIR_COMPOSITIONS }}"
+        patterns: compose.yml
+        recurse: true
+        depth: 2
+      register: compose_up_files
+
+    - name: "🐳 compose up"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - --chdir
+          - "{{ item.path | dirname }}"
+          - up
+          - -d
+      loop: "{{ compose_up_files.files }}"
+      loop_control:
+        label: "{{ item.path | dirname | basename }}"

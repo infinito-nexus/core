@@ -36,6 +36,10 @@
   vars:
     compose_handlers_flush: false
 
+- name: "🛡️ Refuse a pinned PDS that is older than its data"
+  ansible.builtin.include_tasks: "utils/pds_guard.yml"
+  when: IS_STACK_HOST | bool
+
 - name: "🧱 Rebuild the stack when the pre-compose staging changed a build context"
   ansible.builtin.debug:
     msg: "Pre-compose build context changed for {{ application_id }}"

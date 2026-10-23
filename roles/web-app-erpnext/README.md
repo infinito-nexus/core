@@ -21,12 +21,13 @@ Both name a Frappe doctype the image already ships, and the per-addon hooks [`ta
 
 ## Features
 
-- **ERP / CRM / inventory desk** — full ERPNext frontend at `next.erp.{{ DOMAIN_PRIMARY }}`.
-- **Direct OIDC SSO** — Frappe's Social Login Key talks to the shared Keycloak client; redirect URI auto-registered via the `redirect_uris` filter (no per-app Keycloak entry needed).
-- **Keycloak group → Frappe role mapping** — three tiers: `roles/web-app-erpnext/administrator` → `System Manager`, `roles/web-app-erpnext/manager` → `{Sales, Purchase, Stock, Accounts} User`, default → `Customer`. Reconciled on each login by a hook reading the persisted map.
-- **LDAP federation** — when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1.
-- **Outbound mail (v1)** — when `web-app-stalwart` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Stalwart mailboxes yet).
-- **Wizard bypass** — first deploy seeds the API-bot user, marks `setup_complete=1` in System Settings, and skips the Frappe setup wizard entirely.
+- **ERP / CRM / inventory desk:** full ERPNext frontend at `next.erp.{{ DOMAIN_PRIMARY }}`.
+- **Direct OIDC SSO:** Frappe's Social Login Key talks to the shared Keycloak client; redirect URI auto-registered via the `redirect_uris` filter (no per-app Keycloak entry needed).
+- **Keycloak group → Frappe role mapping:** three tiers: `roles/web-app-erpnext/administrator` → `System Manager`, `roles/web-app-erpnext/manager` → `{Sales, Purchase, Stock, Accounts} User`, default → `Customer`. Reconciled on each login by a hook reading the persisted map.
+- **LDAP federation:** when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1.
+- **Outbound mail (v1):** when `web-app-stalwart` is present, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement** (no precedent in the repo for auto-provisioning role-owned Stalwart mailboxes yet).
+- **Wizard bypass:** first deploy seeds the API-bot user, marks `setup_complete=1` in System Settings, fills its empty country and currency with the Company's, and skips the Frappe setup wizard entirely.
+- **Company ready to invoice:** every deploy ensures the Company named `service_provider.company.titel` in the country `service_provider.company.address.country`, with the currency ERPNext's country data assigns to that country, plus a fiscal year for today, the tax accounts `VAT 19%`, `VAT 7%`, `VAT 20%`, `Reverse Charge` and `Export` under `Duties and Taxes` and a default cash account, so quotes, orders and invoices work right after the deploy. The abbreviation ERPNext appends to every account is `applications.web-app-erpnext.services.erpnext.company.abbr`, the initials of the company name unless the inventory sets it. A Company that already exists keeps its own values, and a country ERPNext does not know, such as the placeholder default, fails the deploy.
 
 ## Image & version policy
 
@@ -77,7 +78,7 @@ make compose-exec service=erpnext-backend \
 
 - Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags and image pins in [services.yml](./meta/services.yml). Credentials declared in [secrets.yml](./meta/secrets.yml).
 - Site name MUST match the HTTP Host header. The Frappe site is created with `bench new-site next.erp.<DOMAIN_PRIMARY>` and `FRAPPE_SITE_NAME_HEADER` on the frontend nginx maps Host → site.
-- All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to `python` inside the backend container (see `files/scripts/`).
+- All post-bootstrap configuration (Company, API bot, OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to `python` inside the backend container (see `files/python/apply/`).
 
 ## Further Resources
 

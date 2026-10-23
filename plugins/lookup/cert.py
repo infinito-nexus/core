@@ -21,6 +21,7 @@ from utils.tls_common import (
     as_str,
     collect_domains_for_app,
     override_san_list,
+    redirect_targets,
     require,
     resolve_enabled,
     resolve_le_name,
@@ -112,6 +113,7 @@ class LookupModule(LookupBase):
             term,
             domains=domains,
             applications=applications,
+            redirects=redirect_targets(variables),
             forced_mode=forced_mode,
             err_prefix="cert",
         )

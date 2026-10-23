@@ -15,6 +15,9 @@
   loop_control:
     loop_var: joomla_step
 
+- name: "⬆️ Update the Joomla core up to the core of the pinned image"
+  include_tasks: upgrade/main.yml
+
 - name: 📂 Include assert routines
   include_tasks: "06_assert.yml"
   when: MODE_ASSERT_LOCAL | bool

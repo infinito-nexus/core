@@ -13,10 +13,9 @@ WIREGUARD_MESH_NAMES: "{{ WIREGUARD_ACTIVE_MESHES.keys() | list | sort }}"
 
 WIREGUARD_MESHLESS_COMPOSE_HOST: "{{ IS_COMPOSE_MODE and WIREGUARD_MESH_NAMES | length == 0 }}"
 
-WIREGUARD_SPOKE_MESH_NAMES: >-
-  {{ WIREGUARD_ACTIVE_MESHES | dict2items
-     | rejectattr('value.is_hub')
-     | map(attribute='key') | list | sort }}
+WIREGUARD_SWARM_MANAGER: "{{ 'svc-swarm-manager' in group_names }}"
+
+WIREGUARD_AWAITED_KEYS: "{{ WIREGUARD_ACTIVE_MESHES | mesh_awaited_keys(WIREGUARD_SWARM_MANAGER | bool) }}"
 
 WIREGUARD_PING_BINARY: "/bin/ping"
 

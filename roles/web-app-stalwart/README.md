@@ -67,8 +67,9 @@ When `web-app-keycloak` is present the role joins the shared Keycloak client and
 delegates **interactive** authentication to Keycloak:
 
 - **WebAdmin + IMAP/SMTP/JMAP** authenticate against an **OIDC directory**
-  (`tasks/06_oidc.yml`): Stalwart validates Keycloak-issued tokens, matching the
-  `preferred_username` claim to the provisioned account.
+  (`tasks/06_oidc.yml`): Stalwart validates Keycloak-issued tokens and resolves
+  the `preferred_username` claim to the account `<preferred_username>@<mail domain>`
+  (a claim that already holds an `@` is taken as is), creating it on first login.
 - **Roundcube** logs users in over OAuth2 and talks to Stalwart with **XOAUTH2**
   (`templates/roundcube-oauth.inc.php.j2`).
 
@@ -156,12 +157,63 @@ The provider cutover is an inventory change; mailbox data moves with it when the
 
 1. Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart.
 2. Remove `MAIL_PROVIDER` from the inventory (Stalwart is the default).
-3. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role then reads Mailu's Dovecot Maildir volume and imports every inventory account's messages via IMAP APPEND, preserving folders, flags and internal dates. Re-runs are idempotent (Message-ID dedup), so the switch may stay on across deploys; turn it off once Mailu is retired.
-   The import authenticates per account with the inventory password, so it MUST run while `services.sso.enabled` is false. An OIDC directory replaces password login outright (see [`tasks/06_oidc.yml`](tasks/06_oidc.yml)), and every IMAP login then fails with `AUTHENTICATIONFAILED`. Migrate first, enable SSO afterwards.
-4. Accounts and aliases are provisioned from the inventory by this role; mailboxes created only inside Mailu's admin UI MUST be added to the inventory first. Sieve filters and CalDAV/CardDAV data are out of scope.
+3. Declare the [aliases](#aliases-and-forwards) the Mailu instance had, and a `mailbox_map` entry for every Mailu mailbox that belongs in another Stalwart account (see below).
+4. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role reads every `<address>/` directory in Mailu's Dovecot Maildir volume, whether or not the address is an inventory user, and per mailbox:
+   - skips it and reports the address when Stalwart does not serve its domain; no domain is created,
+   - creates the Stalwart account when it is missing, named after the local part in the mailbox's domain, which is the account the OIDC directory resolves for that `preferred_username` once SSO is on,
+   - appends its messages over IMAPS in parallel sessions, `migration.workers` of them or by default one fewer than the host's vCPUs, at most 8, logged in as the recovery administrator acting for the account (`<address>%<admin>`), so no per-mailbox password is needed and the import works with or without `services.sso.enabled`; a session Stalwart refuses only lowers the parallelism,
+   - keeps folders, flags, Dovecot keywords and internal dates; Mailu's `Sent`, `Trash`, `Junk`/`Spam` and `Drafts` land in the folders Stalwart marks with the matching special use,
+   - imports the active Sieve script and activates it.
+
+   A host without Mailu's maildir volume gets a note that there is nothing to import. Otherwise the deploy starts the import as the transient unit `stalwart-mailu-import` and moves on; a deploy that finds the unit still running leaves it alone. Follow it with `journalctl -fu stalwart-mailu-import`: it logs `[PROGRESS]` every 1000 messages of a folder, one `[MAILBOX] <mailbox> -> <account>: found=<n> imported=<n> skipped=<n> failed=<n> sieve=<state>` line per mailbox, one line per folder below it, `[SKIP]` for every mailbox outside the served domains, a closing `[SUMMARY]` and `[DONE] rc=<n>`. When the unit stops, it removes the staged credentials. A re-run imports nothing twice: a message is skipped when its Message-ID, or without one its Date/From/To/Subject, is already in the target folder, and a Sieve script with unchanged content is left alone. The switch may therefore stay on across deploys; turn it off once Mailu is retired.
 5. Non-Cloudflare DNS: publish the new DKIM TXT record reported by the deploy; MX and A records keep their hostname.
 
-The cutover is covered end to end by [`files/test/test.sh`](files/test/test.sh), which runs as this role's CLI test whenever `web-app-mailu` is co-deployed — matrix **variant 1**, the round where SSO is off, because the import authenticates with per-account passwords. The whole scenario runs inside the deployed host and needs nothing from the environment around it: it stores mail in both directions in the legacy Mailu, confirms it landed in the maildir volume, runs [`files/python/migrate_from_mailu.py`](files/python/migrate_from_mailu.py) — the same script and argv a real cutover uses — and then asserts over IMAP that the stored mail survived and that live mail still flows. No redeploy is involved; the cutover is a docker-level data move.
+A `mailbox_map` entry merges a Mailu mailbox into another account instead of creating its own:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        migration:
+          import_mailu: true
+          mailbox_map:
+            - source: alice@example.org
+              target: alice.smith@example.org
+```
+
+The source's folders merge into the target's folders under the same Message-ID dedup, and its active Sieve script is imported as `<source local part>-<script name>` and activated after the target's own. Declare the source address as an alias of the target so its mail keeps arriving. A target outside the served domains fails the import before anything is written, and a mailbox whose address is an alias but not mapped is reported as failed.
+
+Not migrated: CalDAV/CardDAV data, Mailu's own forward and autoreply settings (declare forwards in the inventory) and Mailu's fetchmail jobs. Stalwart v0.16 has no fetcher for external IMAP or POP3 accounts; replace such a job with forwarding at the external provider.
+
+The cutover is covered end to end by [`files/test/test.sh`](files/test/test.sh), which runs as this role's CLI test whenever `web-app-mailu` is co-deployed in compose. The whole scenario runs inside the deployed host and needs nothing from the environment around it: it stores mail in both directions in the legacy Mailu, seeds a mailbox that is no inventory user (with a subfolder, flags, a fixed internal date and an active Sieve script), a mailbox in a domain Stalwart does not serve and, in matrix **variant 1**, a mapped mailbox, runs [`files/python/migrate_from_mailu.py`](files/python/migrate_from_mailu.py) with the argv a real cutover uses, and asserts over IMAP and JMAP that everything arrived where it belongs, that the Sieve script files new mail, that the foreign domain was not created and that a second run imports nothing. No redeploy is involved; the cutover is a docker-level data move.
+
+## Aliases and Forwards
+
+Aliases and per-account forwards are declared under `services.stalwart` and provisioned on every deploy, in compose and in swarm:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        aliases:
+          - address: "@example.org"
+            destinations: [alice.smith@example.org]
+          - address: team@example.org
+            destinations: [alice.smith@example.org, bob@example.net]
+        forwards:
+          - address: carol@example.org
+            destinations: [carol@example.net]
+```
+
+- The address `@<domain>` is that domain's catch-all. It takes exactly one destination, which becomes the domain's catch-all address.
+- Every other alias becomes a Stalwart mailing list described as `Infinito.Nexus alias`. The role creates, updates and removes only lists with that description; lists created in WebAdmin stay untouched, and declaring an address such a list already holds fails the deploy.
+- Destinations may lie outside the served domains; Stalwart relays those copies.
+- Alias domains must be served by Stalwart.
+- A forward keeps the message in the account and sends a copy to every destination. The role writes the Sieve script `infinito-forward` (`redirect :copy`) into the account and activates it; a user script that was active is chained through `include`, so personal filters keep working. Removing a forward from the inventory leaves the script in place; delete `infinito-forward` in the account's filter settings to stop it. The role raises the user-script limits `maxRedirects` and `maxOutMessages` to the widest forward.
+
+[`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward and waits until each destination inside the mail domain holds its copy. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
 
 ## Verifying a production server
 

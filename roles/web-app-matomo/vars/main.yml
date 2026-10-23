@@ -6,7 +6,11 @@ entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
-MATOMO_CONFIG: "/var/www/html/config/config.ini.php"
+MATOMO_HTML_DIR: "{{ lookup('volume', application_id, 'data').target }}"
+MATOMO_RELEASE_DIR: "/usr/src/matomo"
+MATOMO_RUNTIME_OWNER: "www-data:www-data"
+MATOMO_CONFIG: "{{ [MATOMO_HTML_DIR, 'config/config.ini.php'] | path_join }}"
+MATOMO_CONSOLE: "{{ [MATOMO_HTML_DIR, 'console'] | path_join }}"
 MATOMO_SERVICE_URL: "http://{{ MATOMO_SERVICE }}"
 
 MATOMO_BOOTSTRAP_SERVICE: "bootstrap"

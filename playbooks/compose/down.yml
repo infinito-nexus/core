@@ -1,0 +1,40 @@
+---
+- name: "🛑 Shut down every compose stack"
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    compose_dir: "{{ DIR_COMPOSITIONS }}"
+  tasks:
+    - name: "🔍 Find compose stacks in '{{ compose_dir }}'"
+      ansible.builtin.find:
+        paths: "{{ compose_dir }}"
+        patterns:
+          - compose.yml
+          - docker-compose.yml
+        recurse: true
+        depth: 2
+      register: compose_down_files
+
+    - name: "🛑 compose down"
+      ansible.builtin.command:
+        argv:
+          - "{{ BIN_COMPOSE }}"
+          - --chdir
+          - "{{ item.path | dirname }}"
+          - down
+      loop: "{{ compose_down_files.files | selectattr('path', 'search', '/compose\\.yml$') | list }}"
+      loop_control:
+        label: "{{ item.path | dirname | basename }}"
+
+    - name: "🛑 docker compose down (legacy docker-compose.yml)"
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - down
+          - --remove-orphans
+        chdir: "{{ item.path | dirname }}"
+      loop: "{{ compose_down_files.files | selectattr('path', 'search', '/docker-compose\\.yml$') | list }}"
+      loop_control:
+        label: "{{ item.path | dirname | basename }}"

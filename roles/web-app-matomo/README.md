@@ -17,6 +17,7 @@ This role deploys Matomo using Docker, automating the setup of your analytics pl
 - **Administrator Password:** The superuser password converges to the configured administrator's password on every deploy.
 - **Corporate Design:** The InfinitoDesign theme plugin maps Matomo's theme colors onto the design tokens and ships the logo set; the administrator and the login page follow the browser color scheme. Both are removed when `design` is off.
 - **Scalable Deployment:** Use Docker to ensure your analytics platform can grow with your traffic demands.
+- **Version Upgrades:** When the pinned image ships a newer Matomo than the data volume holds, the deploy installs that release into the volume, keeps `config/config.ini.php`, `misc/user/` and Marketplace plugins, and runs `core:update`; a volume newer than the image stops the deploy.
 
 ## Further Resources
 

@@ -17,6 +17,7 @@
       tar -cf {{ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE | quote }}
       -C {{ lookup('path_absolute', 'roles/test-e2e-playwright/files/personas') | quote }} .
   delegate_to: localhost
+  become: false
   changed_when: false
 
 - name: ✅ Ensure the shared personas dir exists

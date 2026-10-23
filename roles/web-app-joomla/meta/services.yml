@@ -44,6 +44,13 @@ joomla:
       enabled: true
   image: joomla
   version: 6.1.4-php8.3-apache
+  upgrade:
+    bridges:
+      - version: 5.4.9
+        sha256: 7840541ae606bd460d4bf3647c977699af279c229f708756c78a2dcc06cfc8cf
+        plugins:
+          behaviour/compat: false
+          behaviour/compat6: true
   custom: true
   name: joomla
   min_storage: 478MB

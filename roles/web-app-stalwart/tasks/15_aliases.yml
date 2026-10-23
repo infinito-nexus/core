@@ -1,0 +1,46 @@
+---
+- name: "📖 List the Stalwart domains the aliases live in"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Domain/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Record the Stalwart domains"
+  ansible.builtin.set_fact:
+    stalwart_alias_domains: "{{ stalwart_jmap.methodResponses[0][1].list }}"
+
+- name: "📖 List the Stalwart mailing lists"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MailingList/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Plan the alias changes"
+  ansible.builtin.set_fact:
+    stalwart_alias_plan: >-
+      {{ STALWART_ALIASES | stalwart_alias_plan(stalwart_alias_domains,
+         stalwart_jmap.methodResponses[0][1].list, STALWART_ALIAS_DESCRIPTION) }}
+
+- name: "📁 Create, update and retire the alias mailing lists"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MailingList/set', {
+            'create': stalwart_alias_plan['create'],
+            'update': stalwart_alias_plan['update'],
+            'destroy': stalwart_alias_plan['destroy']}, 'c0']]} | to_json }}
+  when: >-
+    (stalwart_alias_plan['create'] | length > 0)
+    or (stalwart_alias_plan['update'] | length > 0)
+    or (stalwart_alias_plan['destroy'] | length > 0)
+
+- name: "📁 Point the declared catch-all addresses"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Domain/set', {'update': stalwart_alias_plan['domains']}, 'c0']]} | to_json }}
+  when: stalwart_alias_plan['domains'] | length > 0

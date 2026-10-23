@@ -13,6 +13,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       wget \
       curl \
       unzip \
+      zip \
       libpng-dev \
       libzip-dev \
       libicu-dev \

@@ -29,6 +29,13 @@ PEERTUBE_DESIGN_THEME:
   HEADER_FOREGROUND_COLOR: "--design-text"
   HEADER_BACKGROUND_COLOR: "--design-surface-1"
 
+PEERTUBE_RELEASE: "{{ lookup('config', application_id, 'services.peertube.version') | peertube_release }}"
+PEERTUBE_RELEASE_MARKER: "{{ [lookup('container', application_id, 'directories.instance'), 'peertube.release'] | path_join }}"
+PEERTUBE_ASSETS_DIR: "{{ lookup('volume', application_id, 'assets').target }}"
+PEERTUBE_MIGRATION_SCRIPTS_DIR: "dist/scripts/migrations"
+# Health polls of 5 s while the server migrates existing data.
+PEERTUBE_MIGRATION_HEALTH_RETRIES: 360
+
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 

@@ -14,6 +14,7 @@ from utils.tls_common import (
     is_onion_domain,
     norm_domain,
     override_san_list,
+    redirect_targets,
     require,
     resolve_app_id_from_domain,
     resolve_enabled,
@@ -131,6 +132,47 @@ class TestTlsCommon(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             resolve_term(
                 "x", domains=self.domains, forced_mode="invalid", err_prefix="t"
+            )
+
+    def test_resolve_term_redirect_source_resolves_to_target(self):
+        app_id, primary = resolve_term(
+            "B-Auto.Example",
+            domains=self.domains,
+            applications={},
+            redirects=redirect_targets(
+                {
+                    "CURRENT_PLAY_REDIRECT_DOMAINS": [
+                        {"source": "b-auto.example", "target": "B.example"}
+                    ]
+                }
+            ),
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual(app_id, "web-app-b")
+        self.assertEqual(primary, "b.example")
+
+    def test_resolve_term_unknown_domain_still_fails_without_redirect(self):
+        for variables in ({}, {"CURRENT_PLAY_REDIRECT_DOMAINS": None}):
+            with self.assertRaises(AnsibleError):
+                resolve_term(
+                    "b-auto.example",
+                    domains=self.domains,
+                    applications={},
+                    redirects=redirect_targets(variables),
+                    forced_mode="auto",
+                    err_prefix="t",
+                )
+
+    def test_resolve_term_redirect_takes_one_hop_only(self):
+        with self.assertRaises(AnsibleError):
+            resolve_term(
+                "one.example",
+                domains=self.domains,
+                applications={},
+                redirects={"one.example": "two.example", "two.example": "b.example"},
+                forced_mode="auto",
+                err_prefix="t",
             )
 
     def test_resolve_enabled_and_mode(self):

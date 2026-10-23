@@ -1,20 +1,4 @@
 ---
-- name: ✅ Ensure RBAC client scope exists
-  shell: |
-    cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} create client-scopes -r {{ KEYCLOAK_REALM }} -f -
-    {{
-      (
-        KEYCLOAK_DICTIONARY_REALM.clientScopes
-        | selectattr('name','equalto', KEYCLOAK_RBAC_GROUP_CLAIM)
-        | list | first
-      ) | to_json
-    }}
-    JSON
-  register: create_rbac_scope
-  changed_when: create_rbac_scope.rc == 0
-  failed_when: create_rbac_scope.rc != 0 and ('already exists' not in (create_rbac_scope.stderr | lower))
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
 - name: ⬇️ Get all client scopes
   shell: "{{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --format json"
   register: all_scopes

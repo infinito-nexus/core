@@ -23,6 +23,30 @@ OPENPROJECT_SEEDER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~
 OPENPROJECT_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
 OPENPROJECT_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.proxy.name') }}"
 OPENPROJECT_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
+OPENPROJECT_APP_CONTAINERS:
+  - "{{ OPENPROJECT_WEB_CONTAINER }}"
+  - "{{ OPENPROJECT_WORKER_CONTAINER }}"
+  - "{{ OPENPROJECT_CRON_CONTAINER }}"
+  - "{{ OPENPROJECT_SEEDER_CONTAINER }}"
+
+OPENPROJECT_DATABASE_PSQL: >-
+  container exec -i {{ lookup('database', application_id, 'address') }}
+  psql -U {{ lookup('database', application_id, 'username') }} -d {{ lookup('database', application_id, 'name') }}
+  -v ON_ERROR_STOP=1 -tA
+OPENPROJECT_DATA_VOLUME_NAME: "{{ lookup('volume', application_id, 'data').name }}"
+OPENPROJECT_DATA_VOLUME_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
+OPENPROJECT_UPGRADE_RUN:
+  - container
+  - run
+  - --rm
+  - --name
+  - "{{ entity_name }}-upgrade"
+  - --env-file
+  - "{{ lookup('container', application_id, 'files.env') }}"
+  - --network
+  - "{{ lookup('database', application_id, 'network') }}"
+  - --mount
+  - "type=volume,src={{ OPENPROJECT_DATA_VOLUME_NAME }},dst={{ OPENPROJECT_DATA_VOLUME_TARGET }}"
 
 OPENPROJECT_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 OPENPROJECT_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"

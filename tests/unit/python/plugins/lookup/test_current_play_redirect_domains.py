@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from plugins.lookup.current_play_redirect_domains import LookupModule
+from utils.cache.applications import get_application_defaults
 from utils.domains.default_primary import default_domain_primary
 
 DOMAIN = default_domain_primary()
@@ -114,11 +115,9 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm = self._make_lookup()
         apps = {
             "web-app-foo": {
-                "server": {
-                    "domains": {
-                        "canonical": ["foo.example.com"],
-                        "aliases": ["alt-foo.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["foo.example.com"],
+                    "aliases": ["alt-foo.example.com"],
                 }
             }
         }
@@ -133,15 +132,24 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
         )
 
+    def test_auto_alias_built_from_the_merged_role_domains(self):
+        lm = self._make_lookup()
+        apps = {"web-app-keycloak": get_application_defaults()["web-app-keycloak"]}
+        variables = {"DOMAIN_PRIMARY": "example.org", "AUTO_BUILD_ALIASES": True}
+        with self._patch_lookups(deployed=[], current_play_apps=apps):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertIn(
+            {"source": "keycloak.example.org", "target": "auth.example.org"},
+            result,
+        )
+
     def test_user_mapping_overrides_per_app_mapping_on_same_source(self):
         lm = self._make_lookup()
         apps = {
             "web-app-foo": {
-                "server": {
-                    "domains": {
-                        "canonical": ["foo.example.com"],
-                        "aliases": ["alt.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["foo.example.com"],
+                    "aliases": ["alt.example.com"],
                 }
             }
         }
@@ -165,11 +173,9 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm = self._make_lookup()
         apps = {
             "web-app-foo": {
-                "server": {
-                    "domains": {
-                        "canonical": ["foo.example.com"],
-                        "aliases": ["alt-foo.example.com"],
-                    }
+                "domains": {
+                    "canonical": ["foo.example.com"],
+                    "aliases": ["alt-foo.example.com"],
                 }
             }
         }

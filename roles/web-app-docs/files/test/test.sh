@@ -3,6 +3,9 @@
 #
 # Env (templates/test.env.j2):
 #   DOCS_TEST_BASE_URL   documentation service on this host
+#   DOCS_TEST_COUNTRY    value for the <your-country> placeholder; a real
+#                        country, because the group default is a placeholder
+#                        no country list resolves and the deploy would abort
 #   DOCS_TEST_DNS        value for the <your-clearnet-resolver> placeholder
 #   DOCS_TEST_DOMAIN     value for the <your-domain> placeholder
 #   DOCS_TEST_MODE       deployment mode; the instructions describe compose
@@ -17,6 +20,7 @@ set -euo pipefail
 : "${DOCS_TEST_MODE:?}"
 : "${DOCS_TEST_TIMEOUT:?}"
 : "${DOCS_TEST_DOMAIN:?}"
+: "${DOCS_TEST_COUNTRY:?}"
 
 if [ "${DOCS_TEST_MODE}" != "compose" ]; then
 	echo "SKIP: the published instructions describe a compose deployment;"
@@ -55,5 +59,6 @@ sed -i "s#<your-ssh-public-key>#${DOCS_TEST_REPLAY_PUBKEY}#g" "${BLOCK}"
 sed -i "s#<your-ssh-private-key-file>#${REPLAY_KEY}#g" "${BLOCK}"
 sed -i "s#<your-domain>#${DOCS_TEST_DOMAIN}#g" "${BLOCK}"
 sed -i "s#<your-clearnet-resolver>#${DOCS_TEST_DNS:-}#g" "${BLOCK}"
+sed -i "s#<your-country>#${DOCS_TEST_COUNTRY}#g" "${BLOCK}"
 
 bash "${STAGE}/machine.sh" "${BLOCK}"

@@ -18,6 +18,7 @@
     path: "{{ item }}"
   register: _cli_asset_stats
   delegate_to: localhost
+  become: false
   run_once: true
   loop:
     - "{{ _cli_env_template }}"
@@ -76,6 +77,7 @@
     path: "{{ lookup('path_absolute', 'roles', application_id, 'defaults/main.yml') }}"
   register: _cli_app_defaults_stat
   delegate_to: localhost
+  become: false
   run_once: true
 
 - name: 📦 Load optional application defaults for {{ application_id }}
@@ -88,6 +90,7 @@
     path: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   register: _cli_app_vars_stat
   delegate_to: localhost
+  become: false
   run_once: true
 
 - name: 📦 Load optional application vars for {{ application_id }}

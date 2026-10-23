@@ -39,6 +39,15 @@ An addon resolves its tarball from `MEDIAWIKI_EXT_URL_PREFIX` plus its own id an
 
 `AWS` therefore carries the tag twice: in `version` (what the drift checker compares against the upstream catalog) and in `config.archive` (what the deploy downloads and what `tests/external/roles/test_pinned_addon_archives_available.py` probes). Move both in the same edit.
 
+## Version upgrades
+
+The `mediawiki_extensions` volume holds the extensions bundled with the image next to the installed addons, and Docker seeds it from the image only once. Every deploy therefore runs [refresh_extensions.sh](files/shell/refresh_extensions.sh) in a one-shot container of the pinned image before the addons are installed:
+
+- It compares `MEDIAWIKI_VERSION` of the image with the version recorded in `.infinito-mediawiki-version` in the volume.
+- A volume without the record whose bundled `extension.json` files equal the image's, such as one Docker just seeded, only gets the record.
+- On any other difference, including a patch release, it replaces the volume content with the image's bundled extensions and records the new version. The addons are then missing from the volume, so the addon install fetches them again from the `REL<major>_<minor>` branch of the new version and runs composer for them, and `update.php` runs afterwards.
+- A record newer than the image stops the deploy and leaves the volume untouched.
+
 ## AI editing assistant
 
 With `services.litellm.enabled`, `templates/LocalSettings.php.j2` loads `VisualEditor` (bundled in the image), `VisualEditorPlus` and `AIEditingAssistant`, then points the extension's `open-ai` provider at the in-cluster gateway:

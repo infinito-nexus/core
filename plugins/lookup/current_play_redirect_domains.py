@@ -57,7 +57,7 @@ def _per_app_redirect_mappings(
 
     canonical_map: dict[str, list[str]] = {}
     for app_id, cfg in apps.items():
-        domains_cfg = (cfg or {}).get("server", {}).get("domains", {}) or {}
+        domains_cfg = (cfg or {}).get("domains") or {}
         if "canonical" in domains_cfg:
             entry = render_domain_value(
                 domains_cfg["canonical"],
@@ -78,7 +78,7 @@ def _per_app_redirect_mappings(
 
     alias_map: dict[str, list[str]] = {}
     for app_id, cfg in apps.items():
-        domains_cfg = (cfg or {}).get("server", {}).get("domains", {})
+        domains_cfg = (cfg or {}).get("domains", {})
         if domains_cfg is None:
             alias_map[app_id] = []
             continue

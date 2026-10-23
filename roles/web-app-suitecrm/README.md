@@ -36,6 +36,7 @@ Role-level extensions are declared in `meta/addons/`, one file per addon:
 - **Workflow Engine:** Automate business processes and notifications 🛠️  
 - **LDAP Authentication:** Centralize user authentication against OpenLDAP 🔐  
 - **SSO-Ready:** SuiteCRM's own SAML login against Keycloak, configured declaratively from the rendered env 🌐  
+- **Pinned-Release Upgrades:** On boot, an installed SuiteCRM older than the pinned `app_version` is upgraded through SuiteCRM's own `suitecrm:app:upgrade` and `suitecrm:app:upgrade-finalize`, with the image's patched tree as the upgrade package; a tree newer than the pin stops the container ⬆️  
 - **Config via Templates:** Fully customizable `.env` and `compose.yml` rendered via Jinja2 ⚙️  
 - **Health Checks & Logging:** Integrates with Infinito.Nexus health checking and journald logging 📈  
 - **Modular Role Composition:** Uses shared roles for DB, proxy and monitoring to keep your stack consistent 🔄  

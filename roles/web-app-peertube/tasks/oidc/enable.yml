@@ -102,7 +102,7 @@
 - name: "🛑 Fail if the OIDC plugin registered but never built a client"
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container logs {{ PEERTUBE_LOCAL_CID | quote }} 2>&1 | grep -q 'Initial OpenID discovery failed'
+    container logs {{ PEERTUBE_LOCAL_CID | quote }} 2>&1 | grep -qE 'Initial OpenID discovery failed|Cannot load settings and create open id client'
   register: _peertube_oidc_discovery_failed
   failed_when: _peertube_oidc_discovery_failed.rc == 0
   changed_when: false

@@ -74,7 +74,7 @@
 - name: 🔧 set correct folder permissions
   command:
     cmd: "container run --rm --mount type=volume,src={{ MATRIX_SYNAPSE_VOLUME }},dst=/data -e SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }} -e SYNAPSE_REPORT_STATS=no
-      --entrypoint /bin/sh matrixdotorg/synapse:latest -c 'chown -vR {{ MATRIX_SYNAPSE_UID }}:{{ MATRIX_SYNAPSE_GID }} /data'"
+      --entrypoint /bin/sh {{ MATRIX_SYNAPSE_IMAGE }} -c 'chown -vR {{ MATRIX_SYNAPSE_UID }}:{{ MATRIX_SYNAPSE_GID }} /data'"
 
 - name: ➕ add compose.yml
   stack_host_template:

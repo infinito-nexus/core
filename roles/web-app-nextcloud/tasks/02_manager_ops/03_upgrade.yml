@@ -70,3 +70,22 @@
   retries: 3
   delay: 5
   until: occ_maint_off.rc == 0
+
+- name: 🔍 Nextcloud | Read occ status
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status --output=json"
+  register: occ_status
+  changed_when: false
+
+- name: ✅ Nextcloud | Verify occ status reports the pinned major
+  vars:
+    occ_status_state: "{{ occ_status.stdout | nextcloud_status }}"
+  assert:
+    that:
+      - (occ_status_state.versionstring | nextcloud_tag_major) == (NEXTCLOUD_VERSION_MAJOR | int)
+      - not (occ_status_state.needsDbUpgrade | bool)
+    fail_msg: >-
+      occ status reports {{ occ_status_state }}, the pinned image tag is {{ NEXTCLOUD_VERSION }}.
+    success_msg: >-
+      occ status reports Nextcloud {{ occ_status_state.versionstring }}, the pinned major
+      {{ NEXTCLOUD_VERSION_MAJOR }}.
+    quiet: false

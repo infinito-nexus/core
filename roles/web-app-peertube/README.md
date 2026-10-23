@@ -25,6 +25,9 @@ This Docker Compose deployment sets up PeerTube with integrated support for esse
 - **Federated Communication:**
   Designed to operate within a federated network, enabling seamless sharing and interconnection with other PeerTube instances.
 
+- **Automatic Upgrades:**
+  Detects the release the existing data was written by, runs the upstream migration scripts up to the pinned release and reseeds the client assets, see [Upgrade.md](./Upgrade.md).
+
 ## Addons
 
 Role-level extensions are declared in `meta/addons/`, one file per addon:

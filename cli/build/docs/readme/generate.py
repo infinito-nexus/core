@@ -76,6 +76,21 @@ def _app_name(preamble: str, role_name: str) -> str:
     return entity.replace("-", " ").title()
 
 
+def _role_yaml_mentions(role_dir, needle: str, *subdirs: str) -> bool:
+    """Whether a YAML file below one of the role's ``subdirs`` contains ``needle``.
+
+    Args:
+        role_dir: the role's directory.
+        needle: the text to look for, typically a variable path.
+        subdirs: role subdirectories to search, e.g. ``"tasks"``.
+    """
+    return any(
+        needle in read_text(str(path))
+        for subdir in subdirs
+        for path in sorted((role_dir / subdir).rglob("*.yml"))
+    )
+
+
 def _needs_clearnet_resolver(role_dir) -> bool:
     """Whether the role refuses to deploy without ``networks.internet.dns``.
 
@@ -83,9 +98,18 @@ def _needs_clearnet_resolver(role_dir) -> bool:
     role asserting it has to name it in the block an operator copies, or the
     documented deploy aborts on the assert.
     """
-    return any(
-        "networks.internet.dns" in read_text(str(path))
-        for path in sorted((role_dir / "tasks").rglob("*.yml"))
+    return _role_yaml_mentions(role_dir, "networks.internet.dns", "tasks")
+
+
+def _needs_service_provider_country(role_dir) -> bool:
+    """Whether the role deploys with ``service_provider.company.address.country``.
+
+    The group default is a placeholder no country list knows, so a role whose
+    tasks or vars consume it has to name it in the block an operator copies, or
+    the documented deploy aborts on the unknown country.
+    """
+    return _role_yaml_mentions(
+        role_dir, "service_provider.company.address.country", "tasks", "vars"
     )
 
 
@@ -112,6 +136,9 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
         "software_repository": SOFTWARE_REPOSITORY,
         "application_deploy_image": deploy_image(),
         "application_license": _software_license(role_dir),
+        "application_needs_service_provider_country": _needs_service_provider_country(
+            role_dir
+        ),
     }
 
 

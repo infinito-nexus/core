@@ -8,8 +8,28 @@ INSTALL_FLAG="${APP_DIR}/public/installed.flag"
 SEED_DIR="${SUITECRM_SEED_DIR:?SUITECRM_SEED_DIR must be baked into the image}"
 APP_VERSION="${SUITECRM_APP_VERSION:?SUITECRM_APP_VERSION must be baked into the image}"
 SEED_STAMP="${APP_DIR}/.tree-seeded"
+TREE_VERSION_FILE="${APP_DIR}/VERSION"
+UPGRADE_DIR="${APP_DIR}/tmp/package/upgrade"
+UPGRADE_PACKAGE="SuiteCRM-${APP_VERSION}"
 
 log() { printf '%s %s\n' "[suitecrm-entrypoint]" "$*" >&2; }
+
+version_lt() {
+  [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -n 1)" = "$1" ]
+}
+
+upgrade_tree() {
+  log "Upgrading the SuiteCRM tree from $1 to ${APP_VERSION}..."
+  rm -rf "$UPGRADE_DIR"
+  mkdir -p "$UPGRADE_DIR"
+  (cd "$SEED_DIR" && zip -q -r -0 "${UPGRADE_DIR}/${UPGRADE_PACKAGE}.zip" .)
+  php bin/console suitecrm:app:upgrade -n -t "$UPGRADE_PACKAGE"
+  echo "installed" > "$INSTALL_FLAG"
+  php bin/console suitecrm:app:upgrade-finalize -n -t "$UPGRADE_PACKAGE" -m keep
+  rm -rf "$UPGRADE_DIR"
+  find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name extensions -exec chown -R "$WEB_USER:$WEB_GROUP" {} +
+  log "SuiteCRM tree upgraded to $(cat "$TREE_VERSION_FILE")."
+}
 
 if [ ! -d "$APP_DIR" ]; then
   log "ERROR: Application directory '$APP_DIR' does not exist."
@@ -38,7 +58,7 @@ mkdir -p "$TMPDIR"
 chown "$WEB_USER:$WEB_GROUP" "$TMPDIR"
 chmod 775 "$TMPDIR"
 
-BOOT_LOCK="${APP_DIR}/.suitecrm-boot.lock.d"
+BOOT_LOCK="${TMPDIR}/.suitecrm-boot.lock.d"
 
 _have_lock=0
 _lock_tries=0
@@ -67,26 +87,25 @@ if [ "$_have_lock" = "1" ]; then
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true' EXIT
   trap 'rmdir "$BOOT_LOCK" 2>/dev/null || true; exit 143' TERM INT  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
-  if [ ! -f "$SEED_STAMP" ]; then
-    if [ -f "$INSTALL_FLAG" ]; then
-      log "Installed volume without seed stamp - marking as seeded, keeping the live tree."
-    else
-      log "Seeding SuiteCRM tree from ${SEED_DIR} into ${APP_DIR}..."
-      cp -a "${SEED_DIR}/." "${APP_DIR}/"
-      log "Seed complete."
-    fi
-    echo "$APP_VERSION" > "$SEED_STAMP"
-    chown "$WEB_USER:$WEB_GROUP" "$SEED_STAMP"
-  else
-    _seeded_version=$(cat "$SEED_STAMP")
-    if [ "$_seeded_version" = "seeded" ]; then
-      echo "$APP_VERSION" > "$SEED_STAMP"
-    elif [ "$_seeded_version" != "$APP_VERSION" ]; then
-      log "WARNING: volume tree is ${_seeded_version}, image ships ${APP_VERSION} - the tree is NOT re-seeded, upgrade it manually."
-    fi
-  fi
-
   CACHE_REFRESH=0
+  if [ -d "$UPGRADE_DIR" ] || [ -f "$INSTALL_FLAG" ]; then
+    _tree_version=$(cat "$TREE_VERSION_FILE")
+    if version_lt "$APP_VERSION" "$_tree_version"; then
+      log "ERROR: volume tree is ${_tree_version}, newer than the image's ${APP_VERSION}; SuiteCRM cannot downgrade, pin ${_tree_version} or later."
+      exit 1
+    fi
+    if [ -d "$UPGRADE_DIR" ] || [ "$_tree_version" != "$APP_VERSION" ]; then
+      upgrade_tree "$_tree_version"
+      CACHE_REFRESH=1
+    fi
+  elif [ ! -f "$SEED_STAMP" ]; then
+    log "Seeding SuiteCRM tree from ${SEED_DIR} into ${APP_DIR}..."
+    cp -a "${SEED_DIR}/." "${APP_DIR}/"
+    log "Seed complete."
+  fi
+  cat "$TREE_VERSION_FILE" > "$SEED_STAMP"
+  chown "$WEB_USER:$WEB_GROUP" "$SEED_STAMP"
+
   if [ ! -f "$INSTALL_FLAG" ]; then
     CACHE_REFRESH=1
     log "SuiteCRM 8 is not installed - performing automated installation..."
