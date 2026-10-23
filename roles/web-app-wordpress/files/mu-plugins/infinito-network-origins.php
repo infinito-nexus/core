@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
         return;
     }
     $origins = [];
-    foreach (preg_split('/\s+/', (string) getenv('INFINITO_NETWORK_BASE_URLS'), -1, PREG_SPLIT_NO_EMPTY) as $url) {
+    foreach (preg_split('/,/', (string) getenv('INFINITO_NETWORK_BASE_URLS'), -1, PREG_SPLIT_NO_EMPTY) as $url) {
         $origins[strtolower((string) parse_url($url, PHP_URL_HOST))] = rtrim($url, '/');
     }
     $host = strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
