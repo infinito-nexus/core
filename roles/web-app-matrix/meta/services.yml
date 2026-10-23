@@ -80,7 +80,7 @@ postgres:
 synapse:
   healthcheck:
     flavor: curl
-  version: v1.163.1
+  version: v1.163.2
   image: matrixdotorg/synapse
   name: matrix-synapse
   backup:
