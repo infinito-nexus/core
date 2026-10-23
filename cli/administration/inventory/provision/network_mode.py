@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 from utils.networks.reachability import NODE_MODES
 
-from .yaml_io import dump_yaml, load_yaml
+from .ruamel_io import dump_document, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -33,9 +33,7 @@ def apply_network_mode_from_env(host_vars_file: Path) -> None:
         raise SystemExit(
             f"network={raw!r} is unknown; expected {', '.join(NODE_MODES)}"
         )
-    data = load_yaml(host_vars_file) if host_vars_file.exists() else {}
-    if not isinstance(data, dict):
-        data = {}
-    data["NETWORK_MODE"] = raw
-    dump_yaml(host_vars_file, data)
+    document = load_document(host_vars_file)
+    document["NETWORK_MODE"] = raw
+    dump_document(host_vars_file, document)
     print(f"[INFO] network={raw!r} → NETWORK_MODE")
