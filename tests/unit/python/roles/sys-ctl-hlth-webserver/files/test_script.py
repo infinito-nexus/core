@@ -123,6 +123,17 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         )
         self.assertEqual(seen["clear.example.org"], ("https://clear.example.org", 10))
 
+    @patch("requests.head")
+    def test_output_stays_sorted_by_domain(self, mock_head):
+        mock_head.side_effect = lambda url, **_: _Response(200)
+
+        targets = {f"d{i:02d}.example.org": _target([200]) for i in reversed(range(40))}
+        exit_code, output = self._run_main(targets)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output.splitlines(), [f"d{i:02d}.example.org: OK" for i in range(40)]
+        )
+
     def _run_main(self, targets):
         buffer = io.StringIO()
         with redirect_stdout(buffer):

@@ -1,0 +1,23 @@
+{% set webserver_extra_configuration %}
+  listen {{ MATRIX_SYNAPSE_LISTEN_FLAGS }};
+  listen [::]:{{ MATRIX_SYNAPSE_LISTEN_FLAGS }};
+{% if MATRIX_CONFERENCING_ELEMENT_CALL %}
+
+  location ^~ {{ MATRIX_LIVEKIT_PATH }}/ {
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
+    {{ lookup('proxy_pass', application_id, 'matrix', 'http', tail='/', local_port=MATRIX_LIVEKIT_PORT, internal_port=MATRIX_LIVEKIT_CONTAINER_PORT) }}
+
+    proxy_http_version 1.1;
+    proxy_set_header   Upgrade    $proxy_upgrade;
+    proxy_set_header   Connection $connection_upgrade;
+    proxy_buffering    off;
+    proxy_read_timeout 1h;
+  }
+
+  location ^~ {{ MATRIX_LIVEKIT_JWT_PATH }}/ {
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
+    {{ lookup('proxy_pass', application_id, 'matrix', 'http', tail='/', local_port=MATRIX_LIVEKIT_JWT_PORT, internal_port=MATRIX_LIVEKIT_JWT_CONTAINER_PORT) }}
+  }
+{% endif %}
+{% endset %}
+{% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}

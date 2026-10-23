@@ -10,6 +10,7 @@ Args:
     --admin-file: JSON ``{"user": ..., "password": ...}`` of Stalwart's recovery administrator.
     --mailbox-map: JSON list ``[{"source": ..., "target": ...}]`` merging a mailbox into another account.
     --workers: IMAP sessions appending in parallel per mailbox.
+    --done-file: marker written once an import ends without a failure.
 """
 
 from __future__ import annotations
@@ -18,7 +19,6 @@ import argparse
 import base64
 import imaplib
 import json
-import re
 import ssl
 import sys
 import threading
@@ -29,6 +29,13 @@ from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from imap_layout import (
+    MigrationError,
+    destination_mailbox,
+    existing_keys,
+    imap_quote,
+    server_layout,
+)
 from mailu_maildir import (
     Mailbox,
     SieveScript,
@@ -38,7 +45,6 @@ from mailu_maildir import (
     iter_maildir_folders,
     iter_messages,
     maildir_flags_to_imap,
-    maildir_folder_to_imap,
     parse_mailbox_map,
     plan_imports,
     read_active_sieve,
@@ -46,18 +52,6 @@ from mailu_maildir import (
     sieve_script_name,
 )
 
-_SPECIAL_USE = {
-    "sent": "\\Sent",
-    "trash": "\\Trash",
-    "junk": "\\Junk",
-    "spam": "\\Junk",
-    "drafts": "\\Drafts",
-}
-_LIST_LINE = re.compile(
-    r'^\((?P<attributes>[^)]*)\) (?:"(?P<separator>[^"]*)"|NIL) (?P<name>.+)$'
-)
-_KEY_FETCH = "(BODY.PEEK[HEADER.FIELDS (MESSAGE-ID DATE FROM TO SUBJECT)])"
-_FETCH_CHUNK = 500
 _ADMIN_USING = ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"]
 _SIEVE_CAPABILITY = "urn:ietf:params:jmap:sieve"
 _SIEVE_USING = ["urn:ietf:params:jmap:core", _SIEVE_CAPABILITY]
@@ -66,10 +60,6 @@ _HTTP_TIMEOUT = 60
 _IMAP_TIMEOUT = 60
 _PROGRESS_EVERY = 1000
 _LOOPBACK_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-
-
-class MigrationError(RuntimeError):
-    pass
 
 
 @dataclass
@@ -89,74 +79,6 @@ class AccountStats:
 
     def total(self, attribute: str) -> int:
         return sum(getattr(f, attribute) for f in self.folders.values())
-
-
-@dataclass(frozen=True)
-class ServerLayout:
-    separator: str
-    special_use: dict[str, str]
-
-
-def imap_quote(value: str) -> str:
-    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def _imap_unquote(name: str) -> str:
-    if len(name) >= 2 and name[0] == name[-1] == '"':
-        return name[1:-1].replace('\\"', '"').replace("\\\\", "\\")
-    return name
-
-
-def server_layout(imap: imaplib.IMAP4) -> ServerLayout:
-    typ, lines = imap.list()
-    if typ != "OK":
-        raise MigrationError(f"LIST failed: {lines}")
-    separators: set[str] = set()
-    special_use: dict[str, str] = {}
-    for line in lines or []:
-        if not isinstance(line, bytes):
-            continue
-        match = _LIST_LINE.match(line.decode("utf-8", "replace"))
-        if not match:
-            continue
-        if match.group("separator"):
-            separators.add(match.group("separator"))
-        for attribute in match.group("attributes").split():
-            if attribute in _SPECIAL_USE.values():
-                special_use.setdefault(attribute, _imap_unquote(match.group("name")))
-    if len(separators) != 1:
-        raise MigrationError(f"cannot tell the hierarchy separator from LIST: {lines}")
-    return ServerLayout(separators.pop(), special_use)
-
-
-def destination_mailbox(maildir_name: str, layout: ServerLayout) -> str:
-    mailbox = maildir_folder_to_imap(maildir_name, layout.separator)
-    attribute = _SPECIAL_USE.get(mailbox.lower())
-    return layout.special_use.get(attribute, mailbox) if attribute else mailbox
-
-
-def existing_keys(imap: imaplib.IMAP4) -> set[str]:
-    """Dedup keys of the SELECTed folder, fetched client-side.
-
-    ``SEARCH HEADER`` is not used: Stalwart indexes headers asynchronously, so a
-    search right after APPEND misses fresh messages.
-    """
-    typ, nums = imap.search(None, "ALL")
-    if typ != "OK":
-        raise MigrationError(f"SEARCH failed: {nums}")
-    sequence = [n.decode() for n in (nums[0] or b"").split()] if nums else []
-    keys: set[str] = set()
-    for start in range(0, len(sequence), _FETCH_CHUNK):
-        chunk = ",".join(sequence[start : start + _FETCH_CHUNK])
-        typ, data = imap.fetch(chunk, _KEY_FETCH)
-        if typ != "OK":
-            raise MigrationError(f"FETCH of the dedup headers failed: {data}")
-        keys.update(
-            key
-            for part in data or []
-            if isinstance(part, tuple) and (key := dedup_key(part[1]))
-        )
-    return keys
 
 
 def append_messages(
@@ -488,11 +410,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--admin-file", required=True)
     parser.add_argument("--mailbox-map", required=True)
     parser.add_argument("--workers", type=int, required=True)
+    parser.add_argument("--done-file", required=True)
     return parser.parse_args(argv)
+
+
+def mark_done(done_file: Path, started: float) -> None:
+    done_file.write_text(f"{started:.0f}\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
     start = time.time()
-    rc = run(parse_args())
+    arguments = parse_args()
+    rc = run(arguments)
+    if rc == 0:
+        mark_done(Path(arguments.done_file), start)
     print(f"[DONE] rc={rc} in {time.time() - start:.1f}s")
     raise SystemExit(rc)

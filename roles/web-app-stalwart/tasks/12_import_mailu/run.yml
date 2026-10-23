@@ -53,6 +53,8 @@
           - "{{ STALWART_MAILBOX_MAP | to_json }}"
           - --workers
           - "{{ STALWART_IMPORT_WORKERS }}"
+          - --done-file
+          - "{{ STALWART_IMPORT_DONE_FILE }}"
       changed_when: true
   rescue:
     - name: "🧹 Remove the import working directory and its credentials" # nocheck: rescue-credentials the staged recovery administrator password would otherwise outlive a unit that never started, since only the unit's ExecStopPost removes it

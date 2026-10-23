@@ -12,6 +12,11 @@ DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 's
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
 DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
   string) ~ '/' }}"
+DASHBOARD_SIMPLEICONS_PROBE_URLS: >-
+  {{ dict(portfolio_cards | simpleicon_slugs
+          | zip(portfolio_cards | simpleicon_slugs
+                | map('regex_replace', '^', DASHBOARD_SIMPLEICONS_SYNC_URL_BASE)
+                | map('regex_replace', '$', '.svg'))) }}
 
 DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
 DASHBOARD_JS_FILES: >-

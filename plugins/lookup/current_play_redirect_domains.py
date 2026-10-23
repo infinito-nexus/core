@@ -118,6 +118,9 @@ def _per_app_redirect_mappings(
 class LookupModule(LookupBase):
     """Return CURRENT_PLAY_REDIRECT_DOMAINS as a list of {source,target} dicts.
 
+    A user-supplied mapping may be a wildcard ``*.<zone>`` and may carry
+    ``keep_path: false`` to drop the request URI from its 301.
+
     Merges, in order:
       1. user-supplied ``redirect_domain_mappings`` (if any)
       2. ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (skipped when equal);
@@ -211,7 +214,19 @@ class LookupModule(LookupBase):
         if not isinstance(user_mappings, list):
             user_mappings = []
 
-        merged = merge_mapping([], list(user_mappings), "source")
+        merged = merge_mapping(
+            [],
+            [
+                {
+                    **mapping,
+                    "source": self._resolve_str(mapping.get("source")),
+                    "target": self._resolve_str(mapping.get("target")),
+                }
+                for mapping in user_mappings
+                if isinstance(mapping, Mapping)
+            ],
+            "source",
+        )
 
         if domain_primary and domain_homepage:
             node_onion = self._node_onion(vars_)

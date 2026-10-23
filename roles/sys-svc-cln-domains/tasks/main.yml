@@ -8,14 +8,8 @@
       loop_control:
         loop_var: dependency_role
 
-    - name: 📂 Include task to remove deprecated nginx configs
-      include_tasks: remove_deprecated_nginx_configs.yml
-      loop: "{{ deprecated_domains }}"
-      loop_control:
-        loop_var: deprecated_domain
-        label: "{{ deprecated_domain }}"
-      vars:
-        domain: "{{ deprecated_domain }}"
+    - name: 📂 Include task to remove deprecated and unserved nginx configs
+      include_tasks: nginx_configs.yml
       when:
         - MODE_CLEANUP | bool
 

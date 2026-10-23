@@ -14,22 +14,21 @@
   set_fact:
     portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
 
-- name: "🖼️ Attach the Simple Icons brand logos to the cards"
+- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
+  uri_probe_batch:
+    urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"
+    method: HEAD
+    status_codes: [200, 404]
+    attempts: 3
+    delay: 2
+    timeout: "{{ lookup('timeout', 10) | int }}"
+    validate_certs: false
+    workers: 16
+  register: dashboard_simpleicons_probe
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  block:
-    - name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-      uri_retry:
-        url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
-        method: HEAD
-        status_code: [200, 404]
-        validate_certs: false
-      register: dashboard_simpleicons_probe
-      loop: "{{ portfolio_cards | simpleicon_slugs }}"
-      loop_control:
-        label: "{{ item }}"
-      delegate_to: "{{ STACK_HOST }}"
-      run_once: true
-      changed_when: false
+  changed_when: false
 
 - name: "📄 Render one Dashboard config per network"
   include_tasks: _instance_config.yml

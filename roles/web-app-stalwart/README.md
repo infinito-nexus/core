@@ -165,7 +165,7 @@ The provider cutover is an inventory change; mailbox data moves with it when the
    - keeps folders, flags, Dovecot keywords and internal dates; Mailu's `Sent`, `Trash`, `Junk`/`Spam` and `Drafts` land in the folders Stalwart marks with the matching special use,
    - imports the active Sieve script and activates it.
 
-   A host without Mailu's maildir volume gets a note that there is nothing to import. Otherwise the deploy starts the import as the transient unit `stalwart-mailu-import` and moves on; a deploy that finds the unit still running leaves it alone. Follow it with `journalctl -fu stalwart-mailu-import`: it logs `[PROGRESS]` every 1000 messages of a folder, one `[MAILBOX] <mailbox> -> <account>: found=<n> imported=<n> skipped=<n> failed=<n> sieve=<state>` line per mailbox, one line per folder below it, `[SKIP]` for every mailbox outside the served domains, a closing `[SUMMARY]` and `[DONE] rc=<n>`. When the unit stops, it removes the staged credentials. A re-run imports nothing twice: a message is skipped when its Message-ID, or without one its Date/From/To/Subject, is already in the target folder, and a Sieve script with unchanged content is left alone. The switch may therefore stay on across deploys; turn it off once Mailu is retired.
+   A host without Mailu's maildir volume gets a note that there is nothing to import. Otherwise the deploy starts the import as the transient unit `stalwart-mailu-import` and moves on; a deploy that finds the unit still running leaves it alone. Follow it with `journalctl -fu stalwart-mailu-import`: it logs `[PROGRESS]` every 1000 messages of a folder, one `[MAILBOX] <mailbox> -> <account>: found=<n> imported=<n> skipped=<n> failed=<n> sieve=<state>` line per mailbox, one line per folder below it, `[SKIP]` for every mailbox outside the served domains, a closing `[SUMMARY]` and `[DONE] rc=<n>`. When the unit stops, it removes the staged credentials. An import that ends with `[DONE] rc=0` leaves the marker `.mailu-import.done` in the Stalwart instance directory, and no later deploy starts the import again while it exists; delete the marker to import again. A failed import leaves no marker, so the next deploy repeats it, and the repeat imports nothing twice: a message is skipped when its Message-ID, or without one its Date/From/To/Subject, is already in the target folder, and a Sieve script with unchanged content is left alone. Turn the switch off once Mailu is retired.
 5. Non-Cloudflare DNS: publish the new DKIM TXT record reported by the deploy; MX and A records keep their hostname.
 
 A `mailbox_map` entry merges a Mailu mailbox into another account instead of creating its own:
@@ -214,6 +214,25 @@ applications:
 - A forward keeps the message in the account and sends a copy to every destination. The role writes the Sieve script `infinito-forward` (`redirect :copy`) into the account and activates it; a user script that was active is chained through `include`, so personal filters keep working. Removing a forward from the inventory leaves the script in place; delete `infinito-forward` in the account's filter settings to stop it. The role raises the user-script limits `maxRedirects` and `maxOutMessages` to the widest forward.
 
 [`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward and waits until each destination inside the mail domain holds its copy. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
+
+### Alias domains
+
+A legacy domain that only receives mail is declared under `services.stalwart.alias_domains`; `<local>@<source>` is then delivered to `<local>@<target>`:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        alias_domains:
+          - source: legacy.example
+            target: example.org
+```
+
+- The deploy sets the `rewrite` expression of Stalwart's RCPT stage to one `matches()` rule per alias domain and reads it back.
+- With Cloudflare as `DNS_PROVIDER`, the deploy points the MX record of every source at the mail hostname.
+- The source is not served by Stalwart and gets no DKIM key; it receives mail but sends none.
+- Removing every alias domain leaves the last rewrite in Stalwart; set the RCPT stage's rewrite back to `false` in WebAdmin.
 
 ## Verifying a production server
 

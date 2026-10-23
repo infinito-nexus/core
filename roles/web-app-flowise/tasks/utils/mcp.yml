@@ -62,7 +62,7 @@
   environment:
     FLOWISE_API_KEY: "{{ (flowise_mcp_identity.stdout_lines | last | from_json).api_key }}"
   register: flowise_mcp_registry
-  retries: 30
+  retries: "{{ 30 if MCP_RECONCILE_STRICT | bool else 0 }}"
   delay: 10
   until: flowise_mcp_registry.rc == 0
   failed_when: flowise_mcp_registry.rc != 0 and (MCP_RECONCILE_STRICT | bool)

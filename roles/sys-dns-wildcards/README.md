@@ -9,6 +9,7 @@ Examples:
 - c.wiki.example.com  -> parent: wiki.example.com -> creates: `*.wiki.example.com`
 - a.b.example.com     -> parent: b.example.com    -> creates: `*.b.example.com`
 - example.com (apex)  -> also creates: `*.example.com`
+- `*.legacy.example` in CURRENT_PLAY_DOMAINS_ALL, e.g. a wildcard redirect source -> also creates: `*.legacy.example` in the zone `legacy.example`
 
 ## Overview
 

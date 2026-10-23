@@ -30,6 +30,7 @@
     deploy_timers: >-
       {{
         deploy_timer_units.stdout_lines | default([])
+        | reject('search', ' masked')
         | map('split', ' ')
         | map('first')
         | list
@@ -44,30 +45,18 @@
 
 - name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} services"
   become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: stopped
+  ansible.builtin.command:
+    argv: "{{ ['systemctl', 'stop'] + deploy_services }}"
   register: deploy_stop_service
   retries: 5
   delay: 3
   until: deploy_stop_service is success
-  loop: "{{ deploy_services }}"
+  changed_when: true
   when: deploy_services | length > 0
 
-- name: "🚀 DEPLOY | Shut down the {{ SOFTWARE_DOMAIN }} timers"
+- name: "🚀 DEPLOY | Stop and disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
+  become: true
+  ansible.builtin.command:
+    argv: "{{ ['systemctl', 'disable', '--now'] + deploy_timers }}"
+  changed_when: true
   when: deploy_timers | length > 0
-  block:
-    - name: "🚀 DEPLOY | Stop all {{ SOFTWARE_DOMAIN }} timers (best-effort)"
-      become: true
-      ansible.builtin.systemd:
-        name: "{{ item }}"
-        state: stopped
-      loop: "{{ deploy_timers }}"
-
-    - name: "🚀 DEPLOY | Disable all {{ SOFTWARE_DOMAIN }} timers (keep unit files)"
-      become: true
-      ansible.builtin.systemd:
-        name: "{{ item }}"
-        enabled: false
-        state: stopped
-      loop: "{{ deploy_timers }}"

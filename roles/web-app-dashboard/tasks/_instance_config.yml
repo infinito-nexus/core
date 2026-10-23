@@ -7,9 +7,10 @@
   set_fact:
     portfolio_cards: >-
       {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | selectattr('status', 'equalto', 200)
-             | map(attribute='item')
+           dashboard_simpleicons_probe.status
+             | dict2items
+             | selectattr('value', 'equalto', 200)
+             | map(attribute='key')
              | list,
            DASHBOARD_SIMPLEICONS_URL_BASE) }}
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool

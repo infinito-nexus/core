@@ -55,8 +55,10 @@ stalwart:
   migration:
     import_mailu: false
     mailbox_map: []
+    workers: 0 # Parallel IMAP sessions of the import; 0 takes one fewer than the host's vCPUs, at most 8
   aliases: []
   forwards: []
+  alias_domains: []
   ban_period_seconds: 3600
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB

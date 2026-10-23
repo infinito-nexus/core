@@ -56,7 +56,7 @@ littlejs:
       http: 80
   run_after:
     - web-app-matomo
-  lifecycle: alpha
+  lifecycle: pre-alpha
   min_storage: 227MB
   cpus: "0.5"
   mem_reservation: 256m

@@ -4,6 +4,17 @@
 # it is where the unit STAYS when its docker.service dependency fails - hence the
 # docker= probe, without which a dead inner daemon burns the whole wait budget).
 # ActiveState matched via stdout_lines: 'ActiveState=active' is a substring of 'ActiveState=activating'.
+- name: "🔁 ansible-flavor: rerun a matrix-mdad bootstrap a prior deploy left failed"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS }}
+      sh -c 'systemctl is-failed --quiet matrix-mdad-bootstrap.service || exit 0;
+      systemctl reset-failed matrix-mdad-bootstrap.service;
+      systemctl start --no-block matrix-mdad-bootstrap.service;
+      echo restarted'
+  register: matrix_mdad_bootstrap_rerun
+  changed_when: "'restarted' in matrix_mdad_bootstrap_rerun.stdout"
+
 - name: "⏳ ansible-flavor: await matrix-mdad bootstrap oneshot (cold ~10-15min)"
   ansible.builtin.shell:
     cmd: >-
@@ -135,6 +146,26 @@
             matrix_mdad_password_update.rc != 0
             or 'UPDATE 1' not in matrix_mdad_password_update.stdout
 
+- name: "🔑 ansible-flavor: align the Jitsi component accounts with their passwords"
+  when:
+    - IS_STACK_HOST | bool
+    - MATRIX_JITSI_INTERNAL | bool
+  ansible.builtin.shell:
+    cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; Prosody keeps an account's first password, so a rotated secret needs the account recreated
+      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-jitsi-prosody sh -c
+      'prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
+      && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$2"'
+      _ {{ item.user | quote }} {{ item.password | quote }}
+  loop: "{{ MATRIX_JITSI_COMPONENT_ACCOUNTS }}"
+  loop_control:
+    label: "{{ item.user }}"
+  register: matrix_jitsi_component_accounts
+  retries: 12
+  delay: 5
+  until: matrix_jitsi_component_accounts.rc == 0
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🔀 front-proxy: Element web client"
   ansible.builtin.include_role:
     name: sys-stk-front-proxy
@@ -150,3 +181,33 @@
     domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
     http_port: "{{ MATRIX_SYNAPSE_PORT }}"
     proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+
+- name: "🔀 front-proxy: Synapse federation listener and Matrix RTC paths"
+  stack_host_template:
+    src: "flavor/ansible/synapse.conf.j2"
+    dest: "{{ lookup('nginx', 'files.domain', MATRIX_SYNAPSE_DOMAIN) }}"
+  vars:
+    domain: "{{ MATRIX_SYNAPSE_DOMAIN }}"
+    http_port: "{{ MATRIX_SYNAPSE_PORT }}"
+    proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+  notify: restart-openresty
+
+- name: "📁 front-proxy: create {{ MATRIX_WELL_KNOWN_DIRECTORY }}"
+  ansible.builtin.file:
+    path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
+    state: directory
+    mode: "0755"
+
+- name: "📁 front-proxy: create {{ MATRIX_WELL_KNOWN_FILE }}"
+  stack_host_template:
+    src: "well-known.j2"
+    dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
+
+- name: "🔀 front-proxy: Jitsi web"
+  ansible.builtin.include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ MATRIX_JITSI_DOMAIN }}"
+    http_port: "{{ MATRIX_JITSI_PORT }}"
+    proxy_internal_port: "{{ MATRIX_JITSI_CONTAINER_PORT }}"
+  when: MATRIX_JITSI_INTERNAL | bool

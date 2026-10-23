@@ -445,6 +445,17 @@ async function signInViaElement(page, username, password, personaLabel) {
   return signInViaElementPassword(page, username, password, personaLabel);
 }
 
+async function loginViaApi(request, username, password) {
+  const response = await request.post(`${matrixBaseUrl}/_matrix/client/v3/login`, {
+    data: { type: "m.login.password", identifier: { type: "m.id.user", user: username }, password },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+  expect(response.status(), `password login for ${username} must succeed`).toBe(200);
+  const session = await response.json();
+  return { ...session, auth: { Authorization: `Bearer ${session.access_token}` } };
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
@@ -483,5 +494,6 @@ module.exports = {
   signInViaElementOidc,
   signInViaElementPassword,
   signInViaElement,
+  loginViaApi,
   beforeEach,
 };

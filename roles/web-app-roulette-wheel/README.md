@@ -1,5 +1,7 @@
 # Roulette Wheel
 
+> **🧪 Pre-alpha:** set to pre-alpha for experimentation only. CI does not test this role.
+
 ## Description
 
 [Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser.

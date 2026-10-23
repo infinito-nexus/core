@@ -194,6 +194,25 @@ def redirect_targets(variables: dict) -> dict[str, str]:
     return {norm_domain(m["source"]): norm_domain(m["target"]) for m in mappings}
 
 
+def is_domain_term(term: str, forced_mode: str, *, err_prefix: str) -> bool:
+    """Tell whether a lookup term names a domain rather than an application id.
+
+    Args:
+        term: The lookup term.
+        forced_mode: "auto" (a dot makes it a domain), "domain" or "app".
+        err_prefix: Prefix of the error raised for an unknown mode.
+
+    Returns:
+        True when the term is a domain.
+    """
+    forced = as_str(forced_mode).lower()
+    if forced not in {"auto", "domain", "app"}:
+        raise AnsibleError(f"{err_prefix}: mode must be one of: auto, domain, app")
+    if forced == "auto":
+        return "." in as_str(term)
+    return forced == "domain"
+
+
 def resolve_term(
     term: str,
     *,
@@ -219,24 +238,14 @@ def resolve_term(
       2) If term is a domain and only exists in applications[*].domains -> map to app_id,
          and primary_domain = canonical primary from global domains mapping (first entry).
       3) If term is a domain found in neither but is a source in redirects (see
-         redirect_targets), such as an AUTO_BUILD_ALIASES alias -> resolve its target.
+         redirect_targets), such as an AUTO_BUILD_ALIASES alias -> resolve its target,
+         following a chain of redirects; a source is used once, so a cycle fails.
     """
     t = as_str(term)
     if not t:
         raise AnsibleError(f"{err_prefix}: term is empty")
 
-    forced = as_str(forced_mode).lower()
-    if forced not in {"auto", "domain", "app"}:
-        raise AnsibleError(f"{err_prefix}: mode must be one of: auto, domain, app")
-
-    if forced == "domain":
-        is_domain = True
-    elif forced == "app":
-        is_domain = False
-    else:
-        is_domain = "." in t
-
-    if is_domain:
+    if is_domain_term(t, forced_mode, err_prefix=err_prefix):
         try:
             app_id_legacy = resolve_app_id_from_domain(
                 domains, t, err_prefix=err_prefix
@@ -268,6 +277,11 @@ def resolve_term(
                 target,
                 domains=domains,
                 applications=applications,
+                redirects={
+                    source: dest
+                    for source, dest in (redirects or {}).items()
+                    if source != norm_domain(t)
+                },
                 forced_mode="domain",
                 err_prefix=err_prefix,
             )

@@ -106,14 +106,25 @@ STALWART_IMPORT_DIR: "{{ [ lookup('container', application_id, 'directories.inst
 STALWART_IMPORT_SCRIPTS:
   - migrate_from_mailu.py
   - mailu_maildir.py
+  - imap_layout.py
 STALWART_IMPORT_ADMIN_FILE: "{{ [ STALWART_IMPORT_DIR, 'admin.json' ] | path_join }}"
 STALWART_IMPORT_UNIT: "stalwart-mailu-import"
-STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart.migration.workers', '') or ([[RESOURCE_HOST_CPUS | int - 1, 1] | max, 8] | min) }}" # parallel IMAP sessions of the import; unset takes one fewer than the host's vCPUs, at most 8
+STALWART_IMPORT_DONE_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), '.mailu-import.done' ] | path_join }}"
+STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart.migration.workers') or ([[RESOURCE_HOST_CPUS | int - 1, 1] | max, 8] | min) }}"
 
 STALWART_ALIASES: "{{ lookup('config', application_id, 'services.stalwart.aliases') | stalwart_aliases }}"
 STALWART_ALIAS_DESCRIPTION: "Infinito.Nexus alias"
 STALWART_FORWARDS: "{{ lookup('config', application_id, 'services.stalwart.forwards') | stalwart_forwards }}"
 STALWART_FORWARD_SCRIPT_NAME: "infinito-forward"
+STALWART_ALIAS_DOMAINS: "{{ lookup('config', application_id, 'services.stalwart.alias_domains') }}"
+STALWART_RCPT_REWRITE: "{{ STALWART_ALIAS_DOMAINS | stalwart_rcpt_rewrite }}"
+STALWART_ALIAS_DOMAIN_MX_RECORDS: >-
+  {%- set records = [] -%}
+  {%- for alias_domain in STALWART_ALIAS_DOMAINS -%}
+  {%- set _ = records.append({'type': 'MX', 'zone': alias_domain.source | to_zone, 'name': alias_domain.source,
+                              'solo': true, 'value': STALWART_HOSTNAME, 'priority': 10}) -%}
+  {%- endfor -%}
+  {{ records }}
 
 STALWART_PRODUCTION_HOST: "{{ MAIL_PRODUCTION_HOST | trim }}"
 STALWART_PRODUCTION_RESOLVER: "{{ MAIL_PRODUCTION_RESOLVER | trim }}"

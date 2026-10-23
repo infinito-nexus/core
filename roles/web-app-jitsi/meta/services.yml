@@ -48,7 +48,7 @@ javascript:
   bond: 1
   enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
-# nocheck: playwright-service-flag  self-provider
+# nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 jitsi:
   bond: 1
   enabled: true

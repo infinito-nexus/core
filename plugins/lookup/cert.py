@@ -20,6 +20,8 @@ from utils.tls_common import (
     AVAILABLE_FLAVORS,
     as_str,
     collect_domains_for_app,
+    is_domain_term,
+    norm_domain,
     override_san_list,
     redirect_targets,
     require,
@@ -33,6 +35,7 @@ from utils.tls_common import (
 
 LE_FULLCHAIN = "fullchain.pem"
 LE_PRIVKEY = "privkey.pem"
+PER_DOMAIN_LIVE_FLAVORS = frozenset({"san", "dedicated"})
 
 
 def _join(*parts: Any) -> str:
@@ -144,7 +147,14 @@ class LookupModule(LookupBase):
                 err_prefix="cert",
             )
 
-            le_name = resolve_le_name(app, primary_domain)
+            flavor = as_str(require(variables, "CERTBOT_FLAVOR", str))
+            le_domain = (
+                norm_domain(term)
+                if flavor in PER_DOMAIN_LIVE_FLAVORS
+                and is_domain_term(term, forced_mode, err_prefix="cert")
+                else primary_domain
+            )
+            le_name = resolve_le_name(app, le_domain)
             cert_id = le_name
 
             cert_file = _join(le_live, le_name, LE_FULLCHAIN)

@@ -1,4 +1,4 @@
 ---
 canonical:
-  - bbb.talk.{{ DOMAIN_PRIMARY }}
+  - bbb.call.{{ DOMAIN_PRIMARY }}
 aliases: []

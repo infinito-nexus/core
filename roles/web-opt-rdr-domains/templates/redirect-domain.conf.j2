@@ -10,6 +10,6 @@ server {
   {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
   {% endif %}
   location / {
-    return 301 {{ lookup('tls', application_id, 'protocols.web') }}://{{ _target.host }}$request_uri;
+    return 301 {{ lookup('tls', application_id, 'protocols.web') }}://{{ _target.host }}{{ '$request_uri' if keep_path | bool else '' }};
   }
 }

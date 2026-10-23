@@ -10,6 +10,8 @@
 # homeserver cannot pair with it. The hookshot bridges and Element's jitsi
 # conferencing are therefore driven from a clearnet homeserver origin; variant 0
 # pairs the onion with SSO.
+#
+# nocheck: clearnet-variant-tor — on an onion pick MATRIX_ONION_PRIMARY drops Jitsi and Element Call from Element, so no clearnet call surface is advertised
 
 - services:
     docs:
