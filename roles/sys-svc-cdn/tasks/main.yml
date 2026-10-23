@@ -22,11 +22,10 @@
     handler_role_name: "{{ handler_role }}"
 
 - name: ✅ Ensure CDN directories exist
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-  loop: "{{ CDN_ROLE_DIRS }}"
+  ansible.builtin.command:
+    argv: "{{ ['install', '-d', '-m', '0755'] + CDN_ROLE_DIRS }}"
+  changed_when: false
+  when: CDN_ROLE_DIRS | length > 0
 
 - name: ✅ Ensure 'latest' symlink points to current release
   file:
