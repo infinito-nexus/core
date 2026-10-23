@@ -5,6 +5,7 @@ no inventory-level `applications.<app>` override is set."""
 
 import os
 import sys
+import tempfile
 import textwrap
 import unittest
 from pathlib import Path
@@ -305,7 +306,7 @@ class TestReadonlyVariants(unittest.TestCase):
 
     def setUp(self) -> None:
         _reset_cache_for_tests()
-        self.tmp = Path(os.environ.get("TMPDIR", "/tmp")) / "readonly-variants-roles"
+        self.tmp = Path(tempfile.gettempdir()) / "readonly-variants-roles"
         _write_role(
             self.tmp,
             "web-app-one",
