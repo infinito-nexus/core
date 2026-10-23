@@ -48,6 +48,22 @@ pulls them from a Flatpak remote::
 named after the application id, not after the binary inside it, so without
 this key a role calling ``blender`` finds nothing on PATH.
 
+``source: download`` fetches one vendor artefact and installs it locally,
+for a vendor that publishes a ``.deb`` or ``.rpm`` but runs no repository::
+
+    cursor:
+      Debian:
+        source: download
+        names: [cursor]
+        download:
+          url: https://downloads.cursor.com/.../cursor_3.27.6_amd64.deb
+          checksum: sha256:cf5f44...
+
+``names`` is what the artefact installs as, so removal still goes through
+the package manager. ``checksum`` is mandatory: the URL alone would install
+whatever the vendor serves today, and a mismatch must abort the fetch
+rather than reach the package manager.
+
 A bare list is shorthand for ``{names: [...], source: repo}``. An empty
 list states that the package is deliberately not installed on that family,
 which counts as covered; a *missing* key is a coverage gap.
@@ -76,6 +92,7 @@ SOURCE_AUR = "aur"
 SOURCE_COPR = "copr"
 SOURCE_PPA = "ppa"
 SOURCE_BUILD = "build"
+SOURCE_DOWNLOAD = "download"
 SOURCE_FLATPAK = "flatpak"
 SOURCES: tuple[str, ...] = (
     SOURCE_REPO,
@@ -83,14 +100,20 @@ SOURCES: tuple[str, ...] = (
     SOURCE_COPR,
     SOURCE_PPA,
     SOURCE_BUILD,
+    SOURCE_DOWNLOAD,
     SOURCE_FLATPAK,
 )
 """How the names are acquired. ``repo`` is the distribution's own package
 manager; ``aur``, ``copr`` and ``ppa`` are the community managers Arch,
 Fedora and Ubuntu ship alongside it; ``build`` compiles from source where
-no manager carries the package at all; ``flatpak`` installs an application
-id from a Flatpak remote, which is the only upstream channel for much of
-the desktop set on EL."""
+no manager carries the package at all; ``download`` installs a checksum-
+pinned vendor artefact where the vendor publishes a package file but no
+repository; ``flatpak`` installs an application id from a Flatpak remote,
+which is the only upstream channel for much of the desktop set on EL."""
+
+DOWNLOAD_CHECKSUM_PREFIXES: tuple[str, ...] = ("sha256:", "sha512:")
+"""Digest algorithms strong enough to pin a vendor artefact. ``get_url``
+also accepts md5 and sha1, which a prefix check must keep out."""
 
 REPO_KEYS: frozenset[str] = frozenset(
     {
@@ -126,6 +149,7 @@ class PackageSpec:
     virtual: bool = False
     build: dict[str, Any] | None = None
     flatpak: dict[str, Any] | None = None
+    download: dict[str, Any] | None = None
 
 
 def _validate_repo(package_id: str, key: str, repo: Any, path: Path) -> None:
@@ -150,6 +174,42 @@ def _validate_build(
     if isinstance(build, dict) and not build.get("command"):
         raise PackagesShapeError(
             f"{path}: {package_id}.{key}.build must declare a 'command'."
+        )
+
+
+def _validate_download(
+    package_id: str, key: str, source: str, download: Any, path: Path
+) -> None:
+    if download is None:
+        if source == SOURCE_DOWNLOAD:
+            raise PackagesShapeError(
+                f"{path}: {package_id}.{key} declares source "
+                f"'{SOURCE_DOWNLOAD}' but no download block."
+            )
+        return
+    if source != SOURCE_DOWNLOAD:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key} declares a download block without "
+            f"source '{SOURCE_DOWNLOAD}'."
+        )
+    if not isinstance(download, dict):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.download must be a mapping, "
+            f"got {type(download).__name__}."
+        )
+    url = download.get("url")
+    if not isinstance(url, str) or not url.startswith("https://"):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.download.url must be an https URL."
+        )
+    checksum = download.get("checksum")
+    if not isinstance(checksum, str) or not checksum.startswith(
+        DOWNLOAD_CHECKSUM_PREFIXES
+    ):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.download.checksum must be one of "
+            f"{sorted(DOWNLOAD_CHECKSUM_PREFIXES)} followed by the digest; "
+            "without it the URL installs whatever the vendor serves today."
         )
 
 
@@ -210,7 +270,12 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
     build = value.get("build")
     _validate_build(package_id, key, source, build, path)
 
+    download = value.get("download")
+    _validate_download(package_id, key, source, download, path)
+
     flatpak = value.get("flatpak")
     _validate_flatpak(package_id, key, source, flatpak, path)
 
-    return PackageSpec(tuple(names), str(source), repo, virtual, build, flatpak)
+    return PackageSpec(
+        tuple(names), str(source), repo, virtual, build, flatpak, download
+    )

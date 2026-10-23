@@ -7,7 +7,9 @@ about the others.
 
 from __future__ import annotations
 
+from pathlib import PurePosixPath
 from typing import Any
+from urllib.parse import urlsplit
 
 from utils.packages.calls import (
     AUR_FETCH,
@@ -25,6 +27,14 @@ AUR_MAKEPKG_ARGS = "--skipinteg"
 """The AUR PKGBUILDs this project consumes carry a checksum on a git
 source, which makepkg can only reject; integrity rests on the pinned
 upstream tag fetched over HTTPS."""
+
+DOWNLOAD_CACHE_DIR = "/var/cache/infinito/packages"
+"""Where a pinned vendor artefact is kept: root-owned, so no other local
+account can pre-create the path between the checksum check and the
+install, and persistent, so a rerun matches the cached file and skips the
+transfer."""
+
+DOWNLOAD_CACHE_MODE = "0755"
 
 FLATPAK_PACKAGE = "flatpak"
 FLATPAK_METHOD = "system"
@@ -75,6 +85,71 @@ def build_calls(build: dict[str, Any]) -> list[ModuleCall]:
             {"cmd": build["command"], "creates": build.get("creates")},
             retry=EXTERNAL_FETCH,
         ),
+    ]
+
+
+def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCall]:
+    """Fetch the pinned vendor artefact, install it, confirm what it gave.
+
+    The cache directory is created first and owned by root, because a
+    world-writable one lets another account swap the file between the
+    checksum check and the install.
+
+    ``get_url`` compares the checksum before and after the transfer, so a
+    file the vendor has replaced fails the task instead of reaching the
+    package manager, and a cached file that still matches is not refetched.
+
+    The closing call names the declared packages. They are installed by
+    then, so it reaches no repository; it fails loudly when the artefact
+    registered under some other name, which would leave ``state: absent``
+    with nothing to remove.
+
+    Raises:
+        ValueError: the URL names neither a ``.deb`` nor an ``.rpm``, which
+            are the only artefacts a local install here can hand over.
+    """
+    url = str(download["url"])
+    artefact = PurePosixPath(urlsplit(url).path)
+    dest = f"{DOWNLOAD_CACHE_DIR}/{artefact.name}"
+
+    if artefact.suffix == ".deb":
+        install = ModuleCall("ansible.builtin.apt", {"deb": dest})
+    elif artefact.suffix == ".rpm":
+        install = ModuleCall(
+            "ansible.builtin.dnf",
+            # A vendor that runs no repository ships no signing key either, so
+            # dnf would reject every such rpm; the checksum is the control.
+            {"name": [dest], "state": STATE_PRESENT, "disable_gpg_check": True},
+        )
+    else:
+        raise ValueError(
+            f"download source cannot install a '{artefact.suffix}' artefact; "
+            "expected '.deb' or '.rpm'"
+        )
+
+    return [
+        ModuleCall(
+            "ansible.builtin.file",
+            {
+                "path": DOWNLOAD_CACHE_DIR,
+                "state": "directory",
+                "owner": "root",
+                "group": "root",
+                "mode": DOWNLOAD_CACHE_MODE,
+            },
+        ),
+        ModuleCall(
+            "ansible.builtin.get_url",
+            {
+                "url": url,
+                "dest": dest,
+                "checksum": download["checksum"],
+                "mode": "0644",
+            },
+            retry=EXTERNAL_FETCH,
+        ),
+        install,
+        package_call(names, STATE_PRESENT),
     ]
 
 

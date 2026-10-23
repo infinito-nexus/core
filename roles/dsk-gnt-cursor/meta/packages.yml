@@ -4,5 +4,17 @@ cursor:
     source: aur
     names:
       - cursor-bin
-  Debian: [] # nocheck: empty - Cursor ships only as a vendor AppImage and deb outside any Debian or Ubuntu archive; TODO: install the vendor build through a build source once its signature is pinned
-  RedHat: [] # nocheck: empty - Cursor ships no rpm and is carried by neither Fedora nor EPEL; TODO: install the vendor AppImage through a build source once its signature is pinned
+  Debian:
+    source: download
+    names:
+      - cursor
+    download:
+      url: https://downloads.cursor.com/production/f7119520544accb8dcf6d27119b9f1963d8ee5ae/linux/x64/deb/amd64/deb/cursor_3.27.6_amd64.deb
+      checksum: sha256:cf5f443556a5ac5cbf308eeae8f33e44ea34e5421a6910b1c34f977c2541e67f
+  RedHat:
+    source: download
+    names:
+      - cursor
+    download:
+      url: https://downloads.cursor.com/production/f7119520544accb8dcf6d27119b9f1963d8ee5ae/linux/x64/rpm/x86_64/cursor-3.27.6.el8.x86_64.rpm
+      checksum: sha256:f06d4f18f16a843fb94f9124692745857bc2e52ae8d33f26491fbf81b4072d02
