@@ -1,5 +1,7 @@
 # LittleJS
 
+> **🧪 Pre-alpha:** set to pre-alpha for experimentation only. CI does not test this role.
+
 ## Description
 
 **LittleJS** is a self-hosted web application that bundles the LittleJS engine, its official examples, and a minimal Infinito.Nexus launcher UI.

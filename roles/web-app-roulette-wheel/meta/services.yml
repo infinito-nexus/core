@@ -47,7 +47,7 @@ roulette-wheel:
       http: 8080
   run_after:
     - web-app-matomo
-  lifecycle: alpha
+  lifecycle: pre-alpha
 # nocheck: email
 # nocheck: dynamic-flag
 email:
