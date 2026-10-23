@@ -4,9 +4,6 @@
     name: sys-dns-cloudflare-records
   when: DNS_PROVIDER | lower == 'cloudflare'
   vars:
-    cloudflare_async_enabled: "{{ ASYNC_ENABLED |  bool }}"
-    cloudflare_async_time: "{{ ASYNC_TIME }}"
-    cloudflare_async_poll: "{{ ASYNC_POLL }}"
     cloudflare_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     cloudflare_records:
       - type: A
