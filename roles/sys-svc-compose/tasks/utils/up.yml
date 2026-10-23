@@ -23,6 +23,24 @@
     - compose_mode == 'compose'
   notify: compose-up
 
+- name: "🔍 Check for a compose up a failed run left pending"
+  ansible.builtin.stat:
+    path: "{{ COMPOSE_UP_PENDING_MARKER }}"
+  register: compose_up_pending
+  when: compose_mode == 'compose'
+
+- name: "🔔 Resume the compose up a failed run left pending"
+  ansible.builtin.debug:
+    msg: "{{ COMPOSE_UP_PENDING_MARKER }} is still present, so the last compose up never completed"
+  changed_when: true
+  notify:
+    - compose-build
+    - compose-up
+  when:
+    - compose_mode == 'compose'
+    - compose_up_pending.stat.exists
+    - compose_up_marker is not changed
+
 - name: "🔔 Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"
   ansible.builtin.debug:
     msg: "Triggering swarm stack deploy for {{ application_id }}"

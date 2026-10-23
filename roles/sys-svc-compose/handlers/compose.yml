@@ -115,3 +115,11 @@
   listen:
     - compose-up
     - container-recreate
+
+- name: "🧹 Clear the pending compose up marker"
+  ansible.builtin.file:
+    path: "{{ COMPOSE_UP_PENDING_MARKER }}"
+    state: absent
+  listen:
+    - compose-up
+    - container-recreate
