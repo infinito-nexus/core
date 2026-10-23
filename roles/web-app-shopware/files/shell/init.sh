@@ -114,6 +114,24 @@ if [ "$FIRST_INSTALL" -eq 1 ]; then
   : > "$MARKER"
 fi
 
+CODE_VERSION="$($PHP_BIN -r 'require "vendor/autoload.php"; echo \Composer\InstalledVersions::getVersion("shopware/core");')"
+[ -n "$CODE_VERSION" ] || fail "Cannot read the shopware/core version of the image"
+
+if [ "$FIRST_INSTALL" -eq 1 ]; then
+  $PHP_BIN bin/console system:config:set deployment.version "$CODE_VERSION"
+fi
+
+DATA_VERSION="$($PHP_BIN bin/console system:config:get deployment.version --format=scalar)"
+if [ "$DATA_VERSION" != "$CODE_VERSION" ]; then
+  log "Updating Shopware data from ${DATA_VERSION:-an unrecorded version} to ${CODE_VERSION}..."
+  $PHP_BIN bin/console cache:clear
+  $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console system:update:finish --skip-asset-build
+  $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console plugin:refresh
+  $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console plugin:update:all --skip-asset-build
+  $PHP_BIN bin/console system:config:set deployment.version "$CODE_VERSION"
+  log "Shopware data updated to ${CODE_VERSION}."
+fi
+
 log "Running database migrations..."
 $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console database:migrate --all
 $PHP_BIN -d memory_limit="$PHP_MEMORY_LIMIT" bin/console database:migrate-destructive --all

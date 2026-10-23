@@ -75,6 +75,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 - **Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation.
 - **Automated Setup & Maintenance:** Installs, migrates, and configures Shopware automatically.
+- **Version Upgrades:** When the image ships another Shopware than the version recorded in `deployment.version`, the init container runs `system:update:finish` and the plugin updates once, then records the new version.
 - **Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations.
 - **Centralized Database Access:** Connects seamlessly to the shared MariaDB service.
 - **Integrated Configuration:** Environment and Docker Compose variables managed automatically.

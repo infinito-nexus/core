@@ -48,14 +48,16 @@
     apply:
       delegate_to: "{{ ESPOCRM_HOST_NODE }}"
   when: config_file_exists.rc == 0
-- name: ▶️ Run EspoCRM upgrade
-  shell: |
+- name: "✅ Wait until the EspoCRM data reports the image version"
+  ansible.builtin.shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }} \
-      php command.php upgrade -y
-  register: espocrm_upgrade
-  changed_when: "'Upgrading' in espocrm_upgrade.stdout or 'successfully' in espocrm_upgrade.stdout"
-  failed_when: false
+      sh -c 'd="$(bin/command config:get version)"; printf "%s %s\n" "$d" "$ESPOCRM_VERSION"; test "$d" = "$ESPOCRM_VERSION"'
+  register: espocrm_versions
+  changed_when: false
+  until: espocrm_versions.rc == 0
+  retries: 90
+  delay: 10
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
 - name: ▶️ Run flag setter as root (fallback)
