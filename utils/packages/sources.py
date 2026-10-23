@@ -36,6 +36,11 @@ transfer."""
 
 DOWNLOAD_CACHE_MODE = "0755"
 
+RPM_GPG_CHECK_DISABLED = True
+"""A vendor that runs no repository ships no signing key either, so dnf
+would reject every artefact this source installs; the pinned checksum is
+what stands in for the signature."""
+
 DEB_CONTROL_TOOL = "xz-utils"
 """Cursor and its kind compress the deb control member with xz, which
 ``ansible.builtin.apt`` extracts through the ``xz`` binary rather than
@@ -124,9 +129,11 @@ def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCal
         prerequisites = []
         install = ModuleCall(
             "ansible.builtin.dnf",
-            # A vendor that runs no repository ships no signing key either, so
-            # dnf would reject every such rpm; the checksum is the control.
-            {"name": [dest], "state": STATE_PRESENT, "disable_gpg_check": True},
+            {
+                "name": [dest],
+                "state": STATE_PRESENT,
+                "disable_gpg_check": RPM_GPG_CHECK_DISABLED,
+            },
         )
     else:
         raise ValueError(
