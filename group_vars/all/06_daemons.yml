@@ -3,6 +3,7 @@
 
 # # Meta
 SYS_SERVICE_SUFFIX: ".{{ SOFTWARE_DOMAIN }}.service"
+SYS_SERVICE_VERSION_SUFFIX: ".{{ lookup('version') | lower }}.{{ SOFTWARE_DOMAIN }}"
 
 SYS_SERVICE_CLEANUP_BACKUPS: "{{ lookup('unit_name', 'sys-ctl-cln-bkps'            ) }}"
 SYS_SERVICE_CLEANUP_BACKUPS_FAILED: "{{ lookup('unit_name', 'sys-ctl-cln-faild-bkps'      ) }}"

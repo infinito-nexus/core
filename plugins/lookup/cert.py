@@ -21,6 +21,7 @@ from utils.tls_common import (
     as_str,
     collect_domains_for_app,
     is_domain_term,
+    is_onion_domain,
     norm_domain,
     override_san_list,
     redirect_targets,
@@ -28,6 +29,7 @@ from utils.tls_common import (
     resolve_enabled,
     resolve_le_name,
     resolve_mode,
+    resolve_primary_domain_from_app,
     resolve_term,
     uniq_preserve,
     want_get,
@@ -148,12 +150,15 @@ class LookupModule(LookupBase):
             )
 
             flavor = as_str(require(variables, "CERTBOT_FLAVOR", str))
-            le_domain = (
-                norm_domain(term)
-                if flavor in PER_DOMAIN_LIVE_FLAVORS
-                and is_domain_term(term, forced_mode, err_prefix="cert")
-                else primary_domain
-            )
+            domain_term = is_domain_term(term, forced_mode, err_prefix="cert")
+            if domain_term and is_onion_domain(term):
+                le_domain = norm_domain(
+                    resolve_primary_domain_from_app(domains, app_id, err_prefix="cert")
+                )
+            elif domain_term and flavor in PER_DOMAIN_LIVE_FLAVORS:
+                le_domain = norm_domain(term)
+            else:
+                le_domain = primary_domain
             le_name = resolve_le_name(app, le_domain)
             cert_id = le_name
 
@@ -202,8 +207,11 @@ class LookupModule(LookupBase):
 
             else:
                 cert_id = app_id
-                cert_file = _join(ss_base, app_id, primary_domain, LE_FULLCHAIN)
-                key_file = _join(ss_base, app_id, primary_domain, LE_PRIVKEY)
+                app_primary = norm_domain(
+                    resolve_primary_domain_from_app(domains, app_id, err_prefix="cert")
+                )
+                cert_file = _join(ss_base, app_id, app_primary, LE_FULLCHAIN)
+                key_file = _join(ss_base, app_id, app_primary, LE_PRIVKEY)
 
                 all_domains = collect_domains_for_app(
                     domains, app_id, err_prefix="cert"

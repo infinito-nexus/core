@@ -15,6 +15,8 @@
   stack_host_template:
     src: "nginx.stream.conf.j2"
     dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
+  vars:
+    domain: "{{ lookup('domain', application_id) }}"
   notify: restart-openresty
   when: OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 

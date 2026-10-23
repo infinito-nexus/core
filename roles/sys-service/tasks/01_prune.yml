@@ -2,18 +2,13 @@
 # Remove/stop/disable systemd units that belong to this SOFTWARE_NAME,
 # but are not for the current version.
 
-- name: "🤔 sys-service | Determine current software/version (lowercase)"
-  ansible.builtin.set_fact:
-    sys_service_sw_lc: "{{ SOFTWARE_NAME | string | trim | lower }}"
-    sys_service_ver_lc: "{{ lookup('version') | string | trim | lower }}"
-
 - name: "📊 sys-service | Collect {{ SOFTWARE_NAME }} timers (all versions)"
   become: true
   ansible.builtin.command:
     argv:
       - systemctl
       - list-unit-files
-      - "*.{{ sys_service_sw_lc }}*.timer"
+      - "*.{{ SOFTWARE_DOMAIN }}*.timer"
       - --no-legend
       - --no-pager
   register: sys_service_all_timers
@@ -26,7 +21,7 @@
     argv:
       - systemctl
       - list-unit-files
-      - "*.{{ sys_service_sw_lc }}*.service"
+      - "*.{{ SOFTWARE_DOMAIN }}*.service"
       - --no-legend
       - --no-pager
   register: sys_service_all_services
@@ -40,8 +35,8 @@
         (sys_service_all_timers.stdout_lines | default([]))
         | map('split', ' ')
         | map('first')
-        | select('search', '\\.' ~ sys_service_sw_lc ~ '(?:@)?\\.timer$')
-        | reject('search', '\\.' ~ sys_service_ver_lc ~ '\\.' ~ sys_service_sw_lc)
+        | select('search', ('.' ~ SOFTWARE_DOMAIN) | regex_escape ~ '@?[.]timer$')
+        | reject('search', SYS_SERVICE_VERSION_SUFFIX | regex_escape)
         | list
       }}
     sys_service_old_units_services: >-
@@ -49,56 +44,27 @@
         (sys_service_all_services.stdout_lines | default([]))
         | map('split', ' ')
         | map('first')
-        | select('search', '\\.' ~ sys_service_sw_lc ~ '(?:@)?\\.service$')
-        | reject('search', '\\.' ~ sys_service_ver_lc ~ '\\.' ~ sys_service_sw_lc)
+        | select('search', ('.' ~ SOFTWARE_DOMAIN) | regex_escape ~ '@?[.]service$')
+        | reject('search', SYS_SERVICE_VERSION_SUFFIX | regex_escape)
         | list
       }}
-
-- name: "⏹️ sys-service | Stop old-version services (best-effort)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: stopped
-  loop: "{{ sys_service_old_units_services }}"
-  when: sys_service_old_units_services | length > 0
-  failed_when: false
-
-- name: "⏹️ sys-service | Stop old-version timers (best-effort)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: stopped
-  loop: "{{ sys_service_old_units_timers }}"
-  when: sys_service_old_units_timers | length > 0
-  failed_when: false
-
-- name: "🔴 sys-service | Disable old-version services (best-effort)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: false
-  loop: "{{ sys_service_old_units_services }}"
-  when: sys_service_old_units_services | length > 0
-  failed_when: false
-
-- name: "🔴 sys-service | Disable old-version timers (best-effort)"
-  become: true
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    enabled: false
-  loop: "{{ sys_service_old_units_timers }}"
-  when: sys_service_old_units_timers | length > 0
-  failed_when: false
 
 - name: "🗑️ sys-service | Remove the old-version units"
   when: (sys_service_old_units_services | length > 0) or (sys_service_old_units_timers | length > 0)
   block:
+    - name: "⏹️ sys-service | Stop and disable the old-version units (best-effort)"
+      become: true
+      ansible.builtin.command:
+        argv: "{{ ['systemctl', 'disable', '--now'] + sys_service_old_units_timers + sys_service_old_units_services }}"
+      changed_when: true
+      failed_when: false
+
     - name: "🗑️ sys-service | Delete old-version unit files"
       become: true
-      ansible.builtin.file:
-        path: "{{ [ DIR_SYSTEM_SERVICE, item ] | path_join }}"
-        state: absent
-      loop: "{{ (sys_service_old_units_services + sys_service_old_units_timers) | unique }}"
+      ansible.builtin.command:
+        argv: "{{ ['rm', '-f', '--'] + ((sys_service_old_units_services + sys_service_old_units_timers) | unique | map('regex_replace', '^', DIR_SYSTEM_SERVICE ~
+          '/') | list) }}"
+      changed_when: true
 
     - name: "🔄 sys-service | systemd daemon-reload after pruning"
       become: true

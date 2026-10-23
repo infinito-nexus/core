@@ -12,30 +12,21 @@
   changed_when: false
   failed_when: false
 
-- name: "🚀 DEPLOY | Build timer list (unlock phase)"
+- name: "🚀 DEPLOY | Build the timer list of this version (unlock phase)"
   ansible.builtin.set_fact:
     deploy_timers_unlock: >-
       {{
         deploy_timer_units_unlock.stdout_lines | default([])
+        | reject('search', ' masked')
         | map('split', ' ')
         | map('first')
+        | select('search', (SYS_SERVICE_VERSION_SUFFIX ~ '.timer') | regex_escape ~ '$')
         | list
       }}
 
-- name: "🚀 DEPLOY | Activate the collected {{ SOFTWARE_DOMAIN }} timers"
+- name: "🚀 DEPLOY | Enable and start the {{ SOFTWARE_DOMAIN }} timers of this version"
+  become: true
+  ansible.builtin.command:
+    argv: "{{ ['systemctl', 'enable', '--now'] + deploy_timers_unlock }}"
+  changed_when: true
   when: deploy_timers_unlock | length > 0
-  block:
-    - name: "🚀 DEPLOY | Unmask all {{ SOFTWARE_DOMAIN }} timers"
-      become: true
-      ansible.builtin.systemd:
-        name: "{{ item }}"
-        masked: false
-      loop: "{{ deploy_timers_unlock }}"
-
-    - name: "🚀 DEPLOY | Enable and start all {{ SOFTWARE_DOMAIN }} timers"
-      become: true
-      ansible.builtin.systemd:
-        name: "{{ item }}"
-        enabled: true
-        state: started
-      loop: "{{ deploy_timers_unlock }}"

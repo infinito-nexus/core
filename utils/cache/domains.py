@@ -92,16 +92,18 @@ def _resolved_flag(
     return _as_bool(value)
 
 
-def _render_plain(raw: Any, name: str) -> Any:
+def _render_plain(
+    raw: Any, name: str, templar: Any = None, variables: Any = None
+) -> Any:
     from utils.templating.ansible import render_ansible_strict
 
     if isinstance(raw, str) and ("{{" in raw or "{%" in raw):
         return render_ansible_strict(
-            templar=None,
+            templar=templar,
             raw=raw,
             var_name=name,
             err_prefix="get_merged_domains",
-            variables={},
+            variables=variables or {},
         )
     return raw
 
@@ -283,7 +285,9 @@ def get_merged_domains(
             "must be set in variables."
         )
 
-    primary_domain = _render_plain(primary_domain, "DOMAIN_PRIMARY")
+    primary_domain = _render_plain(
+        primary_domain, "DOMAIN_PRIMARY", templar=templar, variables=variables
+    )
 
     apps = get_merged_applications(
         variables=variables,
