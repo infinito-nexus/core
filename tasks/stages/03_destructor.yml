@@ -10,6 +10,14 @@
   include_role:
     name: sys-service-terminator
 
+- name: "🐤 Check every opted-in app's Wazuh canary"
+  include_role:
+    name: web-app-wazuh
+    tasks_from: 05_app_canary.yml
+  when:
+    - "'web-app-wazuh' in group_names"
+    - lookup('wazuh_ruleset', scope='deployment').entities | length > 0
+
 - name: 🧪 Run CLI tests for deployed roles
   include_role:
     name: test-e2e-cli

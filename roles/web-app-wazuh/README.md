@@ -23,6 +23,26 @@ At the end of its deploy this role waits until every pre-registered agent is `Ac
 The deploy fails unless the canary arrives as rule `100110` in `wazuh-alerts-*`: journald, agent, manager, indexer, end to end.
 Each deploy therefore leaves one canary alert (level 3) in the index.
 
+### Per-app canary
+
+After all roles have deployed, the final deploy stage checks every opted-in app's own log path, in every runtime including production ([05_app_canary.yml](tasks/05_app_canary.yml), included from `tasks/stages/03_destructor.yml`). It sends one HTTP request to the app's published local port on its host, with the app's domain as `Host` header, so a host that cannot reach its own public domain still passes: `GET /INFINITO_WAZUH_CANARY%20<entity>-deploy-<timestamp>`. The app's access log writes the decoded path to the container's stdout, journald tags it with the app's tag, and the agent forwards it. The deploy fails unless rule `100111` (`GET /INFINITO_WAZUH_CANARY ` anywhere in the line, under any `infinito` parent) arrives in `wazuh-alerts-*` with the app's parent decoder and this run's marker. Self-test rule `100110` stays anchored at the start of the line.
+
+Anyone who can reach the app can send such a request and raise a level 3 canary alert. That is harmless: the deploy accepts only its own run's unique marker, so a forged request cannot make a broken log path look healthy.
+
+The canary needs an app whose main service (`services.<entity>`) publishes `ports.local.http` and logs every request to stdout. An app behind the SSO proxy or without HTTP needs another method, which comes with its onboarding.
+
+### Dev and CI checks
+
+In dev and CI only (`RUNTIME` `dev`, `act` or `github`), `test-e2e-cli` runs [files/test/test.sh](files/test/test.sh) after the per-app canary. It starts throwaway `journald` containers labelled for this run and removes them on exit, also on failure, and reads the manager's alerts and archives from its log volume and the indexer API, without `docker exec`. Before it looks for something that must be absent, it waits for a barrier canary through the same path, so absence means not forwarded rather than not yet arrived.
+
+| Criterion | Check |
+|---|---|
+| B | The self-test tag and the first opted-in app's tag print the same canary text; two alerts arrive, one per parent decoder |
+| J | The opted-in tag and the tag of a role that is not opted in (picked from the inventory's roles and asserted not opted in) each print a line, are recreated and print again; only the opted-in tag arrives, twice. No archived journald event carries a Wazuh container's ID as its tag |
+| I | Synthetic credentials go to the app as login password, bearer token, `access_token` query parameter, password-reset and e-mail-confirm path token and Referer; none of them may appear in `archives.json`, `alerts.json` or any `wazuh-*` index |
+
+Known limits of I: it covers these credential types, not every possible secret. Rule `101003` keeps Laravel's SQL errors including their bound values, by decision, so a value in a failing query reaches Wazuh; the test causes no database error. The front proxy's own access log still holds query strings and token routes (issue #1192); Wazuh does not collect it.
+
 ## Custom ruleset
 
 Every role in the inventory that enables the `wazuh` service may ship `files/wazuh/decoders.xml` and `files/wazuh/rules.xml`; both are optional.

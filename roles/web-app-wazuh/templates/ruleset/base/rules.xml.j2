@@ -35,6 +35,12 @@
     <match>^{{ WAZUH_CANARY_MARKER }} </match>
     <description>{{ SOFTWARE_NAME }} deploy canary.</description>
   </rule>
+
+  <rule id="{{ WAZUH_HTTP_CANARY_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_group>infinito</if_group>
+    <match>GET /{{ WAZUH_CANARY_MARKER }} </match>
+    <description>{{ SOFTWARE_NAME }} deploy canary through an app's HTTP access log.</description>
+  </rule>
 </group>
 
 <group name="infinito_deploy,">

@@ -97,6 +97,10 @@ WAZUH_DEPLOY_RULE_ID: 100101
 WAZUH_FIM_RULE_ID: 100102
 WAZUH_JOURNALD_RULE_ID: 100103
 WAZUH_CANARY_RULE_ID: 100110
+WAZUH_HTTP_CANARY_RULE_ID: 100111
+WAZUH_TEST_IMAGE: "alpine:3.20"
+# Exception: the canary goes to the app's published port on the host itself, because a host may not reach its own public domain; 0.0.0.0 is a bind address, not a target.
+WAZUH_APP_CANARY_HOST: "{{ '127.0.0.1' if DOCKER_BIND_HOST == '0.0.0.0' else DOCKER_BIND_HOST }}"
 WAZUH_DEPLOY_START_RULE_ID: 100120
 WAZUH_DEPLOY_END_RULE_ID: 100121
 WAZUH_WHODATA_UNAVAILABLE_RULE_ID: 100130
