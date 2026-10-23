@@ -3,8 +3,10 @@
 
 - name: "📂 Include dependent services for '{{ system_service_id  }}'"
   include_role:
-    name: "{{ item }}"
+    name: "{{ dependency_role }}"
   loop: "{{ SYSTEMCTL_ALARM_COMPOSER_SUBSERVICES }}"
+  loop_control:
+    loop_var: dependency_role
   vars:
     system_service_timer_enabled: false
     system_service_copy_files: true
