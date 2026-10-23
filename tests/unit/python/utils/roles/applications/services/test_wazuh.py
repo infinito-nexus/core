@@ -4,7 +4,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.roles.applications.services.wazuh import load_samples, rule_block_errors
+from utils.roles.applications.services.wazuh import (
+    docker_rule_ids,
+    load_samples,
+    rule_block_errors,
+)
 
 _SCOPED_RULE = (
     '<group name="pixelfed,">'
@@ -122,6 +126,39 @@ class TestRuleBlockErrors(unittest.TestCase):
         )
         self._assert_error(self._errors(_PIXELFED), "central parent rule")
 
+    def test_rule_on_reserved_docker_ids_fails(self):
+        for index, offset in enumerate((96, 97, 98, 99)):
+            role, start = f"web-app-probe{index}", 101000 + index * 100
+            with self.subTest(role=role):
+                self._ship(
+                    role,
+                    "rules.xml",
+                    f'<rule id="{start + offset}" level="5"><if_sid>{start}</if_sid></rule>',
+                )
+                self._assert_error(
+                    self._errors({role: {"enabled": True, "rule_block": start}}),
+                    f"rule id {start + offset} is reserved",
+                )
+
+    def test_rule_below_reserved_docker_ids_passes(self):
+        self._ship(
+            "web-app-pixelfed",
+            "rules.xml",
+            '<rule id="101095" level="5"><if_sid>101000</if_sid><match>x</match></rule>',
+        )
+        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101095\n  level: 5\n")
+        self.assertEqual(self._errors(_PIXELFED), [])
+
+    def test_sample_on_reserved_docker_id_fails(self):
+        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101099\n  level: 5\n")
+        self._assert_error(self._errors(_PIXELFED), "rule 101099 is outside 101000-101095")
+
+    def test_docker_rule_ids_sit_at_the_top_of_the_block(self):
+        self.assertEqual(
+            docker_rule_ids(101200),
+            {"oom": 101296, "healthcheck": 101297, "swarm": 101298, "compose": 101299},
+        )
+
     def test_duplicate_rule_id_fails(self):
         self._ship("web-app-pixelfed", "rules.xml", _SCOPED_RULE + _SCOPED_RULE)
         self._assert_error(self._errors(_PIXELFED), "defined twice")
@@ -201,7 +238,7 @@ class TestRuleBlockErrors(unittest.TestCase):
 
     def test_sample_outside_own_block_fails(self):
         self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 100110\n  level: 3\n")
-        self._assert_error(self._errors(_PIXELFED), "rule 100110 is outside 101000-101099")
+        self._assert_error(self._errors(_PIXELFED), "rule 100110 is outside 101000-101095")
 
     def test_sample_with_non_integer_level_fails(self):
         self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101000\n  level: '0'\n")

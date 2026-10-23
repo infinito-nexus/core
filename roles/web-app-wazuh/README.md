@@ -49,7 +49,7 @@ Custom rules use the Wazuh range 100000-120000:
 |---|---|
 | 100000-100099 | Reserved: Wazuh examples, `etc/rules/local_rules.xml` uses 100001 |
 | 100100-100999 | Base: parents `100100` self-test, `100101` deploy markers, `100102` FIM who-data state; `100110` canary; `100120`/`100121` deploy start/end; `100130`/`100131` who-data unavailable/unknown |
-| 101000-118999 | App blocks of 100 IDs; the first ID is the central parent rule |
+| 101000-118999 | App blocks of 100 IDs; the first ID is the central parent rule, the last four are the central Docker attribution rules (see below) |
 | 119000-119999 | Tests and drills, never shipped |
 
 A role that opts in declares its block start in `meta/services.yml`, next to the flag:
@@ -60,7 +60,28 @@ wazuh:
   rule_block: 101000
 ```
 
-The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block or on its parent ID, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity names `infinito-selftest`, `infinito-deploy` and `infinito-fim`.
+The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block, on its parent ID or on one of the four reserved Docker IDs, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity names `infinito-selftest`, `infinito-deploy` and `infinito-fim`.
+
+### Docker attribution
+
+The agent's Docker listener reports container events (start, stop, die, OOM, exec) as JSON. For every opted-in app the base rules add four rules at the top of its block, so its container events carry the app's name and alert at level 5 (`WAZUH_DOCKER_APP_LEVEL`) under the `infinito_docker` group and the app's own group:
+
+| ID | Matches |
+|---|---|
+| block + 99 | A container event of Wazuh's `docker` group whose compose project label (`docker.Actor.Attributes.com.docker.compose.project`) is the app's entity name |
+| block + 98 | The same for the swarm stack label (`docker.Actor.Attributes.com.docker.stack.namespace`) |
+| block + 97 | Level 0: a health-check exec of the app, child of the two above |
+| block + 96 | Level 7 (`WAZUH_DOCKER_OOM_LEVEL`): an OOM kill in one of the app's containers, child of the two above |
+
+The OOM rule (block + 96) is proven by the logtest samples only: in the Docker-in-Docker dev stack the kernel kills the process but Docker emits no `oom` event, so the live event is re-checked on a real host in step 2.8.
+
+The app is identified by its label, never by its container name. Apart from the OOM kill, the attribution rule replaces Wazuh's per-action level (for example 7 for kill and die) with one level for all of the app's container events.
+
+A health-check exec is `exec_create` or `exec_start` with exactly one of the commands the app's health checks run, and `exec_die`, which names no command and ends every health check, so it stays below the alert level; a real `docker exec` is already reported by its `exec_create` and `exec_start`. The deploy reads the commands from the app's rendered `compose.yml` on its host, the way Docker reports them (`CMD` arguments joined, `CMD-SHELL` through `/bin/sh -c`). Any other `docker exec` in the app's containers alerts, including the execs the app's own deploy runs. An app whose compose file does not exist yet, because it deploys after this role, gets no health-check exception until the next deploy of this role; the deploy reports such apps.
+
+Residual risk: an attacker who can run `docker exec` with exactly the health-check command line is not reported, and neither is the `exec_die` of any exec. A health check defined only in the image (`HEALTHCHECK` in the Dockerfile) is not in the compose file, so its execs alert.
+
+For every opted-in app the deploy also sends generated Docker events through `wazuh-logtest`: start, die, a shell exec and `exec_die` with the compose label, an OOM kill with each label, a start with the swarm label, the app's first health-check command exactly and with a suffix, and a start of a foreign project that must stay on Wazuh's own rule `87903`.
 
 ### Samples
 

@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 RULE_BLOCK_MIN = 101000
 RULE_BLOCK_MAX = 118999
 RULE_BLOCK_SIZE = 100
+# Exception: the top IDs of every app block hold the central Docker attribution rules; compose and swarm label the project differently, a health-check exec needs its own level-0 child and an OOM kill its own higher-level child.
+DOCKER_RULE_OFFSETS = {"oom": 96, "healthcheck": 97, "swarm": 98, "compose": 99}
+APP_RULE_LIMIT = min(DOCKER_RULE_OFFSETS.values())
 BASE_RULE_MIN = 100100
 BASE_RULE_MAX = 100999
 SELFTEST_TAG = "infinito-selftest"
@@ -38,6 +41,18 @@ def decoder_name(entity: str) -> str:
         entity: the role's entity name, which is its journald tag.
     """
     return f"infinito-{entity}"
+
+
+def docker_rule_ids(rule_block: int) -> dict[str, int]:
+    """Return the central Docker attribution rule IDs of an app block.
+
+    Args:
+        rule_block: the app's ``services.wazuh.rule_block``.
+
+    Returns:
+        ``{oom, healthcheck, swarm, compose}`` rule IDs at the top of the block.
+    """
+    return {kind: rule_block + offset for kind, offset in DOCKER_RULE_OFFSETS.items()}
 
 
 def load_samples(path: Path) -> list[dict[str, Any]]:
@@ -100,6 +115,11 @@ def _file_errors(
                 errors.append(
                     f"{role}: rule id {rule_id} is outside {start + 1}-{block[-1]}; "
                     f"{start} is the central parent rule"
+                )
+            elif rule_id >= start + APP_RULE_LIMIT:
+                errors.append(
+                    f"{role}: rule id {rule_id} is reserved; {start + APP_RULE_LIMIT}-{block[-1]} "
+                    "hold the central Docker attribution rules"
                 )
             parents = _ids(rule.findtext("if_sid")) + _ids(
                 rule.findtext("if_matched_sid")
@@ -230,7 +250,7 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
         file_errors, correlation = _file_errors(role, entity, start, wazuh_dir)
         errors.extend(file_errors)
         errors.extend(
-            _sample_errors(role, wazuh_dir, range(start, start + RULE_BLOCK_SIZE), correlation)
+            _sample_errors(role, wazuh_dir, range(start, start + APP_RULE_LIMIT), correlation)
         )
     blocks.sort()
     errors.extend(

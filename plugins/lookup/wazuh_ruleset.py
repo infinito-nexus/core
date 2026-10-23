@@ -17,6 +17,7 @@ from utils.roles.applications.services.wazuh import (
     SAMPLES_FILE,
     SELFTEST_TAG,
     decoder_name,
+    docker_rule_ids,
     load_samples,
 )
 from utils.roles.entity.name import get_entity_name
@@ -44,9 +45,11 @@ class LookupModule(LookupBase):
         who-data state; ``own`` lists the three in that order. ``journald``
         is ``{program, decoder}`` of journald's own messages, which report
         rate-limit suppression. ``entities`` is
-        ``[{entity, program, decoder, rule_block}]`` sorted by ``entity``, one
-        per opted-in role, tag-only roles included: ``program`` is the
-        journald tag and ``decoder`` its base parent decoder.
+        ``[{entity, role, program, decoder, rule_block, docker}]`` sorted by
+        ``entity``, one per opted-in role, tag-only roles included: ``program``
+        is the journald tag, ``decoder`` its base parent decoder, and
+        ``docker`` the ``{oom, healthcheck, swarm, compose}`` IDs of its central
+        Docker attribution rules.
         ``files`` is ``[{src, kind, name}]`` sorted by ``kind`` and ``name``:
         ``src`` is ``roles/<role>/files/wazuh/<kind>.xml``, ``kind`` is
         ``decoders`` or ``rules``, and ``name`` is ``<entity>_<kind>.xml``.
@@ -116,9 +119,11 @@ class LookupModule(LookupBase):
             entities.append(
                 {
                     "entity": entity,
+                    "role": role,
                     "program": entity,
                     "decoder": decoder_name(entity),
                     "rule_block": int(rule_block),
+                    "docker": docker_rule_ids(int(rule_block)),
                 }
             )
             for kind in RULESET_KINDS:

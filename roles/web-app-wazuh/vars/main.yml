@@ -102,6 +102,11 @@ WAZUH_DEPLOY_END_RULE_ID: 100121
 WAZUH_WHODATA_UNAVAILABLE_RULE_ID: 100130
 WAZUH_WHODATA_UNKNOWN_RULE_ID: 100131
 WAZUH_JOURNALD_SUPPRESSED_RULE_ID: 100140
+WAZUH_DOCKER_APP_LEVEL: 5
+WAZUH_DOCKER_OOM_LEVEL: 7
+# Exception: Wazuh's own "Docker: Container started" rule; the Docker samples use it to prove a foreign project is not attributed.
+WAZUH_DOCKER_FOREIGN_RULE_ID: 87903
+WAZUH_DOCKER_FOREIGN_LEVEL: 3
 # Exception: above the level-5 errors, because a flood in one container can get other apps' lines suppressed (log-flood evasion); below 8, because most suppressions are chatty containers.
 WAZUH_JOURNALD_SUPPRESSED_LEVEL: 7
 WAZUH_CANARY_MARKER: "INFINITO_WAZUH_CANARY"

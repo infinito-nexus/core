@@ -65,6 +65,36 @@
   </rule>
 </group>
 
+{% for app in WAZUH_RULESET_ENTITIES %}
+<group name="infinito_docker,{{ app.entity }},">
+  <rule id="{{ app.docker.compose }}" level="{{ WAZUH_DOCKER_APP_LEVEL }}">
+    <if_group>docker</if_group>
+    <field name="docker.Type">^container$</field>
+    <field name="docker.Actor.Attributes.com.docker.compose.project">^{{ app.entity }}$</field>
+    <description>{{ app.entity }}: Docker $(docker.Action) in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.swarm }}" level="{{ WAZUH_DOCKER_APP_LEVEL }}">
+    <if_group>docker</if_group>
+    <field name="docker.Type">^container$</field>
+    <field name="docker.Actor.Attributes.com.docker.stack.namespace">^{{ app.entity }}$</field>
+    <description>{{ app.entity }}: Docker $(docker.Action) in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.healthcheck }}" level="0">
+    <if_sid>{{ app.docker.compose }}, {{ app.docker.swarm }}</if_sid>
+    <field name="docker.Action" type="pcre2">{{ wazuh_docker_healthchecks.get(app.entity, []) | wazuh_healthcheck_pattern }}</field>
+    <description>{{ app.entity }}: Docker health check in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.oom }}" level="{{ WAZUH_DOCKER_OOM_LEVEL }}">
+    <if_sid>{{ app.docker.compose }}, {{ app.docker.swarm }}</if_sid>
+    <field name="docker.Action">^oom$</field>
+    <description>{{ app.entity }}: container $(docker.Actor.Attributes.name) ran out of memory (OOM kill).</description>
+  </rule>
+</group>
+
+{% endfor %}
 <group name="infinito_journald,">
   <rule id="{{ WAZUH_JOURNALD_SUPPRESSED_RULE_ID }}" level="{{ WAZUH_JOURNALD_SUPPRESSED_LEVEL }}">
     <if_sid>{{ WAZUH_JOURNALD_RULE_ID }}</if_sid>

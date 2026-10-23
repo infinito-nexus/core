@@ -138,9 +138,16 @@ class TestWazuhRuleset(unittest.TestCase):
             [
                 {
                     "entity": "pixelfed",
+                    "role": "web-app-pixelfed",
                     "program": "pixelfed",
                     "decoder": "infinito-pixelfed",
                     "rule_block": 101200,
+                    "docker": {
+                        "oom": 101296,
+                        "healthcheck": 101297,
+                        "swarm": 101298,
+                        "compose": 101299,
+                    },
                 }
             ],
         )
