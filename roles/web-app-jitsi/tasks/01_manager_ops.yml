@@ -19,7 +19,31 @@
     dest: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
     mode: "0644"
   notify: compose-up
-  when: JITSI_LDAP_ENABLED
+  when: JITSI_AUTH_TYPE == 'ldap'
+
+- name: "🧹 drop the prosody LDAP override while Jitsi does not authenticate via LDAP"
+  ansible.builtin.file:
+    path: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
+    state: absent
+  notify: compose-up
+  when: JITSI_AUTH_TYPE != 'ldap'
 
 - name: "🚿 flush handlers so Jitsi containers start with rendered env"
   meta: flush_handlers
+
+- name: "🔑 recreate the Jitsi component accounts so rotated passwords apply"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ JITSI_PROSODY_CONTAINER_ADDRESS }} sh -c
+      'prosodyctl --config /config/prosody.cfg.lua deluser "$1@{{ JITSI_XMPP_AUTH_DOMAIN }}"
+      && prosodyctl --config /config/prosody.cfg.lua register "$1" {{ JITSI_XMPP_AUTH_DOMAIN }} "$2"'
+      _ {{ item.user | quote }} {{ item.password | quote }}
+  loop: "{{ JITSI_COMPONENT_ACCOUNTS }}"
+  loop_control:
+    label: "{{ item.user }}"
+  register: jitsi_component_accounts
+  retries: 12
+  delay: 5
+  until: jitsi_component_accounts.rc == 0
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -8,7 +8,7 @@
 
 - name: 📁 create {{ MATRIX_WELL_KNOWN_FILE }}
   stack_host_template:
-    src: "flavor/compose/well-known.j2"
+    src: "well-known.j2"
     dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
 
 - name: "📂 include role sys-stk-front-proxy for {{ MATRIX_ELEMENT_DOMAIN }}"

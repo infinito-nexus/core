@@ -167,6 +167,28 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         self.assertIn("api.s.example.org", out)
         self.assertIn("filer.s.example.org", out)
 
+    def test_shared_service_domains_are_suppressed(self):
+        apps = {"app-s": {}}
+        self._configure_returns(
+            {
+                ("app-s", "domains.canonical"): {
+                    "api": "api.s.example.org",
+                    "meet": "meet.s.example.org",
+                },
+                ("app-s", "services"): {
+                    "meet": {
+                        "enabled": True,
+                        "shared": True,
+                        "domains": ["meet"],
+                    },
+                },
+            }
+        )
+        out = self.mod.web_health_expectations(apps, group_names=["app-s"])
+
+        self.assertIn("api.s.example.org", out)
+        self.assertNotIn("meet.s.example.org", out)
+
     def test_keyed_canonical_invalid_key_and_default_falls_back(self):
         apps = {"app-y": {}}
         self._configure_returns(

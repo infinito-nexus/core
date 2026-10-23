@@ -44,6 +44,7 @@ javascript:
   bond: 1
   enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
+# nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 jitsi:
   healthcheck:
     flavor: tcp
@@ -52,6 +53,9 @@ jitsi:
       enabled: true
     swarm:
       enabled: true
+  bond: 1
+  enabled: true
+  shared: true
   image: jitsi/web
   version: "stable-11031"
   min_storage: 315MB

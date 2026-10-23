@@ -41,6 +41,9 @@ flowchart LR
         svc_jvb["jvb"]
         svc_tor["tor ❌"]
     end
+    subgraph dependents [Dependents]
+        dpt_web_app_matrix["web-app-matrix 🐳🐝"]
+    end
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
@@ -49,6 +52,7 @@ flowchart LR
     dep_web_app_stalwart -. "0..1" .-> svc_email
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    svc_sso -. "0..1" .-> dpt_web_app_matrix
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

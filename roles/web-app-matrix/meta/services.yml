@@ -35,6 +35,43 @@ coturn:
   bond: 1
   enabled: "{{ 'web-svc-coturn' in group_names }}"
   shared: "{{ 'web-svc-coturn' in group_names }}"
+# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force Jitsi on a tor node.
+# nocheck: bond-baseline — same reason: variant 0 must not pin Jitsi on.
+jitsi:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names }}" # nocheck: dynamic-flag — Matrix offers Jitsi from the ansible flavor and off tor nodes only
+  shared: "{{ 'web-app-jitsi' in group_names }}"
+  domains:
+    - jitsi
+  ports:
+    internal:
+      http: 8000
+    local:
+      http: 8098
+    public:
+      media: 10001
+livekit:
+  ports:
+    internal:
+      websocket: 7880
+    local:
+      websocket: 4005
+    public:
+      media: 10002
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+livekit_jwt:
+  ports:
+    internal:
+      http: 8030
+    local:
+      http: 8099
+  cpus: "0.2"
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -156,7 +193,6 @@ matrix:
     mautrix_whatsapp: false
   conferencing:
     element_call: true
-    jitsi: true
   run_after:
     - web-app-matomo
     - web-app-keycloak

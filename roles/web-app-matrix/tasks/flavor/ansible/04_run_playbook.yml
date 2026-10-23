@@ -1,4 +1,11 @@
 ---
+- name: "🔎 ansible-flavor: read the registry proxy of the stack docker daemon"
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/flavor/ansible/registry_proxy.sh"
+  register: matrix_mdad_registry_proxy_probe
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
 - name: "📄 ansible-flavor: render compose.yml + start matrix-mdad via sys-stk-backend"
   ansible.builtin.include_role:
     name: sys-stk-backend
@@ -30,6 +37,15 @@
   notify:
     - compose-build
     - compose-up
+
+- name: "🎬 ansible-flavor: route the inner docker via the stack's registry proxy"
+  stack_host_template:
+    src: "flavor/ansible/registry-cache-proxy.conf.j2"
+    dest: "{{ MATRIX_MDAD_REGISTRY_PROXY_DROPIN }}"
+    mode: "0644"
+  notify:
+    - compose-up
+  when: MATRIX_MDAD_REGISTRY_PROXY.proxy | length > 0
 
 - name: "🔄 ansible-flavor: flush handlers (build runner image + start matrix-mdad)"
   ansible.builtin.meta: flush_handlers

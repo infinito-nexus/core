@@ -78,11 +78,35 @@ MATRIX_MDAD_DAEMON_JSON:
   log-opts:
     max-size: "10m"
     max-file: "3"
+MATRIX_MDAD_REGISTRY_PROXY: "{{ matrix_mdad_registry_proxy_probe.stdout | from_json }}"
+MATRIX_MDAD_REGISTRY_PROXY_DROPIN: "{{ [ MATRIX_MDAD_RUNNER_BUILD_DIR, 'registry-cache-proxy.conf' ] | path_join }}"
+MATRIX_MDAD_REGISTRY_CA_PATH: "/usr/local/share/ca-certificates/infinito-registry-cache.crt"
 
 MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') }}"
 
-MATRIX_CONFERENCING_JITSI: "{{ lookup('config', application_id, 'services.matrix.conferencing.jitsi') | bool }}"
-MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool }}"
+MATRIX_ONION_PRIMARY: "{{ (MATRIX_ONION_NODE | length > 0) and (lookup('domain', application_id) is search('\\.onion$')) }}"
+MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible'
+  and not MATRIX_ONION_PRIMARY }}"
+MATRIX_JITSI_SHARED: "{{ MATRIX_JITSI_ENABLED and lookup('config', application_id, 'services.jitsi.shared') | bool }}"
+MATRIX_JITSI_INTERNAL: "{{ MATRIX_JITSI_ENABLED and not MATRIX_JITSI_SHARED }}"
+MATRIX_JITSI_DOMAIN: "{{ lookup('domain', 'web-app-jitsi') if MATRIX_JITSI_SHARED else lookup('domains', application_id).jitsi }}"
+MATRIX_JITSI_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.local.http') }}"
+MATRIX_JITSI_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.internal.http') }}"
+MATRIX_JITSI_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.public.media') }}"
+MATRIX_JITSI_COMPONENT_ACCOUNTS:
+  - user: focus
+    password: "{{ (lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') ~ ':jicofo') | hash('sha256') }}"
+  - user: jvb
+    password: "{{ (lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') ~ ':jvb') | hash('sha256') }}"
+
+MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services.matrix.conferencing.element_call') | bool and not MATRIX_ONION_PRIMARY }}"
+MATRIX_LIVEKIT_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.local.websocket') }}"
+MATRIX_LIVEKIT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.internal.websocket') }}"
+MATRIX_LIVEKIT_MEDIA_PORT: "{{ lookup('config', application_id, 'services.livekit.ports.public.media') }}"
+MATRIX_LIVEKIT_PATH: "/livekit-server"
+MATRIX_LIVEKIT_JWT_PATH: "/livekit-jwt-service"
+MATRIX_LIVEKIT_JWT_PORT: "{{ lookup('config', application_id, 'services.livekit_jwt.ports.local.http') }}"
+MATRIX_LIVEKIT_JWT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.livekit_jwt.ports.internal.http') }}"
 MATRIX_SYNAPSE_METRICS_PORT: "{{ lookup('config', application_id, 'services.prometheus.native_metrics.port') }}"
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"

@@ -131,6 +131,8 @@ def web_health_expectations(
       - Canonical domains (dict-key overrides, else default, else DEFAULT_OK).
       - Flat canonical (default, else DEFAULT_OK).
       - Aliases always [301].
+      - Canonical keys listed under a service's `domains` are skipped while that
+        service is disabled, or enabled but shared (its provider serves it).
       - No legacy fallbacks (ignore 'home'/'landingpage').
       - `redirect_maps`: force <source> -> [301] and override app-derived entries.
       - If `www_enabled`: add and/or force www.* -> [301] for all domains.
@@ -168,7 +170,7 @@ def web_health_expectations(
             for svc in services_raw.values():
                 if not isinstance(svc, Mapping) or "domains" not in svc:
                     continue
-                if svc.get("enabled"):
+                if svc.get("enabled") and not svc.get("shared"):
                     continue
                 for key in _to_list(svc.get("domains"), allow_mapping=False):
                     if key:

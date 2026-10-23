@@ -1,0 +1,8 @@
+[Service]
+Environment="HTTP_PROXY={{ MATRIX_MDAD_REGISTRY_PROXY.proxy }}"
+Environment="HTTPS_PROXY={{ MATRIX_MDAD_REGISTRY_PROXY.proxy }}"
+Environment="NO_PROXY={{ MATRIX_MDAD_REGISTRY_PROXY.no_proxy }}"
+{% if MATRIX_MDAD_REGISTRY_PROXY.mitm_ca %}
+ExecStartPre=/opt/ansible/bin/python3 -c "import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], sys.argv[2])" {{ MATRIX_MDAD_REGISTRY_PROXY.proxy }}/ca.crt {{ MATRIX_MDAD_REGISTRY_CA_PATH }}
+ExecStartPre=/usr/sbin/update-ca-certificates
+{% endif %}

@@ -1,5 +1,5 @@
 -- LDAP authentication for the public XMPP domain (mod_auth_ldap2).
--- Rendered only when services.ldap.enabled is true.
+-- Rendered only when JITSI_AUTH_TYPE is ldap (LDAP enabled, SSO disabled).
 VirtualHost "{{ JITSI_XMPP_DOMAIN }}"
     authentication = "ldap2"
     ldap = {

@@ -2,3 +2,4 @@
 canonical:
   synapse: matrix.{{ DOMAIN_PRIMARY }}
   element: element.{{ DOMAIN_PRIMARY }}
+  jitsi: jitsi.{{ DOMAIN_PRIMARY }}

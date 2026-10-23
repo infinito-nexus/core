@@ -26,6 +26,7 @@ flowchart LR
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_jitsi["web-app-jitsi 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -44,6 +45,9 @@ flowchart LR
         svc_matomo["matomo"]
         svc_email["email"]
         svc_coturn["coturn"]
+        svc_jitsi["jitsi"]
+        svc_livekit["livekit"]
+        svc_livekit_jwt["livekit_jwt"]
         svc_postgres["postgres"]
         svc_synapse["synapse"]
         svc_element["element"]
@@ -64,6 +68,7 @@ flowchart LR
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_jitsi -. "0..1" .-> svc_jitsi
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
@@ -147,6 +152,12 @@ MDAD knobs are rendered from `templates/flavor/ansible/vars.yml.j2`. Central-ser
 
 A `mount --make-rshared /` runs once in the deploy container before the runner starts, because MDAD's systemd units bind-mount `/matrix/synapse/storage` with `bind-propagation=slave`, which requires shared/slave propagation on the source.
 
+**Federation.** Synapse serves the `client` and `federation` resources on one listener. OpenResty serves the Synapse domain on 443 and, as `default_server`, on `services.synapse.ports.public.federation`, and the role writes `/.well-known/matrix/server` as the compose flavor does. A server-name lookup that falls back to `<server_name>:8448` therefore lands on Synapse as well.
+
+**Registry proxy.** When the stack's docker daemon pulls through a registry proxy (the local registry cache), the runner's nested daemon uses the same proxy via a `docker.service` drop-in and, when the outer daemon trusts the cache's CA, fetches that CA from the proxy before it starts.
+
+**Nested host network.** Synapse, Element, coturn, LiveKit, its JWT service and Heisenbridge run in the host network of the nested Docker daemon, so they address each other over `127.0.0.1`; Heisenbridge's homeserver URL and its appservice URL in the registration are set accordingly. Jitsi keeps MDAD's own `matrix-jitsi` network and publishes its web port to the runner.
+
 ### `compose` (deprecated)
 
 Set `services.matrix.flavor: compose` to opt in. Tasks live under `tasks/flavor/compose/`, templates under `templates/flavor/compose/`. Existing volumes and credentials are reused, so in-place deploys need no migration.
@@ -179,7 +190,7 @@ flowchart TD
 
 ## Bridge matrix
 
-Set per-bridge flags under `services.matrix.plugins.<bridge>: true|false` in `meta/services.yml`. Conservative defaults: `mautrix_{signal,telegram,twitter,slack}`, `appservice_irc`, `heisenbridge`, `discord`, `gitter`, `hookshot` ON; `whatsapp`/`facebook`/`instagram`/`googlechat`/`sms` OFF.
+Set per-bridge flags under `services.matrix.plugins.<bridge>: true|false` in `meta/services.yml`. Every bridge defaults to OFF except `heisenbridge`; `chatgpt` follows whether `svc-ai-litellm` is part of the deployment.
 
 The ansible flavor maps each true flag to the matching `matrix_<bridge>_enabled` MDAD var; the compose flavor builds the `MATRIX_BRIDGES` loop from the enabled `mechanism: bridge` addons (see Addons below).
 
@@ -207,7 +218,10 @@ variant in [`meta/variants.yml`](./meta/variants.yml). Coverage is via
 
 ## Conferencing
 
-`services.matrix.conferencing.element_call` and `services.matrix.conferencing.jitsi` toggle MDAD's Element Call / Jitsi stacks (ansible flavor only). Both default to true.
+Conferencing applies to the ansible flavor.
+
+- `services.matrix.conferencing.element_call` (default true) runs MDAD's Matrix RTC stack. LiveKit and its JWT service answer on the Synapse domain under `/livekit-server/` and `/livekit-jwt-service/`, ICE uses `services.livekit.ports.public.media` over TCP and UDP, and Synapse publishes the LiveKit transport through its MSC4143 RTC transports API. The JWT service checks each OpenID token against the user's homeserver over federation, so it needs the federation path above; with a self-signed CA it mounts the CA bundle as Synapse does.
+- `services.jitsi` selects the Jitsi Element offers; it is enabled in the ansible flavor off tor nodes. With `enabled` and `shared` (the default when `web-app-jitsi` is in the inventory) Element points at that role's domain. With `enabled` and `shared: false` MDAD runs its own Jitsi on the `jitsi` domain of [`meta/domains.yml`](./meta/domains.yml), with its videobridge on `services.jitsi.ports.public.media` over UDP. The role derives the Jicofo and JVB passwords and recreates both Prosody accounts on every run, because Prosody keeps an account's first password and would otherwise lock both components out after a credential rotation.
 
 ## Playwright specs
 
@@ -215,6 +229,9 @@ In addition to the persona and CSP specs:
 
 - `test-element-call.js` opens the Element home view and verifies a call-widget control surfaces when `services.matrix.conferencing.element_call=true` (skipped otherwise).
 - `test-bridge-roster.js` probes the Synapse `/_matrix/client/v3/profile/{bot}` endpoint for every enabled bridge and fails on 5xx (skipped when no bridge is enabled).
+- `test-matrix-rtc.js` reads the LiveKit transport from Synapse, exchanges an OpenID token at the JWT service and opens the SFU signalling websocket (ansible flavor, `element_call`).
+- `test-jitsi.js` checks that Element offers the deployment's Jitsi and joins a conference there (`jitsi` enabled).
+- `test-heisenbridge.js` opens a DM with the Heisenbridge bot and waits for its answer to `help` (ansible flavor, `heisenbridge`).
 
 ## Further Resources
 
