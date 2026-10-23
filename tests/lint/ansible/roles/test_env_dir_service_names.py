@@ -44,6 +44,7 @@ from pathlib import Path
 from tests.lint.ansible.test_env_base_include import BASE_REL
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.networks.reachability import NETWORKS
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_FILE_DEFAULTS_MAIN,
@@ -60,6 +61,9 @@ BASE_RULE = "env-dir-base-include"
 ENV_DIR = "templates/env"
 
 _SET_SERVICE_RE = re.compile(r"\{%-?\s*set\s+service_name\s*=\s*(?P<expr>.+?)\s*-?%\}")
+_LABELLED_RE = re.compile(
+    r"^['\"](?P<base>[\w-]+)['\"]\s*\|\s*labelled\([^,]+,\s*['\"](?P<separator>[^'\"]*)['\"]\s*\)$"
+)
 _INCLUDE_RE = re.compile(r"\{%-?\s*include\s+['\"](?P<path>[^'\"]+)['\"]")
 _LITERAL_RE = re.compile(r"^(?P<quote>['\"])(?P<value>[^'\"]*)(?P=quote)$")
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -95,8 +99,14 @@ def _compose_templates(role: Path) -> list[Path]:
     return sorted(paths)
 
 
-def _resolve(expr: str, variables: dict[str, object], role: Path) -> str | None:
-    """Return the service name *expr* stands for, or None.
+def _resolve(expr: str, variables: dict[str, object], role: Path) -> set[str]:
+    """Return the service names *expr* can stand for, empty when unresolvable.
+
+    A role served on several networks names one service per network through
+    ``labelled``, whose label comes from the host's domains rather than from
+    the template. Such an expression stands for the unsuffixed name plus one
+    per label the network registry defines, so every file the role can need
+    is still checked against a name a service really takes.
 
     Args:
         expr: the right-hand side of a ``set service_name`` statement.
@@ -104,17 +114,24 @@ def _resolve(expr: str, variables: dict[str, object], role: Path) -> str | None:
         role: the role directory.
     """
     expr = expr.strip()
+    labelled = _LABELLED_RE.match(expr)
+    if labelled:
+        base = labelled.group("base")
+        separator = labelled.group("separator")
+        return {base} | {
+            f"{base}{separator}{network.label}" for network in NETWORKS.values()
+        }
     literal = _LITERAL_RE.match(expr)
     if literal:
         expr = literal.group("value").strip()
     elif _IDENTIFIER_RE.match(expr) and not _ENTITY_RE.match(expr):
         value = variables.get(expr)
         if not isinstance(value, str):
-            return None
+            return set()
         expr = value.strip()
     if _ENTITY_RE.match(expr):
-        return entity_name(role.name)
-    return None if "{{" in expr else expr
+        return {entity_name(role.name)}
+    return set() if "{{" in expr else {expr}
 
 
 def _service_names(role: Path) -> tuple[set[str], set[str]]:
@@ -129,9 +146,9 @@ def _service_names(role: Path) -> tuple[set[str], set[str]]:
     for path in _compose_templates(role):
         for match in _SET_SERVICE_RE.finditer(read_text(str(path))):
             expr = match.group("expr")
-            name = _resolve(expr, variables, role)
-            if name:
-                resolved.add(name)
+            names = _resolve(expr, variables, role)
+            if names:
+                resolved |= names
             else:
                 unresolved.add(expr)
     return resolved, unresolved
@@ -273,19 +290,26 @@ class TestServiceNameResolution(unittest.TestCase):
     def test_a_quoted_literal_resolves(self) -> None:
         role = PROJECT_ROOT / "roles/web-app-zammad"
 
-        self.assertEqual("nginx", _resolve("'nginx'", {}, role))
+        self.assertEqual({"nginx"}, _resolve("'nginx'", {}, role))
 
     def test_a_variable_holding_the_entity_name_resolves(self) -> None:
         role = PROJECT_ROOT / "roles/web-app-nextcloud"
 
         self.assertEqual(
-            "nextcloud", _resolve("NEXTCLOUD_SERVICE", _role_variables(role), role)
+            {"nextcloud"}, _resolve("NEXTCLOUD_SERVICE", _role_variables(role), role)
         )
 
     def test_an_unknown_variable_stays_unresolved(self) -> None:
         role = PROJECT_ROOT / "roles/web-app-zammad"
 
-        self.assertIsNone(_resolve("NO_SUCH_SERVICE", {}, role))
+        self.assertEqual(set(), _resolve("NO_SUCH_SERVICE", {}, role))
+
+    def test_a_labelled_name_covers_the_base_and_every_network_label(self) -> None:
+        role = PROJECT_ROOT / "roles/web-svc-logout"
+
+        names = _resolve("'logout' | labelled(logout_instance.label, '-')", {}, role)
+
+        self.assertEqual({"logout", "logout-clearnet", "logout-onion"}, names)
 
     def test_the_base_is_reached_through_a_chain_of_includes(self) -> None:
         init = PROJECT_ROOT / "roles/web-app-zammad/templates/env/init.j2"
