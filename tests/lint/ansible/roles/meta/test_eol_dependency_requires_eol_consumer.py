@@ -46,7 +46,7 @@ Five assertions, one per re-entry point plus two over the exemption ledger:
   service in one move, and no whole-rule marker may be bare.
 
 An addon's enable state is resolved the way the loader resolves it
-(``utils.cache.applications._normalize_addons``): a missing ``enabled`` falls
+(``utils.cache.addons.normalize_addons``): a missing ``enabled`` falls
 back to ``required``, which itself defaults to ``false``. An optional addon
 that declares no gate is therefore already contained and is not an offence.
 
@@ -685,7 +685,7 @@ def _addon_enabled(spec: dict[str, Any]) -> Any:
     Returns:
         The declared ``enabled`` value verbatim, or - when the key is absent -
         the boolean ``required`` falls back to, mirroring
-        ``utils.cache.applications._normalize_addons``.
+        ``utils.cache.addons.normalize_addons``.
     """
     if _FLAG in spec:
         return spec[_FLAG]

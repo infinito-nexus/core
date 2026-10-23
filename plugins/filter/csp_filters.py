@@ -4,6 +4,7 @@ import re
 
 from ansible.errors import AnsibleFilterError
 
+from utils.csp.tokens import dedup_preserve, sort_tokens
 from utils.domains.primary_domain import get_domain
 from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
@@ -48,37 +49,6 @@ def _aligned_url(applications, domains, application_id, target_id, protocol, vho
         primary_domain=domain,
     )
     return f"{'https' if enabled else 'http'}://{domain}"
-
-
-def _dedup_preserve(seq):
-    """Return a list with stable order and unique items."""
-    seen = set()
-    out = []
-    for x in seq:
-        if x not in seen:
-            seen.add(x)
-            out.append(x)
-    return out
-
-
-def _sort_tokens(tokens):
-    """
-    Return a deterministically ordered list of CSP tokens.
-    - de-duplicates while preserving relative order
-    - then sorts lexicographically
-    - keeps 'self' as the first token if present
-    """
-    uniq = _dedup_preserve(tokens)
-    if not uniq:
-        return uniq
-
-    uniq = sorted(uniq)
-
-    if "'self'" in uniq:
-        uniq.remove("'self'")
-        uniq.insert(0, "'self'")
-
-    return uniq
 
 
 class FilterModule:
@@ -418,7 +388,7 @@ class FilterModule:
                     for snippet in self.get_extra_values(extra_hashes, directive):
                         tokens.append(self.get_csp_hash(snippet))
 
-                tokens_by_dir[directive] = _dedup_preserve(tokens)
+                tokens_by_dir[directive] = dedup_preserve(tokens)
 
             # ----------------------------------------------------------
             # CSP3 families → ensure CSP2 fallback (Safari-safe)
@@ -443,7 +413,7 @@ class FilterModule:
                 base = tokens_by_dir.get(base_key, [])
                 elem = tokens_by_dir.get(elem_key, [])
                 attr = tokens_by_dir.get(attr_key, [])
-                union = _dedup_preserve(base + elem + attr)
+                union = dedup_preserve(base + elem + attr)
 
                 explicit_base = explicit_flags_by_dir.get(base_key, {})
                 for flag_name in ("unsafe-inline", "unsafe-eval"):
@@ -482,7 +452,7 @@ class FilterModule:
 
             if node and domain_primary and served_on == TOR:
                 for directive in list(tokens_by_dir.keys()):
-                    tokens_by_dir[directive] = _dedup_preserve(
+                    tokens_by_dir[directive] = dedup_preserve(
                         [
                             to_node(t) if translatable(t) else t
                             for t in tokens_by_dir[directive]
@@ -490,12 +460,12 @@ class FilterModule:
                     )
             elif node and domain_primary and application_id in issuer_applications():
                 ancestors = tokens_by_dir["frame-ancestors"]
-                tokens_by_dir["frame-ancestors"] = _dedup_preserve(
+                tokens_by_dir["frame-ancestors"] = dedup_preserve(
                     ancestors + [to_node(t) for t in ancestors if translatable(t)]
                 )
 
             for directive, toks in list(tokens_by_dir.items()):
-                tokens_by_dir[directive] = _sort_tokens(toks)
+                tokens_by_dir[directive] = sort_tokens(toks)
 
             parts = []
             parts.extend(
