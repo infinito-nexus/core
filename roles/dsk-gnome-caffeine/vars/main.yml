@@ -1,3 +1,4 @@
 ---
 auto_start_directory: /home/{{ lookup('users', WORKSTATION_USER).username }}/.config/autostart/
 application_id: dsk-gnome-caffeine
+caffeine_binary: /usr/bin/caffeine # the autostart entry launches this; distros that package caffeine as a Shell extension ship no such binary

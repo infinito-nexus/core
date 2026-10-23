@@ -3,14 +3,21 @@
   package_install:
     id: caffeine
 
-- name: 📁 Create autostart directory if it doesn't exist
-  file:
-    path: "{{auto_start_directory}}"
-    state: directory
+- name: 🔍 Probe for the caffeine binary
+  ansible.builtin.stat:
+    path: "{{ caffeine_binary }}"
+  register: caffeine_binary_probe
 
-- name: 📋 Copy caffeine.desktop file to autostart directory
-  template: # nocheck: stack-host-template (per-host workstation autostart file)
-    src: caffeine.desktop.j2
-    dest: "{{auto_start_directory}}caffeine.desktop"
+- when: caffeine_binary_probe.stat.exists
+  block:
+    - name: 📁 Create autostart directory if it doesn't exist
+      file:
+        path: "{{auto_start_directory}}"
+        state: directory
+
+    - name: 📋 Copy caffeine.desktop file to autostart directory
+      template: # nocheck: stack-host-template (per-host workstation autostart file)
+        src: caffeine.desktop.j2
+        dest: "{{auto_start_directory}}caffeine.desktop"
 
 - include_tasks: utils/once/flag.yml
