@@ -144,7 +144,8 @@ run_migration() {
 		--jmap-url "${STALWART_JMAP_URL}" \
 		--admin-file "${WORKDIR}/admin.json" \
 		--mailbox-map "${STALWART_MAILBOX_MAP}" \
-		--workers "${STALWART_IMPORT_WORKERS}" | tee "${log}"
+		--workers "${STALWART_IMPORT_WORKERS}" \
+		--done-file "${WORKDIR}/import.done" | tee "${log}"
 
 	rm -f "${WORKDIR}/admin.json"
 }

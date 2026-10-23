@@ -12,6 +12,19 @@
     msg: "Mailu's maildir volume {{ STALWART_MAILU_MAILDIR_VOLUME }} does not exist on this host yet; there is nothing to import."
   when: STALWART_MAILU_MAILDIR_VOLUME not in stalwart_volume_names.stdout_lines
 
+- name: "🔍 Check whether a finished import left its marker"
+  ansible.builtin.stat:
+    path: "{{ STALWART_IMPORT_DONE_FILE }}"
+  register: stalwart_import_done
+  when: STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+
+- name: "ℹ️ Report that the Mailu import is complete"
+  ansible.builtin.debug:
+    msg: "The Mailu import finished earlier; delete {{ STALWART_IMPORT_DONE_FILE }} to import again."
+  when:
+    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - stalwart_import_done.stat.exists
+
 - name: "🔍 Read the state of the import unit"
   ansible.builtin.command:
     argv:
@@ -23,18 +36,22 @@
       - "{{ STALWART_IMPORT_UNIT }}"
   register: stalwart_import_unit_state
   changed_when: false
-  when: STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+  when:
+    - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - not stalwart_import_done.stat.exists
 
 - name: "ℹ️ Report that the import of an earlier deploy still runs"
   ansible.builtin.debug:
     msg: "{{ STALWART_IMPORT_UNIT }} is {{ stalwart_import_unit_state.stdout }}; follow it with: journalctl -fu {{ STALWART_IMPORT_UNIT }}"
   when:
     - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - not stalwart_import_done.stat.exists
     - stalwart_import_unit_state.stdout not in ['inactive', 'failed']
 
 - name: "📥 Import every Mailu mailbox into Stalwart"
   when:
     - STALWART_MAILU_MAILDIR_VOLUME in stalwart_volume_names.stdout_lines
+    - not stalwart_import_done.stat.exists
     - stalwart_import_unit_state.stdout in ['inactive', 'failed']
   block:
     - name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"

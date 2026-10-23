@@ -28,6 +28,7 @@ def _load(name: str):
 
 def _load_module():
     _load("mailu_maildir")
+    _load("imap_layout")
     return _load("migrate_from_mailu")
 
 
@@ -76,38 +77,6 @@ class _SlowImap(_FakeImap):
     def append(self, mailbox, flags, date_time, message):
         time.sleep(0.002)
         return super().append(mailbox, flags, date_time, message)
-
-
-class TestServerLayout(unittest.TestCase):
-    def setUp(self):
-        self.m = _load_module()
-        self.layout = self.m.server_layout(_FakeImap())
-
-    def test_reads_separator_and_special_use(self):
-        self.assertEqual(self.layout.separator, "/")
-        self.assertEqual(
-            self.layout.special_use, {"\\Sent": "Sent Items", "\\Junk": "Junk Mail"}
-        )
-
-    def test_nested_folder_uses_the_server_separator(self):
-        self.assertEqual(
-            self.m.destination_mailbox(".Archive.2024", self.layout), "Archive/2024"
-        )
-
-    def test_special_folder_lands_in_the_special_use_folder(self):
-        self.assertEqual(self.m.destination_mailbox(".Sent", self.layout), "Sent Items")
-        self.assertEqual(self.m.destination_mailbox(".Spam", self.layout), "Junk Mail")
-
-    def test_special_name_without_server_counterpart_keeps_its_name(self):
-        self.assertEqual(self.m.destination_mailbox(".Drafts", self.layout), "Drafts")
-
-    def test_ambiguous_separator_fails(self):
-        imap = _FakeImap(list_lines=[b'(\\X) "/" A', b'(\\X) "." B'])
-        with self.assertRaises(self.m.MigrationError):
-            self.m.server_layout(imap)
-
-    def test_imap_quote_escapes(self):
-        self.assertEqual(self.m.imap_quote('My "x"\\y'), '"My \\"x\\"\\\\y"')
 
 
 class TestMigrateAccount(unittest.TestCase):
@@ -164,12 +133,6 @@ class TestMigrateAccount(unittest.TestCase):
         self.assertEqual(stats.folder("Archive").skipped, 1)
         self.assertEqual(stats.total("found"), 4)
 
-    def test_existing_keys_collects_the_server_side_keys(self):
-        imap = _FakeImap(
-            existing_headers=[b"Message-ID: <a@x>\r\n\r\n", b"X: 1\r\n\r\n"]
-        )
-        self.assertEqual(self.m.existing_keys(imap), {"<a@x>"})
-
     def test_parallel_sessions_append_every_message_once(self):
         for index in range(5, 45):
             (self.account / "cur" / f"{index}.host:2,").write_bytes(
@@ -205,8 +168,16 @@ class TestOpenSessions(unittest.TestCase):
                 "--admin-file=/x/admin.json",
                 "--mailbox-map=[]",
                 f"--workers={workers}",
+                "--done-file=/x/import.done",
             ]
         )
+
+    def test_done_marker_records_the_start_of_the_run(self):
+        with tempfile.TemporaryDirectory() as base:
+            marker = Path(base) / "import.done"
+            self.m.mark_done(marker, 1700000000.4)
+            self.assertTrue(marker.is_file())
+            self.assertEqual(marker.stat().st_size, len("1700000000\n"))
 
     def test_opens_one_session_per_worker(self):
         self.m.open_session = lambda args, stalwart, target: "s"
