@@ -78,7 +78,7 @@
       register: gw
       changed_when: false
 
-    - name: "🔧 Set docker bridge gateway fact to '{{ gw.gateway }}'"
+    - name: "🔧 Set the docker bridge gateway fact"
       set_fact:
         DOCKER_REACH_HOST: "{{ gw.gateway }}"
       changed_when: false
