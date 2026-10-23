@@ -48,11 +48,10 @@ WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES:
   - requests==2.33.1
 
 WAZUH_AGENT_RULESET: "{{ lookup('wazuh_ruleset', scope='host') }}"
-# Exception: OpenSSH 9.8+ logs sessions and failed logins as sshd-session; the listener still logs as sshd.
-WAZUH_AGENT_JOURNALD_SYSTEM_TAGS: ["sshd", "sshd-session", "sudo"]
+WAZUH_AGENT_JOURNALD_SYSTEM_TAGS: "{{ WAZUH_AGENT_RULESET.system_tags }}"
 WAZUH_AGENT_JOURNALD_ROOT_TAGS: "{{ (WAZUH_AGENT_RULESET.own | map(attribute='program') | list) + WAZUH_AGENT_JOURNALD_SYSTEM_TAGS }}"
 WAZUH_AGENT_JOURNALD_CONTAINER_TAGS: "{{ WAZUH_AGENT_RULESET.entities | map(attribute='program') | list }}"
-WAZUH_AGENT_JOURNALD_CONTAINER_COMM: "dockerd"
+WAZUH_AGENT_JOURNALD_CONTAINER_COMM: "{{ WAZUH_AGENT_RULESET.container_comm }}"
 
 WAZUH_AGENT_FIM_FREQUENCY: 43200
 WAZUH_AGENT_FIM_SCHEDULED_DIRS: ["/etc", "/usr/bin", "/usr/sbin", "/boot"]

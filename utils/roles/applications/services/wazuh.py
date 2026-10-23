@@ -27,6 +27,10 @@ JOURNALD_PROGRAM = "systemd-journald"
 # Exception: Wazuh's default decoder "systemd" claims every program name containing "systemd", so journald's lines use it instead of an own decoder.
 JOURNALD_DECODER = "systemd"
 SAMPLE_PROGRAMS = (*OWN_TAGS, JOURNALD_PROGRAM)
+# Exception: OpenSSH 9.8+ logs sessions and failed logins as sshd-session; the listener still logs as sshd.
+SYSTEM_TAGS = ("sshd", "sshd-session", "sudo")
+CONTAINER_COMM = "dockerd"
+RESERVED_TAGS = (*OWN_TAGS, JOURNALD_PROGRAM, *SYSTEM_TAGS, CONTAINER_COMM)
 PROVIDER_ENTITY = "wazuh"
 MANAGER_ROLE = "web-app-wazuh"
 SAMPLES_FILE = "samples.yml"
@@ -204,6 +208,52 @@ def _sample_errors(
     return errors
 
 
+def _opted_in(application: dict[str, Any]) -> bool:
+    services = application.get("services") or {}
+    wazuh = services.get("wazuh") if isinstance(services, dict) else None
+    return isinstance(wazuh, dict) and "enabled" in wazuh
+
+
+def tag_errors(applications: dict[str, Any], roles_dir: Path) -> list[str]:
+    """Check that every opted-in role's journald tag is usable and its own.
+
+    Args:
+        applications: role id to merged application defaults.
+        roles_dir: the directory holding every role, opted in or not.
+
+    Returns:
+        One message per opted-in role whose entity name, which is both its
+        journald tag and its compose project, is empty, is one of the
+        ``RESERVED_TAGS``, contains the name Wazuh's default ``systemd``
+        decoder claims, or is also the entity of another role.
+    """
+    owners: dict[str, list[str]] = {}
+    for path in sorted(roles_dir.iterdir()):
+        if path.is_dir():
+            owners.setdefault(get_entity_name(path.name), []).append(path.name)
+    errors: list[str] = []
+    for role in sorted(applications):
+        entity = get_entity_name(role)
+        if entity == PROVIDER_ENTITY or not _opted_in(applications[role]):
+            continue
+        if not entity:
+            errors.append(f"{role}: an opted-in role needs a non-empty entity name for its Wazuh tag")
+            continue
+        if entity in RESERVED_TAGS:
+            errors.append(f"{role}: Wazuh tag '{entity}' is reserved for the agent or the ruleset")
+        elif JOURNALD_DECODER in entity:
+            errors.append(
+                f"{role}: Wazuh tag '{entity}' contains '{JOURNALD_DECODER}', which Wazuh's default decoder claims"
+            )
+        others = [other for other in owners.get(entity, []) if other != role]
+        if others:
+            errors.append(
+                f"{role}: Wazuh tag '{entity}' is also the entity of {', '.join(others)}; "
+                "their logs and Docker events would mix"
+            )
+    return errors
+
+
 def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str]:
     """Check every role's Wazuh rule block, rule files and samples.
 
@@ -226,11 +276,9 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
                 )
             )
             continue
-        if entity in OWN_TAGS:
-            errors.append(f"{role}: entity name '{entity}' is reserved")
         services = applications[role].get("services") or {}
         wazuh = services.get("wazuh") if isinstance(services, dict) else None
-        opted_in = isinstance(wazuh, dict) and "enabled" in wazuh
+        opted_in = _opted_in(applications[role])
         start = wazuh.get("rule_block") if isinstance(wazuh, dict) else None
         if start is None:
             if opted_in or (wazuh_dir / "rules.xml").is_file():

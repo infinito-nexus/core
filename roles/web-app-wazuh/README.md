@@ -80,7 +80,9 @@ wazuh:
   rule_block: 101000
 ```
 
-The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block, on its parent ID or on one of the four reserved Docker IDs, a rule without a chain into its own block, a decoder with a foreign parent, and the reserved entity names `infinito-selftest`, `infinito-deploy` and `infinito-fim`.
+The lint `tests/lint/ansible/services/test_wazuh_rule_block.py` fails on a missing block, a block outside 101000-118999, overlapping blocks, a rule ID outside its own block, on its parent ID or on one of the four reserved Docker IDs, a rule without a chain into its own block, and a decoder with a foreign parent.
+
+The lint `tests/lint/ansible/services/test_wazuh_tags.py` checks the tag of every opted-in role, which is its entity name and also its compose project. The tag must not be empty, must not be one of the tags the agent or the ruleset reserves (`RESERVED_TAGS` in `utils/roles/applications/services/wazuh.py`: the self-test, deploy-marker and FIM tags, `systemd-journald`, `sshd`, `sshd-session`, `sudo` and `dockerd`), must not contain `systemd`, which Wazuh's default decoder claims, and must not be the entity of any other role, opted in or not. The agent reads its system tags and the container `_COMM` from the same helper through the `wazuh_ruleset` lookup. A tag that one of Wazuh's other default decoders claims cannot be linted, because the default ruleset is not in this repository; the per-tag logtest canary then fails the deploy, since it requires the tag's own parent decoder.
 
 ### Docker attribution
 

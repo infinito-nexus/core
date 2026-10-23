@@ -10,11 +10,13 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.wazuh_ruleset import LookupModule
 from utils.roles.applications.services.wazuh import (
+    CONTAINER_COMM,
     DEPLOY_TAG,
     FIM_TAG,
     JOURNALD_DECODER,
     JOURNALD_PROGRAM,
     SELFTEST_TAG,
+    SYSTEM_TAGS,
 )
 
 _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
@@ -26,6 +28,8 @@ _EMPTY = {
     "fim": _FIM,
     "own": [_SELFTEST, _DEPLOY, _FIM],
     "journald": {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER},
+    "system_tags": list(SYSTEM_TAGS),
+    "container_comm": CONTAINER_COMM,
     "entities": [],
     "files": [],
     "samples": [],

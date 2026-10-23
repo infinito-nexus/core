@@ -8,6 +8,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
+    CONTAINER_COMM,
     DEPLOY_TAG,
     FIM_TAG,
     JOURNALD_DECODER,
@@ -16,6 +17,7 @@ from utils.roles.applications.services.wazuh import (
     PROVIDER_ENTITY,
     SAMPLES_FILE,
     SELFTEST_TAG,
+    SYSTEM_TAGS,
     decoder_name,
     docker_rule_ids,
     load_samples,
@@ -39,7 +41,10 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, deploy, fim, own, journald, entities, files, samples}``.
+        ``{selftest, deploy, fim, own, journald, system_tags, container_comm,
+        entities, files, samples}``. ``system_tags`` lists the host programs
+        the agent collects as root, ``container_comm`` the ``_COMM`` of
+        container log lines.
         ``selftest``, ``deploy`` and ``fim`` are ``{program, decoder}`` of the
         reserved tags for the self-test, the deploy markers and the FIM
         who-data state; ``own`` lists the three in that order. ``journald``
@@ -165,6 +170,8 @@ class LookupModule(LookupBase):
                 "fim": own[FIM_TAG],
                 "own": [own[tag] for tag in OWN_TAGS],
                 "journald": journald,
+                "system_tags": list(SYSTEM_TAGS),
+                "container_comm": CONTAINER_COMM,
                 "entities": entities,
                 "files": files,
                 "samples": samples,

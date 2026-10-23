@@ -5,9 +5,11 @@ import unittest
 from pathlib import Path
 
 from utils.roles.applications.services.wazuh import (
+    RESERVED_TAGS,
     docker_rule_ids,
     load_samples,
     rule_block_errors,
+    tag_errors,
 )
 
 _SCOPED_RULE = (
@@ -189,13 +191,6 @@ class TestRuleBlockErrors(unittest.TestCase):
         self._ship("web-app-pixelfed", "rules.xml", "<rule id='101001'>")
         self._assert_error(self._errors(_PIXELFED), "not parseable")
 
-    def test_reserved_own_tag_entities_fail(self):
-        for role in ("web-app-infinito-selftest", "web-app-infinito-deploy", "web-app-infinito-fim"):
-            with self.subTest(role=role):
-                self._assert_error(
-                    self._errors({role: {"enabled": True, "rule_block": 101000}}), "reserved"
-                )
-
     def test_provider_sample_with_own_tag_program_passes(self):
         self._ship(
             "web-app-wazuh",
@@ -290,6 +285,56 @@ class TestRuleBlockErrors(unittest.TestCase):
         self._assert_error(
             self._errors({"web-app-wazuh": {"enabled": True}}), "outside 100100-100999"
         )
+
+
+class TestTagErrors(unittest.TestCase):
+    def setUp(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.roles_dir = Path(self._tmpdir.name)
+
+    def tearDown(self):
+        self._tmpdir.cleanup()
+
+    def _errors(self, opted_in: list[str], others: tuple[str, ...] = ()) -> list[str]:
+        for role in (*opted_in, *others):
+            (self.roles_dir / role).mkdir(exist_ok=True)
+        applications = {
+            role: {"services": {"wazuh": {"enabled": True, "rule_block": 101000}}}
+            for role in opted_in
+        }
+        applications.update({role: {} for role in others})
+        return tag_errors(applications, self.roles_dir)
+
+    def test_unique_tag_passes(self):
+        self.assertEqual(self._errors(["web-app-pixelfed"], ("web-app-mastodon",)), [])
+
+    def test_every_reserved_tag_fails(self):
+        for tag in RESERVED_TAGS:
+            with self.subTest(tag=tag):
+                errors = self._errors([f"web-app-{tag}"])
+                self.assertTrue(
+                    any(f"Wazuh tag '{tag}' is reserved" in error for error in errors), errors
+                )
+
+    def test_tag_containing_systemd_fails(self):
+        errors = self._errors(["web-app-systemd-exporter"])
+        self.assertTrue(any("contains 'systemd'" in error for error in errors), errors)
+
+    def test_empty_entity_fails(self):
+        errors = self._errors(["update"])
+        self.assertTrue(any("non-empty entity name" in error for error in errors), errors)
+
+    def test_tag_shared_with_another_role_fails(self):
+        errors = self._errors(["web-app-litellm"], ("svc-ai-litellm",))
+        self.assertTrue(
+            any("is also the entity of svc-ai-litellm" in error for error in errors), errors
+        )
+
+    def test_shared_entity_of_roles_that_do_not_opt_in_passes(self):
+        self.assertEqual(self._errors([], ("web-app-litellm", "svc-ai-litellm")), [])
+
+    def test_provider_role_is_skipped(self):
+        self.assertEqual(self._errors(["web-app-wazuh"]), [])
 
 
 class TestLoadSamples(unittest.TestCase):
