@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys the official `jitsi/{web,prosody,jicofo,jvb}` images as a single-domain Jitsi Meet stack. Authentication is bridged to the central Keycloak via JWT (prosody validates RS256 tokens whose issuer is the realm's OIDC endpoint), and to OpenLDAP via prosody `mod_auth_ldap2` in the LDAP-only matrix variant. The web container sits behind the central openresty reverse proxy at `meet.{{ DOMAIN_PRIMARY }}`; the media plane (jvb) publishes UDP `10000/udp` on the host.
+This role deploys the official `jitsi/{web,prosody,jicofo,jvb}` images as a single-domain Jitsi Meet stack. Authentication is bridged to the central Keycloak via JWT (prosody validates RS256 tokens whose issuer is the realm's OIDC endpoint), and to OpenLDAP via prosody `mod_auth_ldap2` in the LDAP-only matrix variant. The web container sits behind the central openresty reverse proxy at `jitsi.call.{{ DOMAIN_PRIMARY }}`; the media plane (jvb) publishes UDP `10000/udp` on the host.
 
 ## Cosmos
 
