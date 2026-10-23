@@ -175,6 +175,25 @@ class TestStandaloneCheckerScript(unittest.TestCase):
         self.assertEqual(seen["clear.example.org"]["url"], "https://clear.example.org")
         self.assertEqual(seen["clear.example.org"]["timeout"], 10)
 
+    @patch("requests.head")
+    def test_output_stays_sorted_by_domain(self, mock_head):
+        def head_side_effect(url, allow_redirects=False, timeout=10, verify=True):
+            class R:
+                pass
+
+            r = R()
+            r.status_code = 200
+            return r
+
+        mock_head.side_effect = head_side_effect
+
+        exp = {f"d{i:02d}.example.org": [200] for i in reversed(range(40))}
+        exit_code, output = self._run_main(["--expectations", self._to_json(exp)])
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output.splitlines(), [f"d{i:02d}.example.org: OK" for i in range(40)]
+        )
+
     # ------------- Helpers -----------------------
 
     def _run_main(self, argv):

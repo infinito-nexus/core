@@ -9,9 +9,12 @@ import argparse
 import json
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import requests
+
+WORKERS = 16
 
 
 def parse_args(argv=None):
@@ -55,6 +58,20 @@ def _parse_json_mapping(name: str, value: str) -> dict[str, list[int]]:
     return clean
 
 
+def _probe(domain: str, expected: list[int], web_protocol: str, verify) -> tuple:
+    timeout = 30 if domain.endswith(".onion") else 10
+    url = f"{_protocol_for(domain, web_protocol)}://{domain}"
+    try:
+        r = requests.head(url, allow_redirects=False, timeout=timeout, verify=verify)
+    except requests.RequestException as e:
+        return f"{domain}: error due to {e}", True
+    if expected and r.status_code in expected:
+        return f"{domain}: OK", False
+    if not expected:
+        return f"{domain}: ERROR: No expectations provided. Got {r.status_code}.", True
+    return f"{domain}: ERROR: Expected {expected}. Got {r.status_code}.", True
+
+
 def main(argv=None) -> int:
     args = parse_args(argv)
     expectations = _parse_json_mapping("expectations", args.expectations)
@@ -68,29 +85,16 @@ def main(argv=None) -> int:
             return 1
         verify = ca_trust_cert_host
 
-    errors = 0
-    for domain in sorted(expectations.keys()):
-        expected = expectations[domain] or []
-        is_onion = domain.endswith(".onion")
-        url = f"{_protocol_for(domain, args.web_protocol)}://{domain}"
-        timeout = 30 if is_onion else 10
-        try:
-            r = requests.head(
-                url, allow_redirects=False, timeout=timeout, verify=verify
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        results = list(
+            pool.map(
+                lambda d: _probe(d, expectations[d] or [], args.web_protocol, verify),
+                sorted(expectations),
             )
-            if expected and r.status_code in expected:
-                print(f"{domain}: OK")
-            elif not expected:
-                print(
-                    f"{domain}: ERROR: No expectations provided. Got {r.status_code}."
-                )
-                errors += 1
-            else:
-                print(f"{domain}: ERROR: Expected {expected}. Got {r.status_code}.")
-                errors += 1
-        except requests.RequestException as e:
-            print(f"{domain}: error due to {e}")
-            errors += 1
+        )
+    for line, _ in results:
+        print(line)
+    errors = sum(failed for _, failed in results)
 
     if errors:
         print(f"Warning: {errors} domains responded with an unexpected status code.")
