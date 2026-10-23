@@ -11,6 +11,7 @@ from utils.tls_common import (
     collect_domains_for_app,
     collect_domains_global,
     get_path,
+    is_domain_term,
     is_onion_domain,
     norm_domain,
     override_san_list,
@@ -164,16 +165,35 @@ class TestTlsCommon(unittest.TestCase):
                     err_prefix="t",
                 )
 
-    def test_resolve_term_redirect_takes_one_hop_only(self):
+    def test_resolve_term_redirect_follows_a_chain(self):
+        app_id, primary = resolve_term(
+            "*.legacy.example",
+            domains=self.domains,
+            applications={},
+            redirects={"*.legacy.example": "two.example", "two.example": "b.example"},
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual((app_id, primary), ("web-app-b", "b.example"))
+
+    def test_resolve_term_redirect_cycle_fails(self):
         with self.assertRaises(AnsibleError):
             resolve_term(
                 "one.example",
                 domains=self.domains,
                 applications={},
-                redirects={"one.example": "two.example", "two.example": "b.example"},
+                redirects={"one.example": "two.example", "two.example": "one.example"},
                 forced_mode="auto",
                 err_prefix="t",
             )
+
+    def test_is_domain_term(self):
+        self.assertTrue(is_domain_term("a.example", "auto", err_prefix="t"))
+        self.assertFalse(is_domain_term("web-app-a", "auto", err_prefix="t"))
+        self.assertTrue(is_domain_term("web-app-a", "domain", err_prefix="t"))
+        self.assertFalse(is_domain_term("a.example", "app", err_prefix="t"))
+        with self.assertRaises(AnsibleError):
+            is_domain_term("a.example", "other", err_prefix="t")
 
     def test_resolve_enabled_and_mode(self):
         app = {}
