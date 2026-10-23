@@ -22,12 +22,15 @@ ALLOWED_MODULES: frozenset[str] = frozenset(
     {
         "ansible.builtin.command",
         "ansible.builtin.dnf",
+        "ansible.builtin.file",
         "ansible.builtin.lineinfile",
         "ansible.builtin.package",
         "ansible.builtin.replace",
         "ansible.builtin.user",
         "ansible.builtin.yum_repository",
         "community.general.copr",
+        "community.general.flatpak",
+        "community.general.flatpak_remote",
         "community.general.pacman",
         "kewlfft.aur.aur",
     }

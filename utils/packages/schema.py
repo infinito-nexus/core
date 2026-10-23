@@ -34,6 +34,20 @@ a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a
 community repository, or ``managed_externally`` when the role sets it up
 itself.
 
+``source: flatpak`` takes application ids rather than package names and
+pulls them from a Flatpak remote::
+
+    blender:
+      centos:
+        source: flatpak
+        names: [org.blender.Blender]
+        flatpak:
+          command: blender
+
+``flatpak.command`` is the name the role invokes. Flatpak exports a launcher
+named after the application id, not after the binary inside it, so without
+this key a role calling ``blender`` finds nothing on PATH.
+
 A bare list is shorthand for ``{names: [...], source: repo}``. An empty
 list states that the package is deliberately not installed on that family,
 which counts as covered; a *missing* key is a coverage gap.
@@ -62,17 +76,21 @@ SOURCE_AUR = "aur"
 SOURCE_COPR = "copr"
 SOURCE_PPA = "ppa"
 SOURCE_BUILD = "build"
+SOURCE_FLATPAK = "flatpak"
 SOURCES: tuple[str, ...] = (
     SOURCE_REPO,
     SOURCE_AUR,
     SOURCE_COPR,
     SOURCE_PPA,
     SOURCE_BUILD,
+    SOURCE_FLATPAK,
 )
 """How the names are acquired. ``repo`` is the distribution's own package
 manager; ``aur``, ``copr`` and ``ppa`` are the community managers Arch,
 Fedora and Ubuntu ship alongside it; ``build`` compiles from source where
-no manager carries the package at all."""
+no manager carries the package at all; ``flatpak`` installs an application
+id from a Flatpak remote, which is the only upstream channel for much of
+the desktop set on EL."""
 
 REPO_KEYS: frozenset[str] = frozenset(
     {
@@ -107,6 +125,7 @@ class PackageSpec:
     repo: dict[str, Any] | None = None
     virtual: bool = False
     build: dict[str, Any] | None = None
+    flatpak: dict[str, Any] | None = None
 
 
 def _validate_repo(package_id: str, key: str, repo: Any, path: Path) -> None:
@@ -131,6 +150,28 @@ def _validate_build(
     if isinstance(build, dict) and not build.get("command"):
         raise PackagesShapeError(
             f"{path}: {package_id}.{key}.build must declare a 'command'."
+        )
+
+
+def _validate_flatpak(
+    package_id: str, key: str, source: str, flatpak: Any, path: Path
+) -> None:
+    if flatpak is None:
+        return
+    if source != SOURCE_FLATPAK:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key} declares a flatpak block without "
+            f"source '{SOURCE_FLATPAK}'."
+        )
+    if not isinstance(flatpak, dict):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.flatpak must be a mapping, "
+            f"got {type(flatpak).__name__}."
+        )
+    command = flatpak.get("command")
+    if command is not None and not isinstance(command, str):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.flatpak.command must be a string."
         )
 
 
@@ -169,4 +210,7 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
     build = value.get("build")
     _validate_build(package_id, key, source, build, path)
 
-    return PackageSpec(tuple(names), str(source), repo, virtual, build)
+    flatpak = value.get("flatpak")
+    _validate_flatpak(package_id, key, source, flatpak, path)
+
+    return PackageSpec(tuple(names), str(source), repo, virtual, build, flatpak)

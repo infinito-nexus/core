@@ -3,8 +3,19 @@ import unittest
 
 from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
 from utils.packages.plan import build_plan
-from utils.packages.schema import SOURCE_AUR, SOURCE_BUILD, SOURCE_COPR, PackageSpec
-from utils.packages.sources import AUR_BUILDER_USER, PACMAN_CONF
+from utils.packages.schema import (
+    SOURCE_AUR,
+    SOURCE_BUILD,
+    SOURCE_COPR,
+    SOURCE_FLATPAK,
+    PackageSpec,
+)
+from utils.packages.sources import (
+    AUR_BUILDER_USER,
+    FLATPAK_COMMAND_DIR,
+    FLATPAK_EXPORT_DIR,
+    PACMAN_CONF,
+)
 
 
 class TestExternalFetchRetries(unittest.TestCase):
@@ -186,6 +197,60 @@ class TestBuildPlan(unittest.TestCase):
         self.assertEqual(
             _modules(plan),
             ["ansible.builtin.yum_repository", "ansible.builtin.package"],
+        )
+
+
+class TestFlatpakSource(unittest.TestCase):
+    """A Flatpak id is installed from a remote and exposed under the name the
+    role actually invokes."""
+
+    def test_the_runtime_and_remote_come_before_the_application(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertEqual(
+            _modules(build_plan(spec, STATE_PRESENT)),
+            [
+                "ansible.builtin.package",
+                "community.general.flatpak_remote",
+                "community.general.flatpak",
+            ],
+        )
+
+    def test_a_declared_command_is_linked_onto_the_path(self):
+        spec = PackageSpec(
+            ("org.blender.Blender",),
+            source=SOURCE_FLATPAK,
+            flatpak={"command": "blender"},
+        )
+        link = build_plan(spec, STATE_PRESENT)[-1]
+        self.assertEqual(link.module, "ansible.builtin.file")
+        self.assertEqual(link.args["state"], "link")
+        self.assertEqual(link.args["dest"], f"{FLATPAK_COMMAND_DIR}/blender")
+        self.assertEqual(link.args["src"], f"{FLATPAK_EXPORT_DIR}/org.blender.Blender")
+
+    def test_without_a_command_nothing_is_linked(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertNotIn(
+            "ansible.builtin.file", _modules(build_plan(spec, STATE_PRESENT))
+        )
+
+    def test_the_remote_and_the_install_are_retried(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        retried = {
+            call.module for call in build_plan(spec, STATE_PRESENT) if call.retry
+        }
+        self.assertEqual(
+            retried,
+            {
+                "ansible.builtin.package",
+                "community.general.flatpak_remote",
+                "community.general.flatpak",
+            },
+        )
+
+    def test_removal_goes_through_the_host_manager(self):
+        spec = PackageSpec(("org.blender.Blender",), source=SOURCE_FLATPAK)
+        self.assertEqual(
+            _modules(build_plan(spec, STATE_ABSENT)), ["ansible.builtin.package"]
         )
 
 

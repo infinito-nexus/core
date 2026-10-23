@@ -23,7 +23,7 @@ import urllib.parse
 import urllib.request
 from typing import NamedTuple
 
-from utils.packages.schema import SOURCE_AUR
+from utils.packages.schema import SOURCE_AUR, SOURCE_FLATPAK
 
 from ._host_gate import host_gate
 
@@ -171,6 +171,15 @@ def _probe_aur(name: str) -> tuple[bool | None, str]:
         return None, f"AUR RPC returned HTTP {status}"
     payload = json.loads(body or b"{}")
     return bool(payload.get("results")), "AUR"
+
+
+def _probe_flathub(name: str) -> tuple[bool | None, str]:
+    status, _body = _get(f"https://flathub.org/api/v2/appstream/{name}")
+    if status == 200:
+        return True, "Flathub"
+    if status == 404:
+        return False, "Flathub"
+    return None, f"Flathub returned HTTP {status}"
 
 
 DEBIAN_MIRROR = "deb.debian.org"
@@ -343,6 +352,8 @@ def _probe(probe: Probe) -> Outcome:
     try:
         if probe.source == SOURCE_AUR:
             available, detail = _probe_aur(probe.name)
+        elif probe.source == SOURCE_FLATPAK:
+            available, detail = _probe_flathub(probe.name)
         elif probe.distro == "arch":
             available, detail = _probe_arch(probe.name)
         elif probe.distro in APT_INDEX:

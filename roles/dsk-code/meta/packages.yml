@@ -2,21 +2,41 @@
 code-oss:
   Archlinux:
     - code
-  Debian: [] # nocheck: empty - Debian and Ubuntu archive no Code - OSS build; TODO: install the VSCodium apt repository build through a repo source
-  RedHat: [] # nocheck: empty - Fedora and CentOS Stream archive no Code - OSS build; TODO: install the VSCodium rpm repository build through a repo source
+  Debian: [] # nocheck: empty - Code - OSS has no upstream build of its own here, and VSCodium is that build, installed through the vscodium id
+  RedHat: [] # nocheck: empty - Code - OSS has no upstream build of its own here, and VSCodium is that build, installed through the vscodium id
 
 vscode:
   Archlinux:
     source: aur
     names:
       - visual-studio-code-bin
-  Debian: [] # nocheck: empty - Visual Studio Code is proprietary and shipped only from Microsoft's own apt repository; TODO: add that repository through a repo source
-  RedHat: [] # nocheck: empty - Visual Studio Code is proprietary and shipped only from Microsoft's own rpm repository; TODO: add that repository through a repo source
+  Debian:
+    source: flatpak
+    names:
+      - com.visualstudio.code
+    flatpak:
+      command: code
+  RedHat:
+    source: flatpak
+    names:
+      - com.visualstudio.code
+    flatpak:
+      command: code
 
 vscodium:
   Archlinux:
     source: aur
     names:
       - vscodium-bin
-  Debian: [] # nocheck: empty - VSCodium ships its own signed apt repository rather than a Debian or Ubuntu package; TODO: add that repository through a repo source
-  RedHat: [] # nocheck: empty - VSCodium ships its own signed rpm repository rather than a Fedora or EPEL package; TODO: add that repository through a repo source
+  Debian:
+    source: flatpak
+    names:
+      - com.vscodium.codium
+    flatpak:
+      command: codium
+  RedHat:
+    source: flatpak
+    names:
+      - com.vscodium.codium
+    flatpak:
+      command: codium

@@ -6,4 +6,9 @@ copyq:
     - copyq
   RedHat:
     - copyq
-  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry copyq; TODO: install from Flathub
+  centos:
+    source: flatpak
+    names:
+      - com.github.hluk.copyq
+    flatpak:
+      command: copyq

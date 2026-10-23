@@ -26,6 +26,15 @@ AUR_MAKEPKG_ARGS = "--skipinteg"
 source, which makepkg can only reject; integrity rests on the pinned
 upstream tag fetched over HTTPS."""
 
+FLATPAK_PACKAGE = "flatpak"
+FLATPAK_METHOD = "system"
+FLATPAK_EXPORT_DIR = "/var/lib/flatpak/exports/bin"
+FLATPAK_COMMAND_DIR = "/usr/local/bin"
+FLATHUB_REMOTE = {
+    "name": "flathub",
+    "url": "https://dl.flathub.org/repo/flathub.flatpakrepo",
+}
+
 
 def aur_calls(names: list[str]) -> list[ModuleCall]:
     """Prepare the unprivileged build environment, then build through it.
@@ -67,6 +76,54 @@ def build_calls(build: dict[str, Any]) -> list[ModuleCall]:
             retry=EXTERNAL_FETCH,
         ),
     ]
+
+
+def flatpak_calls(names: list[str], flatpak: dict[str, Any] | None) -> list[ModuleCall]:
+    """Bring up the Flatpak runtime and remote, install the ids, expose them.
+
+    Flatpak exports a launcher named after the application id, so a role
+    calling the plain binary name finds nothing on PATH until
+    ``flatpak.command`` links it.
+    """
+    remote = (flatpak or {}).get("remote", FLATHUB_REMOTE)
+    calls = [
+        package_call([FLATPAK_PACKAGE], STATE_PRESENT),
+        ModuleCall(
+            "community.general.flatpak_remote",
+            {
+                "name": remote["name"],
+                "flatpakrepo_url": remote["url"],
+                "method": FLATPAK_METHOD,
+                "state": STATE_PRESENT,
+            },
+            retry=EXTERNAL_FETCH,
+        ),
+        ModuleCall(
+            "community.general.flatpak",
+            {
+                "name": names,
+                "remote": remote["name"],
+                "method": FLATPAK_METHOD,
+                "state": STATE_PRESENT,
+            },
+            retry=EXTERNAL_FETCH,
+        ),
+    ]
+
+    command = (flatpak or {}).get("command")
+    if command:
+        calls.append(
+            ModuleCall(
+                "ansible.builtin.file",
+                {
+                    "src": f"{FLATPAK_EXPORT_DIR}/{names[0]}",
+                    "dest": f"{FLATPAK_COMMAND_DIR}/{command}",
+                    "state": "link",
+                    "force": True,
+                },
+            )
+        )
+    return calls
 
 
 def pacman_section_calls(section: str, names: list[str]) -> list[ModuleCall]:

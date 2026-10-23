@@ -4,5 +4,5 @@ msi-perkeyrgb:
     source: aur
     names:
       - msi-perkeyrgb
-  Debian: [] # nocheck: empty - msi-perkeyrgb is published upstream on GitHub and PyPI only, neither Debian nor Ubuntu archive it; TODO: install from PyPI through sys-pip-install
-  RedHat: [] # nocheck: empty - msi-perkeyrgb is carried by neither Fedora nor CentOS Stream 10 nor EPEL 10; TODO: install from PyPI through sys-pip-install
+  Debian: [] # nocheck: empty - msi-perkeyrgb is published upstream on GitHub and PyPI only, so the role installs it from PyPI through sys-pip-install
+  RedHat: [] # nocheck: empty - msi-perkeyrgb is carried by no RedHat-family repository, so the role installs it from PyPI through sys-pip-install

@@ -9,4 +9,9 @@ torbrowser:
   RedHat:
     - tor
     - torbrowser-launcher
-  centos: [] # nocheck: empty - EPEL 10 carries tor but no torbrowser-launcher, so the Tor Browser cannot be installed on CentOS Stream 10; TODO: install the upstream Tor Browser bundle through a build source
+  centos:
+    source: flatpak
+    names:
+      - org.torproject.torbrowser-launcher
+    flatpak:
+      command: torbrowser-launcher

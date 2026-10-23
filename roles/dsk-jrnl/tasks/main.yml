@@ -2,3 +2,12 @@
 - name: 📦 install jrnl
   package_install:
     id: jrnl
+  register: jrnl_package
+
+- name: 📦 Install jrnl via pip (system-wide)
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: jrnl
+    global_install: true
+  when: jrnl_package is skipped

@@ -6,4 +6,9 @@ gnucash:
     - gnucash
   RedHat:
     - gnucash
-  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry gnucash; TODO: install from Flathub
+  centos:
+    source: flatpak
+    names:
+      - org.gnucash.GnuCash
+    flatpak:
+      command: gnucash

@@ -10,4 +10,9 @@ retroarch:
   RedHat:
     - retroarch
     - retroarch-assets
-  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry retroarch; TODO: install from RPM Fusion free or Flathub
+  centos:
+    source: flatpak
+    names:
+      - org.libretro.RetroArch
+    flatpak:
+      command: retroarch

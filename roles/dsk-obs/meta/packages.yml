@@ -6,4 +6,9 @@ obs-studio:
     - obs-studio
   RedHat:
     - obs-studio
-  centos: [] # nocheck: empty - neither the CentOS Stream 10 repositories nor EPEL 10 carry obs-studio; TODO: install from RPM Fusion free or Flathub
+  centos:
+    source: flatpak
+    names:
+      - com.obsproject.Studio
+    flatpak:
+      command: obs
