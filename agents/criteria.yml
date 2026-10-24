@@ -44,6 +44,11 @@ L11:
   proof_kind: lint
   proof: tests/lint/agents/test_l11_protected_paths.py
   red_fixture: yes
+L12:
+  statement: 'a user-started agent gets an account only on a provisioned provider; a firewall role it binds grants no account on an unprovisioned one'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l12_user_started_accounts.py
+  red_fixture: yes
 L13:
   statement: 'no hardcoded runtime list in svc-ai-agent-broker or'
   proof_kind: lint
@@ -84,10 +89,30 @@ L20:
   proof_kind: lint
   proof: tests/lint/agents/test_l20_local_only_models.py
   red_fixture: yes
+L21:
+  statement: 'the translator reads no per-language engine; meta/languages.yml holds only name, native and direction, and exactly one infinito_decider implementation exists'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l21_translator_decider.py
+  red_fixture: yes
+L24:
+  statement: 'the agents bundle inventory deploys every named agent-platform role; the vulnerable fixture app appears in no other inventory'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l24_bundle_inventory.py
+  red_fixture: yes
+L25:
+  statement: 'the agents CI workflows exist and are wired: the pull-request orchestrator calls the local agents workflow and a nightly cron caller runs the SaaS agents workflow'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l25_workflows.py
+  red_fixture: yes
 L27:
   statement: 'no secret value lives in agents/. A placeholder like ${key} is a'
   proof_kind: lint
   proof: tests/lint/agents/test_l27_no_secrets.py
+  red_fixture: yes
+L28:
+  statement: 'every make target the agent platform relies on exists in the Makefile and carries a documentation block so make help lists it'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l28_make_targets.py
   red_fixture: yes
 L29:
   statement: 'the root AGENTS.md support section exists, tells agents to point the'
@@ -131,4 +156,9 @@ L06:
   statement: "every identity account username matches [a-z1-9]{3,15}; reserved non-identity accounts exempt"
   proof_kind: lint
   proof: tests/lint/ansible/roles/meta/test_identity_username_charset.py
+  red_fixture: yes
+L07:
+  statement: "every account-creating role declares its username length ceiling and whether an agent may hold an account there; IAM_ACCOUNT_MAX_LENGTH equals the smallest ceiling across agent-reachable roles; web-app-bluesky grants agents no account"
+  proof_kind: lint
+  proof: tests/lint/agents/test_l07_account_limits.py
   red_fixture: yes
