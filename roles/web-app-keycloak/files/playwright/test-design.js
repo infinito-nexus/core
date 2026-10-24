@@ -13,7 +13,7 @@ const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, perfo
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
-const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const base = normalizeBaseUrl(requireDotenvValue(process.env.ISSUER_BASE_URL, "ISSUER_BASE_URL"));
 const realm = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
