@@ -106,15 +106,43 @@ def _resolved() -> list[dict]:
     )
 
 
-def _matched(response: list = CREATE_RESPONSE) -> list[dict]:
+def _matched(response: list = CREATE_RESPONSE, listed: tuple = ()) -> list[dict]:
     return _fact(
         "04_manage_user.yml",
         "🔍 Match every account to its Stalwart id",
         "stalwart_accounts",
         **BASE,
         stalwart_accounts=_resolved(),
-        stalwart_jmap={"methodResponses": response},
+        stalwart_jmap={
+            "methodResponses": [
+                *response,
+                ["x:Account/get", {"list": list(listed)}, "c1"],
+            ]
+        },
     )
+
+
+def _refused(accounts: list[dict], sso: bool = False) -> dict:
+    return _assert_var(
+        "04_manage_user.yml",
+        "✅ Ensure Stalwart created or already holds every account",
+        "stalwart_account_refused",
+        STALWART_SSO_ENABLED=sso,
+        stalwart_accounts=accounts,
+    )
+
+
+EXTERNAL = {
+    "type": "forbidden",
+    "description": "Cannot set credentials for accounts in an external directory.",
+}
+SSO_RESPONSE = [
+    [
+        "x:Account/set",
+        {"notCreated": {"u0": EXTERNAL, "u1": EXTERNAL, "u2": EXTERNAL}},
+        "c0",
+    ]
+]
 
 
 class TestAccountPhases(unittest.TestCase):
@@ -135,7 +163,8 @@ class TestAccountPhases(unittest.TestCase):
             stalwart_accounts=_resolved(),
         )
         self.assertEqual(body["using"], USING)
-        self.assertEqual(len(body["methodCalls"]), 1)
+        self.assertEqual(len(body["methodCalls"]), 2)
+        self.assertEqual(body["methodCalls"][1], ["x:Account/get", {"ids": None}, "c1"])
         method, arguments, _ = body["methodCalls"][0]
         self.assertEqual(method, "x:Account/set")
         creates = arguments["create"]
@@ -175,25 +204,63 @@ class TestAccountPhases(unittest.TestCase):
                 "c0",
             ]
         ]
-        refused = _assert_var(
-            "04_manage_user.yml",
-            "✅ Ensure Stalwart created or already holds every account",
-            "stalwart_account_refused",
-            stalwart_accounts=_matched(response),
-        )
+        refused = _refused(_matched(response))
         self.assertEqual(refused, {"contact@infinito.test": refusal})
 
     def test_an_existing_account_without_an_id_fails(self):
         response = [
             ["x:Account/set", {"notCreated": {"u0": {"type": "alreadyExists"}}}, "c0"]
         ]
-        refused = _assert_var(
-            "04_manage_user.yml",
-            "✅ Ensure Stalwart created or already holds every account",
-            "stalwart_account_refused",
-            stalwart_accounts=_matched(response),
-        )
+        refused = _refused(_matched(response))
         self.assertIn("administrator@infinito.test", refused)
+
+    def test_accounts_of_an_external_directory_take_their_listed_ids(self):
+        listed = (
+            {"id": "a", "name": "administrator", "domainId": "d1"},
+            {"id": "b", "name": "No-Reply", "domainId": "d1"},
+            {"id": "c", "name": "contact", "domainId": "d1"},
+        )
+        accounts = {a["key"]: a for a in _matched(SSO_RESPONSE, listed)}
+        self.assertEqual(
+            {key: (a["id"], a["existing"]) for key, a in accounts.items()},
+            {
+                "administrator": ("a", False),
+                "no-reply": ("b", False),
+                "contact": ("c", False),
+            },
+        )
+        self.assertEqual(_refused(list(accounts.values()), sso=True), {})
+
+    def test_an_account_of_another_domain_is_not_taken(self):
+        listed = ({"id": "x", "name": "administrator", "domainId": "d2"},)
+        accounts = {a["key"]: a for a in _matched(SSO_RESPONSE, listed)}
+        self.assertEqual(accounts["administrator"]["id"], "")
+
+    def test_a_person_unknown_to_an_external_directory_is_tolerated_under_sso(self):
+        listed = (
+            {"id": "b", "name": "no-reply", "domainId": "d1"},
+            {"id": "c", "name": "contact", "domainId": "d1"},
+        )
+        self.assertEqual(_refused(_matched(SSO_RESPONSE, listed), sso=True), {})
+
+    def test_a_bot_without_an_account_fails_under_sso(self):
+        listed = (
+            {"id": "a", "name": "administrator", "domainId": "d1"},
+            {"id": "c", "name": "contact", "domainId": "d1"},
+        )
+        refused = _refused(_matched(SSO_RESPONSE, listed), sso=True)
+        self.assertEqual(refused, {"no-reply@infinito.test": EXTERNAL})
+
+    def test_a_forbidden_create_fails_without_sso(self):
+        refused = _refused(_matched(SSO_RESPONSE))
+        self.assertEqual(
+            sorted(refused),
+            [
+                "administrator@infinito.test",
+                "contact@infinito.test",
+                "no-reply@infinito.test",
+            ],
+        )
 
     def test_one_update_carries_every_existing_account(self):
         body = _body(
