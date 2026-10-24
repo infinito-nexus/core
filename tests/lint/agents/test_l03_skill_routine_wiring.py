@@ -10,12 +10,13 @@ from pathlib import Path
 import yaml
 
 from tests.lint.agents import AGENTS_DIR, ROLES_DIR, load, role_names
+from utils.cache.files import read_text
 
 
 def _skill_routines(skills_dir: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for skill_md in skills_dir.glob("*/SKILL.md"):
-        front = skill_md.read_text(encoding="utf-8").split("---", 2)
+        front = read_text(str(skill_md)).split("---", 2)
         meta = yaml.safe_load(front[1]) if len(front) > 2 else {}
         out[skill_md.parent.name] = list((meta or {}).get("routines") or [])
     return out

@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----"),
@@ -24,7 +25,7 @@ def check(root: Path) -> list[str]:
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.suffix not in (".py", ".md", ".yml", ".yaml", ".json"):
             continue
-        text = path.read_text(encoding="utf-8", errors="ignore")
+        text = read_text(str(path))
         for pattern in PATTERNS:
             if pattern.search(text):
                 problems.append(f"{path.relative_to(root)}: possible secret value")

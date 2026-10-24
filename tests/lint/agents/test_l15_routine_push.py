@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 ROUTINES = AGENTS_DIR / "routines"
 STEP_LABEL = re.compile(r'Step\([^,]+,\s*"([^"]*)"')
@@ -20,7 +21,7 @@ def check(routines_dir: Path) -> list[str]:
     if not routines_dir.is_dir():
         return problems
     for path in sorted(routines_dir.rglob("*.py")):
-        for label in STEP_LABEL.findall(path.read_text(encoding="utf-8")):
+        for label in STEP_LABEL.findall(read_text(str(path))):
             if "push" in label.lower() and not any(rem in label for rem in REMOTES):
                 problems.append(f"{path.name}: push step names no remote: {label!r}")
     return problems

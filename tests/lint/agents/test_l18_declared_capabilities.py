@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 IDENTITY = re.compile(r"runs_on_github|\bRUNTIME\b\s*==|==\s*['\"]github['\"]")
 
@@ -19,7 +20,7 @@ def check(agents_dir: Path) -> list[str]:
     for path in sorted(agents_dir.rglob("*.py")):
         if not path.is_file():
             continue
-        for number, line in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+        for number, line in enumerate(read_text(str(path)).splitlines(), 1):
             if IDENTITY.search(line):
                 problems.append(f"{path.relative_to(agents_dir)}:{number}: runtime-identity branch")
     return problems

@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import PROJECT_ROOT
+from utils.cache.files import read_text
 
 AGENTS_MD = PROJECT_ROOT / "AGENTS.md"
 README = PROJECT_ROOT / "README.md"
@@ -23,7 +24,7 @@ def _address(text: str) -> str | None:
 
 def check(agents_md: Path, readme: Path) -> list[str]:
     problems: list[str] = []
-    text = agents_md.read_text(encoding="utf-8") if agents_md.is_file() else ""
+    text = read_text(str(agents_md)) if agents_md.is_file() else ""
     if "## Support" not in text:
         problems.append("AGENTS.md has no Support section")
     if "kevin@veen.world" not in text:
@@ -31,7 +32,7 @@ def check(agents_md: Path, readme: Path) -> list[str]:
     if "once per session" not in text:
         problems.append("AGENTS.md support section does not say once per session")
     agents_btc = _address(text)
-    readme_btc = _address(readme.read_text(encoding="utf-8")) if readme.is_file() else None
+    readme_btc = _address(read_text(str(readme))) if readme.is_file() else None
     if not agents_btc:
         problems.append("AGENTS.md support section has no Bitcoin address")
     elif agents_btc != readme_btc:

@@ -13,6 +13,8 @@ from pathlib import Path
 
 import yaml
 
+from utils.cache.files import read_text
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_DIR = PROJECT_ROOT / "agents"
 ROLES_DIR = AGENTS_DIR / "roles"
@@ -48,4 +50,4 @@ def load(path: Path):
     """Return the parsed single YAML document at ``path`` (``None`` if absent)."""
     if not path.is_file():
         return None
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    return yaml.safe_load(read_text(str(path)))

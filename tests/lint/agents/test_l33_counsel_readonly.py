@@ -11,6 +11,7 @@ from pathlib import Path
 import yaml
 
 from tests.lint.agents import AGENTS_DIR, load
+from utils.cache.files import read_text
 from utils.firewall.compile import decide, resolve
 
 ROLES = AGENTS_DIR / "roles"
@@ -36,7 +37,7 @@ def check(agents_dir: Path) -> list[str]:
     advocate = agents_dir / "skills" / "i8-advocate" / "SKILL.md"
     if not advocate.is_file():
         problems.append("agents/skills/i8-advocate missing")
-    elif "advocate" not in advocate.read_text(encoding="utf-8"):
+    elif "advocate" not in read_text(str(advocate)):
         problems.append("i8-advocate does not name the portable advocate skill")
     return problems
 

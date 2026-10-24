@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 ROUTINES = AGENTS_DIR / "routines"
 GATEWAY = re.compile(
@@ -23,7 +24,7 @@ def check(routines_dir: Path) -> list[str]:
     if not routines_dir.is_dir():
         return problems
     for path in sorted(routines_dir.rglob("*.py")):
-        if GATEWAY.search(path.read_text(encoding="utf-8")):
+        if GATEWAY.search(read_text(str(path))):
             problems.append(f"{path.name}: a routine imports a model or gateway client")
     return problems
 

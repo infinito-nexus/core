@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import ROLES_DIR
+from utils.cache.files import read_text
 
 TUNER_AGENTS = ROLES_DIR / "tuner" / "AGENTS.md"
 REQUIRED = (
@@ -27,7 +28,7 @@ REQUIRED = (
 def check(agents_md: Path) -> list[str]:
     if not agents_md.is_file():
         return [f"{agents_md} missing"]
-    text = agents_md.read_text(encoding="utf-8")
+    text = read_text(str(agents_md))
     return [f"tuner AGENTS.md does not name '{needle}'" for needle in REQUIRED if needle not in text]
 
 

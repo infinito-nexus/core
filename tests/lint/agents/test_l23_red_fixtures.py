@@ -10,6 +10,7 @@ from pathlib import Path
 import yaml
 
 from tests.lint.agents import PROJECT_ROOT
+from utils.cache.files import read_text
 
 CRITERIA = PROJECT_ROOT / "agents" / "criteria.yml"
 RED_MARKERS = ("def test_red_fixture_fails", "red fixture", "red_fixture")
@@ -17,7 +18,7 @@ RED_MARKERS = ("def test_red_fixture_fails", "red fixture", "red_fixture")
 
 def check(criteria_file: Path, root: Path) -> list[str]:
     problems: list[str] = []
-    data = yaml.safe_load(criteria_file.read_text(encoding="utf-8")) if criteria_file.is_file() else None
+    data = yaml.safe_load(read_text(str(criteria_file))) if criteria_file.is_file() else None
     if not isinstance(data, dict):
         return ["criteria.yml missing or not a mapping"]
     for cid, entry in data.items():
@@ -27,7 +28,7 @@ def check(criteria_file: Path, root: Path) -> list[str]:
         if not proof.is_file():
             problems.append(f"{cid}: proof file missing")
             continue
-        text = proof.read_text(encoding="utf-8")
+        text = read_text(str(proof))
         if not any(marker in text for marker in RED_MARKERS):
             problems.append(f"{cid}: lint or unit proof has no red fixture")
     return problems

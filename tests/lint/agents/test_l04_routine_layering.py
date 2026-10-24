@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 ROUTINES_DIR = AGENTS_DIR / "routines"
 UPWARD = re.compile(r"(?:import|from)\s+agents\.(?:skills|roles)\b")
@@ -19,7 +20,7 @@ def check(routines_dir: Path) -> list[str]:
     if not routines_dir.is_dir():
         return problems
     for path in sorted(routines_dir.rglob("*.py")):
-        text = path.read_text(encoding="utf-8")
+        text = read_text(str(path))
         if UPWARD.search(text):
             problems.append(f"{path.name}: a routine imports a skill or a role")
         if "agents/skills/" in text or "agents/roles/" in text:

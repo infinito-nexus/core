@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import PROJECT_ROOT
+from utils.cache.files import read_text
 
 SCAN_DIRS = ("agents", "plugins", "cli")
 ALLOW = (
@@ -25,7 +26,7 @@ def _offending_files(root: Path) -> list[str]:
         for path in base.rglob("*.py"):
             if path in ALLOW:
                 continue
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            text = read_text(str(path))
             if any(needle in text for needle in NEEDLES):
                 offenders.append(str(path.relative_to(root)))
     return offenders

@@ -11,6 +11,7 @@ from pathlib import Path
 import yaml
 
 from tests.lint.agents import PROJECT_ROOT
+from utils.cache.files import read_text
 
 CRITERIA = PROJECT_ROOT / "agents" / "criteria.yml"
 KINDS = ("lint", "unit", "scenario")
@@ -19,7 +20,7 @@ SCENARIO_WORDS = ("probe", "refus", "refuse", "time bound", "restart", "locks no
 
 def check(criteria_file: Path, root: Path) -> list[str]:
     problems: list[str] = []
-    data = yaml.safe_load(criteria_file.read_text(encoding="utf-8")) if criteria_file.is_file() else None
+    data = yaml.safe_load(read_text(str(criteria_file))) if criteria_file.is_file() else None
     if not isinstance(data, dict):
         return ["criteria.yml missing or not a mapping"]
     for cid, entry in data.items():

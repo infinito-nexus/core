@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import ROLES_DIR, role_names
+from utils.cache.files import read_text
 
 MANDATORY = ("AGENTS.md", "SOUL.md", "agent.yml")
 
@@ -21,7 +22,7 @@ def check(roles_dir: Path) -> list[str]:
                 problems.append(f"{role}: missing {name}")
         soul = role_dir / "SOUL.md"
         if soul.is_file():
-            text = soul.read_text(encoding="utf-8")
+            text = read_text(str(soul))
             if "## Objective" not in text:
                 problems.append(f"{role}: SOUL.md has no '## Objective'")
             if "agents/SOUL.md" not in text:

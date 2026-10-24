@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 
 def _has_pua(text: str) -> bool:
@@ -23,7 +24,7 @@ def check(root: Path) -> list[str]:
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.suffix not in (".py", ".md", ".yml"):
             continue
-        if _has_pua(path.read_text(encoding="utf-8", errors="ignore")):
+        if _has_pua(read_text(str(path))):
             problems.append(f"{path.relative_to(root)}: private-use or surrogate character")
     return problems
 

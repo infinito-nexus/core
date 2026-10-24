@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import PROJECT_ROOT
+from utils.cache.files import read_text
 
 ROLE_PYTHON = (
     PROJECT_ROOT / "roles" / "svc-ai-agent-broker" / "files" / "python",
@@ -24,7 +25,7 @@ def check(dirs) -> list[str]:
         if not base.is_dir():
             continue
         for path in sorted(base.rglob("*.py")):
-            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for number, line in enumerate(read_text(str(path)).splitlines(), 1):
                 if RUNTIME_NAME.search(line):
                     problems.append(f"{path.name}:{number}: hardcoded runtime name")
     return problems

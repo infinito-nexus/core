@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 ROUTINES = AGENTS_DIR / "routines"
 FORBIDDEN = re.compile(
@@ -24,7 +25,7 @@ def check(routines_dir: Path) -> list[str]:
     if not routines_dir.is_dir():
         return problems
     for path in sorted(routines_dir.rglob("*.py")):
-        if FORBIDDEN.search(path.read_text(encoding="utf-8")):
+        if FORBIDDEN.search(read_text(str(path))):
             problems.append(f"{path.name}: prints a raw dump or reads a raw report")
     return problems
 

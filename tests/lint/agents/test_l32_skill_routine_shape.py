@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 SKILLS = AGENTS_DIR / "skills"
 ROUTINES = AGENTS_DIR / "routines"
@@ -40,7 +41,7 @@ def check(agents_dir: Path) -> list[str]:
         for path in sorted(routines.glob("*.py")):
             if path.stem in HELPERS:
                 continue
-            tree = ast.parse(path.read_text(encoding="utf-8"))
+            tree = ast.parse(read_text(str(path)))
             if not _defines(tree, "STEPS") or not _defines(tree, "build"):
                 problems.append(f"{path.name}: routine lacks STEPS or build")
     return problems

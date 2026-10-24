@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from tests.lint.agents import AGENTS_DIR
+from utils.cache.files import read_text
 
 ROUTINES = AGENTS_DIR / "routines"
 FORBIDDEN = ("git -C", "--git-dir", "docker exec")
@@ -19,7 +20,7 @@ def check(routines_dir: Path) -> list[str]:
     if not routines_dir.is_dir():
         return problems
     for path in sorted(routines_dir.rglob("*.py")):
-        text = path.read_text(encoding="utf-8")
+        text = read_text(str(path))
         for token in FORBIDDEN:
             if token in text:
                 problems.append(f"{path.name}: forbidden command shape {token!r}")
