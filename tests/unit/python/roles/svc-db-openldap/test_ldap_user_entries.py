@@ -77,6 +77,32 @@ class TestLdapUserEntries(unittest.TestCase):
             },
         )
 
+    def test_passwords_are_managed_unless_the_user_opts_out(self):
+        users = {
+            "alice": {"password": "a-pw"},
+            "bob": {"password": "b-pw", "password_update": False},
+            "carol": {"password": "c-pw", "password_update": "false"},
+            "dave": {"password": "d-pw", "password_update": "yes"},
+        }
+        entries = self.m.openldap_user_passwords(users, "uid", "ou=users,dc=x", [])
+        self.assertEqual(
+            entries,
+            [
+                {"dn": "uid=alice,ou=users,dc=x", "passwd": "a-pw"},
+                {"dn": "uid=dave,ou=users,dc=x", "passwd": "d-pw"},
+            ],
+        )
+
+    def test_an_opted_out_user_created_by_this_run_still_gets_its_password(self):
+        users = {
+            "bob": {"password": "b-pw", "password_update": False},
+            "carol": {"password": "c-pw", "password_update": False},
+        }
+        entries = self.m.openldap_user_passwords(
+            users, "uid", "ou=users,dc=x", ["uid=carol,ou=users,dc=x"]
+        )
+        self.assertEqual(entries, [{"dn": "uid=carol,ou=users,dc=x", "passwd": "c-pw"}])
+
     def test_dn_entries_share_one_attribute_set(self):
         entries = self.m.ldap_dn_entries(["a", "b"], {"objectClass": ["x"]})
         self.assertEqual(
