@@ -97,6 +97,29 @@ def evaluate_clock(ntp_synchronized):
     return [f"the host clock is not synchronized (NTPSynchronized={ntp_synchronized or 'unreadable'}); Wazuh event times cannot be trusted"]
 
 
+def evaluate_collector(collector_state, agent_locked):
+    """Return the collector problem, empty unless it is frozen while the agent is online.
+
+    Args:
+        collector_state: wazuh-logcollector's process state letter, None when it is not running.
+        agent_locked: whether wazuh-agentd's offline lock (queue/sockets/.wait) exists.
+    """
+    if collector_state == "T" and not agent_locked:
+        return ["wazuh-logcollector is frozen although the agent is online; no log line is collected until it is resumed"]
+    return []
+
+
+def collector_state(run_dir):
+    for pid_file in glob.glob(os.path.join(run_dir, "wazuh-logcollector-*.pid")):
+        pid = pid_file.rsplit("-", 1)[1].split(".", 1)[0]
+        try:
+            with open(f"/proc/{pid}/stat", encoding="ascii") as stat_file:
+                return stat_file.read().rsplit(")", 1)[1].split()[0]
+        except (OSError, IndexError):
+            continue
+    return None
+
+
 def parse_agents(listing):
     """Return (id, name, status) of every agent line in agent_control -l output.
 
@@ -156,6 +179,8 @@ def main():
     parser.add_argument("--run-dir", required=True, help="the agent's var/run directory")
     parser.add_argument("--threshold", required=True, type=int, help="seconds of tolerated disconnect and of grace after a start")
     parser.add_argument("--manager", help="manager container name; checks every registered agent when set")
+    parser.add_argument("--wait-file", required=True, help="wazuh-agentd's offline lock file")
+    parser.add_argument("--collector-grace", required=True, type=int, help="seconds a frozen collector may lag behind the lock")
     args = parser.parse_args()
 
     state_path = os.path.join(args.run_dir, "wazuh-agentd.state")
@@ -168,6 +193,9 @@ def main():
     problems = evaluate_host(service_active, agentd_age(args.run_dir), state, datetime.now(), args.threshold)
     ntp = run(["timedatectl", "show", "--property=NTPSynchronized", "--value"])
     problems += evaluate_clock(ntp.strip() if ntp is not None else None)
+    if evaluate_collector(collector_state(args.run_dir), os.path.exists(args.wait_file)):
+        time.sleep(args.collector_grace)
+        problems += evaluate_collector(collector_state(args.run_dir), os.path.exists(args.wait_file))
     if args.manager:
         problems += manager_problems(args.manager, args.threshold)
 

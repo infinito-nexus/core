@@ -102,6 +102,9 @@
     mode: "0640"
   notify: wazuh-agent-restart
 
+- name: "🧊 Freeze the log collector while the agent is offline"
+  include_tasks: 02_collector_freeze.yml
+
 - name: "🔄 Apply a changed agent key or configuration"
   meta: flush_handlers
 
@@ -125,7 +128,7 @@
   when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool
 
 - name: "🔍 Report the FIM who-data state"
-  include_tasks: 02_whodata_state.yml
+  include_tasks: 03_whodata_state.yml
   when: WAZUH_AGENT_FIM_ENABLED | bool
 
 - name: "📂 Include dependency 'sys-ctl-hlth-wazuh-agent'"

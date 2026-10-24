@@ -17,16 +17,19 @@ from utils.roles.applications.services.wazuh import (
     JOURNALD_PROGRAM,
     SELFTEST_TAG,
     SYSTEM_TAGS,
+    WATCH_TAG,
 )
 
 _SELFTEST = {"program": SELFTEST_TAG, "decoder": SELFTEST_TAG}
 _DEPLOY = {"program": DEPLOY_TAG, "decoder": DEPLOY_TAG}
 _FIM = {"program": FIM_TAG, "decoder": FIM_TAG}
+_WATCH = {"program": WATCH_TAG, "decoder": WATCH_TAG}
 _EMPTY = {
     "selftest": _SELFTEST,
     "deploy": _DEPLOY,
     "fim": _FIM,
-    "own": [_SELFTEST, _DEPLOY, _FIM],
+    "watch": _WATCH,
+    "own": [_SELFTEST, _DEPLOY, _FIM, _WATCH],
     "journald": {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER},
     "system_tags": list(SYSTEM_TAGS),
     "container_comm": CONTAINER_COMM,

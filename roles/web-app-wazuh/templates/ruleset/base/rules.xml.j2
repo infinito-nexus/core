@@ -14,6 +14,11 @@
     <description>{{ SOFTWARE_NAME }} FIM who-data state.</description>
   </rule>
 
+  <rule id="{{ WAZUH_WATCH_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_WATCH.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} Wazuh log collector watch.</description>
+  </rule>
+
   <rule id="{{ WAZUH_JOURNALD_RULE_ID }}" level="0">
     <decoded_as>{{ WAZUH_RULESET_JOURNALD.decoder }}</decoded_as>
     <program_name>^{{ WAZUH_RULESET_JOURNALD.program }}$</program_name>
@@ -101,6 +106,20 @@
 </group>
 
 {% endfor %}
+<group name="infinito_watch,">
+  <rule id="{{ WAZUH_COLLECTOR_FROZEN_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_WATCH_RULE_ID }}</if_sid>
+    <match>^collector frozen </match>
+    <description>{{ SOFTWARE_NAME }} Wazuh agent lost the manager; its log collector was frozen so the journal keeps the lines.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_COLLECTOR_RESUMED_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_WATCH_RULE_ID }}</if_sid>
+    <match>^collector resumed </match>
+    <description>{{ SOFTWARE_NAME }} Wazuh agent reached the manager again; its log collector resumed from its journal position.</description>
+  </rule>
+</group>
+
 <group name="infinito_journald,">
   <rule id="{{ WAZUH_JOURNALD_SUPPRESSED_RULE_ID }}" level="{{ WAZUH_JOURNALD_SUPPRESSED_LEVEL }}">
     <if_sid>{{ WAZUH_JOURNALD_RULE_ID }}</if_sid>

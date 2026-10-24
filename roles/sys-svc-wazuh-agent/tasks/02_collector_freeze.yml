@@ -1,0 +1,43 @@
+---
+- name: "🧊 Install the log collector freeze script"
+  ansible.builtin.copy:
+    src: shell/collector_freeze.sh
+    dest: "{{ WAZUH_AGENT_FREEZE_SCRIPT }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "🧊 Install the freeze service and the path unit that watches the offline lock"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host systemd units, every agent host renders its own)
+    src: "collector/freeze.{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ WAZUH_AGENT_FREEZE_UNIT }}.{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: ["service", "path"]
+  register: wazuh_agent_freeze_units
+
+- name: "📂 Create the agent's systemd drop-in directory"
+  ansible.builtin.file:
+    path: "{{ WAZUH_AGENT_FREEZE_DROPIN | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# Exception: the drop-in restates the package's ExecStop and ExecReload, because systemd can only put the release step in front of them by replacing the list.
+- name: "🧊 Release a frozen collector before the agent stops or reloads"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host systemd drop-in, every agent host renders its own)
+    src: collector/release.conf.j2
+    dest: "{{ WAZUH_AGENT_FREEZE_DROPIN }}"
+    owner: root
+    group: root
+    mode: "0644"
+  register: wazuh_agent_freeze_dropin
+
+- name: "🧊 Watch the offline lock"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_FREEZE_UNIT }}.path"
+    state: "{{ 'restarted' if wazuh_agent_freeze_units is changed else 'started' }}"
+    enabled: true
+    daemon_reload: "{{ wazuh_agent_freeze_units is changed or wazuh_agent_freeze_dropin is changed }}"

@@ -125,6 +125,26 @@ class TestEvaluateClock(TestCase):
         self.assertIn("NTPSynchronized=unreadable", self.script.evaluate_clock(None)[0])
 
 
+class TestEvaluateCollector(TestCase):
+    def setUp(self):
+        self.script = load_script()
+
+    def test_frozen_collector_while_online_fails(self):
+        self.assertIn("frozen", self.script.evaluate_collector("T", False)[0])
+
+    def test_frozen_collector_while_offline_is_expected(self):
+        self.assertEqual(self.script.evaluate_collector("T", True), [])
+
+    def test_running_collector_is_healthy(self):
+        for state in ("S", "R"):
+            for locked in (True, False):
+                with self.subTest(state=state, locked=locked):
+                    self.assertEqual(self.script.evaluate_collector(state, locked), [])
+
+    def test_missing_collector_is_left_to_the_service_check(self):
+        self.assertEqual(self.script.evaluate_collector(None, False), [])
+
+
 class TestParsing(TestCase):
     def setUp(self):
         self.script = load_script()

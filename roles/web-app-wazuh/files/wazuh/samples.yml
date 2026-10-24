@@ -31,6 +31,18 @@
   rule: 100102
   level: 0
   program: infinito-fim
+- log: collector frozen pid=4242
+  rule: 100150
+  level: 3
+  program: infinito-wazuh-watch
+- log: collector resumed pid=4242
+  rule: 100151
+  level: 3
+  program: infinito-wazuh-watch
+- log: collector released for stop pid=4242
+  rule: 100104
+  level: 0
+  program: infinito-wazuh-watch
 - log: Suppressed 51234 messages from docker.service
   rule: 100140
   level: 7
