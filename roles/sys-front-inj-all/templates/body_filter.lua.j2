@@ -142,16 +142,16 @@ local head_payload = onionize(marked(head_snippets)) .. "</head>"
 
 local function repl_head(_) return head_payload end
 local new, n, err = ngx.re.sub(whole, [[</head\s*>]], repl_head, "ijo")
-if new then
+if n and n > 0 then
     whole = new
 else
-    ngx.log(ngx.WARN, "No </head> found; trying <body> fallback: ", err or "nil")
-    local body_open_re = [[<body\b[^>]*>]]
-    new, n, err = ngx.re.sub(whole, body_open_re, "$0\n" .. marked(head_snippets), "ijo")
-    if new then
+    local head_fallback = onionize(marked(head_snippets))
+    local function repl_body_open(m) return m[0] .. "\n" .. head_fallback end
+    new, n, err = ngx.re.sub(whole, [[<body\b[^>]*>]], repl_body_open, "ijo")
+    if n and n > 0 then
         whole = new
-    else
-        ngx.log(ngx.ERR, "Head-fallback failed: ", err or "nil")
+    elseif err then
+        ngx.log(ngx.ERR, "Head-fallback failed: ", err)
     end
 end
 
@@ -161,11 +161,10 @@ local body_payload = onionize(marked(body_snippets)) .. "</body>"
 
 local function repl_body(_) return body_payload end
 new, n, err = ngx.re.sub(whole, [[</body\s*>]], repl_body, "ijo")
-if new then
+if n and n > 0 then
     whole = new
-else
-    ngx.log(ngx.WARN, "No </body> found; appending body snippets at end: ", err or "nil")
-    whole = whole .. marked(body_snippets)
+elseif err then
+    ngx.log(ngx.ERR, "Body injection failed: ", err)
 end
 
 ngx.arg[1] = whole or ""
