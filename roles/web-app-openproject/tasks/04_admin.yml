@@ -6,7 +6,7 @@
     resolve_output_prefix: OPENPROJECT_WEB
     resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
 
-- name: 🔧 Apply settings, ensure the administrator, lock the seeded admin and link it to LDAP
+- name: 🔧 Apply settings, ensure the administrator, lock the seeded admin, link LDAP
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
       container exec -i
@@ -14,7 +14,8 @@
       -e {{ ('OPENPROJECT_ADMIN_EMAIL=' ~ OPENPROJECT_ADMINISTRATOR_EMAIL) | quote }}
       {% if OPENPROJECT_HEADER_SSO_ENABLED | bool %}-e {{ ('OPENPROJECT_LDAP_NAME=' ~ OPENPROJECT_LDAP.name) | quote }}{% endif %}
       {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
-      sh -c 'IFS= read -r OPENPROJECT_ADMIN_PASSWORD; IFS= read -r OPENPROJECT_RAILS_SETTINGS; export OPENPROJECT_ADMIN_PASSWORD OPENPROJECT_RAILS_SETTINGS; exec "$@"' sh bash -lc 'cd /app && bundle exec rails runner -'
+      sh -c 'IFS= read -r OPENPROJECT_ADMIN_PASSWORD; IFS= read -r OPENPROJECT_RAILS_SETTINGS; export OPENPROJECT_ADMIN_PASSWORD OPENPROJECT_RAILS_SETTINGS; exec
+      "$@"' sh bash -lc 'cd /app && bundle exec rails runner -'
     stdin: |-
       {{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}
       {{ OPENPROJECT_RAILS_SETTINGS | to_json }}
