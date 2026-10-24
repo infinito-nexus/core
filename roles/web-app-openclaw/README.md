@@ -13,7 +13,7 @@ This role deploys OpenClaw as a gateway container behind the reverse proxy on it
 - **Agent gateway:** The container runs the OpenClaw gateway bound to the LAN interface on port 18789, with an HTTP health check against `/healthz`.
 - **Isolating runtime:** The compose service is pinned to Kata Containers where `/dev/kvm` and the Kata shim are available, and to gVisor otherwise.
 - **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the administrator group of this application.
-- **Gateway token:** A generated gateway token guards the Control UI and the API, and the Control UI accepts the canonical domain as its only allowed origin.
+- **Gateway token:** A generated gateway token guards the Control UI and the API, and the Control UI accepts its domain in every network the gateway is served on, such as the clearnet domain and its onion sibling, as its allowed origins.
 - **Reverse-proxy trust:** `gateway.trustedProxies` carries the project-wide trusted-proxy CIDRs. Without them the gateway answers a Control UI WebSocket that arrives with forwarded headers from an untrusted source with `trusted_proxy_untrusted_source` and closes it before the pairing step, which the Control UI reports as a network failure rather than as a pairing prompt.
 - **Corporate design:** With the design service deployed, the Control UI renders the corporate palette, logo and title in light and dark mode. See [Control UI](#control-ui).
 - **Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application.
