@@ -25,36 +25,22 @@
       {{ STALWART_ALLOWED_IPS
          | difference(stalwart_jmap.methodResponses[0][1].list | map(attribute='address') | list) }}
 
-- name: "🛡️ Apply Stalwart's ban periods and allowed addresses"
-  when: (stalwart_ban_periods_current != STALWART_BAN_PERIODS) or (stalwart_allowed_ips_missing | length > 0)
-  block:
-    - name: "⏱️ Let Stalwart's address bans expire"
-      include_tasks: jmap_call.yml
-      vars:
-        stalwart_jmap_body: >-
-          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-              'methodCalls': [['x:Security/set',
-                {'update': {'singleton': STALWART_BAN_PERIODS}},
-                'c0']]} | to_json }}
-      when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
+- name: "📖 Read Stalwart's HTTP settings"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Http/get', {'ids': ['singleton']}, 'c0']]} | to_json }}
 
-    - name: "🛡️ Never ban the Docker gateway the proxy and hairpin traffic arrive from"
-      include_tasks: jmap_call.yml
-      vars:
-        stalwart_jmap_body: >-
-          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-              'methodCalls': [['x:AllowedIp/set',
-                {'create': {'a': {'address': stalwart_allowed_ip, 'reason': STALWART_ALLOWED_IP_REASON}}},
-                'c0']]} | to_json }}
-      loop: "{{ stalwart_allowed_ips_missing }}"
-      loop_control:
-        loop_var: stalwart_allowed_ip
+- name: "🔍 Resolve Stalwart's current HTTP settings"
+  ansible.builtin.set_fact:
+    stalwart_http_settings_current: >-
+      {{ stalwart_jmap.methodResponses[0][1].list[0]
+         | dict2items | selectattr('key', 'in', STALWART_HTTP_SETTINGS) | items2dict }}
 
-    - name: "🔄 Reload Stalwart's settings"
-      include_tasks: jmap_call.yml
-      vars:
-        stalwart_jmap_body: >-
-          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-              'methodCalls': [['x:Action/set',
-                {'create': {'a': {'@type': 'ReloadSettings'}}},
-                'c0']]} | to_json }}
+- name: "🛡️ Apply Stalwart's ban periods, allowed addresses and client address source"
+  include_tasks: security/apply.yml
+  when: >-
+    (stalwart_ban_periods_current != STALWART_BAN_PERIODS)
+    or (stalwart_allowed_ips_missing | length > 0)
+    or (stalwart_http_settings_current != STALWART_HTTP_SETTINGS)

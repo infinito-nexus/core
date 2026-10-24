@@ -212,8 +212,13 @@ account (or the Keycloak SSO token when SSO is enabled).
   reverse proxy, the published ports, Tor and the swarm ingress hand many
   clients one address.
 - **The role network's gateway is never banned** (`STALWART_ALLOWED_IPS`,
-  an `x:AllowedIp` entry): reverse-proxied HTTP and every container that
-  reaches the published ports through the host arrive from that address.
+  an `x:AllowedIp` entry): every container that reaches the published ports
+  through the host arrives from that address.
+- **HTTP clients are rate-limited and banned by their own address.** The
+  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  `Forwarded: for=$remote_addr` on every location and replaces any
+  client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`,
+  `useXForwarded`).
 - **Bans and failed logins also go to the container output**
   (`STALWART_BAN_TRACER`, `tasks/tracing.yml`), next to the daily log file in
   the data volume.

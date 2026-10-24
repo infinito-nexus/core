@@ -90,6 +90,8 @@ STALWART_BAN_PERIODS:
 STALWART_ALLOWED_IPS:
   - "{{ lookup('subnet_gateway') }}"
 STALWART_ALLOWED_IP_REASON: "Docker gateway: reverse-proxied HTTP and container hairpin traffic share this address"
+STALWART_HTTP_SETTINGS:
+  useXForwarded: true
 
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 
