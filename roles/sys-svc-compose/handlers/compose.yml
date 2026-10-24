@@ -1,10 +1,12 @@
 ---
+# Param: compose_service_up_targets  compose service keys compose-service-up builds and recreates without their dependencies.
 - name: "🛡️ Guard instance dir at compose flush"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/guard_instance_dir.yml') }}"
   listen:
     - compose-up
     - compose-build
     - container-recreate
+    - compose-service-up
 
 - name: 📝 Generate CA trust override
   ansible.builtin.shell: |
@@ -123,3 +125,49 @@
   listen:
     - compose-up
     - container-recreate
+
+- name: 🔨 Build the services queued for a lone recreate
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build {{ compose_service_up_targets | map('quote') | join(' ') }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_service_up_build
+  changed_when: false
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  retries: 3
+  delay: 30
+  until: compose_service_up_build is succeeded
+  ignore_errors: true
+  listen:
+    - compose-service-up
+
+- name: 🔨 Rebuild the queued services without cache once the retries are exhausted
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build --no-cache --pull {{ compose_service_up_targets | map('quote') | join(' ') }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_service_up_rebuild
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  retries: 3
+  delay: 30
+  until: compose_service_up_rebuild is succeeded
+  when: compose_service_up_build is failed
+  listen:
+    - compose-service-up
+
+- name: 🐳 compose up the queued services alone
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose up -d --no-deps {{ compose_service_up_targets | map('quote') | join(' ') }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_service_up_result
+  changed_when: "(compose_service_up_result.stdout ~ compose_service_up_result.stderr) is search('(Recreated|Created|Started)')"
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  listen:
+    - compose-service-up

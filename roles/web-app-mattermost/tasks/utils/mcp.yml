@@ -27,6 +27,7 @@
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the bearer exists"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: not mcp_upstream_written.changed
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
