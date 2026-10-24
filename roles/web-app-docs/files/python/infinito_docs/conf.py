@@ -66,6 +66,7 @@ extensions = [
     "infinito_docs.extensions.yaml_source",
     "infinito_docs.extensions.directory_index",
     "infinito_docs.extensions.mermaid",
+    "infinito_docs.extensions.remote_images",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
 ]
