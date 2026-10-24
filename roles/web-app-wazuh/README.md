@@ -261,6 +261,7 @@ sequenceDiagram
 
 The internal `admin` and `kibanaserver` service accounts authenticate with HTTP basic auth against `internal_users.yml` and bypass OIDC and LDAP.
 With `sso` disabled, these two accounts are the only way to sign in.
+Besides `kibana_server`, the dashboard service account maps to `wazuh_dashboard_jobs`, which lets the dashboard's monitoring and statistics jobs check, create and write only `wazuh-monitoring-*` and `wazuh-statistics-*`.
 
 ## RBAC
 
