@@ -7,17 +7,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
-from tests.lint.agents import AGENTS_DIR, ROLES_DIR, load, role_names
+from tests.lint.agents import AGENTS_DIR, load, role_names
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 
 
 def _skill_routines(skills_dir: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for skill_md in skills_dir.glob("*/SKILL.md"):
         front = read_text(str(skill_md)).split("---", 2)
-        meta = yaml.safe_load(front[1]) if len(front) > 2 else {}
+        meta = load_yaml_str(front[1]) if len(front) > 2 else {}
         out[skill_md.parent.name] = list((meta or {}).get("routines") or [])
     return out
 
@@ -27,22 +26,29 @@ def check(agents_dir: Path) -> list[str]:
     skills_dir = agents_dir / "skills"
     routines_dir = agents_dir / "routines"
     skills = _skill_routines(skills_dir)
-    routines = {
-        p.stem
-        for p in routines_dir.glob("*.py")
-        if not p.stem.startswith("_") and p.stem not in {"contract"}
-    }
+    routines = set()
+    for path in routines_dir.rglob("*.py"):  # nocheck: project-walk
+        parts = path.relative_to(routines_dir).with_suffix("").parts
+        if parts[-1].startswith("_") or parts[-1] == "contract":
+            continue
+        routines.add("_".join(parts))
     for role in role_names(agents_dir / "roles"):
-        listed = (load(agents_dir / "roles" / role / "agent.yml") or {}).get("skills") or []
+        listed = (load(agents_dir / "roles" / role / "agent.yml") or {}).get(
+            "skills"
+        ) or []
         if not listed:
             problems.append(f"{role}: lists no skill")
-        for skill in listed:
-            if skill not in skills:
-                problems.append(f"{role}: skill '{skill}' not in agents/skills/")
+        problems.extend(
+            f"{role}: skill '{skill}' not in agents/skills/"
+            for skill in listed
+            if skill not in skills
+        )
     for skill, routs in skills.items():
-        for routine in routs:
-            if routine not in routines:
-                problems.append(f"{skill}: routine '{routine}' not in agents/routines/")
+        problems.extend(
+            f"{skill}: routine '{routine}' not in agents/routines/"
+            for routine in routs
+            if routine not in routines
+        )
     return problems
 
 

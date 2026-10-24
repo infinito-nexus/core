@@ -54,9 +54,7 @@ def mermaid(steps: list[Step]) -> str:
     for step in steps:
         opener, closer = _SHAPE[step.kind]
         lines.append(f'  {step.id}{opener}"{step.label}"{closer}')
-    for step in steps:
-        if step.nxt:
-            lines.append(f"  {step.id} --> {step.nxt}")
+    lines.extend(f"  {step.id} --> {step.nxt}" for step in steps if step.nxt)
     return "\n".join(lines)
 
 
@@ -71,7 +69,7 @@ def build(name: str, steps: list[Step]):
         name: the routine name.
         steps: the ordered steps; each deterministic step becomes a node.
     """
-    from langgraph.graph import END, START, StateGraph  # noqa: PLC0415 - lazy by design
+    from langgraph.graph import END, START, StateGraph
 
     graph = StateGraph(dict)
     for step in steps:

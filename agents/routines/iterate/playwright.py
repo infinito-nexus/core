@@ -5,14 +5,32 @@ baseline deploy."""
 
 from __future__ import annotations
 
-from agents.routines.contract import Step, build as _build, mermaid
+from agents.routines.contract import Step, mermaid
+from agents.routines.contract import build as _build
 
 STEPS = [
-    Step("preconditions", "Confirm the baseline deploy, running stack, staging .env, and spec file", nxt="edit"),
-    Step("edit", "Edit roles/<role>/files/playwright/playwright.spec.js, not the staged copy", nxt="rerun"),
+    Step(
+        "preconditions",
+        "Confirm the baseline deploy, running stack, staging .env, and spec file",
+        nxt="edit",
+    ),
+    Step(
+        "edit",
+        "Edit roles/<role>/files/playwright/playwright.spec.js, not the staged copy",
+        nxt="rerun",
+    ),
     Step("rerun", "make compose-playwright role=<role> keep=true", nxt="inspect"),
-    Step("inspect", "Read the per-test logs and a trace; verify persona and skip schema", "model", nxt="baseline"),
-    Step("baseline", "make compose-deploy mode=reinstall apps=<role> full_cycle=true", nxt="done"),
+    Step(
+        "inspect",
+        "Read the per-test logs and a trace; verify persona and skip schema",
+        "model",
+        nxt="baseline",
+    ),
+    Step(
+        "baseline",
+        "make compose-deploy mode=reinstall apps=<role> full_cycle=true",
+        nxt="done",
+    ),
     Step("done", "Report the full spec green against the fresh stack", "terminal"),
 ]
 MERMAID = mermaid(STEPS)

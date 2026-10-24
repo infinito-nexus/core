@@ -5,14 +5,34 @@ Analysers and credential brute forcing against seeded test accounts only."""
 
 from __future__ import annotations
 
-from agents.routines.contract import Step, build as _build, mermaid
+from agents.routines.contract import Step, mermaid
+from agents.routines.contract import build as _build
 
 STEPS = [
-    Step("targets", "Read agents.hacker.targets; the firewall denies every other target", nxt="approve"),
-    Step("approve", "A production target needs the owner's approval of this run", "ask", nxt="scan"),
-    Step("scan", "Analysers and credential brute forcing against seeded test accounts only, rate-limited", nxt="judge"),
-    Step("judge", "Real finding or false positive, and its severity", "model", nxt="file"),
-    Step("file", "Work package in the confidential security project, no live secrets; email on a failure", "terminal"),
+    Step(
+        "targets",
+        "Read agents.hacker.targets; the firewall denies every other target",
+        nxt="approve",
+    ),
+    Step(
+        "approve",
+        "A production target needs the owner's approval of this run",
+        "ask",
+        nxt="scan",
+    ),
+    Step(
+        "scan",
+        "Analysers and credential brute forcing against seeded test accounts only, rate-limited",
+        nxt="judge",
+    ),
+    Step(
+        "judge", "Real finding or false positive, and its severity", "model", nxt="file"
+    ),
+    Step(
+        "file",
+        "Work package in the confidential security project, no live secrets; email on a failure",
+        "terminal",
+    ),
 ]
 MERMAID = mermaid(STEPS)
 

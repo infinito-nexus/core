@@ -24,7 +24,10 @@ def _defines(tree: ast.Module, name: str) -> bool:
             isinstance(t, ast.Name) and t.id == name for t in node.targets
         ):
             return True
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
+        if (
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == name
+        ):
             return True
     return False
 
@@ -34,11 +37,13 @@ def check(agents_dir: Path) -> list[str]:
     skills = agents_dir / "skills"
     routines = agents_dir / "routines"
     if skills.is_dir():
-        for skill in sorted(p for p in skills.iterdir() if p.is_dir()):
-            if not (skill / "SKILL.md").is_file():
-                problems.append(f"{skill.name}: skill is not a SKILL.md")
+        problems.extend(
+            f"{skill.name}: skill is not a SKILL.md"
+            for skill in sorted(p for p in skills.iterdir() if p.is_dir())
+            if not (skill / "SKILL.md").is_file()
+        )
     if routines.is_dir():
-        for path in sorted(routines.glob("*.py")):
+        for path in sorted(routines.rglob("*.py")):  # nocheck: project-walk
             if path.stem in HELPERS:
                 continue
             tree = ast.parse(read_text(str(path)))

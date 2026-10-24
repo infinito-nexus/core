@@ -17,32 +17,48 @@ from __future__ import annotations
 
 import importlib
 import pkgutil
-from types import ModuleType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 __all__ = ["discover", "load"]
 
 HELPERS = {"contract"}
 
 
-def discover() -> list[str]:
-    """Return the names of every routine module in this package.
+def _routine_modules() -> dict[str, str]:
+    """Map every routine's flat name to its dotted submodule path.
 
-    Helper modules (the routine contract) and private modules are not
-    routines and are left out.
+    A routine may live in a subpackage (``debug/ci.py``); the flat name joins
+    the path with ``_`` (``debug_ci``), so a skill names a routine by one
+    stable name wherever its file sits. Helper modules (the routine contract)
+    and private modules are left out.
     """
-    return sorted(
-        info.name
-        for info in pkgutil.iter_modules(__path__)
-        if not info.name.startswith("_") and info.name not in HELPERS
-    )
+    found: dict[str, str] = {}
+    for info in pkgutil.walk_packages(__path__, prefix=f"{__name__}."):
+        if info.ispkg:
+            continue
+        relative = info.name[len(__name__) + 1 :]
+        leaf = relative.rsplit(".", 1)[-1]
+        if leaf.startswith("_") or leaf in HELPERS:
+            continue
+        found["_".join(relative.split("."))] = relative
+    return found
+
+
+def discover() -> list[str]:
+    """Return the flat name of every routine module in this package."""
+    return sorted(_routine_modules())
 
 
 def load(name: str) -> ModuleType:
     """Import and return the routine module ``name``.
 
     Args:
-        name: the routine module name, as ``discover`` lists it.
+        name: the routine's flat name, as ``discover`` lists it.
     """
-    if name not in discover():
+    modules = _routine_modules()
+    if name not in modules:
         raise KeyError(name)
-    return importlib.import_module(f"{__name__}.{name}")
+    return importlib.import_module(f"{__name__}.{modules[name]}")

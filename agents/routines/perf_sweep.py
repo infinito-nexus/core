@@ -6,15 +6,37 @@ same image and load state."""
 
 from __future__ import annotations
 
-from agents.routines.contract import Step, build as _build, mermaid
+from agents.routines.contract import Step, mermaid
+from agents.routines.contract import build as _build
 
 STEPS = [
     Step("collect", "Persist the deploy and gate logs outside /tmp", nxt="scan"),
-    Step("scan", "python -m cli.tune.logscan: per-task cost, per-item loops, retries", nxt="pick"),
-    Step("pick", "Pick the biggest real win: per-item loop, idempotency flip-flop or needless pull", "model", nxt="bench"),
-    Step("bench", "Benchmark before and after from the same source and image and load state", nxt="guard"),
-    Step("guard", "Discard if coverage, a budget or correctness drops, or the machine was disturbed", nxt="ship"),
-    Step("ship", "Pull request with the before and after number, or discard with the reason", "terminal"),
+    Step(
+        "scan",
+        "python -m cli.tune.logscan: per-task cost, per-item loops, retries",
+        nxt="pick",
+    ),
+    Step(
+        "pick",
+        "Pick the biggest real win: per-item loop, idempotency flip-flop or needless pull",
+        "model",
+        nxt="bench",
+    ),
+    Step(
+        "bench",
+        "Benchmark before and after from the same source and image and load state",
+        nxt="guard",
+    ),
+    Step(
+        "guard",
+        "Discard if coverage, a budget or correctness drops, or the machine was disturbed",
+        nxt="ship",
+    ),
+    Step(
+        "ship",
+        "Pull request with the before and after number, or discard with the reason",
+        "terminal",
+    ),
 ]
 MERMAID = mermaid(STEPS)
 
