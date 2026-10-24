@@ -10,6 +10,8 @@ PRIMARY = default_domain_primary()
 ONION = "abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvw.onion"
 SIBLINGS = {
     f"css.{PRIMARY}": [f"css.{PRIMARY}", f"css.{ONION}"],
+    f"cdn.{PRIMARY}": [f"cdn.{PRIMARY}", f"cdn.{ONION}"],
+    f"apex.{PRIMARY}": [f"apex.{PRIMARY}", f"apex.{ONION}"],
     ONION: [],
 }
 
@@ -38,6 +40,15 @@ class TestNetworkRedirects(unittest.TestCase):
                 {"source": f"css.{PRIMARY}", "target": target},
                 {"source": f"css.{ONION}", "target": target},
             ],
+        )
+
+    def test_a_sibling_whose_network_the_target_does_not_reach_is_dropped(self):
+        target = f"dashboard.{PRIMARY}"
+        self.assertEqual(
+            self._run([{"source": f"apex.{PRIMARY}", "target": target}]),
+            [{"source": f"apex.{PRIMARY}", "target": target}],
+            "an onion sibling redirecting to a clearnet-only target would send "
+            "a Tor visitor off the onion",
         )
 
     def test_a_source_without_siblings_is_kept(self):
