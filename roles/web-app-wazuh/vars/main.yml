@@ -19,10 +19,19 @@ WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.co
 WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
 WAZUH_CERTS_GENERATOR_IMAGE: "{{ lookup('image', application_id, 'certs_generator', tag_only=True) }}"
 WAZUH_CERTS_GENERATOR_MOUNTS:
-  - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ lookup('volume', application_id, 'certs_generator_config').target }},readonly"
+  - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ WAZUH_CERTS_CONFIG_TARGET }},readonly"
   - "type=bind,source={{ WAZUH_CERTS_ENTRYPOINT_HOST }},target={{ WAZUH_CERTS_ENTRYPOINT_TARGET }},readonly"
-  - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
+  - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ WAZUH_CERTS_DIR_TARGET }}"
+WAZUH_CERTS_GENERATOR_ENV:
+  CERT_TOOL_VERSION: "{{ WAZUH_CERTS_TOOL_VERSION }}"
+  WAZUH_MANAGER_NODE: "{{ WAZUH_MANAGER_CONTAINER }}"
+  CERTS_CONFIG: "{{ WAZUH_CERTS_CONFIG_TARGET }}"
+  CERTS_OUT_DIR: "{{ WAZUH_CERTS_DIR_TARGET }}"
+  CERTS_MIN_VALID_DAYS: "{{ WAZUH_CERTS_MIN_VALID_DAYS }}"
 WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
+WAZUH_CERTS_MIN_VALID_DAYS: 30
+WAZUH_CERTS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'certs_generator_config').target }}"
+WAZUH_CERTS_DIR_TARGET: "{{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
 
 WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 WAZUH_MANAGER_ENV_FILE: "{{ [lookup('container', application_id, 'directories.env'), 'manager.env'] | path_join }}"

@@ -11,7 +11,7 @@
   ansible.builtin.file:
     path: "{{ WAZUH_CERTS_DIR_HOST }}"
     state: directory
-    mode: "0755"
+    mode: "0500"
 
 - name: "📁 Ensure the custom ruleset directories exist for the manager bind mount"
   ansible.builtin.file:

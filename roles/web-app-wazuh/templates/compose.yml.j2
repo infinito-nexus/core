@@ -10,8 +10,9 @@
     {{ lookup('compose_only', 'container_name', WAZUH_CERTS_GENERATOR_CONTAINER) }}
     entrypoint: ["{{ WAZUH_CERTS_ENTRYPOINT_TARGET }}"]
     environment:
-      - CERT_TOOL_VERSION={{ WAZUH_CERTS_TOOL_VERSION }}
-      - WAZUH_MANAGER_NODE={{ WAZUH_MANAGER_CONTAINER }}
+      {% for name, value in WAZUH_CERTS_GENERATOR_ENV.items() %}
+      - {{ name }}={{ value }}
+      {% endfor %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% endif %}
