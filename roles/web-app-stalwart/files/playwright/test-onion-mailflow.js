@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { safeSkipUnlessEnabled, gotoOnion, recordVideoOptions } = require("./personas");
-const { roundcubeSsoLogin, roundcubeLogout } = require("./webmail");
+const { roundcubeSsoLogin, roundcubeLogout, sendMail } = require("./webmail");
 const { webmailBaseUrl, biberUsername, biberPassword } = require("./env");
 const { resolveTimeout, isSplitRealmOidc } = require("./timeouts");
 
@@ -33,18 +33,7 @@ test("biber: a .onion recipient is accepted and routed through the Tor gateway",
   try {
     const page = await context.newPage();
     await roundcubeSsoLogin(page, biberUsername, biberPassword);
-    await gotoOnion(page, `${webmailBaseUrl}/?_task=mail&_action=compose`);
-    await page.waitForLoadState("networkidle", { timeout: resolveTimeout(15_000) }).catch(() => {});
-    await page.locator("#_to, input[name='_to']").first().fill(FOREIGN_ONION);
-    await page.locator("#compose-subject, input[name='_subject']").first().fill(testSubject);
-    await page.locator("#composebody, textarea[name='_message'], [contenteditable='true']").first()
-      .fill("Automated Playwright probe for the .onion outbound route.");
-    await page.locator(".formbuttons .send, button.send, a.send").first().click();
-
-    const sendError = page.locator("#messagestack .error, .toast .error, .toast-error").first();
-    if (await sendError.isVisible().catch(() => false)) {
-      throw new Error(`Stalwart refused the .onion recipient: ${await sendError.textContent()}`);
-    }
+    await sendMail(page, FOREIGN_ONION, testSubject, "Automated Playwright probe for the .onion outbound route.");
 
     await gotoOnion(page, `${webmailBaseUrl}/?_task=mail&_mbox=INBOX`);
     await page.waitForTimeout(resolveTimeout(10_000));
