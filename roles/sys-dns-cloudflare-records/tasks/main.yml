@@ -22,7 +22,7 @@
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.content }}" }
   delegate_to: localhost
   become: false
-  # rationale: async; the jobs run on the controller and are reaped there below, before SRV and the rest of the play
+  # rationale: async; the jobs run on the controller and are reaped there below, before the rest of the play
   async: "{{ ASYNC_TIME }}"
   poll: "{{ ASYNC_POLL }}"
   no_log: "{{ cloudflare_no_log | bool }}"
@@ -47,7 +47,7 @@
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.value }}" }
   delegate_to: localhost
   become: false
-  # rationale: async; the jobs run on the controller and are reaped there below, before SRV and the rest of the play
+  # rationale: async; the jobs run on the controller and are reaped there below, before the rest of the play
   async: "{{ ASYNC_TIME }}"
   poll: "{{ ASYNC_POLL }}"
   no_log: "{{ cloudflare_no_log | bool }}"
@@ -56,19 +56,6 @@
   failed_when:
     - _cf_cname.failed
     - _cf_cname.msg is not search('An identical record already exists|81058')
-
-- name: ⏳ Reap the Cloudflare record jobs on the controller
-  ansible.builtin.include_tasks:
-    file: utils/async/reap.yml
-    apply:
-      delegate_to: localhost
-      become: false
-  vars:
-    async_reap_jobs: "{{ _cf_a.results + _cf_cname.results }}"
-    async_reap_label: "Cloudflare records"
-    async_reap_tolerate:
-      - "An identical record already exists"
-      - "81058"
 
 - name: 📌 Apply SRV
   community.general.cloudflare_dns:
@@ -90,5 +77,24 @@
   ignore_errors: "{{ item.ignore_errors | default(true) }}"
   delegate_to: localhost
   become: false
+  # rationale: async; the jobs run on the controller, those of records that must not fail are reaped below
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"
   no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_srv
   changed_when: false
+
+- name: ⏳ Reap the Cloudflare record jobs on the controller
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: localhost
+      become: false
+  vars:
+    async_reap_jobs: >-
+      {{ _cf_a.results + _cf_cname.results
+         + (_cf_srv.results | selectattr('item.ignore_errors', 'defined') | rejectattr('item.ignore_errors') | list) }}
+    async_reap_label: "Cloudflare records"
+    async_reap_tolerate:
+      - "An identical record already exists"
+      - "81058"

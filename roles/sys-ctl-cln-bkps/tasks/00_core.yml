@@ -1,12 +1,12 @@
 ---
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ sys_ctl_cln_bkps_dependency }}"
   loop:
     - sys-ctl-alm-compose
     - sys-lock
   loop_control:
-    loop_var: dependency_role
+    loop_var: sys_ctl_cln_bkps_dependency
 
 - name: 📦 install lsof
   package_install:

@@ -3,7 +3,7 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ svc_bkp_remote_2_local_dependency }}"
   loop:
     - sys-lock
     - dev-git
@@ -11,7 +11,7 @@
     - sys-ctl-cln-bkps
     - user-backup
   loop_control:
-    loop_var: dependency_role
+    loop_var: svc_bkp_remote_2_local_dependency
 
 - name: "📁 Create Directory '{{ DOCKER_BACKUP_REMOTE_2_LOCAL_DIR }}'"
   file:

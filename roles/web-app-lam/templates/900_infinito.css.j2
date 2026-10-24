@@ -1,7 +1,3 @@
-{% set design = lookup('design', application_id) %}
-{% set shared_css_dir = lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css') %}
-@import url("{{ [lookup('cdn', 'web-svc-cdn').urls.shared.css, 'default.css', lookup('local_mtime_qs', [shared_css_dir, 'default.css.j2'] | path_join)] | url_join }}");
-
 :root {
   --lam-background-color-default: var(--design-surface-1);
   --lam-input-bg-color: var(--design-surface-2);
@@ -240,12 +236,6 @@ img[src$=".svg"]:not(div.lam-header-left img, a.icon-active img, span.tree-badge
 input.smallImageButton {
   filter: invert(var(--design-invert)) hue-rotate(calc(var(--design-invert) * 180deg));
 }
-{% if design.logo is string %}
-
-div.lam-header-left img {
-  content: url("{{ design.urls.logo.svg }}");
-}
-{% endif %}
 
 @media only screen and (max-width: 40.0625em) {
   table.responsive-table tr,

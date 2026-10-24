@@ -53,7 +53,6 @@ bridgy-fed:
   version: 3.14-slim
   name: web-app-bridgy-fed
   repository: https://github.com/snarfed/bridgy-fed.git
-  # nocheck: repository-version -- upstream publishes no tags, so the pin is a commit
   ref: e7c6f80e35330c249e35205ce9e181ebc24531e2
   ports:
     local:

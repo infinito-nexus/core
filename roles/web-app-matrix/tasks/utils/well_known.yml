@@ -1,0 +1,11 @@
+---
+- name: "📁 create {{ MATRIX_WELL_KNOWN_DIRECTORY }}"
+  ansible.builtin.file:
+    path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
+    state: directory
+    mode: "0755"
+
+- name: "📁 create {{ MATRIX_WELL_KNOWN_FILE }}"
+  stack_host_template:
+    src: "well-known.j2"
+    dest: "{{ MATRIX_WELL_KNOWN_FILE }}"

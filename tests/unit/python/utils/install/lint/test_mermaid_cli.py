@@ -99,6 +99,7 @@ def _environment(
             mock.patch.object(mermaid_cli, "which", return_value=True),
             mock.patch.object(mermaid_cli.shutil, "which", return_value=str(mmdc)),
             mock.patch.object(mermaid_cli, "missing_libraries", return_value=[]),
+            mock.patch.object(mermaid_cli, "fonts_installed", return_value=True),
         ):
             yield Path(prefix), Path(cache)
 
@@ -348,7 +349,84 @@ class TestBrowserLibraries(unittest.TestCase):
             )
 
 
+class TestBrowserFonts(unittest.TestCase):
+    def ensure_fonts(self, *, manager: str, present: list[bool]) -> mock.Mock:
+        """Run the font step with a stubbed font check and package manager.
+
+        Args:
+            manager: the package manager the host reports.
+            present: successive ``fonts_installed`` results.
+
+        Returns:
+            The stubbed ``run_privileged``.
+        """
+        with (
+            mock.patch.object(mermaid_cli, "fonts_installed", side_effect=present),
+            mock.patch.object(
+                mermaid_cli, "detect_package_manager", return_value=manager
+            ),
+            mock.patch.object(mermaid_cli, "run_privileged") as privileged,
+        ):
+            mermaid_cli._ensure_fonts()
+        return privileged
+
+    def test_a_host_with_a_font_installs_nothing(self) -> None:
+        privileged = self.ensure_fonts(manager="dnf", present=[True])
+        privileged.assert_not_called()
+
+    def test_the_redhat_family_installs_the_english_font_provide(self) -> None:
+        for manager in ("dnf", "yum"):
+            with self.subTest(manager=manager):
+                privileged = self.ensure_fonts(manager=manager, present=[False, True])
+                privileged.assert_called_once_with(
+                    [manager, "-y", "install", "font(:lang=en)"]
+                )
+
+    def test_arch_installs_the_ttf_font_provide(self) -> None:
+        privileged = self.ensure_fonts(manager="pacman", present=[False, True])
+        privileged.assert_called_once_with(
+            ["pacman", "-Syu", "--noconfirm", "--needed", "ttf-font"]
+        )
+
+    def test_apt_without_a_font_fails_without_installing(self) -> None:
+        with (
+            mock.patch.object(mermaid_cli, "fonts_installed", return_value=False),
+            mock.patch.object(
+                mermaid_cli, "detect_package_manager", return_value="apt-get"
+            ),
+            mock.patch.object(mermaid_cli, "run_privileged") as privileged,
+            self.assertRaisesRegex(RuntimeError, "--install-deps"),
+        ):
+            mermaid_cli._ensure_fonts()
+        privileged.assert_not_called()
+
+    def test_no_font_after_the_install_raises(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "still finds no font"):
+            self.ensure_fonts(manager="dnf", present=[False, False])
+
+    def test_only_a_file_under_the_font_directory_counts(self) -> None:
+        with TemporaryDirectory() as fonts:
+            directory = Path(fonts)
+            with mock.patch.object(mermaid_cli, "FONT_DIRECTORY", directory):
+                (directory / "google-noto-vf").mkdir()
+                self.assertFalse(mermaid_cli.fonts_installed())
+                (directory / "google-noto-vf" / "NotoSans[wght].ttf").write_bytes(b"")
+                self.assertTrue(mermaid_cli.fonts_installed())
+
+    def test_a_missing_font_directory_counts_as_no_font(self) -> None:
+        with mock.patch.object(
+            mermaid_cli, "FONT_DIRECTORY", Path("/nonexistent/fonts")
+        ):
+            self.assertFalse(mermaid_cli.fonts_installed())
+
+
 class TestBrowserInstalled(unittest.TestCase):
+    def test_a_browser_without_any_font_is_not_installed(self) -> None:
+        with _environment() as (_, cache):
+            _install_browser(cache, REVISION)
+            with mock.patch.object(mermaid_cli, "fonts_installed", return_value=False):
+                self.assertFalse(mermaid_cli.browser_installed())
+
     def test_only_the_pinned_revision_counts(self) -> None:
         with _environment() as (_, cache):
             _install_browser(cache, "155.0.8059.79")

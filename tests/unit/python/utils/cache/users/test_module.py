@@ -374,5 +374,56 @@ class TestGetMergedUsersWithOverrides(unittest.TestCase):
             self.assertEqual(merged["foo"]["username"], "override-user")
 
 
+class TestGetMergedUsersTokenSource(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def _merged(self, roles: Path, tokens_file: Path, **extra) -> dict:
+        return cache_users.get_merged_users(
+            variables={"FILE_TOKENS": str(tokens_file), **extra},
+            roles_dir=roles,
+            templar=None,
+        )
+
+    def _seed(self, tmp: Path) -> tuple[Path, Path]:
+        roles = _seed_minimal_user_role(tmp, "web-app-foo")
+        tokens_file = tmp / "tokens.yml"
+        tokens_file.write_text(
+            dump_yaml_str({"users": {"foo": {"tokens": {"web-app-foo": "from-file"}}}}),
+            encoding="utf-8",
+        )
+        return roles, tokens_file
+
+    def test_the_store_fact_of_the_play_wins_over_the_controller_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            merged = self._merged(
+                roles,
+                tokens_file,
+                sys_token_store_users={
+                    "foo": {"tokens": {"web-app-foo": "from-stack-host"}}
+                },
+            )
+            self.assertEqual(merged["foo"]["tokens"]["web-app-foo"], "from-stack-host")
+
+    def test_without_the_fact_the_controller_file_is_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            merged = self._merged(roles, tokens_file)
+            self.assertEqual(merged["foo"]["tokens"]["web-app-foo"], "from-file")
+
+    def test_a_written_token_reaches_the_next_lookup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            before = self._merged(roles, tokens_file, sys_token_store_users={})
+            after = self._merged(
+                roles,
+                tokens_file,
+                sys_token_store_users={"foo": {"tokens": {"web-app-foo": "minted"}}},
+            )
+            self.assertNotIn("web-app-foo", before["foo"].get("tokens", {}))
+            self.assertEqual(after["foo"]["tokens"]["web-app-foo"], "minted")
+
+
 if __name__ == "__main__":
     unittest.main()

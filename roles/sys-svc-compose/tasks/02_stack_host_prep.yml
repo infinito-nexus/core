@@ -1,10 +1,8 @@
 ---
 - name: "📁 Create sys-svc-compose dirs (with parents) for '{{ application_id }}'"
-  file:
-    path: "{{ item.value }}"
-    state: directory
+  directory_batch:
+    paths: "{{ lookup('container', application_id, 'directories').values() | list }}"
     mode: "0755"
-  with_dict: "{{ lookup('container', application_id, 'directories') }}"
 
 - name: "🛡️ Ensure PHP hardening assets are installed"
   ansible.builtin.include_role:

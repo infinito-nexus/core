@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 
 const {
   appBaseUrl,
+  oidcIssuerUrl,
   matomoApiToken,
   matomoTrackingScope,
   matomoCanonicalDomain,
@@ -12,11 +13,46 @@ const {
   loginAsAdmin,
 } = require("./_shared");
 const { assertInjectedAssetLoadsWithoutCspBlock, gotoOnion } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 
 const SET_SITE_ID_CALL = /_paq\s*\.\s*push\s*\(\s*\[\s*['"]setSiteId['"]/g;
 
 function countTrackers(html) {
   return (String(html).match(SET_SITE_ID_CALL) || []).length;
+}
+
+/**
+ * Args:
+ *   page: the Playwright page.
+ *   target: the MATOMO_TARGET_ROLES_JSON entry under test.
+ *   url: the target's canonical URL.
+ * Skips the running test when the anonymous visitor of url lands on the IdP.
+ */
+async function skipWhenLandingOnIdp(page, target, url) {
+  const referenceResp = await page.request.get(url, { ignoreHTTPSErrors: true });
+  expect(
+    referenceResp.status(),
+    `${target.id}: GET ${url} returned ${referenceResp.status()} — surface must respond for the tracker assertion to be meaningful`
+  ).toBeLessThan(500);
+  const referenceHtml = await referenceResp.text();
+  const injected = referenceHtml.includes(matomoCanonicalDomain);
+  const ownHost = new URL(url).host;
+  let landedHost = new URL(referenceResp.url()).host;
+  if (landedHost === ownHost && !injected) {
+    await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
+    await page
+      .waitForURL((landed) => new URL(landed).host !== ownHost, { timeout: resolveTimeout(15_000) })
+      .catch(() => {});
+    landedHost = new URL(page.url()).host;
+  }
+  if (landedHost !== ownHost && !injected) {
+    const idpHost = new URL(oidcIssuerUrl).host;
+    expect(
+      landedHost,
+      `${target.id}: anonymous GET ${url} landed on ${landedHost}, which is neither its own host nor the IdP ${idpHost} — that is a routing fault, not an SSO handoff`
+    ).toBe(idpHost);
+    test.skip(true, `${target.id}: its anonymous surface auto-redirects to the IdP (app-level SSO), so the tracker this check would observe is the IdP's, not ${target.id}'s`);
+  }
 }
 
 test.use({ ignoreHTTPSErrors: true });
@@ -83,11 +119,16 @@ test("matomo SitesManager registers a tracker site for every consumer role", asy
 
 for (const target of matomoTargetRoles) {
   test(`matomo tracker injected in ${target.id} (${target.canonical_domain})`, async ({ page }) => {
+    test.skip(
+      Boolean(target.is_proxy_gated),
+      `${target.id} is oauth2-proxy-gated: its anonymous landing is the IdP login page, so the injected tracker is verified by that app's own authenticated persona e2e, not this anonymous check`
+    );
     expect(
       target.canonical_url,
       `Expected canonical_url in MATOMO_TARGET_ROLES_JSON entry for ${target.id}`
     ).toBeTruthy();
     const targetUrl = `${target.canonical_url.replace(/\/$/, "")}/`;
+    await skipWhenLandingOnIdp(page, target, targetUrl);
 
     if (matomoCanonicalDomain) {
       await assertInjectedAssetLoadsWithoutCspBlock(page, {

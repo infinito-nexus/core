@@ -175,12 +175,31 @@ exports.register = function (shared) {
 
   /**
    * Args:
+   *   page: Playwright page that shows the navigation; resolves once the navigation stayed unchanged for a second.
+   */
+  async function navigationSettled(page) {
+    await page.evaluate((frame) => {
+      window.designNavigationChanged = performance.now();
+      new MutationObserver(() => {
+        window.designNavigationChanged = performance.now();
+      }).observe(document.querySelector(frame), { childList: true, subtree: true });
+    }, NAVIGATION);
+    await page.waitForFunction(
+      (quiet) => performance.now() - window.designNavigationChanged > quiet,
+      resolveTimeout(1_000),
+      { timeout: resolveTimeout(15_000) },
+    );
+  }
+
+  /**
+   * Args:
    *   page: Playwright page that shows the navigation; the keyboard walks forward through every stop of it.
    *   mode: color scheme the failure messages name.
    */
   async function assertFrameFocus(page, mode) {
     const ring = await tokenValue(page, "--design-on-frame", "color");
     const stops = [];
+    await navigationSettled(page);
     await page.locator("#global-search").focus();
     for (let step = 0; step < FOCUS_WALK_LIMIT; step += 1) {
       const stop = await page.evaluate((frame) => {

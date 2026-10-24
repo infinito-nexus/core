@@ -5,8 +5,10 @@ provisioned afterwards through the puppeteer that npm installed next to mmdc,
 at the revision its puppeteer-core pins. ``unzip`` is ensured first because
 puppeteer extracts the browser with it. Puppeteer installs the browser's
 shared libraries only through apt-get (``--install-deps``); on dnf, yum and
-pacman the libraries ``ldd`` reports missing are installed by soname. Every
-failure aborts ``install-lint``.
+pacman the libraries ``ldd`` reports missing are installed by soname, and a
+font by the distribution's font provide, because the browser aborts in its
+font fallback (``SkFontMgr_FontConfigInterface ... Not implemented``) on a
+host without any font. Every failure aborts ``install-lint``.
 """
 
 from __future__ import annotations
@@ -25,10 +27,18 @@ from utils.install.system_pkg import detect_package_manager, install_command_via
 BROWSER = "chrome-headless-shell"
 PROVISION_TIMEOUT_S = 900
 
+FONT_DIRECTORY = Path("/usr/share/fonts")
+
 _INSTALL_ARGV = {
     "dnf": ["dnf", "-y", "install"],
     "yum": ["yum", "-y", "install"],
     "pacman": ["pacman", "-Syu", "--noconfirm", "--needed"],
+}
+
+_FONT_PROVIDES = {
+    "dnf": "font(:lang=en)",
+    "yum": "font(:lang=en)",
+    "pacman": "ttf-font",
 }
 
 
@@ -110,9 +120,19 @@ def missing_libraries(executable: Path) -> list[str]:
     )
 
 
+def fonts_installed() -> bool:
+    return FONT_DIRECTORY.is_dir() and any(
+        path.is_file() for path in FONT_DIRECTORY.rglob("*")
+    )
+
+
 def browser_installed() -> bool:
     executable = browser_executable()
-    return executable is not None and not missing_libraries(executable)
+    return (
+        executable is not None
+        and not missing_libraries(executable)
+        and fonts_installed()
+    )
 
 
 def _provision_browser(puppeteer: Path) -> subprocess.CompletedProcess[str]:
@@ -206,6 +226,26 @@ def _ensure_browser_libraries(executable: Path) -> None:
         )
 
 
+def _ensure_fonts() -> None:
+    if fonts_installed():
+        return
+    manager = detect_package_manager()
+    provide = _FONT_PROVIDES.get(manager)
+    if provide is None:
+        raise RuntimeError(
+            f"{BROWSER} finds no font under {FONT_DIRECTORY} and {manager} has "
+            f"no font provide; on apt-get the fonts come from --install-deps, "
+            f"which needs root."
+        )
+    log(f"Installing a font for {BROWSER} via {manager}: {provide}")
+    run_privileged([*_INSTALL_ARGV[manager], provide])
+    if not fonts_installed():
+        raise RuntimeError(
+            f"{BROWSER} still finds no font under {FONT_DIRECTORY} after "
+            f"installing {provide} via {manager}."
+        )
+
+
 def _ensure_browser() -> None:
     executable = browser_executable()
     if executable is None:
@@ -214,6 +254,7 @@ def _ensure_browser() -> None:
         if executable is None:
             raise RuntimeError(f"{BROWSER} is still missing after provisioning.")
     _ensure_browser_libraries(executable)
+    _ensure_fonts()
 
 
 def ensure() -> None:

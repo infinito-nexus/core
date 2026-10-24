@@ -1,0 +1,41 @@
+---
+- name: "⏱️ Let Stalwart's address bans expire"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Security/set',
+            {'update': {'singleton': STALWART_BAN_PERIODS}},
+            'c0']]} | to_json }}
+  when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
+
+- name: "🛡️ Never ban the Docker gateway the hairpin traffic arrives from"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:AllowedIp/set',
+            {'create': {'a': {'address': stalwart_allowed_ip, 'reason': STALWART_ALLOWED_IP_REASON}}},
+            'c0']]} | to_json }}
+  loop: "{{ stalwart_allowed_ips_missing }}"
+  loop_control:
+    loop_var: stalwart_allowed_ip
+
+- name: "🌐 Take the client address from the Forwarded header OpenResty sets"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Http/set',
+            {'update': {'singleton': STALWART_HTTP_SETTINGS}},
+            'c0']]} | to_json }}
+  when: stalwart_http_settings_current != STALWART_HTTP_SETTINGS
+
+- name: "🔄 Reload Stalwart's settings"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Action/set',
+            {'create': {'a': {'@type': 'ReloadSettings'}}},
+            'c0']]} | to_json }}

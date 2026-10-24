@@ -43,9 +43,9 @@
   changed_when: false
 
 - name: "📁 Data dir: 0770 dirs (FPM-only)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type d -exec chmod 0770 {} \\;"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type d -exec chmod 0770 {} +"
   changed_when: false
 
 - name: "📁 Data dir: 0660 files (FPM-only)"
-  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type f -exec chmod 0660 {} \\;"
+  shell: "container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} find {{ MOODLE_DATA_DIR }} -type f -exec chmod 0660 {} +"
   changed_when: false

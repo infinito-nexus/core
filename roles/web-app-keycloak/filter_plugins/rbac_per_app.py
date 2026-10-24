@@ -7,8 +7,8 @@ per-app `group-ldap-mapper` setup:
 * the LDAP filter that surfaces only that application's role groups
 
 These names are referenced from `vars/main.yml`
-(`KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER`) and from the host-side
-`upsert_app_mapper.sh` script. Centralising them here means a future
+(`KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS`), which hands them to the
+host-side `reconcile_apps.sh` script. Centralising them here means a future
 rename of the mapper convention is a one-line change in this plugin
 and stays consistent everywhere.
 """

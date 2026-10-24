@@ -56,7 +56,10 @@ for _tag in ("!override", "!reset"):
 
 
 def _construct_vault_tag(loader, node):
-    return loader.construct_scalar(node)
+    """Load a !vault block as a VaultScalar so the tag survives a round-trip."""
+    from utils.handler.vault import VaultScalar
+
+    return VaultScalar(loader.construct_scalar(node))
 
 
 yaml.SafeLoader.add_constructor("!vault", _construct_vault_tag)

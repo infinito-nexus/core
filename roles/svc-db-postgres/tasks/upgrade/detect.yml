@@ -12,7 +12,7 @@
   changed_when: false
   failed_when:
     - postgres_volume_inspect.rc != 0
-    - "'no such volume' not in (postgres_volume_inspect.stderr | lower)"
+    - not (postgres_volume_inspect.stderr | lower is search('no such volume|volume .* not found'))
   delegate_to: "{{ STACK_HOST }}"
 
 - name: "🔍 POSTGRES | Detect the cluster in {{ POSTGRES_VOLUME }}"

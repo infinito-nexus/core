@@ -18,8 +18,10 @@
     app_body_css: "{{ (lookup('template', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
     app_logo_css: "{{ (lookup('template', _app_logo_src) | trim) if _app_logo_src | length > 0 else '' }}"
     _app_compose_src: "{{ lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css', 'app.css.j2') }}"
+    _cdn_root: "{{ lookup('cdn', application_id).urls.root }}"
+    _cdn_origin: "{{ _cdn_root | urlsplit('scheme') }}://{{ _cdn_root | urlsplit('netloc') }}/"
     _app_style_css: >-
-      {{ (lookup('template', _app_compose_src) | trim)
+      {{ (lookup('template', _app_compose_src) | trim | replace(_cdn_origin, '/'))
          if (app_body_css ~ app_logo_css) | length > 0 else '' }}
   set_fact:
     app_style_src: "{{ _app_style_src }}"

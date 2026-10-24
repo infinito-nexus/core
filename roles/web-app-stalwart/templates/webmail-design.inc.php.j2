@@ -5,12 +5,21 @@
 $config['product_name'] = '{{ design.title | replace('\\', '\\\\') | replace("'", "\\'") }}';
 {% endif %}
 {% if design.logo is string %}
+{% set cdn_bases = lookup('network_urls', lookup('tls', lookup('domain', 'web-svc-cdn'), 'url.base')) %}
+$infinito_cdn_origins = [
+{% for host in lookup('network_siblings', STALWART_WEBMAIL_DOMAIN) %}
+{% for base in cdn_bases if (base | urlsplit('hostname') | network_of) == (host | network_of) %}
+    '{{ host }}' => '{{ base | urlsplit('scheme') }}://{{ base | urlsplit('netloc') }}',
+{% endfor %}
+{% endfor %}
+];
+$infinito_cdn_origin = $infinito_cdn_origins[strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0])] ?? '{{ cdn_bases[0] | urlsplit('scheme') }}://{{ cdn_bases[0] | urlsplit('netloc') }}';
 $config['skin_logo'] = [
-    '*' => '{{ design.urls.icon.svg }}',
-    '[dark]' => '{{ design.urls.icon.svg }}',
-    '[small]' => '{{ design.urls.icon.svg }}',
-    '[small-dark]' => '{{ design.urls.icon.svg }}',
-    '[favicon]' => '{{ design.urls.favicon_ico }}',
+    '*' => $infinito_cdn_origin . '{{ design.urls.icon.svg | urlsplit('path') }}',
+    '[dark]' => $infinito_cdn_origin . '{{ design.urls.icon.svg | urlsplit('path') }}',
+    '[small]' => $infinito_cdn_origin . '{{ design.urls.icon.svg | urlsplit('path') }}',
+    '[small-dark]' => $infinito_cdn_origin . '{{ design.urls.icon.svg | urlsplit('path') }}',
+    '[favicon]' => $infinito_cdn_origin . '{{ design.urls.favicon_ico | urlsplit('path') }}',
 ];
 {% endif %}
 {% endif %}

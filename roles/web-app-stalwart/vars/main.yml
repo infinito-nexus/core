@@ -29,6 +29,7 @@ STALWART_JMAP_APPLICATION_GET: >-
 STALWART_JMAP_TRANSIENT_ERRORS:
   - serverUnavailable
   - rateLimit
+STALWART_JMAP_MAX_METHOD_CALLS: 16
 STALWART_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'stalwart') }}"
 
 STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain') }}"
@@ -93,6 +94,11 @@ STALWART_BAN_PERIODS:
   abuseBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
   loiterBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
   scanBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+STALWART_ALLOWED_IPS:
+  - "{{ lookup('subnet_gateway') }}"
+STALWART_ALLOWED_IP_REASON: "Docker gateway: reverse-proxied HTTP and container hairpin traffic share this address"
+STALWART_HTTP_SETTINGS:
+  useXForwarded: true
 
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 

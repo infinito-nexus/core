@@ -1,11 +1,9 @@
 ---
 - block:
     - name: ✅ Ensure shared root and vendor exist (run once)
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
+      directory_batch:
+        paths: "{{ CDN_GLOBAL_DIRS }}"
         mode: "0755"
-      loop: "{{ CDN_GLOBAL_DIRS }}"
     - include_tasks: utils/once/flag.yml
   when:
     - run_once_sys_svc_cdn is not defined
@@ -22,9 +20,9 @@
     handler_role_name: "{{ handler_role }}"
 
 - name: ✅ Ensure CDN directories exist
-  ansible.builtin.command:
-    argv: "{{ ['install', '-d', '-m', '0755'] + CDN_ROLE_DIRS }}"
-  changed_when: false
+  directory_batch:
+    paths: "{{ CDN_ROLE_DIRS }}"
+    mode: "0755"
   when: CDN_ROLE_DIRS | length > 0
 
 - name: ✅ Ensure 'latest' symlink points to current release

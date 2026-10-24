@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import unittest
+from typing import ClassVar
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
@@ -45,14 +46,36 @@ def _render(template: str, **variables):
     return templar.template(_trust_as_template(template))
 
 
-def _accepted(response: list, **extra) -> bool:
+def _assert_vars(responses: list, **extra) -> dict:
     task = _assert_task()
-    variables = {"stalwart_jmap": {"methodResponses": [response]}, **extra}
+    variables = {"stalwart_jmap": {"methodResponses": responses}, **extra}
     for name, raw in (task.get("vars") or {}).items():
         variables[name] = _render(raw, **variables)
+    return variables
+
+
+def _batch_accepted(responses: list, **extra) -> bool:
+    variables = _assert_vars(responses, **extra)
+    that = _module(_assert_task(), "assert")["that"]
     return all(
         _render("{{ (" + expr + ") | bool }}", **variables)
-        for expr in _module(task, "assert")["that"]
+        for expr in ([that] if isinstance(that, str) else that)
+    )
+
+
+def _accepted(response: list, **extra) -> bool:
+    return _batch_accepted([response], **extra)
+
+
+def _retry_done(rc: int, responses: list) -> bool:
+    task = next(t for t in _tasks() if _module(t, "shell"))
+    return _render(
+        "{{ (" + task["until"] + ") | bool }}",
+        stalwart_jmap_raw={
+            "rc": rc,
+            "stdout": json.dumps({"methodResponses": responses}),
+        },
+        STALWART_JMAP_TRANSIENT_ERRORS=["serverUnavailable", "rateLimit"],
     )
 
 
@@ -103,6 +126,85 @@ class TestJmapRejectionIsAFailure(unittest.TestCase):
                 stalwart_jmap_tolerate_rejected=True,
             )
         )
+
+
+class TestJmapBatchNamesTheRefusedOwner(unittest.TestCase):
+    GET: ClassVar[list] = ["x:AppPassword/get", {"list": []}, "contact@infinito.test"]
+
+    def test_a_clean_batch_passes(self):
+        self.assertTrue(
+            _batch_accepted(
+                [self.GET, ["x:AppPassword/get", {"list": []}, "bounce@infinito.test"]]
+            )
+        )
+
+    def test_an_error_in_a_later_call_fails(self):
+        self.assertFalse(
+            _batch_accepted(
+                [self.GET, ["error", {"type": "forbidden"}, "bounce@infinito.test"]]
+            )
+        )
+
+    def test_a_later_rejection_fails_and_names_its_call(self):
+        responses = [
+            self.GET,
+            [
+                "x:AppPassword/set",
+                {"notCreated": {"p": {"type": "overQuota"}}},
+                "bounce@infinito.test",
+            ],
+        ]
+        self.assertFalse(_batch_accepted(responses))
+        self.assertEqual(
+            _assert_vars(responses)["stalwart_jmap_refused"],
+            {
+                "bounce@infinito.test": {
+                    "x:AppPassword/set": {"p": {"type": "overQuota"}}
+                }
+            },
+        )
+
+    def test_a_tolerated_rejection_still_fails_on_an_error(self):
+        self.assertFalse(
+            _batch_accepted(
+                [
+                    ["x:Account/set", {"notCreated": {"u0": {"type": "x"}}}, "c0"],
+                    ["error", {"type": "invalidArguments"}, "c1"],
+                ],
+                stalwart_jmap_tolerate_rejected=True,
+            )
+        )
+
+    def test_a_destroy_of_an_absent_object_passes(self):
+        self.assertTrue(
+            _batch_accepted(
+                [
+                    [
+                        "x:AppPassword/set",
+                        {"notDestroyed": {"3": {"type": "notFound"}}},
+                        "bounce@infinito.test",
+                    ]
+                ]
+            )
+        )
+
+
+class TestJmapRetryCoversEveryCall(unittest.TestCase):
+    OK: ClassVar[list] = ["x:AppPassword/get", {"list": []}, "a"]
+
+    def test_a_clean_batch_ends_the_retry(self):
+        self.assertTrue(_retry_done(0, [self.OK, self.OK]))
+
+    def test_a_transient_error_in_a_later_call_retries(self):
+        self.assertFalse(
+            _retry_done(0, [self.OK, ["error", {"type": "serverUnavailable"}, "b"]])
+        )
+
+    def test_a_permanent_error_ends_the_retry(self):
+        self.assertTrue(_retry_done(0, [["error", {"type": "forbidden"}, "a"]]))
+
+    def test_a_failed_transfer_retries(self):
+        self.assertFalse(_retry_done(22, []))
 
 
 class TestJmapSecretsStayOffArgv(unittest.TestCase):

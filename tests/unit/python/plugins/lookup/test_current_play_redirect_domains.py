@@ -405,6 +405,25 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         variables = self._onion_variables()
         with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
             result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(
+            result,
+            [{"source": DOMAIN, "target": "dashboard.abcdefonion.onion"}],
+        )
+
+    def test_multi_node_keeps_the_clearnet_apex_without_rdr_domains_deployed(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(
+            NETWORK_MODE="multi", DOMAIN_HOMEPAGE="infinito.nexus"
+        )
+        with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
+        self.assertEqual(result, [{"source": DOMAIN, "target": "infinito.nexus"}])
+
+    def test_tor_only_node_drops_both_apex_entries_without_rdr_domains_deployed(self):
+        lm = self._make_lookup()
+        variables = self._onion_variables(NETWORK_MODE="tor")
+        with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
+            result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(result, [])
 
     def test_onion_apex_skipped_when_equal_to_homepage(self):

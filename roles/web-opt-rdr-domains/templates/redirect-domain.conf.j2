@@ -9,6 +9,11 @@ server {
   {% if web_opt_rdr_domains_logout_enabled | bool %}
   {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
   {% endif %}
+  location ^~ /.well-known/ {
+    alias {{ [ lookup('nginx', 'directories.data.well_known'), domain ] | path_join }}/;
+    default_type application/json;
+    error_page 403 404 = /;
+  }
   location / {
     return 301 {{ lookup('tls', application_id, 'protocols.web') }}://{{ _target.host }}{{ '$request_uri' if keep_path | bool else '' }};
   }

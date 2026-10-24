@@ -31,5 +31,5 @@ COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --classmap-authoritative --
 mkdir -p "${MOODLE_CODE_DIR}" "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" \
   "${MOODLE_SOURCE_DIR}" "${MOODLE_CODE_DIR}" "${MOODLE_DATA_DIR}"
-find "${MOODLE_SOURCE_DIR}" -type d -exec chmod 755 {} \;
-find "${MOODLE_SOURCE_DIR}" -type f -exec chmod 644 {} \;
+find "${MOODLE_SOURCE_DIR}" -type d -exec chmod 755 {} +
+find "${MOODLE_SOURCE_DIR}" -type f -exec chmod 644 {} +

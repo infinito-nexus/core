@@ -58,6 +58,7 @@ class LookupModule(LookupBase):
             )
 
         forced_mode = as_str(kwargs.get("mode", "auto")).lower()
+        consumer = as_str(kwargs.get("consumer", ""))
 
         app_id, primary_domain = resolve_term(
             term,
@@ -74,6 +75,7 @@ class LookupModule(LookupBase):
                     domains,
                     app_id,
                     primary_domain,
+                    consumer=consumer,
                     variables=variables,
                     templar=templar,
                 )

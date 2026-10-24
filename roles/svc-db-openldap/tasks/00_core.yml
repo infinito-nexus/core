@@ -2,11 +2,9 @@
 - include_tasks: utils/once/flag.yml
 
 - name: "📁 Create LDIF dirs {{ OPENLDAP_LDIF_PATH_HOST }} before swarm bind-mount"
-  file:
-    path: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ item }}"
-    state: directory
+  directory_batch:
+    paths: "{{ [OPENLDAP_LDIF_PATH_HOST] | product(OPENLDAP_LDIF_TYPES) | map('join') | list }}"
     mode: "0755"
-  loop: "{{ OPENLDAP_LDIF_TYPES }}"
 
 - name: 🎬 Initialize docker
   include_tasks: 01_docker.yml

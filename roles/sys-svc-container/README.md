@@ -26,6 +26,12 @@ When enabled via `MODE_CLEANUP` or `MODE_RESET`, it will automatically prune unu
 - **Handler Integration**  
   Restart handler ensures the Docker daemon is reloaded when necessary.
 
+- **Image Pre-Pull**  
+  [start.yml](tasks/utils/prepull/start.yml) pulls the images the deploy of the host runs, as listed by the `update_pull_images` filter, that the host does not hold yet under the pinned reference ([pull.yml](tasks/utils/prepull/pull.yml)), three at a time in a background job right before the shared services load; with nothing missing no job starts.
+  It runs when `ASYNC_ENABLED` is true, `STORAGE_CONSTRAINED` and `MODE_RESET` are false, and the host is a stack host, so never on a swarm worker.
+  [reap.yml](tasks/utils/prepull/reap.yml) collects the job before the E2E run, or at the start of the destructor on a host without a server stage, and prints the pulls that failed.
+  A failed pull or the time limit of `SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME` does not fail the deploy, and each app still pulls its images itself.
+
 ## Resource limits
 
 [resource.yml.j2](templates/resource.yml.j2) renders the compose `cpus`, `mem_reservation`, `mem_limit` and `pids_limit` of every service, and [deploy.yml.j2](templates/deploy.yml.j2) renders the swarm equivalents. Each value comes from `services.<service>.<key>` of the role's `meta/services.yml`, overridable per host in the inventory, and falls back to the fair share `lookup('resource', …)` computes from the host.

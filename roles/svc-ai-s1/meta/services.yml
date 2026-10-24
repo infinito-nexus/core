@@ -28,7 +28,6 @@ s1:
         repo: convaiinnovations/laya-multilingual
   jeff:
     repository: https://github.com/logan-markewich/jeff.git
-    # nocheck: semver-ref  upstream publishes no tags, so the pin is a commit
     ref: 34b32f99a727c47b679adde33f4702a001e02979
     model_repo: knowledgator/gliformer-large-v1
   healthcheck:

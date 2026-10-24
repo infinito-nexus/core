@@ -5,7 +5,7 @@
 **sys-stk-front-base** bootstraps the front layer that most web-facing apps need:
 
 - Ensures the HTTPS base via `sys-svc-webserver-https`
-- (Optional) Cloudflare bootstrap (zone lookup, dev mode, purge)
+- (Optional) Cloudflare bootstrap (zone lookup, dev mode, and the zone queued for one cache purge in the destructor stage)
 - Wires OpenResty/NGINX handlers
 - Leaves per-domain certificate issuance to consumer roles (or pass-through vars to `sys-util-csp-cert` if needed)
 

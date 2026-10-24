@@ -192,16 +192,8 @@
     proxy_internal_port: "{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
   notify: restart-openresty
 
-- name: "📁 front-proxy: create {{ MATRIX_WELL_KNOWN_DIRECTORY }}"
-  ansible.builtin.file:
-    path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
-    state: directory
-    mode: "0755"
-
-- name: "📁 front-proxy: create {{ MATRIX_WELL_KNOWN_FILE }}"
-  stack_host_template:
-    src: "well-known.j2"
-    dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
+- name: "🔀 front-proxy: federation delegation"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/well_known.yml"
 
 - name: "🔀 front-proxy: Jitsi web"
   ansible.builtin.include_role:

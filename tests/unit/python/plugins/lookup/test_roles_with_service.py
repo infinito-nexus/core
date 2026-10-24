@@ -12,7 +12,26 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from utils.networks.reachability import network_of
+
 from . import PROJECT_ROOT
+
+ONION = "abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvw.onion"
+NETWORK_APPLICATIONS = {
+    role: {
+        "services": {"design": {"enabled": True, "shared": True}},
+        "domains": {"canonical": [f"{name}.example.com"]},
+    }
+    for role, name in (
+        ("web-app-keycloak", "auth"),
+        ("web-app-moodle", "academy"),
+        ("web-app-nextcloud", "cloud"),
+    )
+}
+ONION_URL_HOSTS = {
+    "web-app-moodle": f"academy.{ONION}",
+    "web-app-nextcloud": f"cloud.{ONION}",
+}
 
 
 def _load_module(rel_path: str, name: str):
@@ -49,28 +68,48 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         applications: dict,
         vars_: dict | None = None,
         url_host: str | None = None,
+        url_hosts: dict | None = None,
+        handover: frozenset = frozenset(),
         **kwargs,
     ):
-        """Run the lookup with the ``applications`` and ``tls`` sub-lookups
-        patched to stay hermetic. The stubbed tls answers
-        ``[role_id, "url.base"]`` with the role's own configured domain, which
-        is what a clearnet deployment resolves; pass ``url_host`` to model a
-        deployment whose URL host differs, such as an onion one."""
+        """Run the lookup with the ``applications``, ``tls`` and
+        ``network_handover`` sub-lookups patched to stay hermetic. The stubbed
+        tls answers ``[role_id, "url.base"]`` with the role's own configured
+        domain, which is what a clearnet deployment resolves; pass ``url_host``
+        (every role) or ``url_hosts`` (per role) to model a deployment whose URL
+        host differs, such as an onion one. A role in ``handover`` hands every
+        sibling outside its canonical network over."""
         lookup = self._make_lookup(vars_ or {})
         resolve = self.mod._resolve_canonical_domain
 
         class _StubTls:
             def run(self, terms_, variables=None, **kwargs):
                 role = str(terms_[0])
-                host = url_host or resolve(role, applications.get(role, {}))
+                host = (
+                    (url_hosts or {}).get(role)
+                    or url_host
+                    or resolve(role, applications.get(role, {}))
+                )
                 return [f"https://{host or role + '.example.com'}"]
+
+        class _StubHandover:
+            def run(self, terms_, variables=None, **kwargs):
+                role, domain = str(terms_[0]), str(terms_[1])
+                canonical = resolve(role, applications.get(role, {}))
+                return [
+                    role in handover and network_of(domain) != network_of(canonical)
+                ]
 
         class _StubApplications:
             def run(self, terms_, variables=None, **kwargs):
                 return [applications]
 
         def _dispatch(name, **_kwargs):
-            return _StubApplications() if name == "applications" else _StubTls()
+            if name == "applications":
+                return _StubApplications()
+            if name == "network_handover":
+                return _StubHandover()
+            return _StubTls()
 
         with patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
             return lookup.run(terms, variables=vars_ or {}, **kwargs)
@@ -609,6 +648,40 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         self.assertEqual(
             sorted(entry), ["canonical_domain", "canonical_url", "id", "iframe"]
         )
+
+    def _network_ids(self, url_hosts: dict, **kwargs) -> list[str]:
+        result = self._run(
+            ["design"],
+            NETWORK_APPLICATIONS,
+            url_hosts=url_hosts,
+            handover=frozenset({"web-app-moodle"}),
+            **kwargs,
+        )[0]
+        return [r["id"] for r in result]
+
+    def test_network_keeps_only_roles_whose_page_renders_there(self):
+        self.assertEqual(
+            self._network_ids(ONION_URL_HOSTS, network="tor"),
+            ["web-app-nextcloud"],
+            "the issuer keeps its clearnet URL and the handover sibling only "
+            "redirects to clearnet, so neither renders its page on tor",
+        )
+
+    def test_the_canonical_network_keeps_the_issuer_and_the_handover_role(self):
+        self.assertEqual(
+            self._network_ids({}, network="clearnet"),
+            ["web-app-keycloak", "web-app-moodle", "web-app-nextcloud"],
+        )
+
+    def test_without_network_kwarg_no_role_is_dropped(self):
+        self.assertEqual(
+            self._network_ids(ONION_URL_HOSTS),
+            ["web-app-keycloak", "web-app-moodle", "web-app-nextcloud"],
+        )
+
+    def test_an_unknown_network_fails_loudly(self):
+        with self.assertRaises(AnsibleError):
+            self._network_ids({}, network="onion")
 
 
 if __name__ == "__main__":

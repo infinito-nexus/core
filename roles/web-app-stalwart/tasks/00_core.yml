@@ -87,6 +87,7 @@
     compose_handlers_flush: true
     webserver_vhost_flavour: "basic"
     webserver_extra_configuration: "client_max_body_size 31M;"
+    proxy_forwarded_client_address: true
     domain: "{{ STALWART_WEB_DOMAIN }}"
 
 - name: "🚿 Flush Docker Compose handlers"

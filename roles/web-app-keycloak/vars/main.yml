@@ -16,7 +16,10 @@ KEYCLOAK_RBAC_GROUP_NAME: "{{ RBAC.GROUP.NAME }}"
 KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
 KEYCLOAK_RBAC_RUN_APP_IDS: "{{ lookup('deployment').running | rbac_app_ids }}"
 
-KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER: >-
+KEYCLOAK_KCADM_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
+KEYCLOAK_PER_APP_GROUP_ID_PLACEHOLDER: "__KC_APP_GROUP_ID__"
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE: "/tmp/kc_per_app_mapper_payloads.txt"
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE: >-
   {{
     ((KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.storage.UserStorageProvider']
       | selectattr('name','equalto', KEYCLOAK_LDAP_CMP_NAME)
@@ -28,20 +31,29 @@ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER: >-
      | rejectattr('key','in',['subComponents','id'])
      | list | items2dict)
     | combine({
-        'name':         kc_app_id | kc_per_app_mapper_name,
         'parentId':     ldap_cmp_id | trim,
         'providerId':   'group-ldap-mapper',
         'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper',
         'config': {
           'preserve.group.inheritance':            ['false'],
           'group.name.ldap.attribute':             ['description'],
-          'groups.ldap.filter':                    [kc_app_id | kc_per_app_ldap_filter],
-          'groups.path':                           ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ kc_app_id],
-          'groups.path.group':                     [kc_app_group_id],
+          'groups.path.group':                     [KEYCLOAK_PER_APP_GROUP_ID_PLACEHOLDER],
           'drop.non.existing.groups.during.sync':  ['true'],
         }
       }, recursive=True)
   }}
+# One `<app_id> <mapper_name> <base64 mapper JSON>` line per rbac app of the current run.
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS: |-
+  {% for app_id in KEYCLOAK_RBAC_RUN_APP_IDS -%}
+  {%- set mapper = KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE | combine({
+        'name': app_id | kc_per_app_mapper_name,
+        'config': {
+          'groups.ldap.filter': [app_id | kc_per_app_ldap_filter],
+          'groups.path':        ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ app_id],
+        }
+      }, recursive=True) -%}
+  {{ app_id }} {{ mapper['name'] }} {{ mapper | to_nice_json | b64encode }}
+  {% endfor %}
 
 KEYCLOAK_HEALTH_ENABLED: true
 

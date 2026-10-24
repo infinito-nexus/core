@@ -45,6 +45,12 @@ MDAD knobs are rendered from `templates/flavor/ansible/vars.yml.j2`. Central-ser
 
 A `mount --make-rshared /` runs once in the deploy container before the runner starts, because MDAD's systemd units bind-mount `/matrix/synapse/storage` with `bind-propagation=slave`, which requires shared/slave propagation on the source.
 
+**Federation.** Synapse serves the `client` and `federation` resources on one listener. OpenResty serves the Synapse domain on 443 and, as `default_server`, on `services.synapse.ports.public.federation`, and the role writes `/.well-known/matrix/server` into the well-known directory of its server name, which the redirect vhost of that domain (`web-opt-rdr-domains`) serves, so server discovery delegates to the Synapse domain on 443. The `<server_name>:8448` fallback only answers where OpenResty runs in the host network (compose); in swarm OpenResty publishes 80 and 443 only.
+
+**Registry proxy.** When the stack's docker daemon pulls through a registry proxy (the local registry cache), the runner's nested daemon uses the same proxy via a `docker.service` drop-in and, when the outer daemon trusts the cache's CA, fetches that CA from the proxy before it starts.
+
+**Nested host network.** Synapse, Element, coturn, LiveKit, its JWT service and Heisenbridge run in the host network of the nested Docker daemon, so they address each other over `127.0.0.1`; Heisenbridge's homeserver URL and its appservice URL in the registration are set accordingly. Jitsi keeps MDAD's own `matrix-jitsi` network and publishes its web port to the runner.
+
 ### `compose` (deprecated)
 
 Set `services.matrix.flavor: compose` to opt in. Tasks live under `tasks/flavor/compose/`, templates under `templates/flavor/compose/`. Existing volumes and credentials are reused, so in-place deploys need no migration.

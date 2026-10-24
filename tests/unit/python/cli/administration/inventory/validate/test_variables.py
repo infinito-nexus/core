@@ -83,6 +83,9 @@ class TestReadVariables(unittest.TestCase):
         self.assertIn("SYSTEM_EMAIL_HOST", self.read)
         self.assertIn("SYSTEM_EMAIL_EXTERNAL", self.read)
 
+    def test_the_disable_record_counts(self):
+        self.assertIn("_INFINITO_SERVICES_DISABLED", self.read)
+
     def test_retired_names_do_not_count(self):
         for name in ("CLOUDFLARE_API_TOKEN", "SYSTEM_EMAIL", "internet_interfaces"):
             with self.subTest(name=name):

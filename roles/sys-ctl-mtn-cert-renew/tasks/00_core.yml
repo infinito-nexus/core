@@ -1,13 +1,13 @@
 ---
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ sys_ctl_mtn_cert_renew_dependency }}"
   loop:
     - sys-svc-certbot
     - sys-svc-webserver-core
     - sys-ctl-alm-compose
   loop_control:
-    loop_var: dependency_role
+    loop_var: sys_ctl_mtn_cert_renew_dependency
 
 - name: 📦 install certbot
   package_install:

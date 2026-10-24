@@ -1,5 +1,6 @@
 ---
 # Reusable management JMAP call: in `stalwart_jmap_body` (JSON), out `stalwart_jmap`.
+# Param: stalwart_jmap_body - JSON request; a batch carries one method call per object owner, its call id naming that owner in a refusal.
 # Param: stalwart_jmap_tolerate_rejected - true when the caller reads a set-level rejection itself (e.g. alreadyExists).
 # Param: stalwart_jmap_act_as - account address the recovery admin acts for; unset runs the call as the admin itself.
 - name: "🔧 Stalwart JMAP call"
@@ -18,11 +19,9 @@
   delay: 5
   until: >-
     stalwart_jmap_raw.rc == 0
-    and (
-      (stalwart_jmap_raw.stdout | from_json).methodResponses[0][0] != 'error'
-      or (stalwart_jmap_raw.stdout | from_json).methodResponses[0][1].type
-         not in STALWART_JMAP_TRANSIENT_ERRORS
-    )
+    and (stalwart_jmap_raw.stdout | from_json).methodResponses
+        | selectattr('0', 'equalto', 'error') | map(attribute='1.type')
+        | select('in', STALWART_JMAP_TRANSIENT_ERRORS) | list | length == 0
   timeout: "{{ lookup('timeout', 120) | int }}"
   # nocheck: include-uniform-apply-keyword — seven call sites include this file; the in-file no_log is the SPOT, per-site apply would repeat it 7×
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -35,14 +34,20 @@
 - name: "✅ Ensure Stalwart accepted the JMAP call"
   ansible.builtin.assert:
     that:
-      - stalwart_jmap.methodResponses[0][0] != 'error'
-      - stalwart_jmap_rejected | length == 0
-    fail_msg: "Stalwart refused the JMAP call {{ stalwart_jmap.methodResponses[0][0] }}: {{ stalwart_jmap_rejected or stalwart_jmap.methodResponses[0][1] }}"
+      - stalwart_jmap_refused | length == 0
+    fail_msg: "Stalwart refused the JMAP call {{ stalwart_jmap_refused }}"
     quiet: true
   vars:
-    stalwart_jmap_rejected: >-
-      {{ {} if (stalwart_jmap_tolerate_rejected | default(false) | bool)
-         else (stalwart_jmap.methodResponses[0][1].notCreated | default({}, true))
-              | combine(stalwart_jmap.methodResponses[0][1].notUpdated | default({}, true))
-              | combine(stalwart_jmap.methodResponses[0][1].notDestroyed | default({}, true)
-                        | dict2items | rejectattr('value.type', 'equalto', 'notFound') | items2dict) }}
+    stalwart_jmap_refused: >-
+      {%- set refused = {} -%}
+      {%- for method, result, call in stalwart_jmap.methodResponses -%}
+      {%-   set rejected = {} if (method == 'error' or (stalwart_jmap_tolerate_rejected | default(false) | bool))
+                           else (result.notCreated | default({}, true))
+                                | combine(result.notUpdated | default({}, true))
+                                | combine(result.notDestroyed | default({}, true)
+                                          | dict2items | rejectattr('value.type', 'equalto', 'notFound') | items2dict) -%}
+      {%-   if method == 'error' or rejected | length > 0 -%}
+      {%-     set _ = refused.update({call: {method: result if method == 'error' else rejected}}) -%}
+      {%-   endif -%}
+      {%- endfor -%}
+      {{ refused }}

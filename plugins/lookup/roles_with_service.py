@@ -31,6 +31,11 @@ Kwargs:
     include_headless: ``True`` also returns declaring roles without a
         canonical domain, with empty ``canonical_domain`` and
         ``canonical_url``.
+    network: opt-in network filter. When set, only roles whose page renders
+        in that network are returned: ``canonical_domain`` lies in it and
+        ``lookup('network_handover', id, canonical_domain)`` is false. This
+        drops the SSO provider, whose URL never leaves its canonical network,
+        and a ``handover`` sibling, which only redirects to another network.
     direction: opt-in MCP filter. When set (``server``/``client``/``both``),
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
@@ -54,6 +59,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
+from utils.networks.reachability import network, network_of
 from utils.roles.applications.mcp import (
     DEFAULT_MCP_TRANSPORT,
     derive_allowed_consumers,
@@ -114,6 +120,27 @@ def _deployed_roles(scope: str, vars_: dict[str, Any]) -> set[str] | None:
     return {str(name) for name in names}
 
 
+def _renders_in(
+    pass_network: str,
+    role_id: str,
+    domain: str,
+    handover_lookup: Any,
+    variables: dict[str, Any] | None,
+) -> bool:
+    """Return whether the page of ``role_id`` at ``domain`` renders in a network.
+
+    Args:
+        pass_network: the network the page must render in.
+        role_id: the consumer role.
+        domain: the host the consumer entry points at, ``""`` when headless.
+        handover_lookup: the ``network_handover`` lookup.
+        variables: the templating variables.
+    """
+    if not domain or network_of(domain) != pass_network:
+        return False
+    return not handover_lookup.run([role_id, domain], variables=variables)[0]
+
+
 class LookupModule(LookupBase):
     def run(
         self,
@@ -150,6 +177,17 @@ class LookupModule(LookupBase):
         )
         deployed = _deployed_roles(scope, vars_)
         include_headless = bool(kwargs.get("include_headless", False))
+        pass_network = kwargs.get("network")
+        handover_lookup = None
+        if pass_network is not None:
+            pass_network = str(pass_network).strip()
+            try:
+                network(pass_network)
+            except ValueError as exc:
+                raise AnsibleError(f"roles_with_service: {exc}") from exc
+            handover_lookup = lookup_loader.get(
+                "network_handover", loader=self._loader, templar=self._templar
+            )
 
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
@@ -191,6 +229,10 @@ class LookupModule(LookupBase):
                 )
                 canonical_url = str(resolved[0]).rstrip("/")
                 canonical = urlsplit(canonical_url).hostname or canonical
+            if handover_lookup is not None and not _renders_in(
+                pass_network, str(role_id), canonical, handover_lookup, variables
+            ):
+                continue
             iframe = (
                 bool(block["iframe"])
                 if "iframe" in block

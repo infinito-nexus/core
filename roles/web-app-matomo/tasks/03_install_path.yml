@@ -101,7 +101,9 @@
 
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
-  when: matomo_token_value is defined
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0
 
 - name: "🎨 Apply the corporate design of {{ application_id }}"
   include_tasks: 09_design.yml

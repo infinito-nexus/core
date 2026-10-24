@@ -91,8 +91,11 @@ exports.register = function (shared) {
           `the uploaded file '${marker}.txt' must appear in the Moodle file manager`,
         ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-        await appPage.locator("#id_submitbutton").first().click();
-        await appPage.waitForLoadState("load");
+        await appPage.locator("#userfilesform input[type='submit'][name='submitbutton']").first().click();
+        await expect(
+          appPage.getByText("Changes saved", { exact: false }).first(),
+          "the private files form saves over AJAX and confirms with a 'Changes saved' toast; leaving the page before it would drop the draft file instead of moving it into the private area",
+        ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
         await gotoOnion(
           appPage,

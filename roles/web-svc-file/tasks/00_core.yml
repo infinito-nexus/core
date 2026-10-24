@@ -3,9 +3,9 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ web_svc_file_dependency }}"
   loop:
     - sys-stk-front-proxy
     - dev-git
   loop_control:
-    loop_var: dependency_role
+    loop_var: web_svc_file_dependency

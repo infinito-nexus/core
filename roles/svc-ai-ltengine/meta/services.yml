@@ -34,7 +34,6 @@ ltengine:
   custom: true
   gpu: true
   repository: https://github.com/LibreTranslate/LTEngine
-  # nocheck: repository-version  upstream's only tag predates the served server, so the pin is a commit
   ref: 9b748ddd84c02da9569bd96db3cf33c53e4665fa
   # nocheck: min-storage-headroom  Reason: the CUDA runtime base the binary is built on, plus the GGUF weights the server downloads into its models volume on first start
   min_storage: 5GB

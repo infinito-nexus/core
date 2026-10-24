@@ -1,15 +1,7 @@
 ---
 # include-gated: when: IS_COMPOSE_MODE
-- name: 📁 create {{ MATRIX_WELL_KNOWN_DIRECTORY }}
-  ansible.builtin.file:
-    path: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}"
-    state: directory
-    mode: "0755"
-
-- name: 📁 create {{ MATRIX_WELL_KNOWN_FILE }}
-  stack_host_template:
-    src: "well-known.j2"
-    dest: "{{ MATRIX_WELL_KNOWN_FILE }}"
+- name: "🔀 federation delegation"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/well_known.yml"
 
 - name: "📂 include role sys-stk-front-proxy for {{ MATRIX_ELEMENT_DOMAIN }}"
   ansible.builtin.include_role:

@@ -1,0 +1,32 @@
+---
+- name: "⏳ Reap the image pre-pull"
+  when:
+    - sys_svc_container_prepull_job.ansible_job_id is defined
+    - sys_svc_container_prepull_reaped is not defined
+  block:
+    - name: "⏳ Wait for the image pre-pull to finish"
+      ansible.builtin.async_status:
+        jid: "{{ sys_svc_container_prepull_job.ansible_job_id }}"
+      register: sys_svc_container_prepull_result
+      until: sys_svc_container_prepull_result.finished
+      retries: "{{ ((SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME | int) / 5) | round(0, 'ceil') | int }}"
+      delay: 5
+      changed_when: false
+      failed_when:
+        - sys_svc_container_prepull_result is failed
+        - sys_svc_container_prepull_result.rc is not defined or sys_svc_container_prepull_result.rc not in [123, 124, 125]
+        - sys_svc_container_prepull_result.msg != 'Timeout exceeded'
+
+    - name: "📊 Report the image pre-pull, each app's own pull stays authoritative"
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            ((sys_svc_container_prepull_missing | length) ~ ' missing images pre-pulled')
+            if sys_svc_container_prepull_result.rc is defined and sys_svc_container_prepull_result.rc == 0
+            else ['pre-pull incomplete, the apps pull the rest themselves: ' ~ sys_svc_container_prepull_result.msg]
+              + (sys_svc_container_prepull_result.stderr_lines if sys_svc_container_prepull_result.stderr_lines is defined else [])
+          }}
+
+    - name: "✅ Mark the image pre-pull as reaped"
+      ansible.builtin.set_fact:
+        sys_svc_container_prepull_reaped: true
