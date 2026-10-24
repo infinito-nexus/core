@@ -25,12 +25,6 @@
     BBB_COMPOSE_FILE_ORIGINE: "{{ [compose_repository_path, 'docker-compose.yml'] | path_join }}"
     BBB_COMPOSE_FILE_FINAL: "{{ [lookup('container', application_id, 'directories.instance'), 'compose.yml'] | path_join }}"
 
-- name: ✏️ Write compose.override.yml for BigBlueButton
-  stack_host_template:
-    src: compose.override.yml.j2
-    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'compose.override.yml'] | path_join }}"
-  notify: compose-up
-
 - name: "🎨 Render the meeting client settings of '{{ application_id }}'"
   stack_host_template:
     src: bbb-html5.yml.j2

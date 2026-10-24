@@ -1,23 +1,19 @@
 ---
-- name: 🩹 Patch Friendica local.config.php (DB host, name, user, system.url)
-  shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-    container exec --user {{ FRIENDICA_USER }} {{ FRIENDICA_LOCAL_CID | quote }}
-    sed -ri
-    -e "s/('hostname'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database', application_id, 'port') | sed_escape('/')
-    }}\2/"
-    -e "s/('database'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'name') | sed_escape('/') }}\2/"
-    -e "s/('username'\s*=>\s*')[^']*(',)/\1{{ lookup('database', application_id, 'username') | sed_escape('/') }}\2/"
-    -e "s#('url'\s*=>\s*')[^']*(',)#\1{{ FRIENDICA_BASE_URL | sed_escape('#') }}\2#"
-    {{ FRIENDICA_CONFIG_FILE }}
-  delegate_to: "{{ FRIENDICA_HOST_NODE }}" # nocheck: include-uniform-apply-keyword
-
-- name: 🩹 Patch Friendica local.config.php (DB password)
-  shell: >
-    container exec --user {{ FRIENDICA_USER }}
-    -e PATCH_PASSWORD
-    {{ FRIENDICA_LOCAL_CID | quote }}
-    sh -c "sed -ri -e \"s/('password'\\s*=>\\s*')[^']*(',)/\\1\${PATCH_PASSWORD}\\2/\" {{ FRIENDICA_CONFIG_FILE }}"
+- name: 🩹 Patch Friendica local.config.php (DB credentials, system.url)
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+      container exec -i --user {{ FRIENDICA_USER }}
+      -e PATCH_HOSTNAME -e PATCH_DATABASE -e PATCH_USERNAME -e PATCH_PASSWORD -e PATCH_URL
+      {{ FRIENDICA_LOCAL_CID | quote }}
+      sh -s -- {{ FRIENDICA_CONFIG_FILE | quote }}
+    stdin: "{{ lookup('file', 'shell/patch/local_config.sh') }}"
   environment:
+    PATCH_HOSTNAME: "{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database', application_id, 'port') | sed_escape('/') }}"
+    PATCH_DATABASE: "{{ lookup('database', application_id, 'name') | sed_escape('/') }}"
+    PATCH_USERNAME: "{{ lookup('database', application_id, 'username') | sed_escape('/') }}"
     PATCH_PASSWORD: "{{ lookup('database', application_id, 'password') | sed_escape('/') }}"
+    PATCH_URL: "{{ FRIENDICA_BASE_URL | sed_escape('#') }}"
   delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+  register: friendica_config_patch
+  changed_when: "'PATCHED' in friendica_config_patch.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

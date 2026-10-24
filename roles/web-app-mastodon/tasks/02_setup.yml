@@ -7,6 +7,7 @@
     resolve_compose_cid: "{{ MASTODON_CONTAINER_ADDRESS }}"
 
 - name: "🌱 MASTODON | Seed database (idempotent)"
+  # nocheck: default-seeder  Mastodon seeds are find_or_create and its admin seed is development-only
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ MASTODON_LOCAL_CID | quote }}
     bash -lc 'bin/rails db:seed'

@@ -5,7 +5,7 @@
 # task oauth2-proxy's allowed_groups check has no groups to match and every
 # group-gated app returns 403 for otherwise-authenticated users.
 
-- name: "🔐 RBAC realm groups: provision groups + memberships for '{{ item.path }}'"
+- name: "🔐 RBAC realm groups: provision groups + memberships per rbac app"
   ansible.builtin.script:
     cmd: "files/shell/rbac_realm/ensure_group_path_members.sh"
     executable: /bin/bash

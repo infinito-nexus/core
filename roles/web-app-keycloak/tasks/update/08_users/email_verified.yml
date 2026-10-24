@@ -1,21 +1,17 @@
 ---
-# Set emailVerified=true for all configured users from vars.
-# Contract:
-#   - users is ALWAYS a dict
-#   - username is ALWAYS stored in users.<key>.username
-#   - dict key is ignored completely
-
 - name: "🔧 Set emailVerified=true for users in realm '{{ KEYCLOAK_REALM }}'"
-  ansible.builtin.script: shell/set_email_verified.sh
-  environment:
-    KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
-    KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
-    KEYCLOAK_REALM: "{{ KEYCLOAK_REALM }}"
-    KEYCLOAK_USERNAME: "{{ item.value.username }}"
-    KEYCLOAK_EMAIL_VERIFIED: "true"
-  loop: "{{ lookup('users_non_reserved') | dict2items }}"
-  loop_control:
-    label: "{{ item.value.username }}"
-  register: kc_email_verified_updates
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: email_verified.py
+    rest_script_env:
+      USERNAMES: "{{ lookup('users_non_reserved') | dict2items | map(attribute='value.username') | join(' ') }}"
+    rest_script_ok_rcs: [0]
+    rest_script_changed: "updated=[1-9]"
+    rest_script_register: kc_email_verified
+
+- name: "📊 Report how many users got their email marked verified"
+  ansible.builtin.debug:
+    msg: "{{ kc_email_verified.stdout_lines | select('match', '^summary ') | list }}"

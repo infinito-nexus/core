@@ -4,7 +4,10 @@
 # Env: SIBLINGS Space-separated network siblings of DOMAIN (each added as a trusted host).
 # Env: SERVICE Stack-internal service name (added as a trusted host).
 # Env: LOCAL   host:port the role uses for in-host probes (added as a trusted host).
+# Output: "PATCHED" when the content of CFG changed, nothing when it already matched.
 set -eu
+
+before="$(cksum <"$CFG")"
 
 ensure_host() {
   host="$1"
@@ -43,3 +46,5 @@ if ! grep -qE "^enable_framed_pages[[:space:]]*=" "$CFG"; then
     { print }
   ' "$CFG" > "$CFG.tmp" && mv "$CFG.tmp" "$CFG"
 fi
+
+[ "$(cksum <"$CFG")" = "$before" ] || echo PATCHED

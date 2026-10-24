@@ -59,6 +59,7 @@
       uri_probe:
         url: "{{ front_proxy_probe_url }}"
         status_code: "{{ front_proxy_probe_status_codes }}"
+        follow_redirects: none
       register: site_check
       failed_when: false
       changed_when: false
@@ -82,6 +83,7 @@
       uri_probe:
         url: "{{ front_proxy_probe_url }}"
         status_code: "{{ front_proxy_probe_status_codes }}"
+        follow_redirects: none
       register: front_proxy_reload_check
       failed_when: false
       changed_when: false

@@ -33,14 +33,14 @@
 - name: 🚿 flush docker service
   meta: flush_handlers
 
-- name: 🚀 Deploy Settings
-  include_tasks: 02_settings.yml
+- name: ▶️ Migrate the OpenProject database
+  include_tasks: 02_migrate.yml
 
 - name: 🔧 Setup LDAP
   include_tasks: 03_ldap.yml
   when: OPENPROJECT_LDAP_ENABLED | bool
 
-- name: 📁 Create OpenProject Administrator
+- name: 🔧 Apply settings and the OpenProject administrator
   include_tasks: 04_admin.yml
 
 - name: "🧩 Provision the OpenProject addons"

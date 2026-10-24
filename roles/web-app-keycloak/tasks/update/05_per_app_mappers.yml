@@ -23,10 +23,7 @@
 #
 # The shared default `ldap-roles` mapper (created by update/05_ldap/main.yml)
 # is removed here so it does not shadow the per-app mappers, and any
-# Keycloak groups it had imported flat under /roles are pruned. Each
-# step delegates to a dedicated `.sh` under
-# `files/shell/per_app_mapper/` so the shell logic lives outside the
-# YAML structure and stays easy to lint and reuse.
+# Keycloak groups it had imported flat under /roles are pruned.
 
 - name: "🚿 per-app mappers: flush pending handlers before mutating the shared mapper"
   ansible.builtin.meta: flush_handlers
@@ -37,81 +34,38 @@
       all_deployed: "{{ KEYCLOAK_RBAC_ALL_APP_IDS }}"
       current_run: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
 
-- name: "🗑️ per-app mappers: delete shared 'ldap-roles' mapper if present"
-  ansible.builtin.script:
-    cmd: "files/shell/per_app_mapper/delete_default_ldap_roles_mapper.sh"
-    executable: /bin/bash
-  environment:
-    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
-    KC_REALM: "{{ KEYCLOAK_REALM }}"
-    LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
-  changed_when: true
-  failed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🧹 Purge stale flat / orphan groups under /<KEYCLOAK_RBAC_GROUP_NAME>"
-  ansible.builtin.script:
-    cmd: "files/shell/per_app_mapper/purge/root_orphans.sh"
-    executable: /bin/bash
-  environment:
-    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
-    KC_REALM: "{{ KEYCLOAK_REALM }}"
-    KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
-    DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
-    KC_PURGE_WORKERS: "{{ KEYCLOAK_KCADM_WORKERS }}"
-  changed_when: true
-  failed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🔍 per-app mappers: resolve the root group id once, it is loop-invariant"
-  ansible.builtin.script:
-    cmd: "files/shell/per_app_mapper/resolve_root_group_id.sh"
-    executable: /bin/bash
-  environment:
-    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
-    KC_REALM: "{{ KEYCLOAK_REALM }}"
-    KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
-  register: per_app_root_id
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "✅ per-app mappers: assert root group was resolved"
-  ansible.builtin.assert:
-    that: (per_app_root_id.stdout | default('') | trim) | length > 0
-    fail_msg: "could not resolve /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }} group id"
-
-- name: "🔧 per-app mappers: set root group id fact"
-  ansible.builtin.set_fact:
-    kc_root_group_id: "{{ (per_app_root_id.stdout | default('')) | trim }}"
-  changed_when: false
-
 - name: "📄 per-app mappers: render the mapper payloads of every rbac app in current run"
   ansible.builtin.copy:
     dest: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
     mode: "0600"
     content: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS }}"
   changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "✅ per-app mappers: ensure Keycloak group and mapper per rbac app in current run"
-  ansible.builtin.script:
-    cmd: "files/shell/per_app_mapper/reconcile_apps.sh"
-    executable: /bin/bash
-  environment:
-    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
-    KC_REALM: "{{ KEYCLOAK_REALM }}"
-    LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
-    ROOT_GROUP_ID: "{{ kc_root_group_id }}"
-    PAYLOADS_FILE: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
-    GROUP_ID_PLACEHOLDER: "{{ KEYCLOAK_PER_APP_GROUP_ID_PLACEHOLDER }}"
-    KC_WORKERS: "{{ KEYCLOAK_KCADM_WORKERS }}"
-    KC_SYNC_ATTEMPTS: "3"
-    KC_SYNC_DELAY: "20"
-    KC_SYNC_TIMEOUT: "{{ lookup('timeout', 60) | int }}"
-  register: per_app_reconcile
-  changed_when: true
-  failed_when: per_app_reconcile.rc not in [0, 1, 2]
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "✅ per-app mappers: reconcile groups and mappers of every rbac app over REST"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: rbac_reconcile.py
+    rest_script_env:
+      LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
+      RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
+      DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
+      PAYLOADS_FILE: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
+      WORKERS: "{{ KEYCLOAK_RBAC_WORKERS }}"
+      SYNC_ATTEMPTS: "3"
+      SYNC_DELAY: "20"
+      SYNC_TIMEOUT: "{{ lookup('timeout', 60) | int }}"
+    rest_script_ok_rcs: [0, 1, 2]
+    rest_script_changed: "synced=[1-9]"
+    rest_script_register: per_app_reconcile
+
+- name: "📊 per-app mappers: report how many rbac apps were synced"
+  ansible.builtin.debug:
+    msg: "{{ per_app_reconcile.stdout_lines | select('match', '^summary ') | list }}"
 
 - name: "⚠️ per-app mappers: report the rbac apps that failed"
   ansible.builtin.fail:

@@ -1,0 +1,72 @@
+---
+# Param: rest_script          - script under files/python/ that imports keycloak_admin.py
+# Param: rest_script_env      - script environment besides KC_URL, KC_PID, KC_REALM and PYTHONPATH
+# Param: rest_script_ok_rcs   - exit codes that do not fail the run
+# Param: rest_script_changed  - regex on stdout that marks the run changed
+# Param: rest_script_register - fact the command result is stored under
+- name: "🔍 Keycloak REST | Resolve the host PID of the Keycloak container"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{{ '{{' }}.State.Pid{{ '}}' }}"
+      - "{{ KEYCLOAK_LOCAL_CID }}" # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+  register: kc_rest_script_pid
+  changed_when: false
+
+- name: "📁 Keycloak REST | Create the staging directory of {{ rest_script }}"
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: -keycloak-rest
+  register: kc_rest_script_dir
+  changed_when: false
+
+- name: "🐍 Keycloak REST | Stage, run and remove {{ rest_script }}"
+  block:
+    - name: "📄 Keycloak REST | Stage {{ rest_script }} with its client module"
+      ansible.builtin.copy:
+        src: "python/{{ kc_rest_script_file }}"
+        dest: "{{ kc_rest_script_dir.path }}/{{ kc_rest_script_file }}"
+        mode: "0600"
+      loop:
+        - keycloak_admin.py
+        - "{{ rest_script }}"
+      loop_control:
+        loop_var: kc_rest_script_file
+      changed_when: false
+
+    - name: "▶️ Keycloak REST | Run {{ rest_script }} in the Keycloak network namespace"
+      ansible.builtin.command:
+        argv:
+          - nsenter
+          - --target
+          - "{{ kc_rest_script_pid.stdout | trim }}"
+          - --net
+          - --
+          - python3
+          - "{{ kc_rest_script_dir.path }}/{{ rest_script }}"
+      environment: "{{ rest_script_env | combine(kc_rest_script_base_env) }}"
+      vars:
+        kc_rest_script_base_env:
+          KC_URL: "{{ KEYCLOAK_SERVER_INTERNAL_URL }}"
+          KC_PID: "{{ kc_rest_script_pid.stdout | trim }}"
+          KC_REALM: "{{ KEYCLOAK_REALM }}"
+          PYTHONPATH: "{{ kc_rest_script_dir.path }}"
+      register: kc_rest_script_result
+      changed_when: kc_rest_script_result.stdout is search(rest_script_changed)
+      failed_when: kc_rest_script_result.rc not in rest_script_ok_rcs
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "📌 Keycloak REST | Store the result of {{ rest_script }}"
+      ansible.builtin.set_fact:
+        "{{ rest_script_register }}": "{{ kc_rest_script_result }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  always:
+    - name: "🗑️ Keycloak REST | Remove the staging directory of {{ rest_script }}"
+      ansible.builtin.file:
+        path: "{{ kc_rest_script_dir.path }}"
+        state: absent
+      changed_when: false

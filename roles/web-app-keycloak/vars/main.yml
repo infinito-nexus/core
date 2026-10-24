@@ -16,33 +16,40 @@ KEYCLOAK_RBAC_GROUP_NAME: "{{ RBAC.GROUP.NAME }}"
 KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
 KEYCLOAK_RBAC_RUN_APP_IDS: "{{ lookup('deployment').running | rbac_app_ids }}"
 
-KEYCLOAK_KCADM_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
-KEYCLOAK_PER_APP_GROUP_ID_PLACEHOLDER: "__KC_APP_GROUP_ID__"
+KEYCLOAK_RBAC_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
+KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/filter_plugins/build_ldap_role_entries.py')) | hash('sha256') }}"
 KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE: "/tmp/kc_per_app_mapper_payloads.txt"
-KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE: >-
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE: >-
   {{
-    ((KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.storage.UserStorageProvider']
+    (KEYCLOAK_DICTIONARY_REALM.components['org.keycloak.storage.UserStorageProvider']
       | selectattr('name','equalto', KEYCLOAK_LDAP_CMP_NAME)
       | list | first
-     ).subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
-     | selectattr('name','equalto','ldap-roles')
-     | list | first
+    ).subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
+    | selectattr('name','equalto','ldap-roles')
+    | list | first
+  }}
+KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE: >-
+  {{
+    (KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE
      | dict2items
-     | rejectattr('key','in',['subComponents','id'])
+     | rejectattr('key','in',['subComponents','id','config'])
      | list | items2dict)
     | combine({
         'parentId':     ldap_cmp_id | trim,
         'providerId':   'group-ldap-mapper',
         'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper',
-        'config': {
-          'preserve.group.inheritance':            ['false'],
-          'group.name.ldap.attribute':             ['description'],
-          'groups.path.group':                     [KEYCLOAK_PER_APP_GROUP_ID_PLACEHOLDER],
-          'drop.non.existing.groups.during.sync':  ['true'],
-        }
-      }, recursive=True)
+        'config': (KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE.config
+                   | dict2items
+                   | rejectattr('key','equalto','groups.path.group')
+                   | list | items2dict)
+                  | combine({
+                      'preserve.group.inheritance':            ['false'],
+                      'group.name.ldap.attribute':             ['description'],
+                      'drop.non.existing.groups.during.sync':  ['true'],
+                    }),
+      })
   }}
-# One `<app_id> <mapper_name> <base64 mapper JSON>` line per rbac app of the current run.
+# One `<app_id> <mapper_name> <base64 mapper JSON> <fingerprint>` line per rbac app of the current run.
 KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS: |-
   {% for app_id in KEYCLOAK_RBAC_RUN_APP_IDS -%}
   {%- set mapper = KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE | combine({
@@ -52,7 +59,14 @@ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS: |-
           'groups.path':        ['/' ~ (KEYCLOAK_RBAC_GROUP_NAME | trim('/')) ~ '/' ~ app_id],
         }
       }, recursive=True) -%}
-  {{ app_id }} {{ mapper['name'] }} {{ mapper | to_nice_json | b64encode }}
+  {%- set app = lookup('applications')[app_id] -%}
+  {%- set fingerprint = {
+        'mapper': mapper,
+        'rbac': app.get('rbac'),
+        'domains': app.get('domains'),
+        'logic': KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST,
+      } | to_json(sort_keys=True) | hash('sha256') -%}
+  {{ app_id }} {{ mapper['name'] }} {{ mapper | to_nice_json | b64encode }} {{ fingerprint }}
   {% endfor %}
 
 KEYCLOAK_HEALTH_ENABLED: true
