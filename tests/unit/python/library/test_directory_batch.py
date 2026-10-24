@@ -44,7 +44,7 @@ class DirectoryBatchTests(unittest.TestCase):
         self.root = Path(self._tmp.name)
 
     def tearDown(self):
-        for path in self.root.rglob("*"):  # nocheck: project-walk  tempdir fixture, outside the project tree
+        for path in self.root.rglob("*"):  # nocheck: project-walk
             if path.is_dir() and not path.is_symlink():
                 path.chmod(0o700)
         self._tmp.cleanup()
