@@ -1,4 +1,9 @@
 ---
+- name: "⏳ Reap the image pre-pull of a host without a server stage"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: utils/prepull/reap.yml
+
 - name: "🧩 Load destruction roles"
   include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'destructor') }}"
