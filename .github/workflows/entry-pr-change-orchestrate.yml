@@ -119,6 +119,35 @@ jobs:
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
 
+  detect-agents-scope:
+    name: 🤖 Detect agent changes
+    needs: [detect-pr-scope, validation]
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-26.04
+    outputs:
+      affected: ${{ steps.resolve.outputs.affected }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve agent-platform changes
+        id: resolve
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: ./scripts/github/resolve/pr_agents_affected.sh
+
+  agents-local:
+    name: "🤖 Agents (local)"
+    needs: [detect-pr-scope, validation, detect-agents-scope]
+    if: ${{ github.event_name == 'pull_request' && needs.detect-agents-scope.outputs.affected == 'true' }}
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/call-test-agents-local.yml
+    secrets: inherit
+
   prepare-fork-merge-ref:
     needs:
       - detect-pr-scope
