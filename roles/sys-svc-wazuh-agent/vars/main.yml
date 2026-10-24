@@ -83,6 +83,6 @@ WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}
 WAZUH_AGENT_FIM_STATE_RETRIES: 12
 WAZUH_AGENT_AUDITD_SERVICE: "auditd.service"
 
-# Starting values until Kevin sets the tolerated event loss (criterion K); these are Wazuh's own defaults, stated explicitly.
-WAZUH_AGENT_BUFFER_QUEUE_SIZE: 5000
-WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND: 500
+# Exception: decision 9 (policy P1) sets the agent buffer to Wazuh's maximum, 100000 events at 1000 events/s, instead of the defaults 5000 and 500.
+WAZUH_AGENT_BUFFER_QUEUE_SIZE: 100000
+WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND: 1000
