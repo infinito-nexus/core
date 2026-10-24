@@ -1,7 +1,9 @@
+import contextlib
 import importlib.util
 import os
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -74,7 +76,23 @@ class _FakeImap:
 
 
 class _SlowImap(_FakeImap):
+    """A session that waits for its siblings before it appends anything.
+
+    `ThreadPoolExecutor` promises a thread count, never that every worker
+    receives an item from a shared iterator, so counting the sessions that
+    happened to append is a race rather than a check.
+    """
+
+    def __init__(self, barrier=None, **kwargs):
+        super().__init__(**kwargs)
+        self._barrier = barrier
+        self._waited = False
+
     def append(self, mailbox, flags, date_time, message):
+        if self._barrier is not None and not self._waited:
+            self._waited = True
+            with contextlib.suppress(threading.BrokenBarrierError):
+                self._barrier.wait(timeout=10)
         time.sleep(0.002)
         return super().append(mailbox, flags, date_time, message)
 
@@ -141,7 +159,8 @@ class TestMigrateAccount(unittest.TestCase):
         (self.account / "cur" / "99.host:2,").write_bytes(
             b"Message-ID: <5@x>\r\n\r\nduplicate"
         )
-        imaps = [_SlowImap() for _ in range(4)]
+        barrier = threading.Barrier(4)
+        imaps = [_SlowImap(barrier=barrier) for _ in range(4)]
         stats = self.m.AccountStats()
         self.m.migrate_account(imaps, self.account, stats)
         appended = [entry for imap in imaps for entry in imap.appended]
