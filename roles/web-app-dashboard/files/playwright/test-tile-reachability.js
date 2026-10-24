@@ -49,6 +49,17 @@ function referencesHost(rawUrl, canonicalDomain) {
   return new RegExp(`//${escaped}(?=[/?#&]|$)`).test(candidate);
 }
 
+/**
+ * Args:
+ *   target: a DASHBOARD_TARGET_ROLES_JSON entry.
+ * Returns: the host a browser opening the tile's URL lands on: handover_domain
+ *   when the tile's vhost hands over to the canonical domain in another
+ *   network, else canonical_domain.
+ */
+function landingDomain(target) {
+  return target.handover_domain || target.canonical_domain;
+}
+
 async function findVisibleTile(page, canonicalDomain) {
   const tile = page.locator(tileSelector(canonicalDomain)).first();
   const visible = await tile.isVisible().catch(() => false);
@@ -149,17 +160,17 @@ async function assertTileNavigatesTopLevel(page, context, target) {
       .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) })
       .catch(() => {});
     expect(
-      referencesHost(popup.url(), target.canonical_domain),
-      `Expected new-tab URL to address ${target.canonical_domain}, got ${popup.url()}`
+      referencesHost(popup.url(), landingDomain(target)),
+      `Expected new-tab URL to address ${landingDomain(target)}, got ${popup.url()}`
     ).toBe(true);
     await popup.close();
     return;
   }
 
   await expect
-    .poll(() => referencesHost(page.url(), target.canonical_domain), {
+    .poll(() => referencesHost(page.url(), landingDomain(target)), {
       timeout: resolveTimeout(30_000),
-      message: `Expected top-level navigation to ${target.canonical_domain} after clicking the ${target.id} tile`,
+      message: `Expected top-level navigation to ${landingDomain(target)} after clicking the ${target.id} tile`,
     })
     .toBe(true);
 
@@ -200,8 +211,8 @@ async function assertTabButtonOpensNewTab(page, context, target) {
 
   await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
   expect(
-    referencesHost(popup.url(), target.canonical_domain),
-    `Expected popup tab URL to address ${target.canonical_domain}, got ${popup.url()}`
+    referencesHost(popup.url(), landingDomain(target)),
+    `Expected popup tab URL to address ${landingDomain(target)}, got ${popup.url()}`
   ).toBe(true);
   await popup.close();
 }
