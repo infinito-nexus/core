@@ -284,7 +284,7 @@ class Router:
 
     @staticmethod
     def _mangled(answer, protected, text=""):
-        """What *answer* broke: protected terms it lost, then the markup.
+        """What *answer* broke: protected terms it lost, the markup, then the lines.
 
         The markup skeleton is checked as a multiset of ``MARKUP_CHARACTERS``
         rather than term presence, because the damage that matters is a count
@@ -298,6 +298,8 @@ class Router:
             character for character in answer if character in MARKUP_CHARACTERS
         ) != Counter(character for character in text if character in MARKUP_CHARACTERS):
             lost.append("the markup skeleton")
+        if text and answer.count("\n") > text.count("\n"):
+            lost.append("the line structure")
         return lost
 
     async def _serve(

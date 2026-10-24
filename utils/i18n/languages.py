@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 
@@ -58,6 +59,38 @@ def non_latin_languages(root: Path) -> frozenset[str]:
         for code, entry in load_languages(root).items()
         if _is_non_latin(str(entry.get("native", "")))
     )
+
+
+@lru_cache(maxsize=1)
+def language_scripts(root: Path) -> dict[str, str]:
+    """Return the script each language writes its endonym in, keyed by ISO 639-1 code.
+
+    Args:
+        root: repository root.
+
+    Returns:
+        The :func:`script` most letters of the endonym belong to, for every
+        language whose endonym carries a letter.
+    """
+    scripts = {}
+    for code, entry in load_languages(root).items():
+        tally = Counter(script(char) for char in str(entry["native"]) if char.isalpha())
+        if tally:
+            scripts[code] = tally.most_common(1)[0][0]
+    return scripts
+
+
+def script(char: str) -> str:
+    """Return the script that opens the Unicode name of ``char``.
+
+    Args:
+        char: one character.
+
+    Returns:
+        The first word of its name, such as ``ARABIC`` or ``CJK``; empty when
+        Unicode names no such character.
+    """
+    return unicodedata.name(char, "").replace("-", " ").partition(" ")[0]
 
 
 def latin_share(text: str) -> float | None:

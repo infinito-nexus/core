@@ -5,7 +5,10 @@ from utils.i18n.languages import (
     DOMAINS,
     SOURCE_LANGUAGE,
     domain_languages,
+    language_scripts,
     load_languages,
+    non_latin_languages,
+    script,
 )
 from utils.i18n.libretranslate import PIVOT_LANGUAGE, baked_languages, served_languages
 
@@ -65,6 +68,44 @@ class TestTheLanguageTable(unittest.TestCase):
         for domain in DOMAINS:
             with self.subTest(domain=domain):
                 self.assertEqual(domain_languages(self.languages, domain), expected)
+
+
+class TestTheScriptOfEachLanguage(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.scripts = language_scripts(PROJECT_ROOT)
+
+    def test_a_language_takes_the_script_of_its_endonym(self) -> None:
+        self.assertEqual(
+            {code: self.scripts[code] for code in ("ur", "hi", "ar", "ja", "ko", "de")},
+            {
+                "ur": "ARABIC",
+                "hi": "DEVANAGARI",
+                "ar": "ARABIC",
+                "ja": "CJK",
+                "ko": "HANGUL",
+                "de": "LATIN",
+            },
+        )
+
+    def test_every_non_latin_language_names_a_script_other_than_latin(self) -> None:
+        self.assertEqual(
+            sorted(
+                code
+                for code in non_latin_languages(PROJECT_ROOT)
+                if self.scripts.get(code) in (None, "LATIN")
+            ),
+            [],
+        )
+
+    def test_a_character_without_a_name_has_no_script(self) -> None:
+        self.assertEqual(script(chr(0xE000)), "")
+
+    def test_a_letter_names_its_script(self) -> None:
+        self.assertEqual(
+            [script(char) for char in "aاहя日ー"],
+            ["LATIN", "ARABIC", "DEVANAGARI", "CYRILLIC", "CJK", "KATAKANA"],
+        )
 
 
 class TestTheEnginesOwnCoverage(unittest.TestCase):

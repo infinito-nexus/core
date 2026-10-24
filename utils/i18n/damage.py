@@ -16,12 +16,19 @@ literal blob that leaves behind cannot be read or reviewed.
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections import Counter
 from dataclasses import dataclass
+from itertools import groupby
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n import names
-from utils.i18n.languages import latin_share, non_latin_languages
+from utils.i18n.languages import (
+    language_scripts,
+    latin_share,
+    non_latin_languages,
+    script,
+)
 from utils.i18n.repairs import resegment, tighten
 from utils.i18n.spans import PRINTF, mask, matches, prose
 
@@ -50,6 +57,10 @@ UNSPACED = "".join(f"{chr(low)}-{chr(high)}" for low, high in UNSPACED_RANGES)
 WORDS = re.compile(rf"[{UNSPACED}]|[^\W\d_]{{2,}}", re.UNICODE)
 LATIN_SHARE = 0.9
 NON_LATIN_SCRIPTS = non_latin_languages(PROJECT_ROOT)
+SCRIPT_SHARE = 0.5
+LATIN = "LATIN"
+LANGUAGE_SCRIPTS = language_scripts(PROJECT_ROOT)
+WRITTEN_SCRIPTS = frozenset(LANGUAGE_SCRIPTS.values()) - {LATIN}
 
 
 def protected_spans(text: str) -> Counter:
@@ -152,6 +163,64 @@ def foreign_script(translation: str, language: str) -> bool:
         return False
     latin = sum(1 for word in words if (latin_share(word) or 0) > 0.5)
     return latin / len(words) <= 1 - LATIN_SHARE
+
+
+def wrong_script(source: str, translation: str, language: str = "") -> bool:
+    """Return whether a non-Latin language came back mostly in another non-Latin script.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+        language: ISO 639-1 code of the catalog being filled.
+
+    Returns:
+        True when fewer than ``SCRIPT_SHARE`` of the letters the translation
+        writes in a script of :data:`WRITTEN_SCRIPTS` the source does not
+        carry belong to the language's own script. A word of a single letter
+        is not counted.
+    """
+    if language not in NON_LATIN_SCRIPTS:
+        return False
+    carried = {script(char) for char in prose(source) if char.isalpha()}
+    written = []
+    for word in spelled_words(prose(translation)):
+        letters = [script(char) for char in word if char.isalpha()]
+        if len(letters) > 1:
+            written += [
+                name
+                for name in letters
+                if name in WRITTEN_SCRIPTS and name not in carried
+            ]
+    if not written:
+        return False
+    own = LANGUAGE_SCRIPTS[language]
+    return sum(1 for name in written if name == own) / len(written) < SCRIPT_SHARE
+
+
+def spelled_words(text: str) -> list[str]:
+    """Return the runs of letters and combining marks in ``text``.
+
+    Args:
+        text: any text.
+    """
+    return [
+        "".join(run)
+        for spelled, run in groupby(
+            text,
+            key=lambda char: char.isalpha() or unicodedata.category(char)[0] == "M",
+        )
+        if spelled
+    ]
+
+
+def added_lines(source: str, translation: str) -> bool:
+    """Return whether ``translation`` breaks more lines than ``source``.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    return translation.count("\n") > source.count("\n")
 
 
 def stutters(source: str, translation: str) -> bool:
@@ -283,6 +352,8 @@ def reason(source: str, translation: str, language: str = "") -> str:
         return "echo" if alphabetic >= ECHO_FLOOR else ""
     if echoes(source, translation):
         return "echo"
+    if added_lines(source, translation):
+        return "added-line"
     if protected_spans(source) - protected_spans(translation):
         return "protected-span"
     if added_spans(source, translation):
@@ -295,6 +366,8 @@ def reason(source: str, translation: str, language: str = "") -> str:
         return "untranslated"
     if foreign_script(translation, language):
         return "foreign-script"
+    if wrong_script(source, translation, language):
+        return "wrong-script"
     if truncated(source, translation, language):
         return "truncated"
     if collapsed(source, translation):

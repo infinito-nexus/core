@@ -475,6 +475,41 @@ class CacheTestCase(unittest.TestCase):
 
         self.assertEqual(engine, "beta")
 
+    def test_an_engine_that_adds_a_preamble_line_is_passed_over_and_not_cached(
+        self,
+    ) -> None:
+        class Chatty:
+            name = "chatty"
+            pairs = frozenset()
+
+            def serves(self, *_args):
+                return True
+
+            def translate(self, _source, _target, text, _protected=(), _fmt="text"):
+                return f"Translation of the text to German:\n\n{text}"
+
+        cache = FakeCache()
+        router = Router(
+            {"chatty": Chatty(), "beta": FakeEngine("beta")},
+            cache=cache,
+            order=("chatty", "beta"),
+            sampler=NeverSampler(),
+        )
+
+        engine, _answer = run(router.translate("en", "de", "Shared storage"))
+
+        self.assertEqual(engine, "beta")
+        self.assertNotIn(("chatty", "en", "de", "Shared storage"), cache.stored)
+
+    def test_a_line_break_the_source_carries_is_served(self) -> None:
+        router = Router(
+            {"alpha": FakeEngine("alpha")}, order=("alpha",), sampler=NeverSampler()
+        )
+
+        engine, answer = run(router.translate("en", "de", "First\nSecond"))
+
+        self.assertEqual((engine, answer), ("alpha", "alpha:First\nSecond"))
+
     def test_an_excluded_engine_is_not_asked(self) -> None:
         """The caller judges the restored answer the gateway never sees."""
         alpha = FakeEngine("alpha")
