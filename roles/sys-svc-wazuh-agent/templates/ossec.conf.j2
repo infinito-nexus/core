@@ -75,6 +75,22 @@
     </whodata>
 {% endif %}
   </syscheck>
+
+  <wodle name="syscollector">
+    <disabled>no</disabled>
+    <interval>1h</interval>
+    <scan_on_start>yes</scan_on_start>
+    <packages>yes</packages>
+    <os>yes</os>
+    <hardware>no</hardware>
+    <network>no</network>
+    <ports>no</ports>
+    <processes>no</processes>
+    <users>no</users>
+    <groups>no</groups>
+    <services>no</services>
+    <browser_extensions>no</browser_extensions>
+  </wodle>
 {% if WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool %}
 
   <wodle name="docker-listener">
