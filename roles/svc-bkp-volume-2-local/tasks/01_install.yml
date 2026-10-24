@@ -16,3 +16,15 @@
     loop_var: cmd_name
   changed_when: false
   when: MODE_ASSERT | bool
+
+- name: ✅ Ensure secrets directory exists (root only)
+  ansible.builtin.file:
+    path: "{{ DIR_SECRETS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: 🔧 Mark the baudolo install as done on this host
+  ansible.builtin.set_fact:
+    run_once_svc_bkp_volume_2_local_install: true

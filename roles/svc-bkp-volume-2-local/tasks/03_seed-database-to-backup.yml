@@ -1,13 +1,6 @@
 ---
 - include_tasks: 01_install.yml
-
-- name: "✅ Ensure /etc/baudolo exists"
-  ansible.builtin.file:
-    path: "{{ DIR_SECRETS }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+  when: run_once_svc_bkp_volume_2_local_install is not defined
 
 - name: "🐛 BKP | Debug seed context (sanitized)"
   ansible.builtin.debug:

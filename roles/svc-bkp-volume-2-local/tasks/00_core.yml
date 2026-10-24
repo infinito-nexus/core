@@ -14,19 +14,11 @@
     loop_var: svc_bkp_volume_2_local_dependency
 
 - include_tasks: 01_install.yml
-  when: backup_docker_to_local_folder is not defined
+  when: run_once_svc_bkp_volume_2_local_install is not defined
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
   when: MODE_RESET | bool
-
-- name: ✅ Ensure secrets directory exists (root only)
-  ansible.builtin.file:
-    path: "{{ DIR_SECRETS }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0700"
 
 - name: ✅ Ensure databases.csv exists (root only)
   ansible.builtin.file:
