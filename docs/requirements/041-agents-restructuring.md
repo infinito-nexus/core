@@ -648,7 +648,17 @@ flowchart TD
 - A defect or a wish found in a ticket becomes a `Proposed` work package linked to the ticket.
 - Never disclose secrets, internal hostnames or other customers' data.
 
-`tuner`, `robot` and the roles above start from `agents/SOUL.md` and refine their role rules from their first field data.
+`agents/roles/tuner/AGENTS.md`:
+
+- Nothing that lowers coverage, correctness or a budget is a speed-up; dropping a spec or a drill, raising a budget to fit, `failed_when: false`, retry-until-pass and narrowed assertions are forbidden regardless of what they save.
+- Every applied change carries a before and after number from the same source and the same image and load state; a number from a disturbed machine is discarded.
+- Trusted sources: the `profile_tasks` timestamp line is the previous task's duration, so a `TASK` header pairs with the next timestamp; the `TASKS RECAP` and `Playbook run took` totals; the two per-target wall-clock tables; the pytest summary and the `FAILED TARGETS:` line. The make exit code is never a verdict, and a quality gate whose test phase is red never runs its lint phase.
+- A comparison is invalid across a changed image state, a one-time cost, a shared-cache re-render outlier, a wait that hides a failure, or a machine another gate, deploy or translation shared; one full suite runs at a time and the log is persisted outside `/tmp` before measuring.
+- Optimise the real cost first: per-item process spawning in loops, idempotency flip-flops (a `changed` on a second consecutive run) and needless image pulls. Never trade error semantics, credential masking, concurrency correctness or lint intent for speed.
+- Language choice is measured, not assumed: this repository's cost is process spawns and round trips, not Python CPU, so work moves into one process first (a module in `library/`, one script, one batched request); only a measured CPU-bound loop that runs on every deploy justifies leaving Python.
+- Mine logs deterministically through `python -m cli.tune.logscan`: per-task cost, per-item loops by their count, retry waits and idempotency `changed`, never by eye.
+
+`robot` and the roles above start from `agents/SOUL.md` and refine their role rules from their first field data.
 
 ### Runtime contract
 
@@ -716,7 +726,7 @@ This naming is a breaking change and ships in a major release; existing accounts
 
 - One constant, `IAM_ACCOUNT_MAX_LENGTH`, is the smallest username limit of all roles agents can get an account in; today it is 20 (Discourse default, Decidim). Every role that creates accounts declares its own username limit in its metadata and whether agents may get an account there; a lint fails when an agent-reachable limit is below the constant.
 - Agents get no account in `web-app-bluesky`; its login broker keeps prefixing human handles with `kc-`, which protects the PDS's reserved handles.
-- Human usernames are `[a-z1-9]{3,15}`: no `0`, and at most `IAM_ACCOUNT_MAX_LENGTH` minus five characters. `IAM_USERNAME_MAX_LENGTH` becomes 15. The rule applies to every user of `lookup('users')`, system accounts included; names in the repository that do not fit are renamed.
+- Human usernames are `[a-z1-9]{3,15}`: no `0`, and at most `IAM_ACCOUNT_MAX_LENGTH` minus five characters. `IAM_USERNAME_MAX_LENGTH` becomes 15. The rule applies to every identity account of `lookup('users')`; a reserved OS or service account (one with no `identity` account, which is never provisioned to Keycloak or LDAP and exists only to populate the Keycloak deny pattern) keeps its name and is exempt, because renaming it would defeat that reservation. Identity names in the repository that do not fit are renamed.
 - Agent accounts are `<role code>0<suffix>`:
   - the role code is exactly four characters of `[a-z1-9]` and unique per role;
   - the digit `0` is the separator and appears nowhere else;
@@ -1189,7 +1199,8 @@ Make targets the tool nodes need:
 - wait for an external state with a fixed interval and timeout (`make ci-wait kind=job-log|run|check id=<id> interval=<s> timeout=<s>`), so no routine needs a shell loop;
 - cache the rendered control fixture of the oracle per language, so a judge pass stops re-rendering a fixture that never changes (about half of the pass today);
 - pause and resume the translation lane (`make i18n-pause`, `make i18n-resume`) and report the host load without the lane (`make i18n-load`), so the translator's crons never touch Docker directly;
-- build the licence inventory of the tree and of the shipped images (`make legal-inventory`) and probe a running instance through the front proxy for third-party requests, cookies set before consent and the imprint and privacy pages (`make legal-probe target=<domain>`), so the counsel's checks start from deterministic data.
+- build the licence inventory of the tree and of the shipped images (`make legal-inventory`) and probe a running instance through the front proxy for third-party requests, cookies set before consent and the imprint and privacy pages (`make legal-probe target=<domain>`), so the counsel's checks start from deterministic data;
+- scan a deploy or gate log for per-task cost, per-item loops and retry waits (`python -m cli.tune.logscan`), so the tuner measures from the log instead of by eye.
 
 Defects to fix in existing targets:
 
@@ -1549,7 +1560,7 @@ Every rule of this requirement that can be checked without a running stack has a
 | L03 | every skill a role lists exists in `agents/skills/`; every routine a skill lists exists in `agents/routines/`; every role lists at least one skill |
 | L04 | layering: no routine imports or calls a skill, no skill calls a role |
 | L05 | role codes: four characters of `[a-z1-9]`, unique, one per role |
-| L06 | every user of `lookup('users')`, system accounts included, matches `[a-z1-9]{3,15}`; instance ids match `[a-z1-9]{1,15}` |
+| L06 | every identity account of `lookup('users')` matches `[a-z1-9]{3,15}` (a reserved account with no `identity` account is exempt); instance ids match `[a-z1-9]{1,15}` |
 | L07 | every account-creating role declares its username limit and whether agents may get an account there; `IAM_ACCOUNT_MAX_LENGTH` equals the smallest agent-reachable limit; `web-app-bluesky` is not agent-reachable |
 | L08 | firewall rules parse; every `account` provider is built in or declared in `agents/firewall/providers/`; every `${VAR}` names a known deploy variable |
 | L09 | every agent role binds at least one firewall role; every baseline role of the design exists |
@@ -1577,6 +1588,7 @@ Every rule of this requirement that can be checked without a running stack has a
 | L31 | no code reads `agent.yml` or `cron.yml` directly; every consumer goes through `lookup('agent_config', ...)`, and every inventory override under `agents.<role>` names an existing role and field |
 | L32 | every skill is Markdown; every routine is a Python graph; routine steps call repository logic in `cli/` or `utils/` instead of reimplementing it (no copy of a function that exists there) |
 | L33 | the counsel's `agent.yml` has `write_enabled: false`, its firewall role grants no commit, push or write request, and `agents/skills/i8-advocate` names the portable `advocate` skill |
+| L34 | the tuner's `AGENTS.md` names its trusted measurement sources, the invalid-comparison cases, the never-traded properties (coverage, budgets, error semantics, masking, concurrency, lint intent), the measured language-choice rule and `python -m cli.tune.logscan` |
 
 ### Iteration plan
 
@@ -1872,7 +1884,7 @@ flowchart TD
 - [ ] Every role code is four characters of `[a-z1-9]` and unique; a lint fails otherwise.
 - [ ] Agent account names match `<role code>0<suffix>` within `IAM_ACCOUNT_MAX_LENGTH`, and instance ids match `[a-z1-9]{1,15}` (lint).
 - [ ] Keycloak and OpenLDAP accept human names of `[a-z1-9]{3,15}` and agent names of the documented form.
-- [ ] A lint refuses any user in `lookup('users')`, system accounts included, whose name contains `0`, a character outside `[a-z1-9]`, or more than 15 characters; every user in the repository passes it.
+- [ ] A lint refuses any identity account in `lookup('users')` whose name contains `0`, a character outside `[a-z1-9]`, or more than 15 characters; a reserved account with no `identity` account is exempt; every identity user in the repository passes it.
 - [ ] An account of the agent form without a provisioner record is disabled and reported by the deploy and by the reaper (fixture account created through the admin console).
 - [ ] An agent account of the longest form is accepted by every agent-reachable application (one scenario per application), and no agent gets a Bluesky account.
 - [ ] A human of the longest form still gets a Bluesky handle with the `kc-` prefix.
@@ -1981,7 +1993,7 @@ flowchart TD
 
 ### Lint tests
 
-- [ ] Every lint of the catalog (L01 to L33) exists under `tests/lint/agents/` and runs in `make test-lint`.
+- [ ] Every lint of the catalog (L01 to L34) exists under `tests/lint/agents/` and runs in `make test-lint`.
 - [ ] Every lint of the catalog runs alone through the lint target for one role or one file.
 - [ ] Every lint of the catalog has a fixture that turns it red, and the red run is recorded in its test.
 - [ ] The repository as delivered passes every lint of the catalog.
@@ -2018,7 +2030,10 @@ flowchart TD
 - [ ] The CI pipeline of `feature/agents` is green with the agent scenarios executed (each scenario id present in the job log).
 - [ ] The maintainer fixes a seeded failing test from a failed run through to an open pull request without human input.
 - [ ] The designer opens a pull request that changes the design of one app, with before and after gallery.
-- [ ] The tuner opens a pull request with a measured performance improvement.
+- [ ] The tuner opens a pull request with a measured performance improvement, carrying a before and after number from the same source and image and load state.
+- [ ] The tuner discards a before and after comparison that was measured while another gate, deploy or translation shared the machine (fixture).
+- [ ] The tuner keeps a hot path in Python when the measured cost is process spawns or round trips, and proposes another language only for a measured CPU-bound loop that runs on every deploy (fixture).
+- [ ] `python -m cli.tune.logscan` reports per-task cost, per-item loops by their count and retry waits from a fixture deploy log.
 - [ ] The implementer turns an `Approved` work package into an open pull request.
 - [ ] A full chain runs without manual steps between the agents: support ticket -> planner work package -> human approval -> implementer pull request -> reviewer recommendation -> human merge -> release draft.
 - [ ] The hacker files a report and sends an email against the running verification stack, and the maintainer picks the report up as a fix.
