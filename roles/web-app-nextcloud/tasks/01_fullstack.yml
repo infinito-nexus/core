@@ -84,4 +84,5 @@
     role_templates:
       - src: "{{ lookup('path_absolute', 'roles/web-app-nextcloud/files/shell/talk-network-backends.sh') }}"
         dest: "{{ NEXTCLOUD_HOST_TALK_BACKENDS_PATH }}"
+        mode: "0444"
   when: NEXTCLOUD_HPB_SIGNALING_ENABLED | bool

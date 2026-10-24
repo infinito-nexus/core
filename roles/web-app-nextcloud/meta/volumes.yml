@@ -50,6 +50,7 @@ talk_network_backends:
   mounts:
     - service: talk
       target: /usr/local/share/infinito/talk-network-backends.sh
+      when: "{{ lookup('config', 'web-app-nextcloud', 'addons.spreed.enabled') | bool }}"
 
 fpm_pool_conf:
   type: config

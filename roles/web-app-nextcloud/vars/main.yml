@@ -164,7 +164,7 @@ NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
 NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
-NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
+NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ lookup('tls', NEXTCLOUD_DOMAIN, 'url.base'), NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
 NEXTCLOUD_HPB_SIGNALING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
 NEXTCLOUD_TALK_ADMIN_URL: "{{ [ NEXTCLOUD_URL, 'settings/admin/talk' ] | url_join }}"
 
