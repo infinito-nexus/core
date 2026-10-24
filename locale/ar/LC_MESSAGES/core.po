@@ -50,6 +50,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "العملاء"
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -149,6 +157,10 @@ msgstr "دور القاعدة في تشكيلة المديرين النظامي�
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "تركيبة مفاعل Blender مرسلة إلى الوكلاء في المضيف من خلال بروتوكول السياق النموذجي"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
@@ -514,6 +526,10 @@ msgstr "نظام حساب مخصص مع أوامر SSH المقيدة وكلمة
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "مصممة مؤجلة لتمكين وبدء جمع الخدمات النظامية بمجرد انتهاء اللعب"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
@@ -970,6 +986,10 @@ msgstr "زبون من طراز SMTP ذو الوزن الخفيف، واستبد�
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "الوزن الخفيف Git خدمة التعاون في مجال الرموز، ومراقبة النسخ، وإدارة المستودعات"
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"

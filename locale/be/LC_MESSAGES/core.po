@@ -52,6 +52,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr ""
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # śledzenie, theming globalny i snippetów iFrame i JS poprzez flagę funkcji
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -149,6 +157,10 @@ msgstr ""
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "工作站 wersja załadowana do Blendersa przypisana jest do agentów na serwerze poprzez Protsedyru Kontekstu Modelu"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # store SeaweedFS, służyjącym do obsługi filtrów i konsolek master za SSO
 msgctxt "role:web-app-seaweedfs:description"
@@ -525,6 +537,10 @@ msgstr ""
 # włączenia i uruchamiania zebrań systemd po zakończeniu zagrañu
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr ""
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
 msgstr ""
 
 # translated-by: libretranslate
@@ -970,6 +986,10 @@ msgstr ""
 # kodem, sterowania wersją i zarządzania repositóriojem
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr ""
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
 msgstr ""
 
 # targe, za pomocą modułu myhostname NSS

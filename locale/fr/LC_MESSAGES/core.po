@@ -49,6 +49,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "Agents"
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -143,6 +151,10 @@ msgstr "Rôle de base pour la configuration du gestionnaire système via les dro
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "Installation de la station de travail du mélangeur câblée aux agents sur l'hôte à travers le protocole de contexte modèle"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
@@ -500,6 +512,10 @@ msgstr "Compte système dédié avec commandes restreintes SSH et rsync sudo san
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Orchestrateur de démarrage différé pour activer et démarrer les services collectés une fois qu'une pièce complète"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
@@ -930,6 +946,10 @@ msgstr "Client SMTP léger et remplacement sendmail pour la livraison de courrie
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "Service Git auto-porté léger pour la collaboration de code, le contrôle de version et la gestion de dépôt"
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"

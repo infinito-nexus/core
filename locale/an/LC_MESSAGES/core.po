@@ -48,6 +48,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "Agent"
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -141,6 +149,10 @@ msgstr "Rol base para configuración de systemd manager a través de drop-ins, c
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "Blender工作站通过模型上下文协议连接到主机上的代理中 wired"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
@@ -492,6 +504,10 @@ msgstr "Cuenta de sistema dedicada con comandos SSH restringidos y copias de seg
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Orchestrador de comienzo retrasado para habilitar y comenzar los servicios systemd recopilados una vez que se complete una jugada"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
@@ -913,6 +929,10 @@ msgstr "Client SMTP ligthweegy atend yintekker ategas sendmail atend ta ngareng 
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "Lightweyse autostàtic Git serviciu pentru colaborarea cu cod, control de versiune și gestionare a depozitului"
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"

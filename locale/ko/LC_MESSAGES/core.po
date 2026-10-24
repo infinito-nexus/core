@@ -49,6 +49,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "Agents"
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -144,6 +152,10 @@ msgstr "drop-ins, default settings, Unit validation을 통해 systemd Manager �
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "Blender 워크스테이션 설치는 Model Context Protocol을 통해 호스트의 에이전트에 연결"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
@@ -506,6 +518,10 @@ msgstr "SSH 제한 명령 및 보안 백업 액세스를위한 암호없는 rsyn
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Deferred-start Orchestrator for enable and starting collect systemd service 한 번 플레이 완료"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
@@ -942,6 +958,10 @@ msgstr "경량 SMTP 클라이언트 및 sendmail은 외부 SMTP 서버를 통해
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "코드 협업, 버전 제어 및 저장소 관리를위한 경량 자체 호스팅 Git 서비스"
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"
