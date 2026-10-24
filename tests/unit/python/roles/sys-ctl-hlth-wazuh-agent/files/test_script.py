@@ -4,10 +4,13 @@ from datetime import datetime, timedelta
 from unittest import TestCase, main
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "roles" / "sys-ctl-hlth-wazuh-agent" / "files" / "python" / "script.py"
+ROLE_VARS = PROJECT_ROOT / "roles" / "sys-ctl-hlth-wazuh-agent" / ROLE_FILE_VARS_MAIN
 NOW = datetime(2026, 10, 18, 12, 0, 0)
 THRESHOLD = 180
 
@@ -161,6 +164,12 @@ class TestParsing(TestCase):
             self.script.parse_agents(LISTING)[2],
             ("002", "web2.example", "Never connected"),
         )
+
+    def test_call_without_wait_file_and_grace_uses_the_role_values(self):
+        args = self.script.parse_args(["--service", "wazuh-agent.service", "--run-dir", "/var/ossec/var/run", "--threshold", "180"])
+        role_vars = load_yaml(str(ROLE_VARS))
+        self.assertEqual(args.wait_file, role_vars["HLTH_WAZUH_AGENT_WAIT_FILE"])
+        self.assertEqual(args.collector_grace, role_vars["HLTH_WAZUH_AGENT_COLLECTOR_GRACE"])
 
     def test_script_never_reads_keys(self):
         self.assertNotIn("client.keys", read_text(str(SCRIPT)))

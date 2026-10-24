@@ -9,6 +9,8 @@ import time
 from datetime import datetime
 
 ACTIVE_AGENT_STATES = ("Active", "Active/Local")
+DEFAULT_COLLECTOR_GRACE = 5
+DEFAULT_WAIT_FILE = "/var/ossec/queue/sockets/.wait"
 AGENT_LINE = re.compile(r"^\s*ID: (\d+), Name: (.+?), IP: .*, (\S.*?)\s*$")
 KEEPALIVE_LINE = re.compile(r"^\s*Last keep alive:\s+(\d+)\s*$", re.MULTILINE)
 STATE_LINE = re.compile(r"^(\w+)='(.*)'$")
@@ -173,15 +175,20 @@ def manager_problems(container, threshold):
     return evaluate_manager(listing, keepalives, since_change, time.time(), threshold)
 
 
-def main():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Check the Wazuh agent and the host clock on this host and, on the manager host, every registered agent.")
     parser.add_argument("--service", required=True, help="systemd unit of the agent")
     parser.add_argument("--run-dir", required=True, help="the agent's var/run directory")
     parser.add_argument("--threshold", required=True, type=int, help="seconds of tolerated disconnect and of grace after a start")
     parser.add_argument("--manager", help="manager container name; checks every registered agent when set")
-    parser.add_argument("--wait-file", required=True, help="wazuh-agentd's offline lock file")
-    parser.add_argument("--collector-grace", required=True, type=int, help="seconds a frozen collector may lag behind the lock")
-    args = parser.parse_args()
+    # Exception: defaults equal the role's vars so units rendered before the collector freeze keep working without both args.
+    parser.add_argument("--wait-file", default=DEFAULT_WAIT_FILE, help="wazuh-agentd's offline lock file")
+    parser.add_argument("--collector-grace", default=DEFAULT_COLLECTOR_GRACE, type=int, help="seconds a frozen collector may lag behind the lock")
+    return parser.parse_args(argv)
+
+
+def main():
+    args = parse_args()
 
     state_path = os.path.join(args.run_dir, "wazuh-agentd.state")
     try:
