@@ -1,10 +1,12 @@
 ---
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ item }}"
+    name: "{{ dependency_role }}"
   loop:
     - sys-ctl-alm-compose
     - sys-daemon
+  loop_control:
+    loop_var: dependency_role
 
 - name: 📦 Install certreap system-wide via pip
   include_role:

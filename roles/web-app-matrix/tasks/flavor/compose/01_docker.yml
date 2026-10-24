@@ -9,12 +9,13 @@
 - name: 📂 include 02_create-and-seed-database.yml for multiple bridges
   include_tasks: 02_create-and-seed-database.yml
   vars:
-    database_password: "{{ item.database_password }}"
-    database_username: "{{ item.database_username }}"
-    database_name: "{{ item.database_name }}"
+    database_password: "{{ bridge.database_password }}"
+    database_username: "{{ bridge.database_username }}"
+    database_name: "{{ bridge.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
   loop_control:
-    label: "{{ item.bridge_name }}"
+    loop_var: bridge
+    label: "{{ bridge.bridge_name }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 cleanup project folder"

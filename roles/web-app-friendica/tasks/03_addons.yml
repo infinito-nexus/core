@@ -110,8 +110,9 @@
   when: FRIENDICA_LDAP_ENABLED | bool
 
 - name: "▶️ Run per-addon integration hooks for enabled addons"
-  include_tasks: "addons/{{ item.name }}.yml"
+  include_tasks: "addons/{{ addon.name }}.yml"
   loop: "{{ friendica_addons | selectattr('enabled') | list }}"
   loop_control:
-    label: "{{ item.name }}"
-  when: (role_path ~ '/tasks/addons/' ~ item.name ~ '.yml') is exists
+    loop_var: addon
+    label: "{{ addon.name }}"
+  when: (role_path ~ '/tasks/addons/' ~ addon.name ~ '.yml') is exists
