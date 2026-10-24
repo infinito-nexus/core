@@ -8,7 +8,7 @@ per-app `group-ldap-mapper` setup:
 
 These names are referenced from `vars/main.yml`
 (`KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS`), which hands them to the
-host-side `reconcile_apps.sh` script. Centralising them here means a future
+`files/python/rbac_reconcile.py` REST client. Centralising them here means a future
 rename of the mapper convention is a one-line change in this plugin
 and stays consistent everywhere.
 """
