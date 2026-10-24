@@ -11,6 +11,12 @@
     loop_var: role_group
     label: "{{ role_group }}"
 
+- name: "🧹 Purge the Cloudflare cache once per deployed zone"
+  include_role:
+    name: sys-stk-front-base
+    tasks_from: cloudflare/02_cleanup.yml
+  when: cf_zones_to_purge is defined
+
 - name: "🛠️ Finalize services"
   include_role:
     name: sys-service-terminator
