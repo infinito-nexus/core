@@ -18,7 +18,8 @@ KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
 KEYCLOAK_RBAC_RUN_APP_IDS: "{{ lookup('deployment').running | rbac_app_ids }}"
 
 KEYCLOAK_RBAC_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
-KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/filter_plugins/build_ldap_role_entries.py')) | hash('sha256') }}"
+KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/filter_plugins/build_ldap_role_entries.py')) | hash('sha256')
+  }}"
 KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE: "/tmp/kc_per_app_mapper_payloads.txt"
 KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_TEMPLATE: >-
   {{
