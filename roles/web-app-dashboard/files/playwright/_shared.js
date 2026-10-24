@@ -2,6 +2,7 @@ const { expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
+  OIDC_LOGIN_READY_FLAG,
   normalizeBaseUrl,
   requireDotenvValue,
 } = require("./personas");
@@ -115,6 +116,14 @@ async function waitForDashboardReady(page) {
   await expect(page.locator("main#main")).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator("header.header")).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator("#navbar_logo img")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  if (isServiceEnabled("sso")) {
+    await expect
+      .poll(() => page.evaluate((flag) => window[flag] === true, OIDC_LOGIN_READY_FLAG), {
+        timeout: resolveTimeout(60_000),
+        message: `Expected oidc.js to finish its Keycloak init (window.${OIDC_LOGIN_READY_FLAG}) and settle the header's Login/Account entries`,
+      })
+      .toBe(true);
+  }
 }
 
 async function waitForResourceResponse(records, partialUrl, label) {
