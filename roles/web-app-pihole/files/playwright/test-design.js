@@ -78,9 +78,12 @@ async function signIn(page) {
       .poll(
         () => {
           const url = new URL(page.url());
-          return url.host === new URL(base).host && !url.pathname.startsWith("/oauth2/");
+          return url.host === new URL(base).host && url.pathname.startsWith("/admin/");
         },
-        { timeout: resolveTimeout(90_000), message: "the sign-in must return to Pi-hole" },
+        {
+          timeout: resolveTimeout(90_000),
+          message: "the sign-in must return to the Pi-hole interface under /admin/, past the redirect from /",
+        },
       )
       .toBe(true);
     await gotoOnion(page, admin(""));

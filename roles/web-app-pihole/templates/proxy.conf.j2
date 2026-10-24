@@ -1,0 +1,3 @@
+{# nocheck: vhost-cross-cutting-include  delegates to roles/sys-svc-proxy/templates/vhost/basic.conf.j2, which carries the oauth2-proxy endpoint and the header buffers #}
+{% set webserver_extra_configuration = "location = / {\n    return 302 " ~ PIHOLE_WEBHOME ~ ";\n  }" %}
+{% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}
