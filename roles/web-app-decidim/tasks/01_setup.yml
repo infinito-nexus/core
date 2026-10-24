@@ -26,17 +26,7 @@
   changed_when: decidim_migrate_result.stdout_lines | default([]) | length > 0
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
-- name: "🌱 Decidim | Seed database on first deploy"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
-    container exec -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    {{ DECIDIM_LOCAL_CID | quote }}
-    bundle exec rails db:seed
-  register: decidim_seed_result
-  changed_when: decidim_seed_result.stdout_lines | default([]) | length > 0
-  failed_when: false
-  delegate_to: "{{ DECIDIM_HOST_NODE }}"
-
-- name: "🏛️ Decidim | Create the organization that db:seed skips in production"
+- name: "🏛️ Decidim | Create the organization"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
     -e DECIDIM_ORG_HOST={{ domain | quote }}
@@ -48,6 +38,16 @@
   register: decidim_organization_result
   changed_when: "'Organization created' in decidim_organization_result.stdout"
   when: ENVIRONMENT == 'production'
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
+- name: "🌱 Decidim | Seed the demo data"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails db:seed
+  register: decidim_demo_seed
+  changed_when: true
+  when: MODE_DEMO | bool
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
