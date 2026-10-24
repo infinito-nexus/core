@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 from . import PROJECT_ROOT
 
@@ -82,7 +83,7 @@ def _meta_dependencies(role: str) -> list[str]:
     Args:
         role: the role directory name.
     """
-    path = PROJECT_ROOT / "roles" / role / "meta" / "main.yml"
+    path = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_MAIN
     if not path.is_file():
         return []
     meta = load_yaml_any(str(path))
