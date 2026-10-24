@@ -32,6 +32,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 __all__ = [
     "NestedOverrideConflictError",
+    "active_variants_for_round",
     "collect_provider_overrides",
     "services_overrides_for_round",
 ]
@@ -123,6 +124,49 @@ def _apply_nested_service_maps(overrides: dict[str, dict], *, roles_dir: str) ->
         overrides[provider] = apply_topic(overrides.get(provider), topics["services"])
 
 
+def active_variants_for_round(
+    *,
+    roles_dir: str,
+    round_index: int,
+    primary_app_variants: Mapping[str, int],
+    variants_per_app: Mapping[str, list],
+) -> dict[str, int]:
+    """Return ``{role: variant index}`` one round runs every role with variants in.
+
+    Args:
+        roles_dir: roles directory the ``# variant-pin:`` markers are read from.
+        round_index: the round of the sweep.
+        primary_app_variants: the already clamped index of every primary app;
+            no pin overrides it.
+        variants_per_app: parsed variants per role.
+
+    Returns:
+        The clamped round index per role, replaced by the index a pin in
+        another role's active variant forces.
+    """
+
+    def _round_index_for(role_name: str, variant_list: list) -> int:
+        variant_count = max(1, len(variant_list))
+        if role_name in primary_app_variants:
+            idx = primary_app_variants[role_name]
+        else:
+            idx = round_index if round_index < variant_count else 0
+        return idx if 0 <= idx < len(variant_list) else 0
+
+    active_index = {
+        role_name: _round_index_for(role_name, variant_list)
+        for role_name, variant_list in variants_per_app.items()
+        if variant_list
+    }
+    pinned = resolve_pins(
+        active_index, roles_dir=roles_dir, variants_per_app=variants_per_app
+    )
+    for role_name, index in pinned.items():
+        if role_name not in primary_app_variants and role_name in active_index:
+            active_index[role_name] = index
+    return active_index
+
+
 def services_overrides_for_round(
     *,
     roles_dir: str,
@@ -150,26 +194,12 @@ def services_overrides_for_round(
     variants_per_app = get_variants(roles_dir=roles_dir, readonly=True)
     overrides: dict[str, dict] = {}
     roles_path = Path(roles_dir)
-
-    def _round_index_for(role_name: str, variant_list: list) -> int:
-        variant_count = max(1, len(variant_list))
-        if role_name in primary_app_variants:
-            idx = primary_app_variants[role_name]
-        else:
-            idx = round_index if round_index < variant_count else 0
-        return idx if 0 <= idx < len(variant_list) else 0
-
-    active_index = {
-        role_name: _round_index_for(role_name, variant_list)
-        for role_name, variant_list in variants_per_app.items()
-        if variant_list
-    }
-    pinned = resolve_pins(
-        active_index, roles_dir=roles_dir, variants_per_app=variants_per_app
+    active_index = active_variants_for_round(
+        roles_dir=roles_dir,
+        round_index=round_index,
+        primary_app_variants=primary_app_variants,
+        variants_per_app=variants_per_app,
     )
-    for role_name, index in pinned.items():
-        if role_name not in primary_app_variants and role_name in active_index:
-            active_index[role_name] = index
 
     for role_name, variant_list in variants_per_app.items():
         if not variant_list:

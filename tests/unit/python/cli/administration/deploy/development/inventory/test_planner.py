@@ -255,5 +255,44 @@ class TestFilterPlanToVariants(unittest.TestCase):
             filter_plan_to_variants(self.PLAN, [0, 7])
 
 
+class TestPlanBakesPinnedVariant(unittest.TestCase):
+    @patch(
+        "utils.roles.applications.variants.resolve_pins",
+        autospec=True,
+        return_value={"web-app-bar": 1},
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+        autospec=True,
+        return_value=("web-app-bar", "web-app-foo"),
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
+        autospec=True,
+        return_value={},
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.planner.get_variants",
+        autospec=True,
+    )
+    def test_round_variants_carry_the_pinned_index(
+        self,
+        get_variants_mock: MagicMock,
+        _overrides_mock: MagicMock,
+        _include_mock: MagicMock,
+        _pins_mock: MagicMock,
+    ) -> None:
+        get_variants_mock.return_value = {
+            "web-app-foo": [{}],
+            "web-app-bar": [{}, {}],
+        }
+        plan = plan_dev_inventory_matrix(
+            roles_dir="/roles",
+            primary_apps=["web-app-foo"],
+            base_inventory_dir="/srv/inv",
+        )
+        self.assertEqual(plan[0][2], {"web-app-foo": 0, "web-app-bar": 1})
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

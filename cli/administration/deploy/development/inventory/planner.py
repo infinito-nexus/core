@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.cache.applications import get_variants
+from utils.roles.applications.variants import active_variants_for_round
 
 from . import legacy_resolver
 
@@ -123,12 +124,15 @@ def plan_dev_inventory_matrix(
         primary_round_variants = primary_round_variants_per_round[round_index]
         round_include = per_variant_includes[round_index]
 
-        round_variants = dict(primary_round_variants)
-        for dep, dep_variants in variants_per_app.items():
-            if dep in round_variants:
-                continue
-            dep_count = max(1, len(dep_variants or [{}]))
-            round_variants[dep] = round_index if round_index < dep_count else 0
+        round_variants = {
+            **active_variants_for_round(
+                roles_dir=roles_dir,
+                round_index=round_index,
+                primary_app_variants=primary_round_variants,
+                variants_per_app=variants_per_app,
+            ),
+            **primary_round_variants,
+        }
 
         inv_dir = f"{base}-{round_index}" if total_rounds > 1 else base
         plan.append((round_index, inv_dir, round_variants, round_include, purge_set))
