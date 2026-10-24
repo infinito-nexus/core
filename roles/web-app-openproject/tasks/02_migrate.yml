@@ -50,18 +50,3 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
   vars:
     wait_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"
-
-- name: 🔧 Set settings in OpenProject (rails runner via STDIN from an external script)
-  ansible.builtin.shell:
-    cmd: >- # nocheck: container-exec-resolver  OPENPROJECT_WEB_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-      container exec -i
-      -e OPENPROJECT_RAILS_SETTINGS={{ OPENPROJECT_RAILS_SETTINGS | to_json | quote }}
-      {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
-      bash -lc "cd /app && bundle exec rails runner -"
-    stdin: "{{ lookup('file', 'ruby/apply_settings.rb') }}"
-  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
-  register: openproject_apply_settings
-  retries: 30
-  delay: 5
-  until: openproject_apply_settings.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
