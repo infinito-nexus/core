@@ -246,10 +246,10 @@ class LookupModule(LookupBase):
             else "http"
         )
 
-        def _lookup(name: str, args: list[Any]) -> Any:
+        def _lookup(name: str, args: list[Any], **kwargs: Any) -> Any:
             return lookup_loader.get(
                 name, loader=self._loader, templar=getattr(self, "_templar", None)
-            ).run(args, variables=vars_)[0]
+            ).run(args, variables=vars_, **kwargs)[0]
 
         def _consumer_is_onion_only() -> bool:
             domains_map = _lookup("domains", [])
@@ -268,7 +268,7 @@ class LookupModule(LookupBase):
         browser_domain = public_domain
         browser_scheme = scheme
         if proxy_required:
-            consumer_tls = _lookup("tls", [consumer_id])
+            consumer_tls = _lookup("tls", [consumer_id], consumer=consumer_id)
             browser_domain = f"{consumer_tls['domain']}{OBJSTORE_PROXY_PREFIX}"
             browser_scheme = consumer_tls["protocols"]["web"]
 

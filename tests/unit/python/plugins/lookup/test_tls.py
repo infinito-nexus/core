@@ -176,6 +176,25 @@ class TestTlsResolveLookup(unittest.TestCase):
         self.assertEqual(out["domain"], "cdn.abc.onion")
         self.assertFalse(out["enabled"])
 
+    def test_explicit_consumer_outranks_application_id(self):
+        class _Templar:
+            def template(self, value):
+                if value == "{{ _provider_role }}":
+                    raise AssertionError("application_id must not be rendered")
+                return value
+
+        self.lookup._templar = _Templar()
+        v = dict(self.base_vars)
+        v["domains"] = {
+            **self.domains,
+            "web-svc-cdn": ["cdn.abc.onion", "cdn.example"],
+        }
+        v["application_id"] = "{{ _provider_role }}"
+        out = self.lookup.run(
+            ["web-svc-cdn"], variables=v, mode="app", consumer="web-app-a"
+        )[0]
+        self.assertEqual(out["domain"], "cdn.example")
+
     def test_term_with_unresolved_jinja_is_templated(self):
         class _FakeTemplar:
             def __init__(self, mapping):

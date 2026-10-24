@@ -334,8 +334,14 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
             },
         }
 
+        self.run_kwargs = {}
+
         def fake_get(name, **_kwargs):
-            return mock.MagicMock(run=lambda *_a, **_k: [payloads[name]])
+            def run(_terms, **kwargs):
+                self.run_kwargs[name] = kwargs
+                return [payloads[name]]
+
+            return mock.MagicMock(run=run)
 
         with (
             mock.patch.object(self.mod, "lookup_loader") as loader_mock,
@@ -370,6 +376,17 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
             ("api.seaweedfs.s3.example.com", "https"),
             "the nginx fragment still has to reach the provider's own vhost, so "
             "the rebase must not overwrite the upstream it proxies to",
+        )
+
+    def test_the_consumer_origin_is_resolved_for_the_named_consumer(self):
+        self._resolve(consumer_domains=["foo.abcdefghij.onion"])
+
+        self.assertEqual(
+            self.run_kwargs["tls"].get("consumer"),
+            "web-app-foo",
+            "sys-svc-objstore binds application_id to a template over this very "
+            "lookup, so tls falling back to application_id recurses until Jinja "
+            "gives up",
         )
 
     def test_a_clearnet_consumer_keeps_the_provider_host(self):
