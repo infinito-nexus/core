@@ -89,6 +89,11 @@ L27:
   proof_kind: lint
   proof: tests/lint/agents/test_l27_no_secrets.py
   red_fixture: yes
+L29:
+  statement: 'the root AGENTS.md support section exists, tells agents to point the'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l29_support_section.py
+  red_fixture: yes
 L30:
   statement: 'every cron.yml entry has a unique name, a valid UTC cron schedule, an'
   proof_kind: lint
