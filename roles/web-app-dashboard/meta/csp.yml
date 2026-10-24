@@ -9,6 +9,8 @@ whitelist:
     - https://code.jquery.com/ # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
   font-src:
     - https://ka-f.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
+  img-src:
+    - "{{ lookup('config', 'web-svc-asset', 'services.asset.url') }}"
   connect-src:
     - https://ka-f.fontawesome.com # nocheck: external-cdn,url  TODO: migrate to lookup('asset') or confirm the upstream app loads this CDN itself
     - "{{ lookup('domain', 'web-app-keycloak') }}"
