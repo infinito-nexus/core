@@ -1,4 +1,3 @@
-{% set design = lookup('design', application_id) %}
 name: {{ HERMES_DESIGN_THEME | to_json }}
 label: {{ SOFTWARE_NAME | to_json }}
 description: "Corporate design in the light or dark mode of the system"
@@ -30,8 +29,4 @@ componentStyles:
     background: "var(--design-surface-1)"
   header:
     background: "var(--design-surface-1)"
-{% if design.logo is string %}
-assets:
-  logo: {{ design.urls.brand.svg | to_json }}
-{% endif %}
 customCSS: {{ lookup('template', 'dashboard-theme.css.j2') | to_json }}

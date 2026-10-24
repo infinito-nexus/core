@@ -45,5 +45,13 @@
 :root:has(.provider-list) .brand .dot {
   display: none;
 }
+:root:not([data-design-theme]) #app-sidebar > div:first-child > div:first-child > span:last-child,
+:root:not([data-design-theme]) #root header[class~="lg:hidden"] > span:last-child {
+  display: block;
+  width: 10rem;
+  height: 2rem;
+  font-size: 0;
+  background: url("{{ design.urls.brand.svg }}") left center / contain no-repeat;
+}
 {% endif %}
 {% endif %}

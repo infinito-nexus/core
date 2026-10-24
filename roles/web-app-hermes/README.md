@@ -73,8 +73,8 @@ Read the password from the inventory at `applications.web-app-hermes.secrets.cre
 
 | Carrier | Content |
 | --- | --- |
-| `/opt/data/dashboard-themes/corporate.yaml` | Dashboard theme that reads the `--design-*` tokens: `palette`, `typography` and `layout` for surface, text, font and radius, `colorOverrides` for the status colors, `componentStyles` for the sidebar and header surface, `assets.logo` for the logo, `customCSS` for the primary action, navigation states, baked utility colors and plugin colors. `dashboard.theme` pins it as the default. |
-| Role stylesheet | Sign-in page only. That page is rendered outside the theme system. |
+| `/opt/data/dashboard-themes/corporate.yaml` | Dashboard theme that reads the `--design-*` tokens: `palette`, `typography` and `layout` for surface, text, font and radius, `colorOverrides` for the status colors, `componentStyles` for the sidebar and header surface, `customCSS` for the primary action, navigation states, baked utility colors and plugin colors. `dashboard.theme` pins it as the default. |
+| Role stylesheet | The sign-in page, which is rendered outside the theme system, and the logo in the dashboard sidebar and mobile header while the corporate theme is chosen. |
 | Design script | Sets the title and the favicon and mirrors the mode of a chosen built-in theme into `data-design-theme`. |
 
 The corporate theme follows the light or dark mode of the browser. Another theme chosen in the theme switcher renders its own palette.

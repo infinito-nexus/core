@@ -1,4 +1,3 @@
-{% set design = lookup('design', application_id) %}
 {% set statuses = [
   {
     'token': 'danger',
@@ -180,14 +179,3 @@ a[class~="text-primary"] {
   border-color: var(--design-danger);
   color: var(--design-danger);
 }
-{% if design.logo is string %}
-
-#app-sidebar > div:first-child > div:first-child > span:last-child,
-#root header[class~="lg:hidden"] > span:last-child {
-  display: block;
-  width: 10rem;
-  height: 2rem;
-  font-size: 0;
-  background: var(--theme-asset-logo) left center / contain no-repeat;
-}
-{% endif %}
