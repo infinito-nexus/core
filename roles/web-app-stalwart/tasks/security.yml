@@ -12,10 +12,23 @@
       {{ stalwart_jmap.methodResponses[0][1].list[0]
          | dict2items | selectattr('key', 'in', STALWART_BAN_PERIODS) | items2dict }}
 
-- name: "⏱️ Let Stalwart's address bans expire"
-  when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
+- name: "📖 List Stalwart's allowed addresses"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:AllowedIp/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve the addresses Stalwart must never ban"
+  ansible.builtin.set_fact:
+    stalwart_allowed_ips_missing: >-
+      {{ STALWART_ALLOWED_IPS
+         | difference(stalwart_jmap.methodResponses[0][1].list | map(attribute='address') | list) }}
+
+- name: "🛡️ Apply Stalwart's ban periods and allowed addresses"
+  when: (stalwart_ban_periods_current != STALWART_BAN_PERIODS) or (stalwart_allowed_ips_missing | length > 0)
   block:
-    - name: "🔧 Set Stalwart's ban periods"
+    - name: "⏱️ Let Stalwart's address bans expire"
       include_tasks: jmap_call.yml
       vars:
         stalwart_jmap_body: >-
@@ -23,6 +36,19 @@
               'methodCalls': [['x:Security/set',
                 {'update': {'singleton': STALWART_BAN_PERIODS}},
                 'c0']]} | to_json }}
+      when: stalwart_ban_periods_current != STALWART_BAN_PERIODS
+
+    - name: "🛡️ Never ban the Docker gateway the proxy and hairpin traffic arrive from"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:AllowedIp/set',
+                {'create': {'a': {'address': stalwart_allowed_ip, 'reason': STALWART_ALLOWED_IP_REASON}}},
+                'c0']]} | to_json }}
+      loop: "{{ stalwart_allowed_ips_missing }}"
+      loop_control:
+        loop_var: stalwart_allowed_ip
 
     - name: "🔄 Reload Stalwart's settings"
       include_tasks: jmap_call.yml

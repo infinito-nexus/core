@@ -211,6 +211,9 @@ account (or the Keycloak SSO token when SSO is enabled).
   hour by default). Without a period Stalwart keeps a ban forever, and the
   reverse proxy, the published ports, Tor and the swarm ingress hand many
   clients one address.
+- **The role network's gateway is never banned** (`STALWART_ALLOWED_IPS`,
+  an `x:AllowedIp` entry): reverse-proxied HTTP and every container that
+  reaches the published ports through the host arrive from that address.
 - **Bans and failed logins also go to the container output**
   (`STALWART_BAN_TRACER`, `tasks/tracing.yml`), next to the daily log file in
   the data volume.

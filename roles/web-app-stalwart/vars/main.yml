@@ -87,6 +87,9 @@ STALWART_BAN_PERIODS:
   abuseBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
   loiterBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
   scanBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+STALWART_ALLOWED_IPS:
+  - "{{ lookup('subnet_gateway') }}"
+STALWART_ALLOWED_IP_REASON: "Docker gateway: reverse-proxied HTTP and container hairpin traffic share this address"
 
 STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
 
