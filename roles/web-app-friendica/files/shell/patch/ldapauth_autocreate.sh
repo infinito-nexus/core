@@ -18,7 +18,7 @@
 # returns whenever the friendica image is re-pulled.
 #
 # Usage:
-#   patch_ldapauth_autocreate.sh EXEC_PREFIX LDAPAUTH_PATH
+#   ldapauth_autocreate.sh EXEC_PREFIX LDAPAUTH_PATH
 #     EXEC_PREFIX     full container-exec command prefix as a single arg
 #                     (typical: 'docker compose exec -T --user root
 #                     friendica')

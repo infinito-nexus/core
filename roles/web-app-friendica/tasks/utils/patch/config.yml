@@ -6,7 +6,7 @@
       -e PATCH_HOSTNAME -e PATCH_DATABASE -e PATCH_USERNAME -e PATCH_PASSWORD -e PATCH_URL
       {{ FRIENDICA_LOCAL_CID | quote }}
       sh -s -- {{ FRIENDICA_CONFIG_FILE | quote }}
-    stdin: "{{ lookup('file', 'shell/patch_local_config.sh') }}"
+    stdin: "{{ lookup('file', 'shell/patch/local_config.sh') }}"
   environment:
     PATCH_HOSTNAME: "{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database', application_id, 'port') | sed_escape('/') }}"
     PATCH_DATABASE: "{{ lookup('database', application_id, 'name') | sed_escape('/') }}"

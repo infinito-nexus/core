@@ -59,7 +59,7 @@
 
 - name: "🩹 Patch upstream friendica-addons/ldapauth autocreate return shape"
   script: >- # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
-    shell/patch_ldapauth_autocreate.sh "container exec -i --user root {{ FRIENDICA_LOCAL_CID | quote }}"
+    shell/patch/ldapauth_autocreate.sh "container exec -i --user root {{ FRIENDICA_LOCAL_CID | quote }}"
     "{{ FRIENDICA_APPLICATION_DIR }}/addon/ldapauth/ldapauth.php"
   args:
     executable: /bin/bash

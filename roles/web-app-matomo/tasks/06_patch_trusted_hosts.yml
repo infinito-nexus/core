@@ -11,7 +11,7 @@
     application_id: "web-app-matomo"
   ansible.builtin.shell: sh -s
   args:
-    stdin: "{{ lookup('file', role_path ~ '/files/shell/patch_trusted_hosts.sh') }}"
+    stdin: "{{ lookup('file', role_path ~ '/files/shell/patch/trusted_hosts.sh') }}"
   environment:
     CFG: "{{ MATOMO_CONFIG_HOST }}"
     DOMAIN: "{{ lookup('domain', 'web-app-matomo') }}"
