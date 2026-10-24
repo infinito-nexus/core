@@ -24,8 +24,8 @@
       - "-"
     stdin: "{{ lookup('file', 'python/provision_mcp_grants.py') }}"
   register: openwebui_mcp_grants
-  retries: 100
-  delay: 3
+  retries: 30
+  delay: 10
   until: openwebui_mcp_grants.rc == 0
   changed_when: openwebui_mcp_grants.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
