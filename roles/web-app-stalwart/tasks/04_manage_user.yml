@@ -35,19 +35,25 @@
               'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}}) -%}
       {%- endfor -%}
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Account/set', {'create': create}, 'c0']]} | to_json }}
+          'methodCalls': [['x:Account/set', {'create': create}, 'c0'],
+                          ['x:Account/get', {'ids': none}, 'c1']]} | to_json }}
 
 - name: "🔍 Match every account to its Stalwart id"
   ansible.builtin.set_fact:
     stalwart_accounts: >-
       {%- set result = stalwart_jmap.methodResponses[0][1] -%}
+      {%- set listed = {} -%}
+      {%- for held in stalwart_jmap.methodResponses[1][1].list if held.domainId == stalwart_domain_id -%}
+      {%-   set _ = listed.update({held.name | lower: held.id}) -%}
+      {%- endfor -%}
       {%- set accounts = [] -%}
       {%- for account in stalwart_accounts -%}
       {%-   set created = (result.created | default({}, true)).get('u' ~ loop.index0) or {} -%}
       {%-   set refusal = (result.notCreated | default({}, true)).get('u' ~ loop.index0) or {} -%}
       {%-   set existing = refusal.get('type') == 'alreadyExists' -%}
       {%-   set _ = accounts.append(account | combine({
-              'id': ((refusal.get('objectId') or {}).get('id') if existing else created.get('id')) or '',
+              'id': ((refusal.get('objectId') or {}).get('id') if existing else created.get('id'))
+                    or listed.get(account.name | lower, ''),
               'existing': existing,
               'refusal': refusal})) -%}
       {%- endfor -%}
@@ -61,8 +67,13 @@
     quiet: true
   vars:
     stalwart_account_refused: >-
-      {{ dict(stalwart_accounts | rejectattr('id') | map(attribute='address')
-              | zip(stalwart_accounts | rejectattr('id') | map(attribute='refusal'))) }}
+      {%- set refused = {} -%}
+      {%- for account in stalwart_accounts if not account.id -%}
+      {%-   if account.bot or not (STALWART_SSO_ENABLED | bool and account.refusal.get('type') == 'forbidden') -%}
+      {%-     set _ = refused.update({account.address: account.refusal}) -%}
+      {%-   endif -%}
+      {%- endfor -%}
+      {{ refused }}
 
 - name: "🔄 Update the password of every pre-existing account"
   when: stalwart_accounts | selectattr('existing') | list | length > 0
