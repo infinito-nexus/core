@@ -1,13 +1,13 @@
 ---
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ pkgmgr_dependency }}"
   loop:
     - dev-git
     - dev-make
     - dev-nix
   loop_control:
-    loop_var: dependency_role
+    loop_var: pkgmgr_dependency
 
 - name: "📂 Include SSH"
   include_role:

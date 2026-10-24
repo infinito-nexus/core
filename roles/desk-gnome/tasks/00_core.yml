@@ -6,13 +6,13 @@
 
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ dependency_role }}"
+    name: "{{ desk_gnome_dependency }}"
   loop:
     - desk-gnome-caffeine
     - desk-gnome-extensions
     - desk-gnome-terminal
   loop_control:
-    loop_var: dependency_role
+    loop_var: desk_gnome_dependency
 
 - include_tasks: 01_extensions.yml
 
