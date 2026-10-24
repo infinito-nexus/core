@@ -29,6 +29,7 @@ STALWART_JMAP_APPLICATION_GET: >-
 STALWART_JMAP_TRANSIENT_ERRORS:
   - serverUnavailable
   - rateLimit
+STALWART_JMAP_MAX_METHOD_CALLS: 16
 STALWART_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'stalwart') }}"
 
 STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain') }}"
