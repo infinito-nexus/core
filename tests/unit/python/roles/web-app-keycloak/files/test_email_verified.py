@@ -10,7 +10,7 @@ from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
 
-import email_verified as m  # noqa: E402
+import email_verified as m
 
 
 class FakeKeycloak:
