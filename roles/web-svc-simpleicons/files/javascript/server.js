@@ -5,7 +5,7 @@ import sharp from 'sharp';
 
 const app = express();
 const port = Number(process.env.PORT);
-const docsUrl = process.env.DOCS_URL;
+const docsUrls = JSON.parse(process.env.DOCS_URLS);
 const organization = process.env.ORGANIZATION;
 
 function getExportName(slug) {
@@ -17,6 +17,7 @@ function getExportName(slug) {
 }
 
 app.get('/', (req, res) => {
+  const docsUrl = docsUrls[req.hostname];
   if (docsUrl) {
     return res.redirect(docsUrl);
   }
