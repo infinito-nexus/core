@@ -31,7 +31,16 @@ $wgMetaNamespace = "Wiki_on_{{ DOMAIN_PRIMARY | upper }}";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "{{ MEDIAWIKI_URL }}";
+{% set mediawiki_hosts = lookup('network_siblings', lookup('domain', application_id)) %}
+$wgCanonicalServer = "{{ MEDIAWIKI_URL | regex_replace('/+$', '') }}";
+$infinito_servers = [
+{% for host in mediawiki_hosts %}
+	'{{ host }}' => "{{ lookup('tls', host, 'url.base') | regex_replace('/+$', '') }}",
+{% endfor %}
+];
+$infinito_request_host = strtolower( (string)parse_url( \MediaWiki\Request\WebRequest::detectServer(), PHP_URL_HOST ) );
+$wgServer = $infinito_servers[$infinito_request_host] ?? $wgCanonicalServer;
+$wgRenderHashAppend = '!' . $wgServer;
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
@@ -40,18 +49,27 @@ $wgResourceBasePath = $wgScriptPath;
 ## or else you'll overwrite your logo when you upgrade!
 {% set design = lookup('design', application_id) %}
 {% if lookup('config', application_id, 'services.design.enabled') | bool and design.logo is string %}
+{% set cdn_bases = lookup('network_urls', lookup('tls', lookup('domain', 'web-svc-cdn'), 'url.base')) %}
+$infinito_cdn_origins = [
+{% for host in mediawiki_hosts %}
+{% for base in cdn_bases if (base | urlsplit('hostname') | network_of) == (host | network_of) %}
+	'{{ host }}' => "{{ base | regex_replace('/+$', '') }}",
+{% endfor %}
+{% endfor %}
+];
+$infinito_cdn_origin = $infinito_cdn_origins[$infinito_request_host] ?? "{{ cdn_bases[0] | regex_replace('/+$', '') }}";
 $wgLogos = [
-	'1x' => "{{ design.urls.icon.svg }}",
-	'svg' => "{{ design.urls.icon.svg }}",
-	'icon' => "{{ design.urls.icon.svg }}",
+	'1x' => $infinito_cdn_origin . "{{ design.urls.icon.svg | urlsplit('path') }}",
+	'svg' => $infinito_cdn_origin . "{{ design.urls.icon.svg | urlsplit('path') }}",
+	'icon' => $infinito_cdn_origin . "{{ design.urls.icon.svg | urlsplit('path') }}",
 	'wordmark' => [
-		'src' => "{{ design.urls.wordmark.svg }}",
+		'src' => $infinito_cdn_origin . "{{ design.urls.wordmark.svg | urlsplit('path') }}",
 		'width' => 160,
 		'height' => 32,
 	],
 ];
-$wgFavicon = "{{ design.urls.favicon_ico }}";
-$wgAppleTouchIcon = "{{ design.urls['apple-touch-icon'].png }}";
+$wgFavicon = $infinito_cdn_origin . "{{ design.urls.favicon_ico | urlsplit('path') }}";
+$wgAppleTouchIcon = $infinito_cdn_origin . "{{ design.urls['apple-touch-icon'].png | urlsplit('path') }}";
 {% else %}
 $wgLogos = [
 	'1x' => "$wgResourceBasePath/resources/assets/change-your-logo.svg",

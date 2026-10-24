@@ -70,6 +70,15 @@ Because the block loads the extension, `MachineTranslation` is listed in `MEDIAW
 
 [`tasks/addons/MachineTranslation.yml`](tasks/addons/MachineTranslation.yml) asserts the endpoint shape before the container is touched (plain `http`, an undotted service name, the engine's internal rather than published port), then reads the global back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts `type` and `url`, so an extension that fell back to its upstream default cannot reach a green deploy.
 
+## Network siblings
+
+On a node serving the wiki on several networks ([network_modes.md](../../docs/contributing/design/network_modes.md)), `templates/LocalSettings.php.j2` answers each request within the network it arrived on:
+
+- `$wgServer` is the origin of the network sibling the request host names, read with `WebRequest::detectServer()` and looked up in a map rendered from `lookup('network_siblings', …)` with each sibling's `lookup('tls', …, 'url.base')`. A host outside that map, a spoofed `Host` header or a maintenance script without one, gets `$wgCanonicalServer`, the canonical URL that e-mails, feeds and the print footer use.
+- Every URL MediaWiki builds from `$wgServer` follows it, including the OpenID Connect redirect URI and the PluggableAuth return URL.
+- `$wgRenderHashAppend` carries the selected server, which keys the parser cache per network.
+- The design logos, the favicon and the touch icon take the CDN origin of the request's network from a second rendered map, with the canonical CDN as fallback.
+
 ## Further Resources
 
 - [MediaWiki Official Website](https://www.mediawiki.org/)
