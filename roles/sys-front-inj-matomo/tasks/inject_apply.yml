@@ -1,14 +1,4 @@
 ---
-- name: 🔧 Set matomo_site_id to Null
-  set_fact:
-    matomo_site_id:
-
-- name: 🔧 Set fact for site ID if site already exists
-  set_fact:
-    matomo_site_id: "{{ site_check.json[0].idsite }}"
-  when: "site_check.json is not mapping and (site_check.json | length) > 0"
-  changed_when: false
-
 - name: ➕ Add site to Matomo and get ID if not exists
   uri_retry:
     url: "{{ matomo_index_php_url }}"
@@ -26,6 +16,15 @@
   set_fact:
     matomo_site_id: "{{ add_site.json.value }}"
   when: "matomo_site_id is not defined or matomo_site_id is none"
+  changed_when: false
+
+- name: 🧊 Add the new site to the cached Matomo site list
+  set_fact:
+    matomo_site_cache: "{{ matomo_site_cache | combine({'sites': matomo_site_cache.sites + [{'idsite': matomo_site_id, 'main_url': matomo_site_url}]}) }}"
+  when:
+    - add_site is not skipped
+    - matomo_site_cache is defined
+    - matomo_site_cache.scope == matomo_site_cache_scope
   changed_when: false
 
 - name: 📄 Load Matomo tracking JS template
