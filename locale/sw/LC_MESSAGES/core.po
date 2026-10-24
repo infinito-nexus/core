@@ -1783,9 +1783,10 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Huduma za Huduma"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
-msgstr ""
+msgstr "Parte de PHP hardsení ini i pool drop-in PHP-FPM peşepişmen care mountă configurațiile pentru serviciile PHP ale stack-urilor compose și swarm"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

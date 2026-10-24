@@ -1765,9 +1765,10 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Storitve"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
-msgstr ""
+msgstr "Šaredjen PHP zaštita i drop-in za pool PHP-FPM koji PHP usluge kompozita i steka mountaju kao konfiguracije"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

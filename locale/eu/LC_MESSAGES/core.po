@@ -1764,9 +1764,10 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Zerbitzuak"
 
+# translated-by: ollama
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
-msgstr ""
+msgstr "Shared PHP hardening iñ PHP-FPM pool drop-in que PHP servides de compose e swarm staks monten como configs"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

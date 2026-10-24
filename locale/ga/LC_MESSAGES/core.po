@@ -1782,9 +1782,10 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Seirbhísí ar líne"
 
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
-msgstr ""
+msgstr "PHP cruaite ini agus PHP-FPM titim linn snámha isteach go seirbhísí PHP de chumadh agus swarm stacks mount mar configs"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"

@@ -1763,6 +1763,7 @@ msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Послуги"
 
+# translation-refused: libretranslate damaged-span
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
 msgstr ""
