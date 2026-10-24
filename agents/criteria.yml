@@ -127,3 +127,8 @@ SC-COUNSEL-BLOCKER:
   statement: "a surviving counsel blocker files a work package, emails the legal contact and holds release tags"
   proof_kind: scenario
   proof: agents/scenarios/counsel-blocker.yml
+L06:
+  statement: "every identity account username matches [a-z1-9]{3,15}; reserved non-identity accounts exempt"
+  proof_kind: lint
+  proof: tests/lint/ansible/roles/meta/test_identity_username_charset.py
+  red_fixture: yes
