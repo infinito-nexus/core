@@ -6,6 +6,18 @@
     - compose-build
     - container-recreate
 
+# Exception: compose.yml first renders before the role writes its config and secret files, so their content-hash names lag one deploy; rendering again at flush picks up the files as they are now.
+- name: "📁 Re-render compose.yml with the current config hashes"
+  stack_host_template:
+    src: "{{ application_id | abs_role_path_by_application_id }}/templates/compose.yml.j2"
+    dest: "{{ lookup('container', application_id, 'files.compose') }}"
+    mode: "0640"
+    force: true
+  listen:
+    - compose-up
+    - container-recreate
+  when: (application_id | abs_role_path_by_application_id ~ '/templates/compose.yml.j2') is file
+
 - name: 📝 Generate CA trust override
   ansible.builtin.shell: |
     set -euo pipefail
