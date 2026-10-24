@@ -1,0 +1,24 @@
+---
+- name: "🛑 Refuse '{{ application_id }}' outside the agents test bundle"
+  ansible.builtin.assert:
+    that:
+      - AGENT_FIXTURE_BUNDLE is defined
+      - AGENT_FIXTURE_BUNDLE | bool
+    fail_msg: >-
+      web-app-agent-fixture is a deliberately vulnerable security-test fixture and
+      must never run on a real host. Only the agents test bundle
+      (inventories/bundles/servers/agents) deploys it, signalled by
+      AGENT_FIXTURE_BUNDLE=true in its group_vars. Refusing to continue.
+    quiet: true
+
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🌱 Stage the fixture web root for '{{ application_id }}'"
+  include_tasks: 01_manager_ops.yml
+  when: IS_STACK_HOST | bool
+
+- include_tasks: utils/once/flag.yml

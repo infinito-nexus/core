@@ -1,0 +1,24 @@
+---
+application_id: "svc-ai-agent-provisioner"
+entity_name: "{{ application_id | entity_name }}"
+
+AGENT_PROVISIONER_CONTAINER: "{{ lookup('config', application_id, 'services.agent-provisioner.name') }}"
+AGENT_PROVISIONER_PORT: "{{ lookup('config', application_id, 'services.agent-provisioner.ports.internal.http') }}"
+AGENT_PROVISIONER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+AGENT_PROVISIONER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.agent-provisioner.image') }}"
+AGENT_PROVISIONER_BASE_VERSION: "{{ lookup('config', application_id, 'services.agent-provisioner.version') }}"
+AGENT_PROVISIONER_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+AGENT_PROVISIONER_STATE_DIR: "{{ lookup('volume', application_id, 'state').target }}"
+AGENT_PROVISIONER_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.agent-provisioner.request_timeout') }}"
+AGENT_PROVISIONER_LEASE_TTL: "{{ lookup('config', application_id, 'services.agent-provisioner.lease_ttl') }}"
+
+AGENT_PROVISIONER_LIBS:
+  - utils/__init__.py
+  - utils/orchestrator/__init__.py
+  - utils/orchestrator/instance_api.py
+  - utils/orchestrator/audit.py
+  - utils/agents/__init__.py
+  - utils/agents/accounts.py
+  - utils/agents/naming.py
+  - utils/agents/keepass.py
+  - utils/agents/redact.py

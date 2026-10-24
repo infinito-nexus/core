@@ -1,0 +1,3 @@
+---
+workspace:
+  description: Platform account a shared workspace IDE instance acts as. Non-privileged by design, with its own mailbox. Per-agent and per-user instances act as their owning account instead, provisioned by svc-ai-agent-broker.

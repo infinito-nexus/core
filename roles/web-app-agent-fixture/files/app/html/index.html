@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Fixture</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <img class="brand-logo" src="/static/thirdparty/northwind-logo.svg" alt="Northwind" />
+      <span class="brand-name">Northwind Portal</span>
+    </header>
+
+    <main>
+      <h1>Member sign in</h1>
+      <form class="login" method="post" action="/login">
+        <label>Username <input name="username" autocomplete="username" /></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" /></label>
+        <button type="submit">Sign in</button>
+      </form>
+    </main>
+
+    <script src="/static/thirdparty/confetti.js"></script>
+  </body>
+</html>

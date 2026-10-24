@@ -1,0 +1,34 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 Load docker and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+
+- name: "🛑 Refuse a privileged nested Docker fallback for {{ application_id }}"
+  ansible.builtin.assert:
+    that:
+      - WORKSPACE_ISOLATION.nested_docker.unprivileged | bool
+    fail_msg: >-
+      services.workspace.isolation.nested_docker.unprivileged resolved false.
+      This container executes code the model wrote, so a privileged nested
+      Docker fallback is refused rather than left able to escape the sandbox.
+    quiet: true
+
+- name: "🛡️ Keep the reach-widening approval store off agent-writable paths"
+  ansible.builtin.assert:
+    that:
+      - not (WORKSPACE_ISOLATION.approval.store.startswith(WORKSPACE_DATA_DIR))
+    fail_msg: >-
+      The approval store for reach-widening keys (mounts, run args, init
+      commands) must live outside the agent's writable workspace volume, so a
+      compromised agent cannot grant itself the widened reach.
+    quiet: true
+
+- name: "🛡️ Prove the isolation {{ application_id }} promises"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  vars:
+    assert_isolated_container: "{{ WORKSPACE_CONTAINER }}"
+  when:
+    - IS_COMPOSE_MODE
+    - lookup('config', application_id, 'services.kata.enabled') | bool

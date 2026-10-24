@@ -1,0 +1,109 @@
+---
+# nocheck: playwright-service-flag  the role's own provider service must not self-gate from Playwright
+workspace:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  replicas: 1 # nocheck: single-replica  per-instance IDE state is single-writer; concurrent swarm replicas corrupt the workspace directory
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    no_stop_required: true
+  image: gitpod/openvscode-server
+  # nocheck: docker-version  base of a self-built image that adds the Claude Code extension, not the served application
+  version: "1.99.3"
+  custom: true
+  name: workspace
+  min_storage: 900MB
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+  lifecycle: beta
+  proxy:
+    service_key: workspace
+  ports:
+    local:
+      http: 8107
+      sso: 16513
+      sso_onion: 16550
+    internal:
+      http: 3000
+  isolation:
+    host_home: false
+    sibling_repositories: false
+    host_docker_socket: false
+    host_credentials: false
+    docker_scope: own-stack
+    nested_docker:
+      unprivileged: true
+      privileged_fallback: refused
+      mtu: uplink
+    approval:
+      guarded_keys:
+        - mounts
+        - run_args
+        - init_commands
+      store: /etc/infinito/workspace/approvals
+    egress: agent-firewall
+
+# nocheck: playwright-service-flag, dynamic-flag  host-level isolation runtime, not a Playwright-gateable surface
+kata:
+  bond: 1
+  enabled: true
+  shared: true
+
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: workspace
+      port: 3000
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-workspace', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-workspace', role='agent-user') }}"
+
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag  the rendered logo set is cosmetic and carries no Playwright gate
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage  sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
