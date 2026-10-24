@@ -2,8 +2,9 @@
 
 A key counts as read when core declares it in ``group_vars`` or a role's
 ``defaults`` or ``vars``, tests it with ``is defined`` or ``| default(`` in its
-YAML or Jinja, reads it by name from the variables in a plugin, or is one of
-the ``SYSTEM_EMAIL_<KEY>`` names the email lookup builds at run time.
+YAML or Jinja, reads it by name from the variables in a plugin, is one of
+the ``SYSTEM_EMAIL_<KEY>`` names the email lookup builds at run time, or is a
+record the provisioning CLI keeps in host_vars and reads back on its next run.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -15,6 +16,9 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from cli.administration.inventory.provision.services_disabler import (
+    DISABLED_SERVICES_RECORD,
+)
 from utils import PROJECT_ROOT
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
@@ -58,10 +62,10 @@ def read_variables() -> set[str]:
 
     Returns:
         ``declared_variables()`` plus the names core guards with ``is defined``
-        or ``| default(``, the names plugins read from the variables by name
-        and the ``SYSTEM_EMAIL_<KEY>`` names.
+        or ``| default(``, the names plugins read from the variables by name,
+        the ``SYSTEM_EMAIL_<KEY>`` names and the provisioning records.
     """
-    names = declared_variables()
+    names = declared_variables() | {DISABLED_SERVICES_RECORD}
     for path in iter_project_files(
         extensions=(".yml", ".yaml", ".j2"), exclude_tests=True
     ):
