@@ -408,6 +408,24 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
             )
             self.assertNotIn("carried", merged["web-app-foo"])
 
+    def test_a_changed_store_fact_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            variables["sys_token_store_users"] = {}
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], list(key[1])],
+                "applications": {"web-app-foo": {"carried": True}},
+            }
+            variables["sys_token_store_users"] = {
+                "no-reply": {"tokens": {"web-app-stalwart": "minted"}}
+            }
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("carried", merged["web-app-foo"])
+
     def test_malformed_carrier_is_ignored(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))

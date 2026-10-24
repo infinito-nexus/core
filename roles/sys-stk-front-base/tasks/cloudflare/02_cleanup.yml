@@ -1,8 +1,8 @@
 ---
-- name: "🧹 Purge everything from Cloudflare cache for domain {{ domain }}"
+- name: "🧹 Purge the Cloudflare cache of every deployed zone"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   uri_retry:
-    url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/purge_cache"
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cf_purge_zone_id }}/purge_cache"
     method: POST
     headers:
       Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
@@ -11,6 +11,9 @@
       purge_everything: true
     body_format: json
     return_content: true
+  loop: "{{ cf_zones_to_purge }}"
+  loop_control:
+    loop_var: cf_purge_zone_id
   # rationale: async; no register at all, and the purge is idempotent on the next deploy
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

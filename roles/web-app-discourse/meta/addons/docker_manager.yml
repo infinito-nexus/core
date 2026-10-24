@@ -10,4 +10,4 @@ update:
   upstream_id: docker_manager
 config:
   repository: https://github.com/discourse/docker_manager.git
-  ref: main
+  ref: 8b136890f945828646c97212583b74ecfd07def5

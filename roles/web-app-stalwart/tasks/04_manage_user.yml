@@ -2,57 +2,129 @@
 # Bots authenticate over SMTP with a derived sha256-hex secret instead of the
 # raw inventory password: consumers embed email.password unescaped in dotenv
 # URLs and YAML, where the password charset ('[', '@', '#', ...) breaks parsing.
-- name: "🔍 Resolve effective secret for '{{ stalwart_user_name }}'"
+- name: "🔍 Resolve the Stalwart accounts and their effective secrets"
   ansible.builtin.set_fact:
-    stalwart_user_secret: >-
-      {{ stalwart_user_password | hash('sha256')
-         if 'bot' in stalwart_user_roles else stalwart_user_password }}
+    stalwart_accounts: >-
+      {%- set accounts = [] -%}
+      {%- for key, user in STALWART_USERS.items() -%}
+      {%-   set bot = 'bot' in (user.roles | default([])) -%}
+      {%-   set _ = accounts.append({
+              'key': key,
+              'name': user.username,
+              'address': user.username ~ '@' ~ STALWART_DOMAIN,
+              'description': user.email | default(user.username),
+              'bot': bot,
+              'secret': user.password | hash('sha256') if bot else user.password,
+              'stored': (user.tokens | default({}, true)).get(application_id, '')}) -%}
+      {%- endfor -%}
+      {{ accounts }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "📁 Create Stalwart account '{{ stalwart_user_name }}@{{ STALWART_DOMAIN }}'"
+- name: "📁 Create the Stalwart accounts"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_tolerate_rejected: true
     stalwart_jmap_body: >-
+      {%- set create = {} -%}
+      {%- for account in stalwart_accounts -%}
+      {%-   set _ = create.update({'u' ~ loop.index0: {
+              '@type': 'User',
+              'name': account.name,
+              'domainId': stalwart_domain_id,
+              'description': account.description,
+              'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}}) -%}
+      {%- endfor -%}
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Account/set', {'create': {'a': {
-            '@type': 'User',
-            'name': stalwart_user_name,
-            'domainId': stalwart_domain_id,
-            'description': (lookup('users', stalwart_user_key).email | default(stalwart_user_name)),
-            'credentials': {'0': {'@type': 'Password', 'secret': stalwart_user_secret}}
-          }}}, 'c0']]} | to_json }}
+          'methodCalls': [['x:Account/set', {'create': create}, 'c0'],
+                          ['x:Account/get', {'ids': none}, 'c1']]} | to_json }}
 
-- name: "🔍 Resolve pre-existing account id for '{{ stalwart_user_name }}'"
+- name: "🔍 Match every account to its Stalwart id"
   ansible.builtin.set_fact:
-    stalwart_existing_account_id: >-
-      {{ ((stalwart_jmap.methodResponses[0][1].notCreated | default({}))
-          .get('a', {}).get('objectId', {}) or {}).get('id', '') }}
+    stalwart_accounts: >-
+      {%- set result = stalwart_jmap.methodResponses[0][1] -%}
+      {%- set listed = {} -%}
+      {%- for held in stalwart_jmap.methodResponses[1][1].list if held.domainId == stalwart_domain_id -%}
+      {%-   set _ = listed.update({held.name | lower: held.id}) -%}
+      {%- endfor -%}
+      {%- set accounts = [] -%}
+      {%- for account in stalwart_accounts -%}
+      {%-   set created = (result.created | default({}, true)).get('u' ~ loop.index0) or {} -%}
+      {%-   set refusal = (result.notCreated | default({}, true)).get('u' ~ loop.index0) or {} -%}
+      {%-   set existing = refusal.get('type') == 'alreadyExists' -%}
+      {%-   set _ = accounts.append(account | combine({
+              'id': ((refusal.get('objectId') or {}).get('id') if existing else created.get('id'))
+                    or listed.get(account.name | lower, ''),
+              'existing': existing,
+              'refusal': refusal})) -%}
+      {%- endfor -%}
+      {{ accounts }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔄 Update password for existing account '{{ stalwart_user_name }}'"
-  include_tasks: jmap_call.yml
+- name: "✅ Ensure Stalwart created or already holds every account"
+  ansible.builtin.assert:
+    that: stalwart_account_refused | length == 0
+    fail_msg: "Stalwart refused the accounts {{ stalwart_account_refused }}"
+    quiet: true
   vars:
-    stalwart_jmap_body: >-
-      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Account/set', {'update': {stalwart_existing_account_id: {
-            'credentials': {'0': {'@type': 'Password', 'secret': stalwart_user_secret}}
-          }}}, 'c0']]} | to_json }}
-  when: stalwart_existing_account_id | length > 0
+    stalwart_account_refused: >-
+      {%- set refused = {} -%}
+      {%- for account in stalwart_accounts if not account.id -%}
+      {%-   if account.bot or not (STALWART_SSO_ENABLED | bool and account.refusal.get('type') == 'forbidden') -%}
+      {%-     set _ = refused.update({account.address: account.refusal}) -%}
+      {%-   endif -%}
+      {%- endfor -%}
+      {{ refused }}
 
-- name: "🤖 Give bot '{{ stalwart_user_name }}' the submission credential its mode uses"
-  when: "'bot' in stalwart_user_roles"
+- name: "🔄 Update the password of every pre-existing account"
+  when: stalwart_accounts | selectattr('existing') | list | length > 0
   block:
-    - name: "💾 Persist Stalwart submission credential for bot '{{ stalwart_user_name }}'"
-      ansible.builtin.include_role:
-        name: sys-token-store
-        tasks_from: write.yml
+    - name: "🔄 Send the passwords of the pre-existing accounts"
+      include_tasks: jmap_call.yml
       vars:
-        sys_token_store_user_key: "{{ stalwart_user_key }}"
-        sys_token_store_app: "{{ application_id }}"
-        sys_token_store_token: "{{ stalwart_user_secret }}"
-      when: not (STALWART_SSO_ENABLED | bool)
+        stalwart_jmap_tolerate_rejected: true
+        stalwart_jmap_body: >-
+          {%- set changes = {} -%}
+          {%- for account in stalwart_accounts if account.existing -%}
+          {%-   set _ = changes.update({account.id: {
+                  'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}}) -%}
+          {%- endfor -%}
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Account/set', {'update': changes}, 'c0']]} | to_json }}
 
-    - name: "🔑 Keep an app password for bot '{{ stalwart_user_name }}' under SSO"
-      include_tasks: 04_manage_user/app_password.yml
+    - name: "✅ Ensure Stalwart took the password of every pre-existing account"
+      ansible.builtin.assert:
+        that: stalwart_account_refused | length == 0
+        fail_msg: "Stalwart refused the password of the accounts {{ stalwart_account_refused }}"
+        quiet: true
       vars:
-        stalwart_jmap_act_as: "{{ stalwart_user_name }}@{{ STALWART_DOMAIN }}"
-      when: STALWART_SSO_ENABLED | bool
+        stalwart_account_refused: >-
+          {%- set rejected = stalwart_jmap.methodResponses[0][1].notUpdated | default({}, true) -%}
+          {%- set refused = {} -%}
+          {%- for account in stalwart_accounts if account.id in rejected -%}
+          {%-   set _ = refused.update({account.address: rejected[account.id]}) -%}
+          {%- endfor -%}
+          {{ refused }}
+
+- name: "💾 Persist the Stalwart submission credential of every bot"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ stalwart_bot.key }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ stalwart_bot.secret }}"
+  loop: "{{ stalwart_accounts | selectattr('bot') | list }}"
+  loop_control:
+    loop_var: stalwart_bot
+    label: "{{ stalwart_bot.address }}"
+  when: not (STALWART_SSO_ENABLED | bool)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Keep an app password for every bot under SSO"
+  include_tasks: 04_manage_user/app_password.yml
+  loop: "{{ stalwart_accounts | selectattr('bot') | batch(STALWART_JMAP_MAX_METHOD_CALLS) | list }}"
+  loop_control:
+    loop_var: stalwart_bots
+    label: "{{ stalwart_bots | map(attribute='address') | join(', ') }}"
+  when: STALWART_SSO_ENABLED | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

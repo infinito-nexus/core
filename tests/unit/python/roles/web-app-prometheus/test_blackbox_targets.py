@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_str
 from utils.domains.default_primary import default_domain_primary
+from utils.domains.unserved import served_domains
 
 TEMPLATE_DIR = PROJECT_ROOT / "roles/web-app-prometheus/templates/configuration"
 ONION = "a" * 56 + ".onion"
@@ -16,7 +17,11 @@ DOMAINS = {
     "web-app-prometheus": [f"prometheus.{ONION}"],
     "web-app-nextcloud": {"nextcloud": f"next.cloud.{ONION}"},
     "web-app-gitea": [f"git.{DOMAIN}"],
-    "web-app-matrix": [f"matrix.{DOMAIN}"],
+    "web-app-matrix": {
+        "synapse": f"matrix.{DOMAIN}",
+        "jitsi": f"jitsi.matrix.{DOMAIN}",
+        "jitsi_onion": f"jitsi.matrix.{ONION}",
+    },
     "web-svc-cdn": [f"cdn.{DOMAIN}"],
     "svc-db-postgres": [f"postgres.{DOMAIN}"],
 }
@@ -30,12 +35,23 @@ ROLES_WITH_THE_PROMETHEUS_SERVICE = [
     "web-app-gitea",
     "web-app-matrix",
 ]
+SHARED_JITSI = {"jitsi": {"enabled": True, "shared": True, "domains": ["jitsi"]}}
 
 
-def probed_groups(*, ca_injected: bool) -> dict[str, dict]:
+def probed_groups(
+    *, ca_injected: bool, matrix_services: dict | None = None
+) -> dict[str, dict]:
+    services = {
+        "web-app-matrix": SHARED_JITSI if matrix_services is None else matrix_services
+    }
+
     def lookup(name, *terms, **_kwargs):
         if name == "domains":
             return DOMAINS
+        if name == "config":
+            app, key = terms
+            assert key == "services"
+            return services.get(app, {})
         if name == "roles_with_service":
             return [{"id": role} for role in ROLES_WITH_THE_PROMETHEUS_SERVICE]
         if name == "ca_injected":
@@ -64,6 +80,7 @@ def probed_groups(*, ca_injected: bool) -> dict[str, dict]:
         autoescape=select_autoescape(),
     )
     env.filters["bool"] = bool
+    env.filters["served_domains"] = served_domains
     rendered = env.get_template("prometheus.yml.j2").render(
         lookup=lookup,
         application_id="web-app-prometheus",
@@ -78,9 +95,12 @@ def probed_groups(*, ca_injected: bool) -> dict[str, dict]:
     }
 
 
-def probed_targets() -> dict[str, list[str]]:
+def probed_targets(matrix_services: dict | None = None) -> dict[str, list[str]]:
     return {
-        app: group["targets"] for app, group in probed_groups(ca_injected=True).items()
+        app: group["targets"]
+        for app, group in probed_groups(
+            ca_injected=True, matrix_services=matrix_services
+        ).items()
     }
 
 
@@ -95,6 +115,30 @@ class TestBlackboxTargets(unittest.TestCase):
         self.assertEqual(
             probed_targets()["web-app-gitea"],
             [f"https://git.{DOMAIN}/healthz/ready"],
+        )
+
+    def test_a_shared_service_domain_and_its_onion_mirror_are_not_probed(self):
+        self.assertEqual(
+            probed_targets()["web-app-matrix"],
+            [f"https://matrix.{DOMAIN}/healthz/ready"],
+        )
+
+    def test_a_disabled_service_domain_is_not_probed(self):
+        disabled = {"jitsi": {"enabled": False, "shared": False, "domains": ["jitsi"]}}
+        self.assertEqual(
+            probed_targets(disabled)["web-app-matrix"],
+            [f"https://matrix.{DOMAIN}/healthz/ready"],
+        )
+
+    def test_an_own_service_domain_is_probed(self):
+        own = {"jitsi": {"enabled": True, "shared": False, "domains": ["jitsi"]}}
+        self.assertEqual(
+            probed_targets(own)["web-app-matrix"],
+            [
+                f"https://matrix.{DOMAIN}/healthz/ready",
+                f"https://jitsi.matrix.{DOMAIN}/healthz/ready",
+                f"http://jitsi.matrix.{ONION}/healthz/ready",
+            ],
         )
 
     def test_only_the_roles_the_service_lookup_names_are_probed(self):

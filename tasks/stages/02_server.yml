@@ -36,6 +36,11 @@
     name: sys-svc-mcp-reconcile
   when: lookup('roles_with_service', 'mcp', topic='mcp', direction='client') | length > 0
 
+- name: "⏳ Reap the image pre-pull before the E2E run"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: utils/prepull/reap.yml
+
 - name: ▶️ Run E2E Playwright tests
   include_role:
     name: "test-e2e-playwright"

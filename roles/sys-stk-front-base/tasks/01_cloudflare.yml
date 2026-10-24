@@ -45,6 +45,7 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: (ENVIRONMENT | lower) == 'development'
 
-- name: 🧹 purge cloudflare domain cache
-  include_tasks: "cloudflare/02_cleanup.yml"
+- name: "🧹 Queue the zone of '{{ domain }}' for the Cloudflare cache purge"
+  ansible.builtin.set_fact:
+    cf_zones_to_purge: "{{ ((cf_zones_to_purge | default([])) + [cf_zone_id]) | unique }}"
   when: MODE_CLEANUP | bool

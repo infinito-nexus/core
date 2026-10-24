@@ -18,7 +18,6 @@ from .base import (
     _resolve_roles_dir,
     _revalidate_tokens_file,
     _stable_variables_signature,
-    _tokens_file_signature,
 )
 
 if TYPE_CHECKING:
@@ -36,18 +35,18 @@ def merged_applications_cache_key(
 
     Args:
         variables: The play's variable scope. Only the subset that
-            `_stable_variables_signature` reads, and the tokens file it
-            resolves to, influence the key.
+            `_stable_variables_signature` reads, and the token store the users
+            are hydrated from, influence the key.
         roles_dir: Roles tree the payload is built from; defaults to the
             repository's `roles/`.
 
     Returns:
         ``(resolved roles dir, stable variables signature extended by the
-        tokens file's path and content digest)``.
+        token store signature)``.
     """
-    from .users import _resolve_tokens_file
+    from .users import _resolve_tokens_file, _store_signature
 
-    tokens = _tokens_file_signature(_resolve_tokens_file(variables))
+    tokens = _store_signature(variables, _resolve_tokens_file(variables))
     return (
         _cache_key(_resolve_roles_dir(roles_dir=roles_dir)),
         (*_stable_variables_signature(variables), *(str(part) for part in tokens)),

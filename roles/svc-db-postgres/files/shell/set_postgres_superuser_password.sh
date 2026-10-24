@@ -51,6 +51,18 @@ auth_test() {
   return 1
 }
 
+# Args: password. Returns 0 when TCP auth over the container's own address accepts it.
+own_address_auth() {
+  # shellcheck disable=SC2016
+  PGPASSWORD="$1" container exec -e PGPASSWORD -e PG_ROLE="$role" "$container" bash -lc \
+    'set -- $(hostname -i) && psql -h "$1" -p 5432 -U "$PG_ROLE" -d postgres -Atc "SELECT 1" >/dev/null 2>&1'
+}
+
+if ! own_address_auth "${new_pw}-refused" && own_address_auth "$new_pw"; then
+  echo "[UNCHANGED] New password already worked before."
+  exit 0
+fi
+
 result=""
 
 for _ in {1..30}; do

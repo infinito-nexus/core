@@ -22,6 +22,7 @@ from utils.cache.base import (
     _RENDER_GUARD,
     _cache_key,
     _deep_merge,
+    _fingerprint_mapping,
     _render_with_templar,
     _resolve_override_mapping,
     _resolve_roles_dir,
@@ -223,6 +224,36 @@ def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, A
     return users if isinstance(users, dict) else {}
 
 
+STORE_FACT = "sys_token_store_users"
+
+
+def _store_snapshot(variables: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
+    """Return the token store the play read from the stack host.
+
+    Args:
+        variables: the play's variable scope.
+
+    Returns:
+        The ``sys_token_store_users`` fact, or None outside a play that loaded
+        ``sys-token-store``.
+    """
+    snapshot = (variables or {}).get(STORE_FACT)
+    return snapshot if isinstance(snapshot, Mapping) else None
+
+
+def _store_signature(variables: Mapping[str, Any] | None, tokens_file: Path) -> tuple:
+    """Return the cache-key part of the store the users are hydrated from.
+
+    Args:
+        variables: the play's variable scope.
+        tokens_file: the controller's tokens file, used when no snapshot exists.
+    """
+    snapshot = _store_snapshot(variables)
+    if snapshot is not None:
+        return (STORE_FACT, _fingerprint_mapping(snapshot))
+    return _tokens_file_signature(tokens_file)
+
+
 def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
     candidates: list[Path] = []
 
@@ -404,10 +435,11 @@ def get_merged_users(
 
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     tokens_file = _resolve_tokens_file(variables)
+    snapshot = _store_snapshot(variables)
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
-        _tokens_file_signature(tokens_file),
+        _store_signature(variables, tokens_file),
         templar is not None,
     )
     cached = _MERGED_USERS_CACHE.get(cache_key)
@@ -420,7 +452,7 @@ def get_merged_users(
     merged = _apply_account_defaults(_merge_users(defaults, overrides))
     hydrated = _hydrate_users_tokens(
         merged,
-        _load_store_users(tokens_file),
+        dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
     )
 
     if getattr(_RENDER_GUARD, "users", False):

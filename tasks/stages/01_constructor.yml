@@ -100,6 +100,11 @@
 - name: 🧊 Render the applications SPOT once and carry it into every task's worker
   applications_carrier: {}
 
+- name: "📥 Pre-pull the images of this deploy in the background"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: utils/prepull/start.yml
+
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:
     name: sys-service-loader

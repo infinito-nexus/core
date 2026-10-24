@@ -30,19 +30,8 @@
         stalwart_domain_id: "{{ stalwart_jmap.methodResponses[0][1].created.d.id }}"
 
 - name: "⚙️ Provision Stalwart accounts"
-  include_tasks:
-    file: 04_manage_user.yml
-    apply:
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  vars:
-    stalwart_user_key: "{{ user_item.key }}"
-    stalwart_user_name: "{{ user_item.value.username }}"
-    stalwart_user_password: "{{ user_item.value.password }}"
-    stalwart_user_roles: "{{ user_item.value.roles | default([]) }}"
-  loop: "{{ STALWART_USERS | dict2items }}"
-  loop_control:
-    loop_var: user_item
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  include_tasks: 04_manage_user.yml
+  when: STALWART_USERS | length > 0
 
 - name: "🔧 Configure Stalwart mail-listener TLS (platform cert)"
   include_tasks: 05_tls.yml

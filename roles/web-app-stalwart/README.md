@@ -79,8 +79,9 @@ chaining or fallback. Enabling SSO therefore **disables the account password**
 for every account, including the machine `no-reply` account. App passwords are
 checked before the directory and keep working, so with SSO enabled the role:
 
-1. Creates one app password per bot account, acting for that account as the
-   recovery admin (`tasks/04_manage_user/app_password.yml`), and
+1. Creates one app password per bot account as the recovery admin, which
+   addresses each bot account through its JMAP `accountId`
+   (`tasks/04_manage_user/app_password.yml`), and
 2. Stores it in the token store, where
    [`plugins/lookup/email.py`](../../plugins/lookup/email.py) reads the SMTP
    password of the `no-reply` client.
@@ -130,10 +131,24 @@ account (or the Keycloak SSO token when SSO is enabled).
   (`templates/jmap/*.json.j2`).
 - **Only authenticated sessions relay, with or without SSO.** Under SSO a bot
   authenticates with an app password.
+- **Accounts and app passwords are provisioned in batches.** Each phase
+  (create, password update, app password list, mint, retire, drop) is one JMAP
+  request for all accounts. A phase on the bots' app passwords carries one
+  method call per bot, at most `STALWART_JMAP_MAX_METHOD_CALLS` (Stalwart's
+  default `maxMethodCalls`) per request, and a refusal names the account it
+  hit.
 - **Address bans expire after `services.stalwart.ban_period_seconds`** (one
   hour by default). Without a period Stalwart keeps a ban forever, and the
   reverse proxy, the published ports, Tor and the swarm ingress hand many
   clients one address.
+- **The role network's gateway is never banned** (`STALWART_ALLOWED_IPS`,
+  an `x:AllowedIp` entry): every container that reaches the published ports
+  through the host arrives from that address.
+- **HTTP clients are rate-limited and banned by their own address.** The
+  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  `Forwarded: for=$remote_addr` on every location and replaces any
+  client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`,
+  `useXForwarded`).
 - **Bans and failed logins also go to the container output**
   (`STALWART_BAN_TRACER`, `tasks/tracing.yml`), next to the daily log file in
   the data volume.

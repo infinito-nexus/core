@@ -56,14 +56,14 @@
       include_role:
         name: sys-front-tls
       vars:
-        domain: "{{ redirect_tls_source }}"
-        application_id: "{{ redirect_tls_source }}"
-      loop_control:
-        loop_var: redirect_tls_source
+        domain: "{{ redirect_tls_domain }}"
+        application_id: "{{ redirect_tls_domain }}"
       loop: >-
         {{ redirect_sources | selectattr('enabled')
            | rejectattr('certs', 'subset', redirect_certs_found.files | map(attribute='path') | list)
            | map(attribute='domain') | list }}
+      loop_control:
+        loop_var: redirect_tls_domain
 
 - name: 🌐 Deploy the NGINX redirect and HTTP handler configuration of every source
   stack_host_contents:

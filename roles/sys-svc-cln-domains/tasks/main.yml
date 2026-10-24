@@ -2,11 +2,11 @@
 - block:
     - name: 📂 Include dependencies
       include_role:
-        name: "{{ dependency_role }}"
+        name: "{{ sys_svc_cln_domains_dependency }}"
       loop:
         - sys-svc-webserver-core
       loop_control:
-        loop_var: dependency_role
+        loop_var: sys_svc_cln_domains_dependency
 
     - name: 📂 Include task to remove deprecated and unserved nginx configs
       include_tasks: nginx_configs.yml

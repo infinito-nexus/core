@@ -66,6 +66,11 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       register: sys_token_store_mirrored
 
-    - name: "🧊 Re-render the applications SPOT the new token invalidated"
-      applications_carrier: {}
-      when: sys_token_store_persisted is changed or sys_token_store_mirrored is changed
+    - name: "🔄 Hand the written store to the lookups of the rest of the play"
+      ansible.builtin.set_fact:
+        sys_token_store_users: "{{ sys_token_store_users_merged }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧊 Re-render the applications SPOT the new token invalidated"
+  applications_carrier: {}
+  when: sys_token_store_persisted is changed or sys_token_store_mirrored is changed
