@@ -31,6 +31,10 @@ This containerized YOURLS solution is built on robust Docker Compose and Ansible
 - [YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)
 - [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/T2ntCqsaAupkTweX8wiAmz)
 
+## Network origins
+
+YOURLS builds every link, asset URL and cookie from `YOURLS_SITE`, which holds the canonical URL. The drop-in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php) answers the `get_yourls_site` filter with the base URL of the network sibling the request's `Host` names, taken from `INFINITO_NETWORK_BASE_URLS` in [`templates/env.j2`](./templates/env.j2), and serves the favicon from the CDN of that network through `DESIGN_FAVICON_URLS`. Any other host keeps `YOURLS_SITE` and `DESIGN_FAVICON_URL`.
+
 ## Persona contract opt-outs
 
 YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the `shunt_is_valid_user` drop-in in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), which honours the header only on the gated admin path and only for members of the YOURLS administrator group.
