@@ -33,9 +33,26 @@ if [[ "$current_sha" == "$declared_sha" ]]; then
   exit 0
 fi
 
-if ! container exec -u "$run_as" -e OC_PASS "$container" \
-  php "$occ" user:resetpassword --password-from-env "$admin_user" >/dev/null; then
-  echo "[FAIL] occ user:resetpassword failed for '$admin_user'." >&2
+if ! info="$(container exec -u "$run_as" "$container" \
+  php "$occ" user:info "$admin_user" --output=json 2>&1)"; then
+  echo "[FAIL] occ user:info failed for '$admin_user': $info" >&2
+  exit 1
+fi
+
+backend="$(printf '%s' "$info" | sed -n 's/.*"backend":"\([^"]*\)".*/\1/p')"
+if [[ -z "$backend" ]]; then
+  echo "[FAIL] occ user:info for '$admin_user' names no backend: $info" >&2
+  exit 1
+fi
+
+if [[ "$backend" != "Database" ]]; then
+  echo "[UNCHANGED] The $backend backend owns the password of '$admin_user'; occ cannot reset it."
+  exit 0
+fi
+
+if ! output="$(container exec -u "$run_as" -e OC_PASS "$container" \
+  php "$occ" user:resetpassword --password-from-env "$admin_user" 2>&1)"; then
+  echo "[FAIL] occ user:resetpassword failed for '$admin_user': $output" >&2
   exit 1
 fi
 
