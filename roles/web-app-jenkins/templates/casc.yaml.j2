@@ -20,6 +20,7 @@ jenkins:
       userNameField: "{{ OIDC.ATTRIBUTES.USERNAME }}"
       groupsFieldName: "groups"
       logoutFromOpenidProvider: true
+      rootURLFromRequest: true
 {% elif JENKINS_LDAP_ENABLED | bool %}
   securityRealm:
     ldap:
