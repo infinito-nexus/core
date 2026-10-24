@@ -47,12 +47,14 @@
     _ss_csr: "{{ (_cert.files.cert | dirname) ~ '/req.csr' }}"
     _ss_cn: >-
       {{
-        (_cert.scope == 'global')
-        | ternary(
-            (DOMAIN_PRIMARY | upper) ~ ' Global TLS',
-            ((tls_selfsigned_subject.CN | default('') | length > 0)
-              | ternary(tls_selfsigned_subject.CN, _tls.domains.primary))
-          )
+        (
+          (_cert.scope == 'global')
+          | ternary(
+              (DOMAIN_PRIMARY | upper) ~ ' Global TLS',
+              ((tls_selfsigned_subject.CN | default('') | length > 0)
+                | ternary(tls_selfsigned_subject.CN, _tls.domains.primary))
+            )
+        )[:64]
       }}
   changed_when: false
 
