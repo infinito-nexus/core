@@ -18,4 +18,6 @@
     SERVICE: "{{ MATOMO_SERVICE }}"
     LOCAL: "{{ DOCKER_REACH_HOST }}:{{ http_port }}"
   delegate_to: "{{ MATOMO_HOST_NODE }}"
+  register: matomo_trusted_hosts_patch
+  changed_when: "'PATCHED' in matomo_trusted_hosts_patch.stdout"
   notify: compose-up
