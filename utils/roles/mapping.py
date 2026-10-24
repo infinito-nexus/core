@@ -186,6 +186,7 @@ ROLE_FILE_META_SECRETS = "meta/secrets.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
 ROLE_FILE_META_LICENSE = "meta/license.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
+ROLE_FILE_META_ACCOUNT = "meta/account.yml"
 ROLE_FILE_META_TESTS = "meta/tests.yml"
 
 ROLE_DIR_META_ADDONS = "meta/addons"
@@ -381,6 +382,17 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             "Reserved-username declarations consumed by the user-management layer."
         ),
         "types": _all(mandatory=False),
+    },
+    ROLE_FILE_META_ACCOUNT: {
+        "description": (
+            "Account policy for the identity system the application provisions: "
+            "the real username length ceiling and whether an agent may hold an "
+            "account there."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
     },
     ROLE_FILE_PLAYWRIGHT_SPEC: {
         "description": (
