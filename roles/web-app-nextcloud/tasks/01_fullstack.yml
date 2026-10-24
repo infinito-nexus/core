@@ -31,7 +31,9 @@
       stack_host_template:
         src: "Dockerfiles/Whiteboard.j2"
         dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
-      notify: compose-build
+      notify:
+        - compose-build
+        - compose-up
 
 - name: "📁 create {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
   file:
