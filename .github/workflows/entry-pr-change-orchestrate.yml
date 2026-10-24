@@ -136,7 +136,7 @@ jobs:
         id: resolve
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: ./scripts/github/resolve/pr_agents_affected.sh
+        run: ./scripts/github/resolve/pr/agents_affected.sh
 
   agents-local:
     name: "🤖 Agents (local)"
