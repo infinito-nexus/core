@@ -8,8 +8,10 @@ or an oversight.
 
 Scope: every value in ``roles/*/meta/services.yml`` and at the root of
 ``roles/*/meta/addons/*.yml`` whose key names a version and whose content is a
-semver. Moving tags (``latest``, ``stable``, a branch name) are not pins and
-are ignored. So is every pin of an ``eol`` role: the updaters skip those roles,
+semver or a full 40-hex commit SHA. The repository updater watches a SHA ``ref``
+next to a ``repository`` by moving it to the default branch's tip. Moving tags
+(``latest``, ``stable``, a branch name) and short SHAs are not pins and are
+ignored. So is every pin of an ``eol`` role: the updaters skip those roles,
 and the lifecycle already says nobody bumps them.
 
 Per-line opt-out: ``# nocheck: unwatched-version`` above the pin, with a
@@ -31,6 +33,7 @@ from utils.update.addons import iter_addon_files
 from utils.update.base import is_maintained, is_semver
 from utils.update.docker import collect_entries as docker_entries
 from utils.update.repository import collect_entries as repository_entries
+from utils.update.repository import is_commit_sha
 from utils.update.source import collect_entries as source_entries
 
 from . import PROJECT_ROOT
@@ -42,6 +45,12 @@ _VERSION_KEY = re.compile(r"(^|_)(version|release|ref|tag)$")
 
 def _addon_label(addon_id: str) -> str:
     return f"addons/{addon_id}"
+
+
+def _is_pin(key: object, text: str) -> bool:
+    return bool(_VERSION_KEY.search(str(key))) and (
+        is_semver(text) or is_commit_sha(text)
+    )
 
 
 def _watched() -> set[tuple[str, str, str]]:
@@ -70,7 +79,7 @@ def _addon_findings(watched: set[tuple[str, str, str]]) -> list[str]:
         lines = read_text(str(addon_path)).splitlines()
         for key, value in spec.items():
             text = str(value)
-            if not _VERSION_KEY.search(str(key)) or not is_semver(text):
+            if not _is_pin(key, text):
                 continue
             if (role, label, str(key)) in watched:
                 continue
@@ -106,7 +115,7 @@ def _findings() -> list[str]:
                 continue
             for key, value in config.items():
                 text = str(value)
-                if not _VERSION_KEY.search(str(key)) or not is_semver(text):
+                if not _is_pin(key, text):
                     continue
                 if (role, str(entity), str(key)) in watched:
                     continue

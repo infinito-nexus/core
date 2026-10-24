@@ -1,10 +1,13 @@
-"""Warn about outdated semver git `ref:` values in `roles/*/meta/services.yml`.
+"""Warn about outdated git `ref:` values in `roles/*/meta/services.yml`
+and `roles/*/meta/addons/*.yml`.
 
 For every entity (at any depth — top-level entity, sub-entity, plugin
-map) that declares BOTH `repository:` and `ref:`, and whose `ref:` is
-a semver-compatible tag, this test fetches the upstream repository's
-git tags via ``git ls-remote --tags <repository>`` and warns when a
-newer semver tag exists.
+map, addon ``config``) that declares BOTH `repository:` and `ref:`, this
+test warns when the upstream moved on: a semver-compatible ref is
+checked against the repository's git tags
+(``git ls-remote --tags <repository>``), a full 40-hex commit SHA
+against the tip of its default branch
+(``git ls-remote <repository> HEAD``).
 
 Counterpart to ``tests/external/update/docker/test_image_versions.py``
 (that one bumps OCI image tags, this one bumps git refs for
@@ -22,9 +25,10 @@ outdated refs surface as warnings on stdout and as GitHub Actions
 
 Suppress a check by placing ``# nocheck: repository-version`` on the
 line directly above the ``ref:`` key (blank lines between are
-ignored). Non-semver refs (``master``, ``main``, ``stable``, commit
-SHAs) are skipped automatically; only refs that match
-:func:`utils.update.base.is_semver` are checked.
+ignored). Branch refs (``master``, ``main``, ``stable``) and short
+SHAs are skipped automatically; only refs that match
+:func:`utils.update.base.is_semver` or
+:func:`utils.update.repository.is_commit_sha` are checked.
 """
 
 from __future__ import annotations
@@ -41,7 +45,7 @@ from . import PROJECT_ROOT
 
 
 class TestRepositoryVersions(unittest.TestCase):
-    """Warn about outdated semver `ref:` values in `meta/services.yml`."""
+    """Warn about outdated semver and commit-SHA `ref:` values."""
 
     def test_repository_refs_are_current(self) -> None:
         entries = collect_entries(PROJECT_ROOT)
@@ -69,7 +73,7 @@ class TestRepositoryVersions(unittest.TestCase):
                 entity = ".".join(u.entry.entity_path) or "<root>"
                 msg = (
                     f"{u.entry.role}/{entity}: {u.entry.repository} is at "
-                    f"{u.entry.ref}, latest semver tag is {u.latest}"
+                    f"{u.entry.ref}, upstream is at {u.latest}"
                 )
                 warning(
                     msg,

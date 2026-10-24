@@ -1,19 +1,25 @@
-"""Detect and rewrite outdated git `ref:` values in `roles/*/meta/services.yml`.
+"""Detect and rewrite outdated git `ref:` values in `roles/*/meta/services.yml`
+and `roles/*/meta/addons/*.yml`.
 
 Counterpart to :mod:`utils.update.docker` (which bumps OCI image
 `version:` tags). Both share the semver primitives in
 :mod:`utils.update.base`; this module owns the recursive walker over
-the services map and the upstream-tag lookup via
-``git ls-remote --tags <repository>``.
+the services map and the upstream lookups via ``git ls-remote``.
 
 Recursive walker: every dict at any depth (top-level entity,
-sub-entity, plugin map, ...) that declares BOTH `repository:` and
-`ref:` is a candidate. Only semver-compatible refs are
-version-checkable; branches (`master`, `main`, `stable`) and commit
-SHAs are skipped.
+sub-entity, plugin map, an addon's ``config``, ...) that declares BOTH
+`repository:` and `ref:` is a candidate. Two kinds of ref are tracked:
 
-Each unique repository URL is queried once per run; the result is
-reused for every entry pointing at the same repo.
+- a semver ref moves to the newest tag of the same depth and flavor,
+  read with ``git ls-remote --tags <repository>``;
+- a full 40-hex commit SHA moves to the tip of the repository's default
+  branch, read with ``git ls-remote <repository> HEAD``.
+
+Branches (`master`, `main`, `stable`) and short SHAs are skipped.
+
+Each unique repository URL is queried once per lookup kind and run; the
+result is reused for every entry pointing at the same repo. A failed
+lookup leaves the entry untouched.
 
 Suppress a check by placing ``# nocheck: repository-version`` on the
 line directly above the `ref:` key.
@@ -50,6 +56,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _NOCHECK_MARKER = "repository-version"
+
+_COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 _REF_VALUE_RE = re.compile(
     r"^(?P<prefix>\s*ref\s*:\s*)"
@@ -102,23 +110,56 @@ def walk_repo_ref_pairs(
         yield (entity_path, repo, ref)
 
 
-def git_ls_remote_tags(url: str) -> list[str]:
-    """Return tag names from ``git ls-remote --tags``, stripped of the
-    ``refs/tags/`` prefix and the ``^{}`` peeled-tag marker."""
+def is_commit_sha(value: str) -> bool:
+    """Report whether *value* is a full 40-hex commit SHA.
+
+    Args:
+        value: a `ref:` value.
+    """
+    return _COMMIT_SHA_RE.match(value) is not None
+
+
+def _ls_remote(*args: str) -> str | None:
+    """Return the stdout of ``git ls-remote``, or ``None`` when git is
+    missing, times out or exits non-zero.
+
+    Args:
+        args: arguments after ``git ls-remote``.
+    """
     try:
         proc = subprocess.run(
-            ["git", "ls-remote", "--tags", url],
+            ["git", "ls-remote", *args],
             capture_output=True,
             text=True,
             timeout=30,
             check=False,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
-        return []
+        return None
     if proc.returncode != 0:
+        return None
+    return proc.stdout
+
+
+def git_ls_remote_head(url: str) -> str | None:
+    """Return the commit the remote's ``HEAD`` (its default branch) points
+    at, or ``None`` when the lookup fails."""
+    stdout = _ls_remote(url, "HEAD")
+    for line in (stdout or "").splitlines():
+        sha, _, name = line.partition("\t")
+        if name == "HEAD" and is_commit_sha(sha):
+            return sha
+    return None
+
+
+def git_ls_remote_tags(url: str) -> list[str]:
+    """Return tag names from ``git ls-remote --tags``, stripped of the
+    ``refs/tags/`` prefix and the ``^{}`` peeled-tag marker."""
+    stdout = _ls_remote("--tags", url)
+    if stdout is None:
         return []
     tags: set[str] = set()
-    for line in proc.stdout.splitlines():
+    for line in stdout.splitlines():
         parts = line.split("\t")
         if len(parts) != 2:
             continue
@@ -165,8 +206,8 @@ def suppressed_ref_lines(config_path: Path) -> set[int]:
 def _entries_of_file(
     role_name: str, config_path: Path, entity_prefix: tuple[str, ...]
 ) -> list[RepositoryRefEntry]:
-    """Return the unsuppressed semver ``(repository, ref)`` entries of one
-    declaration file.
+    """Return the unsuppressed semver and commit-SHA ``(repository, ref)``
+    entries of one declaration file.
 
     Args:
         role_name: role the file belongs to, carried into each entry.
@@ -185,7 +226,7 @@ def _entries_of_file(
     suppressed = suppressed_ref_lines(config_path)
     entries: list[RepositoryRefEntry] = []
     for entity_path, repo, ref, entity in _walk(data, entity_prefix):
-        if not is_semver(ref):
+        if not (is_commit_sha(ref) or is_semver(ref)):
             continue
         candidates = ref_line_index.get(ref) or []
         if not candidates:
@@ -207,7 +248,7 @@ def _entries_of_file(
 
 
 def collect_entries(repo_root: Path) -> list[RepositoryRefEntry]:
-    """Return every semver-checkable ``(repository, ref)`` declaration
+    """Return every semver or commit-SHA ``(repository, ref)`` declaration
     under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml``
     whose ref is not suppressed."""
     roles_root = repo_root / "roles"
@@ -229,35 +270,57 @@ def collect_entries(repo_root: Path) -> list[RepositoryRefEntry]:
     return entries
 
 
+def _target_ref(
+    entry: RepositoryRefEntry,
+    repo_tags: dict[str, list[str]],
+    repo_heads: dict[str, str | None],
+) -> str | None:
+    """Return the ref *entry* should move to, or ``None`` when it stays.
+
+    Args:
+        entry: a collected declaration.
+        repo_tags: tag names per repository, empty when the lookup failed.
+        repo_heads: default-branch tip per repository, ``None`` when the
+            lookup failed.
+    """
+    if is_commit_sha(entry.ref):
+        tip = repo_heads.get(entry.repository)
+        return tip if tip and tip != entry.ref else None
+    tags = repo_tags.get(entry.repository, [])
+    if not tags:
+        return None
+    latest = latest_semver(
+        tags,
+        version_depth(entry.ref),
+        version_flavor(entry.ref),
+    )
+    if latest and version_key(entry.ref) < version_key(latest):
+        return latest
+    return None
+
+
 def find_outdated_updates(repo_root: Path) -> list[RepositoryRefUpdate]:
-    """Cross-reference every collected entry against ``git ls-remote
-    --tags`` and return the entries whose ref is older than the latest
-    semver tag with the same depth and flavor."""
+    """Cross-reference every collected entry against its upstream and
+    return the entries that are behind: a semver ref older than the latest
+    tag with the same depth and flavor (``git ls-remote --tags``), or a
+    commit SHA that is not the default branch's tip
+    (``git ls-remote <repository> HEAD``)."""
     entries = collect_entries(repo_root)
-    unique_repos = {entry.repository for entry in entries}
+    sha_repos = sorted({e.repository for e in entries if is_commit_sha(e.ref)})
+    tag_repos = sorted({e.repository for e in entries if not is_commit_sha(e.ref)})
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=resolve_max_fetch_workers()
     ) as pool:
-        repo_tags: dict[str, list[str]] = dict(
-            zip(
-                unique_repos,
-                pool.map(git_ls_remote_tags, unique_repos),
-                strict=True,
-            )
-        )
+        tags = pool.map(git_ls_remote_tags, tag_repos)
+        heads = pool.map(git_ls_remote_head, sha_repos)
+        repo_tags: dict[str, list[str]] = dict(zip(tag_repos, tags, strict=True))
+        repo_heads: dict[str, str | None] = dict(zip(sha_repos, heads, strict=True))
 
     updates: list[RepositoryRefUpdate] = []
     for entry in entries:
-        tags = repo_tags.get(entry.repository, [])
-        if not tags:
-            continue
-        latest = latest_semver(
-            tags,
-            version_depth(entry.ref),
-            version_flavor(entry.ref),
-        )
-        if latest and version_key(entry.ref) < version_key(latest):
-            updates.append(RepositoryRefUpdate(entry=entry, latest=latest))
+        target = _target_ref(entry, repo_tags, repo_heads)
+        if target:
+            updates.append(RepositoryRefUpdate(entry=entry, latest=target))
     return updates
 
 

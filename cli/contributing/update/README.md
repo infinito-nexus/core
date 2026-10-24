@@ -6,6 +6,17 @@ Repository-side version maintenance: scan role configuration files for declared 
 
 Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addon check skip a role whose [lifecycle](../../../docs/contributing/design/role/services/lifecycle.md) is `eol`: no update PR is opened for it and no external test warns about its pins.
 
+## Repository refs
+
+`python -m cli.contributing.update.repository` bumps every `ref:` that sits next to a `repository:` in `roles/*/meta/services.yml` or `roles/*/meta/addons/*.yml`, at any depth, an addon's `config` included:
+
+| `ref:`                 | Moves to                                    | Reads                               |
+| ---------------------- | ------------------------------------------- | ----------------------------------- |
+| semver, e.g. `v0.8.5`  | the latest tag of the same depth and flavor | `git ls-remote --tags <repository>` |
+| full 40-hex commit SHA | the tip of the default branch               | `git ls-remote <repository> HEAD`   |
+
+A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps.
+
 ## Declared version sources
 
 A pin the Docker updater (`image` + `version`) and the repository updater
