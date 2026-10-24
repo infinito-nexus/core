@@ -48,13 +48,13 @@ if ! container exec -i "$KC_CONTAINER" "$KCADM" get components -r "$KC_REALM" \
   exit 1
 fi
 
-# shellcheck disable=SC2329  # invoked indirectly through reconcile_steps
+# shellcheck disable=SC2329,SC2317  # invoked indirectly through reconcile_steps
 kcw() {
   container exec -i "$KC_CONTAINER" "$KCADM" "$@" --config "$cfg"
 }
 
 # Args: app_id, mapper_name, base64 mapper JSON. Sets failed_step on failure.
-# shellcheck disable=SC2329  # invoked indirectly through reconcile_app
+# shellcheck disable=SC2329,SC2317  # invoked indirectly through reconcile_app
 reconcile_steps() {
   local app="$1" mapper_name="$2" payload_b64="$3"
   local payload="$work/$1.json" group_id mapper_id stale_id attempt=1
@@ -106,7 +106,7 @@ reconcile_steps() {
 }
 
 # Args: app_id, mapper_name, base64 mapper JSON. Leaves `<app_id>.done` or `<app_id>.failed` in $work.
-# shellcheck disable=SC2329  # invoked indirectly through xargs + bash -c
+# shellcheck disable=SC2329,SC2317  # invoked indirectly through xargs + bash -c
 reconcile_app() {
   local app="$1" cfg="/tmp/kcadm-$1-$$.config" failed_step=""
   # shellcheck disable=SC2016  # $HOME and $1 expand in the container shell
