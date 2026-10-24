@@ -10,7 +10,14 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.networks.reachability import TOR, network_of, tor_serves_host
+from utils.networks.reachability import (
+    CLEARNET,
+    NODE_MODES,
+    TOR,
+    network_of,
+    resolve_node_mode,
+    tor_serves_host,
+)
 from utils.roles.entity.name import entity_name
 
 
@@ -133,9 +140,11 @@ class LookupModule(LookupBase):
          is an onion host or has an onion sibling this node serves, which
          the redirect template sends the apex to; a homepage without one
          gets no onion apex entry, so an onion vhost never redirects to
-         clearnet. Both entries require ``web-opt-rdr-domains`` in
-         ``lookup('deployment').deployed`` so isolated CI variants do not
-         schedule a redirect whose target is not served.
+         clearnet. On an onion node the onion-apex entry requires
+         ``web-opt-rdr-domains`` in ``lookup('deployment').deployed`` so
+         isolated CI variants do not schedule a redirect whose target is not
+         served; the clearnet entry needs it only when the node's
+         ``NETWORK_MODE`` does not serve clearnet.
       3. per-app alias-to-canonical mappings from
          ``lookup('applications_current_play')``, gated by ``AUTO_BUILD_ALIASES``.
 
@@ -167,6 +176,22 @@ class LookupModule(LookupBase):
         tor = services.get("tor") if isinstance(services, Mapping) else None
         node = tor.get("node") if isinstance(tor, Mapping) else None
         return self._resolve_str(node).strip()
+
+    def _serves_clearnet(self, vars_: Mapping[str, Any]) -> bool:
+        """Whether the node's resolved ``NETWORK_MODE`` includes clearnet.
+
+        Args:
+            vars_: host variables carrying ``NETWORK_MODE``, ``group_names``
+                and ``groups``.
+        """
+        try:
+            mode = resolve_node_mode(
+                self._resolve_str(vars_.get("NETWORK_MODE")),
+                tor_provided=tor_serves_host(vars_),
+            )
+        except ValueError as exc:
+            raise AnsibleError(f"current_play_redirect_domains: {exc}") from exc
+        return CLEARNET in NODE_MODES[mode]
 
     def _reachable_on_onion(self, domain: str, vars_: Mapping[str, Any]) -> bool:
         """Whether ``domain`` is an onion host or has an onion sibling this
@@ -239,21 +264,23 @@ class LookupModule(LookupBase):
                     else []
                 )
                 allowed = "web-opt-rdr-domains" in deployed
-            if allowed:
-                primary_redirects = []
-                if domain_primary != domain_homepage:
-                    primary_redirects.append(
-                        {"source": domain_primary, "target": domain_homepage}
-                    )
-                if (
-                    node_onion
-                    and node_onion != domain_homepage
-                    and self._reachable_on_onion(domain_homepage, vars_)
-                ):
-                    primary_redirects.append(
-                        {"source": node_onion, "target": domain_homepage}
-                    )
-                merged = merge_mapping(merged, primary_redirects, "source")
+            primary_redirects = []
+            if domain_primary != domain_homepage and (
+                allowed or self._serves_clearnet(vars_)
+            ):
+                primary_redirects.append(
+                    {"source": domain_primary, "target": domain_homepage}
+                )
+            if (
+                allowed
+                and node_onion
+                and node_onion != domain_homepage
+                and self._reachable_on_onion(domain_homepage, vars_)
+            ):
+                primary_redirects.append(
+                    {"source": node_onion, "target": domain_homepage}
+                )
+            merged = merge_mapping(merged, primary_redirects, "source")
 
         current_play_apps = self._run_lookup("applications_current_play", vars_)
         if isinstance(current_play_apps, Mapping):
