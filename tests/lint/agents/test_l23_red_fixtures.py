@@ -7,10 +7,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.cache.yaml import dump_yaml_str, load_yaml_any
 
 CRITERIA = PROJECT_ROOT / "agents" / "criteria.yml"
 RED_MARKERS = ("def test_red_fixture_fails", "red fixture", "red_fixture")
@@ -18,11 +17,18 @@ RED_MARKERS = ("def test_red_fixture_fails", "red fixture", "red_fixture")
 
 def check(criteria_file: Path, root: Path) -> list[str]:
     problems: list[str] = []
-    data = yaml.safe_load(read_text(str(criteria_file))) if criteria_file.is_file() else None
+    data = (
+        load_yaml_any(str(criteria_file), default_if_missing={})
+        if criteria_file.is_file()
+        else None
+    )
     if not isinstance(data, dict):
         return ["criteria.yml missing or not a mapping"]
     for cid, entry in data.items():
-        if not isinstance(entry, dict) or entry.get("proof_kind") not in ("lint", "unit"):
+        if not isinstance(entry, dict) or entry.get("proof_kind") not in (
+            "lint",
+            "unit",
+        ):
             continue
         proof = root / str(entry.get("proof"))
         if not proof.is_file():
@@ -42,10 +48,20 @@ class TestL23(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "tests").mkdir()
-            (root / "tests" / "no_red.py").write_text("def test_real_only(): pass\n", encoding="utf-8")
+            (root / "tests" / "no_red.py").write_text(
+                "def test_real_only(): pass\n", encoding="utf-8"
+            )
             crit = root / "criteria.yml"
             crit.write_text(
-                yaml.safe_dump({"X": {"statement": "x", "proof_kind": "lint", "proof": "tests/no_red.py"}}),
+                dump_yaml_str(
+                    {
+                        "X": {
+                            "statement": "x",
+                            "proof_kind": "lint",
+                            "proof": "tests/no_red.py",
+                        }
+                    }
+                ),
                 encoding="utf-8",
             )
             self.assertNotEqual(check(crit, root), [])

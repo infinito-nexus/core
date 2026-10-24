@@ -1,6 +1,6 @@
 """Parse one agent-firewall rule.
 
-A rule is ``Kind(target):actions`` in the syntax requirement 041 fixes:
+A rule is ``Kind(target):actions``:
 
 - ``Kind`` is one of channel, app, mcp, account, egress.
 - ``target`` is ``name`` or ``name/resource``; it may hold ``${VAR}``
@@ -21,7 +21,9 @@ from dataclasses import dataclass
 KINDS = ("channel", "app", "mcp", "account", "egress")
 ACTIONS = ("create", "read", "update", "delete")
 BUILTIN_PROVIDERS = ("github", "gitea", "gitlab")
-_RULE = re.compile(r"^(?P<kind>[a-z]+)\((?P<target>[^()]+)\)(?::(?P<actions>[a-z+]+))?$")
+_RULE = re.compile(
+    r"^(?P<kind>[a-z]+)\((?P<target>[^()]+)\)(?::(?P<actions>[a-z+]+))?$"
+)
 _TARGET = re.compile(r"^(?:\$\{[A-Z][A-Z0-9_]*\}|[A-Za-z0-9_.*/:-])+$")
 _VAR = re.compile(r"\$\{([A-Z][A-Z0-9_]*)\}")
 
@@ -70,17 +72,60 @@ def parse_rule(raw: str) -> Rule:
     return Rule(kind=kind, target=match["target"], actions=actions, raw=raw.strip())
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
-    assert parse_rule("egress(github.com)").kind == "egress"
-    assert parse_rule("egress(api.github.com):none").actions == frozenset()
-    assert parse_rule("account(github/maintainer):read").target == "github/maintainer"
-    assert parse_rule("app(web-app-openproject/work_packages):crud").actions == frozenset(ACTIONS)
-    assert parse_rule("channel(web-app-matrix/team):create+read").actions == {"create", "read"}
-    assert parse_rule("egress(${INFINITO_MATRIX_HOST})").variables == {"INFINITO_MATRIX_HOST"}
-    assert parse_rule("egress(*.${INFINITO_PRIMARY_DOMAIN})").variables == {"INFINITO_PRIMARY_DOMAIN"}
-    hostport = parse_rule("egress(${INFINITO_BIND_IP}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT})")
-    assert hostport.variables == {"INFINITO_BIND_IP", "INFINITO_TOOLS_LIBRETRANSLATE_PORT"}, hostport
-    for bad in ("app():read", "wizard(x):read", "app(x):fly", "egress(h):read", "app(x y):read"):
+    _expect(parse_rule("egress(github.com)").kind == "egress", "egress kind not parsed")
+    _expect(
+        parse_rule("egress(api.github.com):none").actions == frozenset(),
+        "none actions not empty",
+    )
+    _expect(
+        parse_rule("account(github/maintainer):read").target == "github/maintainer",
+        "target not parsed",
+    )
+    _expect(
+        parse_rule("app(web-app-openproject/work_packages):crud").actions
+        == frozenset(ACTIONS),
+        "crud not expanded",
+    )
+    _expect(
+        parse_rule("channel(web-app-matrix/team):create+read").actions
+        == {"create", "read"},
+        "action subset not parsed",
+    )
+    _expect(
+        parse_rule("egress(${INFINITO_MATRIX_HOST})").variables
+        == {
+            "INFINITO_MATRIX_HOST"  # nocheck: firewall-rule example in the parser self-check, not a consumed env key
+        },
+        "variable not extracted",
+    )
+    _expect(
+        parse_rule("egress(*.${INFINITO_PRIMARY_DOMAIN})").variables
+        == {
+            "INFINITO_PRIMARY_DOMAIN"  # nocheck: firewall-rule example in the parser self-check, not a consumed env key
+        },
+        "wildcard variable not extracted",
+    )
+    hostport = parse_rule(
+        "egress(${INFINITO_BIND_IP}:${INFINITO_TOOLS_LIBRETRANSLATE_PORT})"
+    )
+    _expect(
+        hostport.variables
+        == {"INFINITO_BIND_IP", "INFINITO_TOOLS_LIBRETRANSLATE_PORT"},
+        hostport,
+    )
+    for bad in (
+        "app():read",
+        "wizard(x):read",
+        "app(x):fly",
+        "egress(h):read",
+        "app(x y):read",
+    ):
         try:
             parse_rule(bad)
         except ValueError:

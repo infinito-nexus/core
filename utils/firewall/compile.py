@@ -60,7 +60,9 @@ def _segment_regex(segment: str) -> str:
 def _matches(rule: Rule, kind: str, target: str, action: str | None) -> bool:
     if rule.kind != kind:
         return False
-    pattern = "^" + "/".join(_segment_regex(seg) for seg in rule.target.split("/")) + "$"
+    pattern = (
+        "^" + "/".join(_segment_regex(seg) for seg in rule.target.split("/")) + "$"
+    )
     if not re.match(pattern, target):
         return False
     if kind == "egress" or action is None:
@@ -68,13 +70,17 @@ def _matches(rule: Rule, kind: str, target: str, action: str | None) -> bool:
     return action in rule.actions
 
 
-def decide(resolved: Resolved, kind: str, target: str, action: str | None = None) -> str:
+def decide(
+    resolved: Resolved, kind: str, target: str, action: str | None = None
+) -> str:
     """Return ``deny``, ``ask`` or ``allow`` for a request.
 
     Deny beats ask beats allow; a request that matches no rule is denied.
     """
     for verdict in VERDICTS:
-        if any(_matches(rule, kind, target, action) for rule in resolved.bucket(verdict)):
+        if any(
+            _matches(rule, kind, target, action) for rule in resolved.bucket(verdict)
+        ):
             return verdict
     return "deny"
 
@@ -83,9 +89,7 @@ def egress_allowlist(resolved: Resolved) -> list[str]:
     """Return the hosts the role may reach: every allowed egress target that is
     not also denied."""
     denied = {r.target for r in resolved.deny if r.kind == "egress"}
-    return sorted(
-        {r.target for r in resolved.allow if r.kind == "egress"} - denied
-    )
+    return sorted({r.target for r in resolved.allow if r.kind == "egress"} - denied)
 
 
 def mcp_policy(resolved: Resolved) -> dict[str, list[str]]:
@@ -130,9 +134,17 @@ def matrix_rooms(resolved: Resolved) -> list[dict]:
     return sorted(rooms, key=lambda entry: entry["room"])
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
     roles = {
-        "workspace": {"allow": ["app(workspace/worktree):crud"], "deny": ["app(docker/exec):crud"]},
+        "workspace": {
+            "allow": ["app(workspace/worktree):crud"],
+            "deny": ["app(docker/exec):crud"],
+        },
         "forge-reader": {"allow": ["egress(github.com)", "app(github/runs):read"]},
         "autonomous-contributor": {
             "includes": ["workspace", "forge-reader"],
@@ -143,23 +155,48 @@ def _demo() -> None:
         "maintainer": {"includes": ["autonomous-contributor"]},
     }
     r = resolve(roles, "maintainer")
-    assert decide(r, "egress", "github.com") == "allow", "inherited egress not allowed"
-    assert decide(r, "app", "github/runs", "read") == "allow"
-    assert decide(r, "app", "fork/push", "create") == "allow"
-    assert decide(r, "app", "fork/force-push", "create") == "ask", "force-push not ask"
-    assert decide(r, "app", "upstream/push", "create") == "deny", "upstream push not denied"
-    assert decide(r, "app", "repo/protected-paths", "update") == "deny"
-    assert decide(r, "app", "docker/exec", "create") == "deny", "docker exec not denied"
-    assert decide(r, "egress", "evil.example") == "deny", "unmatched egress not denied"
-    assert decide(r, "app", "github/runs", "delete") == "deny", "unlisted action not denied"
-    assert egress_allowlist(r) == ["github.com"], egress_allowlist(r)
+    _expect(
+        decide(r, "egress", "github.com") == "allow", "inherited egress not allowed"
+    )
+    _expect(
+        decide(r, "app", "github/runs", "read") == "allow",
+        "github/runs read not allowed",
+    )
+    _expect(
+        decide(r, "app", "fork/push", "create") == "allow",
+        "fork/push create not allowed",
+    )
+    _expect(
+        decide(r, "app", "fork/force-push", "create") == "ask", "force-push not ask"
+    )
+    _expect(
+        decide(r, "app", "upstream/push", "create") == "deny",
+        "upstream push not denied",
+    )
+    _expect(
+        decide(r, "app", "repo/protected-paths", "update") == "deny",
+        "protected-paths update not denied",
+    )
+    _expect(
+        decide(r, "app", "docker/exec", "create") == "deny", "docker exec not denied"
+    )
+    _expect(
+        decide(r, "egress", "evil.example") == "deny", "unmatched egress not denied"
+    )
+    _expect(
+        decide(r, "app", "github/runs", "delete") == "deny",
+        "unlisted action not denied",
+    )
+    _expect(egress_allowlist(r) == ["github.com"], egress_allowlist(r))
 
     wild = {"r": {"allow": ["egress(*.example.com)", "egress(api.*)"]}}
     w = resolve(wild, "r")
-    assert decide(w, "egress", "api.example.com") == "allow", "embedded * subdomain missed"
-    assert decide(w, "egress", "example.com") == "deny", "bare apex wrongly allowed"
-    assert decide(w, "egress", "api.internal") == "allow", "trailing * missed"
-    assert decide(w, "egress", "evil.org") == "deny", "unrelated host allowed"
+    _expect(
+        decide(w, "egress", "api.example.com") == "allow", "embedded * subdomain missed"
+    )
+    _expect(decide(w, "egress", "example.com") == "deny", "bare apex wrongly allowed")
+    _expect(decide(w, "egress", "api.internal") == "allow", "trailing * missed")
+    _expect(decide(w, "egress", "evil.org") == "deny", "unrelated host allowed")
 
     surfaces = {
         "planner": {
@@ -173,11 +210,20 @@ def _demo() -> None:
         }
     }
     p = resolve(surfaces, "planner")
-    assert mcp_policy(p)["allow"] == ["openproject/work_packages"], mcp_policy(p)
-    assert mcp_policy(p)["deny"] == ["shell/run"], "deny precedence not applied to mcp"
-    assert ldap_groups(p) == ["web-app-openproject"], ldap_groups(p)
-    assert matrix_rooms(p) == [{"room": "web-app-matrix/team", "power": "moderator"}], matrix_rooms(p)
-    assert "channel(web-app-matrix/secret):read" in managed_settings(p)["permissions"]["deny"]
+    _expect(mcp_policy(p)["allow"] == ["openproject/work_packages"], mcp_policy(p))
+    _expect(
+        mcp_policy(p)["deny"] == ["shell/run"], "deny precedence not applied to mcp"
+    )
+    _expect(ldap_groups(p) == ["web-app-openproject"], ldap_groups(p))
+    _expect(
+        matrix_rooms(p) == [{"room": "web-app-matrix/team", "power": "moderator"}],
+        matrix_rooms(p),
+    )
+    _expect(
+        "channel(web-app-matrix/secret):read"
+        in managed_settings(p)["permissions"]["deny"],
+        "denied channel missing from managed settings",
+    )
     print("firewall compile self-check ok")
 
 

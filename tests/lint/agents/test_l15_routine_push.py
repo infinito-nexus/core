@@ -20,10 +20,12 @@ def check(routines_dir: Path) -> list[str]:
     problems: list[str] = []
     if not routines_dir.is_dir():
         return problems
-    for path in sorted(routines_dir.rglob("*.py")):
-        for label in STEP_LABEL.findall(read_text(str(path))):
-            if "push" in label.lower() and not any(rem in label for rem in REMOTES):
-                problems.append(f"{path.name}: push step names no remote: {label!r}")
+    for path in sorted(routines_dir.rglob("*.py")):  # nocheck: project-walk
+        problems.extend(
+            f"{path.name}: push step names no remote: {label!r}"
+            for label in STEP_LABEL.findall(read_text(str(path)))
+            if "push" in label.lower() and not any(rem in label for rem in REMOTES)
+        )
     return problems
 
 

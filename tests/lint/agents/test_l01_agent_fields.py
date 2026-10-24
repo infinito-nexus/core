@@ -17,29 +17,31 @@ from tests.lint.agents import (
     role_names,
 )
 
-KNOWN_TRIGGERS = frozenset({
-    "alarm",
-    "board_assignment",
-    "branch_divergence",
-    "channel_message",
-    "ci_queue_change",
-    "cve_feed",
-    "default_branch_green",
-    "dependency_manifest_changed",
-    "deploy_finished",
-    "issue_opened",
-    "new_dependency",
-    "pull_request_merged",
-    "pull_request_opened",
-    "pull_request_ready",
-    "pull_request_updated",
-    "security_alert",
-    "spec_changed",
-    "support_email",
-    "support_room_message",
-    "workflow_run_failed",
-    "zammad_ticket",
-})
+KNOWN_TRIGGERS = frozenset(
+    {
+        "alarm",
+        "board_assignment",
+        "branch_divergence",
+        "channel_message",
+        "ci_queue_change",
+        "cve_feed",
+        "default_branch_green",
+        "dependency_manifest_changed",
+        "deploy_finished",
+        "issue_opened",
+        "new_dependency",
+        "pull_request_merged",
+        "pull_request_opened",
+        "pull_request_ready",
+        "pull_request_updated",
+        "security_alert",
+        "spec_changed",
+        "support_email",
+        "support_room_message",
+        "workflow_run_failed",
+        "zammad_ticket",
+    }
+)
 
 MINIMAL = """---
 runtime: hermes
@@ -64,9 +66,11 @@ def check(roles_dir: Path) -> list[str]:
         if not isinstance(agent, dict):
             problems.append(f"{role}: agent.yml missing or not a mapping")
             continue
-        for field in REQUIRED_AGENT_FIELDS:
-            if field not in agent:
-                problems.append(f"{role}: agent.yml missing field '{field}'")
+        problems.extend(
+            f"{role}: agent.yml missing field '{field}'"
+            for field in REQUIRED_AGENT_FIELDS
+            if field not in agent
+        )
         if agent.get("runtime") not in RUNTIMES:
             problems.append(f"{role}: runtime '{agent.get('runtime')}' unknown")
         if agent.get("lifecycle") not in LIFECYCLES:
@@ -81,9 +85,11 @@ def check(roles_dir: Path) -> list[str]:
         if not isinstance(triggers, list):
             problems.append(f"{role}: triggers must be a list")
         else:
-            for trigger in triggers:
-                if trigger not in KNOWN_TRIGGERS:
-                    problems.append(f"{role}: trigger '{trigger}' is not a known event")
+            problems.extend(
+                f"{role}: trigger '{trigger}' is not a known event"
+                for trigger in triggers
+                if trigger not in KNOWN_TRIGGERS
+            )
     return problems
 
 

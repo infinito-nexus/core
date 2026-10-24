@@ -35,15 +35,23 @@ def fits(
     return agents_reservation(max_running, runtime_reservations) + infrastructure <= cap
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
-    gib = 1024 ** 3
+    gib = 1024**3
     runtimes = {"hermes": 4 * gib, "openclaw": 6 * gib, "claude-code": 2 * gib}
-    assert agents_reservation(3, runtimes) == 18 * gib, "did not use the largest reservation"
-    assert agents_reservation(0, runtimes) == 0
-    assert agents_reservation(2, {}) == 0
-    assert fits(3, runtimes, 10 * gib, 32 * gib), "28 GiB should fit 32"
-    assert not fits(3, runtimes, 20 * gib, 32 * gib), "38 GiB must not fit 32"
-    assert fits(2, runtimes, 18 * gib, 32 * gib), "12+18 = 30 should fit"
+    _expect(
+        agents_reservation(3, runtimes) == 18 * gib,
+        "did not use the largest reservation",
+    )
+    _expect(agents_reservation(0, runtimes) == 0, "zero max_running reserves nothing")
+    _expect(agents_reservation(2, {}) == 0, "no runtimes reserves nothing")
+    _expect(fits(3, runtimes, 10 * gib, 32 * gib), "28 GiB should fit 32")
+    _expect(not fits(3, runtimes, 20 * gib, 32 * gib), "38 GiB must not fit 32")
+    _expect(fits(2, runtimes, 18 * gib, 32 * gib), "12+18 = 30 should fit")
     print("budget fit self-check ok")
 
 

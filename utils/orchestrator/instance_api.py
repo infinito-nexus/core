@@ -45,16 +45,21 @@ def lease_active(granted_at: float, ttl_seconds: float, now: float) -> bool:
     return now < granted_at + ttl_seconds
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
     reg = Registry()
-    assert reg.register("dev-laptop", "keyA") == REGISTERED
-    assert reg.register("dev-laptop", "keyA") == RENEWED, "same key not renewed"
-    assert reg.register("dev-laptop", "keyB") == REFUSED, "name theft allowed"
-    assert reg.key_of("dev-laptop") == "keyA", "key changed after refusal"
-    assert reg.register("other", "keyB") == REGISTERED
-    assert lease_active(1000.0, 3600.0, 1000.0)
-    assert lease_active(1000.0, 3600.0, 4599.0)
-    assert not lease_active(1000.0, 3600.0, 4600.0), "expired lease still active"
+    _expect(reg.register("dev-laptop", "keyA") == REGISTERED, "new name not registered")
+    _expect(reg.register("dev-laptop", "keyA") == RENEWED, "same key not renewed")
+    _expect(reg.register("dev-laptop", "keyB") == REFUSED, "name theft allowed")
+    _expect(reg.key_of("dev-laptop") == "keyA", "key changed after refusal")
+    _expect(reg.register("other", "keyB") == REGISTERED, "distinct name not registered")
+    _expect(lease_active(1000.0, 3600.0, 1000.0), "fresh lease not active")
+    _expect(lease_active(1000.0, 3600.0, 4599.0), "lease expired early")
+    _expect(not lease_active(1000.0, 3600.0, 4600.0), "expired lease still active")
     print("instance-api self-check ok")
 
 

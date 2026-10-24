@@ -24,7 +24,7 @@ def check(dirs) -> list[str]:
     for base in dirs:
         if not base.is_dir():
             continue
-        for path in sorted(base.rglob("*.py")):
+        for path in sorted(base.rglob("*.py")):  # nocheck: project-walk
             for number, line in enumerate(read_text(str(path)).splitlines(), 1):
                 if RUNTIME_NAME.search(line):
                     problems.append(f"{path.name}:{number}: hardcoded runtime name")

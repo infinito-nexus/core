@@ -14,9 +14,9 @@ tree, one runtime contract, one firewall.
   frontmatter `routines`. A skill without routines is a pure rule skill.
 - `routines/` a Python package, one LangGraph graph per routine. Deterministic
   steps call the repository's own logic in `cli/` and `utils/`.
-- `firewall/` RBAC roles with `allow`, `ask` and `deny` rules, plus declared
-  account providers under `firewall/providers/`.
-- `scenarios/` one verification scenario per acceptance criterion.
+- [firewall/](firewall/README.md) RBAC roles with `allow`, `ask` and `deny` rules, plus declared
+  account providers under [firewall/providers/](firewall/providers/README.md).
+- [scenarios/](scenarios/README.md) one verification scenario per acceptance criterion.
 
 ## Model
 

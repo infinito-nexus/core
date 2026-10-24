@@ -7,8 +7,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import AGENTS_DIR, ROLES_DIR, load, role_names
 
 BASELINE = (
@@ -38,20 +36,28 @@ def check(agents_dir: Path) -> list[str]:
     problems: list[str] = []
     firewall = load(agents_dir / "firewall" / "roles.yml") or {}
     defined = set(firewall)
-    for role in BASELINE:
-        if role not in defined:
-            problems.append(f"baseline firewall role '{role}' missing from roles.yml")
+    problems.extend(
+        f"baseline firewall role '{role}' missing from roles.yml"
+        for role in BASELINE
+        if role not in defined
+    )
     for name, body in firewall.items():
-        for included in (body or {}).get("includes") or []:
-            if included not in defined:
-                problems.append(f"{name}: includes '{included}' which is not defined")
+        problems.extend(
+            f"{name}: includes '{included}' which is not defined"
+            for included in (body or {}).get("includes") or []
+            if included not in defined
+        )
     for role in role_names(agents_dir / "roles"):
-        bound = (load(agents_dir / "roles" / role / "agent.yml") or {}).get("firewall_roles") or []
+        bound = (load(agents_dir / "roles" / role / "agent.yml") or {}).get(
+            "firewall_roles"
+        ) or []
         if not bound:
             problems.append(f"{role}: binds no firewall role")
-        for fw_role in bound:
-            if fw_role not in defined:
-                problems.append(f"{role}: firewall role '{fw_role}' not defined")
+        problems.extend(
+            f"{role}: firewall role '{fw_role}' not defined"
+            for fw_role in bound
+            if fw_role not in defined
+        )
     return problems
 
 
@@ -63,7 +69,9 @@ class TestL09(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             agents = Path(tmp)
             (agents / "firewall").mkdir(parents=True)
-            (agents / "firewall" / "roles.yml").write_text("workspace: {}\n", encoding="utf-8")
+            (agents / "firewall" / "roles.yml").write_text(
+                "workspace: {}\n", encoding="utf-8"
+            )
             (agents / "roles" / "ghost").mkdir(parents=True)
             (agents / "roles" / "ghost" / "agent.yml").write_text(
                 "firewall_roles: [nonexistent]\n", encoding="utf-8"

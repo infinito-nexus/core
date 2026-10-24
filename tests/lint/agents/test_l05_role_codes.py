@@ -42,9 +42,7 @@ class TestL05(unittest.TestCase):
             agents = Path(tmp)
             (agents / "roles" / "alpha").mkdir(parents=True)
             (agents / "roles" / "beta").mkdir(parents=True)
-            (agents / "codes.yml").write_text(
-                "alpha: xx\nbeta: xx\n", encoding="utf-8"
-            )
+            (agents / "codes.yml").write_text("alpha: xx\nbeta: xx\n", encoding="utf-8")
             self.assertNotEqual(check(agents), [])
 
     def test_real_roles_dir_exists(self):

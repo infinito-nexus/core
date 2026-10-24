@@ -8,19 +8,29 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import PROJECT_ROOT
-from utils.cache.files import read_text
+from utils.cache.yaml import dump_yaml_str, load_yaml_any
 
 CRITERIA = PROJECT_ROOT / "agents" / "criteria.yml"
 KINDS = ("lint", "unit", "scenario")
-SCENARIO_WORDS = ("probe", "refus", "refuse", "time bound", "restart", "locks no", "waits for")
+SCENARIO_WORDS = (
+    "probe",
+    "refus",
+    "refuse",
+    "time bound",
+    "restart",
+    "locks no",
+    "waits for",
+)
 
 
 def check(criteria_file: Path, root: Path) -> list[str]:
     problems: list[str] = []
-    data = yaml.safe_load(read_text(str(criteria_file))) if criteria_file.is_file() else None
+    data = (
+        load_yaml_any(str(criteria_file), default_if_missing={})
+        if criteria_file.is_file()
+        else None
+    )
     if not isinstance(data, dict):
         return ["criteria.yml missing or not a mapping"]
     for cid, entry in data.items():
@@ -37,8 +47,14 @@ def check(criteria_file: Path, root: Path) -> list[str]:
         if not proof or not (root / proof).exists():
             problems.append(f"{cid}: proof '{proof}' does not exist")
         if kind != "scenario" and any(w in statement.lower() for w in SCENARIO_WORDS):
-            problems.append(f"{cid}: asks for a probe/refusal/time/restart but is not a scenario")
-        if kind == "scenario" and proof and not str(proof).startswith("agents/scenarios/"):
+            problems.append(
+                f"{cid}: asks for a probe/refusal/time/restart but is not a scenario"
+            )
+        if (
+            kind == "scenario"
+            and proof
+            and not str(proof).startswith("agents/scenarios/")
+        ):
             problems.append(f"{cid}: scenario proof must live under agents/scenarios/")
     return problems
 
@@ -51,8 +67,14 @@ class TestL22(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             crit = Path(tmp) / "criteria.yml"
             crit.write_text(
-                yaml.safe_dump(
-                    {"X": {"statement": "the firewall refuses the request (probe)", "proof_kind": "lint", "proof": "nope.py"}}
+                dump_yaml_str(
+                    {
+                        "X": {
+                            "statement": "the firewall refuses the request (probe)",
+                            "proof_kind": "lint",
+                            "proof": "nope.py",
+                        }
+                    }
                 ),
                 encoding="utf-8",
             )

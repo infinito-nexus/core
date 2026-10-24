@@ -6,11 +6,12 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils import PROJECT_ROOT
+
 # nocheck: lookup-cache-import (this lookup IS the agent-config SPOT accessor)
 from utils.cache.yaml import load_yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-ROLES_DIR = REPO_ROOT / "agents" / "roles"
+ROLES_DIR = PROJECT_ROOT / "agents" / "roles"
 
 
 def _merge(base: Any, override: Any) -> Any:
@@ -42,7 +43,9 @@ def _config_of(role: str, roles_dir: Path, override: dict) -> dict:
     role_dir = roles_dir / role
     agent_file = role_dir / "agent.yml"
     if not agent_file.is_file():
-        raise AnsibleError(f"lookup('agent_config', ...): no role '{role}' in {roles_dir}")
+        raise AnsibleError(
+            f"lookup('agent_config', ...): no role '{role}' in {roles_dir}"
+        )
     config = dict(load_yaml(agent_file) or {})
     cron_file = role_dir / "cron.yml"
     config["cron"] = load_yaml(cron_file) or [] if cron_file.is_file() else []

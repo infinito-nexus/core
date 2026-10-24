@@ -44,7 +44,11 @@ def agent_account_name(code: str, suffix: str) -> str:
 def is_agent_name(name: str) -> bool:
     """Return whether ``name`` is a valid agent account name: exactly one ``0``,
     at the separator, and within the length bound."""
-    return bool(_AGENT.match(name)) and name.count("0") == 1 and len(name) <= IAM_ACCOUNT_MAX_LENGTH
+    return (
+        bool(_AGENT.match(name))
+        and name.count("0") == 1
+        and len(name) <= IAM_ACCOUNT_MAX_LENGTH
+    )
 
 
 def is_human_name(name: str) -> bool:
@@ -53,18 +57,23 @@ def is_human_name(name: str) -> bool:
     return bool(_HUMAN.match(name))
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
-    assert agent_account_name("mant", "alice") == "mant0alice"
-    assert is_agent_name("mant0alice")
-    assert is_agent_name("cnsl0a1b2c3")
-    assert not is_agent_name("mant0al0ce"), "two zeros accepted"
-    assert not is_agent_name("mant1alice"), "missing separator accepted"
-    assert not is_agent_name("man0alice"), "three-char code accepted"
-    assert not is_agent_name("mant0" + "x" * 16), "overflow accepted"
-    assert is_human_name("alice")
-    assert not is_human_name("al"), "two-char human accepted"
-    assert not is_human_name("al0ce"), "human with 0 accepted"
-    assert not is_human_name("alice-bot"), "hyphen accepted"
+    _expect(agent_account_name("mant", "alice") == "mant0alice", "agent name not built")
+    _expect(is_agent_name("mant0alice"), "valid agent name rejected")
+    _expect(is_agent_name("cnsl0a1b2c3"), "valid agent name rejected")
+    _expect(not is_agent_name("mant0al0ce"), "two zeros accepted")
+    _expect(not is_agent_name("mant1alice"), "missing separator accepted")
+    _expect(not is_agent_name("man0alice"), "three-char code accepted")
+    _expect(not is_agent_name("mant0" + "x" * 16), "overflow accepted")
+    _expect(is_human_name("alice"), "valid human name rejected")
+    _expect(not is_human_name("al"), "two-char human accepted")
+    _expect(not is_human_name("al0ce"), "human with 0 accepted")
+    _expect(not is_human_name("alice-bot"), "hyphen accepted")
     for bad_code, suffix in [("mnt", "x"), ("mant", ""), ("ma0t", "x")]:
         try:
             agent_account_name(bad_code, suffix)

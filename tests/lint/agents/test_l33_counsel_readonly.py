@@ -8,10 +8,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import AGENTS_DIR, load
 from utils.cache.files import read_text
+from utils.cache.yaml import dump_yaml_str
 from utils.firewall.compile import decide, resolve
 
 ROLES = AGENTS_DIR / "roles"
@@ -33,7 +32,9 @@ def check(agents_dir: Path) -> list[str]:
     resolved = resolve(roles, "counsel")
     for kind, target, action in WRITE_PROBES:
         if decide(resolved, kind, target, action) == "allow":
-            problems.append(f"counsel firewall allows a write: {kind}({target}):{action}")
+            problems.append(
+                f"counsel firewall allows a write: {kind}({target}):{action}"
+            )
     advocate = agents_dir / "skills" / "i8-advocate" / "SKILL.md"
     if not advocate.is_file():
         problems.append("agents/skills/i8-advocate missing")
@@ -55,7 +56,7 @@ class TestL33(unittest.TestCase):
             )
             (agents / "firewall").mkdir()
             (agents / "firewall" / "roles.yml").write_text(
-                yaml.safe_dump({"counsel": {"allow": ["app(fork/push):create"]}}),
+                dump_yaml_str({"counsel": {"allow": ["app(fork/push):create"]}}),
                 encoding="utf-8",
             )
             (agents / "skills").mkdir()

@@ -19,7 +19,7 @@ def check(routines_dir: Path) -> list[str]:
     problems: list[str] = []
     if not routines_dir.is_dir():
         return problems
-    for path in sorted(routines_dir.rglob("*.py")):
+    for path in sorted(routines_dir.rglob("*.py")):  # nocheck: project-walk
         text = read_text(str(path))
         if UPWARD.search(text):
             problems.append(f"{path.name}: a routine imports a skill or a role")

@@ -21,11 +21,13 @@ def _has_pua(text: str) -> bool:
 
 def check(root: Path) -> list[str]:
     problems: list[str] = []
-    for path in sorted(root.rglob("*")):
+    for path in sorted(root.rglob("*")):  # nocheck: project-walk
         if not path.is_file() or path.suffix not in (".py", ".md", ".yml"):
             continue
         if _has_pua(read_text(str(path))):
-            problems.append(f"{path.relative_to(root)}: private-use or surrogate character")
+            problems.append(
+                f"{path.relative_to(root)}: private-use or surrogate character"
+            )
     return problems
 
 

@@ -1,4 +1,4 @@
-"""Lint catalogue for the agents/ tree (requirement 041, L01 to L33).
+"""Lint catalogue for the agents/ tree: the L-numbered static checks.
 
 Each lint is a pure ``check(agents_dir)`` that returns a list of problem
 strings, plus a unittest TestCase proving the real tree passes and a
@@ -11,9 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_DIR = PROJECT_ROOT / "agents"
@@ -50,4 +48,4 @@ def load(path: Path):
     """Return the parsed single YAML document at ``path`` (``None`` if absent)."""
     if not path.is_file():
         return None
-    return yaml.safe_load(read_text(str(path)))
+    return load_yaml_any(str(path), default_if_missing={})

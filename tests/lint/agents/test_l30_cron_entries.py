@@ -9,9 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import ROLES_DIR, load, role_names
+from utils.cache.yaml import dump_yaml_str
 
 ACTIONS = {"start", "pause"}
 KNOWN_CONDITIONS = {"host-load-below-30", "host-load-above-95"}
@@ -31,7 +30,7 @@ def check(roles_dir: Path) -> list[str]:
         from agents.routines import discover
 
         routines = set(discover())
-    except Exception:  # noqa: BLE001 - absent package is itself a problem to report
+    except Exception:
         routines = set()
     for role in role_names(roles_dir):
         entries = load(roles_dir / role / "cron.yml") or []
@@ -44,9 +43,13 @@ def check(roles_dir: Path) -> list[str]:
             if not _valid_schedule(entry.get("schedule")):
                 problems.append(f"{role}: bad schedule '{entry.get('schedule')}'")
             if routines and entry.get("routine") not in routines:
-                problems.append(f"{role}: routine '{entry.get('routine')}' does not exist")
+                problems.append(
+                    f"{role}: routine '{entry.get('routine')}' does not exist"
+                )
             if entry.get("action") not in ACTIONS:
-                problems.append(f"{role}: action '{entry.get('action')}' not start or pause")
+                problems.append(
+                    f"{role}: action '{entry.get('action')}' not start or pause"
+                )
             condition = entry.get("condition")
             if condition is not None and condition not in KNOWN_CONDITIONS:
                 problems.append(f"{role}: unknown condition '{condition}'")
@@ -62,8 +65,15 @@ class TestL30(unittest.TestCase):
             role = Path(tmp) / "bad"
             role.mkdir()
             (role / "cron.yml").write_text(
-                yaml.safe_dump(
-                    [{"name": "x", "schedule": "every night", "routine": "ghost", "action": "go"}]
+                dump_yaml_str(
+                    [
+                        {
+                            "name": "x",
+                            "schedule": "every night",
+                            "routine": "ghost",
+                            "action": "go",
+                        }
+                    ]
                 ),
                 encoding="utf-8",
             )

@@ -10,7 +10,7 @@ module stays deterministic and testable.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 
 def _field_matches(spec: str, value: int) -> bool:
@@ -84,33 +84,73 @@ def due(
     return out
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
-    night = {"name": "night", "schedule": "0 23 * * *", "routine": "translate", "action": "start"}
-    day = {"name": "day", "schedule": "*/10 7-22 * * *", "routine": "translate", "condition": "host-load-below-30", "action": "start"}
-    sweep = {"name": "s", "schedule": "0 4 * * *", "routine": "ci_failure_collect", "action": "start"}
+    night = {
+        "name": "night",
+        "schedule": "0 23 * * *",
+        "routine": "translate",
+        "action": "start",
+    }
+    day = {
+        "name": "day",
+        "schedule": "*/10 7-22 * * *",
+        "routine": "translate",
+        "condition": "host-load-below-30",
+        "action": "start",
+    }
+    sweep = {
+        "name": "s",
+        "schedule": "0 4 * * *",
+        "routine": "ci_failure_collect",
+        "action": "start",
+    }
     entries = [night, day, sweep]
 
-    at_2300 = datetime(2026, 10, 24, 23, 0)
-    assert [e["name"] for e in due(entries, at_2300)] == ["night"], "night cron missed"
-    at_0410 = datetime(2026, 10, 24, 4, 10)
-    assert due(entries, at_0410) == [], "0410 matched something"
-    at_0400 = datetime(2026, 10, 24, 4, 0)
-    assert [e["name"] for e in due(entries, at_0400)] == ["s"], "daily sweep missed"
-    at_1210 = datetime(2026, 10, 24, 12, 10)
-    assert due(entries, at_1210) == [], "day rule fired without its condition"
+    at_2300 = datetime(2026, 10, 24, 23, 0, tzinfo=UTC)
+    _expect(
+        [e["name"] for e in due(entries, at_2300)] == ["night"], "night cron missed"
+    )
+    at_0410 = datetime(2026, 10, 24, 4, 10, tzinfo=UTC)
+    _expect(due(entries, at_0410) == [], "0410 matched something")
+    at_0400 = datetime(2026, 10, 24, 4, 0, tzinfo=UTC)
+    _expect([e["name"] for e in due(entries, at_0400)] == ["s"], "daily sweep missed")
+    at_1210 = datetime(2026, 10, 24, 12, 10, tzinfo=UTC)
+    _expect(due(entries, at_1210) == [], "day rule fired without its condition")
     met = frozenset({"host-load-below-30"})
-    assert [e["name"] for e in due(entries, at_1210, conditions_met=met)] == ["day"], "day rule missed under load"
-    assert due(entries, at_2300, gate_locked=True) == [], "start fired while gate locked"
-    assert not cron_matches("*/10 7-22 * * *", datetime(2026, 10, 24, 6, 0)), "fired before the window"
+    _expect(
+        [e["name"] for e in due(entries, at_1210, conditions_met=met)] == ["day"],
+        "day rule missed under load",
+    )
+    _expect(
+        due(entries, at_2300, gate_locked=True) == [],
+        "start fired while gate locked",
+    )
+    _expect(
+        not cron_matches("*/10 7-22 * * *", datetime(2026, 10, 24, 6, 0, tzinfo=UTC)),
+        "fired before the window",
+    )
 
-    sunday = datetime(2026, 10, 25, 9, 0)
-    assert sunday.isoweekday() == 7, "fixture date is not a Sunday"
-    assert cron_matches("0 9 * * 0", sunday), "day-of-week 0 (Sunday) missed"
-    assert not cron_matches("0 9 * * 1", sunday), "Monday schedule matched on Sunday"
+    sunday = datetime(2026, 10, 25, 9, 0, tzinfo=UTC)
+    _expect(sunday.isoweekday() == 7, "fixture date is not a Sunday")
+    _expect(cron_matches("0 9 * * 0", sunday), "day-of-week 0 (Sunday) missed")
+    _expect(not cron_matches("0 9 * * 1", sunday), "Monday schedule matched on Sunday")
 
-    pause = {"name": "p", "schedule": "0 7 * * *", "routine": "translate", "action": "pause"}
-    at_0700 = datetime(2026, 10, 24, 7, 0)
-    assert [e["name"] for e in due([pause], at_0700, gate_locked=True)] == ["p"], "gate wrongly suppressed a pause"
+    pause = {
+        "name": "p",
+        "schedule": "0 7 * * *",
+        "routine": "translate",
+        "action": "pause",
+    }
+    at_0700 = datetime(2026, 10, 24, 7, 0, tzinfo=UTC)
+    _expect(
+        [e["name"] for e in due([pause], at_0700, gate_locked=True)] == ["p"],
+        "gate wrongly suppressed a pause",
+    )
     print("orchestrator cron self-check ok")
 
 

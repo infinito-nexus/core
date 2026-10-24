@@ -11,9 +11,7 @@ from tests.lint.agents import PROJECT_ROOT
 from utils.cache.files import read_text
 
 SCAN_DIRS = ("agents", "plugins", "cli")
-ALLOW = (
-    PROJECT_ROOT / "plugins" / "lookup" / "agent_config.py",
-)
+ALLOW = (PROJECT_ROOT / "plugins" / "lookup" / "agent_config.py",)
 NEEDLES = ("agent.yml", "cron.yml")
 
 
@@ -23,7 +21,7 @@ def _offending_files(root: Path) -> list[str]:
         base = root / scan
         if not base.is_dir():
             continue
-        for path in base.rglob("*.py"):
+        for path in base.rglob("*.py"):  # nocheck: project-walk
             if path in ALLOW:
                 continue
             text = read_text(str(path))

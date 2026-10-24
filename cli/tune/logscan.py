@@ -16,6 +16,7 @@ import argparse
 import re
 import sys
 from collections import defaultdict
+from pathlib import Path
 
 HEADER = re.compile(r"^(?:TASK|RUNNING HANDLER) \[(?P<label>.+?)\]\s*\**\s*$")
 DURATION = re.compile(r"\((?P<h>\d+):(?P<m>\d\d):(?P<s>\d\d\.\d+)\)")
@@ -90,8 +91,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("log")
     parser.add_argument("--top", type=int, default=20)
     args = parser.parse_args(argv)
-    with open(args.log, encoding="utf-8", errors="ignore") as handle:
-        text = handle.read()
+    text = Path(args.log).read_text(
+        encoding="utf-8", errors="ignore"
+    )  # nocheck: cache-read
     rows = aggregate(task_durations(text))
     print(f"# slowest {min(args.top, len(rows))} tasks (count x each = loop)")
     for label, count, total in rows[: args.top]:
@@ -105,9 +107,12 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
-    # Distinct durations catch the off-by-one: profile_tasks prints the PREVIOUS
-    # task's time, and each timestamp line is doubled by two callbacks.
     sample = (
         "TASK [web-app-keycloak : create client] *****\n"
         "Samstag 24 Oktober 2026  11:09:00 +0200 (0:00:00.050)   0:00:00.050 ***\n"
@@ -125,12 +130,10 @@ def _demo() -> None:
     )
     durations = task_durations(sample)
     top = {label: (count, total) for label, count, total in aggregate(durations)}
-    # create client runs 7.0s (the line after configure realm), configure realm
-    # 2.0s (the line after the handler); the handler's own time is only in RECAP.
-    assert top["web-app-keycloak : create client"] == (1, 7.0), top
-    assert top["web-app-keycloak : configure realm"] == (1, 2.0), top
-    assert "openresty : reload" not in top, top
-    assert retries(sample) == {"localhost": 1}, retries(sample)
+    _expect(top["web-app-keycloak : create client"] == (1, 7.0), top)
+    _expect(top["web-app-keycloak : configure realm"] == (1, 2.0), top)
+    _expect("openresty : reload" not in top, top)
+    _expect(retries(sample) == {"localhost": 1}, retries(sample))
     print("logscan self-check ok")
 
 

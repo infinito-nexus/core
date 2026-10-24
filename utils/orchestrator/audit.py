@@ -40,7 +40,13 @@ class HashChain:
         seq = len(self._entries)
         prev = self._entries[-1]["hash"] if self._entries else GENESIS
         digest = _hash(seq, kind, payload, prev)
-        entry = {"seq": seq, "kind": kind, "payload": payload, "prev": prev, "hash": digest}
+        entry = {
+            "seq": seq,
+            "kind": kind,
+            "payload": payload,
+            "prev": prev,
+            "hash": digest,
+        }
         self._entries.append(entry)
         return entry
 
@@ -62,22 +68,32 @@ class HashChain:
         return True
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
     chain = HashChain()
-    chain.append("firewall", {"role": "maintainer", "verdict": "deny", "target": "upstream/push"})
+    chain.append(
+        "firewall", {"role": "maintainer", "verdict": "deny", "target": "upstream/push"}
+    )
     chain.append("tool_call", {"tool": "gh", "args_digest": "abc"})
     chain.append("approval", {"owner": "biber", "match": "git_commit"})
     entries = chain.entries
-    assert HashChain.verify(entries), "fresh chain does not verify"
+    _expect(HashChain.verify(entries), "fresh chain does not verify")
 
     tampered = [dict(e) for e in entries]
     tampered[1] = dict(tampered[1], payload={"tool": "gh", "args_digest": "EVIL"})
-    assert not HashChain.verify(tampered), "a tampered payload still verified"
+    _expect(not HashChain.verify(tampered), "a tampered payload still verified")
 
     dropped = [entries[0], entries[2]]
-    assert not HashChain.verify(dropped), "a deleted entry was not detected"
+    _expect(not HashChain.verify(dropped), "a deleted entry was not detected")
 
-    assert not hasattr(HashChain, "update") and not hasattr(HashChain, "delete")
+    _expect(
+        not hasattr(HashChain, "update") and not hasattr(HashChain, "delete"),
+        "chain exposes update or delete",
+    )
     print("audit hash-chain self-check ok")
 
 

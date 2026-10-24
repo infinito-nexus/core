@@ -31,17 +31,35 @@ def release_policy(mode: str) -> dict:
     if mode not in MODES:
         raise ValueError(f"keepass.mode {mode!r} is not broker or agent")
     if mode == "broker":
-        return {"holder": "broker", "per_entry_release": True, "workspace_holds_master": False}
-    return {"holder": "agent", "per_entry_release": False, "workspace_holds_master": True}
+        return {
+            "holder": "broker",
+            "per_entry_release": True,
+            "workspace_holds_master": False,
+        }
+    return {
+        "holder": "agent",
+        "per_entry_release": False,
+        "workspace_holds_master": True,
+    }
+
+
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
 
 
 def _demo() -> None:
     broker = release_policy("broker")
-    assert broker["holder"] == "broker"
-    assert broker["per_entry_release"] is True
-    assert broker["workspace_holds_master"] is False, "broker mode leaks the master key"
+    _expect(broker["holder"] == "broker", "broker holder not broker")
+    _expect(broker["per_entry_release"] is True, "broker per-entry release not set")
+    _expect(
+        broker["workspace_holds_master"] is False, "broker mode leaks the master key"
+    )
     agent = release_policy("agent")
-    assert agent["holder"] == "agent" and agent["workspace_holds_master"] is True
+    _expect(
+        agent["holder"] == "agent" and agent["workspace_holds_master"] is True,
+        "agent mode policy wrong",
+    )
     for bad in ("", "Broker", "root", None):
         try:
             release_policy(bad)  # type: ignore[arg-type]

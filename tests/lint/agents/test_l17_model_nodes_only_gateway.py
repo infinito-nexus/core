@@ -23,9 +23,9 @@ def check(routines_dir: Path) -> list[str]:
     problems: list[str] = []
     if not routines_dir.is_dir():
         return problems
-    for path in sorted(routines_dir.rglob("*.py")):
+    for path in sorted(routines_dir.rglob("*.py")):  # nocheck: project-walk
         if GATEWAY.search(read_text(str(path))):
-            problems.append(f"{path.name}: a routine imports a model or gateway client")
+            problems.append(f"{path.name}: a routine imports a model or gateway client")  # noqa: PERF401
     return problems
 
 

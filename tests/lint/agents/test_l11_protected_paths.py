@@ -9,9 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import AGENTS_DIR, load
+from utils.cache.yaml import dump_yaml_str
 from utils.firewall.compile import decide, resolve
 
 FIREWALL = AGENTS_DIR / "firewall"
@@ -24,10 +23,13 @@ def check(firewall_dir: Path) -> list[str]:
         r = resolve(roles, name)
         can_push = decide(r, "app", "fork/push", "create") == "allow"
         explicit_deny = any(
-            rule.kind == "app" and rule.target == "repo/protected-paths" for rule in r.deny
+            rule.kind == "app" and rule.target == "repo/protected-paths"
+            for rule in r.deny
         )
         if can_push and not explicit_deny:
-            problems.append(f"{name}: can push but has no explicit protected-paths deny")
+            problems.append(
+                f"{name}: can push but has no explicit protected-paths deny"
+            )
     return problems
 
 
@@ -39,7 +41,7 @@ class TestL11(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             fw = Path(tmp)
             (fw / "roles.yml").write_text(
-                yaml.safe_dump({"rogue": {"allow": ["app(fork/push):create"]}}),
+                dump_yaml_str({"rogue": {"allow": ["app(fork/push):create"]}}),
                 encoding="utf-8",
             )
             self.assertNotEqual(check(fw), [])

@@ -29,7 +29,11 @@ def check(agents_md: Path) -> list[str]:
     if not agents_md.is_file():
         return [f"{agents_md} missing"]
     text = read_text(str(agents_md))
-    return [f"tuner AGENTS.md does not name '{needle}'" for needle in REQUIRED if needle not in text]
+    return [
+        f"tuner AGENTS.md does not name '{needle}'"
+        for needle in REQUIRED
+        if needle not in text
+    ]
 
 
 class TestL34(unittest.TestCase):

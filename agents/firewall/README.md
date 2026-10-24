@@ -33,7 +33,7 @@ The five kinds cover every grant:
 ## Providers
 
 `github`, `gitea` and `gitlab` are built in. Any other external service is
-declared once under `providers/` with its base URL and API flavour, and is
+declared once under [providers/](providers/README.md) with its base URL and API flavour, and is
 then usable as `account(<provider>/<label>)`.
 
 ## Compilation

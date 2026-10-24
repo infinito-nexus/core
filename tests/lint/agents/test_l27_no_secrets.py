@@ -16,14 +16,22 @@ PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----"),
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
     re.compile(r"\bghp_[A-Za-z0-9]{36}\b"),
-    re.compile(r"(?i)\b(?:password|secret|api_key|token)\s*[:=]\s*['\"][^'\"${}\s]{12,}['\"]"),
+    re.compile(
+        r"(?i)\b(?:password|secret|api_key|token)\s*[:=]\s*['\"][^'\"${}\s]{12,}['\"]"
+    ),
 )
 
 
 def check(root: Path) -> list[str]:
     problems: list[str] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.suffix not in (".py", ".md", ".yml", ".yaml", ".json"):
+    for path in sorted(root.rglob("*")):  # nocheck: project-walk
+        if not path.is_file() or path.suffix not in (
+            ".py",
+            ".md",
+            ".yml",
+            ".yaml",
+            ".json",
+        ):
             continue
         text = read_text(str(path))
         for pattern in PATTERNS:

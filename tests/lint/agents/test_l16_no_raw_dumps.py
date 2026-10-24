@@ -24,9 +24,9 @@ def check(routines_dir: Path) -> list[str]:
     problems: list[str] = []
     if not routines_dir.is_dir():
         return problems
-    for path in sorted(routines_dir.rglob("*.py")):
+    for path in sorted(routines_dir.rglob("*.py")):  # nocheck: project-walk
         if FORBIDDEN.search(read_text(str(path))):
-            problems.append(f"{path.name}: prints a raw dump or reads a raw report")
+            problems.append(f"{path.name}: prints a raw dump or reads a raw report")  # noqa: PERF401
     return problems
 
 

@@ -51,7 +51,7 @@ def _subst(node, subs):
         return [r for r in (_subst(v, subs) for v in node) if r is not _DROP]
     if isinstance(node, str):
         if node == "${context}":
-            return subs["context"] if subs["context"] else _DROP
+            return subs["context"] or _DROP
         result = node
         for name, value in subs.items():
             result = result.replace("${" + name + "}", str(value))
@@ -75,12 +75,15 @@ def render_config(platform_spec, model, relay_url, key, context):
         key: the agent's broker key.
         context: the model's context window in tokens, 0 to leave it unset.
     """
-    data = _subst(platform_spec["config_render"], {
-        "model": model,
-        "relay_url": relay_url,
-        "key": key,
-        "context": context,
-    })
+    data = _subst(
+        platform_spec["config_render"],
+        {
+            "model": model,
+            "relay_url": relay_url,
+            "key": key,
+            "context": context,
+        },
+    )
     return json.dumps(data)
 
 

@@ -57,19 +57,24 @@ class Deduplicator:
         return True
 
 
+def _expect(condition: bool, message: object) -> None:
+    if not condition:
+        raise AssertionError(message)
+
+
 def _demo() -> None:
     secret = b"s3cr3t"
     body = b'{"action":"opened"}'
     good = f"{SIGNATURE_PREFIX}{hmac.new(secret, body, hashlib.sha256).hexdigest()}"
-    assert verify_signature(secret, body, good)
-    assert not verify_signature(secret, body + b"x", good), "tampered body accepted"
-    assert not verify_signature(b"wrong", body, good), "wrong secret accepted"
-    assert not verify_signature(secret, body, None), "missing header accepted"
-    assert not verify_signature(secret, body, "md5=deadbeef"), "wrong scheme accepted"
+    _expect(verify_signature(secret, body, good), "valid signature rejected")
+    _expect(not verify_signature(secret, body + b"x", good), "tampered body accepted")
+    _expect(not verify_signature(b"wrong", body, good), "wrong secret accepted")
+    _expect(not verify_signature(secret, body, None), "missing header accepted")
+    _expect(not verify_signature(secret, body, "md5=deadbeef"), "wrong scheme accepted")
     dedup = Deduplicator()
-    assert dedup.seen("d1") and not dedup.seen("d1"), "delivery id not deduplicated"
-    assert dedup.seen("d2"), "distinct id dropped"
-    assert refetch_required()
+    _expect(dedup.seen("d1") and not dedup.seen("d1"), "delivery id not deduplicated")
+    _expect(dedup.seen("d2"), "distinct id dropped")
+    _expect(refetch_required(), "refetch not required")
     print("orchestrator webhook self-check ok")
 
 

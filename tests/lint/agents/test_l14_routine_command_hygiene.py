@@ -19,11 +19,13 @@ def check(routines_dir: Path) -> list[str]:
     problems: list[str] = []
     if not routines_dir.is_dir():
         return problems
-    for path in sorted(routines_dir.rglob("*.py")):
+    for path in sorted(routines_dir.rglob("*.py")):  # nocheck: project-walk
         text = read_text(str(path))
-        for token in FORBIDDEN:
-            if token in text:
-                problems.append(f"{path.name}: forbidden command shape {token!r}")
+        problems.extend(
+            f"{path.name}: forbidden command shape {token!r}"
+            for token in FORBIDDEN
+            if token in text
+        )
     return problems
 
 

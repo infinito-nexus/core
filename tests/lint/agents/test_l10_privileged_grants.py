@@ -8,9 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import yaml
-
 from tests.lint.agents import AGENTS_DIR, load
+from utils.cache.yaml import dump_yaml_str
 from utils.firewall.parse import parse_rule
 
 PRIVILEGED = ("admin", "settings", "secrets", "root")
@@ -36,7 +35,7 @@ class TestL10(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             fw = Path(tmp)
             (fw / "roles.yml").write_text(
-                yaml.safe_dump({"bad": {"allow": ["app(github/admin-settings):crud"]}}),
+                dump_yaml_str({"bad": {"allow": ["app(github/admin-settings):crud"]}}),
                 encoding="utf-8",
             )
             self.assertNotEqual(check(fw), [])

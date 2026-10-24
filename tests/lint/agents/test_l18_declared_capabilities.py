@@ -17,12 +17,14 @@ IDENTITY = re.compile(r"runs_on_github|\bRUNTIME\b\s*==|==\s*['\"]github['\"]")
 
 def check(agents_dir: Path) -> list[str]:
     problems: list[str] = []
-    for path in sorted(agents_dir.rglob("*.py")):
+    for path in sorted(agents_dir.rglob("*.py")):  # nocheck: project-walk
         if not path.is_file():
             continue
         for number, line in enumerate(read_text(str(path)).splitlines(), 1):
             if IDENTITY.search(line):
-                problems.append(f"{path.relative_to(agents_dir)}:{number}: runtime-identity branch")
+                problems.append(
+                    f"{path.relative_to(agents_dir)}:{number}: runtime-identity branch"
+                )
     return problems
 
 

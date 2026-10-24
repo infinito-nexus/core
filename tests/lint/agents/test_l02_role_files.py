@@ -17,9 +17,11 @@ def check(roles_dir: Path) -> list[str]:
     problems: list[str] = []
     for role in role_names(roles_dir):
         role_dir = roles_dir / role
-        for name in MANDATORY:
-            if not (role_dir / name).is_file():
-                problems.append(f"{role}: missing {name}")
+        problems.extend(
+            f"{role}: missing {name}"
+            for name in MANDATORY
+            if not (role_dir / name).is_file()
+        )
         soul = role_dir / "SOUL.md"
         if soul.is_file():
             text = read_text(str(soul))
