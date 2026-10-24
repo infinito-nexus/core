@@ -15,19 +15,14 @@
       when: _openresty_docker_sock.stat.exists | default(false)
 
 - name: "✅ Ensure the full openresty config tree exists before any http-include writer"
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: directory
-    mode: "{{ item.mode }}"
-  loop: >-
-    {{ lookup('nginx','directories.ensure') + [
-         {'path': lookup('nginx','directories.data.well_known'), 'mode': '0755'},
-         {'path': LETSENCRYPT_WEBROOT_PATH, 'mode': '0755'},
-         {'path': LETSENCRYPT_BASE_PATH, 'mode': '0755'},
-         {'path': TLS_SELFSIGNED_BASE_PATH, 'mode': '0755'},
-       ] }}
-  loop_control:
-    label: "{{ item.path }}"
+  directory_batch:
+    entries: >-
+      {{ lookup('nginx','directories.ensure') + [
+           {'path': lookup('nginx','directories.data.well_known'), 'mode': '0755'},
+           {'path': LETSENCRYPT_WEBROOT_PATH, 'mode': '0755'},
+           {'path': LETSENCRYPT_BASE_PATH, 'mode': '0755'},
+           {'path': TLS_SELFSIGNED_BASE_PATH, 'mode': '0755'},
+         ] }}
 
 - name: 🔎 Stat the nginx.conf path
   ansible.builtin.stat:
