@@ -5,6 +5,13 @@
   vars:
     handler_role_name: "sys-svc-compose"
 
+- name: "🗓️  Collect the deploy-time cron schedules from every agent role"
+  ansible.builtin.set_fact:
+    AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ AGENT_ORCHESTRATOR_CRON_ENTRIES + lookup('agent_config', item, 'cron', []) }}"
+  loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
+  loop_control:
+    label: "{{ item }}"
+
 - name: "🧩 Load the central RDBMS (checkpoints, audit) for {{ application_id }}"
   include_role:
     name: sys-svc-rdbms
