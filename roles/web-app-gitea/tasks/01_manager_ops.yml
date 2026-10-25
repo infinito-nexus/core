@@ -1,10 +1,14 @@
 ---
-- name: ⏳ Wait for Gitea HTTP endpoint
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}"
-    delay: 5
-    timeout: "{{ lookup('timeout', 300) | int }}"
+- name: "⏳ Wait until Gitea has migrated its database and serves the API"
+  uri_retry:
+    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"
+    method: GET
+    status_code: 200
+    return_content: false
+  register: gitea_ready
+  until: gitea_ready.status == 200
+  retries: 120
+  delay: 5
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -12,25 +16,6 @@
     resolve_service_key: gitea
     resolve_output_prefix: GITEA
     resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
-
-- name: "⏳ Wait for Gitea app.ini to be present after redeploy"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      test -f {{ GITEA_CONFIG }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: gitea_config_ready
-  changed_when: false
-  retries: 30
-  delay: 2
-  until: gitea_config_ready.rc == 0
-
-- name: "▶️ Run DB migrations inside Gitea container"
-  shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
-      /app/gitea/gitea migrate -c {{ GITEA_CONFIG }}
-  delegate_to: "{{ GITEA_HOST_NODE }}"
-  register: migrate
-  changed_when: "'migrations completed' in migrate.stdout"
 
 - name: "📁 Create initial admin user"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -65,18 +50,6 @@
     GITEA_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   delegate_to: "{{ GITEA_HOST_NODE }}"
   changed_when: true
-
-- name: "⏳ Wait until Gitea setup and migrations are ready"
-  uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"
-    method: GET
-    status_code: 200
-    return_content: false
-  register: gitea_ready
-  until: gitea_ready.status == 200
-  retries: 20
-  delay: 5
-  when: (GITEA_OIDC_ENABLED | bool) or (GITEA_LDAP_ENABLED | bool)
 
 - name: ▶️ Execute Setup Routines
   include_tasks: 02_setup.yml
