@@ -1,0 +1,4 @@
+#imgpmalogo,
+#pmalogo h1 {
+  content: var(--design-url-logo-svg);
+}
