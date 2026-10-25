@@ -184,8 +184,12 @@ def write_catalog(path: Path, catalog: Catalog) -> bool:
                 return False
     path.parent.mkdir(parents=True, exist_ok=True)
     staging = path.with_name(f".{path.name}.tmp")
-    staging.write_bytes(content)
-    staging.replace(path)
+    try:
+        staging.write_bytes(content)
+        staging.replace(path)
+    except BaseException:
+        staging.unlink(missing_ok=True)
+        raise
     return True
 
 
