@@ -4,6 +4,9 @@
 - name: ✅ Validate XWiki variables
   include_tasks: 01_validation.yml
 
+- name: "🔎 Probe whether the running XWiki already carries every add-on on its pin"
+  include_tasks: utils/extensions_ready.yml
+
 - block:
     - name: "🧩 load docker, db and proxy for {{ application_id }}"
       include_role:
@@ -25,8 +28,8 @@
       include_tasks: utils/flush_config.yml
       when: IS_STACK_HOST | bool
   vars:
-    xwiki_oidc_enabled_switch: false
-    xwiki_ldap_enabled_switch: false
+    xwiki_oidc_enabled_switch: "{{ (XWIKI_OIDC_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
+    xwiki_ldap_enabled_switch: "{{ (XWIKI_LDAP_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
 
 - name: "👔 XWiki manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
