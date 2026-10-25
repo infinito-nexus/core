@@ -276,6 +276,83 @@ Besides `kibana_server`, the dashboard service account maps to `wazuh_dashboard_
 - Only Administrators reach the OpenSearch Dashboards Security app.
 - Every role lands on `/app/home` after login.
 
+## Disaster recovery
+
+[svc-bkp-volume-2-local](../svc-bkp-volume-2-local/) backs up 13 of the 15 Wazuh volumes.
+`wazuh_manager_vd` and `wazuh_manager_var_multigroups` are `backup: false` in [volumes.yml](./meta/volumes.yml).
+
+### Restore order
+
+`recover volume` writes into an existing volume, so the stack is deployed before the restore, not after.
+This is the order the recovery drill on 2026-10-25 tested:
+
+1. Deploy `web-app-wazuh` as in [Quick Setup](#quick-setup). This creates the volumes, the certificates and a fresh, empty stack.
+2. Stop the three Wazuh containers:
+
+   ```bash
+   docker stop wazuh.dashboard wazuh.manager wazuh.indexer
+   ```
+
+3. Restore each backed-up volume from the newest generation. `--no-safety-backup` is correct here because the targets were just created and hold nothing; without it every restore first runs a full volume backup of the host.
+
+   ```bash
+   GEN=/var/lib/infinito/backup/<machine-hash>/backup-docker-to-local/<generation>
+   HOST=<your-server>
+   infinito administration recover volume "$GEN/wazuh_dashboard_config/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_dashboard_custom/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_indexer_data/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_active_response/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_agentless/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_api_configuration/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_etc/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_filebeat_etc/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_filebeat_var/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_integrations/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_logs/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_queue/files" "$HOST" --no-safety-backup
+   infinito administration recover volume "$GEN/wazuh_manager_wodles/files" "$HOST" --no-safety-backup
+   ```
+
+   Run each line with `--preview` first to print the restore without running it.
+   Restore volume by volume rather than with `recover full`, which also restores every other application's volumes in the generation.
+4. Deploy `web-app-wazuh` again. It starts the stack on the restored volumes.
+
+On the local stack, run the commands through `make compose-exec cmd="..."` and deploy with `make compose-deploy mode=update apps=web-app-wazuh`.
+
+What the restore keeps:
+
+- **Agents** reconnect with their existing keys, because `client.keys` comes back with `wazuh_manager_etc`; nothing re-enrols.
+- **Security config** is not applied again: the digest marker in `wazuh_indexer_data` matches the security files, so `securityadmin.sh` is skipped.
+- **Certificates** are regenerated once by the first deploy when the instance directory is gone; the restore deploy keeps them.
+
+### Dashboard during recovery
+
+> [!WARNING]
+> Between the first deploy and the end of the restore deploy, the dashboard shows zero or only some vulnerability findings.
+> The first deploy starts an empty indexer, and its scanner rescans the agents on its own, so the count climbs from zero to a partial number.
+> Do not read that as a clean host.
+> Recovery is done when the restore deploy has finished; in the drill that was 13 to 14 minutes after the restore started, and every finding was back the moment the restored indexer answered.
+
+### Vulnerability scanner state
+
+`wazuh_manager_vd` holds the CVE feed (about 11 GB, downloaded again on demand) and the scanner's own state in `queue/vd`.
+It is not backed up on purpose: after a restore the manager unpacks the feed again (about two minutes) and rebuilds `queue/vd`.
+
+The scanner only reports packages that changed since its last scan.
+If its state in `queue/vd` and the `wazuh-states-vulnerabilities-*` index ever drift apart, findings stay missing although the index exists and the scanner runs without errors.
+Reset the scanner state to make it rescan every agent:
+
+```bash
+container exec wazuh.manager /var/ossec/bin/wazuh-control stop
+container exec wazuh.manager rm -rf /var/ossec/queue/vd/inventory /var/ossec/queue/vd/state_track
+container exec wazuh.manager /var/ossec/bin/wazuh-control start
+```
+
+This leaves the feed, the indexer mirror in `queue/indexer` and every volume in place.
+The manager unpacks the feed again, then indexes the findings again within a few minutes.
+
+The manager does not scan itself: `vulnerability-detection.disable_scan_manager=1` is Wazuh's default, so agent `000` never has findings.
+
 ## Developer Notes
 
 Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pins: [services.yml](./meta/services.yml). Credentials: [secrets.yml](./meta/secrets.yml). RBAC roles: [rbac.yml](./meta/rbac.yml).
