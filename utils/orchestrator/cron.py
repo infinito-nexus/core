@@ -106,7 +106,7 @@ def _demo() -> None:
     sweep = {
         "name": "s",
         "schedule": "0 4 * * *",
-        "routine": "ci_failure_collect",
+        "routine": "maintainer",
         "action": "start",
     }
     entries = [night, day, sweep]

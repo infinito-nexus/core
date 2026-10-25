@@ -1,7 +1,7 @@
 """L32: every skill is Markdown, every routine is a Python graph. A skill is a
 SKILL.md with frontmatter; a routine module exposes STEPS and build so the
-orchestrator can run it, and the contract helper is the only non-routine
-module."""
+orchestrator can run it. The contract helper and the shared deterministic nodes
+under routines/tools/ are the non-routine modules."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def check(agents_dir: Path) -> list[str]:
         )
     if routines.is_dir():
         for path in sorted(routines.rglob("*.py")):  # nocheck: project-walk
-            if path.stem in HELPERS:
+            if path.stem in HELPERS or path.parent.name == "tools":
                 continue
             tree = ast.parse(read_text(str(path)))
             if not _defines(tree, "STEPS") or not _defines(tree, "build"):

@@ -1,5 +1,5 @@
 ---
 - name: daily-reconcile
   schedule: "0 4 * * *"
-  routine: ci_failure_collect
+  routine: maintainer
   action: start
