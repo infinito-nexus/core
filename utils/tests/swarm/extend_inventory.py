@@ -154,11 +154,19 @@ def main() -> int:
     dump_yaml(str(backup_path), backup_inv)
     print(backup_path.read_text())  # nocheck: cache-read
 
-    backup_vars_path = inv_path.parent / "host_vars" / f"{_BACKUP}.yml"
-    backup_vars = load_yaml_any(str(backup_vars_path), default_if_missing={})
-    if backup_vars.pop("NETWORK_MODE", None) is not None:
-        dump_yaml(str(backup_vars_path), backup_vars)
+    drop_backup_network_mode(inv_path.parent)
     return 0
+
+
+def drop_backup_network_mode(inv_dir: str | Path) -> None:
+    """
+    Args:
+        inv_dir: the inventory directory holding ``host_vars``.
+    """
+    path = Path(inv_dir) / "host_vars" / f"{_BACKUP}.yml"
+    variables = load_yaml_any(str(path), default_if_missing={})
+    if variables.pop("NETWORK_MODE", None) is not None:
+        dump_yaml(str(path), variables)
 
 
 if __name__ == "__main__":
