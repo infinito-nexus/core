@@ -125,6 +125,26 @@ class DummyTlsResolveLookup:
         return [base_url]
 
 
+class DummyCanonicalUrlLookup:
+    """
+    Deterministic canonical_url stub.
+    Emulates: lookup('canonical_url', app_id, key) -> 'http(s)://<domains[app_id][key]>'
+    """
+
+    def run(self, terms, variables=None, **kwargs):
+        variables = variables or {}
+        app_id, key = terms
+        app_domains = variables.get("domains", {}).get(app_id)
+        if not isinstance(app_domains, dict) or key not in app_domains:
+            raise AnsibleError(
+                f"dummy canonical_url: '{app_id}' has no canonical '{key}'"
+            )
+        scheme = (
+            "https" if _ansible_bool(variables.get("TLS_ENABLED", True)) else "http"
+        )
+        return [f"{scheme}://{app_domains[key]}"]
+
+
 class TestDockerCardsLookup(unittest.TestCase):
     def setUp(self):
         self.test_roles_dir = tempfile.mkdtemp(prefix="test_roles_")
@@ -174,6 +194,8 @@ logo:
                 return _VarsLookup("domains")
             if name == "tls":
                 return DummyTlsResolveLookup(templar)
+            if name == "canonical_url":
+                return DummyCanonicalUrlLookup()
             raise AnsibleError(f"Unexpected lookup requested: {name}")
 
         docker_cards_module.lookup_loader.get = _patched_get
@@ -303,6 +325,39 @@ logo:
         result = self._run_lookup(lookup_module, fake_variables)
 
         self.assertEqual(result[0][0]["url"], "http://myportfolio.com")
+
+    def _card_target_variables(self, dashboard):
+        fake_variables = self._base_fake_variables()
+        fake_variables["domains"] = {
+            "portfolio": {
+                "www": "myportfolio.com",
+                "client": "client.myportfolio.com",
+            }
+        }
+        fake_variables["applications"]["portfolio"]["services"]["dashboard"] = dashboard
+        return fake_variables
+
+    def test_card_url_targets_the_card_key(self):
+        fake_variables = self._card_target_variables(
+            {"enabled": True, "card": "client"}
+        )
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(result[0][0]["url"], "https://client.myportfolio.com")
+
+    def test_card_url_without_card_key_targets_the_primary_domain(self):
+        fake_variables = self._card_target_variables({"enabled": True})
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
+
+    def test_unknown_card_key_fails_loudly(self):
+        fake_variables = self._card_target_variables({"enabled": True, "card": "nope"})
+
+        with self.assertRaisesRegex(AnsibleError, "nope"):
+            self._run_lookup(LookupModule(), fake_variables)
 
 
 if __name__ == "__main__":

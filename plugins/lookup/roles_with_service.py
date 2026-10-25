@@ -6,6 +6,11 @@ role whose merged applications config declares
 ``services.<service>.iframe`` (defaulting to ``enabled``) so consumers
 can tell embeddable cards from those that must open in a new tab.
 
+For the ``dashboard`` service a role MAY name ``services.dashboard.card:
+<key>``; its entry then carries ``domains.canonical.<key>`` and
+``lookup('canonical_url', <role>, <key>)`` instead of the primary domain, so
+the tile target matches the card ``docker_cards`` renders.
+
 A role keeps declaring the service for inventory completeness but can
 opt out of this consumer-target list by setting
 ``services.<service>.scrape: false`` or ``services.<service>.track: false``.
@@ -45,6 +50,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
+from utils.roles.applications.dashboard import DASHBOARD_SERVICE, card_target_key
 from utils.roles.applications.mcp import (
     DEFAULT_MCP_TRANSPORT,
     derive_allowed_consumers,
@@ -83,6 +89,30 @@ def _resolve_canonical_domain(role_id: str, app_config: dict[str, Any]) -> str:
     if not isinstance(domains, dict) or not domains.get("canonical"):
         return ""
     return get_primary_domain({role_id: domains["canonical"]}, role_id)
+
+
+def _resolve_named_canonical_domain(
+    role_id: str, app_config: dict[str, Any], key: str
+) -> str:
+    """Return the domain ``domains.canonical.<key>`` of one role.
+
+    Args:
+        role_id: the role whose domains are read.
+        app_config: the role's merged applications entry.
+        key: the named canonical, e.g. ``element``.
+
+    Raises:
+        AnsibleError: the role declares no such named canonical.
+    """
+    domains = app_config.get("domains")
+    canonical = domains.get("canonical") if isinstance(domains, dict) else None
+    domain = canonical.get(key) if isinstance(canonical, dict) else None
+    if not isinstance(domain, str) or not domain:
+        raise AnsibleError(
+            f"roles_with_service: '{role_id}' has no canonical '{key}' "
+            f"(available: {sorted(canonical) if isinstance(canonical, dict) else []})"
+        )
+    return domain
 
 
 def _deployed_roles(scope: str, vars_: dict[str, Any]) -> set[str] | None:
@@ -144,6 +174,7 @@ class LookupModule(LookupBase):
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
         )
+        lists_dashboard_cards = not topic and service_name == DASHBOARD_SERVICE
 
         results: list[dict[str, Any]] = []
         for role_id, app_config in applications.items():
@@ -174,8 +205,19 @@ class LookupModule(LookupBase):
             canonical = _resolve_canonical_domain(str(role_id), app_config)
             if not canonical and direction is None:
                 continue
+            card_key = (
+                card_target_key(str(role_id), block) if lists_dashboard_cards else ""
+            )
             canonical_url = ""
-            if canonical:
+            if card_key:
+                canonical = _resolve_named_canonical_domain(
+                    str(role_id), app_config, card_key
+                )
+                resolved = lookup_loader.get(
+                    "canonical_url", loader=self._loader, templar=self._templar
+                ).run([str(role_id), card_key], variables=variables)
+                canonical_url = str(resolved[0]).rstrip("/")
+            elif canonical:
                 resolved = tls_lookup.run(
                     [str(role_id), "url.base"], variables=variables
                 )

@@ -44,23 +44,34 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         return lm
 
     def _run(self, terms, applications: dict, vars_: dict | None = None, **kwargs):
-        """Run the lookup with the ``applications`` and ``tls`` sub-lookups
-        patched to stay hermetic. The stubbed tls resolves
-        ``[role_id, "url.base"]`` to a deterministic URL so the lookup
-        can finish building each result entry without the real domain
-        machinery."""
+        """Run the lookup with the ``applications``, ``tls`` and
+        ``canonical_url`` sub-lookups patched to stay hermetic. The stubbed
+        tls resolves ``[role_id, "url.base"]`` and the stubbed canonical_url
+        ``[role_id, key]`` to deterministic URLs so the lookup can finish
+        building each result entry without the real domain machinery; any
+        other sub-lookup raises ``KeyError``."""
         lookup = self._make_lookup(vars_ or {})
 
         class _StubTls:
             def run(self, terms_, variables=None, **kwargs):
                 return [f"https://{terms_[0]}.example.com"]
 
+        class _StubCanonicalUrl:
+            def run(self, terms_, variables=None, **kwargs):
+                return [f"https://{terms_[1]}.{terms_[0]}.example.com"]
+
         class _StubApplications:
             def run(self, terms_, variables=None, **kwargs):
                 return [applications]
 
+        stubs = {
+            "applications": _StubApplications(),
+            "tls": _StubTls(),
+            "canonical_url": _StubCanonicalUrl(),
+        }
+
         def _dispatch(name, **_kwargs):
-            return _StubApplications() if name == "applications" else _StubTls()
+            return stubs[name]
 
         with patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
             return lookup.run(terms, variables=vars_ or {}, **kwargs)
@@ -556,6 +567,50 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         entry = self._run(["mcp"], applications)[0][0]
         self.assertEqual(
             sorted(entry), ["canonical_domain", "canonical_url", "id", "iframe"]
+        )
+
+    def _card_target_role(self, service: str, **block_extra) -> dict:
+        block = {"enabled": True, "shared": True}
+        block.update(block_extra)
+        return {
+            "web-app-chat": {
+                "services": {service: block},
+                "domains": {
+                    "canonical": {
+                        "synapse": "matrix.example.com",
+                        "element": "element.example.com",
+                    }
+                },
+            },
+        }
+
+    def test_dashboard_card_key_targets_that_domain(self):
+        applications = self._card_target_role("dashboard", card="element")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("element.example.com", "https://element.web-app-chat.example.com"),
+        )
+
+    def test_dashboard_without_card_key_targets_the_primary_domain(self):
+        applications = self._card_target_role("dashboard")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://web-app-chat.example.com"),
+        )
+
+    def test_dashboard_unknown_card_key_fails_loudly(self):
+        applications = self._card_target_role("dashboard", card="nope")
+        with self.assertRaisesRegex(AnsibleError, "nope"):
+            self._run(["dashboard"], applications)
+
+    def test_other_services_ignore_a_card_key(self):
+        applications = self._card_target_role("prometheus", card="element")
+        entry = self._run(["prometheus"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://web-app-chat.example.com"),
         )
 
 
