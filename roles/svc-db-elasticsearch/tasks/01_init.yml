@@ -61,12 +61,14 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📁 Create user '{{ elasticsearch_consumer_username }}' bound to its index role"
-  ansible.builtin.shell: >
-    {{ ELASTICSEARCH_EXEC_SHELL }}
-    '{{ 30 | curl }} -fS -u "elastic:$ELASTIC_PW"
-    -X PUT "{{ ELASTICSEARCH_API_BASE }}/_security/user/{{ elasticsearch_consumer_username }}"
-    -H "Content-Type: application/json"
-    -d {{ es_user_payload | to_json | quote }}'
+  ansible.builtin.shell:
+    cmd: >
+      {{ ELASTICSEARCH_EXEC_SHELL_STDIN }}
+      '{{ 30 | curl }} -fS -u "elastic:$ELASTIC_PW"
+      -X PUT "{{ ELASTICSEARCH_API_BASE }}/_security/user/{{ elasticsearch_consumer_username }}"
+      -H "Content-Type: application/json"
+      --data-binary @-'
+    stdin: "{{ es_user_payload | to_json }}"
   environment:
     ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
   register: es_user_result
