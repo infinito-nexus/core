@@ -159,6 +159,7 @@ def build_docker_cmd(
     proxy: str = "",
     timeout_ms: int = 0,
     accept_status: list[str] | None = None,
+    concurrency: int = 0,
 ) -> list[str]:
     cmd = ["container", "run", "--rm"]
 
@@ -179,6 +180,9 @@ def build_docker_cmd(
 
     if timeout_ms:
         cmd.extend(["--timeout", str(timeout_ms)])
+
+    if concurrency:
+        cmd.extend(["--concurrency", str(concurrency)])
 
     if ignore_network_blocks_from:
         cmd.append("--ignore-network-blocks-from")
@@ -205,6 +209,7 @@ def run_checker(
     proxy: str = "",
     timeout_ms: int = 0,
     accept_status: list[str] | None = None,
+    concurrency: int = 0,
 ) -> int:
     """
     Runs the CSP checker container and returns its exit code.
@@ -222,6 +227,7 @@ def run_checker(
         proxy=proxy,
         timeout_ms=timeout_ms,
         accept_status=accept_status,
+        concurrency=concurrency,
     )
 
     try:
@@ -303,6 +309,15 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=0,
+        help=(
+            "Number of URLs the checker probes in parallel, each in its own "
+            "browser context. 0 leaves the checker's own default in place."
+        ),
+    )
+    parser.add_argument(
         "--tor-proxy",
         default="",
         help=(
@@ -372,6 +387,7 @@ def main() -> None:
             proxy=batch_proxy,
             timeout_ms=batch_timeout,
             accept_status=accept_status,
+            concurrency=args.concurrency,
         )
         rc = rc or batch_rc
     sys.exit(rc)
