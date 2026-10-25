@@ -5,17 +5,17 @@
     file: "{{ [role_path, 'meta/addons', plugin_key ~ '.yml'] | path_join }}"
     name: addon_spec
 
-- name: "🔧 Set plugin configuration (batched shell, no async)"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    {% for item in (addon_spec.config.plugin_configuration | default([])) %}
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} \
-      config:app:set {{ item.appid }} {{ item.configkey }}{{ (' --no-interaction --type=' ~ item.type) if item.type is defined else '' }} \
-      --value '{{ ( (item.configvalue | to_json) if (item.configvalue is mapping or (item.configvalue is sequence and item.configvalue is not string)) else (item.configvalue | string) )
-            | regex_replace("'", "'" ~ '"' ~ "'" ~ '"' ~ "'") }}'
-    {% endfor %}
-  args:
-    executable: /bin/bash
+- name: "🔧 Set plugin configuration (one exec, occ calls on stdin)"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
+    stdin: |
+      set -eu
+      {% for item in (addon_spec.config.plugin_configuration | default([])) %}
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} \
+        config:app:set {{ item.appid }} {{ item.configkey }}{{ (' --no-interaction --type=' ~ item.type) if item.type is defined else '' }} \
+        --value '{{ ( (item.configvalue | to_json) if (item.configvalue is mapping or (item.configvalue is sequence and item.configvalue is not string)) else (item.configvalue | string) )
+              | regex_replace("'", "'" ~ '"' ~ "'" ~ '"' ~ "'") }}'
+      {% endfor %}
   when: (addon_spec.config.plugin_configuration | default([])) | length > 0
   register: config_set_shell
   changed_when: config_set_shell.stdout is search(' set to ')
