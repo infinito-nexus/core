@@ -63,7 +63,7 @@ flowchart LR
 
 ## Cosmos
 
-The diagram places Stalwart Mail Server in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+The diagram places Stalwart in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
 
 ```mermaid
 flowchart LR
