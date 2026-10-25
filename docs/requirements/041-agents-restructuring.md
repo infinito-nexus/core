@@ -1696,6 +1696,44 @@ What the sandbox cannot prove, left to the CI:
 - The `routines run` stub test of every routine (criterion 27): run it where langgraph is installed.
 - The docs i18n catalogs for the migrated skill strings: `make i18n-extract domain=docs`, which needs the extraction and translation pipeline.
 
+```mermaid
+flowchart TD
+  S(["🏁 Read-only sandbox<br/>no stack, no langgraph"])
+  C1["🧹 ruff check agents/ utils/orchestrator/ tests/unit/python/agents/"]
+  C2["📋 agents.routines list and show &lt;routine&gt;"]
+  C3["🔎 pytest tests/lint/agents<br/>L01 to L34 with red fixtures"]
+  C4["🔎 pytest tests/lint<br/>repository lints too"]
+  C5["🧪 pytest tests/unit/python/agents<br/>tool fixtures, 7 graphs, decisions (27 skips)"]
+  C6["🧪 pytest tests/unit/python/utils/orchestrator<br/>cron holds, blockers, gate discard"]
+  C7["🔗 pytest tests/integration/ansible/lookups<br/>agent_config consumed in production"]
+  C8["🔗 pytest tests/integration/meta/workflows<br/>PR scope and agent-change resolvers"]
+  G{"🚦 summary line reads 0 failed?"}
+  LOCAL(["✅ Static implementation locally green"])
+  CI["☁️ CI only: role deploys, agents-verify, the runtime<br/>criteria, the langgraph stub runs, i18n-extract"]
+  DONE(["🎯 Accepted after the CI run and the operator push"])
+  subgraph FIX["🔁 Fix a red check"]
+    F1["📖 Read the failing assertion: it names the file and the rule"]
+    F2["🛠️ Fix by the rule's intent<br/>never weaken a lint or drop a red fixture"]
+    F3["↩️ Re-run that one suite, then ruff and tests/lint/agents"]
+    F1 --> F2 --> F3
+  end
+  S --> C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> G
+  G -->|"❌ failed"| FIX
+  FIX --> G
+  G -->|"✅ passed"| LOCAL --> CI --> DONE
+  classDef step fill:#dcfce7,stroke:#15803d,color:#052e16
+  classDef gate fill:#fef3c7,stroke:#b45309,color:#451a03
+  classDef loop fill:#e0f2fe,stroke:#0369a1,color:#082f49
+  classDef good fill:#ccfbf1,stroke:#0f766e,color:#042f2e
+  classDef ci fill:#ede9fe,stroke:#6d28d9,color:#2e1065
+  class C1,C2,C3,C4,C5,C6,C7,C8 step
+  class G gate
+  class F1,F2,F3 loop
+  class S,LOCAL,DONE good
+  class CI ci
+  style FIX fill:#f0f9ff,stroke:#0369a1
+```
+
 ## Acceptance Criteria
 
 ### Layout
