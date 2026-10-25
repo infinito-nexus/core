@@ -34,14 +34,16 @@
     - matomo_effective_token != ""
     - matomo_site_cache is not defined or matomo_site_cache.scope != matomo_site_cache_scope
 
-- name: "🧊 Cache the Matomo site list for the remaining vhosts"
+- name: "🧊 Cache the Matomo site list, or its absence, for the remaining vhosts"
   ansible.builtin.set_fact:
     matomo_site_cache:
       scope: "{{ matomo_site_cache_scope }}"
-      sites: "{{ matomo_site_list.json }}"
-  when:
-    - matomo_site_list.status is defined and matomo_site_list.status == 200
-    - matomo_site_list.json is defined and matomo_site_list.json is not mapping
+      sites: >-
+        {{ matomo_site_list.json
+           if matomo_site_list.status is defined and matomo_site_list.status == 200
+              and matomo_site_list.json is defined and matomo_site_list.json is not mapping
+           else none }}
+  when: matomo_site_list is not skipped
 
 - name: "🔧 Take the site ID for '{{ domain }}' from the cached site list"
   ansible.builtin.set_fact:
@@ -53,6 +55,7 @@
   when:
     - matomo_site_cache is defined
     - matomo_site_cache.scope == matomo_site_cache_scope
+    - matomo_site_cache.sites is not none
     - matomo_cached_site_ids | length > 0
 
 - name: "🔎 Check if site {{ domain }} is already registered at Matomo"
@@ -75,7 +78,7 @@
   when:
     - matomo_effective_token != ""
     - matomo_site_id == ""
-    - matomo_site_list is skipped or (matomo_site_list.status is defined and matomo_site_list.status == 200)
+    - matomo_site_cache.sites is not none
 
 - block:
     - name: "🔧 Set fact for site ID if site already exists"
