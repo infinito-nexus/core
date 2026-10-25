@@ -98,9 +98,15 @@
     webserver_vhost_flavour: basic
 
 - name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
-  stack_host_template:
-    src: "{{ front_proxy_template_src }}"
-    dest: "{{ front_proxy_domain_conf_dst_resolved }}"
+  stack_host_contents:
+    files: >-
+      {{ ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
+            'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
+                              template_vars={'domain': front_proxy_domain})}]
+          if lookup('tls', front_proxy_application_id, 'enabled') | bool else [])
+         + [{'path': front_proxy_domain_conf_dst_resolved,
+             'content': lookup('template', front_proxy_template_src)}] }}
+    mode: "0644"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
@@ -124,14 +130,14 @@
   register: front_proxy_reload_check
   failed_when: false
   changed_when: false
-  when: nginx_conf.changed
+  when: front_proxy_vhost_changed
 
 - name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
   ansible.builtin.command:
     cmd: "true"
   notify: restart-openresty
   when:
-    - nginx_conf.changed
+    - front_proxy_vhost_changed
     - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
     - >-
       not openresty_reload.changed
@@ -139,4 +145,4 @@
 
 - name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
   ansible.builtin.meta: flush_handlers
-  when: nginx_conf.changed
+  when: front_proxy_vhost_changed
