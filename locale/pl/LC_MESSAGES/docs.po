@@ -260,7 +260,7 @@ msgstr "**A `svc-ai-litellm` brama jest pojedynczym punktem wejściowym modelu.*
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A `svc-ai-lmstudio` rola jest dodawana jako tło routable, x86/ Tylko węzeł GPU.** Rozkłada się LM Studio w trybie serwera bez głowy (`lms server`, OpenAI- compatible API) i rejestruje się za bramą. LM Studio nie ma ręki64 Budowanie serwera Linux, więc MUSI być przypięte do x86 (zazwyczaj GPU) węzeł poprzez ograniczenie umieszczenia i NIE MOŻE być zaplanowane na Raspberry Pi / ramię64 węzły czynnika [032](032-agent-employees-firecracker.md). LM Studio statków głównie jako GUI pulpitu; rola MUSI korzystać z trybu bez głowy / serwera, a README MUSI dokumentować pojemnik zachować (Przejście GPU, ograniczenia dotyczące licencjonowania / pobierania modeli)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -1038,7 +1038,7 @@ msgstr "**Kopia zapasowa gotowa:** Trwałe dane pod `{{ JIRA_STORAGE_PATH }}`."
 
 # translated-by: libretranslate
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
-msgstr "**Wsparcie i odzyskiwanie pomocy.** *Svc- bkp- container2- miejscowe* zastępuje się przez *svc-bkp-volume-2-local*, co polityka tworzenia kopii zapasowych wyraźnie na tom. Rola preferuje migawki systemu plików, gdy są dostępne i może przygotować hosty btrfs do tworzenia kopii zapasowych opartych na migawkach. Nowy *svc-bkp-nfs-2-local* chroni wspólny eksport NFS, *svc-bkp-secrets-2-local* przechwytuje tajne materiały oraz *svc-bkp-local-2-device* synchronizuje kopie zapasowe do zamontowanych zewnętrznych nośników. Zjednoczony *odzyskać* CLI napęd przywraca, podczas gdy komponować kontrole odzysku i pełne wiertło awaryjne Swarm stale weryfikować ścieżkę. Rsync nie zachowuje już zastępowanych plików jako *~* kopie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
@@ -1369,11 +1369,11 @@ msgstr "**Rozbudowa wielousługowa CNG:** webservice, sidekiq, workhorse, gitaly
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Wniosek o CPU:** Rola buduje swój własny wizerunek z przypiętych llmster wydania dla architektury gospodarza, amd64 lub ramię64, utrzymuje tylko procesor llama.cpp silnik i nie przechodzi do pojemnika urządzenia GPU."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Wniosek o CPU:** Rola buduje swój własny wizerunek z przypiętych llmster wydania dla architektury gospodarza, amd64 lub ramię64, utrzymuje tylko procesor llama.cpp silnik i nie przechodzi do pojemnika urządzenia GPU."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -7092,7 +7092,7 @@ msgstr "**Integracja biurowa:** Import, eksport i współpraca w zakresie dokume
 
 # translated-by: libretranslate
 msgid "**Offline Python mint** at inventory build: ed25519 → address → exact Tor key-file formats → vault → `DOMAIN_PRIMARY`. Idempotent (existing key is reused, never regenerated). No Docker/Tor needed at build time."
-msgstr "**Offline Python mennica** na budowie inwentarza: aż25519 → adres → dokładne formaty klawiszy Tor → skarbiec → `DOMAIN_PRIMARY`. (istniejący klucz jest ponownie używany, nigdy nie regenerowany). Nie Docker / Tor potrzebne w czasie budowy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Offline deterministic minting:** the v3 key/address is generated without running Tor and pinned in the inventory (stable, backupable, restorable)."
@@ -7143,11 +7143,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**One contract, three flavors.** ``laya`` serves multilingual checkpoints and preloads them at start; ``torch`` runs the GLiFormer checkpoint as published; ``onnx`` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same ``POST /v1/systemone``, so the gateway does not know which one it asked."
-msgstr "**Jeden kontrakt, trzy smaki.** ``laya`` obsługuje wielojęzyczne punkty kontrolne i ładuje je na początku; ``torch`` prowadzi punkt kontrolny GLiFormer zgodnie z publikacją; ``onnx`` wywóz8 wykres w czasie budowy i potrzebuje około jednej czwartej pamięci. Każdy smak odpowiada tak samo. ``POST /v1/systemone``, więc brama nie wie, który z nich poprosił."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**One contract, three flavors.** `laya` serves multilingual checkpoints and preloads them at start; `torch` runs the GLiFormer checkpoint as published; `onnx` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same `POST /v1/systemone`, so the gateway does not know which one it asked."
-msgstr "**Jeden kontrakt, trzy smaki.** `laya` obsługuje wielojęzyczne punkty kontrolne i ładuje je na początku; `torch` prowadzi punkt kontrolny GLiFormer zgodnie z publikacją; `onnx` wywóz8 wykres w czasie budowy i potrzebuje około jednej czwartej pamięci. Każdy smak odpowiada tak samo. `POST /v1/systemone`, więc brama nie wie, który z nich poprosił."
+msgstr ""
 
 msgid "**One credential.** The bearer the backend issues is the bearer the caller sends."
 msgstr ""
@@ -7755,7 +7755,7 @@ msgstr "**Obwody drukowane (pojedyncza lub wiązka).** Zarówno init jak i rozmi
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Szpilki, które nie mogą starzeć się niezauważone.** Piny obrazu są klasyfikowane i ciągnąć odniesienia zbudowane z klasy, ruchomy znacznik deklaruje się z markera, który już nosi, i rola obrazy poruszać się jako jedno wydanie lub wcale. Updater odczytuje deklaracje addon, zamawia liczniki łat sprzedających i wersje pięciu komponentów, czyta linię wydania napisaną przed numerem jako rodzina, a teraz również zegarki przypinane wymagania pip i Andible kolekcje. Siedem ról przesunęło się z bazy kodowej Debiana na cienką, a jedna lista lustrzana Ubuntu z niepowodzeniem, krótkim czasem i testem zdrowotnym służy zarówno do bufora pakietów, jak i do tworzenia obrazu. *js- yaml* został przeniesiony do 4.3.2 dla GHSA-2883- xcg3- v3Hmm."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8461,7 +8461,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**Smak SSO jest `oauth2`** (oauth2-proxy sidecar → Keycloak), NIE rodzime OIDC - ponieważ Checkmk Raw nie ma OIDC. Oauth2-proxy uwierzytelnienia przeciwko Keycloak i przechodzi `X-Remote-User`; Strona Checkmk Apache ufa mu poprzez `auth_by_http_header`. To lustra. [`web-app-openproject`](../../roles/web-app-openproject/)nagłówek - most SSO (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP- faliste zaufanie nagłówka)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -9638,7 +9638,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
-msgstr "**Praca dowodzi, że maszyna jest rozmieszczona.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) porównuje `uname -m` w stosunku do przypisanej wartości i niepowodzenie wiersza w przypadku niedopasowania. Bez niego, etykieta, która przestaje rozwiązywać ramię64 sprzęt zgłosiłby każde ramię64 wiersz zielony z amd64 maszyna, która jest dokładną wadą osi istnieje wykluczyć."
+msgstr ""
 
 #, python-brace-format
 msgid "**The learning log is a `History`-shaped table in the gateway's own database**, one row per offered engine per decision, each row marking whether that engine won. The signature groups comparable requests: source language, target language, and a coarse content class derived from the payload's length and whether it carries markup. `wins(signature)` returns `{engine: (won, seen)}` and feeds decision 5's criteria line, so the next decision reads what earlier ones concluded. A log that cannot be read MUST degrade to deciding without it and MUST NOT fail the request."
@@ -10050,11 +10050,11 @@ msgstr "**Posiadane przez użytkownika:** plik należy do użytkownika stacji ro
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Oauth2-proxy edge gate przekierowuje wszystkie żądania do Keycloak. ``files/hooks.js`` odczytuje zaufanego ``Remote-Email`` nagłówek openresty ustawia się po przejściu bramy i auto-zaopatrzenie / logi w dopasowania n8n użytkownik (rola ``global:member``, lub istniejącego właściciela ``users.administrator.email``), więc każdy Keycloak użytkownik - administrator i użytkownicy regularni - ląduje bezpośrednio na n8n własna powierzchnia przepływu pracy bez sekundy, n8n- lokalny krok logowania."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Oauth2-proxy edge gate przekierowuje wszystkie żądania do Keycloak. `files/hooks.js` odczytuje zaufanego `Remote-Email` nagłówek openresty ustawia się po przejściu bramy i auto-zaopatrzenie / logi w dopasowania n8n użytkownik (rola `global:member`, lub istniejącego właściciela `users.administrator.email`), więc każdy Keycloak użytkownik - administrator i użytkownicy regularni - ląduje bezpośrednio na n8n własna powierzchnia przepływu pracy bez sekundy, n8n- lokalny krok logowania."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10686,7 +10686,7 @@ msgstr "**architektura** -- na którą architekturę procesora wprowadza się wi
 
 # translated-by: libretranslate
 msgid "**arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md)."
-msgstr "**ramię64/ Malina Pi jest obsługiwana.** Rola toczy się dalej `arm64` więc może usiąść obok agenta Pi z [032](032-agent-employees-firecracker.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Alejandro Roman Ibanez"
@@ -12043,7 +12043,7 @@ msgstr "**https na cebuli IdP - badane i REJECTED, nie regenerować.** OIDC Disc
 
 # translated-by: libretranslate
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
-msgstr "**Joomla local- login** - `test-oidc-fallback.js:52` (do `?fallback=local` właz awaryjny: lokalny Joomla formularz administracyjny musi dotrzeć do panelu kontrolnego)/ Przyczyna korzenna: / Jest on niezależny od stałej specyfikacji OIDC- logowania: skróty ścieżki awaryjnej przed odkryciem po stronie serwera wtyczki, więc committed `extra_hosts` fix nie pokrywa go. W `secure => true` Hipoteza stickycookie została odrzucona (`.onion` jest potencjalnie wiarygodnym pochodzeniem i2e Firefox zestawy `dom.securecontext.allowlist_onions`, więc Bezpieczne pliki cookie są akceptowane przez prostu-http cebula). Następny krok, gdy nie uda się ponownie post- fix: izolować post- submit URL - Keycloak przekierowanie (cookie lost) vs. Forma odrzucona vs. Wolne sterowanie-panel renderowania."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**kubernetes** (future) is reserved as a third render backend consuming the same per-role inputs."
@@ -12133,7 +12133,7 @@ msgstr "**usystemowany** Słuchacz stub wyłączony, aby uniknąć konfliktów p
 
 # translated-by: libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
-msgstr "**praca w zakresie środowiska badawczego** - wszystkie 5 miejsc pracy (arch, debian, ubuntu, fedora, centos) trafić 4h30m pułap w zatłoczeniu podczas dalszego postępu (drawright image pull). Środowisko, bez kodu naprawić - różni się od budżetu własnego tarcza, który miał jeden: 508669809 książki budżetu SIGKILL jak pominięte, które ogłoszenie9222630 miał tylko dla SIGTERM; zauważyć, że cebula e2e z natury wydłuża rutynę (×5 timeout cebuli, obwód czeka), więc w zatłoczeniu te miejsca pracy są pierwszym, który uderzył w pułap."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
@@ -12368,7 +12368,7 @@ msgstr "*svc-ai-ollama*: przeniesiony na urzędnika *ollama* image so inference 
 
 # translated-by: libretranslate
 msgid "*svc-bkp-container-2-local*, superseded by the volume-oriented backup roles."
-msgstr "*Svc- bkp- container2- miejscowe*, zastąpiony rolami kopii zapasowej zorientowanych na wolumea."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*svc-bkp-volume-2-local*: newly on alpine 3.24"
@@ -13182,7 +13182,7 @@ msgstr "-- retry count; -- retry- all- errors sprawia, że pokrywa resety z wars
 
 # translated-by: libretranslate
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
-msgstr "- > skarpety5h: / /host.docker.internal:<port> (komponowanie)"
+msgstr ""
 
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 msgstr ""
@@ -14043,7 +14043,7 @@ msgstr "A ``mount --make-rshared /`` działa raz w pojemniku rozmieszczenia prze
 
 # translated-by: libretranslate
 msgid "A ``svc-bkp-*`` pre-backup hook for ``bench backup`` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard ``svc-bkp-*`` driver picking up the central MariaDB DB and the role’s named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A ``svc-bkp-*`` hak pre- backup dla ``bench backup`` nie jest podłączony w v1 (odroczone do następnego wymogu). V1 backup historia opiera się na standardzie ``svc-bkp-*`` kierowca picking up the central MariaDB DB i rola jest nazwana tomami. Aby zrobić migawkę Frappe-świadomy w locie, uruchom:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A ``type: volume`` entry may set ``nfs: false`` to opt out of the swarm NFS rewrite: the volume then stays a plain node-local named volume even when ``storage.backend`` is ``nfs`` (e.g. gitaly repository storage, which upstream forbids on NFS). Any other ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed by the NFS subdir pre-creation) keeps the rewrite."
@@ -14084,7 +14084,7 @@ msgstr "A `required_by` blok MAJ zamiast gniazda `compose:` / `swarm:` podbloki 
 
 # translated-by: libretranslate
 msgid "A `svc-bkp-*` pre-backup hook for `bench backup` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard `svc-bkp-*` driver picking up the central MariaDB DB and the role's named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A `svc-bkp-*` hak pre- backup dla `bench backup` nie jest podłączony w v1 (odroczone do następnego wymogu). V1 backup historia opiera się na standardzie `svc-bkp-*` kierowca picking up the central MariaDB DB i rola jest nazwana tomami. Aby zrobić migawkę Frappe-świadomy w locie, uruchom:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled."
@@ -14636,7 +14636,7 @@ msgstr "Komentarz klucza jest najnowszym sąsiadującym blokiem `# ...` linii be
 
 # translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr "Etykieta, która po cichu zatrzymuje się do ramienia64 zmienia całą oś w zielone kłamstwo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
@@ -15027,7 +15027,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A regex over dotted octets, e.g. ``192\\.168\\.24\\.\\d+`` for a /24 or ``192\\.168\\.(24|25)\\.\\d+`` for a /23."
-msgstr "Regeks nad rozkropkowanymi oktetami, np. ``192\\.168\\.24\\.\\d+`` dla24 lub ``192\\.168\\.(24|25)\\.\\d+`` dla23."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A release tag (``vX.Y.Z``) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once."
@@ -15154,7 +15154,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role keeps declaring the service for inventory completeness but can opt out of this consumer-target list by setting ``services.<service>.scrape: false`` or ``services.<service>.track: false``. ``scrape: false`` is used by 301-redirect-only vhosts that declare ``services.prometheus`` (so the role-wiring contract stays satisfied) yet never serve a request through lua-resty-prometheus, so they emit no ``app=\"<role>\"`` label and have no scrape target. ``track: false`` is the symmetric matomo opt-out: static-file (autoindex) and 301-redirect vhosts that declare ``services.matomo`` keep the role-wiring intact but carry no user-facing HTML page worth a ``_paq`` tracker, so they are dropped from ``MATOMO_TARGET_ROLES_JSON`` and the matomo tracker e2e contract."
-msgstr "Rola nadal deklaruje usługi dla kompletności inwentaryzacji, ale może zrezygnować z tej listy konsumentów poprzez ustalenie ``services.<service>.scrape: false`` lub ``services.<service>.track: false``. ``scrape: false`` jest używany przez 301-redirect- only vhosts, które deklarują ``services.prometheus`` (więc kontrakt na okablowanie rolowe pozostaje zadowolony) Jednak nigdy nie obsługują prośby przez lua-restya-prometeusz, więc emitują nie ``app=\"<role>\"`` etykieta i nie mają zadrapania celu. ``track: false`` jest symetrycznym matomo opt- out: static- file (autoindex) oraz 301-redirect vhosts, które deklarują ``services.matomo`` zachować okablowanie rolowe nienaruszone, ale nie nosić użytkownika stojącego na stronie HTML warte ``_paq`` tracker, więc są wyrzucane z ``MATOMO_TARGET_ROLES_JSON`` i matomo tracker e2umowy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A role may consume an engine either *embedded* (a sidecar inside its own stack) or *central* (a single pinned ``svc-db-*`` / ``svc-dns-*`` stack shared by many roles), selected per consumer with the ``shared`` flag exactly like the RDBMS (postgres / mariadb) pattern in :mod:`utils.roles.applications.services.database`."
@@ -15513,7 +15513,7 @@ msgstr "Pojedyncza lista elementów posiadająca rozszerzoną listę specyfikacj
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Laboratorium jednowęzłowe nie może odpowiedzieć na kryteria wielowęzłowe: skalowanie repliki, umiejscowienie na dwóch `kata-capable` Węzły klasy Raspberry- Pi-, a composte- plus- swarm end- to- end przechodzą wszystkie potrzebują klastra, który opisuje wymóg. Ramię64 połowa kryterium umieszczenia jest potwierdzona przez kontrolę obrazka powyżej; połowa dwuwęzłowa nie jest."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
@@ -15850,11 +15850,11 @@ msgstr "ATM wygląda na to, że medialny proxy nie jest używany. To może mieć
 
 # translated-by: libretranslate
 msgid "AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)"
-msgstr "AWS3 (API tło): [aws.amazon.com/ s3](https://aws.amazon.com/s3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AWS S3 (API background): `aws.amazon.com/s3 <https://aws.amazon.com/s3>`__"
-msgstr "AWS3 (API tło): `aws.amazon.com/s3 <https://aws.amazon.com/s3>`__"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "AWS access keys and configuration."
@@ -16458,7 +16458,7 @@ msgstr "Dodano zewnętrzny system sprawdzania obrazu Docker, cotygodniowy cron b
 
 # translated-by: libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Dodano liniowy korpus dla: project- walk / cache- read / project- root- import / no- direct- yaml / no- inline- multiline- php- in- sh / no- inline- multiline- sql / no- looku- confident- jinja- default / role- meta- allation / web- role- no- web- dependence / run- once- ardiant- services / redunt- bool- models / sed- escape / no- pipefail / composte- resource- limits / dynamic- flag / authoriv- coverates / varidant- covere / varidant- services-match / Ansible Galaxy schema / inline literal script- cap / production Python file- cap / SPOT- to- to- to- of2 Przydział proksyportów"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -20961,7 +20961,7 @@ msgstr "Wtrysk zaufania CA (`with-ca-trust.sh`)"
 
 # translated-by: libretranslate
 msgid "CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA."
-msgstr "Utwardzanie CA- trust i OIDC- over- signed- TLS: wewnętrzny CA jest zainstalowany w pakiecie OS dla PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*oraz WordPress plugin must-use), Ca- Trust owijacz jest przechowywany na sondzie timeout zamiast degradacji tylko do env-, a wstrzyknięcie CA jest ograniczony, więc nie może powiesić opiekuna. HSTS jest teraz emitowany na każdej reakcji, w tym nie2xx, *skarbiec encrypt_string* czyta tekst jawny ze stdin tak leading- dash wartości szyfrowane, i Mastodon pozwala inline *script- src- elem* dla jego serwerowanych SPA."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CA-trust env handlers."
@@ -21612,7 +21612,7 @@ msgstr "Zdolność"
 
 # translated-by: libretranslate
 msgid "Captures a full failure snapshot on the current level (all containers with their logs and inspect, all swarm services with ps and logs, the systemd journal, host resources), then RECURSES: it copies itself into every running container that carries python3 and a container runtime (DiD) and repeats the capture there, pulling each nested snapshot back under ``containers/<name>/nested/`` - from the outermost caller down to the deepest runtime, however deep the nesting goes. ``RESCUE_SEEN`` carries the ids already entered, so a runtime that lists itself is cut as a cycle."
-msgstr "Uchwyta pełną awarię migawki na aktualnym poziomie (wszystkie kontenery ze swoimi dziennikami i inspekcjami, wszystkie usługi roju z psami i dziennikami, dziennik systemowy, zasoby hosta), następnie RECURSES: kopiuje się do każdego pojemnika, który przewozi pyton3 i pojemnik runtime (DiD) i powtarza uchwyt tam, ciągnąc każdy zagnieżdżony migawki z powrotem pod ``containers/<name>/nested/`` - od najbardziej zewnętrznego rozmówcy aż do najgłębszego biegu, jakkolwiek głębokie jest gniazdo. ``RESCUE_SEEN`` posiada identyfikatory już wprowadzone, więc czas biegania, który sam list jest wycinany jako cykl."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Captures every implicit-POST `gh api` call. Path-based deny rules (`secrets`, `keys`, `collaborators`, `merge`, DELETE/PUT) still take precedence."
@@ -23609,7 +23609,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
-msgstr "Towarzysz statyczny ``inventories/development/swarm.yml``; oba ładowane są przez etap rozmieszczenia. Wytwarza eg25519 keypair at ``KEY_PATH`` jeśli brakuje, więc publiczna połowa może wylądować w ``users.administrator.authorized_keys``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Compare the pinned Galaxy requirements against what is on disk."
@@ -25756,7 +25756,7 @@ msgstr "Domyślna lokalizacja:"
 
 # translated-by: libretranslate
 msgid "Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists."
-msgstr "Domyślny model: brama służy `/v1` bez skonfigurowanego `model.default`; agent skręca potrzeba `hermes config set model.default ollama/<alias>` przeciwko dostawcy LiteLLM. Upiecz go za pomocą szablonu konfiguracyjnego raz na poziomie obrotowym e2Istnieje twierdzenie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default output: the full selection matrix followed by every prompt block (workflow name plus its copy-paste prompt), verbatim and unshortened. When the operator names a situation, output only the matching prompt block."
@@ -26691,7 +26691,7 @@ msgstr "Strategia determinacyjna:"
 
 # translated-by: libretranslate
 msgid "Deterministically derives a Tor v3 hidden-service address and the exact ``HiddenServiceDir`` key files from an ed25519 seed, without running Tor."
-msgstr "Determistycznie wywodzi Tor v3 adres usługi hidden- i dokładne ``HiddenServiceDir`` kluczowe pliki z25519 nasiona, bez biegania Tor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev CLI entry that drives `build_dev_inventory_matrix` to materialise `<inventory-dir>-<round>` folders."
@@ -28377,7 +28377,7 @@ msgstr "Wyeliminowana nazwa kontenera Docker konfliktuje poprzez ponowne użycie
 
 # translated-by: libretranslate
 msgid "Else: generate ed25519 seed → compute expanded secret key (SHA-512(seed), clamp) → derive address per the algorithm above → write the three Tor key files byte-exact."
-msgstr "Inne:25519 seed → obliczyć rozszerzony klucz tajny (Sha-512(nasiona), zacisk) → otrzymać adres według algorytmu powyżej → napisać trzy pliki klucz Tor-dokładne."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email"
@@ -29402,7 +29402,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every other agent deployment in [032](032-agent-employees-firecracker.md) keeps the agent kernel-isolated. This role is the deliberate inverse defined by [032](032-agent-employees-firecracker.md) Decision #12 (embodied / dedicated-device mode): for a robot, the useful trust boundary is the **whole device**, because the agent's job is to drive that device's hardware (GPIO, I2C/SPI sensors, cameras, actuators, motors). A microVM around the agent would only get in the way of the very hardware it is meant to control."
-msgstr "Każdy inny agent rozmieszczony w [032](032-agent-employees-firecracker.md) utrzymuje agenta Kernela w izolacji. Rola ta jest celową odwrotnością zdefiniowaną przez [032](032-agent-employees-firecracker.md) Decyzja #12 (tryb wbudowanego / dedykowanego urządzenia): dla robota, użyteczna granica zaufania jest **całe urządzenie**Ponieważ zadaniem agenta jest prowadzenie sprzętu tego urządzenia. (GPIO, I2Czujniki C / SPI, kamery, siłowniki, silniki)MikroVM wokół agenta tylko stanie na drodze do sprzętu, który ma kontrolować."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every page carries a version switcher in its sidebar. Switching keeps the current page and falls back to the start page of a version that lacks it."
@@ -31549,7 +31549,7 @@ msgstr "Dla każdego klucza pierwsze zdefiniowane źródło wygrywa:"
 
 # translated-by: libretranslate
 msgid "For each role, return ``[primary_key, *covers]`` — the set of service keys whose presence in a consumer's ``services`` map counts as an explicit declaration of a dep on that role. ``covers`` comes from the primary entity's ``covers:`` list (e.g. ``web-app-keycloak`` covers ``oauth2`` because the per-app oauth2-proxy only makes sense when the IdP is on the host)."
-msgstr "Dla każdej roli, powrót ``[primary_key, *covers]`` - zestaw kluczy serwisowych, których obecność w konsumencie ``services`` mapa liczy się jako wyraźna deklaracja dep tej roli. ``covers`` pochodzi z jednostki podstawowej ``covers:`` wykaz (np. ``web-app-keycloak`` pokrywy ``oauth2`` ponieważ oauth per- app2-proxy ma sens tylko wtedy, gdy IDP jest na gospodarzu)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "For each short key, the plugin MUST resolve the value from the first defined source in this order:"
@@ -34873,7 +34873,7 @@ msgstr "Wdrożenie wielościanowego przesyłania za OIDC (archiwizacja req 016).
 
 # translated-by: libretranslate
 msgid "Implement n8n 1.100.1 as an SSE client and one bearer-protected read-only Streamable HTTP workflow server."
-msgstr "Wdrożenie8n 1.100.1 jako klient SSE i jeden zabezpieczony beorer- read- tylko Streamable HTTP workflow serwer."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Implement privilege escalation methods."
@@ -37772,14 +37772,14 @@ msgstr "Klucz, pod którym został stworzony ``<entity>`` sieć pojawia się w r
 
 # translated-by: libretranslate
 msgid "Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Zmienna kluczowa: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (domyślnie: `false`) umożliwia uwierzytelnianie haseł, gdy jest wyraźnie wymagane przez kontrolowane środowiska, takie jak lokalne E2Cele testowe E."
+msgstr ""
 
 msgid "Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `\"no\"`) sets `PermitRootLogin`. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before `user-administrator` exists, so that deploy passes `\"prohibit-password\"` through its `--vars` JSON."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Key variable: ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (default: ``false``) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Zmienna kluczowa: ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (domyślnie: ``false``) umożliwia uwierzytelnianie haseł, gdy jest wyraźnie wymagane przez kontrolowane środowiska, takie jak lokalne E2Cele testowe E."
+msgstr ""
 
 msgid "Key variable: ``SYS_SVC_SSHD_PERMIT_ROOT_LOGIN`` (default: ``\"no\"``) sets ``PermitRootLogin``. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before ``user-administrator`` exists, so that deploy passes ``\"prohibit-password\"`` through its ``--vars`` JSON."
 msgstr ""
@@ -40059,7 +40059,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Matrix mosty zmodernizowane: Sygnał, Telegram, WhatsApp i Slack mosty migrują do Bridgev2 config, martwe mosty mautrix- facebook / instagram są zastąpione przez mautrix- meta, specyfikacje mostowe są zaryglowane przez addon rozmieszczone, Synapse ładuje rejestracje mostów z zamontowanego katalogu, a rola teraz utwory *matrix- docker- ansible- explosion* od spantaleev w górę rzeki."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40276,7 +40276,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Połącz dwie listy dysków na danym kluczu. - lista1, wykaz2: każda z nich musi być listą[Dict] - key_name: pole do dopasowania Jeśli obie listy zawierają element o tym samym key_name wartość, ich słowniki są połączone (pola z listy2 nadpisać lub dodać do listy1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40454,7 +40454,7 @@ msgstr "Ment a v3 Klucz cebulowy z ``seed`` (32 bajty losowe, jeżeli pominięto
 
 # translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr "Mięta z podstawy64- zakodowane nasienie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mint helper & key persistence"
@@ -42548,7 +42548,7 @@ msgstr "Jeden OpenAI- kompatybilny `/v1`, trasy do dowolnego tła (bez głowy, t
 
 # translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr "Jeden Pi dołącza jako `kata-capable` ramię64 węzeł; `web-app-hermes` osadza się tam pod izolacją wybraną przez przelot (Decyzja #4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
@@ -47475,7 +47475,7 @@ msgstr "Reconciles 3.1.4 Usprawnienie rejestru HTTP i zarządzanego przepływu. 
 
 # translated-by: libretranslate
 msgid "Reconciliation updates or removes only entries carrying its own ownership marker and preserves human-created configuration. Zero matches creates, one updates, more than one fails rather than guessing which duplicate to keep. The marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "Pojednanie aktualizuje lub usuwa tylko wpisy z własnym markerem własności i zachowuje konfigurację stworzoną przez człowieka. Zero dopasowania tworzy, jedna aktualizacja, więcej niż jeden nie lepiej niż zgadywanie, który duplikat zachować. Wskaźnik jest na klienta, ponieważ nazwa nie zawsze jest darmowa: Wpisy rejestru Flowise są `infinito:<provider-application-id>`, Open WebUI grupy posiadają ścieżkę grupy RBAC Keycloak oraz8n używa skonfigurowanej nazwy przepływu pracy."
+msgstr ""
 
 msgid "Record the tree after every green gate: `GIT_INDEX_FILE=<scratch file> git read-tree HEAD`, then `git add -A` and `git write-tree` with the same `GIT_INDEX_FILE`. A working tree that writes the same hash needs no new gate."
 msgstr ""
@@ -48375,7 +48375,7 @@ msgstr "Zmiana nazwy *compose.services.desktop* do *compose.services.dashboard*"
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Zmieniona nazwa rozmieszczenia do rozmieszczenia kompozytowego wzdłuż marki, `container-*` czyści i odświeża `compose-*`, zadania backup do `svc-bkp-*` z pojemnikiem / miejscem2-zdalne innokacyjne punkty wejściowe, status wyszukiwania do rozmieszczenia przy pomocy flagi o wiedzy o czasie działania, `dmbs_*/dbms_base` szablony do a container_depends_on Patrz, INFINITO_CMD do zwykłego parametru cmd, oraz web-opt-rdr-www kanoniczne do w3przekierowanie mapowaniem opartym na wyglądzie"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed mirror workflows (*mirror-images-* → *images-mirror-*)"
@@ -50655,7 +50655,7 @@ msgstr "Powrót do podsumowania min_storage z app_ids i ich przejściowe zależn
 
 # translated-by: libretranslate
 msgid "Return the tags of *image* from its registry's v2 API."
-msgstr "Zwróć znaczniki *obrazek* z rejestru2 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the target code the server knows this catalog code by."
@@ -53706,7 +53706,7 @@ msgstr "Badania SSO 🔐"
 
 # translated-by: libretranslate
 msgid "SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key."
-msgstr "Smak SSO jest **OIDC- direct** (`services.sso.flavor: oidc`), Nie.2- Proxy. Rola wykorzystuje budynek Frappe w Social Login Key."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO flavor is **`oidc` (native)** — Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`. No `oauth2-proxy` sidecar."
@@ -54244,11 +54244,11 @@ msgstr "Bezpieczeństwo: rozwiązane wszystkie 80 otwarte alarmy CodeQL / Code- 
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to `127.0.0.1` and every request traverses the oauth2-proxy that overwrites `X-Forwarded-*`. The `X-Auth-Request-*` / `Remote-User` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through `web-svc-logout` / the oauth2-proxy sign-out, not Postmarks' own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Bezpieczeństwo: nagłówki tożsamości są zaufane bezwarunkowo, co jest bezpieczne tylko dlatego, że port aplikacji jest związany z `127.0.0.1` I każda prośba przemierza oauth2-proxy, które nadpisuje `X-Forwarded-*`. `X-Auth-Request-*` / `Remote-User` warianty są celowo ignorowane, więc uwierzytelniony klient nie może podać innej tożsamości. Wylogowanie musi przejść `web-svc-logout` / Oauth2-proxy sign- out, not Postmarks'własny link do logowania, ponieważ nagłówek proxy ponownie ustanawia sesję na następnym żądaniu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to ``127.0.0.1`` and every request traverses the oauth2-proxy that overwrites ``X-Forwarded-*``. The ``X-Auth-Request-*`` / ``Remote-User`` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through ``web-svc-logout`` / the oauth2-proxy sign-out, not Postmarks’ own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Bezpieczeństwo: nagłówki tożsamości są zaufane bezwarunkowo, co jest bezpieczne tylko dlatego, że port aplikacji jest związany z ``127.0.0.1`` I każda prośba przemierza oauth2-proxy, które nadpisuje ``X-Forwarded-*``. ``X-Auth-Request-*`` / ``Remote-User`` warianty są celowo ignorowane, więc uwierzytelniony klient nie może podać innej tożsamości. Wylogowanie musi przejść ``web-svc-logout`` / Oauth2-proxy sign- out, not Postmarks'własny link do logowania, ponieważ nagłówek proxy ponownie ustanawia sesję na następnym żądaniu."
+msgstr ""
 
 msgid "See :mod:`utils.mail.provider` for why this is not simply ``MAIL_PROVIDER``."
 msgstr ""
@@ -58452,7 +58452,7 @@ msgstr "Test- e2e- cli Role"
 
 # translated-by: libretranslate
 msgid "Test-e2e-playwright Role"
-msgstr "Test- e2Rola e- dramaturga"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-fresh: the goal is green compose **and** swarm deploys on fresh act clusters. No embedded->central data migration path (that is a separate prod-upgrade concern)."
@@ -59509,7 +59509,7 @@ msgstr "CMD- SHELL pisownia :func:`curl_argv`, cytowane za skorupę."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "Architektura procesora jest tym samym rodzajem własności i nie była w ogóle pokryta. Każda praca została wykonana `ubuntu-latest`, więc każde przeszukanie okazało się amd64 i nie powiedział nic o ręce64, podczas gdy projekt statków ról, których obrazy, koła i binaria w górę różnią się w zależności od architektury. Rola, która nie może działać na rękę64 był nie do odróżnienia od tego, którego nikt tam nie próbował."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -60552,7 +60552,7 @@ msgstr "Agent nie posiada żadnego modelu wiarygodności: wzywa `http://agent-br
 
 # translated-by: libretranslate
 msgid "The agent images run on arm64"
-msgstr "Obraz agenta działa na ramieniu64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes ``~/.claude/settings.json`` with an ``env`` block carrying the gateway URL, the workstation’s key and the model aliases to use, so every request leaves the machine through the gateway and is accounted there."
@@ -62673,11 +62673,11 @@ msgstr "Liczba zrzutów powtórzyła się."
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL w [`meta/services.yml`](./meta/services.yml) Tylko czarne listy `/login`, oraz `sys-svc-proxy` robi czarną listę jako *demaskowanie wszystkiego domyślnie, a następnie ochrona wymienionych ścieżek*Pomocnik ląduje `/`, który jest publiczny, więc pełnomocnik nigdy nie przechwytuje go i Keycloak Wycieczka w obie strony nigdy się nie zaczyna."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL w ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, który jest publiczny, więc pełnomocnik nigdy nie przechwytuje go i Keycloak Wycieczka w obie strony nigdy się nie zaczyna."
+msgstr ""
 
 msgid "The object store itself lives in [web-svc-seaweedfs](../web-svc-seaweedfs/), which owns the storage engine, the per-consumer identities and the public S3 endpoint. This role adds only the human-facing half: an nginx sidecar that routes two canonical domains to the engine's internal filer and master ports."
 msgstr ""
@@ -62941,7 +62941,7 @@ msgstr "Przygnieciona budowa jest amd64 AppImage, a rola odmawia zbioru innej ar
 
 # translated-by: libretranslate
 msgid "The pinned image runs on arm64"
-msgstr "Przypięty obraz biegnie na ramieniu64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle."
@@ -63526,7 +63526,7 @@ msgstr "Odrzucony tekst podróżuje z werdyktem, aby katalog mógł go nagrać: 
 
 # translated-by: libretranslate
 msgid "The remaining reproductions of Jev, [open-alternative-jev](https://github.com/ikermoel/open-alternative-jev) on any open-weights model and OpenJev on DiffusionGemma 26B-A4B, are not used."
-msgstr "Pozostałe reprodukcje Jeva, [open- activit- jev](https://github.com/ikermoel/open-alternative-jev) na dowolnym modelu open- weights i OpenJev na DiffusionGemma 26B-4B, nie są używane."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The remaining variables match the requirements of the delegated script. See its `README.md` for details."
@@ -64637,7 +64637,7 @@ msgstr "Wspólne ``biber`` oraz ``administrator`` Podróże osób są wybierane 
 # wylogowania w aplikacji.
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Wspólne ``biber`` oraz ``administrator`` Podróże osób są wybierane poprzez ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` w ``templates/playwright.env.j2``. Oauth2-proxy sidecar tylko bramy vhost - FusionDirectory utrzymuje swój własny LDAP- bind logowanie za nim, które rolę OIDC scenariusz w ``files/playwright/playwright.spec.js`` twierdzi, spodziewając się \"Zaloguj się\" przycisk nadal być widoczne po Keycloak Podróż. ``tasks/main.yml`` przepisy FusionDirectory konta, więc Keycloak mapy identyfikacyjne do żadnej sesji katalogowej, którą współdzieleni pomocnicy mogli przenieść do wylogowania w aplikacji."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -64804,11 +64804,11 @@ msgstr "Sidecar jest dostępny tylko w sieci kontenerów, więc klient sonduje g
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above. A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally."
-msgstr "Oaut boczny2-proxy przyznaje tylko LibreTranslate administrator grupy RBAC i białych tylko maszyna API ścieżki (`/translate`, `/detect`...); patrz [`meta/services.yml`](./meta/services.yml). Wewnątrz aplikacji, autoryzacja jest API-key- tier tylko i oddzielone od IDP, jak udokumentowane pod [Pojedyncze oznakowanie](#single-sign-on) powyżej. Odwiedzający nie-admin dlatego nie ma sesji UI do prowadzenia, więc [`templates/playwright.env.j2`](./templates/playwright.env.j2) deklaruje `PERSONA_BIBER_BLOCKED=true`. `administrator` oraz `guest` Personas działa bezwarunkowo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (``/translate``, ``/detect``, …); see ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Single sign-on <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas run unconditionally."
-msgstr "Oaut boczny2-proxy przyznaje tylko LibreTranslate administrator grupy RBAC i białych tylko maszyna API ścieżki (``/translate``, ``/detect``...); patrz ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Pojedyncze oznakowanie <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` Personas działa bezwarunkowo."
+msgstr ""
 
 msgid "The sidecar reaches the engine over the shared object-store network, so the console can be deployed, removed or left out of a node without touching the store. A node that does not run this role keeps its object store and its S3 endpoint; it simply has no browser console."
 msgstr ""
@@ -65303,7 +65303,7 @@ msgstr "Narzędzia userland są pieczone w każdym obrazie disco przez [filesyst
 
 # translated-by: libretranslate
 msgid "The v3 address is ``base32(PUBKEY || CHECKSUM || VERSION)`` where ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` and ``VERSION = 0x03`` (see spec.torproject.org/address-spec). Tor stores the *expanded* ed25519 secret key ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; the public key ``clamp(SHA512(seed)[:32]) * B`` equals the standard ed25519 public key, so it is taken straight from ``cryptography`` without needing scalar multiplication."
-msgstr "V3 adres ``base32(PUBKEY || CHECKSUM || VERSION)`` gdzie ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` oraz ``VERSION = 0x03`` (patrz spec.torproject.org/ address- spec). Tor przechowuje *rozszerzony* do25519 tajny klucz ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` w ``hs_ed25519_secret_key``; klucz publiczny ``clamp(SHA512(seed)[:32]) * B`` równa się standardowi25519 klucz publiczny, więc jest odbierany bezpośrednio z ``cryptography`` bez potrzeby mnożenia skalarnego."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value a row draws from *pool* this sweep: a plain rotation over the row's global position, so consecutive rows spread across the pool and consecutive sweeps move every row on to the next value."
@@ -67432,7 +67432,7 @@ msgstr "Ta rola konfiguruje podstawowe środowisko użytkownika (powłoki dotfil
 
 # translated-by: libretranslate
 msgid "This role configures a systemd timer to periodically start a corresponding service. It uses a Jinja2 template to create a timer unit file that specifies the scheduling parameters (such as OnCalendar and RandomizedDelaySec) and then restarts the timer service accordingly."
-msgstr "Ta rola konfiguruje czas systemowy, aby okresowo rozpocząć odpowiednią usługę. Używa Jinji.2 szablon do tworzenia pliku jednostki czasu, który określa parametry planowania (takie jak OnCalendar i RandomizedDelaySec) a następnie odpowiednio ponownie uruchamia usługę zegara."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role configures an [NGINX](https://NGINX.org/) server to host a static HTML homepage securely over HTTPS. It automates domain configuration, SSL/TLS certificate retrieval using [Let's Encrypt](https://letsencrypt.org/), and ensures your site is ready for production with minimal setup."
@@ -67480,7 +67480,7 @@ msgstr "Ta rola tworzy użytkownika stacji roboczej wybranego przez WORKSTATION_
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (`MM_GITLABSETTINGS_*` in `templates/env.j2`); the resulting entry point is `a[href='/oauth/gitlab/login']`, relabelled \"SSO with Infinito.Nexus\" by `templates/javascript.js.j2`, which the shared helper's name-based login matcher does not recognise. Mattermost v11+ also serves a `/landing` interstitial to unauthenticated visitors that only clears once `localStorage.__landingPageSeen__` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Rola ta oświadcza `PERSONA_ADMINISTRATOR_BLOCKED` oraz `PERSONA_BIBER_BLOCKED` w `templates/playwright.env.j2` dla tego samego mechanizmu. Maximum Team Edition statków nie rodzimej dostawcy OIDC, więc rola backbacks Keycloak do GitLab Szczelina OAuth (`MM_GITLABSETTINGS_*` w `templates/env.j2`); wynikowym punktem wejścia jest `a[href='/oauth/gitlab/login']`, znakowany \"SSO Infinito.Nexus\" przez `templates/javascript.js.j2`, którego współdzielony pomocnik nie rozpoznaje. Matematycznev11+ służy również `/landing` interstitial do nieuwierzytelnionych gości, które oczyszczają tylko raz `localStorage.__landingPageSeen__` jest posadzony przed nawigacją, a wspólny pomocnik nie ma haka init-script, aby to zrobić."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -67520,7 +67520,7 @@ msgstr "Rola ta oświadcza `PERSONA_BIBER_BLOCKED` w `templates/playwright.env.j
 # wspólny pomocnik nie ma haka init-script, aby to zrobić.
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Rola ta oświadcza ``PERSONA_ADMINISTRATOR_BLOCKED`` oraz ``PERSONA_BIBER_BLOCKED`` w ``templates/playwright.env.j2`` dla tego samego mechanizmu. Maximum Team Edition statków nie rodzimej dostawcy OIDC, więc rola backbacks Keycloak do GitLab Szczelina OAuth (``MM_GITLABSETTINGS_*`` w ``templates/env.j2``); wynikowym punktem wejścia jest ``a[href='/oauth/gitlab/login']``, z oznakowaniem \"SSO Infinito.Nexus\"przez ``templates/javascript.js.j2``, którego współdzielony pomocnik nie rozpoznaje. Matematycznev11+ służy również ``/landing`` interstitial do nieuwierzytelnionych gości, które oczyszczają tylko raz ``localStorage.__landingPageSeen__`` jest posadzony przed nawigacją, a wspólny pomocnik nie ma haka init-script, aby to zrobić."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for two different reasons. The MinIO Console version pinned here never renders an SSO button — ``/api/v1/login`` answers ``redirectRules: null`` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (``MINIO_OIDC_POLICY_NAME`` in ``vars/main.yml``, attached in ``tasks/02_ldap.yml``) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -69414,7 +69414,7 @@ msgstr "Przewóz"
 
 # translated-by: libretranslate
 msgid "Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit."
-msgstr "Wypróbowane i mierzone: praca obrazu przeszła z poniżej dziesięciu minut do ponad dwóch godzin, ponieważ każde ramię64 warstwa po `COPY .` powtórzenia emulowane na każdym commit."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trigger"
@@ -72612,7 +72612,7 @@ msgstr "Co to jest Infinito.Nexus? 📌"
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Co jest już możliwe do udowodnienia bez niego: strażnik wstępu odmawia wspólnego hosta lub pustego urządzenia allowlist, oba zdjęcia agenta publikuje `linux/arm64`, i żaden agent nie jest przypięty do ramienia.64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -78092,7 +78092,7 @@ msgstr "[Bridgy Fed Source na GitHub](https://github.com/snarfed/bridgy-fed)"
 
 # translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "[Bridgy Fed](https://fed.brid.gy/) jest most federacyjny między ActivityPub (Fediversity), Protokół AT (Bluesky), i IndieWeb (WWW i mikroformaty2)To odbija tożsamość i interakcje międzysieciowe, więc post w jednej sieci dociera do wyznawców innych."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -82085,7 +82085,7 @@ msgstr "[x] Zintegrowana pamięć masowa Raft jest konfigurowana ze swoim katalo
 
 # translated-by: libretranslate
 msgid "[x] Reconciliation owns only deterministically named resources, fails on duplicates, and preserves human-created resources. The ownership marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "[x] Pojednanie posiada tylko określone zasoby, nie powiela się i zachowuje zasoby stworzone przez człowieka. Marker własności jest na klienta, ponieważ nazwa nie zawsze jest darmowa: Wpisy rejestru Flowise są `infinito:<provider-application-id>`, Open WebUI grupy posiadają ścieżkę grupy RBAC Keycloak oraz8n używa skonfigurowanej nazwy przepływu pracy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Redis is provided via the `redis` service block in `meta/services.yml` (auto-emitted `svc-db-redis` sidecar; service name `redis`)."
@@ -82661,7 +82661,7 @@ msgstr "[x] Z `services.mcp.enabled=true`, funkcja uptime / stanus-code check na
 
 # translated-by: libretranslate
 msgid "[x] With the flag on, the play mounts `pki`, generates an internal root CA and one issuing role, and a service certificate can be issued from it. Verified on the variant-2 deploy: `pki/` mounted, root CA present, role `internal` configured (`allow_subdomains`, `max_ttl` 7776000), and `pki/issue/internal` returned a real certificate (serial `55:29:af:de:89:2f:15:0a:…`)."
-msgstr "[x] Z flagą, gra wznosi `pki`, generuje wewnętrzny korzeń CA i jedną rolę wydającą, a certyfikat usługi może być wydany z niego. Weryfikacja wariantu2 rozmieszczenie: `pki/` montowane, korzeń CA obecny, rola `internal` skonfigurowane (`allow_subdomains`, `max_ttl` 7776000), oraz `pki/issue/internal` zwrócił prawdziwy certyfikat (szeregowe `55:29:af:de:89:2f:15:0a:…`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] WordPress, Discourse, Odoo, Hermes, OpenClaw, Flowise, and the 11 missing upstream-path roles are reclassified exactly as the ADR requires before their old status is considered complete."
@@ -82882,7 +82882,7 @@ msgstr "[x] `deploy.update_config` jest pobrany ze zmiennej per- role z udokumen
 
 # translated-by: libretranslate
 msgid "[x] `docker compose down && up` (container recreated, volume retained) leaves a previously written secret readable. Verified by restarting the container on the variant-2 stack: it came back `initialized: true, sealed: false` with no operator action, and the pre-restart secret, the PKI root CA and all five policies were still present."
-msgstr "[x] `docker compose down && up` (pojemnik odtworzony, zachowana objętość) pozostawia wcześniej napisane tajne czytelne. Weryfikowany przez ponowne uruchomienie pojemnika na wariancie2 stos: wrócił `initialized: true, sealed: false` bez działania operatora, a przed ponownym uruchomieniem sekretu, PKI korzeń CA i wszystkie pięć polityki były nadal obecne."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] `docs/requirements/027-integration-matrix.md` lists the AI surface of every role in the confirmed table."
@@ -83109,7 +83109,7 @@ msgstr "[x] `svc-ai-litellm` publikuje dodatkowe `auto` aliasy i wszystkie alias
 
 # translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr "[x] `svc-ai-lmstudio` jest ograniczona do x86 węzeł i nigdy nie jest planowane na ramię64/ Pi węzeł."
+msgstr ""
 
 msgid "[x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group."
 msgstr ""
@@ -83164,7 +83164,7 @@ msgstr "[x] `web-app-openwebui` statków Playwright spec, który loguje się jak
 
 # translated-by: libretranslate
 msgid "[x] n8n 1.100.1 is declared as an SSE client and a Streamable HTTP server, and its managed credentials and workflows are idempotently provisioned through supported public APIs. The server moved from 1.95.3's SSE-only trigger because Open WebUI 0.11.0 ships only a Streamable HTTP client and answered the SSE route with a POST that n8n refused with 404. `meta/mcp.yml` declares `direction: both` and `transport: streamable_http` at `/mcp/infinito-mcp`; `files/python/provision/mcp.py` renders the server workflow and `files/python/provision/client.py` the agent workflow, both through `/api/v1/workflows`. Credentials go through `/rest` because the public API of that tag exposes only create and delete for them, which cannot converge an existing one. Two idempotence defects were fixed here: the run reported `CHANGED` forever, because the public-API key it minted was found again on the next run and counted as a change, and that key was left standing in n8n afterwards although nothing read it. It is now minted per run, revoked before the run ends, and no longer reported."
-msgstr "[x] n8n 1.100.1 jest deklarowany jako klient SSE i Streamable HTTP Server, a jego zarządzane referencje i przepływy robocze są idealnie zaopatrzone za pośrednictwem wspieranych publicznych API. Serwer przeniesiony z 1.95.3SSE - tylko wyzwalacz, ponieważ Open WebUI 0.11.0 statków tylko Streamable HTTP klienta i odpowiedział na trasę SSE z POST, że n8z 404. `meta/mcp.yml` deklaruje `direction: both` oraz `transport: streamable_http` at `/mcp/infinito-mcp`; `files/python/provision/mcp.py` powoduje przepływ pracy serwera i `files/python/provision/client.py` przepływ pracy czynnika, zarówno przez `/api/v1/workflows`. Kredyty przejść `/rest` ponieważ społeczeństwo API tego znacznika eksponuje tylko tworzyć i usuwać dla nich, które nie mogą zbieżnie istniejące. Dwie wady idempotencji zostały ustalone tutaj: raport przebiegu `CHANGED` na zawsze, ponieważ publiczność...API klucz został ponownie znaleziony na następnym biegu i policzony jako zmiana, a ten klucz pozostał w n8n później, chociaż nic nie przeczytał. Jest teraz wybijany za każdym razem, wycofany przed zakończeniem biegu, i już nie zgłaszane."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] n8n client nodes use exact tool include lists; server triggers require Bearer auth, expose only connected checked-in tools, and remain disabled until operator opt-in. Each client node renders `include: selected` with the provider's own `mcp.tools.allowlist`, which the discovery snapshot now carries; the node's default is `all`, so an omitted list would hand the agent every tool an upstream happens to serve. The server trigger pins `authentication: bearerAuth` against a managed `httpBearerAuth` credential, and the surface ships `enabled: false`. \"Only connected checked-in tools\" is upstream's own mechanism: `getConnectedTools` in `@utils/helpers` collects exactly what reaches the trigger over an `ai_tool` connection, so the workflow's connection map is the allowlist. The workflow previously connected nothing at all, so the trigger served an empty tool set; it now carries one checked-in read tool, `infinito_health`, with an explicit input schema."
@@ -83742,7 +83742,7 @@ msgstr "`Bluesky <https://bsky.social/>`__ jest zdecentralizowaną siecią społ
 
 # translated-by: libretranslate
 msgid "`Bridgy Fed <https://fed.brid.gy/>`__ is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "`Bridgy Fed <https://fed.brid.gy/>`__ jest most federacyjny między ActivityPub (Fediversity), Protokół AT (Bluesky), i IndieWeb (WWW i mikroformaty2)To odbija tożsamość i interakcje międzysieciowe, więc post w jednej sieci dociera do wyznawców innych."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`CA_ROOT.cert_host` (default: `/etc/infinito.nexus/ca/root-ca.crt`)"
@@ -84315,7 +84315,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ jest Node.
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (podstawa64 32 bajty, `head -c32 /dev/urandom | base64`) szyfruje przechowywane klucze dostępu; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` bezpieczne sesje."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -84811,7 +84811,7 @@ msgstr "``None`` w sprawie wszelkich nieokreślonych wyników (patrz :func:`fetc
 
 # translated-by: libretranslate
 msgid "``None`` on any indeterminate outcome: unresolvable name, network error, auth wall, rate limit, non-200 status, or unparsable body."
-msgstr "``None`` w przypadku wszelkich nieokreślonych wyników: nierozwiązana nazwa, błąd sieciowy, ściana autu, limit prędkości, nierozliczone200 status, lub niezrównane ciało."
+msgstr ""
 
 msgid "``None`` when the title carries no deploy row. ``name`` is the display name, returned unresolved -- callers decode it through ``utils.roles.display``, which is what knows the role tree. ``tor``, ``distro``, ``filesystem``, ``architecture`` and ``vpn`` matter because a priority role runs the same mode and variant several times over, and only the glyphs tell those jobs apart -- a retrigger built from the title alone would otherwise replay a different combination than the one that failed."
 msgstr ""
@@ -85521,7 +85521,7 @@ msgstr "``ldap``: trzy scenariusze RBAC dodatkowo zależą od synchronizacji gru
 
 # translated-by: libretranslate
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "``ldapauth`` jest jedyną drogą, która materializuje ``friendica.user`` wiersz, więc jego enablement pochodzi bezpośrednio z ``ldap`` flaga serwisowa. Oauth2-proxy ``sso`` brama przed vhost jest front- drzwi bramy auth, a nie most addon, i pozostaje w ```meta/services.yml`` <./meta/services.yml>`- Nie. Ścieżka logowania LDAP jest pokryta przez istniejący spec LDAP Playwright (wymóg 018), więc nie jest dodany specjalny spec."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``libaacs`` (AACS decryption library)"
@@ -85734,7 +85734,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``noqa`` and ``nocheck`` are accepted as synonyms (case-insensitive) by this parser. By repo convention every project rule from ``docs/contributing/actions/testing/suppression.md`` MUST use ``nocheck:`` because ``# noqa: <code>`` is also parsed by ruff as a flake8 directive and triggers ``invalid-noqa-code`` warnings on every project-specific rule key. ``noqa:`` is reserved for real flake8 / ruff codes (``E402``, ``F401``, …). The ``direct-yaml`` lint enforces the convention by hard-rejecting the ``noqa:`` form."
-msgstr "``noqa`` oraz ``nocheck`` są akceptowane jako synonimy (nieczuły na przypadek) Przez tego parsera. Zgodnie z konwencją repo wszystkie zasady projektu z ``docs/contributing/actions/testing/suppression.md`` MUSI STOSOWAĆ ``nocheck:`` ponieważ ``# noqa: <code>`` jest również traktowany przez ruff jak płatek8 dyrektywy i wyzwalaczy ``invalid-noqa-code`` ostrzeżeń na każdym kluczu zasad specyficznych dla danego projektu. ``noqa:`` jest zarezerwowany dla prawdziwych płatów8 / kody kodowe (``E402``, ``F401``...). ``direct-yaml`` lint wzmacnia konwencję przez trudne-odrzucenie ``noqa:`` Forma."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``offset`` moves that start deliberately: it is how an operator reaches the tail without waiting for anything. It defaults to 0, so every run that does not ask for it deploys the same head and can be compared against the last one. This used to be derived from the sweep number instead, which bought tail coverage at the price of the head -- chunk 0 began wherever the arithmetic pointed, the rows that matter most ran only every few sweeps, and no two runs were comparable."
@@ -87490,7 +87490,7 @@ msgstr "`ldap`: trzy scenariusze RBAC dodatkowo zależą od synchronizacji grupy
 
 # translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "`ldapauth` jest jedyną drogą, która materializuje `friendica.user` wiersz, więc jego enablement pochodzi bezpośrednio z `ldap` flaga serwisowa. Oauth2-proxy `sso` brama przed vhost jest front- drzwi bramy auth, a nie most addon, i pozostaje w [`meta/services.yml`](./meta/services.yml). Ścieżka logowania LDAP jest pokryta przez istniejący LDAP Spec Playwright (wymóg 018), więc nie jest dodany specjalny spec."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
@@ -87862,7 +87862,7 @@ msgstr "`no-reply` użytkownika `web-app-mailu` token, jeszcze pusty ciąg"
 
 # translated-by: libretranslate
 msgid "`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\\d+`."
-msgstr "`noqa` oraz `nocheck` są nieczułymi synonimami w parserze. Każda zasada projektu MUSI stosować `nocheck:` ponieważ `# noqa: <code>` jest również traktowany przez ruff jak płatek8 dyrektywy i ostrzega o niepłatkowanych8 klucze. Rezerwa `noqa:` na prawdziwe płatki8 / kody kodowe (`E402`, `F401`...). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) twarde odrzuty `# noqa: <code>` którego kody nie pasują `[A-Z]+\\d+`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`npm install` (Ansible task in runner)"
@@ -89972,11 +89972,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64"
-msgstr "ramię64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64 runner capacity becomes a dependency of the deploy matrix. A pool without capacity queues those rows rather than failing them."
-msgstr "ramię64 zdolność biegania staje się zależna od matrycy rozmieszczania. Basen bez zdolności przewozowej nawiązuje do tych wierszy, a nie zawodzi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "as `enforced`, and rows that cannot take an onion are dropped"
@@ -90142,7 +90142,7 @@ msgstr "podstawa lub współczynnik nie jest liczbowy lub ujemny."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "podstawa64- zakodowane 32 bajty losowe; ES-256- Klucz GCM."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -95556,7 +95556,7 @@ msgstr "python -m cli.administration.inventory.devices ..."
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "python -m cli.meta.ci.architectures [\"amd64 ramię64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -97048,7 +97048,7 @@ msgstr "aplikacje w tej rundzie rozmieszczone."
 
 # translated-by: libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
-msgstr "Architektura nie ma etykiety. Wraca do karetki.64 Runner rozłożyłby ramię.64 wiersz na amd64 sprzęt i zgłosić go zielony pod ramieniem64 tytuł pracy."
+msgstr ""
 
 msgid "the browser binary."
 msgstr ""
@@ -98909,7 +98909,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ _ wsl2 moduł"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
@@ -99266,7 +99266,7 @@ msgstr "utils.install.lint.hadolint moduł"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ _ cli2 moduł"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -100265,7 +100265,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\.168\\.24\\.\\ d +"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} - > skarpety5h: / / tor:<port> (roje)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""
@@ -100815,7 +100815,7 @@ msgstr "🟢 Bezpieczna do wyłączenia. Zazwyczaj nie ma wpływu funkcjonalnego
 
 # translated-by: libretranslate
 msgid "🧊 Install the ext4, btrfs and zfs userlands via `filesystem.sh` (distro packages, EPEL for btrfs on CentOS, the AUR PKGBUILD for zfs on Arch, the zfsonlinux repository on Fedora/CentOS); the kernel side comes from the host"
-msgstr "🧊 Zainstaluj ekst4, btrfs i zfs userlands via `filesystem.sh` (pakiety disco, EPEL dla btrfs na Centos, AUR PKGBUILD dla zfs na Arch, repozytorium zfsonlinux na Fedora / CentOS); strona jądra pochodzi od gospodarza"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🧠 [RetroArch - Wikipedia](https://en.wikipedia.org/wiki/RetroArch)"

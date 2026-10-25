@@ -1051,12 +1051,12 @@ msgstr "پلت فرم وب مبتنی بر NGINX و پروکسی معکوس با
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "صفحه استاتیک NGINX که دارای یک اثر قانونی است (Impressum) از جینجا2 الگو"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr "NLLB200 مدل ترجمه بیش از HTTP، برای خطوط لوله ای که آن را به طور مستقیم می نامند."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1230,7 +1230,7 @@ msgstr "Open-source، پلت فرم پیام رسانی تیم خود میزبا
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI سازگار دروازه LLM مسیریابی یک /1 نقطه پایانی به کلیدهای محلی و میزبانی شده با کلید های مصرف کننده"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1577,7 +1577,7 @@ msgstr "سرویس دایرکتوری LDAP برای کاربر متمرکز، گ
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "خود میزبان S3ذخیره سازی شیء سازگار برای فایل ها، رسانه ها، پشتیبان گیری ها و مصنوعات AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1876,9 +1876,6 @@ msgstr "ذخیره سازی"
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
-"System\n"
-"English: System\n"
-"Farsi: سیستم"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
@@ -2032,7 +2029,7 @@ msgstr "ابزارهایی که به بهینه سازی سرورهای وب ک�
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon این گره را به عنوان یک v منتشر کرد3 خدمات Onion"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"

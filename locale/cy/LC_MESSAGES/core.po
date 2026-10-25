@@ -399,10 +399,6 @@ msgstr "Core NGINX webserver gyffocawen HTTP ac stream stream gyffocawen TCP/UDP
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
-"Corporate design configuration owner și serviciu flag, redirecționând numele de domeniu spre CDN\n"
-"---\n"
-"\n"
-"`design`"
 
 # translated-by: ollama
 msgctxt "role:sys-front-inj-design:description"
@@ -578,8 +574,6 @@ msgstr "Stack Docker per taniau datablysau ffeilliau'r llynedd gyffredinol gyda 
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
-"Bootstrapping iawn clustur a rollau benn trepa a chéile ar déaradh múltiple chéile stairm.\n"
-"chóirdeannan syne."
 
 # translated-by: ollama
 msgctxt "role:web-svc-onlyoffice:description"
@@ -1949,8 +1943,6 @@ msgstr "Cysccwlwr y drafod Python, prif sicrhau a datascience am Linsysys"
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Cymadeuwyr\n"
-"---"
 
 # translated-by: ollama
 msgctxt "menu:User Management:description"
@@ -2082,7 +2074,7 @@ msgstr "Client webdir web de LDAP per ei fod, ei gwyddoniedol a ei chymdeud i di
 # translated-by: ollama
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Web-based administration a chyfnodol ac drafodol pwyllgor gyfanol gyntafol o PostgreSQL pwyllgau, wrth gyhoeddydd Oauth2 log-in"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-phpmyadmin:description"

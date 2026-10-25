@@ -61,15 +61,11 @@ msgstr "Réunion d'environnement de bureau agrégée qui inclus le café, les ex
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr ""
-"Alerte\n"
-"---\n"
-"\n"
-"Could you please provide the text you would like translated?"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Tout-en-uno serveur robuste pour un serveur de messagerie avec SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV et filtrage anti-spam intégré"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -371,10 +367,6 @@ msgstr "Bâtiment de base de données relationnelle conteneurisée avec la provi
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr ""
-"Gestion de contenu \n"
-"---\n"
-"\n"
-"Note: The term \"Content Management\" can be translated to \"Gestion de contenu\" in French."
 
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
@@ -434,9 +426,6 @@ msgstr "Installer de distribution跨包管理器与校验和验证、可复现�
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr ""
-"Maintenance routine pour la maintenance de la distribution entre les disques pour la réclamation dans les environnements CI, de conteneur et de construction \n"
-" \n"
-"Note: The term \"cross-distribution\" can be translated as \"entre distributions\" in French, but the context might not be clear. The translation is done to match the structure of the original text."
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -607,10 +596,6 @@ msgstr "Brevet d'information"
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
 msgstr ""
-"Documentation et applications Wiki\n"
-"---\n"
-"\n"
-"Note: The term \"Wiki\" can vary in translation depending on the context and culture, but \"Wiki\" is commonly used in English and many other languages. If you need it in a specific language, please let me know!"
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
@@ -686,8 +671,6 @@ msgstr "Fédération pont reliant ActivityPub (Fédérée), le Protocole AT (Blu
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
 msgstr ""
-"Financié et comptabilité \n"
-"Financier et comptabilité"
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
@@ -738,8 +721,6 @@ msgstr "Plataformes de jeux et applications d'entertainment."
 msgctxt "category:gen:title"
 msgid "Generic"
 msgstr ""
-"Ngègè \n"
-"Bi: Ngègè"
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
@@ -1095,10 +1076,6 @@ msgstr "Serveur basé sur Nginx pour héberger des assets statiques qui copie de
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Package-manager configuracion install npm et optionelmen executando 'npm ci' dentro de una carpeta de proyecto\n"
-"---\n"
-"\n"
-"Node.js"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1109,10 +1086,6 @@ msgstr "Notifiers pour les événements système"
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
-"Os et mises à jour de paquets\n"
-"---\n"
-"\n"
-"Note: The term \"OS\" translates to \"Os\" in Breton, but it's important to note that in a broader context, it would typically be translated as \"Os\" or \"Operацион System\" in Breton. However, without a specific context for \"OS,\" it's safest to translate it as \"Os.\""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -1496,8 +1469,6 @@ msgstr "Deduplication de sauvegarde des secrets du serveur, des identités de CA
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
-"Backup système de suppression des doublons programmé pour les volumes des containers Docker vers un répertoire local, avec des sauvegardes SQL cohérentes \n"
-"Note: The term \"deduplicating\" is translated as \"suppression des doublons\" which is a common French term for deduplication in IT contexts. \"Consistent SQL dumps\" is translated as \"sauvegardes SQL cohérentes\" which means consistent SQL backups, indicating that the SQL dump is consistent with the state of the database at a particular point in time."
 
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
@@ -1542,9 +1513,6 @@ msgstr "Récupération automatique de sauvegarde en style pull reproduisant des 
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr ""
-"Maintenance service pour la suppression des versions d'backup obsolètes programmée par systemd lorsqu'il dépasse le seuil d'utilisation du disque \n"
-" \n"
-"Note: The term \"systemd\" and some technical concepts might not have direct bi translations, hence the explanation might be necessary in a bi context."
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
@@ -1782,8 +1750,6 @@ msgstr ""
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr ""
-"Partage de stockage\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"
@@ -2001,8 +1967,6 @@ msgstr "Travailleur pour le scripting en Python, le développement d'application
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Outils\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"
@@ -2107,8 +2071,6 @@ msgstr "Layout du monoétoile d'assets pour la livraison CDN avec des répertoir
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
-"Visual Studio workstation editor enflavé, avec les extensions des agents que le hôte déploie\n"
-"Code"
 
 # translated-by: libretranslate
 msgctxt "category:web:title"
@@ -2138,7 +2100,7 @@ msgstr "Web-based client LDAP pour la consultation, la recherche et l'administra
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Platform web de gestion et de développement pour gérer plusieurs serveurs PostgreSQL, avec un authentification par 2 optionnelle"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

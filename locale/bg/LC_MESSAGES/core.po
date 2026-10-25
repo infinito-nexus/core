@@ -1057,7 +1057,7 @@ msgstr "NGINX-базирана уеб платформа и обратно пр�
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-запазена статичен лист, който дава правен отпечатък (Impresum) от Джинджа.2 образец"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1755,9 +1755,6 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
-"Головни за гледка\n"
-"\n"
-" self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"

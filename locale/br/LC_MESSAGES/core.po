@@ -67,7 +67,7 @@ msgstr "Alarmando"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one servidor de servidor de e-mail forte com SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV e filtragem de spam embutida"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -268,8 +268,6 @@ msgstr "Gerenciador de clipboard com histórico editável, ações personalizada
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
-"Céu\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -320,8 +318,6 @@ msgstr "Comunicação"
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr ""
-"Comunidade\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
@@ -1092,10 +1088,6 @@ msgstr "Servidor baseado em Nginx para hospedar assets estáticos copiado de um 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Pacote-manager setup instalando npm e opcionalmente executando 'npm ci' dentro de um diretório de projeto\n"
-"---\n"
-"\n"
-"Node.js"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1106,10 +1098,6 @@ msgstr "Manejadores de notificação para eventos do sistema"
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
-"Atualizações de software e pacotes \n"
-"---\n"
-"\n"
-"Note: The text \"OS & package updates\" refers to \"Updates for the Operating System and Packages\" in English. This translates to \"Atualizações de sistema e pacotes\" in Brazilian Portuguese."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -1258,7 +1246,7 @@ msgstr "Optimizando cadeia de ferramentas de compilador para a construção de p
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orquestrador wrapper para provisionamento de NGINX por domínio com certificados TLS, modelos de vHost e OAuth opcional2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1374,10 +1362,6 @@ msgstr "Provisionamento de função para configuração do ambiente por usuário
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr ""
-"Servidores de Proxy\n"
-"---\n"
-"\n"
-"Note: The term \"Proxy Servers\" is translated to \"Servidores de Proxy\" in Portuguese, which is commonly used to refer to proxy servers in Brazilian Portuguese."
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-api:description"
@@ -2000,8 +1984,6 @@ msgstr "Chamada de ferramenta para script Python, desenvolvimento de aplicaçõe
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"InstrUMENTOS\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"
@@ -2111,11 +2093,6 @@ msgstr "Visual Studio Code editor para工作站，在可选的风味中承载宿
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr ""
-"Infraestrutura de Web\n"
-"\n"
-"---\n"
-"\n"
-"Nota: O termo \"Web Infrastructure\" é traduzido para \"Infraestrutura de Web\" em português, mantendo a mesma definição."
 
 # translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"

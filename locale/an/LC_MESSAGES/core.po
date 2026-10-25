@@ -1237,10 +1237,6 @@ msgstr "Sullan por aquesta cosa podeixen un temps."
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
 msgstr ""
-"Cachés\n"
-"---\n"
-"\n"
-"Note: The term \"Caches\" is often translated as \"Cachés\" in Spanish, but it's important to understand that \"cache\" is a common English word and its translation can vary depending on the context and the specific language being used. In this case, \"Cachés\" is the direct translation of \"Caches\" in Spanish."
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"

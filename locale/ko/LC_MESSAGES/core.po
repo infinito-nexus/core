@@ -67,7 +67,7 @@ msgstr "회사 소개"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP, IMAP, JMAP, POP를 가진 All-in-one Stalwart 우편 서버3, ManageSieve, CalDAV, CardDAV 및 내장 스팸 필터링"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -668,9 +668,6 @@ msgstr "연결된 체스 서버는 활동팔로브를 통해 피더유브리 내
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr ""
-"Here is the translation:\n"
-"\n"
-"มือถือ บัตรข้อมูลที่อิสระ บัตรโฆษณาแบบสู่สู่สื่อ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
@@ -796,7 +793,7 @@ msgstr "유용한 도구"
 # 포함3 API.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "고성능, 자체 호스팅 스토리지 솔루션 관리, 스케일링 및 Amazon S와 호환되는 객체 저장 포함3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1057,7 +1054,7 @@ msgstr "NGINX 기반 웹 플랫폼 및 유효 설정 재로드와 역 프록시 
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-served static 페이지는 법적인 임프린트를 렌더링 (IR 정보) 진자에서2 관련 기사"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1236,7 +1233,7 @@ msgstr "채널, 스레드, 통합을 통해 실시간 협업을 위한 개방형
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI 호환 LLM 게이트웨이는 단일 /v를 routing1 로컬 및 호스팅 모델에 대한 엔드포인트 per-consumer 키"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1261,7 +1258,7 @@ msgstr "C, C++ 및 기타 네이티브 언어 프로그램을 구축하기위한
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "TLS 인증서, vHost 템플릿 및 옵션 OAuth로 제공하는 per-domain NGINX 용 Orchestration 래퍼2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1966,7 +1963,7 @@ msgstr "모니터링된 서비스 단위가 실패할 때 시스템화된 msmtp 
 # alerts to the Telegram 채팅
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr "กรุณาแจ้งให้เราทราบว่าคุณต้องการให้ฉันแปลงข้อความทั้งหมดจากภาษาอังกฤษเป็นภาษาไทย ก่อนใช้งาน"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
@@ -2050,7 +2047,7 @@ msgstr "웹 서버를 최적화하는 데 도움이되는 도구"
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon는 노드를 v로 게시합니다.3 회사소개"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"

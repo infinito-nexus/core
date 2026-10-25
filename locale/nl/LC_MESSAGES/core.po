@@ -1782,7 +1782,7 @@ msgstr "Gedeeld bericht makelaar voor async berichten met per-consumer virtuele 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "Gedeelde persistente opslag backends gebruikt door multi-node implementaties4 server en client rollen."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -2039,7 +2039,7 @@ msgstr "Vertaalgeheugen, glossaria en de menselijke beoordeling workflow achter 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Type2 hypervisor voor virtuele machines op Pacman werkstations, met kernelmodules en uitbreidingspakket"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"

@@ -2267,7 +2267,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr "Systemd-timed监视器偵測不健康或退出狀態非零的Docker容器並提昇失敗警示"
+msgstr ""
 
 # translated-by: libretranslate
 # fléppumflópurar sem flépparflópurun tekur bílum áður síðan sem

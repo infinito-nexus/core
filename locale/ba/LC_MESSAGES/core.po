@@ -162,7 +162,7 @@ msgstr "Rol bazis za konfiguracijske drop-ins za systemd管理员配置 via drop
 # melalui Protokol Konteks Model
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr "工作站 Blender instalasi síarkan kepada agen pada host melalui Protokol Konteks Model"
+msgstr ""
 
 # translated-by: libretranslate
 # SeaweedFS de la boutique des objets, servant les consoles de filtre et la
@@ -2445,10 +2445,6 @@ msgstr ""
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
-"Visual Studio工作站编辑器在可选的风味中携带主机部署的代理的扩展\n"
-"---\n"
-"\n"
-"Code"
 
 # translated-by: libretranslate
 msgctxt "category:web:title"

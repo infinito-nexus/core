@@ -57,7 +57,7 @@ msgstr "आगgregate NGINX चतुर्थित इंटेजरिंग
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr "કલ્યાણક ડેકલેટ વર્ષાણા મૂળ્યો વેચવામાં અને ઓટોમોબિલ સેલિંગ અને ટ્રનસિલ્યુન માટે ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્રનસિલ્યુન અને ટ્ર"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
@@ -67,7 +67,7 @@ msgstr "दोषाबाल्यानुसार"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one स्टालवर्ट मेल सेवा से SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV और स्मार्ट फिल्टरिंग के साथ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -82,7 +82,7 @@ msgstr "आईनबेल यूनियन रॉल जिसके लि�
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
-msgstr "অ্যাপ্লিকেশনস"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
@@ -102,7 +102,7 @@ msgstr "आर्टिफिशियलइंटेलिजेंस"
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr "કलમકリー"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
@@ -122,7 +122,7 @@ msgstr "निर्णय और रिस्टापチャー"
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
-msgstr "બેક્યુપ સ્વાયક્ષન્સ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:description"
@@ -137,7 +137,7 @@ msgstr "Linux मध्यमा सॉफ्टवार इनजीनिय�
 # translated-by: libretranslate
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
-msgstr "સંદર્ભિથી સ્ટેડીમેન્ટ મેન્યરના પ્રતિબંધિને લેબ્રો બનાવવા માટે પ્રદાનસ્થ મેનેજમેન્ટ કાર્યક્રમો, મૂળ વ્યવસ્થાઓ અને યુન્ટ પ્રેક્ટિક્લોશનથી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-blender:description"
@@ -177,7 +177,7 @@ msgstr "केन्द्रित कोर्डरिसेड चुनौ�
 # translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr "Centrally-ધોરણ ઇન્ડ્રાંક જે દ્વારા લોડેડ ફિલ્સનું વેબના ટાક માટે રૂપાણી તેટલી કરે છે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:description"
@@ -197,7 +197,7 @@ msgstr "Central-loader-रियलियस-रोल-ये-संचारी
 # translated-by: libretranslate
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "ક્ષેત્રના અંતર્ગત લોગિંક પ્રોક્સી માપનિની વિશ્વાસની સમાવેશન લોગિંક પર સ્ક્યેન્ડ કરવાના ઉપયોગમાં મુખ્યત્વથી વપરાવાનું પ્રતિયોજના, નિંધર સિન્ડ્યિક્ટિન એપ્લીકેશન્સ માટે મોટા ઉપલબ્ધતા અને એક અનુક્રમિત રૂપે સંપાત કરવાના મદદકી રૂપે"
+msgstr ""
 
 # integrating Email SaaS, msmtp, and an optional local SMTP relay
 msgctxt "role:sys-svc-mail:description"
@@ -237,7 +237,7 @@ msgstr "केट्सर्बॉट सहित लाटेट सेवा
 # translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
-msgstr "ಚಿಷ್ಮತಿ ಅಳೆಯ ಅದರ ವರ್ಷಿಗಳಿಂದ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
@@ -252,7 +252,7 @@ msgstr "कलन नेत्रण लस्कर दरारिंग ऑ�
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
-msgstr "સ્ટેનલીક નોકરી ફ્રેમવર્ક માટે તેમની ડેસ્ક્ટોપ નાગરિક ફાઇલોનું ડેસ્ક્ટોપ અને પ્લેકાઇચ સેફ્યુરેયેશન ફાઇલોનું સ્પોસર કેટલાક ડોકોર ડેટા અને ઉદાહરણવારી બ્લોક્સ બેકાપ્સનું પ્રાદાન કરવું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
@@ -308,8 +308,6 @@ msgstr "कम्युनिकेशन-काउंटर जॉरनल अ
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
-"Commerce \n"
-" bhōjप्रवाह"
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
@@ -349,7 +347,7 @@ msgstr "कन्टेनर इन्थरम रिटर जो फॉर �
 # translated-by: libretranslate
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
-msgstr "Containers મંત્રીમંત્રી ક્લીયરેશન ક્લરેસિંગ ક્લારેસિંગ ક્લરેસિંગ ક્લારેસિંગ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
@@ -414,7 +412,7 @@ msgstr "कर्पोरेट डिज़ाइन चयन सेवा �
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
 msgid "Corporate design injection for NGINX-served apps, unifying light and dark theming from OKLCH design tokens"
-msgstr "કોલ્બેર્ડ ડિસિગ્ન ઇન્સ્ટ્રીક્સ અને નગિન્જિસ્ટ એપસ માટે, ઓકલ્ચ ડિસિગ્ન ટોન્સ થી છાલ્વિનું અને ચંદ્ર બેચાલ થાલોના બનાવવાનું પ્રયાસો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:no_check"
@@ -429,7 +427,7 @@ msgstr "निर्धारणा योग्य नहीं किया �
 # translated-by: libretranslate
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
-msgstr "ક्रोസ-ડिस्प्लेट्रीશન ઇન્સ્ટલર નિયાયલો પ્લગાઇન વિકાસકાર અને સુધ્યાબિદી, મૂળભાબની વ્યવસ્થા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
@@ -448,12 +446,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
-msgstr "ડનસ અંતરિક્ષન"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
-msgstr "DNSરણોથાંસ્કર્ટાંસ"
+msgstr ""
 
 # (क्लाउडफाल्ल, हेट्शर्न</x>)।.
 msgctxt "category:sys.dns:description"
@@ -479,7 +477,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr "નિર્દવાન, ફેડેરેટલ પ્યેસ્ટેટ્સ વેબ હેશિંગ, સ્ટ્રીમિંગ અને લીવ બંબોક્સેટ્સ્ટ્યુટ્સ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pixelfed:description"
@@ -489,17 +487,17 @@ msgstr "दहनी, वैफेडिसेयर संस्था लो�
 # translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "ડેશબોલીડ ફેડરેડ સેસિય નેટવર્કિંગ પ્લાસ્ટર ફેયર પ્રથમ પ્રતિક્રિણ કમ્યુનિક બનાવવાનું અને સિસીયમ્યાંકિત વ્યક્તિત્વનું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr "સંદર્ભ ઉત્તરક અકેન્ડા યુછ સ્થાનિંત શેષ ક્luet અને સાથે બાધાની સાથે પ્રદર્શન માટે સંદર્ભ ઉપલબ્ધતા અને પ્રદર્શનનો સારો સૌથી શાંત વિશ્વાસની વિશ્વાસપૂર્ણ વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વાસની વિશ્વા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "સિટિમેન્ટ ઓકાસિયન આકારના SSH સ્ટ્રેજ ખેલાદેશ અને પાસવોર્ડ્લેસ એક્સ્યોર્સ સુદ્જાલેસ સૌદી બ્�ાકિયન અનેલા સાથે સંભાવિત બ્યાકપ્યુસ અનેલાયેલો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
@@ -524,7 +522,7 @@ msgstr "ડेस्कटोप साइंटल फ्लाइट ऑफ �
 # translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr "ડખસો ફેડર્સ લિઇંગ હોમ ફોડર્સ કેલ્વન સિયન્સિડ ડીસાઇન ફિલ સિન્કિયંક્યાત ડેકલેબર ચલનો માધ્યમે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-extensions:description"
@@ -574,7 +572,7 @@ msgstr "डिस्ट्रिब्यूटेड S3-संबंधित �
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
-msgstr "ડિસબ્લ્યૂ વેન્યુટ્રો સિબ્સિટેન્યુક્લિયલ કોડ સાથે સંદેશોનો વિસ્તાર અને ડેવિઝન વ્યવસ્થાનો મૂલ્યાત્મક વાતાવરણનો સંસાલતાકારોને સંપર્ક શકે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
@@ -585,21 +583,16 @@ msgstr "क्रोड़ों केन्द्रित बाइज बु
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr ""
-"ડોકર ડાયાગ્રામ સ્ટાક જેમે મૂળબેગી ડેબાઇસ સાથે બ્યુક્યોર્સ, ઉપ$user: 使用者\n"
-"User: 用户\n"
-"ને સુધારણ, ઉપ$user: 使用者\n"
-"User: 用户\n"
-"સિન્યુલ અને પીરીમાન મૂકડાં"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr "ડોકર સ્વેમ ક્läલ્ટર પ્રયોગ અને મૂળોન્યલ રાશિનો લોકાંતર ફકરો મૂલ્યાંકન માટે વ્યાપાર અને અમૂલ્ય સેવા પ્રાપ્તિનો જોવાળાં."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "ડિસ્ટોન સ્ટેર્વર બેન્ડર ફર રેલીટી બેકન્ડ ઇડિંગ ડોંગ્સ, મેસાઇનિબેસ્ટાઇલ એડિંગ ડોંગ્સ, માસ્પોલ્યુટિન એસ્પ્રિસિન્સ અને પેસ્ટિન્સ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
@@ -616,7 +609,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr "ডাঐ ক্যাবিনেন ফ্রიমেন্ট মিসি লপটেলের ডিম্যাক্ট কাবেট ক্লার্ড অন্তর্ভুক্ত করার জন্য ডিম্যাক্ট কাবেট ক্লার্ড এবং রেগ্যুলার লিঙ্গ লিংটিং কন্ট্রোল"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:drv:title"
@@ -636,7 +629,7 @@ msgstr "भारतीय रोबोट प्लेटफार्म हे
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
-msgstr "નવાપસ્થિ માયેન સ્ક્લાનિટ અને મુખ્યત્વે ઉપલબ્બણિયું થયેલા કેટલાક માયેન ક્લિબના વપરાજત અને સ્વાભાવિક પ્રવાહ માટે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-engine:description"
@@ -651,17 +644,17 @@ msgstr "ईंट्रे प्रेस वेकिय और टम्ब �
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "ઉષ્ટક અને ટેક્ટ મેન્યુ પ્રકારનો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "ઉતકાશો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "સ્ટ્રોપિલ્યુબ વિમ ડાયાગનાશનલ ટેક્સ ઇક્સ્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્સ્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્સિપ્ટ લાઇન ઇક્ટન્બલ ટ્રાન્"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-chess:description"
@@ -716,7 +709,7 @@ msgstr "Frontend जी एजेंसी संक्रामक लिंक
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr "ફ્રેન્ચલ બિલ બિ્�િ ફ્રેન્ચલ ઓસ્ટન ફ્લાન્ડી, અંગ્રેજ કલ્ફોર્લે સ્ટાબ્યાઇટ, અને રેવરેશ પ્રોક્સિ હાન્ડલર રસ્તાનાંબક્યુતો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:description"
@@ -726,7 +719,7 @@ msgstr "Frontend उपयोगकर्ताओं (injection, वितर�
 # translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
-msgstr "ગેમ્સ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
@@ -756,12 +749,12 @@ msgstr "ग्लोबल जांचित स्क्रिप्ट ऑड
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "રમક્રષણ ઉંખાલી OpenSSH ડેમોગેન્યાને કયાકિયાંત્રણ માટે શ્રેષ્ઠવાદી કાયદાનું સ્થાનિક પરિષદ કાયદા છે જેમાં રોડ લોગીન અને પાસવર્ડ સંક્રામક સંદેશ અનેલી છે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr "સેટિલ ડેખકોટ વેબ બોસ્સનો અને વેબ બોસ્સનો સ્થાયિતક પરિષદ અને પાસવોર્ડ-મેન્યુ ઇંટરનેક્સફેશન્સ કેવી રીતે પ્રદાન કરવા માટે એન્ટીર્પીલાઇઝ પોલિસ્યંક્સ્યાને સ્થાયિતક"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
@@ -771,12 +764,12 @@ msgstr "Headless लोकल मॉडल सर्वर लाइनेबी
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr "રોલ્ફ્ડર્સ વૂલ્�નો અંદરો અનાંદાની ચિનો પ્રક્રિતિશાળી સ્થાનિબાદ્દી સ્થાનિબાદ્દી પરિણામોની પરિશેલિયેશન"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr "રവ印度"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
@@ -791,7 +784,7 @@ msgstr "ख्या र सस्तानकै र उपलब्धिक�
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "ಚಿಹ್ನೋಚಿತ ಪದ್ಮಗಣಿತಗಳ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
@@ -826,7 +819,7 @@ msgstr "आधारित-शब्दें, डीयीपीएयी औ�
 # translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "વેમ્સ્ટર ક્યુ ક્વાલિયેન સ્થાનિ અને શેરીબાદ, પ્રતિ પુષ્ટિકલા અલાઈસ્કાલ શેરીબાદ અથવા શિષ્કાર ક્યુ સાથેનો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
@@ -862,8 +855,6 @@ msgstr "निर्देशक व्यवस्थाओं जैसे DBs
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
-"आप Hindi में नहीं लिखता है, मैलैक्युलर लिखा गया यह है:\n"
-"आप"
 
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
@@ -878,12 +869,12 @@ msgstr "आईक्टिव ग्राफ विजुअलिस्टि�
 # translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr "પાયબ્રિની સૌથી વ્યાપારીક પેપર્સ અને પ્રોજેક્ટ ટ્રાક્યુટર, સ્વોબ્લેન્સ અને વ્યાવહારિક શેબ્લ્સ અને કામગીઓ અને તંત્રેલ સૌથી વ્યાપારીક OIDC SSO સાથે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "જેસ્ટ્સ્કિપ રૂટર્સ ફેસ્ટિવલ અને ઇન્સ્ટ્રોક્શન્સ શેરીન્ગ અને સેરીસલેબ્લ અફિર્ડટિંગ અને વેબ સેટિલન્સિલ એપલોડર્સ લેબલ્સની ઉદ્દેશ્યનું સ્ટેટ્સપાન્ડ કરવો"
+msgstr ""
 
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
@@ -922,12 +913,12 @@ msgstr "ल्यूक्स-बाइड टेलिंग इन्स्ट
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
-msgstr "વिदेशी પેકેજ્યુલર્સ, કlas્સરૂમ ચલિલાજ્યા તવાલો પેટલ્સ અને ડિટોલીક શાળાના શાળાનું શોધનું વેચલ્યુલર્સ."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr "વેલેટ એક્ટિર વેચર ફ્રેન્ચફાઇલ ટેલેકલ લવર મુખ્યત્વે પ્રદાનકાર હોય તે સ્ટેટમેન્ટનું અને આવરો કરવા શરૂકતાઓથી સંપૂર્ણતાઓનું પ્રદાન"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
@@ -937,7 +928,7 @@ msgstr "लिब्रेट्रो आधारित फांसन एम
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr "खांកड়ी SMTP কলেজ এন্ট এন্ট মেইল রিপ্লাইজ আন্তর্জাতিক SMTP সেটার মাধ্যমে মেইল প্রেরণ করার জন্য"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-gitea:description"
@@ -972,7 +963,7 @@ msgstr "ढांढांवण्यं लक्लिंग महन्य�
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "સ્ટોપપ્લેફિકટલ વિપૂર્ણો પોસ્ટફિક્ટ રેલીવ લોકલ હોપલોક્સનું ઉપયોગ કરીને નિયમિત વિપૂર્ણો વિલોમ વેલેબિ ડિલિivery કરવાનો ઉપયોગકર્તા છે જે નિયમિત વિપૂર્ણો મેલ ચેલ્લેનજ લાઇન ભરતી થશે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
@@ -1017,7 +1008,7 @@ msgstr "Minor terminal कोडिंग अग्नि इनाल विल
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "चयनിക്കുന്നതിന്"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
@@ -1042,7 +1033,7 @@ msgstr "NGINX छवियांनो अविश्वसनीयता छ 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr "NGINX સ્બિબિફિલ ઇન્ટરાજિયન Matomo અન્ટાઇન્સ પ્રક્રિતિલા અને નોસ્ટાક ઇમેગ ટ્રાકર ખેલાફ સેવેદ હાથિલી પાસેતા હાથિલી પાસેતા પેજનો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1057,7 +1048,7 @@ msgstr "नेट्यंक्स आधुनिक पोर्टल और
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-ખેલાદેર ભાવણીટમાં એક જેનિજા ટેલ્યુર્સના લેગલ પ્રદર્શના (ઇમ્પ્રસમ) અને ટેલ્યુસ 2ફેલ્ડ્રામ્યલે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1098,8 +1089,6 @@ msgstr "निंग्न्ज़बेदी प्रिवेट प्र�
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr ""
-"नेन्जीकल्पित प्रतिष्ठान के सेवा को संतुलित असेसंस्थानों को सूचीबद्ध किया गया है जो स्रोत के एक डिशर्टर से लॉड किया गया है उसे वेब डाटा पतले के लिए\n"
-"नेन्जी अर्थ में नेन्जीकल्पित है, जो उच्च कार्यक्षमता के लिए उपलब्ध जारी किए गए एक डिस्काइजर को चुनकर शामिल होने का प्रतिबंध देता है"
 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
@@ -1138,7 +1127,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr "બંધુતયે પતronપર પરિણામદારો ખાલી થાય અને શ્વાસરાયો અને મોટા પ્રશનોમાં અનેથી બંધુતયે અને અને સાથે તમામ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ સ્વલ્પ."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
@@ -1258,13 +1247,11 @@ msgstr "ऑप्टै मिसरी सेवा आपकी सिस्�
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr ""
-"Bhनातीम योग्यता युक्ती कम्पिलर टूच्चन को उपयोग गरणे स्क्रिप्ट मदतीनंदन गणितिक\n"
-"प्रोग्राम्स के लिए"
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "ऑर्थोक्रेशन वर्बल फ़ोर पेर-डायोनज न्गीनीज प्रोवाइशन विटल्ट टिचरेसिट्स, व्हॉशट टेम्प्लेट्स, और वर्ट ऑफ ओयूटेशन2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1274,7 +1261,7 @@ msgstr "तोर पर यहाँ एक देर तक की गाय�
 # translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr "કાફેચ્સ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1314,7 +1301,7 @@ msgstr "प्रणालींदेखील ऑनलाइन ख़रा�
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
-msgstr "അവാവലം അവസരത്തി പോയിന്റിനും പേജി മുമ്പോക്കാല അറിക്കുകയായി നിങ്ങൾ അനുഭവിക്കുക."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_open"
@@ -1324,17 +1311,17 @@ msgstr "तोपी को यह पृष्ठ खोलकर यह कि
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "प्लग-क्रिन्टरिड स्टीम्डम्बट बैकअप फॉर हाडलिंक डेटै कोडिडुपल सन्स्क्रिप्शन ऑफ लॉकड बैकअप ट्री को स्वप्लाइब यूजबॉक्स डेविड ऑफ़ एलॉक्ड પ્રોલેક્ટ-ક્રિન્ટરિડ સ્ટીમ્ડમ્બટ બોક્સટિ ડેસ્ક્ટોનિ બ્યુક્સ ટેલ્વિઝન ટેલેન્જર્સના લોકલ બ્યુક્સ ટેલેન્જર પરે ડાઉનલોડ કરવાનું લોસ્ટ ફાયલેસ ટેલેન્જર કારણે સુંદર ટેકનોલોજીનું હાડલિંક્ટર ડેટેટા ડેવિડ કરો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
-msgstr "પુલિકિયાઇન માન્યતાનો વેબ બિવબલ ફેલેસ્ટિર અંધરારિલિક ડેસ્કટોપસનમાં સામાન્ય એન્ટ્રી એફ્લેસ પ્રસ્તાવિત"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr "પુલ્વિયર્સન્યલ સ્ટેડીટ્મ લોગિંડ સ્ટેશનના પ્રકારન લિંક ખાવી વાળી વ્યક્તિગત ભાગ્ય વિભાવનું સ્ટેડીટ્મ લોગિંડ સ્ટેશનના સ્ટ્રાફ્ટિના મધ્યે ત્રણ લેબલેટ્સની સ્થાપના"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
@@ -1349,12 +1336,12 @@ msgstr "प्रivilage-escalation प्रॅक्टिकल एवं dro
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "કામ નેતાનોંદો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
-msgstr "સુધારણનો તવાવાલો તools"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-non-free:description"
@@ -1394,7 +1381,7 @@ msgstr "प्रावली व्हॉश्ट जो svc-ai-s1 की API 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr "પુલ્ટર્ટેલ કાસેર્સ પાક્સેઝ વ્યાપક વપરાશકો - પ્રીક્યોરીટિય રેસોર્બિ અને તલિકાની ફ્રેન્ચ જે તેની વિશ્વાસની ક્રમની આઉટફ્રેન્ચ માટે ઉત્તમ કરે છે."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"
@@ -1404,7 +1391,7 @@ msgstr "Py CLI पакळ्य योजना प्रकार से कई
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr "નોંધક પ્લેનિટફોનો માધ્વિષિલ્ટ તુલના ઉપકરણો તુલના કાર્નોક ટુલનાં ચિબીક ટ્રાઇલન્સ રાખે છે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
@@ -1424,24 +1411,22 @@ msgstr "कमान्त्रित Git प्रायदीक्षण स
 # translated-by: libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr "સ્વરૂપ પ્રદાનકારોનું પ્રતીકાર સાથે વિપરીતપૂર્વક અલાવલ્યાત્મક સ્ટેન્ચ અદલત અને કાલાકાર કપાય પાયેલ પરિણામનો પ્રતીકારનો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr ""
-"ऑडिटरियन प्रोक्रीप्ट फ्रैंडेंट ड�ल्क्यूर-हॉस्टेड सेवाऐसले अभ्यर्थीकरण, टीएलएस, वेस्टेनस्कोट सु apापलू\n"
-"प्रिन्टिन g"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr "વિપરાવક લાઇયર ટેલેસ્યાલ ઓરેસોરેશન લાઇન ન્યુનિઝ્યુન્સ સામે લાંબેલેટેનેટ, સેફિબિિનેટ અથવા પરિસ્તાવનાથી કોમ્પેસિરની ટેલેસ્યાલ પ્રોવેર્ડર્સ ચોક્કસ કરી રહ્યો છે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
-msgstr "વિપુલિકરણ પદ્ધતિઓ ફેરોવર્સ અને મૂળ સેવાઓ પર વ્યક્તિગત ટ્રાફીનું રેલ્યુસ્ટ કરવાનું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
@@ -1461,7 +1446,7 @@ msgstr "कोर्टेरोते वेब इफ्सीसेन्स-
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "સૌથ્રપ્રયોગિક મોટરિંગ અને હેલિંગ ચોક્ક્સ - બોટ શ્�ાટ અમૂલક ચોક્ક્સ અને કોર્ડેન્યિયન લોબ્સ લોગ્સ, કારણ્સ, ડિલીક્યુસ અને અને અલગ વિશેષતાઓ."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1491,7 +1476,7 @@ msgstr "Scheduled उपज़ल्योट कार्य आयोजन �
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
-msgstr "વિસ્તરણ પ્રક્રિટ પ્રયોગ જેમાં પુષ્ટિપ્રાપ્ત લેટેન્ટ કેટલિટનું અનુભવિત અને અસુચી રૂપે માટે પરિણામી છાલૂ છે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
@@ -1501,7 +1486,7 @@ msgstr "Scheduled डेडिप्लॉक करने की स्था�
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr "સ્ટેજન્યલ ડેબિક્યુટિડ બ્યુક્ષિ સ્ટેસ્યન ડોકર ક્યુનેટ વોલેયમેન અને એક લોકાલ પેગિંગ કરો અને સંસ્ચારિક એસએએ ચલિર્સ"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-ctl-hlth-csp:description"
@@ -1511,7 +1496,7 @@ msgstr "Scheduled जीवनरोधीकरण की सैट डिम�
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
-msgstr "ಚ黔 translationsच黔"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-disc-space:description"
@@ -1521,7 +1506,7 @@ msgstr "किरण फिल्सहेडिस की फाइलस्क
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
-msgstr "વિશાલી મહત્વન સ્ટેપ સ્ટેડીમુંલ જરૂરી લેખનું પ્રોસેસિંગ કરે છે અને દિવાલિમાં પ્રતિવિશો પર ભાવે ખાલીલ થશે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-webserver:description"
@@ -1531,7 +1516,7 @@ msgstr "चालू जालपत्र चयन एक प्रत्य�
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
-msgstr "ಚಿಂತಿಸಿದ ಡೊರಕ್ ಪ್ರಾಂಜರ್ ಪರಿಹಾಯ ಪರ್ಯಾಯಕರण ಮತ್ತು ತುಂಬಿಗಾಗಿದೆ ವಿಧವಾಗಿದೆ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
@@ -1560,17 +1545,17 @@ msgstr "Scheduled systemd-timer उत्तरण कार्य करें 
 # translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr "વેસ્ટર્લિન્સ વોલ્વેકલોજી કલાકારોનો વેસ્ટર્લિન્સ કાર્યચાર્ય મૂલ્યાંકન પર કાર્યકર્તો વેસ્ટર્લિન્સ ઓરાન્ડ કાઉન્ટર્સિની ઉપયોગી ડીઓકારન્સ માધ્યમે પણ પ્રાપ્યાતકતાનોં કાર્ય કરવી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr "ક્લિન અનાલયસિસ પ્laબલીક ફ્લેસ્ટ ફ્રે Git સૂચિબાદની સૂચિબાદ ક્લિન્યું પેદારી, CI/CD પલિસીસ ફ્રે પેદારી અને વેબ સુચિબાદોની ટ્રાક્યોંગ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr "વિશાળ વિશેષયિકૃત ફેડિવેરિલ ઉત્તરારખન જેમાં આગાહ લેખવામાં હાથેડો ફેડિવેરિલ ઉત્તરો હાથેડો એકોટા ઘ્રાન્ય ગ્રાફમાં સ્પર્ધાત"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
@@ -1580,12 +1565,12 @@ msgstr "गणेश एकेडमी के स्वस्थ गिटा�
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "मनोरंजन एचटीएम5 खेल अन्योजन जो चारों ओर से स्वयं एचटीएम खेल दौरान देखें और खेलें"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
-msgstr "વિવેચનાત્મક ડેરેક્ટરી સ્વિશંબાદ, વેગ્યુલેટર્યુલ વેબ્સેટ સાથે વેગ્યુલેટર્યુલ બાલ્ક્યુટર્યુલ સાથે મુખ્યમંત્રી વેબ્સેટ સાથે યુનિસ્કો માટે નીતિનો વિચારો સાથે નિમેષની વિચારો મેળવવા માટે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
@@ -1595,22 +1580,22 @@ msgstr "स्टेटशॉप्ट S3-प्रोटोगनिट ऑफ�
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr "સેફલાંબર્ટેટેદ System One કેલ્બરેટ જેન્બેર્યુલ પાસવોની ટ્વિક્યાનો શ્વાસ લખી અહીં કે ગ્યોર્ફેટ રેટિન નહીં નક્ષત્રોને બનાવો અથવા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "કલાકતન સ્વાસ્થ્ય ટ્રાન્સ્ટેન્ટ લિંક ફોર નામની પ્રયોગશાળા પર ઉપલબ્ધતં"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr "વેબટ્રીક પ્રોટ્યેક્ટેડ વેબ ક્લોબીંગ માટે અનેલ્યુટ્રો ફાઇલેંગ વેબેસ્ટાઇલ્ડ પેટ્યેન્શિયલ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "ક્રિયાવલ્ક લોકાસ્તિંગ બોસ્ટાર ટોલ ક્યુએરક કોડસની વિષયસાહિષ્ટ તાલીમ એ વેબ ટોલ તેમ ટેક્સ્ટ અથવા લાંबો વિલ્યુમ્સમાં આવે અને પ્રયોગિકા લોકાસ્તિંગમાં નિયંત્રણે નિતિલી પ્રતિસાદીય લોકોપરાગત ચિદ્રોપસ્ટિબે નિદરોની"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
@@ -1620,12 +1605,12 @@ msgstr "Self-hosted chat इंटरफ़ेस जो कॉमिक के 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "વરસીકારી ક્લોઅલ પેક્લાય્ન ફાઈલ સ્ટેશન, શેર, પરિણામી લાંબી લાખની સંપર્ક અને ટ્વેન્ટીવે ટ્વેર્ક્યાપ્સાબેલ ટીમ સ્પેસ્યેસ ક્લાય્ન ડેમોન્સ પરેન્ટેડ શહીની"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "વેસ્ટિંગ કૂલ સ્ટેલલ્યુસ ફિલ સ્કોપેશન, કલબ્રોશન અને ડેટા શેલ્ફિંડશન."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1635,7 +1620,7 @@ msgstr "चाहती स्वतंत्र डेटा गणना स�
 # translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr "વેસ્ટિલ ડેસ્ક્ટીપ્ટિડ પ્રોટોટોટ્યુસ પેટલ જેમાં UI/UX વ્યક્તિગ્યં, રેટિલ કલ્બાઇલ્યુન અને ડેવિલેપરના હાન્ડફોલ જોવાલુએ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-magento:description"
@@ -1645,39 +1630,37 @@ msgstr "चित्रपति, उदाहरण वित्तीय प�
 # translated-by: libretranslate
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr "વેસ્ટિલ યેવ્યુલ અને શાકોફીલ્ડ કોન્સલેશન પેપલાઇન અને સંચારિકરણ અને પેપલાઇન પર લાઇનિબાઇન વિસ્તારિકતા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "વેડિઝિ ફેડરેડ પ્રોટ્રેક્ટ પેદાર્યો પ્રોગ્રામ જેમાં સ્ટ્રોલ્યુસ રેયિન્ડ પ્રોટ્ટેન્ટ વેબ રેવીવિંગ અને રેડિંગ ટ્રાકિંગ થયેલ છે અને ફેડિવિયિયિસ પર"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr "ક્લિન્યાતનિયું ફેડેરેટ સો�ciાલ નેટવર્ક જેમે શ્રેષ્ઠિઓ પ્રોબ્લેમ્સ પર વિચારો, જેમે બુલેબોલિબિગ, વિઝિબોલિબિગ, અને કમ્યુનિટ મોટરિયો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr "વેસ્ટિંગ વેબસાઇટ યેડી એન્ટરપ્યુસ યેડિયીએન્એ પ્લેસ્યુંટ યેડિયી એન્ટરપ્યુસ સ્ટેનાલ ઇડિય્યુ એન્ટરપ્યુસ પ્લેસ્ટિ માટે સુન્દર ઇનામેયંગ એફાઇડિટરી એન્ટરપ્યુસ લેબેલેટ્ટર્સ, મોટરફેસ એટલેબેટરી એન્ટરપ્યુસ અને યેડિય્યુ ફેડરેયિસ્ટ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "માલિક્યાન્યો લોબોડો અનેવ્યો પ્રક્રિયા ઇન્ટ્રોચિન્સ કાર્ડવલ પ્રાઇટલેયર એફોટોપ્યાનો પ્લાટ્રોનics જેમાં સેવાઓ અને ભૂતપૂર્વનું ઇન્ટ્રોક્ષનનો વ્યાખ્યાણ લખવામાં ઉપયોગ કરવામાં આવેલો"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr ""
-"स्टोरीड मेल सेवा चयन का संयुक्त कार्यक्रम और वेब मेल, गड़बड़ाव निर्देशिका, आपातकातीसी, डीकी म्यूनिंग और टूलस \n"
-"SMTP/IMAP/POP3"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr "વિભવદિખક સેટિનું મીડિયા સેવા પણ સ્ટ્રીંગ અને મીડિયા વિશેષિયંત્રણ કરવા માટે, ફ્યાઈલોગ્સ, ટ્વીશિન્સ, મોટર્સ અને પ્યોથાગર્સ દ્વારા લગતાવવામાં આવેલું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
@@ -1687,12 +1670,12 @@ msgstr "खात्रीय आर्थित लाइवलेटर से
 # translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "વેસ્ટિંગ નો-કોડ ડેબાઇસ્ટ્રોપ પ્રોટ્રેબલ જેમે એક સ્પેસલીક આર્ટિલી ઇફીરેય્શ લેબelling જેમાં ડેબાઇસ્ટ્રોપ બનાવવી અને ડાયાબિ કરવી અને ડેબાઇસ્ટ્રોપમાં પછી કામગીરી કરવી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "વેર્ટીલ બેકન્યો ટેકનોલોજી જેમાં ડોશિમેન્ટ્સ, સ્પેસિબોક્સ અને પ્રેસ્ટ્યોન્સ વિશ્વનો ઓફિસ બ્લેક્ન્યો વેલેન્ડ્સ માટે સ્વાયટર્સેટ્ટિડ ઓનલાઈન ટેકનોલોજી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
@@ -1706,7 +1689,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "વેસ્ટર્ન બોસ્ટન પ્રતિવર્જિત કાતા મુખ્યત્વેનું એન્યુઆઈ અયોગ્ય ગ્યાલવેન અને બ્રોસ્ટર રંટાઈટિનું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
@@ -1726,17 +1709,17 @@ msgstr "आयनी, कार्बन की संचालन और कर
 # translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr "વિભવદિખાલી પ્રોજેક્ટ મેન્યુબિ્ટ, વેક્ટર ટ્રાકિંગ, ગાંટ પંચાયત પાલિન્ગ અને ટ્વેન્ટી ટેવેલ્ડ સંસ્થા સમૃદ્ધા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "વેસ્ટલ પોર્તલ માટે સ્વેચ્યુટ ઉપયોગકનો લાઈનિબિ અને ટેલિવિન ઇફીક્યેની ચિદણી ઇફીક્યેની આપવામાં અથવા ચિદણી ઇફીક્યેની ચિદણી આપવાનું લાભો માટે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "મેનેજમેન્ટ અને સુરક્ષિત પ્યાથ્યકરણ મેનેજમેન્ટ અને સુરક્ષિત પ્યાથ્યકરણ ઓનલાઇન પ્યાથ્યકરણ ઓનલાઇન પ્યાથ્યકરણ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
@@ -1746,12 +1729,12 @@ msgstr "चालू वेब कन्फरेंस प्लाटफार
 # translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr "માન્યતાવામાં મૂળ્યોમાં શેરીલ, ફેડરેટિડ પેપ્લાયેન્ટ જેવું છે જેમાં તમે અસરીલ માન્યતા અને અસરીલ લેબ્યાનો પેસ્ટીલ અને તમે અસરીલ માન્યતાનું અલેક્સ્ટર શેર કરો અને અલેક્સ્ટર અલેક્સ્ટર શેર કરો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "વેબ વેનચરાર્સ પ્રદરશિત અને જ્યાંત્રિણી રસ્તા લેખવા અને વેબ પ્રોસેસરનો રેટિલ્ગ્યાનો સ્ટેટિમેન્ટ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
@@ -1809,7 +1792,7 @@ msgstr "कुंजीपत्र की उपयोगिता वाली
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr "ડિસ્ટાન્ડ સ્ટેયરિંગ ડાબલ્વેન્ડ ટેબોલ્સની રંગબ્રેડ ડાબલ્વેડ એસ્યેક્સ્ટ્રોપ્લેટ લેબ્લેડ હેલ્વેક્ટર્સ કાર્ડની વિશાળતમો સુચેલી સ્ટેનલસ સ્ટેટ્સ ડાબલ્વેડ ઓસ્ટીન ડાબલ્વેડ રોલસ લેબ્લેડ સ્ટેનલસ ડાબલ્વેડ માસ્ક્સ્ટ્રેટ્સ ડાબલ્વેડ હાન્ડલિસ ફેસ્ટ્રેક્સ ડાબલ્વેડ ટ્રાસ્ટ્ટ્સ ડાબલ્વેડ ડાબલ્વેડ લેબ્લેડ હેલ્વેક્ટર્સ ડાબલ્વેડ વેચ ડ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:all_done"
@@ -1825,7 +1808,7 @@ msgstr "नियन्त्रण मध्ये आहे, {failed} ऑफ {
 # translated-by: libretranslate
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr "વિસ્તરશેલ આ સ્વાય્યાંનું વ્યક્તિગત સહાયકોને …"
+msgstr ""
 
 # bookmarks federate to Mastodon and the Fediverse
 msgctxt "role:web-app-postmarks:description"
@@ -1846,15 +1829,11 @@ msgstr "सोशल मीडिया"
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr ""
-"सोशल मीडिया टुल्च\n"
-"---\n"
-"\n"
-"Note: The term \"Social Media Tools\" is commonly known as \"सोशल मीडिया टुल्च\" in Hindi."
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
-msgstr "ソフトウェア開発ツール"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
@@ -1979,12 +1958,12 @@ msgstr "टायपरंपर की प्रोजेक्टिंग आ
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
-msgstr "GNOME-ই ডেসকটপিত্তলে টার্মিনাল এমূলেটর, একটি কম্যান্ডলাই অ্যাকses এক্সক্যাউন্স করে আর লিন্কেস ওয়েক্সটেনের ডেসকটপিত্তলেরা"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr "વિશ્વાસો અને પકાયોગાદી પર તેમના ક્વાંલંડ-બેસેડ બેંચમેન્ટ ટેલિગ્રામ ટેલિગ્રામે વિશ્વાસો અને પકાયોગાદી પર બેંચમેન્ટ ટેલિગ્રામે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"
@@ -1994,7 +1973,7 @@ msgstr "Test-harness उपयोगी चयनित कॉमन इन्�
 # translated-by: libretranslate
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr "આ વિશ્વાસની કિંમતે કેટલીક સાથે એક સુધીનું સમptime લાંબું છે."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
@@ -2010,8 +1989,6 @@ msgstr "पुनः पायथन की डाटा साइंस पर 
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"ढालक\n"
-"ढालक"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"
@@ -2031,12 +2008,12 @@ msgstr "तवेल सुविधा, योगाधारा, अतिर�
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
-msgstr "નાના ઉપકરણો જ્યાંકવા, બેબીબ્લોક અને પ્રજ્ઞાતરિંગ માટે અલગ વિશાળ કિંમતી માટે અને અંદરાનું ઓરિન્સન સાથે પ્રકારન મૂલ્યાતે અસ્થિનું વિશાળ કિંમતી માટે અને અંદરાનું ઓરિન્સન સાથે પ્રાપ્ત કરવા માટે."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr "ढांगालय મૂળ્યાણ સમીક્ષાક્ર"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:description"
@@ -2046,7 +2023,7 @@ msgstr "संसाधन जो वेब पैगेज के अपसर�
 # translated-by: libretranslate
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
-msgstr "વિશાલિતિ દ્વારા આવેશસનિગ્લી ડેસ્કટિપ્સથી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
@@ -2066,12 +2043,12 @@ msgstr "Translations memory, glossaries आणि रासायनिकाल
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Type-2 hypervisor વેબ સમૃદ્ધિયોળાંલી વ્યાપક મીટિનિલોનો માધ્યમે વ્યાંકરી વ્યાપકોનો મીટિનિલો સ્થાનિબાદોના માધ્યમે ઇન્ક્રિંટ પેક્યુન્ટ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "સેટ્રોમેટ્રી સંપુર્ણ નેતાની માહિતી સવાલોનો દ્વારા તેમ તેમની પ્રતિસાદ અને ઇમેલ ચેનલોનો માધ્યમે પ્રદાન કરેલો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:update:title"
@@ -2081,7 +2058,7 @@ msgstr "વितरण एवं पैकेज मनामानીં"
 # translated-by: libretranslate
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
-msgstr "વિશાળ લિંકો ને પણ માટે મુકો શેરી કરો."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:stalled_hint"
@@ -2106,12 +2083,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
-msgstr "વેનચોન ક્લિન પ્રાથમિક કોસ્ટર પ્રાણીની વેપાસાને સહાયક કરતી લોકોની વેપાસાને સહાયક"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr "વેન્ચોર, પ્રદાનકાર અને પ્રયોજનાવર્ત્તી પદાર્થો સંદર્ભોનું મૂળો બેસ વેબલેયોપાલન વેચોડ લેબલ્ટાંટીએ"
+msgstr ""
 
 # लिंकिंग वर्तनी વિજ્ઞાનપણ સ્ટાવચર એડિટર Code ને સ્થાનિય વિશિષતાઓ છે
 msgctxt "role:dsk-code:description"
@@ -2122,8 +2099,6 @@ msgstr ""
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr ""
-"વेब ઇફ્રિન્ગીએસિએ\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"
@@ -2133,29 +2108,27 @@ msgstr "वेब यूआई एवं API जिसे आंस्यलन,
 # translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr "વિભાગનો પરિણામો, ગ્રેબ્સ અને અનેક પ્રતિસાદિકાતાઓનો મૂળ્યાત્મક વિભાગોને વ્યાપક લાઇડાઈપી વિભાગોને મદદ કરવાનું એન્ડલાઇડ લેવાનું વિભાગ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr "વेबसाइटેની LDAP પરિસ્થિપત્રિની પરિશોધક મેનેજર લાઇબ્રેરી જે ઉપયોગક, ગ્રુપ્સ અને ડિટાકોબલ્યૂસ્ટોક્યુંને મેનેજ કરવો માટે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
-msgstr "વेब-based LDAP ચલિર જે માહિતી વેબ્સેટમાં પસંદ કરવાનું, પરંતુ કેન્દ્રિટરો પર પ્રદર્શિણ, પાસ્કેન્ટ કરવાનું અને ડિરીક્યુલર વેબટિલીયમાં જેમાં વેબ પ્રદર્શિણ કરવાનું"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""
-"વેબબેઝ માનેઝિ અને ડેvેલ્વર્સ પેઝલેન્ચ જેમે અનેક PostgreSQL સ્ક્રીપ્ટાનો માનેઝિ કરવા માધ્યમેનું\n"
-"વોલોબોટ લિંકાઇન સહાયકોનું લોગિંક શું છે છે 2"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr "વિભવિત પરયાલ ઉત્તરાર્થિ માટે MySQL અને MariaDB વિશે સ્ચલાકારત્વ, વિશેષતા, પ્રદર્શિણ અને મેગાબિલ સ્થળિંક પરિણામથી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
@@ -2165,22 +2138,22 @@ msgstr "વेब सेवा ऑप्टिमि�zacी"
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "工作站設置對 Docker 和 Docker Compose 結合本地使用者在 docker 小組進行根不足的發展使用"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "ટેલીગ્રામ ટોオリલ્યુંને અને શ્રેયક પોર્ટની સૌર્ય પ્રવાહ ડિબ્લીલાઇલિન માટે અર્ડુનો બોર્ડ વ્યાપક પદ્ધતિઓની અનુભવિતા"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
-msgstr "વપરાજત પ્રયોગ ફેબ્રીક ઇડમોન્ટોટ પુસ્કલ પ્રીક્લેન્ટિર માટે ક્રમવિક પુસ્કલ પ્રીક્લેન્ટર પુસ્કલ મેન્યમ નેશનલ પુસ્કલ મેન્યમને પ્રદાન કરતા લાંબાયેલી પુસ્કલ મેન્યમેન્ટ્યુસની ઉત્પાદન એવે વિવધતાને પરિણામસારી કરી શકે"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
-msgstr "વિશાલિયાણ્યું તે પાઝર અને અને આપણે તે સંદેશો છોડો અને અને તે પાયબોક્સ છોડો."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
@@ -2200,17 +2173,17 @@ msgstr "नती कनफ्रेंक्ज"
 # translated-by: libretranslate
 msgctxt "logout:manual"
 msgid "sign out manually"
-msgstr "સંકેતકોનો નિષ્નાપ અમૂલકીયતાથી"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
-msgstr "વिस્તરિત કરવામાં આવ્યો"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
-msgstr "ঔঘাতিরেখা"
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format

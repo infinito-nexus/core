@@ -787,7 +787,7 @@ msgstr "Užitečné nástroje"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Společnost Amazon uvádí, že společnost LuxSCS je v souladu se zásadou tržně jednajícího hospodářského subjektu.3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1567,7 +1567,7 @@ msgstr "Self- hostované GitHub Actions runner nasazení a konfigurace"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Name5 hra pískoviště pro prohlížení a běh lehké motory dema a hry v prohlížeči"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"

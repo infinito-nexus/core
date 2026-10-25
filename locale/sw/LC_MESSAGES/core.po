@@ -73,8 +73,6 @@ msgstr "Wote katika moja Stalwart mail server na SMTP, IMAP, JMAP, POP3, Kusimam
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr ""
-"Analytics\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
@@ -1268,7 +1266,7 @@ msgstr "Kuboresha chombo cha kuandika kwa ajili ya kujenga C, C++, na programu n
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper kwa kila uwanja NGINX utoaji na vyeti TLS, templates vHost, na OAuth hiari2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1502,11 +1500,6 @@ msgstr "Backup iliyopangwa iliyopangwa ya siri za mwenyeji, CA, sifa za ACME, na
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
-"Here is the translation:\n"
-"\n"
-"---\n"
-"Deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
@@ -1586,7 +1579,7 @@ msgstr "GitHub Actions runner kupelekwa na Configuration"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML ya kujitegemea5 mchezo sandbox kwa ajili ya kuvinjari na mbio lightweight injini demos na michezo katika browser"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1596,7 +1589,7 @@ msgstr "Huduma ya saraka ya LDAP ya kujitegemea kwa mtumiaji wa kati, kikundi, n
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "Kujitegemea S3Hifadhi ya kitu sawa kwa faili, vyombo vya habari, backups, na mabaki ya AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1865,8 +1858,6 @@ msgstr "Jukwaa la mkutano wa video wa chanzo wazi kwa simu za sauti / video, kug
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""
-"Stack\n"
-"Swack"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"
@@ -2143,7 +2134,7 @@ msgstr "Mtandao makao LDAP mteja kwa ajili ya kuvinjari, kutafuta, na kusimamia 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Utawala wa mtandao na jukwaa la maendeleo kwa kusimamia seva nyingi za PostgreSQL, na OAuth ya hiari2 Ingia kwa kuingia"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

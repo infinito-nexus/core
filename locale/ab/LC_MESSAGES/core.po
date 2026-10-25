@@ -142,7 +142,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr "Blender工作站通过模型上下文协议安装到主机上的代理之中"
+msgstr ""
 
 # almacenamiento del SeaweedFS, sirviendo los consolas del filer y consola
 # maestra detrás de SSO

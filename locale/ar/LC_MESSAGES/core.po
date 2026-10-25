@@ -22,7 +22,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr "موكّل شركة ACME للتشغيل الآلي دعنا نُشفّرُ SSL/TLS الإصدار والتجديد من خلال Webroot أو DNS01 التحديات"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
@@ -818,7 +818,7 @@ msgstr "الأدوات المساعدة"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "إيجاد حلول تخزين ذاتية الأداء لإدارة البيانات غير المنظمة وتوسيع نطاقها والوصول إليها - بما في ذلك تخزين المواد المتوافقة مع الأمازون س3 مساعدين"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1094,12 +1094,12 @@ msgstr "منصة شبكة إن جي إن إكس على شبكة الإنترنت
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-served static page rendering a legal imprint (Impressum) من جينجا2 النموذج"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr "NLB200 وخدم نموذج الترجمة التحريرية على شركة HTTP من أجل خطوط الأنابيب التي تسميها مباشرة"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1276,7 +1276,7 @@ msgstr "منبر رسائل الفريق المفتوح المصدر، المد�
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "بوابة نظام LLM المفتوحة المتوافقة مع نظام المعلومات الإدارية المتكامل1 نقطة نهاية إلى دعم نموذجي محلي ومستضاف بمفاتيح لكل مستهلك"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1380,9 +1380,6 @@ msgstr "تشكيلة لوجستية مصممة على أساس تنبيه الس
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr ""
-"Here's the translation:\n"
-"\n"
-"إمكانية الخصوصية الوحيدة في تطبيق التواصل الاجتماعي للمعاكسات، لفتاج متجاوزات WebRTC في المتصفح الذكي للمعاكسات على قاعدة المخزون الورقي التtight."
 
 # translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
@@ -1858,7 +1855,7 @@ msgstr "سمسار رسائل متقاسمة من أجل إرسال رسائل �
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "المساندة المتقاسمة للتخزين المستمر التي تستخدمها عمليات النشر المتعددة القنوات - قوات الأمن الوطنية4 الخادم وأدوار العملاء"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -1985,9 +1982,6 @@ msgstr "وصلة بينية بينية على نطاق المنظومة من أ�
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr ""
-"يستخدم نظام الويب المعمول به منع تشغيل تطبيق على الشبكة الرئيسية\n"
-"---\n"
-"استخدم نظام الويب المعمول به منع تشغيل تطبيق على الشبكة الرئيسية"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"

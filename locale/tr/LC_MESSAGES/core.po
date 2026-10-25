@@ -22,7 +22,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr "ACME istemcisi otomatik olarak Şifre SSL / TLS sertifikası ve webroot veya DNS-posta yoluyla yenileme01 Zorluklar zorluk meydan zorluklar"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
@@ -67,7 +67,7 @@ msgstr "Uyarı"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP, IMAP, JMAP, POP3, YönetmeSieve, CalDAV, CardDAV ve yerleşik spam filtreleme"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -267,13 +267,6 @@ msgstr "Açıklamalı tarih, özel eylemler ve senaryo desteği ile videoboard y
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
-"Cloud\n"
-"---\n"
-"\n"
-"Cloud\n"
-"Translating the text between English and Urdu: \n"
-"クルー\n"
-"クルー"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -314,8 +307,6 @@ msgstr "Kur'an-line gazete uygulaması, terminalden kişisel günlük girişleri
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr ""
-"Commerce\n"
-" commerce"
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:title"
@@ -697,9 +688,6 @@ msgstr "Finansal ve Muhasebe yazılımları"
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr ""
-"---\n"
-"Tr:\n"
-"NAT traversal TURN/STUN relay server for WebRTC and real-time communication free open-source"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
@@ -782,11 +770,6 @@ msgstr "Evlatsız anonim Docker hacimleri için sağlık kontrolü, beyaz liste 
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr ""
-"Help\n"
-"- Tum hiya hai?\n"
-"- Mera paas kuch sirf aapki madad kar saka. Mere paas koi bhi tareekah hai. Apko kaise madad karni hai?\n"
-"- Aapke paas kya kar raha hai?\n"
-"- Main aapke saath khel raha hoon."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
@@ -806,7 +789,7 @@ msgstr "Yardımlı Araçlar"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Yüksek performanslı, kendini barındırmış depolama çözümleri yönetmek, ölçeklendirmek ve yapılandırılmamış verilere erişmek - Amazon S ile uyumlu nesne depolamaları dahil3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -984,8 +967,6 @@ msgstr "Bakım görevlerini kritik hizmetler durdurana kadar karıştırma mekan
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr ""
-"Loopback-only postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
@@ -1016,8 +997,6 @@ msgstr "Marker rolü bir ev sahibi tutmak Docker Swarm Yönetici hayırde, init 
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
-"Marketing\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
@@ -1033,9 +1012,6 @@ msgstr "Minimal terminal kodlama ajanı, tembel yükleyici bir yetenek sistemi i
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr ""
-"Monitoring\n"
-"---\n"
-"نظarroں"
 
 # translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
@@ -1075,7 +1051,7 @@ msgstr "NGINX tabanlı web platformu ve doğrulamalı yapılandırmaları ile te
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-served statik sayfa yasal bir baskı oluşturur (Impressum) Bir Jinja'dan2 şablon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1404,7 +1380,7 @@ msgstr "Public REST API, veri, tarih ve çevirilerine hizmet ediyor Infinito.Nex
 # translated-by: ollama
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr "Yüklü vhost, svc-ai-s1ın System One seçiminin APIini gösteriyor"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
@@ -1604,7 +1580,7 @@ msgstr "Kendi kendine ev sahipliği yapan LDAP rehberi hizmeti merkezileştirilm
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "Kendi kendini barındırdı3- dosyaları, medya, yedekler ve AI eserler için uyumlu nesne depolama"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1876,8 +1852,6 @@ msgstr "Sovereign open-source video ses / video aramaları, ekran paylaşımı, 
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""
-"Stack\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"

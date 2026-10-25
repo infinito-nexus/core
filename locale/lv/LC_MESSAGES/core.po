@@ -2064,7 +2064,7 @@ msgstr "Tulkošanas atmiņas, glosāriju un cilvēka pārskata darbplūsma aiz t
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Veids2 hipervizors virtuālām mašīnām Pacman darbstacijās, ar kodolu moduļiem un paplašinājumu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"

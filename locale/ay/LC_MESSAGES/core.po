@@ -79,8 +79,6 @@ msgstr "Ansible ról para ayudar con la persistencia y recuperación idempotente
 msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr ""
-"Aplikasyonkakak\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "menu:Sales:description"
@@ -551,7 +549,7 @@ msgstr "Desarrollo y herramientas CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Distribuid3-compatible xobject xstore xfor xshared x, xper-xconsumer xucket xprovisioning xcross web-app xroles"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -562,8 +560,6 @@ msgstr "System de controla versión distribuído para el seguimiento de cambios 
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
-"Distro-speclíu base builde toolchína (compilérí, línkeŕí, makéx para compíláre software de súrço\n"
-")"
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-backend:description"
@@ -814,9 +810,6 @@ msgstr ""
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr ""
-"Infrastructure ay\n"
-"Networks ay\n"
-"Tools ay"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -2047,8 +2040,6 @@ msgstr "Versionad asset-arbol de layout para envío CDN con directorios de versi
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
-"Visual Studio workstation editor en una versión seleccionable, que lleva las extensiones que el host despliega\n"
-"Code"
 
 # translated-by: libretranslate
 msgctxt "category:web:title"

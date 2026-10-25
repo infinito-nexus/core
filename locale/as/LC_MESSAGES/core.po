@@ -310,7 +310,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "云计算"
+msgstr ""
 
 # translated-by: libretranslate
 # A/AAAA rekorðar (og valmót CAA) í web-stackinu grunnþjónum
@@ -2457,7 +2457,7 @@ msgstr ""
 # docker grupp for rootless utveksling búnaðast
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "工作站設定for Docker og Docker Compose med lokali user i docker grupp for rootless utveksling búnaðast"
+msgstr ""
 
 # translated-by: libretranslate
 # for Arduino bord ferðir í Línx

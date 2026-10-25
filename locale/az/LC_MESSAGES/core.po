@@ -67,7 +67,7 @@ msgstr "Qalereya"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP, IMAP, JMAP, POP3, Qeydiyyatdan keçirilmişdir."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -258,13 +258,6 @@ msgstr "Kompüter faylları, paket önbellekləri, isteğe bağlı Docker data v
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 msgstr ""
-"Here is the translation:\n"
-"\n"
-"Klijent-side NFS upravođenje za montiranje rimotske servisa izvođen na svakom nodu sveta, s dostupnom stvarajućim podnežnim rezultatima\n"
-"\n"
-"### Azaziške verzije\n"
-"Klijent-side NFS upravođenje za montiranje rimotske servisa izvođen na svakom nodu sveta, s dostupnom stvarajućim podnežnim rezultatima\n"
-"Klient-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
@@ -574,7 +567,7 @@ msgstr "İnkişaf və CI/CD alətləri"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Qalereya3- Paylaşılan, web-app rolları arasında per-consumer kova təqdimatı üçün uyğun obyekt mağazası"
+msgstr ""
 
 # translated-by: ltengine
 msgctxt "role:dev-git:description"
@@ -798,7 +791,7 @@ msgstr "Daxil ol"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Amazon S ilə uyğun olaraq, səhifə saxlamaq, səviyyətləşdirilməsi və konfiqurasiyasız məlumatların daxil olmaq üçün yüksək keyfiyyətli depozitləri3 API."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-journalctl:description"
@@ -1594,7 +1587,7 @@ msgstr "Təhlükəsiz istifadəçi, qrup və TLS-secured giriş ilə layihəsi �
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "Elanlar3- fayllar, media, backups və AI məhsulları üçün uyğun oxumaq saxlama"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1670,8 +1663,6 @@ msgstr "Bir imza-on, multi-faktor təhlükəsizlik və istifadə idarəetmə pla
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr ""
-"Self-hosted low-code automation platform simliar azərbaycan dili ilə \n"
-"Self-hosted low-code automation platform viziual şəbəkə platforması olaraq iş layihələrinin və workflow integrasiyaların bağlıqlandırma üçün"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mailu:description"
@@ -2152,7 +2143,7 @@ msgstr "Veb-based LDAP müştəri, axtarış, və LDAP server kateqoriya girişl
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "çox PostgreSQL server idarə etmək üçün Web-based idarə və inkişaf platforması2 Giriş"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

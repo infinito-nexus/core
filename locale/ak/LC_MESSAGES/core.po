@@ -128,8 +128,6 @@ msgstr "Service de Restauration"
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr ""
-"Strategie gyamso ak\n"
-"Procedére de renversement ak"
 
 # translated-by: libretranslate
 msgctxt "role:dev-core:description"
@@ -832,8 +830,6 @@ msgstr "Infrastruktuwa"
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr ""
-"Infrastructure sahpo ta\n"
-"Networking sahpo"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -1093,8 +1089,6 @@ msgstr "Servea za krikwa na nginx krama mda ka ndege akwolokoto nde ka ndege da 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Package-manager setup instalé npm et instalé optionellement 'npm ci' dans un répertoire de projet \n"
-"Node.js"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1703,9 +1697,6 @@ msgstr "Agent AI personel ya kie ya-nyere ya nsohiti yagorombe ya browser yagaba
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr ""
-"Plateau yada pourfoureuté d'objets, partage et collaboration avec SSO yadda directory LDAP centrale \n"
-" \n"
-"Keycloak"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -2000,9 +1991,6 @@ msgstr ""
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Translate to Akak:\n"
-"\n"
-"Outils"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"

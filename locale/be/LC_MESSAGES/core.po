@@ -148,7 +148,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr "工作站 wersja załadowana do Blendersa przypisana jest do agentów na serwerze poprzez Protsedyru Kontekstu Modelu"
+msgstr ""
 
 # store SeaweedFS, służyjącym do obsługi filtrów i konsolek master za SSO
 msgctxt "role:web-app-seaweedfs:description"
@@ -755,7 +755,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "平台 i grames i aplikacii zabawne."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -923,7 +923,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr "Kernel-isolowany runtime agent służyjący agentowi OpenAI-pełnoskładniemu API,转发到通過共用LLM中樞gateway môdłów"
+msgstr ""
 
 # serwerze kontenerów: microVMi Kata Kontenerów oraz gVisor u化进程ơ wdrożenia
 # kontenerów na serwerze kontenerów: microVMi Kata Kontenerów oraz gVisor
@@ -1183,7 +1183,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
-msgstr "Platform openszerowy CRM z po管理中心售，服务，案例管理和營銷活動管理，配以工作流自動化"
+msgstr ""
 
 # księgowości, magazynu, HR oraz zarządzania stroną internetową
 msgctxt "role:web-app-odoo:description"
@@ -1360,7 +1360,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
-msgstr "Pepe użycz do tego strony od开着直到這件事完成。."
+msgstr ""
 
 # kopii załadowanych kopii tree lokalnej na urządzenie USB wymianowego
 msgctxt "role:svc-bkp-local-2-device:description"
@@ -1738,7 +1738,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr "Samegowe Media Server dla streamowania i organizacji filmów,电视剧, muzycznych i zdjęć, z OIDC i LDAP logowaniem"
+msgstr ""
 
 # lokalnie pod API
 msgctxt "role:svc-ai-ollama:description"

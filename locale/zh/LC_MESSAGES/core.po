@@ -67,7 +67,7 @@ msgstr "警报"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "装有 SMTP、IMAP、JMAP、POP的全自动 Stalwart 邮件服务器3,管理Sieve, CalDAV, CardDAV 和内置垃圾邮件过滤"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -1059,7 +1059,7 @@ msgstr "基于 NGINX 的网络平台和带有已验证的配置重装和让我�
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX 维护的静态页面, 刻出合法印记 (印象) 从金贾2 模板"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1115,8 +1115,6 @@ msgstr "系统事件通知处理者"
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
-"OS & package updates\n"
-"OS更新&包件更新"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
@@ -1264,7 +1262,7 @@ msgstr "优化用于构建 C, C++ 和其他本地语言程序的编译工具链"
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "每个领域NGINX提供带有 TLS 证书、 vHost 模板和可选 OAuth 的 Orchestration 包装器2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1587,7 +1585,7 @@ msgstr "为集中用户、组和计划管理提供自办LDAP目录服务,可使�
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "自行主办3- 文件、媒体、备份和人工智能文物的兼容对象存储"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"

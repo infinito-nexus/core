@@ -564,7 +564,7 @@ msgstr "Développement et outils d'IC/DC"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Répartition3-compatible objet store pour la fourniture de seau partagé par le consommateur dans les rôles d'application web"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1247,7 +1247,7 @@ msgstr "Optimisation de la chaîne d'outils compilateurs pour la construction de
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Enveloppe d'orchestration pour la fourniture par domaine NGINX de certificats TLS, modèles vHost et OAuth optionnel2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1559,7 +1559,7 @@ msgstr "Déploiement et configuration des coureurs GitHub Actions"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML autonome5 jeu sandbox pour la navigation et l'exécution légère moteur démos et jeux dans le navigateur"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2036,7 +2036,7 @@ msgstr "Mémoire de traduction, glossaires et flux de travail de la revue humain
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Type2 hyperviseur pour machines virtuelles sur les postes de travail Pacman, avec modules noyau et pack d'extension"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
@@ -2114,7 +2114,7 @@ msgstr "Client LDAP Web pour la navigation, la recherche et l'administration des
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Plateforme d'administration et de développement Web pour la gestion de plusieurs serveurs PostgreSQLTM, avec OAuth en option2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

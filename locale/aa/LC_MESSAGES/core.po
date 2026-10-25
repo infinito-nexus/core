@@ -108,8 +108,6 @@ msgstr "Mebibikuamakwamaho"
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr ""
-"Automated recovery service restartiing exited or unihalei stacks and resolving port conflicts \n"
-"Docker Compose"
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -130,8 +128,6 @@ msgstr "Backup saasaa"
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr ""
-"Strategijoi mëfaano mëtsaano mëtsaano\n"
-"Prosedjere ezaabo"
 
 # translated-by: libretranslate
 msgctxt "role:dev-core:description"
@@ -461,8 +457,6 @@ msgstr "DNS Resolvisi"
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr ""
-"DNS-providers, records, og rDNS-managements \n"
-"(Cloudflare, Hetzner, etc.)."
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
@@ -518,10 +512,6 @@ msgstr "Deployable web applicasjons (GitLab, Nextcloud, Mastodon, etc.)"
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr ""
-"Dekoddeko\n"
-"---\n"
-"\n"
-" Türkçe: Ekrandır."
 
 # translated-by: libretranslate
 msgctxt "role:dsk-spotify:description"
@@ -576,7 +566,7 @@ msgstr "Desenvolvimiento e ferramentas CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Distribuid s3-compatible obyekt stora agaaniin share, peken-consumer boket boketwoon acraaii web-app rolloane"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -843,10 +833,6 @@ msgstr "İnfrasôssoşim"
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr ""
-"Infrahasto og nätverk tilteleetter\n"
-" \n"
-"\n"
-"Note: The terms used here are approximate translations as some English terms do not have direct equivalents in African languages, and the context may vary."
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -1105,9 +1091,6 @@ msgstr "Nginx-basiiten server fo huso a ammaasiti amsa kopiitin kaasida aasichid
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Pakki-manager setup installing npm og alternativt kjører 'npm ci' inne i en katalog for et projekt\n"
-"---\n"
-"Node.js"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"

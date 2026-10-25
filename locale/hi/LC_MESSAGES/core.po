@@ -67,7 +67,7 @@ msgstr "चेतावनी"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP, IMAP, JMAP, POP के साथ ऑल-इन-वन स्टालवार्ट मेल सर्वर3, ManageSieve, CalDAV, CardDAV और निर्मित स्पैम फ़िल्टरिंग"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -564,7 +564,7 @@ msgstr "विकास और CI/CD उपकरण"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "वितरित एस3साझा, प्रति उपभोक्ता बाल्टी के लिए संगत वस्तु स्टोर वेब-ऐप भूमिकाओं में प्रावधान"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -784,7 +784,7 @@ msgstr "सहायक उपकरण"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "प्रबंधन, स्केलिंग और असंरचनात्मक डेटा तक पहुंचने के लिए उच्च प्रदर्शन, स्व-होस्टेड भंडारण समाधान - जिसमें अमेज़ॅन एस के साथ संगत ऑब्जेक्ट स्टोरेज शामिल है3 एपीआई"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1044,7 +1044,7 @@ msgstr "NGINX-आधारित वेब प्लेटफॉर्म और
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-served स्थैतिक पृष्ठ एक कानूनी छाप प्रदान करता है (छाप) एक जिन्जा से2 टेम्पलेट"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1223,7 +1223,7 @@ msgstr "चैनलों, धागे और एकीकरण के मा
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI-compatible LLM गेटवे एक सिंगल / वी रूटिंग1 प्रति उपभोक्ता कुंजी के साथ स्थानीय और होस्ट किए गए मॉडल बैकेंड के लिए समापन बिंदु"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1248,7 +1248,7 @@ msgstr "सी, सी ++ और अन्य मूल भाषा कार�
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "प्रति डोमेन NGINX के लिए ऑर्केस्ट्रेशन रैपर TLS प्रमाणपत्र, vHost टेम्पलेट्स और वैकल्पिक OAuth के साथ प्रावधान2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1570,7 +1570,7 @@ msgstr "TLS-सिक्योर्ड एक्सेस के साथ क�
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "स्व-होस्टेड एस3फ़ाइलों, मीडिया, बैकअप और एआई कलाकृतियों के लिए संगत वस्तु भंडारण"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2022,7 +2022,7 @@ msgstr "उपकरण जो वेबसर्वर को अनुकू�
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon एक v के रूप में नोड प्रकाशित3 प्याज सेवा"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2115,7 +2115,7 @@ msgstr "LDAP सर्वर में निर्देशिका प्र�
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "वैकल्पिक OAuth के साथ एकाधिक PostgreSQL सर्वरों के प्रबंधन के लिए वेब आधारित प्रशासन और विकास मंच2 लॉग इन"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

@@ -22,7 +22,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr "ACME klient automaatseks Let's Encrypt SSL / TLS sertifikaadi väljastamiseks ja uuendamiseks veebirooti või DNS-i kaudu01 väljakutseid"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
@@ -787,7 +787,7 @@ msgstr "Abivahendid"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Suure jõudlusega isemajutatavad salvestuslahendused struktureerimata andmete haldamiseks, skaleerimiseks ja neile juurdepääsuks, sealhulgas Amazon S-iga ühilduv objektide salvestamine3 API-d."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1047,7 +1047,7 @@ msgstr "NGINX-il põhinev veebiplatvorm ja pöördproks koos valideeritud seadis
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINXi teenindatud staatiline lehekülg, mis renderdab juriidilist jälge (Impressum) Jinjalt2 mall"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1252,7 +1252,7 @@ msgstr "Kompilaatori tööriistaahela optimeerimine C, C++ ja muude emakeelsete 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orkestratsiooni ümbris domeenipõhise NGINX-i jaoks koos TLS-sertifikaatide, vHost-mallide ja valikulise OAuth-iga2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1577,7 +1577,7 @@ msgstr "Isehostitud LDAP kataloogiteenus tsentraliseeritud kasutaja, grupi ja sk
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "Majutusettevõte S3ühilduv objektide salvestamine failidele, meediumitele, varukoopiatele ja AI esemetele"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2128,7 +2128,7 @@ msgstr "Veebipõhine LDAP klient kataloogikirjete sirvimiseks, otsimiseks ja hal
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Veebipõhine haldus- ja arendusplatvorm mitme PostgreSQL-serveri haldamiseks koos valikulise OAuthiga2 sisselogimine"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

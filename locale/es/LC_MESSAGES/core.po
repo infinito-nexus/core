@@ -588,9 +588,6 @@ msgstr "Stack de Docker para bases de datos relacionales en contenedores con res
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
-"Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment\n"
-"-- \n"
-"Docker Swarm cluster bootstrap y roles de membresía de nodos para la depilación de servicios en múltiples hospedajes."
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
@@ -1253,7 +1250,7 @@ msgstr "Optimización de la cadena de herramientas del compilador para construir
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Envoltorio de orquestación para el suministro por dominio NGINX con certificados TLS, plantillas vHost, y OAuth opcional2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1347,8 +1344,6 @@ msgstr "Herramientas de gestión de proyectos"
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
-"Propiedad GPU director instalador para sistemas basados en Arch a través de mhwd no hardware detectado gratuito\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
@@ -1568,7 +1563,7 @@ msgstr "Implementación y configuración de GitHub Actions"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML auto hospedado5 juego sandbox para navegar y ejecutar demostraciones de motor ligero y juegos en el navegador"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2123,7 +2118,7 @@ msgstr "Cliente LDAP basado en web para navegar, buscar y administrar entradas d
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Plataforma de administración y desarrollo basada en la web para gestionar múltiples servidores PostgreSQL, con OAuth opcional2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

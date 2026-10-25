@@ -1047,7 +1047,7 @@ msgstr "Spletna platforma na osnovi NGINX in obratni posrednik s potrjenimi konf
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "Statična stran s strežnikom NGINX, ki daje pravni vtis (Impresum) od Jinje2 predloga"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -2049,7 +2049,7 @@ msgstr "Translation memory, glosarji in človeški pregled potek dela za prevaja
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Vrsta2 hipervisor za virtualne stroje na delovnih postajah Pacman, z moduli jedra in podaljški"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"

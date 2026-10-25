@@ -22,7 +22,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr "โปรแกรมลูกข่าย ACME สําหรับอัตโนมัติ โปรดเข้ารหัส SSL/TLS ใบรับรองนี้ และสร้างใหม่อีกครั้งผ่านทาง webroot หรือ DNS01 ความท้าทาย"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
@@ -67,7 +67,7 @@ msgstr "แจ้งเตือน"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "เซิร์ฟเวอร์จดหมายแบบรวมทั้งหมดด้วย SMTP, IMAP, JMAP, POP3, จัดการ Sieeve, CalDAV, CardDAV และทําการกรองสแปมภายใน"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -571,7 +571,7 @@ msgstr "เครื่องมือพัฒนาและ CI/ CCD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "เซ็กเมนต์ S3ร้านขายวัตถุที่เข้ากันได้สําหรับใช้งานร่วมกัน, ถังเครื่องต่อเครื่องจัดจําหน่ายผ่านเว็บแอปบทบาท"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1057,7 +1057,7 @@ msgstr "PNGNX ที่อยู่บนเว็บแพลตฟอร์ม
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "PNGNX- service หน้าแบบคงที่ซึ่งแสดงเป็นเอกสารแบบมาตรฐาน (IMpressum) จากจินจา2 แม่แบบ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1260,7 +1260,7 @@ msgstr "Offimating เครื่องมือประกอบสําห�
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "คอมโพเนนท์ Offication for per-NGINX february with TLS ใบรับรอง, ต้นแบบ Vhost, และเลือก OAut2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1574,7 +1574,7 @@ msgstr "โปรแกรมประมวลผลและปรับแต
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "แบบ HTML ที่ตั้งเอง5 เกม Sandbox สําหรับเรียกดูและรันเดโมของเครื่องยนต์เบาและเกมในเบราว์เซอร์"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1584,7 +1584,7 @@ msgstr "บริการไดเร็กทอรีของ LDAP ที่
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "ตัว S ตัวเอง3จัดเก็บวัตถุที่เข้ากันได้สําหรับแฟ้ม, สื่อ, สํารองข้อมูล, และวัตถุ AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"

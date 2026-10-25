@@ -67,7 +67,7 @@ msgstr "Pozvanoanje"
 # translated-by: ollama
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one stalwart mail server s sSMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV i dugama filteriranju od spam"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Analytics:title"
@@ -268,10 +268,6 @@ msgstr "Kučnik clipboard s uređivima povijesti, privremnim uređivanjima i pod
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
-"Njokk\n"
-"---\n"
-"\n"
-"Skupljač"
 
 # translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
@@ -1093,10 +1089,6 @@ msgstr "Nginx-osnaženi server za hostiranje statičkih položaja kopirani iz iz
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Pakčevni-omiljatelj postavljanje npm i opcionalno pokretanje 'npm ci' u direktoriju projekta\n"
-"---\n"
-"\n"
-"Node.js"
 
 # translated-by: ollama
 msgctxt "category:sys.ctl.alm:description"
@@ -1995,10 +1987,6 @@ msgstr "Ikona za Python izvještavanje, razvoj aplikacija i nauka sa podacima na
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Instruči\n"
-"---\n"
-"\n"
-"Não está no texto que você forneceu o termo \"Tools\" que precisa ser traduzido para croata. Portanto, não há nada para traduzir."
 
 # translated-by: ollama
 msgctxt "menu:User Management:description"
@@ -2039,8 +2027,6 @@ msgstr "Ogrnuti servere spuštanjem"
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr ""
-"Tor daemon pošalje node kao viseću onausne usluge \n"
-"3"
 
 # translated-by: ollama
 msgctxt "role:dsk-torbrowser:description"

@@ -102,7 +102,7 @@ msgstr "# inkluderar-gated: när: inte IS_SWARM_MODE"
 
 # translated-by: libretranslate
 msgid "# nocheck: pip-version package_name: \"automtu==1.1.1\""
-msgstr "Nocheck: Pip-version package_name: Från: \"Automtu Sign1.1.1\""
+msgstr ""
 
 # translated-by: libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
@@ -266,7 +266,7 @@ msgstr "**Ett `svc-ai-litellm` gateway är den enda modellen entrypoint.** Det a
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**Ett `svc-ai-lmstudio` rollen läggs till som en routable backend, x86GPU-nod bara.** Den distribuerar LM Studio i headless server läge (`lms server`, OpenAI-kompatibel API) och registrerar sig bakom porten. LM Studio har ingen arm64 Linux server bygga, så det måste fästas till en x86 (Typiskt GPU) nod via placeringsbegränsning och måste inte schemaläggas på Raspberry Pi / arm64 agentnoder av [032](032-agent-employees-firecracker.md). LM Studio fartyg främst som en stationär GUI; rollen MÅSTE använda sitt huvudlösa / serverläge, och README MÅSTE dokumentera behållaren caveat (GPU passthrough, licensiering/modell nedladdning begränsningar)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -483,7 +483,7 @@ msgstr "**Avancerad säkerhet:** Införlivar TLS kryptering, DKIM och SPF för a
 
 # translated-by: libretranslate
 msgid "**Advanced openresty load-balancing strategies.** v1 uses default round-robin in the per-app `upstream` block. Weighted distribution, least-connections, sticky sessions (`ip_hash` / cookie-based), and active HTTP healthchecks are out of scope. Adding them is a follow-up requirement and only becomes load-bearing once a service is regularly run with replicas > 1, which itself depends on shared storage being NFS-backed for that service."
-msgstr "**Avancerade openresty-lastbalanseringsstrategier.** v.1 använder standard robin i per app `upstream` block. Vikt distribution, minsta anslutningar, klibbiga sessioner (`ip_hash` / cookie-baserad), och aktiva HTTP hälsokontroller är utom räckvidd. Lägga till dem är ett uppföljningskrav och blir bara lastbärande när en tjänst regelbundet körs med repliker 1, som i sig beror på delad lagring som NFS-stöds för den tjänsten."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Agent dashboards are public behind proxy + Keycloak OIDC.** `web-app-hermes` and `web-app-openclaw` follow the standard `web-app-*` contract: own canonical domain, reverse-proxy routing, SSO enforced via [`web-app-keycloak`](../../roles/web-app-keycloak/). Hermes uses its native self-hosted OIDC support. OpenClaw's native OIDC is unverified upstream: if absent, the dashboard sits behind the platform's standard auth-proxy pattern (SSO enforced at the proxy, OpenClaw's own token auth staying internal-only). No unauthenticated public surface either way."
@@ -1250,7 +1250,7 @@ msgstr "**Breaking Changes:** Migration från *Util-* bunt inventeringar under *
 # in-repo-tjänst som den är beroende av.
 # translated-by: libretranslate
 msgid "**Bridges are explicit and validated.** When an addon itself integrates with another role, it MUST list the bridged service key under `bridges:`. Each listed key MUST resolve to a service block already declared in the same role's `meta/services.yml`. Lint fails otherwise. Front-door auth gates such as oauth2-proxy are not addon bridges unless the addon itself talks to that service. **Two distinct meanings of \"bridge\" exist and MUST NOT be conflated:** the `bridges:` *field* names an in-repo cross-role service dependency (e.g. an addon that talks to `svc-db-openldap`), whereas `mechanism: bridge` marks an addon that *is* a network/appservice bridge to an external system (e.g. a Matrix mautrix bridge to WhatsApp/Telegram). A single addon MAY be both: a `mechanism: bridge` addon MAY also declare a `bridges:` dependency on an in-repo service it relies on."
-msgstr "**Broar är explicita och validerade.** När en addon själv integreras med en annan roll, måste den lista den överbryggda servicenyckeln under `bridges:`. Varje listad nyckel måste lösa ett serviceblock som redan deklarerats i samma roll `meta/services.yml`. Lint misslyckas annars. Front-dörr auth portar som oauth2Proxy är inte addon broar om inte addonen själv pratar med den tjänsten. **Två distinkta betydelser av \"bridge\" existerar och måste inte förväxlas:** och `bridges:` *fält* namn på en in-repo cross-role service beroende (t.ex. en addon som pratar med `svc-db-openldap`), medan `mechanism: bridge` markerar en addon som *är att* en nätverks-/appservicebro till ett externt system (t.ex. en Matrix mautrix bridge till WhatsApp/Telegram)En enda addon kan vara båda: en `mechanism: bridge` addon MAY förklarar också en `bridges:` beroende på en in-repo-tjänst som den är beroende av."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Browser Cache:** Browsers cache responses based on HTTP headers like `Cache-Control` or `Expires`."
@@ -1403,11 +1403,11 @@ msgstr "**CNG multi-service distribution:** webservice, sidekiq, workhorse, gita
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**CPU-inferens:** Rollen bygger sin egen bild från pinned llmster release för värdens arkitektur, amd64 eller arm64Håller bara CPU llama.cpp motor och passerar ingen GPU-enhet i behållaren."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**CPU-inferens:** Rollen bygger sin egen bild från den höjda llmster release för värdens arkitektur, amd64 eller arm64Håller bara CPU llama.cpp motor och passerar ingen GPU-enhet i behållaren."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -3786,7 +3786,7 @@ msgstr "**OIDC SSO** Frappes sociala inloggningsnyckel talar till den delade Key
 
 # translated-by: libretranslate
 msgid "**Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered."
-msgstr "**OIDC SSO:** Logga in genom den delade Keycloak OIDC-klient utan oauth2proxy sidecar; redirect URI är auto-registrerad."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Directory & Script Deployment:** Sets up ``sys-ctl-hlth-msmtp/`` and deploys a templated Bash script to send test emails via msmtp."
@@ -3917,7 +3917,7 @@ msgstr "**Docker Swarm installationsläge** för varje roll vars egen Ansible-gr
 
 # translated-by: libretranslate
 msgid "**Docker Swarm secrets.** v1 keeps the existing env-file-based credential rendering (no app-side code changes). Migrating to `docker secret` (Raft-encrypted, mounted under `/run/secrets/<name>`) is a follow-up requirement and requires per-role app-code adaptations to read secrets from files instead of env vars."
-msgstr "**Docker Swarm hemligheter.** v.1 håller den befintliga env-fil-baserade referensrendering (Ingen app-side-kod ändras). Migrering till `docker secret` (Raft-krypterad, monterad under `/run/secrets/<name>`) är ett uppföljningskrav och kräver per-role app-kod anpassningar för att läsa hemligheter från filer istället för env varierar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Docker and Backup Integration:** Optionally cleans Docker resources and backups if configured."
@@ -5158,7 +5158,7 @@ msgstr "**Hardened CA förtroende, hälsa och reparation logik** med *Soft-fail*
 
 # translated-by: libretranslate
 msgid "**Hardware access is declared, not blanket-by-accident.** The role exposes a device allowlist (`/dev/*`, GPIO, I2C/SPI, video/camera, serial) that the operator sets; \"full access\" is an explicit, documented opt-in, not the silent default. The README documents the blast radius: the agent can do anything the granted devices allow."
-msgstr "**Hårdvaruåtkomst förklaras, inte filt-för-olycka.** Rollen avslöjar en enhetstilläggslista (`/dev/*`, GPIO, jag2C/SPI, video/kamera, seriell) att verksamhetsutövaren fastställer, \"Full tillgång\" är en uttrycklig, dokumenterad opt-in, inte den tysta standarden. README dokumenterar sprängradien: agenten kan göra allt de beviljade enheterna tillåter."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Headless Provisioning:** The administrator is seeded from the role's credential and the first-boot wizard is completed over the API, so no manual click-through is required."
@@ -5916,11 +5916,11 @@ msgstr "**Keycloak OIDC inloggning:** och `jwt`///`oidc` auth metoden är konfig
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted `X-Remote-User` header (`auth_by_http_header`), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Fronterad av plattformen oauth2proxy gate; den autentiserade användaren överförs till Checkmk via den betrodda `X-Remote-User` header (`auth_by_http_header`), Så ingen andra inloggningsprompt visas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted ``X-Remote-User`` header (``auth_by_http_header``), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Fronterad av plattformen oauth2proxy gate; den autentiserade användaren överförs till Checkmk via den betrodda ``X-Remote-User`` header (``auth_by_http_header``), Så ingen andra inloggningsprompt visas."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -6687,7 +6687,7 @@ msgstr "**Multiinstans:** Bestämmelser N runner instanser per värd via ``RUNNE
 
 # translated-by: libretranslate
 msgid "**Multi-manager HA.** v1 is single-manager (one host in `svc-swarm-manager`). A follow-up requirement covers 3+ managers with Raft-quorum and the inventory shape that supports it."
-msgstr "**Multimanager HA.** v.1 är singelmanager (En värd i `svc-swarm-manager`). En uppföljningskrav täcker 3+ chefer med Raft-kvorum och lagerformen som stöder den."
+msgstr ""
 
 msgid "**Multi-service compose template with a role-built image**: [`web-app-moodle`](../../roles/web-app-moodle/templates/compose.yml.j2). Dockerfile placement and `ARG` wiring follow [dockerfile.md](../contributing/artefact/files/role/dockerfile.md)."
 msgstr ""
@@ -6729,7 +6729,7 @@ msgstr "**Muterar kommandon som riktar vägar utanför `allowWrite`** (t.ex. `mv
 
 # translated-by: libretranslate
 msgid "**NFS for stateful databases.** v1 keeps DB data volumes local-only with node-pinning. Reconsidering this requires a separate requirement covering DB-specific NFS semantics (locking, fsync, version compatibility per engine)."
-msgstr "**NFS för statliga databaser.** v.1 håller DB-datavolymer lokalt endast med nod-pinning. Om man överväger detta kräver ett separat krav som täcker DB-specifika NFS semantik (låsning, fsync, versionskompatibilitet per motor)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**NFS-backed shared volumes** so that the Swarm scheduler can move a container between nodes without losing volume state."
@@ -6839,7 +6839,7 @@ msgstr "**Native OIDC SSO:** Semaphore gör sin egen \"Sign in med Keycloak” k
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "**Native OIDC smak** (`services.sso.flavor: oidc`), inte oauth2Proxy gate: OpenBao talar OIDC själv, så det följer [`web-app-semaphore`](../../roles/web-app-semaphore/) snarare än [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar."
 msgstr ""
@@ -7109,7 +7109,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Not native in any edition**; Raw only via Apache `mod_auth_openidc` (manual PoC). → use the platform oauth2-proxy gate instead."
-msgstr "**Inte infödd i någon utgåva**Raw endast via Apache `mod_auth_openidc` (Manuell PoC). Använd plattformen oauth2Proxy gate istället."
+msgstr ""
 
 # `plugins/` Katalog håller **Ansible** plugins (Aktivitet / filter / lookup)
 # som förlänger själva automationsmotorn. Vissa applikationer *också* kalla
@@ -7243,7 +7243,7 @@ msgstr "**Office Integration:** Importera, exportera och samarbeta i Office-doku
 
 # translated-by: libretranslate
 msgid "**Offline Python mint** at inventory build: ed25519 → address → exact Tor key-file formats → vault → `DOMAIN_PRIMARY`. Idempotent (existing key is reused, never regenerated). No Docker/Tor needed at build time."
-msgstr "**Offline Python mint** Inventory build: Ed25519 → adress → exakta Tor nyckelfilformat → valv `DOMAIN_PRIMARY`. Idempotent (befintlig nyckel återanvänds, aldrig regenererad). Ingen Docker/Tor behövs vid byggtiden."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Offline deterministic minting:** the v3 key/address is generated without running Tor and pinned in the inventory (stable, backupable, restorable)."
@@ -7906,7 +7906,7 @@ msgstr "**Pinning rundor (singel eller bunt).** Både init och distribution acce
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Pins som inte kan åldras obemärkt.** Bildstift klassificeras och dra referenser byggda från klassen, en rörlig tag förklarar sig med markören som den redan bär, och en roll bilder rör sig som en release eller inte alls. Uppdateraren läser addon deklarationer, orders leverantör patch räknare och fem-komponent versioner, läser en release linje skriven före numret som en familj, och nu också tittar pinned pip krav och Ansible samlingar. Sju roller flyttade från Debians kodnamnsbas på smal, och en Ubuntu-spegellista med failover, en kort timeout och ett hälsotest tjänar både paketcache och bilden bygger. *js-yaml* lyftes till 4.3.2 för GHSA-2883-xcg3-V3Hh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8612,14 +8612,14 @@ msgstr "**SSO Login:** \"Logga in med SSO\" -knappen (När OIDC är aktiverat)"
 
 # translated-by: libretranslate
 msgid "**SSO authentication:** Access is protected by Keycloak via oauth2-proxy."
-msgstr "**SSO autentisering:** Access skyddas av Keycloak via oauth2Proxy."
+msgstr ""
 
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar against Keycloak), as in [`web-app-openclaw`](../../roles/web-app-openclaw/) and [`web-app-checkmk`](029-web-app-checkmk.md). The Keycloak client is provisioned by the platform for every role with `sso.enabled`."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**SSO smak är `oauth2`** (oauth2Proxy sidecar Keycloak), Inget OIDC - för Checkmk Raw har ingen OIDC. Oauth2Proxy autentiserar mot Keycloak och passerar `X-Remote-User`; Checkmks webbplats Apache litar på den via `auth_by_http_header`. Detta speglar [`web-app-openproject`](../../roles/web-app-openproject/)s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` LDAP-gated header trust)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -8635,11 +8635,11 @@ msgstr "**SSO via KeycloakFrån:** Konfigureras automatiskt vid första installa
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**SSO via oauth2Proxy med auto-provisioning:** V1 Gates all åtkomst genom den delade Keycloak OIDC-klient (oauth2Proxy Edge). Openresty vidarebefordrar den autentiska identiteten till n8n som betrodd `Remote-Email` header (`templates/proxy.conf.j2`); en `EXTERNAL_HOOK_FILES` skript (`files/hooks.js`, anpassad från [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) Läser den rubriken, auto-provisions en lokal n8Användare på första inloggning och problem n8n's egen session cookie - så varje Keycloak användaren landar direkt i arbetsflödesredaktören, utan någon sekund, n8n-lokal inloggning steg."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**SSO via oauth2Proxy med auto-provisioning:** V1 Gates all åtkomst genom den delade Keycloak OIDC-klient (oauth2Proxy Edge). Openresty vidarebefordrar den autentiska identiteten till n8n som betrodd ``Remote-Email`` header (``templates/proxy.conf.j2``); en ``EXTERNAL_HOOK_FILES`` skript (``files/hooks.js``, anpassad från `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) Läser den rubriken, auto-provisions en lokal n8Användare på första inloggning och problem n8n's egen session cookie - så varje Keycloak användaren landar direkt i arbetsflödesredaktören, utan någon sekund, n8n-lokal inloggning steg."
+msgstr ""
 
 # Keycloak (`sso.flavor: saml` in i
 # [`meta/services.yml`](./meta/services.yml))inte en proxy framför den.
@@ -8960,7 +8960,7 @@ msgstr "**Självförklaring är en förstklassig förmåga.** Hermes räknar upp
 
 # translated-by: libretranslate
 msgid "**Self-hosted CI runner for the pilot workflow.** v1 pins `test-deploy-swarm-nfs.yml` to GitHub-hosted DinD. Once [014](014-svc-runner-ci.md) is in place, the workflow MAY be migrated to a self-hosted runner for closer-to-production validation."
-msgstr "**Självvärd CI-löpare för pilotarbetsflödet.** v.1 Pins `test-deploy-swarm-nfs.yml` GitHub-hosted DinD [014](014-svc-runner-ci.md) är på plats, arbetsflödet kan migreras till en egen värd löpare för närmare produktion validering."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Self-hosted LittleJS environment**: run LittleJS demos and games under your own domain."
@@ -10051,7 +10051,7 @@ msgstr "**Tor-ready:** `svc-net-tor` beror på denna tjänst, så lökutplacerin
 
 # translated-by: libretranslate
 msgid "**Traefik migration / edge HA.** v1 keeps openresty as the swarm edge (pinned to manager) to preserve the `sys-front-inj-*` Lua body-rewriting pipeline unchanged. Migrating to Traefik for true multi-replica edge HA is a follow-up requirement and is gated on porting the body_filter.lua injection logic (CSP-meta stripping + head/body snippet injection for Matomo / CSS / JavaScript / Dashboard / Logout) to a Traefik Yaegi plugin OR introducing a Traefik → openresty chain. Without one of those, switching the edge to Traefik would silently drop the frontend-injection pipeline."
-msgstr "**Traefik migration / edge HA.** v.1 Håller öppenhet som svärmkanten (Pinned till manager) att bevara `sys-front-inj-*` Lua body-rewriting pipeline oförändrad. Migrering till Traefik för äkta multi-replica edge HA är ett uppföljningskrav och gated på portering av body_filter.lua Injektionslogik (CSP-meta stripping + huvud / kropp snippet injektion för Matomo CSS / JavaScript / Dashboard / Logout) till en Traefik Yaegi plugin ELLER införa en Traefik → öppenhet kedja. Utan en av dem skulle byta kanten till Traefik tyst släppa frontend-injektionsledningen."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Transform values:** Use filters to transform, extract, reformat, or compute values from existing variables or facts."
@@ -10080,7 +10080,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Trusted-header SSO bridge:** Establishes the owner session from the oauth2-proxy identity (see below)."
-msgstr "**Trusted-header SSO bridge:** Etablerar ägarsessionen från oauth2proxy identitet (Se nedan)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Twenty-four roles' audit entries contradicted their own metadata** the first time the classification lint ran, nine of them shipping an adapter while the list called them untried candidates."
@@ -10244,11 +10244,11 @@ msgstr "**Användarägt:** filen tillhör arbetsstationsanvändaren och är enda
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO)Från:** Oauth2Proxy edge gate omdirigerar alla förfrågningar till Keycloak. ``files/hooks.js`` Läser den betrodda ``Remote-Email`` header openresty sätter när porten passerar och auto-provisioner / loggar i matchande n8n användaren (rollroll ``global:member``, eller den befintliga ägaren för ``users.administrator.email``)Så varje Keycloak användare - administratör och vanliga användare - landar direkt på n8n:s egen arbetsflödesyta utan någon sekund, n8n-lokal inloggning steg."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO)Från:** Oauth2Proxy edge gate omdirigerar alla förfrågningar till Keycloak. `files/hooks.js` Läser den betrodda `Remote-Email` header openresty sätter när porten passerar och auto-provisioner / loggar i matchande n8n användaren (rollroll `global:member`, eller den befintliga ägaren för `users.administrator.email`)Så varje Keycloak användare - administratör och vanliga användare - landar direkt på n8n's egen arbetsflödesyta utan andra, n8n-lokal inloggning steg."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10350,7 +10350,7 @@ msgstr "**Visuellt tilltalande**, skärmfyllande murverksnät som skalar från t
 
 # translated-by: libretranslate
 msgid "**Volume migration Compose → Swarm.** v1 is greenfield: when a host moves into `svc-swarm-node` for the first time, existing local volumes are NOT auto-migrated to NFS. A manual `rsync` step from `/var/lib/docker/volumes/<vol>/_data` to the NFS export is documented in the new design doc. Automating this migration is a follow-up requirement."
-msgstr "**Volume migration komponera → Swarm.** v.1 Greenfield: När en värd flyttar in `svc-swarm-node` För första gången är befintliga lokala volymer inte auto-migrerade till NFS. En manual `rsync` steg från `/var/lib/docker/volumes/<vol>/_data` NFS-exporten dokumenteras i det nya designdokumentet. Automatisera denna migration är ett uppföljningskrav."
+msgstr ""
 
 msgid "**WebAdmin + IMAP/SMTP/JMAP** authenticate against an **OIDC directory** (``tasks/06_oidc.yml``): Stalwart validates Keycloak-issued tokens, matching the ``preferred_username`` claim to the provisioned account."
 msgstr ""
@@ -10457,7 +10457,7 @@ msgstr "**Varför denna uppsättning?** [Debian](https://www.debian.org) Föredr
 # openldap.
 # translated-by: libretranslate
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
-msgstr "**Varför:** Friendica autentiserar för närvarande i två steg: oauth2Proxy gates vhost (Keycloak-Authorization-Code-Flow, 2FA-styrbar), Då måste användaren fylla Friendica\"Ett eget `/login` form eftersom lager Friendica har **Ingen header-trusted auto-login** —— Owa.php /// OAuth/Token.php endast läsa `HTTP_AUTHORIZATION` För API slutpunkter, aldrig för webbsessionen. ldapauth-tillägget förblir aktiverat enbart som en första inloggningsstarp som materialiserar `friendica.user` rad från openldap."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Wildcard A/AAAA records** (`*.parent`) for parent hosts via `sys-dns-wildcards`"
@@ -12363,7 +12363,7 @@ msgstr "**role_name**keyboard-color"
 
 # translated-by: libretranslate
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
-msgstr "**Server-side OIDC nåbarhet kandidater** joomla misslyckades eftersom dess app behållare utför server-side OIDC upptäckt mot `http://auth.<onion>` utan en `extra_hosts` kartläggning. Roller med samma mekaniker och ingen `container_extra_hosts` Lookup ännu (fix är samma one-line lookup, tillämpa på CI-bevis): Ordpress (Daggerhart plugin) och Mediawiki (PluggableAuth) är strukturellt identiska PHP in-app plugins (Hög sannolikhet)Diskurs är nu bekräftad och pinned (Kör 33445831564, jobb Nextcloud# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #7); jenkins, jira, sammanflöde, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon konsumerar emittentens server-side också (Overifierad nätverksväg)oauth2Proxybaserade appar påverkas inte (Beprövad grön: Prometheus admin SSO)Två namn har lämnat denna lista på bevis: mobilizon fick uppslag i 0e e e39F3Fad efter dess code-to-token call upp OAuth2.Error Anslutning vägrade tjugofyra gånger, och gitlab var aldrig medlem 31756560361 visar att den löser och ansluter (Peeraddr=172.30.0.10Från:443)dess misslyckande var openid_connect pärla som bygger upp upptäcktsadressen över https oavsett emittentschema, fast i 2389B6e e e38."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**social-app upstream error:** the broker forwards the upstream's error response."
@@ -12375,7 +12375,7 @@ msgstr "**Lager**"
 
 # translated-by: libretranslate
 msgid "**swarm** (v1) is opt-in per host via Ansible group membership. Adds: multi-host cluster, overlay networks, NFS-backed shared volumes, rolling updates, placement constraints."
-msgstr "**svärm** (v.1) är opt-in per värd via Ansible gruppmedlemskap. Tillägg: multi-host kluster, overlay nätverk, NFS-stödda delade volymer, rullande uppdateringar, placeringsbegränsningar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**sys-stk-backend**, **sys-svc-compose**, **sys-svc-proxy** and *plugins/filter/compose_volumes.py* now gate on **lookup(sso, …, is_proxy_gated)** instead of hand-combining **enabled** + **flavor**."
@@ -12391,7 +12391,7 @@ msgstr "**systemd-resolved** Stub lyssnare inaktiverad för att undvika hamnkonf
 
 # translated-by: libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
-msgstr "**test-utveckling miljö jobb** Allt 5 Distro jobb (arch, debian, ubuntu, fedora, centos) Hämta 4Höjd30m cap under trängsel medan du fortsätter (Playwright image pull)Miljö, ingen kod fix - skiljer sig från distro svepets egen budget, som hade en: 508669809 böcker en budget SIGKILL som hoppad, som annons9222630 hade bara gjort för SIGTERM; notera att lök e2i sig förlänger rutinen (×5 Onion timeouts, krets väntar)Så under trängsel dessa jobb är de första att slå locket."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
@@ -12406,7 +12406,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**v3 address algorithm** (needed for offline mint): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, PUBKEY = 32-byte ed25519 master pubkey."
-msgstr "**v.3 Adress algoritm** (behövs för offline mint): Från: `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, PUBKEY = 32-byte ed25519 Master Pubkey."
+msgstr ""
 
 msgid "**vpn** -- whether a swarm row deploys over the WireGuard mesh (:mod:`utils.github.variant.vpn`); every other mode takes the direct arm."
 msgstr ""
@@ -12954,18 +12954,18 @@ msgstr "*web-app-jitsi* (web, prosody, jicofo, jvb): Stable-9646 Stabil -11031"
 
 # translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache"
-msgstr "*web-app-joomla*Från: 6.1.1FP8.3Apache till 6.1.2FP8.3-Apache"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache"
-msgstr "*web-app-joomla*Från: 6.1.2FP8.3Apache till 6.1.3FP8.3-Apache"
+msgstr ""
 
 msgid "*web-app-joomla*: 6.1.3-php8.3-apache to 6.1.4-php8.3-apache"
 msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4"
-msgstr "*web-app-keycloak*Från: 26.7.0 att 26.7.2, oauth2Proxy v7.15.3 till v7.15.4"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.2 to 26.7.3"
@@ -13151,7 +13151,7 @@ msgstr "*web-app-opentalk* (RabbitMQ): Från: 4.3.5 att 4.3.6"
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the frontend (v2.9.0), controller (v0.34.1) and recorder (v0.16.2) stay pinned until the set is released as a bundle and *recorder.toml* is migrated"
-msgstr "*web-app-opentalk*LiveKit v1.13.3 till v1.13.5, RabbitMQ 4.3.2 att 4.3.4; frontend (v.2.9.0), controller (v.0.34.1) och Recorder (v.0.16.2) stanna fast tills uppsättningen släpps som en bunt och *recorder.toml* är migrerad"
+msgstr ""
 
 msgid "*web-app-opentalk*: LiveKit v1.13.7 to v1.13.10"
 msgstr ""
@@ -13610,7 +13610,7 @@ msgstr "028 - atmo.rsvp (AT Protocol Events) Roll + MobilizonAktivitetPub Bridge
 
 # translated-by: libretranslate
 msgid "029 - Checkmk Role with oauth2-proxy SSO + LDAP"
-msgstr "029 - Checkmk Roll med oauth2Proxy SSO + LDAP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "030 - Jellyfin Role with LDAP / OIDC SSO"
@@ -14310,7 +14310,7 @@ msgstr "Ett ``mount --make-rshared /`` körs en gång i distribueringsbehållare
 
 # translated-by: libretranslate
 msgid "A ``svc-bkp-*`` pre-backup hook for ``bench backup`` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard ``svc-bkp-*`` driver picking up the central MariaDB DB and the role’s named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "Ett ``svc-bkp-*`` Pre-backup hook för ``bench backup`` är inte trådbunden i v1 (uppskjuten till ett uppföljningskrav). V1 backup story bygger på standarden ``svc-bkp-*`` Föraren plockar upp den centrala MariaDB DB och rollens namngivna volymer. För att göra en Frappe-medveten ögonblicksbild i flygning, kör:"
+msgstr ""
 
 # false`` för att välja bort svärmen NFS omskrivning: volymen stannar sedan en
 # vanlig nod-lokal namngiven volym även när ``storage.backend`` är att ``nfs``
@@ -14356,7 +14356,7 @@ msgstr "Ett `required_by` blockera MAY istället Nest `compose:` /// `swarm:` de
 
 # translated-by: libretranslate
 msgid "A `svc-bkp-*` pre-backup hook for `bench backup` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard `svc-bkp-*` driver picking up the central MariaDB DB and the role's named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "Ett `svc-bkp-*` Pre-backup hook för `bench backup` är inte trådbunden i v1 (uppskjuten till ett uppföljningskrav). V1 backup story bygger på standarden `svc-bkp-*` Föraren plockar upp den centrala MariaDB DB och rollens namngivna volymer. För att göra en Frappe-medveten ögonblicksbild i flygning, kör:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled."
@@ -15525,7 +15525,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role whose upstream images are amd64-only must say so in `meta/services.yml`, or half its rows fail on the image pull. That failure is loud and names the role, which is the intended way to discover the gap."
-msgstr "En roll vars uppströms bilder är amd64bara måste säga så in `meta/services.yml`, eller hälften av raderna misslyckas på bilddraget. Detta misslyckande är högt och namnger rollen, vilket är det avsedda sättet att upptäcka klyftan."
+msgstr ""
 
 msgid "A role whose vars derive a further tag from ``version`` lists the suffixes under ``<entity>.version_variants``; each yields its own ref, because this function is the only enumeration the mirror sees and a tag it never emits can never be mirrored."
 msgstr ""
@@ -15727,11 +15727,11 @@ msgstr "En kort punkt som beskriver vad **programvara** är. Du måste inte besk
 
 # translated-by: libretranslate
 msgid "A sidecar ``web-app-keycloak`` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the ``X-Forwarded-*`` identity headers on every proxied request."
-msgstr "En sidovagn ``web-app-keycloak`` oauth2Proxy autentiserar besökaren mot Keycloak (OIDC eller LDAP federerade genom Keycloak) och nginx överskriver ``X-Forwarded-*`` Identitetsrubriker på varje proxied begäran."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A sidecar `web-app-keycloak` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the `X-Forwarded-*` identity headers on every proxied request."
-msgstr "En sidovagn `web-app-keycloak` oauth2Proxy autentiserar besökaren mot Keycloak (OIDC eller LDAP federerade genom Keycloak) och nginx överskriver `X-Forwarded-*` Identitetsrubriker på varje proxied begäran."
+msgstr ""
 
 msgid "A sidecar that a provider role ships into other stacks passes ``provider``:"
 msgstr ""
@@ -15798,7 +15798,7 @@ msgstr "En enskild elementslista som innehar den utökade spec-listan, så den s
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Ett enda-nod labb kan inte svara på multi-node kriterier: replika skalning, placering över två `kata-capable` Raspberry-Pi-klass noder, och komponerings-plus-swarm end-to-end passerar alla behöver klustret kravet beskriver. Armen64 hälften av placeringskriteriet bevisas av bildkontrollen ovan; tvånodhalvan är inte."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
@@ -16756,7 +16756,7 @@ msgstr "Tillagt det externa Docker-bildversionscheck-arbetsflödet, en veckovis 
 
 # translated-by: libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Tillagd lint corpus för: projekt-walk / cache-read / projekt-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / roll-meta-layout / web-role-no-web-dependency / run-once-on-on-shared-services / redundant-bool-pattern / sed-escape2 proxy-port allokering"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -18003,7 +18003,7 @@ msgstr "Ändras efter implementering: den utplacerade Hermes-versionen tjänar e
 
 # translated-by: libretranslate
 msgid "Among the hosts in `svc-swarm-node`, the cluster manager is identified by additional membership in `svc-swarm-manager`. v1 scope: exactly ONE host. Workers are derived as `svc-swarm-node − svc-swarm-manager` — no duplicated list in `group_vars`."
-msgstr "Bland värdarna i `svc-swarm-node`, Klustrchefen identifieras genom ytterligare medlemskap i `svc-swarm-manager`. v. v.1 Omfattning: exakt en värd. Arbetare kommer som `svc-swarm-node − svc-swarm-manager` Ingen duplicerad lista i `group_vars`."
+msgstr ""
 
 # gained=['"Ansökningsroll"']
 # `meta/<topic>.yml` markörfil (tjänster, server, rbac, volymer, schema,
@@ -19114,7 +19114,7 @@ msgstr "Som plattformsadministratör för Infinito.Nexus, Jag vill ERPNext (Frap
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want [Checkmk](https://github.com/Checkmk/checkmk) integrated as a `web-app-checkmk` role with Keycloak SSO (via the oauth2-proxy gate) and native LDAP user management so that operators can run the open-source Checkmk monitoring server behind the platform's central Single Sign-On, validated end-to-end with Playwright personas."
-msgstr "Som plattformsadministratör för Infinito.Nexus, Jag vill [Checkmk](https://github.com/Checkmk/checkmk) integrerad som en `web-app-checkmk` roll med Keycloak SSO (via oauth2Proxy gate) och inhemsk LDAP-användarhantering så att operatörerna kan köra öppen källkod Checkmk Övervaka servern bakom plattformens centrala Single Sign-On, validerad end-to-end med Playwright-personas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want [Jellyfin](https://jellyfin.org) integrated as a `web-app-jellyfin` role with Keycloak-backed Single Sign-On so that users can stream the media server behind the platform's central identity, validated end-to-end with Playwright personas."
@@ -21836,7 +21836,7 @@ msgstr "Avbryter körningarna som ersätts av en nyare på samma gren eller PR v
 
 # translated-by: libretranslate
 msgid "Candidates are read shallowest first, because a depth-1 job records the orchestrator's own inputs while a deeper one records what its caller forwarded. Skipped jobs are passed over: they never upload a log blob, so their log endpoint answers ``BlobNotFound`` as a bare HTTP 404 -- and a force-cancelled run can leave every depth-1 job skipped, which is why the deeper jobs are read at all rather than treated as inputs-free."
-msgstr "Kandidater läser grundast först, eftersom ett djup1 jobb registrerar orkestratorns egna ingångar medan en djupare registrerar vad dess uppmaning vidarebefordrade. Skippade jobb passeras över: de laddar aldrig upp en loggblob, så deras log endpoint svar ``BlobNotFound`` Som en bar HTTP 404 och en kraftavbruten körning kan lämna varje djup1 jobb hoppade, vilket är anledningen till att de djupare jobben läses alls snarare än behandlas som ingångsfria."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cannot be undone without a force-push."
@@ -22587,7 +22587,7 @@ msgstr "Cleanup 🗑️"
 
 # translated-by: libretranslate
 msgid "Cleanup-workflow fixes (follow-up to the 11.1.0 cleanup automation): the *crs-k/stale-branches* action is pinned to *v9.0.1* (the previous *@v8* was unresolvable and failed the job) and its non-existent *protected-branches* input is replaced with the action's real *branches-filter-regex*; the GHCR CI-image cleanup script now reports what it scans, keeps and deletes with a per-package summary and a *DRY_RUN* mode, so a no-op run is no longer indistinguishable from a broken one."
-msgstr "Cleanup-workflow fixes (Uppföljning till 11.1.0 rensning automation): den *crs-k/stale-branches* Åtgärden är knuten till *v.9.0.1* (föregående *@v8* var olöst och misslyckades med jobbet) och dess icke-existerande *skyddade grenar* ingång ersätts med åtgärdens verkliga *filter-regex*GHCR CI-image rengöringsskript rapporterar nu vad det skannar, håller och tar bort med en per-paket sammanfattning och en *DRY_RUN* läge, så en no-op run är inte längre oskiljaktig från en trasig."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Clear Cache"
@@ -25597,7 +25597,7 @@ msgstr "DB-motorer (`redis`, `mariadb`, `postgres`)"
 
 # translated-by: libretranslate
 msgid "DB numbers (0 / 1 / 2) are stable for v1; if `svc-db-redis` later partitions tenants, this requirement gets swept by the same migration."
-msgstr "DB-nummer (0 /// 1 /// 2) är stabila för v1om `svc-db-redis` senare partitioner hyresgäster, detta krav blir svept av samma migration."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "DB service key under the role's ``meta/services.yml``."
@@ -26101,7 +26101,7 @@ msgstr "Standardplats:"
 
 # translated-by: libretranslate
 msgid "Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists."
-msgstr "Standardmodell: porten tjänar `/v1` utan en konfigurerad `model.default`; Agent vänder behov `hermes config set model.default ollama/<alias>` mot LiteLLM-stödd leverantör. Bake it via en konfig mall en gång en tur-nivå e2E påstående existerar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default output: the full selection matrix followed by every prompt block (workflow name plus its copy-paste prompt), verbatim and unshortened. When the operator names a situation, output only the matching prompt block."
@@ -27986,7 +27986,7 @@ msgstr "Kör `baudolo-snapshot`, startaren som bestämmer per körning om baudol
 
 # translated-by: libretranslate
 msgid "Drop `services.sso.enabled` for friendica — SAML handles SSO end-to- end, oauth2-proxy in front would double-gate."
-msgstr "Drop `services.sso.enabled` för friendica - SAML hanterar SSO end-to-end, oauth2Proxy framför skulle dubbelportera."
+msgstr ""
 
 msgid "Drop into an interactive shell on one of the swarm-test DinD nodes."
 msgstr ""
@@ -28204,7 +28204,7 @@ msgstr "Dual clearnet+onion med `Onion-Location` bron och speglade SSO-riken; pe
 
 # translated-by: libretranslate
 msgid "Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved."
-msgstr "Dual-block resolution: **web-app-bookwyrm** Pinned till **smak: oauth2**; **web-app-gitea** och **web-app-friendica** Håll **smak: oauth2** med den befintliga *oauth2.acl.blacklist* (*/user/login*) och *oauth2.acl.whitelist* (Federation + discovery endpoints) operativ oauth2Proxy gating bevarad."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dual-stack model: the node keeps its clearnet ``DOMAIN_PRIMARY``; the node onion is an ADDITIVE address opted-in apps (``services.tor.enabled``) are also reachable under as ``<sub>.<node-onion>`` over Tor. Idempotent: an existing key at ``<base_dir>/.onion-identity/hs`` is reused so the address is stable across runs. The key files are the single source of truth — the ``svc-net-tor`` role copies them into the daemon so it serves exactly this address, and the inventory provisioner writes the returned address into ``applications.svc-net-tor.services.tor.node`` (no env indirection)."
@@ -29613,7 +29613,7 @@ msgstr "Varje konsument myntar sin egen nyckel och driver gatewaykontraktet"
 
 # translated-by: libretranslate
 msgid "Every consumer of the legacy oauth2 / oidc service sub-trees, the **OAUTH2_PROXY_\\*** env / Jinja vars, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, the dedicated oauth2-proxy provider role, or the legacy *oidc* / *oauth2* Playwright gating helper service names must migrate to the unified **sso** shape. Full plan and decisions are archived under req 21."
-msgstr "Varje konsument av arvet oauth2 / oidc service underträd, **OAUTH2_PROXY_\\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ n \\ \\ n \\ \\ n \\ \\ n \\ n \\ n \\ \\ n \\ \\ \\ n \\ n n \\ n \\ \\ \\ n n \\ \\ n \\ \\ \\ n n \\ \\ \\ \\ \\ \\ \\ \\ \\ n \\ \\ n n \\ \\ \\ \\ \\ n \\ \\ \\ \\ \\ \\ \\ \\ n n \\ \\ \\ \\ \\ \\ \\ n \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\*** Env / Jinja varierar, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*Dedikerad oauth2Proxy leverantör roll, eller arvet *oidc* /// *oauth2* Playwright gating hjälpar service namn måste migrera till den enhetliga **sso** form. Full plan och beslut arkiveras enligt req 21."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every consumer speaks only the gateway `/v1`; the gateway is the single place backends are wired."
@@ -29768,7 +29768,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every other agent deployment in [032](032-agent-employees-firecracker.md) keeps the agent kernel-isolated. This role is the deliberate inverse defined by [032](032-agent-employees-firecracker.md) Decision #12 (embodied / dedicated-device mode): for a robot, the useful trust boundary is the **whole device**, because the agent's job is to drive that device's hardware (GPIO, I2C/SPI sensors, cameras, actuators, motors). A microVM around the agent would only get in the way of the very hardware it is meant to control."
-msgstr "Alla andra agentutplaceringar i [032](032-agent-employees-firecracker.md) håller agenten kärnisolerad. Denna roll är den avsiktliga invers som definieras av [032](032-agent-employees-firecracker.md) Beslut #12 (Förkroppsligad / dedikerad enhetsläge)För en robot är den användbara förtroendegränsen den **Hel enhet**, eftersom agentens jobb är att driva den enhetens hårdvara (GPIO, jag2C/SPI-sensorer, kameror, ställdon, motorer)En mikroVM runt agenten skulle bara komma i vägen för den mycket hårdvara det är tänkt att kontrollera."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every page carries a version switcher in its sidebar. Switching keeps the current page and falls back to the start page of a version that lacks it."
@@ -30549,7 +30549,7 @@ msgstr "Förlänga den föreskrivna testinventeringen med värd-topologi placeri
 
 # translated-by: libretranslate
 msgid "Extended Docker image version handling to support ghcr.io, depth-aware comparisons, and flavored semver tags such as 5.4.5-php8.3-apache"
-msgstr "Extended Docker-bildversionshantering för att stödja ghcr.io, djupmedvetna jämförelser och smaksatta semver taggar som 5.4.5FP8.3-Apache"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Extended timeout for the flaky *setupSuperUser* step"
@@ -31938,7 +31938,7 @@ msgstr "För varje nyckel vinner den första definierade källan:"
 # värden).
 # translated-by: libretranslate
 msgid "For each role, return ``[primary_key, *covers]`` — the set of service keys whose presence in a consumer's ``services`` map counts as an explicit declaration of a dep on that role. ``covers`` comes from the primary entity's ``covers:`` list (e.g. ``web-app-keycloak`` covers ``oauth2`` because the per-app oauth2-proxy only makes sense when the IdP is on the host)."
-msgstr "För varje roll, retur ``[primary_key, *covers]`` - uppsättningen servicenycklar vars närvaro i en konsument ``services`` Kartan räknas som en explicit deklaration av ett djup på den rollen. ``covers`` kommer från primärenhetens ``covers:`` lista (t.ex. ``web-app-keycloak`` Omslag ``oauth2`` för per app oauth2Proxy är bara meningsfullt när IdP är på värden)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "For each short key, the plugin MUST resolve the value from the first defined source in this order:"
@@ -32601,7 +32601,7 @@ msgstr "Frappe webbplats config (Beslut #7 —— Redis DB-nummer split)"
 
 # translated-by: libretranslate
 msgid "Frappe supports OIDC natively as an OAuth client; an oauth2-proxy sidecar would be redundant and break the Frappe \"Login with X\" UX."
-msgstr "Frappe stöder OIDC infödd som en OAuth-klient; en oauth2proxy sidovagn skulle vara överflödig och bryta Frappe \"Logga in med X\" UX."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
@@ -33016,7 +33016,7 @@ msgstr "Generatorer som gör sidor begångna under `docs/`. Var och en läser ro
 
 # translated-by: libretranslate
 msgid "Generic Docker Registry HTTP API v2 client."
-msgstr "Generisk Docker Registry HTTP API v.2 Kund."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Generic TLS orchestrator that can be plugged in front of any web app reverse proxy."
@@ -33155,7 +33155,7 @@ msgstr "GitHub styrning guider 🛡️"
 
 # translated-by: libretranslate
 msgid "GitHub i18n Helpers 🌐"
-msgstr "GitHub i18Hjälpare 🌐"
+msgstr ""
 
 msgid "GitHub lists its hosted images in the runner-images README; the newest x64 Ubuntu label whose image carries no preview or beta badge is the target."
 msgstr ""
@@ -34674,7 +34674,7 @@ msgstr "Om en roll inte kan svara på dessa frågor, gör det förmodligen för 
 
 # translated-by: libretranslate
 msgid "If a role uses another service around the application but the addon does not talk to that service directly, the service MUST stay in `meta/services.yml` and MUST NOT be listed in the addon's `bridges:`. Friendica's oauth2-proxy-backed `sso` service is such a front-door auth gate for `ldapauth`."
-msgstr "Om en roll använder en annan tjänst runt applikationen men tillägget inte pratar med den tjänsten direkt, tjänsten MÅSTE stanna i `meta/services.yml` och bör inte listas i addons `bridges:`. Friendicas oauth2Proxy-backed `sso` service är en sådan framdörr auth gate för `ldapauth`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If a service can be removed without rewriting the whole stack, the design is usually healthy. If removing one part breaks everything else, the boundaries are probably too weak."
@@ -35222,7 +35222,7 @@ msgstr "Bildkälla"
 
 # translated-by: libretranslate
 msgid "Image strategy: **upstream `frappe/erpnext`** (the official image from [frappe_docker](https://github.com/frappe/frappe_docker)), pinned to the **latest stable v15.x** in `meta/services.yml` (no `:latest`, no `:edge`). v14 LTS and the v16 pre-release line are explicitly NOT used. Bump path follows the same convention as other upstream-pinned roles."
-msgstr "Bildstrategi: **Uppströms `frappe/erpnext`** (den officiella bilden från [frappe_docker](https://github.com/frappe/frappe_docker)), fäst vid **senaste stabilt v15.x** in i `meta/services.yml` (Ingen `:latest`, Nej, nej `:edge`)v. v.14 LTS och v16 Pre-release linje används explicit inte. Bumpbanan följer samma konvention som andra uppströmsfinnade roller."
+msgstr ""
 
 msgid "Image version of the primary entity at ``designed``."
 msgstr ""
@@ -35625,11 +35625,11 @@ msgstr "I svärm läge `restart:` servicenyckeln på toppnivå ignoreras tyst ef
 # inloggningskontroll där.
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM's own login form and finds no logout control there."
-msgstr "I den SSO-aktiverade varianten Keycloak rundtur tillfredsställer oauth2Proxy men lämnar LAM sig undertecknad, så persona landar tillbaka på LAM\"S eget inloggningsformulär och finner ingen inloggningskontroll där."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM’s own login form and finds no logout control there."
-msgstr "I den SSO-aktiverade varianten Keycloak rundtur tillfredsställer oauth2Proxy men lämnar LAM sig undertecknad, så persona landar tillbaka på LAMeget inloggningsformulär och hittar ingen inloggningskontroll där."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the sidebar, choose **API Tokens**   Or use this direct link: [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)"
@@ -37747,7 +37747,7 @@ msgstr "Iteration steg:"
 
 # translated-by: libretranslate
 msgid "Its SHA256 checksum is fetched from the same release"
-msgstr "Dess sha256 Checksum hämtas från samma release"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Its purpose is to keep runtime configuration centralized, deterministic, and easy to reuse across local runs, CI, and container-based execution. 🧭"
@@ -38316,7 +38316,7 @@ msgstr "Keycloak gruppträd och `groups` Kundomfattning 🎫"
 
 # translated-by: libretranslate
 msgid "Keycloak group → ERPNext role mapping target tiers: `roles/web-app-erpnext/administrator` → Frappe `System Manager`, `roles/web-app-erpnext/manager` → Frappe `Sales User` + `Purchase User` + `Stock User` + `Accounts User`, default → Frappe `Customer`. **v1 scope split:** the path-to-roles map is persisted at deploy time by `apply/oidc_settings.py` (writes JSON to `frappe.db.set_default(\"erpnext_oidc_group_role_map\", …)`). Per-login reconciliation into Frappe role records still requires a custom Frappe app shipping a `hooks.py` `on_session_creation` callback — that piece is **deferred to a follow-up requirement**."
-msgstr "Keycloak Group ERPNext rollkartläggning målnivåer: `roles/web-app-erpnext/administrator` Frappe `System Manager`, `roles/web-app-erpnext/manager` Frappe `Sales User` + + + `Purchase User` + + + `Stock User` + + + `Accounts User`, standard → Frappe `Customer`. **v.1 Omfattning split:** Path-to-roles-kartan kvarstår vid utplaceringstid genom `apply/oidc_settings.py` (skriver JSON `frappe.db.set_default(\"erpnext_oidc_group_role_map\", …)`)Per-login försoning i Frappe roll poster fortfarande kräver en anpassad Frappe app frakt en `hooks.py` `on_session_creation` callback - den biten är **uppskjuten till ett uppföljningskrav**."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keycloak provider guide: <https://openbao.org/docs/auth/jwt/oidc-providers/keycloak/>"
@@ -40527,7 +40527,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Matrix broar moderniserade: Signal, Telegram, WhatsApp och Slack broar migrerar till brov2 config, de döda mautrix-facebook / instagram broar ersätts av mautrix-meta, bro specs gated av den utplacerade addon, Synapse laddar bro registreringar från en monterad katalog, och rollen nu spårar *matrix-docker-ansible-deploy* från spantaleev uppströms."
+msgstr ""
 
 # löpare drar sin egen `infinito` bild bild bild bild bild
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40754,7 +40754,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Sammanfoga två listor med dikter på en given nyckel. Förteckning1, Förteckning2: Var och en måste vara en lista[Dikt] - key_name: fältet att matcha på Om båda listorna innehåller ett objekt med samma key_name värde, deras ordböcker slås samman (fält från listan2 Överskriv eller lägg till i listan1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40933,7 +40933,7 @@ msgstr "Mint a v3 Onion Key från ``seed`` (32 slumpmässiga byte om utelämnade
 
 # translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr "Mint från en bas64Kodat frö."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mint helper & key persistence"
@@ -41029,7 +41029,7 @@ msgstr "Speglar den befintliga postgres `shared` flagga:"
 
 # translated-by: libretranslate
 msgid "Mirrors the former `_applications_nextcloud_oidc_flavor` group_vars helper that was removed in commit 77a0e16ea."
-msgstr "Speglar den förra `_applications_nextcloud_oidc_flavor` group_vars hjälpare som togs bort i förpliktelse 77en0e e e16ea."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mirrors the legacy scripts/meta/env/runtime.sh logic:"
@@ -43589,7 +43589,7 @@ msgstr "Open-source deltagande demokrati plattform för offentliga samråd, medb
 
 # translated-by: libretranslate
 msgid "Open-source pretix has no S3/object-store backend (local `MEDIA_ROOT` only; no django-storages/boto3, no config hook)."
-msgstr "Open-source Pretix har ingen S3/object-store backend (lokalt `MEDIA_ROOT` Ingen django-lagring/boto3Ingen config hook)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
@@ -43756,7 +43756,7 @@ msgstr "Operationer 🛠️"
 # translated-by: libretranslate
 #, no-python-format
 msgid "Operator decision: 100% open source, matches the platform; OIDC handled via the oauth2-proxy gate."
-msgstr "Operatörsbeslut: 100% öppen källkod, matchar plattformen; OIDC hanteras via äkta2Proxy gate."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Operator decision: Keycloak SSO at the proxy, Checkmk trusts the proxy-supplied user, LDAP supplies the user record/roles/contact groups."
@@ -45972,7 +45972,7 @@ msgstr "PostgreSQL-datakataloger är **Inte kompatibel över stora versioner**Du
 
 # translated-by: libretranslate
 msgid "PostgreSQL database (MySQL/MariaDB not supported since Mattermost v8+)"
-msgstr "PostgreSQL-databas (MySQL/MariaDB Inte stöds sedan Mattermost v.8+ + +)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PostgreSQL database via the shared platform instance"
@@ -46554,7 +46554,7 @@ msgstr "Skyddad gren kan inte raderas"
 
 # translated-by: libretranslate
 msgid "Protected path triggers oauth2-proxy → Keycloak → callback; `/oauth2/sign_out` re-engages the gate."
-msgstr "Protected path triggers oauth2Proxy Keycloak → callback; `/oauth2/sign_out` re-engages porten."
+msgstr ""
 
 msgid "Protection"
 msgstr ""
@@ -47281,11 +47281,11 @@ msgstr "RBAC är inte möjligt bortom gruppporten: Postmarks har ingen in-app au
 
 # translated-by: libretranslate
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond \"account exists / does not exist\". Membership in the `/roles/web-app-bluesky` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) covers the in-app authorisation tier."
-msgstr "RBAC förblir gating-only eftersom PDS har ingen in-app roll koncept utöver \"konto existerar / existerar inte\"Medlemskap i `/roles/web-app-bluesky` Keycloak grupp låter en användare förbi oauth2Proxy gate. Dokumenterade SSO/RBAC undantag per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) täcker in-app-godkännandenivån."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond “account exists / does not exist”. Membership in the ``/roles/web-app-bluesky`` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ covers the in-app authorisation tier."
-msgstr "RBAC förblir gating-bara eftersom PDS inte har något in-app roll koncept bortom “konto existerar / existerar inte”. Medlemskap i ``/roles/web-app-bluesky`` Keycloak grupp låter en användare förbi oauth2Proxy gate. Dokumenterade SSO/RBAC undantag per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ täcker in-app-godkännandenivån."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "RBAC under Multisite uses the hierarchical Keycloak group path:"
@@ -48264,7 +48264,7 @@ msgstr "Rekryterad intern arbetsstruktur för tydligare genomförandeflöde"
 
 # translated-by: libretranslate
 msgid "Refactored multiple roles (pgAdmin, Friendica, LibreTranslate, oauth2-proxy, Funkwhale, …)"
-msgstr "Rekryterade flera roller (pgAdmin, Friendica, LibreTranslate, oauth2Proxy, Funkwhale......)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Refactoring Steps"
@@ -48904,7 +48904,7 @@ msgstr "Renamed *compose.services.desktop* att *compose.services.dashboard*"
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Renamed distribuera för att komponera distribution över Make, `container-*` renar och fräscha till `compose-*`, äldre backup roller att `svc-bkp-*` med container/lokal-2-avlägsna åberopbara ingångspunkter, uppslagsstatus för utplacering med en runtime-aware utplacerad flagga, `dmbs_*/dbms_base` mallar till en container_depends_on Uppslag, INFINITO_CMD till en vanlig cmd parameter, och web-opt-rdr-www Canonical till w3omdirigera med lookup-baserade kartläggningar"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed mirror workflows (*mirror-images-* → *images-mirror-*)"
@@ -52479,7 +52479,7 @@ msgstr "Rutinunderhåll: YAML normalisering av *web-app-pihole* rollens *meta/se
 
 # translated-by: libretranslate
 msgid "Routine maintenance: a lint that enforces a parameterised FROM in role Dockerfiles, a re-sync of the Claude settings allow-list with upstream, git references bumped to the latest semver tags (Bluesky 1.122.0 to 1.123.0, Bookwyrm v0.8.6 to v0.8.7), and Docker image version bumps across ERPNext v15.45.0 to v16.22.0, Friendica 2026.01 to 2026.05, Funkwhale 2.0.2 to 2.0.4, GitLab 19.0.1-ee.0 to 19.0.2-ee.0, Mattermost 11.7.2 to 11.8.0, OpenTalk v1.12.0 to v1.13.1, Prometheus v0.32.1 to v0.32.2, Shopware 3.6.0 to 3.7.0, MariaDB 12.2 to 12.3 and CoreDNS 1.14.3 to 1.14.4."
-msgstr "Rutinunderhåll: en lint som genomdriver en parameteriserad FROM i roll Dockerfiles, en återsynkronisering av Claude-inställningarna tillåter-lista med uppströms, git-referenser som stötts till de senaste semver-taggarna (Bluesky 1.122.0 att 1.123.0, Bookwyrm v0.8.6 till v0.8.7), och Docker bild version stöter över ERPNext v.15.45.0 till v16.22.0, Friendica 2026.01 att 2026.05, Funkwhale 2.0.2 att 2.0.4, GitLab 19.0.1-ee.0 att 19.0.2-ee.0, Mattermost 11.7.2 att 11.8.0, OpenTalk v.1.12.0 till v1.13.1, Prometheus v.0.32.1 till v0.32.2, Shopware 3.6.0 att 3.7.0, MariaDB 12.2 att 12.3 och CoreDNS 1.14.3 att 1.14.4."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
@@ -53927,7 +53927,7 @@ msgstr "Körs på ett schema du definierar"
 
 # translated-by: libretranslate
 msgid "Runs once per app, in the variant-0 CI job, between the matrix's first deploy and its update pass."
-msgstr "Kör en gång per app, i varianten0 CI jobb, mellan matrisens första utplacering och dess uppdateringspass."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Runs once per play"
@@ -54279,7 +54279,7 @@ msgstr "SSO tester 🔐"
 
 # translated-by: libretranslate
 msgid "SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key."
-msgstr "SSO smak är **OIDC-direkt** (`services.sso.flavor: oidc`), inte äkta2Proxy. Rollen använder Frappes inbyggda sociala inloggningsnyckel."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO flavor is **`oidc` (native)** — Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`. No `oauth2-proxy` sidecar."
@@ -54287,7 +54287,7 @@ msgstr "SSO smak är **`oidc` (Infödd)** Semaphore gör sin egen \"Logga in med
 
 # translated-by: libretranslate
 msgid "SSO is the **oauth2-proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) + native LDAP**."
-msgstr "SSO är **oauth2Proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) Infödd LDAP**."
+msgstr ""
 
 msgid "SSO is the **oauth2-proxy gate only**. No native OIDC, no user mapping, no in-app accounts."
 msgstr ""
@@ -54819,15 +54819,15 @@ msgstr "Säkerhet: SECRET_KEY"
 
 # translated-by: libretranslate
 msgid "Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet."
-msgstr "Säkerhet: löst all 80 öppna CodeQL/kodskanningsvarningar och tillsatta återkommande vakter. Bröt en osäker importcykel i *cli/administration/deploy/development* via ett löv *env.py*; härdade *web-app-bluesky* *server.js* (cookie prototyp-pollution vakt, log sanitisering, HTML-flyktiga undantag, ReDoS-bundna handtag regex) och *web-app-baserow* SSO öppen omdirigering; krävs TLS ≥ 1.2 i nätverksdiagnosprober; validerad *Actionlint* Tjära medlemmar mot vägkorsning; ompromenera *Decidim*///*apt-purge* regexes för att undvika katastrofal backtracking; förankrad sex Playwright URL regexes och pinned *crs-k/stale-branches* till en SHA. vakter: en *import-linter* kontrakt, en lint som kräver motiverad bandit *Noqa*och ruff *Ble001* som ratchet."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to `127.0.0.1` and every request traverses the oauth2-proxy that overwrites `X-Forwarded-*`. The `X-Auth-Request-*` / `Remote-User` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through `web-svc-logout` / the oauth2-proxy sign-out, not Postmarks' own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Säkerhet: identitetsrubrikerna litas ovillkorligt, vilket bara är säkert eftersom appporten är bunden till `127.0.0.1` Varje förfrågan korsar oauth2Proxy som överskrider `X-Forwarded-*`. . Den `X-Auth-Request-*` /// `Remote-User` varianter ignoreras medvetet så att en redan autentisk klient inte kan injicera en annan identitet. Logout måste gå igenom `web-svc-logout` / Oauth2Proxy sign-out, inte Postmarksegen inloggningslänk, eftersom proxy header återupprättar sessionen på nästa begäran."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to ``127.0.0.1`` and every request traverses the oauth2-proxy that overwrites ``X-Forwarded-*``. The ``X-Auth-Request-*`` / ``Remote-User`` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through ``web-svc-logout`` / the oauth2-proxy sign-out, not Postmarks’ own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Säkerhet: identitetsrubrikerna litas ovillkorligt, vilket bara är säkert eftersom appporten är bunden till ``127.0.0.1`` Varje förfrågan korsar oauth2Proxy som överskrider ``X-Forwarded-*``. . Den ``X-Auth-Request-*`` /// ``Remote-User`` varianter ignoreras medvetet så att en redan autentisk klient inte kan injicera en annan identitet. Logout måste gå igenom ``web-svc-logout`` / Oauth2Proxy sign-out, inte Postmarksegen inloggningslänk, eftersom proxy header återupprättar sessionen på nästa begäran."
+msgstr ""
 
 msgid "See :mod:`utils.mail.provider` for why this is not simply ``MAIL_PROVIDER``."
 msgstr ""
@@ -56471,11 +56471,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy authenticates against Keycloak and Snipe-IT's `loginViaRemoteUser()` mints a native session for the matching `users.username` row (see [`files/php/apply/sso_config.php`](./files/php/apply/sso_config.php)). The gate declares no `allowed_groups`, so `biber` passes the proxy — but the role provisions only the administrator account ([`tasks/03_admin.yml`](./tasks/03_admin.yml)), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true`, while the `administrator` persona stays live (`PERSONA_ADMINISTRATOR_BLOCKED=false`) and exercises the full bridge end to end."
-msgstr "Snipe-IT går in genom en betrodd huvudbro: oauth2Proxy autentiserar mot Keycloak och Snipe-IT `loginViaRemoteUser()` Mints en infödd session för matchningen `users.username` rad (se [`files/php/apply/sso_config.php`](./files/php/apply/sso_config.php))Porten förklarar nej `allowed_groups`, Så, så `biber` passerar proxy - men rollen bestämmelser endast administratörskontot ([`tasks/03_admin.yml`](./tasks/03_admin.yml)), så rubriken bär ett användarnamn Snipe-IT vet inte och besökaren faller tillbaka till den inhemska inloggningsformuläret. [`templates/playwright.env.j2`](./templates/playwright.env.j2) Därför förklarar `PERSONA_BIBER_BLOCKED=true`, medan `administrator` Persona stannar live (`PERSONA_ADMINISTRATOR_BLOCKED=false`) och övningar hela broen slutar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy authenticates against Keycloak and Snipe-IT’s ``loginViaRemoteUser()`` mints a native session for the matching ``users.username`` row (see ```files/php/apply/sso_config.php`` <./files/php/apply/sso_config.php>`__). The gate declares no ``allowed_groups``, so ``biber`` passes the proxy — but the role provisions only the administrator account (```tasks/03_admin.yml`` <./tasks/03_admin.yml>`__), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true``, while the ``administrator`` persona stays live (``PERSONA_ADMINISTRATOR_BLOCKED=false``) and exercises the full bridge end to end."
-msgstr "Snipe-IT går in genom en betrodd huvudbro: oauth2Proxy autentiserar mot Keycloak och Snipe-IT ``loginViaRemoteUser()`` Mints en infödd session för matchningen ``users.username`` rad (se ```files/php/apply/sso_config.php`` <./files/php/apply/sso_config.php>`__). The gate declares no ``allowed_groups``, so ``biber`` passes the proxy — but the role provisions only the administrator account (```tasks/03_admin.yml`` <./tasks/03_admin.yml>`__), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true``, while the ``administrator`` persona stays live (``PERSONA_ADMINISTRATOR_BLOCKED=false``) och övningar hela broen slutar."
+msgstr ""
 
 msgid "Snipe-IT: SSO login works again on v8.8.1 behind oauth2-proxy"
 msgstr ""
@@ -60142,7 +60142,7 @@ msgstr "CMD-SHELL stavning av :func:`curl_argv`, citerad för ett skal."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "CPU-arkitekturen är samma typ av egendom och täcktes inte alls. Varje utplacering jobb sprang på `ubuntu-latest`, Varje svep visade sig vara64 och sade ingenting om armen64Medan projektet levererar roller vars uppströms bilder, hjul och binärer skiljer sig per arkitektur. En roll som inte kan springa på armen64 var oskiljaktig från en som ingen hade provat där."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -60309,7 +60309,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The MDAD inventory is templated to enable a conservative-default bridge set plus Jitsi + Element Call. Bridge enablement is gated on `lookup('config', application_id, 'services.matrix.plugins.<bridge>')`. v1 default-ON set (operator-confirmed): `mautrix_signal`, `mautrix_telegram`, `mautrix_twitter`, `mautrix_slack`, `appservice_irc`, `heisenbridge`, `discord`, `gitter`, `hookshot`. Default-OFF (operator opts in): every bridge that needs a third-party API token the operator must obtain manually — `facebook`, `instagram`, `googlechat`, `mautrix_whatsapp`, `sms`, `appservice_kakaotalk`, and the superseded `mx_puppet_{slack,discord}`."
-msgstr "MDAD-inventeringen är mallad för att möjliggöra en konservativ standardbrouppsättning plus Jitsi + Element Call. Bridge-aktivering gated på `lookup('config', application_id, 'services.matrix.plugins.<bridge>')`. v. v.1 Default-ON set (Operatörsbekräftad)Från: `mautrix_signal`, `mautrix_telegram`, `mautrix_twitter`, `mautrix_slack`, `appservice_irc`, `heisenbridge`, `discord`, `gitter`, `hookshot`. Default-OFF (Operatören väljer in)Varje bro som behöver en tredje part API token operatören måste få manuellt - `facebook`, `instagram`, `googlechat`, `mautrix_whatsapp`, `sms`, `appservice_kakaotalk`, och supersedd `mx_puppet_{slack,discord}`."
+msgstr ""
 
 # `10.11`, eller `latest`).
 # translated-by: libretranslate
@@ -60401,11 +60401,11 @@ msgstr "PR-skopet kortslutningar i [scope.sh](../../../../scripts/meta/resolve/p
 
 # translated-by: libretranslate
 msgid "The Playwright ``biber`` persona is blocked permanently. ``meta/services.yml`` restricts ``sso.oauth2.allowed_groups`` to the ``web-app-baserow`` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user."
-msgstr "Playwright ``biber`` persona blockeras permanent. ``meta/services.yml`` begränsningar ``sso.oauth2.allowed_groups`` till ``web-app-baserow`` administratör RBAC grupp, så en icke-admin identitet avvisas av oauth2Proxy innan Baserow renders, och ingen distribution steg bestämmelser en Baserow konto för den användaren."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The Playwright `biber` persona is blocked permanently. `meta/services.yml` restricts `sso.oauth2.allowed_groups` to the `web-app-baserow` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user."
-msgstr "Playwright `biber` persona blockeras permanent. `meta/services.yml` begränsningar `sso.oauth2.allowed_groups` till `web-app-baserow` administratör RBAC grupp, så en icke-admin identitet avvisas av oauth2Proxy innan Baserow renders, och ingen distribution steg bestämmelser en Baserow konto för den användaren."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The Playwright container image is declared in `roles/test-e2e-playwright/meta/services.yml` under the `playwright` service entry (`image:` + `version:`). CI mirrors that image into GHCR through the standard mirror pipeline before deploy tests run, so Playwright jobs do not depend on direct pulls from MCR during the test phase."
@@ -61202,7 +61202,7 @@ msgstr "Agenten måste utföra detta krav **autonomt**Öppna förtydliganden end
 
 # translated-by: libretranslate
 msgid "The agent can do anything the granted devices allow. A GPIO or I2C grant means it can drive whatever is wired to those pins; a video grant means it can watch the room; a serial grant means it can talk to whatever sits on the bus. The allowlist is the entire boundary, which is why an empty one is refused and why the device must be dedicated, single-tenant and network-segmented."
-msgstr "Agenten kan göra allt de beviljade enheterna tillåter. GPIO eller jag2C-bidrag betyder att det kan köra vad som är kopplat till dessa stift; ett videobidrag betyder att det kan titta på rummet; ett seriebidrag betyder att det kan prata med vad som helst sitter på bussen. Applikationslistan är hela gränsen, varför en tom vägras och varför enheten måste vara dedikerad, enstaka och nätverkssegmenterad."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent holds no model credential: it calls `http://agent-broker:<port>/llm/v1`, and the broker relays the call to LiteLLM with the broker's own virtual key and the owner in the OpenAI `user` field, and logs a `relay` event with owner, platform, path and upstream status."
@@ -61969,7 +61969,7 @@ msgstr "Dekorationen en sida wraps namnet i tas bort först; se :func:`_bare`. F
 
 # translated-by: libretranslate
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
-msgstr "Den dedikerade oauth2Proxy leverantör roll (dess katalog under *roller/*) raderas; 5 sidecar mallar och per-consumer render uppgiften viks in **web-app-keycloak** (*mallar/sso_proxy///*, *tasks/sso_proxy.yml*). **web-app-keycloak** Nu deklarerar **för: sso**."
+msgstr ""
 
 msgid "The default SSH private keys."
 msgstr ""
@@ -62150,7 +62150,7 @@ msgstr "Borren äger borren **livscykel** och inget annat. Varje återställning
 
 # translated-by: libretranslate
 msgid "The drill proves the `svc-bkp-*` chain forward through the DEPLOYED systemd units (nfs on the export host, volume + secrets on the manager when the app's include closure pulls those roles in, remote pull + device sync on the backup host) and every `recover.py` back (device -> local root -> NFS export, docker volume and host secrets into the live system paths), with marker files that must survive the whole loop: the matrix update pass boots the recovered stack and `verify_recovered_marker.sh` asserts the marker on the live volume. It reuses the round-1 stack instead of spinning a dedicated cluster, and skips cleanly when the app declares no NFS-flagged volume. The backup host is started by `routine/01_bootstrap.sh` (drill profile) and receives its two roles via `extend_inventory`; the pull trust (backup keypair) and the device mount/target/source come from `utils/tests/swarm/write/extras.py`, while `remote-2-local.backup_providers` is derived per round by `utils/tests/swarm/backup_repos.py` from the same placements `extend_inventory` turns into inventory groups, and reaches the deploy through the provisioner's host_vars merge."
-msgstr "Borren bevisar borren `svc-bkp-*` kedjan framåt genom DEPLOYED systemd enheter (nfs på exportvärden, volym + hemligheter på chefen när appens inkluderar stängning drar dessa roller i, fjärrdrag + enhet synkronisera på backup värd) och alla `recover.py` tillbaka (enhet -> lokal rot -> NFS export, docker volym och värd hemligheter i levande system vägar), med markörfiler som måste överleva hela slingan: matrisuppdateringen pass stövlar den återställda stacken och `verify_recovered_marker.sh` hävdar markören på levande volym. Den återanvänder rundan1 Stack istället för att snurra ett dedikerat kluster och hoppar rent när appen förklarar ingen NFS-flaggad volym. Backup värd startas av `routine/01_bootstrap.sh` (borrprofil) och tar emot sina två roller via `extend_inventory`; pull trust (backup keypair) och enheten mount/target/source kommer från `utils/tests/swarm/write/extras.py`, Och medan `remote-2-local.backup_providers` härrör per runda `utils/tests/swarm/backup_repos.py` från samma placeringar `extend_inventory` förvandlas till lagergrupper och når utplaceringen genom provisorns host_vars Sammanfoga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The drill runs whenever the app declares an NFS-flagged volume (`PRIMARY_NFS_VOLUME`); apps without one skip it, since there is nothing to prove a restore against."
@@ -62390,7 +62390,7 @@ msgstr "Flaggan är obligatorisk, verkställd av [test_onion_port_flag.py](../..
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The flavor enum is ``{oidc, oauth2, saml}`` with ``oidc`` as the default when omitted. The ``is_proxy_gated`` predicate is the one place that encodes \"the oauth2-proxy sidecar fronts this role\" — every other layer MUST consult this helper instead of re-implementing the ``enabled AND flavor == 'oauth2'`` compound. The ``oauth2_*`` keys expose the gated upstream config so call sites resolve cross-role data through one named property rather than a literal ``lookup('config', app_id, 'services.sso.oauth2.<sub>')`` (which would otherwise trip the literal-protocol-lookup and lookup-config-path static-scan guards)."
-msgstr "Smaken Enum är ``{oidc, oauth2, saml}`` med ``oidc`` Som standard när utelämnas. och ``is_proxy_gated`` predikat är den plats som kodar \"Oauth2Proxy sidecar fronts denna roll\" - Alla andra skikt måste konsultera denna hjälpare istället för att omfördela ``enabled AND flavor == 'oauth2'`` Förening. och ``oauth2_*`` nycklar exponerar den gated upstream config så call webbplatser lösa kors-roll data genom en namngiven egendom snarare än en bokstavlig ``lookup('config', app_id, 'services.sso.oauth2.<sub>')`` (som annars skulle resa bokstavligt-protokoll-lookup och lookup-config-path static-scan vakter)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The fleet is deployed on **every** cluster node, but not as a ``docker stack`` service (``workload: node-local`` in ``meta/services.yml``): each runner needs the docker socket and the registered identity of exactly its node. The image is built once on the manager and distributed through the registry dependency (``svc-registry-docker``), the only part that runs as a swarm service."
@@ -63032,13 +63032,13 @@ msgstr "Inloggningsattributet är parat med OIDC-användarnamnsanspråket genom 
 
 # translated-by: libretranslate
 msgid "The login button in the UI will read \"SSO with Infinito.Nexus\" (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr "Inloggningsknappen i UI kommer att läsa \"SSO med Infinito.Nexus\" (byta namn via injicerade JavaScript). Det underliggande authflödet är standard OAuth2OIDC mot Keycloak."
+msgstr ""
 
 # Infinito.Nexus” (byta namn via injicerade JavaScript). Det underliggande
 # authflödet är standard OAuth2OIDC mot Keycloak.
 # translated-by: libretranslate
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr "Inloggningsknappen i UI kommer att läsa \"SSO med Infinito.Nexus” (byta namn via injicerade JavaScript). Det underliggande authflödet är standard OAuth2OIDC mot Keycloak."
+msgstr ""
 
 # klasssträng, t.ex.:
 # translated-by: libretranslate
@@ -63354,11 +63354,11 @@ msgstr "Antalet dumpar återspelas."
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL i [`meta/services.yml`](./meta/services.yml) svartlistor endast `/login`, och `sys-svc-proxy` gör en svart lista som *exponera allt som standard, skydda sedan de listade vägarna*Hjälparen landar på `/`, vilket är offentligt, så proxy aldrig fångar det och Keycloak Rundtur börjar aldrig."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL i ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, vilket är offentligt, så proxy aldrig fångar det och Keycloak Rundtur börjar aldrig."
+msgstr ""
 
 msgid "The object store itself lives in [web-svc-seaweedfs](../web-svc-seaweedfs/), which owns the storage engine, the per-consumer identities and the public S3 endpoint. This role adds only the human-facing half: an nginx sidecar that routes two canonical domains to the engine's internal filer and master ports."
 msgstr ""
@@ -63372,7 +63372,7 @@ msgstr "De erbjudna lägena begränsas redan av körningens ``--modes`` input, l
 
 # translated-by: libretranslate
 msgid "The official Baserow SSO feature is Enterprise-only. This role instead gates the community image with the shared Keycloak oauth2-proxy and installs a small trusted-header bridge in the Baserow backend. The bridge trusts the identity headers injected by nginx after oauth2-proxy authentication and converts them into native Baserow JWT refresh/access tokens for the frontend."
-msgstr "Den officiella Baserow SSO-funktionen är Enterprise-bara. Den här rollen portar istället bilden med den delade Keycloak oauth2-proxy och installerar en liten betrodd huvudbro i Baserow backend. Bron litar på identitetsrubrikerna injicerade av nginx efter oauth2Proxy autentisering och omvandlar dem till infödda Baserow JWT uppdatera/åtkomst tokens för frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The official WordPress MCP adapter pinned, its HTTP endpoint exposed, only reviewed Abilities with permission callbacks registered, authenticated as a real restricted user."
@@ -65356,7 +65356,7 @@ msgstr "Den delade ``biber`` och ``administrator`` persona resor väljs ut via `
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (``services.sso.flavor: oauth2``), and behind that gate Flowise still presents its own sign-in form for the single instance account seeded from ``FLOWISE_USERNAME`` / ``FLOWISE_PASSWORD`` in ``templates/env.j2``. ``biber`` has no Flowise identity at all, and the shared helpers only drive Keycloak forms while ``services.sso`` is enabled, so neither persona can reach an authenticated Flowise surface; the OIDC gate itself is covered by ``files/playwright/test-oidc-login.js``."
-msgstr "Den delade ``biber`` och ``administrator`` persona resor väljs ut via ``PERSONA_BIBER_BLOCKED`` /// ``PERSONA_ADMINISTRATOR_BLOCKED`` in i ``templates/playwright.env.j2``. Flowise har ingen OIDC-adapter i appen: SSO är en oauth2Proxy sidecar (``services.sso.flavor: oauth2``), och bakom den porten Flowise presenterar fortfarande sin egen inloggningsblankett för det enda instanskonto som utsädes från ``FLOWISE_USERNAME`` /// ``FLOWISE_PASSWORD`` in i ``templates/env.j2``. ``biber`` har ingen Flowise identitet överhuvudtaget, och de delade hjälparna driver endast Keycloak former medan ``services.sso`` är aktiverad, så ingen person kan nå en autentiserad Flowise OIDC-porten själv är täckt av ``files/playwright/test-oidc-login.js``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Joomla’s site template ships no login/logout module, and ``plg_system_keycloak`` exposes sign-out only as the route ``index.php?option=keycloak&task=logout`` (``files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php``, ``handleLogout``) rather than as a rendered control, so the persona’s mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract. The OIDC handshake itself, the LDAP variant and the ``/administrator?fallback=local`` hatch are covered by ``files/playwright/test-oidc-login.js``, ``test-ldap-login.js`` and ``test-oidc-fallback.js``."
@@ -65388,7 +65388,7 @@ msgstr "Den delade ``biber`` och ``administrator`` persona resor väljs ut via `
 # till en in-app inloggning.
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Den delade ``biber`` och ``administrator`` persona resor väljs ut via ``PERSONA_BIBER_BLOCKED`` /// ``PERSONA_ADMINISTRATOR_BLOCKED`` in i ``templates/playwright.env.j2``. Oauth2proxy sidovagn bara portar vhost - FusionDirectory behåller sin egen LDAP-bindda inloggning bakom den, som rollens OIDC-scenario i ``files/playwright/playwright.spec.js`` hävdar genom att förvänta sig en \"Sign in\" -knapp för att fortfarande vara synlig efter Keycloak rundtur. ``tasks/main.yml`` Bestämmelser som inte FusionDirectory konto, så Keycloak identitetskartor till ingen katalog session de delade hjälpare kan genomföra till en in-app inloggning."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -65443,7 +65443,7 @@ msgstr "Den delade `biber` och `administrator` persona resor väljs ut via `PERS
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (`services.sso.flavor: oauth2`), and behind that gate Flowise still presents its own sign-in form for the single instance account seeded from `FLOWISE_USERNAME` / `FLOWISE_PASSWORD` in `templates/env.j2`. `biber` has no Flowise identity at all, and the shared helpers only drive Keycloak forms while `services.sso` is enabled, so neither persona can reach an authenticated Flowise surface; the OIDC gate itself is covered by `files/playwright/test-oidc-login.js`."
-msgstr "Den delade `biber` och `administrator` persona resor väljs ut via `PERSONA_BIBER_BLOCKED` /// `PERSONA_ADMINISTRATOR_BLOCKED` in i `templates/playwright.env.j2`. Flowise har ingen OIDC-adapter i appen: SSO är en oauth2Proxy sidecar (`services.sso.flavor: oauth2`), och bakom den porten Flowise presenterar fortfarande sin egen inloggningsblankett för det enda instanskonto som utsädes från `FLOWISE_USERNAME` /// `FLOWISE_PASSWORD` in i `templates/env.j2`. `biber` har ingen Flowise identitet överhuvudtaget, och de delade hjälparna driver endast Keycloak former medan `services.sso` är aktiverad, så ingen person kan nå en autentiserad Flowise OIDC-porten själv är täckt av `files/playwright/test-oidc-login.js`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Joomla's site template ships no login/logout module, and `plg_system_keycloak` exposes sign-out only as the route `index.php?option=keycloak&task=logout` (`files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php`, `handleLogout`) rather than as a rendered control, so the persona's mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract. The OIDC handshake itself, the LDAP variant and the `/administrator?fallback=local` hatch are covered by `files/playwright/test-oidc-login.js`, `test-ldap-login.js` and `test-oidc-fallback.js`."
@@ -65456,7 +65456,7 @@ msgstr "Den delade `biber` och `administrator` persona resor väljs ut via `PERS
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Den delade `biber` och `administrator` persona resor väljs ut via `PERSONA_BIBER_BLOCKED` /// `PERSONA_ADMINISTRATOR_BLOCKED` in i `templates/playwright.env.j2`. Oauth2proxy sidovagn bara portar vhost - FusionDirectory behåller sin egen LDAP-bind inloggning bakom den, som rollens OIDC-scenario i `files/playwright/playwright.spec.js` hävdar genom att förvänta sig en \"Logga in\" knappen är fortfarande synlig efter Keycloak rundtur. `tasks/main.yml` Bestämmelser som inte FusionDirectory konto, så Keycloak identitetskartor till ingen katalog session de delade hjälpare kan genomföra till en in-app inloggning."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. web-app-hugo serves a statically built site: `services.sso` is hard-disabled in `meta/services.yml`, the container is a Hugo build baked into nginx (`templates/compose.yml.j2`), and the Playwright env file renders no `ADMIN_*` / `BIBER_*` credentials. There is no session, no admin surface and no logout control to drive, so the `guest` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -65541,11 +65541,11 @@ msgstr "Sidbilen nås endast på behållarnätverket, så en klient sondar den i
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above. A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally."
-msgstr "Sidbilen oauth2Proxy erkänner endast LibreTranslate administratör RBAC-grupp och vitlistor bara maskinen API Vägen (`/translate`, `/detect`......); se, se [`meta/services.yml`](./meta/services.yml). Inuti appen är godkännandet API-key-tier endast och frikopplad från IdP, som dokumenterad under [Single sign-on](#single-sign-on) ovan. En icke-admin besökare har därför ingen UI-session att köra, så [`templates/playwright.env.j2`](./templates/playwright.env.j2) Förklaringar `PERSONA_BIBER_BLOCKED=true`. . Den `administrator` och `guest` personas kör ovillkorligt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (``/translate``, ``/detect``, …); see ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Single sign-on <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas run unconditionally."
-msgstr "Sidbilen oauth2Proxy erkänner endast LibreTranslate administratör RBAC-grupp och vitlistor bara maskinen API Vägen (``/translate``, ``/detect``......); se, se ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Single sign-on <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas kör ovillkorligt."
+msgstr ""
 
 msgid "The sidecar reaches the engine over the shared object-store network, so the console can be deployed, removed or left out of a node without touching the store. A node that does not run this role keeps its object store and its S3 endpoint; it simply has no browser console."
 msgstr ""
@@ -66044,7 +66044,7 @@ msgstr "Användarlandets verktyg bakas in i varje distro bild av [filesystem.sh]
 
 # translated-by: libretranslate
 msgid "The v3 address is ``base32(PUBKEY || CHECKSUM || VERSION)`` where ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` and ``VERSION = 0x03`` (see spec.torproject.org/address-spec). Tor stores the *expanded* ed25519 secret key ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; the public key ``clamp(SHA512(seed)[:32]) * B`` equals the standard ed25519 public key, so it is taken straight from ``cryptography`` without needing scalar multiplication."
-msgstr "V3 Adress är ``base32(PUBKEY || CHECKSUM || VERSION)`` där var ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` och ``VERSION = 0x03`` (se spec.torproject.org/adressspecifik)Tor lagrar *expanderad* ed25519 Hemlig nyckel ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in i ``hs_ed25519_secret_key``; Den offentliga nyckeln ``clamp(SHA512(seed)[:32]) * B`` lika med standarden ed25519 offentlig nyckel, så det tas direkt från ``cryptography`` utan att behöva skalär multiplikation."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value a row draws from *pool* this sweep: a plain rotation over the row's global position, so consecutive rows spread across the pool and consecutive sweeps move every row on to the next value."
@@ -66788,7 +66788,7 @@ msgstr "Denna Ansible roll ger en central RabbitMQ meddelandemäklare som många
 
 # translated-by: libretranslate
 msgid "This Ansible role provides a generic, reusable Playwright end-to-end (E2E) test runner for the Infinito.Nexus ecosystem."
-msgstr "Denna Ansible roll ger en generisk, återanvändbar Playwright end-to-end (E E E2E E E) Testkörare för Infinito.Nexus ekosystem."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This Ansible role provisions a centralized database system in your Docker Compose environment. It supports both MariaDB and PostgreSQL, providing a robust, scalable, and low-maintenance database solution. Whether you're consolidating your application's data or creating a dedicated central storage, this role simplifies setup and integration."
@@ -68265,7 +68265,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. KIX sits behind an oauth2-proxy whose `sso.oauth2.allowed_groups` in `meta/services.yml` admits only `roles/web-app-kix/administrator` and `roles/web-app-kix/user`; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at `/auth` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Denna roll förklarar `PERSONA_BIBER_BLOCKED` in i `templates/playwright.env.j2`. KIX sitter bakom en oauth2Proxy vars `sso.oauth2.allowed_groups` in i `meta/services.yml` Erkänner endast `roles/web-app-kix/administrator` och `roles/web-app-kix/user`; Biber tillhör inte heller, så proxy förnekar honom innan KIX gör något. Förbi proxy KIX är en tvåstegsinloggning: SPA presenterar fortfarande sin egen agentform `/auth` som binder mot LDAP, och den delade persona-hjälparen har ingen andra etapp efter Keycloak rundtur."
+msgstr ""
 
 # gained=['"', 'Infinito.Nexusgenom']
 # och ``PERSONA_BIBER_BLOCKED`` in i ``templates/playwright.env.j2`` för samma
@@ -68305,7 +68305,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. KIX sits behind an oauth2-proxy whose ``sso.oauth2.allowed_groups`` in ``meta/services.yml`` admits only ``roles/web-app-kix/administrator`` and ``roles/web-app-kix/user``; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at ``/auth`` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Denna roll förklarar ``PERSONA_BIBER_BLOCKED`` in i ``templates/playwright.env.j2``. KIX sitter bakom en oauth2Proxy vars ``sso.oauth2.allowed_groups`` in i ``meta/services.yml`` Erkänner endast ``roles/web-app-kix/administrator`` och ``roles/web-app-kix/user``; Biber tillhör inte heller, så proxy förnekar honom innan KIX gör något. Förbi proxy KIX är en tvåstegsinloggning: SPA presenterar fortfarande sin egen agentform ``/auth`` som binder mot LDAP, och den delade persona-hjälparen har ingen andra etapp efter Keycloak rundtur."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role depends on ``sys-pip``, which ensures that ``pip`` is installed on the target system."
@@ -68511,11 +68511,11 @@ msgstr "Denna roll distribuerar Pretix Använd Docker, automatisera installation
 
 # translated-by: libretranslate
 msgid "This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Compose. It exposes the Prometheus web UI at ``prometheus.<domain>`` and protects it with SSO via Keycloak using oauth2-proxy. Universal logout is integrated for session termination."
-msgstr "Denna roll distribuerar Prometheus som en del av Infinito.Nexus Stack använder Docker ComposeDet avslöjar Prometheus Web UI på ``prometheus.<domain>`` och skyddar den med SSO via Keycloak Använd oauth2Proxy. Universell inloggning är integrerad för sessionsavslutning."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Compose. It exposes the Prometheus web UI at `prometheus.<domain>` and protects it with SSO via Keycloak using oauth2-proxy. Universal logout is integrated for session termination."
-msgstr "Denna roll distribuerar Prometheus som en del av Infinito.Nexus Stack använder Docker ComposeDet avslöjar Prometheus Web UI på `prometheus.<domain>` och skyddar den med SSO via Keycloak Använd oauth2Proxy. Universell inloggning är integrerad för sessionsavslutning."
+msgstr ""
 
 msgid "This role deploys SeaweedFS as the central provider of the project-wide object-store service (engine ``seaweedfs``). Web-app roles consume it like a database: they enable a ``seaweedfs`` service in their ``meta/services.yml`` and resolve host, port, bucket, and credentials through the ``objstore`` lookup. A single server container runs master, volume, filer, and the S3 gateway in one process. The role serves one canonical domain:"
 msgstr ""
@@ -69435,7 +69435,7 @@ msgstr "Tre lokala cache-tjänster accelererar omplaceringar, minskar uppströms
 
 # translated-by: libretranslate
 msgid "Three lookup plugins on top of the resolver: **sso** (single-app predicate access), **sso_proxy_consumers** (enumerates oauth2-flavored consumers), **sso_oidc_plugin** (renamed from **oidc_flavor**, Nextcloud selector)."
-msgstr "Tre uppslagsplugins ovanpå beslutsfattaren: **sso** (en-app förutsäga åtkomst), **sso_proxy_consumers** (Räknar oauth2smaksatta konsumenter), **sso_oidc_plugin** (byta namn från **oidc_flavor**, Nextcloud väljare)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Three measurements decided the shape rather than any preference:"
@@ -70523,7 +70523,7 @@ msgstr "Två integrationstest konsumerar `ROLE_FILES` direkt så att lägga till
 
 # translated-by: libretranslate
 msgid "Two joins carry the whole design and neither is accidental. The branch ends in ``; `` so a relay that refuses the message cannot decide liveness -- that verdict belongs to the probe this prefixes, and coupling them once left live web apps marked dead until the swarm converge gate gave up (ebdadd91b). The ``&&`` before ``touch`` stays, so a refused mail leaves no marker and the next probe retries instead of the smoke test becoming one-shot."
-msgstr "Två anslutningar bär hela designen och ingen av dem är oavsiktlig. Grenen slutar i ``; `` Så ett relä som vägrar meddelandet kan inte bestämma levande - att domen tillhör sonden dessa prefix och koppling dem en gång lämnade levande webbappar markerade döda tills svärmen konvergera porten gav upp (Ebdadd91B). . Den ``&&`` före ``touch`` stannar, så en nekad post lämnar ingen markör och nästa sond retries istället för att röktestet blir en-skott."
+msgstr ""
 
 msgid "Two kinds of role are left out. One the updaters do not maintain (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits outside the lifecycle envelope ``default.env`` tests, so no deploy can reach its images, and its upstream is free to withdraw them. MinIO's quay tags answer 401 to anonymous pulls and exist nowhere else, which failed the mirror job on every run while nothing could have consumed the result."
 msgstr ""
@@ -73426,7 +73426,7 @@ msgstr "Vad är Infinito.Nexus?? 📌"
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Vad som redan är bevisbart utan det: antagningsvakten vägrar en delad värd eller en tom enhetstillägg, båda agentbilderna publicerar `linux/arm64`, och varken agenten är fäst från armen64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -75157,11 +75157,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the ``shunt_is_valid_user`` drop-in in ```files/sso/infinito_sso.php`` <./files/sso/infinito_sso.php>`__, which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group (```meta/services.yml`` <./meta/services.yml>`__), so ``biber`` is rejected before YOURLS renders anything: ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``, and the denial is asserted explicitly by ``files/playwright/test-biber-denied.js``. The ``administrator`` persona stays live and exercises the bridge end to end."
-msgstr "Yourls har ingen infödd SSO; admin-sessionen präglas från äkta2-proxy identitetsrubrik av ``shunt_is_valid_user`` drop-in i ```files/sso/infinito_sso.php`` <./files/sso/infinito_sso.php>`__, which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group (```meta/services.yml`` <./meta/services.yml>`__), so ``biber`` is rejected before YOURLS renders anything: ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``, and the denial is asserted explicitly by ``files/playwright/test-biber-denied.js``. The ``administrator`` persona stannar live och övningar bron slutar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the `shunt_is_valid_user` drop-in in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group ([`meta/services.yml`](./meta/services.yml)), so `biber` is rejected before YOURLS renders anything: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`, and the denial is asserted explicitly by `files/playwright/test-biber-denied.js`. The `administrator` persona stays live and exercises the bridge end to end."
-msgstr "Yourls har ingen infödd SSO; admin-sessionen präglas från äkta2-proxy identitetsrubrik av `shunt_is_valid_user` drop-in i [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), som hedrar rubriken endast på den gated administratörsvägen och endast för medlemmar av YOURLS administratörsgrupp. Porten själv erkänner endast samma RBAC-grupp ([`meta/services.yml`](./meta/services.yml))Så, så `biber` förkastas innan YOURLS gör något: [`templates/playwright.env.j2`](./templates/playwright.env.j2) Förklaringar `PERSONA_BIBER_BLOCKED=true`, och förnekandet påstås uttryckligen av `files/playwright/test-biber-denied.js`. . Den `administrator` persona stannar live och övningar bron slutar."
+msgstr ""
 
 msgid "Yes"
 msgstr ""
@@ -76591,7 +76591,7 @@ msgstr "[ ] **🪙 (kommersiell kommersiell) celler är opt-in**De förklaras i 
 
 # translated-by: libretranslate
 msgid "[ ] A Playwright OIDC flow (biber + administrator) passes the oauth2-proxy → Keycloak chain and lands authenticated in the Checkmk GUI (administrator additionally reaches a Setup/admin-only surface)."
-msgstr "[ ] Ett Playwright OIDC-flöde (Biber + Administratör) passerar oauth2Proxy Keycloak Kedja och marker autentiserade i Checkmk GUI (administratören når också en Setup/admin-only yta)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] A Playwright spec against a `<sub>.<node>.onion` surface passes through the Tor SOCKS proxy on an onion node; clearnet targets are unaffected."
@@ -77506,7 +77506,7 @@ msgstr "[ ] [web-app-espocrm](../../roles/web-app-espocrm/): Inbyggd LDAP-autent
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2-proxy."
-msgstr "[ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2Proxy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged."
@@ -77703,7 +77703,7 @@ msgstr "[ ] `meta/variants.yml` definierar tre varianter (V1 Sso+ldap, V2 All-Fa
 
 # translated-by: libretranslate
 msgid "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI."
-msgstr "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` Lösningar genom `sys-svc-proxy` (Och när SSO är på, oauth2Proxy gate) till Checkmk plats Apache; `GET /<site>/check_mk/` returnerar Checkmk Inloggning/GUI."
+msgstr ""
 
 msgid "[ ] `opentalk-controller` exits five to six times with `Failed to init controller` after every create or recreate before it stays up (measured `RestartCount` 5 and 6 on 2026-10-09); afterwards it is stable. Options: let the compose service wait for its dependencies to be healthy instead of `service_started`, or find which dependency the init reaches too early."
 msgstr ""
@@ -81232,7 +81232,7 @@ msgstr "[`mcp_tool_server_connections`](../../../../../../plugins/filter/mcp/too
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the Prometheus administrator RBAC group through the oauth2-proxy gate, so the `biber` persona is denied before it ever reaches a Prometheus page: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. That denial is not lost coverage — this role's own spec asserts it for every consumer, together with the admin reach and scrape-target parity checks. The `administrator` persona is blocked only when `services.sso.enabled` is false: without the co-deployed Keycloak there is no proxy in front of Prometheus, hence no login round-trip and no logout control to drive. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr "[`meta/services.yml`](./meta/services.yml) erkänner endast Prometheus administratör RBAC-grupp genom oauth2Proxy gate, så `biber` persona nekas innan den når en Prometheus sida: [`templates/playwright.env.j2`](./templates/playwright.env.j2) Förklaringar `PERSONA_BIBER_BLOCKED=true`. Denna förnekelse är inte förlorad täckning - den här rollens egen spec hävdar den för varje konsument, tillsammans med admin räckvidd och skrap-mål-paritetskontroller. och `administrator` persona blockeras endast när `services.sso.enabled` är falskt: utan den medverkande Keycloak Det finns ingen proxy framför PrometheusDärför ingen inloggningsrundtur och ingen inloggningskontroll för att köra. och `guest` persona och baslinjen nåbarhet påståenden körs ovillkorligt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`."
@@ -81358,11 +81358,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[`tasks/01_admin.yml`](./tasks/01_admin.yml) provisions only the administrator in Shopware's user table. [`meta/services.yml`](./meta/services.yml) pins `services.sso.flavor: oidc`, so no oauth2-proxy fronts the role and the storefront carries no authenticated surface at all; the Keycloak login provider that [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) configures covers the administration backend alone. `biber` therefore has no account in any matrix variant and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` unconditionally."
-msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml) endast administratören i Shopwareanvändartabell. [`meta/services.yml`](./meta/services.yml) Pins `services.sso.flavor: oidc`, Så ingen oauth2proxy fronter rollen och skylten bär ingen autentiserad yta alls; Keycloak Inloggningsleverantör som [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) Konfigurerar täcker administrationens backend ensam. `biber` har därför inget konto i någon matrisvariant och [`templates/playwright.env.j2`](./templates/playwright.env.j2) Renders `PERSONA_BIBER_BLOCKED=true` villkorslöst."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr "[`tasks/01_setup.yml`](./tasks/01_setup.yml) frön endast administratören till Magentoadmin tabell (`bin/magento setup:install --admin-user`, credentials från [`templates/env.j2`](./templates/env.j2)); `biber` når backend enbart genom oauth2Proxy förklaras i [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrisvarianter som proxy är frånvarande och `biber` har inget inhemskt konto, så [`templates/playwright.env.j2`](./templates/playwright.env.j2) Renders `PERSONA_BIBER_BLOCKED=true`. . Den `administrator` persona håller sin ursprungliga inloggning via `ADMIN_NATIVE_PASSWORD` och springer i varje variant."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`tasks/05_administrator.yml`](./tasks/05_administrator.yml) creates the account with `tootctl accounts create` and never sets or captures a password, so `ADMIN_PASSWORD` — the Keycloak secret — cannot drive Mastodon's native `/auth/sign_in`; `biber` has no Mastodon account at all, since the OIDC sign-in ([`templates/env.j2`](./templates/env.j2)) is the only path that would create one. In the `services.sso.enabled: false` matrix variants that path is removed, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The SeaweedFS companion scenario ([`files/playwright/test-seaweedfs.js`](./files/playwright/test-seaweedfs.js)) drives the same admin journey and skips on the same flag."
@@ -81651,7 +81651,7 @@ msgstr "[github/](github/) innehåller GitHubs arbetsflödeshjälparskript."
 
 # translated-by: libretranslate
 msgid "[i18n/](i18n/)"
-msgstr "[Jag är18n/](i18n/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above. It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
@@ -81690,7 +81690,7 @@ msgstr "[Inventering/](../../../cli/administration/deploy/development/inventory/
 
 # translated-by: libretranslate
 msgid "[ipv6/](ipv6/) for IPv6 enable/restore helpers"
-msgstr "[IPV6///](ipv6/) För IPv6 möjliggöra/återställa hjälpare"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-entity `ports` shape."
@@ -81739,7 +81739,7 @@ msgstr "[Msmtp](https://marlam.de/msmtp/) som en lätt skickade-kompatibel SMTP-
 
 # translated-by: libretranslate
 msgid "[n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
-msgstr "[n8Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
@@ -86178,7 +86178,7 @@ msgstr "`LDAP.USER.OBJECTS` listar de strukturella och hjälpsamma objektklasser
 
 # translated-by: libretranslate
 msgid "`LDAP_DN_BASE`, user/admin emails, oauth2-proxy `email_domains`, CA identity: all onion, mutually consistent (users `@<NODE_ONION>.onion` pass the oauth2-proxy email filter)"
-msgstr "`LDAP_DN_BASE`, användar/admin e-post, oauth2-proxy `email_domains`, CA-identitet: all lök, ömsesidigt konsekvent (användare `@<NODE_ONION>.onion` passera oauth2Proxy e-postfilter)"
+msgstr ""
 
 msgid "`LISTMONK_DESIGN_BRANDING` in `vars/main.yml` and the `DESIGN_*_URL` keys in `templates/playwright.env.j2` read `LISTMONK_DESIGN.urls` unguarded. The design lookup builds those URLs for every slot, while `roles/sys-front-inj-design/tasks/assets.yml` publishes the files only when `design.logo` is a string, so with the logo replacement switched off `app.logo_url` and `app.favicon_url` point at files that do not exist and the design spec asserts them anyway. Option: take the `fallback` for both keys unless `LISTMONK_DESIGN.logo is string`, render the URL keys empty in that case like the other roles, and skip the logo assertions on empty keys."
 msgstr ""
@@ -86415,7 +86415,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ är en Nod
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (bas bas64 32 byte, `head -c32 /dev/urandom | base64`) krypterar lagrade åtkomstnycklar; `SEMAPHORE_COOKIE_HASH` /// `SEMAPHORE_COOKIE_ENCRYPTION` säkra sessioner."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -87466,7 +87466,7 @@ msgstr "``ephemeral`` publicerar containerporten på en värdport docker plockar
 
 # translated-by: libretranslate
 msgid "``exposed`` is an explicit per-service opt-in (default false) that makes the service reachable over the node onion: its port gets a dedicated ``HiddenServicePort``. Because ``applications`` is the variant-merged config (base ``meta/services.yml`` deep-merged with the round's ``meta/variants.yml`` override), a service is forwarded only in the variant/config where it sets ``exposed: true`` — which is exactly what lets the two DB variants be tested over Tor (v0 exposed -> reachable, v1 not -> refused)."
-msgstr "``exposed`` är en explicit per-service opt-in (Default false) som gör tjänsten nåbar över noden lök: dess hamn får en dedikerad ``HiddenServicePort``. För ``applications`` är den variant-merged konfig (bas bas ``meta/services.yml`` djupt sammanfogad med rundan ``meta/variants.yml`` Override)En tjänst vidarebefordras endast i varianten/konfig där den sätter ``exposed: true`` - Det är precis vad som låter de två DB-varianterna testas över Tor (v.0 utsatt -> nåbar, v1 inte -> vägrat)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``exposure``:        who may reach the endpoint."
@@ -87637,7 +87637,7 @@ msgstr "``ldap``: De tre RBAC-scenarier beror också på LDAP-gruppsynkroniserin
 
 # translated-by: libretranslate
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "``ldapauth`` är den enda vägen som materialiserar en ``friendica.user`` rad, så dess tillåtelse härrör direkt från ``ldap`` service flag. Oauth2-proxy ``sso`` Gate framför vhost är en framdörr auth gate, inte en addon bro, och stannar i ```meta/services.yml`` <./meta/services.yml>` . LDAP inloggningsbanan omfattas av den befintliga LDAP Playwright-spekten (Krav 018), Så ingen addon-specifik spec läggs till."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``libaacs`` (AACS decryption library)"
@@ -88282,7 +88282,7 @@ msgstr "``templates/roles/README.md.j2.tmpl`` är den enda sanningskällan för 
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth. The required sections are the H2s the template emits with no optional context; the optional sections are the extra H2s that appear once every ``{% if ... %}``-guarded variable is supplied. Rendering the template both ways and diffing the H2 sets keeps the lint and the generator in lock-step with the template."
-msgstr "``templates/roles/README.md.j2.tmpl`` är den enda källan till sanningen. De nödvändiga sektionerna är H2s mallen avger utan valfri kontext; de valfria sektionerna är extra H2Som visas en gång var ``{% if ... %}``Bevakad variabel levereras. Gör mallen både sätt och diffing H2 set håller linten och generatorn i låssteg med mallen."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -89631,7 +89631,7 @@ msgstr "`ldap`: De tre RBAC-scenarier beror också på LDAP-gruppsynkronisering;
 
 # translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "`ldapauth` är den enda vägen som materialiserar en `friendica.user` rad, så dess tillåtelse härrör direkt från `ldap` service flag. Oauth2-proxy `sso` Gate framför vhost är en framdörr auth gate, inte en addon bro, och stannar i [`meta/services.yml`](./meta/services.yml). LDAP inloggningsvägen omfattas av den befintliga LDAP Playwright-spekten (Krav 018)Så ingen addon-specifik spec läggs till."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
@@ -89883,7 +89883,7 @@ msgstr "`meta/services.yml` Utdrag (Infödd OIDC, ingen oauth2-proxy)"
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (oauth2-proxy flavor, no external DB)"
-msgstr "`meta/services.yml` Utdrag (oauth2Proxy smak, ingen extern DB)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (proposed shape)"
@@ -90031,7 +90031,7 @@ msgstr "`oidc-authenticator` och `ldap-authenticator` är ömsesidigt exklusiva 
 
 # translated-by: libretranslate
 msgid "`oidc` (v2.3.1)"
-msgstr "`oidc` (v.2.3.1)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator)."
@@ -91876,7 +91876,7 @@ msgstr "alltid, skrivet till `backup.yml`"
 
 # translated-by: libretranslate
 msgid "amd64"
-msgstr "Amd64"
+msgstr ""
 
 msgid "amd64 \\| arm64 (default: the platform in INFINITO\\_DOCKER\\_PLATFORM)"
 msgstr ""
@@ -92292,7 +92292,7 @@ msgstr "bas eller faktor är icke-numerisk eller negativ."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "bas bas64-kodad 32 slumpmässiga byte; AES-256-GCM nyckel."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -96062,11 +96062,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy SSO"
-msgstr "oauth2Proxy SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy gate"
-msgstr "oauth2Proxy gate"
+msgstr ""
 
 msgid "oauth2-proxy refuses to redirect to a host outside this list after a login or a logout. The entries are wildcard parents (a leading dot), one per address family the app actually serves: the deployment's primary domain for its clearnet hosts, the node onion for its onion hosts. An app that serves only one family gets only that entry, so a redirect into the other family stays refused."
 msgstr ""
@@ -96669,7 +96669,7 @@ msgstr "pgAdmin är den mest populära och funktionsrika open source administrat
 
 # translated-by: libretranslate
 msgid "pgAdmin's own login id is the account e-mail `PGADMIN_DEFAULT_EMAIL` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)), not the Keycloak `administrator` username, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-pgadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before pgAdmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
-msgstr "pgAdmin egen inloggning id är konto e-post `PGADMIN_DEFAULT_EMAIL` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml))Inte den Keycloak `administrator` användarnamn, så `administrator` persona har ingen in-app credential när den är genom oauth2Proxy. [`meta/services.yml`](./meta/services.yml) Erkänner endast `web-app-pgadmin` administratör RBAC grupp till den proxy (`sso.oauth2.allowed_groups`)och `biber` har en tom rolllista, så den nekas innan pgAdmin nås. [`templates/playwright.env.j2`](./templates/playwright.env.j2) Därför förklarar `PERSONA_BIBER_BLOCKED=true` och `PERSONA_ADMINISTRATOR_BLOCKED=true`; den `guest` persona och baslinjen påståenden körs ovillkorligt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "pgAdmin’s own login id is the account e-mail ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
@@ -96688,11 +96688,11 @@ msgstr "php, kompositör, unzip eller en av tilläggen är fortfarande frånvara
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP ``administrator_database_password``, not with the Keycloak ``administrator`` username/password pair, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-phpldapadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before phpLDAPadmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
-msgstr "phpLDAPadmin autentiserar med en LDAP bind DN och OpenLDAP ``administrator_database_password``, inte med Keycloak ``administrator`` användarnamn/lösenordspar, så ``administrator`` persona har ingen in-app credential när den är genom oauth2Proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-phpldapadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before phpLDAPadmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona och baslinjen påståenden körs ovillkorligt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP `administrator_database_password`, not with the Keycloak `administrator` username/password pair, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
-msgstr "phpLDAPadmin autentiserar med en LDAP bind DN och OpenLDAP `administrator_database_password`, inte med Keycloak `administrator` användarnamn/lösenordspar, så `administrator` persona har ingen in-app credential när den är genom oauth2Proxy. [`meta/services.yml`](./meta/services.yml) Erkänner endast `web-app-phpldapadmin` administratör RBAC grupp till den proxy (`sso.oauth2.allowed_groups`)och `biber` bär en tom rolllista, så den nekas innan phpLDAPadmin nås. [`templates/playwright.env.j2`](./templates/playwright.env.j2) Därför förklarar `PERSONA_BIBER_BLOCKED=true` och `PERSONA_ADMINISTRATOR_BLOCKED=true`; den `guest` persona och baslinjen påståenden körs ovillkorligt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin is a web‑based LDAP client that provides an intuitive interface for managing LDAP directories. This containerized deployment leverages Docker Compose and Ansible automation to offer a secure, configurable environment for administering and exploring your LDAP configurations."
@@ -97706,19 +97706,19 @@ msgstr "Python -m utils.parse_trace <trace.zip>"
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
-msgstr "Python3 -m cli.meta.ci.dev_runtime bilder python3 -m cli.meta.ci.dev_runtime distro -bild fedora:senaste python3 -m cli.meta.ci.dev_runtime Matrix - Mode Rotate - Run 42"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.image_ref --kind environment"
-msgstr "Python3 -m cli.meta.ci.image_ref -kind miljö"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m utils.annotations.summarize <logfile> [<title>]"
-msgstr "Python3 -m utils.annotations.summarize <logfile> [<title>]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 utils/github/playwright_summary.py <reports-dir> [<context-label>]  # nocheck: self-path-reference"
-msgstr "Python3 utils/github/playwright_summary.py <reports-dir> [<context-label>] # Nocheck: självreferens"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "qdrant has no per-consumer principals, only two engine-wide keys, so a consumer that owns data here holds the engine's own key. The read-only key is deliberately never returned: it belongs to the MCP adapter, whose whole read-only guarantee rests on being unable to present anything else."
@@ -101375,7 +101375,7 @@ msgstr "utils.install.lint.hadolint modul"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ cli2 modul"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -101977,11 +101977,11 @@ msgstr "Utils/install"
 
 # translated-by: libretranslate
 msgid "v1"
-msgstr "v.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "v1 scope summary"
-msgstr "v.1 omfattning sammanfattning"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "vCPU"
@@ -102362,7 +102362,7 @@ msgstr "{{ lookup('sso', application_id, 'is_proxy_gated') }} Bool"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated"
-msgstr "{{ lookup('sso', application_id, 'logout_url') }} Str, oauth2Proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL när appen är proxy-gated"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'shared') }}          → bool"
@@ -102374,7 +102374,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # # # # # # # # # # # # # # # # # #
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} Socks5H://tor:<port> (svärm)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""
@@ -102451,7 +102451,7 @@ msgstr "✅ **Vackert UI:** Ren, modern och responsiv gränssnitt."
 
 # translated-by: libretranslate
 msgid "✅ **Greenlight** (v3) frontend support"
-msgstr "✅ **Greenlight** (v.3) frontend stöd"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "✅ **Verify the DNS record** before continuing:"

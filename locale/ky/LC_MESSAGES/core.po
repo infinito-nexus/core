@@ -67,7 +67,7 @@ msgstr "Эскертүү"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP, IMAP, JMAP, POP менен Stalwart почта сервери3, ManageSieve, CalDAV, CardDAV жана ички спам чыпкалоо"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -792,7 +792,7 @@ msgstr "Жардам берүүчү куралдар"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Структураланбаган маалыматтарды башкаруу, масштабдоо жана аларга жетүү үчүн жогорку натыйжалуу, өз алдынча сактоочу чечимдер, анын ичинде Amazon S менен шайкеш келген объектилерди сактоо3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1060,7 +1060,7 @@ msgstr "NGINX негизделген веб-платформа жана беки
 # translated-by: ollama
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-төрөлдөрдүн эс изилдөөгүнү HTML-ийн Jinja-танд ийлдөө (Impressum) көрүнүүдөн сактоо 2 штамплагынан алуу"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1246,7 +1246,7 @@ msgstr "Ачык булактуу, өз алдынча уюштурулган к
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI менен шайкеш келген LLM шлюзунун маршруту1 Жергиликтүү жана хосттолгон моделдин арткы чекиттеринин акыркы чекити"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -2054,7 +2054,7 @@ msgstr "Вебсерверлерди оптималдаштырууга жард
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon түйүндү v катары жарыялоо3 пияз менен иштөө"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"

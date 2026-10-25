@@ -68,7 +68,7 @@ msgstr "সতর্কবার্তা"
 # translated-by: ollama
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one সুপর মেল সার্ভার বিস্তারিত SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV এবং নিজেই ব্যবহারকারী শ্রোতাবেগে জানালা শোষণ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -324,7 +324,7 @@ msgstr "সম্প্রদায়"
 # translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "कॉम्बिनेबल HTML इन्स्ट्रॉजेशन रोल्स (CSS, JS, logout interceptor, analytics, dashboard iframe) Nginx/OpenResty की तरफ से sub_filter/Lua के माध्यम से डीसीन्स की सामग्री साझेदार हो।."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -568,7 +568,7 @@ msgstr "ডেভেলপমেন্ট এবং CI/CD টুল"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "ডিস্ট্রিবিউটেড Scraper3- শেয়ার করা বস্তু সংরক্ষণ করা, প্রতিটি ওয়ার্কার বালতির বিনিময়ে ওয়েব-প্ল্যাটিং ভূমিকা পালন করা"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -788,7 +788,7 @@ msgstr "সহায়তা টুল"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "পরিচালনা, ব্যবস্থাপনা, স্ব-সীম্যপূর্ণ সমাধান, মাপ, এবং সুসংগত তথ্য — যার মধ্যে আমাজন এস.3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -991,8 +991,6 @@ msgstr "সার্টিফিকেটের জন্য দায়ী ভ
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
-"Docker Swarm এক হ্যাউস মেনের নodের মানুষের উপর সেরা মেনেডেজার নোড হিসাবে চিহ্নিত করা, যাতে ইনিট লিকাজ ইনিটিভ লিকাজের দিকে পরামর্শ দেওয়া হয়\n"
-"svc-swarm-node"
 
 # translated-by: libretranslate
 msgctxt "menu:Marketing:title"
@@ -1052,7 +1050,7 @@ msgstr "NGINX-ভিত্তিক ওয়েব প্ল্যাটফর�
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX- র জন্য নির্ধারিত পৃষ্ঠা প্রদর্শন করা হবে (ইমপ্রেস) জিনজা থেকে2 টেমপ্লেট"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1067,7 +1065,7 @@ msgstr "নেটওয়ার্ক"
 # translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "डिजिटल प्रोटोकॉल ( डीएनस, लेटसेटिक HTTP, WireGuard, आदि.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"
@@ -1231,7 +1229,7 @@ msgstr "চ্যানেল, থ্রেড এবং একত্রীক�
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "সম্পূর্ণ সুসংগতির জন্য হার্ড-ড্রাইভ খোলা হবে1 প্রতিটি কী- বাইণ্ডিং কীয়ের জন্য স্থানীয় ও হোস্ট-নেমের সমাপ্তি"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1256,7 +1254,7 @@ msgstr "C, C+ এবং অন্যান্য স্থানীয় ভা
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "TLS সার্টিফিকেট, vugnt টেমপ্লেট, এবং ঐচ্ছিক OATH-র জন্য Scrouspersput পরিচালনার সুবিধা উপলব্ধ করে2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1569,7 +1567,7 @@ msgstr "স্ব-বিস্ফিত GantithOhuted অ্যাকশন র�
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "স্ব-পরীক্ষণ অজানা5 ব্রাউজিংের জন্য স্যান্ডবক্স এবং লাইটওয়েট ইঞ্জিন ডেমোর জন্য গেম"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1579,7 +1577,7 @@ msgstr "যৌথরূপে ব্যবহৃত LDAP ডিরেক্ট�
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "স্ব-পরীক্ষণ:3- ফাইল, মিডিয়া, ব্যাকআপ, এবং AI আর্ট স্কোয়ার"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1789,7 +1787,7 @@ msgstr "প্রতি হোস্টের মাধ্যমে বার্
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "মাল্টি-নোপেনিং দ্বারা ব্যবহৃত স্থায়ী ব্যাক-এন্ড ব্যাক-এন্ড ব্যাক-এন্ড ব্যাক-এন্ড4 সার্ভারের ও ক্লায়েন্টের ভূমিকা।"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -2031,7 +2029,7 @@ msgstr "ওয়েব সার্ভার সমর্থনের জন্
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "টর ডেমন নোড voice'এ প্রকাশ করুন3 সেবা সেবা"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2124,7 +2122,7 @@ msgstr "এল- ডি- এ- পি ব্রাউজ করার, ব্য�
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "বিভিন্ন PostgreSQL সার্ভার পরিচালনার জন্য ওয়েব-ভিত্তিক প্রশাসন এবং উন্নয়ন প্ল্যাটফর্ম, ঐচ্ছিক OASQL সার্ভার2 লগ-ইন করুন"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

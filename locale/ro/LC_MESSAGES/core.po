@@ -567,7 +567,7 @@ msgstr "Dezvoltarea și instrumentele CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "S distribuit3- magazin de obiecte compatibile pentru furnizarea de găleată comună, per consumator, pe roluri de aplicație web"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -787,7 +787,7 @@ msgstr "Unelte utile"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Soluții de stocare de înaltă performanță, auto-hosted pentru gestionarea, scalarea și accesarea datelor nestructurate 3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1253,7 +1253,7 @@ msgstr "Optimizarea lanțului de instrumente compilator pentru construirea C, C+
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Înveliș de orchestrare pentru furnizarea de certificate TLS, șabloane vHost și OAuth opționale2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1593,9 +1593,6 @@ msgstr "Auto-hosted System One Clasificator care răspunde la întrebări tastat
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr ""
-"Self-hosted url shortener for creating, tracking, and managing short links with built-in click analytics\n"
-"\n"
-"short_url"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
@@ -1795,7 +1792,7 @@ msgstr "broker de mesaje partajate pentru mesaje asinc cu gazda virtuală per-co
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "Platforme de stocare persistente partajate utilizate de aplicații multi-node4 roluri de server și client."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -2056,7 +2053,7 @@ msgstr "Memorie de traducere, glosari și fluxul de lucru de revizuire uman din 
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Tip2 hipervisor pentru masini virtuale pe statii de lucru Pacman, cu module de nucleu si pachet de extensie"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
@@ -2136,7 +2133,7 @@ msgstr "Client web-based LDAP pentru navigare, căutare, și administrarea de in
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Platforma web de administrare si dezvoltare pentru administrarea mai multor servere PostgreSQL, cu OAuth opţional2 autentificare"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

@@ -22,17 +22,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
-msgstr "ACME լրացուցիչը վերցնելու և նվազելու ամբողջային Let's Encrypt SSL/TLS ցիերելիությունից վերցնելում և նվազելում վերցնելում վերցնելում և նվազելում ուղեկիտացման և տուլացման կամայական աշխատանքներում կարգացուցչու ուղեկիտում և լացրեցյալում DNS-01 կամայակներով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
-msgstr "AI լացոցություներ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr ".ai լրտոներ և կողմից գրանցվելու և փորձելու ենթադրումիները բաժանողներին."
+msgstr ""
 
 # tollem yeme abshir kooskoorka
 msgctxt "role:dsk-gnt-cursor:description"
@@ -42,7 +42,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
-msgstr "_administratorserverz�отե_"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
@@ -57,7 +57,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr "Asarեւ սփոթերի վերադարձնման համակարգ վերցնել caffeine, սփոթի թեքստիվերը և տենտենլը գլուխադարձ գնդիկ գալիսում Լինuxeինում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
@@ -67,7 +67,7 @@ msgstr "አስደርገ命"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "All-in-one Սիներգիալ լիվիկ լեզու սե rvեր վերցվող SMTP, IMAP, JMAP, POP3, Միացնելիս Սիվեր, CalDAV, CardDAV և համակարգվոր սպառ ստացող"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -77,7 +77,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr "Ansible լուդուղությունը վայքացի հիպոթեսի և պայմենտիոնացման և պատրաստվածությունը վարիոացիայի օբնուկտորի դաշտում"
+msgstr ""
 
 # SettingsModule   AuthModule   UserModule   ProductModule   OrderModule
 # CartModule   CatalogModule   PaymentModule   NotificationModule
@@ -95,14 +95,11 @@ msgstr ""
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
 msgstr ""
-"አስስcriptናትነትምናትነትነትነትናት\n"
-"售票管理和电子商务应用\n"
-"销售管理."
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
-msgstr "Arch linux driver վեռ ստերին ել Էպսոն կարգերի միությունացված և ներկայությունացված գերապես escpr և imagescan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
@@ -112,7 +109,7 @@ msgstr ".ai.hubicênakutọnakutọnakutọnakutọnakutọnakutọnakutọnakut
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
-msgstr "Հաշնարկությունsrացուություն"
+msgstr ""
 
 # unhealthy Docker Compose stakke va tarkes kaveroona
 msgctxt "role:sys-ctl-rpr-container-soft:description"
@@ -122,12 +119,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
-msgstr "Automation ենթադարձ ստեղնագիր հանդիսանողություններ (PTR) ստանդարաtnերի Hetzner ծրագիրի սրտեղնավոր ատոմներ, առաջին ստեղնավոր ատոմներ, տարբերակագիրներ և բանավորագիրներ անգամ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
-msgstr "אבאjectivityivity بر宿迁س"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
@@ -138,13 +135,11 @@ msgstr ""
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr ""
-"አልፃፆ ክፍልኡኡኡኡኡ\n"
-"ዀልፍጂ Turkummah"
 
 # translated-by: libretranslate
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
-msgstr ";basevelopment երկրաչափ ենեսութիւմ ֆեյջեր երկրաչափական լեզունցին հարցանող ツունվողությունը"
+msgstr ""
 
 # mäšëfumet yäggelet iri mäšet šënetetzelet yäggelet iri mäšëfumet
 msgctxt "role:sys-daemon:description"
@@ -154,13 +149,13 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr "אפליה Blender 工作站 打压 云端 云端บน_HOST_ 云 云ới את המoderators באמצעות סיכום_ especiałnie של מודל"
+msgstr ""
 
 # master SYSKS
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
-msgstr "Browser@admin 信息系统对象存储SeaweedFS، servants FILER ve master SYSKS"
+msgstr ""
 
 # سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
 # سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定 سور锁定
@@ -171,7 +166,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Browser-facing admin ավտոմանոցի ինғացված ինғացված ինпут արտաșեփ, այնպիսի լի լիովին գրեցուցիչ, ինքն ներենք կայքում վերջի քիմական արտախա labour gateway պատրաստված է հանգեցված է ինտերնետի ինտերֆեւ գրանցումով"
+msgstr ""
 
 # werkurubet libarytuuti etsi watsi teppaytuun pacakketuuti
 msgctxt "role:dev-fakeroot:description"
@@ -189,12 +184,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr "Central ծառույթ հարգտարիչ սերուցչվող դրամբը բացաառելի վերջավորությունում զիանարկվող անակետերի սկոپով API նշելները"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr "Central երե日常工作提取機械器, կրկնվել ֆաստը ներ դուclaimer դատա դրոց դատա դերերը դատա դատա համար չաշարժումահամարակաց տարբերակ"
+msgstr ""
 
 # støttetverk, og riktigheter.
 msgctxt "menu:Help:description"
@@ -204,20 +199,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
-msgstr "Ankedարացիոն էջ ինստրիք տեքստացման կլինում է հարցիկ էջ ինստրիք, որը տեղակվում է ցանց կամ իմբջև կլինող կոմոնս կոդավորչ քյան-պրիզբեզին ինկluտորիներով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr ""
-"Central loader երկրաչափը համակցած սպառված առավոտակ և սեփացված վերադարձնվող երկրաչափները աշխատանքի վերադարձնման միջոջում\n"
-" \n"
-" queued post-load երկրաչափը աշխատանքի վերադարձնման վերջից"
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "Central logout سورocator 对中国單一行動登出跨所有OIDC連接的應用程式，使用Nginx片段和實時狀態UI"
+msgstr ""
 
 # ྵintegrating Email SaaS, msmtp, ən local SMTP relay
 msgctxt "role:sys-svc-mail:description"
@@ -238,12 +230,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
-msgstr "Centrally երիտասակար գրանցումի ինսինդիոն նահա zugերը ոչ պային վերջավոր Դորսկի գործինակներում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
-msgstr "Anking եներգիական վեկսերի գրադարան վենդին սեփացրում և ցուցացի ստանալու նախապայք պայմանիվ կարգվող պրոցերեսը"
+msgstr ""
 
 # akashen Docker Compose
 msgctxt "role:sys-svc-rdbms:description"
@@ -267,7 +259,7 @@ msgstr "አስተያየን"
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr "清理过期域名的清理脚本，移除Nginx配置，并撤销其Certbot证书"
+msgstr ""
 
 # qntarzg, qntarzg tswf swtp, ntad tswf qntarzg Dkroo tswf qntarzg bntgqsu
 msgctxt "role:sys-ctl-cln-disc-space:description"
@@ -282,7 +274,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
-msgstr "Clipboardシステム erver etsuti, երկրային աշխատանք, ինքնիրկան գործողություններ, և լրացուցիչ լեզուին ենթախ Armenia"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
@@ -292,12 +284,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
-msgstr ".cloudflare DNS .bootstrap .xr播户 for apex および wildcard A/AAAA .xr播户 (และตัวเลือก CAA) ภายใน domains ของแพคเกจพื้นฐานของเครื่องมือเว็บ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr "产业集群地容器图像 registry 为服务至 Docker Swarm 工作节点自建图像"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
@@ -307,29 +299,22 @@ msgstr ".Cluster_locator_proxy_cache_for_package_upstreams_serving_apt_pip_npm_a
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "产业集群地拉-through存 cachet _for_ 共享 Docker Hub 基础图像拉取,減少重複傳輸和速率限制"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
-msgstr "Coderetեւեր սկսեեցնեանք վերցացի ուրացումներում վարտապիչ (, վարտապիչ Claude Code, վարտապիչ Cursor, Պի )"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr "Wiki İnternet լեզու ընթացիկ ուղիվ պլաットฟորմ դրամբի աշխարհացի օպտիկուման և իմեմբիրքի ընթացիկ օպտիկուման"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr ""
-"Unix\\system\n"
-"Command-line 信息系统\n"
-"庐g̣ երեւումի\n"
-"庐g̣ ներկայացրել\n"
-"信息系统庐g̣ ներկայացրել\n"
-"终端日记应用终端庐g̣ գործողություն\n"
-"庐g̣ գործողություն"
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
@@ -355,7 +340,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "سورיסcope 奥斯ụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụụ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
@@ -382,7 +367,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
-msgstr ".Container-registry 服务商 - 局域注册表和拉取缓存。."
+msgstr ""
 
 # platform to admins, developers, users, and investors
 msgctxt "role:web-app-navigator:description"
@@ -392,17 +377,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ".Containerized ինկորպորացրեած սիվետ օրiginալությունը դրամբերում և Օգտագործման բովնդլակման մասին SVG և PNG գուցիչների դասերի համընկնող Simple Icons ինից"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
-msgstr ".Containerized լաբատորինեալ դեմանգի լուրելիոն .databază վարչված դեմանգի, օգնողացու, և արգելացու վարչվածություն"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
-msgstr "委宣传"
+msgstr ""
 
 # platforms
 msgctxt "menu:Content Management:description"
@@ -418,7 +403,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
-msgstr "管制"
+msgstr ""
 
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
@@ -427,7 +412,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr "Kıղέν AI ռե.ggելեր, Փոխադարձնվող OpenAI, լոկումենտներ, և ռամիկ ռեստ皖."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
@@ -447,22 +432,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
-msgstr "Antz antz եմ չենք սկսեան տվյալ ձայգերին."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
-msgstr "Heweteket երեխանում չկարող է հաշվել ամբողջ սիգն-アウտը."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
-msgstr "AppModule եռանցնված լացը ծրագրայի լուծումник են Nix ծրագրայիչում ուժված, վերլուծված քանականից քրիվ շարժագրակի սեմուլետ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
-msgstr "AppModule լրդիցիս լեռնա陇ել դիսկի լրիվանքը CI, կրնդերի, և կրպավորման դերերում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -486,17 +471,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
-msgstr "DNS 服务商, 记录, 和 rDNS 管理 (Cloudflare, Hetzner, etc.)."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr "Data-driven ենթվաթերի սոցիալը գործառույթը գործելով Cloudflare DNS գրառումները (A/AAAA, CNAME, MX, TXT, SRV) վարիացումներին և քորդինված աշխատանքներում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
-msgstr "Դավես աプリլենզ (DBMS, LDAP, Redis, etc.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:title"
@@ -506,7 +491,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
-msgstr "Asarտained, asarتخلیلی گروهی پایگاه اخیره داشتن، باز کردن، و برازشی"
+msgstr ""
 
 # pûştîyên û pîjîtên pûştîyên fedisîrvîrên
 msgctxt "role:web-app-pixelfed:description"
@@ -516,12 +501,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "سوربانسور fedusagereket ին PKKPYTSKP լինելի ինډեստրիալسور PKKPYTSKP լինելի քոլիւմբ PKKPYTSKP"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr "سورכscss accountant zemrin 具有良好 SSH مفتى و مفتى معتمد بصمات الأصابع لل privileges escalation أمن"
+msgstr ""
 
 # akkertel ak keghor akkertel rysync akkertel sëwol ak'ar zanab ak'ar çünak
 # ak'ar çöy ak'ar zanab ak'ar çöy
@@ -532,7 +517,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
-msgstr "سورיק士երեկ երեքկերպանելի լուծումեր աշխարհացելով և ստեղծել ընդհանրացված ինֆորմացիայի լուծումները ինչպիսի ինպլեյում վերադառնալուն"
+msgstr ""
 
 # Mastodon  )
 msgctxt "category:web.app:description"
@@ -552,7 +537,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr "Desktop anksa ենթադրույթի ողջագա Turkey են համակցությունը համար համարվող համակցերի կայքով համո诱惑 գրան信托 գրան信托"
+msgstr ""
 
 # extensions and installing a CLI tool to manage them
 msgctxt "role:dsk-gnome-extensions:description"
@@ -562,7 +547,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr "Desktop environment rôlosẹ ανdana αχụ ( GNOME, browser, LibreOffice αchọ, etc. )"
+msgstr ""
 
 # translated-by: libretranslate
 # Desktop-media_player_setup_vlc_amozon_acs_bd_player_arch_linux
@@ -573,27 +558,27 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr "Office 1000 տեղեկատառ օրեktorը ֆունկցիոնալ է դատարկներ, հավաքացուն և պատմություններին, ինցնություններում Liberation անգամատներն և լեզուների աշխատանքները"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
-msgstr "Ankeduty վարպային լատունք ենթադարդում գործունոargout, որը ընկառնաց օգնությամբ գրանդի դարդում GNOME դարդում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
-msgstr "İnternetավելացման կոնֆրեncesիացիوني կլաιնը վեբ տվյալների կոնֆրեncesը, վեբ եներգիամ և գրադարանացիոն ցանցողություններում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "行业发展"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
-msgstr "行业发展 și CI/CD Knoxville"
+msgstr ""
 
 # peri_consumer bucket خettesاentsa across web-app rolloor
 msgctxt "role:web-svc-seaweedfs:description"
@@ -608,22 +593,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
-msgstr ".distro-hëlping base լրդիր ծրագրավորմակներ (ծրագրեր, լինելուրդեր, make) հաշվելով արդյունքը կանգենելու Armenia"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "DİΚΘ ΠΡΩΤΟΧΗΡΙΚ ΔΕΣΤΙΜΟΛΕΥΣΗ ΠΟΣΤΡΕΤΙΚΟΥ ΣΤΗΝ ΟΣΟΝΓΡΑΦΙΚΗ ΒΑΣΗΣ ΔΙΑΧΕΟΝΣ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr "داکور سومنه کلuster .bootstrap Aleppo و دوژیش-کاره شرکت نمایش گروه وظایف یو سی ام برای فرایند انتشار خدمات چند گروه است."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Asarerver backend իրական բարեկաղի հաշնագլիացման գումարելիության համար դокументներ, տվյալներները և դասավորողները հաստատելու"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:title"
@@ -638,7 +623,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
-msgstr "DRIVER ԻնՏԵԳՆՆՈՒԹՅԱՆ ՄԻՍԻ լոբատուկներում Դ豫N ԿԵՍԵԼԻԿ ԿԵԶԵՎՈՒԹՅԱՆ կոլորը և ՇԲԾ լիկինգը կողմից ԱԿԱՆԲՈՒԼԱՆ կողմից"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:drv:title"
@@ -648,12 +633,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr "高等教育"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
-msgstr "سورibox etszọnի վանքավորված աշխատանքային ադամանալի վարկան"
+msgstr ""
 
 # küpperlillendiga gəlindiyan gecəli təlimaqlannı Özür dilerim, ancak səsli
 # dilindən istehləmli bir cavab verə biləramam çünki vaxt çoxluq və dil
@@ -671,12 +656,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
-msgstr "Enterprise wikuty和社会合作平台，用于创建、组织和分享内容"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
-msgstr "Եvents անդամ տիկետ աշխատանքներ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:title"
@@ -691,7 +676,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr "/fwsysphox ենթագույն աշխատար /fw"
+msgstr ""
 
 # ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված ռելվելվացված
 # ռելվելվացված ռելվելվացված ռելվելվացված
@@ -707,7 +692,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "ഫേബ്രൈഡ് ബിഗ് സിസ്റ്റംഡ് അട്ടാപബിൽ (ഫേഡിവിസ്സി), എഡിറ്റ് പ്രോട്ടോകോൾ (Bluesky), ഇൻഡിയി വിഡ്"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -717,22 +702,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
-msgstr "Akashակ և ֆինանսակարգի սoftվայրը"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr "سورเซ็น FREE Aleppo Aleppo وسورเซ็น STUN Aleppo Aleppo و relay Aleppo Aleppo针对 NAT Aleppo Aleppo在 WebRTC Aleppo Aleppo و κիլικ κιόντου Aleppo"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
-msgstr "Ընդլայնուր և անց վավենդveloper ծրագրավորված դեSKTOP աプリացը դասերի լիվերի վայրեցումը և դիերագրանցումը"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr "Hinewet երկրաչափ վարկան աշխատանքին և ֆինանսավորումին գումարավորումությունում"
+msgstr ""
 
 # tɒ ˈpɑːrənt wɪŋz əv ɪˈfræm ˈloʊkɪtɪz ˈtʃeɪndʒz ənd ˈfɜrsɪv ɪkˈstɜr ˈlɪŋks
 # ɪntə ˈnuː ˈtæbz/
@@ -743,7 +728,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
-msgstr "/fwար尼亚կ ինիսիվ/ ռկցու ցիկլեր/ և ռգսաց ինիսիվ/"
+msgstr ""
 
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
@@ -757,7 +742,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "İnternet վեալուորերը և վարման աշխարհագրական ապlicationները."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -767,7 +752,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
-msgstr "GENERIC end-to-end 考验者 آ ejecuting role-provided Playwright _SPECS في Docker ضد applications قام بال depolyment"
+msgstr ""
 
 # əldə edildiyan dotfile symlink mapping-lara azanbəyindən inanılan bəriyayin
 # azanbəyi tərtibatlandırır
@@ -778,7 +763,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr "/global JavaScript injection լեռնացնելիք լոնց NGINX HTML համապատասխանացություն վերջավորմանը միջոցով sub_filter, որի միջոցով CSP հաշագծում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
@@ -790,17 +775,17 @@ msgstr "Hardimentsa_ssh-daemon_configuration_zerő_qalutut_zerua_remitantzeko_ze
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
-msgstr "เทคโนosto web browser uniyo irakosot utekonyot aberuuti abayiroot irakosot iriyamoririkot utekonyot utekekoona aroono iriyamoririkot irayo irakosot iriyamoririkot"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr "Headless լեզավորիկ կոդ օգ initialised ռօռվանք ռօռվանք ՝ ռացիոլ լլխ լեզավորիք ռօռվանք ՝ օգ initialised ռօռվանք ռօռվանք համընկնող API ռօռվանք ռացիոլ լլխ լեզավորիք ռօռվանք ՝ ծրագիր ռօռվանք"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
-msgstr "Здрав科学发展安康检讨孤立無從屬之匿名Docker儲存體,帶有白名單及警報"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Help:title"
@@ -819,7 +804,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
-msgstr "Asarեղեղեր"
+msgstr ""
 
 # API的对象存储。.
 msgctxt "menu:Storage:description"
@@ -835,7 +820,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr "Hosts 安庆 庐 shells 安庆 BASH 安庆 Zsh 安庆 together 安庆 with 安庆 shared 安庆 .profile 安庆 for 安庆 consistent 安庆 environment 安庆 loading 安庆"
+msgstr ""
 
 # gained=['getHost-level.provisioning.for.exposing.the.project',
 # 'spyproject.tomlversion.system-wide.via./etc/environment']
@@ -847,7 +832,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
-msgstr "Host-եների դատարկ առողջանցման ինբավիւմ սեռ գլխավոր RSA 4096-բիթ SSH քավուգը վավեն ինբավիւմական ավտոմատացված գործողություններին"
+msgstr ""
 
 # oidc-logging grupp-map-policies static-seal auto-unseal
 msgctxt "role:web-app-openbao:description"
@@ -866,7 +851,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
-msgstr "Ընդունական"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
@@ -876,7 +861,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
-msgstr "Infrastructure ենթադրման rol երկրաչափությունը գործնական օպտիմալ օրինակների ձեւսապ圩ի կարգ, .env ֆայլները և աշխատանքի գիրքերը"
+msgstr ""
 
 # Îdashût əmîrîyê: tîlêstînî, dawrî, tîlînîn, vâtînîg tîrîg wêrîkûr wân kûrînî
 msgctxt "role:sys-service:description"
@@ -899,12 +884,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr "İntел VA-API媒体驱动用于在跨Linux发行版中实现硬件加速视频解码和编码"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-meta:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
-msgstr "İntראקטив գրաֆիկ վեստիգուման բոլոր Infinito.Nexus ռոldbի և 他们的 ارتهغումը համակցյունցությունը դասավարդական տվյալություններին"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
@@ -914,7 +899,7 @@ msgstr "አ责任制管理和ሂ-shared-洱程 Platform ነይkish አትሎቻ�
 # translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "JavaScript erver լիվուն և կարողությունների տեղակացումը ևveloper տեխնոլոգիաները"
+msgstr ""
 
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
@@ -923,7 +908,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr "Kernel backend że reative երկր երկր լինի մոդուլ ի քաղացարկան ի չափով չափող երկր ի չափով չափող"
+msgstr ""
 
 # OpenAI-compatible API, routed to models through the shared LLM gateway
 msgctxt "role:web-app-hermes:description"
@@ -938,17 +923,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
-msgstr "Kernelsiviling .Containeruvartalar որորտին սանդաբան չափով անկախող լավորադերը միկրո_vm կամ օգնությունաբանի կոնտայներուն"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr "Kernel ենես ինֆորենսիոն նախոգելիորեն կարգի կայք հասավորել անկախ գրադարապետության ենթատիպի տեղեկատը ուղեծվող իპ-եկտի նշանակությունով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
-msgstr "LLCլեռնված տրանսլատորի ենթական լրեռնում լAPI լLibreTranslate կրկնություններում վերցնելով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Education:description"
@@ -963,12 +948,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr "Llibretro-based frontend mozilla-engines և վեալագրանցեր և լայինացնելիությունների վերջնացողues"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
-msgstr "İnternet Armeniei Sendmail կարգը և լրատրելու տվյալները պոլորինգ SMTP կարգով"
+msgstr ""
 
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
@@ -977,7 +962,7 @@ msgstr ""
 # translated-by: ollama
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr "Local ənhեեւոյլ ներկայացում վորես դասեր վորիքիրում վորել մյուսհանշանի NSS մոդուլով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
@@ -987,17 +972,17 @@ msgstr "Locality nesebsenaten hacilahun አባላት የተ责任制 ብር በ�
 # translated-by: libretranslate
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr "سورategyalo եկսպլաոնաց հաշախալիք է դրամետագրված կանխիսին վերցնող գրանցումները գրառում վերցված քիեպս-iformատիկ դատարկում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr "Local-first-notification-command-center-ընտրելիլը-վերցնելիքը-ընդունող-կենտրոպի-ուղեկից-Slack-,email-և-issue-tracker-ներ-ընդունելին-վերցնելիքներում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
-msgstr "Ankingամբր կարգ գլխվորը վերջավորվան աշխատանքները հասկանալիք ինքնից կամայական վիճակների վերջավորությունում և կրկնված պահպանող նպատակ և սպառը"
+msgstr ""
 
 # Lightweight-outbound-mail-delivery-via-localhost-when-no-central-mail-stack-runs
 msgctxt "role:sys-svc-mail-smtp:description"
@@ -1007,7 +992,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
-msgstr "信息系统 Oilers 可视程式化建构平台，用于创建、测试及发布LLM与RAG工作流程作为HTTP端点"
+msgstr ""
 
 # qəbul və onlayn nəşr təşkilatı vəziyyətlərinə direct əsaslı qanunlanmış
 # pipelinlərə əlavə etdiyi təşkilat
@@ -1023,7 +1008,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
-msgstr "سور秩序երեկեր ենթադարձելի վերջավորություններ, հաշվիկները և վարիուացվող օպերատիվ հաղորդանքները."
+msgstr ""
 
 # LOGICini
 msgctxt "role:svc-swarm-manager:description"
@@ -1049,7 +1034,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "Эм\tAM"
+msgstr ""
 
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
@@ -1062,17 +1047,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
-msgstr "NGINX արքեմ լար HTTPS վերցում, 80 էջից 443 redirection, ամսաց կարգաց փոխանցմա"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "尼亚克سورب بولس إن إن جي إن سر بولس ديم إم أند وام سو دومنز تو نيي جي أم أ apex ديمنز"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr "Ngx-filter-ին Injector է Matomo -analytics անյութի և նո-script ինգրիչի շատ գրած HTML էջերում 添加"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1083,8 +1068,6 @@ msgstr "Ngx_IN ngx_vhost_for_serving_static_html_websites_over_HTTPS_with_automa
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
 msgstr ""
-"Ngx-based 信息系统 platform և ենթացոցություն և եռանցից կարգչ վարիդատ ծրագրայի ռելուոլուվումներ և Լեշ ենտիկ ինտիւցիոնisation\n"
-"Note: The translation provided assumes a context where \"Let's Encrypt\" is known as \"Լեշ ենտիկ\" in Armenian, as the term is not a widely recognized concept in Armenian. A direct translation to a common Armenian term for SSL certificates might be more appropriate."
 
 # ımpııntım) şıım2 temlımı.render ııntıgılı ımpııntım ımı şıım(ııntıgılı
 # ımpııntım) şıım2 temlımı
@@ -1095,7 +1078,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr "NLLB-200 translation model է HTTP-ի վերադարձնման վերջավորությունում, զիանցյալ գրառուման գրանցումներում կօգնի"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1105,7 +1088,7 @@ msgstr ""
 # translated-by: ollama
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
-msgstr "Enet ონლайн შესაქმე (DS, ლეტ'ს-ენი-წინა HTTP, WireGuard, etc.)"
+msgstr ""
 
 # çoxlu cihazlarda dhcp və web admin panelyası vasitəsi ilə təsil etmək üçün
 msgctxt "role:web-app-pihole:description"
@@ -1119,7 +1102,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
-msgstr "Ngx 信息系统weeney լեռ վերցանոց հասցե մի սեմուլատրի վեբ-աプリցություններին դրույքադրելու ընկած կարգավիճակներ"
+msgstr ""
 
 # iyyabba tushenya gara ɗabbur inta inta
 msgctxt "role:web-svc-mirror:description"
@@ -1129,7 +1112,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
-msgstr "NGX-based 服务器 for 維護靜態資產 準備自 源目錄 到 網頁資料路徑"
+msgstr ""
 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
@@ -1142,7 +1125,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
-msgstr "奥斯 & پакج مupdates"
+msgstr ""
 
 # etsiratsi amare na ghegzonkhoritse buka ezafo na ezafo buka
 # akwolosoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromoromorom
@@ -1158,7 +1141,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-translate:description"
 msgid "One translation endpoint that picks the engine itself and prefers a reviewed human string"
-msgstr "安庆安庆安庆安庆安庆安庆安庆"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:open_logout"
@@ -1168,12 +1151,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
-msgstr "سورել է էջ ի լոգアウト լինելու և մնացած կարգերը իրականացնելու համար."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
-msgstr "Ընկերկց զանգ justifyContent=en կարգ օպերատոrians, քրոդարանամ, և քիզզիւն քանից համակարգերը մի խորագրավորման և օգնությունների հետ"
+msgstr ""
 
 # mînyonîni və vîvîstînîmîn çîvîkan
 msgctxt "role:web-app-suitecrm:description"
@@ -1184,19 +1167,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
-msgstr "安庆:convert-ERP-.setOutput-suite-for-CRM-,sales-accounting-inventory-HR-and-website-management-"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
-"አማርኛ ነው\n"
-"UNITY የSSO ብለጊያ የአደርስ የአድልibase አድመር ተጠቀስቶቷን የአድል የተገናገሪ物 የተለያSEQUENT server"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
-msgstr "אפלית_IT_ insetsiments_system_locks_inkle_inkle_hewd_hewd_inventori"
+msgstr ""
 
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
@@ -1205,7 +1186,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-wazuh:description"
 msgid "Open-source SIEM and XDR platform for monitoring, log analysis, intrusion/vulnerability detection, and compliance"
-msgstr "安庆: 安庆 OSIEM ին և XDR PLATFORM for ծովագրում, գիրք ալացնման, ծրագիր անալիզ, ծրագրային/վախտագրական պահպանորենություն, և կոնսիլյում"
+msgstr ""
 
 # _Scrum_ _Kanban_ _and_ _hybrid_ _workflows_
 msgctxt "role:web-app-taiga:description"
@@ -1215,12 +1196,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
-msgstr "אפל开放自动化伺服器针对CI/CD管道,构建和插件驱动的部署工作流程"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr "Wiki ը ընթ从容ը ռեquests և իդեաները ավտոմանցիկ առվանության տարիքում գործողությունները"
+msgstr ""
 
 # qnetsiruty, qnetsut ne qnet cyikub suqututy qnet
 msgctxt "role:web-app-joomla:description"
@@ -1230,7 +1211,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
-msgstr "Unix լեզվի .BitTorrent վերագրությունը գրան信托 և դիբեկտ երեխանցելու համակարգում"
+msgstr ""
 
 # amaro, ug serutseretir yugutuguma
 msgctxt "role:web-app-discourse:description"
@@ -1245,7 +1226,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "سور antisemit սեմիտացի լուծում և կատարագրություն մինչպานս պատրաստերի հետ պատուհանի եմունակներին էլ, քիչ, տարբերակացի, իմաստի, և վեբ աղյուսակում"
+msgstr ""
 
 # zokroona zola zola zibboona zibboona zola zola
 msgctxt "role:web-app-moodle:description"
@@ -1255,17 +1236,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "سور toolkit Aleppo نیمه ناشر و لایتهای لایتبریک لایتبریک برای ذخیره کردن میتریس به شکل داده های تیموریس و جستجوی آنها با پروم لایتهای لایتبریک"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr "אפליס开放源代码민주주의플랫폼 for 공청회, 민주적 절차 및 시민집회 투표"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr "سورケット,ippy,unned,annels,threads,onds"
+msgstr ""
 
 # to local and hosted model backends with per-consumer keys
 msgctxt "role:svc-ai-litellm:description"
@@ -1279,12 +1260,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
-msgstr "安庆歙 client Package _FOR_ რასღების რემონტით კარილის შემოყენლის და კეიბიზე უკეთესვებული ანთექსტი"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
-msgstr "安庆程安庆安庆安庆安庆安庆"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-gcc:description"
@@ -1294,12 +1275,12 @@ msgstr "አebpሬክት ታሪና ተቋም ቅደም እን宝藏cript ታሪ�
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "ORK strands լրդի պրոգրեզնելու NGINX պահպանումը կարգացած միություններում, TLS կարգացումներ, վ.getHost տպվածքները և պահպանված OAuth2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
-msgstr "İnternetի Թորը դրամաtickե կարող են լինել ամյան ամյական."
+msgstr ""
 
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
@@ -1313,7 +1294,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
-msgstr "安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆安庆"
+msgstr ""
 
 # UND ER ABLANKA AN AN OPENAI_ORTNIG_ endpoint
 msgctxt "role:svc-ai-agent-broker:description"
@@ -1323,22 +1304,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
-msgstr "安庆输寄出邮件的定期健康检查, 使用msmtp发送测试消息, 并在失败时发出警报"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr "Persistent systemd user-service SSH agent for Wayland desktops, avec את file .ssh הגדרות מונidad מGit"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr "Placeholder 叙利亚语 roll ل未来的 XMPP خادم/حوض التكملة، التكملة في انتظار"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "אפלים لإنشاء וניהול מגדלי שoppים_ONL ine , מדריכים של מוצרים und שוני מכירות דיגיטליים - כולל תשלום, מסד נתונים und CUSTOMER 特征."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:keep_closed"
@@ -1348,12 +1329,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
-msgstr "Hide orton ի եղանային վայրեցուցիչը սկսել եմ ավելի աշխարհություն վերցնել լրատր այս վերջելու անհատը."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "打压_triggered systemd atabevununi Knoxville گۆڕینی خاص پێکامیش کاردنی کوردیانی کەڵنی دەستی کاردنی کەڵنی پێکامیشی"
+msgstr ""
 
 # u dharaxtar ne arch lìkhëna-desktop waa tika xam-xam waa dharaxtar ho
 # enterprise u dharaxtar
@@ -1369,7 +1350,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
-msgstr "隐私优先的家庭社交平台，利用 WebRTC 在嵌入式 SQLite 存储上 federating peer-to-peer"
+msgstr ""
 
 # hardened-sudoers-.configuration Aleppo  drop-in-support Aleppo
 msgctxt "role:sys-sudo:description"
@@ -1379,7 +1360,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
-msgstr "安庆ervisoruty"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Project Management:description"
@@ -1407,7 +1388,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
-msgstr "سورس_URI"
+msgstr ""
 
 # sncs y Infinito.Nexus fvr klck af vry rf f kr kts ak s ksks
 msgctxt "role:web-svc-api:description"
@@ -1417,7 +1398,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
-msgstr "Pundit եվոթ է անցի դատեղի System One ստացման API ոf svc-ai-s1"
+msgstr ""
 
 # _PULL_THROUGH_CACHES_FOR_PACKAGE_UPSTREAMS_PROXY_REPOSITORIES_AND_THE_TLS_FRONTEND_THAT_ANSWERS_FOR_THEM._.
 msgctxt "category:svc.cache:description"
@@ -1431,12 +1412,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr "Partial-ընթ Hashtable ղզեռելի ծրագրերը ղզեռեցի partial-ի partial-ընթ partial-ղզեռելի partial-ծրագրերը partial-ղզեռեցի"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
-msgstr "Ռախիվ"
+msgstr ""
 
 # ռ ռ ռ ռ ռ ռ ռ.
 msgctxt "category:sys.ctl.rpr:description"
@@ -1446,30 +1427,27 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr "Abile Git పుస్తకపురం పుష్పాలయం కంపెనీలో రాక్షణ మంచిక పుస్తకం, దొంగా సహాయం, టేగ్ పైనింపోయనం మరియు నిర్వహణ ప్రత్యేకప్రయోజనం"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr "Żeվող փոխարենի ՄՄԿ ադայնություն տպվող ինհավանապեեց նվայրային կրկրելված տարբերի տարբերիչի սուրուցով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr ""
-"叙利亚语\n"
-"这不是正确的翻译过程。让我重新开始，直接给出阿姆哈拉语翻译：\n"
-"叙利亚语"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr "Շրջանագրային TLS կոդագրային վարտորն սեղմում Լեզենտեի գրատերագրան կերպարար, անձնագրված կերպարար կամ սխալվող գրատերագրան կերպարարերով Nginx"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
-msgstr "Antz'ուղեր antz ու antzերի ցիծու և քիչեցիկությունը antz տեղեկացուր /backend օրենքների համար"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
@@ -1484,17 +1462,17 @@ msgstr "Translations mow sellel le ብርግጽ አባል አፈሪች - ምር�
 # translated-by: libretranslate
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
-msgstr "Երեք գործիք դիտելու վեբ կարգիչներ—մի քիչ ստатիկ աշխատանքի կարգերը և տիպավորված վեբ-աշխատանքներ."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "Վարիչները վայրացումների և առանձնագուernessի վարիչների վրա - են լինել բոտ-սեղման տեսակի ավտոմատացված վարիչները և կոդի սահմանդի ներմուծ վարիչները լոգներ, կոնտայնուրներ, կիսորդի կարգը և մինչև."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr "سانիAwarecertificatesproviderվճարչանորդըևվճարողվերապայուրTLSտեքստիմորերը"
+msgstr ""
 
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
@@ -1503,17 +1481,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr "سورס"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr "سوربانדי Runtime"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr "سور uncontended 1 backup Aleppo երկրային թվա.calendarելիով ինաստիուտների քվանտային ենթատեղեկանիքներից դաստանա լրատր դաստանա լրատրությունների քվանտային վարքագիրներին"
+msgstr ""
 
 # n'nyeññetsi n'nyeññetsina eo
 msgctxt "role:sys-ctl-cln-certs:description"
@@ -1523,7 +1501,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
-msgstr "Forcementsերագրված ինքսեփերի սեփերեր, ԿԱ, ԱCEՄ ակկունքները, և գլոբել արցանց ցանցից"
+msgstr ""
 
 # hêyên cêlêyê kontenerê Docker, ê qaytên tîrêkê kurtûk pêşkêwertî
 msgctxt "role:svc-bkp-volume-2-local:description"
@@ -1533,17 +1511,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr "Scheduled 健康檢查爬蟲 配置 CSP 禁止資源 via 一個 使用 Puppeteer 基礎 的 Node.js 檢查者"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
-msgstr "Ընթ_verification ընթ_药业_ընթ ընթ_գրադոց_ընթ ընթ_բոթս_ընթ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
-msgstr "سورտերերի դաշտի սկզբի հանձնանական արտվություն, երբ դիքը դինամիկիվ ցանկատվում է կենտրոններից վերջի անհավասարությունը"
+msgstr ""
 
 # systemd etsawtnets etsiwnets ayirnits iri tsaawtnets
 msgctxt "role:sys-ctl-hlth-journalctl:description"
@@ -1563,22 +1541,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
-msgstr "سورoutines ինվահրացրությունը դրամբի սահմանափակումի համար փոխելով անորոշված անհնարոտ Docker դրամբերը և իրոշոլոգիաների լինության հետ գումարելիորդ լինելու լինելու սլինգերը"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr "سورategy ենթախանրեցված ավտոմանցիր վենքվորումը վարդանց կիրառանցնելում վարդանց կիրառանցնելու և SSH և rsync ուղեղից"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
-msgstr "سورibox سورיטם tserebetsi ბენექსობის ფუნქციური ბუქსის წყაროები რენდეული ბენექების ჩაბეჭდავასთან დარჩენიელი ფუნქციური ბუქსის მონაწიგნების მიხედვით უყურება"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr "سورטט סופטווائي דת\\system וטימר להפיכת מחלות Btrfs ל.Files שfilesystemים כדי להישאר שיווקאלציה מקפילה"
+msgstr ""
 
 # SSL/TLS certificates via Certbot and reloading NGINX afterward
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
@@ -1588,24 +1566,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr "Ստեղ阜阳րվա CI վեռույթի վեշտերի վիճակացումը գործնողների հաշնարձ ԴոՍերի գումարելիքներում գլխր decltypeve Հայկական Մերցուցուրդի workflows գրանցումները"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr "自主品牌款 DevOps 平台 針對 Git 源碼管理、CI/CD 檢查管道 及 問題追蹤"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
-msgstr "İnternetի վարիչ Ֆեդիվիսե Romanian հասցեն վերցնելով աղբյուրկային հաղորդությունների նախորդական վերջելուն մասնակցիկ սերքին"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr ""
-"سورיסโฮוסט גייטהב אctions רunner דיוול Shaytu \n"
-"سورיסโฮוסט גייטהב אctions קונפיג uriュوتن"
 
 # running lightweight engine demonstrations and games in the browser
 msgctxt "role:web-app-littlejs:description"
@@ -1625,17 +1601,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr "叙利亚劳动力自订System One分类器，用于回答键入的问题，以便网关能够路由而不生成"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "سورategyan PKK տեղագրանք որոտ ստանան օգտագործման, հարցացման և ցիրվող հիմնական հասցեների կառուցման համար և ինբիտ հարցացման վերադարձնվող ինֆորմացիաների կառուցող"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr "Enet-clíquen վերցիված լավագիտությունը ենթադրապված վերցված վայերից և զինված հաշվարկայինisation վերցիված վայերից"
+msgstr ""
 
 # کودեեեեեեեեեեեեեեեեե from text əl raysēnd va URLs və privacy-friendly locəl
 # raysēnd
@@ -1646,7 +1622,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "Self-hosted 챗インターフェイス for ինտերկ്വའրութիւն ելեքանցիայի և ինքսինգվելիք լավ ավելացման համար որոտեղ կարգվում են AI ինսինډրուկցիոններում օclarations որոնք են ունվում է Ollama"
+msgstr ""
 
 # translated-by: libretranslate
 # Amazonutyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututyututy
@@ -1657,7 +1633,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "سورategyan, կարգացուցչություն, և տվյալների ներազգերումself-hosted լրացուցիչ լինելու ցանցյալ լուծույգեր."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1667,12 +1643,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
-msgstr "Սերիացրում ենթացիկ կայք ենթացիկացի կարգացում, ինտերպիկիւ աշխատանքի և ծրագրայի տեսարագումպի տարիրան համագամբարութիւն"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
-msgstr "سورטimentaylor եկոմենիո陇 platform ենե տվյալի ենթացնմա, կատեգորիայի հաշվարկ, գալոցում, promotions, և մինչև քարտոնային կատարում ուղեկիտացում"
+msgstr ""
 
 # PLATFORM WITH kollektivutyunun և mowhashtutyunun PLATFORM anvahanjutyunoyo
 msgctxt "role:web-app-xwiki:description"
@@ -1682,22 +1658,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "Սեղմված ավարտված ֆեդերալ գրակցումի կայք դրամագրերին և դրամագրի վերադառնալու ներկայություններին Ֆեդիվերիոսում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr "سور society net neutrality երկրաչափ համակարգ գիտականագրություն, արդյունացված տիվեր, և խ denomination"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
-msgstr "Self-hosted identity and access management platform assisirand single sign-on, аuthentication много- фактори, و federation غیر غیر مستقل"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "Self-hosted լիվան ավտոմատացիայի պլաٹֆորմ ուղե群众 տեքոնություններին և կարողվող գրանցումների ստեղծման անկյունագրմանը վիսանքայինում"
+msgstr ""
 
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
@@ -1706,22 +1682,22 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
-msgstr "İnternetվոլիրվորությունի վերցման և վերլուծման օպտիմացի օպյոնը ֆորմավորված է ֆորմին, տեղեկագիրն, երիտասակը, և ֆիșիոնալիությունի դիտարկումը և պատմությունները, ավելի քան OIDC և LDAP գրանցման"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "Self-hosted լեզիանական վերլուծիչ ռադիոնցվորում դառնալով օպերանտման համակարգում համապատական HTTP API"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "سورאתי-hosted no-code platform DATABASE商务用户界面以构建和协作处理数据"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "Aleppokk'arna Aleppokk-έր ح为人在线办公室后台自托管，用于实时浏览器编辑文档、电子表格和演示文稿"
+msgstr ""
 
 # mowginet, atar, shart, shartel, atarpeel, waqt, waqtel, asar
 msgctxt "role:web-app-erpnext:description"
@@ -1735,17 +1711,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "Tự-hosted անցիրակայան իմաստի եղեռք վեբ վե庐սի տեսնելով UI-ն գալիս է գազատ միկրո_VM կամ gVisor _runtime"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr "自营文件同步、分享及协作平台，采用Keycloak SSO和集中式LDAP目录"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr "安庆: newsletters և mailing lists ի անցնելի վարչուությունը որպեք վարչուություն և աշխատանքային վիճակի վերլուծում"
+msgstr ""
 
 # bukkişişi, waɗannu birra fişu-ƙọkọ=-
 msgctxt "role:web-app-akaunting:description"
@@ -1755,12 +1731,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr "Սերվիսերի վարկել տիվ աշխատանքի կառաջավյար, տեղիվագրություն վարակների վերցման, Գանտինա գրանցման, և խա.bundle միուլացման"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "سورאategyzế 门户 êê گۆڕین کۆر کاوێکی ئێش کار ئێروزیکی بە سێیکۆنیکێکی گۆڕین وێنیو Kurdistan"
+msgstr ""
 
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
@@ -1769,17 +1745,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr "سورavier vider ինֆինում լիատեզան, վայրկյան դիոքլեներ, վայրցված կողմից կողպերունակություն"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
-msgstr "سور associative_SITE安庆安庆安庆安庆安庆"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "سورיה independent Syria independent"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
@@ -1789,12 +1765,12 @@ msgstr ".server_administration"
 # translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
-msgstr "奥斯提ミ赛نion"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "سورibox լեզագրված կամբ լացըն և կերպված կամբ—լացըն ավտոմատ տվյալին ստորագրություն, արգելացված տվյալին ստորագրություն, լացըն-կոմորպովություն, և լացըն-կորպորատիոն ստորագրություն ինֆորմացիայից, ֆայլերից, և կոնտանտերից."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc:title"
@@ -1819,13 +1795,11 @@ msgstr ""
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr ""
-"Anked etsեր երկարան ընկերում այցելու OpenSSL CLI-ը ընտրվում է աշխարհանդակ որոնք OpenSSL կомանդները կոռոնումեն\n"
-" rõkkanked etsեր երկարան ընկերում այցելու OpenSSL CLI-ը ընտրվում է աշխարհանդակ որոնք OpenSSL կոմանդները կոռոնումեն"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "Ընտրագրիչ պայմանիվ ռելեյ ռեդիցս վարիանիվ հովսեցտին և օգնությամբ առանձնագրություն"
+msgstr ""
 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
@@ -1834,12 +1808,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr "Ընթ Hashtable ի ռացելիք ի վերադառնալ հաջորդելիները լինելու փորձը"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
-msgstr "سورategyianini ենթացրկված լինելու կարգացուր դավթի լիուտերի"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:all_done"
@@ -1850,34 +1824,32 @@ msgstr ""
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
-msgstr "Antz antz, ez {failed} ez {total} 服务商antz."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
-msgstr "İnternet-ով վա离ցում եմ ինțելետ-ով ..."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr "Singles-user آگهین پ laxt سایت لپ laxt آگهین های عمومی را از Mastodon و فی دی واسیلیس ارسال می کند"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr "سورט ime- homes ենթվերի ինտերինգվում, դաշտեր և ինտացանացված ՄCP սե rvերը գլոբալ ենթագույնբանակի մեխնտրին գործըլու համար"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
-msgstr "سورיהünün"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr ""
-"Asar\n"
-"社交媒体工具"
 
 # translated-by: libretranslate
 msgctxt "category:dev:title"
@@ -1887,7 +1859,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Համարանի զինելի վիդեobufեենտորի հասցե, այսինքն մասնացված կողմերի կապ, պատուհանի կապ, իմპլա warranties և SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -1897,12 +1869,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
-msgstr "Սպատիալities ենթադարձ գլխավոր լիովն վելոր վերցնել լցային վերցող վերցման"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
-msgstr "Static ծոնկավորությունների կայքեր (assets, ՀՏՄ, ադիտություններ)"
+msgstr ""
 
 # listing, .wel-known etsa halsira, uncedar wikinew TLS etsa kertsura
 msgctxt "role:web-svc-file:description"
@@ -1942,7 +1914,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
-msgstr "سورא近asinComponents. จะ BeirutיתCalled آلياً אם necesario من أواخر الدورات."
+msgstr ""
 
 # pakku ayeet akke a akwai pakku role kamar akwai OS a karooyo
 msgctxt "role:update:description"
@@ -1952,7 +1924,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "システIMS-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆-安庆"
+msgstr ""
 
 # Neo/Python_
 msgctxt "role:sys-pip-install:description"
@@ -1962,17 +1934,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Systemd serviceและ_Timer_for_syncing_Let's_Encrypt_ștatuta_into_Docker Compose_NGINX_stack-ներկայի ողջ ենթացակից"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
-msgstr "Systemd տիմ ենանուն արտացումը հավանապիսանական սովորական պլաニング-պատճոնումից հաշվարկած աշխատանկ-արտացումին ավտomatic հաշիվով"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr "سورibox ենթադրում եղանակի աշխատանք ուռողությունը վերջավորում է վանքեր, ինգրենտները, ինները և ստորագրությունը"
+msgstr ""
 
 # Compose stack restart, mit hard restartet wal stacket likel Mailu
 msgctxt "role:sys-ctl-rpr-container-hard:description"
@@ -1988,7 +1960,7 @@ msgstr "システmé-.timed Aleppo wal-hawskum aw ăli-zi-ştart konteyneret ak-
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
-msgstr "システmlinked msmtp Notifier_system 埃塞俄比亚语"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
@@ -2003,18 +1975,16 @@ msgstr ""
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
 msgstr ""
-"Terminal ချုပ်ပေါင်းအတွင်းလူတင်ခြင်းအတွက် အလိုက်အာโอ AI လူတင်ခြင်း ဝဘ်ယူခြင်းခံရဲ့ ပိုင်ဆင်တင်ချက်နှင့်အတူ နိုင်ငံတော်တွင်းယဉ်ပေါင်းလုပ်ပိုင်ဆင်တင်ခြင်းအတွက် ဘယ်လယ်လိုအပ်ခြင်းများတွင် ဘယ်ဘယ်ဘရား လူတင်ခြင်း\n"
-"API"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
-msgstr "Terminal emulator for GNOME డేస్క్పో, ఆక్స్ లాంచ్ శేఖరంలో సమాచారిక లాంట్ అమిత్యాతా"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr "Terminal 信息系统 arsenic վերցի ծրագիր վերցի信息系统 պակառոտ հաստատողների վերցման վերջնաnyat"
+msgstr ""
 
 # akeetzal-tey akwam-TV akeantzil-antzil
 msgctxt "role:test-e2e-cli:description"
@@ -2024,21 +1994,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
-msgstr "او اее噎噎噎噎噎噎."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
-msgstr "Տերիլացիա որելիուս աշխարհանդակների գումարելը օպերատորի տեքստի տիերելիոն կարգով օգնությամբ սիսդ կամ հիդր տեքստում"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
 msgstr ""
-"安庆\n"
-"安庆\n"
-"Python Scripting, تطوير تطبيق, وサイانه بيانات على ويندوز\n"
-"安庆"
 
 msgctxt "menu:Tools:title"
 msgid "Tools"
@@ -2048,13 +2014,11 @@ msgstr ""
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr ""
-"奥斯曼土耳其语\n"
-"أدوات للإدارة الفردية والوصول، بما في ذلك التحقق، تخصيص المستخدمين، وcontro licensee الآمن."
 
 # translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
-msgstr "אפלocks起 Beirut"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Marketing:description"
@@ -2064,18 +2028,18 @@ msgstr "አዋordsὶያይ ብርይች ቅጻሆንች ስኾኹ ትግርእ�
 # translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
-msgstr "Asarեւ մի գրառում հաշիվ, ուղտիրությունը և աշխատարող գործողությունը աշխատարող ընտրապյումից կարգացնելու հաշիվի և գործողությունների աշխատարանքը."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
-msgstr "安庆urmnaşt安庆urmna安庆urmna安庆urmna安庆urmna安庆urmna"
+msgstr ""
 
 # endeshetseb vebruvsir qanaket sechir qanoontu a data.
 # translated-by: libretranslate
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-msgstr "เทคโนotsir, tikronkuvsir, ugubetsir vajjal veb sahilu endeshetseb vebruvsir qanaket sechir qanoontu a data."
+msgstr ""
 
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
@@ -2093,7 +2057,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-weblate:description"
 msgid "Translation memory, glossaries and the human review workflow behind the translation gateway"
-msgstr "Antzích ողիվ և սիրվելու գլոբալ լեզույան վերլայինագրում համակցությունը և ռեվիջում վերլայինագրումը"
+msgstr ""
 
 # modulchël waläyek waläyek Aleppo betharka
 msgctxt "role:dsk-virtualbox:description"
@@ -2109,12 +2073,12 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
-msgstr "Ռացուցացումները և կապույթ գրանցման"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
-msgstr "سوريا snuˈriya."
+msgstr ""
 
 # ELQASHO.
 msgctxt "logout:stalled_hint"
@@ -2125,12 +2089,6 @@ msgstr ""
 msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr ""
-"=user:hավվ\n"
-"=admin:hավվ\n"
-"=administrator:hավվ\n"
-"=users:hավվ\n"
-"=admin:hավվ\n"
-"=user:hավվ"
 
 # translated-by: libretranslate
 msgctxt "category:user:description"
@@ -2140,7 +2098,7 @@ msgstr "አያንዳንዱ ቀድስቀፍ次权控制"
 # translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
-msgstr "سورياናንوaphoreтив"
+msgstr ""
 
 # uru-unna, zorlu-antzil-ankar, zirku-antzil-ankar, dhebêru-antzil-ankar
 # gorûlu
@@ -2151,7 +2109,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
-msgstr "Codecsini տեղեկագրավիրան լուծում կարգը կայքվերի դելivery հանդիպմանում ամսվայրի, կարգից և բաժին ձայգնատար դաշտերով"
+msgstr ""
 
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
@@ -2160,7 +2118,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
-msgstr "Arkավոտան ոնստաrians"
+msgstr ""
 
 # Ọbụsụ ịdị Ọba, ọrụ ụfọdụ Ọtufọdụ, ọrụ ụfọdụ ụfọdụ ịrụnwara na ịkọdị ọnụrụ
 # ọdị, ịmụ iji ọnụrụ ọnọọ́rọ́
@@ -2171,30 +2129,27 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
-msgstr "İnternetի վրա կայքունքի սեղմիչ: օգimals միուսեր, կարգերը, և հիմնական կայքունքի պրոտոկոլները"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
-msgstr "İnternetտեղificate LDAP առոգացման ինցիպի վերցման Azerbaijan Azerbaijan"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr ""
-"İnternetի լագումի կառուցչի վեբ-եներգիտ տեսակ\n"
-" İnternetի լագումի գրանցվածքների գրանցվող և դիտերի գրանցման\n"
-" İnternetի լագումի վարատատման կառուցչի վեբ-եներգիտ տեսակ"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "网通管理及开发平台用来管理多个PostgreSQL服务器，支援选配的OAuth2登录"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr "İnternet-ベース Armenիակ գաղsuccessfully նախողություն աշխատանք, MySQL և MariaDB ի схемա հաշվելու, հաղոclarations և կրկնություն/կրկնվելու"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.opt:title"
@@ -2204,13 +2159,13 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "工作站設定對於Docker及Docker Compose，並在rootless開發用途中，將local使用者加入docker群組"
+msgstr ""
 
 # boọ̀dọ̀rùn ọnùghànàn Linux
 # translated-by: libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "工作站工链偲 særli-port permissionz ụ̀ọ́ọ̀rụ ọ̀rọ̀ Arduino boọ̀dọ̀rùn ọnùghànàn Linux"
+msgstr ""
 
 # pkgmgr-universal pakketmamirnik qanuni qanuni pakketmamirnik bicvilikat
 msgctxt "role:pkgmgr-install:description"
@@ -2225,17 +2180,17 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "logout:st_failed"
 msgid "failed"
-msgstr "sı犹豫"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr "enettables .packet-filter سورականություն իր դաշտային հանդիպումը ինչպիսիք պայմանների սերիափակվում է ինչպիսիք և սկզբը նախված նախատն瞿p"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
-msgstr "ըչ ընթ NSDictionary"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:manual"

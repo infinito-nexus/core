@@ -67,7 +67,7 @@ msgstr "アラート"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "SMTP、IMAP、JMAP、POP のオールインワン Stalwart メール サーバー3、ManageSieve、CalDAV、CardDAVおよび作り付けのスパムのろ過"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -566,7 +566,7 @@ msgstr "開発・CI/CDツール"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "分散型S3-web-app ロールを横断する共有、コンシューマーのバケツのための多用性がある目的の店"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -786,7 +786,7 @@ msgstr "役立つツール"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む、管理、スケーリング、および非構造化されたデータへのアクセスのための高性能、セルフホストストレージソリューション3 API の"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1046,7 +1046,7 @@ msgstr "NGINXベースのWebプラットフォームとリバースプロキシ�
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-served静的ページは、法的インプリントをレンダリング (トピックス) ジンジャから2 テンプレート"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1225,7 +1225,7 @@ msgstr "チャネル、スレッド、および統合によるリアルタイム
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI 互換 LLM ゲートウェイが 1 つ/v をルーティング1 ローカルおよびホストされたモデルにパーコンシューマーキーが付いているエンドポイント"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1250,7 +1250,7 @@ msgstr "C、C++、その他のネイティブ言語プログラムの構築の�
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "TLS 証明書、VHost テンプレート、オプションの OAuth によるオーケメン NGINX のプロビジョニングのためのオーケション・ラッパー2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1567,7 +1567,7 @@ msgstr "GitHubアクションランナーの展開と構成"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "セルフホスト型HTML5 ブラウザで軽量エンジンのデモやゲームを閲覧および実行するためのゲームサンドボックス"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1577,7 +1577,7 @@ msgstr "TLS セキュアなアクセスで、一元化されたユーザー、�
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "セルフホストS3-ファイル、メディア、バックアップ、AIアーティファクトの互換性のあるオブジェクトストレージ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2037,7 +2037,7 @@ msgstr "Webサーバーを最適化するためのツール"
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon ノードを v として公開3 玉ねぎサービス"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2130,7 +2130,7 @@ msgstr "LDAPサーバーのディレクトリエントリの閲覧、検索、�
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "複数のPostgreSQLサーバを管理するためのWebベースの管理および開発プラットフォーム、オプションのOAuth2 ログイン"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

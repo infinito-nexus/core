@@ -864,8 +864,6 @@ msgstr "Инфраструктура халхуугаад багчуунын а�
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
-"Ін Injection\n"
-"ексклюзивно для CV: Інъекція"
 
 # video decode and encode across Linux-distributs
 msgctxt "role:drv-intel:description"
@@ -1211,7 +1209,7 @@ msgstr "Open-source ecommerce platform built on Symfony и Vue.js для стр�
 # translated-by: ollama
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "Iske sölvi vaqti vaqti veb, e-pošta, chöt vaqti vaqti telefonda xalqaro xaritalar bölishə üçün müvafiq开源帮助台和工单系统用于通过电子邮件、聊天、电话和网页处理客户请求"
+msgstr ""
 
 # улам ун э э ун ун улам ун э э
 msgctxt "role:web-app-moodle:description"

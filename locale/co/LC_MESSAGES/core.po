@@ -106,8 +106,6 @@ msgstr ""
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr ""
-"Automated recovery service restarting exited or unhealthy stacks and resolving port conflicts\n"
-"Docker Compose"
 
 # translated-by: ollama
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -271,10 +269,6 @@ msgstr "Ciel"
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr ""
-"Cloudflare DNS bootstrap role para registros A y AAA wildcard de apex y registros CAA de opción a través de los dominios base de una stack de pila web\n"
-"---\n"
-"\n"
-"(, )"
 
 # translated-by: ollama
 msgctxt "role:svc-registry-docker:description"
@@ -827,10 +821,6 @@ msgstr "Infinito.Nexus dokumentazioen az eduki irakasgai eta berriko laneko, Sph
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
 msgstr ""
-"Infonomaika\n"
-"---\n"
-"\n"
-"Ho Tao"
 
 # translated-by: ollama
 msgctxt "menu:Infrastructure:description"
@@ -1062,10 +1052,6 @@ msgstr ""
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr ""
-"Nyontek\n"
-" \n"
-"\n"
-"Note: \"Nyontek\" is the Koyrabora word for \"Network\". If you need a translation in another language or for a different context, please let me know."
 
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
@@ -1256,7 +1242,7 @@ msgstr "Optimizando hilo de compilador para la construcción de programas en C, 
 # translated-by: ollama
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper para provisión de NGINX por dominio con certificados TLS, plantillas de vHost y OAuth opcional2"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "logout:pace_tor"
@@ -1267,10 +1253,6 @@ msgstr "Over Tor tami kufan waqtane."
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
 msgstr ""
-"Cachés\n"
-"---\n"
-"\n"
-"Note: In this case, \"co\" is assumed to be Catalan, as no specific language was mentioned in the instruction. If a different language or dialect is intended, please provide clarification."
 
 # translated-by: ollama
 msgctxt "role:dev-make:description"
@@ -2097,8 +2079,6 @@ msgstr "Versiono tree deka layout fóra layaway CDN layaway bi kasa shared, vend
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""
-"Visual Studio workstation editor en una versión seleccionable, llevando las extensiones que el anfitrión despliega\n"
-"Code"
 
 # translated-by: ollama
 msgctxt "category:web:title"
@@ -2172,8 +2152,6 @@ msgstr "nft co reglaaas ekkoom ekoom ko reklaaym tseetseet oot oo arkooloo hooyd
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
 msgstr ""
-"nekonotu fusinesu \n"
-"nekonotu fusinesu"
 
 # translated-by: ollama
 msgctxt "logout:manual"

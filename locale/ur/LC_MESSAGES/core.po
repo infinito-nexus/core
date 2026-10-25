@@ -67,7 +67,7 @@ msgstr "غیر متصل"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "تمام-ایک سٹیلولٹ ڈاک سرور کے ساتھ ایم ٹی پی، آئی ایم پی، JMAP، POP3. ، کنساس، کیل ڈی ویو، کارڈ ڈی او اور تعمیر کیا-"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -523,7 +523,7 @@ msgstr "موسیقی ، ڈراما‌نگاروں اور حساب‌کتاب ک�
 # translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr "Desktop klient स्थापना घर फ़ोल्डरों को क्लाउड-सैंडेबल डाइरेक्टरी में लिंक करने के लिए, एकीकृत फ़ाइल सिंक्रोनाइज़ेशन के लिए।"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnome-extensions:description"
@@ -571,7 +571,7 @@ msgstr "ترقی اور سی آئی اے/سی ڈی آلات"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "ایس .3؂ شیئر کرنے کے لیے، پر کنسچر کی بوتل کی فراہمی ویب کے تمام کرداروں کے لیے"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -638,7 +638,7 @@ msgstr "مکمل فراہم کُنندہ کے مقابلے میں ہر یو آر
 # translated-by: ollama
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
-msgstr "エンゲージメント अजोड़ी लाइन जैसे कि साझे चालू चाल, कॉर्स, खोज और वेक्टर इंगेजिंग के लिए"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
@@ -795,7 +795,7 @@ msgstr "مددگار آلات"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "ہائی رائز سے چلنے والا، خود ساختہ ذخیرہ جات کا حل جس میں انتظامیہ، نقل و حمل اور رسائی کے لیے ناقابل رسائی اعداد و شمار شامل ہیں جن میں امیزون ایس کے ساتھ مواد محفوظ ہے۔3 اپ ہے."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -868,7 +868,7 @@ msgstr "غیر متصل"
 # translated-by: ollama
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr "英特尔VA-API मामले लेबरलिन्क देखील वीडियो डिझाइन एकॉनोमी क्रम पासकडून"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-meta:description"
@@ -1059,7 +1059,7 @@ msgstr "نیٹ ورک پر مبنی ویب پلیٹ فارم اور پیچھے �
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-Pred Greek page کو قانونی طور پر استعمال کرتے ہیں۔ (یمن) جنجا سے2 گر تے هو ئے"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1266,7 +1266,7 @@ msgstr "سی، سی++ اور دیگر مقامی زبانوں کے پروگرا�
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchstration Camper for per-domain NGINX کے لیے TLS سند، vost Templates اور Outh Outh کے ساتھ فراہم کی جاتی ہے۔2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1336,7 +1336,7 @@ msgstr "Policy-manage web Browns for Arch لینکس ڈیسک ٹاپز کے سا
 # translated-by: ollama
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
-msgstr "Power-aware systemd logind ਵਰਤੋਈ ਲੋਗੀਂਡ ਵਰਤੋਈ ਲੋਗਿੰਡ ਕੌਸਲਾਵਾਂ ਦੇ ਪ੍ਰੇਕਤੂਤ ਲੋਪਟਾਲ ਲੀਡ ਕਪਲ ਬਾਦਸ਼ਾਹੀ ਵਿੱਚ ਵਰਤੋਈ ਲੋਜਿੰਡ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
@@ -1582,7 +1582,7 @@ msgstr "خود کار GitHub عمل کاری اور وضع کاری ہے۔"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "خود ساختہ ایچ ٹی ایم ایل5 براؤزر میں ہلکی وزنی انجن ڈیم اور کھیلوں کے لیے کھیلا جاتا ہے۔"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1592,7 +1592,7 @@ msgstr "خود مختار LDAP ڈائریکٹری خدمات مرکزی ترقی
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "خوددار S3فائلوں، میڈیا، کمروں اور آئینی مواد کے لیے -"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -1787,7 +1787,7 @@ msgstr "خدمات"
 # translated-by: ollama
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
-msgstr "Shared PHP हथियार रोजन और PHP-FPM प्लून जो PHP सेवाओं ऑस्टर्म यूडियोक्सस चालक क्रिप्टोग्राफी इकाइ मount करते हैं"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
@@ -1808,7 +1808,7 @@ msgstr "شیئر کردہ پیام برائے Async Information by per-consumer 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "مشترکہ طور پر جاری رہنے والی پشتونوں کو کثرت سے استعمال کرتے ہوئے4 سرور اور کلائنٹ کردار ہیں۔"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -2054,7 +2054,7 @@ msgstr "ایسے آلات جن کی مدد سے ویب سرورز کو اپ ڈی
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "تور داعمن کو وی کے طور پر شائع کرتا ہے۔3 آن لائن سروس"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2147,7 +2147,7 @@ msgstr "ویب پر مبنی ایل ڈی اے پی کلائنٹ کو ایل ڈی
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "متعدد انتظامیہ کے لیے ویب پر مبنی انتظامیہ اور ترقیاتی پلیٹ فارم ہے۔ PostgreSQL سرور، اوورتھ کے ساتھ2 غیر متصل"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

@@ -787,7 +787,7 @@ msgstr "Apuvälineet"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Amazon S:n kanssa yhteensopivat korkeatehoiset, itse isännöidyt tallennusratkaisut rakennettomien tietojen hallintaan, skaalaukseen ja käyttöön3 API:t."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1047,7 +1047,7 @@ msgstr "NGINX-pohjainen verkkoalusta ja käänteispalvelin validoiduilla konfigi
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-palveltu staattinen sivu tekee oikeudellisen painatuksen (Impressum) Jinjalta2 malli"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -2056,7 +2056,7 @@ msgstr "Käännösmuisti, sanastot ja ihmiskatsaus työnkulku käännösportaali
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Tyyppi2 hypervisor virtuaalisille koneille Pacmanin työasemilla, ytimen moduulit ja laajennuspaketti"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"

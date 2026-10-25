@@ -67,7 +67,7 @@ msgstr "Paralajmërim"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Server me IMAP, JMAP, POP3, Menaxh Sive, CalDAV, CardDAV dhe filtrim spam"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -567,7 +567,7 @@ msgstr "Zhvillimi dhe mjetet CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "S e shpërndarë3- dyqan i përshtatshëm objekti për të ndarë, kova për-konsumer që sigurohet përmes roleve të web-app"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1047,7 +1047,7 @@ msgstr "NGINX-i me bazë në web dhe përmbys prokurimin me konfigurim të vlefs
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "faqe a (Impressum) prej xhindëve,2 Shabllon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1252,7 +1252,7 @@ msgstr "Optimizim i veglave të kompiluesit për ndërtimin e C, C+ dhe programe
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Përpunuesi i orkestrës për NGINX domain, me çertifikata TLS, shabllon vHost, dhe OAuth opcional2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1423,13 +1423,6 @@ msgstr "Proxy front-end për Shërbimin Docker-hosted me TLS automatike, mbësht
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr ""
-"Reverse-proxy tls orchestration layer selecting Let's Encrypt self-signed or disabled certificate providers for Nginx\n"
-"---\n"
-"\n"
-"### User:\n"
-"Translate the text between the markers from sq to en.\n"
-"reverse-proxy tls orchestration layer selecting Let's Encrypt self-signed or disabled certificate providers for Nginx\n"
-"-EN"
 
 # translated-by: libretranslate
 msgctxt "category:svc.prx:description"
@@ -1794,7 +1787,7 @@ msgstr "Një ndërmjetës mesazhi të përbashkët për mesazhet asinkron me hos
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "Të përbashkët4 Roli i serverit dhe klientit."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"
@@ -2044,7 +2037,7 @@ msgstr "Instrumentë që ndihmojnë për optimizimin e serverave web"
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon3 Shërbimi i qepës"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2139,7 +2132,7 @@ msgstr "Klient i bazuar në Internet për shfletimin, kërkimin dhe menazhimin e
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Administrata dhe platforma për zhvillimin e bazuar në ueb për menazhimin e shumëfishta PostgreSQL server me2 Futu"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

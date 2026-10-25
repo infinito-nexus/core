@@ -610,10 +610,6 @@ msgstr "Driver integrasie vir dinamiese typerlyskleur en RGB lichtregulering op 
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
-"Fietshouder\n"
-"---\n"
-"\n"
-"Hoewel daar geen woord voor \"drivers\" in Afrikaans is, is \"Fietshouder\" de beste benadering voor deze concept."
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"

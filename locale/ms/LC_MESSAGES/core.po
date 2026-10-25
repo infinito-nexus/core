@@ -567,7 +567,7 @@ msgstr "Peralatan pengembangan dan CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "S Terdistribusi3Toko objek yang tidak kompatibel untuk berbagi, per-konsumer penyediaan baldi di seluruh peran web-app"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -598,13 +598,6 @@ msgstr "Backend server dokumen untuk pengeditan dokumen, lembar kerja, dan prese
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr ""
-"Documentation\n"
-"---\n"
-"\n"
-"### Documentation\n"
-"\n"
-"### Documentation\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "menu:Documentation:description"
@@ -1261,7 +1254,7 @@ msgstr "Pengoptimalkan toolchain kompiler untuk membangun C, C++, dan program ba
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration pembungkus untuk per-domain NGINX penyediaan dengan sertifikat TLS, templat vHost, dan OAuth opsional2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1475,9 +1468,6 @@ msgstr "Penjualan"
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr ""
-"Sandboxed Runtimes\n"
-"\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
@@ -1577,7 +1567,7 @@ msgstr "Pelari dan konfigurasi Aksi GitHub yang berdiri sendiri"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML Terhantu Sendiri5 Kotak pasir permainan untuk meramban dan menjalankan demo mesin ringan dan permainan dalam peramban"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1587,7 +1577,7 @@ msgstr "Layanan direktori LDAP berhost-sendiri untuk pengguna, kelompok, dan man
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "S yang Mandiri3Penyimpanan objek yang tidak kompatibel untuk berkas, media, backup, dan artefak AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2136,7 +2126,7 @@ msgstr "Klien LDAP berbasis-Web untuk pelayaran, pencarian, dan pemberian masuka
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Platform administrasi dan pengembangan berbasis web untuk mengelola berbagai server PostgreSQL, dengan OAuth opsional2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

@@ -564,7 +564,7 @@ msgstr "Perkakas Pengembangan dan CI / CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "S Didistribusikan3-object store untuk shared, per-consumer bucket provisioning melalui peran web- app"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1045,7 +1045,7 @@ msgstr "Perangkat web berbasis NGINX- dan proksi terbalik dengan konfigurasi ter
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX- dilayani static page rendering a legal imprint (Impressum) dari Janja2 template"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1248,7 +1248,7 @@ msgstr "Optimisasi kompiler toolchain untuk membangun C, C + +, dan program-prog
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Pembungkus orkestra untuk pengaturan NGINX perdomain dengan sertifikat TLS, templat vost, dan OAuth opsional2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1560,7 +1560,7 @@ msgstr "Self-hosted GitHub Actions runner shipping and configuration"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML Self -hosted5 game sandbox untuk browsing dan berjalan ringan demos mesin dan game dalam peramban"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2115,7 +2115,7 @@ msgstr "Klien LDAP berbasis web untuk menelusuri, mencari, dan mengelola entri d
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "platform administrasi dan pengembangan berbasis web untuk mengelola beberapa server PostgreSQL, dengan OAuth opsional2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

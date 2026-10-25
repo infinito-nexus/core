@@ -67,7 +67,7 @@ msgstr "Báo động"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Tất cả các trong một máy chủ thư điện tử Stalwart với SP, IMAPP, JMAP, PP3, Bộ quản lý, CalDAV, CardAV và bộ lọc bộ nhớ có sẵn"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -1227,7 +1227,7 @@ msgstr "Hệ thống mã nguồn mở, hệ thống tin nhắn cho sự hợp t�
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "Name1 kết thúc điểm tới hậu phương mô hình cục bộ và máy chủ với các phím trên máy chủ"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1564,7 +1564,7 @@ msgstr "Tải và cấu hình chạy nhà chạy tự động trên GitHub Actio
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Comment5 Hộp cát để duyệt và chạy bản demo động cơ nhẹ và trò chơi trong trình duyệt"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1765,9 +1765,6 @@ msgstr "Dịch vụ"
 msgctxt "role:sys-svc-compose-php:description"
 msgid "Shared PHP hardening ini and PHP-FPM pool drop-in that PHP services of compose and swarm stacks mount as configs"
 msgstr ""
-"Translation of the text to Vietnamese:\n"
-"\n"
-"Đã chia sẻ PHP hardening và pool drop-in PHP dịch vụ của tài nguyên compose và tài nguyên swarm mounts làm cấu hình"
 
 # translated-by: libretranslate
 msgctxt "category:svc.storage:title"
@@ -1985,9 +1982,6 @@ msgstr "Cột vai đặt âm lượng Docker trên hệ thống SSD hoặc HD b�
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
 msgstr ""
-"Toolchain for python scripting application development and data science on linux\n"
-"---\n"
-"toolchain for python scripting application development and data science on linux vi"
 
 # translated-by: libretranslate
 msgctxt "menu:Tools:title"
@@ -2125,7 +2119,7 @@ msgstr "Trình khách LDAP dựa vào Mạng để duyệt, tìm kiếm và qu�
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Nền tảng quản lý và phát triển dựa trên mạng để quản lý nhiều máy chủ PostgreSQL, với OAuth tùy chọn2 Đăng nhập"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

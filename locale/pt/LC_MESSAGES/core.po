@@ -1559,7 +1559,7 @@ msgstr "Implementação e configuração do corredor de ações do GitHub auto- 
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML auto- hospedado5 jogo sandbox para navegação e execução de demos de motores leves e jogos no navegador"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2114,7 +2114,7 @@ msgstr "Cliente LDAP baseado na Web para navegação, pesquisa e administração
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Plataforma de administração e desenvolvimento baseada na Web para gerenciar vários servidores PostgreSQL, com OAuth opcional2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

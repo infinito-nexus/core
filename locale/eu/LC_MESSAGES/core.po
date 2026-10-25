@@ -67,7 +67,7 @@ msgstr "Alerta"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Posta-zerbitzari egonkor bat SMTP, IMAP, JMAP, POP-ekin3, KudeatuSieve, CalDAV, CardDAV eta spam iragazki integratua"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -787,7 +787,7 @@ msgstr "Tresna lagungarriak"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Errendimendu handiko biltegiratze soluzioak, datu egituratuak kudeatzeko, eskalatzeko eta atzitzeko, Amazon S-rekin bateragarriak diren objektuen biltegia barne.3 APIak."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1047,7 +1047,7 @@ msgstr "NGINX-en oinarritutako web-plataforma eta alderantzizko proxy-a baliozko
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINXek gorderiko orri estatikoak legezko aztarna bihurtzen du (Impressum) Jinjatik2 Txantiloia"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1227,7 +1227,7 @@ msgstr "Iturburu irekiko, talde-mezularitzako plataforma, denbora errealeko lank
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI-rekin bateragarria den LLM atebidea /v bakarra zeharkatzen1 motor lokal eta ostatatutakoen amaierako puntua, kontsumoko gakoekin"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1252,7 +1252,7 @@ msgstr "Konpilatzailearen tresna-katea optimizatzea C, C++ eta jatorrizko beste 
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "NGINX hornigai bakoitzeko orkestra-jaurtigailua TLS ziurtagiriekin, vHost txantiloiekin eta aukerako OAuthekin2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1567,7 +1567,7 @@ msgstr "GitHub Ekintzak korrikalarien hedapena eta konfigurazioa"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML egosia5 sandbox nabigaziorako eta motor arinen demoak eta jokoak exekutatzeko arakatzailean"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2033,7 +2033,7 @@ msgstr "Web zerbitzariak optimizatzen laguntzen duten tresnak"
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor daemon-ak nodoa v gisa argitaratzen du3 onion zerbitzua"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
@@ -2128,7 +2128,7 @@ msgstr "LDAP bezeroa LDAP zerbitzarietan direktorio-sarrerak arakatzeko, bilatze
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Webean oinarritutako administrazio eta garapen plataformak PostgreSQL zerbitzari anitz kudeatzeko, aukerako OAuth-ekin2 saio-hasiera"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

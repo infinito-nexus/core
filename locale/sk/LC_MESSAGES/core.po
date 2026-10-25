@@ -787,7 +787,7 @@ msgstr "Užitočné nástroje"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Vysoko výkonné, self-hosted úložné riešenia pre správu, škálovanie, a prístup k neštruktúrovaným dátam 3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1568,7 +1568,7 @@ msgstr "Nasadenie a konfigurácia samohostných akcií GitHub"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML s vlastným pohonom5 hra pieskovisko pre prehliadanie a beh ľahkých motorov demá a hry v prehliadači"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1788,7 +1788,7 @@ msgstr "Zdieľaný sprostredkovateľ správ pre async messaging s per-consumer v
 # translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
-msgstr "Zdieľané trvalé úložné backendy používané v multi-node nasadenia4 úlohy servera a klienta."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-base:description"

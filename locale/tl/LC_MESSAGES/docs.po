@@ -260,7 +260,7 @@ msgstr "**A `svc-ai-litellm` Ang pintuang - daan ang nag - iisang huwarang pasuk
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A `svc-ai-lmstudio` Idinaragdag ang papel bilang isang malupig na backend, x86/GPU node lamang.** Ito'y Ginagamit LM Studio sa paraang walang ulo at server (`lms server`, OpenAI-compatiable API) at nakatala sa likod ng pinto. Walang braso ang LM Studio64 Ang Linux server ay nagtatayo, kaya ito'y ikinakabit sa x86 (Karaniwang GPU) node sa pamamagitan ng placentant at MUST HINDI iskedyul sa Raspberry Pi / braso64 mga node ng ahente [032](032-agent-employees-firecracker.md). LM Studio barko pangunahing bilang isang desktop GUI; ang papel na MUST ay gumagamit ng walang ulo/server mode nito, at ang CHEME MUST dokumento ng container castat (GPU passtrough, lisensing/model-download pressents)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -348,7 +348,7 @@ msgstr "**Pagpili ng ACME Challenge:** Ang supports DNS plagins o pamamaraang we
 
 # translated-by: libretranslate
 msgid "**AI assistance inside the applications you already run.** A gateway role, *svc-ai-litellm*, fronts OpenAI, Anthropic and OpenRouter from declared keys, with *svc-ai-ollama* and the new *svc-ai-lmstudio* serving local models from one shared catalogue, so inference can stay inside the deployment. Sixteen applications use it for their own built-in AI features instead of calling a vendor directly: WordPress AI Engine, MediaWiki AIEditingAssistant, Moodle's AI subsystem, Zammad Smart Assist, the xWiki LLM extension, Discourse AI, the Matrix ChatGPT bridge, Nextcloud, Mattermost Agents, n8n, Open WebUI and Flowise. The gateway's admin UI signs in through Keycloak. See [svc-ai-litellm](roles/svc-ai-litellm/README.md) and [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)."
-msgstr "**Ako ay tumutulong sa loob ng mga applications na iyong run.** Isang papel, *svc-ai-litellm*, mga fronts OpenAI, Anthropic at OpenRouter mula sa mga ipinahayag na key, na may *svc-ai-ollama* at ang bago *svc-ai-lmstudio* na nagsisilbi sa lokal na mga modelo mula sa iisang katalogo, kaya ang mga pagbabago ay maaaring manatili sa loob ng listahan. Labing-anim na aplikasyon ang gumagamit nito para sa kanilang sariling natayong-in AI tampok sa halip na tuwirang tawagin ang isang tindero: WordPress AI Makina, MediaWiki Umaalis, Moodle' s subsystem ng AI, Zammad Matalinong Tulong, ang ekstensiyon ng xWiki LLM, Discourse AI, ang Matrix Tulay ng ChatGPT, Nextcloud, Mattermost Mga Ahente, n8, Open WebUI at Flowise. Ang admin UI signs ng tarangkahan Keycloak. Tingnan [svc-ai-litellm](roles/svc-ai-litellm/README.md) at [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**API Token File Setup:** Manages API token files securely for DNS challenge authentication."
@@ -585,7 +585,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Walang halaga:** bahagyang pagbabago (web sibuyas, identecure malinawnet) mabasag2-proxy email match ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) mga set `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Sariwang sibuyas lamang; nandarayuhan ang isang umiiral na maliwanag na node sa Internet ay hindi saklaw (base DN + Ang lahat ng pagkakakilanlan ay magbabago)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -672,7 +672,7 @@ msgstr "**Ang pagkakapit ng mga kondisyon ay mapapansin mo.** Ang susunod na ula
 
 # translated-by: libretranslate
 msgid "**Application improvements.** Penpot gained hardened OIDC, LDAP and native-login variants, SeaweedFS-backed asset tests and Swarm-ready health checks. Pi-hole received its v6-compatible login and password flow, Keycloak RBAC integration and expanded persona coverage. Further deployment, replication and startup fixes landed across Akaunting, BigBlueButton, ERPNext, Gitea, Keycloak, Magento, Mailu, Mastodon, Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semaphore, Taiga, WordPress, XWiki and the internal CDN."
-msgstr "**Pagpapasulong.** Nakamit ng Penpot ang mga matigas na OIDC, LDAP at mga katutubong-login variant, SeaweedFS-Naka-back asset tests at Swarm-handang health checks. Natanggap ng pi-hole ang v nito6-compatible login at daloy ng password, Keycloak RBAC integration at pinalawak na persona coverage. Ang higit pang paggamit, replikasyon at mga simulap fix ay lumapag sa ibayo Akaunting, BigBlueButton, ERPNext, Gitea, Keycloak, Magento, Mailu, Mastodon, Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semaphore, Taiga, WordPress, XWiki at ang panloob na CDN."
+msgstr ""
 
 msgid "**Apps that walk `document.styleSheets`.** The injected sheets are linked without `crossorigin`, so app code can neither read nor rewrite their rules, and an app that reads `cssRules` unguarded throws on them. Keep the links that way: with readable sheets LibreTranslate rewrites the `prefers-color-scheme` rule of the shared sheet at load and the tokens stop following the system. Shield such an app in the role's design script, as `roles/web-svc-libretranslate/templates/design.js` does, and pin it with the test \"the app's theme switch raises no page error and leaves the injected sheets alone\"."
 msgstr ""
@@ -715,7 +715,7 @@ msgstr "**Arko sa ngayon:** ang mga barko ng tindero ay hindi isang Debian o isa
 
 # translated-by: libretranslate
 msgid "**Architecture-guarded:** a host that is not amd64 aborts before the download."
-msgstr "**Arkitektura-bantayan:** punong abala na hindi pa handa64 Mga aborsiyon bago ang download."
+msgstr ""
 
 msgid "**Archive duties**: before deleting a scratchpad, grep the memory directory for its name and for `archiv`. The designer generator dirs (`scratchpad/cssmap/`) go to `refs/backup/designer/tools/` first."
 msgstr ""
@@ -1352,11 +1352,11 @@ msgstr "**Paglalagay ng multi-service:** webservice, sidekiq, workhorse, gitaly,
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**SEKSTO:** Ang papel ay gumagawa ng sarili nitong larawan mula sa pinined llmster release para sa arkitektura ng host, amd64 o braso64, panatilihin lamang ang CPU llama.cpp makina at hindi nagpapasa ng GPU device sa lalagyan."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**SEKSTO:** Ang papel ay gumagawa ng sarili nitong larawan mula sa pinined llmster release para sa arkitekturang hostides, amd64 o braso64, panatilihin lamang ang CPU llama.cpp makina at hindi nagpapasa ng GPU device sa lalagyan."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -1630,7 +1630,7 @@ msgstr "**Nagbago:** Ang pamamahagi ng basura ay ginamit *Debian* at ang imaheng
 
 # translated-by: libretranslate
 msgid "**Changing a password changes it everywhere.** A user declares how its password must be generated, the inventory pins one for every declared user, a new generator produces API-key shapes, the deploy rotates credentials between its two passes, and a reset command exists. Applications that persist an administrator password at install now realign it when the declared one changes: Nextcloud, Moodle, EspoCRM, Jellyfin, Listmonk, Discourse, Checkmk, xWiki, n8n, Matrix and the dedicated MariaDB and Postgres engines. Checkmk keeps a 401 fatal so a wrong password cannot lock the account out."
-msgstr "**Pinapalitan ito ng password sa lahat ng dako.** Ipinahahayag ng gumagamit kung paano dapat gawin ang password nito, ang imbentaryo ay nag - iimbento ng isa sa bawat ipinahayag na gumagamit nito, isang bagong generator ang gumagawa API-key hugis, ang gamit ay umiikot sa mga kredensiyal sa pagitan ng dalawang daanan nito, at umiiral ang isang utos sa pag - aayos. Ang mga aplikasyon na nagpapanatili sa isang password ng administrador na naka-install ngayon ay totoo kapag ang ipinahayag na isa ay nagbago: Susunod na ulap, Moodle, EspoCRM, Jellyfin, Listmonk, Discourse, Checkmk, xWiki, n8, Matrix at ang nakaalay MariaDB at mga makina ng Postgress. Ang Checkmk ay nag - iingat ng isang 401 Kaya ang maling password ay hindi makapagsasara ng account."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the embodied container rather than following it."
@@ -1812,7 +1812,7 @@ msgstr "**Mahirap ang Kalagayan:** Tiyakin ang isang mahirap na pamamaraan ng pa
 
 # translated-by: libretranslate
 msgid "**Conditional OAuth2**: easily toggle authentication per application."
-msgstr "**Ang Kalagayan2**: madaling tiyakin ang bawat pagkakapit."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable `.env` and `compose.yml` rendered via Jinja2 ⚙️"
@@ -2028,7 +2028,7 @@ msgstr "**Tagapag - abuloy**"
 
 # translated-by: libretranslate
 msgid "**Control is raw device access plus agent code execution; no robotics middleware is mandated.** Hermes drives the hardware by executing code directly against the granted devices (GPIO/I2C/SPI/serial/video libraries), consistent with its self-exploration. This is the deliberate choice over a ROS2/middleware abstraction: the embodied device is already the trust boundary (there is no microVM here), so the agent runs code on the device itself. A middleware layer MAY be added later per robot but is not required by this role."
-msgstr "**Ang control ay ang pag-access ng device sa plus agent code bitay; walang robotics middleware ang ipinag-uutos.** Itinataboy ni Hermes ang hardware sa pamamagitan ng paglalapat ng kodigo nang tuwiran laban sa ipinagkaloob na mga kagamitan (GPIO/I2C/SPI/serial/video Mga aklatan), tumutugma sa sarili-exploration nito. Ito ang sadyang pagpili sa isang dakong hindi nakikita2/middleware abstraksyon: ang nakapaloob na aparato ay hangganan na ng pagtitiwala (walang microVM dito), kaya ang agent ay nagpapatakbo ng code sa aparato mismo. Ang isang panggitnang suson ay maaaring idagdag sa dakong huli sa bawat robot subalit hindi ito hinihiling sa pamamagitan ng papel na ito."
+msgstr ""
 
 msgid "**Corporate Design:** The InfinitoDesign theme plugin maps Matomo's theme colors onto the design tokens and ships the logo set; the administrator and the login page follow the browser color scheme. Both are removed when `design` is off."
 msgstr ""
@@ -4770,7 +4770,7 @@ msgstr "**Buong Docker Prune:** Mga Gawain `container system prune -a -f` upang 
 
 # translated-by: libretranslate
 msgid "**Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss."
-msgstr "**Buong Suporta ng Unicode**: `utf8mb4` ang tanging MySQL/MariaDB inilagay ang kumpletong mga kasangkapang iyon 4EPA SA UTF8, pinapayagan ang pag-iimbak ng mga emoji, mga dagdag na simbolo, at lahat ng mga pandaigdigang script nang walang nawawalang datos."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Full extraction set:** the `-full` image ships the OCR and language detection dependencies, so scanned documents are extracted too."
@@ -4818,7 +4818,7 @@ msgstr "**Ganap na Dockerized:** Isalansan ang mga sangkap na may dedikadong dat
 
 # translated-by: libretranslate
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
-msgstr "**Proteksiyon sa Hinaharap:** Ang makabagong mga aplikasyon at pamantayan ay nagtatagpo sa UTF GREE8; paggamit `utf8mb4` Iwasan ang mga hamon sa pandarayuhan sa dakong huli."
+msgstr ""
 
 msgid "**Gallery links.** An Artifact whose sharing the operator changed can stop accepting updates from the session. Publish a new one, tell the operator that the old link stays on the old state, and update the README link."
 msgstr ""
@@ -5814,11 +5814,11 @@ msgstr "**login ng Keycloak OIDC:** Ang `jwt`/`oidc` Ang paraan ng auth ay nakaa
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted `X-Remote-User` header (`auth_by_http_header`), so no second login prompt appears."
-msgstr "**Ty keycloak SSO:** Pinanonood ng plataporma2-proxy gate; ang gumagamit nito ay ipinapasa sa Checkmk sa pamamagitan ng pagtitiwala `X-Remote-User` header (`auth_by_http_header`), kaya walang pangalawang login agarang lumitaw."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted ``X-Remote-User`` header (``auth_by_http_header``), so no second login prompt appears."
-msgstr "**Ty keycloak SSO:** Pinanonood ng plataporma2-proxy gate; ang gumagamit nito ay ipinapasa sa Checkmk sa pamamagitan ng pagtitiwala ``X-Remote-User`` header (``auth_by_http_header``), kaya walang pangalawang login agarang lumitaw."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -6974,7 +6974,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Not native in any edition**; Raw only via Apache `mod_auth_openidc` (manual PoC). → use the platform oauth2-proxy gate instead."
-msgstr "**Hindi katutubo sa anumang edisyon**; Dumaan lamang sa Apache `mod_auth_openidc` (Manual POC)→ Gamitin ang plataporma2-Proxy tarangkahan sa halip."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Not to be confused with application addons.** This `plugins/` directory holds **Ansible** plugins (action / filter / lookup) that extend the automation engine itself. Some applications *also* call their own extensions \"plugins\" (e.g. Nextcloud, WordPress). Those application-level extensions, whatever the app calls them natively, are declared through the unified `meta/addons/` contract, documented in [Unified Addons](../docs/contributing/design/role/services/layout.md#unified-addons-metaaddons-). An app \"plugin\" is an *addon*; an Ansible plugin lives here."
@@ -7333,11 +7333,11 @@ msgstr "**Optional Firestore emulator:** Gamitin ang Datastore-mode emulator sid
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**"
-msgstr "**Mapagpipilian2 Pandarayuhan:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**   Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "**Mapagpipilian2 Pandarayuhan:** Ilagay ang iyong pgAdmin access sa pamamagitan ng pag - uugnay ng isang panlabas na OAuth2 tagapaglaan."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load ``mod_oauth2_client`` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
@@ -7715,7 +7715,7 @@ msgstr "**Pin**: isang kongkretong kuwadra v15.x semver (hindi ``:latest``, hind
 
 # translated-by: libretranslate
 msgid "**Pinned and verified:** the AppImage version and its sha256 live in the role, and a mismatch aborts the deploy."
-msgstr "**Hinago at pinatunayan:** ang bersiyon ng AppImage at ang sha nito256 ay namumuhay sa papel na ginagampanan, at ipinalalaglag ng isang mismatch ang paglalagay nito."
+msgstr ""
 
 msgid "**Pinned bridge:** Add-on and server ship from one version-pinned distribution, so the two halves cannot drift apart."
 msgstr ""
@@ -7748,7 +7748,7 @@ msgstr "**Pagtitinda (isa o bungkos).** Kapuwa init at ginagamit na tanggapin `-
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Mga tubo na hindi napapansin ang edad.** Ang mga pin ng larawan ay inuuri at hinihila ang mga reperensiya na ginawa mula sa klase, ang gumagalaw na tag ay nagpapahayag ng sarili nito na may marka na dala na nito, at ang mga larawan ng papel ay gumagalaw habang ang isa ay naglalabas o hindi. Binabasa ng updater ang mga deklarasyong pang-edukasyon, nag-uutos ng mga trade counter at limang-component na bersyon, nagbabasa ng release line na isinulat bago ang numero bilang isang pamilya, at ngayon ay nanonood rin ng pindutang mga kahilingan ng pip at Ansible collections. Pitong papel ang lumipat sa Debian codename base sa balingkinitan, at ang isang Ubuntu salamin listahan na may bigover, isang maikling timeout at isang pagsusuri sa kalusugan ay nagsisilbi kapuwa sa cache ng pakete at sa mga gusali ng imahe. *js-yaml* ay inalis sa 4.3.2 Para sa GHSA-2883-xcg3-v3Hh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8454,7 +8454,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**Ang lasa ng SSO ay `oauth2`** (Oauth2-proxy sidecar → Keycloak), HINDI katutubo OIDC — dahil Checkmk Si Raw ay walang OIDC. Ang oauth2-proxy kapania laban sa Keycloak at dumaraan `X-Remote-User`; Ang site ng checkmk na Apache ay nagtitiwala rito sa pamamagitan ng `auth_by_http_header`. Itong mga salamin [`web-app-openproject`](../../roles/web-app-openproject/)'pangulo-SSO tulay (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -8470,11 +8470,11 @@ msgstr "**SKO sa pamamagitan ng Keycloak:** Awtomatikong nakaayos sa unang gamit
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**Ang SSO sa pamamagitan ng oauth2-proxy na may auto-provision:** V1 Mga pintuang - daan na pawang papasok sa pinagsaluhan Keycloak kliyente ng OIDC (Oauth2-proxy gilid). openresty forwards the reality identity to n8n bilang isang mapagkakatiwalaan `Remote-Email` header (`templates/proxy.conf.j2`); a `EXTERNAL_HOOK_FILES` Sulat (`files/hooks.js`, iniangkop mula sa [Pavel Sozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) ay kababasahan ng ulong iyon, auto-provisions isang lokal na n8Myong gumagamit sa unang sign-in, at mga isyu n8Hindi ang sariling sesyon ng pagluluto — kaya bawat isa Keycloak Ang gumagamit ay tuwirang bumabagsak sa workflow editor, nang walang ikalawa, n8n lo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**Ang SSO sa pamamagitan ng oauth2-proxy na may auto-provision:** V1 Mga pintuang - daan na pawang papasok sa pinagsaluhan Keycloak kliyente ng OIDC (Oauth2-proxy gilid). openresty forwards the reality identity to n8n bilang isang mapagkakatiwalaan ``Remote-Email`` header (``templates/proxy.conf.j2``); a ``EXTERNAL_HOOK_FILES`` Sulat (``files/hooks.js``, iniangkop mula sa `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) ay kababasahan ng ulong iyon, auto-provisions isang lokal na n8Myong gumagamit sa unang sign-in, at mga isyu n8Ang mga ’ ay may sariling session cookie — kaya bawat isa Keycloak Ang gumagamit ay tuwirang bumabagsak sa workflow editor, nang walang ikalawa, n8n lo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO** is SuiteCRM's own SAML login against Keycloak (`sso.flavor: saml` in [`meta/services.yml`](./meta/services.yml)), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall's SAML entry point, which redirects to Keycloak; the assertion comes back to `/saml/acs` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (`SAML_AUTO_CREATE`), and the IdP signing certificate is read from Keycloak's realm descriptor by [`files/shell/docker-entrypoint.sh`](./files/shell/docker-entrypoint.sh) at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is unresolvable directly. `/auth` stays reachable as the local break-glass login."
@@ -9621,7 +9621,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
-msgstr "**Pinatutunayan ng trabaho ang makina bago ito gamitin.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) paghahambing `uname -m` laban sa iniatas na halaga at nabibigo sa hanay sa isang mismatch. Kung wala ito, isang etiketa na humihinto sa paglutas sa braso64 Iuulat ng hardware ang bawat braso64 berdeng hanay mula sa amd64 Ang makina, na siyang eksaktong kabiguan na dulot ng axis, ay hindi na ginagamit."
+msgstr ""
 
 #, python-brace-format
 msgid "**The learning log is a `History`-shaped table in the gateway's own database**, one row per offered engine per decision, each row marking whether that engine won. The signature groups comparable requests: source language, target language, and a coarse content class derived from the payload's length and whether it carries markup. `wins(signature)` returns `{engine: (won, seen)}` and feeds decision 5's criteria line, so the next decision reads what earlier ones concluded. A log that cannot be read MUST degrade to deciding without it and MUST NOT fail the request."
@@ -10033,11 +10033,11 @@ msgstr "**User-owed:** ang talaksan ay pag-aari ng gumagamit ng workstation at m
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SKO):** Ang oauth2-Naka-redirect ang lahat ng kahilingan sa pamamagitan ng proxy value gate Keycloak. ``files/hooks.js`` basahin ang mapagkakatiwalaan ``Remote-Email`` Ang header openresty sets minsan ang kura ay dumadaan at auto-provisions/log sa magkapares na n8Myong gumagamit (papel ``global:member``, o ang pre-existing may-ari para sa ``users.administrator.email``), gayon ang bawat isa Keycloak ang gumagamit — administrador at ang regular na mga gumagamit nito — ay tuwirang lumapag sa n8Ang mga ’ ay nag-iisa ng workflow sa ibabaw nang walang segundo, n8n lo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SKO):** Ang oauth2-Naka-redirect ang lahat ng kahilingan sa pamamagitan ng proxy value gate Keycloak. `files/hooks.js` basahin ang mapagkakatiwalaan `Remote-Email` Ang header openresty sets minsan ang kura ay dumadaan at auto-provisions/log sa magkapares na n8Myong gumagamit (papel `global:member`, o ang pre-existing may-ari para sa `users.administrator.email`), gayon ang bawat isa Keycloak ang gumagamit — administrador at ang regular na mga gumagamit nito — ay tuwirang lumapag sa n8Walang segundo, n8n lo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10045,11 +10045,11 @@ msgstr "**V2 (walang auth)**: lahat ng serbisyo ay wala; walang auth chain upang
 
 # translated-by: libretranslate
 msgid "**V2 (no auth):** n8n presents its native login UI. The administrator logs in with the email configured in ``users.administrator.email`` and the password stored in the platform credential ``credentials.owner_password``. Retrieve it with:"
-msgstr "**V2 (walang auth):** n8Inihaharap ng n ang katutubong login nito na UI. Ang administrador ay pumapasok na ang mga troso ay nakaayos sa email ``users.administrator.email`` at ang password na nasa platform credent ``credentials.owner_password``. Isulat muli:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth):** n8n presents its native login UI. The administrator logs in with the email configured in `users.administrator.email` and the password stored in the platform credential `credentials.owner_password`. Retrieve it with:"
-msgstr "**V2 (walang auth):** n8Inihaharap ng n ang katutubong login nito na UI. Ang administrador ay pumapasok na ang mga troso ay nakaayos sa email `users.administrator.email` at ang password na nasa platform credent `credentials.owner_password`. Isulat muli:"
+msgstr ""
 
 msgid "**V3 (LDAP only)**: Jitsi has no in-app HTTP OIDC adapter, so the prosody LDAP bind happens inside the XMPP signalling layer when the user joins a room. The persona helpers only model the OIDC redirect chain through Keycloak, so the LDAP-only variant cannot be exercised via the shared persona helpers."
 msgstr ""
@@ -10349,7 +10349,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Your tools reachable from your assistants.** About twenty applications now speak MCP. Gitea, GitLab, Mattermost, Nextcloud, n8n, Baserow, Jenkins, Home Assistant, Moodle, Snipe-IT and WordPress serve their own endpoints; ten more get one through a locked-down sidecar. Open WebUI, Flowise and the agents discover what the deployment offers and register it automatically. Access is bounded rather than assumed: blocked paths are declared, every served path is gated, tools a provider calls mutating are withheld, reader and writer roles are separate, and each provider authenticates callers as its own service account. See [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md)."
-msgstr "**Ang iyong mga kagamitan ay maaabot mula sa iyong mga katulong.** Halos dalawampung aplikasyon ang ngayon ay nagsasalita ng MCP. Gitea, GitLab, Mattermost, Nextcloud, n8, Baserow, Jenkins, Home Assistant, Moodle, Sinipe-IT at WordPress ay nagsisilbi sa kanilang sariling mga endpoints; sampu pa ang makakapasok sa isang naka-lock-down sidecar. Open WebUI, Flowise at natutuklasan ng mga ahente kung ano ang iniaalok ng paglalagay at inirerehistro ito nang kusa. Ang akses sa halip na ipalagay na: ang mga daang may harang ay ipinahahayag, ang bawat pinaglilingkurang daan ay may tarangkahan, ang mga kagamitan na tinatawag ng tagapaglaan na mutating ay ipinagkakait, ang mambabasa at ang mga papel ng manunulat ay magkahiwalay, at ang bawat tagapaglaan ay nagpapatunay sa mga tumatawag bilang sarili nitong ulat ng paglilingkod. Tingnan [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Zone Resources:** Set to `Include → All zones`   (Or restrict to specific zones as needed for your environment.)"
@@ -10530,7 +10530,7 @@ msgstr "**`hostname`** (string):"
 
 # translated-by: libretranslate
 msgid "**`http://*.onion` is a Secure Context** → `Secure` cookies + secure-context APIs work over plain-HTTP onion; hence forward `X-Forwarded-Proto: https`. ([W3C Secure Contexts](https://www.w3.org/TR/secure-contexts/))"
-msgstr "**`http://*.onion` ay isang Matatag na Kasunduan** → `Secure` Ang mga cookies + secure-context API ay gumagana sa ibabaw ng simple-HTTP sibuyas; kaya pasulong `X-Forwarded-Proto: https`. ([W3Matatag na mga Kasunduan](https://www.w3.org/TR/secure-contexts/))"
+msgstr ""
 
 msgid "**`hugo` reports template execution errors**: the theme's templates are incompatible with the bundled Hugo binary. Bump `services.hugo.builder_version` (e.g. to a newer `v<version>` tag) or pin the source repo to a tag known to build with the current Hugo."
 msgstr ""
@@ -10664,7 +10664,7 @@ msgstr "**arkitektura** - na ginagamit ng CPU sa arkitektura, at hanggang :func:
 
 # translated-by: libretranslate
 msgid "**arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md)."
-msgstr "**braso64/Raspberry Pi ay suportado.** Ang papel ay nasa `arm64` upang ito ay makaupo sa tabi ng Pwersa mula sa [032](032-agent-employees-firecracker.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Alejandro Roman Ibanez"
@@ -10692,7 +10692,7 @@ msgstr "**backup-root** (isang directory) → Natuklasan ang + paggaling `nfs �
 
 # translated-by: libretranslate
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
-msgstr "**Mga pagbabawal sa baseline** — `web-app-fider` at `web-app-bookwyrm` (Isa ring keycloak-job, n8n) ay pula sa harap ng sanga ng tor at hindi ito saklaw; ang bookwyrm ay nabibigo sa oauth nito2 Ang pinagkakatiwalaang-header sesyon spec, fider ang baseline nito. Ilagay nang hiwalay mula sa gawaing sibuyas. Ang espocrm ay nag-iwan ng talaang ito: ang diperensiya nito sa sibuyas ay nabigo sa kabahaging acmin persona (inilagay sa b97cf8888) at ang iba't ibang anyo nito sa malinaw nanet ay nagbabalik ng HTTP 500 sa TANGGAP /api/v1/App/user, buksan pa rin."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**both red, different errors**: two causes, not one. Split them."
@@ -12040,7 +12040,7 @@ msgstr "**n8n 1.100.1** ay `direction: both`: isang kliyenteng SSE at isang Stre
 
 # translated-by: libretranslate
 msgid "**n8n shipped with no `allowed_groups` while declaring an `mcp` role nothing consulted**, and minted a public-API key per run that it then left standing. The gate is closed and the key is revoked before the run ends."
-msgstr "**n8Inihatid ng walang `allowed_groups` habang nagpapahayag `mcp` walang anumang sumangguni**, at gumawa ng public-API Ang bawat run na iniiwan nitong nakatayo. Isinara ang tarangkahan at ang susi ay inaalis bago matapos ang pagtakbo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**npm Installation:** Ensures the ``npm`` package manager is installed."
@@ -12097,7 +12097,7 @@ msgstr "**systemd-resoluted** stub na tagapakinig na may kapansanan upang maiwas
 
 # translated-by: libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
-msgstr "**mga trabaho sa kapaligiran na may pagsubok** — lahat 5 walang trabaho (arko, debian, ubuntu, festora, centos) ang tanong 4h.30pagsisikip ng ulo habang lumalaki pa (Drowing ng mga dramaturgo). Kapaligiran, walang kodigong nakapirme na naiiba sa sariling badyet ng distropack, na may isa: 508669809 ay nagbibigay ng isang badyet na SIGKILYO, na anunsiyo9222630 ay ginawa lamang para sa SIGTERM; pansinin na ang sibuyas e2ay likas na nagpapahaba sa rutina (×5 mga timeout ng sibuyas, mga circuit wait), kaya sa ilalim ng pagsisikip ang mga trabahong ito ang unang tumama sa gora."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
@@ -13148,7 +13148,7 @@ msgstr "--recryal na bilang; --retry-all-errors ay gumagawa ritong sumasaklaw sa
 
 # translated-by: libretranslate
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
-msgstr "-> medyas5h://host.docker.internal:<port> (Kumakatha)"
+msgstr ""
 
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 msgstr ""
@@ -13274,7 +13274,7 @@ msgstr "020 - CI Run 25705903504 Ang Deploy-Failure Remediation Loop"
 
 # translated-by: libretranslate
 msgid "021 - SSO Flavor Migration (oauth2 + oidc → unified `sso` service)"
-msgstr "021 - Ang SSO Flavor Migration (Oauth2 + oidc → magkaisa `sso` paglilingkod)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "022 - Zammad Helpdesk Role with OIDC SSO"
@@ -13386,7 +13386,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "039 - Core i18n Consumers"
-msgstr "039 - Core i18Mga Mamimili"
+msgstr ""
 
 msgid "039 - svc-net-wireguard: Test Full Meshes on the Role's Own CI Row"
 msgstr ""
@@ -14595,7 +14595,7 @@ msgstr "Ang komento ng susi ay ang pinakabagong contiguous block ng `# ...` tuwi
 
 # translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr "Isang etiketa na tahimik na humihinto sa paglutas sa braso64 Gawing berdeng kasinungalingan ang buong axis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
@@ -14773,7 +14773,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
-msgstr "Isang parsed CREME: lahat ng bagay bago ang unang H2, pagkatapos ay ang H nito2 mga bloke."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A path is yielded iff it survives both the in-process skip-dir pruning of :func:`iter_project_files` and the ``.gitignore`` match."
@@ -15190,7 +15190,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role whose upstream images are amd64-only must say so in `meta/services.yml`, or half its rows fail on the image pull. That failure is loud and names the role, which is the intended way to discover the gap."
-msgstr "Ang papel na ginagampanan ng mga imahen sa itaas ng ilog64- Ang kailangan lamang na sabihing gayon `meta/services.yml`, o kalahati ng mga hanay nito ay nabibigo sa hila ng imahen. Ang kabiguang iyon ay malakas at binabanggit ang papel, na siyang layunin upang matuklasan ang agwat."
+msgstr ""
 
 msgid "A role whose vars derive a further tag from ``version`` lists the suffixes under ``<entity>.version_variants``; each yields its own ref, because this function is the only enumeration the mirror sees and a tag it never emits can never be mirrored."
 msgstr ""
@@ -15385,11 +15385,11 @@ msgstr "Isang maikling parapo na naglalarawan kung ano ang **software** ay maaar
 
 # translated-by: libretranslate
 msgid "A sidecar ``web-app-keycloak`` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the ``X-Forwarded-*`` identity headers on every proxied request."
-msgstr "Isang sidecar ``web-app-keycloak`` Oauth2-proxy ay kapani-paniwala sa bisita laban Keycloak (OIDC, o LDAP feeder Keycloak) at i-inx ang ibabaw ng write ``X-Forwarded-*`` Mga nangangasiwa sa pagkakakilanlan sa bawat hinihiling."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A sidecar `web-app-keycloak` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the `X-Forwarded-*` identity headers on every proxied request."
-msgstr "Isang sidecar `web-app-keycloak` Oauth2-proxy ay kapani-paniwala sa bisita laban Keycloak (OIDC, o LDAP feeder Keycloak) at i-inx ang ibabaw ng write `X-Forwarded-*` Mga nangangasiwa sa pagkakakilanlan sa bawat hinihiling."
+msgstr ""
 
 msgid "A sidecar that a provider role ships into other stacks passes ``provider``:"
 msgstr ""
@@ -15462,7 +15462,7 @@ msgstr "Isang solo-elemental na talaan na may hawak ng pinalawak na spec list, k
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Hindi masagot ng isang solong-node na laboratoryo ang mga pamantayang multi-node: replikang pag-casting, paglalagay ng paglagay sa ibayo ng dalawa `kata-capable` Ang Raspberry-Pi-class nodes, at ang genre-plus-swarm end-to-end ay lahat nangangailangan ng cluster na inilalarawan. Ang braso64 Ang kalahati ng pamantayan ng paglalagay ay pinatutunayan ng pagtingin sa itaas; ang dalawang-node na kalahati ay hindi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
@@ -16385,7 +16385,7 @@ msgstr "Idagdag ang login ng mga katutubo web-app-bluesky kapag oauth2 ay may ka
 
 # translated-by: libretranslate
 msgid "Added new application roles: web-app-opencloud and web-app-opentalk with shared OIDC + LDAP, web-app-hugo for static-site hosting (req-016), web-app-moodle self-built image with OIDC+LDAP hybrid and LDAP-only variants (req-015), web-app-fediwall as multi-wall public-timeline aggregator, plus web-app-mig and web-app-sphinx E2E coverage"
-msgstr "Idagdag ang bagong mga papel: web-app-opencloud at web-app-opentalk kasama ng OIDC + LDAP, web-app-hugo sa static-site hosting (req-016), web-app-moodle Sariling-tatag na larawan na may OIDC+LDAP hybrid at LDAP-lamang mga variant (req-015), web-app-fediwall bilang multi-wall public-timeline aggregator, plus web-app-mig at web-app-sphinx E2Pagsaklaw"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
@@ -16421,7 +16421,7 @@ msgstr "Idagdag ang panlabas na Docker image version-check workflow, isang lingg
 
 # translated-by: libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Idagdag ang lint corpus para sa: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-countline-php-in-sh / no-inline-no-wenline-sql / no-look-pook-config-jinja-default / papel-meta-layout / web-no-web-se-pend /-on-de-d /-d-d-jervis-decible / Philippines-le-point-pound na producant-pound na producant-pour-pours /-point-pour-pour-pook-pook-age /-s-poild /-pour-poil-pour-pound /-s-t-se-pound-pound /-s-pound /-s-s-t-t-t-.2 proxy-port allocation"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -18497,7 +18497,7 @@ msgstr "Ang mga aplikasyon ay nagpapahayag ng pagpili sa database nang tuwiran s
 
 # translated-by: libretranslate
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
-msgstr "Mga aplikasyon na nagsasalita ng “3” (Pixelfed, Mastodon, Nextcloud, Flowise, atbp.) at kunin ang mga bagay mula sa MinIO Mga timba na gumagamit ng pamilyar na mga SDK at CLIs. Nakokontrol ng mga admin ang mga timba, user, at access policy sa pamamagitan ng browser console habang pinananatili ang lahat ng on-prem."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Applications 📦"
@@ -18806,7 +18806,7 @@ msgstr "Bilang tagapangasiwa sa plataporma ng Infinito.Nexus, nais ko ang bawat 
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want the `web-app-matrix` role to gain a second deployment flavor that delegates the heavy lifting to the upstream [matrix-docker-ansible-deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) (MDAD) playbook, so that the full Matrix ecosystem — Synapse, Element, every supported bridge, Jitsi-backed video conferencing, ma1sd / Dimension / hookshot / etcetera — is available without the role re-implementing each service from scratch. The existing role-internal compose stack stays selectable as the `compose` flavor for one cycle, marked deprecated."
-msgstr "Bilang tagapangasiwa sa plataporma ng Infinito.Nexus, gusto ko ang `web-app-matrix` na magkaroon ng ikalawang lasa na nagbibigay ng mabigat na pasan sa itaas ng ilog [Maxon-docker-anible-deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) (MDAD) aklat ng dula, kung kaya't ang lahat Matrix ecosystem — Synapse, Elemento, bawat suportadong tulay, Jitsi-backed video conferencing, ma1Sd / Dimension / mga witchhot / atchetera – ay makukuha nang walang papel na re-implementing ang bawat serbisyo mula sa gasgas. Ang umiiral na papel-internal na talaksan ay nananatiling mapipili bilang ang `compose` Timplahan para sa isang siklo, minarkahang inalisan ng halaga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want to deploy self-hostable AI agent platforms (Hermes Agent, OpenClaw) as kernel-isolated, scalable \"employees\" across my nodes, coordinated by a Flowise supervisor over MCP and routed to models through the [031](031-llm-gateway-model-backends.md) gateway, so that I run a fleet of isolated agents with cross-agent pipelines and kernel-level isolation, without bespoke per-agent wiring."
@@ -19605,11 +19605,11 @@ msgstr "Sapagkat Jellyfin walang katutubong SSO at ang mga app nito ay gumagamit
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) skip themselves via the ``workload: node-local`` declaration (``scripts/tests/deploy/swarm/utils/_context.sh`` maps ``node-local`` to ``HAS_SWARM_SERVICE=false``); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Dahil sa walang nakasalansang serbisyo, ang mga pintuang - daan para sa pagsubok na nagsurbey ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) Tumalon sa pamamagitan ng ``workload: node-local`` deklarasyon (``scripts/tests/deploy/swarm/utils/_context.sh`` mga mapa ``node-local`` hanggang sa ``HAS_SWARM_SERVICE=false``); ang paglalagay mismo, ang kawing ng register at ang CLI e2ay tumatakbo nang buo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll `docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves via the `workload: node-local` declaration (`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to `HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Dahil sa walang nakasalansang serbisyo, ang mga pintuang - daan para sa pagsubok na nagsurbey `docker service ls` (`converge`, `seed`, `drain`, `assert`) Tumalon sa pamamagitan ng `workload: node-local` deklarasyon (`scripts/tests/deploy/swarm/utils/_context.sh` mga mapa `node-local` hanggang sa `HAS_SWARM_SERVICE=false`); ang paglalagay mismo, ang kawing ng register at ang CLI e2ay tumatakbo nang buo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while ``svc-ai`` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
@@ -23110,7 +23110,7 @@ msgstr "Clone, ayusin ang workstation, at ilagay ang micro sa salansanan doon:"
 
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy n8n onto the local stack:"
-msgstr "Clone, gumawa ng workstation, at maglagay ng n8Ilagay sa salansanan doon:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Clone, set up the workstation, and deploy pgAdmin onto the local stack:"
@@ -23157,7 +23157,7 @@ msgstr "Pinakamasarang in-repo analysisue para sa pagkakaayos: [`roles/web-app-o
 
 # translated-by: libretranslate
 msgid "Closest in-repo analogue: [`roles/web-app-openproject/`](../../roles/web-app-openproject/) (oauth2 + header SSO + LDAP)"
-msgstr "Pinakamalapit na in-repopolue: [`roles/web-app-openproject/`](../../roles/web-app-openproject/) (Oauth2 + header SSO + LDAP)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Closest in-repo analogue: [`roles/web-app-semaphore/`](../../roles/web-app-semaphore/) (native OIDC + LDAP, no oauth2 gate)"
@@ -23373,7 +23373,7 @@ msgstr "Itali ang anumang multi-line string sa isang solong linya, bawasan ang e
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*)."
-msgstr "Nabaligtad ang pagkakahalintulad **Oauth2** at **oidc** itaas-level blocks sa bawat papel *meta/services.yml* sa isa *services.sso* bloke ng bloke **lasa** Tagapagkalat (*oidc* Uson *Oauth2* Uson *saml*, default *oidc*). Ang Flavor-specific keys ay nabubuhay sa ilalim ng *sso.<flavor>* (*sso.oauth2.{pinagmulan,acl,allowed_groups}*, *sso.oidc.plugin*)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Collapses your JavaScript into a single line and injects it via ``sub_filter`` for minimal footprint and maximal compatibility."
@@ -25703,7 +25703,7 @@ msgstr "Lugar ng defult:"
 
 # translated-by: libretranslate
 msgid "Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists."
-msgstr "Default model: ang pintuang - daan ay nagsisilbi `/v1` walang nakaayos `model.default`; nagbabago ang pangangailangan ng ahente `hermes config set model.default ollama/<alias>` Laban sa LitLLEM-backed provider. Hagdan ito sa pamamagitan ng isang pagkaayos na template minsan sa isang turn-level e2ay umiiral."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default output: the full selection matrix followed by every prompt block (workflow name plus its copy-paste prompt), verbatim and unshortened. When the operator names a situation, output only the matching prompt block."
@@ -27840,7 +27840,7 @@ msgstr "E2E CI trabaho (torso, retries)."
 
 # translated-by: libretranslate
 msgid "E2E Tests"
-msgstr "E2Mga Pagsubok sa E"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "EMPTY INPUT"
@@ -28332,7 +28332,7 @@ msgstr "Email address"
 
 # translated-by: libretranslate
 msgid "Email delivery via Mailu / external SMTP (allow ≥ 60 s for the first inbox poll, ≥ 600 s for full P2P round-trips that wait for matterbot, antivirus scan, etc.)."
-msgstr "Transportasyon ng Email sa pamamagitan ng Mailu / panlabas na SMTP (payagan 60 mga s para sa unang inbox poll, ≥ 600 s para sa ganap na P2Mga bilog-trip na naghihintay ng materyabot, antivirus scan, atbp.)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email integration in v1: **outbound SMTP only**. When `web-app-mailu` is in `group_names`, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint so notification / password-reset emails leave the box. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement.** Rationale: the survey found no precedent in this repo for auto-provisioning role-owned mailboxes in Mailu, so the inbound side requires a new generic Mailu mechanism that is out of scope for this PR."
@@ -29170,7 +29170,7 @@ msgstr "Ang bawat mamimili ay gumagawa ng kaniyang sariling susi at nagpapatakbo
 
 # translated-by: libretranslate
 msgid "Every consumer of the legacy oauth2 / oidc service sub-trees, the **OAUTH2_PROXY_\\*** env / Jinja vars, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, the dedicated oauth2-proxy provider role, or the legacy *oidc* / *oauth2* Playwright gating helper service names must migrate to the unified **sso** shape. Full plan and decisions are archived under req 21."
-msgstr "Bawat mamimili ng pamanang oauth2 / oidc service sub-trees, ang **OAUTH2_PROXY_\\*** env / Jinja vars, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, ang inialay na oauth2-proxy provider papel, o ang pamana *oidc* / *Oauth2* Ang angkop na mga pangalan ng katulong ay kailangang mandayuhan sa nagkakaisa **sso** hugis. Ang buong plano at mga pasiya ay ini - archive sa ilalim ng req 21."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every consumer speaks only the gateway `/v1`; the gateway is the single place backends are wired."
@@ -29327,7 +29327,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every other agent deployment in [032](032-agent-employees-firecracker.md) keeps the agent kernel-isolated. This role is the deliberate inverse defined by [032](032-agent-employees-firecracker.md) Decision #12 (embodied / dedicated-device mode): for a robot, the useful trust boundary is the **whole device**, because the agent's job is to drive that device's hardware (GPIO, I2C/SPI sensors, cameras, actuators, motors). A microVM around the agent would only get in the way of the very hardware it is meant to control."
-msgstr "Bawat iba pang ahente na ginagamit [032](032-agent-employees-firecracker.md) ay nagpapanatili sa ahente na kernel-isolated. Ang papel na ito ay ang sadyang inverse na binigyang kahulugan ng [032](032-agent-employees-firecracker.md) Pasiya #12 (Nakapaloob / dedikadong-device mode): Para sa isang robot, ang kapaki - pakinabang na hangganan ng pagtitiwala ay ang **buong device**, dahil ang trabaho ng ahente ay magmaneho ng hardware ng aparatong iyon (GPIO, Ako2Mga sensor ng C/SPI, kamera, mga tagagalaw, mga motor). Ang isang mikroVM sa paligid ng agent ay makakapasa lamang sa mismong hardware ito ay nilayon upang kontrolin."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every page carries a version switcher in its sidebar. Switching keeps the current page and falls back to the start page of a version that lacks it."
@@ -29504,7 +29504,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
-msgstr "Ang bawat pagpalis ay nag - eehersisyo sa dalawang arkitektura sa ibayo ng katalogo sa halip na patunayang may kulay64 at walang sinasabing anuman, walang ekstrang halaga ng trabaho."
+msgstr ""
 
 msgid "Every target of the repository's ``Makefile`` that carries a documentation comment, with the description and parameters declared beside it. Generated by the documentation build; edit the ``Makefile`` rather than this page."
 msgstr ""
@@ -29767,7 +29767,7 @@ msgstr "Maaasahang mga utos ng SQL"
 # bago inaangking ginawa.
 # translated-by: libretranslate
 msgid "Execute autonomously after the Open Questions are resolved. Scaffold using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (oauth2 flavor + header SSO + LDAP). Verify all Checkmk env names, the `auth_by_http_header` config mechanism, site-path routing, and the GUI selectors against the pinned upstream version before claiming done."
-msgstr "Mag - usap nang mag - isa pagkatapos na malutas ang mga Tanong na Bukás. Iscaffold na ginagamit [`roles/web-app-openproject/`](../../roles/web-app-openproject/) bilang \"struct template \" (Oauth2 lasa + header SSO + LDAP). Patotohanan ang lahat Checkmk Mga pangalan, ang `auth_by_http_header` Mechanion mechanism, site-path wideing, at ang mga pilidor ng GUI laban sa naka-pinid na version bago inaangking ginawa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Execute autonomously after the Open Questions are resolved. Verify the plugin install + config mechanism (plugin DLL placement under `/config/plugins`, the plugin configuration XML schema, and the catalog/version) against the pinned upstream plugin release before claiming done."
@@ -31056,11 +31056,11 @@ msgstr "Ang Makalangit na Tagapagpauna (Mga tubong cross-agent) — Bilis 2"
 
 # translated-by: libretranslate
 msgid "Flowise and Open WebUI are clients, not generic security gateways. n8n may adapt a workflow to MCP when its project, credential, input schema and exposed workflow tools are deployment-managed. LiteLLM may become a routing layer only after the exact selected image is pinned and proven, and must not become the sole holder of every application's administrator credential."
-msgstr "Paglutang at Paglutang Open WebUI ang mga kliyente, hindi ang panlahatang mga pintuang panseguridad. n8Ang n ay maaaring mag-angkop ng isang workflow sa MCP kapag ang proyekto nito, credential, input schema at lantad na mga kasangkapan sa workflow ay ang pag-setment-maned. Ang LitelLM ay maaaring maging isang naglupig na suson pagkatapos lamang na ang eksaktong napiling larawan ay maipit at mapatunayan, at hindi dapat maging ang tanging nagtataglay ng lahat ng katibayan sa administrador ng bawat aplikasyon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Flowise and n8n"
-msgstr "Palutang - lutang8n"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Flowise consumes MCP through the *Custom MCP* tool node, which is configured **inside a flow**. It exposes no instance-level registry API, so the role prepares the instance and leaves the per-flow wiring to the operator."
@@ -32670,7 +32670,7 @@ msgstr "Mga gabay sa pamamahala ng GitHub 🛡️"
 
 # translated-by: libretranslate
 msgid "GitHub i18n Helpers 🌐"
-msgstr "GitHub i18Mga Katulong 🌐"
+msgstr ""
 
 msgid "GitHub lists its hosted images in the runner-images README; the newest x64 Ubuntu label whose image carries no preview or beta badge is the target."
 msgstr ""
@@ -37006,7 +37006,7 @@ msgstr "Tinitiyak nito na ang Nackage Maler ay handa na upang pangasiwaan ang mg
 
 # translated-by: libretranslate
 msgid "It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`."
-msgstr "Ito'y mga kawit `http_api_curl` sa halip na `http_request_args` sapagkat ang args args ar ay hindi makapagpahayag ng proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, kaya mga SOCK5 ay maaabot lamang sa hilaw na hawakan ng cURL. Kung wala ito, ang libcurl ay tumatanggi `.onion` na may pangalang resolusyon sa ilalim ng [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — bago `/etc/hosts`, `extra_hosts` o DNS ay isinasangguni — at ang bahagyang pagpapalit ay nabibigo sa pagkakamali ng UL 6, na WordPress ng mga bagay gaya ng `wp-login.php?login-error=http_request_failed`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "It is a **generic infrastructure helper**."
@@ -37197,7 +37197,7 @@ msgstr "Mga hakbang:"
 
 # translated-by: libretranslate
 msgid "Its SHA256 checksum is fetched from the same release"
-msgstr "Ang SHA Nito256 Ang checkum ay kinukuha sa iisang labas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Its purpose is to keep runtime configuration centralized, deterministic, and easy to reuse across local runs, CI, and container-based execution. 🧭"
@@ -37562,7 +37562,7 @@ msgstr "Panatilihing pumili ang mga hilera ng mga tulos at tatakan ang mga palak
 
 # translated-by: libretranslate
 msgid "Keep these WSL2 specifics in mind:"
-msgstr "Ingatan ang WSL na ito2 Mga detalye sa isipan:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keep this module free of Ansible imports and cheap to import: it is pulled in by ``plugins/filter/invokable_paths.py``, which runs in contexts where Ansible is not installed (see ``tests/unit/python/utils/cache/test_data.py``)."
@@ -37683,14 +37683,14 @@ msgstr "Ang susi sa ilalim nito ang pre-nilikha ``<entity>`` Makikita ang networ
 
 # translated-by: libretranslate
 msgid "Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Iba't iba ang teklado: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) ay nagpapangyari sa password na matiyak kung kinakailangan nang husto ng kontroladong mga kapaligiran na gaya ng lokal na E2Mga target ng pagsubok."
+msgstr ""
 
 msgid "Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `\"no\"`) sets `PermitRootLogin`. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before `user-administrator` exists, so that deploy passes `\"prohibit-password\"` through its `--vars` JSON."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Key variable: ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (default: ``false``) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Iba't iba ang teklado: ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (default: ``false``) ay nagpapangyari sa password na matiyak kung kinakailangan nang husto ng kontroladong mga kapaligiran na gaya ng lokal na E2Mga target ng pagsubok."
+msgstr ""
 
 msgid "Key variable: ``SYS_SVC_SSHD_PERMIT_ROOT_LOGIN`` (default: ``\"no\"``) sets ``PermitRootLogin``. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before ``user-administrator`` exists, so that deploy passes ``\"prohibit-password\"`` through its ``--vars`` JSON."
 msgstr ""
@@ -39958,7 +39958,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Ginawang moderno ang mga tulay ng Matrix: Ang Signal, Telegram, WhatsApp at Slack bridges ay nandarayuhan sa tulayv2 Reconstructation, ang patay na matrix-facebook/instagram na mga tulay ay pinapalitan ng mautrix-meta, ang mga spec ng tulay ay minamarka ng naka-set na addon, ang Synapse ay nagkarga sa mga rehistro ng tulay mula sa isang naka-kabit na directory, at ang papel ngayon ay mga bakas *Maxon-docker-anible-deploy* mula sa spantaleev pasalungat sa ilog."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40175,7 +40175,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Hango ang dalawang listahan ng mga dikt sa isang ibinigay na susi. - listahan1, listahan2: ang bawat isa ay dapat na isang talaan[Dikt] - key_name: ang larangan upang magtugma kung ang dalawang talaan ay may iisang bagay key_name halaga, pinagsasama - sama ang kanilang mga diksyunaryo (mga numero2 o dagdagan ang listahan1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40928,7 +40928,7 @@ msgstr "NFS para sa mga database"
 
 # translated-by: libretranslate
 msgid "NFS mount fstype (nfs4/nfs): {{ lookup('nfs_fstype') }}."
-msgstr "Ang NFS row fstype (Mga manok4/nfs): {{ lookup('nfs_fstype') }}."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NFS mount options: {{ lookup('nfs_mount_opts') }}."
@@ -41348,7 +41348,7 @@ msgstr "Bago *unit_name* Lookup plugan para sa hindi nagbabagong bersyong system
 # PAGBABASA](roles/web-app-n8n/README.md).
 # translated-by: libretranslate
 msgid "New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md)."
-msgstr "Bago *web-app-n8n* papel: n8\" workflow automation \" (Talaan ng mga Nilalaman). Ang SSO ay ikinakabit sa pamamagitan ng isang pinagkakatiwalaang-header stream na kinokopya at inilalagay lamang kapag ang SSO ay nagagawa lamang (Ang katutubong SSO ay negosyante-lamang sa CE), ang LDAP sign-in ay suportado, at ang per-scenario Playwright coverage ay nag-eehersisyo ng modelong CE gilid-SSO. Mga Barkong Nakabitin sa Buhay *alpha*; subnet at mga banggaan sa daungan kasama ng bagong *web-app-semaphore* ang naging pasiya sa daan. Tingnan ang [web-app-n8n PAGBABASA](roles/web-app-n8n/README.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New Apps"
@@ -41372,7 +41372,7 @@ msgstr "Bago Penpot papel (web-app-penpot, kahilingan 235) na naglalayag sa ilog
 
 # translated-by: libretranslate
 msgid "New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta."
-msgstr "Bagong papel na Pi-hole (*web-app-pihole*) na ang mga barko sa ilog ng Pi-hole DNS sinkhole at network-wide ad blocker, na may admin web interface na naka-trade sa likod *Oauth2-proxy* at Keycloak RBAC at isang katutubong admin-password login (ang *FTLCONF* web API password) magagamit bilang isang uri ng pagkahulog. Ang terropainter at timezone ay maaaring baguhin, ang papel ay naghihintay sa Pi-hole HTTP endpoint sa panahon ng pagluklok, at ito ay isinasagawang dulo-to-end na may Playwright na tumatakip sa OAuth2, mga katutubong-login at panauhing-acces na senaryo. Ang papel ng mga barko sa lifecycle beta."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New `--mirror` support for inventory generation"
@@ -42456,7 +42456,7 @@ msgstr "Isang OpenAI-compatiable `/v1`, mga ruta sa anumang likuran (Walang ulo,
 
 # translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr "Sumali ang One Pi bilang isang `kata-capable` braso64 node; `web-app-hermes` Mga gamit doon sa ilalim ng pagbubukod na pinili ng preflight (Pasiya #4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
@@ -44945,7 +44945,7 @@ msgstr "Nasa itaas ng ilog sa Pindong MDAD `services.matrix.upstream.{repo,ref}`
 # pinili ang porter-compose-v ni Ubuntu2 ng pakete
 # translated-by: libretranslate
 msgid "Pinned image versions explicitly: SuiteCRM PHP 8.2, Nextcloud 33-fpm-alpine, Moodle PHP 8.3-fpm, Hugo nginx 1.30.0-alpine; opted Ubuntu's docker-compose-v2 out of the package selection"
-msgstr "Malinaw na kinakatawang bersyon: SuiteCRM PHP 8.2, Nextcloud 33-fpm-alpine, Moodle PHP 8.3-fpm, Hugo \" Nginx \" 1.30.0-alpine; pinili ang porter-compose-v ni Ubuntu2 ng pakete"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Pinned pip requirements in ``roles/**/*.yml``."
@@ -45179,7 +45179,7 @@ msgstr "Maliban sa Playwright: ang mga ito ay mga extension ng desktop browser n
 
 # translated-by: libretranslate
 msgid "Playwright gating helpers (*isServiceEnabled*, *skipUnlessServiceEnabled*, *requireService*, *safeIsEnabled*, *safeSkipUnlessEnabled*) move from service *oidc* / *oauth2* to *sso*"
-msgstr "Mga katulong sa paglalaro na magaling sa paglalaro (*ay Madaling makuha*, *Hindi Mapakali*, *kailangan*, *Ligtas*, *Hindi Maiiwasan ang Pag - iingat*) umalis sa paglilingkod *oidc* / *Oauth2* hanggang sa *sso*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright is executed in Docker for reproducibility and consistent browser dependencies."
@@ -47377,7 +47377,7 @@ msgstr "Pagtutugma - tugmain ang 3.1.4 Ang Streamable HTTP register at isang pin
 
 # translated-by: libretranslate
 msgid "Reconciliation updates or removes only entries carrying its own ownership marker and preserves human-created configuration. Zero matches creates, one updates, more than one fails rather than guessing which duplicate to keep. The marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "Ang mga updates o pagtanggal lamang ng mga entidad na may sariling ari-arian ay nag-iingat ng human-nilikhang pagsasaayos. Ang mga posporong Zero ay lumilikha, ang isa ay nagre - update, higit pa sa isa ang nabibigo sa halip na hulaan kung aling kopya ang susundin. Ang palatandaan ay ang bawat kliyente, sapagkat ang pangalan ay hindi laging malaya: Ang mga kalahok sa pagrerehistro sa pamamagitan ng pahalang na paraan ay `infinito:<provider-application-id>`, Open WebUI Ang mga grupo ay nagdadala ng RBAC group path Keycloak mga isyu rin, at n8Ginagamit ng n ang naka-ayos na pangalan nitong workflow."
+msgstr ""
 
 msgid "Record the tree after every green gate: `GIT_INDEX_FILE=<scratch file> git read-tree HEAD`, then `git add -A` and `git write-tree` with the same `GIT_INDEX_FILE`. A working tree that writes the same hash needs no new gate."
 msgstr ""
@@ -48277,7 +48277,7 @@ msgstr "Muling Ipinangalan *compose.services.desktop* hanggang sa *compose.servi
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Muling pinangalanang ginagamit sa pagkatha-deploy sa kabila ng Make, `container-*` Mga paglilinis at kaginhawahan `compose-*`, ang papel na ginagampanan ng pamana `svc-bkp-*` kasama ng lalagyan/local-2-remote invokable entrepoints, mukhang-up status sa paglalagay ng runtime-aware na naka-set na bandila, `dmbs_*/dbms_base` Mga template sa Isang container_depends_on Larawan, INFINITO_CMD sa isang simpleng maliit na parameter, at web-opt-rdr-www kanonikal hanggang w3Paunlarin sa pamamagitan ng mga tila-bababang mapa"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed mirror workflows (*mirror-images-* → *images-mirror-*)"
@@ -50553,7 +50553,7 @@ msgstr "Ibalik ang buod min_storage ng app_ids at ang kanilang mga dependensiya.
 
 # translated-by: libretranslate
 msgid "Return the tags of *image* from its registry's v2 API."
-msgstr "Ibalik ang mga tag ng *Larawan* mula sa v ng register nito2 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the target code the server knows this catalog code by."
@@ -53608,7 +53608,7 @@ msgstr "Mga Pagsubok sa SSO 🔐"
 
 # translated-by: libretranslate
 msgid "SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key."
-msgstr "Ang lasa ng SSO ay **OIDC-direct** (`services.sso.flavor: oidc`), HINDI talaga2-proxy. Ang papel ay gumagamit ng Frppe's debut-in Social Login Key."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO flavor is **`oidc` (native)** — Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`. No `oauth2-proxy` sidecar."
@@ -53616,7 +53616,7 @@ msgstr "Ang lasa ng SSO ay **`oidc` (katutubo)** — Isinalin ng Semaphore ang s
 
 # translated-by: libretranslate
 msgid "SSO is the **oauth2-proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) + native LDAP**."
-msgstr "Ang SSO ang siyang **Oauth2--proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) + katutubong LDAP**."
+msgstr ""
 
 msgid "SSO is the **oauth2-proxy gate only**. No native OIDC, no user mapping, no in-app accounts."
 msgstr ""
@@ -54161,7 +54161,7 @@ msgstr "Katiwasayan: SECRET_KEY"
 # *PAG - ISIPAN001* bilang isang daga.
 # translated-by: libretranslate
 msgid "Security: resolved all 80 open CodeQL/code-scanning alerts and added recurrence guards. Broke an unsafe import cycle in *cli/administration/deploy/development* via a leaf *env.py*; hardened *web-app-bluesky* *server.js* (cookie prototype-pollution guard, log sanitisation, HTML-escaped exceptions, ReDoS-bounded handle regex) and *web-app-baserow* SSO open-redirect handling; required TLS ≥ 1.2 in network diagnose probes; validated *actionlint* tar members against path traversal; rewrote *decidim*/*apt-purge* regexes to avoid catastrophic backtracking; anchored six Playwright URL regexes and pinned *crs-k/stale-branches* to a SHA. Guards: an *import-linter* contract, a lint requiring justified bandit *noqa*, and ruff *BLE001* as a ratchet."
-msgstr "Katiwasayan: lutasin ang lahat 80 open CodeQL/code-scanning slerts at nagdagdag ng mga bantay na replaced. Gumawa ng isang di - ligtas na siklo ng pag - aangkat *cli/administration/deploy/development* sa pamamagitan ng dahon *env.py*; tumigas *web-app-bluesky* *server.js* (Meokie prototyle-conduct guard, log santiation, HTML-escaped regex, ReDOS-bounded hawakan) at *web-app-baserow* Ang SSO open-redirect handing; ay nangangailangan ng TLS ≥ 1.2 sa network rikonosi ng mga probe; pinagtibay *Ataksiyon* \" tar \" sa tapat ng daanan; rewrote *decidim*/*apt-purge* Mga regexe upang maiwasan ang kapaha - pahamak na pagbabalik; nakaangklang anim na Playwright URL regexes at nakapinid *crs-k/stale-foul* sa isang SHA. Mga Bantay: isang *kat-linter* kontrata, isang linta na nangangailangan ng makatuwirang bandit *noqa*, at balahibo *PAG - ISIPAN001* bilang isang daga."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to `127.0.0.1` and every request traverses the oauth2-proxy that overwrites `X-Forwarded-*`. The `X-Auth-Request-*` / `Remote-User` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through `web-svc-logout` / the oauth2-proxy sign-out, not Postmarks' own logout link, because the proxy header re-establishes the session on the next request."
@@ -54424,7 +54424,7 @@ msgstr "Sarili-hosted CI runner imprastraktura para sa pagpatay GitHub Actions t
 
 # translated-by: libretranslate
 msgid "Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README."
-msgstr "Sarili-hosed CI mananakbo: bago *svc-runner* papel na ginagampanan *cli/deploy/runner* Ipininta ng utos ang N containered GitHub Actions runners sa anumang server, na nagdaragdag sa 20 GitHub-hoseds. Ang bawat mananakbo ay nakabukod (sariling subnet, mga daungan, imbentaryo, Docker volume, DNS) at mga auto-registers. Ang mga pagtakbo sa Debian, Ubuntu at Arko, ay sumusuporta sa Docker-in-Docker, at mga barko isang ganap na in-runner E2Gumamit ng pagsubok. Tingnan ang *svc-runner* BASAHIN."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
@@ -56018,7 +56018,7 @@ msgstr "Hatiin ang CI selection token sa pangalan nito at ang axis nito ay hulap
 
 # translated-by: libretranslate
 msgid "Split a Markdown README into its H2 sections (fence-aware)."
-msgstr "Hatiin ang Markdown CREME sa HT nito2 bahagi (bakod-aware)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Split a generation's dumps by the subcommand that replays them."
@@ -58304,7 +58304,7 @@ msgstr "Mga Pagsubok sa Pagbabago"
 
 # translated-by: libretranslate
 msgid "Test E2E Cli"
-msgstr "Pagsubok E2Eli"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test Email"
@@ -58364,7 +58364,7 @@ msgstr "Natatalo ng test-budget ang ⏱️"
 
 # translated-by: libretranslate
 msgid "Test-e2e-cli Role"
-msgstr "Test-e2Papel na e-cli"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-e2e-playwright Role"
@@ -59443,7 +59443,7 @@ msgstr "Ang baybay ng CMD-SHELL :func:`curl_argv`, sinipi para sa isang kabibi."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "Ang arkitekturang CPU ay parehong uri ng propesiya at hindi pa nababalutan. Bawat takdang trabaho `ubuntu-latest`, kaya't ang bawat sweep ay napatunayang add64 at wala silang sinabi tungkol sa braso64, samantalang ang mga barko ng proyekto ay may papel na ginagampanan na ang mga larawan sa itaas ng ilog, ang mga gulong at mga binaryo ay nagkakaiba - iba sa bawat arkitektura. Isang papel na hindi makatakbo sa braso64 ay ibang - iba sa isa na nasubukan na roon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -60505,7 +60505,7 @@ msgstr "Ipinatupad ng ahenteng MUST ang kahilingang ito **nagsasarili**. Buksan 
 
 # translated-by: libretranslate
 msgid "The agent can do anything the granted devices allow. A GPIO or I2C grant means it can drive whatever is wired to those pins; a video grant means it can watch the room; a serial grant means it can talk to whatever sits on the bus. The allowlist is the entire boundary, which is why an empty one is refused and why the device must be dedicated, single-tenant and network-segmented."
-msgstr "Maaaring gawin ng ahente ang anumang bagay na ipinahihintulot ng ipinagkaloob na mga aparato. ISANG GPIO o Ako2Ang ibig sabihin ng CFP ay maaari nitong itulak ang anumang ikinakabit sa mga pin; ang isang video dender ay nangangahulugan na maaari nitong panoorin ang silid; ang isang serial dender ay nangangahulugan na maaari itong makipag - usap sa anumang nakaupo sa bus. Ang entlist ay ang buong hangganan, na siyang dahilan kung bakit ang isang walang laman ay tinatanggihan at kung bakit ang aparato ay dapat ialay, isahang-tenant at network-segmented."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent holds no model credential: it calls `http://agent-broker:<port>/llm/v1`, and the broker relays the call to LiteLLM with the broker's own virtual key and the owner in the OpenAI `user` field, and logs a `relay` event with owner, platform, path and upstream status."
@@ -60513,7 +60513,7 @@ msgstr "Ang ahente ay walang hawak na modelong credential: ito ay tumatawag `htt
 
 # translated-by: libretranslate
 msgid "The agent images run on arm64"
-msgstr "Ang mga larawan ng ahente ay tumatakbo sa braso64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes ``~/.claude/settings.json`` with an ``env`` block carrying the gateway URL, the workstation’s key and the model aliases to use, so every request leaves the machine through the gateway and is accounted there."
@@ -62657,7 +62657,7 @@ msgstr "Ang mga alok na mode ay nakipot na ng run's ``--modes`` input, ang mga e
 
 # translated-by: libretranslate
 msgid "The official Baserow SSO feature is Enterprise-only. This role instead gates the community image with the shared Keycloak oauth2-proxy and installs a small trusted-header bridge in the Baserow backend. The bridge trusts the identity headers injected by nginx after oauth2-proxy authentication and converts them into native Baserow JWT refresh/access tokens for the frontend."
-msgstr "Ang opisyal Baserow Ang SO tampok ang Enterprise-lamang. Sa halip, ang papel na ito ang pintuang - daan sa imahen ng komunidad na may bahagi Keycloak Oauth2--proxy at nag-install ng isang maliit na pinagkakatiwalaang tulay-ulo sa tulay Baserow sagot. Ang tulay ay nagtitiwala sa mga nangangasiwa sa pagkakakilanlan na itinuturok ng nginx pagkatapos ng oauth2-proxy mapagkakatiwalaan at gawing katutubo ang mga ito Baserow JWT freed/acces standards para sa frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The official WordPress MCP adapter pinned, its HTTP endpoint exposed, only reviewed Abilities with permission callbacks registered, authenticated as a real restricted user."
@@ -62906,7 +62906,7 @@ msgstr "Ang pindilyong gusali ay ang amd64 AppImage, at ang papel ay tumatanggi 
 
 # translated-by: libretranslate
 msgid "The pinned image runs on arm64"
-msgstr "Ang pinined image ay tumatakbo sa braso64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle."
@@ -64167,7 +64167,7 @@ msgstr "Ang papel-specific interaction callbacks at ang peer-exchange test ay ba
 
 # translated-by: libretranslate
 msgid "The roles below are database-backed and their upstream app can store objects in S3, so the integration is **fundamentally possible but not yet implemented**. Roles whose upstream has no S3 backend, or whose S3 client is incompatible with SeaweedFS path-style, are listed at the end."
-msgstr "Ang mga papel sa ibaba ay database-backed at ang kanilang pasalungat na app ay maaaring mag-imbak ng mga bagay sa S3, kaya ang pagsasama ay **Posible talaga ngunit hindi pa ipinatutupad**. Mga papel na walang S S.3 backend, o kaninong S3 Ang kliyente ay hindi kasuwato ng SeaweedFS Path-style, ay nakatala sa dulo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role’s purpose is to automate the provisioning and configuration of a centralized database service. This not only reduces manual setup but also ensures consistent, reliable deployment across production and homelab environments."
@@ -64924,11 +64924,11 @@ msgstr "Ang subók na sobre 🧪"
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under ``themes/`` or referenced as a Hugo Module via ``go.mod``). V1 does not support a separate theme override."
-msgstr "Ang temang MUST ay may kasamang pinagkunan ng impormasyon (alinman sa inspeksiyunin ``themes/`` o tinukoy bilang isang Hugo Sa pamamagitan ng Module ``go.mod``). V.1 ay hindi sumusuporta sa hiwalay na tema."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under `themes/` or referenced as a Hugo Module via `go.mod`). V1 does not support a separate theme override."
-msgstr "Ang temang MUST ay may kasamang pinagkunan ng impormasyon (alinman sa inspeksiyunin `themes/` o tinukoy bilang isang Hugo Sa pamamagitan ng Module `go.mod`). V.1 ay hindi sumusuporta sa hiwalay na tema."
+msgstr ""
 
 msgid "The theme sheets and `files/playwright/test-design.js` were generated against Odoo 20, the role runs 19.0 (`meta/services.yml`), and two assertions therefore target DOM this version does not render: `test-design.js:425` wants `.o_search_panel_category_value_header`, which 19 renders as a plain `<header>` without that class and without `tabindex`, so `:focus-visible` is unreachable; `test-design.js:533-534` want a `.btn-danger` in the delete dialog, and 19's `view_hook.js` sets `confirmLabel` without `confirmClass`. Dead on 19 for the same reason: `files/theme/backend.css:2205`. The pin cannot move: OCA publishes no 20.x of `fs_storage` or `fs_attachment_s3` on PyPI, and the modules on the `20.0` branch still carry `\"version\": \"19.0…\"` with `\"installable\": False`. Options: regenerate the theme sheets and the design spec against a live Odoo 19 once a stack is available; or move the image to 20.0 as soon as those two modules turn installable."
 msgstr ""
@@ -67112,7 +67112,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers the catalogs, their extraction, their machine translation and their validation. Serving the catalogs is [038 - web-svc-api](README.md#archive); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md). The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green."
-msgstr "Ang kahilingang ito ay sumasaklaw sa mga katalogo, sa kanilang pagkuha, sa kanilang pagsasalin ng makina at sa kanilang bisa. Pinaglilingkuran ang mga katalogo [038 - web-svc-api](README.md#archive); ang pagkonsumo nito sa loob ng pangunahing mga papel ay [039 - Core i18Mga Mamimili](039-core-i18n-consumers.md). Ang repositoryo ng mamimili (infinito-nexus-gui, meta-infinite-grap, portfolio) panatilihin ang kanilang sariling interface na mga strando sa kanilang sariling mga katalogo ng gotext at magbago lamang pagkatapos 037 hanggang sa 039 ay berde."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers two related but separable deliverables:"
@@ -67773,11 +67773,11 @@ msgstr "Ang bahaging ito ay nagbibigay ng ejabberd Docker Compose kasama ang pro
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
-msgstr "Ang bahaging ito ay naglalagay ng n8Edisyon ng Pamayanan na ginagamit ang Patimog - ilog ``docker.n8n.io/n8nio/n8n`` Larawang suportado ng isang PostgreSQL database (pagkain mula sa gitna ``svc-db-postgres`` gagamitin ``sys-stk-full``). Ang katunayan ay pinangangasiwaan ng isang **Oauth2-proxy** Sidecar (Keycloak OIDC) sa V1, o umalis patungong n8Ang mga n ay may sariling user-management na UI sa V2. n.8Hindi sinusuportahan ng Edisyon ng Pamayanang n ang LDAP — ito ay nasa likod ng n8Eksperimentong Enterprise (``ldap.controller.ee.js`` ay hindi nakarehistro sa CE) — kaya walang iniaalok na LDAP variant. Credentials na nakaimbak sa loob ng n8Ang mga n ay pinapahinga na may kuwadra ``N8N_ENCRYPTION_KEY``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
-msgstr "Ang bahaging ito ay naglalagay ng n8Edisyon ng Pamayanan na ginagamit ang Patimog - ilog `docker.n8n.io/n8nio/n8n` Larawang suportado ng isang PostgreSQL database (pagkain mula sa gitna `svc-db-postgres` gagamitin `sys-stk-full`). Ang katunayan ay pinangangasiwaan ng isang **Oauth2-proxy** Sidecar (Keycloak OIDC) sa V1, o umalis patungong n8Ang sariling user-management UI sa V2. n.8Hindi sinusuportahan ng Edisyon ng Pamayanang n ang LDAP — ito ay nasa likod ng n8Ang lisensiya sa Enterprise (`ldap.controller.ee.js` ay hindi nakarehistro sa CE) — kaya walang iniaalok na LDAP variant. Credentials na nakaimbak sa loob ng n8Ang mga n ay pinapahinga na may kuwadra `N8N_ENCRYPTION_KEY`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys no AI surface and declares no ``litellm`` service, because EspoCRM’s open-source distribution does not ship one. At the pinned version ``10.0.4``, ``application/Espo/Modules`` contains only ``Crm``, ``application/Espo/Resources/metadata/app/config.json`` declares no AI key, and the release ZIP the image is built from leaves ``custom/Espo/Modules`` empty. The AI features (Summary, Intelligent Paste, AI Email Composer, AI formula functions) live exclusively in the commercial `Intelligence extension <https://www.espocrm.com/extensions/intelligence/>`__, which is closed source, requires a purchased license, and is published in no ``espocrm`` GitHub repository. Bumping the version does not change this: the extension is documented as requiring EspoCRM 10.0.3 or greater, so newer cores stay hosts for it rather than absorbing it."
@@ -68590,7 +68590,7 @@ msgstr "Pinabilis ng tatlong lokal na serbisyo ng cache ang mga re-deploy, binab
 
 # translated-by: libretranslate
 msgid "Three lookup plugins on top of the resolver: **sso** (single-app predicate access), **sso_proxy_consumers** (enumerates oauth2-flavored consumers), **sso_oidc_plugin** (renamed from **oidc_flavor**, Nextcloud selector)."
-msgstr "Tatlong pigpuin sa ibabaw ng tagalutas: **sso** (Isang-app na akses), **sso_proxy_consumers** (Mga talaan2- Mga mamimili), **sso_oidc_plugin** (pangalan mula sa **oidc_flavor**, Nextcloud pumili)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Three measurements decided the shape rather than any preference:"
@@ -69320,7 +69320,7 @@ msgstr "Triage"
 
 # translated-by: libretranslate
 msgid "Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit."
-msgstr "Sinusubukan at sinukat: Ang trabaho ng imahen ay mula sa wala pang sampung minuto hanggang sa mahigit na dalawang oras, sapagkat ang bawat braso64 patong - patong `COPY .` Ang mga rerun ay gumagaya sa bawat kasunduan."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trigger"
@@ -69662,7 +69662,7 @@ msgstr "Dalawang pagsubok sa pagsasama ang umuubos `ROLE_FILES` Ang tuwirang pag
 
 # translated-by: libretranslate
 msgid "Two joins carry the whole design and neither is accidental. The branch ends in ``; `` so a relay that refuses the message cannot decide liveness -- that verdict belongs to the probe this prefixes, and coupling them once left live web apps marked dead until the swarm converge gate gave up (ebdadd91b). The ``&&`` before ``touch`` stays, so a refused mail leaves no marker and the next probe retries instead of the smoke test becoming one-shot."
-msgstr "Dalawang sumali ang may dala ng buong disenyo at alinman dito ay hindi nagkataon lamang. Ang sangay ay nagtatapos sa ``; `` kaya ang isang relay na tumatanggi sa mensahe ay hindi makapagpasiya ng liveness - na hatol ay pag-aari ng probinsyang ito ng unlapi, at ang mga ito ay pinagdugtong minsang iwan ang mga live web apps na minarkahang patay hanggang sa sumuko ang kuyog na tarangkahan (Ebdadd91b). Ang ``&&`` bago ``touch`` ay nananatili, kaya ang isang tinanggihang mail ay hindi nag-iiwan ng marker at ang susunod na probe retries sa halip na ang smoke test ay nagiging isang-shot."
+msgstr ""
 
 msgid "Two kinds of role are left out. One the updaters do not maintain (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits outside the lifecycle envelope ``default.env`` tests, so no deploy can reach its images, and its upstream is free to withdraw them. MinIO's quay tags answer 401 to anonymous pulls and exist nowhere else, which failed the mirror job on every run while nothing could have consumed the result."
 msgstr ""
@@ -72523,7 +72523,7 @@ msgstr "Kung ano ang Infinito.Nexus? 📌"
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Kung ano ang maaari nang gamitin nang wala nito: ang nag - aamin na guwardiya ay tumatanggi sa isang kabahaging host o isang walang laman na aparato na pinahihintulutan ang list, kapuwa ang mga larawan ng ahente ay naglalathala `linux/arm64`, at wala ni isa man sa mga ahente ang iniipit sa braso64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -76162,7 +76162,7 @@ msgstr "[ ] Penpot Matagumpay na ginagamit ang isang utos sa bagong punong - aba
 
 # translated-by: libretranslate
 msgid "[ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state."
-msgstr "[ ] Pagsaklaw ng Persona sa pamamagitan ng kabahaging oauth2- Ang mga katulong (Pagsalamin [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (maabot + guest/biber/administrator mga tao), `test-oidc-login.js` (Oauth2 tarangkahan + `X-Remote-User` sesyon, may tarangkahan `sso`), `test-oidc-security.js` (Make-header bypass guard). `biber`/`administrator` ay dinadala sa SO sa pamamagitan ng `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` ang bawat mababasang env var; `make compose-playwright role=web-app-checkmk` labasan 0 na walang stub tests at malinis na logged-out final state."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] Playwright test run documented"
@@ -76803,7 +76803,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently."
-msgstr "[ ] Oauth2-proxy `email_domains` may mga posporo `@<NODE_ONION>.onion` gumagamit; `LDAP_DN_BASE` + Ang pagkakakilanlan ay hindi nagbabago."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`."
@@ -77549,7 +77549,7 @@ msgstr "[Larawan ng pakete para sa Zoom](https://aur.archlinux.org/packages/zoom
 
 # translated-by: libretranslate
 msgid "[ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)"
-msgstr "[Gawain (W3Mungkahi)](https://www.w3.org/TR/activitypub/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)"
@@ -77988,7 +77988,7 @@ msgstr "[Matapang na Pinagmumulan ng GitHub](https://github.com/snarfed/bridgy-f
 
 # translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "[Napahiya](https://fed.brid.gy/) ay isang pederasyong tulay sa pagitan ng ActivityPub (Ang Pagbagsak), Ang ATROL (Bluesky), at ang IndieWeb (Mga websayt at mga microformat2). Ito ay sumasalamin sa mga interaksiyong identidad at cross-network kaya ang isang post sa isang network ay umaabot sa mga tagasunod sa iba."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -78999,7 +78999,7 @@ msgstr "[Kevin Veen-Birkenbach](https://veen.world): code-scanning alistong reso
 
 # translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance"
-msgstr "[Kevin Veen-Birkenbach](https://veen.world): n8Ng review, CI fixes at version maintenance"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review"
@@ -79965,7 +79965,7 @@ msgstr "[Terminal alyas at mga shortcut ng ahente](shell/alias.md): ang `i8*` al
 
 # translated-by: libretranslate
 msgid "[Test E2E Cli](https://example.com/) is an application."
-msgstr "[Pagsubok E2Eli](https://example.com/) ay isang aplikasyon."
+msgstr ""
 
 msgid "[The translation gateway that reads this memory](../web-svc-translate/)"
 msgstr ""
@@ -80699,7 +80699,7 @@ msgstr "[Inbentahan/](../../../cli/administration/deploy/development/inventory/_
 
 # translated-by: libretranslate
 msgid "[ipv6/](ipv6/) for IPv6 enable/restore helpers"
-msgstr "[Ipv6/](ipv6/) para sa IPv6 tumutulong"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-entity `ports` shape."
@@ -80748,19 +80748,19 @@ msgstr "[msmtp](https://marlam.de/msmtp/) Bilang magaang na endmail-compatible S
 
 # translated-by: libretranslate
 msgid "[n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
-msgstr "[n8Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
-msgstr "[n8Min GitHub](https://github.com/n8n-io/n8n)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n Official Website](https://n8n.io/)"
-msgstr "[n8Opisyal na Website](https://n8n.io/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n tag `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), especially `packages/@n8n/nodes-langchain/nodes/mcp/` and `packages/cli/src/public-api/v1/handlers/`"
-msgstr "[n8Ng tag `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), lalo na `packages/@n8n/nodes-langchain/nodes/mcp/` at `packages/cli/src/public-api/v1/handlers/`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
@@ -81715,7 +81715,7 @@ msgstr "[x] Flowise Ang streamable HTTP support ay nananatiling barado o bridged
 
 # translated-by: libretranslate
 msgid "[x] Flowise, Hermes, OpenClaw, and n8n prove their per-server user boundary or are restricted to an admin-only workspace/instance or isolated trust domain. All four take the restriction branch: their oauth2 gate admits only the application's own `administrator` and `mcp` groups, held there by [test_mcp_client_gate_scoped.py](../../tests/lint/ansible/services/test_mcp_client_gate_scoped.py), which derives the client set from `meta/mcp.yml` rather than a list. `web-app-n8n` shipped with no `allowed_groups` at all while declaring an `mcp` role nothing consulted; that gate is now closed."
-msgstr "[x] Flowise, Hermes, OpenClaw, at n8Ang n ay nagpapatunay sa kanilang per-server user na hangganan o limitado sa isang admin-lamang workspace/instance o nakabukod na trust domain. Silang apat ay kumukuha ng ipinagbabawal na sangay: ang kanilang oauth2 Kinikilala lamang ng tarangkahan ang aplikasyon `administrator` at `mcp` mga grupo, na ginanap doon ng [test_mcp_client_gate_scoped.py](../../tests/lint/ansible/services/test_mcp_client_gate_scoped.py), na nakukuha ng kliyente `meta/mcp.yml` sa halip na listahan. `web-app-n8n` ipinadadala na walang `allowed_groups` Sa paano man samantalang nagpapahayag ng isang `mcp` walang anumang isinasangguni; ang pintuang - daan na iyon ay sarado na ngayon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] For each integrated MCP client role, Playwright verifies the client's MCP surface: the configured server list where the upstream exposes one, otherwise that the client's own API refuses an unauthenticated caller, so the credential the client holds cannot be reached from outside."
@@ -81977,7 +81977,7 @@ msgstr "[x] Ang integrated na imbakan ay nakaayos kasama ng data directory nito 
 
 # translated-by: libretranslate
 msgid "[x] Reconciliation owns only deterministically named resources, fails on duplicates, and preserves human-created resources. The ownership marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "[x] Ang reconciliation ay pagmamay-ari lamang ng mga deterministikong pinangalanang yaman, nabigo sa mga kumplikado, at nag-iingat ng mga mapagkukunang pantao-likha. Ang may - ari ng marker ay ang bawat kliyente, sapagkat ang pangalan ay hindi laging malaya: Ang mga kalahok sa pagrerehistro sa Flwise ay `infinito:<provider-application-id>`, Open WebUI Ang mga grupo ay nagdadala ng RBAC group path Keycloak mga isyu rin, at n8Ginagamit ng n ang naka-ayos na pangalan nitong workflow."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Redis is provided via the `redis` service block in `meta/services.yml` (auto-emitted `svc-db-redis` sidecar; service name `redis`)."
@@ -82015,7 +82015,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name."
-msgstr "[x] Pinatutunayan ng mga pagsubok sa Rotasyon at pagkasira na ang dating credential ay tinatanggihan, ang mga bagong credential works, at walang lumang entidad ng kliyente ang nagpapanatili ng access. Ang unang dalawa ay tumatakbo sa bawat pag-play: ang kabahaging contract probe ay nagbubukas ng ibabaw sa pamamagitan ng ipinahayag na credential at nabibigo malibang ang isang deterministikong pagbasa ay magtagumpay, at hiwalay na nagpapatunay ng isang maling credential ay tinatanggihan ang isang sesyon. Kabilang sa bawat isa sa walong ito ang probe na iyon, kaya alinman sa dalawa ay hindi iginigiit para sa ilang papel at ginagampanan para sa iba pa. Ang ikatlo ay unit-subok sa bawat kliyente, at tanging tatlong kliyente lamang ang maaaring magdaos ng isang late entry, dahil sa sina Hermes at Hermes OpenClaw mag-ingat ng walang ser-side registration: ang kanilang configuration ay iginawad mula sa sariling natuklasang speciation, kaya't wala nang natitira pa upang mawala. Paibabawan ng lambat ang entry `authConfig` at Open WebUI ang nakarehistrong koneksyon, kapuwa nasaklaw na; n8Ang n ang agwat at ngayon ay nagpapatunay na ang isang umiikot na tagapagdala ang humahalili sa credent sa halip na inihahambing sa isang n8Huwag na huwag mag - atubili, sa panig ng server at sa bawat kliyente. Ang pag - aawdisyon sa ikatlong kalahati ay naging isang tunay na tagas sa daan. Ang kasunod na ulap ay gumagawa ng isang app password sa ilalim ng nakapirmeng pangalan at hindi kailanman pinawawalang - bisa ang nauna, kaya ang bawat pagtakbo na hindi ginamitan ng password ay nagdaragdag ng isa pang mabisang tanda sa account samantalang ang matatanda ay patuloy na gumagamit nito. Ang paggawa ng pabango ay pinangungunahan ngayon ng isang listahan at pagpapawalang - bisa sa bawat token na may hawak na pangalang iyan."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Running `make i18n-extract` twice in a row leaves the working tree unchanged."
@@ -82550,7 +82550,7 @@ msgstr "[x] Kasama `services.mcp.enabled=true`, ang uptime/status-code na pagsus
 
 # translated-by: libretranslate
 msgid "[x] With the flag on, the play mounts `pki`, generates an internal root CA and one issuing role, and a service certificate can be issued from it. Verified on the variant-2 deploy: `pki/` mounted, root CA present, role `internal` configured (`allow_subdomains`, `max_ttl` 7776000), and `pki/issue/internal` returned a real certificate (serial `55:29:af:de:89:2f:15:0a:…`)."
-msgstr "[x] Pagkatapos ng bandila, ang dula ay tumitindi `pki`, gumawa ng panloob na ugat na CA at isa na naglalabas ng papel, at isang sertipiko ng paglilingkod ang maaaring ilabas mula rito. Idineklarang Bersibo2 Kasalukuyan: `pki/` nakaluklok, root CA kasalukuyan, papel `internal` Isinaayos (`allow_subdomains`, `max_ttl` 7776000), at `pki/issue/internal` ay nagbalik ng isang tunay na sertipiko (serye `55:29:af:de:89:2f:15:0a:…`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] WordPress, Discourse, Odoo, Hermes, OpenClaw, Flowise, and the 11 missing upstream-path roles are reclassified exactly as the ADR requires before their old status is considered complete."
@@ -82861,7 +82861,7 @@ msgstr "[x] `meta/services.yml` sabi ng bawat container service at isang `lifecy
 
 # translated-by: libretranslate
 msgid "[x] `meta/services.yml` pins `frappe/erpnext` to a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14, no v16)."
-msgstr "[x] `meta/services.yml` mga tulos `frappe/erpnext` sa kongkretong kuwadra15.x semver (hindi `:latest`, hindi `:edge`, walang v14, walang v16)."
+msgstr ""
 
 msgid "[x] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`)."
 msgstr ""
@@ -82995,7 +82995,7 @@ msgstr "[x] `svc-ai-litellm` Naglalathala pa `auto` Ang alyas, at bawat alyas na
 
 # translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr "[x] `svc-ai-lmstudio` ay napilitang gumamit ng x86 node at hindi kailanman nakaiskedyul sa isang braso64/Pi node."
+msgstr ""
 
 msgid "[x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group."
 msgstr ""
@@ -83057,11 +83057,11 @@ msgstr "[x] n8n 1.100.1 ay idineklara bilang isang kliyenteng SSE at isang Strea
 
 # translated-by: libretranslate
 msgid "[x] n8n client nodes use exact tool include lists; server triggers require Bearer auth, expose only connected checked-in tools, and remain disabled until operator opt-in. Each client node renders `include: selected` with the provider's own `mcp.tools.allowlist`, which the discovery snapshot now carries; the node's default is `all`, so an omitted list would hand the agent every tool an upstream happens to serve. The server trigger pins `authentication: bearerAuth` against a managed `httpBearerAuth` credential, and the surface ships `enabled: false`. \"Only connected checked-in tools\" is upstream's own mechanism: `getConnectedTools` in `@utils/helpers` collects exactly what reaches the trigger over an `ai_tool` connection, so the workflow's connection map is the allowlist. The workflow previously connected nothing at all, so the trigger served an empty tool set; it now carries one checked-in read tool, `infinito_health`, with an explicit input schema."
-msgstr "[x] n8Ang mga kliente node ay gumagamit ng eksaktong kasangkapan kabilang ang mga listahan; ang mga inser reggers ay nangangailangan ng Bearer auth, inilantad lamang ang mga konektadong insek-in na kasangkapan, at nananatiling may kapansanan hanggang sa operator opt-in. Ang bawat kliente ay nagsasalin `include: selected` sa sariling tagapaglaan `mcp.tools.allowlist`, na dala ngayon ng natuklasang larawan; ang default ng node ay `all`, kaya't isang di - isinamang listahan ang magbibigay sa ahente ng bawat kasangkapan na magagamit sa ilog. Ang server ay nag - uudyok ng mga pin `authentication: bearerAuth` laban sa isang pinangangasiwaan `httpBearerAuth` credential, at ang mga barko sa ibabaw `enabled: false`. \"Nakakonekta lamang ang mga aparatong insek-in\" ay ang sariling mekanismo sa itaas ng ilog: `getConnectedTools` sa loob `@utils/helpers` ang eksaktong umaabot sa mitsa sa ibabaw ng isang `ai_tool` koneksyon, kaya ang mapa ng connect ng workflow ang pinahihintulutanlist. Ang workflow na dati'y walang nakakabit na bagay, kaya ang trigger ay nagsisilbi sa isang walang laman na kasangkapan; ito ngayon ay nagdadala ng isang inspektibong kasangkapang pangbasa, `infinito_health`, na may maliwanag na input schema."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] n8n tests cover creation, update, activation, authenticated tool listing and call, wrong/missing bearer rejection, rerun idempotence, and cleanup limited to managed resources. Creation, update, activation, rerun idempotence and the cleanup boundary are unit-tested in [test_mcp.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_mcp.py) and [test_client.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_client.py), including that a converged deployment reports `OK`, that a credential or workflow outside the managed names is never touched, and that a provider which vanished loses only its own credential. The authenticated half runs at deploy time through the shared contract probe, which opens an MCP session, lists tools against the declared allowlist, calls the read tool, and separately proves that an anonymous and a wrong-bearer probe are both refused a session. It cannot be a browser test: the bearer must not reach a Playwright environment file."
-msgstr "[x] n8Sinasaklaw ng mga pagsusulit na n ang paglikha, update, practicion, mapagkakatiwalaang pagtatala at pagtawag ng kasangkapan, maling/misting bearer resurection, rerun idempotence, at paglilinis na limitado sa mga mapagkukunang-yaman. Ang paglikha, update, reclusion, rerun idempotence at ang hangganan ng paglilinis ay unit-subok sa [test_mcp.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_mcp.py) at [test_client.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_client.py), kasali na riyan ang mga ulat ng pagtitipun - tipon `OK`, na ang isang credential o workflow sa labas ng pinangangasiwaang mga pangalan ay hindi kailanman nahahawakan, at na ang isang tagapaglaan na naglaho ay nawawalan lamang ng sarili nitong credential. Ang mapagkakatiwalaang kalahati ay tumatakbo sa oras ng paglalagay sa kabahaging kontrata probe, na nagbubukas ng isang sesyon ng MCP, nagtatala ng mga kasangkapan laban sa ipinahayag na entlist, tinatawag ang kagamitang panbasa, at hiwalay na nagpapatunay na ang isang hindi kilala at isang maling-bearer probe ay parehong tinatanggihan ang isang sesyon. Hindi ito maaaring isang browser test: ang nagdadala ay hindi dapat umabot sa isang talaksang Playwright environment."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] openresty does NOT swarm-render itself. Its inventory group lists only the manager, so `DEPLOYMENT_MODE` for `svc-prx-openresty` resolves to `compose`. The role keeps its `network_mode: host` + docker-socket mount + Lua body-rewriting pipeline intact. Operationally openresty is implicitly pinned to the manager node (the only long-lived swarm node in v1 that runs host-level compose projects). Edge HA via Traefik (which requires porting the Lua injection pipeline) is tracked under [Future Extensions](#future-extensions)."
@@ -83631,7 +83631,7 @@ msgstr "`Bluesky <https://bsky.social/>`__ ay isang desentralisadong social netw
 
 # translated-by: libretranslate
 msgid "`Bridgy Fed <https://fed.brid.gy/>`__ is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "`Bridgy Fed <https://fed.brid.gy/>`__ ay isang pederasyong tulay sa pagitan ng ActivityPub (Ang Pagbagsak), Ang ATROL (Bluesky), at ang IndieWeb (Mga websayt at mga microformat2). Ito ay sumasalamin sa mga interaksiyong identidad at cross-network kaya ang isang post sa isang network ay umaabot sa mga tagasunod sa iba."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`CA_ROOT.cert_host` (default: `/etc/infinito.nexus/ca/root-ca.crt`)"
@@ -84187,7 +84187,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ ay isang N
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (himpilan64 32 byte, `head -c32 /dev/urandom | base64`) Nakaimbak na mga susi; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` Maluwag na sesyon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -85609,7 +85609,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``noqa`` and ``nocheck`` are accepted as synonyms (case-insensitive) by this parser. By repo convention every project rule from ``docs/contributing/actions/testing/suppression.md`` MUST use ``nocheck:`` because ``# noqa: <code>`` is also parsed by ruff as a flake8 directive and triggers ``invalid-noqa-code`` warnings on every project-specific rule key. ``noqa:`` is reserved for real flake8 / ruff codes (``E402``, ``F401``, …). The ``direct-yaml`` lint enforces the convention by hard-rejecting the ``noqa:`` form."
-msgstr "``noqa`` at ``nocheck`` ay tinatanggap bilang mga kasingkahulugan (-insensitive) sa pamamagitan ng parser na ito. Sa pamamagitan ng repo kombensiyon bawat tuntunin ng proyekto mula sa ``docs/contributing/actions/testing/suppression.md`` UPANG gamitin ``nocheck:`` sapagkat ``# noqa: <code>`` ay tinuhog din ng clake bilang isang fllake8 Tagubilin at pangganyak ``invalid-noqa-code`` babala sa bawat project-specific rule key. ``noqa:`` ay nakalaan sa tunay na fllake8 / Mga kodigo ng balahibo (``E402``, ``F401``, ...). Ang ``direct-yaml`` Ipinatutupad ng lint ang kombensiyon sa pamamagitan ng hard-reject ``noqa:`` anyo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``offset`` moves that start deliberately: it is how an operator reaches the tail without waiting for anything. It defaults to 0, so every run that does not ask for it deploys the same head and can be compared against the last one. This used to be derived from the sweep number instead, which bought tail coverage at the price of the head -- chunk 0 began wherever the arithmetic pointed, the rows that matter most ran only every few sweeps, and no two runs were comparable."
@@ -86022,7 +86022,7 @@ msgstr "``templates/roles/README.md.j2.tmpl`` ang nag-iisang pinagmumulan ng kat
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth. The required sections are the H2s the template emits with no optional context; the optional sections are the extra H2s that appear once every ``{% if ... %}``-guarded variable is supplied. Rendering the template both ways and diffing the H2 sets keeps the lint and the generator in lock-step with the template."
-msgstr "``templates/roles/README.md.j2.tmpl`` ang nag - iisang pinagmumulan ng katotohanan. Ang kinakailangang mga seksiyon ay ang H2Ang template ay naglalabas ng hindi opsyonal na konteksto; ang opsyonal na mga bahagi ay ang ekstrang H2mga salitang lumilitaw minsan ``{% if ... %}``- Nakabantay na variable ang ibinibigay. Ang paglalagay ng template sa dalawang paraan at ang pagbigkas sa H2 Pinapanatili ng mga set ang lint at ang generator sa lock-scle kasama ng template."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -87598,7 +87598,7 @@ msgstr "`meta/services.yml` PAG - ASA (Katutubong OIDC, walang oauth2-proxy)"
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (oauth2-proxy flavor, no external DB)"
-msgstr "`meta/services.yml` PAG - ASA (Oauth2-proxy lasa, walang panlabas na DB)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`meta/services.yml` excerpt (proposed shape)"
@@ -87719,7 +87719,7 @@ msgstr "`no-reply` ng gumagamit `web-app-mailu` Kaya, iba pang walang laman na s
 
 # translated-by: libretranslate
 msgid "`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\\d+`."
-msgstr "`noqa` at `nocheck` ay mga case-insensitive chronic sa parser. Ang bawat tuntunin ng proyekto ay gumagamit ng UST `nocheck:` sapagkat `# noqa: <code>` ay tinuhog din ng clake bilang isang fllake8 Tagubilin at babala sa non-flake8 mga susi. Reserve `noqa:` para sa tunay na fllake8 / Mga kodigo ng balahibo (`E402`, `F401`, ...). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` na ang mga kodigo ay hindi tumutugma `[A-Z]+\\d+`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`npm install` (Ansible task in runner)"
@@ -89284,7 +89284,7 @@ msgstr "malayo ``[user@]host[:/path]`` (Ang punong backup nito ay rsync-pulled m
 
 # translated-by: libretranslate
 msgid "a repository-owned allowlist adapter or a repository-owned n8n workflow;"
-msgstr "isang repost-owed entry na taga-angkop o isang reposition-owed n8Duyan ng trabaho;"
+msgstr ""
 
 msgid "a resolved rights row, or None when the licence is unread."
 msgstr ""
@@ -89348,7 +89348,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "a stored `openAiApi` credential carries `url` plus `apiKey`. The built-in assistant is out of reach: 1.95.3 exposes only `N8N_AI_ASSISTANT_BASE_URL`, which expects n8n's own assistant service rather than an OpenAI-compatible endpoint, and no `N8N_INSTANCE_AI_MODEL_URL` exists in that release"
-msgstr "isang nakaimbak `openAiApi` Credential carries `url` plus `apiKey`. Ang katutubong-in assistant ay hindi maabot: 1.95.3 naglalantad lamang `N8N_AI_ASSISTANT_BASE_URL`, na inaasahan n8Ang sariling katulong na serbisyo sa halip na isang OpenAI-compatible endpoint, at hindi `N8N_INSTANCE_AI_MODEL_URL` umiiral sa pagpapalayang iyon"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a supported native MCP endpoint with an enforceable tool policy;"
@@ -89818,11 +89818,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64"
-msgstr "braso64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64 runner capacity becomes a dependency of the deploy matrix. A pool without capacity queues those rows rather than failing them."
-msgstr "braso64 Ang kapasidad ng mananakbo ay nagiging dependensiya sa kasalukuyang matrix. Ang isang tipunang - tubig na walang kapasidad ay bumabagtas sa mga hanay na iyon sa halip na mabigo ang mga ito."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "as `enforced`, and rows that cannot take an onion are dropped"
@@ -89988,7 +89988,7 @@ msgstr "base o salik ay non-numeric o negatibo."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "himpilan64- Na-encode 32 ala-ala byte; AES-256-GCM key."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -91336,7 +91336,7 @@ msgstr "Nakaayos na listahan (`services.gnome-extensions.plugins`)"
 
 # translated-by: libretranslate
 msgid "confirm S3 attachment store support"
-msgstr "pagtibayin3 suporta ng tindahan"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "confirm upstream S3 attachment support"
@@ -91364,11 +91364,11 @@ msgstr "Nagkakasalungatang lokal na mga tag (`would clobber existing tag`)"
 
 # translated-by: libretranslate
 msgid "consumer S3 access key granted access to the bucket."
-msgstr "Mamimili3 I-akses ang key pinapayagang makuha ang timba."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "consumer S3 secret key."
-msgstr "Mamimili3 lihim na susi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "consumer bucket name created idempotently at startup."
@@ -93516,7 +93516,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "n8n client, trigger, and public provisioning API"
-msgstr "n8Mga kliyente, tagapagbunsod, at paglalaan ng publiko API"
+msgstr ""
 
 msgid "n8n: SSO hook, MCP provisioning and API paging work under n8n 2"
 msgstr ""
@@ -93736,11 +93736,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy SSO"
-msgstr "Oauth2-proxy na SO"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy gate"
-msgstr "Oauth2- Maluwag na tarangkahan"
+msgstr ""
 
 msgid "oauth2-proxy refuses to redirect to a host outside this list after a login or a logout. The entries are wildcard parents (a leading dot), one per address family the app actually serves: the deployment's primary domain for its clearnet hosts, the node onion for its onion hosts. An app that serves only one family gets only that entry, so a redirect into the other family stays refused."
 msgstr ""
@@ -95334,7 +95334,7 @@ msgstr "python -m cli.administration.inventory.devices ..."
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "python -m cli.meta.ci.architectures [\"amd64 braso64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -96824,7 +96824,7 @@ msgstr "ang mga app na ito."
 
 # translated-by: libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
-msgstr "walang tatak ang arkitektura. Pagbabalik sa amd64 Ang mananakbo ay maghahawak ng braso64 hanay sa amd64 hardware at iulat itong berde sa ilalim ng isang braso64 titulo sa trabaho."
+msgstr ""
 
 msgid "the browser binary."
 msgstr ""
@@ -97481,7 +97481,7 @@ msgstr "ang nakarehistrong shell na resulta ng paglalagay nito."
 
 # translated-by: libretranslate
 msgid "the registry's v2 tag list"
-msgstr "v ng rehistro2 Listahan ng mga tag"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "the regular line in ranking order."
@@ -98674,7 +98674,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ wsl2 module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
@@ -99014,7 +99014,7 @@ msgstr "utils.install.lint.hadolint module"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ cli2 module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -99828,7 +99828,7 @@ msgstr "Kung ang isang CI runner ay pinapatay, na nagpapababa sa kisame."
 
 # translated-by: libretranslate
 msgid "whether oauth2-proxy fronts the application."
-msgstr "kung oo2-proxy ay nauuna sa aplikasyon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "whether role names and titles take part. They do when a request is masked, so the translator never sees them, and they do not when two texts are compared: German capitalises every noun, so the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen`` and a set comparison would read the capital as a surplus span."
@@ -100007,7 +100007,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\.168\\.24\\.\\d+"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} -> medyas5h://tor:<port> (kuyog)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""
@@ -100401,11 +100401,11 @@ msgstr "🔎 Pill panlabas na mga sistema hanggang sa ang inaasahang mga artifac
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) can be layered in front of Taiga when you want proxy-level access control in addition to Taiga's own authentication flow."
-msgstr "🔐 **Mapagpipilian2 EXPOG Access guard:** [OAuth2 MGA BANSA](https://oauth2-proxy.github.io/oauth2-proxy/) ay maaaring isalansan sa harap ng Taiga kapag nais mo ng proxy-level access control bukod pa sa Taiga'Ang sariling realityation streaks."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ can be layered in front of Taiga when you want proxy-level access control in addition to Taiga’s own authentication flow."
-msgstr "🔐 **Mapagpipilian2 EXPOG Access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ ay maaaring isalansan sa harap ng Taiga kapag nais mo ng proxy-level access control bukod pa sa TaigaAng mga ’ ay nagmamay-ari ng pag-agos ng realityation."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **SSO with OIDC & LDAP** (optional)"
@@ -100587,7 +100587,7 @@ msgstr "🧩 **Malaking tulong Keycloak, Nextcloud, Gitea, LAM, peertube, at hig
 
 # translated-by: libretranslate
 msgid "🧩 Custom OAuth2 flows via ENV vars"
-msgstr "🧩 Kaugalian2 dumadaloy sa NTV vars"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🧩 Derive runtime values from repository and workflow context"

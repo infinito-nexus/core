@@ -268,11 +268,6 @@ msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí sain
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
-"Cloud\n"
-"Nāga\n"
-"\n"
-"Nāga\n"
-"Cloud"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -1245,7 +1240,7 @@ msgstr "Open-source, ardán teachtaireachtaí foirne féin-óstáil le haghaidh 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI-comhoiriúnach LLM geata ródú amháin / V1 endpoint le backends samhail áitiúil agus óstáil le heochracha per-tomhaltóir"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"

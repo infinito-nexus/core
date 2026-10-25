@@ -158,9 +158,6 @@ msgstr "Naršymo pagrindu besisukančio rato programėlė sprendimų priėmimui,
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr ""
-"Browser-faced administrator interface for the shared LLM gateway, published on its own domain behind the front proxy\n"
-"\n"
-"### Browser-faced administrator interface for the shared LLM gateway, published on its own domain behind the front proxy"
 
 # translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -308,19 +305,6 @@ msgstr "Bendradarbiaujanti \"Wiki\" platforma, skirta naudotojams skirtiems doku
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr ""
-"-šiekli\n"
-"-šiaurės\n"
-"-aktyvūs\n"
-"-žmogai\n"
-"-namai\n"
-"-lygai\n"
-"-konfiskavimai\n"
-"-aktivistai\n"
-"-aktyvistai\n"
-"-aktyvisti\n"
-"-konfiskavimo\n"
-"-aktyvistų\n"
-"-aktivistų"
 
 # translated-by: libretranslate
 msgctxt "menu:Commerce:title"
@@ -585,7 +569,7 @@ msgstr "Kūrimo ir CI / CD priemonės"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Paskirstyta S3suderinamų objektų saugykla bendro naudojimo, vartotojų kibirų tiekimas per web-app vaidmenis"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -767,11 +751,6 @@ msgstr "Global JavaScript įpurškimo sluoksnis NGINX HTML atsakams per sub_filt
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr ""
-"Hardná ir įškebešu daunyklas prošlēmienas metų reikštos sakykite, atvirkauti iki kai nuomos atitinanos, vėrdieni išlikausi\n"
-"---\n"
-"\n"
-"### Translate\n"
-"Ašrinkimo, nuomos atitinanos iki kai įškebešu daunyklas nuoma nuo įškebešo ir atvirkauti iki kai nuomos atitinanos."
 
 # translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
@@ -1337,10 +1316,6 @@ msgstr "Prašome laikyti šį puslapį atidaryti, kol tai bus padaryta."
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
-"Plugg Triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device\n"
-"---\n"
-"Trąmingu uszczelnionego systemd backupu za hard-link deduplikiacji skaneratorów lokalnego backupa na swobodnie zmieniwalne USB przechowalnik\n"
-"---"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
@@ -1595,7 +1570,7 @@ msgstr "Patalpintas GitHub veiksmų bėgikas diegimas ir konfigūracija"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Name5 žaidimų smėlio dėžė naršyti ir veikti lengvų variklių demos ir žaidimai naršyklėje"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -2071,7 +2046,7 @@ msgstr "Įrankiai, padedantys optimizuoti interneto serverius"
 # translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor tarnyba leidybos mazgas kaip prieš3 Valgomasis svogūnas"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"

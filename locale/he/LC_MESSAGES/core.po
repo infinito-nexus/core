@@ -1262,7 +1262,7 @@ msgstr "אופטימיזציה של ערכת כלים לבניית C, C++ ותו
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration עטיפה עבור per-domain NGINX מתן תעודות TLS, תבניות vHost ו- OAuth אופציונלי2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -1587,7 +1587,7 @@ msgstr "שירות גרפי עצמי LDAP עבור משתמשים מרכזיים
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "תגית: S3אחסון אובייקטים לא תואם עבור קבצים, מדיה, גיבויים ו- AI חפצים"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
