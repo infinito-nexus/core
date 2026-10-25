@@ -1,0 +1,22 @@
+---
+- include_tasks: 01_install.yml
+  when: run_once_svc_bkp_volume_2_local_install is not defined
+
+- name: "🔎 Check whether {{ FILE_DATABASE_SECRETS }} exists"
+  ansible.builtin.stat:
+    path: "{{ FILE_DATABASE_SECRETS }}"
+  register: svc_bkp_volume_2_local_seeded_file
+
+- name: "📖 Read the database definitions seeded on this host"
+  ansible.builtin.slurp:
+    src: "{{ FILE_DATABASE_SECRETS }}"
+  register: svc_bkp_volume_2_local_seeded_raw
+  when: svc_bkp_volume_2_local_seeded_file.stat.exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧮 Remember the seeded database definitions for this play"
+  ansible.builtin.set_fact:
+    svc_bkp_volume_2_local_seeded: >-
+      {{ (svc_bkp_volume_2_local_seeded_raw.content if svc_bkp_volume_2_local_seeded_file.stat.exists else '')
+         | baudolo_seeded }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

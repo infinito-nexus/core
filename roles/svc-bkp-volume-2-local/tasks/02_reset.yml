@@ -3,3 +3,7 @@
   ansible.builtin.file:
     path: "{{ FILE_DATABASE_SECRETS }}"
     state: absent
+
+- name: "🧮 Forget the seeded database definitions along with the file"
+  ansible.builtin.set_fact:
+    svc_bkp_volume_2_local_seeded: "{{ '' | baudolo_seeded }}"
