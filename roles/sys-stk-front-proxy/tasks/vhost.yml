@@ -1,5 +1,5 @@
 ---
-- name: "🧊 Freeze the probe target for '{{ front_proxy_domain }}' and queue it for the deferred probe"
+- name: "🧊 Freeze and queue the probe target for '{{ front_proxy_domain }}'"
   ansible.builtin.set_fact:
     front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
     front_proxy_probe_url: "{{ front_proxy_probe.url }}"

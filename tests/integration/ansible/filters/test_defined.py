@@ -75,6 +75,7 @@ BUILTIN_FILTERS: set[str] = {
     "combine",
     "difference",
     "intersect",
+    "union",
     "flatten",
     "zip",
     "regex_search",
