@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 
-from agents.routines.tools.test_ref_probe import imported_from_ref
+from agents.routines.tools.ref_probe import imported_from_ref
 
 _REF = "/tmp/ref-worktree/core"
 

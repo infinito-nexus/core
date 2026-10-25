@@ -2,7 +2,7 @@
 a reviewed pull request. Deterministic nodes collect and parse the evidence and
 run the gate, model nodes cluster, root-cause and write, and the decision nodes
 branch on the parsed verdicts. The nodes and edges match the maintainer diagram
-in requirement 041; a decision node defaults to its forward branch when its
+in the specification; a decision node defaults to its forward branch when its
 evidence is absent, so a stub run reaches a terminal.
 """
 

@@ -2,7 +2,7 @@
 the matrix. Model nodes plan and edit and judge an infra race against a real
 defect; deterministic nodes run the gate, roundtrip the remaining apps and watch
 the step log; the decision nodes branch on the gate and the watchdog. The nodes
-and edges match the implementer diagram in requirement 041; a decision node
+and edges match the implementer diagram in the specification; a decision node
 defaults to its forward branch so a stub run reaches a terminal.
 """
 

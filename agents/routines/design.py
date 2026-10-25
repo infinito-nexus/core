@@ -2,7 +2,7 @@
 it. Model nodes read the dossier, fix tokens and judge the gallery; deterministic
 nodes deploy under the stack lock, render a second palette and build the gallery;
 the decision nodes branch on the spec result and the negative control. The nodes
-and edges match the designer diagram in requirement 041; a decision node defaults
+and edges match the designer diagram in the specification; a decision node defaults
 to its forward branch so a stub run reaches a terminal.
 """
 
