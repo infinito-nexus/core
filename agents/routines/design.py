@@ -10,6 +10,24 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
+from agents.routines.tools.junit import first_failure
+from agents.routines.tools.negative_control import control_result
+
+
+def _spec_green(state: dict) -> dict:
+    junit_xml = state.get("junit_xml", "")
+    failure = first_failure(junit_xml) if junit_xml.strip() else None
+    state["D3"] = "❌ red" if failure else "✅ green"
+    return state
+
+
+def _negative_control(state: dict) -> dict:
+    passed = control_result(
+        state.get("nc_before_red", True), state.get("nc_after_green", True)
+    )
+    state["D4"] = "✅ turns red" if passed else "❌ stays green"
+    return state
+
 
 STEPS = [
     Step("T1", "Schedule or ticket assigned", "trigger", nxt="D1"),
@@ -22,6 +40,7 @@ STEPS = [
         "Full spec green? (parse JUnit)",
         "decision",
         branches=(("✅ green", "D4"), ("❌ red", "L3")),
+        fn=_spec_green,
     ),
     Step("L3", "Diagnose the red spec", "model", nxt="L2"),
     Step(
@@ -29,6 +48,7 @@ STEPS = [
         "Negative control: break the design, spec turns red?",
         "decision",
         branches=(("✅ turns red", "D5"), ("❌ stays green", "L4")),
+        fn=_negative_control,
     ),
     Step("L4", "Strengthen the assertion", "model", nxt="L2"),
     Step("D5", "Render a second palette", nxt="D6"),

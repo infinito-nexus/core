@@ -10,6 +10,18 @@ from __future__ import annotations
 
 from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
+from agents.routines.tools.quality_gate import gate_green
+
+
+def _gate(state: dict) -> dict:
+    state["D2"] = "✅ green" if gate_green(state.get("gate_output", "")) else "❌ red"
+    return state
+
+
+def _watch(state: dict) -> dict:
+    state["D4"] = "🔴 app red" if state.get("app_red") else "🟢 all green"
+    return state
+
 
 STEPS = [
     Step("T1", "Approved ticket assigned to me", "trigger", nxt="D1"),
@@ -21,6 +33,7 @@ STEPS = [
         "Quality gate green? (read the table)",
         "decision",
         branches=(("✅ green", "D3"), ("❌ red", "L2")),
+        fn=_gate,
     ),
     Step("D3", "Roundtrip the remaining apps in complexity order", nxt="D4"),
     Step(
@@ -28,6 +41,7 @@ STEPS = [
         "Watch the step log (silence watchdog)",
         "decision",
         branches=(("🟢 all green", "D7"), ("🔴 app red", "D5")),
+        fn=_watch,
     ),
     Step("D5", "Pull spec error, trace chain, probes", nxt="L3"),
     Step(
