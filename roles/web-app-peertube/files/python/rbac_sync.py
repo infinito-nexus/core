@@ -81,7 +81,11 @@ def ranked_members(members, role_ids):
         m for m in members["moderator"] if m["email"] and m["username"] not in taken
     ]
     return [
-        {"username": m["username"], "email": m["email"], "role": role_ids["administrator"]}
+        {
+            "username": m["username"],
+            "email": m["email"],
+            "role": role_ids["administrator"],
+        }
         for m in administrators
     ] + [
         {"username": m["username"], "email": m["email"], "role": role_ids["moderator"]}
@@ -111,7 +115,7 @@ def api(environ, opener, path, data=None, form=False, token=""):
             headers["Content-Type"] = "application/json"
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(
+    request = urllib.request.Request(  # noqa: S310 - PEERTUBE_URL is the node-local PeerTube port
         environ["PEERTUBE_URL"] + path, data=body, headers=headers
     )
     try:
@@ -155,7 +159,9 @@ def create_accounts(environ, opener, missing):
             {
                 "username": member["username"],
                 "email": member["email"],
-                "password": "".join(secrets.choice(PASSWORD_ALPHABET) for _ in range(48)),
+                "password": "".join(
+                    secrets.choice(PASSWORD_ALPHABET) for _ in range(48)
+                ),
                 "role": int(member["role"]),
             },
             token=token,
@@ -173,7 +179,8 @@ def main(environ, run=subprocess.run, opener=urllib.request.urlopen):
         opener: ``urllib.request.urlopen`` or a stand-in.
     """
     ranked = ranked_members(
-        json.loads(environ["RBAC_MEMBERS"]), json.loads(environ["PEERTUBE_RBAC_ROLE_IDS"])
+        json.loads(environ["RBAC_MEMBERS"]),
+        json.loads(environ["PEERTUBE_RBAC_ROLE_IDS"]),
     )
     missing = json.loads(
         psql(

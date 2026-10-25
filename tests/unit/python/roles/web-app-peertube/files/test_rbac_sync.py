@@ -77,7 +77,9 @@ class FakePeertube:
         body = request.data.decode() if request.data else ""
         self.requests.append((request.full_url, dict(request.header_items()), body))
         if request.full_url.endswith("/oauth-clients/local"):
-            return FakeResponse(json.dumps({"client_id": "cid", "client_secret": "cs"}).encode())
+            return FakeResponse(
+                json.dumps({"client_id": "cid", "client_secret": "cs"}).encode()
+            )
         if request.full_url.endswith("/users/token"):
             return FakeResponse(json.dumps({"access_token": "tok"}).encode())
         created = json.loads(body)
@@ -94,7 +96,7 @@ class PeertubeRbacSyncTests(unittest.TestCase):
             (Path(self.workdir.name) / name).write_text(
                 read_text(str(SQL_DIR / name)), encoding="utf-8"
             )
-        self.previous = os.getcwd()
+        self.previous = Path.cwd()
         os.chdir(self.workdir.name)
 
     def tearDown(self):
@@ -125,8 +127,14 @@ class PeertubeRbacSyncTests(unittest.TestCase):
 
     def test_missing_members_are_created_as_root_and_linked_to_the_plugin(self):
         members = {
-            "administrator": [member("alice", "alice@example.org"), member("noemail", "")],
-            "moderator": [member("alice", "alice@example.org"), member("bob", "bob@example.org")],
+            "administrator": [
+                member("alice", "alice@example.org"),
+                member("noemail", ""),
+            ],
+            "moderator": [
+                member("alice", "alice@example.org"),
+                member("bob", "bob@example.org"),
+            ],
         }
         missing = [
             {"username": "alice", "email": "alice@example.org", "role": 0},
@@ -152,7 +160,9 @@ class PeertubeRbacSyncTests(unittest.TestCase):
         self.assertEqual(token_form["username"], ["root"])
         self.assertEqual(token_form["password"], ["root-secret"])
         created = [json.loads(body) for _, _, body in peertube.requests[2:]]
-        self.assertEqual([(c["username"], c["role"]) for c in created], [("alice", 0), ("bob", 1)])
+        self.assertEqual(
+            [(c["username"], c["role"]) for c in created], [("alice", 0), ("bob", 1)]
+        )
         self.assertTrue(all(len(c["password"]) == 48 for c in created))
         self.assertEqual(peertube.requests[2][1]["Authorization"], "Bearer tok")
         self.assertEqual(peertube.requests[2][1]["Host"], "video.example.org")
@@ -205,8 +215,18 @@ class PeertubeRbacSyncTests(unittest.TestCase):
             [forwarded for _, forwarded, _ in database.runs],
             [
                 ["PGPASSWORD", "PEERTUBE_RBAC_RANKED"],
-                ["PGPASSWORD", "PEERTUBE_OIDC_PLUGIN", "PEERTUBE_ROOT_USERNAME", "PEERTUBE_RBAC_CREATED"],
-                ["PGPASSWORD", "RBAC_MEMBERS", "PEERTUBE_RBAC_ROLE_IDS", "PEERTUBE_OIDC_PLUGIN"],
+                [
+                    "PGPASSWORD",
+                    "PEERTUBE_OIDC_PLUGIN",
+                    "PEERTUBE_ROOT_USERNAME",
+                    "PEERTUBE_RBAC_CREATED",
+                ],
+                [
+                    "PGPASSWORD",
+                    "RBAC_MEMBERS",
+                    "PEERTUBE_RBAC_ROLE_IDS",
+                    "PEERTUBE_OIDC_PLUGIN",
+                ],
             ],
         )
         for script, forwarded, _ in database.runs:
@@ -215,7 +235,9 @@ class PeertubeRbacSyncTests(unittest.TestCase):
                 for line in script.splitlines()
                 if line.startswith("\\getenv")
             }
-            self.assertTrue(read <= set(forwarded), f"{read - set(forwarded)} not forwarded")
+            self.assertTrue(
+                read <= set(forwarded), f"{read - set(forwarded)} not forwarded"
+            )
 
 
 if __name__ == "__main__":
