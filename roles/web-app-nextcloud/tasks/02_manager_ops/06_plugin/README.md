@@ -28,8 +28,19 @@ Each `tasks/02_manager_ops/06_plugin/<step>.yml` file owns exactly one OCC stage
 | File | Stage | OCC command | Continues to next stage when |
 |---|---|---|---|
 | [01_install.yml](./01_install.yml) | install | `occ app:install` | install result is `runnable` (success or already installed) |
-| [02_enable.yml](./02_enable.yml) | enable | `occ app:enable` | enable result is not flagged `incompatible` |
-| [03_configure.yml](./03_configure.yml) | configure | `occ config:app:set` plus optional hook | (terminal stage) |
+| [02_enable.yml](./02_enable.yml) | enable | `occ app:enable` | enable result is not flagged `incompatible`; the plugin is then queued for the configure stage |
+| [03_configure.yml](./03_configure.yml) | configure | one `occ config:list`, then `occ config:app:set` for the values that differ, plus optional hook | (terminal stage) |
+
+## Configure stage
+
+[03_configure.yml](./03_configure.yml) runs once for every queued plugin: first the plugins the install loop enabled, then those the enable loop enabled, then those of the `configure` plan list.
+
+1. It loads the addon spec of every queued plugin.
+2. It reads `occ config:list` once and keeps an entry only when Nextcloud does not already hold the exact value `occ config:app:set` would store. Entries with a `type`, sensitive values that `config:list` masks, booleans, floats and structured values are always kept.
+3. It writes the kept entries in spec order through one shell; the first failing `config:app:set` stops the shell and names its `appid/configkey` on stderr. The task reports changed only when `occ` answers `set to`.
+4. It runs the hook of every queued plugin in queue order.
+
+The keep or drop decision lives in the filter `nextcloud_plugin_config_pending` ([filter_plugins/nextcloud_plugin_config.py](../../../filter_plugins/nextcloud_plugin_config.py)).
 
 The classification of "runnable" and "incompatible" is computed by the Jinja filter `nextcloud_install_status` defined in [roles/web-app-nextcloud/filter_plugins/nextcloud_install.py](../../../filter_plugins/nextcloud_install.py).
 The filter inspects `rc`, `stdout`, and `stderr` from the OCC call and returns flags that drive `until`, `failed_when`, and `when`.
@@ -60,10 +71,10 @@ A new plugin requires no changes here when its addon spec and optional hook file
 - **Configuration keys (optional).**
   Add a `config.plugin_configuration` list to `meta/addons/<addon_id>.yml`.
   Each list item MUST contain `appid`, `configkey`, and `configvalue`.
-  `03_configure.yml` loads the addon spec and invokes `occ config:app:set` for every entry.
+  `03_configure.yml` loads the addon spec and invokes `occ config:app:set` for every entry whose value Nextcloud does not hold yet.
 - **Custom logic (optional).**
   Create `tasks/addons/<addon_id>.yml`.
-  The hook runs after `config:app:set` and MAY perform plugin-specific provisioning such as LDAP wiring or REST calls against the live container.
+  The hook runs after the configuration of every queued plugin and MAY perform plugin-specific provisioning such as LDAP wiring or REST calls against the live container.
 
 The hook is looked up via the path constant `NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH` defined in [vars/main.yml](../../../vars/main.yml).
 Missing files MUST be tolerated; the corresponding step skips cleanly.
@@ -77,4 +88,4 @@ This guarantees that mutually exclusive integrations such as the OIDC entry poin
 ## Entry point
 
 [02_manager_ops.yml](../../02_manager_ops.yml) includes [06_plugin.yml](../06_plugin.yml) once.
-It loops over the `NEXTCLOUD_PLUGIN_ITEMS` of each plan list and unpacks the loop variable `plugin_item` into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry).
+It loops over the `NEXTCLOUD_PLUGIN_ITEMS` of the `install` and `enable` plan lists and unpacks the loop variable `plugin_item` into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry), then includes the configure stage once for the queue `nextcloud_plugin_configure_keys`.

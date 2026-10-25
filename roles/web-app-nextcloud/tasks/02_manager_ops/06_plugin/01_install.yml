@@ -80,5 +80,3 @@
 
 - include_tasks: 02_enable.yml
   when: (install_result | nextcloud_install_status).runnable
-  vars:
-    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_key }}.yml"
