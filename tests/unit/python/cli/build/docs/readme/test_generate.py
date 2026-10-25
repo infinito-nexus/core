@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -36,7 +38,7 @@ class TestServiceProviderCountry(unittest.TestCase):
             {ROLE_FILE_TEMPL_COMPOSE: "", ROLE_FILE_VARS_MAIN: READS_COUNTRY}
         )
 
-        self.assertIn("COUNTRY=<your-country>", block)
+        self.assertIn('COUNTRY="<your-country>"', block)
         self.assertIn('-e COUNTRY="$COUNTRY"', block)
         self.assertIn(COUNTRY_VARS, block)
 
@@ -45,15 +47,33 @@ class TestServiceProviderCountry(unittest.TestCase):
             {ROLE_FILE_TEMPL_COMPOSE: "", ROLE_FILE_TASKS_MAIN: READS_COUNTRY}
         )
 
-        self.assertIn("COUNTRY=<your-country>", block)
+        self.assertIn('COUNTRY="<your-country>"', block)
         self.assertIn(COUNTRY_VARS, block)
 
     def test_host_role_reading_the_country_asks_for_it(self) -> None:
         block = _production_block({ROLE_FILE_VARS_MAIN: READS_COUNTRY})
 
         self.assertIn("--host localhost", block)
-        self.assertIn("COUNTRY=<your-country>", block)
+        self.assertIn('COUNTRY="<your-country>"', block)
         self.assertIn(COUNTRY_VARS, block)
+
+    def test_the_production_commands_parse_as_bash(self) -> None:
+        for files in (
+            {ROLE_FILE_TEMPL_COMPOSE: "", ROLE_FILE_VARS_MAIN: READS_COUNTRY},
+            {ROLE_FILE_VARS_MAIN: READS_COUNTRY},
+        ):
+            block = _production_block(files)
+            scripts = re.findall(r"```bash\n(.*?)```", block, re.DOTALL)
+            self.assertTrue(scripts)
+            for script in scripts:
+                checked = subprocess.run(
+                    ["bash", "-n"],
+                    input=script,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_role_rendering_the_country_only_in_a_template_does_not_ask(
         self,
