@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("Roulette Wheel front page is served under canonical domain with TLS", asyn
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Roulette Wheel URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Roulette Wheel");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Roulette Wheel");
 });
 
 test("Roulette Wheel returns HTML content under canonical domain", async ({ request }) => {

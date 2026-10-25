@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("Confluence front page is served under canonical domain with TLS", async ({
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Confluence URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Confluence");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Confluence");
 });
 
 test("Confluence returns HTML content under canonical domain", async ({ request }) => {

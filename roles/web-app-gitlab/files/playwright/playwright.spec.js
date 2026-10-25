@@ -4,6 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const {
   decodeDotenvQuotedValue,
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -38,8 +39,7 @@ test("GitLab front page is served under canonical domain with TLS", async ({ pag
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the GitLab URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "GitLab");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "GitLab");
 });
 
 test("GitLab returns HTML content under canonical domain", async ({ request }) => {

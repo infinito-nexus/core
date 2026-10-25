@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("Mobilizon front page is served under canonical domain with TLS", async ({ 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Mobilizon URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Mobilizon");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Mobilizon");
 });
 
 test("Mobilizon returns HTML content under canonical domain", async ({ request }) => {

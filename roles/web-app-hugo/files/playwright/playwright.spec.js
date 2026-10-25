@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("hugo front page is served under canonical domain with TLS + HSTS", async (
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the hugo URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "hugo");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "hugo");
 });
 
 test("hugo emits a CSP header on the front page", async ({ request }) => {

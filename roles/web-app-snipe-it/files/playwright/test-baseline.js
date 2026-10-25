@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -24,8 +25,7 @@ test("baseline: Snipe-IT front page is served under the canonical domain with TL
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Snipe-IT URL`,
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, baseUrl, "Snipe-IT");
+  expectHstsWhenTls(await ownResponseHeaders(response), baseUrl, "Snipe-IT");
 });
 
 test("baseline: Snipe-IT returns HTML content under the canonical domain", async ({ request }) => {

@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("Social Home front page is served under canonical domain with TLS", async (
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Social Home URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Social Home");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Social Home");
 });
 
 test("Social Home returns HTML content under canonical domain", async ({ request }) => {

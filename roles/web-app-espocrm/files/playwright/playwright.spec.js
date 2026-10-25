@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -31,8 +32,7 @@ test("EspoCRM front page is served under canonical domain with TLS", async ({ pa
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the EspoCRM URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "EspoCRM");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "EspoCRM");
 });
 
 test("EspoCRM returns HTML content under canonical domain", async ({ request }) => {

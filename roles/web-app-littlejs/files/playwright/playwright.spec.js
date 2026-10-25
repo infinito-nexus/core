@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("LittleJS front page is served under canonical domain with TLS", async ({ p
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the LittleJS URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "LittleJS");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "LittleJS");
 });
 
 test("LittleJS returns HTML content under canonical domain", async ({ request }) => {
