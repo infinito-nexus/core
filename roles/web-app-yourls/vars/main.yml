@@ -12,6 +12,9 @@ YOURLS_CONTAINER: "{{ lookup('config', application_id, 'services.yourls.name') }
 YOURLS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 YOURLS_ADMIN_LOCATION: "{{ lookup('config', application_id, 'server.locations.admin') }}"
 YOURLS_LANDINGPAGE_STATUS_CODE: "{{ lookup('config', application_id, 'server.status_codes.default') }}"
+YOURLS_DOCROOT: "/var/www/html"
+YOURLS_WEB_USER: "www-data"
+YOURLS_UPGRADE_PROBE_KEYWORD: "infinito-upgrade-probe"
 
 YOURLS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 YOURLS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
