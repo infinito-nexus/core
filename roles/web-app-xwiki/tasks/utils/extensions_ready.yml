@@ -41,7 +41,7 @@
          and _xwiki_running_core.content is search('<version>' ~ (XWIKI_CORE_VERSION | regex_escape) ~ '</version>') }}
 
 - name: "✅ XWIKI | Check the running wiki's add-ons against their pins"
-  include_tasks: _check_extension_via_groovy.yml
+  include_tasks: "{{ role_path }}/tasks/_check_extension_via_groovy.yml"
   loop: "{{ XWIKI_PLUGINS }}"
   loop_control:
     loop_var: plugin
