@@ -58,18 +58,26 @@ def due(
     *,
     gate_locked: bool = False,
     conditions_met: frozenset[str] = frozenset(),
+    held: frozenset[str] = frozenset(),
+    blocked: frozenset[str] = frozenset(),
 ) -> list[dict]:
     """Return the cron entries that fire at ``when``.
 
     An entry fires when its schedule matches and its condition (if any) holds.
     While the gate lock is held, a ``start`` entry does not fire; a ``pause``
-    entry still does, so the gate can quiesce a lane.
+    entry still does, so the gate can quiesce a lane. A ``start`` whose routine
+    the owner has put on hold, or that carries a recorded owner-only blocker,
+    does not fire either: a cron re-delivery is never read as fresh consent, so
+    the routine stays quiet across every later firing until the owner lifts the
+    hold or clears the blocker.
 
     Args:
         entries: the role's cron.yml list.
         when: the current UTC time.
         gate_locked: whether the machine's gate lock is held.
         conditions_met: the condition names the orchestrator measured as true.
+        held: the routines the owner has put on hold.
+        blocked: the routines with a recorded owner-only blocker.
     """
     out = []
     for entry in entries:
@@ -78,10 +86,26 @@ def due(
         condition = entry.get("condition")
         if condition is not None and condition not in conditions_met:
             continue
-        if gate_locked and entry.get("action") == "start":
+        if entry.get("action") == "start" and (
+            gate_locked or entry.get("routine") in held or entry.get("routine") in blocked
+        ):
             continue
         out.append(entry)
     return out
+
+
+def gate_discarded(*, long_job_ran: bool, tree_changed: bool) -> bool:
+    """Return whether a quality gate run is discarded rather than judged.
+
+    A gate during which a long job ran beside it, or the tree under test
+    changed, is not a red or green result; it is thrown away.
+
+    Args:
+        long_job_ran: whether a long-running job ran on the machine during the
+            gate.
+        tree_changed: whether the tree under test changed during the gate.
+    """
+    return long_job_ran or tree_changed
 
 
 def _expect(condition: bool, message: object) -> None:
@@ -150,6 +174,19 @@ def _demo() -> None:
     _expect(
         [e["name"] for e in due([pause], at_0700, gate_locked=True)] == ["p"],
         "gate wrongly suppressed a pause",
+    )
+
+    held = frozenset({"maintainer"})
+    _expect(due([sweep], at_0400, held=held) == [], "held routine fired on cron")
+    _expect(due([sweep], at_0400, blocked=held) == [], "blocked routine fired on cron")
+    _expect([e["name"] for e in due([sweep], at_0400)] == ["s"], "sweep missed off hold")
+    _expect(
+        gate_discarded(long_job_ran=True, tree_changed=False),
+        "gate beside a long job not discarded",
+    )
+    _expect(
+        not gate_discarded(long_job_ran=False, tree_changed=False),
+        "clean gate wrongly discarded",
     )
     print("orchestrator cron self-check ok")
 
