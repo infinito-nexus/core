@@ -45,10 +45,15 @@
       }}
   changed_when: false
 
-- name: 🧊 Freeze the probe target for this vhost
+- name: 🧊 Freeze the probe target and queue it for the deferred probe
   ansible.builtin.set_fact:
-    front_proxy_probe_url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
-    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
+    front_proxy_probe_url: "{{ front_proxy_probe.url }}"
+    front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
+    front_proxy_deferred_probes: "{{ front_proxy_deferred_probes | combine({front_proxy_domain: front_proxy_probe}) }}"
+  vars:
+    front_proxy_probe:
+      url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+      status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
 
 - name: 📂 Include dependencies
@@ -107,25 +112,6 @@
     webserver_client_max_body_size: "{{ lookup('config', front_proxy_application_id, 'server.client_max_body_size', '100m') }}"
   register: nginx_conf
   notify: reload-openresty
-
-- block:
-    - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
-      uri_probe:
-        url: "{{ front_proxy_probe_url }}"
-        status_code: "{{ front_proxy_probe_status_codes }}"
-        follow_redirects: none
-      register: site_check
-      failed_when: false
-      changed_when: false
-
-    - name: "🔄 Redeploy: site answered {{ site_check.status | default('none') }}"
-      ansible.builtin.command:
-        cmd: "true"
-      notify: restart-openresty
-      when:
-        - site_check.status | default(-1) not in front_proxy_status_codes
-        - site_check.status | default(-1) in front_proxy_stale_config_status_codes
-  when: not nginx_conf.changed
 
 - name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
   ansible.builtin.meta: flush_handlers

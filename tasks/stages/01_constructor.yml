@@ -220,6 +220,11 @@
     service_loader_preloading: false
   changed_when: false
 
+- name: "🔍 Probe the shared-service vhosts before any app role calls them"
+  ansible.builtin.include_role:
+    name: sys-stk-front-proxy
+    tasks_from: deferred_probe.yml
+
 - name: "🧩 Load base roles"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'constructor') }}"
