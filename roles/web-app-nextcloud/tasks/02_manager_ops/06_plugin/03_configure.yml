@@ -1,34 +1,46 @@
 ---
 # Loaded via include_vars (not config lookup or lookup('file')) so the role-scoped vars referenced inside the payload render lazily in this task's scope.
-- name: "📄 Load {{ plugin_key }} addon spec from meta/addons/{{ plugin_key }}.yml"
+- name: "📄 Load the addon specs of the plugins to configure from meta/addons/"
   ansible.builtin.include_vars:
     file: "{{ [role_path, 'meta/addons', plugin_key ~ '.yml'] | path_join }}"
-    name: addon_spec
+    name: "nextcloud_addon_spec_{{ plugin_key }}"
+  loop: "{{ nextcloud_plugin_configure_keys }}"
+  loop_control:
+    loop_var: plugin_key
 
-- name: "🔧 Set plugin configuration (batched shell, no async)"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    {% for item in (addon_spec.config.plugin_configuration | default([])) %}
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} \
-      config:app:set {{ item.appid }} {{ item.configkey }}{{ (' --no-interaction --type=' ~ item.type) if item.type is defined else '' }} \
-      --value '{{ ( (item.configvalue | to_json) if (item.configvalue is mapping or (item.configvalue is sequence and item.configvalue is not string)) else (item.configvalue | string) )
-            | regex_replace("'", "'" ~ '"' ~ "'" ~ '"' ~ "'") }}'
-    {% endfor %}
-  args:
-    executable: /bin/bash
-  when: (addon_spec.config.plugin_configuration | default([])) | length > 0
-  register: config_set_shell
-  changed_when: config_set_shell.stdout is search(' set to ')
-  failed_when: config_set_shell.rc != 0
+- name: "📋 Read the app configuration Nextcloud holds"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:list --output=json"
+  register: nextcloud_app_config
+  changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: 🔎 Check if {{ plugin_task_path }} exists
-  stat:
-    path: "{{ plugin_task_path }}"
-  delegate_to: localhost
-  become: false
-  register: plugin_tasks_file
+- name: "🧮 Keep the plugin configuration values Nextcloud does not hold yet"
+  ansible.builtin.set_fact:
+    nextcloud_plugin_config_pending: >-
+      {{ query('vars', *(nextcloud_plugin_configure_keys | map('regex_replace', '^', 'nextcloud_addon_spec_')))
+         | nextcloud_plugin_config_pending(nextcloud_app_config.stdout | from_json) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "📂 include {{ plugin_task_path }}"
-  include_tasks: "{{ plugin_task_path }}"
-  when: plugin_tasks_file.stat.exists
+- name: "🔧 Set the pending plugin configuration (one exec, occ calls on stdin)"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
+    stdin: |
+      set -eu
+      {% for item in nextcloud_plugin_config_pending %}
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set {{ item.appid | quote }} {{ item.configkey | quote }}{{ (' --no-interaction --type=' ~ item.type) if item.type is not none else '' }} --value {{ item.value | quote }} || { echo {{ ('config:app:set failed for ' ~ item.appid ~ '/' ~ item.configkey) | quote }} >&2; exit 1; }
+      {% endfor %}
+  when: nextcloud_plugin_config_pending | length > 0
+  register: nextcloud_plugin_config_set
+  changed_when: nextcloud_plugin_config_set.stdout is search(' set to ')
+  failed_when: nextcloud_plugin_config_set.rc != 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📂 Run the hook of every configured plugin from tasks/addons/"
+  ansible.builtin.include_tasks: "{{ plugin_task_path }}"
+  loop: "{{ nextcloud_plugin_configure_keys }}"
+  loop_control:
+    loop_var: plugin_key
+  vars:
+    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_key }}.yml"
+  when: plugin_task_path is file
