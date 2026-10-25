@@ -199,6 +199,14 @@ postfix:
     - postfix
     - postfix-lmdb
 
+procps:
+  Archlinux:
+    - procps-ng
+  Debian:
+    - procps
+  RedHat:
+    - procps-ng
+
 retext:
   Archlinux:
     - retext
