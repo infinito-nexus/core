@@ -54,6 +54,7 @@ WAZUH_CERTS_REQUIRED_FILES:
 
 WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_SECURITYADMIN_MARKER_CONTAINER: "{{ [ lookup('volume', application_id, 'indexer_data').target, '.infinito-securityadmin.sha256' ] | path_join }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 
 WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
 

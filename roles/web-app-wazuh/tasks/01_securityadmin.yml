@@ -1,4 +1,20 @@
 ---
+- name: "🔍 Hash the security config the indexer reads"
+  ansible.builtin.shell: >-
+    container exec {{ WAZUH_INDEXER_CONTAINER_ADDRESS }}
+    sh -c {{ ('cat ' ~ WAZUH_INDEXER_SECURITY_DIR_CONTAINER ~ "/*.yml | sha256sum | cut -d' ' -f1") | quote }}
+  register: wazuh_securityadmin_digest
+  changed_when: false
+
+# Exception: the marker lives in the indexer's data volume, next to the security index it describes, so a fresh volume has none and the config is always applied there.
+- name: "🔍 Read the digest of the last applied security config"
+  ansible.builtin.shell: >-
+    container exec {{ WAZUH_INDEXER_CONTAINER_ADDRESS }}
+    cat {{ WAZUH_INDEXER_SECURITYADMIN_MARKER_CONTAINER | quote }}
+  register: wazuh_securityadmin_marker
+  changed_when: false
+  failed_when: false
+
 - name: "▶️ Run securityadmin.sh inside the indexer container"
   ansible.builtin.shell:
     cmd: >-
@@ -12,8 +28,16 @@
       -nhnv
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_securityadmin
-  changed_when: "'Done with success' in wazuh_securityadmin.stdout"
+  changed_when: true
   failed_when: wazuh_securityadmin.rc != 0 or 'Done with success' not in wazuh_securityadmin.stdout
   retries: 10
   delay: 10
   until: wazuh_securityadmin.rc == 0
+  when: wazuh_securityadmin_marker.stdout | trim != wazuh_securityadmin_digest.stdout | trim
+
+- name: "📝 Record the digest of the applied security config"
+  ansible.builtin.shell: >-
+    container exec {{ WAZUH_INDEXER_CONTAINER_ADDRESS }}
+    sh -c {{ ('printf "%s\n" ' ~ (wazuh_securityadmin_digest.stdout | trim) ~ ' > ' ~ WAZUH_INDEXER_SECURITYADMIN_MARKER_CONTAINER) | quote }}
+  changed_when: false
+  when: wazuh_securityadmin is not skipped
