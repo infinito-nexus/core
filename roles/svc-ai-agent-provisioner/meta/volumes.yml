@@ -1,0 +1,7 @@
+# nocheck: backup-service-flag  the only named volume holds the reconstructible audit spool cache; the durable audit trail lives in svc-db-postgres
+---
+state:
+  type: volume
+  mounts:
+    - service: agent-provisioner
+      target: /var/lib/provisioner

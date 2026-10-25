@@ -10,7 +10,7 @@ Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`,
 
 - You MUST quote the `name:` value in double quotes because the colon (`:`) in the name is a reserved YAML character.
 - You MUST place the emoji before the category, never after.
-- You MUST NOT add emojis to `docs/agents/` files, but workflow `name:` fields are not agent files and MUST use emojis.
+- You MUST NOT add emojis to `agents/` files, but workflow `name:` fields are not agent files and MUST use emojis.
 - The qualifier in parentheses is OPTIONAL. Use it only when two workflows share the same category and subject.
 - A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit.
 

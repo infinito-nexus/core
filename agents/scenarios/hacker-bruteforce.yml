@@ -1,0 +1,7 @@
+---
+id: hacker-bruteforce
+criterion: SC-HACKER-BRUTE
+mode: compose
+given: the vulnerable fixture app with a seeded weak test credential behind a seeded login throttle and lockout
+when: the hacker runs credential brute forcing against that test account
+then: the attempts stay under the lockout threshold, stop at the first proof, touch no real account and lock no account out of service

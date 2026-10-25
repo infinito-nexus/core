@@ -1,0 +1,34 @@
+---
+application_id: "svc-ai-agent-orchestrator"
+entity_name: "{{ application_id | entity_name }}"
+
+AGENT_ORCHESTRATOR_CONTAINER: "{{ lookup('config', application_id, 'services.agent-orchestrator.name') }}"
+AGENT_ORCHESTRATOR_PORT: "{{ lookup('config', application_id, 'services.agent-orchestrator.ports.internal.http') }}"
+AGENT_ORCHESTRATOR_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+AGENT_ORCHESTRATOR_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
+AGENT_ORCHESTRATOR_CHECKPOINT_KEY: "{{ lookup('config', application_id, 'secrets.credentials.checkpoint_encryption_key') }}"
+AGENT_ORCHESTRATOR_LITELLM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+AGENT_ORCHESTRATOR_BASE_IMAGE: "{{ lookup('config', application_id, 'services.agent-orchestrator.image') }}"
+AGENT_ORCHESTRATOR_BASE_VERSION: "{{ lookup('config', application_id, 'services.agent-orchestrator.version') }}"
+AGENT_ORCHESTRATOR_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+AGENT_ORCHESTRATOR_STATE_DIR: "{{ lookup('volume', application_id, 'state').target }}"
+AGENT_ORCHESTRATOR_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.agent-orchestrator.request_timeout') }}"
+AGENT_ORCHESTRATOR_POLL_INTERVAL: "{{ lookup('config', application_id, 'services.agent-orchestrator.poll_interval') }}"
+AGENT_ORCHESTRATOR_PUBLICLY_REACHABLE: "{{ lookup('config', application_id, 'services.agent-orchestrator.publicly_reachable') }}"
+AGENT_ORCHESTRATOR_RETENTION_DAYS: "{{ lookup('config', application_id, 'services.agent-orchestrator.checkpoint_retention_days') }}"
+AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ lookup('config', application_id, 'services.agent-orchestrator.cron_entries') }}"
+AGENT_ORCHESTRATOR_AGENT_ROLES: "{{ query('fileglob', [lookup('path_absolute', 'agents/roles'), '*', 'cron.yml'] | path_join) | map('dirname') | map('basename') | sort }}"
+
+AGENT_ORCHESTRATOR_CHANNELS: "{{ (['matrix'] if 'web-app-matrix' in group_names else []) + ['email'] + (['zammad'] if 'web-app-zammad'
+  in group_names else []) }}"
+
+AGENT_ORCHESTRATOR_LIBS:
+  - utils/__init__.py
+  - utils/orchestrator/__init__.py
+  - utils/orchestrator/webhook.py
+  - utils/orchestrator/cron.py
+  - utils/orchestrator/audit.py
+  - utils/orchestrator/channels.py
+  - utils/orchestrator/instance_api.py
+  - utils/agents/__init__.py
+  - utils/agents/naming.py

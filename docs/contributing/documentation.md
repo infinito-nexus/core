@@ -53,7 +53,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 
 - You SHOULD place emojis after the headline text to visually highlight headings and improve scannability.
 - You MUST NOT place emojis before the headline text, as this interferes with heading hierarchy rendering in some tools.
-- You MUST NOT add emojis to headlines in `docs/agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
+- You MUST NOT add emojis to headlines in `agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
 
 ## Documentation Structure 🗂️
 

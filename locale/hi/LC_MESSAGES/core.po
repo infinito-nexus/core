@@ -49,6 +49,14 @@ msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "एजेंट"
 
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
@@ -143,6 +151,10 @@ msgstr "ड्रॉप-इन, डिफ़ॉल्ट सेटिंग्�
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "ब्लेंडर वर्कस्टेशन इंस्टॉलेशन ने मेजबान पर एजेंटों को मॉडल कॉन्टेक्स्ट प्रोटोकॉल के माध्यम से वायर किया"
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
@@ -500,6 +512,10 @@ msgstr "सुरक्षित बैकअप एक्सेस के ल�
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "एक बार एक प्ले पूरा होने के बाद एकत्र की गई सेवाओं को सक्षम करने और शुरू करने के लिए स्थगित शुरू ऑर्केस्ट्रेटर"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:description"
@@ -930,6 +946,10 @@ msgstr "एक बाहरी SMTP सर्वर के माध्यम �
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "लाइटवेट स्व-होस्ट Git कोड सहयोग, संस्करण नियंत्रण और भंडार प्रबंधन के लिए सेवा"
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"

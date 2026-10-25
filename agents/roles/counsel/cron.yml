@@ -1,0 +1,5 @@
+---
+- name: weekly-legal-review
+  schedule: "0 2 * * 1"
+  routine: legal_audit
+  action: start

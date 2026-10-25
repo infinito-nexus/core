@@ -12,7 +12,7 @@ integration tests doing project scans. Routing every walk through
 :func:`iter_project_files_with_content`, :func:`read_text`) shares one
 walk + one read per file across the whole pytest session.
 
-See ``docs/agents/action/testing.md`` for the full rule.
+See ``agents/skills/i8-test/SKILL.md`` for the full rule.
 
 Detection
 =========
@@ -180,7 +180,7 @@ class TestNoRawProjectWalk(unittest.TestCase):
                 "  • iter_project_files_with_content(...)        → yields (path, text)\n"
                 "  • read_text(path)                              → cached UTF-8 read\n"
                 "These share one filesystem walk + one read per file across the\n"
-                "whole pytest session. See docs/agents/action/testing.md.\n\n"
+                "whole pytest session. See agents/skills/i8-test/SKILL.md.\n\n"
                 "Only opt out per call with `# nocheck: project-walk` when the walk\n"
                 "is genuinely outside the project tree (tempdirs, `.git` history,\n"
                 "etc.) and a short inline comment explains why."

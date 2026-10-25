@@ -170,5 +170,5 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 ## See Also
 
-- How agents process requirements: [requirements.md](../agents/action/requirements.md)
+- How agents process requirements: [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md)
 - Requirement format: [requirements.md](../contributing/requirements.md)

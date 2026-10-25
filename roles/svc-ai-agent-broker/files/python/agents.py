@@ -29,46 +29,62 @@ def agent_name(platform, owner):
     return f"agent-{platform}-{digest}"
 
 
-def hermes_config(model, relay_url, key, context):
-    lines = [
-        "model:",
-        f"  default: {json.dumps(model)}",
-        "  provider: custom",
-        f"  base_url: {json.dumps(relay_url)}",
-        f"  api_key: {json.dumps(key)}",
-    ]
-    if context:
-        lines.append(f"  context_length: {context}")
-    lines += ["mcp_servers: {}", ""]
-    return "\n".join(lines)
+_DROP = object()
 
 
-def openclaw_config(model, relay_url, key, context):
-    entry = {"id": model, "name": model}
-    if context:
-        entry["contextWindow"] = context
-    return json.dumps(
+def _subst(node, subs):
+    """Return ``node`` with its ``${name}`` placeholders replaced from ``subs``.
+
+    A string that is exactly ``${context}`` becomes the context value, or
+    ``_DROP`` when the context is falsy so the key is left out. Any other
+    string has every ``${name}`` interpolated. Dicts and lists recurse, and a
+    ``_DROP`` value removes its key or list item.
+    """
+    if isinstance(node, dict):
+        out = {}
+        for key, value in node.items():
+            rendered = _subst(value, subs)
+            if rendered is not _DROP:
+                out[key] = rendered
+        return out
+    if isinstance(node, list):
+        return [r for r in (_subst(v, subs) for v in node) if r is not _DROP]
+    if isinstance(node, str):
+        if node == "${context}":
+            return subs["context"] or _DROP
+        result = node
+        for name, value in subs.items():
+            result = result.replace("${" + name + "}", str(value))
+        return result
+    return node
+
+
+def render_config(platform_spec, model, relay_url, key, context):
+    """Render a runtime's agent config from the runtime's own declaration.
+
+    The broker holds no runtime list: every runtime declares ``config_render``,
+    the agent config as data with ``${model}``, ``${relay_url}``, ``${key}``
+    and ``${context}`` placeholders, in its platform spec. The result is JSON,
+    which both a JSON runtime and a YAML runtime parse, so the broker needs no
+    serializer beyond the standard library.
+
+    Args:
+        platform_spec: the runtime's entry from ``AGENT_PLATFORMS``.
+        model: the model alias the agent asks the relay for.
+        relay_url: the base URL the agent sends model calls to.
+        key: the agent's broker key.
+        context: the model's context window in tokens, 0 to leave it unset.
+    """
+    data = _subst(
+        platform_spec["config_render"],
         {
-            "gateway": {
-                "mode": "local",
-                "http": {"endpoints": {"chatCompletions": {"enabled": True}}},
-            },
-            "agents": {"defaults": {"model": {"primary": f"broker/{model}"}}},
-            "models": {
-                "providers": {
-                    "broker": {
-                        "baseUrl": relay_url,
-                        "apiKey": key,
-                        "api": "openai-completions",
-                        "models": [entry],
-                    }
-                }
-            },
-        }
+            "model": model,
+            "relay_url": relay_url,
+            "key": key,
+            "context": context,
+        },
     )
-
-
-CONFIG_RENDERERS = {"hermes": hermes_config, "openclaw": openclaw_config}
+    return json.dumps(data)
 
 
 def _env_value(env, name):
@@ -143,8 +159,8 @@ class Agents:
         name = agent_name(platform, owner)
         entrypoint, cmd = self.engine.image_config(platform_spec["image"])
         command = list(platform_spec["command"]) or cmd
-        config = CONFIG_RENDERERS[platform](
-            self.model, self.relay_url, key, self.context
+        config = render_config(
+            platform_spec, self.model, self.relay_url, key, self.context
         )
         env = [f"{k}={v}" for k, v in sorted(platform_spec["env"].items())]
         env += [

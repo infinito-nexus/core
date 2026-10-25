@@ -195,13 +195,13 @@ litellm:
 make compose-deploy apps=web-app-worldmonitor purge=true full_cycle=true
 ```
 
-Cross-mode parity follows the [Roundtrip Loop](../agents/action/iteration/roundtrip.md).
+Cross-mode parity follows the [Roundtrip Loop](../../agents/skills/i8-iterate-roundtrip/SKILL.md).
 
 Smoke: visit `https://worldmonitor.{{ DOMAIN_PRIMARY }}/`, pass the Keycloak login, confirm the map shows seeded layers, log out, confirm the gate returns.
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

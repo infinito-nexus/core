@@ -1,0 +1,5 @@
+---
+- name: weekly-scan
+  schedule: "0 2 * * 1"
+  routine: hacker_scan
+  action: start

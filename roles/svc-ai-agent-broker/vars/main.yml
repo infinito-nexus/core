@@ -31,10 +31,18 @@ AGENT_BROKER_PLATFORMS_DECLARED:
     port: "{{ lookup('config', 'web-app-hermes', 'services.hermes.ports.internal.http') }}"
     health: /health
     data: "{{ lookup('volume', 'web-app-hermes', 'hermes_data').target }}"
-    # hermes_config mounts the seed at /opt/seed, which only the web-app-hermes container has; an agent gets its own volume at the data target, so its config has to be written there
+    # the hermes seed mounts at /opt/seed, which only the web-app-hermes container has; an agent gets its own volume at the data target, so its config is written there
     config_path: "{{ [lookup('volume', 'web-app-hermes', 'hermes_data').target, 'config.yaml'] | path_join }}"
     command: ["gateway"]
     user: ""
+    config_render:
+      model:
+        default: "${model}"
+        provider: custom
+        base_url: "${relay_url}"
+        api_key: "${key}"
+        context_length: "${context}"
+      mcp_servers: {}
     key_env: API_SERVER_KEY
     request_model: hermes-agent
     min_context: "{{ lookup('config', 'web-app-hermes', 'services.hermes.min_context') }}"
@@ -65,6 +73,27 @@ AGENT_BROKER_PLATFORMS_DECLARED:
       - --port
       - "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.ports.internal.http') }}"
     user: "0:0"
+    config_render:
+      gateway:
+        mode: local
+        http:
+          endpoints:
+            chatCompletions:
+              enabled: true
+      agents:
+        defaults:
+          model:
+            primary: "broker/${model}"
+      models:
+        providers:
+          broker:
+            baseUrl: "${relay_url}"
+            apiKey: "${key}"
+            api: openai-completions
+            models:
+              - id: "${model}"
+                name: "${model}"
+                contextWindow: "${context}"
     key_env: OPENCLAW_GATEWAY_TOKEN
     request_model: openclaw
     env:

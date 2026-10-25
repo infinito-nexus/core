@@ -1,0 +1,6 @@
+---
+workspace_data:
+  type: volume
+  mounts:
+    - service: workspace
+      target: /home/workspace

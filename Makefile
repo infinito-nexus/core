@@ -23,7 +23,7 @@ act-debug:
 .PHONY: act-runner-image
 # Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
 # Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>
-# Note: see docs/agents/action/iteration/workflow.md.
+# Note: see agents/skills/i8-iterate-workflow/SKILL.md.
 act-runner-image:
 	@bash scripts/tests/deploy/act/build_runner_image.sh
 
@@ -31,6 +31,38 @@ act-runner-image:
 # Run the act-based workflow deploy check.
 act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
+
+.PHONY: agents-integration
+# Run the SaaS integration path locally through act: the app matrix with each app deployed together with the agents bundle, local models only, one app after the other.
+# Usage: make agents-integration [whitelist="<app ids>"] [priority="<app ids>"]
+# Param whitelist: space-separated app ids to integrate (empty: diff vs origin/main)
+# Param priority: space-separated app ids to integrate first
+agents-integration: install-act
+	@whitelist='$(whitelist)' priority='$(priority)' bash scripts/agents/integration.sh
+
+.PHONY: agents-preseed
+# Host-pull the agents bundle's large images (for example the Ollama image) before the deploy, so images over the registry cache transfer limit are already loaded.
+# Usage: make agents-preseed images="<ref> <ref>"
+# Param images: space-separated image refs to host-pull (empty: nothing to preseed)
+agents-preseed:
+	@images='$(images)' bash scripts/agents/preseed.sh
+
+.PHONY: agents-stop
+# Suspend the running agent instances without revoking them (kill switch): the orchestrator blocks every agent key, stops every broker-managed container and disables every agent account; a teardown revokes.
+# Usage: make agents-stop orchestrator=<container> cmd="<suspend command>"
+# Param orchestrator: deployed orchestrator container name (required)
+# Param cmd: the orchestrator's suspend command (required)
+agents-stop:
+	@orchestrator='$(orchestrator)' cmd='$(cmd)' bash scripts/agents/stop.sh
+
+.PHONY: agents-verify
+# Deploy the agents bundle and run the agent verification scenarios, printing the result table (id, mode, result, duration, log).
+# Usage: make agents-verify [mode=compose|swarm] [scenario=<id>]
+# Example: make agents-verify scenario=hacker-bruteforce
+# Param mode: compose | swarm; omitted runs both in sequence
+# Param scenario: a single scenario id run against the already-running stack (no redeploy)
+agents-verify:
+	@mode='$(mode)' scenario='$(scenario)' bash scripts/agents/verify.sh
 
 .PHONY: alias
 # Print the portable agent shortcuts and the operator's terminal aliases.
@@ -111,6 +143,16 @@ cache-apply:
 # Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
 cheat:
 	@bash scripts/make/cheatsheet.sh
+
+.PHONY: ci-wait
+# Wait for an external CI state (a job log, a run end or a check) with a fixed poll interval and timeout, so no routine needs its own shell loop.
+# Usage: make ci-wait kind=job-log|run|check id=<id> interval=<seconds> timeout=<seconds>
+# Param kind: job-log | run | check -- the kind of state to wait for
+# Param id: the job, run or check id
+# Param interval: seconds between polls
+# Param timeout: seconds before giving up (non-zero exit)
+ci-wait:
+	@kind='$(kind)' id='$(id)' interval='$(interval)' timeout='$(timeout)' bash scripts/ci/wait.sh
 
 .PHONY: clean
 # Remove ignored files from the working tree.
@@ -402,12 +444,27 @@ help:
 i18n-extract:
 	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
 
+.PHONY: i18n-load
+# Report the host load so the translator's crons can decide whether to start the translation lane, without touching Docker directly.
+i18n-load:
+	@bash scripts/i18n/load.sh
+
+.PHONY: i18n-pause
+# Pause the translation (tools) lane container so a gate can hold the machine lock without the lane sending requests; the lane keeps its models and connections.
+i18n-pause:
+	@bash scripts/i18n/pause.sh
+
 .PHONY: i18n-prune
 # Empty the translations that altered a protected span so the next i18n-translate redoes them.
 # Param domain: core | docs (empty: both)
 # Param languages: comma-separated ISO 639-1 codes (empty: every language)
 i18n-prune:
 	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-resume
+# Resume the translation (tools) lane container that make i18n-pause paused, with its loaded models and connections intact.
+i18n-resume:
+	@bash scripts/i18n/resume.sh
 
 .PHONY: i18n-retry
 # Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
@@ -527,6 +584,18 @@ install-venv: install-system-python
 # Note: run this on the host; container environments have no modprobe.
 kernel-loop-load:
 	@sudo bash scripts/system/kernel/loop/load.sh
+
+.PHONY: legal-inventory
+# Build the licence inventory of the tree (project licence and every role's declared licence under roles/*/meta/license.yml) so the counsel's checks start from deterministic data.
+legal-inventory:
+	@bash scripts/legal/inventory.sh
+
+.PHONY: legal-probe
+# Probe a running instance through its front proxy for the Set-Cookie headers set before consent and the reachability of the imprint and privacy pages.
+# Usage: make legal-probe target=<domain>
+# Param target: the instance domain to probe
+legal-probe:
+	@target='$(target)' bash scripts/legal/probe.sh
 
 .PHONY: lint
 # Run all lint checks in parallel.
@@ -940,6 +1009,14 @@ test-performance: install
 	@INFINITO_TEST_TYPE="performance" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+
+.PHONY: test-ref
+# Run one test against another git ref in a throwaway worktree and let the test prove, by its printed module __file__, that it imported from that ref's tree.
+# Usage: make test-ref ref=<ref> test=<path>
+# Param ref: the git ref to check out
+# Param test: the test path (relative to the repo) to run inside that ref's tree
+test-ref:
+	@ref='$(ref)' test='$(test)' bash scripts/tests/ref.sh
 
 .PHONY: test-signed
 # Verify HEAD is signed.

@@ -317,11 +317,11 @@ INFINITO_APPS="web-app-openbao" make deploy-fresh-purged-apps INFINITO_FULL_CYCL
 
 Smoke: visit `https://openbao.{{ DOMAIN_PRIMARY }}/` → Keycloak chain → OpenBao UI; write and read a KV secret; `docker compose restart` and confirm the instance comes back unsealed.
 
-Cross-mode parity is the gate for Decision #11: run the compose loop first, then the swarm loop, then the round-trip sweep per [roundtrip.md](../agents/action/iteration/roundtrip.md). The role is not done until it is green in both.
+Cross-mode parity is the gate for Decision #11: run the compose loop first, then the swarm loop, then the round-trip sweep per [roundtrip.md](../../agents/skills/i8-iterate-roundtrip/SKILL.md). The role is not done until it is green in both.
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md), [Swarm Loop](../../agents/skills/i8-iterate-swarm/SKILL.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md).
 
 ## Implementation Strategy
 

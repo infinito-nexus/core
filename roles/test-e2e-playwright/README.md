@@ -57,7 +57,7 @@ roles/<application_id>/
     files/playwright/playwright.spec.js
 ```
 
-For the file-level contract, use [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md).
+For the file-level contract, use [Contributing `playwright.env.j2`](../../agents/skills/i8-file-role-playwright-env/SKILL.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md).
 
 `package.json` and `playwright.config.js` are provided centrally by this role:
 
@@ -105,7 +105,7 @@ All three are used as central defaults for every app role.
 1. Add the two app-specific files:
    - `roles/<application_id>/templates/playwright.env.j2`
    - `roles/<application_id>/files/playwright/playwright.spec.js`
-   Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them.
+   Follow [Contributing `playwright.env.j2`](../../agents/skills/i8-file-role-playwright-env/SKILL.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them.
 2. Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys.
 3. Keep `package.json` and `playwright.config.js` centralized in `roles/test-e2e-playwright/` (`templates/package.json.j2` and `files/playwright.config.js`).
 

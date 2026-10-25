@@ -19,9 +19,9 @@ echo ">>> Installing agent skills from ${INFINITO_SKILLS_REPOSITORY}"
 git clone --depth 1 "${INFINITO_SKILLS_REPOSITORY}" "${CLONE_DIR}"
 make -C "${CLONE_DIR}" project TARGET="${REPO_ROOT}" # nocheck:make-target
 
-first_party="${REPO_ROOT}/skills"
+first_party="${REPO_ROOT}/agents/skills"
 if [[ -d "${first_party}" ]]; then
-	echo ">>> Layering project-local skills from skills/"
+	echo ">>> Layering project-local skills from agents/skills/"
 	for dst in "${REPO_ROOT}/.agents/skills" "${REPO_ROOT}/.claude/skills"; do
 		mkdir -p "${dst}"
 		cp -a "${first_party}/." "${dst}/"

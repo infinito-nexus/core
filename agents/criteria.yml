@@ -1,0 +1,169 @@
+---
+L01:
+  statement: 'agent.yml has every field; runtime, lifecycle and firewall_roles name'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l01_agent_fields.py
+  red_fixture: yes
+L02:
+  statement: 'every role has AGENTS.md, SOUL.md and agent.yml; every SOUL.md opens'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l02_role_files.py
+  red_fixture: yes
+L03:
+  statement: 'every role lists at least one skill; every skill a role lists exists in'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l03_skill_routine_wiring.py
+  red_fixture: yes
+L04:
+  statement: 'layering holds downward only. A routine imports no skill and no role:'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l04_routine_layering.py
+  red_fixture: yes
+L05:
+  statement: 'role codes are four characters of [a-z1-9], unique, one per role'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l05_role_codes.py
+  red_fixture: yes
+L08:
+  statement: 'every firewall rule parses; every account provider is built in or'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l08_firewall_parses.py
+  red_fixture: yes
+L09:
+  statement: 'every agent role binds at least one firewall role; every firewall role'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l09_firewall_roles_exist.py
+  red_fixture: yes
+L10:
+  statement: 'an app grant that maps to a privileged resource (admin, settings,'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l10_privileged_grants.py
+  red_fixture: yes
+L11:
+  statement: 'an autonomous role denies writes to the protected paths, so an agent'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l11_protected_paths.py
+  red_fixture: yes
+L12:
+  statement: 'a user-started agent gets an account only on a provisioned provider; a firewall role it binds grants no account on an unprovisioned one'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l12_user_started_accounts.py
+  red_fixture: yes
+L13:
+  statement: 'no hardcoded runtime list in svc-ai-agent-broker or'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l13_broker_no_runtime_list.py
+  red_fixture: yes
+L14:
+  statement: 'a routine tool node uses no git -C, no --git-dir, no direct docker'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l14_routine_command_hygiene.py
+  red_fixture: yes
+L15:
+  statement: 'a routine push step names its remote explicitly, never remote.pushDefault'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l15_routine_push.py
+  red_fixture: yes
+L16:
+  statement: 'no routine reads a raw Playwright report, and no tool node prints a raw'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l16_no_raw_dumps.py
+  red_fixture: yes
+L17:
+  statement: 'only a designated model node calls the gateway; a routine module does'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l17_model_nodes_only_gateway.py
+  red_fixture: yes
+L18:
+  statement: 'environment differences are declared capabilities, never a branch on'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l18_declared_capabilities.py
+  red_fixture: yes
+L19:
+  statement: 'no private-use or surrogate characters in agent source files. The Edit'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l19_no_private_use_chars.py
+  red_fixture: yes
+L20:
+  statement: 'support, planner, operator and user-started agents default to local'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l20_local_only_models.py
+  red_fixture: yes
+L21:
+  statement: 'the translator reads no per-language engine; meta/languages.yml holds only name, native and direction, and exactly one infinito_decider implementation exists'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l21_translator_decider.py
+  red_fixture: yes
+L24:
+  statement: 'the agents bundle inventory deploys every named agent-platform role; the vulnerable fixture app appears in no other inventory'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l24_bundle_inventory.py
+  red_fixture: yes
+L25:
+  statement: 'the agents CI workflows exist and are wired: the pull-request orchestrator calls the local agents workflow and a nightly cron caller runs the SaaS agents workflow'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l25_workflows.py
+  red_fixture: yes
+L26:
+  statement: 'the removed agent-docs tree is gone, no live file points into it, and every former action page resolves to its routine, skill or the agents README'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l26_docs_agents_removed.py
+  red_fixture: yes
+L27:
+  statement: 'no secret value lives in agents/. A placeholder like ${key} is a'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l27_no_secrets.py
+  red_fixture: yes
+L28:
+  statement: 'every make target the agent platform relies on exists in the Makefile and carries a documentation block so make help lists it'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l28_make_targets.py
+  red_fixture: yes
+L29:
+  statement: 'the root AGENTS.md support section exists, tells agents to point the'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l29_support_section.py
+  red_fixture: yes
+L30:
+  statement: 'every cron.yml entry has a unique name, a valid UTC cron schedule, an'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l30_cron_entries.py
+  red_fixture: yes
+L31:
+  statement: 'no code reads agent.yml or cron.yml directly; every consumer goes'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l31_agent_config_lookup.py
+  red_fixture: yes
+L32:
+  statement: 'every skill is Markdown, every routine is a Python graph. A skill is a'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l32_skill_routine_shape.py
+  red_fixture: yes
+L33:
+  statement: 'the counsel is read-only: write_enabled false, firewall grants no commit, push or instance write, advocate skill named'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l33_counsel_readonly.py
+  red_fixture: yes
+L34:
+  statement: "the tuner's AGENTS.md names its trusted measurement sources, the"
+  proof_kind: lint
+  proof: tests/lint/agents/test_l34_tuner_rules.py
+  red_fixture: yes
+SC-HACKER-BRUTE:
+  statement: "hacker credential brute forcing stays under the lockout threshold, stops at the first proof and locks no account out of service"
+  proof_kind: scenario
+  proof: agents/scenarios/hacker-bruteforce.yml
+SC-COUNSEL-BLOCKER:
+  statement: "a surviving counsel blocker files a work package, emails the legal contact and holds release tags"
+  proof_kind: scenario
+  proof: agents/scenarios/counsel-blocker.yml
+L06:
+  statement: "every identity account username matches [a-z1-9]{3,15}; reserved non-identity accounts exempt"
+  proof_kind: lint
+  proof: tests/lint/ansible/roles/meta/test_identity_username_charset.py
+  red_fixture: yes
+L07:
+  statement: "every account-creating role declares its username length ceiling and whether an agent may hold an account there; IAM_ACCOUNT_MAX_LENGTH equals the smallest ceiling across agent-reachable roles; web-app-bluesky grants agents no account"
+  proof_kind: lint
+  proof: tests/lint/agents/test_l07_account_limits.py
+  red_fixture: yes

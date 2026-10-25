@@ -1,0 +1,23 @@
+---
+- name: 📂 Include dependency 'sys-svc-container'
+  include_role:
+    name: sys-svc-container
+    public: false
+  when: run_once_sys_svc_container is not defined
+
+- name: "🔧 Add user {{ lookup('users', WORKSTATION_USER).username }} to docker group"
+  user:
+    name: "{{ lookup('users', WORKSTATION_USER).username }}"
+    groups: docker
+    append: true
+
+- name: "✅ Ensure npm is installed"
+  package_install:
+    id: npm
+
+- name: "📦 Install the agentbox CLI"
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: "{{ agentbox_package }}"
+    global_install: true

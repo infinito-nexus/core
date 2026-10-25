@@ -10,8 +10,8 @@ You MUST pick the template that matches your change. The table below links the a
 | Workstation and `dsk-*` changes | [workstation.md](../../../../.github/PULL_REQUEST_TEMPLATE/workstation.md) |
 | Shared system changes such as `sys-*`, `svc-*`, `dev-*`, `drv-*`, `pkgmgr`, `update-*`, or `user-*` | [system.md](../../../../.github/PULL_REQUEST_TEMPLATE/system.md) |
 | CI/CD and workflow changes | [pipeline.md](../../../../.github/PULL_REQUEST_TEMPLATE/pipeline.md) |
-| Documentation-only changes limited to `.md` or `.rst` files outside `AGENTS.md` and `docs/agents/*` | [documentation.md](../../../../.github/PULL_REQUEST_TEMPLATE/documentation.md) |
-| Agent-specific changes limited to `AGENTS.md` or `docs/agents/*` | [agents.md](../../../../.github/PULL_REQUEST_TEMPLATE/agents.md) |
+| Documentation-only changes limited to `.md` or `.rst` files outside `AGENTS.md` and `agents/*` | [documentation.md](../../../../.github/PULL_REQUEST_TEMPLATE/documentation.md) |
+| Agent-specific changes limited to `AGENTS.md` or `agents/*` | [agents.md](../../../../.github/PULL_REQUEST_TEMPLATE/agents.md) |
 
 ## Branch Naming 🏷️
 

@@ -1,0 +1,82 @@
+---
+all:
+  vars:
+    AGENT_FIXTURE_BUNDLE: true
+    infinito:
+      bundle:
+        title: "Agents"
+        description: >
+          The complete agent platform: the broker, orchestrator, provisioner,
+          server workspace and the scenario fixture, together with the forges,
+          identity, board, channels, model gateway and mail sink they act on.
+        logo:
+          class: "fa-solid fa-robot"
+        tags:
+          - agents
+          - ai
+          - automation
+          - orchestration
+        categories:
+          - Infrastructure
+          - AI
+
+  hosts:
+    server:
+  children:
+    web-app-keycloak:
+      hosts:
+        server:
+    svc-db-openldap:
+      hosts:
+        server:
+    svc-db-postgres:
+      hosts:
+        server:
+    web-app-gitea:
+      hosts:
+        server:
+    web-app-openproject:
+      hosts:
+        server:
+    web-app-nextcloud:
+      hosts:
+        server:
+    web-app-matrix:
+      hosts:
+        server:
+    web-app-zammad:
+      hosts:
+        server:
+    web-app-weblate:
+      hosts:
+        server:
+    web-app-mailu:
+      hosts:
+        server:
+    svc-ai-ollama:
+      hosts:
+        server:
+    svc-ai-litellm:
+      hosts:
+        server:
+    svc-ai-mcp-adapter:
+      hosts:
+        server:
+    web-app-openwebui:
+      hosts:
+        server:
+    svc-ai-agent-broker:
+      hosts:
+        server:
+    svc-ai-agent-orchestrator:
+      hosts:
+        server:
+    svc-ai-agent-provisioner:
+      hosts:
+        server:
+    web-app-workspace:
+      hosts:
+        server:
+    web-app-agent-fixture:
+      hosts:
+        server:

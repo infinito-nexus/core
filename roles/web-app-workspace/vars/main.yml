@@ -1,0 +1,15 @@
+---
+application_id: "web-app-workspace"
+entity_name: "{{ application_id | entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.workspace.ports.local.http') }}"
+
+WORKSPACE_CONTAINER: "{{ lookup('config', application_id, 'services.workspace.name') }}"
+WORKSPACE_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.workspace.ports.internal.http') }}"
+WORKSPACE_BASE_IMAGE: "{{ lookup('config', application_id, 'services.workspace.image') }}"
+WORKSPACE_BASE_VERSION: "{{ lookup('config', application_id, 'services.workspace.version') }}"
+WORKSPACE_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+WORKSPACE_DATA_DIR: "{{ lookup('volume', application_id, 'workspace_data').target }}"
+WORKSPACE_CONNECTION_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.connection_token') }}"
+
+WORKSPACE_ISOLATION: "{{ lookup('config', application_id, 'services.workspace.isolation') }}"

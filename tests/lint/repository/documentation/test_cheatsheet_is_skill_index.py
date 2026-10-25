@@ -17,7 +17,7 @@ import unittest
 from tests.lint.repository.documentation import PROJECT_ROOT
 from utils.cache.files import read_text
 
-SKILLS_DIR = PROJECT_ROOT / "skills"
+SKILLS_DIR = PROJECT_ROOT / "agents" / "skills"
 CHEATSHEET = (
     PROJECT_ROOT / "docs" / "contributing" / "tools" / "agents" / "cheatsheet.md"
 )
@@ -69,7 +69,7 @@ class TestCheatsheetIsSkillIndex(unittest.TestCase):
         dangling = sorted(self.referenced - existing)
         self.assertFalse(
             dangling,
-            f"{CHEATSHEET} references skills with no skills/ directory: {dangling}",
+            f"{CHEATSHEET} references skills with no agents/skills/ directory: {dangling}",
         )
 
 

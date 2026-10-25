@@ -1,0 +1,4 @@
+---
+application_id: dsk-agentbox
+# PyPI distribution name; the CLI it installs is `agentbox`
+agentbox_package: agentboxer

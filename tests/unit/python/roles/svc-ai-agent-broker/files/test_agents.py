@@ -13,6 +13,35 @@ sys.path.insert(0, str(PROJECT_ROOT / "roles/svc-ai-agent-broker/files/python"))
 import agents
 import engine
 
+HERMES_RENDER = {
+    "model": {
+        "default": "${model}",
+        "provider": "custom",
+        "base_url": "${relay_url}",
+        "api_key": "${key}",
+        "context_length": "${context}",
+    },
+    "mcp_servers": {},
+}
+OPENCLAW_RENDER = {
+    "gateway": {
+        "mode": "local",
+        "http": {"endpoints": {"chatCompletions": {"enabled": True}}},
+    },
+    "agents": {"defaults": {"model": {"primary": "broker/${model}"}}},
+    "models": {
+        "providers": {
+            "broker": {
+                "baseUrl": "${relay_url}",
+                "apiKey": "${key}",
+                "api": "openai-completions",
+                "models": [
+                    {"id": "${model}", "name": "${model}", "contextWindow": "${context}"}
+                ],
+            }
+        }
+    },
+}
 PLATFORMS = {
     "hermes": {
         "image": "nousresearch/hermes-agent:v1",
@@ -20,6 +49,7 @@ PLATFORMS = {
         "env": {"API_SERVER_PORT": "8642"},
         "key_env": "API_SERVER_KEY",
         "config_path": "/opt/data/config.yaml",
+        "config_render": HERMES_RENDER,
         "data": "/opt/data",
         "user": "",
         "cpus": "2.0",
@@ -29,7 +59,8 @@ PLATFORMS = {
         "port": "8642",
         "health": "/health",
         "request_model": "hermes-agent",
-    }
+    },
+    "openclaw": {"config_render": OPENCLAW_RENDER},
 }
 
 
@@ -101,7 +132,7 @@ class TestNaming(unittest.TestCase):
 class TestConfigs(unittest.TestCase):
     def test_hermes_points_its_custom_provider_at_the_relay(self):
         config = yaml.safe_load(
-            agents.hermes_config("m", "http://relay/v1", "k", 0)
+            agents.render_config(PLATFORMS["hermes"], "m", "http://relay/v1", "k", 0)
         )  # nocheck: direct-yaml - parses this test's own render
         self.assertEqual(
             config["model"],
@@ -114,7 +145,9 @@ class TestConfigs(unittest.TestCase):
         )
 
     def test_openclaw_enables_chat_completions_and_the_relay_provider(self):
-        config = json.loads(agents.openclaw_config("m", "http://relay/v1", "k", 0))
+        config = json.loads(
+            agents.render_config(PLATFORMS["openclaw"], "m", "http://relay/v1", "k", 0)
+        )
         self.assertTrue(
             config["gateway"]["http"]["endpoints"]["chatCompletions"]["enabled"]
         )
@@ -127,21 +160,23 @@ class TestConfigs(unittest.TestCase):
 class TestContextWindow(unittest.TestCase):
     def test_a_known_window_reaches_both_agent_configs(self):
         hermes = yaml.safe_load(
-            agents.hermes_config("m", "http://relay/v1", "k", 32768)
+            agents.render_config(PLATFORMS["hermes"], "m", "http://relay/v1", "k", 32768)
         )  # nocheck: direct-yaml - parses this test's own render
         self.assertEqual(hermes["model"]["context_length"], 32768)
         openclaw = json.loads(
-            agents.openclaw_config("m", "http://relay/v1", "k", 32768)
+            agents.render_config(PLATFORMS["openclaw"], "m", "http://relay/v1", "k", 32768)
         )
         entry = openclaw["models"]["providers"]["broker"]["models"][0]
         self.assertEqual(entry["contextWindow"], 32768)
 
     def test_an_unknown_window_leaves_the_agents_to_their_own_default(self):
         hermes = yaml.safe_load(
-            agents.hermes_config("m", "http://relay/v1", "k", 0)
+            agents.render_config(PLATFORMS["hermes"], "m", "http://relay/v1", "k", 0)
         )  # nocheck: direct-yaml - parses this test's own render
         self.assertNotIn("context_length", hermes["model"])
-        openclaw = json.loads(agents.openclaw_config("m", "http://relay/v1", "k", 0))
+        openclaw = json.loads(
+            agents.render_config(PLATFORMS["openclaw"], "m", "http://relay/v1", "k", 0)
+        )
         self.assertNotIn(
             "contextWindow", openclaw["models"]["providers"]["broker"]["models"][0]
         )

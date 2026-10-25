@@ -1,0 +1,5 @@
+---
+- name: weekly-design-sweep
+  schedule: "0 1 * * 0"
+  routine: design
+  action: start

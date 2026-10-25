@@ -15,7 +15,7 @@ mapfile -t changed_paths < <(
 
 is_agent_path() {
 	case "$1" in
-	AGENTS.md | CLAUDE.md | GEMINI.md | */AGENTS.md | */CLAUDE.md | */GEMINI.md | docs/agents/*)
+	AGENTS.md | CLAUDE.md | GEMINI.md | */AGENTS.md | */CLAUDE.md | */GEMINI.md | agents/*)
 		return 0
 		;;
 	*)

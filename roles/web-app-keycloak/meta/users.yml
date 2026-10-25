@@ -1,6 +1,6 @@
 ---
 keycloak_bootstrap:
-  username: keycloakbootstrap
+  username: kcbootstrap
   roles:
     - bot
 platform_administrator: {}

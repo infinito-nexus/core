@@ -3,8 +3,8 @@
 This page describes what every role's `roles/<role>/files/playwright/playwright.spec.js` MUST contain: file placement, the two persona flows, per-service assertions, technical rules, and final-state guarantees.
 
 For framework and runner mechanics see [Playwright Tests](../../../actions/testing/playwright.md).
-For the authoring procedure see [Agent `playwright.spec.js`](../../../../agents/files/role/playwright.spec.js.md).
-For the env contract see [Agent `playwright.env.j2`](../../../../agents/files/role/playwright.env.j2.md).
+For the authoring procedure see the [`playwright.spec.js` authoring skill](../../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md).
+For the env contract see the [`playwright.env.j2` skill](../../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 
 ## File placement 📁
 
@@ -303,7 +303,7 @@ The teardown MUST:
 - The minimum env set for any spec following the persona flows is `APP_BASE_URL`, `CANONICAL_DOMAIN`, and `LOGOUT_URL`.
   `DASHBOARD_BASE_URL` is rendered only by the dashboard role's own spec, because consumer personas enter at `APP_BASE_URL` directly.
   Specs that gate on auth additionally read at least one of `OIDC_ISSUER_URL`, `KEYCLOAK_BASE_URL`, plus the persona credentials `ADMIN_USERNAME` / `ADMIN_PASSWORD` and `BIBER_USERNAME` / `BIBER_PASSWORD`.
-  Specs that exercise integrations (Matomo, Discourse, Email, Prometheus, …) read the integration-specific keys defined in [Agent `playwright.env.j2`](../../../../agents/files/role/playwright.env.j2.md).
+  Specs that exercise integrations (Matomo, Discourse, Email, Prometheus, …) read the integration-specific keys defined in the [`playwright.env.j2` skill](../../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 - `docker --env-file` preserves the quotes emitted by the `dotenv_quote` Jinja filter.
   Specs MUST decode quoted values before building URLs or typing credentials.
   The recurring helpers `decodeDotenvQuotedValue(value)` and `normalizeBaseUrl(value)` live in [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) and are re-exported through `require("./personas")`.
