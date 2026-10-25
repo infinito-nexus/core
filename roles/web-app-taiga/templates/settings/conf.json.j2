@@ -1,6 +1,6 @@
 {
-    "api": "{{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domain', application_id) }}/api/v1/",
-    "eventsUrl": "{{ lookup('tls', application_id, 'protocols.websocket') }}://{{ lookup('domain', application_id) }}/events",
+    "api": "/api/v1/",
+    "eventsUrl": "/events",
     "baseHref": "/",
     "eventsMaxMissedHeartbeats": 5,
     "eventsHeartbeatIntervalTime": 60000,
