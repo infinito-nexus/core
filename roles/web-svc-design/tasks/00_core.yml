@@ -5,6 +5,6 @@
   include_role:
     name: web-opt-rdr-domains
   vars:
-    redirect_domain_mappings:
+    web_opt_rdr_domains_mappings:
       - source: "{{ lookup('domain', 'web-svc-design') }}"
         target: "{{ lookup('domain', 'web-svc-cdn') }}"

@@ -16,13 +16,15 @@
 
 - name: "🥾 Bootstrap swarm cluster + NFS clients (must precede web-app render)"
   ansible.builtin.include_role:
-    name: "{{ item }}"
+    name: "{{ swarm_bootstrap_role }}"
   loop:
     - svc-swarm-node
     - svc-storage-nfs-client
+  loop_control:
+    loop_var: swarm_bootstrap_role
   when:
     - "'svc-swarm-node' in group_names"
-    - item != 'svc-storage-nfs-client' or 'svc-storage-nfs-client' in group_names
+    - swarm_bootstrap_role != 'svc-storage-nfs-client' or 'svc-storage-nfs-client' in group_names
 
 - name: "📂 Include server roles"
   include_tasks: ./tasks/utils/setup/group.yml

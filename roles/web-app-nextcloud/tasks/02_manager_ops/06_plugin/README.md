@@ -1,6 +1,6 @@
 # Nextcloud plugin pipeline
 
-This directory holds the per-plugin install + enable + configure pipeline that runs once for every addon declared under `meta/addons/`.
+This directory holds the per-plugin install + enable + configure pipeline for the addons declared under `meta/addons/`. [06_plugin.yml](../06_plugin.yml) reads `occ app:list` once, plans the work with the filter `nextcloud_plugin_plan` ([filter_plugins/nextcloud_plugin_plan.py](../../../filter_plugins/nextcloud_plugin_plan.py)) and enters each plugin at the first stage it still needs.
 
 ## Scope
 
@@ -10,7 +10,16 @@ The pipeline owns three responsibilities for one Nextcloud plugin (app):
 2. Enable the plugin so the in-app code paths are active.
 3. Apply plugin-specific configuration keys and run any role-local hook.
 
-When a plugin is marked `enabled: false`, `06_plugin.yml` runs `occ app:disable` for that plugin instead of entering the pipeline.
+## Plan
+
+| Plan list | Plugins | Entered at |
+|---|---|---|
+| `disable` | wanted off and enabled right now | one `occ app:disable` for all of them |
+| `install` | wanted on and not installed, or pinned through `archive` | [01_install.yml](./01_install.yml) |
+| `enable` | wanted on, installed, not enabled | [02_enable.yml](./02_enable.yml) |
+| `configure` | wanted on and already enabled | [03_configure.yml](./03_configure.yml) |
+
+The wanted state replays the addons in order: an enabled plugin turns its `incompatible_plugins` off and itself on, a plugin marked `enabled: false` turns itself off, and a later entry wins.
 
 ## Pipeline stages
 
@@ -62,10 +71,10 @@ Missing files MUST be tolerated; the corresponding step skips cleanly.
 ## Mutually exclusive plugins
 
 An addon under `meta/addons/` MAY declare an `incompatible_plugins` list in its `config:`.
-[01_install.yml](./01_install.yml) runs `occ app:disable` for every listed plugin before the install attempt.
+The plan's `disable` list carries every listed plugin that ends up off and still runs, and [01_install.yml](./01_install.yml) disables the listed plugins again before an install attempt.
 This guarantees that mutually exclusive integrations such as the OIDC entry points (`oidc_login`, `sociallogin`, `user_oidc`) and the document-editing surfaces (`onlyoffice`, `richdocuments`, `fileslibreofficeedit`) cannot accidentally coexist on the same instance.
 
 ## Entry point
 
-The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml).
-The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry).
+[02_manager_ops.yml](../../02_manager_ops.yml) includes [06_plugin.yml](../06_plugin.yml) once.
+It loops over the `NEXTCLOUD_PLUGIN_ITEMS` of each plan list and unpacks the loop variable `plugin_item` into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry).

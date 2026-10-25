@@ -14,7 +14,7 @@ from utils.networks.reachability import network_of
 class LookupModule(LookupBase):
     """
     Usage:
-      {{ lookup('network_redirects', redirect_domain_mappings) }}
+      {{ lookup('network_redirects', web_opt_rdr_domains_mappings) }}
 
     Returns one ``{source, target}`` mapping per network sibling of each
     source, the first mapping of a source winning. A source without siblings

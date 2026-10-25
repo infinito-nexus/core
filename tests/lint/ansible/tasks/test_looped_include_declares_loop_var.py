@@ -102,8 +102,8 @@ def _task_files() -> list[str]:
     return sorted(
         path
         for path in iter_project_files(extensions=(".yml", ".yaml"), exclude_tests=True)
-        if "/tasks/" in Path(path).relative_to(PROJECT_ROOT).as_posix()
-        or "/handlers/" in Path(path).relative_to(PROJECT_ROOT).as_posix()
+        if "/tasks/" in "/" + Path(path).relative_to(PROJECT_ROOT).as_posix()
+        or "/handlers/" in "/" + Path(path).relative_to(PROJECT_ROOT).as_posix()
     )
 
 
