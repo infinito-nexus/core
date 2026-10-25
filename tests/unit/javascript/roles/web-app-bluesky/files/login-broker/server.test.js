@@ -92,6 +92,7 @@ async function startBroker(pdsPort, storePath) {
       PDS_ADMIN_PASSWORD: ADMIN_PASSWORD,
       BLUESKY_BRIDGE_ENCRYPTION_KEY: `base64:${Buffer.alloc(32, 7).toString("base64")}`,
       BROKER_STORE_PATH: storePath,
+      SITE_TITLE: "Bluesky",
     },
     stdio: ["ignore", "pipe", "pipe"],
   });
