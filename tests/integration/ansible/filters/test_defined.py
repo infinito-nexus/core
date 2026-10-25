@@ -68,6 +68,7 @@ BUILTIN_FILTERS: set[str] = {
     "b64encode",
     "basename",
     "dirname",
+    "relpath",
     "from_json",
     "to_json",
     "from_yaml",

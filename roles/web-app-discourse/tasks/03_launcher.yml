@@ -3,6 +3,9 @@
   ansible.builtin.set_fact:
     DISCOURSE_REBUILT: false
 
+- name: "🧹 Retire the launcher checkout of the URL-named layout"
+  include_tasks: launcher/legacy_checkout.yml
+
 - name: ⬇️ Pull Discourse docker repository
   git:
     repo: "{{ DISCOURSE_REPOSITORY_URL }}"
