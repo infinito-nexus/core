@@ -153,6 +153,57 @@ class GlossaryTestCase(unittest.TestCase):
         )
 
 
+class FailingStringsRouter:
+    def __init__(self, failures):
+        self.failures = failures
+
+    async def translate(
+        self, source, target, text, *, protected=(), fmt="text", exclude=()
+    ):
+        if text in self.failures:
+            raise self.failures[text]
+        return "alpha", text.upper()
+
+
+class BatchTestCase(unittest.TestCase):
+    """One string every engine mangles must not cost the rest of its batch."""
+
+    TEXTS = ("House", "Tree", "Garden")
+
+    def _each(self, failures, *, partial):
+        gateway = Gateway(FailingStringsRouter(failures))
+        return run(
+            gateway.translate_each(
+                "en", "de", self.TEXTS, [()] * 3, concurrency=2, partial=partial
+            )
+        )
+
+    def test_a_partial_batch_answers_the_strings_that_survived(self) -> None:
+        answered = self._each(
+            {"Tree": MangledTermError("alpha dropped X")}, partial=True
+        )
+
+        self.assertEqual(
+            answered, [("alpha", "HOUSE"), (None, None), ("alpha", "GARDEN")]
+        )
+
+    def test_a_batch_without_partial_fails_on_its_first_refusal(self) -> None:
+        with self.assertRaises(MangledTermError):
+            self._each({"Tree": MangledTermError("alpha dropped X")}, partial=False)
+
+    def test_a_partial_batch_no_engine_could_serve_still_fails(self) -> None:
+        failures = {
+            text: NoBackendError("no engine serves en to xx") for text in self.TEXTS
+        }
+
+        with self.assertRaises(NoBackendError):
+            self._each(failures, partial=True)
+
+    def test_an_unexpected_error_is_never_swallowed(self) -> None:
+        with self.assertRaises(RuntimeError):
+            self._each({"Tree": RuntimeError("bug")}, partial=True)
+
+
 class LoudFailureTestCase(unittest.TestCase):
     def test_a_router_failure_reaches_the_caller(self) -> None:
         gateway = Gateway(

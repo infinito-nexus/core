@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 
+from translate_gateway.errors import GatewayError, NoBackendError
+
 REVIEWED = "weblate"
 
 
@@ -83,3 +85,61 @@ class Gateway:
         return await self._router.translate(
             source, target, text, protected=terms, fmt=fmt, exclude=exclude
         )
+
+    async def translate_each(
+        self,
+        source,
+        target,
+        texts,
+        protected,
+        *,
+        concurrency,
+        fmt="text",
+        exclude=(),
+        partial=False,
+    ):
+        """Translate every string of a batch, at most *concurrency* at a time.
+
+        Args:
+            source: source language code, or None for auto-detection.
+            target: target language code.
+            texts: the strings to translate.
+            protected: one tuple of spans per string, in the order of *texts*.
+            concurrency: how many strings are in flight at once.
+            fmt: the payload format, ``text`` or ``html``.
+            exclude: engines the caller already rejected for these strings.
+            partial: answer ``(None, None)`` for a string every engine refused
+                or mangled and keep the rest, instead of failing the batch.
+
+        Returns:
+            ``(origin, translation)`` per string, in the order of *texts*.
+
+        Raises:
+            GatewayError: the first failure without *partial*; with it, only a
+                NoBackendError every string ran into.
+        """
+        limit = asyncio.Semaphore(concurrency)
+
+        async def _one(text, terms):
+            async with limit:
+                return await self.translate(
+                    source, target, text, fmt=fmt, protected=terms, exclude=exclude
+                )
+
+        answered = await asyncio.gather(
+            *(_one(text, terms) for text, terms in zip(texts, protected, strict=True)),
+            return_exceptions=partial,
+        )
+        if not partial:
+            return list(answered)
+        for answer in answered:
+            if isinstance(answer, BaseException) and not isinstance(
+                answer, GatewayError
+            ):
+                raise answer
+        if answered and all(isinstance(answer, NoBackendError) for answer in answered):
+            raise answered[0]
+        return [
+            (None, None) if isinstance(answer, GatewayError) else answer
+            for answer in answered
+        ]

@@ -106,16 +106,15 @@ def create_app(gateway, engines, *, detector=None):
             per_item = [tuple(entry) for entry in protected]
         else:
             per_item = [protected] * len(text)
-        limit = asyncio.Semaphore(BATCH_CONCURRENCY)
-
-        async def _one(item, terms):
-            async with limit:
-                return await gateway.translate(
-                    source, target, item, fmt=fmt, protected=terms, exclude=exclude
-                )
-
-        answered = await asyncio.gather(
-            *(_one(item, terms) for item, terms in zip(text, per_item, strict=True))
+        answered = await gateway.translate_each(
+            source,
+            target,
+            text,
+            per_item,
+            concurrency=BATCH_CONCURRENCY,
+            fmt=fmt,
+            exclude=exclude,
+            partial=bool(body.get("partial")),
         )
         return JSONResponse(
             content={
