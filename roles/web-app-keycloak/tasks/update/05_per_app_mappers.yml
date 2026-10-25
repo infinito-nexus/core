@@ -34,7 +34,7 @@
       all_deployed: "{{ KEYCLOAK_RBAC_ALL_APP_IDS }}"
       current_run: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
 
-- name: "📄 per-app mappers: render the mapper payloads of every rbac app in current run"
+- name: "📄 per-app mappers: render the payloads of the rbac apps this host deploys"
   ansible.builtin.copy:
     dest: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
     mode: "0600"

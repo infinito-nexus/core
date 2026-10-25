@@ -50,9 +50,9 @@ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE: >-
                     }),
       })
   }}
-# One `<app_id> <mapper_name> <base64 mapper JSON> <fingerprint>` line per rbac app of the current run.
+# One `<app_id> <mapper_name> <base64 mapper JSON> <fingerprint>` line per rbac app of the current run that this host deploys.
 KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS: |-
-  {% for app_id in KEYCLOAK_RBAC_RUN_APP_IDS -%}
+  {% for app_id in KEYCLOAK_RBAC_RUN_APP_IDS | select('in', KEYCLOAK_RBAC_ALL_APP_IDS) -%}
   {%- set mapper = KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_BASE | combine({
         'name': app_id | kc_per_app_mapper_name,
         'config': {
