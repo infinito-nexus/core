@@ -243,10 +243,6 @@ exports.register = function (shared) {
         await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
         await assertTileLoadsInIframe(page, target);
-        test.skip(
-          Boolean(target.is_proxy_gated),
-          `${target.id} is oauth2-proxy-gated: the anonymous dashboard embeds the IdP login page instead of ${target.id}, so a Tab hand-off from there says nothing about ${target.id}; its tile href and iframe src are checked above`
-        );
         await assertTabButtonOpensNewTab(page, context, target);
       });
     } else {
