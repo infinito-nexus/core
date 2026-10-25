@@ -5,7 +5,7 @@
       - "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}" # nocheck: lookup-config-path  application_id is the including provider here
   changed_when: true
   notify: compose-service-up
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🧱 Rebuild the {{ application_id }} MCP adapter with its swarm stack"
   ansible.builtin.debug:
@@ -14,4 +14,4 @@
   notify:
     - compose-build
     - compose-up
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
