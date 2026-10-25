@@ -10,7 +10,7 @@
   changed_when: false
   failed_when: >-
     nextcloud_data_volume_inspect.rc != 0
-    and 'no such volume' not in (nextcloud_data_volume_inspect.stderr | lower)
+    and not (nextcloud_data_volume_inspect.stderr | lower is search('no such volume|volume .* not found'))
 
 - name: 📖 Read version.php from the Nextcloud code volume
   ansible.builtin.command:
