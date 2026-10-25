@@ -37,7 +37,10 @@ The same exposure applies to a secret written straight into the command line
 of a ``container exec`` / ``docker exec`` task (``--password {{ pw }}``,
 ``-H "Authorization: Bearer {{ token }}"``, ``-p{{ pw }}``). The second rule
 reads every ``shell``/``command`` task whose command runs an exec and rejects a
-Jinja expression in it whose name says credential. Hand such a value over on
+Jinja expression in it that draws on a credential source or whose name says
+credential anywhere in it, also one var deep (a ``*_JSON_INFO`` carrying a
+``secret``). A var whose value runs an exec, directly or through another one
+(``{{ NEXTCLOUD_DOCKER_EXEC_OCC }}``), counts as the exec. Hand such a value over on
 the task's ``stdin:`` (``curl -H @-``, ``psql`` reading SQL) or as ``-e NAME``
 plus ``environment:``.
 
@@ -63,6 +66,7 @@ from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
+from .test_exec_requires_shell_module import _variable_values
 
 _RULE = "container-exec-env-value"
 _EXTENSIONS = (".yml", ".yaml", ".j2", ".sh")
@@ -138,11 +142,91 @@ def _argv_lists(node):
 _ARGV_RULE = "exec-argv-secret"
 _EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
 _JINJA_EXPR = re.compile(r"\{\{(.*?)\}\}", re.DOTALL)
+_IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
 _ARGV_SECRET = re.compile(
-    r"(?i)['\"]password['\"]"
-    r"|\b\w*(?:password|secret|bind_credential|_pw|token)\b(?!\.(?:id|name)\b)"
+    r"(?i)\w*(?:password|passwd|secret|bind_credential|token|bearer|jwt"
+    r"|api_?key|private_?key|_pwd|_pw|_pass)\w*"
 )
+_ARGV_SOURCE = re.compile(
+    r"(?i)secrets\.credentials\.|['\"]password['\"]|\.password\b|\.secret\b"
+)
+_NOT_A_SECRET_SUFFIX = re.compile(
+    r"(?i)(?:_name|_names|_email|_user|_username|_owner|_id|_ids|_uuid|_uuids"
+    r"|_url|_uri|_host|_port|_path|_file|_dir|_days|_length|_enabled|_type"
+    r"|_header|_endpoint|_scope|_scopes|_description|_hash|_policy|_ttl)$"
+)
+_DESCRIBES_A_SECRET = re.compile(r"\|\s*(?:hash|password_hash)\b|\.(?:id|name)\b")
 _LITERAL = re.compile(r"'(?!password')[^']*'|\"(?!password\")[^\"]*\"")
+
+
+def _exec_wrappers(values: dict[str, str]) -> frozenset[str]:
+    """Return the vars whose value runs a container exec, directly or nested.
+
+    Args:
+        values: var name to its declared string value.
+
+    Returns:
+        Every name whose value contains ``container exec`` / ``docker exec``
+        or interpolates another such name, so ``{{ NEXTCLOUD_DOCKER_EXEC_OCC }}``
+        counts as an exec through ``NEXTCLOUD_DOCKER_EXEC``.
+    """
+    wrappers = {name for name, value in values.items() if _EXEC.search(value)}
+    while True:
+        grown = {
+            name
+            for name, value in values.items()
+            if name not in wrappers
+            and any(
+                re.search(r"\{\{\s*" + re.escape(w) + r"\b", value) for w in wrappers
+            )
+        }
+        if not grown:
+            return frozenset(wrappers)
+        wrappers |= grown
+
+
+def _expression_carries_secret(expr: str, values: dict[str, str], depth: int) -> bool:
+    """Decide whether one Jinja expression on an exec line renders a secret.
+
+    Args:
+        expr: the text between ``{{`` and ``}}``.
+        values: var name to its declared string value, for one level of
+            indirection through a neutral name such as ``*_JSON_INFO``.
+        depth: how many var values were already followed to reach ``expr``.
+
+    Returns:
+        True for a credential source (``secrets.credentials.…``,
+        ``.password``), a name that says credential anywhere in it
+        (``*_API_KEY``, ``*_PWD``) unless it only describes one (``*_ID``,
+        ``*_NAME``, a hash), or a var whose value does either.
+    """
+    if _DESCRIBES_A_SECRET.search(expr):
+        return False
+    if _ARGV_SOURCE.search(expr):
+        return True
+    names = _IDENTIFIER.findall(_LITERAL.sub("''", expr))
+    if any(
+        _ARGV_SECRET.fullmatch(name) and not _NOT_A_SECRET_SUFFIX.search(name)
+        for name in names
+    ):
+        return True
+    if depth >= 2:
+        return False
+    return any(
+        _expression_carries_secret(inner.group(1), values, depth + 1)
+        for name in names
+        if not _NOT_A_SECRET_SUFFIX.search(name)
+        for inner in _JINJA_EXPR.finditer(values.get(name, ""))
+    )
+
+
+_VALUES = _variable_values()
+_WRAPPERS = _exec_wrappers(_VALUES)
+_WRAPPER_USE = re.compile(
+    r"\{\{\s*(?:" + "|".join(map(re.escape, sorted(_WRAPPERS))) + r")\b"
+    if _WRAPPERS
+    else r"(?!)"
+)
 
 
 def _module_nodes(node: yaml.Node):
@@ -193,14 +277,14 @@ def scan_exec_argv(content: str) -> list[tuple[int, str]]:
             continue
         for key, value in _module_nodes(doc):
             text = _command_text(value)
-            if not _EXEC.search(text):
+            if not (_EXEC.search(text) or _WRAPPER_USE.search(text)):
                 continue
             line_no = key.start_mark.line + 1
             if is_suppressed_at(lines, line_no, _ARGV_RULE, mode="same-or-above"):
                 continue
             for match in _JINJA_EXPR.finditer(text):
                 expr = " ".join(match.group(1).split())
-                if _ARGV_SECRET.search(_LITERAL.sub("''", expr)):
+                if _expression_carries_secret(expr, _VALUES, 0):
                     findings.append((line_no, expr))
     return findings
 
@@ -232,6 +316,32 @@ class TestExecArgvSecret(unittest.TestCase):
         self.assertEqual(
             scan_exec_argv(lookup_key), [(1, "lookup('database', app, 'password')")]
         )
+
+    def test_a_credential_word_inside_the_name_or_a_source_literal_is_a_secret(
+        self,
+    ) -> None:
+        self.assertTrue(_expression_carries_secret("X_API_KEY | quote", {}, 0))
+        self.assertTrue(_expression_carries_secret("X_DB_PWD", {}, 0))
+        self.assertTrue(
+            _expression_carries_secret(
+                "lookup('config', app, 'secrets.credentials.api_key')", {}, 0
+            )
+        )
+
+    def test_a_name_that_only_describes_a_secret_is_not_one(self) -> None:
+        self.assertFalse(_expression_carries_secret("X_TOKEN_SCOPES | quote", {}, 0))
+        self.assertFalse(_expression_carries_secret("existing_token.id", {}, 0))
+        self.assertFalse(
+            _expression_carries_secret("pw | password_hash('bcrypt')", {}, 0)
+        )
+
+    def test_a_neutral_var_carrying_a_secret_is_followed_one_level(self) -> None:
+        values = {"X_JSON_INFO": "{{ {'secret': X_AGENT_SECRET} | to_json }}"}
+        self.assertTrue(_expression_carries_secret("X_JSON_INFO", values, 0))
+
+    def test_a_var_wrapping_an_exec_counts_as_the_exec(self) -> None:
+        values = {"X_EXEC": "container exec -u www x", "X_OCC": "{{ X_EXEC }} occ"}
+        self.assertEqual(_exec_wrappers(values), frozenset({"X_EXEC", "X_OCC"}))
 
     def test_no_secret_in_exec_argv(self) -> None:
         findings: list[str] = []

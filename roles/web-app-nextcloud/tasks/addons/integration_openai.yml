@@ -17,9 +17,13 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: 🔧 Provision integration_openai api_key for the LiteLLM gateway backend
-      shell: >
-        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
-        --value '{{ nextcloud_openai_litellm_api_key }}'
+      shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+        container exec -u {{ NEXTCLOUD_DOCKER_USER }} -e NC_OPENAI_API_KEY {{ NEXTCLOUD_LOCAL_CID | quote }}
+        sh -c 'exec "$1" config:app:set integration_openai api_key --value "$NC_OPENAI_API_KEY"'
+        _ {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }}
+      environment:
+        NC_OPENAI_API_KEY: "{{ nextcloud_openai_litellm_api_key }}"
+      when: IS_STACK_HOST | bool
       register: nextcloud_openai_set_api_key
       changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
