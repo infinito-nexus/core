@@ -35,8 +35,10 @@
 
 - name: 🔎 Check if current RootDN/RootPW already work
   ansible.builtin.shell: >
-    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
-    ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "{{ OPENLDAP_BIND_PW }}"
+    container exec -e OPENLDAP_BIND_PW {{ OPENLDAP_CONTAINER_ADDRESS }}
+    sh -c 'exec ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "$OPENLDAP_BIND_PW"'
+  environment:
+    OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
   register: openldap_bind_check
   delegate_to: "{{ STACK_HOST }}"
   run_once: true

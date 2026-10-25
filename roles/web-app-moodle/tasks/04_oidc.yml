@@ -112,11 +112,12 @@
 
 - name: "🔧 Set auth = 'oidc' for all users except guest"
   shell: >
-    container exec {{ MOODLE_DB_CONTAINER_ADDRESS }}
+    container exec -e MYSQL_PWD {{ MOODLE_DB_CONTAINER_ADDRESS }}
     mariadb -u {{ lookup('database', application_id, 'username') }}
-    -p{{ lookup('database', application_id, 'password') | quote }}
     -e "UPDATE {{ lookup('database', application_id, 'name') }}.mdl_user SET auth = 'oidc' WHERE username != 'guest';"
   args:
     executable: /bin/bash
+  environment:
+    MYSQL_PWD: "{{ lookup('database', application_id, 'password') }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

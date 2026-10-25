@@ -26,9 +26,10 @@
 
 - name: "🚑 Begin root generation"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ OPENBAO_LOCAL_CID | quote }}
-    bao operator generate-root -format=json
-    -init -otp={{ openbao_root_otp.stdout | trim | quote }}
+    container exec -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'exec bao operator generate-root -format=json -init -otp="$BAO_OTP"'
+  environment:
+    BAO_OTP: "{{ openbao_root_otp.stdout | trim }}"
   register: openbao_root_attempt
   changed_when: true
   delegate_to: "{{ OPENBAO_HOST_NODE }}"
@@ -57,10 +58,11 @@
 
 - name: "🔓 Unwrap the generated root token"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ OPENBAO_LOCAL_CID | quote }}
-    bao operator generate-root
-    -decode={{ (openbao_root_update.stdout | from_json).encoded_token | quote }}
-    -otp={{ openbao_root_otp.stdout | trim | quote }}
+    container exec -e BAO_ENCODED -e BAO_OTP {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'exec bao operator generate-root -decode="$BAO_ENCODED" -otp="$BAO_OTP"'
+  environment:
+    BAO_ENCODED: "{{ (openbao_root_update.stdout | from_json).encoded_token }}"
+    BAO_OTP: "{{ openbao_root_otp.stdout | trim }}"
   register: openbao_root_decoded
   changed_when: false
   delegate_to: "{{ OPENBAO_HOST_NODE }}"

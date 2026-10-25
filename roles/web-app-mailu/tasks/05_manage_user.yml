@@ -4,12 +4,11 @@
   block:
     - name: "✅ Ensure user '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
       ansible.builtin.shell: >
-        container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-        flask mailu {{ mailu_action }}
-        {{ mailu_user_name | quote }}
-        {{ MAILU_DOMAIN | quote }}
-        --
-        {{ mailu_user_password | quote }}
+        container exec -i -e MAILU_USER_PASSWORD {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+        sh -c 'exec flask mailu {{ mailu_action }} "$1" "$2" -- "$MAILU_USER_PASSWORD"'
+        _ {{ mailu_user_name | quote }} {{ MAILU_DOMAIN | quote }}
+      environment:
+        MAILU_USER_PASSWORD: "{{ mailu_user_password }}"
       register: mailu_user_result
       retries: 12
       delay: 10
@@ -31,12 +30,11 @@
 
     - name: "🔧 Set password '{{ mailu_user_key }};{{ mailu_user_name }}@{{ MAILU_DOMAIN }}'"
       ansible.builtin.shell: >
-        container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-        flask mailu password
-        {{ mailu_user_name | quote }}
-        {{ MAILU_DOMAIN | quote }}
-        --
-        {{ mailu_user_password | quote }}
+        container exec -i -e MAILU_USER_PASSWORD {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+        sh -c 'exec flask mailu password "$1" "$2" -- "$MAILU_USER_PASSWORD"'
+        _ {{ mailu_user_name | quote }} {{ MAILU_DOMAIN | quote }}
+      environment:
+        MAILU_USER_PASSWORD: "{{ mailu_user_password }}"
       register: mailu_user_password_change
       retries: 12
       delay: 10
