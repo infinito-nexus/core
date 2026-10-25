@@ -173,7 +173,8 @@ KEYCLOAK_CONSOLE_ROLE_GRANTS:
   auditor: ["view-realm", "view-users", "query-users", "query-groups", "view-clients", "view-events"]
   impersonator: ["impersonation", "view-users", "query-users"]
 
-KEYCLOAK_REALM_ROLE_GRANTS: "{{ lookup('applications') | kc_realm_role_grants(KEYCLOAK_RBAC_RUN_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME) }}"
+KEYCLOAK_REALM_ROLE_GRANT_APP_IDS: "{{ (KEYCLOAK_RBAC_RUN_APP_IDS | select('in', KEYCLOAK_RBAC_ALL_APP_IDS) | list) if (KEYCLOAK_LDAP_ENABLED | bool) else KEYCLOAK_RBAC_RUN_APP_IDS }}"
+KEYCLOAK_REALM_ROLE_GRANTS: "{{ lookup('applications') | kc_realm_role_grants(KEYCLOAK_REALM_ROLE_GRANT_APP_IDS, KEYCLOAK_RBAC_GROUP_NAME) }}"
 
 KEYCLOAK_PROFILE_MAPPER_PREFIX: "profile:"
 KEYCLOAK_PROFILE_LEGACY_MAPPERS:
