@@ -28,11 +28,12 @@ per-tool filter can express, and a surface that withholds every tool it serves
 as mutating has nothing left to offer. Advertising either as a configured
 server would leave an agent wired to a provider it can never call.
 
-Providers are narrowed to ``application_closure(deployment.whitelist)``, the same
-set ``sys-service-loader`` preloads from. Inventory membership, ``group_names``
-and the raw whitelist all admit roles the run never deploys, and a client then
-carries an endpoint nothing is serving. In compose the closure covers everything
-present, so only swarm makes the difference visible.
+On an ephemeral runtime (``deployment.ephemeral``) providers are narrowed to
+``application_closure(deployment.whitelist)``, the same set ``sys-service-loader``
+preloads from: there inventory membership, ``group_names`` and the raw whitelist
+all admit roles the run never deploys, and a client would carry an endpoint
+nothing is serving. A persistent host keeps serving every provider an earlier run
+deployed, so a partial run there narrows nothing and the client keeps them.
 
 ``credential_missing`` is the one authorized rejection that does not abort,
 because a provider deploying later in the same play has not written its secret
@@ -291,15 +292,17 @@ def resolve_consumer_id(vars_: Mapping[str, Any], templar: Any) -> str:
 
 class LookupModule(LookupBase):
     def _deploy_closure(self, templar: Any, vars_: dict[str, Any]) -> set[str]:
-        """Roles this run deploys, or an empty set when that cannot be resolved."""
+        """Roles an ephemeral run deploys; empty on a persistent host or when unresolvable."""
         try:
-            whitelist = lookup_loader.get(
+            deployment = lookup_loader.get(
                 "deployment", loader=self._loader, templar=templar
-            ).run([], variables=vars_)[0]["whitelist"]
+            ).run([], variables=vars_)[0]
+            if not deployment["ephemeral"]:
+                return set()
             return set(
                 lookup_loader.get(
                     "application_closure", loader=self._loader, templar=templar
-                ).run([whitelist], variables=vars_)[0]
+                ).run([deployment["whitelist"]], variables=vars_)[0]
             )
         except (AnsibleError, KeyError, IndexError, TypeError):
             return set()

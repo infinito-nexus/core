@@ -1,13 +1,14 @@
 """Unit tests for ``plugins/lookup/mcp_servers.py``.
 
-Only the pure builder and the credential resolver are exercised; the lookup
-wrapper forwards ``roles_with_service``, ``applications`` and ``users`` into
-them.
+The pure builder, the credential resolver and the deploy closure are exercised;
+the lookup wrapper forwards ``roles_with_service``, ``applications`` and ``users``
+into them.
 """
 
 import importlib
 import unittest
 from typing import ClassVar
+from unittest.mock import MagicMock, patch
 
 from ansible.errors import AnsibleError
 
@@ -87,6 +88,34 @@ class TestSelectDeployed(unittest.TestCase):
 
     def test_no_servers_stays_empty(self):
         self.assertEqual([], plugin_module.select_deployed(None, {"web-app-hermes"}))
+
+
+class TestDeployClosure(unittest.TestCase):
+    def closure(self, deployment):
+        def get(name, **kwargs):
+            plugin = MagicMock()
+            if name == "deployment":
+                plugin.run.return_value = [deployment]
+            else:
+                plugin.run.side_effect = lambda terms, variables=None: [
+                    {*terms[0], "svc-db-postgres"}
+                ]
+            return plugin
+
+        with patch.object(plugin_module.lookup_loader, "get", side_effect=get):
+            return plugin_module.LookupModule()._deploy_closure(None, {})
+
+    def test_a_partial_run_on_a_persistent_host_narrows_nothing(self):
+        self.assertEqual(
+            set(),
+            self.closure({"ephemeral": False, "whitelist": ["web-opt-rdr-domains"]}),
+        )
+
+    def test_an_ephemeral_run_narrows_to_the_whitelist_closure(self):
+        self.assertEqual(
+            {"web-app-hermes", "svc-db-postgres"},
+            self.closure({"ephemeral": True, "whitelist": ["web-app-hermes"]}),
+        )
 
 
 class TestBuildMcpDiscovery(unittest.TestCase):

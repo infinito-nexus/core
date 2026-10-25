@@ -59,7 +59,8 @@ class LookupModule(LookupBase):
             return [cached]
 
         running = running_apps(vars_)
-        deployed = list(running) if runtime in _EPHEMERAL_RUNTIMES else list(groups)
+        ephemeral = runtime in _EPHEMERAL_RUNTIMES
+        deployed = list(running) if ephemeral else list(groups)
         result = {
             "whitelist": whitelist,
             "running": list(running),
@@ -67,6 +68,7 @@ class LookupModule(LookupBase):
             "inventory": inventory,
             "deployed": deployed,
             "runtime": runtime,
+            "ephemeral": ephemeral,
             "all": list(list_invokable_app_ids()),
         }
         _STATUS_CACHE[key] = result
