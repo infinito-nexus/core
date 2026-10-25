@@ -30,8 +30,10 @@
       include_tasks: "tasks/stages/01_constructor.yml"
 
     - name: Load host-type stages
-      ansible.builtin.include_tasks: "tasks/stages/02_{{ item }}.yml"
+      ansible.builtin.include_tasks: "tasks/stages/02_{{ host_type }}.yml"
       loop: "{{ group_names | get_deployment_types_from_groups }}"
+      loop_control:
+        loop_var: host_type
 
     - name: "Load 'destructor' tasks"
       include_tasks: "tasks/stages/03_destructor.yml"
