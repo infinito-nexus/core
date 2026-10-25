@@ -18,13 +18,14 @@
       - -e
       - "OPENWEBUI_MCP_MEMBERS={{ OPENWEBUI_MCP_MEMBERS | to_json }}"
       - -e
-      - "OPENWEBUI_MCP_CONNECTIONS={{ OPENWEBUI_MCP_SERVERS | mcp_tool_server_connections(OPENWEBUI_MCP_GROUP_IDS) | to_json }}"
+      - OPENWEBUI_MCP_CONNECTIONS
       - "{{ OPENWEBUI_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
     stdin: "{{ lookup('file', 'python/provision_mcp_grants.py') }}"
   environment:
     OPENWEBUI_ADMIN_PASSWORD: "{{ OPENWEBUI_API_BOT_USER.password }}"
+    OPENWEBUI_MCP_CONNECTIONS: "{{ OPENWEBUI_MCP_SERVERS | mcp_tool_server_connections(OPENWEBUI_MCP_GROUP_IDS) | to_json }}"
   register: openwebui_mcp_grants
   retries: 30
   delay: 10

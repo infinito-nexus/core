@@ -33,11 +33,21 @@ passed as ``-e FOO={{ lookup('users', 'x').password }}`` is caught by its
 source. One from a source this rule does not know, under a name that does not
 say so, still slips through.
 
+The same exposure applies to a secret written straight into the command line
+of a ``container exec`` / ``docker exec`` task (``--password {{ pw }}``,
+``-H "Authorization: Bearer {{ token }}"``, ``-p{{ pw }}``). The second rule
+reads every ``shell``/``command`` task whose command runs an exec and rejects a
+Jinja expression in it whose name says credential. Hand such a value over on
+the task's ``stdin:`` (``curl -H @-``, ``psql`` reading SQL) or as ``-e NAME``
+plus ``environment:``.
+
 Per-line opt-out
 ================
 ``# nocheck: container-exec-env-value -- <reason>`` on the same line or the
 immediately preceding non-empty line. Reserved for a templated value that
 provably carries no secret, such as a service or role name; state which.
+``# nocheck: exec-argv-secret <reason>`` on the module key's line or the line
+above it does the same for the second rule.
 """
 
 from __future__ import annotations
@@ -45,6 +55,8 @@ from __future__ import annotations
 import re
 import unittest
 from pathlib import Path
+
+import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
@@ -121,6 +133,129 @@ def _argv_lists(node):
     elif isinstance(node, list):
         for item in node:
             yield from _argv_lists(item)
+
+
+_ARGV_RULE = "exec-argv-secret"
+_EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
+_JINJA_EXPR = re.compile(r"\{\{(.*?)\}\}", re.DOTALL)
+_ARGV_SECRET = re.compile(
+    r"(?i)['\"]password['\"]"
+    r"|\b\w*(?:password|secret|bind_credential|_pw|token)\b(?!\.(?:id|name)\b)"
+)
+_LITERAL = re.compile(r"'(?!password')[^']*'|\"(?!password\")[^\"]*\"")
+
+
+def _module_nodes(node: yaml.Node):
+    if isinstance(node, yaml.SequenceNode):
+        for item in node.value:
+            yield from _module_nodes(item)
+        return
+    if not isinstance(node, yaml.MappingNode):
+        return
+    for key, value in node.value:
+        if isinstance(key, yaml.ScalarNode) and key.value in _MODULE_KEYS:
+            yield key, value
+        else:
+            yield from _module_nodes(value)
+
+
+def _command_text(value: yaml.Node) -> str:
+    if isinstance(value, yaml.ScalarNode):
+        return value.value
+    if not isinstance(value, yaml.MappingNode):
+        return ""
+    parts: list[str] = []
+    for key, item in value.value:
+        if key.value == "cmd" and isinstance(item, yaml.ScalarNode):
+            parts.append(item.value)
+        elif key.value == "argv" and isinstance(item, yaml.SequenceNode):
+            parts.extend(e.value for e in item.value if isinstance(e, yaml.ScalarNode))
+    return " ".join(parts)
+
+
+def scan_exec_argv(content: str) -> list[tuple[int, str]]:
+    """Return ``(line, expression)`` for every secret in an exec command line.
+
+    Args:
+        content: text of one task file.
+
+    Returns:
+        The module key's line and the offending Jinja expression, in file order.
+    """
+    try:
+        docs = list(yaml.compose_all(content, Loader=yaml.SafeLoader))
+    except yaml.YAMLError:
+        return []
+    lines = content.splitlines()
+    findings: list[tuple[int, str]] = []
+    for doc in docs:
+        if doc is None:
+            continue
+        for key, value in _module_nodes(doc):
+            text = _command_text(value)
+            if not _EXEC.search(text):
+                continue
+            line_no = key.start_mark.line + 1
+            if is_suppressed_at(lines, line_no, _ARGV_RULE, mode="same-or-above"):
+                continue
+            for match in _JINJA_EXPR.finditer(text):
+                expr = " ".join(match.group(1).split())
+                if _ARGV_SECRET.search(_LITERAL.sub("''", expr)):
+                    findings.append((line_no, expr))
+    return findings
+
+
+class TestExecArgvSecret(unittest.TestCase):
+    def test_scan_flags_secret_and_skips_env_and_stdin(self) -> None:
+        flagged = (
+            "- shell: >\n"
+            "    container exec {{ CID }} tool --password {{ ADMIN_PASSWORD | quote }}\n"
+        )
+        env_passed = (
+            "- shell: >\n"
+            "    container exec -e ADMIN_PASSWORD {{ CID }} sh -c 'tool -p \"$ADMIN_PASSWORD\"'\n"
+            "  environment:\n"
+            '    ADMIN_PASSWORD: "{{ ADMIN_PASSWORD }}"\n'
+        )
+        stdin_passed = (
+            "- shell:\n"
+            "    cmd: container exec -i {{ CID }} curl -H @- {{ URL }}\n"
+            '    stdin: "Authorization: Bearer {{ API_TOKEN }}"\n'
+        )
+        lookup_key = (
+            "- shell: >\n"
+            "    container exec {{ CID }} tool -p{{ lookup('database', app, 'password') }}\n"
+        )
+        self.assertEqual(scan_exec_argv(flagged), [(1, "ADMIN_PASSWORD | quote")])
+        self.assertEqual(scan_exec_argv(env_passed), [])
+        self.assertEqual(scan_exec_argv(stdin_passed), [])
+        self.assertEqual(
+            scan_exec_argv(lookup_key), [(1, "lookup('database', app, 'password')")]
+        )
+
+    def test_no_secret_in_exec_argv(self) -> None:
+        findings: list[str] = []
+        for path_str, content in iter_project_files_with_content(
+            extensions=(".yml", ".yaml"), exclude_tests=True
+        ):
+            rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+            if not rel.startswith("roles/") or not (
+                "/tasks/" in rel or "/handlers/" in rel
+            ):
+                continue
+            findings.extend(
+                f"- {rel}:{line}: {{{{ {expr} }}}}"
+                for line, expr in scan_exec_argv(content)
+            )
+        if findings:
+            self.fail(
+                "Secrets on a `container exec` / `docker exec` command line reach "
+                "the host process list and the daemon's exec_create event. Hand "
+                "them over on the task's `stdin:` (`curl -H @-`, SQL on psql's "
+                "stdin) or as `-e NAME` plus the task's `environment:`, or add "
+                f"`# nocheck: {_ARGV_RULE} <reason>` above the module key.\n"
+                + "\n".join(sorted(findings))
+            )
 
 
 class TestContainerExecEnvPassesNoValue(unittest.TestCase):
