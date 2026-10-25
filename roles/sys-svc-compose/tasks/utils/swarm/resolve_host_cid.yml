@@ -43,21 +43,18 @@
 
 - name: "🔍 resolve_host_cid | resolve local container id for '{{ resolve_service_key }}'"
   ansible.builtin.shell: |
-    {% if DEPLOYMENT_MODE == 'swarm' %}
     container ps \
       --filter "label=com.docker.swarm.service.name={{ _resolve_service_name }}" \
       --filter status=running {{ resolve_cid_filters | default('') }} \
       --format '{{ "{{.ID}}" }}' | head -1
-    {% else %}
-    echo {{ resolve_compose_cid | quote }}
-    {% endif %}
   register: _resolve_cid
   changed_when: false
   retries: 30
   delay: 2
-  until: DEPLOYMENT_MODE == 'compose' or (_resolve_cid.stdout | trim) | length > 0
+  until: (_resolve_cid.stdout | trim) | length > 0
   delegate_to: "{{ lookup('vars', resolve_output_prefix ~ '_HOST_NODE') }}"
+  when: DEPLOYMENT_MODE == 'swarm'
 
 - name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_LOCAL_CID"
   ansible.builtin.set_fact:
-    "{{ resolve_output_prefix }}_LOCAL_CID": "{{ _resolve_cid.stdout | trim }}"
+    "{{ resolve_output_prefix }}_LOCAL_CID": "{{ (_resolve_cid.stdout | trim) if DEPLOYMENT_MODE == 'swarm' else (resolve_compose_cid | trim) }}"
