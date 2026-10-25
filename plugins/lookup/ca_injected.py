@@ -50,6 +50,7 @@ from utils.tls_common import (
     as_str,
     issuer_applications,
     require,
+    resolve_primary_domain_from_app,
 )
 
 SELF_SIGNED_MODE = "self_signed"
@@ -101,10 +102,16 @@ class LookupModule(LookupBase):
                 for peer in issuer_applications()
             )
 
-        own_tls = has_domain(_run("domains", []), application_id) and _to_bool(
-            _run("tls", [application_id, "enabled"])
+        domains = _run("domains", [])
+        own_domain = (
+            resolve_primary_domain_from_app(
+                domains, application_id, err_prefix="ca_injected"
+            )
+            if has_domain(domains, application_id)
+            else ""
         )
-        if own_tls and _run("tls", [application_id, "mode"]) == SELF_SIGNED_MODE:
+        own_tls = bool(own_domain) and _to_bool(_run("tls", [own_domain, "enabled"]))
+        if own_tls and _run("tls", [own_domain, "mode"]) == SELF_SIGNED_MODE:
             return [True]
         if not _declares_ca_client():
             return [False]
