@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import unittest
@@ -8,10 +9,16 @@ import yaml
 
 from . import PROJECT_ROOT
 
-sys.path.insert(0, str(PROJECT_ROOT / "roles/svc-ai-agent-broker/files/python"))
+BROKER_DIR = PROJECT_ROOT / "roles/svc-ai-agent-broker/files/python"
+sys.path.insert(0, str(BROKER_DIR))
 
-import agents
 import engine
+
+_AGENTS_SPEC = importlib.util.spec_from_file_location(
+    "broker_agents", BROKER_DIR / "agents.py"
+)
+agents = importlib.util.module_from_spec(_AGENTS_SPEC)
+_AGENTS_SPEC.loader.exec_module(agents)
 
 HERMES_RENDER = {
     "model": {
@@ -36,7 +43,11 @@ OPENCLAW_RENDER = {
                 "apiKey": "${key}",
                 "api": "openai-completions",
                 "models": [
-                    {"id": "${model}", "name": "${model}", "contextWindow": "${context}"}
+                    {
+                        "id": "${model}",
+                        "name": "${model}",
+                        "contextWindow": "${context}",
+                    }
                 ],
             }
         }
@@ -160,11 +171,15 @@ class TestConfigs(unittest.TestCase):
 class TestContextWindow(unittest.TestCase):
     def test_a_known_window_reaches_both_agent_configs(self):
         hermes = yaml.safe_load(
-            agents.render_config(PLATFORMS["hermes"], "m", "http://relay/v1", "k", 32768)
+            agents.render_config(
+                PLATFORMS["hermes"], "m", "http://relay/v1", "k", 32768
+            )
         )  # nocheck: direct-yaml - parses this test's own render
         self.assertEqual(hermes["model"]["context_length"], 32768)
         openclaw = json.loads(
-            agents.render_config(PLATFORMS["openclaw"], "m", "http://relay/v1", "k", 32768)
+            agents.render_config(
+                PLATFORMS["openclaw"], "m", "http://relay/v1", "k", 32768
+            )
         )
         entry = openclaw["models"]["providers"]["broker"]["models"][0]
         self.assertEqual(entry["contextWindow"], 32768)

@@ -67,13 +67,16 @@ def _real_reference_problems() -> list[str]:
 
 
 def _mapping_problems(agents_dir: Path) -> list[str]:
-    problems: list[str] = []
-    for name in _ACTION_TO_ROUTINE:
-        if not (agents_dir / "routines" / f"{name}.py").is_file():
-            problems.append(f"routine destination missing for action page: {name}")
-    for name in _ACTION_TO_SKILL:
-        if not (agents_dir / "skills" / name / "SKILL.md").is_file():
-            problems.append(f"skill destination missing for action page: {name}")
+    problems = [
+        f"routine destination missing for action page: {name}"
+        for name in _ACTION_TO_ROUTINE
+        if not (agents_dir / "routines" / f"{name}.py").is_file()
+    ]
+    problems.extend(
+        f"skill destination missing for action page: {name}"
+        for name in _ACTION_TO_SKILL
+        if not (agents_dir / "skills" / name / "SKILL.md").is_file()
+    )
     if not (agents_dir / "README.md").is_file():
         problems.append("agents/README.md index destination missing")
     return problems
