@@ -1,2 +1,10 @@
 ---
 front_proxy_probe_status_codes: "{{ front_proxy_status_codes + front_proxy_upstream_down_status_codes }}"
+front_proxy_deferred_urls: "{{ dict(front_proxy_deferred_probes.keys() | zip(front_proxy_deferred_probes.values() | map(attribute='url'))) }}"
+front_proxy_deferred_answers: >-
+  {{
+    front_proxy_deferred_probes.values()
+    | map(attribute='status_codes')
+    | flatten
+    | union(front_proxy_upstream_down_status_codes)
+  }}
