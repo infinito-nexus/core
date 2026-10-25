@@ -7,8 +7,10 @@ exports.register = function (shared) {
       process.env.SSO_SERVICE_ENABLED === "true",
       "Native login path only exists when oauth2 is disabled — when oauth2 is on, the broker owns provisioning and the OIDC test covers the journey.",
     );
-    const { baseUrl, adminHandle, adminPassword, pdsBaseUrl } = shared.env;
+    const { baseUrl, adminEmail, adminHandle, adminHandleReserved, adminPassword, pdsBaseUrl } = shared.env;
+    expect(adminEmail, "ADMIN_EMAIL must be set when oauth2 is disabled").toBeTruthy();
     expect(adminHandle, "ADMIN_HANDLE must be set when oauth2 is disabled").toBeTruthy();
+    expect(adminHandleReserved, "ADMIN_HANDLE_RESERVED must be set when oauth2 is disabled").toBeTruthy();
     expect(adminPassword, "ADMIN_PASSWORD must be set when oauth2 is disabled").toBeTruthy();
     expect(pdsBaseUrl, "PDS_BASE_URL must be set when oauth2 is disabled").toBeTruthy();
 
@@ -30,13 +32,16 @@ exports.register = function (shared) {
       `${pdsBaseUrl}/xrpc/com.atproto.server.createSession`,
       {
         headers: { "Content-Type": "application/json" },
-        data: { identifier: adminHandle, password: adminPassword },
+        data: { identifier: adminEmail, password: adminPassword },
       },
     );
     const sessionText = await sessionResp.text();
     expect(sessionResp.status(), `PDS createSession must return 200 for the deployed administrator (got body: ${sessionText})`).toBe(200);
     const sessionJson = JSON.parse(sessionText);
-    expect(sessionJson.handle, "createSession response must echo the administrator handle").toBe(adminHandle);
+    expect(
+      [adminHandle, adminHandleReserved],
+      "createSession must echo the administrator handle, without prefix or with i8- for a reserved name",
+    ).toContain(sessionJson.handle);
     expect(typeof sessionJson.accessJwt, "createSession response must include an accessJwt").toBe("string");
     await apiContext.dispose();
   });

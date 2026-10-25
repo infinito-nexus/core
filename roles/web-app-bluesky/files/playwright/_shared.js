@@ -16,7 +16,9 @@ const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
 const adminHandle = decodeDotenvQuotedValue(process.env.ADMIN_HANDLE || "");
+const adminHandleReserved = decodeDotenvQuotedValue(process.env.ADMIN_HANDLE_RESERVED || "");
 const pdsBaseUrl = decodeDotenvQuotedValue(process.env.PDS_BASE_URL || "");
 
 async function beforeEach({ page }) {
@@ -62,7 +64,9 @@ module.exports = {
     canonicalDomain,
     adminUsername,
     adminPassword,
+    adminEmail,
     adminHandle,
+    adminHandleReserved,
     pdsBaseUrl,
   },
   skipUnlessServiceEnabled,
