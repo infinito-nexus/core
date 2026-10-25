@@ -46,6 +46,12 @@
       {{ WAZUH_AGENT_VERSION }}; a Wazuh agent must never be newer than its manager. Upgrade the manager first.
     quiet: true
 
+# Exception: wazuh-control checks its daemons with ps -p, but the agent packages do not declare the package that ships ps; without it, wazuh-control start hangs until systemd's start timeout (seen on a minimal CentOS Stream 10).
+- name: "📦 Install ps, which wazuh-control needs to start the agent"
+  package_install:
+    id:
+      - procps
+
 - name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }}"
   include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
 
