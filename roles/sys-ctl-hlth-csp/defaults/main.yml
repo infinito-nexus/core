@@ -16,3 +16,6 @@ HEALTH_CSP_TIMEOUT_MS: 20000
 
 # Seconds added per vhost on top of its navigation budget when sizing TimeoutStartSec
 HEALTH_CSP_DOMAIN_RESERVE_SECONDS: 5
+
+# Number of vhosts the checker probes in parallel, each in its own browser context
+HEALTH_CSP_CONCURRENCY: 4
