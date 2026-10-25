@@ -37,7 +37,7 @@
     or listmonk_admin_password.stdout is search('\[FAIL\]')
 
 - name: 📌 Apply every Listmonk setting that differs, in one psql run
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"
     stdin: "{{ lookup('template', 'sql/apply_settings.sql.j2') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

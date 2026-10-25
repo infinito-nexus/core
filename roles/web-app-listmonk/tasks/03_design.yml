@@ -1,6 +1,6 @@
 ---
 - name: "🎨 Carry the corporate design in the Listmonk appearance and branding settings"
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"
     stdin: "{{ lookup('template', 'design/appearance.sql.j2') }}"
   register: listmonk_design_settings
