@@ -40,7 +40,14 @@ reads every ``shell``/``command`` task whose command runs an exec and rejects a
 Jinja expression in it that draws on a credential source or whose name says
 credential anywhere in it, also one var deep (a ``*_JSON_INFO`` carrying a
 ``secret``). A var whose value runs an exec, directly or through another one
-(``{{ NEXTCLOUD_DOCKER_EXEC_OCC }}``), counts as the exec. Hand such a value over on
+(``{{ NEXTCLOUD_DOCKER_EXEC_OCC }}``), counts as the exec, and so does
+``container run``. In a task that sets ``no_log`` the author has declared its
+values sensitive, so there a neutral loop value (``item.value``,
+``item.configvalue``), a ``b64encode`` payload or a ``*_b64`` var on the exec
+line convicts too. A
+fact or task var defined in the same file whose value holds a credential key
+(``password:``) or source counts as a secret under any name. The first rule
+also reads the Jinja-built ``-e {{ ('NAME=' ~ …) }}``. Hand such a value over on
 the task's ``stdin:`` (``curl -H @-``, ``psql`` reading SQL) or as ``-e NAME``
 plus ``environment:``.
 
@@ -70,7 +77,9 @@ from .test_exec_requires_shell_module import _variable_values
 
 _RULE = "container-exec-env-value"
 _EXTENSIONS = (".yml", ".yaml", ".j2", ".sh")
-_ENV_WITH_VALUE = re.compile(r"(?:^|\s)-e\s+([A-Za-z_][A-Za-z0-9_]*)=")
+_ENV_WITH_VALUE = re.compile(
+    r"(?:^|\s)-e\s+(?:\{\{\s*\(*\s*['\"])?([A-Za-z_][A-Za-z0-9_]*)="
+)
 _INTERPOLATED = re.compile(r"\{\{|\$|`")
 _SECRET_NAME = re.compile(r"PASS|PWD|SECRET|TOKEN|KEY|CRED", re.IGNORECASE)
 _SECRET_SOURCE = re.compile(
@@ -118,6 +127,25 @@ def _carries_credential(name: str, value: str) -> bool:
     return by_name or bool(_SECRET_SOURCE.search(value))
 
 
+def _env_assignments(line: str):
+    """Yield every ``-e NAME=VALUE`` a line passes, with an interpolated value.
+
+    Args:
+        line: one source line.
+
+    Yields:
+        ``(name, value)`` for ``-e NAME={{ … }}`` and for the Jinja-built
+        ``-e {{ ('NAME=' ~ …) | quote }}``; a literal value is skipped.
+    """
+    matches = list(_ENV_WITH_VALUE.finditer(line))
+    for position, match in enumerate(matches):
+        following = matches[position + 1 :]
+        stop = following[0].start() if following else len(line)
+        value = line[match.end() : stop]
+        if "{{" in match.group(0) or _INTERPOLATED.search(value):
+            yield match.group(1), value
+
+
 def _argv_lists(node):
     """Yield every ``argv:`` list a task hands to a command module.
 
@@ -140,7 +168,12 @@ def _argv_lists(node):
 
 
 _ARGV_RULE = "exec-argv-secret"
-_EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
+_EXEC = re.compile(r"\b(?:container|docker)\s+(?:exec|run)\b")
+_NEUTRAL_PAYLOAD = re.compile(
+    r"\bitem\.(?:value|configvalue)\b|\b\w+_b64\b|\|\s*b64encode\b"
+)
+_FACT_KEYS = ("set_fact", "ansible.builtin.set_fact", "vars")
+_LOG_SHOWN = {"false", "no", "off", "0"}
 _JINJA_EXPR = re.compile(r"\{\{(.*?)\}\}", re.DOTALL)
 _IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
 _ARGV_SECRET = re.compile(
@@ -238,9 +271,85 @@ def _module_nodes(node: yaml.Node):
         return
     for key, value in node.value:
         if isinstance(key, yaml.ScalarNode) and key.value in _MODULE_KEYS:
-            yield key, value
+            yield key, value, node
         else:
             yield from _module_nodes(value)
+
+
+def _hides_log(task: yaml.MappingNode) -> bool:
+    """Tell whether a task sets ``no_log`` to anything but a literal false.
+
+    Args:
+        task: the task mapping that holds the module key.
+
+    Returns:
+        True for ``no_log: true`` and for a templated value such as
+        ``"{{ MASK_CREDENTIALS_IN_LOGS | bool }}"``.
+    """
+    return any(
+        isinstance(key, yaml.ScalarNode)
+        and key.value == "no_log"
+        and isinstance(value, yaml.ScalarNode)
+        and value.value.strip().lower() not in _LOG_SHOWN
+        for key, value in task.value
+    )
+
+
+def _node_carries_secret(node: yaml.Node) -> bool:
+    if isinstance(node, yaml.ScalarNode):
+        return any(
+            _expression_carries_secret(" ".join(m.group(1).split()), _VALUES, 1)
+            for m in _JINJA_EXPR.finditer(node.value)
+        )
+    if isinstance(node, yaml.SequenceNode):
+        return any(_node_carries_secret(item) for item in node.value)
+    if isinstance(node, yaml.MappingNode):
+        return any(
+            (
+                isinstance(key, yaml.ScalarNode)
+                and _ARGV_SECRET.fullmatch(key.value)
+                and not _NOT_A_SECRET_SUFFIX.search(key.value)
+            )
+            or _node_carries_secret(value)
+            for key, value in node.value
+        )
+    return False
+
+
+def _secret_facts(node: yaml.Node) -> frozenset[str]:
+    """Return the facts and task vars of one file whose definition holds a secret.
+
+    Args:
+        node: a parsed YAML document.
+
+    Returns:
+        Every name a ``set_fact`` or ``vars:`` mapping defines with a value
+        that carries a credential key (``password:``) or source.
+    """
+    names: set[str] = set()
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, yaml.SequenceNode):
+            stack.extend(current.value)
+            continue
+        if not isinstance(current, yaml.MappingNode):
+            continue
+        for key, value in current.value:
+            if (
+                isinstance(key, yaml.ScalarNode)
+                and key.value in _FACT_KEYS
+                and isinstance(value, yaml.MappingNode)
+            ):
+                names.update(
+                    fact.value
+                    for fact, definition in value.value
+                    if isinstance(fact, yaml.ScalarNode)
+                    and not _NOT_A_SECRET_SUFFIX.search(fact.value)
+                    and _node_carries_secret(definition)
+                )
+            stack.append(value)
+    return frozenset(names)
 
 
 def _command_text(value: yaml.Node) -> str:
@@ -275,16 +384,22 @@ def scan_exec_argv(content: str) -> list[tuple[int, str]]:
     for doc in docs:
         if doc is None:
             continue
-        for key, value in _module_nodes(doc):
+        facts = _secret_facts(doc)
+        for key, value, task in _module_nodes(doc):
             text = _command_text(value)
             if not (_EXEC.search(text) or _WRAPPER_USE.search(text)):
                 continue
             line_no = key.start_mark.line + 1
             if is_suppressed_at(lines, line_no, _ARGV_RULE, mode="same-or-above"):
                 continue
+            hidden = _hides_log(task)
             for match in _JINJA_EXPR.finditer(text):
                 expr = " ".join(match.group(1).split())
-                if _expression_carries_secret(expr, _VALUES, 0):
+                if (
+                    _expression_carries_secret(expr, _VALUES, 0)
+                    or (hidden and _NEUTRAL_PAYLOAD.search(expr))
+                    or facts.intersection(_IDENTIFIER.findall(_LITERAL.sub("''", expr)))
+                ):
                     findings.append((line_no, expr))
     return findings
 
@@ -343,6 +458,53 @@ class TestExecArgvSecret(unittest.TestCase):
         values = {"X_EXEC": "container exec -u www x", "X_OCC": "{{ X_EXEC }} occ"}
         self.assertEqual(_exec_wrappers(values), frozenset({"X_EXEC", "X_OCC"}))
 
+    def test_a_neutral_payload_convicts_only_where_the_task_hides_its_log(
+        self,
+    ) -> None:
+        task = (
+            "- shell: >\n"
+            "    container exec {{ CID }} occ config:app:set a k"
+            " --value={{ item.value | quote }}\n"
+        )
+        self.assertEqual(
+            scan_exec_argv(task + "  no_log: true\n"), [(1, "item.value | quote")]
+        )
+        self.assertEqual(
+            scan_exec_argv(task + '  no_log: "{{ MASK | bool }}"\n'),
+            [(1, "item.value | quote")],
+        )
+        self.assertEqual(scan_exec_argv(task), [])
+        self.assertEqual(scan_exec_argv(task + "  no_log: false\n"), [])
+
+    def test_container_run_counts_as_an_exec(self) -> None:
+        self.assertEqual(
+            scan_exec_argv(
+                "- shell: >\n"
+                "    docker run --rm img tool --password {{ ADMIN_PASSWORD }}\n"
+            ),
+            [(1, "ADMIN_PASSWORD")],
+        )
+
+    def test_a_fact_whose_definition_holds_a_secret_is_one_on_the_exec_line(
+        self,
+    ) -> None:
+        facts = (
+            "- set_fact:\n"
+            "    user_payload:\n"
+            '      password: "{{ consumer_pw }}"\n'
+            '      roles: ["x"]\n'
+            "    role_payload:\n"
+            '      roles: ["x"]\n'
+            "    stale_uuids: \"{{ app_passwords | map(attribute='uuid') }}\"\n"
+            "- shell: >\n"
+            "    container exec {{ CID }} curl -d {{ user_payload | to_json | quote }}\n"
+            "- shell: >\n"
+            "    container exec {{ CID }} curl -d {{ role_payload | to_json | quote }}\n"
+            "- shell: >\n"
+            "    container exec {{ CID }} wp delete {{ stale_uuids | join(' ') }}\n"
+        )
+        self.assertEqual(scan_exec_argv(facts), [(8, "user_payload | to_json | quote")])
+
     def test_no_secret_in_exec_argv(self) -> None:
         findings: list[str] = []
         for path_str, content in iter_project_files_with_content(
@@ -368,6 +530,19 @@ class TestExecArgvSecret(unittest.TestCase):
             )
 
 
+class TestEnvAssignments(unittest.TestCase):
+    def test_a_jinja_built_assignment_is_read_like_a_plain_one(self) -> None:
+        built = "-e {{ ('DB=' ~ lookup('database', app, 'password')) | quote }} x"
+        [(name, value)] = list(_env_assignments(built))
+        self.assertEqual(name, "DB")
+        self.assertTrue(_carries_credential(name, value))
+
+    def test_a_literal_or_a_plain_neutral_value_passes(self) -> None:
+        self.assertEqual(list(_env_assignments("-e RAILS_ENV=production x")), [])
+        [(name, value)] = list(_env_assignments("-e SITE_URL={{ BASE_URL }} x"))
+        self.assertFalse(_carries_credential(name, value))
+
+
 class TestContainerExecEnvPassesNoValue(unittest.TestCase):
     def test_container_exec_env_flags_carry_no_value(self) -> None:
         findings: list[tuple[str, int, str]] = []
@@ -381,14 +556,7 @@ class TestContainerExecEnvPassesNoValue(unittest.TestCase):
             for idx, line in enumerate(lines):
                 if line.lstrip().startswith("#"):
                     continue
-                matches = list(_ENV_WITH_VALUE.finditer(line))
-                for position, match in enumerate(matches):
-                    following = matches[position + 1 :]
-                    stop = following[0].start() if following else len(line)
-                    name = match.group(1)
-                    value = line[match.end() : stop]
-                    if not _INTERPOLATED.search(value):
-                        continue
+                for name, value in _env_assignments(line):
                     if not _carries_credential(name, value):
                         continue
                     line_no = idx + 1
