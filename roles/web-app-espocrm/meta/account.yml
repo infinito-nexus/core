@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 50
+  username_pattern: '[a-z0-9@_.-]+'
+  source: https://github.com/espocrm/espocrm/blob/10.0.11/application/Espo/Resources/metadata/entityDefs/User.json#L5 + https://github.com/espocrm/espocrm/blob/10.0.11/application/Espo/Resources/defaults/config.php#L206
+  agent_reachable: true

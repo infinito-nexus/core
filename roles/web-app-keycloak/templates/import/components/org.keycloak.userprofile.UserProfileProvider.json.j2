@@ -1,4 +1,7 @@
-{% set _profile = namespace(attrs=[], groups=[]) %}
+{% set _profile = namespace(attrs=[], groups=[], lookaheads='') %}
+{% for pattern in IAM_USERNAME_PATTERNS %}
+{% set _profile.lookaheads = _profile.lookaheads ~ '(?=(?:' ~ pattern ~ ')$)' %}
+{% endfor %}
 {% for attribute in KEYCLOAK_PROFILE_ATTRIBUTES %}
 {% set _profile.attrs = _profile.attrs + [{
   "name": attribute.name,
@@ -23,8 +26,8 @@
     "validations": {
       "length": { "min": 3, "max": IAM_ACCOUNT_MAX_LENGTH },
       "pattern": {
-        "pattern": "^(?!(?:" ~ KEYCLOAK_RESERVED_USERNAMES_REGEX | replace('\\', '\\\\') ~ ")$)[a-z0-9]+$",
-        "error-message": "Username is reserved or contains invalid characters. Only lowercase letters (a–z) and digits (0–9) are allowed."
+        "pattern": "^(?!(?:" ~ KEYCLOAK_RESERVED_USERNAMES_REGEX | replace('\\', '\\\\') ~ ")$)" ~ _profile.lookaheads ~ "[a-z1-9]+$",
+        "error-message": "Username is reserved or contains invalid characters. Only lowercase letters (a–z) and digits (1–9) are allowed."
       }
     },
     "annotations": {},

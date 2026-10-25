@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 100
+  username_pattern: '[a-z0-9_.@-]+'
+  source: https://github.com/moodle/moodle/blob/v5.3.0/public/lib/classes/param.php#L1297-L1302 + https://github.com/moodle/moodle/blob/v5.3.0/public/lib/db/install.xml#L879
+  agent_reachable: true

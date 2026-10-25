@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 30
+  username_pattern: '[a-zA-Z0-9_]+'
+  source: https://github.com/mastodon/mastodon/blob/v4.6.2/app/models/account.rb#L78 + https://github.com/mastodon/mastodon/blob/v4.6.2/app/models/account.rb#L128
   agent_reachable: true

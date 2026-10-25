@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 140
+  username_pattern: .+
+  source: https://github.com/frappe/frappe/blob/v16.52.0/frappe/core/doctype/user/user.json#L208 + https://github.com/frappe/frappe/blob/v16.52.0/frappe/database/database.py#L91
+  agent_reachable: true

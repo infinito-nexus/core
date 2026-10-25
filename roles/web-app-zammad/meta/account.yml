@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/zammad/zammad/blob/7.1.2/db/migrate/20120101000001_create_base.rb#L23 + https://github.com/zammad/zammad/blob/7.1.2/app/models/user.rb#L855
   agent_reachable: true

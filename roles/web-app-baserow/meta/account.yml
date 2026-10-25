@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: .+
+  source: https://github.com/django/django/blob/5.2.17/django/contrib/auth/models.py#L468 + https://gitlab.com/baserow/baserow/-/blob/2.4.1/backend/src/baserow/core/user/handler.py#L165
+  agent_reachable: true

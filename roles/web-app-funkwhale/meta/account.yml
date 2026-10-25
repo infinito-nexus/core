@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: '[A-Za-z0-9_]+'
+  source: https://github.com/django/django/blob/6.0.7/django/contrib/auth/models.py#L458 + https://dev.funkwhale.audio/funkwhale/funkwhale/-/blob/2.0.12/api/funkwhale_api/users/serializers.py#L36
+  agent_reachable: true

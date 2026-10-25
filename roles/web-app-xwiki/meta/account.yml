@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 762
+  username_pattern: '[^.:\s,@^/]+'
+  source: https://github.com/xwiki/xwiki-platform/blob/xwiki-platform-18.8.0/xwiki-platform-core/xwiki-platform-oldcore/src/main/resources/xwiki.hbm.xml#L45 + https://github.com/xwiki-contrib/user-common/blob/user-common-1.0.0/user-common-formatter/src/main/java/org/xwiki/contrib/usercommon/formatter/UserFormatterFactory.java#L37
+  agent_reachable: true

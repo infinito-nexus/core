@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 64
+  username_pattern: .+
+  source: https://github.com/pgadmin-org/pgadmin4/blob/REL-9_18/web/pgadmin/model/__init__.py#L201 + https://github.com/pgadmin-org/pgadmin4/blob/REL-9_18/web/pgadmin/tools/user_management/__init__.py#L623
+  agent_reachable: true

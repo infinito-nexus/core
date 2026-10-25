@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: '[A-Za-z0-9_.-]+'
+  source: https://github.com/bookwyrm-social/bookwyrm/blob/v0.9.3/bookwyrm/models/fields.py#L202 + https://github.com/bookwyrm-social/bookwyrm/blob/v0.9.3/bookwyrm/models/fields.py#L43
+  agent_reachable: true

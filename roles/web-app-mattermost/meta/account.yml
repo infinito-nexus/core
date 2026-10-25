@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 64
+  username_pattern: (?!(?:all|channel|matterbot|system)$)[a-z0-9._-]+
+  source: https://github.com/mattermost/mattermost/blob/v11.11.1/server/public/model/user.go#L62 + https://github.com/mattermost/mattermost/blob/v11.11.1/server/public/model/user.go#L1091
+  agent_reachable: true

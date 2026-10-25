@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: '[\w.-]+'
+  source: https://github.com/infinito-nexus/taiga-oidc/blob/c623b753047ce9923f3e38614d86e81fc5eb2bb1/back/taiga_contrib_oidc_auth/oidc.py#L50 + https://github.com/taigaio/taiga-back/blob/6.10.2/taiga/users/models.py#L120-L124
+  agent_reachable: true

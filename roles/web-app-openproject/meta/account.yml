@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 256
+  username_pattern: '[a-zA-Z0-9_@.+ -]+'
+  source: https://github.com/opf/openproject/blob/v17.9.3/app/models/user.rb#L186-L187
   agent_reachable: true

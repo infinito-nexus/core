@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: (?!\s)[\w '._@+-]+(?<!\s)
+  source: https://github.com/jellyfin/jellyfin/blob/v10.11.11/src/Jellyfin.Database/Jellyfin.Database.Implementations/Entities/User.cs#L73 + https://github.com/jellyfin/jellyfin/blob/v10.11.11/Jellyfin.Server.Implementations/Users/UserManager.cs#L119
+  agent_reachable: true

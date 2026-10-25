@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[a-z0-9][a-z0-9_]*'
+  source: https://github.com/friendica/friendica/blob/2026.05/static/dbstructure.config.php#L107 + https://github.com/friendica/friendica/blob/2026.05/src/Model/User.php#L1324
+  agent_reachable: true

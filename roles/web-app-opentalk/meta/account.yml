@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://gitlab.opencode.de/opentalk/controller/-/blob/v0.34.5/crates/opentalk-db-storage/src/schema.rs#L371-L387 + https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/resources/org/keycloak/userprofile/config/keycloak-default-user-profile.json#L4-L19
+  agent_reachable: true

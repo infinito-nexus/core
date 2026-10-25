@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 64
+  username_pattern: '[a-zA-Z0-9_.@-]+'
+  source: https://github.com/nextcloud/server/blob/v34.0.5/apps/user_ldap/lib/Access.php#L1380-L1383 + https://github.com/nextcloud/server/blob/v34.0.5/lib/private/User/Manager.php#L752-L775
   agent_reachable: true

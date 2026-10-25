@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 20
+  username_pattern: '[a-z0-9_-]+'
+  source: https://github.com/decidim/decidim/blob/v0.31.6/decidim-core/lib/decidim/nicknamizable.rb#L19 + https://github.com/decidim/decidim/blob/v0.31.6/decidim-core/app/models/decidim/user_base_entity.rb#L24
   agent_reachable: true

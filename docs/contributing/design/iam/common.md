@@ -40,6 +40,15 @@ When you add OIDC or LDAP support to a role, you MUST:
 6. Document the integration in the role README under Features and, when the
    wiring is non-obvious, in the role Developer Notes section. See
    [readme_md.md](../../artefact/files/role/readme_md.md).
+7. Declare `account_policy` in the role's `meta/account.yml` with
+   `username_max_length`, `username_pattern` (unanchored, valid in Python and
+   Java), `source` (an https permalink to the upstream code proving both, at the
+   deployed version) and `agent_reachable`. A role without its own user account
+   declares Keycloak's ceiling (`255`, `.+`). `agent_reachable` is `true` when
+   the application keeps a per-user account and accepts `IAM_ACCOUNT_MAX_LENGTH`
+   characters, `false` otherwise. `IAM_USERNAME_MAX_LENGTH`,
+   `IAM_ACCOUNT_MAX_LENGTH` and the Keycloak username pattern are derived from
+   these declarations by `lookup('account_policy', ...)`.
 
 ## Related Areas 📚
 

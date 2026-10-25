@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 255
+  username_pattern: '[a-z0-9./=+-][a-z0-9._/=+-]*'
+  source: https://github.com/element-hq/synapse/blob/v1.163.2/synapse/api/constants.py#L86 + https://github.com/element-hq/synapse/blob/v1.163.2/synapse/handlers/register.py#L166-L183
   agent_reachable: true

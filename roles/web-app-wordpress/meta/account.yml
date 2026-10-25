@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 60
+  username_pattern: '[A-Za-z0-9_.@-]+(?: [A-Za-z0-9_.@-]+)*'
+  source: https://github.com/WordPress/wordpress-develop/blob/7.1.3/src/wp-includes/user.php#L2321 + https://github.com/WordPress/wordpress-develop/blob/7.1.3/src/wp-includes/formatting.php#L2160
+  agent_reachable: true

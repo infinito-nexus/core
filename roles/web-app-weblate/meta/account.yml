@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: '[\w@+-][\w.@+-]*'
+  source: https://github.com/WeblateOrg/weblate/blob/weblate-2026.9/weblate/trans/defines.py#L22 + https://github.com/WeblateOrg/weblate/blob/weblate-2026.9/weblate/utils/validators.py#L60
+  agent_reachable: true

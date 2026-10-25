@@ -4,21 +4,21 @@ import re
 import unittest
 
 from utils.cache.users import get_user_defaults
-from utils.cache.yaml import load_yaml
+from utils.roles import account_policy
 
 from . import PROJECT_ROOT
-
-_GENERAL_VARS = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
 
 
 def username_max_length() -> int:
     """The human username ceiling every IAM consumer is configured against.
 
     Returns:
-        ``IAM_USERNAME_MAX_LENGTH`` from the global variables, which the
-        Keycloak user profile and the OpenLDAP constraint overlay both render.
+        ``IAM_USERNAME_MAX_LENGTH``: the smallest username limit any role
+        declares in its meta/account.yml.
     """
-    return int(load_yaml(str(_GENERAL_VARS))["IAM_USERNAME_MAX_LENGTH"])
+    return account_policy.username_max_length(
+        account_policy.load_policies(PROJECT_ROOT / "roles")
+    )
 
 
 def offenders(users: dict, maximum: int) -> list[str]:

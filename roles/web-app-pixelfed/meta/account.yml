@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 30
+  username_pattern: '[a-zA-Z0-9]+'
+  source: https://github.com/pixelfed/pixelfed/blob/v0.14.4/app/Http/Controllers/RemoteOidcController.php#L107 + https://github.com/pixelfed/pixelfed/blob/v0.14.4/app/Http/Controllers/RemoteOidcController.php#L134-L145
+  agent_reachable: true

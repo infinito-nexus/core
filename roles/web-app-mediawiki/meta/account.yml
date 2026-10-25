@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[^#<>\[\]|{}/@:=\x00-\x1f\x7f-\x9f\u00a0\u2000-\u200f\u2028-\u202f\u3000\ue000-\uf8ff]+'
+  source: https://github.com/wikimedia/mediawiki/blob/1.46.2/includes/MainConfigSchema.php#L7561 + https://github.com/wikimedia/mediawiki/blob/1.46.2/includes/User/UserNameUtils.php#L88-L125
+  agent_reachable: true

@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/jenkinsci/jenkins/blob/jenkins-2.580.1/core/src/main/java/hudson/model/User.java#L873 + https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/resources/org/keycloak/userprofile/config/keycloak-default-user-profile.json#L4-L19
+  agent_reachable: true

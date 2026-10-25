@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/semaphoreui/semaphore/blob/v2.19.17/db/sql/migrations/v0.0.0.sql#L4 + https://github.com/semaphoreui/semaphore/blob/v2.19.17/db/User.go#L56
+  agent_reachable: true

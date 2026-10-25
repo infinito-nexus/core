@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 40
+  username_pattern: '[a-zA-Z0-9]+(?:[-._][a-zA-Z0-9]+)*'
+  source: https://github.com/go-gitea/gitea/blob/v28.2.0/modules/structs/admin_user.go#L17 + https://github.com/go-gitea/gitea/blob/v28.2.0/modules/validation/helpers.go#L32
   agent_reachable: true

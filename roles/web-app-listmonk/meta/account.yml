@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 2000
+  username_pattern: '[a-zA-Z0-9_.@-]{3,}'
+  source: https://github.com/knadh/listmonk/blob/v6.2.0/cmd/handlers.go#L18 + https://github.com/knadh/listmonk/blob/v6.2.0/cmd/users.go#L18
+  agent_reachable: true

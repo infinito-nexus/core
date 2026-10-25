@@ -385,9 +385,9 @@ ROLE_FILES: dict[str, dict[str, object]] = {
     },
     ROLE_FILE_META_ACCOUNT: {
         "description": (
-            "Account policy for the identity system the application provisions: "
-            "the real username length ceiling and whether an agent may hold an "
-            "account there."
+            "Account policy of the application's own user account: the "
+            "username length ceiling and accepted pattern, the upstream source "
+            "proving both, and whether an agent may hold an account there."
         ),
         "types": [
             {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},

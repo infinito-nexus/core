@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[a-z0-9_]+'
+  source: https://framagit.org/kaihuri/mobilizon/-/blob/5.2.4/lib/mobilizon/actors/actor.ex#L404 + https://framagit.org/kaihuri/mobilizon/-/blob/5.2.4/priv/repo/migrations/20180517100700_move_from_account_to_actor.exs#L35
+  agent_reachable: true

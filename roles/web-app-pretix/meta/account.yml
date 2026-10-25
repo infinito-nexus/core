@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 190
+  username_pattern: .+
+  source: https://github.com/pretix/pretix/blob/v2026.8.0/src/pretix/base/models/auth.py#L308 + https://github.com/thegcat/pretix-oidc/blob/v2.3.1/pretix_oidc/auth.py#L123
+  agent_reachable: true

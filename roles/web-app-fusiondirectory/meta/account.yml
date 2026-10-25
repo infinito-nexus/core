@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[a-z0-9_-]+'
+  source: https://github.com/fusiondirectory/fusiondirectory/blob/fusiondirectory-1.5/include/class_tests.inc#L125 + https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/resources/org/keycloak/userprofile/config/keycloak-default-user-profile.json#L4-L19
+  agent_reachable: true

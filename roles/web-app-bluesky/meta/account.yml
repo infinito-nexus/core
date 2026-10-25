@@ -1,4 +1,6 @@
 ---
 account_policy:
-  username_max_length: 253
+  username_max_length: 15
+  username_pattern: '[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?'
+  source: https://github.com/bluesky-social/atproto/blob/c307a75db11503eedf743c01e62f90413f07fe2a/packages/pds/src/handle/index.ts#L89 + https://github.com/bluesky-social/atproto/blob/c307a75db11503eedf743c01e62f90413f07fe2a/packages/syntax/src/handle.ts#L79
   agent_reachable: false

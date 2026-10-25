@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 100
+  username_pattern: '[A-Za-zÄäÖöÜüß0-9_.@+-]{2,}'
+  source: https://github.com/matomo-org/matomo/blob/5.14.2/core/Piwik.php#L769-L775
+  agent_reachable: true

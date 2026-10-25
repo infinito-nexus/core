@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/open-webui/open-webui/blob/v0.11.0/backend/open_webui/utils/oauth.py#L1964-L1974 + https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/resources/org/keycloak/userprofile/config/keycloak-default-user-profile.json#L4-L19
+  agent_reachable: true

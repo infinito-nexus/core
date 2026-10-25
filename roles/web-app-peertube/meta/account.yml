@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 50
+  username_pattern: '[a-z0-9_]+([a-z0-9_.-]+[a-z0-9_]+)?'
+  source: https://github.com/Chocobozzz/PeerTube/blob/v8.3.1/server/core/initializers/constants.ts#L437 + https://github.com/Chocobozzz/PeerTube/blob/v8.3.1/server/core/helpers/custom-validators/users.ts#L37
+  agent_reachable: true

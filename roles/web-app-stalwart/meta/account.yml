@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[\w!#$%&''*+/=?^`{|}~-]+(?:\.[\w!#$%&''*+/=?^`{|}~-]+)*'
+  source: https://github.com/stalwartlabs/stalwart/blob/v0.16.27/crates/utils/src/lib.rs#L353 + https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/resources/org/keycloak/userprofile/config/keycloak-default-user-profile.json#L4-L19
+  agent_reachable: true

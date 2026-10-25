@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 80
+  username_pattern: '[a-zA-Z0-9!#$%&''*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&''*+/=?^_`{|}~-]+)*'
+  source: https://github.com/Mailu/Mailu/blob/2024.06.67/core/admin/mailu/models.py#L374 + https://github.com/Mailu/Mailu/blob/2024.06.67/core/admin/mailu/ui/forms.py#L10
+  agent_reachable: true

@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[\w$][-@.+\w$]*'
+  source: https://github.com/Checkmk/checkmk/blob/v2.4.0p38/cmk/utils/user.py#L131 + https://github.com/Checkmk/checkmk/blob/v2.4.0p38/cmk/utils/user.py#L52
+  agent_reachable: true

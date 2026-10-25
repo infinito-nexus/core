@@ -1,4 +1,6 @@
 ---
 account_policy:
   username_max_length: 20
+  username_pattern: (?:[A-Za-z0-9]|_(?=[A-Za-z0-9]))(?:[-_.]?[A-Za-z0-9])*
+  source: https://github.com/discourse/discourse/blob/v2026.9.1/config/site_settings.yml#L1035 + https://github.com/discourse/discourse/blob/v2026.9.1/app/models/username_validator.rb#L59-L91
   agent_reachable: true

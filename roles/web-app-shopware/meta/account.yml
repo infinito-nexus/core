@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/shopware/shopware/blob/v6.7.13.0/src/Core/Migration/V6_3/Migration1536232810User.php#L25 + https://github.com/shopware/shopware/blob/v6.7.13.0/src/Core/System/User/UserDefinition.php#L85
+  agent_reachable: true

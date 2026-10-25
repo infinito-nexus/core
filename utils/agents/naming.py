@@ -15,9 +15,11 @@ IAM_ACCOUNT_MAX_LENGTH = 20
 IAM_USERNAME_MAX_LENGTH = 15
 
 _CODE = re.compile(r"^[a-z1-9]{4}$")
-_SUFFIX = re.compile(r"^[a-z1-9]{1,15}$")
-_AGENT = re.compile(r"^(?P<code>[a-z1-9]{4})0(?P<suffix>[a-z1-9]{1,15})$")
-_HUMAN = re.compile(r"^[a-z1-9]{3,15}$")
+_SUFFIX = re.compile(rf"^[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}}$")
+_AGENT = re.compile(
+    rf"^(?P<code>[a-z1-9]{{4}})0(?P<suffix>[a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}})$"
+)
+_HUMAN = re.compile(rf"^[a-z1-9]{{3,{IAM_USERNAME_MAX_LENGTH}}}$")
 
 
 def agent_account_name(code: str, suffix: str) -> str:
@@ -34,7 +36,9 @@ def agent_account_name(code: str, suffix: str) -> str:
     if not _CODE.match(code):
         raise ValueError(f"role code {code!r} is not four of [a-z1-9]")
     if not _SUFFIX.match(suffix):
-        raise ValueError(f"suffix {suffix!r} is not [a-z1-9]{{1,15}}")
+        raise ValueError(
+            f"suffix {suffix!r} is not [a-z1-9]{{1,{IAM_USERNAME_MAX_LENGTH}}}"
+        )
     name = f"{code}0{suffix}"
     if len(name) > IAM_ACCOUNT_MAX_LENGTH:
         raise ValueError(f"name {name!r} exceeds {IAM_ACCOUNT_MAX_LENGTH}")

@@ -16,8 +16,9 @@ STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefer
 
 MASK_CREDENTIALS_IN_LOGS: true
 
-IAM_USERNAME_MAX_LENGTH: 15 # human username ceiling; leaves room before IAM_ACCOUNT_MAX_LENGTH for the agent 0-separator and suffix
-IAM_ACCOUNT_MAX_LENGTH: 20 # smallest account-name limit over agent-reachable apps (Discourse, Decidim); agent names <code>0<suffix> fit within it
+IAM_USERNAME_MAX_LENGTH: "{{ lookup('account_policy', 'username_max_length') }}" # human username ceiling: smallest username_max_length of any roles/*/meta/account.yml
+IAM_ACCOUNT_MAX_LENGTH: "{{ lookup('account_policy', 'account_max_length') }}" # agent account ceiling: smallest username_max_length of an agent_reachable role
+IAM_USERNAME_PATTERNS: "{{ lookup('account_policy', 'username_patterns') }}" # every role's username_pattern; a username must match all of them
 IAM_PLATFORM_ADMIN_USER_KEY: "platform_administrator" # the account every application administers itself with, as declared in roles/user-administrator/meta/users.yml
 IAM_HOST_ADMIN_USER_KEY: "administrator" # the host account; only roles/user-administrator may consume it
 

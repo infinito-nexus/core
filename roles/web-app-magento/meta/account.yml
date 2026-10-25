@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 40
+  username_pattern: .+
+  source: https://github.com/magento/magento2/blob/2.4.8/app/code/Magento/User/etc/db_schema.xml#L16 + https://github.com/magento/magento2/blob/2.4.8/app/code/Magento/User/Model/UserValidationRules.php#L37
+  agent_reachable: true

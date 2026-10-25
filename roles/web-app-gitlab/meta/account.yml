@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: '[a-zA-Z0-9]+(?:[._-][a-zA-Z0-9]+)*(?<!\.git)(?<!\.atom)'
+  source: https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.5.1/app/models/namespace.rb#L152 + https://gitlab.com/gitlab-org/gitlab-foss/-/blob/v19.5.1/lib/gitlab/regex.rb#L24
+  agent_reachable: true
