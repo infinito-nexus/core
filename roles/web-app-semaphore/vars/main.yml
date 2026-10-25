@@ -3,6 +3,9 @@ application_id: "web-app-semaphore"
 container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
 
 SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
+SEMAPHORE_WEB_ROOT: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+SEMAPHORE_SIBLING_BASE_REWRITE: >-
+  sub_filter '<base href="{{ SEMAPHORE_WEB_ROOT }}/">' '<base href="/">';
 
 SEMAPHORE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 SEMAPHORE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
@@ -27,7 +30,7 @@ SEMAPHORE_OIDC_PROVIDERS_JSON: >-
          "provider_url":   OIDC.CLIENT.ISSUER_URL,
          "client_id":      OIDC.CLIENT.ID,
          "client_secret":  OIDC.CLIENT.SECRET,
-         "redirect_url":   (lookup('tls', application_id, 'url.base') | regex_replace('/+$', '')) ~ "/api/auth/oidc/keycloak/redirect",
+         "redirect_url":   SEMAPHORE_WEB_ROOT ~ "/api/auth/oidc/keycloak/redirect",
          "username_claim": OIDC.ATTRIBUTES.USERNAME,
          "email_claim":    "email",
          "name_claim":     "name",

@@ -6,6 +6,7 @@
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
+    webserver_location_extra_configuration: "{{ '' if domain == (SEMAPHORE_WEB_ROOT | urlsplit('hostname')) else SEMAPHORE_SIBLING_BASE_REWRITE }}"
 
 - name: "🧑‍💼 Run the Semaphore account operations on the stack host"
   when: IS_STACK_HOST | bool
