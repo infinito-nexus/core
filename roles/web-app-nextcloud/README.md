@@ -215,6 +215,19 @@ After the compose handlers ran, [`tasks/02_manager_ops/03_upgrade.yml`](./tasks/
 
 The steps run in compose mode only. A swarm deploy that finds an older major stops with the planned steps; pin one major above the installed one per deploy there.
 
+### Post-Upgrade Pass
+
+[`tasks/02_manager_ops/03_upgrade.yml`](./tasks/02_manager_ops/03_upgrade.yml) includes [`03_upgrade/01_post_upgrade.yml`](./tasks/02_manager_ops/03_upgrade/01_post_upgrade.yml), the appstore app update and `occ maintenance:repair --include-expensive`, only while the version `occ status` reports after `occ upgrade` differs from the one `version.php` declared before the deploy or from `files/mimetype_version`, the server version the expensive repair last ran for.
+A fresh install, every upgrade path and a deploy that stopped before the repair run the pass, a redeploy of an unchanged version skips it.
+
+A redeploy of an unchanged version includes [`03_upgrade/02_cached_updates.yml`](./tasks/02_manager_ops/03_upgrade/02_cached_updates.yml) instead, which updates apps without querying the appstore:
+
+1. `occ app:list --enabled --output=json` reads the installed app versions.
+2. `occ config:list updatenotification --output=json` reads the newest release per app that the daily `updatenotification` background job found.
+3. `occ app:update <id>` runs for every enabled app whose stored release is newer than the installed one, never for an app pinned through `archive`.
+
+An app the background job has not checked yet is not updated until its next run.
+
 ## MCP Server
 
 Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the `context_agent` ExApp.

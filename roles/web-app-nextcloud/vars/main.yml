@@ -23,6 +23,7 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | selectattr('value.config.archive', 'defined')
      | selectattr('value.enabled', 'true')
      | map(attribute='key') | list }}
+NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
