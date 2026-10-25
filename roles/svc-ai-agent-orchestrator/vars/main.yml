@@ -17,10 +17,10 @@ AGENT_ORCHESTRATOR_POLL_INTERVAL: "{{ lookup('config', application_id, 'services
 AGENT_ORCHESTRATOR_PUBLICLY_REACHABLE: "{{ lookup('config', application_id, 'services.agent-orchestrator.publicly_reachable') }}"
 AGENT_ORCHESTRATOR_RETENTION_DAYS: "{{ lookup('config', application_id, 'services.agent-orchestrator.checkpoint_retention_days') }}"
 AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ lookup('config', application_id, 'services.agent-orchestrator.cron_entries') }}"
-AGENT_ORCHESTRATOR_AGENT_ROLES: "{{ query('fileglob', [lookup('path_absolute', 'agents/roles'), '*', 'cron.yml'] | path_join) | map('dirname') | map('basename') | sort }}"
+AGENT_ORCHESTRATOR_AGENT_ROLES: "{{ query('fileglob', [lookup('path_absolute', 'agents/roles'), '*', 'cron.yml'] | path_join) | map('dirname') | map('basename') |
+  sort }}"
 
-AGENT_ORCHESTRATOR_CHANNELS: "{{ (['matrix'] if 'web-app-matrix' in group_names else []) + ['email'] + (['zammad'] if 'web-app-zammad'
-  in group_names else []) }}"
+AGENT_ORCHESTRATOR_CHANNELS: "{{ (['matrix'] if 'web-app-matrix' in group_names else []) + ['email'] + (['zammad'] if 'web-app-zammad' in group_names else []) }}"
 
 AGENT_ORCHESTRATOR_LIBS:
   - utils/__init__.py

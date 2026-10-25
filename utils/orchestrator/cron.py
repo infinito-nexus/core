@@ -87,7 +87,9 @@ def due(
         if condition is not None and condition not in conditions_met:
             continue
         if entry.get("action") == "start" and (
-            gate_locked or entry.get("routine") in held or entry.get("routine") in blocked
+            gate_locked
+            or entry.get("routine") in held
+            or entry.get("routine") in blocked
         ):
             continue
         out.append(entry)
@@ -179,7 +181,9 @@ def _demo() -> None:
     held = frozenset({"maintainer"})
     _expect(due([sweep], at_0400, held=held) == [], "held routine fired on cron")
     _expect(due([sweep], at_0400, blocked=held) == [], "blocked routine fired on cron")
-    _expect([e["name"] for e in due([sweep], at_0400)] == ["s"], "sweep missed off hold")
+    _expect(
+        [e["name"] for e in due([sweep], at_0400)] == ["s"], "sweep missed off hold"
+    )
     _expect(
         gate_discarded(long_job_ran=True, tree_changed=False),
         "gate beside a long job not discarded",

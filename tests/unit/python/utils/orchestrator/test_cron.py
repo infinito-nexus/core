@@ -9,7 +9,12 @@ from datetime import UTC, datetime
 
 from utils.orchestrator.cron import due, gate_discarded
 
-_SWEEP = {"name": "s", "schedule": "0 4 * * *", "routine": "maintainer", "action": "start"}
+_SWEEP = {
+    "name": "s",
+    "schedule": "0 4 * * *",
+    "routine": "maintainer",
+    "action": "start",
+}
 _AT_0400 = datetime(2026, 10, 24, 4, 0, tzinfo=UTC)
 
 

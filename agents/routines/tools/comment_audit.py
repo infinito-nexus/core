@@ -79,7 +79,5 @@ def em_dashes(diff: str) -> list[str]:
     return [
         line[1:].strip()
         for line in diff.splitlines()
-        if line.startswith("+")
-        and not line.startswith("+++")
-        and _EM_DASH in line[1:]
+        if line.startswith("+") and not line.startswith("+++") and _EM_DASH in line[1:]
     ]

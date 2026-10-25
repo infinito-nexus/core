@@ -85,7 +85,9 @@ def mermaid(steps: list[Step]) -> str:
     for step in steps:
         if step.nxt:
             lines.append(f"  {step.id} --> {step.nxt}")
-        lines.extend(f'  {step.id} -->|"{label}"| {target}' for label, target in step.branches)
+        lines.extend(
+            f'  {step.id} -->|"{label}"| {target}' for label, target in step.branches
+        )
     return "\n".join(lines)
 
 

@@ -4,4 +4,5 @@ criterion: SC-COUNSEL-BLOCKER
 mode: compose
 given: the fixture tree with a seeded incompatible-licence dependency and a legal contact in the inventory
 when: the counsel runs a full legal review and the blocker survives the dialectic
-then: a work package is filed in the confidential legal project, an email with severity and link reaches the legal contact, and the release role refuses to tag while the blocker is open
+then: a work package is filed in the confidential legal project, an email with severity and link reaches the legal contact, and the release role refuses to tag
+  while the blocker is open

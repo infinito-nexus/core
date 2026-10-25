@@ -19,16 +19,22 @@ class TestDesignerDecisions(unittest.TestCase):
         self.assertEqual(design._spec_green({})["D3"], "✅ green")
 
     def test_negative_control_passes_only_red_then_green(self) -> None:
-        passed = design._negative_control({"nc_before_red": True, "nc_after_green": True})
+        passed = design._negative_control(
+            {"nc_before_red": True, "nc_after_green": True}
+        )
         self.assertEqual(passed["D4"], "✅ turns red")
-        failed = design._negative_control({"nc_before_red": False, "nc_after_green": True})
+        failed = design._negative_control(
+            {"nc_before_red": False, "nc_after_green": True}
+        )
         self.assertEqual(failed["D4"], "❌ stays green")
         self.assertEqual(design._negative_control({})["D4"], "✅ turns red")
 
 
 class TestImplementerDecisions(unittest.TestCase):
     def test_gate_reads_the_table(self) -> None:
-        self.assertEqual(implementer._gate({"gate_output": "FAILED TARGETS: x"})["D2"], "❌ red")
+        self.assertEqual(
+            implementer._gate({"gate_output": "FAILED TARGETS: x"})["D2"], "❌ red"
+        )
         self.assertEqual(implementer._gate({})["D2"], "✅ green")
 
     def test_watch_flags_a_red_app(self) -> None:

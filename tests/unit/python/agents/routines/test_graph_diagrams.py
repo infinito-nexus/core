@@ -48,7 +48,9 @@ def _spec_edges(heading: str) -> set[tuple[str, str]]:
         line = re.sub(r"\|[^|]*\|", " ", raw)
         if "-->" not in line:
             continue
-        ids = [m.group() for part in line.split("-->") if (m := _ID.match(part.strip()))]
+        ids = [
+            m.group() for part in line.split("-->") if (m := _ID.match(part.strip()))
+        ]
         edges.update(pairwise(ids))
     return edges
 

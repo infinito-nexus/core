@@ -15,7 +15,9 @@ _ENTRIES = [
     {"type": "console", "text": "ready"},
 ]
 
-_SET_COOKIE = "session=s3cr3t-token-abc; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=3600"
+_SET_COOKIE = (
+    "session=s3cr3t-token-abc; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=3600"
+)
 
 
 class TestNavigationChain(unittest.TestCase):

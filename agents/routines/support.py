@@ -12,7 +12,9 @@ from agents.routines.contract import Step, mermaid
 from agents.routines.contract import build as _build
 
 STEPS = [
-    Step("T1", "New ticket, support email or support room message", "trigger", nxt="D1"),
+    Step(
+        "T1", "New ticket, support email or support room message", "trigger", nxt="D1"
+    ),
     Step(
         "D1",
         "Collect sources: public docs, role READMEs, approved answers without customer data",

@@ -69,8 +69,12 @@ OPENAPI = {
         "/status": {"get": {"summary": "Control-plane status"}},
         "/instances": {"get": {"summary": "Registered instances and lease state"}},
         "/instances/register": {"post": {"summary": "Register a detached instance"}},
-        "/instances/provision": {"post": {"summary": "Provision an instance's agent accounts"}},
-        "/instances/lease": {"post": {"summary": "Renew an instance lease by heartbeat"}},
+        "/instances/provision": {
+            "post": {"summary": "Provision an instance's agent accounts"}
+        },
+        "/instances/lease": {
+            "post": {"summary": "Renew an instance lease by heartbeat"}
+        },
         "/audit": {
             "get": {"summary": "Audit chain head and verification"},
             "post": {"summary": "Ingest spooled audit entries"},
@@ -232,10 +236,19 @@ class Handler(BaseHTTPRequestHandler):
             with STATE_LOCK:
                 AUDIT.append(
                     "provision_requested",
-                    {"instance": instance, "owner": owner, "accounts": names, "note": note, "at": now_iso()},
+                    {
+                        "instance": instance,
+                        "owner": owner,
+                        "accounts": names,
+                        "note": note,
+                        "at": now_iso(),
+                    },
                 )
             log("provision_requested", instance=instance, owner=owner)
-            self._json(202, {"status": "pending", "accounts": created, "release_policy": policy})
+            self._json(
+                202,
+                {"status": "pending", "accounts": created, "release_policy": policy},
+            )
             return
         with STATE_LOCK:
             LEASES[instance] = {
@@ -247,12 +260,23 @@ class Handler(BaseHTTPRequestHandler):
             }
             AUDIT.append(
                 "provision_granted",
-                {"instance": instance, "owner": owner, "accounts": names, "note": note, "at": now_iso()},
+                {
+                    "instance": instance,
+                    "owner": owner,
+                    "accounts": names,
+                    "note": note,
+                    "at": now_iso(),
+                },
             )
         log("provision_granted", instance=instance, owner=owner, accounts=len(names))
         self._json(
             200,
-            {"status": "provisioned", "accounts": created, "release_policy": policy, "lease_ttl": LEASE_TTL},
+            {
+                "status": "provisioned",
+                "accounts": created,
+                "release_policy": policy,
+                "lease_ttl": LEASE_TTL,
+            },
         )
 
     @staticmethod
@@ -261,10 +285,17 @@ class Handler(BaseHTTPRequestHandler):
         for agent in requested:
             if not isinstance(agent, dict):
                 raise TypeError("each agent must be a JSON object")
-            account = naming.agent_account_name((agent.get("code") or "").strip(), instance)
+            account = naming.agent_account_name(
+                (agent.get("code") or "").strip(), instance
+            )
             grants = agent.get("grants") or []
             available = set(agent.get("available") or [])
-            plan.append({"account": account, "default_grant": accounts.default_account(grants, available)})
+            plan.append(
+                {
+                    "account": account,
+                    "default_grant": accounts.default_account(grants, available),
+                }
+            )
         return plan
 
     def _renew(self):
@@ -300,7 +331,10 @@ class Handler(BaseHTTPRequestHandler):
         if REGISTRY.key_of(instance) is None:
             self._error(409, "instance is not registered")
             return
-        if not all(isinstance(entry, dict) and isinstance(entry.get("seq"), int) for entry in entries):
+        if not all(
+            isinstance(entry, dict) and isinstance(entry.get("seq"), int)
+            for entry in entries
+        ):
             self._error(422, "each entry needs an integer seq")
             return
         ordered = sorted(entries, key=lambda entry: entry["seq"])
@@ -330,7 +364,9 @@ class Handler(BaseHTTPRequestHandler):
             head = AUDIT.entries[-1]["hash"] if AUDIT.entries else audit.GENESIS
             length = len(AUDIT.entries)
         log("audit_ingest", instance=instance, ingested=ingested, gaps=len(gaps))
-        self._json(200, {"ingested": ingested, "gaps": gaps, "head": head, "length": length})
+        self._json(
+            200, {"ingested": ingested, "gaps": gaps, "head": head, "length": length}
+        )
 
 
 def reaper():

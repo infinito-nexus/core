@@ -24,7 +24,9 @@ class TestUnbackedNumbers(unittest.TestCase):
         self.assertEqual(unbacked_numbers("1,000 lines at 80%", evidence), [])
 
     def test_order_preserved_and_deduplicated(self) -> None:
-        self.assertEqual(unbacked_numbers("9 then 9 then 8", "no digits here"), ["9", "8"])
+        self.assertEqual(
+            unbacked_numbers("9 then 9 then 8", "no digits here"), ["9", "8"]
+        )
 
 
 if __name__ == "__main__":

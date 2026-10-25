@@ -12,7 +12,9 @@ _REF = "/tmp/ref-worktree/core"
 
 class TestRefProbe(unittest.TestCase):
     def test_file_under_ref_is_from_ref(self) -> None:
-        self.assertTrue(imported_from_ref(f"{_REF}/agents/routines/maintainer.py", _REF))
+        self.assertTrue(
+            imported_from_ref(f"{_REF}/agents/routines/maintainer.py", _REF)
+        )
 
     def test_file_in_current_tree_is_not_from_ref(self) -> None:
         self.assertFalse(

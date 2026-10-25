@@ -17,7 +17,11 @@ _IMAGE_PIN = re.compile(r"image:\s*([A-Za-z0-9_./-]+):([A-Za-z0-9_.*+-]+)")
 
 
 def _items(text: str, pattern: re.Pattern[str]) -> list[str]:
-    return [stripped for match in pattern.finditer(text) if (stripped := match.group(1).strip())]
+    return [
+        stripped
+        for match in pattern.finditer(text)
+        if (stripped := match.group(1).strip())
+    ]
 
 
 def lost_markers(merged: str, parent_a: str, parent_b: str) -> dict[str, list[str]]:

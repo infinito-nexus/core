@@ -99,7 +99,9 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _error(self, status, message):
-        self._json(status, {"error": {"message": message, "type": "agent_orchestrator"}})
+        self._json(
+            status, {"error": {"message": message, "type": "agent_orchestrator"}}
+        )
 
     def _body(self):
         length = int(self.headers.get("Content-Length") or 0)
@@ -174,10 +176,12 @@ class Handler(BaseHTTPRequestHandler):
         }
 
     def _routines(self):
-        return sorted({entry["routine"] for entry in CRON_ENTRIES if entry.get("routine")})
+        return sorted(
+            {entry["routine"] for entry in CRON_ENTRIES if entry.get("routine")}
+        )
 
     def _webhook(self):
-        provider = self.path[len(WEBHOOK_PREFIX):].strip("/")
+        provider = self.path[len(WEBHOOK_PREFIX) :].strip("/")
         body = self._body()
         if not webhook.verify_signature(
             WEBHOOK_SECRET, body, self.headers.get(SIGNATURE_HEADER)
@@ -235,7 +239,9 @@ class Handler(BaseHTTPRequestHandler):
         with STATE_LOCK:
             AUDIT.append("channel", {"recipient": recipient, "channel": channel})
         log("channel_dispatch", recipient=recipient, channel=channel)
-        self._json(202, {"status": "queued", "channel": channel, "recipient": recipient})
+        self._json(
+            202, {"status": "queued", "channel": channel, "recipient": recipient}
+        )
 
     def _run_routine(self):
         payload = self._payload()

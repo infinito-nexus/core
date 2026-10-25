@@ -42,7 +42,11 @@ def _routine_modules() -> dict[str, str]:
             continue
         relative = info.name[len(__name__) + 1 :]
         parts = relative.split(".")
-        if parts[-1].startswith("_") or parts[-1] in HELPERS or parts[0] in NON_ROUTINE_PACKAGES:
+        if (
+            parts[-1].startswith("_")
+            or parts[-1] in HELPERS
+            or parts[0] in NON_ROUTINE_PACKAGES
+        ):
             continue
         found["_".join(parts)] = relative
     return found

@@ -33,6 +33,8 @@ def first_failure(junit_xml: str) -> dict | None:
         return {
             "name": testcase.get("name"),
             "message": message,
-            "system_out": (system_out.text or "").strip() if system_out is not None else "",
+            "system_out": (system_out.text or "").strip()
+            if system_out is not None
+            else "",
         }
     return None

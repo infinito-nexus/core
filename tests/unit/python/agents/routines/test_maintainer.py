@@ -23,17 +23,26 @@ class TestMaintainerDecisions(unittest.TestCase):
         self.assertEqual(green["D6"], "✅ green")
 
     def test_number_decision_blocks_unbacked(self) -> None:
-        state = maintainer._numbers_verdict({"pr_text": "fixed 5 bugs", "evidence": "0 bugs"})
+        state = maintainer._numbers_verdict(
+            {"pr_text": "fixed 5 bugs", "evidence": "0 bugs"}
+        )
         self.assertEqual(state["D10"], "❌ no")
         self.assertEqual(state["unbacked_numbers"], ["5"])
 
     def test_change_ran_decision_detects_silence(self) -> None:
-        silent = maintainer._change_ran_verdict({"ci_log": "- spec [skipped]", "change_marker": "spec"})
+        silent = maintainer._change_ran_verdict(
+            {"ci_log": "- spec [skipped]", "change_marker": "spec"}
+        )
         self.assertEqual(silent["D13"], "❌ no")
-        ran = maintainer._change_ran_verdict({"ci_log": "✓ spec passed", "change_marker": "spec"})
+        ran = maintainer._change_ran_verdict(
+            {"ci_log": "✓ spec passed", "change_marker": "spec"}
+        )
         self.assertEqual(ran["D13"], "✅ yes")
 
-    @unittest.skipUnless(_HAVE_LANGGRAPH, "langgraph ships in the orchestrator image, not the sandbox venv")
+    @unittest.skipUnless(
+        _HAVE_LANGGRAPH,
+        "langgraph ships in the orchestrator image, not the sandbox venv",
+    )
     def test_stub_run_reaches_a_terminal(self) -> None:
         result = maintainer.build().invoke({})
         self.assertEqual(result["D13"], "❌ no")

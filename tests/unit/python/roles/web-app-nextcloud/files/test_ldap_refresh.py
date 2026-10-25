@@ -150,7 +150,13 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
 
         self.assertEqual(occ.addresses["alice"], "Main St 1, 10115 Berlin, BE, DE")
         self.assertIn(
-            [*PREFIX, "user:profile", "alice", "address", "Main St 1, 10115 Berlin, BE, DE"],
+            [
+                *PREFIX,
+                "user:profile",
+                "alice",
+                "address",
+                "Main St 1, 10115 Berlin, BE, DE",
+            ],
             occ.calls,
         )
         self.assertNotIn(
@@ -167,7 +173,9 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
         self.assertEqual(output, ["REFRESHED 1"])
 
     def test_empty_parts_leave_no_separator_behind(self):
-        self.assertEqual(self.mod.compose_address("", "", "Berlin", "", "DE"), "Berlin, DE")
+        self.assertEqual(
+            self.mod.compose_address("", "", "Berlin", "", "DE"), "Berlin, DE"
+        )
         self.assertEqual(self.mod.compose_address("", "", "", "", ""), "")
 
     def test_a_failing_refresh_stops_the_hook(self):
