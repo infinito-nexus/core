@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
-PROJECT_ROOT = Path(__file__).resolve().parents[6]
+from . import PROJECT_ROOT
+
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-flowise/files/python/mint_mcp_api_key.py"
 KEY_NAME = "infinito:mcp-registry"
 
