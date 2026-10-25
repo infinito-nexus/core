@@ -50,11 +50,11 @@
   include_tasks: "{{ role_path }}/tasks/update/08_users/email_verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
 
-- name: "📂 Ensure application-declared clients (existing realms)"
+- name: "📂 Ensure application-declared and SAML clients (existing realms)"
   include_tasks: "{{ role_path }}/tasks/update/10_declared_client.yml"
   vars:
     kc_declared_client_id: "{{ declared_client }}"
-  loop: "{{ KEYCLOAK_DECLARED_CLIENT_IDS }}"
+  loop: "{{ KEYCLOAK_DECLARED_CLIENT_IDS + KEYCLOAK_SAML_CLIENT_IDS }}"
   loop_control:
     loop_var: declared_client
 
