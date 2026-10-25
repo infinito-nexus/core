@@ -44,11 +44,13 @@
   vars:
     engine_consumer_id: "{{ application_id }}"
 
-# Exception: a role that opts in to Wazuh pulls in its host's agent here, because sys-* roles cannot be shared-service providers the service loader would deploy.
+# Exception: a role that opts in to Wazuh pulls in its host's agent here, because sys-* roles cannot be shared-service providers the service loader would deploy. On the manager's own host web-app-wazuh loads the agent after its manager and the agent pre-registration instead, so an app deployed before it cannot install an agent that has no manager yet.
 - name: "🛡️ For '{{ application_id }}': Load the host's Wazuh agent"
   include_role:
     name: sys-svc-wazuh-agent
-  when: lookup('config', application_id, 'services.wazuh.enabled', False) | bool
+  when:
+    - lookup('config', application_id, 'services.wazuh.enabled', False) | bool
+    - "'web-app-wazuh' not in group_names"
 
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
