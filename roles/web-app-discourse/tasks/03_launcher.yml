@@ -4,7 +4,10 @@
     DISCOURSE_REBUILT: false
 
 - name: "🧹 Retire the launcher checkout of the URL-named layout"
-  include_tasks: launcher/legacy_checkout.yml
+  include_tasks:
+    file: launcher/legacy_checkout.yml
+    apply:
+      become: true
   when: (DISCOURSE_REPOSITORY_LEGACY_RELPATH | split('/') | first) not in ['..', DISCOURSE_REPOSITORY_DIR | basename]
 
 - name: ⬇️ Pull Discourse docker repository

@@ -3,7 +3,6 @@
   ansible.builtin.file:
     path: "{{ [ DISCOURSE_SERVICES_DIR, DISCOURSE_REPOSITORY_LEGACY_RELPATH ] | path_join }}"
     state: absent
-  become: true
 
 - name: "🗑️ Prune the emptied parents of the URL-named checkout"
   ansible.builtin.command:
@@ -14,5 +13,4 @@
       - "{{ DISCOURSE_REPOSITORY_LEGACY_RELPATH | dirname }}"
     chdir: "{{ DISCOURSE_SERVICES_DIR }}"
     removes: "{{ [ DISCOURSE_SERVICES_DIR, DISCOURSE_REPOSITORY_LEGACY_RELPATH | dirname ] | path_join }}"
-  become: true
   when: DISCOURSE_REPOSITORY_LEGACY_RELPATH is search('/')

@@ -10,13 +10,16 @@ CLEANUP = "launcher/legacy_checkout.yml"
 GIT_MODULES = {"git", "ansible.builtin.git"}
 
 
+def _included_file(task: dict) -> str | None:
+    include = task.get("include_tasks")
+    return include.get("file") if isinstance(include, dict) else include
+
+
 class TestDiscourseLegacyCheckoutOrder(unittest.TestCase):
     def test_the_url_named_checkout_is_retired_before_the_clone(self) -> None:
         tasks = load_yaml_str(read_text(str(LAUNCHER)))
         cleanup = next(
-            index
-            for index, task in enumerate(tasks)
-            if task.get("include_tasks") == CLEANUP
+            index for index, task in enumerate(tasks) if _included_file(task) == CLEANUP
         )
         clone = next(
             index for index, task in enumerate(tasks) if GIT_MODULES & task.keys()
