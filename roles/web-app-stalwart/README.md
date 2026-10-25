@@ -1,4 +1,4 @@
-# Stalwart Mail Server
+# Stalwart
 
 ## Description
 
@@ -245,7 +245,7 @@ account (or the Keycloak SSO token when SSO is enabled).
 
 ### Development
 
-Clone, set up the workstation, and deploy Stalwart Mail Server onto the local stack:
+Clone, set up the workstation, and deploy Stalwart onto the local stack:
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -256,7 +256,7 @@ make compose-deploy mode=reinstall apps=web-app-stalwart full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy Stalwart Mail Server to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy Stalwart to a managed server (the mounted volume persists the inventory):
 
 ```bash
 APP=web-app-stalwart
