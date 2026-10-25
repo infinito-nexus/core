@@ -92,7 +92,7 @@
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
 
-- name: "🧹 Matomo | Forget the site list every host cached while Matomo did not answer yet"
+- name: "🧹 Matomo | Drop the site list cache of every host before re-injecting"
   ansible.builtin.set_fact:
     matomo_site_cache:
       scope: ""

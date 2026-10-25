@@ -3,11 +3,12 @@ import unittest
 from jinja2 import Environment
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
-VARS = ROLE / "vars" / "main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 ROUTINES = ROLE / "tasks" / "03_manager_ops" / "update_routines.yml"
 
 REALM = {
