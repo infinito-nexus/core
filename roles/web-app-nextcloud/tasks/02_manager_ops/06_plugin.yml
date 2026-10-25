@@ -1,12 +1,51 @@
 ---
-- block:
-    - include_tasks: 06_plugin/01_install.yml
-  when: plugin_value.enabled | bool
-
-- name: 🔴 disable {{ plugin_key }} nextcloud plugin
-  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ plugin_key }}"
+- name: "📋 Read the apps Nextcloud has installed and enabled"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:list --output=json"
+  register: nextcloud_app_list
   changed_when: false
-  when: not (plugin_value.enabled | bool)
-  # rationale: async; caller includes this file per plugin so the disables overlap, nothing reads the state
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: "🧮 Plan which plugins need an install, an enable or only their config"
+  ansible.builtin.set_fact:
+    nextcloud_plugin_plan: "{{ NEXTCLOUD_PLUGIN_ITEMS | nextcloud_plugin_plan(nextcloud_app_list.stdout | from_json) }}"
+
+- name: "🔴 Disable the plugins that end up disabled"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ nextcloud_plugin_plan.disable | map('quote') | join(' ') }}"
+  when: nextcloud_plugin_plan.disable | length > 0
+  changed_when: true
+
+- name: "📦 Install, enable and configure the plugins Nextcloud lacks"
+  ansible.builtin.include_tasks: 06_plugin/01_install.yml
+  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.install) | list }}"
+  loop_control:
+    loop_var: plugin_item
+    label: "{{ plugin_item.key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    plugin_key: "{{ plugin_item.key }}"
+    plugin_value: "{{ plugin_item.value }}"
+
+- name: "🟢 Enable and configure the installed plugins Nextcloud keeps disabled"
+  ansible.builtin.include_tasks: 06_plugin/02_enable.yml
+  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.enable) | list }}"
+  loop_control:
+    loop_var: plugin_item
+    label: "{{ plugin_item.key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    plugin_key: "{{ plugin_item.key }}"
+    plugin_value: "{{ plugin_item.value }}"
+    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_item.key }}.yml"
+
+- name: "🔧 Configure the plugins Nextcloud already runs"
+  ansible.builtin.include_tasks: 06_plugin/03_configure.yml
+  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.configure) | list }}"
+  loop_control:
+    loop_var: plugin_item
+    label: "{{ plugin_item.key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  vars:
+    plugin_key: "{{ plugin_item.key }}"
+    plugin_value: "{{ plugin_item.value }}"
+    plugin_task_path: "{{ NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH }}{{ plugin_item.key }}.yml"
