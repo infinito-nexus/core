@@ -2,7 +2,7 @@
 - name: ⬆️ Nextcloud | Upgrade
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
   register: occ_upgrade
-  changed_when: "'Already up to date' not in occ_upgrade.stdout"
+  changed_when: "'No upgrade required' not in occ_upgrade.stdout"
   retries: 3
   delay: 5
   until: occ_upgrade.rc == 0
@@ -34,17 +34,17 @@
 - name: ➕ Nextcloud | Add missing columns
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-columns"
   register: occ_columns
-  changed_when: "'No columns found' not in occ_columns.stdout"
+  changed_when: "'table updated successfully' in occ_columns.stdout"
 
 - name: ➕ Nextcloud | Add missing indices
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-indices"
   register: occ_indices
-  changed_when: "'No indices found' not in occ_indices.stdout"
+  changed_when: "'table updated successfully' in occ_indices.stdout"
 
 - name: ➕ Nextcloud | Add missing primary keys
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-primary-keys"
   register: occ_pks
-  changed_when: "'No primary keys found' not in occ_pks.stdout"
+  changed_when: "'table updated successfully' in occ_pks.stdout"
 
 - name: 🔴 Nextcloud | Disable maintenance mode
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:mode --off"

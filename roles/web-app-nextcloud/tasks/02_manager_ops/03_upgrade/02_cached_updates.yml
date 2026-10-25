@@ -12,7 +12,7 @@
 - name: 🔄 Nextcloud | App update for the releases the daily update check found
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update {{ item | quote }}"
   register: occ_app_update_cached
-  changed_when: "'No apps found for update' not in occ_app_update_cached.stdout"
+  changed_when: "'up-to-date or no updates could be found' not in occ_app_update_cached.stdout"
   retries: 2
   delay: 3
   until: occ_app_update_cached.rc == 0
