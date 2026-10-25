@@ -1655,6 +1655,47 @@ flowchart TD
   style LOOP fill:#f0f9ff,stroke:#0369a1
 ```
 
+### Local verification
+
+For the agent that verifies the static implementation on a read-only sandbox without a running stack. It gives the exact commands, what each proves, how to iterate on a failure, and what only the CI can prove.
+
+Environment the commands assume:
+
+- The Python environment at `/opt/venvs/infinito` is read-only, so `make test`, `make quality` and `make quality-high` abort at their install step. Call the interpreter directly: `/opt/venvs/infinito/bin/python -m pytest ...` and `/opt/venvs/infinito/bin/python -m ruff check ...`.
+- `langgraph` is absent from the sandbox venv and ships in the orchestrator image, so `python -m agents.routines run <routine>` and every `routines run` stub test report skipped here; the CI runs them.
+- A single `pytest` over `tests/lint`, `tests/integration` and `tests/unit` together collides on duplicate test-file basenames. Run one suite or subtree per command.
+- A `... | tee <log>` reports the pipe's success, not pytest's. Read the `N passed, M failed` summary line, never the exit code.
+- Pass `-p no:cacheprovider`; use no shell loop and no chained statement.
+
+The checks, cheapest first (each row is one command, prefix `/opt/venvs/infinito/bin/python -m`):
+
+| Command | Proves |
+|---|---|
+| `ruff check agents/ utils/orchestrator/ tests/unit/python/agents/` | the behavior-layer code is ruff-clean |
+| `agents.routines list` | every routine is discovered; the tool nodes under `routines/tools/` are not listed as routines |
+| `agents.routines show <routine>` | the routine prints its ordered steps and its Mermaid graph |
+| `pytest tests/lint/agents -q -p no:cacheprovider` | L01 to L34 with their red fixtures |
+| `pytest tests/lint -q -p no:cacheprovider` | every lint above plus the repository lints (requirement-reference, test-file location, comments, uncached read, markdown links) |
+| `pytest tests/unit/python/agents -q -p no:cacheprovider` | the tool nodes on their recorded fixtures (criterion 29), the seven routine graphs against their diagrams (criterion 26), the decision routing (criterion 31); the stub run (criterion 27) skips without langgraph |
+| `pytest tests/unit/python/utils/orchestrator -q -p no:cacheprovider` | the cron hold, blocker and gate-discard logic (criteria 42 to 44) |
+| `pytest tests/integration/ansible/lookups -q -p no:cacheprovider` | `lookup('agent_config', ...)` is consumed in production, not only in tests (criteria 20 and 31) |
+| `pytest tests/integration/meta/workflows -q -p no:cacheprovider` | the PR scope resolver and the agent-change resolver (criterion 58 and the CI wiring) |
+
+The iteration loop for a red check:
+
+1. Read the failing assertion; it names the file and the rule.
+2. Fix the source by the rule's intent; never weaken a lint or delete a red fixture to make it pass.
+3. Re-run only that one suite or that one test until it is green.
+4. Re-run `ruff check` and `pytest tests/lint/agents`.
+5. Take the next row of the table.
+
+What the sandbox cannot prove, left to the CI:
+
+- The deploy of the five roles, the single-role probes, `make agents-verify scenario=<id>` and `make agents-integration` need a running stack; use `call-test-agents-local.yml` and `call-test-agents-saas.yml`.
+- The runtime criteria: the orchestrator reading holds, blockers and the gate lock before each step, a hold surviving an orchestrator restart, `make i18n-pause`, the hang watchdog against a live deploy, the resource-budget fit, the LDAP accounts, the SSO grants, the LiteLLM keys, the always_on and on_demand lifecycle, and the Board.
+- The `routines run` stub test of every routine (criterion 27): run it where langgraph is installed.
+- The docs i18n catalogs for the migrated skill strings: `make i18n-extract domain=docs`, which needs the extraction and translation pipeline.
+
 ## Acceptance Criteria
 
 ### Layout
