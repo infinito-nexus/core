@@ -1,5 +1,5 @@
-"""Unit test (criterion 26): the maintainer, designer and implementer routine
-graphs carry the same nodes and edges as their diagrams in requirement 041."""
+"""Unit test (criterion 26): every agent routine graph carries the same nodes
+and edges as its diagram in the agents restructuring specification."""
 
 from __future__ import annotations
 
@@ -8,7 +8,16 @@ import unittest
 from itertools import pairwise
 from typing import TYPE_CHECKING
 
-from agents.routines import design, discover, implementer, maintainer
+from agents.routines import (
+    design,
+    discover,
+    hacker_scan,
+    implementer,
+    legal_audit,
+    maintainer,
+    reviewer,
+    support,
+)
 from utils.cache.files import PROJECT_ROOT, read_text
 
 if TYPE_CHECKING:
@@ -20,6 +29,10 @@ _CASES = (
     ("maintainer", maintainer, "Maintainer routine:"),
     ("designer", design, "Designer routine:"),
     ("implementer", implementer, "Implementer routine:"),
+    ("reviewer", reviewer, "Reviewer routine:"),
+    ("hacker", hacker_scan, "Hacker routine:"),
+    ("counsel", legal_audit, "Counsel routine:"),
+    ("support", support, "Support routine:"),
 )
 
 
