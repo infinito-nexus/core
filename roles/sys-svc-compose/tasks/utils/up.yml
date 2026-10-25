@@ -1,33 +1,17 @@
 ---
 - name: "🔍 Check running containers for '{{ application_id }}'"
-  command: >-
-    compose ps -q --filter status=running
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  register: docker_ps
-  changed_when: >
-    (docker_ps.stdout | trim) == ""
-  failed_when: >
-    docker_ps.rc != 0
-    and (
-      (docker_ps.stderr | default(''))
-      | regex_search('(no configuration file provided|no such file or directory|env file .* not found)') is none
-    )
+  ansible.builtin.assert:
+    that: >-
+      compose_instance_before_files.running.rc == 0
+      or compose_instance_before_files.running.stderr
+      is search('(no configuration file provided|no such file or directory|env file .* not found)')
+    fail_msg: "compose ps exited {{ compose_instance_before_files.running.rc }}: {{ compose_instance_before_files.running.stderr }}"
+    quiet: true
+  changed_when: (compose_instance_before_files.running.stdout | trim) == ""
   when:
-    - >
-      not (
-        docker_compose_template.changed | default(false)
-        or
-        env_template.changed          | default(false)
-      )
-    - compose_mode == 'compose'
+    - compose_instance_before_files.running is not none
+    - not (docker_compose_template.changed or env_template.changed or compose_override_template.changed)
   notify: compose-up
-
-- name: "🔍 Check for a compose up a failed run left pending"
-  ansible.builtin.stat:
-    path: "{{ COMPOSE_UP_PENDING_MARKER }}"
-  register: compose_up_pending
-  when: compose_mode == 'compose'
 
 - name: "🔔 Resume the compose up a failed run left pending"
   ansible.builtin.debug:
@@ -38,7 +22,7 @@
     - compose-up
   when:
     - compose_mode == 'compose'
-    - compose_up_pending.stat.exists
+    - compose_instance_before_files.pending
     - compose_up_marker is not changed
 
 - name: "🔔 Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"

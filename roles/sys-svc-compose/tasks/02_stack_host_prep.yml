@@ -1,8 +1,12 @@
 ---
-- name: "📁 Create sys-svc-compose dirs (with parents) for '{{ application_id }}'"
-  directory_batch:
-    paths: "{{ lookup('container', application_id, 'directories').values() | list }}"
+- name: "📁 Create sys-svc-compose dirs and probe '{{ application_id }}'"
+  compose_instance_prepare:
+    directories: "{{ lookup('container', application_id, 'directories').values() | list }}"
     mode: "0755"
+    instance: "{{ lookup('container', application_id, 'directories.instance') }}"
+    pending_marker: "{{ COMPOSE_UP_PENDING_MARKER }}"
+    running_check: "{{ compose_mode == 'compose' }}"
+  register: compose_instance_before_files
 
 - name: "🛡️ Ensure PHP hardening assets are installed"
   ansible.builtin.include_role:
