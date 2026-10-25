@@ -14,9 +14,18 @@
     owner: "{{ WAZUH_AGENT_BUILD_USER }}"
     mode: "0600"
 
+- name: "📁 Create the source directory"
+  ansible.builtin.file:
+    path: "{{ [wazuh_agent_build_dir.path, 'src'] | path_join }}"
+    state: directory
+    owner: "{{ WAZUH_AGENT_BUILD_USER }}"
+    group: "{{ WAZUH_AGENT_BUILD_USER }}"
+    mode: "0700"
+
+# Exception: GNU tar's --one-top-level does not prefix members that already start with that directory, so the source's own src/ would land at src/ instead of src/src/.
 - name: "📦 Unpack the source"
   ansible.builtin.command:
-    argv: [tar, -xzf, source.tar.gz, --strip-components=1, --one-top-level=src]
+    argv: [tar, -xzf, source.tar.gz, --strip-components=1, -C, src]
     chdir: "{{ wazuh_agent_build_dir.path }}"
   become: true
   become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
