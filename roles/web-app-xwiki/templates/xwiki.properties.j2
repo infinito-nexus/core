@@ -1,9 +1,4 @@
 {# nocheck: comments-valid  upstream xwiki.properties reference documentation #}
-# Proxy
-xwiki.url.protocol={{ lookup('tls', application_id, 'protocols.web') }}
-xwiki.url.host={{ domain }}
-xwiki.url.port={{ lookup('tls', application_id, 'ports.web')  }}
-
 ############################################
 # OIDC
 # Render this block only while the OIDC switch is ON in tasks/utils/flush_config.yml.
