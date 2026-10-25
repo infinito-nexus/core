@@ -19,13 +19,20 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm._loader = None
         return lm
 
-    def _patch_lookups(self, *, deployed=None, current_play_apps=None):
+    def _patch_lookups(self, *, deployed=None, current_play_apps=None, redirects=None):
+        def _config(terms, variables=None):
+            if terms == ["web-opt-rdr-domains", "services.rdr-domains.redirects"]:
+                return [[] if redirects is None else redirects]
+            return [None]
+
         def _get(name, *args, **kwargs):
             plugin = MagicMock()
             if name == "deployment":
                 plugin.run.return_value = [{"deployed": list(deployed or [])}]
             elif name == "applications_current_play":
                 plugin.run.return_value = [current_play_apps or {}]
+            elif name == "config":
+                plugin.run.side_effect = _config
             else:
                 plugin.run.return_value = [None]
             return plugin
@@ -41,39 +48,33 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables={})[0]
         self.assertEqual(result, [])
 
-    def test_user_redirect_domain_mappings_preserved(self):
+    def test_configured_redirects_preserved(self):
         lm = self._make_lookup()
-        variables = {
-            "redirect_domain_mappings": [
-                {"source": "old.example.com", "target": "new.example.com"},
-            ],
-        }
-        with self._patch_lookups(deployed=[], current_play_apps={}):
-            result = lm.run(terms=[], variables=variables)[0]
+        redirects = [{"source": "old.example.com", "target": "new.example.com"}]
+        with self._patch_lookups(
+            deployed=[], current_play_apps={}, redirects=redirects
+        ):
+            result = lm.run(terms=[], variables={})[0]
         self.assertEqual(
             result,
             [{"source": "old.example.com", "target": "new.example.com"}],
         )
 
-    def test_user_wildcard_mapping_keeps_its_keep_path_flag(self):
+    def test_configured_wildcard_keeps_its_keep_path_flag(self):
         lm = self._make_lookup()
-        variables = {
-            "redirect_domain_mappings": [
-                {
-                    "source": "*.old.example",
-                    "target": "new.example",
-                    "keep_path": False,
-                },
-            ],
-        }
-        with self._patch_lookups(deployed=[], current_play_apps={}):
-            result = lm.run(terms=[], variables=variables)[0]
+        redirects = [
+            {"source": "*.old.example", "target": "new.example", "keep_path": False},
+        ]
+        with self._patch_lookups(
+            deployed=[], current_play_apps={}, redirects=redirects
+        ):
+            result = lm.run(terms=[], variables={})[0]
         self.assertEqual(
             result,
             [{"source": "*.old.example", "target": "new.example", "keep_path": False}],
         )
 
-    def test_user_mapping_values_are_templated(self):
+    def test_configured_values_are_templated(self):
         class _ResolvingTemplar:
             def __init__(self, mapping):
                 self._mapping = mapping
@@ -90,13 +91,13 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             }
         )
         lm._loader = None
-        variables = {
-            "redirect_domain_mappings": [
-                {"source": "*.{{ OLD_DOMAIN }}", "target": "{{ DOMAIN_PRIMARY }}"},
-            ],
-        }
-        with self._patch_lookups(deployed=[], current_play_apps={}):
-            result = lm.run(terms=[], variables=variables)[0]
+        redirects = [
+            {"source": "*.{{ OLD_DOMAIN }}", "target": "{{ DOMAIN_PRIMARY }}"},
+        ]
+        with self._patch_lookups(
+            deployed=[], current_play_apps={}, redirects=redirects
+        ):
+            result = lm.run(terms=[], variables={})[0]
         self.assertEqual(result, [{"source": "*.old.example", "target": "new.example"}])
 
     def test_primary_redirect_appended_when_both_domains_set(self):
@@ -180,7 +181,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
         )
 
-    def test_user_mapping_overrides_per_app_mapping_on_same_source(self):
+    def test_configured_redirect_overrides_per_app_mapping_on_same_source(self):
         lm = self._make_lookup()
         apps = {
             "web-app-foo": {
@@ -190,14 +191,11 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
                 }
             }
         }
-        variables = {
-            "DOMAIN_PRIMARY": "example.com",
-            "AUTO_BUILD_ALIASES": False,
-            "redirect_domain_mappings": [
-                {"source": "alt.example.com", "target": "OVERRIDE.example.com"},
-            ],
-        }
-        with self._patch_lookups(deployed=[], current_play_apps=apps):
+        variables = {"DOMAIN_PRIMARY": "example.com", "AUTO_BUILD_ALIASES": False}
+        redirects = [{"source": "alt.example.com", "target": "OVERRIDE.example.com"}]
+        with self._patch_lookups(
+            deployed=[], current_play_apps=apps, redirects=redirects
+        ):
             result = lm.run(terms=[], variables=variables)[0]
         for entry in result:
             if entry["source"] == "alt.example.com":
@@ -206,7 +204,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         else:
             self.fail("expected entry with source alt.example.com")
 
-    def test_combined_user_primary_and_per_app(self):
+    def test_combined_configured_primary_and_per_app(self):
         lm = self._make_lookup()
         apps = {
             "web-app-foo": {
@@ -220,12 +218,12 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
             "AUTO_BUILD_ALIASES": False,
-            "redirect_domain_mappings": [
-                {"source": "legacy.example.com", "target": "current.example.com"},
-            ],
         }
+        redirects = [{"source": "legacy.example.com", "target": "current.example.com"}]
         with self._patch_lookups(
-            deployed=["web-opt-rdr-domains"], current_play_apps=apps
+            deployed=["web-opt-rdr-domains"],
+            current_play_apps=apps,
+            redirects=redirects,
         ):
             result = lm.run(terms=[], variables=variables)[0]
         sources = {entry["source"]: entry["target"] for entry in result}
@@ -233,9 +231,21 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         self.assertEqual(sources.get("infinito.test"), "infinito.nexus")
         self.assertEqual(sources.get("alt-foo.example.com"), "foo.example.com")
 
-    def test_non_list_redirect_domain_mappings_treated_as_empty(self):
+    def test_non_list_configured_redirects_treated_as_empty(self):
         lm = self._make_lookup()
-        variables = {"redirect_domain_mappings": "not-a-list"}
+        with self._patch_lookups(
+            deployed=[], current_play_apps={}, redirects="not-a-list"
+        ):
+            result = lm.run(terms=[], variables={})[0]
+        self.assertEqual(result, [])
+
+    def test_the_inventory_variable_is_no_longer_read(self):
+        lm = self._make_lookup()
+        variables = {
+            "redirect_domain_mappings": [
+                {"source": "old.example.com", "target": "new.example.com"},
+            ],
+        }
         with self._patch_lookups(deployed=[], current_play_apps={}):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(result, [])
