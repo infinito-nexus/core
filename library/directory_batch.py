@@ -19,18 +19,8 @@ Returns:
     diff: one ``before``/``after`` record per changed path, in diff mode.
 """
 
-import os
-from pathlib import Path
-
 from ansible.module_utils.basic import AnsibleModule
-
-ATTRIBUTES = ("mode", "owner", "group")
-
-ATTRIBUTE_SPEC = {
-    "mode": {"type": "raw"},
-    "owner": {"type": "str"},
-    "group": {"type": "str"},
-}
+from ansible.module_utils.directory_batch import ATTRIBUTE_SPEC, ATTRIBUTES, ensure_all
 
 ARGUMENT_SPEC = {
     "entries": {
@@ -47,10 +37,6 @@ MUTUALLY_EXCLUSIVE = [["entries", name] for name in ("paths", *ATTRIBUTES)]
 REQUIRED_ONE_OF = [["entries", "paths"]]
 
 
-class DirectoryError(Exception):
-    pass
-
-
 def requested_entries(params):
     if params["entries"] is not None:
         return params["entries"]
@@ -60,64 +46,6 @@ def requested_entries(params):
     ]
 
 
-def path_state(path):
-    target = Path(path)
-    if target.is_symlink():
-        return "link"
-    if target.is_dir():
-        return "directory"
-    if target.exists():
-        return "file"
-    return "absent"
-
-
-def apply_attributes(module, path, entry, changed, diff):
-    file_args = module.load_file_common_arguments(
-        {"path": path, **{name: entry[name] for name in ATTRIBUTES}}
-    )
-    return module.set_fs_attributes_if_different(file_args, changed, diff, expand=False)
-
-
-def create(module, path, entry, diff):
-    changed = False
-    current = ""
-    for part in path.strip("/").split("/"):
-        current = f"{current}/{part}"
-        candidate = Path(current)
-        if candidate.exists():
-            continue
-        try:
-            candidate.mkdir()
-            changed = True
-        except FileExistsError:
-            if not candidate.is_dir():
-                raise
-        changed = apply_attributes(module, current, entry, changed, diff)
-    return changed
-
-
-def ensure(module, entry):
-    path = entry["path"]
-    if not Path(path).is_absolute():
-        raise DirectoryError(f"{path!r} is not an absolute path")
-    if Path(path).is_symlink():
-        path = os.path.realpath(path)
-    state = path_state(path)
-    diff = {"before": {"path": path}, "after": {"path": path}}
-    if state == "directory":
-        return apply_attributes(module, path, entry, False, diff), diff
-    if state != "absent":
-        raise DirectoryError(f"{path} already exists as a {state}")
-    diff["before"]["state"] = state
-    diff["after"]["state"] = "directory"
-    if module.check_mode:
-        return True, diff
-    try:
-        return create(module, path, entry, diff), diff
-    except OSError as error:
-        raise DirectoryError(f"Could not create {path}: {error}") from error
-
-
 def main():
     module = AnsibleModule(
         argument_spec=ARGUMENT_SPEC,
@@ -125,21 +53,7 @@ def main():
         required_one_of=REQUIRED_ONE_OF,
         supports_check_mode=True,
     )
-    changed_paths = []
-    diffs = []
-    for entry in requested_entries(module.params):
-        try:
-            changed, diff = ensure(module, entry)
-        except DirectoryError as error:
-            module.fail_json(
-                msg=str(error),
-                path=entry["path"],
-                changed=bool(changed_paths),
-                changed_paths=changed_paths,
-            )
-        if changed:
-            changed_paths.append(entry["path"])
-            diffs.append(diff)
+    changed_paths, diffs = ensure_all(module, requested_entries(module.params))
     result = {"changed": bool(changed_paths), "changed_paths": changed_paths}
     if module._diff:
         result["diff"] = diffs

@@ -44,9 +44,15 @@
     webserver_vhost_flavour: basic
 
 - name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
-  stack_host_template:
-    src: "{{ front_proxy_template_src }}"
-    dest: "{{ front_proxy_domain_conf_dst_resolved }}"
+  stack_host_contents:
+    files: >-
+      {{ ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
+            'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
+                              template_vars={'domain': front_proxy_domain})}]
+          if lookup('tls', front_proxy_domain, 'enabled') | bool else [])
+         + [{'path': front_proxy_domain_conf_dst_resolved,
+             'content': lookup('template', front_proxy_template_src)}] }}
+    mode: "0644"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
@@ -63,7 +69,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: "🔁 Re-check '{{ front_proxy_domain }}' after a config change"
-  when: nginx_conf.changed
+  when: front_proxy_vhost_changed
   block:
     - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
       uri_probe:

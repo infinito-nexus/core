@@ -48,6 +48,7 @@
           '--image=' ~ HEALTH_CSP_IMAGE,
           '--short',
           '--clearnet-timeout=' ~ HEALTH_CSP_CLEARNET_TIMEOUT_MS,
+          '--concurrency=' ~ HEALTH_CSP_CONCURRENCY,
           (HEALTH_CSP_ALWAYS_PULL | bool) | ternary('--always-pull', ''),
           (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | length > 0) | ternary(
             '--ignore-network-blocks-from ' ~ (HEALTH_CSP_IGNORE_NETWORK_BLOCKS_FROM | join(' ')),

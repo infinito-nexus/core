@@ -210,5 +210,198 @@ class TestNextcloudStatus(unittest.TestCase):
             MODULE.nextcloud_status("Nextcloud is not installed")
 
 
+class TestNextcloudNeedsPostUpgrade(unittest.TestCase):
+    def test_unchanged_redeploy_skips_the_pass(self):
+        self.assertFalse(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.1.2", "32.0.1.2")
+        )
+
+    def test_minor_upgrade_in_this_deploy_runs_the_pass(self):
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.0.13", "32.0.0.13")
+        )
+
+    def test_major_upgrade_in_this_deploy_runs_the_pass(self):
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "31.0.11.1", "31.0.11.1")
+        )
+
+    def test_fresh_install_runs_the_pass(self):
+        self.assertTrue(MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "", ""))
+
+    def test_deploy_that_stopped_before_the_repair_runs_the_pass_again(self):
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.1.2", "32.0.0.13")
+        )
+
+    def test_version_change_runs_the_pass_even_when_the_marker_already_matches(self):
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.0.13", "32.0.1.2")
+        )
+
+    def test_missing_local_data_volume_falls_back_to_the_marker(self):
+        self.assertFalse(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "", "32.0.1.2")
+        )
+
+    def test_php_notice_before_the_marker_is_skipped(self):
+        output = "PHP Deprecated:  something in /var/www/html/lib/x.php\n32.0.1.2\n"
+        self.assertFalse(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.1.2", output)
+        )
+
+    def test_php_notice_without_a_marker_runs_the_pass(self):
+        output = "PHP Deprecated:  something in /var/www/html/lib/x.php\n\n"
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.1.2", output)
+        )
+
+    def test_null_marker_runs_the_pass(self):
+        self.assertTrue(
+            MODULE.nextcloud_needs_post_upgrade(STATUS_JSON, "32.0.1.2", "null")
+        )
+
+    def test_status_without_version_is_rejected(self):
+        status = (
+            '{"installed":true,"versionstring":"32.0.1","maintenance":false,'
+            '"needsDbUpgrade":false}'
+        )
+        with self.assertRaises(AnsibleFilterError):
+            MODULE.nextcloud_needs_post_upgrade(status, "32.0.1.2", "32.0.1.2")
+
+
+class TestPhpVersionCompare(unittest.TestCase):
+    def test_newer_patch_is_greater(self):
+        self.assertEqual(MODULE._php_version_compare("1.17.0", "1.16.2"), 1)
+
+    def test_identical_versions_are_equal(self):
+        self.assertEqual(MODULE._php_version_compare("10.2.1", "10.2.1"), 0)
+
+    def test_numeric_parts_compare_as_numbers(self):
+        self.assertEqual(MODULE._php_version_compare("1.10.0", "1.9.9"), 1)
+
+    def test_shorter_version_is_older(self):
+        self.assertEqual(MODULE._php_version_compare("5.2", "5.2.0"), -1)
+
+    def test_release_is_newer_than_its_beta(self):
+        self.assertEqual(MODULE._php_version_compare("2.0.0", "2.0.0-beta.1"), 1)
+
+    def test_release_candidate_is_older_than_the_release(self):
+        self.assertEqual(MODULE._php_version_compare("1.0rc1", "1.0"), -1)
+
+    def test_alpha_is_older_than_beta(self):
+        self.assertEqual(MODULE._php_version_compare("1.0.0-alpha", "1.0.0-beta"), -1)
+
+    def test_patch_level_is_newer_than_the_release(self):
+        self.assertEqual(MODULE._php_version_compare("1.0pl1", "1.0"), 1)
+
+    def test_empty_version_is_older(self):
+        self.assertEqual(MODULE._php_version_compare("", "1.0"), -1)
+
+
+def _update_check(found):
+    return '{"apps":{"updatenotification":' + found + "}}"
+
+
+INSTALLED_APPS_JSON = (
+    '{"enabled":{"deck":"1.16.2","onlyoffice":"10.2.1","files":"2.4.0",'
+    '"calendar":"6.0.1"}}'
+)
+
+
+class TestNextcloudCachedAppUpdates(unittest.TestCase):
+    def test_newer_release_of_an_unpinned_app_is_updated(self):
+        output = _update_check('{"deck":"1.17.0","enabled":"yes"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(
+                output, INSTALLED_APPS_JSON, ["onlyoffice"]
+            ),
+            ["deck"],
+        )
+
+    def test_newer_release_of_a_pinned_app_is_left_alone(self):
+        output = _update_check('{"onlyoffice":"10.3.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(
+                output, INSTALLED_APPS_JSON, ["onlyoffice"]
+            ),
+            [],
+        )
+
+    def test_release_already_installed_is_not_updated(self):
+        output = _update_check('{"deck":"1.16.2"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []), []
+        )
+
+    def test_release_older_than_the_installed_one_is_not_updated(self):
+        output = _update_check('{"calendar":"5.5.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []), []
+        )
+
+    def test_empty_update_check_means_no_update(self):
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(
+                _update_check("[]"), INSTALLED_APPS_JSON, []
+            ),
+            [],
+        )
+
+    def test_update_check_without_its_app_entry_means_no_update(self):
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates('{"apps":[]}', INSTALLED_APPS_JSON, []),
+            [],
+        )
+
+    def test_own_settings_of_the_update_check_are_not_apps(self):
+        output = _update_check(
+            '{"core":"34.0.6.1","enabled":"yes","installed_version":"1.22.0",'
+            '"update_check_errors":0}'
+        )
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []), []
+        )
+
+    def test_release_of_an_app_that_is_not_enabled_is_ignored(self):
+        output = _update_check('{"news":"27.0.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []), []
+        )
+
+    def test_app_without_an_installed_version_is_skipped(self):
+        output = _update_check('{"deck":"1.17.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(
+                output, '{"enabled":{"deck":true}}', []
+            ),
+            [],
+        )
+
+    def test_empty_cached_release_means_no_update(self):
+        output = _update_check('{"deck":""}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []), []
+        )
+
+    def test_several_updates_are_sorted(self):
+        output = _update_check('{"deck":"1.17.0","calendar":"6.1.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []),
+            ["calendar", "deck"],
+        )
+
+    def test_php_notice_before_the_json_is_skipped(self):
+        output = "PHP Deprecated:  x in y.php\n" + _update_check('{"deck":"1.17.0"}')
+        self.assertEqual(
+            MODULE.nextcloud_cached_app_updates(output, INSTALLED_APPS_JSON, []),
+            ["deck"],
+        )
+
+    def test_update_check_output_without_json_is_rejected(self):
+        with self.assertRaises(AnsibleFilterError):
+            MODULE.nextcloud_cached_app_updates("broken", INSTALLED_APPS_JSON, [])
+
+
 if __name__ == "__main__":
     unittest.main()

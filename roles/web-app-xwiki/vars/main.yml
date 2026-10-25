@@ -15,7 +15,7 @@ XWIKI_DOCK_DATA_DIR: "{{ lookup('volume', 'web-app-xwiki', 'data').target }}"
 
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
-XWIKI_PLATFORM_VERSION: "{{ XWIKI_VERSION | split('-') | first }}"
+XWIKI_CORE_VERSION: "{{ (XWIKI_VERSION | string).split('-') | first }}"
 XWIKI_CONTAINER: "{{ lookup('config', application_id, 'services.xwiki.name') }}"
 XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 

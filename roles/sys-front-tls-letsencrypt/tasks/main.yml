@@ -20,17 +20,10 @@
       but resolver returned enabled={{ _tls_enabled }}, mode={{ _tls_mode }}.
   changed_when: false
 
-- name: "🔎 TLS | (letsencrypt) check cert files exist"
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  register: _le_stat
-  loop:
-    - "{{ _cert_file }}"
-    - "{{ _cert_key }}"
-  changed_when: false
+- name: "🔎 TLS | (letsencrypt) take the certificate inventory once per play"
+  include_tasks: utils/certificates.yml
+  when: tls_letsencrypt_certificates is not defined
 
 - name: "📜 TLS | (letsencrypt) issue cert if missing"
   include_tasks: issue.yml
-  when: >
-    (not _le_stat.results[0].stat.exists | default(false)) or
-    (not _le_stat.results[1].stat.exists | default(false))
+  when: not ([_cert_file, _cert_key] is subset(tls_letsencrypt_certificates))

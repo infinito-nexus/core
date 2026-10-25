@@ -3,11 +3,6 @@
 # Extension Script Service (services.extension.install).
 # Avoids REST job API and any Namespace class import for portability.
 #
-# Flow:
-#  - Bootstrap config renders with both auth backends OFF (already in your role).
-#  - This file installs required extensions on the current wiki.
-#  - Final config later turns auth ON (already in your role).
-#
 # Notes:
 #  - We print machine-readable markers so Ansible can assert deterministically.
 

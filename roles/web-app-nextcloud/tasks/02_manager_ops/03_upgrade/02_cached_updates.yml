@@ -1,0 +1,21 @@
+---
+- name: 📋 Nextcloud | Read the installed app versions
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:list --enabled --output=json"
+  register: occ_enabled_apps
+  changed_when: false
+
+- name: 📋 Nextcloud | Read the app releases the daily update check found
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:list updatenotification --output=json"
+  register: occ_update_check
+  changed_when: false
+
+- name: 🔄 Nextcloud | App update for the releases the daily update check found
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update {{ item | quote }}"
+  register: occ_app_update_cached
+  changed_when: "'up-to-date or no updates could be found' not in occ_app_update_cached.stdout"
+  retries: 2
+  delay: 3
+  until: occ_app_update_cached.rc == 0
+  loop: >-
+    {{ occ_update_check.stdout
+       | nextcloud_cached_app_updates(occ_enabled_apps.stdout, NEXTCLOUD_PINNED_PLUGINS) }}

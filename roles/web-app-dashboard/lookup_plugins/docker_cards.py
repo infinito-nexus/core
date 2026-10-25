@@ -9,6 +9,7 @@ from ansible.plugins.lookup import LookupBase
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import get
+from utils.roles.applications.dashboard import DASHBOARD_SERVICE, card_target_key
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
@@ -28,7 +29,8 @@ class LookupModule(LookupBase):
           - Retrieves the icon class from meta/info.yml.logo.class
           - Retrieves the display flag from meta/info.yml.display
           - Retrieves the tags from galaxy_info.galaxy_tags
-          - Builds the URL using the 'domains' variable
+          - Builds the URL from the primary domain, or from the domains.canonical
+            key named by services.dashboard.card
           - Sets the iframe flag from applications
 
         Only cards whose application_id is included in the variable group_names are returned.
@@ -132,28 +134,32 @@ class LookupModule(LookupBase):
                 self._templar.template(domain_url).strip() if domain_url else ""
             )
 
-            url = ""
-            if domain_url:
-                try:
-                    tls_lookup = lookup_loader.get(
-                        "tls", loader=self._loader, templar=self._templar
-                    )
-                    base_url = tls_lookup.run(
-                        [application_id, "url.base"], variables=variables
-                    )[0]
-                    url = str(base_url).strip().rstrip("/")
-                except Exception as e:
-                    raise AnsibleError(
-                        f"Error building URL via tls for '{application_id}': {e}"
-                    ) from e
-
             dashboard_cfg = get(
                 applications,
                 application_id,
-                "services.dashboard",
+                f"services.{DASHBOARD_SERVICE}",
                 strict=False,
                 default={},
             )
+
+            url = ""
+            if domain_url:
+                card_key = card_target_key(application_id, dashboard_cfg)
+                try:
+                    if card_key:
+                        target_url = lookup_loader.get(
+                            "canonical_url", loader=self._loader, templar=self._templar
+                        ).run([application_id, card_key], variables=variables)[0]
+                    else:
+                        target_url = lookup_loader.get(
+                            "tls", loader=self._loader, templar=self._templar
+                        ).run([application_id, "url.base"], variables=variables)[0]
+                    url = str(target_url).strip().rstrip("/")
+                except Exception as e:
+                    raise AnsibleError(
+                        f"Error building the card URL for '{application_id}': {e}"
+                    ) from e
+
             if isinstance(dashboard_cfg, dict) and "iframe" in dashboard_cfg:
                 iframe = dashboard_cfg["iframe"]
             else:

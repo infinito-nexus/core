@@ -1,0 +1,23 @@
+---
+- name: "⬆️ Upgrade the YOURLS database schema when the code is ahead of it"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ YOURLS_WEB_USER | quote }} {{ YOURLS_LOCAL_CID | quote }}
+      php -- {{ YOURLS_DOCROOT | quote }}
+    stdin: "{{ lookup('file', 'php/upgrade_database.php') }}"
+  register: yourls_upgrade
+  changed_when: yourls_upgrade.stdout is match('upgraded ')
+  failed_when: yourls_upgrade.rc != 0 or yourls_upgrade.stdout is not match('(upgraded|current) ')
+
+- name: "🔎 Verify a short URL no longer redirects to admin/upgrade.php"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ YOURLS_LOCAL_CID | quote }}
+      {{ 30 | curl }} -o /dev/null -w '%{http_code} %{redirect_url}'
+      http://127.0.0.1:{{ container_port }}/{{ YOURLS_UPGRADE_PROBE_KEYWORD }}
+  register: yourls_short_url_probe
+  changed_when: false
+  failed_when: >-
+    yourls_short_url_probe.rc != 0
+    or yourls_short_url_probe.stdout is not match('30[12] ')
+    or 'admin/upgrade.php' in yourls_short_url_probe.stdout

@@ -206,6 +206,7 @@ def build_docker_cmd(
     proxy_bypass: str = "",
     confine_to: str = "",
     confine_allow: list[str] | None = None,
+    concurrency: int = 0,
 ) -> list[str]:
     cmd = ["container", "run", "--rm"]
 
@@ -233,6 +234,9 @@ def build_docker_cmd(
     if timeout_ms:
         cmd.extend(["--timeout", str(timeout_ms)])
 
+    if concurrency:
+        cmd.extend(["--concurrency", str(concurrency)])
+
     if ignore_network_blocks_from:
         cmd.append("--ignore-network-blocks-from")
         cmd.extend(ignore_network_blocks_from)
@@ -248,40 +252,18 @@ def build_docker_cmd(
     return cmd
 
 
-def run_checker(
-    image: str,
-    urls: list[str],
-    short_mode: bool,
-    ignore_network_blocks_from: list[str],
-    always_pull: bool,
-    use_host_network: bool = True,
-    proxy: str = "",
-    timeout_ms: int = 0,
-    accept_status: list[str] | None = None,
-    proxy_bypass: str = "",
-    confine_to: str = "",
-    confine_allow: list[str] | None = None,
-) -> int:
-    """
-    Runs the CSP checker container and returns its exit code.
-    Always uses run.
+def run_checker(image: str, always_pull: bool, **cmd_options: object) -> int:
+    """Run the CSP checker container and return its exit code.
+
+    Args:
+        image: the csp-checker image.
+        always_pull: pull the image before the run.
+        cmd_options: every further keyword argument of build_docker_cmd.
     """
     if always_pull:
         subprocess.run(["container", "pull", image], check=False)
 
-    cmd = build_docker_cmd(
-        image=image,
-        urls=urls,
-        short_mode=short_mode,
-        ignore_network_blocks_from=ignore_network_blocks_from,
-        use_host_network=use_host_network,
-        proxy=proxy,
-        timeout_ms=timeout_ms,
-        accept_status=accept_status,
-        proxy_bypass=proxy_bypass,
-        confine_to=confine_to,
-        confine_allow=confine_allow,
-    )
+    cmd = build_docker_cmd(image=image, **cmd_options)
 
     try:
         result = subprocess.run(cmd, check=False)
@@ -375,6 +357,15 @@ def main() -> None:
             "Navigation budget in milliseconds for the .onion batch, which "
             "reaches its vhosts over Tor and needs longer than the checker's "
             "own default. 0 leaves that default in place."
+        ),
+    )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=0,
+        help=(
+            "Number of URLs the checker probes in parallel, each in its own "
+            "browser context. 0 leaves the checker's own default in place."
         ),
     )
     parser.add_argument(
@@ -485,6 +476,7 @@ def main() -> None:
             always_pull=bool(args.always_pull),
             use_host_network=not bool(args.no_host_network),
             accept_status=accept_status,
+            concurrency=args.concurrency,
             **batch,
         )
         rc = rc or batch_rc

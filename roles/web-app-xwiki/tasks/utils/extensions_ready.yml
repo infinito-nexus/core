@@ -1,0 +1,67 @@
+---
+- name: "🔎 XWIKI | Probe whether the running wiki answers the superadmin"
+  uri_retry:
+    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    follow_redirects: none
+    return_content: false
+    status_code: "{{ [-1] + range(100, 600) | list }}"
+  register: _xwiki_running
+  changed_when: false
+  when:
+    - IS_STACK_HOST | bool
+    - XWIKI_SSO_ENABLED | bool
+
+- name: "🔎 XWIKI | Read the core version of the running wiki"
+  uri_retry:
+    url: "{{ XWIKI_REST_BASE }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    follow_redirects: none
+    headers:
+      Accept: "application/xml"
+    return_content: true
+    status_code: "{{ [-1] + range(100, 600) | list }}"
+  register: _xwiki_running_core
+  changed_when: false
+  when:
+    - _xwiki_running is not skipped
+    - _xwiki_running.status == 200
+
+- name: "🧭 XWIKI | Compare the running core with the pinned core {{ XWIKI_CORE_VERSION }}"
+  set_fact:
+    _xwiki_core_on_pin: >-
+      {{ _xwiki_running_core is not skipped
+         and _xwiki_running_core.status == 200
+         and _xwiki_running_core.content is search('<version>' ~ (XWIKI_CORE_VERSION | regex_escape) ~ '</version>') }}
+
+- name: "✅ XWIKI | Check the running wiki's add-ons against their pins"
+  include_tasks: "{{ role_path }}/tasks/_check_extension_via_groovy.yml"
+  loop: "{{ XWIKI_PLUGINS }}"
+  loop_control:
+    loop_var: plugin
+    label: "{{ plugin.id }}"
+  vars:
+    ext_id: "{{ plugin.id }}"
+    ext_version: "{{ plugin.version }}"
+    result_var: "xwiki_running_{{ plugin.id | regex_replace('[^A-Za-z0-9_]', '_') }}"
+  when: _xwiki_core_on_pin | bool
+
+- name: "🧭 XWIKI | Skip the bootstrap boot when core and add-ons run on their pins"
+  set_fact:
+    xwiki_extensions_ready: >-
+      {{ (_xwiki_core_on_pin | bool)
+         and (XWIKI_PLUGINS
+              | map(attribute='id')
+              | map('regex_replace', '[^A-Za-z0-9_]', '_')
+              | map('regex_replace', '^', 'xwiki_running_')
+              | map('extract', hostvars[inventory_hostname], 'status')
+              | map('int')
+              | reject('equalto', 200)
+              | list
+              | length == 0) }}

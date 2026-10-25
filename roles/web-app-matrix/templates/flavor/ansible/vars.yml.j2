@@ -155,6 +155,8 @@ matrix_client_element_branding_auth_header_logo_url: {{ MATRIX_DESIGN_LOGO_URL |
 matrix_client_element_branding_welcome_background_url: ""
 matrix_client_element_configuration_extension_json: '{"default_theme": null}'
 {% endif %}
+matrix_synapse_configuration_extension_yaml: |
+  web_client_location: "{{ lookup('canonical_url', application_id, 'element') }}"
 
 matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
 matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}

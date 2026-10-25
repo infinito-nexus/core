@@ -19,6 +19,7 @@ dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
   shared: "{{ 'web-app-dashboard' in group_names }}"
+  card: webmail
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
