@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -33,8 +34,7 @@ test("Listmonk front page is served under canonical domain with TLS", async ({ p
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Listmonk URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Listmonk");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Listmonk");
 });
 
 test("Listmonk returns HTML content under canonical domain", async ({ request }) => {

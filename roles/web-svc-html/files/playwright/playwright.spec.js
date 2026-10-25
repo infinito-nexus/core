@@ -4,6 +4,7 @@ const {
   apiGetOnion,
   decodeDotenvQuotedValue,
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   runGuestFlow,
@@ -34,7 +35,7 @@ test("html vhost answers under the canonical domain with TLS", async ({ page }) 
   const headers = response.headers();
   expect(headers["content-type"] || "", "the vhost root must answer with HTML").toContain("text/html");
   expect(headers["content-security-policy"], "the vhost root must emit a Content-Security-Policy").toBeTruthy();
-  expectHstsWhenTls(headers, appBaseUrl, "html");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "html");
 });
 
 test("imprint is served as an HTML document", async ({ request }) => {

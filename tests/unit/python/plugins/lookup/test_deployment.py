@@ -29,6 +29,7 @@ class TestDeploymentLookup(unittest.TestCase):
                 "inventory",
                 "deployed",
                 "runtime",
+                "ephemeral",
                 "all",
             },
         )
@@ -225,6 +226,7 @@ class TestDeploymentLookup(unittest.TestCase):
             )
             self.assertEqual(result[0]["deployed"], ["only-this"])
             self.assertEqual(result[0]["runtime"], runtime)
+            self.assertTrue(result[0]["ephemeral"])
 
     @patch("plugins.lookup.deployment.list_invokable_app_ids")
     def test_deployed_uses_groups_in_persistent_runtime(self, mock_list):
@@ -243,6 +245,7 @@ class TestDeploymentLookup(unittest.TestCase):
                 result[0]["deployed"],
                 ["partial", "still-running", "also-running"],
             )
+            self.assertFalse(result[0]["ephemeral"])
 
 
 if __name__ == "__main__":

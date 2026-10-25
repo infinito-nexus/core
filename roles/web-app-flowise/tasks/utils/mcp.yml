@@ -50,7 +50,7 @@
       - -e
       - "FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id }}"
       - -e
-      - "FLOWISE_MCP_DESIRED={{ FLOWISE_MCP_DESIRED | to_json }}"
+      - FLOWISE_MCP_DESIRED
       - -e
       - "FLOWISE_MCP_TRANSPORT={{ FLOWISE_MCP_TRANSPORT }}"
       - -e
@@ -61,10 +61,11 @@
     stdin: "{{ lookup('file', 'python/reconcile/mcp_servers.py') }}"
   environment:
     FLOWISE_API_KEY: "{{ (flowise_mcp_identity.stdout_lines | last | from_json).api_key }}"
+    FLOWISE_MCP_DESIRED: "{{ FLOWISE_MCP_DESIRED | to_json }}"
   register: flowise_mcp_registry
   retries: "{{ 30 if MCP_RECONCILE_STRICT | bool else 0 }}"
   delay: 10
-  until: flowise_mcp_registry.rc == 0
+  until: flowise_mcp_registry.rc in [0, 3]
   failed_when: flowise_mcp_registry.rc != 0 and (MCP_RECONCILE_STRICT | bool)
   changed_when: flowise_mcp_registry.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

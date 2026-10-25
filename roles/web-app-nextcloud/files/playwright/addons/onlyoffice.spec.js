@@ -14,9 +14,10 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
   const expectedDsUrl = unquote(process.env.NEXTCLOUD_ONLYOFFICE_EXPECTED_DOCUMENT_SERVER_URL);
   expect(
     expectedDsUrl,
-    "NEXTCLOUD_ONLYOFFICE_EXPECTED_DOCUMENT_SERVER_URL must be rendered into the Playwright env so the spec can prove the editor iframe is served by the real web-svc-onlyoffice partner host",
+    "NEXTCLOUD_ONLYOFFICE_EXPECTED_DOCUMENT_SERVER_URL must be rendered into the Playwright env so the spec can prove the editor iframe is served by web-svc-onlyoffice under the Nextcloud host's document-server path",
   ).toBeTruthy();
   const documentServerHost = new URL(expectedDsUrl).host;
+  const documentServerPath = new URL(expectedDsUrl).pathname.replace(/\/*$/, "/");
   const nextcloudHost = new URL(shared.env.nextcloudBaseUrl).host;
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -86,10 +87,12 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
       .poll(
         () =>
           frameUrlMatching(
-            (url) => url.host === documentServerHost && url.pathname.includes("/web-apps/apps/documenteditor/"),
+            (url) =>
+              url.host === documentServerHost &&
+              url.pathname.startsWith(`${documentServerPath}web-apps/apps/documenteditor/`),
           ),
         {
-          message: `the connector view must embed the document editor served by the web-svc-onlyoffice partner host '${documentServerHost}' (the DocumentServerUrl coupling), not by Nextcloud ('${nextcloudHost}')`,
+          message: `the connector view must embed the document editor that web-svc-onlyoffice serves under '${documentServerHost}${documentServerPath}' (the relative DocumentServerUrl coupling), on the network of the page that opened it`,
           timeout: resolveTimeout(120_000),
         },
       )

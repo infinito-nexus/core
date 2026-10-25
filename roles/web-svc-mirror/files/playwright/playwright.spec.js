@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { decodeDotenvQuotedValue, expectHstsWhenTls, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, expectHstsWhenTls, ownResponseHeaders, gotoOnion, normalizeBaseUrl } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const mirrorBaseUrl = normalizeBaseUrl(process.env.MIRROR_BASE_URL || "");
@@ -20,8 +20,7 @@ test("mirror is served under canonical domain and refuses unmapped paths", async
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the mirror URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, mirrorBaseUrl, "Mirror");
+  expectHstsWhenTls(await ownResponseHeaders(response), mirrorBaseUrl, "Mirror");
 });
 
 test("mirror refuses origins outside the CSP-derived allowlist", async ({ page }) => {

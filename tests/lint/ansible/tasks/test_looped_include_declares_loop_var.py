@@ -59,7 +59,15 @@ LOOP_KEYS = frozenset(
     }
 )
 
-_NESTED_KEYS = ("block", "rescue", "always")
+_NESTED_KEYS = (
+    "block",
+    "rescue",
+    "always",
+    "pre_tasks",
+    "tasks",
+    "post_tasks",
+    "handlers",
+)
 
 
 def offenders(tasks: Any) -> list[str]:
@@ -102,8 +110,22 @@ def _task_files() -> list[str]:
     return sorted(
         path
         for path in iter_project_files(extensions=(".yml", ".yaml"), exclude_tests=True)
-        if "/tasks/" in Path(path).relative_to(PROJECT_ROOT).as_posix()
-        or "/handlers/" in Path(path).relative_to(PROJECT_ROOT).as_posix()
+        if is_task_or_playbook_file(Path(path).relative_to(PROJECT_ROOT).as_posix())
+    )
+
+
+def is_task_or_playbook_file(rel_path: str) -> bool:
+    """Tell whether a repository file holds tasks, handlers or plays.
+
+    Args:
+        rel_path: the path relative to the repository root.
+    """
+    anchored = "/" + rel_path
+    return (
+        "/tasks/" in anchored
+        or "/handlers/" in anchored
+        or rel_path == "playbook.yml"
+        or rel_path.startswith("playbooks/")
     )
 
 

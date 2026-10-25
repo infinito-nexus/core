@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -33,8 +34,7 @@ test("Pretix front page is served under canonical domain with TLS", async ({ pag
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Pretix URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Pretix");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Pretix");
 });
 
 test("Pretix returns HTML content under canonical domain", async ({ request }) => {

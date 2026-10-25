@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 AVAILABLE_FLAVORS = {"letsencrypt", "self_signed"}
+REDIRECT_SERVING_APP = "web-opt-rdr-domains"
 
 
 def as_str(value: Any) -> str:
@@ -221,6 +222,7 @@ def resolve_term(
     redirects: dict[str, str] | None = None,
     forced_mode: str,
     err_prefix: str,
+    _following: bool = False,
 ) -> tuple[str, str]:
     """
     Returns (app_id, primary_domain) where primary_domain is normalized lower-case.
@@ -240,6 +242,9 @@ def resolve_term(
       3) If term is a domain found in neither but is a source in redirects (see
          redirect_targets), such as an AUTO_BUILD_ALIASES alias -> resolve its target,
          following a chain of redirects; a source is used once, so a cycle fails.
+      4) If that chain ends on a domain this host does not serve, such as a redirect
+         to another host, and REDIRECT_SERVING_APP is in domains -> map the source to
+         REDIRECT_SERVING_APP, with the source itself as primary_domain.
     """
     t = as_str(term)
     if not t:
@@ -273,18 +278,24 @@ def resolve_term(
             app_id = resolve_app_id_for_domain(apps, bare)
         target = (redirects or {}).get(norm_domain(t))
         if not app_id and target and target != norm_domain(t):
-            return resolve_term(
-                target,
-                domains=domains,
-                applications=applications,
-                redirects={
-                    source: dest
-                    for source, dest in (redirects or {}).items()
-                    if source != norm_domain(t)
-                },
-                forced_mode="domain",
-                err_prefix=err_prefix,
-            )
+            try:
+                return resolve_term(
+                    target,
+                    domains=domains,
+                    applications=applications,
+                    redirects={
+                        source: dest
+                        for source, dest in (redirects or {}).items()
+                        if source != norm_domain(t)
+                    },
+                    forced_mode="domain",
+                    err_prefix=err_prefix,
+                    _following=True,
+                )
+            except AnsibleError:
+                if _following or REDIRECT_SERVING_APP not in domains:
+                    raise
+                return REDIRECT_SERVING_APP, norm_domain(t)
         if not app_id:
             raise AnsibleError(
                 f"{err_prefix}: domain '{t}' not found (domains/applications)"

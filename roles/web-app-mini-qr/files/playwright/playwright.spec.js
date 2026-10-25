@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("MiniQR front page is served under canonical domain with TLS", async ({ pag
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the MiniQR URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "MiniQR");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "MiniQR");
 });
 
 test("MiniQR returns HTML content under canonical domain", async ({ request }) => {

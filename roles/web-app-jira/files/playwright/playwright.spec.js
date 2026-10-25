@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -29,8 +30,7 @@ test("Jira front page is served under canonical domain with TLS", async ({ page 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Jira URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Jira");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Jira");
 });
 
 test("Jira returns HTML content under canonical domain", async ({ request }) => {

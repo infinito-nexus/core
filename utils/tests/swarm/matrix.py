@@ -13,7 +13,7 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.storage.constrained import host_storage_constrained
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
-from utils.tests.swarm.extend_inventory import mesh_enabled
+from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
 from utils.tests.swarm.mesh import (
     bootstrap_mesh,
     converge_mesh,
@@ -184,6 +184,7 @@ def _deploy(
 
 
 def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
+    drop_backup_network_mode(inv_dir)
     env = os.environ.copy()
     env["APP_ID"] = app_id
     cmd = [

@@ -54,6 +54,7 @@ class TestCaInjectedLookup(unittest.TestCase):
         issuers=(ISSUER,),
     ):
         calls: list[tuple[str, list]] = []
+        own_domain = domains.get(app)
 
         def fake_get(name, **_kwargs):
             def run(args, variables=None):
@@ -62,8 +63,10 @@ class TestCaInjectedLookup(unittest.TestCase):
                     return [services or {}]
                 if name == "domains":
                     return [domains]
-                if args[0] == app:
+                if args[0] == own_domain:
                     return [enabled if args[1] == "enabled" else mode]
+                if args[0] == app:
+                    return [False if args[1] == "enabled" else "off"]
                 if isinstance(peer_mode, Exception) and args[1] == "mode":
                     raise peer_mode
                 return [peer_enabled if args[1] == "enabled" else peer_mode]
@@ -88,6 +91,21 @@ class TestCaInjectedLookup(unittest.TestCase):
             mode="self_signed",
         )
         self.assertIs(verdict, True)
+
+    def test_own_tls_is_read_on_the_canonical_domain_not_the_vhost_sibling(self):
+        verdict, calls = self._resolve(
+            domains={"web-app-moodle": "moodle.example"},
+            enabled=True,
+            mode="self_signed",
+        )
+        self.assertIs(
+            verdict,
+            True,
+            "asked by application id, tls aligns to the vhost in `domain`; a "
+            "handler flushed after the onion sibling's vhost then reads TLS off "
+            "and the next stack deploy drops the CA mount",
+        )
+        self.assertEqual(calls[1], ("tls", ["moodle.example", "enabled"]))
 
     def test_letsencrypt_does_not_get_the_ca(self):
         verdict, _ = self._resolve(

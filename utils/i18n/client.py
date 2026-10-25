@@ -201,6 +201,7 @@ class LibreTranslate:
                         "format": "html",
                         "protected": [mask_tokens(item) for item in masked],
                         "exclude": list(exclude),
+                        "partial": True,
                     },
                 )
                 result = body["translatedText"]
@@ -232,9 +233,16 @@ class LibreTranslate:
                 return Outcome([None], refused, 0, refusal, ("",))
             return merge(self._batch([text], target, exclude) for text in texts)
         values = [
-            unmask(translated, item, text, target)
+            None if translated is None else unmask(translated, item, text, target)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
+        if None in result:
+            refused += result.count(None)
+            refusal = (
+                refusal
+                or "the gateway answered null: every engine refused or mangled it"
+            )
+        engines = [engine or "" for engine in engines]
         retried, names = self._reask(texts, target, values, engines, exclude)
         damaged = sum(1 for text in retried if isinstance(text, Rejected))
         return Outcome(retried, refused, damaged, refusal, tuple(names))

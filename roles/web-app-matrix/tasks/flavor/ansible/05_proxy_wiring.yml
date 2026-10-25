@@ -152,10 +152,11 @@
     - MATRIX_JITSI_INTERNAL | bool
   ansible.builtin.shell:
     cmd: >- # nocheck: raw-docker, container-exec-resolver, container-address-quote  inner docker CLI talks to the DiD daemon inside matrix-mdad; Prosody keeps an account's first password, so a rotated secret needs the account recreated
-      container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-jitsi-prosody sh -c
-      'prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
-      && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$2"'
-      _ {{ item.user | quote }} {{ item.password | quote }}
+      container exec -i {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec -i matrix-jitsi-prosody sh -c
+      'IFS= read -r p; prosodyctl --config /run/prosody/config/prosody.cfg.lua deluser "$1@auth.meet.jitsi"
+      && prosodyctl --config /run/prosody/config/prosody.cfg.lua register "$1" auth.meet.jitsi "$p"'
+      _ {{ item.user | quote }}
+    stdin: "{{ item.password }}"
   loop: "{{ MATRIX_JITSI_COMPONENT_ACCOUNTS }}"
   loop_control:
     label: "{{ item.user }}"

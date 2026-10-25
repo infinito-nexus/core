@@ -117,7 +117,7 @@
   include_tasks: "05_dns.yml"
   when: DNS_PROVIDER | lower == 'cloudflare'
 
-- name: 🔍 Resolve redirect_domain_mappings now (before include_role)
+- name: 🔍 Resolve the redirect mappings now (before include_role)
   set_fact:
     BLUESKY_REDIRECT_DOMAIN_MAPPINGS: >-
       {{
@@ -129,7 +129,7 @@
   include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: "web-opt-rdr-domains"
-    redirect_domain_mappings: "{{ BLUESKY_REDIRECT_DOMAIN_MAPPINGS }}"
+    web_opt_rdr_domains_mappings: "{{ BLUESKY_REDIRECT_DOMAIN_MAPPINGS }}"
     web_opt_rdr_domains_logout_enabled: true
 
 - name: "🚿 Flush handlers for '{{ role_name }}'"

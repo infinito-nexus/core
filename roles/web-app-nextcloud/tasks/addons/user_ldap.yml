@@ -46,8 +46,13 @@
           create_stdout='{{ nextcloud_ldap_config_create.stdout | default('') }}'
           create_stderr='{{ nextcloud_ldap_config_create.stderr | default('') }}'
 - name: 🔧 Set Nextcloud LDAP bind password
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:set-config {{ nextcloud_ldap_config_id }} ldapAgentPassword '{{ LDAP.BIND_CREDENTIAL }}'
+  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -u {{ NEXTCLOUD_DOCKER_USER }} -e NC_LDAP_AGENT_PASSWORD {{ NEXTCLOUD_LOCAL_CID | quote }}
+    sh -c 'exec "$1" ldap:set-config "$2" ldapAgentPassword "$NC_LDAP_AGENT_PASSWORD"'
+    _ {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} {{ nextcloud_ldap_config_id | quote }}
+  environment:
+    NC_LDAP_AGENT_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+  when: IS_STACK_HOST | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 - name: 🟢 Activate Nextcloud LDAP configuration
   shell: >

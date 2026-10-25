@@ -53,6 +53,21 @@ module ::InfinitoNetworkOrigins
       super("#{key}-#{Discourse.current_hostname}", &block)
     end
   end
+
+  module ClientSettingsPerHost
+    def client_settings_json
+      (client_settings_jsons[provider.current_site] ||= {})[Discourse.current_hostname] ||=
+        client_settings_json_uncached
+    rescue => e
+      Rails.logger.error("Error while retrieving client_settings_json: #{e.message}")
+      ""
+    end
+
+    def client_settings_hash
+      (client_settings_hashes[provider.current_site] ||= {})[Discourse.current_hostname] ||=
+        client_settings_hash_uncached
+    end
+  end
 end
 
 Rails.configuration.middleware.insert_before(0, InfinitoNetworkOrigins::RequestOrigin)
@@ -60,5 +75,6 @@ Rails.configuration.middleware.insert_before(0, InfinitoNetworkOrigins::RequestO
 after_initialize do
   Discourse.singleton_class.prepend(InfinitoNetworkOrigins::CurrentHostname)
   SiteSetting.singleton_class.prepend(InfinitoNetworkOrigins::ForceHttps)
+  SiteSetting.singleton_class.prepend(InfinitoNetworkOrigins::ClientSettingsPerHost)
   SiteIconManager.singleton_class.prepend(InfinitoNetworkOrigins::IconCachePerHost)
 end

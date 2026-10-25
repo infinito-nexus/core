@@ -49,9 +49,8 @@
     container exec
     -e REDIS_ACL_PASSWORD
     {{ REDIS_CONTAINER_ADDRESS }} sh -lc
-    '{{ REDIS_CLI }} ACL SETUSER {{ redis_acl_username }}
+    'printf "%s" ">$REDIS_ACL_PASSWORD" | {{ REDIS_CLI }} -x ACL SETUSER {{ redis_acl_username }}
     on resetkeys resetchannels
-    ">$REDIS_ACL_PASSWORD"
     allkeys allchannels
     +@all'
   environment:

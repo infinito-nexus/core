@@ -176,6 +176,46 @@ class TestTlsCommon(unittest.TestCase):
         )
         self.assertEqual((app_id, primary), ("web-app-b", "b.example"))
 
+    def test_resolve_term_redirect_to_another_host_is_served_by_the_redirect_role(self):
+        domains = dict(self.domains, **{"web-opt-rdr-domains": "rdr.example"})
+        app_id, primary = resolve_term(
+            "Project.Old.Example",
+            domains=domains,
+            applications={},
+            redirects={"project.old.example": "project.other-host.example"},
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual(
+            (app_id, primary), ("web-opt-rdr-domains", "project.old.example")
+        )
+
+    def test_resolve_term_foreign_chain_keeps_the_asked_source_as_primary(self):
+        domains = dict(self.domains, **{"web-opt-rdr-domains": "rdr.example"})
+        app_id, primary = resolve_term(
+            "one.example",
+            domains=domains,
+            applications={},
+            redirects={
+                "one.example": "two.example",
+                "two.example": "other-host.example",
+            },
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual((app_id, primary), ("web-opt-rdr-domains", "one.example"))
+
+    def test_resolve_term_foreign_target_fails_without_the_redirect_role(self):
+        with self.assertRaises(AnsibleError):
+            resolve_term(
+                "project.old.example",
+                domains=self.domains,
+                applications={},
+                redirects={"project.old.example": "project.other-host.example"},
+                forced_mode="auto",
+                err_prefix="t",
+            )
+
     def test_resolve_term_redirect_cycle_fails(self):
         with self.assertRaises(AnsibleError):
             resolve_term(

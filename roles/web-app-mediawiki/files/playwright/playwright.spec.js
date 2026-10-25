@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -37,8 +38,7 @@ test("MediaWiki front page is served under canonical domain with TLS", async ({ 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the MediaWiki URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "MediaWiki");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "MediaWiki");
 });
 
 test("MediaWiki returns HTML content under canonical domain", async ({ request }) => {

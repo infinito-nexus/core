@@ -6,6 +6,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
   assertCspResponseHeader,
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -33,8 +34,7 @@ test("meta front page is served under canonical domain with TLS", async ({ page 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the meta URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "meta");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "meta");
 });
 
 test("meta returns HTML content under canonical domain", async ({ request }) => {

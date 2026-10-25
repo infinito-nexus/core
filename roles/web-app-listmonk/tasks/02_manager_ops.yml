@@ -10,17 +10,6 @@
 - name: 📂 Include database setup routine for Listmonk
   include_tasks: "01_database.yml"
 
-- name: 🔨 Build OIDC settings JSON
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  set_fact:
-    oidc_settings_json: >-
-      {{ {
-         "enabled":       True,
-         "client_id":     OIDC.CLIENT.ID,
-         "provider_url":  OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET
-      } | to_json }}
-
 - name: 🔄 Update administrator email and password login in Listmonk (as superuser)
   shell: |
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
@@ -47,33 +36,14 @@
     listmonk_admin_password.rc != 0
     or listmonk_admin_password.stdout is search('\[FAIL\]')
 
-- name: 📌 Apply all Listmonk settings
-  shell: |
-    {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
-    UPDATE settings
-    SET value = '{{ item.value }}'::jsonb
-    WHERE key = '{{ item.key }}';
-    EOSQL
-  args:
-    executable: /bin/bash
-  loop: "{{ LISTMONK_SETTINGS }}"
-  loop_control:
-    label: "{{ item.key }}"
-  when: (item.condition | default(true)) | bool
+- name: 📌 Apply every Listmonk setting that differs, in one psql run
+  ansible.builtin.shell:
+    cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"
+    stdin: "{{ lookup('template', 'sql/apply_settings.sql.j2') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: listmonk_settings
-  changed_when: true
+  changed_when: "'UPDATE 0' not in listmonk_settings.stdout"
   notify: container-recreate
-  # rationale: async; settings apply overlapped, reaped below before the role ends
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-
-- name: "⏳ Reap the Listmonk settings jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ listmonk_settings.results | default([listmonk_settings]) }}"
-    async_reap_label: "Listmonk settings"
-    async_reap_tolerate: []
 
 - name: "🎨 Carry the corporate design in the Listmonk settings"
   ansible.builtin.include_tasks: 03_design.yml

@@ -1,9 +1,11 @@
 ---
 - name: "🧹 Delete API token '{{ mailu_user_key }};{{ mailu_user_name }}' if local missing"
-  ansible.builtin.shell: >-
-    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-    {{ 30 | curl }} -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
-    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+      {{ 30 | curl }} -X DELETE {{ MAILU_API_SERVICE_BASE_URL }}/token/{{ mailu_user_existing_token.id }}
+      -H @-
+    stdin: "Authorization: Bearer {{ MAILU_API_TOKEN }}"
   when:
     - mailu_user_existing_token is not none
     - mailu_user_existing_token.id is defined
@@ -15,16 +17,18 @@
   timeout: "{{ lookup('timeout', 120) | int }}"
 
 - name: "📝 Create API token '{{ mailu_user_key }};{{ mailu_user_name }}' if none local"
-  ansible.builtin.shell: >-
-    container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
-    {{ 30 | curl }} -S -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
-    -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
-    -H "Authorization: Bearer {{ MAILU_API_TOKEN }}"
-    -H "Content-Type: application/json"
-    -d {{ ({
-    "comment": mailu_token_name,
-    "email": lookup("users", mailu_user_key).email
-    } | to_json) | quote }}
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i {{ MAILU_ADMIN_CONTAINER_ADDRESS }}
+      {{ 30 | curl }} -S -f -o /tmp/mailu-token-{{ mailu_user_key | quote }}.json
+      -X POST {{ MAILU_API_SERVICE_BASE_URL }}/token
+      -H @-
+      -H "Content-Type: application/json"
+      -d {{ ({
+      "comment": mailu_token_name,
+      "email": lookup("users", mailu_user_key).email
+      } | to_json) | quote }}
+    stdin: "Authorization: Bearer {{ MAILU_API_TOKEN }}"
   register: mailu_token_creation_request
   until: mailu_token_creation_request.rc == 0
   retries: 30

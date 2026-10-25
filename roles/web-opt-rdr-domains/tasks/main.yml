@@ -14,7 +14,7 @@
 - name: 🧩 Resolve the tls state and render the configuration of every redirect source
   ansible.builtin.set_fact:
     redirect_sources: "{{ redirect_sources + [redirect_source] }}"
-  loop: "{{ lookup('network_redirects', redirect_domain_mappings) }}"
+  loop: "{{ lookup('network_redirects', web_opt_rdr_domains_mappings) }}"
   vars:
     redirect_source_tls: "{{ lookup('tls', item.source, 'enabled') | bool }}"
     redirect_source:

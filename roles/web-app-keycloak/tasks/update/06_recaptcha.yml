@@ -36,15 +36,9 @@
 
 - name: "🔄 Update Google reCAPTCHA authenticator config from dictionary"
   when: kc_recaptcha_cfg_id | length > 0
-  shell: |
-    cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} update authentication/config/{{ kc_recaptcha_cfg_id }} -r {{ KEYCLOAK_REALM }} -f -
-    {{
-      {
-        'alias': 'Google reCaptcha',
-        'config': kc_recaptcha_cfg
-      } | to_json
-    }}
-    JSON
+  ansible.builtin.shell:
+    cmd: "{{ KEYCLOAK_EXEC_KCADM }} update authentication/config/{{ kc_recaptcha_cfg_id }} -r {{ KEYCLOAK_REALM }} -f -"
+    stdin: "{{ {'alias': 'Google reCaptcha', 'config': kc_recaptcha_cfg} | to_json }}"
   register: kc_recaptcha_update
   changed_when: kc_recaptcha_update.rc == 0
   failed_when: kc_recaptcha_update.rc != 0

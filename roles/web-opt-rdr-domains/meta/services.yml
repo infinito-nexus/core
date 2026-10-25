@@ -4,6 +4,7 @@ rdr-domains:
   modes:
     host:
       enabled: true
+  redirects: []
   lifecycle: beta
   min_storage: "50MB"
   cpus: "0.1"

@@ -104,9 +104,11 @@
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e NC_APP_ID=integration_mattermost
       -e NC_ENC_MODE=sensitive
-      -e "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
+      -e NC_ENC_B64
       {{ NEXTCLOUD_LOCAL_CID | quote }} php
     stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
+  environment:
+    NC_ENC_B64: "{{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

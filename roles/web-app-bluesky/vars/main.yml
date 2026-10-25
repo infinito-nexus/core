@@ -136,7 +136,8 @@ BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.
 
 BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
-BLUESKY_ADMIN_HANDLE: "kc-{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
+BLUESKY_ADMIN_HANDLE: "{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
+BLUESKY_ADMIN_HANDLE_RESERVED: "i8-{{ BLUESKY_ADMIN_HANDLE }}"
 BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
 
 BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
@@ -153,6 +154,7 @@ BLUESKY_BROKER_IMAGE: "bluesky_broker_custom"
 BLUESKY_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.broker.image') }}"
 BLUESKY_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.broker.version') }}"
 BLUESKY_BROKER_SERVICE: "broker"
+BLUESKY_BROKER_STORE_PATH: "/data/accounts.json"
 BLUESKY_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ BLUESKY_BROKER_SERVICE ~ '.name') }}"
 BLUESKY_BROKER_PORT: "{{ lookup('config', application_id, 'services.broker.ports.local.http') }}"
 BLUESKY_BROKER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.broker.ports.internal.http') }}"

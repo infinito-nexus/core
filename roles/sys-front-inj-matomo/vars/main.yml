@@ -4,3 +4,11 @@ matomo_site_root_domain: "{{ DOMAIN_PRIMARY if domain.endswith(DOMAIN_PRIMARY) e
 matomo_site_domain: "{{ domain if matomo_tracking_scope == 'sub' else matomo_site_root_domain }}"
 matomo_site_url: "{{ lookup('tls', domain, 'protocols.web') }}://{{ matomo_site_domain }}"
 matomo_index_php_url: "{{ lookup('tls', lookup('domain', 'web-app-matomo'), 'url.base') }}index.php"
+matomo_site_url_host: "{{ matomo_site_url | replace('www.', '') | replace('http://', '') | replace('https://', '') }}"
+matomo_site_url_variants:
+  - "{{ matomo_site_url }}"
+  - "http://{{ matomo_site_url_host }}"
+  - "http://www.{{ matomo_site_url_host }}"
+  - "https://{{ matomo_site_url_host }}"
+  - "https://www.{{ matomo_site_url_host }}"
+matomo_site_cache_scope: "{{ (matomo_index_php_url ~ '|' ~ matomo_effective_token) | hash('sha256') }}"

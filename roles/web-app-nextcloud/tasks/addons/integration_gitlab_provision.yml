@@ -22,10 +22,12 @@
       container exec -i
       -e 'NC_BASE_URL={{ nextcloud_gl_nc_base_url }}'
       -e 'NC_REDIRECT_PATH=/apps/integration_gitlab/oauth-redirect'
-      -e 'NC_HAS_SECRET={{ nextcloud_gl_client_secret_current.stdout | trim }}'
+      -e NC_HAS_SECRET
       {{ NEXTCLOUD_GITLAB_LOCAL_CID | quote }}
       /srv/gitlab/bin/rails runner -e production -
     stdin: "{{ lookup('file', 'ruby/addons/gitlab/provision_oauth_app.rb') }}"
+  environment:
+    NC_HAS_SECRET: "{{ nextcloud_gl_client_secret_current.stdout | trim }}"
   delegate_to: "{{ NEXTCLOUD_GITLAB_HOST_NODE }}"
   register: nextcloud_gl_provision
   changed_when: "'CLIENT_ID=' in nextcloud_gl_provision.stdout"
@@ -66,10 +68,12 @@
     cmd: >-
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e 'NC_APP_ID=integration_gitlab'
-      -e 'NC_ENC_B64={{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}'
+      -e NC_ENC_B64
       {{ NEXTCLOUD_LOCAL_CID | quote }}
       php
     stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
+  environment:
+    NC_ENC_B64: "{{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}"
   register: nextcloud_gl_enc_set
   changed_when: "'OK' in nextcloud_gl_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

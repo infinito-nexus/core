@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -33,8 +34,7 @@ test("Funkwhale front page is served under canonical domain with TLS", async ({ 
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Funkwhale URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Funkwhale");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Funkwhale");
 });
 
 test("Funkwhale returns HTML content under canonical domain", async ({ request }) => {

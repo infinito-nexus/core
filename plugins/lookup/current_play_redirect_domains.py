@@ -129,7 +129,8 @@ class LookupModule(LookupBase):
     ``keep_path: false`` to drop the request URI from its 301.
 
     Merges, in order:
-      1. user-supplied ``redirect_domain_mappings`` (if any)
+      1. ``services.rdr-domains.redirects`` of ``web-opt-rdr-domains``, set per
+         inventory under ``applications``
       2. ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (skipped when equal);
          non-empty result triggers ``sys-stk-front-base`` to auto-load
          ``web-opt-rdr-domains`` so openresty has an SNI match for
@@ -151,7 +152,9 @@ class LookupModule(LookupBase):
     Steps 1-2 win over conflicting step-3 entries.
     """
 
-    def _run_lookup(self, name: str, variables: dict[str, Any] | None) -> Any:
+    def _run_lookup(
+        self, name: str, variables: dict[str, Any] | None, *terms: str
+    ) -> Any:
         plugin = lookup_loader.get(
             name,
             loader=getattr(self, "_loader", None),
@@ -159,7 +162,7 @@ class LookupModule(LookupBase):
         )
         if plugin is None:
             return None
-        result = plugin.run([], variables=variables)
+        result = plugin.run(list(terms), variables=variables)
         return result[0] if result else None
 
     def _node_onion(self, vars_: Mapping[str, Any]) -> str:
@@ -235,7 +238,9 @@ class LookupModule(LookupBase):
         domain_homepage = self._resolve_str(vars_.get("DOMAIN_HOMEPAGE"))
         auto_build_aliases = bool(vars_.get("AUTO_BUILD_ALIASES", False))
 
-        user_mappings = vars_.get("redirect_domain_mappings") or []
+        user_mappings = self._run_lookup(
+            "config", vars_, "web-opt-rdr-domains", "services.rdr-domains.redirects"
+        )
         if not isinstance(user_mappings, list):
             user_mappings = []
 

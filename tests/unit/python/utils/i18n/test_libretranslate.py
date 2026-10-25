@@ -119,6 +119,24 @@ class TestTranslateFailures(unittest.TestCase):
             )
 
 
+class TestPartialBatches(unittest.TestCase):
+    """The gateway answers null for one string it refused and keeps the rest."""
+
+    def setUp(self) -> None:
+        self.client = LibreTranslate("http://libretranslate", 1)
+
+    def test_a_null_answer_discards_only_its_own_string(self) -> None:
+        answer = {"translatedText": ["Hallo", None], "engine": ["alpha", None]}
+        with mock.patch.object(self.client, "_call", return_value=answer) as call:
+            outcome = self.client.translate(["Hello", "Tree house"], "de")
+
+        self.assertEqual(outcome.values, ["Hallo", None])
+        self.assertEqual(outcome.refused, 1)
+        self.assertEqual(outcome.engines, ("alpha", ""))
+        self.assertIn("null", outcome.refusal)
+        self.assertTrue(call.call_args.args[1]["partial"])
+
+
 class TestRefusalsAreRetried(unittest.TestCase):
     """A server that buckles under the lanes must not cost entries for good."""
 

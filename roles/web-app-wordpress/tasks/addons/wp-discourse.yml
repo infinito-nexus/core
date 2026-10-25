@@ -49,11 +49,14 @@
         option_json_b64: "{{ option_kv | to_json | b64encode }}"
 
       ansible.builtin.shell: >
-        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+        container exec -u {{ WORDPRESS_USER }} -e WP_OPTION_JSON_B64 {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
         "wp eval \"update_option(
         '{{ option_name }}',
         json_decode(
-        base64_decode('{{ option_json_b64 }}'),
+        base64_decode(getenv('WP_OPTION_JSON_B64')),
         true
         )
         );\" --path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+      environment:
+        WP_OPTION_JSON_B64: "{{ option_json_b64 }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

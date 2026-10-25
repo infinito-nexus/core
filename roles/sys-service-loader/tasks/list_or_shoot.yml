@@ -29,6 +29,8 @@
 - name: "🎯 Shoot post-load roles directly (no preload context active)"
   ansible.builtin.include_role:
     name: "{{ list_or_shoot_role }}"
+  vars:
+    application_id: "{{ list_or_shoot_role }}"
   loop: "{{ list_or_shoot_roles }}"
   loop_control:
     loop_var: list_or_shoot_role

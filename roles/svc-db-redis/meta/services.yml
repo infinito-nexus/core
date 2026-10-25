@@ -14,6 +14,9 @@ redis:
   name: redis-central
   version: 8.10.2-alpine
   min_storage: 238MB
+  healthcheck:
+    test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+    retries: 30
   backup:
     disabled: true
   cpus: "0.5"

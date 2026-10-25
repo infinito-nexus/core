@@ -7,13 +7,17 @@ The broker sits behind `web-app-keycloak`'s SSO-proxy sidecar and in front of th
 official `@bluesky-social/social-app` web client. On a user's first
 OIDC-authenticated visit, the broker:
 
-1. Looks up the Keycloak user via the Admin REST API. The
-   service-account credentials are mounted as env, see `KC_ADMIN_*`.
+1. Derives the handle `<username>.<PDS_HANDLE_DOMAIN>` from the
+   Keycloak username, or `i8-<username>.<PDS_HANDLE_DOMAIN>` when the
+   PDS answers `Reserved handle`. A first label longer than 18
+   characters cannot be a handle; the broker then shows a form at
+   `/sso/handle` where the user picks one of 3 to 18 characters from
+   `[a-z0-9-]` that contains a hyphen and never contains `i8-`.
 2. Provisions a Bluesky PDS account via
-   `com.atproto.server.createAccount` if no encrypted app-password is
-   recorded on the user yet, encrypts the synthesised app-password
-   with **AES-256-GCM**, and stores the ciphertext as the
-   `bluesky_app_password_enc` user attribute.
+   `com.atproto.server.createAccount` if `BROKER_STORE_PATH` holds no
+   entry for the username yet, encrypts the synthesised app-password
+   with **AES-256-GCM**, and records the handle, the DID and the
+   ciphertext there, keyed by the Keycloak username.
 3. Decrypts the stored app-password in-process and exchanges it for
    a PDS session via `com.atproto.server.createSession`.
 4. Renders an HTML handoff page that drops the resulting session
@@ -35,6 +39,7 @@ synthesised app-password.
 | `PDS_URL`                         | Public Bluesky PDS base URL (`https://api.bluesky.<domain>`), written into the browser `service` field. |
 | `PDS_INTERNAL_URL`                | In-stack PDS URL for server-side XRPC calls (`http://pds:3000`); defaults to `PDS_URL` when unset.       |
 | `PDS_HANDLE_DOMAIN`               | Suffix for synthesised handles (`<DOMAIN_PRIMARY>`).                      |
+| `BROKER_STORE_PATH`               | JSON file in the broker volume that maps usernames to their PDS account.  |
 | `PDS_INVITE_CODE`                 | Optional invite code for gated PDS deployments.                           |
 | `KC_ADMIN_BASE_URL`               | Keycloak base URL (`https://auth.<domain>`).                              |
 | `KC_ADMIN_REALM`                  | Realm of the broker's service account (typically the same as user realm).|

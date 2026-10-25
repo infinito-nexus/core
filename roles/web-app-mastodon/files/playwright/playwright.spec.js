@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -35,8 +36,7 @@ test("Mastodon front page is served under canonical domain with TLS", async ({ p
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the Mastodon URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "Mastodon");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "Mastodon");
 });
 
 test("Mastodon returns HTML content under canonical domain", async ({ request }) => {

@@ -99,6 +99,17 @@
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
 
+- name: "🧹 Matomo | Drop the site list cache of every host before re-injecting"
+  ansible.builtin.set_fact:
+    matomo_site_cache:
+      scope: ""
+      sites:
+  delegate_to: "{{ matomo_cache_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: matomo_cache_host
+
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
   when:

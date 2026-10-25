@@ -23,6 +23,8 @@
       placement:
         constraints:
           - node.role == manager
+      update_config:
+        failure_action: continue
 {% endif %}
     {{ lookup('container_extra_hosts', extra_hosts=(
          [] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'

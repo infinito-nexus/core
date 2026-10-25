@@ -205,8 +205,8 @@ fi
 NEEDED_MB=$((PULLED_MB + DISK_FLOOR_MB))
 if [ "${FREE_MB}" -lt "${NEEDED_MB}" ]; then
 	echo "FAILURE: the sync holds the ${PULLED_MB}M pulled tree and its device copy at once (the restore root repeats that peak later), so ${NEEDED_MB}M must be free to stay above the ${DISK_FLOOR_MB}M watchdog floor; ${FREE_MB}M free on ${BACKUP_NODE}:${DIR_BACKUPS}"
-	echo "    what fills the pulled tree (MB per machine/repo):"
-	docker exec "${BACKUP_NODE}" sh -c "du -sm ${DIR_BACKUPS}/*/* 2>/dev/null | sort -rn" ||
+	echo "    what fills the pulled tree (MB, the largest directories down to four levels below it):"
+	docker exec "${BACKUP_NODE}" sh -c "du -m -d 4 ${DIR_BACKUPS} 2>/dev/null | sort -rn | head -n 25" ||
 		echo "    (du breakdown unavailable)"
 	drill_device_teardown
 	exit 1

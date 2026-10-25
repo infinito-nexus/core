@@ -56,7 +56,7 @@ from utils.i18n.translate import (
     taken_translations,
 )
 
-CHUNK_SIZE = 500
+CHUNK_SIZE = 100
 SPHINX_JOBS_FLOOR = 2
 CHAT_LANES = 2
 

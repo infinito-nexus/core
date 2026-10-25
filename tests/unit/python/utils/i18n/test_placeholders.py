@@ -152,6 +152,11 @@ class TestIdentifiersStayIntact(unittest.TestCase):
 
         self.assertIn("{% if enabled %}", masked.spans)
 
+    def test_a_letter_digit_token_is_masked_whole(self):
+        masked = mask("Serves OAuth2 and POP3 over an S3-compatible store in HTML5.")
+
+        self.assertEqual(masked.spans, ("OAuth2", "POP3", "S3", "HTML5"))
+
     def test_prose_without_an_underscore_stays_translatable(self):
         source = "The deploy writes a file to the host and then restarts it."
 

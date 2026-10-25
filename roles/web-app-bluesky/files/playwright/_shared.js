@@ -18,7 +18,9 @@ const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUE
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const adminEmail = requireDotenvValue(process.env.ADMIN_EMAIL, "ADMIN_EMAIL");
 const adminHandle = requireDotenvValue(process.env.ADMIN_HANDLE, "ADMIN_HANDLE");
+const adminHandleReserved = requireDotenvValue(process.env.ADMIN_HANDLE_RESERVED, "ADMIN_HANDLE_RESERVED");
 const pdsBaseUrl = requireDotenvValue(process.env.PDS_BASE_URL, "PDS_BASE_URL");
 
 async function beforeEach({ page }) {
@@ -72,7 +74,9 @@ module.exports = {
     canonicalDomain,
     adminUsername,
     adminPassword,
+    adminEmail,
     adminHandle,
+    adminHandleReserved,
     pdsBaseUrl,
     biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME || ""),
     biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || ""),

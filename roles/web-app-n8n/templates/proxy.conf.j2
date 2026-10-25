@@ -13,6 +13,18 @@ server
 
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
+  {% if (domain | network_of) == 'tor' %}
+    {% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
+    {% set webserver_location_extra_configuration %}
+  sub_filter '"authCookie":{"secure":true}' '"authCookie":{"secure":false}';
+  sub_filter_types application/json;
+  sub_filter_once on;
+    {% endset %}
+    {% set location = '= /rest/settings' %}
+    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+    {% set webserver_location_extra_configuration = '' %}
+  {% endif %}
+
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
     {% set sso_proxy_enabled = true %}
     {% set webserver_location_extra_configuration %}

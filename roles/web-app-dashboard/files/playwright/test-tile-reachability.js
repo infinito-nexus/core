@@ -60,6 +60,20 @@ function landingDomain(target) {
   return target.handover_domain || target.canonical_domain;
 }
 
+/**
+ * Args:
+ *   dashboardUrl: the dashboard's own URL while a tile is embedded.
+ * Returns: the host of its `?iframe=` value; empty when the parameter is absent
+ *   or not a URL.
+ */
+function embeddedHost(dashboardUrl) {
+  try {
+    return new URL(new URL(dashboardUrl).searchParams.get("iframe") || "").host;
+  } catch {
+    return "";
+  }
+}
+
 async function findVisibleTile(page, canonicalDomain) {
   const tile = page.locator(tileSelector(canonicalDomain)).first();
   const visible = await tile.isVisible().catch(() => false);
@@ -204,6 +218,7 @@ async function assertTabButtonOpensNewTab(page, context, target) {
     `Expected the dashboard header "Tab" button to be visible for the ${target.id} tile`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
+  const expectedHost = embeddedHost(page.url()) || landingDomain(target);
   const [popup] = await Promise.all([
     context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
     tabButton.click(),
@@ -211,8 +226,8 @@ async function assertTabButtonOpensNewTab(page, context, target) {
 
   await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
   expect(
-    referencesHost(popup.url(), landingDomain(target)),
-    `Expected popup tab URL to address ${landingDomain(target)}, got ${popup.url()}`
+    referencesHost(popup.url(), expectedHost),
+    `Expected popup tab URL to address the embedded ${expectedHost}, got ${popup.url()}`
   ).toBe(true);
   await popup.close();
 }

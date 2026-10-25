@@ -9,15 +9,19 @@
 set -eu
 
 config="$1"
+script="$(mktemp)"
+trap 'rm -f "${script}"' EXIT
+
+printf '%s\n' \
+	"s/('hostname'\s*=>\s*')[^']*(',)/\1${PATCH_HOSTNAME}\2/" \
+	"s/('database'\s*=>\s*')[^']*(',)/\1${PATCH_DATABASE}\2/" \
+	"s/('username'\s*=>\s*')[^']*(',)/\1${PATCH_USERNAME}\2/" \
+	"s/('password'\s*=>\s*')[^']*(',)/\1${PATCH_PASSWORD}\2/" \
+	"s#('url'\s*=>\s*')[^']*(',)#\1${PATCH_URL}\2#" \
+	>"${script}"
 
 rewrite() {
-	sed -E "$@" \
-		-e "s/('hostname'\s*=>\s*')[^']*(',)/\1${PATCH_HOSTNAME}\2/" \
-		-e "s/('database'\s*=>\s*')[^']*(',)/\1${PATCH_DATABASE}\2/" \
-		-e "s/('username'\s*=>\s*')[^']*(',)/\1${PATCH_USERNAME}\2/" \
-		-e "s/('password'\s*=>\s*')[^']*(',)/\1${PATCH_PASSWORD}\2/" \
-		-e "s#('url'\s*=>\s*')[^']*(',)#\1${PATCH_URL}\2#" \
-		"${config}"
+	sed -E "$@" -f "${script}" "${config}"
 }
 
 [ "$(rewrite | cksum)" = "$(cksum <"${config}")" ] && exit 0

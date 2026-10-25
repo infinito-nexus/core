@@ -5,6 +5,7 @@ const {
   expectHstsWhenTls,
   gotoOnion,
   normalizeBaseUrl,
+  ownResponseHeaders,
   requireDotenvValue,
   runAdminFlow,
   runBiberFlow,
@@ -29,8 +30,7 @@ test("SuiteCRM front page is served under canonical domain with TLS", async ({ p
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the SuiteCRM URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "SuiteCRM");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "SuiteCRM");
 });
 
 test("SuiteCRM returns HTML content under canonical domain", async ({ request }) => {

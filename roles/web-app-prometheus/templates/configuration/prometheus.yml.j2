@@ -51,18 +51,15 @@ scrape_configs:
     static_configs:
 {% for _application_id in CURRENT_PLAY_APPLICATIONS | list | sort %}
 {% if _application_id in probed_roles %}
-{% set canonical_probe_domains = canonical_map.get(_application_id, []) | served_domains(lookup('config', _application_id, 'services')) %}
-{% if canonical_probe_domains | length > 0 %}
+{% for probe_domain in canonical_map.get(_application_id, []) | served_domains(lookup('config', _application_id, 'services')) %}
       - targets:
-{% for domain in canonical_probe_domains %}
-          - "{{ lookup('tls', domain, 'url.base') }}healthz/ready"
-{% endfor %}
+          - "{{ lookup('tls', probe_domain, 'url.base') }}healthz/ready"
         labels:
           app: "{{ _application_id }}"
-{% if private_ca_unverifiable and lookup('tls', _application_id, 'mode') == 'self_signed' %}
+{% if private_ca_unverifiable and lookup('tls', probe_domain, 'mode') == 'self_signed' %}
           __param_module: http_ready_private_ca
 {% endif %}
-{% endif %}
+{% endfor %}
 {% endif %}
 {% endfor %}
     relabel_configs:

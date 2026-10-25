@@ -43,9 +43,9 @@ _RESCUE_OR_ALWAYS_LINE = re.compile(r"^(?P<indent>\s*)(?:rescue|always)\s*:\s*$"
 
 
 def _is_role_task_file(rel_path: str) -> bool:
-    if not rel_path.startswith("roles/"):
+    if not rel_path.startswith(("roles/", "tasks/")):
         return False
-    return "/tasks/" in rel_path and rel_path.endswith((".yml", ".yaml"))
+    return "/tasks/" in "/" + rel_path and rel_path.endswith((".yml", ".yaml"))
 
 
 def _count_block_children(lines: list[str], block_idx: int) -> int:

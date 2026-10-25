@@ -4,10 +4,11 @@
   ansible.builtin.shell:
     cmd: >
       container exec -i --user {{ WORDPRESS_USER | quote }}
-      -e {{ ('WP_OIDC_SETTINGS=' ~ (lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode)) | quote
-      }}
+      -e WP_OIDC_SETTINGS
       {{ WORDPRESS_CONTAINER_ADDRESS }}
       wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
     stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
+  environment:
+    WP_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

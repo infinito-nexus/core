@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   expectHstsWhenTls,
+  ownResponseHeaders,
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
@@ -35,8 +36,7 @@ test("XWiki front page is served under canonical domain with TLS", async ({ page
     response.url().includes(canonicalDomain),
     `Expected canonical domain "${canonicalDomain}" to back the XWiki URL`
   ).toBe(true);
-  const headers = response.headers();
-  expectHstsWhenTls(headers, appBaseUrl, "XWiki");
+  expectHstsWhenTls(await ownResponseHeaders(response), appBaseUrl, "XWiki");
 });
 
 test("XWiki returns HTML content under canonical domain", async ({ request }) => {

@@ -35,13 +35,11 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔗 Link the SuiteCRM OAuth password client into integration_suitecrm
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_suitecrm {{ item.key }}
-    --value={{ item.value | quote }}
-  loop:
-    - { key: "oauth_instance_url", value: "{{ nextcloud_crm_base_url }}" }
-    - { key: "client_id", value: "{{ nextcloud_crm_client_id }}" }
-    - { key: "client_secret", value: "{{ nextcloud_crm_client_secret }}" }
-  loop_control:
-    label: "{{ item.key }}"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
+    stdin: |
+      set -eu
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm oauth_instance_url --value={{ nextcloud_crm_base_url | quote }}
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm client_id --value={{ nextcloud_crm_client_id | quote }}
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm client_secret --value={{ nextcloud_crm_client_secret | quote }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

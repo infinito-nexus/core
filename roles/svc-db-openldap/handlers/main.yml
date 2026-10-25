@@ -55,11 +55,14 @@
 
 - name: 📥 Import users, groups, etc. to LDAP (data tree)
   ansible.builtin.shell: >-
-    container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }} ldapadd -x
+    container exec -i -e OPENLDAP_BIND_PW {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
+    sh -c 'exec ldapadd -x
     -D "{{ OPENLDAP_BIND_DN }}"
-    -w "{{ OPENLDAP_BIND_PW }}"
+    -w "$OPENLDAP_BIND_PW"
     -c
-    -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'groups', (item | basename | regex_replace('\.j2$', ''))] | path_join }}"
+    -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'groups', (item | basename | regex_replace('\.j2$', ''))] | path_join }}"'
+  environment:
+    OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
   listen:
     - "import-groups-ldif-files"
   register: ldapadd_result

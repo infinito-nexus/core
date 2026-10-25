@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.11.0/24
+reachability:
+  handover: true # nocheck: network-reachability  every wall reads its posts from Mastodon and Friendica, which both hand their onion sibling over to clearnet, so an onion wall can only fill itself by leaving the onion

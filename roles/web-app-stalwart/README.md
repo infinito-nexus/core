@@ -1,4 +1,4 @@
-# Stalwart Mail Server
+# Stalwart
 
 ## Description
 

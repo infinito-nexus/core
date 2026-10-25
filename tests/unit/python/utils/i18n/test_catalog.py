@@ -1,6 +1,8 @@
+import errno
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from utils.i18n.catalog import (
     build_template,
@@ -88,6 +90,34 @@ class TestWrite(unittest.TestCase):
 
             with path.open("rb") as handle:
                 self.assertEqual(handle.read(), first)
+
+    def test_a_failed_write_leaves_neither_staging_file_nor_damage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "de" / "LC_MESSAGES" / "core.po"
+            template = build_template([("a", "Hello"), ("b", "World")], "core")
+            write_catalog(path, merge(template, None, "de"))
+            with path.open("rb") as handle:
+                before = handle.read()
+            grown = build_template([("a", "Hello"), ("c", "Again")], "core")
+
+            def full_disk(target, data):
+                with target.open("wb") as handle:
+                    handle.write(data[:8])
+                raise OSError(errno.ENOSPC, "No space left on device")
+
+            with (
+                mock.patch.object(
+                    Path, "write_bytes", autospec=True, side_effect=full_disk
+                ),
+                self.assertRaises(OSError),
+            ):
+                write_catalog(path, merge(grown, read_catalog(path), "de"))
+
+            self.assertEqual(
+                sorted(entry.name for entry in path.parent.iterdir()), ["core.po"]
+            )
+            with path.open("rb") as handle:
+                self.assertEqual(handle.read(), before)
 
 
 class TestTranslations(unittest.TestCase):

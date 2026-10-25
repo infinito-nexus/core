@@ -62,6 +62,24 @@ class TestAddedLines(unittest.TestCase):
         )
 
 
+class TestLetterDigitTokens(unittest.TestCase):
+    """A name that carries its version digit is one token the translation must keep whole."""
+
+    SOURCE: ClassVar[str] = "S3-compatible object storage shared by the roles"
+
+    def test_a_token_torn_from_its_digit_is_condemned(self) -> None:
+        answer = "Amazon S ilə uyğun obyekt saxlama, rollar arasında paylaşılan"
+        self.assertEqual(reason(self.SOURCE, answer, "az"), "protected-span")
+
+    def test_a_token_moved_onto_another_word_is_condemned(self) -> None:
+        answer = "Distribuid3-compatible obyekt stora agaaniin share"
+        self.assertEqual(reason(self.SOURCE, answer, "aa"), "protected-span")
+
+    def test_a_rendering_keeping_the_token_is_kept(self) -> None:
+        answer = "S3-kompatibler Objektspeicher, den die Rollen teilen"
+        self.assertEqual(reason(self.SOURCE, answer, "de"), "")
+
+
 class TestWrongNonLatinScript(unittest.TestCase):
     """A language written in a non-Latin script came back in another non-Latin one."""
 

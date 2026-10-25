@@ -57,15 +57,13 @@
       openproject_client_secret, nc_oauth_client_id) and the OpenProject storage to re-provision.
 
 - name: ⬆️ Push the OpenProject OAuth application credentials into Nextcloud
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openproject {{ item.key }}
-    --value={{ item.value | quote }}
-  loop:
-    - { key: "authorization_method", value: "oauth2" }
-    - { key: "openproject_client_id", value: "{{ nextcloud_op_oauth.openproject_client_id }}" }
-    - { key: "openproject_client_secret", value: "{{ nextcloud_op_client_secret }}" }
-  loop_control:
-    label: "{{ item.key }}"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
+    stdin: |
+      set -eu
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject authorization_method --value=oauth2
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject openproject_client_id --value={{ nextcloud_op_oauth.openproject_client_id | quote }}
+      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_openproject openproject_client_secret --value={{ nextcloud_op_client_secret | quote }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 📝 Register a Nextcloud OAuth2 client for OpenProject
