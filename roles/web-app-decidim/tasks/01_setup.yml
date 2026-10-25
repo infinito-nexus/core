@@ -37,7 +37,6 @@
     stdin: "{{ lookup('file', 'ruby/ensure/organization.rb') }}"
   register: decidim_organization_result
   changed_when: "'Organization created' in decidim_organization_result.stdout"
-  when: ENVIRONMENT == 'production'
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "🌱 Decidim | Seed the demo data"
