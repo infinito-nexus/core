@@ -43,12 +43,14 @@
   until: wazuh_agent_build_deps is succeeded
   changed_when: true
 
-# Exception: make deps verifies nothing it downloads, so the extracted tree is hashed as one manifest and compared to the pin.
-- name: "🔍 Hash the external dependency tree"
+# Exception: make deps verifies nothing it downloads, and Wazuh replaces files under the same deps version, so every top-level entry of the extracted tree is hashed on its own and compared to its pin.
+- name: "🔍 Hash each external dependency"
   ansible.builtin.shell:
-    cmd: >-
-      set -o pipefail &&
-      find external -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1
+    cmd: |
+      set -o pipefail
+      find external -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort | while IFS= read -r name; do
+        printf '%s %s\n' "${name}" "$(find "external/${name}" -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
+      done
     chdir: "{{ [wazuh_agent_build_dir.path, 'src', 'src'] | path_join }}"
     executable: /bin/bash
   become: true
@@ -56,12 +58,16 @@
   register: wazuh_agent_build_manifest
   changed_when: false
 
-- name: "🛑 Require the pinned dependency manifest"
+- name: "🛑 Require every dependency to match its pin"
+  vars:
+    wazuh_agent_deps_problems: >-
+      {{ wazuh_agent_build_manifest.stdout_lines | wazuh_agent_deps_problems(WAZUH_AGENT_SOURCE_PINS[WAZUH_AGENT_VERSION].deps) }}
   ansible.builtin.assert:
-    that: wazuh_agent_build_manifest.stdout == WAZUH_AGENT_SOURCE_PINS[WAZUH_AGENT_VERSION].deps
+    that: wazuh_agent_deps_problems | length == 0
     fail_msg: >-
-      The external dependencies of Wazuh {{ WAZUH_AGENT_VERSION }} hash to {{ wazuh_agent_build_manifest.stdout }},
-      but the pin is {{ WAZUH_AGENT_SOURCE_PINS[WAZUH_AGENT_VERSION].deps }}; the downloaded dependencies changed.
+      The external dependencies of Wazuh {{ WAZUH_AGENT_VERSION }} differ from WAZUH_AGENT_SOURCE_PINS:
+      {{ wazuh_agent_deps_problems | join('; ') }}. Check what changed upstream before re-pinning;
+      the role README ("Pinning a new version") shows how to compute the hashes.
     quiet: true
 
 - name: "🔨 Compile the agent"

@@ -60,7 +60,8 @@ On Arch Linux the role builds the agent from Wazuh's official release tarball (`
 
 1. The version must have an entry in `WAZUH_AGENT_SOURCE_PINS` (`vars/main.yml`); a version bump without one fails before any download, with the steps to add it.
 2. The tarball is downloaded and checked against the pinned `source` SHA-256.
-3. `make TARGET=agent deps` fetches the external libraries from `packages.wazuh.com`, source and Wazuh's precompiled ones, without any check of its own. The role hashes the resulting `src/external` tree into one manifest and fails unless it equals the pinned `deps` SHA-256, so a changed dependency is caught before it is compiled in.
+3. `make TARGET=agent deps` fetches the external libraries from `packages.wazuh.com/deps/<DEPS_VERSION>/`, source and Wazuh's precompiled ones, without any check of its own. The role hashes every top-level entry of the resulting `src/src/external` tree on its own and compares each with its pin in `deps`. It fails before compiling and names every library whose hash differs, that is pinned but missing, or that is present but not pinned.
+   Wazuh replaces files under the same `DEPS_VERSION`: in October 2026 `rpm` and `libbpf-bootstrap` changed under `deps/55`, which broke the single 4.14.9 manifest pin. Per-library pins show which library changed.
 4. Download, unpack, `make deps` and the compile run as the unprivileged system user `wazuh-build` in a temporary directory that is removed afterwards, also on failure.
 5. The compiler is `gcc15` (`WAZUH_AGENT_ARCH_CC`/`_CXX`): Wazuh recommends GCC 14, which Arch no longer ships, and gcc15 is the closest. There is no fallback to Arch's default gcc; when Arch drops gcc15, the build tool install fails loudly.
 6. `install.sh` installs the agent unattended through `etc/preloaded-vars.conf` (agent only, `/var/ossec`, no auto start, active response off, `USER_UPDATE` when an agent is already installed), so paths, the `wazuh` user and the agent's files match the package. `install.sh` still reads answers from stdin despite the preloaded answers; the role runs it without stdin. On an upgrade the role stops the agent first; `client.keys` stays, and `ossec.conf` is rendered by the role anyway.
@@ -69,16 +70,22 @@ On Arch Linux the role builds the agent from Wazuh's official release tarball (`
 The build tools (`base-devel`, `gcc15`, `python` from the `wazuh-agent-build` id, plus the shared `cmake` id; `curl` for `make deps` is always there as a `pacman` dependency) stay installed after the build: a known trade-off, faster rebuilds on the next version bump versus a compiler on the host.
 A build takes about 4 minutes on 8 cores (deps 45-73 s, compile 133-137 s, `install.sh` about 10 s), measured in probes of 4.14.6 and 4.14.9.
 
-**Pinning a new version.** Compute both hashes in a throwaway `archlinux:latest` container, for example with `make compose-inner-run IMAGE=archlinux:latest`. The `sha256sum source.tar.gz` line gives `source`, the last line gives `deps`:
+**Pinning a new version.** Compute the hashes in a throwaway `archlinux:latest` container, for example with `make compose-inner-run IMAGE=archlinux:latest`. The `sha256sum source.tar.gz` line gives `source`; every following `<entry> <sha256>` line is one `deps` entry, the same command the role runs:
 
 ```bash
-V=4.14.6
+V=4.14.9
 curl -fsSL -o source.tar.gz "https://github.com/wazuh/wazuh/archive/v${V}.tar.gz"
 sha256sum source.tar.gz
 mkdir src && tar -xzf source.tar.gz -C src --strip-components=1
 make -C src/src TARGET=agent deps
-cd src/src && find external -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum
+cd src/src
+find external -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort | while IFS= read -r name; do
+  printf '%s %s\n' "${name}" "$(find "external/${name}" -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
+done
 ```
+
+Run it twice from a fresh unpack: both runs must print the same lines before they become pins.
+When a deploy fails on a changed library, compare `Last-Modified` of that library's tarballs under `packages.wazuh.com/deps/<DEPS_VERSION>/` with the date of the pin, and re-pin only that entry once the change is understood.
 
 Run `make deps` twice in fresh directories and pin the `deps` hash only when both runs agree.
 
