@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 __all__ = ["discover", "load"]
 
 HELPERS = {"contract"}
+NON_ROUTINE_PACKAGES = {"tools"}
 
 
 def _routine_modules() -> dict[str, str]:
@@ -32,18 +33,18 @@ def _routine_modules() -> dict[str, str]:
 
     A routine may live in a subpackage (``debug/ci.py``); the flat name joins
     the path with ``_`` (``debug_ci``), so a skill names a routine by one
-    stable name wherever its file sits. Helper modules (the routine contract)
-    and private modules are left out.
+    stable name wherever its file sits. Helper modules (the routine contract),
+    private modules and the shared tool nodes under ``tools/`` are left out.
     """
     found: dict[str, str] = {}
     for info in pkgutil.walk_packages(__path__, prefix=f"{__name__}."):
         if info.ispkg:
             continue
         relative = info.name[len(__name__) + 1 :]
-        leaf = relative.rsplit(".", 1)[-1]
-        if leaf.startswith("_") or leaf in HELPERS:
+        parts = relative.split(".")
+        if parts[-1].startswith("_") or parts[-1] in HELPERS or parts[0] in NON_ROUTINE_PACKAGES:
             continue
-        found["_".join(relative.split("."))] = relative
+        found["_".join(parts)] = relative
     return found
 
 

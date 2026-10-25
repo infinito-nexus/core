@@ -8,7 +8,7 @@ import unittest
 from itertools import pairwise
 from typing import TYPE_CHECKING
 
-from agents.routines import design, implementer, maintainer
+from agents.routines import design, discover, implementer, maintainer
 from utils.cache.files import PROJECT_ROOT, read_text
 
 if TYPE_CHECKING:
@@ -60,6 +60,12 @@ class TestGraphDiagrams(unittest.TestCase):
             with self.subTest(routine=name):
                 spec_ids = {node for edge in _spec_edges(heading) for node in edge}
                 self.assertEqual({step.id for step in module.STEPS}, spec_ids)
+
+    def test_tool_nodes_are_not_discovered_as_routines(self) -> None:
+        names = discover()
+        self.assertIn("maintainer", names)
+        self.assertIn("implementer", names)
+        self.assertFalse([name for name in names if name.startswith("tools")])
 
 
 if __name__ == "__main__":
