@@ -73,8 +73,8 @@ CAPTCHA:
     KEY: ""
     SECRET: ""
 
-RECAPTCHA_ENABLED: "{{ (CAPTCHA.RECAPTCHA.KEY | length > 0) and (CAPTCHA.RECAPTCHA.SECRET | length > 0) }}"
+RECAPTCHA_ENABLED: "{{ (CAPTCHA.RECAPTCHA is defined) and (CAPTCHA.RECAPTCHA.KEY | length > 0) and (CAPTCHA.RECAPTCHA.SECRET | length > 0) }}"
 
-HCAPTCHA_ENABLED: "{{ (CAPTCHA.HCAPTCHA.KEY | length > 0) and (CAPTCHA.HCAPTCHA.SECRET | length > 0) }}"
+HCAPTCHA_ENABLED: "{{ (CAPTCHA.HCAPTCHA is defined) and (CAPTCHA.HCAPTCHA.KEY | length > 0) and (CAPTCHA.HCAPTCHA.SECRET | length > 0) }}"
 
 WORKSTATION_USER: "administrator"
