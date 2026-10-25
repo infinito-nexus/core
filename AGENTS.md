@@ -4,8 +4,8 @@
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) is the single source of truth for contributor workflow, coding standards, testing, and review. You MUST read it.
 - You MUST read every file under [`docs/contributing/`](docs/contributing/) (full directory walk, including subdirectories) for the full contributor guidance.
-- You MUST read every file under [`docs/agents/`](docs/agents/) (full directory walk, including subdirectories) for the agent execution flow, EXCEPT [`docs/agents/action/`](docs/agents/action/).
-- [`docs/agents/action/`](docs/agents/action/) holds one runbook per action and is read on demand, not at session start: read a runbook when the matching `i8-` skill routes you to it, or when you are about to perform that action without one. It is the bulk of the agent documentation, and every runbook in it is inert until its action is the task.
+- You MUST read [`agents/README.md`](agents/README.md) and [`agents/SOUL.md`](agents/SOUL.md) at session start for the agent execution flow and the shared base persona.
+- The per-action runbooks now live as routines under `agents/routines/` and skills under `agents/skills/`, read on demand: an `i8-` skill routes you to the routine of the action it covers (run `python -m agents.routines show <routine>` to print its ordered steps), and you follow that routine when you are about to perform the action without a skill. Each routine is inert until its action is the task.
 - This file extends CONTRIBUTING.md with agent-specific instructions; on conflict between CONTRIBUTING.md and this file, this file wins.
 - This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files.
 

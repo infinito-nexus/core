@@ -1,14 +1,23 @@
+---
+name: i8-file-role-playwright-env
+description: >
+  Generate or update a role-local playwright.env.j2: the rendered test input
+  surface, variable naming and entry-point selection. References the
+  contributor SPOT for the environment contract. Infinito.Nexus specific.
+routines: []
+---
+
 # playwright.env.j2
 
-This page covers automatically generating and updating role-local `playwright.env.j2` files.
-Use this page for the rendered test input surface, variable naming, and entry-point selection.
-For runner discovery, staging, and repository-side contract rules, see [Playwright Tests](../../../contributing/actions/testing/playwright.md).
-For the matching scenario implementation, see [Role `playwright.spec.js`](playwright.spec.js.md).
+This skill covers automatically generating and updating role-local `playwright.env.j2` files.
+Use this skill for the rendered test input surface, variable naming, and entry-point selection.
+For runner discovery, staging, and repository-side contract rules, see [Playwright Tests](../../../docs/contributing/actions/testing/playwright.md).
+For the matching scenario implementation, see the [`playwright.spec.js` skill](../i8-file-role-playwright-spec/SKILL.md).
 
 ## Goal
 
 - You MUST provide only the environment values that the role-local Playwright suite actually needs.
-- Variable naming and entry-point semantics are governed by the [contrib SPOT for `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) (Environment Contract + Entry Point). This page only adds template-side mechanics.
+- Variable naming and entry-point semantics are governed by the [contrib SPOT for `playwright.spec.js`](../../../docs/contributing/artefact/files/role/playwright.specs.js.md) (Environment Contract + Entry Point). This skill only adds template-side mechanics.
 - You MUST render the real entry point, URLs, feature flags, and credentials that the deployed role exposes.
 
 ## Implement

@@ -1,8 +1,17 @@
+---
+name: i8-file-role-style
+description: >
+  Author or update a role-local style.css: implementation scope, token
+  mapping, override strategy and live review for role theming. References the
+  contributor SPOT for repository wiring and the design token contract. Infinito.Nexus specific.
+routines: []
+---
+
 # `style.css`
 
-This page covers automatically generating and updating role-local `style.css`, `style.css.j2`, and equivalent CSS entry files.
-Use this page for implementation scope, override strategy, and live review.
-For repository wiring, inventory keys, and the generated palette contract, see [Contributing `style.css`](../../../contributing/artefact/files/role/style.css.md).
+This skill covers automatically generating and updating role-local `style.css`, `style.css.j2`, and equivalent CSS entry files.
+Use this skill for implementation scope, override strategy, and live review.
+For repository wiring, inventory keys, and the generated palette contract, see [Contributing `style.css`](../../../docs/contributing/artefact/files/role/style.css.md).
 
 ## Goal
 
@@ -14,7 +23,7 @@ For repository wiring, inventory keys, and the generated palette contract, see [
 
 ## Tokens
 
-- You MUST use the semantic `--design-*` tokens listed in [Contributing `style.css`](../../../contributing/artefact/files/role/style.css.md#design-tokens-) for every color. Hard-coded colors are forbidden.
+- You MUST use the semantic `--design-*` tokens listed in [Contributing `style.css`](../../../docs/contributing/artefact/files/role/style.css.md#design-tokens-) for every color. Hard-coded colors are forbidden.
 - You MUST prefer semantic tokens (`--design-surface-*`, `--design-text*`, `--design-border*`, `--design-primary`, `--design-link`, status tokens) over the `--design-primary-*` and `--design-neutral-*` scales. Use a scale step only for brand accents a semantic token does not cover.
 - You MUST map the app's status colors onto `--design-success`, `--design-warning`, `--design-danger` and `--design-info`, and the text on filled status surfaces onto the matching `--design-on-*` token.
 - You MUST map brand-colored app chrome (sidebar, masthead, top bar) onto `--design-frame`, its text and icons onto `--design-on-frame`, and its hovered and selected entries onto `--design-frame-hover` and `--design-frame-active`. `--design-primary` is the accent of controls and MUST NOT fill a large area. On the frame element you MUST set `--design-focus: var(--design-on-frame)`, and set it back to `var(--design-link)` on a surface the frame hosts (a popup, a menu).
@@ -45,11 +54,11 @@ For repository wiring, inventory keys, and the generated palette contract, see [
 5. Map the design tokens onto those variables. Add selector overrides only for surfaces that cannot be reached through variables.
 6. Keep transparency, text contrast, and surface hierarchy aligned. Replace upstream gradients with flat token surfaces.
 
-The full role pass, the review gallery and the work queue are described in the [Design Loop](../../action/design.md).
+The full role pass, the review gallery and the work queue are described in the [i8-designer skill](../i8-designer/SKILL.md).
 
 ## Review
 
 - You MUST verify that primary actions, links, forms, cards, dialogs, navigation, and overlays still belong to the same visual system.
 - You MUST verify readable contrast for normal, hover, focus, active, and disabled states.
 - You MUST inspect the running application in light and dark mode, at minimum the start page and login page, and the backend (admin surface) when the app has one.
-- If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage in [Role `playwright.spec.js`](playwright.spec.js.md).
+- If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage with the [`playwright.spec.js` authoring skill](../i8-file-role-playwright-spec/SKILL.md).

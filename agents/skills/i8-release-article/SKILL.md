@@ -12,8 +12,7 @@ routines:
 ---
 
 Follow the instructions from AGENTS.md, then write the release article by
-following the procedure in `docs/agents/action/release-article.md` (relative
-to the Infinito.Nexus repository root) exactly. That document is the source
+following the `release_article` routine exactly (run `python -m agents.routines show release_article` to print its ordered steps). That routine is the source
 of truth; this skill only routes you there and ships the article and banner
 templates under `templates/`. Begin by clarifying every open requirement with
 the `active-listening` skill (release version, headline feature), then work

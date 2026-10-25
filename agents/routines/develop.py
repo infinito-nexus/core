@@ -26,7 +26,7 @@ STEPS = [
     ),
     Step(
         "loop",
-        "Edit deploy validate through iteration/compose.md, switch to debug/README.md on a failed run, keep long runs alive",
+        "Edit deploy validate through the iterate_compose routine, switch to the debug routines on a failed run, keep long runs alive",
         nxt="warnings",
     ),
     Step(

@@ -7,7 +7,7 @@ Briefly describe the change to the agent instruction files and the expected effe
 Examples:
 
 * Add a new repository rule to `AGENTS.md`
-* Fix contradictory guidance between `AGENTS.md` and `docs/agents/*`
+* Fix contradictory guidance between `AGENTS.md` and `agents/*`
 * Improve instruction clarity for `AGENTS.md`
 
 ---
@@ -27,7 +27,7 @@ List the touched agent instruction files.
 
 * [ ] `AGENTS.md`
 * [ ] `roles/<role>/AGENTS.md`
-* [ ] `docs/agents/*`
+* [ ] `agents/*`
 
 Additional notes:
 
@@ -63,7 +63,7 @@ Key points:
 Describe how the instruction change was validated.
 
 * [ ] Conflicting or ambiguous guidance checked
-* [ ] Consistency between `AGENTS.md`, `roles/<role>/AGENTS.md`, and `docs/agents/*` verified
+* [ ] Consistency between `AGENTS.md`, `roles/<role>/AGENTS.md`, and `agents/*` verified
 * [ ] Examples, workflows, or affected contributor paths reviewed
 
 ---

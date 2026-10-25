@@ -25,7 +25,7 @@ The same logic applies to library code (``utils/``, ``cli/``,
 their functions directly: their raw reads run inside the same process
 and bypass the cache the tests just populated.
 
-See ``docs/agents/action/testing.md`` for the full rule.
+See ``agents/skills/i8-test/SKILL.md`` for the full rule.
 
 Scope
 =====
@@ -181,7 +181,7 @@ class TestNoUncachedFileReads(unittest.TestCase):
                 "    from utils.cache.files import read_text\n"
                 "    text = read_text(str(path))\n\n"
                 "This shares one decoded read per file across the whole "
-                "pytest session. See docs/agents/action/testing.md.\n\n"
+                "pytest session. See agents/skills/i8-test/SKILL.md.\n\n"
                 "Only opt out per call with `# nocheck: cache-read` when "
                 "the read is genuinely outside the project tree "
                 "(tempdirs, synthetic fixtures written inside the same "

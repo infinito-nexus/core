@@ -21,7 +21,7 @@ STEPS = [
     ),
     Step(
         "implement",
-        "Take each unchecked criterion as one unit of work through the compose loop in iteration/compose.md",
+        "Take each unchecked criterion as one unit of work through the compose loop (the iterate_compose routine)",
         nxt="verify",
     ),
     Step(

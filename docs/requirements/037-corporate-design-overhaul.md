@@ -138,4 +138,4 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 
 - Role style files: [style.css.md](../contributing/artefact/files/role/style.css.md)
 - Lifecycle envelope: [lifecycle.md](../contributing/design/role/services/lifecycle.md)
-- Compose loop: [compose.md](../agents/action/iteration/compose.md)
+- Compose loop: [compose.md](../../agents/skills/i8-iterate-compose/SKILL.md)

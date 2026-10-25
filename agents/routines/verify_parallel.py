@@ -20,7 +20,7 @@ STEPS = [
     ),
     Step(
         "local",
-        "Run the local lane serially via iteration/compose.md under robot on a late fix, a pool-default pin or a container-state failure",
+        "Run the local lane serially via the iterate_compose routine under robot on a late fix, a pool-default pin or a container-state failure",
         nxt="reconcile",
     ),
     Step(

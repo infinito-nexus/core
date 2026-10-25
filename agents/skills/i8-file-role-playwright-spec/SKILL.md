@@ -1,9 +1,18 @@
+---
+name: i8-file-role-playwright-spec
+description: >
+  Generate or update a role-local playwright.spec.js end to end: the agent
+  authoring procedure, live review and reporting. References the contributor
+  SPOT for what the spec file MUST contain. Infinito.Nexus specific.
+routines: []
+---
+
 # playwright.spec.js agent procedure
 
-This page covers the agent procedure when generating or updating a role-local `playwright.spec.js`. It does NOT restate what the file must contain. Those rules are authoritative in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) and MUST be consulted before every task.
+This skill covers the agent procedure when generating or updating a role-local `playwright.spec.js`. It does NOT restate what the file must contain. Those rules are authoritative in [Contributing `playwright.spec.js`](../../../docs/contributing/artefact/files/role/playwright.specs.js.md) and MUST be consulted before every task.
 
-For framework and runner mechanics, see [Playwright Tests](../../../contributing/actions/testing/playwright.md).
-For the matching environment contract, see [Role `playwright.env.j2`](playwright.env.j2.md).
+For framework and runner mechanics, see [Playwright Tests](../../../docs/contributing/actions/testing/playwright.md).
+For the matching environment contract, see the [`playwright.env.j2` skill](../i8-file-role-playwright-env/SKILL.md).
 
 ## Procedure
 

@@ -46,3 +46,8 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Implementing an existing requirement file end to end | `i8-requirement-implement` |
 | A GitHub Actions / CI run failed and needs a grouped, root-caused fix plan | `i8-debug-ci` |
 | Reviewing the whole project for legal soundness: licences, attribution, data protection, trademarks | `i8-advocate` |
+| Authoring or updating a role-local `javascript.js` for browser integration | `i8-file-role-javascript` |
+| Authoring or updating a role-local `style.css` for role theming | `i8-file-role-style` |
+| Authoring or updating a role-local `playwright.spec.js` | `i8-file-role-playwright-spec` |
+| Authoring or updating a role-local `playwright.env.j2` | `i8-file-role-playwright-env` |
+| Handling Ansible `group_vars` application defaults via the applications lookup | `i8-file-group-vars` |

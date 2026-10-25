@@ -160,7 +160,7 @@ The implementation MUST keep a clean abstraction line between the render backend
   4. the cluster reports `replicas: 1/1` after the move.
 - [x] Every fixture (sample page, sample image, admin credentials) is created inside the workflow run — no external state, no flaky network dependency.
 - [x] The workflow MUST report `failure` (not `skipped`, not `cancelled`) if any of the assertions above fail.
-- [x] The agent MUST iterate on this workflow per [Workflow Loop](../agents/action/iteration/workflow.md) until it passes end to end on the default branch's runner. The requirement is NOT closed while the workflow is red.
+- [x] The agent MUST iterate on this workflow per [Workflow Loop](../../agents/skills/i8-iterate-workflow/SKILL.md) until it passes end to end on the default branch's runner. The requirement is NOT closed while the workflow is red.
 
 ### Tests & Documentation
 
@@ -198,19 +198,19 @@ Explicitly out of scope for this requirement, tracked for later:
 
 ## Procedure
 
-The implementation of this requirement MUST be executed autonomously by the agent following the iteration loops defined in [Compose Loop](../agents/action/iteration/compose.md) (for changes inside any `roles/<role>/`) and [Workflow Loop](../agents/action/iteration/workflow.md) (for changes to `.github/workflows/test-deploy-swarm-nfs.yml` and any other workflow this touches). The following rules apply for the entire run and are non-negotiable:
+The implementation of this requirement MUST be executed autonomously by the agent following the iteration loops defined in [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md) (for changes inside any `roles/<role>/`) and [Workflow Loop](../../agents/skills/i8-iterate-workflow/SKILL.md) (for changes to `.github/workflows/test-deploy-swarm-nfs.yml` and any other workflow this touches). The following rules apply for the entire run and are non-negotiable:
 
 - [ ] **Clarifying questions only at the start.** Any open question, ambiguity, or missing decision (e.g. how the worker join tokens are persisted, exact NFS export options per distro, how the per-role `DEPLOYMENT_MODE: compose` opt-out is plumbed, exact placement-constraint shape for the swarm-without-nfs warning path, exact openresty `upstream` resolution syntax for swarm-internal DNS) MUST be raised once at the very beginning of the run, in a single batched question round, BEFORE any file is changed. Once those questions are answered, the agent MUST NOT pause for further clarification. Additional ambiguities discovered mid-run MUST be resolved by the agent using its best judgement, recorded in the affected role's `README.md` or a code comment, and revisited only at PR review.
-- [ ] **Iteration loop.** The agent MUST follow the [Compose Loop](../agents/action/iteration/compose.md) for every change inside `roles/svc-swarm-node/`, `roles/svc-prx-openresty/` (swarm-mode adaptations), `roles/svc-storage-nfs-server/`, `roles/svc-storage-nfs-client/`, and `roles/web-app-mediawiki/` (pilot). The agent MUST follow the [Workflow Loop](../agents/action/iteration/workflow.md) for every change to `.github/workflows/test-deploy-swarm-nfs.yml`. The agent MUST NOT skip the loop's debug-locally step in favour of remote CI reruns.
+- [ ] **Iteration loop.** The agent MUST follow the [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md) for every change inside `roles/svc-swarm-node/`, `roles/svc-prx-openresty/` (swarm-mode adaptations), `roles/svc-storage-nfs-server/`, `roles/svc-storage-nfs-client/`, and `roles/web-app-mediawiki/` (pilot). The agent MUST follow the [Workflow Loop](../../agents/skills/i8-iterate-workflow/SKILL.md) for every change to `.github/workflows/test-deploy-swarm-nfs.yml`. The agent MUST NOT skip the loop's debug-locally step in favour of remote CI reruns.
 - [ ] **No `ask` prompts mid-run.** The agent MUST NOT trigger any tool call that routes through `permissions.ask` in [.claude/settings.json](../../.claude/settings.json) during implementation. Where a tool would otherwise route through `ask`, the agent MUST select an equivalent already covered by `permissions.allow`, or rephrase the operation to fit the sandbox. The single permitted exception is the final commit at the end of the run.
 - [ ] **No interruptions.** Bug fixes, deploy failures, lint failures, `make test` failures, healthcheck flaps, swarm-init flakes, NFS mount races, workflow reruns until green — every issue MUST be resolved at its root inside this same iteration without prompting the operator. Workarounds, ad-hoc skips, retry-until-green loops, or "track in a follow-up" deferrals MUST NOT be used.
 - [ ] **One commit at the end.** The agent MUST NOT create any intermediate commit. ALL changes (the three new roles, the openresty swarm-mode adaptations, the pilot role updates, the CI workflow, schema entries, group_vars defaults, documentation, and the ticked checkboxes in this document) MUST be combined into ONE commit, created only after every Acceptance Criterion above is checked off (`- [x]`), `make test` is green, and `.github/workflows/test-deploy-swarm-nfs.yml` is green on its first scheduled run. Per-step commits, checkpoint commits, and partial commits MUST NOT be created. The agent MUST NOT push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md).
 
 ## See Also
 
-- [Compose Loop](../agents/action/iteration/compose.md)
-- [Workflow Loop](../agents/action/iteration/workflow.md)
+- [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md)
+- [Workflow Loop](../../agents/skills/i8-iterate-workflow/SKILL.md)
 - [014 - Dedicated CI Runner via `svc-runner` Role](014-svc-runner-ci.md) — reference for the autonomous-run procedure pattern used here
 - [Per-Role Meta Layout](../contributing/design/role/services/layout.md)
 - [requirements.md (contributor guide)](../contributing/requirements.md)
-- [requirements.md (agent guide)](../agents/action/requirements.md)
+- [requirements.md (agent guide)](../../agents/skills/i8-requirement-implement/SKILL.md)

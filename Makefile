@@ -23,7 +23,7 @@ act-debug:
 .PHONY: act-runner-image
 # Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
 # Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>
-# Note: see docs/agents/action/iteration/workflow.md.
+# Note: see agents/skills/i8-iterate-workflow/SKILL.md.
 act-runner-image:
 	@bash scripts/tests/deploy/act/build_runner_image.sh
 

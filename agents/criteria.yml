@@ -104,6 +104,11 @@ L25:
   proof_kind: lint
   proof: tests/lint/agents/test_l25_workflows.py
   red_fixture: yes
+L26:
+  statement: 'the removed agent-docs tree is gone, no live file points into it, and every former action page resolves to its routine, skill or the agents README'
+  proof_kind: lint
+  proof: tests/lint/agents/test_l26_docs_agents_removed.py
+  red_fixture: yes
 L27:
   statement: 'no secret value lives in agents/. A placeholder like ${key} is a'
   proof_kind: lint

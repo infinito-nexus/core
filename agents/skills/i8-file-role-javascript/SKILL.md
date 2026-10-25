@@ -1,8 +1,17 @@
+---
+name: i8-file-role-javascript
+description: >
+  Author or update a role-local javascript.js: implementation scope, DOM
+  strategy and live review for browser-side integration. References the
+  contributor SPOT for injector wiring and repository-wide rules. Infinito.Nexus specific.
+routines: []
+---
+
 # javascript.js
 
-This page covers automatically generating and updating role-local `javascript.js`, `javascript.js.j2`, and equivalent injected browser entry files.
-Use this page for implementation scope, DOM strategy, and live review.
-For injector wiring, activation, and repository-wide behavior rules, see [Contributing `javascript.js`](../../../contributing/artefact/files/role/javascript.js.md).
+This skill covers automatically generating and updating role-local `javascript.js`, `javascript.js.j2`, and equivalent injected browser entry files.
+Use this skill for implementation scope, DOM strategy, and live review.
+For injector wiring, activation, and repository-wide behavior rules, see [Contributing `javascript.js`](../../../docs/contributing/artefact/files/role/javascript.js.md).
 
 ## Goal
 
@@ -32,5 +41,5 @@ For injector wiring, activation, and repository-wide behavior rules, see [Contri
 - You MUST compare the implemented behavior against the rendered UI so missing hooks, duplicate handlers, broken selectors, and unexpected side effects become visible.
 - You MUST at minimum inspect and compare the start page and the login page because these pages usually expose the most important navigation, authentication, and first-load behavior.
 - You MUST check the browser console for JavaScript errors or repeated side effects after the script is injected.
-- If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage in [Role `playwright.spec.js`](playwright.spec.js.md).
+- If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage with the [`playwright.spec.js` authoring skill](../i8-file-role-playwright-spec/SKILL.md).
 - You MUST check that the final JavaScript still feels like a small role-local adaptation of the target application, not a forked frontend implementation.
