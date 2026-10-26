@@ -1,0 +1,10 @@
+---
+system_service_id: sys-ctl-hlth-deployed-code
+
+HLTH_DEPLOYED_CODE_TOKEN_PROVIDER: "web-svc-github-webhook"
+HLTH_DEPLOYED_CODE_TOKEN: "{{ lookup('config', HLTH_DEPLOYED_CODE_TOKEN_PROVIDER, 'secrets.credentials.github_settings_token', '') }}"
+HLTH_DEPLOYED_CODE_API_URL: "https://api.github.com"
+HLTH_DEPLOYED_CODE_TIMEOUT: 120
+HLTH_DEPLOYED_CODE_TAG: "{{ lookup('wazuh_ruleset', scope='host').deployed_code.program }}"
+HLTH_DEPLOYED_CODE_DIR: "{{ [DIR_SCRIPTS_SYSTEMCTL, system_service_id] | path_join }}"
+HLTH_DEPLOYED_CODE_TOKEN_FILE: "{{ [HLTH_DEPLOYED_CODE_DIR, 'token'] | path_join }}"

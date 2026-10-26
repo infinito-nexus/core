@@ -6,11 +6,13 @@
 #   J  only an opted-in tag is forwarded, also after its container is recreated; the
 #      Wazuh containers' own logs never are
 #   I  synthetic credentials sent through the app's request paths appear nowhere in Wazuh
+#   G  the deployed code check and FIM report a throwaway checkout's findings (deployed_code.sh)
 #
 # Env (all required; the role's test.env carries them):
 #   APP_ENTITY, APP_DECODER   an opted-in app's journald tag and parent decoder
 #   APP_URL, APP_HOST         that app's local HTTP port and its Host header
 #   CANARY_MARKER, CANARY_RULE  the canary text and the self-test canary rule
+#   DEPLOYED_CODE_PROOF, DEPLOYED_CODE_SCRIPT, DEPLOYED_CODE_TAG  see deployed_code.sh
 #   FOREIGN_ENTITY            a role's entity that is not opted in
 #   OPTED_ENTITIES            every opted-in entity, space separated; empty skips the test
 #   INDEXER_URL, INDEXER_USER, INDEXER_PASSWORD  the indexer API
@@ -160,3 +162,4 @@ check_secrets() {
 check_identical_text
 check_per_app_switch
 check_secrets
+ALERTS="${ALERTS}" bash "$(dirname "${BASH_SOURCE[0]}")/deployed_code.sh"

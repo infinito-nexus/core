@@ -24,7 +24,8 @@ DEPLOY_TAG = "infinito-deploy"
 FIM_TAG = "infinito-fim"
 WATCH_TAG = "infinito-wazuh-watch"
 GITHUB_SETTINGS_TAG = "infinito-github-settings"
-OWN_TAGS = (SELFTEST_TAG, DEPLOY_TAG, FIM_TAG, WATCH_TAG, GITHUB_SETTINGS_TAG)
+DEPLOYED_CODE_TAG = "infinito-deployed-code"
+OWN_TAGS = (SELFTEST_TAG, DEPLOY_TAG, FIM_TAG, WATCH_TAG, GITHUB_SETTINGS_TAG, DEPLOYED_CODE_TAG)
 JOURNALD_PROGRAM = "systemd-journald"
 # Exception: Wazuh's default decoder "systemd" claims every program name containing "systemd", so journald's lines use it instead of an own decoder.
 JOURNALD_DECODER = "systemd"

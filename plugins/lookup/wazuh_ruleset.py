@@ -10,6 +10,7 @@ from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
     CONTAINER_COMM,
     DEPLOY_TAG,
+    DEPLOYED_CODE_TAG,
     FIM_TAG,
     GITHUB_SETTINGS_TAG,
     JOURNALD_DECODER,
@@ -43,14 +44,15 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, deploy, fim, watch, github_settings, own, journald,
-        system_tags, container_comm, entities, files, samples}``.
+        ``{selftest, deploy, fim, watch, github_settings, deployed_code, own,
+        journald, system_tags, container_comm, entities, files, samples}``.
         ``system_tags`` lists the host programs the agent collects as root,
         ``container_comm`` the ``_COMM`` of container log lines.
-        ``selftest``, ``deploy``, ``fim``, ``watch`` and ``github_settings``
-        are ``{program, decoder}`` of the reserved tags for the self-test, the
-        deploy markers, the FIM who-data state, the log collector freeze and
-        the GitHub settings check; ``own`` lists the five in that order. ``journald``
+        ``selftest``, ``deploy``, ``fim``, ``watch``, ``github_settings`` and
+        ``deployed_code`` are ``{program, decoder}`` of the reserved tags for
+        the self-test, the deploy markers, the FIM who-data state, the log
+        collector freeze, the GitHub settings check and the deployed code
+        check; ``own`` lists the six in that order. ``journald``
         is ``{program, decoder}`` of journald's own messages, which report
         rate-limit suppression. ``entities`` is
         ``[{entity, role, program, decoder, rule_block, docker}]`` sorted by
@@ -173,6 +175,7 @@ class LookupModule(LookupBase):
                 "fim": own[FIM_TAG],
                 "watch": own[WATCH_TAG],
                 "github_settings": own[GITHUB_SETTINGS_TAG],
+                "deployed_code": own[DEPLOYED_CODE_TAG],
                 "own": [own[tag] for tag in OWN_TAGS],
                 "journald": journald,
                 "system_tags": list(SYSTEM_TAGS),

@@ -12,3 +12,9 @@
   <prematch>^{"gs_</prematch>
   <plugin_decoder>JSON_Decoder</plugin_decoder>
 </decoder>
+
+<decoder name="{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}-json">
+  <parent>{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}</parent>
+  <prematch>^{"dc_</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

@@ -143,7 +143,9 @@ WAZUH_AGENT_FIM_HASH_DIRS: >-
     ]
     + ([{'path': WAZUH_AGENT_FIM_NGINX_DIR | regex_replace('/$', ''), 'restrict': ''}] if WAZUH_AGENT_FIM_NGINX_DIR else [])
   }}
-WAZUH_AGENT_FIM_REALTIME_DIRS: ["{{ [ WAZUH_AGENT_DIR, 'etc' ] | path_join }}"]
+WAZUH_AGENT_FIM_REALTIME_DIRS: "{{ [[ WAZUH_AGENT_DIR, 'etc' ] | path_join] + DEPLOYED_CODE_CHECKOUTS }}"
+# Exception: the deployed code check fetches into each checkout's .git every hour, so watching it would alert on the check itself; tracked files stay watched.
+WAZUH_AGENT_FIM_CHECKOUT_GIT_DIRS: "{{ DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '/+$', '') | map('regex_replace', '$', '/.git') | list }}"
 WAZUH_AGENT_FIM_WHODATA_PROVIDER: "ebpf"
 WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}"
 WAZUH_AGENT_FIM_STATE_RETRIES: 12

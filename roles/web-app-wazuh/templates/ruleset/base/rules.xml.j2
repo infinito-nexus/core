@@ -24,6 +24,11 @@
     <description>{{ SOFTWARE_NAME }} GitHub settings check.</description>
   </rule>
 
+  <rule id="{{ WAZUH_DEPLOYED_CODE_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} deployed code check.</description>
+  </rule>
+
   <rule id="{{ WAZUH_JOURNALD_RULE_ID }}" level="0">
     <decoded_as>{{ WAZUH_RULESET_JOURNALD.decoder }}</decoded_as>
     <program_name>^{{ WAZUH_RULESET_JOURNALD.program }}$</program_name>
@@ -143,6 +148,32 @@
     <if_sid>{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}</if_sid>
     <field name="gs_kind">^error$</field>
     <description>GitHub settings check $(gs_check) for $(gs_scope) failed, so its drift is unknown: $(gs_reason).</description>
+  </rule>
+</group>
+
+<group name="infinito_deployed_code,">
+  <rule id="{{ WAZUH_DEPLOYED_CODE_UNVERIFIED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_UNVERIFIED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^unverified$</field>
+    <description>Deployed code: commit $(dc_commit) checked out in $(dc_checkout) has no verified signature on GitHub ($(dc_reason)).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_UNMERGED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_UNMERGED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^unmerged$</field>
+    <description>Deployed code: commit $(dc_commit) checked out in $(dc_checkout) is not on origin/$(dc_branch).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_MODIFIED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_MODIFIED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^modified$</field>
+    <description>Deployed code: tracked file $(dc_path) in $(dc_checkout) differs from commit $(dc_commit) (git status $(dc_status)).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_FAILED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_FAILED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^error$</field>
+    <description>Deployed code check $(dc_check) for $(dc_checkout) failed, so its result is unknown: $(dc_reason).</description>
   </rule>
 </group>
 

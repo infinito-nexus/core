@@ -370,7 +370,10 @@ def seen():
         for line in lines:
             if run not in line:
                 continue
-            alert = json.loads(line)
+            try:
+                alert = json.loads(line)
+            except ValueError:
+                continue
             full_log = alert.get("full_log", "")
             if "{" not in full_log:
                 continue

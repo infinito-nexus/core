@@ -1,0 +1,5 @@
+---
+- include_tasks: 00_core.yml
+  when:
+    - run_once_sys_ctl_hlth_deployed_code is not defined
+    - DEPLOYED_CODE_CHECKOUTS | length > 0

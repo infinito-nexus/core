@@ -65,7 +65,7 @@
 {% for path in WAZUH_AGENT_FIM_REALTIME_DIRS %}
     <directories realtime="yes">{{ path }}</directories>
 {% endfor %}
-{% for path in WAZUH_AGENT_FIM_SCHEDULED_IGNORE + WAZUH_AGENT_FIM_COMPOSE_VOLUMES %}
+{% for path in WAZUH_AGENT_FIM_SCHEDULED_IGNORE + WAZUH_AGENT_FIM_COMPOSE_VOLUMES + WAZUH_AGENT_FIM_CHECKOUT_GIT_DIRS %}
     <ignore>{{ path }}</ignore>
 {% endfor %}
     <nodiff type="sregex">{{ WAZUH_AGENT_FIM_NODIFF }}</nodiff>

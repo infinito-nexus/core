@@ -99,6 +99,15 @@
   notify: wazuh-agent-restart
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+# Exception: real-time FIM cannot watch a directory that is missing when the agent starts; it would only see it at the next full scan, so the dev proof checkout, which its CLI test builds later, is created first and a new one restarts the agent.
+- name: "📁 Create the deployed code proof checkout before FIM starts"
+  ansible.builtin.file:
+    path: "{{ DEPLOYED_CODE_PROOF_CHECKOUT }}"
+    state: directory
+    mode: "0755"
+  notify: wazuh-agent-restart
+  when: DEPLOYED_CODE_PROOF_CHECKOUT | length > 0
+
 - name: "📄 Render the agent configuration"
   ansible.builtin.template: # nocheck: stack-host-template (per-host agent config, every host renders its own)
     src: ossec.conf.j2
@@ -141,3 +150,8 @@
   include_role:
     name: sys-ctl-hlth-wazuh-agent
   when: run_once_sys_ctl_hlth_wazuh_agent is not defined
+
+- name: "📂 Include dependency 'sys-ctl-hlth-deployed-code'"
+  include_role:
+    name: sys-ctl-hlth-deployed-code
+  when: run_once_sys_ctl_hlth_deployed_code is not defined

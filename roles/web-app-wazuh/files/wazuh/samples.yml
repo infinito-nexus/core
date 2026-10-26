@@ -59,6 +59,26 @@
   rule: 100160
   level: 0
   program: infinito-github-settings
+- log: '{"dc_kind": "unverified", "dc_checkout": "/opt/infinito", "dc_commit": "1111111111111111111111111111111111111111", "dc_reason": "unsigned"}'
+  rule: 100171
+  level: 10
+  program: infinito-deployed-code
+- log: '{"dc_kind": "unmerged", "dc_checkout": "/opt/infinito", "dc_commit": "2222222222222222222222222222222222222222", "dc_branch": "main"}'
+  rule: 100172
+  level: 12
+  program: infinito-deployed-code
+- log: '{"dc_kind": "modified", "dc_checkout": "/opt/infinito", "dc_commit": "1111111111111111111111111111111111111111", "dc_path": "roles/web-app-wazuh/vars/main.yml", "dc_status": "M"}'
+  rule: 100173
+  level: 10
+  program: infinito-deployed-code
+- log: '{"dc_kind": "error", "dc_checkout": "/opt/infinito", "dc_check": "fetch", "dc_reason": "git fetch failed: Could not resolve host: github.com"}'
+  rule: 100174
+  level: 7
+  program: infinito-deployed-code
+- log: '{"dc_kind": "run", "dc_checkouts": "1", "dc_findings": "0", "dc_errors": "0"}'
+  rule: 100170
+  level: 0
+  program: infinito-deployed-code
 - log: Suppressed 51234 messages from docker.service
   rule: 100140
   level: 7
