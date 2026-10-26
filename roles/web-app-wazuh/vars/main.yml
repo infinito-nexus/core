@@ -98,9 +98,10 @@ WAZUH_RULESET_JOURNALD: "{{ WAZUH_RULESET.journald }}"
 WAZUH_RULESET_SAMPLES: "{{ WAZUH_RULESET.samples }}"
 WAZUH_DECODER_SOURCES: "{{ WAZUH_RULESET.own + WAZUH_RULESET_ENTITIES }}"
 WAZUH_CANARY_SOURCES: "{{ WAZUH_RULESET.own + [WAZUH_RULESET_JOURNALD] + WAZUH_RULESET_ENTITIES }}"
+# Exception: Wazuh loads decoder and rule files in file-name order across all directories, so a file that sorts before the one defining its parent fails the whole ruleset ("Parent decoder name invalid", unknown group or category); the 9000- prefix sorts after Wazuh's own 0010- to 0999- files and before every app's <entity>_*.xml.
 WAZUH_RULESET_BASE_FILES:
-  - { src: ruleset/base/decoders.xml.j2, dest: base/decoders/infinito_base_decoders.xml }
-  - { src: ruleset/base/rules.xml.j2, dest: base/rules/infinito_base_rules.xml }
+  - { src: ruleset/base/decoders.xml.j2, dest: base/decoders/9000-infinito_base_decoders.xml }
+  - { src: ruleset/base/rules.xml.j2, dest: base/rules/9000-infinito_base_rules.xml }
 
 WAZUH_LOG_ALERT_LEVEL: 3
 WAZUH_SELFTEST_RULE_ID: 100100
