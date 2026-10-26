@@ -19,6 +19,11 @@
     <description>{{ SOFTWARE_NAME }} Wazuh log collector watch.</description>
   </rule>
 
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} GitHub settings check.</description>
+  </rule>
+
   <rule id="{{ WAZUH_JOURNALD_RULE_ID }}" level="0">
     <decoded_as>{{ WAZUH_RULESET_JOURNALD.decoder }}</decoded_as>
     <program_name>^{{ WAZUH_RULESET_JOURNALD.program }}$</program_name>
@@ -117,6 +122,27 @@
     <if_sid>{{ WAZUH_WATCH_RULE_ID }}</if_sid>
     <match>^collector resumed </match>
     <description>{{ SOFTWARE_NAME }} Wazuh agent reached the manager again; its log collector resumed from its journal position.</description>
+  </rule>
+</group>
+
+<group name="infinito_github_settings,">
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}</if_sid>
+    <field name="gs_kind">^drift$</field>
+    <description>GitHub settings drift in $(gs_scope): $(gs_check) $(gs_field) is $(gs_actual), expected $(gs_expected).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_PRT_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID }}</if_sid>
+    <field name="gs_check">^pull_request_target$</field>
+    <field name="gs_actual">^present$</field>
+    <description>GitHub: workflow $(gs_field) in $(gs_scope) runs on pull_request_target on the default branch and is not in the expected list.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_FAILED_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_FAILED_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}</if_sid>
+    <field name="gs_kind">^error$</field>
+    <description>GitHub settings check $(gs_check) for $(gs_scope) failed, so its drift is unknown: $(gs_reason).</description>
   </rule>
 </group>
 

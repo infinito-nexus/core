@@ -16,3 +16,10 @@
   notify: compose-up
 
 - meta: flush_handlers
+
+- name: "📂 Include the GitHub settings check"
+  include_role:
+    name: sys-ctl-hlth-github-settings
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_ctl_hlth_github_settings is not defined

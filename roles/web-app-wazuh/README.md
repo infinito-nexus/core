@@ -68,7 +68,7 @@ Custom rules use the Wazuh range 100000-120000:
 | Range | Use |
 |---|---|
 | 100000-100099 | Reserved: Wazuh examples, `etc/rules/local_rules.xml` uses 100001 |
-| 100100-100999 | Base: parents `100100` self-test, `100101` deploy markers, `100102` FIM who-data state; `100110` canary; `100120`/`100121` deploy start/end; `100130`/`100131` who-data unavailable/unknown |
+| 100100-100999 | Base: parents `100100` self-test, `100101` deploy markers, `100102` FIM who-data state; `100110` canary; `100120`/`100121` deploy start/end; `100130`/`100131` who-data unavailable/unknown; `100160` GitHub settings check parent, `100161` settings drift, `100162` unexpected `pull_request_target` workflow, `100163` settings check failed |
 | 101000-118999 | App blocks of 100 IDs; the first ID is the central parent rule, the last four are the central Docker attribution rules (see below) |
 | 119000-119999 | Tests and drills, never shipped |
 

@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — included by web-svc-github-webhook, which holds its token, not through the service loader
+github-settings:
+  lifecycle: alpha

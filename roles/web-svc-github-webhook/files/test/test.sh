@@ -5,7 +5,9 @@
 #   every watched GitHub event, signed like GitHub signs it, raises its rule through the deployed receiver;
 #   unsigned, wrongly signed, replayed, oversized and malformed requests are refused and alerted;
 #   a push to a repository's default branch whose commit has no merged pull request raises the direct-push rule,
-#   checked through a second, throwaway receiver that asks a local GitHub API stub instead of api.github.com.
+#   checked through a second, throwaway receiver that asks a local GitHub API stub instead of api.github.com;
+#   the deployed settings check, run against a host-local API stub, reports nothing for a matching state, one alert
+#   per drifted field for a drifted state, and a failed-check alert (not "no drift") for a rejected token and a rate limit.
 #
 # Env (all required; the role's test.env carries them):
 #   ENTITY                   the receiver's journald tag
@@ -19,13 +21,15 @@
 #   RECEIVER_SCRIPT          the receiver script on the host
 #   RECEIVER_URL             the deployed receiver's local base URL
 #   RETRIES, SLEEP_SECONDS   polling for an alert
+#   SETTINGS_SCRIPT          the deployed GitHub settings check
+#   SETTINGS_TAG             the journald tag the settings check logs under
 #   WEBHOOK_SECRET           the deployed receiver's webhook secret
 
 set -euo pipefail
 
 : "${ENTITY:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME:?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
-: "${RETRIES:?}" "${SLEEP_SECONDS:?}" "${WEBHOOK_SECRET:?}"
+: "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WEBHOOK_SECRET:?}"
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
 LABEL="infinito-github-webhook-test=${RUN}"
@@ -61,7 +65,9 @@ HTTPServer(("0.0.0.0", 8080), Stub).serve_forever()
 cleanup() {
 	rm -f "${BODY_FILE}"
 	container ps -aq --filter "label=${LABEL}" | xargs -r container rm -f >/dev/null
-	container network rm "${NETWORK}" >/dev/null 2>&1 || true
+	if container network inspect "${NETWORK}" >/dev/null 2>&1; then
+		container network rm "${NETWORK}" >/dev/null
+	fi
 }
 trap cleanup EXIT
 
@@ -217,5 +223,180 @@ if container logs "github-webhook-test-${RUN}" 2>&1 | grep -F "test-${RUN}-merge
 else
 	fail "the merged push was not checked as ok"
 fi
+
+SETTINGS_STUB_CODE='
+import base64
+import json
+import sys
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
+
+WORKFLOW = base64.b64encode(b"on:\n  pull_request_target:\n").decode()
+RULES = [{"type": "deletion"}, {"type": "non_fast_forward"}, {"type": "required_signatures"},
+         {"type": "pull_request", "parameters": {"required_approving_review_count": 2, "require_code_owner_review": True,
+                                                 "dismiss_stale_reviews_on_push": True}}]
+
+
+def answer(path):
+    parts = urlsplit(path).path.strip("/").split("/")
+    mode = parts[1].split("-", 1)[0]
+    drift = mode == "drift"
+    if parts[0] == "orgs":
+        if mode == "fail":
+            return 401, {"message": "Bad credentials"}, {}
+        return 200, [{"login": "owner"}] + ([{"login": "mallory"}] if drift else []), {}
+    rest = "/".join(parts[3:])
+    workflows = [{"type": "file", "name": "entry-cancel-superseded.yml", "path": ".github/workflows/entry-cancel-superseded.yml"}]
+    if drift:
+        workflows.append({"type": "file", "name": "call-lint.yml", "path": ".github/workflows/call-lint.yml"})
+    if rest == "collaborators" and mode == "fail":
+        return 403, {"message": "API rate limit exceeded"}, {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1"}
+    answers = {
+        "": {"default_branch": "main"},
+        "rules/branches/main": RULES[:2] if drift else RULES,
+        "collaborators": [{"login": "bob", "role_name": "admin" if drift else "write"}],
+        "keys": [{"id": 8, "title": "deploy", "read_only": False}] if drift else [{"id": 7, "title": "deploy", "read_only": True}],
+        "actions/permissions": {"enabled": True, "allowed_actions": "all"},
+        "actions/permissions/workflow": {"default_workflow_permissions": "write" if drift else "read", "can_approve_pull_request_reviews": False},
+        "contents/.github/workflows": workflows,
+        "contents/.github/workflows/entry-cancel-superseded.yml": {"content": WORKFLOW},
+        "contents/.github/workflows/call-lint.yml": {"content": WORKFLOW},
+        "secret-scanning/alerts": [{"number": 1}] if drift else [],
+        "dependabot/alerts": [{"number": 1}, {"number": 2}] if drift else [],
+    }
+    if rest not in answers:
+        return 404, {"message": "Branch not protected" if rest.endswith("/protection") else "Not Found"}, {}
+    return 200, answers[rest], {}
+
+
+class Stub(BaseHTTPRequestHandler):
+    def do_GET(self):
+        status, payload, headers = answer(self.path)
+        body = json.dumps(payload).encode()
+        self.send_response(status)
+        for name, value in {"Content-Type": "application/json", "Content-Length": str(len(body)), **headers}.items():
+            self.send_header(name, value)
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+server = ThreadingHTTPServer(("127.0.0.1", 0), Stub)
+with open(sys.argv[1], "w", encoding="utf-8") as port_file:
+    port_file.write(str(server.server_address[1]))
+server.serve_forever()
+'
+
+SETTINGS_DIR="$(mktemp -d)"
+cleanup_settings() {
+	[[ -f "${SETTINGS_DIR}/stub.pid" ]] && kill "$(cat "${SETTINGS_DIR}/stub.pid")" 2>/dev/null
+	rm -rf "${SETTINGS_DIR}"
+	cleanup
+}
+trap cleanup_settings EXIT
+
+python3 -c "${SETTINGS_STUB_CODE}" "${SETTINGS_DIR}/port" &
+echo $! >"${SETTINGS_DIR}/stub.pid"
+for ((attempt = 1; attempt <= RETRIES; attempt++)); do
+	[[ -s "${SETTINGS_DIR}/port" ]] && break
+	sleep 1
+done
+[[ -s "${SETTINGS_DIR}/port" ]] || fail "the GitHub settings API stub did not start"
+printf 'stub-token' >"${SETTINGS_DIR}/token"
+
+for mode in match drift fail; do
+	python3 - "${SETTINGS_DIR}/${mode}.json" "${mode}-${RUN}" <<'PY'
+import json
+import sys
+
+json.dump({
+    "organization": sys.argv[2],
+    "owners": ["owner"],
+    "repositories": {"core": {
+        "branch_protection": {"required_signatures": True, "required_approving_review_count": 2, "require_code_owner_review": True,
+                              "dismiss_stale_reviews": True, "force_push_blocked": True, "deletion_blocked": True},
+        "collaborators": {"bob": "write"},
+        "deploy_keys": [{"id": 7, "title": "deploy", "read_only": True}],
+        "actions": {"enabled": True, "allowed_actions": "all", "default_workflow_permissions": "read", "can_approve_pull_request_reviews": False},
+        "pull_request_target": [".github/workflows/entry-cancel-superseded.yml"],
+        "open_secret_scanning_alerts": 0,
+        "open_dependabot_alerts": 0,
+    }},
+}, open(sys.argv[1], "w", encoding="utf-8"))
+PY
+	python3 "${SETTINGS_SCRIPT}" --api-url="http://127.0.0.1:$(cat "${SETTINGS_DIR}/port")" --token-file="${SETTINGS_DIR}/token" \
+		--expected="${SETTINGS_DIR}/${mode}.json" --tag="${SETTINGS_TAG}" --timeout=10 >"${SETTINGS_DIR}/${mode}.out" ||
+		fail "the GitHub settings check exited non-zero for ${mode}"
+done
+
+python3 - "${SETTINGS_DIR}" "${RUN}" <<'PY' || fail "GitHub settings check output"
+import json
+import sys
+
+directory, run = sys.argv[1:3]
+expected = {"match": ("0", "0", 0), "drift": ("12", "0", 12), "fail": ("0", "2", 2)}
+for mode, (drift, errors, findings) in expected.items():
+    events = [json.loads(line) for line in open(f"{directory}/{mode}.out", encoding="utf-8")]
+    summary = events[-1]
+    if summary != {"gs_kind": "run", "gs_scope": f"{mode}-{run}", "gs_drift": drift, "gs_errors": errors} or len(events) - 1 != findings:
+        sys.exit(f"{mode}: {events}")
+    print(f"PASS: settings check {mode}: {drift} drift, {errors} failed checks")
+PY
+
+python3 - "${ALERTS}" "${SETTINGS_DIR}" "${RUN}" "$((RETRIES * SLEEP_SECONDS))" <<'PY' || fail "GitHub settings alerts"
+import json
+import sys
+import time
+
+alerts, directory, run, timeout = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+wanted = []
+for mode in ("drift", "fail"):
+    for line in open(f"{directory}/{mode}.out", encoding="utf-8"):
+        event = json.loads(line)
+        if event["gs_kind"] == "drift":
+            rule = "100162" if event["gs_check"] == "pull_request_target" and event["gs_actual"] == "present" else "100161"
+        elif event["gs_kind"] == "error":
+            rule = "100163"
+        else:
+            continue
+        wanted.append((rule, event))
+
+
+def seen():
+    found, stray = [], []
+    with open(alerts, encoding="utf-8", errors="replace") as lines:
+        for line in lines:
+            if run not in line:
+                continue
+            alert = json.loads(line)
+            full_log = alert.get("full_log", "")
+            if "{" not in full_log:
+                continue
+            try:
+                event = json.loads(full_log[full_log.index("{"):])
+            except ValueError:
+                continue
+            found.append((alert["rule"]["id"], event))
+            if event.get("gs_scope", "").startswith(f"match-{run}"):
+                stray.append(event)
+    return found, stray
+
+
+deadline = time.time() + timeout
+while True:
+    found, stray = seen()
+    missing = [item for item in wanted if item not in found]
+    if not missing or time.time() > deadline:
+        break
+    time.sleep(5)
+if stray:
+    sys.exit(f"the matching settings raised alerts: {stray}")
+if missing:
+    sys.exit(f"no alert for: {missing}")
+for rule, event in wanted:
+    print(f"PASS: rule {rule} for {event['gs_scope']} {event['gs_check']} {event.get('gs_field', event.get('gs_reason'))}")
+PY
 
 echo "PASS: web-svc-github-webhook"

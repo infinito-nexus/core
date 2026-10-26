@@ -134,12 +134,17 @@ An owner of the `infinito-nexus` organization sets this up:
    - Resource owner `infinito-nexus`, access to all repositories the webhook covers
    - Read-only permissions: Contents, Metadata, Pull requests
    - An expiry date; renew the token before it expires, because an expired token makes every push to a default branch raise rule 101114
-   - Put it into the inventory vault as the role's `github_webhook_token` credential. The settings check gets its own token with Administration read, under a separate credential.
-3. Use GitHub's "Recent Deliveries" page to check that a ping reaches the receiver with HTTP 202.
+   - Put it into the inventory vault as the role's `github_webhook_token` credential.
+3. Create a second fine-grained token on the same bot account for the settings check ([sys-ctl-hlth-github-settings](../sys-ctl-hlth-github-settings/README.md)), which this role installs:
+   - Resource owner `infinito-nexus`, access to every repository listed in that role's `files/expected.yml`
+   - Read-only repository permissions: Administration, Metadata, Contents, Secret scanning alerts, Dependabot alerts; read-only organization permission: Members
+   - An expiry date; renew it before it expires, because an expired token makes every hourly run raise rule 100163
+   - Put it into the inventory vault as the role's `github_settings_token` credential.
+4. Use GitHub's "Recent Deliveries" page to check that a ping reaches the receiver with HTTP 202.
 
 ## Developer Notes
 
-[test.sh](./files/test/test.sh) runs after each deploy: it signs every watched event the way GitHub does, sends it to the deployed receiver and waits for its alert, checks every refusal the same way, and proves the direct push rule with a throwaway second receiver that asks a local GitHub API stub instead of `api.github.com`.
+[test.sh](./files/test/test.sh) runs after each deploy: it signs every watched event the way GitHub does, sends it to the deployed receiver and waits for its alert, checks every refusal the same way, and proves the direct push rule with a throwaway second receiver that asks a local GitHub API stub instead of `api.github.com`. It then runs the deployed settings check three times against a host-local API stub: a matching state (no finding), a drifted state (one alert per field) and a failing API (rejected token and rate limit, each raising rule 100163).
 The receiver's logic is unit-tested in `tests/unit/python/roles/web-svc-github-webhook/files/test_receiver.py`.
 
 ## Credits

@@ -6,3 +6,9 @@
 
 {% endif %}
 {% endfor %}
+
+<decoder name="{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}-json">
+  <parent>{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}</parent>
+  <prematch>^{"gs_</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

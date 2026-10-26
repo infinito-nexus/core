@@ -43,6 +43,22 @@
   rule: 100104
   level: 0
   program: infinito-wazuh-watch
+- log: '{"gs_kind": "drift", "gs_scope": "infinito-nexus/core", "gs_check": "branch_protection", "gs_field": "required_signatures", "gs_expected": "true", "gs_actual": "false"}'
+  rule: 100161
+  level: 10
+  program: infinito-github-settings
+- log: '{"gs_kind": "drift", "gs_scope": "infinito-nexus/core", "gs_check": "pull_request_target", "gs_field": ".github/workflows/call-lint.yml", "gs_expected": "absent", "gs_actual": "present"}'
+  rule: 100162
+  level: 10
+  program: infinito-github-settings
+- log: '{"gs_kind": "error", "gs_scope": "infinito-nexus/core", "gs_check": "collaborators", "gs_reason": "HTTP 403: API rate limit exceeded"}'
+  rule: 100163
+  level: 7
+  program: infinito-github-settings
+- log: '{"gs_kind": "run", "gs_scope": "infinito-nexus", "gs_drift": "0", "gs_errors": "0"}'
+  rule: 100160
+  level: 0
+  program: infinito-github-settings
 - log: Suppressed 51234 messages from docker.service
   rule: 100140
   level: 7

@@ -1,0 +1,43 @@
+---
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- name: "📁 Create {{ HLTH_GITHUB_SETTINGS_DIR }}"
+  file:
+    path: "{{ HLTH_GITHUB_SETTINGS_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 🔑 Store the read-only GitHub settings token
+  copy:
+    content: "{{ HLTH_GITHUB_SETTINGS_TOKEN }}"
+    dest: "{{ HLTH_GITHUB_SETTINGS_TOKEN_FILE }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📄 Store the expected GitHub settings
+  copy:
+    content: "{{ lookup('file', 'expected.yml') | from_yaml | to_nice_json }}"
+    dest: "{{ HLTH_GITHUB_SETTINGS_EXPECTED_FILE }}"
+    mode: "0644"
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_GITHUB_SETTINGS }}"
+    system_service_timer_enabled: true
+    system_service_tpl_exec_start: >-
+      {{ system_service_script_exec }}
+      --api-url {{ HLTH_GITHUB_SETTINGS_API_URL }}
+      --token-file {{ HLTH_GITHUB_SETTINGS_TOKEN_FILE }}
+      --expected {{ HLTH_GITHUB_SETTINGS_EXPECTED_FILE }}
+      --tag {{ HLTH_GITHUB_SETTINGS_TAG }}
+      --timeout {{ HLTH_GITHUB_SETTINGS_TIMEOUT }}
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_force_flush_final: true
+
+- include_tasks: utils/once/flag.yml
