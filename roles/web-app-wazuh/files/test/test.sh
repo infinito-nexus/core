@@ -36,12 +36,12 @@ fi
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
 LABEL="infinito-wazuh-test=${RUN}"
-LOGS_DIR="$(docker volume inspect -f '{{.Mountpoint}}' "${MANAGER_LOGS_VOLUME}")"
+LOGS_DIR="$(container volume inspect -f '{{.Mountpoint}}' "${MANAGER_LOGS_VOLUME}")"
 ARCHIVES="${LOGS_DIR}/archives/archives.json"
 ALERTS="${LOGS_DIR}/alerts/alerts.json"
 
 cleanup() {
-	docker ps -aq --filter "label=${LABEL}" | xargs -r docker rm -f >/dev/null
+	container ps -aq --filter "label=${LABEL}" | xargs -r container rm -f >/dev/null
 }
 trap cleanup EXIT
 
@@ -55,8 +55,8 @@ pass() {
 }
 
 emit() {
-	docker run --rm --name "wazuh-test-$2-${RUN}" --label "${LABEL}" \
-		--log-driver journald --log-opt "tag=$1" "${TEST_IMAGE}" echo "$3" >/dev/null
+	container run --rm --name="wazuh-test-$2-${RUN}" --label="${LABEL}" \
+		--log-driver=journald --log-opt="tag=$1" "${TEST_IMAGE}" echo "$3" >/dev/null
 }
 
 count_lines() {
@@ -125,7 +125,7 @@ check_per_app_switch() {
 	[[ "$(count_lines "${ARCHIVES}" "${text}" "\"program_name\":\"${FOREIGN_ENTITY}\"")" -eq 0 ]] ||
 		fail "J: the excluded tag ${FOREIGN_ENTITY} was forwarded"
 	for name in ${WAZUH_CONTAINERS}; do
-		id="$(docker inspect --type container -f '{{.Id}}' "${name}" | cut -c1-12)"
+		id="$(container inspect --type container -f '{{.Id}}' "${name}" | cut -c1-12)"
 		[[ "$(count_lines "${ARCHIVES}" "\"program_name\":\"${id}\"" '"location":"journald"')" -eq 0 ]] ||
 			fail "J: the logs of ${name} were forwarded"
 	done

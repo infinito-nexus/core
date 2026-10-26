@@ -187,7 +187,7 @@ def _scan_filter_usage(
     The two master regexes use alternation over all filter names — ``bare_pat``
     matches ``| name`` anywhere (superset of the ``{{ … | name }}`` and
     ``{% … | name %}`` patterns the old code carried separately), while
-    ``block_pat`` covers ``{% filter name %}``.
+    ``block_pat`` covers ``{% filter name %}`` and ``map_pat`` covers ``map('name')``.
 
     Returns:
       ``{filter_name: {"used_any": bool, "used_outside": bool}}``
@@ -206,6 +206,7 @@ def _scan_filter_usage(
     name_alt = "(" + "|".join(escaped_names) + ")"
     bare_pat = re.compile(r"\|\s*" + name_alt + r"\b")
     block_pat = re.compile(r"\{%\s*filter\s+" + name_alt + r"\b")
+    map_pat = re.compile(r"""\bmap\(\s*['"]""" + name_alt + r"""['"]""")
 
     if callable_to_filter:
         escaped_callables = [re.escape(c) for c in callable_to_filter]
@@ -245,6 +246,8 @@ def _scan_filter_usage(
         for m in bare_pat.finditer(content):
             _record(m.group(1))
         for m in block_pat.finditer(content):
+            _record(m.group(1))
+        for m in map_pat.finditer(content):
             _record(m.group(1))
 
         if call_pat is not None and path.endswith(".py"):
