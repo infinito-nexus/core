@@ -1,0 +1,52 @@
+---
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+# nocheck: playwright-service-flag — self-provider
+github-webhook:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: python
+  version: 3.13-slim
+  name: github-webhook
+  # nocheck: default-placement-manager  the replay store is a SQLite file on a local volume, so exactly one replica on one node may write it.
+  placement: manager
+  min_storage: 160MB
+  cpus: 0.25
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64
+  ports:
+    local:
+      http: 8098
+    internal:
+      http: 8080
+  healthcheck:
+    test:
+      - "CMD"
+      - "python3"
+      - "-c"
+      - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=5)"
+  lifecycle: alpha
+wazuh:
+  enabled: true
+  rule_block: 101100
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

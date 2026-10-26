@@ -1,0 +1,16 @@
+---
+application_id: web-svc-github-webhook
+entity_name: "{{ application_id | get_entity_name }}"
+
+GITHUB_WEBHOOK_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+GITHUB_WEBHOOK_PATH: "/github"
+GITHUB_WEBHOOK_MAX_BYTES: 5242880
+GITHUB_WEBHOOK_STATE_DB: "/data/deliveries.sqlite"
+GITHUB_WEBHOOK_REPLAY_DAYS: 7
+GITHUB_WEBHOOK_API_URL: "https://api.github.com"
+GITHUB_WEBHOOK_PR_ATTEMPTS: 4
+GITHUB_WEBHOOK_PR_DELAY: 10
+GITHUB_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
+GITHUB_WEBHOOK_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.github_webhook_token') }}"
+GITHUB_WEBHOOK_RECEIVER_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'receiver.py'] | path_join }}"
+GITHUB_WEBHOOK_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

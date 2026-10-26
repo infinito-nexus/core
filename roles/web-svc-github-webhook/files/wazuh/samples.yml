@@ -1,0 +1,57 @@
+- log: '{"gh_action": "", "gh_delivery": "11111111-1111-1111-1111-111111111111", "gh_event": "ping", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101101
+  level: 3
+- log: '{"gh_action": "", "gh_after": "bbbb", "gh_before": "aaaa", "gh_created": "false", "gh_default_branch": "main", "gh_deleted": "false", "gh_delivery": "d-101110", "gh_event": "push", "gh_forced": "true", "gh_kind": "delivery", "gh_on_default_branch": "true", "gh_ref": "refs/heads/main", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5", "gh_workflow_paths": ""}'
+  rule: 101110
+  level: 12
+- log: '{"gh_action": "", "gh_after": "0000000000000000000000000000000000000000", "gh_before": "aaaa", "gh_created": "false", "gh_default_branch": "main", "gh_deleted": "true", "gh_delivery": "d-101111", "gh_event": "push", "gh_forced": "false", "gh_kind": "delivery", "gh_on_default_branch": "true", "gh_ref": "refs/heads/main", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5", "gh_workflow_paths": ""}'
+  rule: 101111
+  level: 12
+- log: '{"gh_action": "", "gh_after": "bbbb", "gh_before": "aaaa", "gh_created": "false", "gh_default_branch": "main", "gh_deleted": "false", "gh_delivery": "d-101112", "gh_event": "push", "gh_forced": "false", "gh_kind": "delivery", "gh_on_default_branch": "true", "gh_ref": "refs/heads/main", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5", "gh_workflow_paths": ".github/workflows/call-lint.yml"}'
+  rule: 101112
+  level: 8
+- log: '{"gh_after": "bbbb", "gh_commits": "bbbb", "gh_default_branch": "main", "gh_delivery": "d-101113", "gh_kind": "direct_push", "gh_repo": "infinito-nexus/core", "gh_result": "no_pr"}'
+  rule: 101113
+  level: 12
+- log: '{"gh_after": "bbbb", "gh_default_branch": "main", "gh_delivery": "d-101114", "gh_kind": "direct_push", "gh_reason": "no token configured", "gh_repo": "infinito-nexus/core", "gh_result": "error"}'
+  rule: 101114
+  level: 7
+- log: '{"gh_action": "edited", "gh_delivery": "d-101120", "gh_event": "branch_protection_rule", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_rule_name": "main", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101120
+  level: 10
+- log: '{"gh_action": "deleted", "gh_delivery": "d-101121", "gh_enforcement": "active", "gh_event": "repository_ruleset", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_rule_name": "protect-main", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101121
+  level: 10
+- log: '{"gh_action": "added", "gh_delivery": "d-101130", "gh_event": "member", "gh_kind": "delivery", "gh_member": "mallory", "gh_permission": "admin", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101130
+  level: 10
+- log: '{"gh_action": "member_added", "gh_delivery": "d-101131", "gh_event": "organization", "gh_kind": "delivery", "gh_member": "mallory", "gh_permission": "admin", "gh_repo": "", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101131
+  level: 10
+- log: '{"gh_action": "created", "gh_delivery": "d-101132", "gh_event": "deploy_key", "gh_key_read_only": "true", "gh_key_title": "ci", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101132
+  level: 10
+- log: '{"gh_action": "created", "gh_delivery": "d-101133", "gh_event": "deploy_key", "gh_key_read_only": "false", "gh_key_title": "deploy", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
+  rule: 101133
+  level: 12
+- log: '{"gh_action": "created", "gh_alert_number": "3", "gh_delivery": "d-101140", "gh_event": "secret_scanning_alert", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_secret_type": "github_personal_access_token", "gh_sender": "github", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/secret-scanning/3"}'
+  rule: 101140
+  level: 12
+- log: '{"gh_action": "created", "gh_alert_number": "7", "gh_delivery": "d-101141", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "requests", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "high", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/dependabot/7"}'
+  rule: 101141
+  level: 10
+- log: '{"gh_action": "created", "gh_alert_number": "8", "gh_delivery": "d-101142", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "urllib3", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "medium", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/dependabot/8"}'
+  rule: 101142
+  level: 7
+- log: '{"gh_delivery": "d-101160", "gh_kind": "rejected", "gh_reason": "signature", "gh_srcip": "203.0.113.5"}'
+  rule: 101160
+  level: 10
+- log: '{"gh_delivery": "d-101161", "gh_kind": "rejected", "gh_reason": "replay", "gh_srcip": "203.0.113.5"}'
+  rule: 101161
+  level: 8
+- log: '{"gh_delivery": "d-101162", "gh_kind": "rejected", "gh_reason": "oversized", "gh_srcip": "203.0.113.5"}'
+  rule: 101162
+  level: 6
+- log: '{"gh_delivery": "", "gh_kind": "rejected", "gh_reason": "malformed", "gh_srcip": "203.0.113.5"}'
+  rule: 101163
+  level: 5

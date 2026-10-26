@@ -1,0 +1,18 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 Load docker and proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    webserver_vhost_flavour: "basic"
+
+- name: "📋 Copy the webhook receiver"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: python/receiver.py
+    dest: "{{ GITHUB_WEBHOOK_RECEIVER_HOST }}"
+    mode: "0444"
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
+- meta: flush_handlers
