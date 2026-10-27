@@ -219,12 +219,12 @@ class TestHelpers(unittest.TestCase):
 
     def test_github_slug(self):
         for url in (
-            "https://github.com/o/r.git",
-            "https://github.com/o/r",
+            "https://github.com/o/r.git",  # nocheck: url
+            "https://github.com/o/r",  # nocheck: url
             "git@github.com:o/r.git",
-            "ssh://git@github.com/o/r.git",  # nocheck: url
-            "https://x-access-token:secret@github.com/o/r.git",
-        ):  # nocheck: url
+            "ssh://git@github.com/o/r.git",
+            "https://x-access-token:secret@github.com/o/r.git",  # nocheck: url
+        ):
             self.assertEqual(script.github_slug(url), "o/r", url)
         for url in (
             "https://gitlab.example/o/r.git",
