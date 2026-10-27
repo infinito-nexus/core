@@ -26,7 +26,7 @@ github-webhook:
   pids_limit: 64
   ports:
     local:
-      http: 8098
+      http: 8100
     internal:
       http: 8080
   healthcheck:
