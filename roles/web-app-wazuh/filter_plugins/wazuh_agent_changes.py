@@ -26,7 +26,9 @@ def wazuh_agent_changes(agents, key_results):
         agent_id = agent["id"]
         data = json.loads(responses[agent_id]).get("data")
         if data is None:
-            raise AnsibleFilterError(f"Wazuh API key lookup for agent {agent_id} failed")
+            raise AnsibleFilterError(
+                f"Wazuh API key lookup for agent {agent_id} failed"
+            )
         if not data["affected_items"]:
             codes = {item["error"]["code"] for item in data["failed_items"]}
             if codes != {AGENT_NOT_FOUND}:

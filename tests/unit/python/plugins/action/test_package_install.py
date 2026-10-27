@@ -125,23 +125,32 @@ class TestVersionPin(unittest.TestCase):
         return build_plan(spec, "present")[0]
 
     def test_the_wazuh_agent_entry_pins_the_manager_version_on_both_families(self):
-        expected = "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+        expected = (
+            "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+        )
         for distro in ("debian", "fedora"):
             with self.subTest(distro=distro):
                 call = self._wazuh_agent_call(distro)
-                self.assertEqual((call.args["name"], call.pin), (["wazuh-agent"], expected))
+                self.assertEqual(
+                    (call.args["name"], call.pin), (["wazuh-agent"], expected)
+                )
 
     def test_a_rendered_pin_installs_the_exact_version_on_apt(self):
         action = self._action({"id": "wazuh-agent"}, {"MANAGER_VERSION": "4.14.6"})
-        args = action._manager_args("apt", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1")
+        args = action._manager_args(
+            "apt", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1"
+        )
         self.assertEqual(args["name"], ["wazuh-agent=4.14.6-1"])
         self.assertTrue(args["allow_change_held_packages"])
 
     def test_a_rendered_pin_lifts_only_the_given_repo_on_dnf(self):
         action = self._action(
-            {"id": "wazuh-agent", "disable_excludes": "wazuh"}, {"MANAGER_VERSION": "4.14.6"}
+            {"id": "wazuh-agent", "disable_excludes": "wazuh"},
+            {"MANAGER_VERSION": "4.14.6"},
         )
-        args = action._manager_args("dnf5", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1")
+        args = action._manager_args(
+            "dnf5", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1"
+        )
         self.assertEqual(args["name"], ["wazuh-agent-4.14.6-1"])
         self.assertEqual(args["disable_excludes"], "wazuh")
 
@@ -149,7 +158,8 @@ class TestVersionPin(unittest.TestCase):
         action = self._action({"id": "git"}, {})
         args = {"name": ["git"], "state": "present"}
         self.assertEqual(
-            action._manager_args("apt", args, None), {**args, "install_recommends": False}
+            action._manager_args("apt", args, None),
+            {**args, "install_recommends": False},
         )
 
     def test_a_version_rendering_empty_fails(self):

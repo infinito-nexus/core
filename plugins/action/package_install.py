@@ -167,7 +167,9 @@ class ActionModule(ActionBase):
         if pin is not None:
             version = str(self._templar.template(_trust_as_template(pin))).strip()
             if not version:
-                raise AnsibleActionFail(f"package_install: the version {pin!r} renders empty.")
+                raise AnsibleActionFail(
+                    f"package_install: the version {pin!r} renders empty."
+                )
         disable_excludes = self._task.args.get("disable_excludes")
         try:
             return manager_args(pkg_mgr, args, version, disable_excludes)

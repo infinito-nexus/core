@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
-import os
 import sys
+from pathlib import Path
 
-EXPORT_DIR = "/run/systemd/units"
+EXPORT_DIR = Path("/run/systemd/units")
 SETTINGS = ("log-rate-limit-interval", "log-rate-limit-burst")
 
 
 def read(unit, setting):
     try:
-        return os.readlink(os.path.join(EXPORT_DIR, f"{setting}:{unit}"))
+        return str((EXPORT_DIR / f"{setting}:{unit}").readlink())
     except OSError:
         return "-"
 

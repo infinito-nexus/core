@@ -9,7 +9,11 @@ from . import PROJECT_ROOT
 
 _spec = importlib.util.spec_from_file_location(
     "wazuh_agent_changes",
-    PROJECT_ROOT / "roles" / "web-app-wazuh" / "filter_plugins" / "wazuh_agent_changes.py",
+    PROJECT_ROOT
+    / "roles"
+    / "web-app-wazuh"
+    / "filter_plugins"
+    / "wazuh_agent_changes.py",
 )
 _module = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_module)

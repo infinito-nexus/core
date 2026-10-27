@@ -19,6 +19,12 @@
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: 📋 Copy the GitHub API client next to the check
+  copy:
+    src: python/github_api.py
+    dest: "{{ HLTH_GITHUB_SETTINGS_API_MODULE }}"
+    mode: "0644"
+
 - name: 📄 Store the expected GitHub settings
   copy:
     content: "{{ lookup('file', 'expected.yml') | from_yaml | to_nice_json }}"

@@ -10,7 +10,9 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from . import PROJECT_ROOT
 
 
-def service_errors(role_name: str, services: dict, exceptions: set, file_path: str) -> list[str]:
+def service_errors(
+    role_name: str, services: dict, exceptions: set, file_path: str
+) -> list[str]:
     """Return the shared/enabled violations of one role's services.
 
     Args:
@@ -120,7 +122,9 @@ class TestServiceSharedConsistency(unittest.TestCase):
 
             services = cfg if isinstance(cfg, dict) else {}
             errors.extend(
-                service_errors(role_name, services, self._exception_services(file_path), file_path)
+                service_errors(
+                    role_name, services, self._exception_services(file_path), file_path
+                )
             )
 
         if errors:
@@ -137,15 +141,21 @@ class TestHostAgentExemption(unittest.TestCase):
 
     def test_another_service_without_shared_still_fails(self):
         services = {"matomo": {"enabled": True}}
-        self.assertEqual(len(service_errors("web-app-pixelfed", services, set(), "x")), 1)
+        self.assertEqual(
+            len(service_errors("web-app-pixelfed", services, set(), "x")), 1
+        )
 
     def test_a_key_outside_the_list_cannot_use_the_exemption(self):
         services = {"wazuh-agent": {"enabled": True}}
-        self.assertEqual(len(service_errors("web-app-pixelfed", services, set(), "x")), 1)
+        self.assertEqual(
+            len(service_errors("web-app-pixelfed", services, set(), "x")), 1
+        )
 
     def test_shared_without_enabled_still_fails_for_wazuh(self):
         services = {"wazuh": {"shared": True}}
-        self.assertEqual(len(service_errors("web-app-pixelfed", services, set(), "x")), 1)
+        self.assertEqual(
+            len(service_errors("web-app-pixelfed", services, set(), "x")), 1
+        )
 
 
 if __name__ == "__main__":

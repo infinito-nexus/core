@@ -5,7 +5,11 @@ from . import PROJECT_ROOT
 
 _spec = importlib.util.spec_from_file_location(
     "wazuh_agent_deps",
-    PROJECT_ROOT / "roles" / "sys-svc-wazuh-agent" / "filter_plugins" / "wazuh_agent_deps.py",
+    PROJECT_ROOT
+    / "roles"
+    / "sys-svc-wazuh-agent"
+    / "filter_plugins"
+    / "wazuh_agent_deps.py",
 )
 _module = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_module)
@@ -23,25 +27,42 @@ class TestWazuhAgentDepsProblems(unittest.TestCase):
 
     def test_changed_library_is_named_with_both_hashes(self):
         manifest = ["curl " + "a" * 64, "rpm " + "d" * 64, ".gitignore " + "c" * 64]
-        self.assertEqual(self.problems(manifest), [f"rpm: hash {'d' * 64}, pin {'b' * 64}"])
+        self.assertEqual(
+            self.problems(manifest), [f"rpm: hash {'d' * 64}, pin {'b' * 64}"]
+        )
 
     def test_missing_library_is_named(self):
         manifest = ["curl " + "a" * 64, ".gitignore " + "c" * 64]
         self.assertEqual(self.problems(manifest), ["rpm: pinned but missing"])
 
     def test_extra_library_is_named_with_its_hash(self):
-        manifest = ["curl " + "a" * 64, "rpm " + "b" * 64, ".gitignore " + "c" * 64, "lua " + "e" * 64]
+        manifest = [
+            "curl " + "a" * 64,
+            "rpm " + "b" * 64,
+            ".gitignore " + "c" * 64,
+            "lua " + "e" * 64,
+        ]
         self.assertEqual(self.problems(manifest), [f"lua: not pinned, hash {'e' * 64}"])
 
     def test_every_problem_is_listed_sorted(self):
         manifest = ["rpm " + "d" * 64, "lua " + "e" * 64, ".gitignore " + "c" * 64]
         self.assertEqual(
             self.problems(manifest),
-            ["curl: pinned but missing", f"lua: not pinned, hash {'e' * 64}", f"rpm: hash {'d' * 64}, pin {'b' * 64}"],
+            [
+                "curl: pinned but missing",
+                f"lua: not pinned, hash {'e' * 64}",
+                f"rpm: hash {'d' * 64}, pin {'b' * 64}",
+            ],
         )
 
     def test_blank_lines_are_ignored(self):
-        manifest = ["", "curl " + "a" * 64, "rpm " + "b" * 64, ".gitignore " + "c" * 64, "  "]
+        manifest = [
+            "",
+            "curl " + "a" * 64,
+            "rpm " + "b" * 64,
+            ".gitignore " + "c" * 64,
+            "  ",
+        ]
         self.assertEqual(self.problems(manifest), [])
 
     def test_filter_is_registered(self):

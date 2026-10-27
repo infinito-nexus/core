@@ -79,7 +79,9 @@ def _event(action, label, project, name):
     )
 
 
-def wazuh_docker_samples(entities, healthchecks, level, oom_level, foreign_rule, foreign_level):
+def wazuh_docker_samples(
+    entities, healthchecks, level, oom_level, foreign_rule, foreign_level
+):
     """Return the Docker attribution samples of every opted-in app.
 
     Args:
@@ -100,7 +102,15 @@ def wazuh_docker_samples(entities, healthchecks, level, oom_level, foreign_rule,
     for app in entities:
         entity, ids, role = app["entity"], app["docker"], app["role"]
 
-        def add(action, rule, sample_level, label=COMPOSE_LABEL, project=entity):
+        def add(
+            action,
+            rule,
+            sample_level,
+            label=COMPOSE_LABEL,
+            project=entity,
+            role=role,
+            entity=entity,
+        ):
             samples.append(
                 {
                     "role": role,

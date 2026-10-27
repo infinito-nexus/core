@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import re
 import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING, Any
@@ -25,7 +26,14 @@ FIM_TAG = "infinito-fim"
 WATCH_TAG = "infinito-wazuh-watch"
 GITHUB_SETTINGS_TAG = "infinito-github-settings"
 DEPLOYED_CODE_TAG = "infinito-deployed-code"
-OWN_TAGS = (SELFTEST_TAG, DEPLOY_TAG, FIM_TAG, WATCH_TAG, GITHUB_SETTINGS_TAG, DEPLOYED_CODE_TAG)
+OWN_TAGS = (
+    SELFTEST_TAG,
+    DEPLOY_TAG,
+    FIM_TAG,
+    WATCH_TAG,
+    GITHUB_SETTINGS_TAG,
+    DEPLOYED_CODE_TAG,
+)
 JOURNALD_PROGRAM = "systemd-journald"
 # Exception: Wazuh's default decoder "systemd" claims every program name containing "systemd", so journald's lines use it instead of an own decoder.
 JOURNALD_DECODER = "systemd"
@@ -75,7 +83,9 @@ def load_samples(path: Path) -> list[dict[str, Any]]:
     samples = load_yaml_any(str(path), default_if_missing=[]) or []
     return [
         {
-            "lines": [sample["log"]] if isinstance(sample["log"], str) else list(sample["log"]),
+            "lines": [sample["log"]]
+            if isinstance(sample["log"], str)
+            else list(sample["log"]),
             "rule": sample["rule"],
             "level": sample["level"],
             **({"program": sample["program"]} if "program" in sample else {}),
@@ -86,7 +96,7 @@ def load_samples(path: Path) -> list[dict[str, Any]]:
 
 def _parse(path: Path) -> ET.Element:
     # Exception: Wazuh rule files hold several top-level elements, which plain XML rejects.
-    return ET.fromstring(f"<root>{read_text(str(path))}</root>")
+    return ET.fromstring(f"<root>{read_text(str(path))}</root>")  # noqa: S314 - parses this repository's own rule files, never external input
 
 
 def _ids(value: str | None) -> list[int]:
@@ -156,7 +166,12 @@ def _file_errors(
 
 
 def _single_line(value: Any) -> bool:
-    return isinstance(value, str) and value.strip() != "" and "\n" not in value and "\r" not in value
+    return (
+        isinstance(value, str)
+        and value.strip() != ""
+        and "\n" not in value
+        and "\r" not in value
+    )
 
 
 def _sample_errors(
@@ -201,9 +216,13 @@ def _sample_errors(
                     "(frequency, if_matched_sid, if_matched_group)"
                 )
             if not all(_single_line(line) for line in log):
-                errors.append(f"{where}: every log line must be a single non-empty line")
+                errors.append(
+                    f"{where}: every log line must be a single non-empty line"
+                )
         elif not _single_line(log):
-            errors.append(f"{where}: log must be a single non-empty line or a list of them")
+            errors.append(
+                f"{where}: log must be a single non-empty line or a list of them"
+            )
     errors.extend(
         f"{role}: rule {rule_id} has no sample"
         for rule_id in sorted(set(correlation) - covered)
@@ -240,10 +259,14 @@ def tag_errors(applications: dict[str, Any], roles_dir: Path) -> list[str]:
         if entity == PROVIDER_ENTITY or not _opted_in(applications[role]):
             continue
         if not entity:
-            errors.append(f"{role}: an opted-in role needs a non-empty entity name for its Wazuh tag")
+            errors.append(
+                f"{role}: an opted-in role needs a non-empty entity name for its Wazuh tag"
+            )
             continue
         if entity in RESERVED_TAGS:
-            errors.append(f"{role}: Wazuh tag '{entity}' is reserved for the agent or the ruleset")
+            errors.append(
+                f"{role}: Wazuh tag '{entity}' is reserved for the agent or the ruleset"
+            )
         elif JOURNALD_DECODER in entity:
             errors.append(
                 f"{role}: Wazuh tag '{entity}' contains '{JOURNALD_DECODER}', which Wazuh's default decoder claims"
@@ -275,7 +298,11 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
         if entity == PROVIDER_ENTITY:
             errors.extend(
                 _sample_errors(
-                    role, wazuh_dir, range(BASE_RULE_MIN, BASE_RULE_MAX + 1), {}, SAMPLE_PROGRAMS
+                    role,
+                    wazuh_dir,
+                    range(BASE_RULE_MIN, BASE_RULE_MAX + 1),
+                    {},
+                    SAMPLE_PROGRAMS,
                 )
             )
             continue
@@ -301,12 +328,14 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
         file_errors, correlation = _file_errors(role, entity, start, wazuh_dir)
         errors.extend(file_errors)
         errors.extend(
-            _sample_errors(role, wazuh_dir, range(start, start + APP_RULE_LIMIT), correlation)
+            _sample_errors(
+                role, wazuh_dir, range(start, start + APP_RULE_LIMIT), correlation
+            )
         )
     blocks.sort()
     errors.extend(
         f"{role} and {next_role}: rule blocks {start} and {next_start} overlap"
-        for (start, role), (next_start, next_role) in zip(blocks, blocks[1:])
+        for (start, role), (next_start, next_role) in itertools.pairwise(blocks)
         if next_start < start + RULE_BLOCK_SIZE
     )
     return errors

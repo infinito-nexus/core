@@ -22,7 +22,10 @@ def _run(hostname: str) -> dict:
         loader_mock.get.return_value = mock.MagicMock(run=_config)
         result = lm.run(
             [],
-            variables={"inventory_hostname": hostname, "DOMAIN_PRIMARY": "infinito.test"},
+            variables={
+                "inventory_hostname": hostname,
+                "DOMAIN_PRIMARY": "infinito.test",
+            },
         )[0]
     assert calls == [["web-app-wazuh", "secrets.credentials.agent_key"]], calls
     return result

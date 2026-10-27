@@ -3,6 +3,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import sys
 import tempfile
 import threading
 import unittest
@@ -13,8 +14,10 @@ from unittest import mock
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
+SCRIPT_DIR = PROJECT_ROOT / "roles/sys-ctl-hlth-github-settings/files/python"
+sys.path.insert(0, str(SCRIPT_DIR))
 _spec = importlib.util.spec_from_file_location(
-    "github_settings_check", PROJECT_ROOT / "roles/sys-ctl-hlth-github-settings/files/python/script.py"
+    "github_settings_check", SCRIPT_DIR / "script.py"
 )
 script = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(script)
@@ -46,12 +49,21 @@ RULES = [
     {"type": "deletion"},
     {"type": "non_fast_forward"},
     {"type": "required_signatures"},
-    {"type": "pull_request", "parameters": {"required_approving_review_count": 2, "require_code_owner_review": True, "dismiss_stale_reviews_on_push": True}},
+    {
+        "type": "pull_request",
+        "parameters": {
+            "required_approving_review_count": 2,
+            "require_code_owner_review": True,
+            "dismiss_stale_reviews_on_push": True,
+        },
+    },
 ]
 
 
 def parse_yaml(text):
-    with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False, encoding="utf-8") as handle:
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".yml", delete=False, encoding="utf-8"
+    ) as handle:
         handle.write(text)
     try:
         return load_yaml_any(handle.name)
@@ -69,15 +81,31 @@ def responses(**overrides):
         "/repos/o/r": {"default_branch": "main"},
         "/repos/o/r/branches/main/protection": None,
         "/repos/o/r/rules/branches/main?per_page=100": RULES,
-        "/repos/o/r/collaborators?affiliation=direct&per_page=100": [{"login": "bob", "role_name": "write"}],
-        "/repos/o/r/keys?per_page=100": [{"id": 7, "title": "deploy", "read_only": True}],
-        "/repos/o/r/actions/permissions": {"enabled": True, "allowed_actions": "all"},
-        "/repos/o/r/actions/permissions/workflow": {"default_workflow_permissions": "read"},
-        "/repos/o/r/contents/.github/workflows?ref=main": [
-            {"type": "file", "name": "entry-cancel-superseded.yml", "path": ".github/workflows/entry-cancel-superseded.yml"},
-            {"type": "file", "name": "README.md", "path": ".github/workflows/README.md"},
+        "/repos/o/r/collaborators?affiliation=direct&per_page=100": [
+            {"login": "bob", "role_name": "write"}
         ],
-        "/repos/o/r/contents/.github/workflows/entry-cancel-superseded.yml?ref=main": content("on:\n  pull_request_target:\n"),
+        "/repos/o/r/keys?per_page=100": [
+            {"id": 7, "title": "deploy", "read_only": True}
+        ],
+        "/repos/o/r/actions/permissions": {"enabled": True, "allowed_actions": "all"},
+        "/repos/o/r/actions/permissions/workflow": {
+            "default_workflow_permissions": "read"
+        },
+        "/repos/o/r/contents/.github/workflows?ref=main": [
+            {
+                "type": "file",
+                "name": "entry-cancel-superseded.yml",
+                "path": ".github/workflows/entry-cancel-superseded.yml",
+            },
+            {
+                "type": "file",
+                "name": "README.md",
+                "path": ".github/workflows/README.md",
+            },
+        ],
+        "/repos/o/r/contents/.github/workflows/entry-cancel-superseded.yml?ref=main": content(
+            "on:\n  pull_request_target:\n"
+        ),
         "/repos/o/r/secret-scanning/alerts?state=open&per_page=100": [],
         "/repos/o/r/dependabot/alerts?state=open&per_page=100": [],
     }
@@ -105,21 +133,44 @@ class FakeApi:
 
 
 def findings(values):
-    return [event for event in script.run(FakeApi(values), EXPECTED) if event["gs_kind"] != "run"]
+    return [
+        event
+        for event in script.run(FakeApi(values), EXPECTED)
+        if event["gs_kind"] != "run"
+    ]
 
 
 class TestDrift(unittest.TestCase):
     def test_one_event_per_differing_field(self):
-        events = script.drift(SCOPE, "actions", {"enabled": True, "x": "a"}, {"enabled": False, "x": "a", "y": "b"})
+        events = script.drift(
+            SCOPE,
+            "actions",
+            {"enabled": True, "x": "a"},
+            {"enabled": False, "x": "a", "y": "b"},
+        )
         self.assertEqual(
             events,
-            [{"gs_kind": "drift", "gs_scope": SCOPE, "gs_check": "actions", "gs_field": "enabled", "gs_expected": "true", "gs_actual": "false"}],
+            [
+                {
+                    "gs_kind": "drift",
+                    "gs_scope": SCOPE,
+                    "gs_check": "actions",
+                    "gs_field": "enabled",
+                    "gs_expected": "true",
+                    "gs_actual": "false",
+                }
+            ],
         )
 
     def test_extra_reports_added_and_removed_fields(self):
-        events = script.drift(SCOPE, "collaborators", {"bob": "write"}, {"mallory": "admin"}, extra=True)
+        events = script.drift(
+            SCOPE, "collaborators", {"bob": "write"}, {"mallory": "admin"}, extra=True
+        )
         self.assertEqual(
-            [(event["gs_field"], event["gs_expected"], event["gs_actual"]) for event in events],
+            [
+                (event["gs_field"], event["gs_expected"], event["gs_actual"])
+                for event in events
+            ],
             [("bob", "write", "absent"), ("mallory", "absent", "admin")],
         )
 
@@ -130,7 +181,10 @@ class TestDrift(unittest.TestCase):
 
 class TestProtection(unittest.TestCase):
     def test_rulesets_alone(self):
-        self.assertEqual(script.effective_protection(None, RULES), EXPECTED["repositories"]["r"]["branch_protection"])
+        self.assertEqual(
+            script.effective_protection(None, RULES),
+            EXPECTED["repositories"]["r"]["branch_protection"],
+        )
 
     def test_no_protection_at_all(self):
         self.assertEqual(
@@ -148,7 +202,10 @@ class TestProtection(unittest.TestCase):
     def test_classic_protection(self):
         classic = {
             "required_signatures": {"enabled": True},
-            "required_pull_request_reviews": {"required_approving_review_count": 1, "require_code_owner_reviews": True},
+            "required_pull_request_reviews": {
+                "required_approving_review_count": 1,
+                "require_code_owner_reviews": True,
+            },
             "allow_force_pushes": {"enabled": True},
             "allow_deletions": {"enabled": False},
         }
@@ -159,8 +216,15 @@ class TestProtection(unittest.TestCase):
         self.assertTrue(protection["deletion_blocked"])
 
     def test_stricter_of_both_counts(self):
-        classic = {"required_pull_request_reviews": {"required_approving_review_count": 3}}
-        self.assertEqual(script.effective_protection(classic, RULES)["required_approving_review_count"], 3)
+        classic = {
+            "required_pull_request_reviews": {"required_approving_review_count": 3}
+        }
+        self.assertEqual(
+            script.effective_protection(classic, RULES)[
+                "required_approving_review_count"
+            ],
+            3,
+        )
 
 
 class TestPullRequestTarget(unittest.TestCase):
@@ -185,29 +249,59 @@ class TestPullRequestTarget(unittest.TestCase):
 class TestRun(unittest.TestCase):
     def test_matching_state_has_no_findings(self):
         events = script.run(FakeApi(responses()), EXPECTED)
-        self.assertEqual(events, [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}])
+        self.assertEqual(
+            events,
+            [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}],
+        )
 
     def test_every_drift_is_reported(self):
         events = findings(
             responses(
                 **{
-                    "/orgs/o/members?role=admin&per_page=100": [{"login": "alice"}, {"login": "mallory"}],
-                    "/repos/o/r/rules/branches/main?per_page=100": RULES[:2],
-                    "/repos/o/r/collaborators?affiliation=direct&per_page=100": [{"login": "bob", "role_name": "admin"}],
-                    "/repos/o/r/keys?per_page=100": [{"id": 8, "title": "deploy", "read_only": False}],
-                    "/repos/o/r/actions/permissions/workflow": {"default_workflow_permissions": "write"},
-                    "/repos/o/r/contents/.github/workflows?ref=main": [
-                        {"type": "file", "name": "entry-cancel-superseded.yml", "path": ".github/workflows/entry-cancel-superseded.yml"},
-                        {"type": "file", "name": "call-lint.yml", "path": ".github/workflows/call-lint.yml"},
+                    "/orgs/o/members?role=admin&per_page=100": [
+                        {"login": "alice"},
+                        {"login": "mallory"},
                     ],
-                    "/repos/o/r/contents/.github/workflows/call-lint.yml?ref=main": content("on: pull_request_target\n"),
-                    "/repos/o/r/secret-scanning/alerts?state=open&per_page=100": [{"number": 1}],
-                    "/repos/o/r/dependabot/alerts?state=open&per_page=100": [{"number": 1}, {"number": 2}],
+                    "/repos/o/r/rules/branches/main?per_page=100": RULES[:2],
+                    "/repos/o/r/collaborators?affiliation=direct&per_page=100": [
+                        {"login": "bob", "role_name": "admin"}
+                    ],
+                    "/repos/o/r/keys?per_page=100": [
+                        {"id": 8, "title": "deploy", "read_only": False}
+                    ],
+                    "/repos/o/r/actions/permissions/workflow": {
+                        "default_workflow_permissions": "write"
+                    },
+                    "/repos/o/r/contents/.github/workflows?ref=main": [
+                        {
+                            "type": "file",
+                            "name": "entry-cancel-superseded.yml",
+                            "path": ".github/workflows/entry-cancel-superseded.yml",
+                        },
+                        {
+                            "type": "file",
+                            "name": "call-lint.yml",
+                            "path": ".github/workflows/call-lint.yml",
+                        },
+                    ],
+                    "/repos/o/r/contents/.github/workflows/call-lint.yml?ref=main": content(
+                        "on: pull_request_target\n"
+                    ),
+                    "/repos/o/r/secret-scanning/alerts?state=open&per_page=100": [
+                        {"number": 1}
+                    ],
+                    "/repos/o/r/dependabot/alerts?state=open&per_page=100": [
+                        {"number": 1},
+                        {"number": 2},
+                    ],
                 }
             )
         )
         self.assertEqual(
-            sorted((event["gs_check"], event["gs_field"], event["gs_actual"]) for event in events),
+            sorted(
+                (event["gs_check"], event["gs_field"], event["gs_actual"])
+                for event in events
+            ),
             sorted(
                 [
                     ("owners", "mallory", "owner"),
@@ -219,7 +313,11 @@ class TestRun(unittest.TestCase):
                     ("deploy_keys", "7", "absent"),
                     ("deploy_keys", "8", "deploy (read-write)"),
                     ("actions", "default_workflow_permissions", "write"),
-                    ("pull_request_target", ".github/workflows/call-lint.yml", "present"),
+                    (
+                        "pull_request_target",
+                        ".github/workflows/call-lint.yml",
+                        "present",
+                    ),
                     ("secret_scanning", "open_alerts", "1"),
                     ("dependabot", "open_alerts", "2"),
                 ]
@@ -228,17 +326,46 @@ class TestRun(unittest.TestCase):
 
     def test_failed_check_is_an_error_not_no_drift(self):
         events = script.run(
-            FakeApi(responses(**{"/repos/o/r/collaborators?affiliation=direct&per_page=100": script.CheckError("HTTP 403: rate limit exceeded")})),
+            FakeApi(
+                responses(
+                    **{
+                        "/repos/o/r/collaborators?affiliation=direct&per_page=100": script.CheckError(
+                            "HTTP 403: rate limit exceeded"
+                        )
+                    }
+                )
+            ),
             EXPECTED,
         )
         self.assertIn(
-            {"gs_kind": "error", "gs_scope": SCOPE, "gs_check": "collaborators", "gs_reason": "HTTP 403: rate limit exceeded"}, events
+            {
+                "gs_kind": "error",
+                "gs_scope": SCOPE,
+                "gs_check": "collaborators",
+                "gs_reason": "HTTP 403: rate limit exceeded",
+            },
+            events,
         )
-        self.assertEqual(events[-1], {"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "1"})
+        self.assertEqual(
+            events[-1],
+            {"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "1"},
+        )
 
     def test_unreachable_repository_is_one_error(self):
-        events = findings(responses(**{"/repos/o/r": script.CheckError("HTTP 401: Bad credentials")}))
-        self.assertEqual(events, [{"gs_kind": "error", "gs_scope": SCOPE, "gs_check": "repository", "gs_reason": "HTTP 401: Bad credentials"}])
+        events = findings(
+            responses(**{"/repos/o/r": script.CheckError("HTTP 401: Bad credentials")})
+        )
+        self.assertEqual(
+            events,
+            [
+                {
+                    "gs_kind": "error",
+                    "gs_scope": SCOPE,
+                    "gs_check": "repository",
+                    "gs_reason": "HTTP 401: Bad credentials",
+                }
+            ],
+        )
 
     def test_empty_token(self):
         api = FakeApi({})
@@ -267,7 +394,11 @@ class _StubHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         value = self.values.get(self.path, script.CheckError("missing"))
-        status, payload = (404, {"message": "Not Found"}) if value is None or isinstance(value, script.CheckError) else (200, value)
+        status, payload = (
+            (404, {"message": "Not Found"})
+            if value is None or isinstance(value, script.CheckError)
+            else (200, value)
+        )
         if isinstance(value, script.CheckError) and str(value) == "rate limit":
             status, payload = 403, {"message": "API rate limit exceeded"}
         body = json.dumps(payload).encode()
@@ -290,8 +421,18 @@ class TestPrintCurrent(unittest.TestCase):
     def print_current(self, values):
         stub = StubApi(values)
         self.addCleanup(stub.close)
-        argv = ["script", "--api-url", stub.url, "--token-file", str(self.tmp / "token"), "--expected", str(self.tmp / "expected.json"),
-                "--timeout", "5", "--print-current"]
+        argv = [
+            "script",
+            "--api-url",
+            stub.url,
+            "--token-file",
+            str(self.tmp / "token"),
+            "--expected",
+            str(self.tmp / "expected.json"),
+            "--timeout",
+            "5",
+            "--print-current",
+        ]
         out = io.StringIO()
         with mock.patch("sys.argv", argv), contextlib.redirect_stdout(out):
             script.main()
@@ -304,46 +445,88 @@ class TestPrintCurrent(unittest.TestCase):
         repo = state["repositories"]["r"]
         self.assertEqual(state["organization"], "o")
         self.assertEqual(state["owners"], ["alice"])
-        self.assertEqual(repo["branch_protection"], EXPECTED["repositories"]["r"]["branch_protection"])
-        self.assertEqual(repo["deploy_keys"], [{"id": 7, "title": "deploy", "read_only": True}])
-        self.assertEqual(repo["actions"], {"enabled": True, "allowed_actions": "all", "default_workflow_permissions": "read"})
-        self.assertEqual(repo["pull_request_target"], [".github/workflows/entry-cancel-superseded.yml"])
+        self.assertEqual(
+            repo["branch_protection"],
+            EXPECTED["repositories"]["r"]["branch_protection"],
+        )
+        self.assertEqual(
+            repo["deploy_keys"], [{"id": 7, "title": "deploy", "read_only": True}]
+        )
+        self.assertEqual(
+            repo["actions"],
+            {
+                "enabled": True,
+                "allowed_actions": "all",
+                "default_workflow_permissions": "read",
+            },
+        )
+        self.assertEqual(
+            repo["pull_request_target"],
+            [".github/workflows/entry-cancel-superseded.yml"],
+        )
         self.assertEqual(repo["open_dependabot_alerts"], 0)
 
     def test_printed_state_has_no_drift_against_itself(self):
-        values = responses(**{"/repos/o/r/collaborators?affiliation=direct&per_page=100": []})
+        values = responses(
+            **{"/repos/o/r/collaborators?affiliation=direct&per_page=100": []}
+        )
         state = parse_yaml(self.print_current(values))
         self.assertEqual(state["repositories"]["r"]["collaborators"], {})
-        self.assertEqual(script.run(FakeApi(values), state), [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}])
+        self.assertEqual(
+            script.run(FakeApi(values), state),
+            [{"gs_kind": "run", "gs_scope": "o", "gs_drift": "0", "gs_errors": "0"}],
+        )
 
     def test_failed_read_prints_nothing_and_exits(self):
         with self.assertRaises(SystemExit) as raised:
-            self.print_current(responses(**{"/repos/o/r/collaborators?affiliation=direct&per_page=100": script.CheckError("rate limit")}))
-        self.assertIn("o/r collaborators: HTTP 403: rate limit exceeded", str(raised.exception))
+            self.print_current(
+                responses(
+                    **{
+                        "/repos/o/r/collaborators?affiliation=direct&per_page=100": script.CheckError(
+                            "rate limit"
+                        )
+                    }
+                )
+            )
+        self.assertIn(
+            "o/r collaborators: HTTP 403: rate limit exceeded", str(raised.exception)
+        )
 
     def test_tag_required_without_print_current(self):
         with self.assertRaises(SystemExit), contextlib.redirect_stderr(io.StringIO()):
-            script.parse_args(["--api-url", "u", "--token-file", "t", "--expected", "e", "--timeout", "1"])
+            script.parse_args(
+                [
+                    "--api-url",
+                    "u",
+                    "--token-file",
+                    "t",
+                    "--expected",
+                    "e",
+                    "--timeout",
+                    "1",
+                ]
+            )
 
 
 class TestYaml(unittest.TestCase):
     def test_round_trip_quotes_what_yaml_would_reinterpret(self):
-        value = {"a": ["dependabot[bot]", "123", "true", "on", ".github/workflows/call-lint.yml", "plain"], "b": {}, "c": [], "d": 0, "e": False,
-                 "f": [{"id": 1, "title": "k: v"}], "1": "x"}
+        value = {
+            "a": [
+                "dependabot[bot]",
+                "123",
+                "true",
+                "on",
+                ".github/workflows/call-lint.yml",
+                "plain",
+            ],
+            "b": {},
+            "c": [],
+            "d": 0,
+            "e": False,
+            "f": [{"id": 1, "title": "k: v"}],
+            "1": "x",
+        }
         self.assertEqual(parse_yaml("\n".join(script.to_yaml(value))), value)
-
-
-class TestFailureReason(unittest.TestCase):
-    def test_rate_limit(self):
-        reason = script.failure_reason(403, json.dumps({"message": "API rate limit exceeded"}).encode(), {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "42"})
-        self.assertEqual(reason, "HTTP 403: rate limit exceeded, resets at epoch 42")
-
-    def test_secondary_rate_limit(self):
-        self.assertIn("rate limit", script.failure_reason(429, b"", {}))
-
-    def test_permission(self):
-        reason = script.failure_reason(403, json.dumps({"message": "Resource not accessible by personal access token"}).encode(), {"X-RateLimit-Remaining": "4999"})
-        self.assertEqual(reason, "HTTP 403: Resource not accessible by personal access token")
 
 
 if __name__ == "__main__":

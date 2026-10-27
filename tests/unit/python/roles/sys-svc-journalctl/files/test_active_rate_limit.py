@@ -1,13 +1,21 @@
-#!/usr/bin/env python3
 import contextlib
 import importlib.util
 import io
 import sys
+import tempfile
+from pathlib import Path
 from unittest import TestCase, main, mock
 
 from . import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles" / "sys-svc-journalctl" / "files" / "python" / "active_rate_limit.py"
+SCRIPT = (
+    PROJECT_ROOT
+    / "roles"
+    / "sys-svc-journalctl"
+    / "files"
+    / "python"
+    / "active_rate_limit.py"
+)
 
 
 def load_script():
@@ -17,23 +25,17 @@ def load_script():
     return module
 
 
-def fake_readlink(exports):
-    def readlink(path):
-        if path in exports:
-            return exports[path]
-        raise FileNotFoundError(path)
-
-    return readlink
-
-
 class TestActiveRateLimit(TestCase):
     def setUp(self):
         self.script = load_script()
+        self.export_dir = Path(tempfile.mkdtemp())
 
     def output(self, exports):
+        for name, target in exports.items():
+            (self.export_dir / name).symlink_to(target)
         stdout = io.StringIO()
         with (
-            mock.patch.object(self.script.os, "readlink", side_effect=fake_readlink(exports)),
+            mock.patch.object(self.script, "EXPORT_DIR", self.export_dir),
             mock.patch.object(sys, "argv", ["active_rate_limit.py", "docker.service"]),
             contextlib.redirect_stdout(stdout),
         ):
@@ -44,8 +46,8 @@ class TestActiveRateLimit(TestCase):
         self.assertEqual(
             self.output(
                 {
-                    "/run/systemd/units/log-rate-limit-interval:docker.service": "30000000",
-                    "/run/systemd/units/log-rate-limit-burst:docker.service": "50000",
+                    "log-rate-limit-interval:docker.service": "30000000",
+                    "log-rate-limit-burst:docker.service": "50000",
                 }
             ),
             "30000000 50000",
@@ -53,6 +55,9 @@ class TestActiveRateLimit(TestCase):
 
     def test_a_unit_without_its_own_limit_prints_dashes(self):
         self.assertEqual(self.output({}), "- -")
+
+    def test_the_export_dir_is_systemds(self):
+        self.assertEqual(self.script.EXPORT_DIR, Path("/run/systemd/units"))
 
 
 if __name__ == "__main__":

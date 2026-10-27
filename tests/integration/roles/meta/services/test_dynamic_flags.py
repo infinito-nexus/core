@@ -192,7 +192,11 @@ def flag_offenders(
             if (service_key, flag) in inline_exempt:
                 continue
             value = entry[flag]
-            if flag == "enabled" and isinstance(value, bool) and is_host_agent_service(service_key):
+            if (
+                flag == "enabled"
+                and isinstance(value, bool)
+                and is_host_agent_service(service_key)
+            ):
                 continue
             if not (isinstance(value, str) and "in group_names" in value):
                 offenders.append(
@@ -260,10 +264,14 @@ class TestServicesDynamicFlags(unittest.TestCase):
 
 class TestHostAgentExemption(unittest.TestCase):
     def offenders(self, services: dict) -> list[str]:
-        return flag_offenders("web-app-pixelfed", services, set(), set(), {"wazuh": "web-app-wazuh"})
+        return flag_offenders(
+            "web-app-pixelfed", services, set(), set(), {"wazuh": "web-app-wazuh"}
+        )
 
     def test_a_literal_wazuh_opt_in_passes(self):
-        self.assertEqual(self.offenders({"wazuh": {"enabled": True, "rule_block": 101000}}), [])
+        self.assertEqual(
+            self.offenders({"wazuh": {"enabled": True, "rule_block": 101000}}), []
+        )
 
     def test_another_literal_service_flag_still_fails(self):
         self.assertEqual(len(self.offenders({"matomo": {"enabled": True}})), 1)
@@ -272,7 +280,9 @@ class TestHostAgentExemption(unittest.TestCase):
         self.assertEqual(len(self.offenders({"wazuh-agent": {"enabled": True}})), 1)
 
     def test_a_literal_shared_on_wazuh_still_fails(self):
-        self.assertEqual(len(self.offenders({"wazuh": {"enabled": True, "shared": True}})), 1)
+        self.assertEqual(
+            len(self.offenders({"wazuh": {"enabled": True, "shared": True}})), 1
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

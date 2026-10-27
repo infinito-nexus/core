@@ -20,17 +20,28 @@ class TestManagerArgs(unittest.TestCase):
     def test_dnf_pins_with_a_dash_and_lifts_only_the_given_repo(self):
         self.assertEqual(
             manager_args("dnf", ARGS, "4.14.6-1", "wazuh"),
-            {"name": ["wazuh-agent-4.14.6-1"], "state": "present", "disable_excludes": "wazuh"},
+            {
+                "name": ["wazuh-agent-4.14.6-1"],
+                "state": "present",
+                "disable_excludes": "wazuh",
+            },
         )
 
     def test_dnf5_uses_the_dnf_format(self):
-        self.assertEqual(manager_args("dnf5", ARGS, "4.14.6-1", None)["name"], ["wazuh-agent-4.14.6-1"])
+        self.assertEqual(
+            manager_args("dnf5", ARGS, "4.14.6-1", None)["name"],
+            ["wazuh-agent-4.14.6-1"],
+        )
 
     def test_apt_ignores_disable_excludes(self):
-        self.assertNotIn("disable_excludes", manager_args("apt", ARGS, "4.14.6-1", "wazuh"))
+        self.assertNotIn(
+            "disable_excludes", manager_args("apt", ARGS, "4.14.6-1", "wazuh")
+        )
 
     def test_an_unpinned_apt_install_keeps_the_hold_and_skips_recommends(self):
-        self.assertEqual(manager_args("apt", ARGS, None, None), {**ARGS, "install_recommends": False})
+        self.assertEqual(
+            manager_args("apt", ARGS, None, None), {**ARGS, "install_recommends": False}
+        )
 
     def test_an_unpinned_dnf_install_is_unchanged(self):
         self.assertEqual(manager_args("dnf", ARGS, None, None), ARGS)

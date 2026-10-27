@@ -47,7 +47,9 @@ def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
         for call in calls
     ]
     if pinned == calls:
-        raise ValueError("a version pin needs a plain package-manager install of its name")
+        raise ValueError(
+            "a version pin needs a plain package-manager install of its name"
+        )
     return pinned
 
 

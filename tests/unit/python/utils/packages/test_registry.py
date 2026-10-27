@@ -150,7 +150,9 @@ class TestRegistry(unittest.TestCase):
 
     def test_a_literal_version_is_carried(self):
         self._versioned({"names": ["agent"], "version": "4.14.6-1"})
-        self.assertEqual(resolve(self._declaration("agent"), "debian").version, "4.14.6-1")
+        self.assertEqual(
+            resolve(self._declaration("agent"), "debian").version, "4.14.6-1"
+        )
 
     def test_a_jinja_version_is_carried_unrendered(self):
         self._versioned({"names": ["agent"], "version": "{{ AGENT_VERSION }}"})

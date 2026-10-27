@@ -11,7 +11,10 @@ from utils import PROJECT_ROOT
 SCRIPT = PROJECT_ROOT / "roles/web-app-wazuh/files/shell/certs-entrypoint.sh"
 TOOL_VERSION = "4.14"
 NODES = ("wazuh.indexer", "wazuh.manager", "wazuh.dashboard")
-CERTS_YML = "nodes:\n" + "".join(f"  {group}:\n    - name: {node}\n      ip: {node}\n" for group, node in zip(("indexer", "server", "dashboard"), NODES))
+CERTS_YML = "nodes:\n" + "".join(
+    f"  {group}:\n    - name: {node}\n      ip: {node}\n"
+    for group, node in zip(("indexer", "server", "dashboard"), NODES, strict=True)
+)
 CURL_STUB = "#!/usr/bin/env bash\necho curl-called >&2\nexit 22\n"
 
 
@@ -30,11 +33,30 @@ def issue(out, name, ca, days):
     """
     key = out / f"{name}-key.pem"
     csr = out / f"{name}.csr"
-    openssl("genpkey", "-algorithm", "EC", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-out", str(key))
+    openssl(
+        "genpkey",
+        "-algorithm",
+        "EC",
+        "-pkeyopt",
+        "ec_paramgen_curve:prime256v1",
+        "-out",
+        str(key),
+    )
     openssl("req", "-new", "-key", str(key), "-subj", f"/CN={name}", "-out", str(csr))
     openssl(
-        "x509", "-req", "-in", str(csr), "-CA", str(out / f"{ca}.pem"), "-CAkey", str(out / f"{ca}.key"),
-        "-CAcreateserial", "-days", str(days), "-out", str(out / f"{name}.pem"),
+        "x509",
+        "-req",
+        "-in",
+        str(csr),
+        "-CA",
+        str(out / f"{ca}.pem"),
+        "-CAkey",
+        str(out / f"{ca}.key"),
+        "-CAcreateserial",
+        "-days",
+        str(days),
+        "-out",
+        str(out / f"{name}.pem"),
     )
     csr.unlink()
 
@@ -52,11 +74,26 @@ class TestCertsEntrypoint(unittest.TestCase):
         (self.stub / "curl").write_text(CURL_STUB)
         (self.stub / "curl").chmod(0o755)
         openssl(
-            "req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes",
-            "-keyout", str(self.out / "root-ca.key"), "-out", str(self.out / "root-ca.pem"), "-subj", "/CN=root-ca", "-days", "3650",
+            "req",
+            "-x509",
+            "-newkey",
+            "ec",
+            "-pkeyopt",
+            "ec_paramgen_curve:prime256v1",
+            "-nodes",
+            "-keyout",
+            str(self.out / "root-ca.key"),
+            "-out",
+            str(self.out / "root-ca.pem"),
+            "-subj",
+            "/CN=root-ca",
+            "-days",
+            "3650",
         )
         for suffix in ("pem", "key"):
-            shutil.copyfile(self.out / f"root-ca.{suffix}", self.out / f"root-ca-manager.{suffix}")
+            shutil.copyfile(
+                self.out / f"root-ca.{suffix}", self.out / f"root-ca-manager.{suffix}"
+            )
         for name in ("admin", *NODES):
             issue(self.out, name, "root-ca", 365)
         digest = hashlib.sha256(CERTS_YML.encode()).hexdigest()
@@ -75,7 +112,9 @@ class TestCertsEntrypoint(unittest.TestCase):
             CERTS_OUT_DIR=str(self.out),
             CERTS_MIN_VALID_DAYS="30",
         )
-        return subprocess.run(["bash", str(SCRIPT)], env=env, capture_output=True, text=True)
+        return subprocess.run(
+            ["bash", str(SCRIPT)], env=env, capture_output=True, text=True, check=False
+        )
 
     def assert_regenerates(self, reason):
         result = self.run_entrypoint()
@@ -103,27 +142,48 @@ class TestCertsEntrypoint(unittest.TestCase):
 
     def test_missing_key_regenerates(self):
         (self.out / "wazuh.manager-key.pem").unlink()
-        self.assert_regenerates("wazuh.manager.pem or wazuh.manager-key.pem is missing or empty")
+        self.assert_regenerates(
+            "wazuh.manager.pem or wazuh.manager-key.pem is missing or empty"
+        )
 
     def test_missing_ca_key_regenerates(self):
         (self.out / "root-ca-manager.key").unlink()
-        self.assert_regenerates("root-ca-manager.pem or root-ca-manager.key is missing or empty")
+        self.assert_regenerates(
+            "root-ca-manager.pem or root-ca-manager.key is missing or empty"
+        )
 
     def test_expiring_cert_regenerates(self):
         issue(self.out, "wazuh.indexer", "root-ca", 10)
         self.assert_regenerates("wazuh.indexer.pem expires within 30 days")
 
     def test_mismatched_key_regenerates(self):
-        shutil.copyfile(self.out / "wazuh.dashboard-key.pem", self.out / "admin-key.pem")
+        shutil.copyfile(
+            self.out / "wazuh.dashboard-key.pem", self.out / "admin-key.pem"
+        )
         self.assert_regenerates("admin-key.pem does not match admin.pem")
 
     def test_cert_from_another_ca_regenerates(self):
         openssl(
-            "req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes",
-            "-keyout", str(self.out / "other-ca.key"), "-out", str(self.out / "other-ca.pem"), "-subj", "/CN=other", "-days", "3650",
+            "req",
+            "-x509",
+            "-newkey",
+            "ec",
+            "-pkeyopt",
+            "ec_paramgen_curve:prime256v1",
+            "-nodes",
+            "-keyout",
+            str(self.out / "other-ca.key"),
+            "-out",
+            str(self.out / "other-ca.pem"),
+            "-subj",
+            "/CN=other",
+            "-days",
+            "3650",
         )
         issue(self.out, "wazuh.dashboard", "other-ca", 365)
-        self.assert_regenerates("wazuh.dashboard.pem does not verify against root-ca.pem")
+        self.assert_regenerates(
+            "wazuh.dashboard.pem does not verify against root-ca.pem"
+        )
 
 
 if __name__ == "__main__":

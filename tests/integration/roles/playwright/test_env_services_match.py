@@ -111,7 +111,9 @@ def _suppressed_top_level_keys(file_path: Path) -> set[str]:
     return exceptions
 
 
-def missing_flags(role_name: str, services: dict, exempt: set[str], declared_keys: set[str]) -> list[str]:
+def missing_flags(
+    role_name: str, services: dict, exempt: set[str], declared_keys: set[str]
+) -> list[str]:
     """Return one message per gateable service without its env flag.
 
     Args:
@@ -203,10 +205,24 @@ class TestHostAgentExemption(unittest.TestCase):
         self.assertEqual(missing_flags("web-app-pixelfed", services, set(), set()), [])
 
     def test_another_service_without_env_flag_still_fails(self):
-        self.assertEqual(len(missing_flags("web-app-pixelfed", {"matomo": {"enabled": True}}, set(), set())), 1)
+        self.assertEqual(
+            len(
+                missing_flags(
+                    "web-app-pixelfed", {"matomo": {"enabled": True}}, set(), set()
+                )
+            ),
+            1,
+        )
 
     def test_a_key_outside_the_list_cannot_use_the_exemption(self):
-        self.assertEqual(len(missing_flags("web-app-pixelfed", {"wazuh-agent": {"enabled": True}}, set(), set())), 1)
+        self.assertEqual(
+            len(
+                missing_flags(
+                    "web-app-pixelfed", {"wazuh-agent": {"enabled": True}}, set(), set()
+                )
+            ),
+            1,
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

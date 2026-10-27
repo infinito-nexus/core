@@ -41,7 +41,12 @@ services:
 ENTITY = {
     "entity": "pixelfed",
     "role": "web-app-pixelfed",
-    "docker": {"oom": 101096, "healthcheck": 101097, "swarm": 101098, "compose": 101099},
+    "docker": {
+        "oom": 101096,
+        "healthcheck": 101097,
+        "swarm": 101098,
+        "compose": 101099,
+    },
 }
 
 
@@ -131,9 +136,7 @@ class TestDockerSamples(unittest.TestCase):
         self.assertTrue(all(s["role"] == "web-app-pixelfed" for s in samples))
 
     def test_app_without_health_checks_has_no_health_check_exec_sample(self):
-        actions = [
-            json.loads(s["line"])["docker"]["Action"] for s in self._samples({})
-        ]
+        actions = [json.loads(s["line"])["docker"]["Action"] for s in self._samples({})]
         self.assertNotIn("exec_start: redis-cli ping", actions)
         self.assertIn("exec_die", actions)
 

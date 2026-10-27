@@ -83,9 +83,7 @@ class TestBuildPlan(unittest.TestCase):
         self.assertEqual([call.pin for call in plan], [None, "1.0-1"])
 
     def test_a_version_without_a_plain_install_raises(self):
-        spec = PackageSpec(
-            ("micro",), repo={"enable_existing": "crb"}, version="1.0-1"
-        )
+        spec = PackageSpec(("micro",), repo={"enable_existing": "crb"}, version="1.0-1")
         with self.assertRaises(ValueError):
             build_plan(spec, STATE_PRESENT)
 

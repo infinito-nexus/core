@@ -109,7 +109,8 @@ def manager_args(
         if pkg_mgr not in PIN_FORMATS:
             raise ValueError(f"package manager '{pkg_mgr}' cannot pin an exact version")
         result["name"] = [
-            PIN_FORMATS[pkg_mgr].format(name=name, version=version) for name in args["name"]
+            PIN_FORMATS[pkg_mgr].format(name=name, version=version)
+            for name in args["name"]
         ]
         if pkg_mgr == "apt":
             result["allow_change_held_packages"] = True

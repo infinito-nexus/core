@@ -125,8 +125,7 @@ class TestWazuhRuleset(unittest.TestCase):
             [
                 {
                     "src": str(
-                        self.roles_dir
-                        / "web-app-pixelfed/files/wazuh/decoders.xml"
+                        self.roles_dir / "web-app-pixelfed/files/wazuh/decoders.xml"
                     ),
                     "kind": "decoders",
                     "name": "pixelfed_decoders.xml",
@@ -215,7 +214,11 @@ class TestWazuhRuleset(unittest.TestCase):
         )
 
     def test_wazuh_role_samples_are_selftest_samples(self):
-        _write_samples(self.roles_dir, "web-app-wazuh", "- log: plain\n  rule: 100100\n  level: 0\n")
+        _write_samples(
+            self.roles_dir,
+            "web-app-wazuh",
+            "- log: plain\n  rule: 100100\n  level: 0\n",
+        )
         self.assertEqual(
             _run(self.roles_dir, {"web-app-wazuh": True})["samples"],
             [
@@ -285,7 +288,9 @@ class TestWazuhRuleset(unittest.TestCase):
         _write_samples(
             self.roles_dir, "web-app-pixelfed", "- log: a\n  rule: 101000\n  level: 0\n"
         )
-        self.assertEqual(_run(self.roles_dir, {"web-app-pixelfed": False})["samples"], [])
+        self.assertEqual(
+            _run(self.roles_dir, {"web-app-pixelfed": False})["samples"], []
+        )
 
     def test_host_scope_keeps_only_this_hosts_roles(self):
         result = _run(

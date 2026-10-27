@@ -11,7 +11,11 @@ MANAGER_ROLE = "web-app-wazuh"
 
 
 def agent_includes(tasks):
-    return [index for index, task in enumerate(tasks) if (task.get("include_role") or {}).get("name") == AGENT_ROLE]
+    return [
+        index
+        for index, task in enumerate(tasks)
+        if (task.get("include_role") or {}).get("name") == AGENT_ROLE
+    ]
 
 
 class TestAgentIncludeOrder(unittest.TestCase):
@@ -29,7 +33,8 @@ class TestAgentIncludeOrder(unittest.TestCase):
         registration = [
             index
             for index, task in enumerate(tasks)
-            if isinstance(task.get("include_tasks"), dict) and task["include_tasks"].get("file") == "02_agents.yml"
+            if isinstance(task.get("include_tasks"), dict)
+            and task["include_tasks"].get("file") == "02_agents.yml"
         ]
         self.assertEqual(len(registration), 1)
         self.assertLess(registration[0], includes[0])

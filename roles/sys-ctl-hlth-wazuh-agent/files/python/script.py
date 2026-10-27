@@ -6,7 +6,8 @@ import re
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
+from pathlib import Path
 
 ACTIVE_AGENT_STATES = ("Active", "Active/Local")
 DEFAULT_COLLECTOR_GRACE = 5
@@ -50,15 +51,24 @@ def evaluate_host(service_active, agentd_age, state, now, threshold):
     if state.get("status") == "connected":
         return []
     try:
-        ack_age = int((now - datetime.strptime(state.get("last_ack", ""), "%Y-%m-%d %H:%M:%S")).total_seconds())
+        ack_age = int(
+            (
+                now
+                - datetime.strptime(
+                    state.get("last_ack", ""), "%Y-%m-%d %H:%M:%S"
+                ).astimezone()
+            ).total_seconds()
+        )
     except ValueError:
         ack_age = None
     if ack_age is not None and ack_age < threshold:
         return []
     ack = "never" if ack_age is None else f"{ack_age} s ago"
     return [
-        f"wazuh-agentd is {state.get('status', 'unknown')}: last manager ACK {ack} "
-        f"(threshold {threshold} s), {state.get('msg_buffer', '?')} events buffered"
+        (
+            f"wazuh-agentd is {state.get('status', 'unknown')}: last manager ACK {ack} "
+            f"(threshold {threshold} s), {state.get('msg_buffer', '?')} events buffered"
+        )
     ]
 
 
@@ -84,7 +94,9 @@ def evaluate_manager(listing, keepalives, since_change, now_epoch, threshold):
         if keepalive is not None and now_epoch - keepalive < threshold:
             continue
         seen = "never" if keepalive is None else f"{int(now_epoch - keepalive)} s ago"
-        problems.append(f"agent {agent_id} ({name}) is {status}: last keepalive {seen} (threshold {threshold} s)")
+        problems.append(
+            f"agent {agent_id} ({name}) is {status}: last keepalive {seen} (threshold {threshold} s)"
+        )
     return problems
 
 
@@ -96,7 +108,9 @@ def evaluate_clock(ntp_synchronized):
     """
     if ntp_synchronized == "yes":
         return []
-    return [f"the host clock is not synchronized (NTPSynchronized={ntp_synchronized or 'unreadable'}); Wazuh event times cannot be trusted"]
+    return [
+        f"the host clock is not synchronized (NTPSynchronized={ntp_synchronized or 'unreadable'}); Wazuh event times cannot be trusted"
+    ]
 
 
 def evaluate_collector(collector_state, agent_locked):
@@ -107,16 +121,22 @@ def evaluate_collector(collector_state, agent_locked):
         agent_locked: whether wazuh-agentd's offline lock (queue/sockets/.wait) exists.
     """
     if collector_state == "T" and not agent_locked:
-        return ["wazuh-logcollector is frozen although the agent is online; no log line is collected until it is resumed"]
+        return [
+            "wazuh-logcollector is frozen although the agent is online; no log line is collected until it is resumed"
+        ]
     return []
 
 
 def collector_state(run_dir):
-    for pid_file in glob.glob(os.path.join(run_dir, "wazuh-logcollector-*.pid")):
+    for pid_file in glob.glob(str(Path(run_dir) / "wazuh-logcollector-*.pid")):
         pid = pid_file.rsplit("-", 1)[1].split(".", 1)[0]
         try:
-            with open(f"/proc/{pid}/stat", encoding="ascii") as stat_file:
-                return stat_file.read().rsplit(")", 1)[1].split()[0]
+            return (
+                Path(f"/proc/{pid}/stat")
+                .read_text(encoding="ascii")
+                .rsplit(")", 1)[1]
+                .split()[0]
+            )
         except (OSError, IndexError):
             continue
     return None
@@ -128,19 +148,24 @@ def parse_agents(listing):
     Args:
         listing: output of agent_control -l.
     """
-    return [match.groups() for match in map(AGENT_LINE.match, listing.splitlines()) if match]
+    return [
+        match.groups() for match in map(AGENT_LINE.match, listing.splitlines()) if match
+    ]
 
 
 def process_age(pid):
-    with open(f"/proc/{pid}/stat", encoding="ascii") as stat_file:
-        start_ticks = int(stat_file.read().rsplit(")", 1)[1].split()[19])
-    with open("/proc/uptime", encoding="ascii") as uptime_file:
-        uptime = float(uptime_file.read().split()[0])
+    start_ticks = int(
+        Path(f"/proc/{pid}/stat")
+        .read_text(encoding="ascii")
+        .rsplit(")", 1)[1]
+        .split()[19]
+    )
+    uptime = float(Path("/proc/uptime").read_text(encoding="ascii").split()[0])
     return uptime - start_ticks / os.sysconf("SC_CLK_TCK")
 
 
 def agentd_age(run_dir):
-    for pid_file in glob.glob(os.path.join(run_dir, "wazuh-agentd-*.pid")):
+    for pid_file in glob.glob(str(Path(run_dir) / "wazuh-agentd-*.pid")):
         pid = pid_file.rsplit("-", 1)[1].split(".", 1)[0]
         try:
             return process_age(pid)
@@ -155,54 +180,114 @@ def run(argv):
 
 
 def epoch(timestamp):
-    return datetime.fromisoformat(timestamp.strip()[:26].rstrip("Z") + "+00:00").timestamp()
+    return (
+        datetime.fromisoformat(timestamp.strip()[:26].rstrip("Z"))
+        .replace(tzinfo=UTC)
+        .timestamp()
+    )
 
 
 def manager_problems(container, threshold):
-    inspect = run(["container", "inspect", "-f", "{{.State.Running}} {{.State.StartedAt}} {{.State.FinishedAt}}", container])
+    inspect = run(
+        [
+            "container",
+            "inspect",
+            "-f",
+            "{{.State.Running}} {{.State.StartedAt}} {{.State.FinishedAt}}",
+            container,
+        ]
+    )
     since_change = None
     if inspect:
         running, started, finished = inspect.split()
         since_change = time.time() - epoch(started if running == "true" else finished)
-    listing = run(["container", "exec", container, "/var/ossec/bin/agent_control", "-l"])
+    listing = run(
+        ["container", "exec", container, "/var/ossec/bin/agent_control", "-l"]
+    )
     keepalives = {}
     for agent_id, _name, status in parse_agents(listing or ""):
         if agent_id == "000" or status in ACTIVE_AGENT_STATES:
             continue
-        detail = run(["container", "exec", container, "/var/ossec/bin/agent_control", "-i", agent_id]) or ""
+        detail = (
+            run(
+                [
+                    "container",
+                    "exec",
+                    container,
+                    "/var/ossec/bin/agent_control",
+                    "-i",
+                    agent_id,
+                ]
+            )
+            or ""
+        )
         match = KEEPALIVE_LINE.search(detail)
         keepalives[agent_id] = int(match.group(1)) if match else None
     return evaluate_manager(listing, keepalives, since_change, time.time(), threshold)
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Check the Wazuh agent and the host clock on this host and, on the manager host, every registered agent.")
+    parser = argparse.ArgumentParser(
+        description="Check the Wazuh agent and the host clock on this host and, on the manager host, every registered agent."
+    )
     parser.add_argument("--service", required=True, help="systemd unit of the agent")
-    parser.add_argument("--run-dir", required=True, help="the agent's var/run directory")
-    parser.add_argument("--threshold", required=True, type=int, help="seconds of tolerated disconnect and of grace after a start")
-    parser.add_argument("--manager", help="manager container name; checks every registered agent when set")
+    parser.add_argument(
+        "--run-dir", required=True, help="the agent's var/run directory"
+    )
+    parser.add_argument(
+        "--threshold",
+        required=True,
+        type=int,
+        help="seconds of tolerated disconnect and of grace after a start",
+    )
+    parser.add_argument(
+        "--manager",
+        help="manager container name; checks every registered agent when set",
+    )
     # Exception: defaults equal the role's vars so units rendered before the collector freeze keep working without both args.
-    parser.add_argument("--wait-file", default=DEFAULT_WAIT_FILE, help="wazuh-agentd's offline lock file")
-    parser.add_argument("--collector-grace", default=DEFAULT_COLLECTOR_GRACE, type=int, help="seconds a frozen collector may lag behind the lock")
+    parser.add_argument(
+        "--wait-file",
+        default=DEFAULT_WAIT_FILE,
+        help="wazuh-agentd's offline lock file",
+    )
+    parser.add_argument(
+        "--collector-grace",
+        default=DEFAULT_COLLECTOR_GRACE,
+        type=int,
+        help="seconds a frozen collector may lag behind the lock",
+    )
     return parser.parse_args(argv)
 
 
 def main():
     args = parse_args()
 
-    state_path = os.path.join(args.run_dir, "wazuh-agentd.state")
     try:
-        with open(state_path, encoding="utf-8") as state_file:
-            state = parse_state(state_file.read())
+        state = parse_state(
+            (Path(args.run_dir) / "wazuh-agentd.state").read_text(encoding="utf-8")
+        )
     except FileNotFoundError:
         state = None
-    service_active = subprocess.run(["systemctl", "is-active", "--quiet", args.service], check=False).returncode == 0
-    problems = evaluate_host(service_active, agentd_age(args.run_dir), state, datetime.now(), args.threshold)
+    service_active = (
+        subprocess.run(
+            ["systemctl", "is-active", "--quiet", args.service], check=False
+        ).returncode
+        == 0
+    )
+    problems = evaluate_host(
+        service_active,
+        agentd_age(args.run_dir),
+        state,
+        datetime.now().astimezone(),
+        args.threshold,
+    )
     ntp = run(["timedatectl", "show", "--property=NTPSynchronized", "--value"])
     problems += evaluate_clock(ntp.strip() if ntp is not None else None)
-    if evaluate_collector(collector_state(args.run_dir), os.path.exists(args.wait_file)):
+    if evaluate_collector(collector_state(args.run_dir), Path(args.wait_file).exists()):
         time.sleep(args.collector_grace)
-        problems += evaluate_collector(collector_state(args.run_dir), os.path.exists(args.wait_file))
+        problems += evaluate_collector(
+            collector_state(args.run_dir), Path(args.wait_file).exists()
+        )
     if args.manager:
         problems += manager_problems(args.manager, args.threshold)
 

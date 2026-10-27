@@ -79,7 +79,9 @@ class TestRuleBlockErrors(unittest.TestCase):
 
     def test_non_integer_block_fails(self):
         self._assert_error(
-            self._errors({"web-app-pixelfed": {"enabled": True, "rule_block": "101000"}}),
+            self._errors(
+                {"web-app-pixelfed": {"enabled": True, "rule_block": "101000"}}
+            ),
             "must be an integer",
         )
 
@@ -87,7 +89,9 @@ class TestRuleBlockErrors(unittest.TestCase):
         for start in (100900, 118950, 119000):
             with self.subTest(start=start):
                 self._assert_error(
-                    self._errors({"web-app-pixelfed": {"enabled": True, "rule_block": start}}),
+                    self._errors(
+                        {"web-app-pixelfed": {"enabled": True, "rule_block": start}}
+                    ),
                     "is outside 101000-118999",
                 )
 
@@ -148,12 +152,18 @@ class TestRuleBlockErrors(unittest.TestCase):
             "rules.xml",
             '<rule id="101095" level="5"><if_sid>101000</if_sid><match>x</match></rule>',
         )
-        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101095\n  level: 5\n")
+        self._ship(
+            "web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101095\n  level: 5\n"
+        )
         self.assertEqual(self._errors(_PIXELFED), [])
 
     def test_sample_on_reserved_docker_id_fails(self):
-        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101099\n  level: 5\n")
-        self._assert_error(self._errors(_PIXELFED), "rule 101099 is outside 101000-101095")
+        self._ship(
+            "web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101099\n  level: 5\n"
+        )
+        self._assert_error(
+            self._errors(_PIXELFED), "rule 101099 is outside 101000-101095"
+        )
 
     def test_docker_rule_ids_sit_at_the_top_of_the_block(self):
         self.assertEqual(
@@ -167,7 +177,9 @@ class TestRuleBlockErrors(unittest.TestCase):
 
     def test_unscoped_rule_fails(self):
         self._ship(
-            "web-app-pixelfed", "rules.xml", '<rule id="101001" level="5"><match>x</match></rule>'
+            "web-app-pixelfed",
+            "rules.xml",
+            '<rule id="101001" level="5"><match>x</match></rule>',
         )
         self._assert_error(self._errors(_PIXELFED), "not scoped")
 
@@ -209,7 +221,9 @@ class TestRuleBlockErrors(unittest.TestCase):
 
     def test_provider_sample_with_foreign_program_fails(self):
         self._ship(
-            "web-app-wazuh", "samples.yml", "- log: x\n  rule: 100120\n  level: 3\n  program: sshd\n"
+            "web-app-wazuh",
+            "samples.yml",
+            "- log: x\n  rule: 100120\n  level: 3\n  program: sshd\n",
         )
         self._assert_error(
             self._errors({"web-app-wazuh": {"enabled": True}}), "program must be one of"
@@ -228,20 +242,34 @@ class TestRuleBlockErrors(unittest.TestCase):
         self._assert_error(self._errors(_PIXELFED), "rule 101001 has no sample")
 
     def test_negative_sample_on_parent_passes(self):
-        self._ship("web-app-pixelfed", "samples.yml", "- log: unrelated\n  rule: 101000\n  level: 0\n")
+        self._ship(
+            "web-app-pixelfed",
+            "samples.yml",
+            "- log: unrelated\n  rule: 101000\n  level: 0\n",
+        )
         self.assertEqual(self._errors(_PIXELFED), [])
 
     def test_sample_outside_own_block_fails(self):
-        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 100110\n  level: 3\n")
-        self._assert_error(self._errors(_PIXELFED), "rule 100110 is outside 101000-101095")
+        self._ship(
+            "web-app-pixelfed", "samples.yml", "- log: x\n  rule: 100110\n  level: 3\n"
+        )
+        self._assert_error(
+            self._errors(_PIXELFED), "rule 100110 is outside 101000-101095"
+        )
 
     def test_sample_with_non_integer_level_fails(self):
-        self._ship("web-app-pixelfed", "samples.yml", "- log: x\n  rule: 101000\n  level: '0'\n")
+        self._ship(
+            "web-app-pixelfed",
+            "samples.yml",
+            "- log: x\n  rule: 101000\n  level: '0'\n",
+        )
         self._assert_error(self._errors(_PIXELFED), "level must be an integer")
 
     def test_sample_with_multiline_log_fails(self):
         self._ship(
-            "web-app-pixelfed", "samples.yml", '- log: "a\\nb"\n  rule: 101000\n  level: 0\n'
+            "web-app-pixelfed",
+            "samples.yml",
+            '- log: "a\\nb"\n  rule: 101000\n  level: 0\n',
         )
         self._assert_error(self._errors(_PIXELFED), "single non-empty line")
 
@@ -256,7 +284,9 @@ class TestRuleBlockErrors(unittest.TestCase):
             "samples.yml",
             "- log: [x one, x two]\n  rule: 101001\n  level: 5\n",
         )
-        self._assert_error(self._errors(_PIXELFED), "only allowed for a correlation rule")
+        self._assert_error(
+            self._errors(_PIXELFED), "only allowed for a correlation rule"
+        )
 
     def test_one_item_log_list_fails(self):
         self._ship("web-app-pixelfed", "rules.xml", _SCOPED_RULE + _FREQUENCY_RULE)
@@ -277,11 +307,15 @@ class TestRuleBlockErrors(unittest.TestCase):
         self.assertEqual(self._errors(_PIXELFED), [])
 
     def test_provider_samples_use_the_base_range(self):
-        self._ship("web-app-wazuh", "samples.yml", "- log: x\n  rule: 100100\n  level: 0\n")
+        self._ship(
+            "web-app-wazuh", "samples.yml", "- log: x\n  rule: 100100\n  level: 0\n"
+        )
         self.assertEqual(self._errors({"web-app-wazuh": {"enabled": True}}), [])
 
     def test_provider_samples_outside_base_range_fail(self):
-        self._ship("web-app-wazuh", "samples.yml", "- log: x\n  rule: 101000\n  level: 0\n")
+        self._ship(
+            "web-app-wazuh", "samples.yml", "- log: x\n  rule: 101000\n  level: 0\n"
+        )
         self._assert_error(
             self._errors({"web-app-wazuh": {"enabled": True}}), "outside 100100-100999"
         )
@@ -313,7 +347,8 @@ class TestTagErrors(unittest.TestCase):
             with self.subTest(tag=tag):
                 errors = self._errors([f"web-app-{tag}"])
                 self.assertTrue(
-                    any(f"Wazuh tag '{tag}' is reserved" in error for error in errors), errors
+                    any(f"Wazuh tag '{tag}' is reserved" in error for error in errors),
+                    errors,
                 )
 
     def test_tag_containing_systemd_fails(self):
@@ -322,12 +357,15 @@ class TestTagErrors(unittest.TestCase):
 
     def test_empty_entity_fails(self):
         errors = self._errors(["update"])
-        self.assertTrue(any("non-empty entity name" in error for error in errors), errors)
+        self.assertTrue(
+            any("non-empty entity name" in error for error in errors), errors
+        )
 
     def test_tag_shared_with_another_role_fails(self):
         errors = self._errors(["web-app-litellm"], ("svc-ai-litellm",))
         self.assertTrue(
-            any("is also the entity of svc-ai-litellm" in error for error in errors), errors
+            any("is also the entity of svc-ai-litellm" in error for error in errors),
+            errors,
         )
 
     def test_shared_entity_of_roles_that_do_not_opt_in_passes(self):
@@ -351,7 +389,12 @@ class TestLoadSamples(unittest.TestCase):
                 [
                     {"lines": ["one"], "rule": 101000, "level": 0},
                     {"lines": ["a", "b"], "rule": 101002, "level": 10},
-                    {"lines": ["two"], "rule": 100120, "level": 3, "program": "infinito-deploy"},
+                    {
+                        "lines": ["two"],
+                        "rule": 100120,
+                        "level": 3,
+                        "program": "infinito-deploy",
+                    },
                 ],
             )
 

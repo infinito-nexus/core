@@ -96,12 +96,17 @@ class TestDockerComposeTemplates(unittest.TestCase):
 class TestServiceJournaldTag(unittest.TestCase):
     APPLICATION_ID = "web-app-pixelfed"
     MODES = ("compose", "swarm")
-    SERVICE_BASE_INCLUDE = "{% include 'roles/sys-svc-container/templates/base.yml.j2' %}"
+    SERVICE_BASE_INCLUDE = (
+        "{% include 'roles/sys-svc-container/templates/base.yml.j2' %}"
+    )
     SERVICE_NAME_RE: ClassVar[re.Pattern] = re.compile(r"\{%\s*set\s+service_name\s*=")
     TEMPLATES: ClassVar[dict[str, tuple[str, str]]] = {
         "roles/sys-svc-container/templates/base.yml.j2": ("services:\n  svc:\n", "svc"),
         "roles/svc-db-redis/templates/service.yml.j2": ("services:\n", "redis"),
-        "roles/sys-svc-rdbms/templates/services/mariadb.yml.j2": ("services:\n", "database"),
+        "roles/sys-svc-rdbms/templates/services/mariadb.yml.j2": (
+            "services:\n",
+            "database",
+        ),
     }
 
     def _render_logging(self, template, mode, wazuh_enabled):
@@ -187,7 +192,9 @@ class TestServiceJournaldTag(unittest.TestCase):
 
     def test_every_service_of_an_opted_in_role_includes_the_service_base(self):
         opted_in = []
-        for services_path in sorted(PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_SERVICES}")):
+        for services_path in sorted(
+            PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_SERVICES}")
+        ):
             role = services_path.parent.parent.name
             wazuh = (load_yaml_str(read_text(str(services_path))) or {}).get("wazuh")
             if get_entity_name(role) == "wazuh" or not isinstance(wazuh, dict):
@@ -195,7 +202,9 @@ class TestServiceJournaldTag(unittest.TestCase):
             if wazuh.get("enabled") is not True:
                 continue
             opted_in.append(role)
-            template = read_text(str(PROJECT_ROOT / "roles" / role / ROLE_FILE_TEMPL_COMPOSE))
+            template = read_text(
+                str(PROJECT_ROOT / "roles" / role / ROLE_FILE_TEMPL_COMPOSE)
+            )
             with self.subTest(role=role):
                 self.assertEqual(
                     template.count(self.SERVICE_BASE_INCLUDE),

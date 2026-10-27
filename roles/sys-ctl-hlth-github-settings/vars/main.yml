@@ -8,4 +8,5 @@ HLTH_GITHUB_SETTINGS_TIMEOUT: 30
 HLTH_GITHUB_SETTINGS_TAG: "{{ lookup('wazuh_ruleset', scope='host').github_settings.program }}"
 HLTH_GITHUB_SETTINGS_DIR: "{{ [DIR_SCRIPTS_SYSTEMCTL, system_service_id] | path_join }}"
 HLTH_GITHUB_SETTINGS_TOKEN_FILE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'token'] | path_join }}"
+HLTH_GITHUB_SETTINGS_API_MODULE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'github_api.py'] | path_join }}"
 HLTH_GITHUB_SETTINGS_EXPECTED_FILE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'expected.json'] | path_join }}"
