@@ -16,7 +16,7 @@ This role adds only the human-facing half: an nginx sidecar that routes two cano
 The sidecar reaches the engine over the shared object-store network, so the console can be deployed, removed or left out of a node without touching the store.
 A node that does not run this role keeps its object store and its S3 endpoint; it simply has no browser console.
 
-Per-consumer S3 identities are rendered into `s3.json`: each consuming role receives an access key and bucket-scoped `Read`, `Write`, `List`, and `Tagging` actions, and consumers marked `public` additionally receive anonymous read on their bucket.
+Per-consumer S3 identities are rendered into `s3.json`: each consuming role receives an access key and bucket-scoped `Read`, `Write`, `WriteAcp`, `List`, and `Tagging` actions, and consumers marked `public` additionally receive anonymous read on their bucket.
 Consumer buckets are created through `weed shell` when a consumer role requests provisioning.
 
 In embedded mode (`shared: false`) a consumer's compose stack receives a storage-only SeaweedFS container without UI or published ports.
