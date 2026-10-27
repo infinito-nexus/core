@@ -83,7 +83,9 @@ def seaweedfs_sidecar_script(bucket, s3_port, access_key, secret_key):
     The ``s3.configure`` grant is required since SeaweedFS 4.39: a server
     started without an ``-s3.config`` has zero identities, and ListBuckets
     then returns an empty list to the consumer's access key, so the consumer
-    reads the bucket as missing even though it exists.
+    reads the bucket as missing even though it exists. ``WriteAcp`` is
+    required since SeaweedFS 4.49: a PutObject carrying ``x-amz-acl`` is
+    also authorized as s3:PutObjectAcl and answers AccessDenied without it.
 
     Args:
         bucket: consumer bucket name created idempotently at startup.
@@ -95,7 +97,7 @@ def seaweedfs_sidecar_script(bucket, s3_port, access_key, secret_key):
     grant = (
         f"s3.configure -user {bucket} -access_key {access_key} "
         f"-secret_key {secret_key} -buckets {bucket} "
-        f"-actions Read,Write,List,Tagging -apply"
+        f"-actions Read,Write,WriteAcp,List,Tagging -apply"
     )
     return (
         f"(until wget -q -O /dev/null http://127.0.0.1:{s3_port}/status; do sleep 2; done; "
