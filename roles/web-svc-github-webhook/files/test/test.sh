@@ -108,11 +108,11 @@ payloads = {
                      "sender": sender},
     "deploy_key": {"action": "created", "key": {"title": "deploy", "read_only": False}, "repository": repo, "sender": sender},
     "secret_scanning_alert": {"action": "created", "alert": {"number": 3, "secret_type": "github_personal_access_token",
-                                                             "html_url": "https://github.com/infinito-nexus/core/security/secret-scanning/3"},
+                                                             "html_url": "https://github.example/infinito-nexus/core/security/secret-scanning/3"},
                               "repository": repo, "sender": sender},
     "dependabot_alert": {"action": "created", "alert": {"number": 7, "security_advisory": {"severity": "high"},
                                                         "dependency": {"package": {"name": "requests"}},
-                                                        "html_url": "https://github.com/infinito-nexus/core/security/dependabot/7"},
+                                                        "html_url": "https://github.example/infinito-nexus/core/security/dependabot/7"},
                          "repository": repo, "sender": sender},
 }
 sys.stdout.write(json.dumps(payloads[event]))

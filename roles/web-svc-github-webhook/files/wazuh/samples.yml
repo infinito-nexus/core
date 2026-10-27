@@ -34,13 +34,13 @@
 - log: '{"gh_action": "created", "gh_delivery": "d-101133", "gh_event": "deploy_key", "gh_key_read_only": "false", "gh_key_title": "deploy", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_sender": "octocat", "gh_srcip": "203.0.113.5"}'
   rule: 101133
   level: 12
-- log: '{"gh_action": "created", "gh_alert_number": "3", "gh_delivery": "d-101140", "gh_event": "secret_scanning_alert", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_secret_type": "github_personal_access_token", "gh_sender": "github", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/secret-scanning/3"}'
+- log: '{"gh_action": "created", "gh_alert_number": "3", "gh_delivery": "d-101140", "gh_event": "secret_scanning_alert", "gh_kind": "delivery", "gh_repo": "infinito-nexus/core", "gh_secret_type": "github_personal_access_token", "gh_sender": "github", "gh_srcip": "203.0.113.5", "gh_url": "https://github.example/infinito-nexus/core/security/secret-scanning/3"}'
   rule: 101140
   level: 12
-- log: '{"gh_action": "created", "gh_alert_number": "7", "gh_delivery": "d-101141", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "requests", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "high", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/dependabot/7"}'
+- log: '{"gh_action": "created", "gh_alert_number": "7", "gh_delivery": "d-101141", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "requests", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "high", "gh_srcip": "203.0.113.5", "gh_url": "https://github.example/infinito-nexus/core/security/dependabot/7"}'
   rule: 101141
   level: 10
-- log: '{"gh_action": "created", "gh_alert_number": "8", "gh_delivery": "d-101142", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "urllib3", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "medium", "gh_srcip": "203.0.113.5", "gh_url": "https://github.com/infinito-nexus/core/security/dependabot/8"}'
+- log: '{"gh_action": "created", "gh_alert_number": "8", "gh_delivery": "d-101142", "gh_event": "dependabot_alert", "gh_kind": "delivery", "gh_package": "urllib3", "gh_repo": "infinito-nexus/core", "gh_sender": "github", "gh_severity": "medium", "gh_srcip": "203.0.113.5", "gh_url": "https://github.example/infinito-nexus/core/security/dependabot/8"}'
   rule: 101142
   level: 7
 - log: '{"gh_delivery": "d-101160", "gh_kind": "rejected", "gh_reason": "signature", "gh_srcip": "203.0.113.5"}'

@@ -12,7 +12,7 @@ _spec = importlib.util.spec_from_file_location(
 script = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(script)
 
-URL = "https://github.com/o/r.git"
+URL = "https://github.com/o/r.git"  # nocheck: url
 
 
 def git(*args):
@@ -146,15 +146,15 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(script.parse_porcelain(output), [("M", "a.txt"), ("D", "b.txt"), ("R", "new.txt"), ("M", "c d.txt")])
 
     def test_github_slug(self):
-        for url in ("https://github.com/o/r.git", "https://github.com/o/r", "git@github.com:o/r.git", "ssh://git@github.com/o/r.git",
-                    "https://x-access-token:secret@github.com/o/r.git"):
+        for url in ("https://github.com/o/r.git", "https://github.com/o/r", "git@github.com:o/r.git", "ssh://git@github.com/o/r.git",  # nocheck: url
+                    "https://x-access-token:secret@github.com/o/r.git"):  # nocheck: url
             self.assertEqual(script.github_slug(url), "o/r", url)
-        for url in ("https://gitlab.com/o/r.git", "file:///srv/r.git", "/srv/r.git"):
+        for url in ("https://gitlab.example/o/r.git", "https://github.example/o/r.git", "file:///srv/r.git", "/srv/r.git"):
             self.assertIsNone(script.github_slug(url), url)
 
     def test_credentials_are_redacted(self):
-        self.assertEqual(script.clean("fatal: unable to access 'https://user:secret@github.com/o/r.git/'"),
-                         "fatal: unable to access 'https://***@github.com/o/r.git/'")
+        self.assertEqual(script.clean("fatal: unable to access 'https://user:secret@github.example/o/r.git/'"),
+                         "fatal: unable to access 'https://***@github.example/o/r.git/'")
 
     def test_rate_limit_reason(self):
         self.assertEqual(script.failure_reason(403, b'{"message": "API rate limit exceeded"}', {}), "HTTP 403: rate limit exceeded")

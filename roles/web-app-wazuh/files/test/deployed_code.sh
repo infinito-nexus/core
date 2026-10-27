@@ -23,7 +23,7 @@ fi
 : "${ALERTS:?}" "${DEPLOYED_CODE_SCRIPT:?}" "${DEPLOYED_CODE_TAG:?}" "${RETRIES:?}" "${SLEEP_SECONDS:?}"
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
-PROOF_URL="https://github.com/proof-org/core.git" # nocheck: repository-declared -- a fake origin rewritten to a local bare repository through insteadOf, never fetched from GitHub
+PROOF_URL="https://github.com/proof-org/core.git" # nocheck: repository-declared, url -- a fake origin rewritten to a local bare repository through insteadOf, never fetched from GitHub
 ORIGIN="$(dirname "${DEPLOYED_CODE_PROOF}")/origin.git"
 WORK="$(mktemp -d)"
 FILE="proof-${RUN}.txt"
