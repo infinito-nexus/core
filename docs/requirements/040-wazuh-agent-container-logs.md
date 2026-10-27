@@ -4,6 +4,8 @@
 
 As a platform operator, I want every opted-in app's logs, Docker events, host file changes, vulnerability findings and GitHub security events to reach Wazuh with their app identity, without silent loss, so that I can detect and investigate attacks on my Infinito.Nexus hosts.
 
+Implementing PR: [infinito-nexus/core#1231](https://github.com/infinito-nexus/core/pull/1231).
+
 ## Acceptance Criteria
 
 ### A. Coverage
