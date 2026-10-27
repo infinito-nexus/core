@@ -2,17 +2,19 @@
 # shellcheck shell=bash
 #
 # web-svc-github-webhook role test, dev and CI only (criterion G, webhook part):
-#   every watched GitHub event, signed like GitHub signs it, raises its rule through the deployed receiver;
-#   unsigned, wrongly signed, replayed, oversized and malformed requests are refused and alerted;
-#   a push to a repository's default branch whose commit has no merged pull request raises the direct-push rule,
+#   every watched GitHub event, signed like GitHub signs it, is accepted by the deployed receiver and logged;
+#   unsigned, wrongly signed, replayed, oversized and malformed requests are refused and logged;
+#   a push to a repository's default branch whose commit has no merged pull request is logged as a direct push,
 #   checked through a second, throwaway receiver that asks a local GitHub API stub instead of api.github.com;
-#   the deployed settings check, run against a host-local API stub, reports nothing for a matching state, one alert
-#   per drifted field for a drifted state, and a failed-check alert (not "no drift") for a rejected token and a rate limit.
+#   the deployed settings check, run against a host-local API stub, reports nothing for a matching state, one finding
+#   per drifted field for a drifted state, and a failed check (not "no drift") for a rejected token and a rate limit.
+#   Every outcome is checked as a JSON line in journald under its tag, and no secret or payload text reaches journald.
+#   When the Wazuh manager runs on this host (WAZUH_MANAGER_LOCAL=true), each logged outcome must also raise its alert.
 #
 # Env (all required; the role's test.env carries them):
 #   ENTITY                   the receiver's journald tag
 #   DEFAULT_BRANCH           the default branch the synthetic payloads give their repository
-#   MANAGER_LOGS_VOLUME      the Docker volume holding the Wazuh manager's logs
+#   MANAGER_LOGS_VOLUME      the Docker volume holding the Wazuh manager's logs; empty without a local manager
 #   MAX_BYTES                the receiver's body limit
 #   RECEIVER_HOST            Host header of the receiver's vhost
 #   RECEIVER_IMAGE           image the receiver runs in
@@ -20,25 +22,50 @@
 #   RECEIVER_PORT            port the receiver listens on inside its container
 #   RECEIVER_SCRIPT          the receiver script on the host
 #   RECEIVER_URL             the deployed receiver's local base URL
-#   RETRIES, SLEEP_SECONDS   polling for an alert
+#   RETRIES, SLEEP_SECONDS   polling for a journald line or an alert
 #   SETTINGS_SCRIPT          the deployed GitHub settings check
 #   SETTINGS_TAG             the journald tag the settings check logs under
+#   WAZUH_MANAGER_LOCAL      true when the deployment runs the Wazuh manager on this host, else false
 #   WEBHOOK_SECRET           the deployed receiver's webhook secret
 
 set -euo pipefail
 
-: "${ENTITY:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME:?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
+: "${ENTITY:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
-: "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WEBHOOK_SECRET:?}"
+: "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WAZUH_MANAGER_LOCAL:?}"
+: "${WEBHOOK_SECRET:?}"
+
+fail() {
+	echo "FAIL: $*" >&2
+	exit 1
+}
+
+pass() {
+	echo "PASS: $*"
+}
+
+case "${WAZUH_MANAGER_LOCAL}" in
+true)
+	: "${MANAGER_LOGS_VOLUME:?}"
+	ALERTS="$(container volume inspect -f '{{.Mountpoint}}' "${MANAGER_LOGS_VOLUME}")/alerts/alerts.json"
+	;;
+false)
+	ALERTS=""
+	echo "INFO: no Wazuh manager on this host; checking journald only"
+	;;
+*) fail "WAZUH_MANAGER_LOCAL must be true or false, got '${WAZUH_MANAGER_LOCAL}'" ;;
+esac
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
+START="$(date +%s)"
 LABEL="infinito-github-webhook-test=${RUN}"
 NETWORK="github-webhook-test-${RUN}"
 STUB_SECRET="stub-secret-${RUN}"
-ALERTS="$(container volume inspect -f '{{.Mountpoint}}' "${MANAGER_LOGS_VOLUME}")/alerts/alerts.json"
+export STUB_SECRET
 BODY_FILE="$(mktemp)"
 MERGED_SHA="1111111111111111111111111111111111111111"
 DIRECT_SHA="2222222222222222222222222222222222222222"
+TIMEOUT="$((RETRIES * SLEEP_SECONDS))"
 
 STUB_CODE='
 import json
@@ -62,23 +89,19 @@ class Stub(BaseHTTPRequestHandler):
 HTTPServer(("0.0.0.0", 8080), Stub).serve_forever()
 '
 
+SETTINGS_DIR="$(mktemp -d)"
 cleanup() {
 	rm -f "${BODY_FILE}"
+	if [[ -f "${SETTINGS_DIR}/stub.pid" ]]; then
+		kill "$(cat "${SETTINGS_DIR}/stub.pid")" 2>/dev/null || [[ $? -eq 1 ]]
+	fi
+	rm -rf "${SETTINGS_DIR}"
 	container ps -aq --filter "label=${LABEL}" | xargs -r container rm -f >/dev/null
 	if container network inspect "${NETWORK}" >/dev/null 2>&1; then
 		container network rm "${NETWORK}" >/dev/null
 	fi
 }
 trap cleanup EXIT
-
-fail() {
-	echo "FAIL: $*" >&2
-	exit 1
-}
-
-pass() {
-	echo "PASS: $*"
-}
 
 payload() {
 	python3 - "$1" "${DEFAULT_BRANCH}" "$2" <<'PY'
@@ -142,6 +165,51 @@ post() {
 
 expect_status() {
 	[[ "$1" == "$2" ]] || fail "$3: HTTP $1, expected $2"
+	pass "$3: HTTP $1"
+}
+
+# Param: $1 journald tag; $2 JSON list of records, each a subset of fields one logged JSON line must carry.
+expect_journal() {
+	python3 - "$1" "${START}" "${TIMEOUT}" "$2" <<'PY' || fail "journald under $1"
+import json
+import os
+import subprocess
+import sys
+import time
+
+tag, since, timeout, expected = sys.argv[1], sys.argv[2], int(sys.argv[3]), json.loads(sys.argv[4])
+forbidden = [os.environ["WEBHOOK_SECRET"], os.environ["STUB_SECRET"], "sha256=", "Keep it logically awesome"]
+
+
+def read():
+    out = subprocess.run(
+        ["journalctl", "--no-pager", "--output=cat", f"--identifier={tag}", f"--since=@{since}"],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    records = []
+    for line in out.splitlines():
+        if line.startswith("{"):
+            try:
+                records.append(json.loads(line))
+            except ValueError:
+                continue
+    return records, [text for text in forbidden if text in out]
+
+
+deadline = time.time() + timeout
+while True:
+    records, leaked = read()
+    if leaked:
+        sys.exit(f"secret or payload text reached journald under {tag}")
+    missing = [want for want in expected if not any(all(got.get(k) == v for k, v in want.items()) for got in records)]
+    if not missing:
+        break
+    if time.time() > deadline:
+        sys.exit(f"no journald line under {tag} for: {missing}")
+    time.sleep(2)
+for want in expected:
+    print(f"PASS: journald {tag}: {' '.join(f'{k}={v}' for k, v in want.items())}")
+PY
 }
 
 wait_alert() {
@@ -171,15 +239,19 @@ PY
 DEPLOYED="${RECEIVER_URL}${RECEIVER_PATH}"
 
 declare -A RULES=(
-	[ping]=101101 [push-forced]=101110 [push-deleted]=101111 [push-workflow]=101112
+	[ping]=101101 ["push-forced"]=101110 ["push-deleted"]=101111 ["push-workflow"]=101112
 	[branch_protection_rule]=101120 [repository_ruleset]=101121 [member]=101130 [organization]=101131
 	[deploy_key]=101133 [secret_scanning_alert]=101140 [dependabot_alert]=101141
+)
+declare -A REJECTED=(
+	[ping]="replay:101161" [unsigned]="unsigned:101160" [signature]="signature:101160"
+	[oversized]="oversized:101162" [malformed]="malformed:101163"
 )
 
 for case in "${!RULES[@]}"; do
 	event="${case%%-*}"
 	delivery="test-${RUN}-${case}"
-	expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" "${event}" "${delivery}" "$(payload "${case}" "${DIRECT_SHA}")")" 202 "${case}"
+	expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" "${event}" "${delivery}" "$(payload "${case}" "${DIRECT_SHA}")")" 202 "${case} accepted"
 done
 
 expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-ping" "$(payload ping "${DIRECT_SHA}")")" 409 "replay"
@@ -188,15 +260,32 @@ expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-signat
 expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-oversized" "$(head -c "$((MAX_BYTES + 1))" /dev/zero | tr '\0' 'x')")" 413 "oversized"
 expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-malformed" "not json")" 400 "malformed"
 
-for case in "${!RULES[@]}"; do
-	wait_alert "test-${RUN}-${case}" "${RULES[${case}]}"
-done
-wait_alert "test-${RUN}-ping" 101161
-wait_alert "test-${RUN}-unsigned" 101160
-wait_alert "test-${RUN}-signature" 101160
-wait_alert "test-${RUN}-oversized" 101162
-wait_alert "test-${RUN}-malformed" 101163
-wait_alert "test-${RUN}-push-forced" 101114
+expect_journal "${ENTITY}" "$(
+	python3 - "${RUN}" "${!RULES[@]}" <<'PY'
+import json
+import sys
+
+run, cases = sys.argv[1], sys.argv[2:]
+records = [{"gh_kind": "delivery", "gh_delivery": f"test-{run}-{case}", "gh_event": case.split("-")[0]} for case in cases]
+records += [
+    {"gh_kind": "rejected", "gh_delivery": f"test-{run}-{delivery}", "gh_reason": reason}
+    for delivery, reason in (("ping", "replay"), ("unsigned", "unsigned"), ("signature", "signature"),
+                             ("oversized", "oversized"), ("malformed", "malformed"))
+]
+records.append({"gh_kind": "direct_push", "gh_delivery": f"test-{run}-push-forced", "gh_result": "error"})
+print(json.dumps(records))
+PY
+)"
+
+if [[ -n "${ALERTS}" ]]; then
+	for case in "${!RULES[@]}"; do
+		wait_alert "test-${RUN}-${case}" "${RULES[${case}]}"
+	done
+	for delivery in "${!REJECTED[@]}"; do
+		wait_alert "test-${RUN}-${delivery}" "${REJECTED[${delivery}]#*:}"
+	done
+	wait_alert "test-${RUN}-push-forced" 101114
+fi
 
 container network create --label "${LABEL}" "${NETWORK}" >/dev/null
 container run --detach --name="github-api-stub-${RUN}" --label="${LABEL}" --network="${NETWORK}" \
@@ -215,13 +304,14 @@ for ((attempt = 1; attempt <= RETRIES; attempt++)); do
 	sleep 1
 done
 
-expect_status "$(post "${STUB_URL}" "${STUB_SECRET}" push "test-${RUN}-direct" "$(payload push-forced "${DIRECT_SHA}")")" 202 "direct push"
-expect_status "$(post "${STUB_URL}" "${STUB_SECRET}" push "test-${RUN}-merged" "$(payload push-forced "${MERGED_SHA}")")" 202 "merged push"
-wait_alert "test-${RUN}-direct" 101113
-if container logs "github-webhook-test-${RUN}" 2>&1 | grep -F "test-${RUN}-merged" | grep -qF '"gh_result": "ok"'; then
-	pass "a push whose commit came through a merged pull request is not a direct push"
-else
-	fail "the merged push was not checked as ok"
+expect_status "$(post "${STUB_URL}" "${STUB_SECRET}" push "test-${RUN}-direct" "$(payload push-forced "${DIRECT_SHA}")")" 202 "direct push accepted"
+expect_status "$(post "${STUB_URL}" "${STUB_SECRET}" push "test-${RUN}-merged" "$(payload push-forced "${MERGED_SHA}")")" 202 "merged push accepted"
+expect_journal "${ENTITY}" "[
+	{\"gh_kind\": \"direct_push\", \"gh_delivery\": \"test-${RUN}-direct\", \"gh_result\": \"no_pr\", \"gh_commits\": \"${DIRECT_SHA}\"},
+	{\"gh_kind\": \"direct_push\", \"gh_delivery\": \"test-${RUN}-merged\", \"gh_result\": \"ok\", \"gh_commits\": \"${MERGED_SHA}\"}
+]"
+if [[ -n "${ALERTS}" ]]; then
+	wait_alert "test-${RUN}-direct" 101113
 fi
 
 SETTINGS_STUB_CODE='
@@ -289,14 +379,6 @@ with open(sys.argv[1], "w", encoding="utf-8") as port_file:
 server.serve_forever()
 '
 
-SETTINGS_DIR="$(mktemp -d)"
-cleanup_settings() {
-	[[ -f "${SETTINGS_DIR}/stub.pid" ]] && kill "$(cat "${SETTINGS_DIR}/stub.pid")" 2>/dev/null
-	rm -rf "${SETTINGS_DIR}"
-	cleanup
-}
-trap cleanup_settings EXIT
-
 python3 -c "${SETTINGS_STUB_CODE}" "${SETTINGS_DIR}/port" &
 echo $! >"${SETTINGS_DIR}/stub.pid"
 for ((attempt = 1; attempt <= RETRIES; attempt++)); do
@@ -345,7 +427,11 @@ for mode, (drift, errors, findings) in expected.items():
     print(f"PASS: settings check {mode}: {drift} drift, {errors} failed checks")
 PY
 
-python3 - "${ALERTS}" "${SETTINGS_DIR}" "${RUN}" "$((RETRIES * SLEEP_SECONDS))" <<'PY' || fail "GitHub settings alerts"
+expect_journal "${SETTINGS_TAG}" "$(python3 -c 'import json, sys; print(json.dumps([json.loads(line) for path in sys.argv[1:] for line in open(path, encoding="utf-8")]))' \
+	"${SETTINGS_DIR}/match.out" "${SETTINGS_DIR}/drift.out" "${SETTINGS_DIR}/fail.out")"
+
+if [[ -n "${ALERTS}" ]]; then
+	python3 - "${ALERTS}" "${SETTINGS_DIR}" "${RUN}" "${TIMEOUT}" <<'PY' || fail "GitHub settings alerts"
 import json
 import sys
 import time
@@ -401,5 +487,6 @@ if missing:
 for rule, event in wanted:
     print(f"PASS: rule {rule} for {event['gs_scope']} {event['gs_check']} {event.get('gs_field', event.get('gs_reason'))}")
 PY
+fi
 
 echo "PASS: web-svc-github-webhook"
