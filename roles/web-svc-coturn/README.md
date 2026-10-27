@@ -77,6 +77,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - Automatic TLS handling via `sys-stk-front-base`  
 - TURN and STUN support over TCP and UDP  
 - Configurable relay port ranges for scaling  
+- Configurable server-wide allocation quota (`services.coturn.total_quota`, default 2000); size it at about 2·N² for every concurrent Nextcloud Talk call with N participants, as each participant opens N peer connections and requests one allocation per TURN transport
 - Integration into Infinito.Nexus inventory/variable system
 
 ## Quick Setup

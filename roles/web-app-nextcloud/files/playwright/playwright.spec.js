@@ -19,6 +19,7 @@ test.use({
 test.beforeEach(shared.beforeEach);
 
 require("./test-talk-admin-settings").register(shared);
+require("./test-talk-call-capacity").register(shared);
 require("./test-login-admin-oidc").register(shared);
 require("./test-login-admin-native").register(shared);
 require("./test-login-biber-oidc").register(shared);

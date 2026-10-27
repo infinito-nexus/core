@@ -53,7 +53,7 @@
       {% endif %}
       --realm="${COTURN_REALM}"
       --fingerprint
-      --total-quota=100
+      --total-quota={{ COTURN_TOTAL_QUOTA }}
       --stale-nonce
       --no-multicast-peers
       --no-cli
