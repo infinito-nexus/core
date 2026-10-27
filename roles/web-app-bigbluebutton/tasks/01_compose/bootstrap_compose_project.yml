@@ -27,7 +27,8 @@
            extra_hosts=(
              [lookup('domain', 'web-app-keycloak') ~ ':host-gateway']
              if 'web-app-keycloak' in group_names else []
-           )
+           ),
+           pinned=BBB_PINNED_SERVICES
          ) }}
     dest: "{{ BBB_COMPOSE_FILE_FINAL }}"
   notify:

@@ -38,10 +38,34 @@ def start_containers(containers):
     run_command(f"container start {container_list}")
 
 
+DATABASE_IMAGES = {
+    "elasticsearch",
+    "mariadb",
+    "memcached",
+    "mongo",
+    "mysql",
+    "openldap",
+    "opensearch",
+    "postgis",
+    "postgres",
+    "qdrant",
+    "rabbitmq",
+    "redis",
+    "typesense",
+    "valkey",
+}
+
+
 def is_database(image):
-    databases = {"postgres", "mariadb", "redis", "memcached", "mongo"}
-    prefix = image.split(":")[0]
-    return prefix in databases
+    """Tell whether an image reference names a database engine.
+
+    Args:
+        image: reference as the container's `.Config.Image` reports it, with
+            optional registry, namespace, tag and digest; a locally built
+            `<engine>_custom` image counts as its engine.
+    """
+    name = image.rsplit("/", 1)[-1].split("@")[0].split(":")[0]
+    return name.removesuffix("_custom") in DATABASE_IMAGES
 
 
 def is_symbolic_link(file_path):

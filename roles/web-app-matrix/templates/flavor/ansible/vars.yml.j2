@@ -34,6 +34,7 @@ matrix_synapse_ext_synapse_s3_storage_provider_config_storage_class: STANDARD
 
 traefik_enabled: false
 matrix_playbook_reverse_proxy_type: none
+matrix_synapse_http_listener_resource_names: ["client", "federation"]
 
 postgres_enabled: false
 postgres_connection_hostname: "{{ MATRIX_POSTGRES_HOST }}"
@@ -52,21 +53,17 @@ matrix_addons_container_network: host
 matrix_synapse_container_network: host
 matrix_client_element_container_network: host
 coturn_container_network: host
-jitsi_web_container_network: host
-jitsi_jvb_container_network: host
-jitsi_prosody_container_network: host
-jitsi_jicofo_container_network: host
 
-matrix_livekit_jwt_service_container_port: 8030
+matrix_livekit_jwt_service_container_port: {{ MATRIX_LIVEKIT_JWT_CONTAINER_PORT }}
 
-{% set _synapse_extra_args = [] %}
+{% set _matrix_ca_args = [] %}
 {% if MATRIX_CA_INJECTED | bool %}
-{%   set _ = _synapse_extra_args.extend([
+{%   set _matrix_ca_args = [
         '--mount type=bind,src=' ~ CA_TRUST.bundle_host ~ ',dst=' ~ MATRIX_CA_MOUNT_PATH ~ ',ro',
         '-e SSL_CERT_FILE=' ~ MATRIX_CA_MOUNT_PATH,
-        '-e REQUESTS_CA_BUNDLE=' ~ MATRIX_CA_MOUNT_PATH,
-     ]) %}
+     ] %}
 {% endif %}
+{% set _synapse_extra_args = _matrix_ca_args + (['-e REQUESTS_CA_BUNDLE=' ~ MATRIX_CA_MOUNT_PATH] if MATRIX_CA_INJECTED | bool else []) %}
 {% if MATRIX_OIDC_ENABLED and not MATRIX_OIDC_HOST_IS_ONION %}
 {%   set _ = _synapse_extra_args.append('--add-host=' ~ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname')) ~ ':' ~ lookup('subnet_gateway')) %}
 {% endif %}
@@ -143,6 +140,8 @@ matrix_client_element_default_hs_url: "{{ MATRIX_SYNAPSE_URL }}"
 
 matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
 matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}
+matrix_bridge_heisenbridge_homeserver_url: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+matrix_bridge_heisenbridge_registration: "{% raw %}{{ matrix_bridge_heisenbridge_registration_yaml | combine({'url': 'http://127.0.0.1:9898'}) }}{% endraw %}"
 matrix_bridge_hookshot_enabled: {{ MATRIX_BRIDGE.hookshot | string | lower }}
 matrix_bridge_appservice_discord_enabled: {{ MATRIX_BRIDGE.discord | string | lower }}
 matrix_bridge_mautrix_discord_enabled: {{ MATRIX_BRIDGE.mautrix_discord | string | lower }}
@@ -157,5 +156,34 @@ matrix_synapse_metrics_enabled: true
 matrix_synapse_container_metrics_api_host_bind_port: "0.0.0.0:{{ MATRIX_SYNAPSE_METRICS_PORT }}"
 matrix_synapse_metrics_port: {{ MATRIX_SYNAPSE_METRICS_PORT }}
 
-jitsi_enabled: {{ MATRIX_CONFERENCING_JITSI | string | lower }}
+jitsi_enabled: {{ MATRIX_JITSI_INTERNAL | string | lower }}
+{% if MATRIX_JITSI_INTERNAL %}
+jitsi_hostname: "{{ MATRIX_JITSI_DOMAIN }}"
+jitsi_web_container_http_port: {{ MATRIX_JITSI_CONTAINER_PORT }}
+jitsi_web_container_http_host_bind_port: "{{ MATRIX_JITSI_CONTAINER_PORT }}"
+jitsi_jvb_rtp_udp_port: {{ MATRIX_JITSI_MEDIA_PORT }}
+jitsi_jicofo_auth_password: "{{ (MATRIX_JITSI_COMPONENT_ACCOUNTS | selectattr('user', 'equalto', 'focus') | first).password }}"
+jitsi_jvb_auth_password: "{{ (MATRIX_JITSI_COMPONENT_ACCOUNTS | selectattr('user', 'equalto', 'jvb') | first).password }}"
+{% endif %}
+{% if MATRIX_JITSI_ENABLED %}
+matrix_client_element_jitsi_preferred_domain: "{{ MATRIX_JITSI_DOMAIN }}"
+{% endif %}
+
+{% macro _matrix_container_args(entity, extra) -%}
+{{ ([
+  '--cpus=' ~ lookup('config', application_id, 'services.' ~ entity ~ '.cpus'),
+  '--memory=' ~ lookup('config', application_id, 'services.' ~ entity ~ '.mem_limit'),
+  '--memory-reservation=' ~ lookup('config', application_id, 'services.' ~ entity ~ '.mem_reservation'),
+  '--pids-limit=' ~ lookup('config', application_id, 'services.' ~ entity ~ '.pids_limit'),
+] + extra) | to_json }}
+{%- endmacro %}
 matrix_rtc_enabled: {{ MATRIX_CONFERENCING_ELEMENT_CALL | string | lower }}
+{% if MATRIX_CONFERENCING_ELEMENT_CALL %}
+livekit_server_container_extra_arguments_custom: {{ _matrix_container_args('livekit', []) }}
+matrix_livekit_jwt_service_container_extra_arguments: {{ _matrix_container_args('livekit_jwt', _matrix_ca_args) }}
+livekit_server_path_prefix: "{{ MATRIX_LIVEKIT_PATH }}"
+matrix_livekit_jwt_service_path_prefix: "{{ MATRIX_LIVEKIT_JWT_PATH }}"
+livekit_server_config_port: {{ MATRIX_LIVEKIT_CONTAINER_PORT }}
+livekit_server_config_rtc_tcp_port: {{ MATRIX_LIVEKIT_MEDIA_PORT }}
+livekit_server_config_rtc_udp_port: {{ MATRIX_LIVEKIT_MEDIA_PORT }}
+{% endif %}

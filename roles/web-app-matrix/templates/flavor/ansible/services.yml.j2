@@ -21,6 +21,7 @@
       MATRIX_OIDC_ONION_HOST: "{{ MATRIX_OIDC_HOST }}"
 {% endif %}
     {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=([MATRIX_MDAD_REGISTRY_PROXY.host ~ ':' ~ MATRIX_MDAD_REGISTRY_PROXY.ip] if MATRIX_MDAD_REGISTRY_PROXY.ip | length > 0 else [])) | indent(4) }}
     volumes:
       - {{ MATRIX_MDAD_DIR }}:/mdad
       - {{ lookup('volume', application_id, 'matrix_mdad_docker').name }}:{{ lookup('volume', 'web-app-matrix', 'matrix_mdad_docker').target }}
@@ -30,13 +31,28 @@
       - {{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_host }}:ro
       - {{ CA_TRUST.bundle_host }}:{{ CA_TRUST.bundle_host }}:ro
 {% endif %}
+{% if MATRIX_MDAD_REGISTRY_PROXY.proxy | length > 0 %}
+      - {{ MATRIX_MDAD_REGISTRY_PROXY_DROPIN }}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
+{% endif %}
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     tmpfs:
       - /run
       - /run/lock
       - /tmp
-    {{ lookup('container_ports', ['synapse', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+{% set _matrix_ports = [['synapse', 'http', DOCKER_BIND_HOST]] %}
+{% if MATRIX_JITSI_INTERNAL %}
+{%   set _ = _matrix_ports.extend([
+       {'service': 'jitsi', 'protocol': 'http', 'ip': DOCKER_BIND_HOST},
+       {'service': 'jitsi', 'protocol': 'media', 'transport': 'udp', 'container': 'same'},
+     ]) %}
+{% endif %}
+{% if MATRIX_CONFERENCING_ELEMENT_CALL %}
+{%   set _ = _matrix_ports.extend([
+       {'service': 'livekit', 'protocol': 'websocket', 'ip': DOCKER_BIND_HOST},
+       {'service': 'livekit', 'protocol': 'media', 'transport': ['tcp', 'udp'], 'container': 'same'},
+       {'service': 'livekit_jwt', 'protocol': 'http', 'ip': DOCKER_BIND_HOST},
+     ]) %}
+{% endif %}
+    {{ lookup('container_ports', *_matrix_ports) | indent(4) }}
       # nocheck: compose-ports-must-use-container-ports  matrix-docker-ansible-deploy fixes element on 8080 while this repo declares element.ports.internal.http 80; the two disagree and the playbook owns the container
       - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_ELEMENT_PORT }}:8080"
-      # nocheck: compose-ports-must-use-container-ports  the upstream playbook serves federation on 8048 and no ports.internal.federation is declared for it
-      - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_FEDERATION_PORT }}:8048"

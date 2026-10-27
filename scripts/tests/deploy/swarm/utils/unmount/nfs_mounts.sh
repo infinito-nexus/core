@@ -16,7 +16,7 @@ for container in "$@"; do
 	docker inspect "${container}" >/dev/null 2>&1 || continue
 
 	echo ">>> swarm-cleanup: detach NFS mounts inside ${container}"
-	if ! timeout "${NFS_CONTAINER_TIMEOUT}" docker exec -e NFS_UNMOUNT_TIMEOUT="${NFS_UNMOUNT_TIMEOUT}" "${container}" sh -s <<'SH'; then
+	if ! timeout "${NFS_CONTAINER_TIMEOUT}" docker exec -e NFS_UNMOUNT_TIMEOUT="${NFS_UNMOUNT_TIMEOUT}" "${container}" sh -s <<'SH'
 set -eu
 
 mounts="$(
@@ -62,6 +62,7 @@ printf '%s\n' "${mounts}" | while IFS= read -r mount_point; do
 	fi
 done
 SH
+	then
 		echo "WARNING: could not inspect/unmount NFS mounts inside ${container} (gave up after ${NFS_CONTAINER_TIMEOUT})" >&2
 	fi
 done

@@ -1,5 +1,5 @@
 ---
-- name: "📌 update (dnf) | pin the CentOS Stream repos to mirror.stream.centos.org"
+- name: "📌 update (dnf) | pin the CentOS Stream and EPEL repos to their master mirrors"
   become: true
   ansible.builtin.script: shell/centos_mirror.sh
   register: update_centos_pinned

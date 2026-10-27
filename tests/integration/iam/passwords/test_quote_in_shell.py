@@ -19,7 +19,7 @@ PASSWORD_TOKEN_RE = re.compile(r"(?i)\b[a-z0-9_]*password[a-z0-9_]*\b")
 QUOTE_FILTER_RE = re.compile(r"\|\s*quote\b", re.IGNORECASE)
 
 SHELL_KEY_RE = re.compile(r"^\s*(?:ansible\.builtin\.)?shell\s*:\s*(.*)$")
-STDIN_KEY_RE = re.compile(r"^\s*stdin\s*:\s*[|>]")
+STDIN_KEY_RE = re.compile(r"^\s*stdin\s*:")
 
 QUOTE_CHARS = {"'", '"'}
 

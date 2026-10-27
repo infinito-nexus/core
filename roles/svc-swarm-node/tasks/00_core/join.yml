@@ -1,0 +1,9 @@
+---
+- name: "🛡️ Bound the ports the routing mesh publishes before the node joins"
+  ansible.builtin.include_tasks: 00_core/ingress_guard.yml
+
+- name: "🥾 Bootstrap docker swarm cluster"
+  ansible.builtin.include_tasks: 00_core/bootstrap_cluster.yml
+
+- name: "🛡️ Admit the joined nodes to the bound on every node"
+  ansible.builtin.include_tasks: utils/ingress_guard/refresh.yml

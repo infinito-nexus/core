@@ -22,6 +22,7 @@
   notify:
     - compose-build
     - compose-up
+  register: dockerfile_template
   when:
     - dockerfile_src | default('') | length > 0
 
@@ -53,6 +54,7 @@
         - "{{ application_id | abs_role_path_by_application_id }}/templates/compose.override.yml.j2"
         - "{{ application_id | abs_role_path_by_application_id }}/files/compose.override.yml"
       skip: true
+  register: compose_override_template
 
 - name: "📁 Create (optional) '{{ lookup('container', application_id, 'files.compose') }}'"
   stack_host_template:
@@ -66,3 +68,13 @@
       skip: true
   register: docker_compose_template
   notify: compose-up
+
+- name: "📌 Mark compose up pending for '{{ application_id }}' until it succeeds"
+  stack_host_copy:
+    content: ""
+    dest: "{{ COMPOSE_UP_PENDING_MARKER }}"
+    mode: "0640"
+  register: compose_up_marker
+  when:
+    - compose_mode == 'compose'
+    - dockerfile_template.changed or env_template.changed or compose_override_template.changed or docker_compose_template.changed

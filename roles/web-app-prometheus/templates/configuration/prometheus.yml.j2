@@ -51,8 +51,7 @@ scrape_configs:
     static_configs:
 {% for _application_id in CURRENT_PLAY_APPLICATIONS | list | sort %}
 {% if _application_id in probed_roles %}
-{% set domains_raw = canonical_map.get(_application_id, []) %}
-{% set canonical_probe_domains = (domains_raw.values() | list) if (domains_raw is mapping) else domains_raw %}
+{% set canonical_probe_domains = canonical_map.get(_application_id, []) | served_domains(lookup('config', _application_id, 'services')) %}
 {% if canonical_probe_domains | length > 0 %}
       - targets:
 {% for domain in canonical_probe_domains %}

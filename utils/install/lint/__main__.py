@@ -37,12 +37,15 @@ from utils.install.lint.ansible import collections as ansible_collections
 from utils.install.lint.ansible import commands as ansible_commands
 from utils.install.lint.ansible import lint as ansible_lint
 from utils.install.primitives import warn
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _STAMP_KEY = hashlib.sha256(sys.executable.encode("utf-8")).hexdigest()[:8]
 _STAMP = f"build/install-lint-{_STAMP_KEY}.stamp"
+_PINS = f"roles/sys-lint/{ROLE_FILE_META_SERVICES}"
 _STAMP_DEPS = (
     "scripts/install/lint.sh",
     "pyproject.toml",
+    _PINS,
 )
 
 _STAMP_TOOLS = (

@@ -2,6 +2,7 @@ import sys
 from collections.abc import Mapping
 from pathlib import Path
 
+from utils.domains.unserved import unserved_canonical_keys
 from utils.roles.applications.config import get
 from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
 
@@ -131,6 +132,8 @@ def web_health_expectations(
       - Canonical domains (dict-key overrides, else default, else DEFAULT_OK).
       - Flat canonical (default, else DEFAULT_OK).
       - Aliases always [301].
+      - Canonical keys listed under a service's `domains` are skipped while that
+        service is disabled, or enabled but shared (its provider serves it).
       - No legacy fallbacks (ignore 'home'/'landingpage').
       - `redirect_maps`: force <source> -> [301] and override app-derived entries.
       - If `www_enabled`: add and/or force www.* -> [301] for all domains.
@@ -162,17 +165,9 @@ def web_health_expectations(
             get(applications, app_id, "server.status_codes", strict=False, default={})
         )
 
-        suppressed = set()
-        services_raw = get(applications, app_id, "services", strict=False, default={})
-        if isinstance(services_raw, Mapping):
-            for svc in services_raw.values():
-                if not isinstance(svc, Mapping) or "domains" not in svc:
-                    continue
-                if svc.get("enabled"):
-                    continue
-                for key in _to_list(svc.get("domains"), allow_mapping=False):
-                    if key:
-                        suppressed.add(str(key))
+        suppressed = unserved_canonical_keys(
+            get(applications, app_id, "services", strict=False, default={})
+        )
 
         app_exp = {}
         if isinstance(canonical_raw, Mapping) and canonical_raw:

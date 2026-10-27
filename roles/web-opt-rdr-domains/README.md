@@ -24,6 +24,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
+- **Well-known passthrough:** every source domain serves the files of its own subdirectory `<domain>/` of the shared well-known directory (`lookup('nginx', 'directories.data.well_known')`) under `/.well-known/`; any other request, a missing well-known file included, gets the 301.
 
 ## Quick Setup
 

@@ -1,0 +1,15 @@
+---
+- name: "🔎 Swarm ingress guard | Read the published ports before this node joins"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/read.yml') }}"
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: "🛡️ Swarm ingress guard | Bound the non-public published ports"
+  ansible.builtin.include_role:
+    name: svc-net-firewall
+  vars:
+    FIREWALL_FRAGMENT_ROLE: svc-swarm-node
+    SWARM_INGRESS_GUARDED_PORTS: "{{ SWARM_INGRESS_GUARDED }}"
+    SWARM_INGRESS_PEER_ADDRESSES: "{{ SWARM_INGRESS_PEERS }}"

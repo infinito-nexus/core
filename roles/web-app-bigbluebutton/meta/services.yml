@@ -137,26 +137,13 @@ nginx:
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
-etherpad:
-  image: alangecker/bbb-docker-etherpad
-  version: "2.4.2-s8328b77-p88f3f6b"
-  update:
-    type: http_regex
-    url:
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
-    pattern: "repos/bbb-etherpad-plugin (?P<plugin>[0-9a-f]+)\\nrepos/bbb-etherpad-skin (?P<skin>[0-9a-f]+)\\n(?:.*\\n)*?.*bbb-docker-etherpad:(?P<base>[0-9.]+)-s"
-    template: "{base}-s{skin}-p{plugin}"
-  enabled: false
-# nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
-# nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
-bbb-pads:
-  image: alangecker/bbb-docker-pads
-  version: "v1.5.8"
+bbb-shared-notes-server:
+  image: alangecker/bbb-shared-notes-server
+  version: "v3.0.39"
   update:
     type: http_regex
     url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
-    pattern: "repos/bbb-pads (v[0-9.]+)"
+    pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated

@@ -93,13 +93,13 @@ class BuildCmdPostgresTests(unittest.TestCase):
         self.assertIn("ON_ERROR_STOP=1", cmd)
         self.assertNotIn("s3cret", cmd)
 
-    def test_postgres_expect_rows_adds_tuples_only_flag(self):
+    def test_postgres_expect_rows_adds_quiet_tuples_only_flag(self):
         cmd, _ = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=True)
-        self.assertIn("-tA", cmd)
+        self.assertIn("-qtA", cmd)
 
     def test_postgres_no_rows_omits_tuples_only_flag(self):
         cmd, _ = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=False)
-        self.assertNotIn("-tA", cmd)
+        self.assertNotIn("-qtA", cmd)
 
 
 class BuildCmdMariadbTests(unittest.TestCase):

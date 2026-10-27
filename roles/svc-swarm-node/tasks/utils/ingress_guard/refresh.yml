@@ -1,0 +1,30 @@
+---
+- name: "🔎 Swarm ingress guard | Read the published ports and the swarm nodes"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/read.yml') }}"
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: "📄 Swarm ingress guard | Load the fragment naming of svc-net-firewall"
+  ansible.builtin.include_vars:
+    file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/vars/main.yml') }}"
+    name: swarm_ingress_firewall
+
+- name: "🛡️ Swarm ingress guard | Reload the bound on every swarm node"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/tasks/02_fragment.yml') }}"
+    apply:
+      delegate_to: "{{ swarm_ingress_guard_node }}"
+  vars:
+    FIREWALL_FRAGMENT_ROLE: svc-swarm-node
+    FIREWALL_FRAGMENT_DIR: "{{ swarm_ingress_firewall.FIREWALL_FRAGMENT_DIR }}"
+    FIREWALL_FRAGMENT_SRC: "{{ swarm_ingress_firewall.FIREWALL_FRAGMENT_SRC }}"
+    FIREWALL_FRAGMENT_FILE: "{{ swarm_ingress_firewall.FIREWALL_FRAGMENT_FILE }}"
+    FIREWALL_TABLE: "{{ swarm_ingress_firewall.FIREWALL_TABLE }}"
+    SWARM_INGRESS_GUARDED_PORTS: "{{ SWARM_INGRESS_GUARDED }}"
+    SWARM_INGRESS_PEER_ADDRESSES: "{{ SWARM_INGRESS_PEERS }}"
+  loop: "{{ groups['svc-swarm-node'] }}"
+  loop_control:
+    loop_var: swarm_ingress_guard_node
+  run_once: true

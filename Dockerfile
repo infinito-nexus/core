@@ -56,6 +56,7 @@ RUN set -euo pipefail; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/roles/update/files/shell/centos_mirror.sh"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_INTERPRETERS_INSTALL_SCRIPT:?}"
 
 RUN set -euo pipefail; \
