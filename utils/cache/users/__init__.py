@@ -22,13 +22,12 @@ from utils.cache.base import (
     _RENDER_GUARD,
     _cache_key,
     _deep_merge,
-    _fingerprint_mapping,
     _render_with_templar,
     _resolve_override_mapping,
     _resolve_roles_dir,
     _stable_variables_signature,
-    _tokens_file_signature,
 )
+from utils.cache.users import store as _store
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
 )
@@ -222,34 +221,20 @@ def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, A
     return users if isinstance(users, dict) else {}
 
 
-STORE_FACT = "sys_token_store_users"
-
-
-def _store_snapshot(variables: Mapping[str, Any] | None) -> Mapping[str, Any] | None:
-    """Return the token store the play read from the stack host.
-
-    Args:
-        variables: the play's variable scope.
-
-    Returns:
-        The ``sys_token_store_users`` fact, or None outside a play that loaded
-        ``sys-token-store``.
-    """
-    snapshot = (variables or {}).get(STORE_FACT)
-    return snapshot if isinstance(snapshot, Mapping) else None
-
-
 def _store_signature(variables: Mapping[str, Any] | None, tokens_file: Path) -> tuple:
     """Return the cache-key part of the store the users are hydrated from.
 
     Args:
         variables: the play's variable scope.
         tokens_file: the controller's tokens file, used when no snapshot exists.
+
+    Returns:
+        ``(STORE_FACT, digest)``, equal for the tokens file and the
+        ``sys_token_store_users`` fact when both hold the same tokens.
     """
-    snapshot = _store_snapshot(variables)
-    if snapshot is not None:
-        return (STORE_FACT, _fingerprint_mapping(snapshot))
-    return _tokens_file_signature(tokens_file)
+    snapshot = _store.snapshot(variables)
+    store = snapshot if snapshot is not None else _load_store_users(tokens_file)
+    return (_store.STORE_FACT, _store.tokens_digest(store))
 
 
 def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
@@ -446,7 +431,7 @@ def get_merged_users(
 
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     tokens_file = _resolve_tokens_file(variables)
-    snapshot = _store_snapshot(variables)
+    snapshot = _store.snapshot(variables)
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
@@ -498,3 +483,4 @@ def get_merged_users(
 def _reset() -> None:
     _USERS_DEFAULTS_CACHE.clear()
     _MERGED_USERS_CACHE.clear()
+    _store._reset()

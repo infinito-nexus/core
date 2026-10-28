@@ -20,6 +20,7 @@ from pathlib import Path
 from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
+from utils.cache.users import store as cache_users_store
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
 
@@ -412,6 +413,90 @@ class TestGetMergedUsersTokenSource(unittest.TestCase):
             )
             self.assertNotIn("web-app-foo", before["foo"].get("tokens", {}))
             self.assertEqual(after["foo"]["tokens"]["web-app-foo"], "minted")
+
+
+class TestStoreSignature(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _signature(store: dict) -> tuple:
+        with tempfile.TemporaryDirectory() as tmp:
+            return cache_users._store_signature(
+                {cache_users_store.STORE_FACT: store}, Path(tmp) / "tokens.yml"
+            )
+
+    @staticmethod
+    def _hydrated(store: dict) -> str:
+        users = {"foo": {"tokens": {"web-app-foo": ""}}}
+        return repr(cache_users._hydrate_users_tokens(users, store))
+
+    def test_the_tokens_file_signs_like_the_store_fact_with_the_same_tokens(self):
+        store = {"foo": {"tokens": {"web-app-foo": "minted"}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            tokens_file = Path(tmp) / "tokens.yml"
+            tokens_file.write_text(dump_yaml_str({"users": store}), encoding="utf-8")
+            self.assertEqual(
+                cache_users._store_signature({}, tokens_file),
+                cache_users._store_signature(
+                    {cache_users_store.STORE_FACT: store}, tokens_file
+                ),
+            )
+
+    def test_a_missing_tokens_file_signs_like_an_empty_store_fact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            absent = Path(tmp) / "tokens.yml"
+            self.assertEqual(
+                cache_users._store_signature({}, absent),
+                cache_users._store_signature(
+                    {cache_users_store.STORE_FACT: {}}, absent
+                ),
+            )
+
+    def test_fields_and_padding_the_hydration_ignores_keep_the_signature(self):
+        plain = {"foo": {"tokens": {"web-app-foo": "minted"}}}
+        for variant in (
+            {"foo": {"tokens": {"web-app-foo": " minted "}}},
+            {"foo": {"tokens": {"web-app-foo": "minted"}, "note": "unread"}},
+            {"foo": {"tokens": {"web-app-foo": "minted", "web-app-bar": None}}},
+            {"foo": {"tokens": {"web-app-foo": "minted"}}, "bar": "not-a-mapping"},
+        ):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._hydrated(variant), self._hydrated(plain))
+                self.assertEqual(self._signature(variant), self._signature(plain))
+
+    def test_the_store_order_enters_the_signature_because_the_hydration_keeps_it(
+        self,
+    ):
+        first = {"bar": {"tokens": {"x": "1"}}, "baz": {"tokens": {"y": "2"}}}
+        swapped = {"baz": {"tokens": {"y": "2"}}, "bar": {"tokens": {"x": "1"}}}
+        self.assertNotEqual(self._hydrated(first), self._hydrated(swapped))
+        self.assertNotEqual(self._signature(first), self._signature(swapped))
+
+    def test_an_equal_signature_means_an_equal_hydration(self):
+        stores = [
+            {"foo": {"tokens": {"web-app-foo": "minted"}}},
+            {"foo": {"tokens": {"web-app-foo": " minted "}}},
+            {"foo": {"tokens": {"web-app-foo": "rotated"}}},
+            {"foo": {"tokens": {"web-app-foo": None}}},
+            {"foo": {"tokens": {"web-app-foo": ""}}},
+            {"foo": {"tokens": {}}},
+            {"foo": {"tokens": "not-a-mapping"}},
+            {"foo": {}},
+            {"foo": "not-a-mapping"},
+            {},
+            {"bar": {"tokens": {"x": "1"}}},
+            {"bar": {"tokens": {"x": 1}}},
+            {"bar": {"tokens": {}}},
+            {1: {"tokens": {"x": "1"}}},
+            {"1": {"tokens": {"x": "1"}}},
+        ]
+        for first in stores:
+            for second in stores:
+                if self._signature(first) != self._signature(second):
+                    continue
+                with self.subTest(first=first, second=second):
+                    self.assertEqual(self._hydrated(first), self._hydrated(second))
 
 
 if __name__ == "__main__":

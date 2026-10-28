@@ -13,9 +13,11 @@ instead of rendering::
 ``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
 for the merge block, which it drops again at the block's end, one after the
 ``add_host`` tasks for the swarm bootstrap roles, parked only when
-``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and the
-tokens file's path and content digest, so a carrier whose groups or tokens no
-longer match is rejected and the reader renders afresh::
+``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and a
+digest of the tokens the users are hydrated from (the tokens file, or the
+``sys_token_store_users`` fact once the token store loaded; both key alike for
+the same tokens), so a carrier whose groups or tokens no longer match is
+rejected and the reader renders afresh::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:
