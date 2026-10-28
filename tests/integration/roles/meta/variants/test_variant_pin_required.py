@@ -43,6 +43,7 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.variant_pins import pins_of
 from utils.roles.applications.variants import services_overrides_for_round
+from utils.roles.guide import GUIDE_SERVICE_KEY, guide_off
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
@@ -64,7 +65,7 @@ def _edges() -> dict[str, dict[str, str]]:
         if not isinstance(services, dict):
             continue
         for key, entry in services.items():
-            if not isinstance(entry, dict):
+            if not isinstance(entry, dict) or key == GUIDE_SERVICE_KEY:
                 continue
             match = _GROUP_MEMBERSHIP.search(str(entry.get("enabled", "")))
             if match and match.group(1) != role_dir.name:
@@ -91,17 +92,20 @@ def _rounds_pinned_true(role: str, key: str) -> tuple[int, ...]:
 
 @functools.cache
 def _closure(role: str, index: int) -> frozenset[str]:
-    """The apps one round deploys.
+    """The apps one round deploys, apart from the guide host the primary carries.
 
     ``cli.meta.ci.matrix.deployed_rounds`` answers the same question but
     resolves every round of the role; a partner with fourteen variants then
     costs fourteen resolutions to read one.
     """
-    overrides = services_overrides_for_round(
-        roles_dir=str(ROLES_DIR),
-        round_index=index,
-        primary_app_variants={role: index},
-    )
+    overrides = {
+        app: guide_off(services)
+        for app, services in services_overrides_for_round(
+            roles_dir=str(ROLES_DIR),
+            round_index=index,
+            primary_app_variants={role: index},
+        ).items()
+    }
     return frozenset(
         _resolve_round_include(primary_apps=[role], services_overrides=overrides)
     )

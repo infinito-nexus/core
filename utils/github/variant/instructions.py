@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.roles.guide import GUIDE_SERVICE_KEY, guide_deployable
+from utils.roles.guide import declares_guide, guide_deployable
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -39,8 +39,7 @@ def _carries_guide(
     variants = (variants_per_app or {}).get(app) or []
     if not variant.isdigit() or int(variant) >= len(variants):
         return False
-    services = (variants[int(variant)] or {}).get("services") or {}
-    return (services.get(GUIDE_SERVICE_KEY) or {}).get("enabled") is True
+    return declares_guide((variants[int(variant)] or {}).get("services") or {})
 
 
 def mark(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
 from cli.administration.deploy.development.inventory import (
@@ -61,6 +62,44 @@ class TestResolveVariantPayloads(unittest.TestCase):
             active_variants={"web-app-multi": 99},
         )
         self.assertEqual(resolved, {"web-app-multi": {"variant": 0}})
+
+
+@patch(
+    "cli.administration.deploy.development.inventory.payload.build_service_registry_from_roles_dir",
+    autospec=True,
+    return_value={"docs": {"role": "web-app-docs"}},
+)
+@patch(
+    "cli.administration.deploy.development.inventory.payload.get_variant_overrides_only",
+    autospec=True,
+)
+class TestGuideEdgeBake(unittest.TestCase):
+    OVERRIDES: ClassVar[dict] = {
+        "svc-db-postgres": [{"services": {"docs": {"enabled": True}, "tor": {}}}],
+        "web-app-docs": [{}],
+    }
+
+    def test_an_edge_to_an_undeployed_guide_host_is_not_baked(
+        self, get_overrides_mock: MagicMock, _registry: MagicMock
+    ) -> None:
+        get_overrides_mock.return_value = self.OVERRIDES
+        resolved = _resolve_variant_payloads(
+            roles_dir="/roles", include=["svc-db-postgres"], active_variants={}
+        )
+        self.assertEqual(resolved, {"svc-db-postgres": {"services": {"tor": {}}}})
+
+    def test_the_edge_stays_while_the_round_deploys_the_guide_host(
+        self, get_overrides_mock: MagicMock, _registry: MagicMock
+    ) -> None:
+        get_overrides_mock.return_value = self.OVERRIDES
+        resolved = _resolve_variant_payloads(
+            roles_dir="/roles",
+            include=["svc-db-postgres", "web-app-docs"],
+            active_variants={},
+        )
+        self.assertEqual(
+            resolved["svc-db-postgres"]["services"]["docs"], {"enabled": True}
+        )
 
 
 class TestBakeOverrides(unittest.TestCase):

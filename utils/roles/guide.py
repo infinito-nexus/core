@@ -16,6 +16,7 @@ installed onto the machine) has to be a mode the role runs and tests.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from functools import cache
 from typing import TYPE_CHECKING
 
@@ -25,7 +26,7 @@ from utils.roles.meta_lookup import get_role_mode_enabled, get_role_test_skips
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Mapping, Sequence
+    from collections.abc import Collection, Sequence
     from typing import Any
 
 
@@ -34,6 +35,37 @@ GUIDE_SERVICE_KEY = "docs"
 Production block describes. Counting it would make the measure circular: the
 variant this function picks is the one that then switches the guide on, which
 on the next read makes that variant one service larger than it was."""
+
+
+def without_guide(services: Mapping[str, Any]) -> dict[str, Any]:
+    """``services`` without the guide host's entry.
+
+    Args:
+        services: a role's services map or a variant's services override.
+    """
+    return {key: value for key, value in services.items() if key != GUIDE_SERVICE_KEY}
+
+
+def declares_guide(services: Mapping[str, Any]) -> bool:
+    """Whether ``services`` switches the guide host on, as a literal.
+
+    Args:
+        services: a role's resolved services map.
+    """
+    entry = services.get(GUIDE_SERVICE_KEY)
+    return isinstance(entry, Mapping) and entry.get("enabled") is True
+
+
+def guide_off(services: Mapping[str, Any]) -> dict[str, Any]:
+    """``services`` with the guide host switched off, when it declares one.
+
+    Args:
+        services: a role's resolved services map.
+    """
+    entry = services.get(GUIDE_SERVICE_KEY)
+    if not isinstance(entry, Mapping):
+        return dict(services)
+    return {**services, GUIDE_SERVICE_KEY: {**entry, "enabled": False, "shared": False}}
 
 
 def _enabled_services(variant: Mapping[str, Any]) -> int:
