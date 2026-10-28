@@ -15,6 +15,7 @@ It also publishes the `css` and `javascript` aliases as canonical references bac
 - **Canonical CDN service:** Provides the primary `cdn` service entry consumed via `services.cdn` across the stack.
 - **Aliased asset channels:** Exposes `css` and `javascript` as canonical aliases of `cdn` for clearer per-asset wiring.
 - **TLS-aware delivery:** Runs behind the project's reverse proxy and inherits its certificate management.
+- **Same-origin path:** Every front-proxy vhost also serves the CDN tree under `/_infinito/cdn/`; `lookup('cdn', ...)` and `lookup('design', ...)` return those host-relative URLs as `relative_urls`, so a page served on any network loads its assets from its own host.
 - **Container-managed:** Deploys via Docker Compose with project-standard healthchecks, restart policy, and resource limits.
 - **Matomo and Prometheus aware:** Toggles tracker and metrics integration based on the presence of the corresponding application roles.
 

@@ -1,5 +1,6 @@
 server {
     server_name {{ MATRIX_SYNAPSE_DOMAIN }};
+    {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
     {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
     listen {{ MATRIX_SYNAPSE_LISTEN_FLAGS }};

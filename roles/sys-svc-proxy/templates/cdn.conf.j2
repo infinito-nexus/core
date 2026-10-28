@@ -1,0 +1,5 @@
+location ^~ {{ lookup('cdn', 'web-svc-cdn').relative_urls.root }} {
+  alias {{ lookup('nginx', 'directories.data.cdn') | regex_replace('/+$', '') }}/;
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header Content-Security-Policy "sandbox; default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'" always;
+}

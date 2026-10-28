@@ -6,6 +6,7 @@
 server
 {
   server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
   {% if lookup('sso', application_id, 'is_proxy_gated') %}

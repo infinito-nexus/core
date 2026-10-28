@@ -25,6 +25,7 @@ class LookupModule(LookupBase):
       domain canonical domain of the role
       dest   CDN directory the generated assets are written to
       urls   {"favicon_ico": url, "<slot>": {"png": url, "svg": url}}
+      relative_urls  the same tree as host-relative URLs every vhost serves
     """
 
     def _sub(self, name: str, terms: list, variables: dict[str, Any]) -> Any:
@@ -52,6 +53,9 @@ class LookupModule(LookupBase):
 
         cdn = self._sub("cdn", [application_id], variables)
         base_url = f"{cdn['urls']['role']['release']['img'].rstrip('/')}/{ASSET_DIR}"
+        relative_base = (
+            f"{cdn['relative_urls']['role']['release']['img'].rstrip('/')}/{ASSET_DIR}"
+        )
 
         return [
             {
@@ -59,5 +63,6 @@ class LookupModule(LookupBase):
                 "domain": self._sub("domain", [application_id], variables),
                 "dest": str(Path(cdn["role"]["release"]["img"]) / ASSET_DIR),
                 "urls": asset_urls(base_url, branding["slots"]),
+                "relative_urls": asset_urls(relative_base, branding["slots"]),
             }
         ]
