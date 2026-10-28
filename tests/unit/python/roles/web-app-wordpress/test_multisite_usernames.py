@@ -7,10 +7,11 @@ import unittest
 
 from utils.cache.users import get_user_defaults
 from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_USERS
 
 from . import PROJECT_ROOT
 
-ROLE_USERS = PROJECT_ROOT / "roles/web-app-wordpress/meta/users.yml"
+ROLE_USERS = PROJECT_ROOT / "roles" / "web-app-wordpress" / ROLE_FILE_META_USERS
 SIGNUP_CHARSET = re.compile(r"[a-z0-9]+")
 DIGITS_ONLY = re.compile(r"[0-9]+")
 ILLEGAL_NAMES = frozenset(
