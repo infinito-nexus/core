@@ -15,7 +15,6 @@ define('YOURLS_UPGRADING', true);
 
 $infinito_upgrade_done = false;
 
-// Exception: YOURLS reports bootstrap and upgrade errors with die(), which exits 0; only this handler turns them into a failure.
 register_shutdown_function(static function (): void {
     if ($GLOBALS['infinito_upgrade_done']) {
         return;
