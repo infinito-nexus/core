@@ -44,9 +44,9 @@ interpreter() {
 
 probe() {
 	# nocheck: container-exec-resolver  address resolved by the caller and passed in
-	container exec -i \
+	MIN_CHARS_PER_TOKEN="${LITELLM_ROUTER_MIN_CHARS_PER_TOKEN}" container exec -i \
 		-e "PORT=${LITELLM_PORT}" \
-		-e "MIN_CHARS_PER_TOKEN=${LITELLM_ROUTER_MIN_CHARS_PER_TOKEN}" \
+		-e MIN_CHARS_PER_TOKEN \
 		-e "CHAT_MODEL=${LITELLM_CHAT_MODEL}" \
 		-e "CHAT_MODEL_SERVED=${LITELLM_CHAT_MODEL_SERVED}" \
 		-e "EXPECTED_MODELS=${LITELLM_EXPECTED_MODELS}" \

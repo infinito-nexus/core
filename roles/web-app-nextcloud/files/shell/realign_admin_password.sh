@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Usage:
 #   realign_admin_password.sh <container> <run_as_user> <admin_username> <occ_path>
-#   OC_PASS: the declared password, read from the environment only.
+#   stdin: the declared password on its first line, exported as OC_PASS.
 #
 # Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
 
@@ -17,7 +17,13 @@ if [[ -z "$container" || -z "$run_as" || -z "$admin_user" || -z "$occ" ]]; then
   exit 2
 fi
 
-if [[ -z "${OC_PASS:-}" ]]; then
+if ! IFS= read -r OC_PASS; then
+  echo "[FAIL] No administrator password on stdin." >&2
+  exit 1
+fi
+export OC_PASS
+
+if [[ -z "$OC_PASS" ]]; then
   echo "[FAIL] OC_PASS is empty; refusing to set an empty administrator password." >&2
   exit 1
 fi

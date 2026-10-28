@@ -18,8 +18,8 @@
     {{ ELASTICSEARCH_EXEC_SHELL }}
     '{{ 30 | curl }} -fS -u "elastic:$ELASTIC_PW"
     "{{ ELASTICSEARCH_API_BASE }}/_security/_authenticate" >/dev/null'
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
+  args:
+    stdin: "{{ ELASTICSEARCH_PASSWORD }}"
   register: es_security_ready
   until: es_security_ready.rc == 0
   retries: 30
@@ -42,8 +42,8 @@
         }
       ],
     } | to_json | quote }}'
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
+  args:
+    stdin: "{{ ELASTICSEARCH_PASSWORD }}"
   register: es_role_result
   until: es_role_result.rc == 0
   retries: "{{ ELASTICSEARCH_RETRIES }}"
@@ -68,9 +68,9 @@
       -X PUT "{{ ELASTICSEARCH_API_BASE }}/_security/user/{{ elasticsearch_consumer_username }}"
       -H "Content-Type: application/json"
       --data-binary @-'
-    stdin: "{{ es_user_payload | to_json }}"
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
+    stdin: |-
+      {{ ELASTICSEARCH_PASSWORD }}
+      {{ es_user_payload | to_json }}
   register: es_user_result
   until: es_user_result.rc == 0
   retries: "{{ ELASTICSEARCH_RETRIES }}"
@@ -83,8 +83,8 @@
     {{ ELASTICSEARCH_EXEC_SHELL }}
     '{{ 30 | curl }} -S -o /dev/null -w "%{http_code}" -u "elastic:$ELASTIC_PW"
     -X PUT "{{ ELASTICSEARCH_API_BASE }}/{{ elasticsearch_consumer_entity }}-default"'
-  environment:
-    ELASTIC_PW: "{{ ELASTICSEARCH_PASSWORD }}"
+  args:
+    stdin: "{{ ELASTICSEARCH_PASSWORD }}"
   register: es_index_result
   until: es_index_result.rc == 0 and es_index_result.stdout is search('20[0-9]|400')
   retries: "{{ ELASTICSEARCH_RETRIES }}"

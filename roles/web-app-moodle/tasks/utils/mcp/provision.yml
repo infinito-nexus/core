@@ -1,7 +1,7 @@
 ---
 - name: "🔑 Register the MCP web service and mint its permanent token"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i --user {{ MOODLE_RUNTIME_USER }} \
+    IFS= read -r MCP_ACCOUNT_PASSWORD && export MCP_ACCOUNT_PASSWORD && container exec -i --user {{ MOODLE_RUNTIME_USER }} \
       -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }} \
       -e MCP_SERVICE_NAME={{ MOODLE_MCP_EXTERNAL_SERVICE_NAME | quote }} \
       -e MCP_SERVICE_SHORTNAME={{ MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME | quote }} \
@@ -14,9 +14,9 @@
       -e MCP_ROLE_CAPABILITIES={{ MOODLE_MCP_ROLE_CAPABILITIES | join(',') | quote }} \
       {{ MOODLE_MCP_LOCAL_CID | quote }} php
   args:
-    stdin: "{{ lookup('file', 'php/provision/mcp.php') }}"
-  environment:
-    MCP_ACCOUNT_PASSWORD: "{{ MOODLE_MCP_ACCOUNT_PASSWORD }}"
+    stdin: |-
+      {{ MOODLE_MCP_ACCOUNT_PASSWORD }}
+      {{ lookup('file', 'php/provision/mcp.php') }}
   register: moodle_mcp_provision
   changed_when: false
   delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"

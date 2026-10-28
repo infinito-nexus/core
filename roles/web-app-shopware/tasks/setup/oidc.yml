@@ -19,7 +19,7 @@
 - name: "🔐 Ensure the Keycloak login provider is configured"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i --user {{ SHOPWARE_USER }}
+      IFS= read -r ADMIN_PASSWORD && IFS= read -r OIDC_CLIENT_SECRET && export ADMIN_PASSWORD OIDC_CLIENT_SECRET && container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_PASSWORD
@@ -30,10 +30,10 @@
       -e OIDC_CLIENT_SECRET
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       php
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}"
-  environment:
-    ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
-    OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ OIDC.CLIENT.SECRET }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

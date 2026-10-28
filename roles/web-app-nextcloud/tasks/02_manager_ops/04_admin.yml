@@ -1,13 +1,16 @@
 ---
 - name: "🔑 Realign the administrator password with the declared one"
-  ansible.builtin.script: > # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime
-    {{ lookup('path_absolute', 'roles/web-app-nextcloud/files/shell/realign_admin_password.sh') }}
-    {{ NEXTCLOUD_LOCAL_CID | quote }}
-    {{ NEXTCLOUD_DOCKER_USER | quote }}
-    {{ NEXTCLOUD_ADMINISTRATOR_USERNAME | quote }}
-    {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }}
-  environment:
-    OC_PASS: "{{ NEXTCLOUD_ADMINISTRATOR_PASSWORD }}"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -c
+      - "{{ lookup('file', lookup('path_absolute', 'roles/web-app-nextcloud/files/shell/realign_admin_password.sh')) }}"
+      - realign_admin_password.sh
+      - "{{ NEXTCLOUD_LOCAL_CID }}"
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}"
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+    stdin: "{{ NEXTCLOUD_ADMINISTRATOR_PASSWORD }}"
   register: _nextcloud_admin_password
   changed_when: _nextcloud_admin_password.stdout is search('\[CHANGED\]')
   failed_when: >-

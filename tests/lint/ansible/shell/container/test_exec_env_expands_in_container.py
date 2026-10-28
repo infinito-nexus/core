@@ -21,7 +21,7 @@ Single quotes are what make the difference; inside them the host shell leaves
 '…'`` is the same shape with the interpreter chosen by flag, and passes.
 
 The half-fixed form survives every other check: it carries the ``-e NAME``
-and the ``environment:``, it renders, it parses, and the two sibling rules
+and the value on ``stdin:``, it renders, it parses, and the two sibling rules
 see nothing wrong with it.
 
 Per-line opt-out

@@ -25,9 +25,12 @@ The remedy, in order of preference
 ==================================
 1. Hand the value over on **stdin**, where it reaches no argv at all.
    ``curl -K -`` does this, as ``web-app-stalwart/tasks/jmap_call.yml`` shows.
-2. Otherwise ``-e NAME`` plus the task's ``environment:``, with ``"$NAME"``
-   inside an ``sh -lc`` wrapper so the container's shell expands it. The
-   secret leaves the host argv but remains in the in-container process's.
+2. Otherwise ``-e NAME``, with the value on the task's ``stdin:`` read and
+   exported by the calling shell (``IFS= read -r NAME && export NAME``) and
+   ``"$NAME"`` inside an ``sh -lc`` wrapper so the container's shell expands
+   it. The secret leaves the host argv but remains in the in-container
+   process's. A task-level ``environment:`` is no substitute: Ansible puts
+   ``NAME=value`` on the host's ``/bin/sh -c`` line.
 
 Scope is task files and shell payloads. A compose ``command:`` is the
 container's own argv in a file the deploy protects, which is a different
@@ -110,9 +113,12 @@ class TestContainerFlagPassesNoCredential(unittest.TestCase):
                 "  - give the value to the program on stdin, which keeps it out "
                 "of every argv; `curl -K -` is the form "
                 "roles/web-app-stalwart/tasks/jmap_call.yml already uses;\n"
-                "  - forward it as `-e NAME` with the value in the task's "
-                '`environment:`, and reference `"$NAME"` inside an `sh -lc` '
-                "wrapper so the container's shell expands it, not the host's;\n"
+                "  - forward it as `-e NAME` with the value on the task's "
+                "`stdin:`, read and exported by the calling shell (`IFS= read "
+                '-r NAME && export NAME`), and reference `"$NAME"` inside an '
+                "`sh -lc` wrapper so the container's shell expands it, not the "
+                "host's; a task-level `environment:` lands on the host's "
+                "`/bin/sh -c` line;\n"
                 "  - add `# nocheck: container-flag-credential -- <reason>` where "
                 "the value provably carries no secret.\n\n"
                 f"Offending lines:\n{formatted}"

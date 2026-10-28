@@ -2,7 +2,7 @@
 - name: "✅ Ensure Shopware admin exists and has the desired password"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i --user {{ SHOPWARE_USER }}
+      IFS= read -r ADMIN_PASSWORD && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
       -e ADMIN_PASSWORD
@@ -11,9 +11,9 @@
       -e ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       sh
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/admin/user.sh') }}"
-  environment:
-    ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/shell/admin/user.sh') }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🛡️ Ensure the Shopware admin still holds the admin privilege"

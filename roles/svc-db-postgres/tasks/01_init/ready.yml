@@ -12,11 +12,11 @@
     - name: ⏳ Wait for Postgres TCP auth
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  POSTGRES_LOCAL_CID resolved at delegate_to runtime
-        container exec -e PGPASSWORD {{ POSTGRES_LOCAL_CID | quote }} sh -lc
+        IFS= read -r PGPASSWORD && export PGPASSWORD && container exec -e PGPASSWORD {{ POSTGRES_LOCAL_CID | quote }} sh -lc
         'psql -h "{{ POSTGRES_LOCAL_HOST }}" -p "{{ POSTGRES_PORT }}"
         -U postgres -d postgres -c "SELECT 1"'
-      environment:
-        PGPASSWORD: "{{ POSTGRES_PASSWORD }}"
+      args:
+        stdin: "{{ POSTGRES_PASSWORD }}"
       delegate_to: "{{ POSTGRES_HOST_NODE }}"
       register: pg_ready
       until: pg_ready.rc == 0
@@ -26,10 +26,15 @@
 
   rescue:
     - name: "💾 Postgres | Dump pg_hba.conf into the diagnostics folder" # nocheck: rescue-extra-diagnostics pg_hba.conf is postgres-specific auth config the generic rescue script cannot capture, and it is what a failed TCP-auth wait needs
-      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/dump_pg_hba.sh') }}"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-postgres/files/shell/dump_pg_hba.sh')) }}"
+          - dump_pg_hba.sh
+        stdin: "{{ POSTGRES_PASSWORD }}"
       environment:
         POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_LOCAL_CID }}"
-        PGPASSWORD: "{{ POSTGRES_PASSWORD }}"
       delegate_to: "{{ POSTGRES_HOST_NODE }}"
       changed_when: false
       failed_when: false
