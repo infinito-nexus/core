@@ -401,6 +401,22 @@ A deploy without the marker reads the store:
 
 Migrate the store with [`stalwart-migrate`](https://github.com/stalwartlabs/stalwart-migrate) into a new database and swap it in under the role's database name. That name is fixed to `stalwart` ([`plugins/lookup/database.py`](../../plugins/lookup/database.py) derives it from the entity name), so the migration targets a second database that later takes over the name.
 
+A deploy that stops at the store guard stages the migration on the stack host: `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration. Run it as root:
+
+| Phase | Steps below |
+|---|---|
+| `upgrade` | 1: pulls the floating tag of the source series the `stalwart_migrate` image names in its `--help` banner (`v0.16`, the last 0.16 release) and recreates Stalwart on it when the running image differs (compose: `compose -f compose.upgrade.yml up -d`, swarm: `service update --image`) |
+| `check` | 1: the running Stalwart must be that exact image and the role's `version` must belong to the banner's target series; plus the guard's own conditions: 0.16 store, no swap yet, no marker |
+| `backup` | 2, the database dump only |
+| `target` | 3 |
+| `prepare` | 5, interactive on a terminal; without one it needs a complete `answers.toml` in `migrate-v016/state` |
+| `sync` | 5, repeatable while 0.16 serves |
+| `final` | 6 and 7 |
+| `status` | the progress `stalwart-migrate status` reports |
+| `all` | `upgrade` to `final` in order |
+
+Then deploy again (step 8). The steps by hand:
+
 1. Make sure the server runs Stalwart `v0.16.27`; `stalwart-migrate` reads no other release. Upgrade an older 0.16 server with the previous revision of this role first.
 2. Back up the database `stalwart` (for example `pg_dump -Fc -d stalwart -f stalwart-v016.dump`) and the role's volumes.
 3. As a PostgreSQL superuser, create the empty target database, owned by the role's database user:

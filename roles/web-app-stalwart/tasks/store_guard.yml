@@ -108,6 +108,12 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: stalwart_store_exists | bool
 
+- name: "📝 Stage the stalwart-migrate script for the 0.16 store"
+  ansible.builtin.include_tasks: store_guard/stage_migration.yml
+  when:
+    - stalwart_store_layout is not skipped
+    - stalwart_store_layout.rows[0][0] not in ['bytea', 'absent']
+
 - name: "✅ Ensure Stalwart opens no store from before 1.0"
   ansible.builtin.assert:
     that:
@@ -116,8 +122,10 @@
       The store in database '{{ lookup('database', application_id, 'name') }}' predates Stalwart 1.0
       (type of column u.v: {{ stalwart_store_layout.rows[0][0] }}, a 1.x store holds bytea).
       Stalwart {{ lookup('config', application_id, 'services.stalwart.version') }} refuses to open it and has no in-place upgrade,
-      so the deploy stops before it starts Stalwart. Migrate the store into a new
-      database with stalwart-migrate and swap it in as '{{ lookup('database', application_id, 'name') }}',
-      following "Upgrading from 0.16" in roles/web-app-stalwart/README.md, then deploy again.
+      so the deploy stops before it starts Stalwart. The deploy staged {{ STALWART_MIGRATE_SCRIPT }} on this host:
+      run it as root with upgrade, check, backup, target, prepare, sync and final (or all), which copies the store into
+      '{{ STALWART_MIGRATE_TARGET_DATABASE }}' with stalwart-migrate and swaps it in as
+      '{{ lookup('database', application_id, 'name') }}' ("Upgrading from 0.16" in roles/web-app-stalwart/README.md),
+      then deploy again.
     quiet: true
   when: stalwart_store_layout is not skipped

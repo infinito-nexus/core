@@ -51,6 +51,12 @@ STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name
 STALWART_DATABASE_SHARED: "{{ lookup('database', application_id, 'shared') | bool }}"
 STALWART_STORE_LAYOUT_VERSION: "1"
 STALWART_STORE_MARKER_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'store.layout' ] | path_join }}"
+STALWART_MIGRATE_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'migrate-v016' ] | path_join }}"
+STALWART_MIGRATE_SCRIPT: "{{ [ STALWART_MIGRATE_DIR, 'migrate.sh' ] | path_join }}"
+STALWART_MIGRATE_TARGET_CONFIG: "{{ [ STALWART_MIGRATE_DIR, 'target', 'config.json' ] | path_join }}"
+STALWART_MIGRATE_IMAGE: "{{ lookup('image', application_id, 'stalwart_migrate') }}"
+STALWART_MIGRATE_TARGET_DATABASE: "{{ lookup('database', application_id, 'name') }}_v1"
+STALWART_MIGRATE_RETIRED_DATABASE: "{{ lookup('database', application_id, 'name') }}_v016"
 
 STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
 STALWART_CLAMAV_HOST: "clamav"
