@@ -6,6 +6,8 @@ The host agent of [Wazuh](https://wazuh.com/): it forwards the journald logs of 
 
 ## Overview
 
+**Single host only.** The agent runs only on the host that runs `web-app-wazuh`. Every host would share agent ID `001` and its vault key, only the manager's host is pre-registered, and the agent connects to `127.0.0.1`. So on any other host an opted-in app skips the agent with the one-line message "manager runs on another host" instead of failing. Agents on further hosts, and on multi-node swarm, are a follow-up.
+
 The agent version is the manager's version from `web-app-wazuh`'s `services.manager.version`, installed exactly (`<version>-1`) from the Wazuh package repository through the package registry (`package_install` with `version` in `meta/packages.yml`) and held against upgrades: `dpkg` hold on the Debian family, a repository `exclude` on the RedHat family. An exact pin overrides the role's own hold or exclude for that one install: apt runs it with `allow_change_held_packages`, and on the RedHat family the role passes the Wazuh repository id as `disable_excludes`, which lifts only that repository's exclude and leaves excludes in the main dnf configuration alone. The role sets the hold again after the install. Arch Linux has no Wazuh package; there the role builds the agent from pinned official source (see below).
 Before any change, the role fails when the installed agent is newer than the manager; after the install, it fails unless the installed agent equals the manager's version. Both checks read `version` from the agent's own `/var/ossec/VERSION.json`, which the package and `install.sh` both write, so they work the same with and without a package manager.
 

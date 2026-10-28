@@ -1,6 +1,8 @@
 ---
 WAZUH_AGENT_MANAGER_ROLE: "web-app-wazuh"
 WAZUH_AGENT_MANAGER_DEPLOYED: "{{ WAZUH_AGENT_MANAGER_ROLE in groups and groups[WAZUH_AGENT_MANAGER_ROLE] | length > 0 }}"
+# Exception: until multi-host is built (one agent ID and vault key per host, each host pre-registered, a manager address other than 127.0.0.1), only the manager's own host runs an agent.
+WAZUH_AGENT_MANAGER_LOCAL: "{{ WAZUH_AGENT_MANAGER_ROLE in group_names }}"
 
 WAZUH_AGENT_VERSION: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.version') }}"
 WAZUH_AGENT_PACKAGE: "wazuh-agent"
