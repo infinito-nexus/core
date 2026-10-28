@@ -56,6 +56,11 @@
     talk:
       enabled: true
       shared: true
+      ports:
+        public:
+          relay:
+            start: 61000
+            end: 61063
     onlyoffice:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

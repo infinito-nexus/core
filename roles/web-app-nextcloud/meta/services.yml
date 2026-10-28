@@ -155,7 +155,7 @@ context_agent:
     internal:
       http: 23000
   healthcheck:
-    flavor: curl
+    flavor: http_status
     path: heartbeat
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
@@ -204,6 +204,12 @@ talk:
     onboard_enabled: "{{ not ( 'web-svc-coturn' in group_names ) }}"
     standalone_enabled: "{{ 'web-svc-coturn' in group_names }}"
   network_mode: bridge
+  direct_media: >-
+    {{ (lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool)
+       and (lookup('config', 'web-app-nextcloud', 'services.talk.turn_server.standalone_enabled') | bool)
+       and (lookup('config', 'web-app-nextcloud', 'services.talk.network_mode') == 'bridge')
+       and (DEPLOYMENT_MODE == 'compose')
+       and (networks.internet.ip4 in ansible_facts['all_ipv4_addresses']) }}
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 2g
@@ -212,6 +218,10 @@ talk:
   ports:
     internal:
       signaling: 8081
+    public:
+      relay:
+        start: 61000
+        end: 61999
   healthcheck:
     flavor: tcp
     port_key: signaling

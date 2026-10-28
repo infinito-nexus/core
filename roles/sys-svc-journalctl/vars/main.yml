@@ -1,0 +1,3 @@
+---
+SYS_SVC_JOURNALCTL_DIRECTORY: /var/log/journal
+SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_PERCENT: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.system_max_use_percent') }}"

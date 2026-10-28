@@ -39,6 +39,8 @@ Typical use cases:
 - Automatic TLS handling via `sys-stk-front-base`  
 - TURN and STUN support over TCP and UDP  
 - Configurable relay port ranges for scaling  
+- Configurable server-wide allocation quota (`services.coturn.total_quota`, default 2000); size it at about 2·N² for every concurrent Nextcloud Talk call with N participants, as each participant opens N peer connections and requests one allocation per TURN transport
+- Pinned addresses on host networking in compose mode when the host carries `networks.internet.ip4` on an interface and carries `networks.internet.ip6` too or leaves it unset: listens on `networks.internet.ip4`, `127.0.0.1` for the healthcheck and the set `networks.internet.ip6`, and places every relay on `networks.internet.ip4` instead of on the Docker bridge addresses of the host. Any other host, such as one behind 1:1 NAT, keeps listening and relaying on every local address
 - Integration into Infinito.Nexus inventory/variable system
 
 ## Further Resources

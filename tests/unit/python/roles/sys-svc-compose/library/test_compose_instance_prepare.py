@@ -9,9 +9,9 @@ import stat
 import sys
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 from typing import TYPE_CHECKING
-from unittest import mock
 
 from ansible.module_utils.testing import patch_module_args
 

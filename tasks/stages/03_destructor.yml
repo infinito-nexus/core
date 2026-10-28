@@ -26,7 +26,18 @@
     name: test-e2e-cli
   when: RUNTIME in ['dev', 'act', 'github']
 
-- name: "🔓 Unlock all timers"
-  include_role:
-    name: sys-service-terminator
-    tasks_from: 02_unlock.yml
+- name: "🧹 Decommission stale compose stacks while the timers are still locked"
+  block:
+    - name: "🧹 Decommission the compose stacks of roles no longer active on this host"
+      include_role:
+        name: sys-svc-compose
+        tasks_from: decommission.yml
+      when:
+        - MODE_CLEANUP | bool
+        - DEPLOYMENT_MODE == 'compose'
+        - lookup('deployment').whitelist | length == 0
+  always:
+    - name: "🔓 Unlock all timers"
+      include_role:
+        name: sys-service-terminator
+        tasks_from: 02_unlock.yml

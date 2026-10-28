@@ -12,6 +12,7 @@ coturn:
   version: 4.18.0
   min_storage: 246MB
   user_auth_enabled: false
+  total_quota: 2000
   cpus: 1.0
   mem_reservation: 512m
   mem_limit: 1g

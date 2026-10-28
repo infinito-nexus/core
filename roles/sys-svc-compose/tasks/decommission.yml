@@ -1,0 +1,121 @@
+---
+- name: "🔍 Find the compose instances below '{{ DIR_COMPOSITIONS }}'"
+  ansible.builtin.find:
+    paths: "{{ DIR_COMPOSITIONS }}"
+    file_type: any
+    hidden: true
+    recurse: true
+    depth: 2
+  register: compose_instances_found
+
+- name: "🧮 Plan the decommission of the instances no active role owns"
+  ansible.builtin.set_fact:
+    compose_decommission_candidates: >-
+      {{
+        compose_instances_found.files
+        | compose_decommission_plan(
+            DIR_COMPOSITIONS,
+            lookup('deployment').inventory
+            + group_names
+            + (CURRENT_PLAY_APPLICATIONS | list)
+            + compose_prepared_application_ids,
+            lookup('deployment').all
+          )
+      }}
+
+- name: "🔍 Find containers named like a stale compose instance"
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - --all
+      - --filter
+      - "name=^/?{{ compose_stale_candidate | basename }}$"
+      - --format
+      - '{{ "{{" }}.Names{{ "}}" }} {{ "{{" }}.Label "com.docker.compose.project"{{ "}}" }}'
+  register: compose_stale_namesakes
+  changed_when: false
+  check_mode: false
+  loop: "{{ compose_decommission_candidates.stale }}"
+  loop_control:
+    loop_var: compose_stale_candidate
+
+- name: "🧮 Hold back the instances a container outside compose is named after"
+  ansible.builtin.set_fact:
+    compose_decommission: "{{ compose_decommission_candidates | compose_decommission_confirm(compose_stale_namesakes.results) }}"
+
+- name: "⚠️ Keep the unowned directories that are no compose instance"
+  ansible.builtin.debug:
+    msg: >-
+      No active role owns {{ compose_decommission.unmanaged | join(', ') }}, but
+      they are no compose instance of a known role, so the decommission leaves
+      them in place.
+  when: compose_decommission.unmanaged | length > 0
+
+- name: "⚠️ Keep the stale instances a container outside compose runs from"
+  ansible.builtin.debug:
+    msg: >-
+      No active role owns {{ compose_decommission.foreign | join(', ') }}, but a
+      container their compose project does not own carries their name, so the
+      decommission leaves them in place.
+  when: compose_decommission.foreign | length > 0
+
+- name: "🛑 Stop the stale compose stacks and keep their volumes"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_COMPOSE }}"
+      - --chdir
+      - "{{ compose_stale_instance }}"
+      - down
+      - --remove-orphans
+    removes: "{{ [compose_stale_instance, 'compose.yml'] | path_join }}"
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  loop: "{{ compose_decommission.stale }}"
+  loop_control:
+    loop_var: compose_stale_instance
+
+- name: "🔍 Resolve '{{ DIR_COMPOSITIONS }}' like the compose wrapper"
+  ansible.builtin.command:
+    argv:
+      - realpath
+      - --canonicalize-missing
+      - "{{ DIR_COMPOSITIONS }}"
+  register: compose_compositions_resolved
+  changed_when: false
+  check_mode: false
+
+- name: "🛑 Fail when a stopped compose stack left containers behind"
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - --all
+      - --quiet
+      - --filter
+      - "label={{ compose_stale_label }}"
+  vars:
+    compose_stale_names: "{{ compose_decommission.stale | map('basename') | list }}"
+    compose_stale_working_dirs: >-
+      {{
+        compose_decommission.stale
+        + (compose_stale_names | map('regex_replace', '^', compose_compositions_resolved.stdout ~ '/') | list)
+      }}
+  register: compose_stale_leftovers
+  changed_when: false
+  failed_when: compose_stale_leftovers.rc != 0 or (compose_stale_leftovers.stdout | length > 0)
+  loop: >-
+    {{
+      (compose_stale_names | map('regex_replace', '^', 'com.docker.compose.project=') | list)
+      + (compose_stale_working_dirs | unique | map('regex_replace', '^', 'com.docker.compose.project.working_dir=') | list)
+    }}
+  loop_control:
+    loop_var: compose_stale_label
+  when: not ansible_check_mode
+
+- name: "🗑️ Remove the stale compose instance directories"
+  ansible.builtin.file:
+    path: "{{ compose_stale_instance }}"
+    state: absent
+  loop: "{{ compose_decommission.stale }}"
+  loop_control:
+    loop_var: compose_stale_instance
