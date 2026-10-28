@@ -64,7 +64,6 @@ infinito_conf:
 janus_conf:
   type: config
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
-  mode: "0444"
   mounts:
     - service: talk
       target: /usr/local/etc/janus/janus.jcfg

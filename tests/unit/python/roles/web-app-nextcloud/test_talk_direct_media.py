@@ -62,8 +62,7 @@ DIRECT_MOUNT = (
     "    \n"
     "    configs:\n"
     "    - source: janus_conf\n"
-    "      target: /usr/local/etc/janus/janus.jcfg\n"
-    "      mode: 292"
+    "      target: /usr/local/etc/janus/janus.jcfg"
 )
 
 DIRECT_PORT = '      - "203.0.113.7:61000-61999:61000-61999/udp"'
