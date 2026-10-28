@@ -11,7 +11,7 @@ carries one, mirroring the convention used in `default.env`.
 
 from __future__ import annotations
 
-import contextlib
+import errno
 import os
 import re
 from typing import TYPE_CHECKING
@@ -56,9 +56,12 @@ def write_dotenv(eb: EnvBuilder, dest: Path) -> None:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write("\n".join(lines) + "\n")
         owner = (dest if dest.exists() else dest.parent).stat()
-        # Exception: only root may hand a file to another owner; a non-root writer keeps its own ownership instead of failing.
-        with contextlib.suppress(PermissionError):
+        # Exception: only root may hand a file to another owner, and a user-namespace sandbox rejects an id it does not map with EINVAL; either way the writer keeps its own ownership instead of failing.
+        try:
             os.chown(tmp, owner.st_uid, owner.st_gid)
+        except OSError as error:
+            if not isinstance(error, PermissionError) and error.errno != errno.EINVAL:
+                raise
         tmp.replace(dest)
     except BaseException:
         tmp.unlink(missing_ok=True)
