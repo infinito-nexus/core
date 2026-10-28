@@ -53,6 +53,7 @@
       - "{{ POSTGRES_CONTAINER_ADDRESS }}"
       - postgres
     stdin: "{{ POSTGRES_PASSWORD }}"
+    expand_argument_vars: false
   register: postgres_pw_result
   delegate_to: "{{ STACK_HOST }}"
   run_once: true

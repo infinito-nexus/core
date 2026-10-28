@@ -22,6 +22,7 @@
     stdin: |-
       {{ lookup('database', application_id, 'password') }}
       {{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}
+    expand_argument_vars: false
   environment:
     MW_CUSTOM_IMAGE: "{{ MEDIAWIKI_CUSTOM_IMAGE_REF }}"
     MW_LOCALSETTINGS_HOST_PATH: "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}"

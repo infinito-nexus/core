@@ -34,6 +34,7 @@
           - "{{ lookup('database', application_id, 'container') }}"
           - "{{ lookup('database', application_id, 'username') }}"
         stdin: "{{ lookup('database', application_id, 'password') }}"
+        expand_argument_vars: false
       register: _app_db_realign
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: _app_db_realign.stdout is search('\\[CHANGED\\]')
