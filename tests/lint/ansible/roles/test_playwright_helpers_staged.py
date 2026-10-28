@@ -27,12 +27,13 @@ from utils.cache.files import (
     iter_project_files_with_content,
     read_text,
 )
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 _RULE = "playwright-helper-staged"
 
 RUNNER_FILES = PROJECT_ROOT / "roles/test-e2e-playwright/files"
 STAGING_TASK = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/01_setup.yml"
-STAGING_VARS = PROJECT_ROOT / "roles/test-e2e-playwright/vars/main.yml"
+STAGING_VARS = PROJECT_ROOT / "roles/test-e2e-playwright" / ROLE_FILE_VARS_MAIN
 RERUN_SCRIPT = PROJECT_ROOT / "scripts/tests/e2e/rerun-spec.sh"
 LINT_SCRIPT = PROJECT_ROOT / "scripts/lint/playwright.sh"
 
