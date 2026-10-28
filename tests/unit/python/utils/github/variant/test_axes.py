@@ -5,6 +5,11 @@ import unittest.mock as mock
 
 from utils.github.variant import axes, network, pins, pools
 from utils.roles.display import display_names
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_SERVICES,
+)
 from utils.symbol_glossary import to_emoji
 
 _REACTIVE = "{{ 'svc-net-tor' in group_names }}"
@@ -37,6 +42,19 @@ _VARIANTS = {
 }
 
 _ALL = ("clearnet", "tor", "multi")
+
+_PARTNER_META = {
+    ("web-svc-relay", ROLE_FILE_META_DOMAINS): {"canonical": ["relay.example"]},
+    ("web-svc-relay", ROLE_FILE_META_SERVICES): {"tor": {"enabled": False}},
+    ("svc-engine", ROLE_FILE_META_SERVICES): {"tor": {"enabled": False}},
+    ("web-svc-dark", ROLE_FILE_META_DOMAINS): {"canonical": ["dark.example"]},
+    ("web-svc-dark", ROLE_FILE_META_SERVICES): {"tor": {"enabled": _REACTIVE}},
+    ("web-svc-dark", ROLE_FILE_META_NETWORKS): {"reachability": {"modes": ["tor"]}},
+}
+
+
+def _partner_meta(app: str, filename: str) -> dict:
+    return _PARTNER_META.get((app, filename), {})
 
 
 def _row(name: str, variant: int, modes: tuple[str, ...], **extra) -> dict:
@@ -263,6 +281,23 @@ class TestNetworkStates(unittest.TestCase):
         self.assertEqual(network.disabled_services("clearnet"), "tor")
         self.assertEqual(network.disabled_services("tor"), "")
         self.assertEqual(network.disabled_services("multi"), "")
+
+    @mock.patch.object(network, "_meta", side_effect=_partner_meta)
+    def test_a_partner_the_node_serves_no_network_of_is_disabled(self, _meta) -> None:
+        deployed = ["web-svc-relay", "web-svc-dark", "svc-engine"]
+        self.assertEqual(network.disabled_services("tor", deployed), "web-svc-relay")
+        self.assertEqual(
+            network.disabled_services("clearnet", deployed), "tor web-svc-dark"
+        )
+        self.assertEqual(network.disabled_services("multi", deployed), "")
+
+        (entry,) = _assign(
+            [_row("web-app-a", 0, ("compose",), pin_network="tor", services=deployed)],
+            sweep=0,
+            network_input="auto",
+            variants_per_app=_VARIANTS,
+        )
+        self.assertEqual(entry["disable"], "web-svc-relay")
 
 
 class TestCombinations(unittest.TestCase):

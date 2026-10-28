@@ -317,7 +317,7 @@ def assign(
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",
-                    "disable": disabled_services(state),
+                    "disable": disabled_services(state, row.get("services", ())),
                     "priority": "true" if priority else "false",
                     "instructions": "",
                     "id": str(row.get("id", 0)),
