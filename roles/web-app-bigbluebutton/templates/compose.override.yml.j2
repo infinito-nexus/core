@@ -59,6 +59,8 @@ services:
 {% set service_name = 'greenlight' %}
   {{ service_name }}:
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    environment: # nocheck: compose-environment-from-env-file upstream docker-compose.tmpl.yml sets URL_HOST: https://${DOMAIN} under environment, which outranks env_file, and Greenlight 3.8+ feeds URL_HOST into config.hosts, so anything but the bare hostname answers every request with 403
+      URL_HOST: "{{ domain }}"
 {% endif %}
 {% if BBB_RECORDING_ENABLED | bool %}
 {% set service_name = 'recordings' %}
