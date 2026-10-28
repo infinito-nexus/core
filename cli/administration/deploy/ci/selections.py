@@ -37,7 +37,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
     from typing import Any
 
-from .runs import _effective, _iter_deploy_jobs
+from .runs import (
+    _effective,
+    _iter_deploy_jobs,
+    dispatched_priority,
+    parse_role_statuses,
+    untriggered_priority,
+)
 
 
 def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
@@ -128,6 +134,31 @@ def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
     roles = set(collapse_to_roles(hard))
     pinned = {token for token in tokens if selection.parse(token).app not in roles}
     return sorted(roles | pinned)
+
+
+def retrigger_entries(
+    source: dict, repo: str, *, strict: bool, roles_only: bool
+) -> tuple[list[str], list[str]]:
+    """The two halves of the priority line a retrigger of ``source`` dispatches.
+
+    Args:
+        source: the run as ``gh.fetch_run`` returns it.
+        repo: ``owner/repo`` the run lives in.
+        strict: only hard failures (❌) count as failed.
+        roles_only: hard failures come back as role names, see
+            :func:`collapse_failures`.
+
+    Returns:
+        The failed selections, and the priority entries the run never deployed.
+    """
+    jobs = source["jobs"]
+    failed = failed_selections(jobs, strict=strict)
+    if roles_only:
+        failed = collapse_failures(failed, failed_selections(jobs, strict=True))
+    untriggered = untriggered_priority(
+        dispatched_priority(source, repo), parse_role_statuses(jobs)
+    )
+    return failed, untriggered
 
 
 def _variants(entry: Mapping[str, Any]) -> tuple[int, ...]:
