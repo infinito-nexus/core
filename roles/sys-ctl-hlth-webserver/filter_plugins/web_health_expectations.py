@@ -223,7 +223,12 @@ def web_health_expectations(
         expectations.update(app_exp)
         expectations.update(per_alias[app_id])
 
-    for src in _extract_redirect_sources(redirect_maps):
+    sources = _extract_redirect_sources(redirect_maps)
+    node = str(node_onion or "").strip()
+    for d in list(expectations):
+        if sibling_domain(d, CLEARNET, primary, node) in sources:
+            expectations[d] = [301]
+    for src in sources:
         expectations[src] = [301]
 
     if www_enabled:
