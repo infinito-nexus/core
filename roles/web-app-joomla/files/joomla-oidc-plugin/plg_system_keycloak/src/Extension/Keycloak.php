@@ -169,7 +169,7 @@ class Keycloak extends CMSPlugin
         if ($socksProxy !== '') {
             $client->setHttpProxy($socksProxy);
         }
-        $client->setRedirectURL($redirectUri);
+        $client->setRedirectURL($this->redirectUriForRequest($redirectUri));
         $client->addScope(['openid', 'profile', 'email', 'groups']);
         $client->setVerifyHost(true);
         $client->setVerifyPeer(true);
@@ -178,6 +178,28 @@ class Keycloak extends CMSPlugin
             $client->setCertPath($caPath);
         }
         return $client;
+    }
+
+    /**
+     * Move the configured redirect URI onto the host the request reached.
+     *
+     * @param string $configured redirect URI of the canonical domain.
+     * @return string the same path and query on the request's host, over
+     *                plaintext for an .onion; $configured when the request
+     *                carries no host or already uses the canonical one.
+     *                Keycloak still checks the result against the client's
+     *                redirect URIs, which list every network sibling.
+     */
+    private function redirectUriForRequest(string $configured): string
+    {
+        $host  = strtolower((string) $this->app->getInput()->server->getString('HTTP_HOST', ''));
+        $parts = parse_url($configured);
+        if ($host === '' || !is_array($parts) || !isset($parts['host']) || $host === strtolower($parts['host'])) {
+            return $configured;
+        }
+        $scheme = str_ends_with($host, '.onion') ? 'http' : ($parts['scheme'] ?? 'https');
+        $query  = isset($parts['query']) ? '?' . $parts['query'] : '';
+        return $scheme . '://' . $host . ($parts['path'] ?? '/') . $query;
     }
 
     /**
