@@ -14,7 +14,7 @@ MOBILIZON_DESIGN_COLORS:
   primary_color: "{{ MOBILIZON_DESIGN_PALETTE['--design-primary'] if MOBILIZON_DESIGN_ENABLED | bool else None }}"
   secondary_color: "{{ MOBILIZON_DESIGN_PALETTE['--design-primary-100'] if MOBILIZON_DESIGN_ENABLED | bool else None }}"
 MOBILIZON_DESIGN_MEDIAS:
-  instance_logo: "{{ {'url': MOBILIZON_DESIGN.urls.logo.svg, 'name': 'logo.svg', 'content_type': 'image/svg+xml', 'width': MOBILIZON_DESIGN.slots.logo.width, 'height':
-    MOBILIZON_DESIGN.slots.logo.height} if MOBILIZON_DESIGN_ENABLED | bool and MOBILIZON_DESIGN.logo is string else None }}"
-  instance_favicon: "{{ {'url': MOBILIZON_DESIGN.urls.favicon.png, 'name': 'favicon.png', 'content_type': 'image/png', 'width': MOBILIZON_DESIGN.slots.favicon.width,
+  instance_logo: "{{ {'url': MOBILIZON_DESIGN.relative_urls.logo.svg, 'name': 'logo.svg', 'content_type': 'image/svg+xml', 'width': MOBILIZON_DESIGN.slots.logo.width,
+    'height': MOBILIZON_DESIGN.slots.logo.height} if MOBILIZON_DESIGN_ENABLED | bool and MOBILIZON_DESIGN.logo is string else None }}"
+  instance_favicon: "{{ {'url': MOBILIZON_DESIGN.relative_urls.favicon.png, 'name': 'favicon.png', 'content_type': 'image/png', 'width': MOBILIZON_DESIGN.slots.favicon.width,
     'height': MOBILIZON_DESIGN.slots.favicon.height} if MOBILIZON_DESIGN_ENABLED | bool and MOBILIZON_DESIGN.logo is string else None }}"
