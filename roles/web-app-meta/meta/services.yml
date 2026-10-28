@@ -26,6 +26,8 @@ redis:
   backup:
     disabled: true
 meta:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: curl
   modes:

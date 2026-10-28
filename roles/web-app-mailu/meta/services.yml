@@ -157,6 +157,8 @@ antispam:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 antivirus:
+  backup:
+    stop_required: false
   name: mailu-antivirus
   enabled: true # nocheck: dynamic-flag
   shared: false

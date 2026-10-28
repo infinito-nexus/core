@@ -64,7 +64,7 @@ baserow:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: baserow/baserow
   version: 2.4.1
   custom: true

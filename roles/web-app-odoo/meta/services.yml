@@ -48,7 +48,7 @@ odoo:
   mem_limit: 4g
   pids_limit: 1024
   backup:
-    no_stop_required: true
+    stop_required: false
   email:
     from_name: ERP ({{ DOMAIN_PRIMARY }})
   ports:

@@ -28,7 +28,7 @@
 
   {% set service_name = 'daemon' %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'daemon', version=ESPOCRM_VERSION) }}
+    {{ lookup('container_image', application_id, 'espocrm') }}
     {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER ~ '_' ~ service_name) }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     init: true
@@ -45,7 +45,7 @@
 
   {% set service_name = 'websocket' %}
   {{ service_name }}:
-    {{ lookup('container_image', application_id, 'websocket', version=ESPOCRM_VERSION) }}
+    {{ lookup('container_image', application_id, 'espocrm') }}
     {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER ~ '_' ~ service_name) }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     init: true

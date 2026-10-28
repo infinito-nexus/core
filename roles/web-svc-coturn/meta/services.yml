@@ -1,5 +1,7 @@
 ---
 coturn:
+  backup:
+    stop_required: false
   modes:
     compose:
       enabled: true

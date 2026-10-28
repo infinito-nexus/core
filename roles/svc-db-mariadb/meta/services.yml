@@ -17,6 +17,7 @@ mariadb:
   min_storage: 308MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

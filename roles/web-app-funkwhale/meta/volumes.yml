@@ -62,6 +62,7 @@ design_admin_template:
 typesense_data:
   type: volume
   name: funkwhale_typesense_data
+  backup: false
   mounts:
     - service: typesense
       target: /data

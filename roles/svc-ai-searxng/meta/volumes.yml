@@ -9,6 +9,7 @@ searxng_settings:
       target: /etc/searxng/settings.yml
 searxng_config:
   type: volume
+  backup: false
   # nocheck: nfs-false-data-loss  Reason: holds the image's own /etc/searxng copy, which docker seeds per node on first start; the deployment's settings.yml is bind-mounted over it, so nothing a replica writes here has to reach another replica
   nfs: false
   mounts:
@@ -16,6 +17,7 @@ searxng_config:
       target: /etc/searxng
 searxng_cache:
   type: volume
+  backup: false
   # nocheck: nfs-false-data-loss  Reason: derived search cache, rebuilt from the upstream engines on demand; shared over NFS every replica would write the same keys into one tree for no gain
   nfs: false
   mounts:

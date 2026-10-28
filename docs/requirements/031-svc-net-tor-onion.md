@@ -93,7 +93,7 @@ tor:
   version: "<pinned tor x.y.z>"
   name: tor
   backup:
-    no_stop_required: false     # stop for consistent key-volume copy
+    stop_required: true         # stop for consistent key-volume copy
   lifecycle: alpha
   # no public ports; SocksPort/ControlPort bind 127.0.0.1 only
 ```

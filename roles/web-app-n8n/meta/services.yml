@@ -73,7 +73,7 @@ n8n:
     swarm:
       enabled: true
   backup:
-    no_stop_required: false
+    stop_required: true
   image: docker.n8n.io/n8nio/n8n
   version: "3.0.0"
   update:

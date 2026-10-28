@@ -90,6 +90,8 @@ front:
   mem_limit: 512m
   pids_limit: 256
 gateway:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: http
   ports:
@@ -112,6 +114,8 @@ events:
   mem_limit: 512m
   pids_limit: 256
 async-rabbitmq:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
     retries: 5
@@ -122,6 +126,8 @@ async-rabbitmq:
   mem_limit: 1.5g
   pids_limit: 512
 events-rabbitmq:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
     retries: 5

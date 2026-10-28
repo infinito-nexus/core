@@ -30,6 +30,8 @@ postgres:
     - pg_trgm
     - unaccent
 mobilizon:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: curl
   modes:

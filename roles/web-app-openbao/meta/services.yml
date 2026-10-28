@@ -59,7 +59,7 @@ openbao:
   version: "2.7.2"
   custom: true
   backup:
-    no_stop_required: false
+    stop_required: true
   # nocheck: single-replica  single-node raft: a second replica would need a real raft join/bootstrap flow, and two tasks against one BoltDB directory corrupt the store
   replicas: 1
   name: openbao

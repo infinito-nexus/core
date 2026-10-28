@@ -72,7 +72,7 @@ wordpress:
   name: wordpress
   min_storage: 469MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 1
   mem_reservation: 0.5g
   mem_limit: 1.5g

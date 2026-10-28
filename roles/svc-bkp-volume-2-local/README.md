@@ -39,7 +39,7 @@ flowchart TD
 
 - **Per-container snapshots:** rsync `--link-dest` snapshots deduplicate unchanged files across runs.
 - **Database-aware:** consumer apps seed their connection metadata into a central `databases.csv`, so the same run can dump SQL state alongside the file payload.
-- **Live-aware:** containers tagged `no_stop_required` stay running during the dump; others stop briefly and resume.
+- **Live-aware:** containers tagged `stop_required: false` stay running during the dump; others stop briefly and resume.
 - **Snapshot-aware:** on a btrfs data root the whole run is captured from one atomic filesystem snapshot with no container stopped; the host is probed before every run and falls back to the live copy when a snapshot would not be faithful.
 - **Systemd-driven:** a generated unit fires on the configured schedule (`SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL`), serialised against other backup/cleanup/repair groups by `sys-lock`.
 - **Self-cleaning:** failed backup attempts are torn down by `sys-ctl-cln-faild-bkps` so a broken run cannot poison the next.

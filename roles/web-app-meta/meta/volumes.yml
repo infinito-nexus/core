@@ -4,6 +4,7 @@
 git:
   type: volume
   name: meta_git
+  backup: false
   mounts:
     - service: meta
       target: /var/lib/mig

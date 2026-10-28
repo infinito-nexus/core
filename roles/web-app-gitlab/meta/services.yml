@@ -75,6 +75,8 @@ gitlab:
     - web-app-mailu
   lifecycle: beta
 webservice:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
   version: v19.5.1
   name: gitlab-webservice
@@ -91,6 +93,8 @@ webservice:
   mem_limit: 6g
   pids_limit: 2048
 sidekiq:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: tcp
     path: liveness
@@ -105,6 +109,8 @@ sidekiq:
     internal:
       http: 3808
 workhorse:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
   version: v19.5.1
   name: gitlab-workhorse
@@ -115,6 +121,8 @@ workhorse:
   mem_limit: 512m
   pids_limit: 256
 gitaly:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
   # nocheck: default-placement-manager  the repositories live on a node-local volume (meta/volumes.yml nfs: false, gitaly does not support NFS), which a reschedule leaves behind on the old node
@@ -132,6 +140,8 @@ gitaly:
   mem_limit: 2g
   pids_limit: 1024
 shell:
+  backup:
+    stop_required: false
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
   version: v19.5.1
   name: gitlab-shell
@@ -143,6 +153,8 @@ shell:
   mem_limit: 256m
   pids_limit: 256
 migrations:
+  backup:
+    stop_required: false
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce

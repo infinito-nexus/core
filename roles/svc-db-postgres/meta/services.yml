@@ -19,6 +19,7 @@ postgres:
   min_storage: 419MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 3g
   mem_limit: 6g

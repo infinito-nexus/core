@@ -16,6 +16,7 @@ elasticsearch:
   min_storage: 1066MB
   backup:
     database_routine: true
+    stop_required: true
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

@@ -34,7 +34,7 @@ openwebui:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ghcr.io/open-webui/open-webui
   version: 0.11.0
   name: open-webui

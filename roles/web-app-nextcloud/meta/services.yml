@@ -71,7 +71,7 @@ nextcloud:
   custom: true
   min_storage: 553MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 3g
@@ -124,7 +124,7 @@ proxy:
   image: nginx
   version: 1.31.8-alpine
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "0.5"
   mem_reservation: 64m
   mem_limit: 256m
@@ -143,7 +143,7 @@ context_agent:
   image: ghcr.io/nextcloud/context_agent
   version: 2.10.0
   backup:
-    no_stop_required: true
+    stop_required: false
   # nocheck: single-replica
   replicas: 1
   cpus: "1.0"
@@ -199,7 +199,7 @@ talk:
   # nocheck: docker-version -- all 174 tags upstream publishes are AIO build stamps, none is a version
   version: latest
   backup:
-    no_stop_required: false
+    stop_required: true
   turn_server:
     onboard_enabled: "{{ not ( 'web-svc-coturn' in group_names ) }}"
     standalone_enabled: "{{ 'web-svc-coturn' in group_names }}"
@@ -233,7 +233,7 @@ whiteboard:
   version: v1.5.9
   custom: nextcloud-whiteboard
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "1"
   mem_reservation: 128m
   mem_limit: 1g
@@ -284,7 +284,7 @@ talk_recording:
   # nocheck: docker-version -- all 104 tags upstream publishes are AIO build stamps, none is a version
   version: latest
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 3g

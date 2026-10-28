@@ -66,7 +66,7 @@ pretix:
   name: pretix
   min_storage: 1003MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "2.0"
   mem_reservation: 1.5g
   mem_limit: 3g

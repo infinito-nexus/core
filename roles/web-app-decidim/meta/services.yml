@@ -1,5 +1,4 @@
 ---
-# nocheck: dockerfile-custom
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -27,6 +26,8 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
   enabled: true # nocheck: dynamic-flag
 decidim:
+  backup:
+    stop_required: false
   # nocheck: architecture-pin  Reason: ghcr.io/decidim/decidim publishes a single linux/amd64 manifest and upstream offers no arm64 tag, so reaching arm64 means building the Rails application from source the way web-app-pretix does, which this role does not
   architectures:
     - amd64
@@ -41,6 +42,7 @@ decidim:
       enabled: true
   image: ghcr.io/decidim/decidim
   version: 0.31.6
+  custom: true
   min_storage: 1206MB
   name: decidim
   cpus: "1.0"

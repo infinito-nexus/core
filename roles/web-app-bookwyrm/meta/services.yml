@@ -47,6 +47,8 @@ redis:
   mem_limit: 512m
   pids_limit: 512
 bookwyrm:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: curl
     hostname: localhost
@@ -85,7 +87,6 @@ bookwyrm:
   pids_limit: 512
 migrate:
   name: bookwyrm-migrate
-  custom: true
   # nocheck: single-replica  run-once bootstrap; concurrent migrate/initdb deadlock the migration graph and double-insert the SiteSettings singleton
   replicas: 1
   cpus: "0.5"
@@ -97,7 +98,6 @@ migrate:
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 worker:
   name: bookwyrm-worker
-  custom: true
   enabled: true # nocheck: dynamic-flag
   cpus: "1.0"
   mem_reservation: 256m

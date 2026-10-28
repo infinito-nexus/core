@@ -55,7 +55,7 @@ jellyfin:
   image: jellyfin/jellyfin
   version: "10.11.11"
   backup:
-    no_stop_required: true
+    stop_required: false
   # nocheck: single-replica Jellyfin persists all state in embedded SQLite under the shared {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }} volume; concurrent replicas corrupt the database (SQLite disk I/O error, malformed image in CI) and upstream has no multi-instance support
   replicas: 1
   name: jellyfin

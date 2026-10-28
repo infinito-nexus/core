@@ -35,7 +35,7 @@ chess:
   name: web-app-chess
   min_storage: 633MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 0.5
   mem_reservation: 256m
   mem_limit: 512m

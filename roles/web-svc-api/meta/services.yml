@@ -48,7 +48,7 @@ api:
   # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB) and the bare repository of core and its forks (about 300 MB)
   min_storage: 2GB
   backup:
-    no_stop_required: true
+    stop_required: false
   ports:
     internal:
       http: 8000

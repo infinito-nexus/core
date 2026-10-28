@@ -55,7 +55,7 @@ joomla:
   name: joomla
   min_storage: 478MB
   backup:
-    no_stop_required: true
+    stop_required: false
   upload:
     size_mb: 100
   autocreate_users: true

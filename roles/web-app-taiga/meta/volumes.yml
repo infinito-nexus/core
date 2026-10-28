@@ -8,6 +8,7 @@ async-rabbitmq-data:
 events-rabbitmq-data:
   type: volume
   name: taiga_events_rabbitmq_data
+  backup: false
   mounts:
     - service: events-rabbitmq
       target: *var_lib_rabbitmq_target

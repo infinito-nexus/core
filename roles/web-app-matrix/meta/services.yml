@@ -98,7 +98,7 @@ synapse:
   image: matrixdotorg/synapse
   name: matrix-synapse
   backup:
-    no_stop_required: true
+    stop_required: false
   ports:
     internal:
       http: 8008
@@ -132,6 +132,8 @@ element:
   mem_limit: 256m
   pids_limit: 256
 matrix-chatgpt-bot:
+  backup:
+    stop_required: false
   version: 3.1.5
   image: ghcr.io/matrixgpt/matrix-chatgpt-bot
   min_storage: 307MB

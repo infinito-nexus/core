@@ -79,6 +79,8 @@ penpot:
     - web-app-mailu
   lifecycle: beta
 frontend:
+  backup:
+    stop_required: false
   image: penpotapp/frontend
   version: "2.18.5"
   name: penpot-frontend
@@ -87,6 +89,8 @@ frontend:
   mem_limit: 512m
   pids_limit: 256
 backend:
+  backup:
+    stop_required: false
   image: penpotapp/backend
   version: "2.18.5"
   name: penpot-backend

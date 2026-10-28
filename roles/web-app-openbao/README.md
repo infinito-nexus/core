@@ -40,7 +40,7 @@ This role deploys OpenBao as an Infinito.Nexus application at `openbao.<domain>`
 
 ### Backup and restore
 
-Backups run through `svc-bkp-volume-2-local` with `backup.no_stop_required: false`, so the container is quiesced for a consistent copy of the raft volume. To restore:
+Backups run through `svc-bkp-volume-2-local` with `backup.stop_required: true`, so the container is quiesced for a consistent copy of the raft volume. To restore:
 
 1. Restore the `openbao_data` volume from the backup generation.
 2. Confirm the inventory still holds the original `seal_key` — a different key makes the restored store unreadable.

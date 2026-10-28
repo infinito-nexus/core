@@ -40,7 +40,7 @@ fider:
   name: fider
   min_storage: 400MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "0.5"
   mem_reservation: 128m
   mem_limit: 512m

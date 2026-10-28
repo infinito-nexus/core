@@ -29,6 +29,8 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 jira:
+  backup:
+    stop_required: true
   enabled: false
   shared: true
   healthcheck:

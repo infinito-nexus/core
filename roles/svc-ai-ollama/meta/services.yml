@@ -11,7 +11,7 @@ ollama:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ollama/ollama
   version: 0.40.12
   name: ollama

@@ -1,5 +1,4 @@
 ---
-# nocheck: dockerfile-custom
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -74,6 +73,8 @@ view:
   mem_limit: 256m
   pids_limit: 256
 pds:
+  backup:
+    stop_required: true
   image: ghcr.io/bluesky-social/pds
   version: 0.4.66
   min_storage: 290MB
@@ -82,9 +83,12 @@ pds:
   mem_limit: 2g
   pids_limit: 1024
 broker:
+  backup:
+    stop_required: false
   name: bluesky-broker
   image: node
   version: 26-alpine
+  custom: bluesky_broker
   ports:
     local:
       http: 8076

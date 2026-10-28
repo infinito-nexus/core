@@ -85,7 +85,7 @@ manager:
   pids_limit: 1024
   nofile: 655360
   backup:
-    no_stop_required: false
+    stop_required: true
   ports:
     internal:
       agent_events: 1514
@@ -115,7 +115,7 @@ indexer:
   pids_limit: 2048
   nofile: 65536
   backup:
-    no_stop_required: false
+    stop_required: true
   ports:
     internal:
       http: 9200

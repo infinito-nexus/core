@@ -41,7 +41,7 @@ onlyoffice:
   mem_limit: 4g
   pids_limit: 4096
   backup:
-    no_stop_required: true
+    stop_required: false
   ports:
     local:
       http: 8061

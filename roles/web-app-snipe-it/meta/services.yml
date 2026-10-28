@@ -48,6 +48,8 @@ seaweedfs:
   public: true
 # nocheck: playwright-service-flag  self-provider
 snipe-it:
+  backup:
+    stop_required: false
   healthcheck:
     test: ["CMD", "wget", "-q", "-O-", "http://localhost/health"]
     retries: 12

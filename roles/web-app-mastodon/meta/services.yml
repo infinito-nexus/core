@@ -50,7 +50,7 @@ mastodon:
   version: v4.6.2
   min_storage: 535MB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: mastodon
   cpus: "1.0"
   mem_reservation: 1.5g

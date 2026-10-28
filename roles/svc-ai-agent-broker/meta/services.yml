@@ -1,5 +1,7 @@
 ---
 agent-broker:
+  backup:
+    stop_required: false
   modes:
     compose:
       enabled: true
@@ -43,6 +45,8 @@ agent-broker:
 # nocheck: shared
 # nocheck: dynamic-flag
 socket-proxy:
+  backup:
+    stop_required: false
   bond: 1
   enabled: true
   image: wollomatic/socket-proxy

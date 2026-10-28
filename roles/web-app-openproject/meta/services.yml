@@ -47,7 +47,7 @@ web:
   version: "17"
   custom: true
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "3.0"
   mem_reservation: 3g
   mem_limit: 6g
@@ -80,7 +80,6 @@ worker:
   min_storage: 5GB
 proxy:
   name: openproject-proxy
-  custom: true
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m

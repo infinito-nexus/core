@@ -6,6 +6,8 @@
 # onion vhost would listen on 443 while Tor forwards only 80.
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: curl
     path: status

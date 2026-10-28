@@ -33,7 +33,7 @@ minio:
   enabled: false
   shared: true
   backup:
-    no_stop_required: false
+    stop_required: true
   image: quay.io/minio/minio
   version: "RELEASE.2025-09-07T16-13-09Z" # nocheck: docker-version
   name: minio

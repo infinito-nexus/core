@@ -38,7 +38,7 @@ php:
     internal:
       fpm: 9000
   backup:
-    no_stop_required: true
+    stop_required: false
   min_storage: 660MB
   cpus: "0.5"
   mem_reservation: 256m
@@ -49,7 +49,7 @@ nginx:
   version: "1.28"
   name: magento-nginx
   backup:
-    no_stop_required: true
+    stop_required: false
   min_storage: 235MB
   cpus: "0.5"
   mem_reservation: 256m

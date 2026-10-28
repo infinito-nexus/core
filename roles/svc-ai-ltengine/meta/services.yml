@@ -1,6 +1,8 @@
 ---
 # nocheck: playwright-service-flag — translation engine without a browser surface of its own
 ltengine:
+  backup:
+    stop_required: false
   name: ltengine
   healthcheck:
     flavor: http_status
