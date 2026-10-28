@@ -24,6 +24,9 @@ SWARM_INGRESS_GUARDED: "{{ swarm_ingress_endpoints.stdout_lines | swarm_ingress_
 
 SWARM_INGRESS_PEERS: "{{ swarm_ingress_nodes.stdout_lines | swarm_node_addresses }}"
 
+SWARM_MANAGER_PORT: 2377
+SWARM_LISTEN_ADDR: "0.0.0.0:{{ SWARM_MANAGER_PORT }}"
+
 swarm:
   manager:
     advertise_addr: >-

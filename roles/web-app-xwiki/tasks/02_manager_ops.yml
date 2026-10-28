@@ -18,16 +18,20 @@
 - block:
     - name: "🐛 DEBUG | superadmin check + pw hash compare (condensed)"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      script: >-
-        shell/debug_superadmin.sh
-        "{{ _super_check_ext.status }}"
-        "{{ _super_check_ext.redirected | default('n/a') }}"
-        "{{ _super_check_ext.url | default('n/a') }}"
-        "{{ _super_check_ext.www_authenticate | default(_super_check_ext.headers['www-authenticate'] | default('n/a')) }}"
-        "{{ _super_check_ext.content_type | default(_super_check_ext.headers['content-type'] | default('n/a')) }}"
-        "{{ (_super_check_ext.content | default(''))[:600] | replace('\n','\\n') }}"
-        "{{ XWIKI_CONTAINER }}"
-        "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - "{{ lookup('file', 'shell/debug_superadmin.sh') }}"
+          - debug_superadmin.sh
+          - "{{ _super_check_ext.status }}"
+          - "{{ _super_check_ext.redirected | default('n/a') }}"
+          - "{{ _super_check_ext.url | default('n/a') }}"
+          - "{{ _super_check_ext.www_authenticate | default(_super_check_ext.headers['www-authenticate'] | default('n/a')) }}"
+          - "{{ _super_check_ext.content_type | default(_super_check_ext.headers['content-type'] | default('n/a')) }}"
+          - "{{ (_super_check_ext.content | default(''))[:600] | replace('\n','\\n') }}"
+          - "{{ XWIKI_CONTAINER }}"
+        stdin: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
       register: _dbg_superadmin
       changed_when: false
       failed_when: false

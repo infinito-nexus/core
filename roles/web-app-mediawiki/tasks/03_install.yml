@@ -1,14 +1,27 @@
 ---
 - name: "🥾 MEDIAWIKI | Bootstrap DB (install if empty) then update"
-  ansible.builtin.script: >-
-    install/or_update.sh
-    "{{ MEDIAWIKI_NETWORK_DATABASE }}" "{{ lookup('database', application_id, 'version') | default('latest') }}"
-    "{{ lookup('database', application_id, 'host') }}" "{{ lookup('database', application_id, 'port') }}"
-    "{{ lookup('database', application_id, 'username') }}" "{{ lookup('database', application_id, 'password') }}"
-    "{{ lookup('database', application_id, 'name') }}"
-    "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_IMAGE }}" "{{ MEDIAWIKI_VERSION }}" "{{ MEDIAWIKI_HTML_DIR }}"
-    "{{ MEDIAWIKI_URL }}" "{{ MEDIAWIKI_SITENAME }}"
-    "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}" "{{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -c
+      - "{{ lookup('file', 'install/or_update.sh') }}"
+      - or_update.sh
+      - "{{ MEDIAWIKI_NETWORK_DATABASE }}"
+      - "{{ lookup('database', application_id, 'version') | default('latest') }}"
+      - "{{ lookup('database', application_id, 'host') }}"
+      - "{{ lookup('database', application_id, 'port') }}"
+      - "{{ lookup('database', application_id, 'username') }}"
+      - "{{ lookup('database', application_id, 'name') }}"
+      - "{{ MEDIAWIKI_USER }}"
+      - "{{ MEDIAWIKI_IMAGE }}"
+      - "{{ MEDIAWIKI_VERSION }}"
+      - "{{ MEDIAWIKI_HTML_DIR }}"
+      - "{{ MEDIAWIKI_URL }}"
+      - "{{ MEDIAWIKI_SITENAME }}"
+      - "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}"
+    stdin: |-
+      {{ lookup('database', application_id, 'password') }}
+      {{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}
   environment:
     MW_CUSTOM_IMAGE: "{{ MEDIAWIKI_CUSTOM_IMAGE_REF }}"
     MW_LOCALSETTINGS_HOST_PATH: "{{ MEDIAWIKI_LOCALSETTINGS_HOST_PATH }}"

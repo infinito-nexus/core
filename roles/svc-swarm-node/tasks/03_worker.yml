@@ -7,9 +7,17 @@
 
 - name: "🐝 Join swarm cluster as worker (only when not already active)"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  ansible.builtin.command: >-
-    container swarm join
-    --token {{ svc_swarm_worker_token }}
-    {{ svc_swarm_manager_addr }}
+  uri_retry:
+    url: http://localhost/swarm/join
+    unix_socket: /var/run/docker.sock
+    method: POST
+    body_format: json
+    body:
+      ListenAddr: "{{ SWARM_LISTEN_ADDR }}"
+      RemoteAddrs:
+        - "{{ svc_swarm_manager_addr }}"
+      JoinToken: "{{ svc_swarm_worker_token }}"
+    status_code: 200
+    timeout: "{{ lookup('timeout', 120) | int }}"
   when: docker_swarm_local_state.stdout != 'active'
   changed_when: true
