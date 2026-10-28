@@ -1,9 +1,10 @@
-"""The guard that stops a deploy before Stalwart 1.x opens a store from before 1.0.
+"""The guard that keeps Stalwart 1.x from opening a store from before 1.0.
 
 The marker a finished 1.x deploy leaves on the stack host passes the guard
 without touching the store. Without the marker the guard reads every store
-that exists, stops when a dedicated database is not running, and lets a fresh
-install through.
+that exists, stops when a dedicated database is not running, migrates a store
+from before 1.0, stops when the migration leaves it unmigrated, and lets a
+fresh install through.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ VARS = ROLE / ROLE_FILE_VARS_MAIN
 PASS = "pass"
 ENGINE_DOWN = "Ensure the dedicated store database runs"
 PRE_1_0 = "Ensure Stalwart opens no store from before 1.0"
+MIGRATION = "store_guard/migrate.yml"
 
 SKIPPED = {"skipped": True, "changed": False}
 NO_MARKER = {"stalwart_store_marker_file": {"changed": False, "stat": {"exists": False}}}
@@ -64,8 +66,9 @@ def _guard(results: dict[str, dict], *, shared: bool) -> str:
     """Walk store_guard.yml in task order, the way Ansible runs it.
 
     Args:
-      results: the result of every task that runs, keyed by its register name;
-        a task that runs without an entry fails the test with a KeyError.
+      results: the result of every task that runs, keyed by its register name,
+        and the layout the migration leaves, keyed by MIGRATION; a task that
+        runs without an entry fails the test with a KeyError.
       shared: whether the store lives on the shared PostgreSQL.
 
     Returns:
@@ -83,8 +86,11 @@ def _guard(results: dict[str, dict], *, shared: bool) -> str:
             continue
         set_fact = _module(task, "set_fact")
         assertion = _module(task, "assert")
+        include = _module(task, "include_tasks")
         if set_fact is not None:
             facts.update({k: _render(v, **facts) for k, v in set_fact.items()})
+        elif include is not None:
+            facts["stalwart_store_layout"] = results[include]
         elif assertion is not None:
             if not all(_holds(c, facts) for c in assertion["that"]):
                 return task["name"]
@@ -153,8 +159,13 @@ class TestAHostWithoutAStoreIsAFreshInstall(unittest.TestCase):
 
 
 class TestASharedStoreIsRead(unittest.TestCase):
-    def test_a_store_from_before_1_0_stops_the_deploy(self):
-        self.assertIn(PRE_1_0, _guard(_shared("bigint"), shared=True))
+    def test_a_store_from_before_1_0_is_migrated(self):
+        results = {**_shared("bigint"), MIGRATION: _rows("bytea")}
+        self.assertEqual(_guard(results, shared=True), PASS)
+
+    def test_a_store_the_migration_leaves_before_1_0_stops_the_deploy(self):
+        results = {**_shared("bigint"), MIGRATION: _rows("bigint")}
+        self.assertIn(PRE_1_0, _guard(results, shared=True))
 
     def test_a_1_x_store_passes(self):
         self.assertEqual(_guard(_shared("bytea"), shared=True), PASS)
@@ -167,10 +178,13 @@ class TestADedicatedStoreIsReadInItsRunningDatabase(unittest.TestCase):
     def test_a_stopped_database_stops_the_deploy_before_any_query(self):
         self.assertIn(ENGINE_DOWN, _guard(_dedicated(""), shared=False))
 
-    def test_a_store_from_before_1_0_stops_the_deploy(self):
-        self.assertIn(
-            PRE_1_0, _guard(_dedicated("4f2a9c1e7b3d\n", "bigint"), shared=False)
-        )
+    def test_a_store_from_before_1_0_is_migrated(self):
+        results = {**_dedicated("4f2a9c1e7b3d\n", "bigint"), MIGRATION: _rows("bytea")}
+        self.assertEqual(_guard(results, shared=False), PASS)
+
+    def test_a_store_the_migration_leaves_before_1_0_stops_the_deploy(self):
+        results = {**_dedicated("4f2a9c1e7b3d\n", "bigint"), MIGRATION: _rows("bigint")}
+        self.assertIn(PRE_1_0, _guard(results, shared=False))
 
     def test_a_1_x_store_passes(self):
         self.assertEqual(
