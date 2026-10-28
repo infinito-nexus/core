@@ -420,9 +420,10 @@ If the exact pinned version cannot implement the named contract through a stable
 ## Exhaustive Application-ID Audit
 
 The following lists are the complete repository snapshot used to construct this requirement.
-Implementation MUST replace the snapshot check with a test that derives the current set dynamically; it MUST NOT hard-code the number 172.
 
-The section titles below are the classification vocabulary itself, and each role that ships a `meta/mcp.yml` is filed under the value that file declares. [test_mcp_audit_classification.py](../../tests/lint/repository/documentation/test_mcp_audit_classification.py) holds the two apart from drifting: it was written first and immediately named twenty-four roles whose audit entry contradicted their own metadata, nine of them shipping an adapter while the audit still called them untried candidates.
+The section titles below are the classification vocabulary itself, and each role that ships a `meta/mcp.yml` is filed under the value that file declares. The authoritative disposition of a deployed surface is that file; this list is the record of the review, including the roles that deliberately carry no surface.
+
+The list was held against the repository by three lints that parsed this section. They are gone, and the trade is deliberate: a lint that reads prose ties every role addition to an edit here, and the audit is a review record rather than a runtime registry. What they proved while they ran is worth keeping: the classification check named twenty-four roles whose audit entry contradicted their own metadata the first time it ran, nine of them shipping an adapter while the audit still called them untried candidates. Without them, a role added later is absent here until someone notices.
 
 ### native_server (1)
 
