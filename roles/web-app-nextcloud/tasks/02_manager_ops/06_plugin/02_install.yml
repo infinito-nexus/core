@@ -78,5 +78,5 @@
     (install_result | nextcloud_install_status).incompatible
     or (install_result | nextcloud_install_status).unavailable
 
-- include_tasks: 02_enable.yml
+- include_tasks: 03_enable.yml
   when: (install_result | nextcloud_install_status).runnable

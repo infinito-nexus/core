@@ -25,6 +25,7 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME: "{{ lookup('timeout', 604800) | int }}"
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
