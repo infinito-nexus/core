@@ -23,6 +23,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 # shellcheck source=/dev/null
 source <(grep -E '^INFINITO_(PLAYWRIGHT_REPORTS_BASE_DIR|RESCUE_DIAGNOSTICS_DIR|RESCUE_DIAGNOSTICS_BASE|DNS53_SAMPLER_LOG)=' "${REPO_ROOT}/.env")
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?INFINITO_RESCUE_DIAGNOSTICS_BASE must be set}"
+# shellcheck source=scripts/tests/deploy/utils/rescue_window.sh
+. "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_window.sh"
 
 apps=""
 
@@ -81,10 +83,13 @@ cleanup() {
 
 	local _rescue_host_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_rescue_host_dir}"
+	local rescue_secs rescue_until
+	rescue_window 1500
 	echo ">>> Capturing rescue diagnostics inside ${INFINITO_CONTAINER} (recursive DiD snapshot) before teardown removes it"
-	timeout 1500 docker exec \
+	timeout --foreground "${rescue_secs}" docker exec \
 		-e "INFINITO_RESCUE_DIAGNOSTICS_DIR=${INFINITO_RESCUE_DIAGNOSTICS_DIR}" \
 		-e "INFINITO_DNS53_SAMPLER_LOG=${INFINITO_DNS53_SAMPLER_LOG}" \
+		-e "RESCUE_DEADLINE=${rescue_until}" \
 		"${INFINITO_CONTAINER}" \
 		python3 /opt/src/infinito/utils/diagnostics/container.py \
 		"${apps}" "compose post-deploy failure" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
@@ -95,10 +100,12 @@ cleanup() {
 
 	local _did_id
 	_did_id="$(docker inspect --format '{{.Id}}' "${INFINITO_CONTAINER}" 2>/dev/null)" || _did_id=""
+	rescue_window 900
 	echo ">>> Capturing rescue diagnostics on the CI host itself into ${_rescue_host_dir}/ci-host"
 	INFINITO_RESCUE_DIAGNOSTICS_DIR="${_rescue_host_dir}/ci-host" \
 		RESCUE_SEEN="${_did_id}" \
-		timeout 900 python3 "${REPO_ROOT}/utils/diagnostics/container.py" \
+		RESCUE_DEADLINE="${rescue_until}" \
+		timeout --foreground "${rescue_secs}" python3 "${REPO_ROOT}/utils/diagnostics/container.py" \
 		"${apps}" "ci host at compose post-deploy failure" 2>/dev/null || true # nocheck: shell-or-true -- the collector exits 1 by contract so the caller cannot mistake a snapshot for a passing deploy
 
 	bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue_host_dir}"

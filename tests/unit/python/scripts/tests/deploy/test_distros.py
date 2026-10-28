@@ -149,6 +149,20 @@ class TestDistrosLoop(unittest.TestCase):
         self.assertIn("❌ failed", self.summary)
         self.assertRegex(self.summary, r"rc=124 after \d+s, with \d+s of the 5s budget")
 
+    def test_the_kill_epoch_trails_the_deadline_by_the_kill_grace(self) -> None:
+        proc, record = self._run(
+            "debian",
+            'echo "$((INFINITO_CI_DISTRO_KILL_EPOCH - INFINITO_CI_DISTRO_DEADLINE_EPOCH))"'
+            ' >> "${RECORD}"',
+            INFINITO_CI_DISTRO_BUDGET_SECONDS="600",
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        loop = read_text(str(LOOP))
+        grace = re.search(r"^KILL_GRACE_SECONDS=(\d+)$", loop, re.MULTILINE)
+        self.assertIsNotNone(grace, loop)
+        self.assertIn('timeout -k "${KILL_GRACE_SECONDS}"', loop)
+        self.assertEqual(record.split(), [grace.group(1)])
+
     def test_the_job_summary_tables_every_distro_in_execution_order(self) -> None:
         proc, _record = self._run(
             DISTROS,
