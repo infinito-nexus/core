@@ -258,6 +258,13 @@ NEXTCLOUD_ONLYOFFICE_ENABLED: "{{ lookup('config', application_id, 'addons.onlyo
 
 NEXTCLOUD_OPENPROJECT_URL: "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}"
 NEXTCLOUD_OPENPROJECT_CLIENT_NAME: "OpenProject client"
+NEXTCLOUD_OPENPROJECT_STAMP_FILE: "{{ [lookup('container', application_id, 'directories.instance'), 'openproject-provision.sha256'] | path_join }}"
+NEXTCLOUD_OPENPROJECT_PROVISION_SOURCES:
+  - "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
+  - "{{ [role_path, 'files/php/addons/openproject/ensure_nc_client.php'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/utils/doorkeeper_allow_onion_redirect.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/addons/openproject/ensure_nextcloud_storage.rb'] | path_join }}"
+  - "{{ [role_path, 'filter_plugins/nextcloud_oauth_client.py'] | path_join }}"
 
 NEXTCLOUD_DOCKER_USER_ID: 82
 NEXTCLOUD_DOCKER_USER: "www-data"
