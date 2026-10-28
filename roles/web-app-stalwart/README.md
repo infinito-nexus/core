@@ -228,12 +228,13 @@ account (or the Keycloak SSO token when SSO is enabled).
   (`templates/jmap/*.json.j2`).
 - **Only authenticated sessions relay, with or without SSO.** Under SSO a bot
   authenticates with an app password.
-- **Accounts and app passwords are provisioned in batches.** Each phase
-  (create, password update, app password list, mint, retire, drop) is one JMAP
-  request for all accounts. A phase on the bots' app passwords carries one
-  method call per bot, at most `STALWART_JMAP_MAX_METHOD_CALLS` (Stalwart's
-  default `maxMethodCalls`) per request, and a refusal names the account it
-  hit.
+- **Accounts, app passwords and forwards are provisioned in batches.** Each
+  phase (create, password update, app password list, mint, retire, drop,
+  forward script list, read, upload, activate) is one JMAP request for all
+  accounts. A phase on the bots' app passwords or the forward scripts carries
+  one method call per account, addressed through its `accountId` by the
+  recovery admin, at most `STALWART_JMAP_MAX_METHOD_CALLS` (Stalwart's default
+  `maxMethodCalls`) per request, and a refusal names the account it hit.
 - **Address bans expire after `services.stalwart.ban_period_seconds`** (one
   hour by default). Without a period Stalwart keeps a ban forever, and the
   reverse proxy, the published ports, Tor and the swarm ingress hand many
