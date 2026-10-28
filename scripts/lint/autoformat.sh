@@ -47,8 +47,10 @@ run_ruff() {
 		return 0
 	fi
 	local rc=0
-	ruff format . || rc=$?
-	[[ $rc -eq 0 ]] && { ruff check . --fix || rc=$?; }
+	local -a custom_roles=()
+	mapfile -t custom_roles < <(lint_custom_roles)
+	ruff format . "${custom_roles[@]}" || rc=$?
+	[[ $rc -eq 0 ]] && { ruff check . --fix "${custom_roles[@]}" || rc=$?; }
 	if [[ $rc -eq 0 ]]; then
 		write_status ruff OK
 	else
@@ -139,17 +141,22 @@ run_ansible_lint() {
 		return 0
 	fi
 	local rc=0 out yaml_before
-	local -a targets=()
+	local -a targets=() custom_roles=()
 	if lint_diff_active ansible; then
 		mapfile -t targets < <(lint_diff_files '\.ya?ml$' | ansible_lint_included)
 		if [[ "${#targets[@]}" -eq 0 ]]; then
 			write_status ansible-lint OK
 			return 0
 		fi
+	else
+		mapfile -t custom_roles < <(lint_custom_roles)
 	fi
 	out="$(mktemp)"
 	yaml_before="$(ansible_lint_fingerprint yaml)"
 	ansible-lint --fix "${targets[@]}" >"${out}" 2>&1 || rc=$?
+	if [[ "${#custom_roles[@]}" -gt 0 && ($rc -eq 0 || $rc -eq 2 || $rc -eq 8) ]]; then
+		ansible-lint --fix "${custom_roles[@]}" >>"${out}" 2>&1 || rc=$?
+	fi
 	if [[ $rc -eq 0 && "${#targets[@]}" -eq 0 && "$(ansible_lint_fingerprint yaml)" == "${yaml_before}" ]]; then
 		touch "${status_dir}/.ansible-lint-clean"
 	fi

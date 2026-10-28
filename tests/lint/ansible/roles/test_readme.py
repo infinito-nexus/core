@@ -22,7 +22,8 @@ Enforced (hard fail) rules
    single point of truth ``galaxy_info.author`` read from the role's own
    ``meta/main.yml``. The README author (bold, optionally wrapped in a
    Markdown link) MUST equal that value byte-for-byte, so a role's
-   metadata and its README stay in sync.
+   metadata and its README stay in sync. A custom role (``web-app-cst-*``)
+   states its own licence, so the license sentence is not demanded there.
 5. **Cosmos diagram.** Every role README MUST carry a ``## Cosmos`` H2 whose
    body contains a ```mermaid fenced diagram placing the role in the
    Infinito.Nexus cosmos (capabilities / dependencies / cosmos). The
@@ -57,6 +58,7 @@ from cli.build.docs.readme.generate import _app_name, _managed_blocks
 from cli.build.docs.readme.sections import parse_readme
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.custom import is_custom
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
 
@@ -111,12 +113,26 @@ _CREDITS_IMPL_RE = re.compile(
     r"\*\*\."
 )
 
-_CREDITS_TAIL: str = (
+_CREDITS_PROJECT: str = (
     "Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) "
     "and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).\n"
+)
+_CREDITS_LICENSE: str = (
     "Licensed under the [Infinito.Nexus Community License (Non-Commercial)]"
     "(https://s.infinito.nexus/license).\n"
 )
+
+
+def _credits_tail(role_name: str) -> str:
+    """Return the canonical Credits tail one role README MUST carry.
+
+    Args:
+        role_name: the role directory name; a custom role states its own
+            licence, so its tail stops before the Infinito.Nexus licence.
+    """
+    if is_custom(role_name):
+        return _CREDITS_PROJECT
+    return _CREDITS_PROJECT + _CREDITS_LICENSE
 
 
 def _role_readmes() -> list[Path]:
@@ -221,7 +237,7 @@ def _validate_credits(text: str, path: Path) -> list[str]:
                 f"{author!r} in meta/main.yml (the author SPOT)"
             )
 
-    if _CREDITS_TAIL not in text:
+    if _credits_tail(path.parent.name) not in text:
         problems.append(
             "Credits tail does not match the canonical wording "
             "(see docs/contributing/artefact/files/role/readme_md.md)"

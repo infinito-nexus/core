@@ -46,5 +46,9 @@ if lint_diff_active ansible; then
 fi
 
 ansible-lint
+mapfile -t custom_roles < <(lint_custom_roles)
+if [[ "${#custom_roles[@]}" -gt 0 ]]; then
+	ansible-lint "${custom_roles[@]}"
+fi
 
 ansible_lint_stamp_record "${current}"

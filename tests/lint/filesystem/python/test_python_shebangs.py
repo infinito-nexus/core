@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import subprocess
 import unittest
 from pathlib import Path
 
-from utils.cache.files import iter_project_files
+from utils.cache.files import iter_project_files, repository_files
 
 from . import PROJECT_ROOT
 
@@ -21,14 +20,7 @@ class TestPythonShebangs(unittest.TestCase):
 
     def _tracked_files(self) -> list[Path]:
         try:
-            out = subprocess.check_output(
-                ["git", "-C", str(self.repo_root), "ls-files", "-z"],
-                stderr=subprocess.STDOUT,
-            )
-            rel_paths = [
-                p for p in out.decode("utf-8", errors="replace").split("\0") if p
-            ]
-            return [self.repo_root / p for p in rel_paths]
+            return [self.repo_root / p for p in repository_files(untracked=True)]
         except Exception:
             return [Path(p) for p in iter_project_files()]
 

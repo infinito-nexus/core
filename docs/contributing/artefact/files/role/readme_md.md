@@ -119,6 +119,8 @@ Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s
 
 `Author name` MUST equal `galaxy_info.author` in the role's `meta/main.yml` (the author single point of truth). It MAY be wrapped in a Markdown link as shown, or left as plain bold text (`Implemented by **Author name**.`) when no author URL applies.
 
+A custom role (`roles/web-app-cst-*`, pulled from its own repository) is exempt from the `Licensed under …` line above and states its own licence there instead; the rest of the format stays the same.
+
 ## Formatting Rules 📏
 
 - Role README files MUST NOT use emojis in headings.

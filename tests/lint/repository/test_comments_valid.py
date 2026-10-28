@@ -40,9 +40,9 @@ intentionally OUT of scope (reliably distinguishing them from ``#`` inside a
 string needs a full lexer per language, and false positives would make the
 linter unusable).
 
-SCOPE: every tracked file of a checked type, plus untracked new ones. The
-policy holds for the whole repository, not only for the files a change happens
-to touch.
+SCOPE: every tracked file of a checked type, plus untracked new ones and the
+custom roles pulled into ``roles/``. The policy holds for the whole repository,
+not only for the files a change happens to touch.
 
 A whole file opts out with a ``# nocheck: comments-valid`` marker in its first
 30 lines (any comment prefix, e.g. ``{# nocheck: comments-valid #}`` for Jinja),
@@ -60,11 +60,12 @@ import unittest
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_in_head
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files, untracked_files
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from pathlib import Path
 
 _FILE_NOCHECK_RULE = "comments-valid"
@@ -450,32 +451,20 @@ def find_invalid_comments(path: Path):
 _EXTS = (".py", ".sh", ".yml", ".yaml", ".rb", ".php", ".css", ".j2")
 
 
-def _git_lines(args: list[str]) -> list[str]:
-    """Run a git command and return its stdout lines.
-
-    safe.directory='*' is required because the make-test container mounts the
-    repo as a different uid; bare git would abort with dubious-ownership and the
-    linter would silently scan zero files.
-    """
+def _listed(listing: Callable[[], tuple[str, ...]]) -> set[str]:
     try:
-        result = subprocess.run(
-            ["git", "-c", "safe.directory=*", *args],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        return set(listing())
     except (OSError, subprocess.SubprocessError):
-        return []
-    return result.stdout.splitlines()
+        return set()
 
 
 def _all_targets():
-    """Every tracked file of a checked type, plus untracked new ones."""
-    rel = set(_git_lines(["ls-files"]))
-    rel |= set(_git_lines(["ls-files", "--others", "--exclude-standard"]))
+    """Every tracked file of a checked type, plus untracked new ones.
+
+    A failing git listing loses only its own files.
+    """
     targets = []
-    for r in sorted(rel):
+    for r in sorted(_listed(repository_files) | _listed(untracked_files)):
         if r.endswith(_EXTS) or r.rsplit("/", 1)[-1] == "Dockerfile":
             path = PROJECT_ROOT / r
             if path.is_file():

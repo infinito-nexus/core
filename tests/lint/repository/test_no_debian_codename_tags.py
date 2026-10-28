@@ -20,7 +20,7 @@ the way every other version pin does.
 Scope
 -----
 
-Every tracked file. Two shapes are recognised:
+Every tracked file and every pulled custom role. Two shapes are recognised:
 
 * a ``name:tag`` image reference with no space after the colon, which
   covers ``image:`` values, Dockerfile ``FROM`` lines and heredocs,
@@ -46,13 +46,12 @@ it buys can never be raised.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -145,23 +144,13 @@ def _references_on(line: str) -> list[tuple[str, str]]:
     return found
 
 
-def _git_lines(*args: str) -> list[str]:
-    out = subprocess.check_output(
-        ["git", "-c", "safe.directory=*", "-C", str(PROJECT_ROOT), *args],
-        text=True,
-    )
-    return [line for line in out.splitlines() if line]
-
-
 def _targets() -> set[str]:
     """Every tracked file plus every untracked new one.
 
     A role added but not yet staged carries its pins like any other, so the
     lint MUST see it before the commit rather than after.
     """
-    return set(_git_lines("ls-files")) | set(
-        _git_lines("ls-files", "--others", "--exclude-standard")
-    )
+    return set(repository_files(untracked=True))
 
 
 def _scan_file(path: Path) -> list[Violation]:

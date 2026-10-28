@@ -1,7 +1,12 @@
 # shellcheck shell=bash
-# Param lint_diff_write <type>: on the host, writes build/lint-diff-<type>.txt with every file changed since the merge-base of HEAD and INFINITO_LINT_DIFF_BASE (untracked files included) and prints its path; prints nothing when every file must be linted.
+# Param lint_diff_write <type>: on the host, writes build/lint-diff-<type>.txt with every file changed since the merge-base of HEAD and INFINITO_LINT_DIFF_BASE (untracked files and pulled custom roles included) and prints its path; prints nothing when every file must be linted.
 # Param lint_diff_active <ansible|javascript|markdown|mermaid|shellcheck|sql>: succeeds when LINT_DIFF_FILES names a list and none of its files is configuration of that tool or a shared lint script.
 # Param lint_diff_files <regex>: prints the listed files matching <regex> that still exist, one per line.
+# Param lint_custom_roles: prints every pulled custom role directory (roles/web-app-cst-*), one per line; Git ignores them, so tools that honour .gitignore get them passed explicitly.
+
+lint_custom_roles() {
+	find roles -mindepth 1 -maxdepth 1 -type d -name 'web-app-cst-*' -print | LC_ALL=C sort
+}
 
 lint_diff_write() {
 	local list="build/lint-diff-$1.txt" merge_base
@@ -16,6 +21,7 @@ lint_diff_write() {
 	{
 		git diff --name-only --diff-filter=d "${merge_base}"
 		git ls-files --others --exclude-standard
+		lint_custom_roles | xargs -r -d '\n' -I{} find {} -type f -print
 	} | LC_ALL=C sort -u >"${list}"
 	echo "lint $1: $(wc -l <"${list}") file(s) changed since ${INFINITO_LINT_DIFF_BASE}; ansible, javascript, markdown, mermaid, shellcheck and sql check only those unless their configuration changed" >&2
 	printf '%s\n' "${list}"

@@ -51,6 +51,7 @@ def _run_deploy(
         "--assert",
         "true",
         "--diff",
+        "--skip-pull",
         "--id",
         *deploy_ids,
     ]

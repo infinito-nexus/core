@@ -26,23 +26,29 @@ def load_yaml_file(path):
         return None
 
 
+def inventory_files(inv_dir) -> list[Path]:
+    """Return the YAML files of an inventory directory that may set ``applications``.
+
+    Args:
+      inv_dir: the inventory directory; its ``*.yml`` and every ``*.yml``
+        under its ``*_vars`` directories are listed.
+    """
+    p = Path(inv_dir)
+    files = list(p.glob("*.yml"))
+    for d in p.glob("*_vars"):
+        if d.is_dir():
+            files.extend(d.rglob("*.yml"))
+    return files
+
+
 def load_inventory_files(inv_dir) -> dict[str, dict]:
     """Walk the inventory directory and collect every ``applications:``
     block keyed by its source file path."""
     all_data: dict[str, dict] = {}
-    p = Path(inv_dir)
-    for f in p.glob("*.yml"):
+    for f in inventory_files(inv_dir):
         data = load_yaml_file(f)
         if isinstance(data, dict):
             apps = data.get("applications")
             if apps:
                 all_data[str(f)] = apps
-    for d in p.glob("*_vars"):
-        if d.is_dir():
-            for f in d.rglob("*.yml"):
-                data = load_yaml_file(f)
-                if isinstance(data, dict):
-                    apps = data.get("applications")
-                    if apps:
-                        all_data[str(f)] = apps
     return all_data

@@ -638,6 +638,20 @@ requirements-archive:
 	@"$${PYTHON}" -m pip install --quiet --upgrade kpmx
 	@"$${PYTHON}" -m pkgmgr archive docs/requirements
 
+.PHONY: roles-clean
+# Remove every custom role (roles/web-app-cst-*) a pull placed in this checkout and nothing else.
+roles-clean:
+	@"$${PYTHON}" -m cli.administration.roles.clean
+
+.PHONY: roles-pull
+# Pull the custom roles (web-app-cst-*) an inventory declares into roles/ without deploying, removing the ones it no longer declares.
+# Usage: make roles-pull inventory=<path>
+# Example: make roles-pull inventory=inventories/production/devices.yml
+# Param inventory: inventory file whose group_vars/host_vars declare applications.<group>.custom and .source (required).
+roles-pull:
+	@test -n '$(inventory)' || { echo 'usage: make roles-pull inventory=<path>'; exit 2; }
+	@"$${PYTHON}" -m cli.administration.roles.pull '$(inventory)'
+
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
 # Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
