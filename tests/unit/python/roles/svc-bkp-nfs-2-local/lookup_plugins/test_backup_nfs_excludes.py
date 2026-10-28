@@ -1,12 +1,13 @@
 import importlib.util
 import unittest
 import unittest.mock as mock
-from pathlib import Path
 from types import ModuleType
 from typing import ClassVar
 
+from . import PROJECT_ROOT
+
 PLUGIN = (
-    Path(__file__).resolve().parents[6]
+    PROJECT_ROOT
     / "roles"
     / "svc-bkp-nfs-2-local"
     / "lookup_plugins"
