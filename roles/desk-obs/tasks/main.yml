@@ -1,4 +1,1 @@
 ---
-- name: 📦 install streaming
-  package_install:
-    id: obs-studio

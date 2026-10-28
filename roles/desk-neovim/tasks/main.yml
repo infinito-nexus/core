@@ -1,4 +1,1 @@
 ---
-- name: 📦 install neovim
-  package_install:
-    id: neovim

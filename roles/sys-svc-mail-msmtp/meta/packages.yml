@@ -1,4 +1,7 @@
 ---
+ca-certificates:
+  shared: true
+
 msmtp:
   Archlinux:
     - msmtp
@@ -18,3 +21,4 @@ msmtp-mta:
   Debian:
     - msmtp-mta
   RedHat: [] # nocheck: empty - neither the EL base repositories nor EPEL ship msmtp-mta; the role links /usr/bin/sendmail to msmtp instead; TODO: revisit if EPEL ever ships msmtp-mta, which would replace the sendmail symlink
+  batch: false

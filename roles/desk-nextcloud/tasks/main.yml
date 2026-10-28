@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install nextcloud-client
-  package_install:
-    id: nextcloud-desktop
-
 - name: 🎬 Initialize dotlinker mapping list
   ansible.builtin.set_fact:
     nextcloud_dotlinker_mappings: []

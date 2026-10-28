@@ -17,7 +17,8 @@ role states what it needs and never how to get it::
 Distribution repositories, the AUR, COPR, PPA and source builds all run
 through here, including the unprivileged build environment the AUR needs.
 :mod:`utils.packages.plan` decides which module calls that takes; this
-plugin only executes them.
+plugin only executes them. Ids whose plans only call the host's package
+manager share one call, so a long list costs one transaction.
 
 Args:
     id: logical package id, or a list of ids, each declared either in the
@@ -43,7 +44,7 @@ from utils.packages.calls import (
 )
 from utils.packages.facts import distribution_and_family, read_fact
 from utils.packages.outcome import aggregate
-from utils.packages.plan import build_plan
+from utils.packages.plan import build_plan, merge_plans
 from utils.packages.registry import build_registry, project_root_from_env, resolve
 from utils.packages.schema import ROLE_FILE_META_PACKAGES, PackagesShapeError
 
@@ -68,7 +69,7 @@ class ActionModule(ActionBase):
         registry = self._registry()
         role = self._role()
 
-        results: list[dict[str, Any]] = []
+        plans: list[list[ModuleCall]] = []
         skipped: list[str] = []
 
         for package_id in package_ids:
@@ -77,6 +78,10 @@ class ActionModule(ActionBase):
             if not plan:
                 skipped.append(package_id)
                 continue
+            plans.append(plan)
+
+        results: list[dict[str, Any]] = []
+        for plan in merge_plans(plans):
             results.extend(self._run_plan(plan, task_vars, facts))
 
         return aggregate(results, skipped, distribution)
