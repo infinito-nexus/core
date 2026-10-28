@@ -26,7 +26,7 @@
 - when: lookup('email').external | bool
   block:
     - name: 📦 Install msmtp-mta when Mailu is used and package exists on distro
-      package_install:
+      package_install: # nocheck: package-install only inside the Mailu block and only where the distro ships msmtp-mta
         id: msmtp-mta
       register: sys_svc_mail_msmtp_mta
 

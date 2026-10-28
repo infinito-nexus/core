@@ -1,7 +1,7 @@
 ---
 - block:
     - name: 📦 Install GCC compiler and runtime (cross-distro)
-      package_install:
+      package_install: # nocheck: package-install sys-pip builds on gcc before the update role and the batch run
         id: gcc
 
     - ansible.builtin.set_fact:

@@ -10,7 +10,7 @@
       server IP/hostname is mandatory.
 
 - name: "📦 Install the NFS client"
-  package_install:
+  package_install: # nocheck: package-install the controller installs it too, by delegation from the NFS server role
     id: nfs-client
 
 - name: "🔧 Match NFSv4 idmap to the ganesha test server"

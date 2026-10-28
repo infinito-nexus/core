@@ -13,7 +13,7 @@
       when: sys_svc_mail_smtp_postfix_binary.stat.exists
 
     - name: 🗑️ Remove postfix when external SMTP is used (conflicts with msmtp-mta)
-      package_install:
+      package_install: # nocheck: package-install removes postfix, the batch only installs
         id: postfix
         state: absent
   when: lookup('email').external | bool

@@ -1,7 +1,7 @@
 ---
 - block:
     - name: 📦 Install sudo (Arch/Manjaro)
-      package_install:
+      package_install: # nocheck: package-install user-root needs sudo before the update role and the batch run
         id: sudo
     - name: ▶️ run the sudo tasks once
       set_fact:

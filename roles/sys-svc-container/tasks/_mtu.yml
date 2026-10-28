@@ -7,7 +7,7 @@
     global_install: true
 
 - name: ✅ Ensure 'ip' and 'ping' commands are available for automtu
-  package_install:
+  package_install: # nocheck: package-install only for the automtu measurement this file is included for
     id:
       - iproute
       - iputils-ping

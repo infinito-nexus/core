@@ -49,7 +49,7 @@
 
 - name: 📦 Install the btrfs tools the snapshot launcher shells out to
   become: true
-  package_install:
+  package_install: # nocheck: package-install only on hosts with a btrfs mount
     id: btrfs-tools
   when: ansible_facts.mounts | selectattr('fstype', 'equalto', 'btrfs') | list | length > 0
 
