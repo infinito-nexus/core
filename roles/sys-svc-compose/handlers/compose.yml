@@ -6,17 +6,12 @@
     - compose-build
     - container-recreate
 
-# Exception: compose.yml first renders before the role writes its config and secret files, so their content-hash names lag one deploy; rendering again at flush picks up the files as they are now.
-- name: "📁 Re-render compose.yml with the current config hashes"
-  stack_host_template:
-    src: "{{ application_id | abs_role_path_by_application_id }}/templates/compose.yml.j2"
-    dest: "{{ lookup('container', application_id, 'files.compose') }}"
-    mode: "0640"
-    force: true
+# Exception: compose.yml first renders before the role writes its config and secret files, so their content-hash names lag one deploy. Only those names are recomputed from the files at flush; re-rendering the template here would run in the scope of the include that loaded the handler, not of the notifying task, and lose role switches set only there.
+- name: "🔁 Update the config and secret hashes in compose.yml"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/rehash_configs.yml') }}"
   listen:
     - compose-up
     - container-recreate
-  when: (application_id | abs_role_path_by_application_id ~ '/templates/compose.yml.j2') is file
 
 - name: 📝 Generate CA trust override
   ansible.builtin.shell: |

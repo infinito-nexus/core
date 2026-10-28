@@ -1,0 +1,36 @@
+---
+- name: "🔍 Stat compose.yml of '{{ application_id }}'"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', application_id, 'files.compose') }}"
+    get_checksum: false
+  register: sys_svc_compose_rehash_stat
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔁 Update the hashed config and secret names of '{{ application_id }}'"
+  when: sys_svc_compose_rehash_stat.stat.exists
+  block:
+    - name: "📖 Read compose.yml of '{{ application_id }}'"
+      ansible.builtin.slurp:
+        src: "{{ lookup('container', application_id, 'files.compose') }}"
+      register: sys_svc_compose_rehash_compose
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: "📖 Read each hashed config and secret of '{{ application_id }}'"
+      ansible.builtin.slurp:
+        src: "{{ item.file }}"
+      loop: "{{ sys_svc_compose_rehash_compose.content | b64decode | from_yaml | compose_hashed_entries }}"
+      loop_control:
+        label: "{{ item.name }}"
+      register: sys_svc_compose_rehash_sources
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: "🔁 Point each hashed name of '{{ application_id }}' at its file's current content"
+      ansible.builtin.replace:
+        path: "{{ lookup('container', application_id, 'files.compose') }}"
+        regexp: "(?<![\\w.-]){{ item.item.name | regex_escape }}(?![\\w.-])"
+        replace: "{{ item.item.name | compose_rehashed_name(item.content) }}"
+      loop: "{{ sys_svc_compose_rehash_sources.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"
+      when: item.item.name != (item.item.name | compose_rehashed_name(item.content))
+      delegate_to: "{{ STACK_HOST }}"
