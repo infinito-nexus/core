@@ -58,9 +58,10 @@ migrate() {
 }
 
 read_series() {
-  local banner
-  banner="$(container run --rm --user 0:0 "$IMAGE" --help)"
-  banner="${banner%%$'\n'*}"
+  local help banner
+  help="$(container run --rm --user 0:0 "$IMAGE" --help)"
+  banner="$(grep -m1 -E 'Stalwart v[0-9]+\.[0-9]+ deployment to v[0-9]+\.[0-9]+' <<< "$help")" \
+    || die "${IMAGE} does not name its source and target series in its --help output"
   [[ "$banner" =~ Stalwart\ (v[0-9]+\.[0-9]+)\ deployment\ to\ (v[0-9]+\.[0-9]+) ]] \
     || die "${IMAGE} does not name its source and target series in '${banner}'"
   SOURCE_SERIES="${BASH_REMATCH[1]}"
