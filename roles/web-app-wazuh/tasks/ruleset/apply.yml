@@ -72,14 +72,14 @@
 
 - name: "🧪 Test the full ruleset with wazuh-analysisd -t"
   ansible.builtin.shell:
-    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-analysisd -t 2>&1"
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-analysisd -t 2>&1"
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_ruleset_test
   changed_when: false
 
 - name: "🔄 Restart the Wazuh manager to load the new ruleset"
   ansible.builtin.shell:
-    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control restart 2>&1"
+    cmd: "{{ WAZUH_MANAGER_RESTART }}"
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   when: wazuh_ruleset_base is changed or wazuh_ruleset_copy is changed or wazuh_ruleset_stale is changed
   register: wazuh_ruleset_restart
@@ -87,7 +87,7 @@
 
 - name: "⏳ Wait for wazuh-analysisd to run again"
   ansible.builtin.shell:
-    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control status"
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-control status"
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   when: wazuh_ruleset_restart is changed
   register: wazuh_ruleset_status
@@ -100,8 +100,8 @@
 - name: "🐤 Run the deploy canary through wazuh-logtest for every tag"
   ansible.builtin.shell:
     cmd: >-
-      printf '%s\n' {{ ('Oct 17 00:00:00 ' ~ WAZUH_MANAGER_CONTAINER ~ ' ' ~ item.program ~ '[1]: ' ~ WAZUH_CANARY_MARKER ~ ' deploy') | quote }} |
-      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-logtest
+      printf '%s\n' {{ (WAZUH_LOGTEST_PREFIX ~ item.program ~ '[1]: ' ~ WAZUH_CANARY_MARKER ~ ' deploy') | quote }} |
+      {{ WAZUH_LOGTEST }}
       -U {{ WAZUH_CANARY_RULE_ID }}:{{ WAZUH_LOG_ALERT_LEVEL }}:{{ item.decoder }} 2>&1
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   loop: "{{ WAZUH_CANARY_SOURCES }}"
@@ -126,8 +126,8 @@
   ansible.builtin.shell:
     cmd: >-
       printf '%s\n'
-      {% for line in item.lines %}{{ ('Oct 17 00:00:00 ' ~ WAZUH_MANAGER_CONTAINER ~ ' ' ~ item.program ~ '[1]: ' ~ line) | quote }} {% endfor %}|
-      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-logtest
+      {% for line in item.lines %}{{ (WAZUH_LOGTEST_PREFIX ~ item.program ~ '[1]: ' ~ line) | quote }} {% endfor %}|
+      {{ WAZUH_LOGTEST }}
       -U {{ item.rule }}:{{ item.level }}:{{ item.decoder }} 2>&1
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   loop: "{{ WAZUH_RULESET_SAMPLES }}"
@@ -150,7 +150,7 @@
   ansible.builtin.shell:
     cmd: >-
       printf '%s\n' {{ item.line | quote }} |
-      container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-logtest
+      {{ WAZUH_LOGTEST }}
       -U {{ item.rule }}:{{ item.level }}:json 2>&1
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   loop: >-

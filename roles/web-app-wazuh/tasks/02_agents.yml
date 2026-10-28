@@ -3,9 +3,9 @@
 - name: "🔑 Authenticate to the Wazuh manager API"
   ansible.builtin.shell:
     cmd: >-
-      container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      {{ WAZUH_MANAGER_EXEC }}
       bash -c 'user="$API_USERNAME:$API_PASSWORD"; user="${user//\\/\\\\}";
-      {{ 30 | curl }} -k -K <(printf "user = \"%s\"\n" "${user//\"/\\\"}")
+      {{ WAZUH_API_TIMEOUT | curl }} -k -K <(printf "user = \"%s\"\n" "${user//\"/\\\"}")
       -X POST "{{ WAZUH_API_URL }}/security/user/authenticate?raw=true"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_api_token
@@ -18,7 +18,7 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      bash -c '{{ 30 | curl }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
+      bash -c '{{ WAZUH_API_TIMEOUT | curl }} -k {{ WAZUH_API_BEARER_CONFIG }}
       "{{ WAZUH_API_URL }}/agents/{{ item.id }}/key"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   environment:
@@ -37,7 +37,7 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      bash -c '{{ 30 | curl(retries=0) }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
+      bash -c '{{ WAZUH_API_TIMEOUT | curl(retries=0) }} -k {{ WAZUH_API_BEARER_CONFIG }}
       -X DELETE "{{ WAZUH_API_URL }}/agents?agents_list={{ item.id }}&status=all&older_than=0s&purge=true"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   environment:
@@ -55,7 +55,7 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -i -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      bash -c '{{ 30 | curl(retries=0) }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
+      bash -c '{{ WAZUH_API_TIMEOUT | curl(retries=0) }} -k {{ WAZUH_API_BEARER_CONFIG }}
       -H "Content-Type: application/json"
       -X POST "{{ WAZUH_API_URL }}/agents/insert" --data-binary @-'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"

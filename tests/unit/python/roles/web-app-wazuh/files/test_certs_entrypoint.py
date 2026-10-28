@@ -7,8 +7,13 @@ import unittest
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-wazuh/files/shell/certs-entrypoint.sh"
+MARKER = load_yaml(str(PROJECT_ROOT / "roles" / "web-app-wazuh" / ROLE_FILE_VARS_MAIN))[
+    "WAZUH_CERTS_MARKER_NAME"
+]
 TOOL_VERSION = "4.14"
 NODES = ("wazuh.indexer", "wazuh.manager", "wazuh.dashboard")
 CERTS_YML = "nodes:\n" + "".join(
@@ -97,7 +102,7 @@ class TestCertsEntrypoint(unittest.TestCase):
         for name in ("admin", *NODES):
             issue(self.out, name, "root-ca", 365)
         digest = hashlib.sha256(CERTS_YML.encode()).hexdigest()
-        (self.out / ".certs.sha256").write_text(f"{digest} {TOOL_VERSION}\n")
+        (self.out / MARKER).write_text(f"{digest} {TOOL_VERSION}\n")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -111,6 +116,9 @@ class TestCertsEntrypoint(unittest.TestCase):
             CERTS_CONFIG=str(self.config),
             CERTS_OUT_DIR=str(self.out),
             CERTS_MIN_VALID_DAYS="30",
+            CERTS_MARKER=str(self.out / MARKER),
+            CERTS_OWNER=f"{os.getuid()}:{os.getgid()}",
+            CERTS_MANAGER_OWNER=f"{os.getuid()}:{os.getgid()}",
         )
         return subprocess.run(
             ["bash", str(SCRIPT)], env=env, capture_output=True, text=True, check=False
@@ -129,7 +137,7 @@ class TestCertsEntrypoint(unittest.TestCase):
         self.assertNotIn("curl-called", result.stderr)
 
     def test_missing_marker_regenerates(self):
-        (self.out / ".certs.sha256").unlink()
+        (self.out / MARKER).unlink()
         self.assert_regenerates("the certs config or the tool version changed")
 
     def test_changed_config_regenerates(self):
@@ -137,7 +145,7 @@ class TestCertsEntrypoint(unittest.TestCase):
         self.assert_regenerates("the certs config or the tool version changed")
 
     def test_changed_tool_version_regenerates(self):
-        (self.out / ".certs.sha256").write_text("0" * 64 + " 4.13\n")
+        (self.out / MARKER).write_text("0" * 64 + " 4.13\n")
         self.assert_regenerates("the certs config or the tool version changed")
 
     def test_missing_key_regenerates(self):

@@ -4,6 +4,18 @@ application_id: "web-app-wazuh"
 WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
 WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'manager') }}"
 WAZUH_API_URL: "https://localhost:{{ lookup('config', application_id, 'services.manager.ports.internal.api') }}"
+WAZUH_API_TIMEOUT: 30
+# Exception: curl reads the bearer token from a config that bash's printf builtin writes into a process substitution, so the token comes from the environment and never appears in an argv; the text goes inside a single-quoted bash -c script.
+WAZUH_API_BEARER_CONFIG: '-K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")'
+WAZUH_MANAGER_HOME: "/var/ossec"
+WAZUH_MANAGER_BIN: "{{ [ WAZUH_MANAGER_HOME, 'bin' ] | path_join }}"
+WAZUH_MANAGER_EXEC: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}"
+WAZUH_MANAGER_RESTART: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-control restart 2>&1"
+WAZUH_LOGTEST: "container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} {{ WAZUH_MANAGER_BIN }}/wazuh-logtest"
+# Exception: wazuh-logtest predecodes a syslog line, so every sample gets a fixed timestamp and the manager's host name in front of "<program>[1]: ".
+WAZUH_LOGTEST_PREFIX: "Oct 17 00:00:00 {{ WAZUH_MANAGER_CONTAINER }} "
+WAZUH_ALERTS_INDEX: "wazuh-alerts-*"
+WAZUH_RUN_ID_FORMAT: "deploy-%Y%m%dT%H%M%S%f"
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
@@ -28,6 +40,13 @@ WAZUH_CERTS_GENERATOR_ENV:
   CERTS_CONFIG: "{{ WAZUH_CERTS_CONFIG_TARGET }}"
   CERTS_OUT_DIR: "{{ WAZUH_CERTS_DIR_TARGET }}"
   CERTS_MIN_VALID_DAYS: "{{ WAZUH_CERTS_MIN_VALID_DAYS }}"
+  CERTS_MARKER: "{{ [ WAZUH_CERTS_DIR_TARGET, WAZUH_CERTS_MARKER_NAME ] | path_join }}"
+  CERTS_OWNER: "{{ WAZUH_CERTS_OWNER }}"
+  CERTS_MANAGER_OWNER: "{{ WAZUH_CERTS_MANAGER_OWNER }}"
+# Exception: the UID:GID the images run as, wazuh-indexer and wazuh-dashboard as 1000 and the manager's wazuh user as 999; each service reads its 0400 certs only when it owns them.
+WAZUH_CERTS_OWNER: "1000:1000"
+WAZUH_CERTS_MANAGER_OWNER: "999:999"
+WAZUH_CERTS_MARKER_NAME: ".certs.sha256"
 WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
 WAZUH_CERTS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'certs_generator_config').target }}"
 WAZUH_CERTS_DIR_TARGET: "{{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
@@ -40,7 +59,7 @@ WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
 WAZUH_CERTS_ENTRYPOINT_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs-entrypoint.sh' ] | path_join }}"
 WAZUH_CERTS_ENTRYPOINT_TARGET: "{{ lookup('volume', application_id, 'certs_generator_entrypoint').target }}"
 WAZUH_INDEXER_ENTRYPOINT_TARGET: "{{ lookup('volume', application_id, 'indexer_entrypoint').target }}"
-WAZUH_CERTS_MARKER_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.complete' ] | path_join }}"
+WAZUH_CERTS_MARKER_HOST: "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_CERTS_MARKER_NAME ] | path_join }}"
 WAZUH_CERTS_REQUIRED_FILES:
   - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca.pem' ] | path_join }}"
   - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca-manager.pem' ] | path_join }}"
@@ -153,6 +172,8 @@ WAZUH_JOURNALD_SUPPRESSED_LEVEL: 7
 WAZUH_CANARY_MARKER: "INFINITO_WAZUH_CANARY"
 
 WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
+WAZUH_POLL_DELAY: 5
+WAZUH_CANARY_WAIT_RETRIES: 36
 WAZUH_CANARY_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'in', lookup('deployment').running) | list }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

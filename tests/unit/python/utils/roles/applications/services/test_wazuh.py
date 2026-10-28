@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from utils.roles.applications.services.wazuh import (
+    DOCKER_RULE_OFFSETS,
     RESERVED_TAGS,
     docker_rule_ids,
     load_samples,
@@ -133,7 +134,7 @@ class TestRuleBlockErrors(unittest.TestCase):
         self._assert_error(self._errors(_PIXELFED), "central parent rule")
 
     def test_rule_on_reserved_docker_ids_fails(self):
-        for index, offset in enumerate((96, 97, 98, 99)):
+        for index, offset in enumerate(DOCKER_RULE_OFFSETS.values()):
             role, start = f"web-app-probe{index}", 101000 + index * 100
             with self.subTest(role=role):
                 self._ship(

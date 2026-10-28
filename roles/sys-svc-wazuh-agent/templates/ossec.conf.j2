@@ -17,37 +17,28 @@
     <queue_size>{{ WAZUH_AGENT_BUFFER_QUEUE_SIZE }}</queue_size>
     <events_per_second>{{ WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND }}</events_per_second>
   </client_buffer>
-{% for tag in WAZUH_AGENT_JOURNALD_ROOT_TAGS %}
-
+{% macro journald(tag, filters={}) %}
   <localfile>
     <location>journald</location>
     <log_format>journald</log_format>
     <only-future-events>no</only-future-events>
     <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
     <filter field="_UID">^0$</filter>
+{% for field, pattern in filters.items() %}
+    <filter field="{{ field }}">{{ pattern }}</filter>
+{% endfor %}
   </localfile>
+{%- endmacro %}
+{% for tag in WAZUH_AGENT_JOURNALD_ROOT_TAGS %}
+
+{{ journald(tag) }}
 {% endfor %}
 {% for tag in WAZUH_AGENT_JOURNALD_CONTAINER_TAGS %}
 
-  <localfile>
-    <location>journald</location>
-    <log_format>journald</log_format>
-    <only-future-events>no</only-future-events>
-    <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
-    <filter field="_UID">^0$</filter>
-    <filter field="_COMM">^{{ WAZUH_AGENT_JOURNALD_CONTAINER_COMM }}$</filter>
-  </localfile>
+{{ journald(tag, {'_COMM': '^' ~ WAZUH_AGENT_JOURNALD_CONTAINER_COMM ~ '$'}) }}
 {% endfor %}
 
-  <localfile>
-    <location>journald</location>
-    <log_format>journald</log_format>
-    <only-future-events>no</only-future-events>
-    <filter field="SYSLOG_IDENTIFIER">^{{ WAZUH_AGENT_RULESET.journald.program }}$</filter>
-    <filter field="_UID">^0$</filter>
-    <filter field="_TRANSPORT">^driver$</filter>
-    <filter field="MESSAGE">^Suppressed [0-9]+ messages from </filter>
-  </localfile>
+{{ journald(WAZUH_AGENT_RULESET.journald.program, {'_TRANSPORT': '^driver$', 'MESSAGE': '^Suppressed [0-9]+ messages from '}) }}
 
 {% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool else 'realtime="yes"' %}
   <syscheck>

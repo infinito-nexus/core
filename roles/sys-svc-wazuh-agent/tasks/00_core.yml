@@ -76,6 +76,14 @@
       {{ WAZUH_AGENT_VERSION }}; the agent must run the manager's exact version.
     quiet: true
 
+- name: "📂 Create the agent's systemd drop-in directory"
+  ansible.builtin.file:
+    path: "{{ WAZUH_AGENT_DROPIN_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: "🐳 Prepare the Docker listener"
   include_tasks: 01_docker_listener.yml
 

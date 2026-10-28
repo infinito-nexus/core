@@ -89,7 +89,7 @@
   until: wazuh_certs_generate.rc == 0
   when: not (wazuh_certs_current | bool)
 
-- name: "✅ Verify the generated Wazuh certs and record the marker"
+- name: "✅ Verify the generated Wazuh certs"
   when: wazuh_certs_generate is not skipped
   block:
     - name: "🔍 Stat the Wazuh cert files the generator wrote"
@@ -105,9 +105,3 @@
             wazuh_certs_written.results | selectattr('stat.size', 'defined') | selectattr('stat.size', 'gt', 0)
             | list | length == WAZUH_CERTS_REQUIRED_FILES | length
         fail_msg: "The Wazuh certs generator exited 0 but left a required cert file missing or empty."
-
-    - name: "📝 Record the Wazuh certs completion marker"
-      ansible.builtin.copy:
-        content: "{{ wazuh_certs_expected }}\n"
-        dest: "{{ WAZUH_CERTS_MARKER_HOST }}"
-        mode: "0644"

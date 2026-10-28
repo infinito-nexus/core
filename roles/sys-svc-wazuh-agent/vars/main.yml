@@ -104,7 +104,8 @@ WAZUH_AGENT_FREEZE_SCRIPT: "/usr/local/sbin/wazuh-collector-freeze"
 WAZUH_AGENT_FREEZE_UNIT: "wazuh-collector-freeze"
 WAZUH_AGENT_FREEZE_TAG: "{{ WAZUH_AGENT_RULESET.watch.program }}"
 WAZUH_AGENT_FREEZE_ARGS: "{{ WAZUH_AGENT_WAIT_FILE }} {{ WAZUH_AGENT_RUN_DIR }} {{ WAZUH_AGENT_FREEZE_TAG }}"
-WAZUH_AGENT_FREEZE_DROPIN: "/etc/systemd/system/wazuh-agent.service.d/collector-release.conf"
+WAZUH_AGENT_DROPIN_DIR: "{{ [ DIR_SYSTEM_SERVICE, WAZUH_AGENT_SERVICE ~ '.d' ] | path_join }}"
+WAZUH_AGENT_FREEZE_DROPIN: "{{ [ WAZUH_AGENT_DROPIN_DIR, 'collector-release.conf' ] | path_join }}"
 
 WAZUH_AGENT_ENTRY: "{{ lookup('wazuh_agent') }}"
 WAZUH_AGENT_MANAGER_ADDRESS: "{{ DOCKER_REACH_HOST }}"
@@ -115,7 +116,7 @@ WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS: 2
 WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY: 5
 WAZUH_AGENT_DOCKER_LISTENER_VENV: "/opt/wazuh-agent/docker-listener-venv"
 WAZUH_AGENT_DOCKER_LISTENER_PYTHON: "{{ [ WAZUH_AGENT_DOCKER_LISTENER_VENV, 'bin', 'python3' ] | path_join }}"
-WAZUH_AGENT_DOCKER_LISTENER_DROPIN: "/etc/systemd/system/wazuh-agent.service.d/docker-listener-venv.conf"
+WAZUH_AGENT_DOCKER_LISTENER_DROPIN: "{{ [ WAZUH_AGENT_DROPIN_DIR, 'docker-listener-venv.conf' ] | path_join }}"
 WAZUH_AGENT_DOCKER_LISTENER_PIP: "pip==26.2.1"
 # Exception: newer than Wazuh's documented pins (urllib3 1.26.20, requests 2.32.2) to clear pip-audit advisories; re-run pip-audit on every Wazuh version bump.
 WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES:
@@ -151,6 +152,15 @@ WAZUH_AGENT_FIM_WHODATA_PROVIDER: "ebpf"
 WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}"
 WAZUH_AGENT_FIM_STATE_RETRIES: 12
 WAZUH_AGENT_FIM_STATE_DELAY: 5
+WAZUH_AGENT_SYSCHECK_STARTED: "wazuh-syscheckd: INFO: Started"
+WAZUH_AGENT_SYSCHECK_READY_CODE: "9203"
+WAZUH_AGENT_WHODATA_CODES:
+  "6019": "whodata=audit reason=engine-started"
+  "6048": "whodata=ebpf reason=healthcheck-passed"
+  "6913": "whodata=unavailable reason=realtime-fallback"
+  "6923": "whodata=unavailable reason=realtime-fallback"
+WAZUH_AGENT_WHODATA_CODES_PATTERN: "\\(({{ WAZUH_AGENT_WHODATA_CODES | list | join('|') }})\\)"
+WAZUH_AGENT_SYSCHECK_CODES_PATTERN: "\\(({{ (WAZUH_AGENT_WHODATA_CODES | list + [WAZUH_AGENT_SYSCHECK_READY_CODE]) | join('|') }})\\)"
 WAZUH_AGENT_AUDITD_SERVICE: "auditd.service"
 
 # Exception: decision 9 (policy P1) sets the agent buffer to Wazuh's maximum, 100000 events at 1000 events/s, instead of the defaults 5000 and 500.

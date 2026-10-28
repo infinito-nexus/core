@@ -73,6 +73,7 @@ BODY_FILE="$(mktemp)"
 MERGED_SHA="1111111111111111111111111111111111111111"
 DIRECT_SHA="2222222222222222222222222222222222222222"
 TIMEOUT="$((RETRIES * SLEEP_SECONDS))"
+STUB_PORT=8080
 
 STUB_CODE='
 import json
@@ -93,7 +94,7 @@ class Stub(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
-HTTPServer(("0.0.0.0", 8080), Stub).serve_forever()
+HTTPServer(("0.0.0.0", '"${STUB_PORT}"'), Stub).serve_forever()
 '
 
 SETTINGS_DIR="$(mktemp -d)"
@@ -214,7 +215,7 @@ while True:
         break
     if time.time() > deadline:
         sys.exit(f"no journald line under {tag} for: {missing}")
-    time.sleep(2)
+    time.sleep(int(os.environ["SLEEP_SECONDS"]))
 for want in expected:
     print(f"PASS: journald {tag}: {' '.join(f'{k}={v}' for k, v in want.items())}")
 PY
@@ -269,16 +270,17 @@ expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-oversi
 expect_status "$(post "${DEPLOYED}" "${WEBHOOK_SECRET}" ping "test-${RUN}-malformed" "not json")" 400 "malformed"
 
 expect_journal "${ENTITY}" "$(
-	python3 - "${RUN}" "${!RULES[@]}" <<'PY'
+	python3 - "${RUN}" "${#RULES[@]}" "${!RULES[@]}" "${!REJECTED[@]}" "${REJECTED[@]}" <<'PY'
 import json
 import sys
 
-run, cases = sys.argv[1], sys.argv[2:]
+run, count = sys.argv[1], int(sys.argv[2])
+cases, rejected = sys.argv[3:3 + count], sys.argv[3 + count:]
+deliveries, outcomes = rejected[: len(rejected) // 2], rejected[len(rejected) // 2:]
 records = [{"gh_kind": "delivery", "gh_delivery": f"test-{run}-{case}", "gh_event": case.split("-")[0]} for case in cases]
 records += [
-    {"gh_kind": "rejected", "gh_delivery": f"test-{run}-{delivery}", "gh_reason": reason}
-    for delivery, reason in (("ping", "replay"), ("unsigned", "unsigned"), ("signature", "signature"),
-                             ("oversized", "oversized"), ("malformed", "malformed"))
+    {"gh_kind": "rejected", "gh_delivery": f"test-{run}-{delivery}", "gh_reason": outcome.split(":")[0]}
+    for delivery, outcome in zip(deliveries, outcomes)
 ]
 records.append({"gh_kind": "direct_push", "gh_delivery": f"test-{run}-push-forced", "gh_result": "error"})
 print(json.dumps(records))
@@ -303,13 +305,13 @@ container run --detach --name="github-webhook-test-${RUN}" --label="${LABEL}" --
 	--volume="${RECEIVER_SCRIPT}:${RECEIVER_TARGET}:ro" --volume="${EVENTS_SCRIPT}:${EVENTS_TARGET}:ro" \
 	--env=WEBHOOK_SECRET="${STUB_SECRET}" --env=WEBHOOK_PORT="${RECEIVER_PORT}" --env=WEBHOOK_PATH="${RECEIVER_PATH}" \
 	--env=WEBHOOK_MAX_BYTES="${MAX_BYTES}" --env=WEBHOOK_STATE_DB=/tmp/deliveries.sqlite --env=WEBHOOK_REPLAY_DAYS=1 \
-	--env=GITHUB_API_URL=http://github-api-stub:8080 --env=GITHUB_TOKEN=stub-token --env=WEBHOOK_API_TIMEOUT="${API_TIMEOUT}" \
+	--env=GITHUB_API_URL="http://github-api-stub:${STUB_PORT}" --env=GITHUB_TOKEN=stub-token --env=WEBHOOK_API_TIMEOUT="${API_TIMEOUT}" \
 	--env=WEBHOOK_PR_ATTEMPTS=2 --env=WEBHOOK_PR_DELAY=1 --env=PYTHONUNBUFFERED=1 \
 	"${RECEIVER_IMAGE}" python3 "${RECEIVER_TARGET}" >/dev/null
 STUB_URL="http://$(container port "github-webhook-test-${RUN}" "${RECEIVER_PORT}/tcp" | head -1)${RECEIVER_PATH}"
 for ((attempt = 1; attempt <= RETRIES; attempt++)); do
 	curl -sf --connect-timeout 5 --max-time 10 -o /dev/null "${STUB_URL%"${RECEIVER_PATH}"}/healthz" && break
-	sleep 1
+	sleep "${SLEEP_SECONDS}"
 done
 
 expect_status "$(post "${STUB_URL}" "${STUB_SECRET}" push "test-${RUN}-direct" "$(payload push-forced "${DIRECT_SHA}")")" 202 "direct push accepted"
@@ -329,6 +331,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
+BRANCH = "'"${DEFAULT_BRANCH}"'"
 WORKFLOW = base64.b64encode(b"on:\n  pull_request_target:\n").decode()
 RULES = [{"type": "deletion"}, {"type": "non_fast_forward"}, {"type": "required_signatures"},
          {"type": "pull_request", "parameters": {"required_approving_review_count": 2, "require_code_owner_review": True,
@@ -350,8 +353,8 @@ def answer(path):
     if rest == "collaborators" and mode == "fail":
         return 403, {"message": "API rate limit exceeded"}, {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1"}
     answers = {
-        "": {"default_branch": "main"},
-        "rules/branches/main": RULES[:2] if drift else RULES,
+        "": {"default_branch": BRANCH},
+        f"rules/branches/{BRANCH}": RULES[:2] if drift else RULES,
         "collaborators": [{"login": "bob", "role_name": "admin" if drift else "write"}],
         "keys": [{"id": 8, "title": "deploy", "read_only": False}] if drift else [{"id": 7, "title": "deploy", "read_only": True}],
         "actions/permissions": {"enabled": True, "allowed_actions": "all"},
@@ -391,7 +394,7 @@ python3 -c "${SETTINGS_STUB_CODE}" "${SETTINGS_DIR}/port" &
 echo $! >"${SETTINGS_DIR}/stub.pid"
 for ((attempt = 1; attempt <= RETRIES; attempt++)); do
 	[[ -s "${SETTINGS_DIR}/port" ]] && break
-	sleep 1
+	sleep "${SLEEP_SECONDS}"
 done
 [[ -s "${SETTINGS_DIR}/port" ]] || fail "the GitHub settings API stub did not start"
 printf 'stub-token' >"${SETTINGS_DIR}/token"
@@ -489,7 +492,7 @@ while True:
     missing = [item for item in wanted if item not in found]
     if not missing or time.time() > deadline:
         break
-    time.sleep(5)
+    time.sleep(int(os.environ["SLEEP_SECONDS"]))
 if stray:
     sys.exit(f"the matching settings raised alerts: {stray}")
 if missing:

@@ -19,17 +19,19 @@ from utils.roles.applications.services.wazuh import (
     JOURNALD_PROGRAM,
     OWN_TAGS,
     PROVIDER_ENTITY,
+    RULESET_KINDS,
     SAMPLES_FILE,
     SELFTEST_TAG,
+    SERVICE_KEY,
     SYSTEM_TAGS,
     WATCH_TAG,
     decoder_name,
     docker_rule_ids,
     load_samples,
+    ruleset_file,
+    wazuh_dir,
 )
 from utils.roles.entity.name import get_entity_name
-
-RULESET_KINDS = ("decoders", "rules")
 
 
 class LookupModule(LookupBase):
@@ -114,7 +116,7 @@ class LookupModule(LookupBase):
             if entity == PROVIDER_ENTITY:
                 continue
             enabled = config.run(
-                [role, "services.wazuh.enabled", False], variables=vars_
+                [role, f"services.{SERVICE_KEY}.enabled", False], variables=vars_
             )[0]
             if not bool(enabled):
                 continue
@@ -125,7 +127,7 @@ class LookupModule(LookupBase):
                 )
             owners[entity] = role
             rule_block = config.run(
-                [role, "services.wazuh.rule_block", None], variables=vars_
+                [role, f"services.{SERVICE_KEY}.rule_block", None], variables=vars_
             )[0]
             if rule_block is None:
                 raise AnsibleError(
@@ -143,7 +145,7 @@ class LookupModule(LookupBase):
                 }
             )
             for kind in RULESET_KINDS:
-                src = ROLES_DIR / role / "files" / "wazuh" / f"{kind}.xml"
+                src = ruleset_file(wazuh_dir(ROLES_DIR, role), kind)
                 if src.is_file():
                     files.append(
                         {"src": str(src), "kind": kind, "name": f"{entity}_{kind}.xml"}
@@ -161,9 +163,7 @@ class LookupModule(LookupBase):
         ] + [(owners[e["entity"]], e) for e in entities]
         samples = []
         for role, source in sources:
-            for sample in load_samples(
-                ROLES_DIR / role / "files" / "wazuh" / SAMPLES_FILE
-            ):
+            for sample in load_samples(wazuh_dir(ROLES_DIR, role) / SAMPLES_FILE):
                 program = sample.pop("program", None)
                 tagged = sample_sources[program] if program else source
                 samples.append(

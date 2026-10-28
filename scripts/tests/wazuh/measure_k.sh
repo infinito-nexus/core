@@ -85,19 +85,26 @@ precondition() {
 	ARCHIVES_INODE="$(stat -c %i "${ARCHIVES}")"
 }
 
+# Param: the command and arguments to run in a throwaway K_IMAGE container that logs to journald under K_TAG.
+log_container() {
+	docker run --rm --label "${LABEL}" --log-driver journald --log-opt "tag=${K_TAG}" "${K_IMAGE}" "$@" >/dev/null
+}
+
+watch_journal() {
+	echo "Collector watch (${K_WATCH_TAG}):"
+	journalctl --since "@${START_EPOCH}" -o short-iso "SYSLOG_IDENTIFIER=${K_WATCH_TAG}"
+}
+
 emit() {
-	docker run --rm --label "${LABEL}" --log-driver journald --log-opt "tag=${K_TAG}" "${K_IMAGE}" \
-		sh -c "i=1; while [ \$i -le $1 ]; do echo '${MARK} seq='\$i; i=\$((i + 1)); $2; done" >/dev/null
+	log_container sh -c "i=1; while [ \$i -le $1 ]; do echo '${MARK} seq='\$i; i=\$((i + 1)); $2; done"
 }
 
 emit_rate() {
-	docker run --rm --label "${LABEL}" --log-driver journald --log-opt "tag=${K_TAG}" "${K_IMAGE}" \
-		sh -c "i=1; while [ \$i -le $1 ]; do e=\$((i + $2 - 1)); [ \$e -gt $1 ] && e=$1; seq \$i \$e | sed 's/^/${MARK} seq=/'; i=\$((e + 1)); sleep 1; done" >/dev/null
+	log_container sh -c "i=1; while [ \$i -le $1 ]; do e=\$((i + $2 - 1)); [ \$e -gt $1 ] && e=$1; seq \$i \$e | sed 's/^/${MARK} seq=/'; i=\$((e + 1)); sleep 1; done"
 }
 
 emit_fast() {
-	docker run --rm --label "${LABEL}" --log-driver journald --log-opt "tag=${K_TAG}" "${K_IMAGE}" \
-		sh -c "seq 1 $1 | sed 's/^/${MARK} seq=/'" >/dev/null
+	log_container sh -c "seq 1 $1 | sed 's/^/${MARK} seq=/'"
 }
 
 archived_seqs() {
@@ -203,8 +210,7 @@ run_outage() {
 	echo "Manager stopped ${stopped}Z, started ${restarted}Z"
 	echo "Buffer alerts (id at alert timestamp):"
 	buffer_alerts
-	echo "Collector watch (${K_WATCH_TAG}):"
-	journalctl --since "@${START_EPOCH}" -o short-iso "SYSLOG_IDENTIFIER=${K_WATCH_TAG}"
+	watch_journal
 }
 
 run_restart_frozen() {
@@ -223,8 +229,7 @@ run_restart_frozen() {
 	wait_settled
 	header
 	result_row "agent restart while frozen" "${rate}/s" "${count}" "${started}"
-	echo "Collector watch (${K_WATCH_TAG}):"
-	journalctl --since "@${START_EPOCH}" -o short-iso "SYSLOG_IDENTIFIER=${K_WATCH_TAG}"
+	watch_journal
 }
 
 run_agent_restart() {
@@ -255,8 +260,7 @@ run_agent_down() {
 run_journal_check() {
 	local output rc=0
 	precondition
-	docker run --rm --label "${LABEL}" --log-driver journald --log-opt "tag=${K_TAG}" "${K_IMAGE}" \
-		echo "error ${MARK} app" >/dev/null
+	log_container echo "error ${MARK} app"
 	logger -t dockerd "error ${MARK} daemon"
 	systemctl start "${K_JOURNAL_UNIT}" || rc=$?
 	echo "journal-check: ${K_JOURNAL_UNIT} exit ${rc}"

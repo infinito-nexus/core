@@ -39,6 +39,11 @@ MAX_LOGGED_PATH = 200
 MAX_DISCARD = 16 * 1024 * 1024
 DISCARD_CHUNK = 64 * 1024
 MAX_DELIVERY_ID = 64
+HEALTH_PATHS = ("/", "/healthz")
+
+
+def request_path(raw_path):
+    return raw_path.split("?", 1)[0]
 
 
 def logged_path(raw_path, known):
@@ -52,7 +57,7 @@ def logged_path(raw_path, known):
         A known path as is; any other path decoded and cut after its first segment, so a token
         further down a URL, or in the query string, never reaches the log.
     """
-    path = raw_path.split("?", 1)[0]
+    path = request_path(raw_path)
     if path in known:
         return path
     segments = path.lstrip("/").split("/", 1)
@@ -291,7 +296,7 @@ def make_handler(config, store):
             )
 
         def respond(self, status, body=b""):
-            path = logged_path(self.path, ("/", "/healthz", config["path"]))
+            path = logged_path(self.path, (*HEALTH_PATHS, config["path"]))
             emit(
                 {
                     "gh_kind": "access",
@@ -329,19 +334,14 @@ def make_handler(config, store):
             self.respond(status)
 
         def do_GET(self):
-            path = self.path.split("?", 1)[0]
-            self.respond(
-                200 if path in ("/", "/healthz") else 404,
-                b"ok\n" if path in ("/", "/healthz") else b"",
-            )
+            healthy = request_path(self.path) in HEALTH_PATHS
+            self.respond(200 if healthy else 404, b"ok\n" if healthy else b"")
 
         def do_HEAD(self):
-            self.respond(
-                200 if self.path.split("?", 1)[0] in ("/", "/healthz") else 404
-            )
+            self.respond(200 if request_path(self.path) in HEALTH_PATHS else 404)
 
         def do_POST(self):
-            if self.path.split("?", 1)[0] != config["path"]:
+            if request_path(self.path) != config["path"]:
                 self.respond(404)
                 return
             delivery = (self.headers.get("X-GitHub-Delivery") or "")[:MAX_DELIVERY_ID]

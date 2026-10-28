@@ -10,20 +10,12 @@
 - name: "🧊 Install the freeze service and the path unit that watches the offline lock"
   ansible.builtin.template: # nocheck: stack-host-template (per-host systemd units, every agent host renders its own)
     src: "collector/freeze.{{ item }}.j2"
-    dest: "/etc/systemd/system/{{ WAZUH_AGENT_FREEZE_UNIT }}.{{ item }}"
+    dest: "{{ [ DIR_SYSTEM_SERVICE, WAZUH_AGENT_FREEZE_UNIT ~ '.' ~ item ] | path_join }}"
     owner: root
     group: root
     mode: "0644"
   loop: ["service", "path"]
   register: wazuh_agent_freeze_units
-
-- name: "📂 Create the agent's systemd drop-in directory"
-  ansible.builtin.file:
-    path: "{{ WAZUH_AGENT_FREEZE_DROPIN | dirname }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 # Exception: the drop-in restates the package's ExecStop and ExecReload, because systemd can only put the release step in front of them by replacing the list.
 - name: "🧊 Release a frozen collector before the agent stops or reloads"

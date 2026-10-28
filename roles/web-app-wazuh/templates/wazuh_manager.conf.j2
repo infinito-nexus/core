@@ -205,7 +205,7 @@
     <list>etc/lists/malicious-ioc/malware-hashes</list>
     <decoder_dir>etc/decoders</decoder_dir>
     <rule_dir>etc/rules</rule_dir>
-{% set ruleset_dir = WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', '') %}
+{% set ruleset_dir = WAZUH_RULESET_DIR_CONTAINER | regex_replace('^' ~ WAZUH_MANAGER_HOME ~ '/', '') %}
 {% for kind in ['decoder', 'rule'] %}
 {% for dir in WAZUH_RULESET_DIRS | select('search', '(^|/)' ~ kind ~ 's$') %}
     <{{ kind }}_dir>{{ ruleset_dir }}/{{ dir }}</{{ kind }}_dir>
@@ -252,6 +252,6 @@
 <ossec_config>
   <localfile>
     <log_format>syslog</log_format>
-    <location>/var/ossec/logs/active-responses.log</location>
+    <location>{{ WAZUH_MANAGER_HOME }}/logs/active-responses.log</location>
   </localfile>
 </ossec_config>

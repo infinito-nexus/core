@@ -44,6 +44,8 @@ CONTAINER_COMM = "dockerd"
 RESERVED_TAGS = (*OWN_TAGS, JOURNALD_PROGRAM, *SYSTEM_TAGS, CONTAINER_COMM)
 PROVIDER_ENTITY = "wazuh"
 MANAGER_ROLE = "web-app-wazuh"
+SERVICE_KEY = "wazuh"
+RULESET_KINDS = ("decoders", "rules")
 SAMPLES_FILE = "samples.yml"
 AGENT_ID = "001"
 AGENT_TIME_RECONNECT = 60
@@ -61,6 +63,32 @@ DEPLOYED_CODE_RULE_IDS = {
     "modified": 100173,
     "failed": 100174,
 }
+
+
+def wazuh_dir(roles_dir: Path, role: str) -> Path:
+    """Return the directory of a role's Wazuh rule, decoder and sample files.
+
+    Args:
+        roles_dir: the directory holding every role.
+        role: the role id.
+    """
+    return roles_dir / role / "files" / SERVICE_KEY
+
+
+def ruleset_file(directory: Path, kind: str) -> Path:
+    """Return a role's rule or decoder file.
+
+    Args:
+        directory: the role's ``wazuh_dir``.
+        kind: one of ``RULESET_KINDS``.
+    """
+    return directory / f"{kind}.xml"
+
+
+def _wazuh_config(application: dict[str, Any]) -> dict[str, Any] | None:
+    services = application.get("services") or {}
+    config = services.get(SERVICE_KEY) if isinstance(services, dict) else None
+    return config if isinstance(config, dict) else None
 
 
 def decoder_name(entity: str) -> str:
@@ -126,12 +154,12 @@ def _is_correlation(rule: ET.Element) -> bool:
 
 
 def _file_errors(
-    role: str, entity: str, start: int, wazuh_dir: Path
+    role: str, entity: str, start: int, directory: Path
 ) -> tuple[list[str], dict[int, bool]]:
     errors: list[str] = []
     correlation: dict[int, bool] = {}
     block = range(start, start + RULE_BLOCK_SIZE)
-    rules_path = wazuh_dir / "rules.xml"
+    rules_path = ruleset_file(directory, "rules")
     if rules_path.is_file():
         try:
             rules = list(_parse(rules_path).iter("rule"))
@@ -165,7 +193,7 @@ def _file_errors(
                 for parent in parents
                 if parent not in block
             )
-    decoders_path = wazuh_dir / "decoders.xml"
+    decoders_path = ruleset_file(directory, "decoders")
     if decoders_path.is_file():
         try:
             decoders = _parse(decoders_path).iter("decoder")
@@ -190,12 +218,12 @@ def _single_line(value: Any) -> bool:
 
 def _sample_errors(
     role: str,
-    wazuh_dir: Path,
+    directory: Path,
     allowed: range,
     correlation: dict[int, bool],
     programs: tuple[str, ...] = (),
 ) -> list[str]:
-    path = wazuh_dir / SAMPLES_FILE
+    path = directory / SAMPLES_FILE
     samples = load_yaml_any(str(path), default_if_missing=[]) or []
     if not isinstance(samples, list):
         return [f"{path}: must be a list of {{log, rule, level}}"]
@@ -245,9 +273,8 @@ def _sample_errors(
 
 
 def _opted_in(application: dict[str, Any]) -> bool:
-    services = application.get("services") or {}
-    wazuh = services.get("wazuh") if isinstance(services, dict) else None
-    return isinstance(wazuh, dict) and "enabled" in wazuh
+    config = _wazuh_config(application)
+    return config is not None and "enabled" in config
 
 
 def tag_errors(applications: dict[str, Any], roles_dir: Path) -> list[str]:
@@ -308,24 +335,23 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
     blocks: list[tuple[int, str]] = []
     for role in sorted(applications):
         entity = get_entity_name(role)
-        wazuh_dir = roles_dir / role / "files" / "wazuh"
+        directory = wazuh_dir(roles_dir, role)
         if entity == PROVIDER_ENTITY:
             errors.extend(
                 _sample_errors(
                     role,
-                    wazuh_dir,
+                    directory,
                     range(BASE_RULE_MIN, BASE_RULE_MAX + 1),
                     {},
                     SAMPLE_PROGRAMS,
                 )
             )
             continue
-        services = applications[role].get("services") or {}
-        wazuh = services.get("wazuh") if isinstance(services, dict) else None
+        config = _wazuh_config(applications[role])
         opted_in = _opted_in(applications[role])
-        start = wazuh.get("rule_block") if isinstance(wazuh, dict) else None
+        start = config.get("rule_block") if config is not None else None
         if start is None:
-            if opted_in or (wazuh_dir / "rules.xml").is_file():
+            if opted_in or ruleset_file(directory, "rules").is_file():
                 errors.append(
                     f"{role}: declares Wazuh rules or opts in, but sets no services.wazuh.rule_block"
                 )
@@ -339,11 +365,11 @@ def rule_block_errors(applications: dict[str, Any], roles_dir: Path) -> list[str
                 f"{RULE_BLOCK_MIN}-{RULE_BLOCK_MAX}"
             )
         blocks.append((start, role))
-        file_errors, correlation = _file_errors(role, entity, start, wazuh_dir)
+        file_errors, correlation = _file_errors(role, entity, start, directory)
         errors.extend(file_errors)
         errors.extend(
             _sample_errors(
-                role, wazuh_dir, range(start, start + APP_RULE_LIMIT), correlation
+                role, directory, range(start, start + APP_RULE_LIMIT), correlation
             )
         )
     blocks.sort()

@@ -1,7 +1,7 @@
 ---
 - name: "⏳ Wait until every pre-registered Wazuh agent is Active"
   ansible.builtin.shell:
-    cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/agent_control -i {{ item.id }}"
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/agent_control -i {{ item.id }}"
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   loop: "{{ WAZUH_AGENTS }}"
   loop_control:
@@ -14,36 +14,19 @@
 
 - name: "🏷️ Name this deploy's canary"
   ansible.builtin.set_fact:
-    wazuh_canary_id: "{{ WAZUH_CANARY_MARKER }} deploy-{{ now(utc=true, fmt='%Y%m%dT%H%M%S%f') }}"
+    wazuh_canary_id: "{{ WAZUH_CANARY_MARKER }} {{ now(utc=true, fmt=WAZUH_RUN_ID_FORMAT) }}"
 
 - name: "🐤 Send the canary through journald"
   ansible.builtin.command:
     argv: [logger, -t, "{{ WAZUH_RULESET_SELFTEST.program }}", "{{ wazuh_canary_id }}"]
   changed_when: false
 
-- name: "🔎 Wait for the canary alert in wazuh-alerts-*"
-  uri_retry:
-    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/wazuh-alerts-*/_search"
-    method: POST
-    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
-    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
-    force_basic_auth: true
-    validate_certs: false
-    body_format: json
-    body:
-      query:
-        bool:
-          filter:
-            - term:
-                rule.id: "{{ WAZUH_CANARY_RULE_ID | string }}"
-            - match_phrase:
-                full_log: "{{ wazuh_canary_id }}"
-    status_code: 200
-    return_content: true
-  register: wazuh_canary_search
-  until: >-
-    wazuh_canary_search.json is defined and
-    wazuh_canary_search.json.hits.total.value > 0
-  retries: "{{ WAZUH_CANARY_WAIT_RETRIES }}"
-  delay: "{{ WAZUH_POLL_DELAY }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔎 Wait for the canary alert"
+  include_tasks: utils/wait_alert.yml
+  vars:
+    wazuh_alert_label: "the canary alert"
+    wazuh_alert_filters:
+      - term:
+          rule.id: "{{ WAZUH_CANARY_RULE_ID | string }}"
+      - match_phrase:
+          full_log: "{{ wazuh_canary_id }}"

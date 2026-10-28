@@ -8,10 +8,13 @@ unset CURL_CA_BUNDLE SSL_CERT_FILE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS
 : "${CERTS_CONFIG:?CERTS_CONFIG must point at the mounted certs.yml}"
 : "${CERTS_OUT_DIR:?CERTS_OUT_DIR must point at the mounted certificates directory}"
 : "${CERTS_MIN_VALID_DAYS:?CERTS_MIN_VALID_DAYS must give the days a certificate must still be valid to be kept}"
+: "${CERTS_MARKER:?CERTS_MARKER must point at the generation marker inside CERTS_OUT_DIR}"
+: "${CERTS_OWNER:?CERTS_OWNER must give the uid:gid of the indexer and dashboard}"
+: "${CERTS_MANAGER_OWNER:?CERTS_MANAGER_OWNER must give the uid:gid of the manager}"
 
 config_src="${CERTS_CONFIG}"
 out_dir="${CERTS_OUT_DIR}"
-marker="${out_dir}/.certs.sha256"
+marker="${CERTS_MARKER}"
 tool_url="https://packages.wazuh.com/${CERT_TOOL_VERSION}/wazuh-certs-tool.sh"
 
 expected_marker() {
@@ -94,8 +97,8 @@ cp "${out_dir}/root-ca.pem" "${out_dir}/root-ca-manager.pem"
 cp "${out_dir}/root-ca.key" "${out_dir}/root-ca-manager.key"
 
 chmod 0400 "${out_dir}"/*
-chown 1000:1000 "${out_dir}"/*
-chown 999:999 \
+chown "${CERTS_OWNER}" "${out_dir}"/*
+chown "${CERTS_MANAGER_OWNER}" \
 	"${out_dir}/root-ca-manager.pem" \
 	"${out_dir}/root-ca-manager.key" \
 	"${out_dir}/${WAZUH_MANAGER_NODE}.pem" \

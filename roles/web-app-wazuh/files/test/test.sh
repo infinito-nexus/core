@@ -9,6 +9,7 @@
 #   G  the deployed code check and FIM report a throwaway checkout's findings (deployed_code.sh)
 #
 # Env (all required; the role's test.env carries them):
+#   ALERTS_INDEX              the indexer's alert index pattern
 #   APP_ENTITY, APP_DECODER   an opted-in app's journald tag and parent decoder
 #   APP_URL, APP_HOST         that app's local HTTP port and its Host header
 #   CANARY_MARKER, CANARY_RULE  the canary text and the self-test canary rule
@@ -30,7 +31,7 @@ if [[ -z "${OPTED_ENTITIES}" ]]; then
 	exit 0
 fi
 
-: "${APP_ENTITY:?}" "${APP_DECODER:?}" "${APP_URL:?}" "${APP_HOST:?}"
+: "${ALERTS_INDEX:?}" "${APP_ENTITY:?}" "${APP_DECODER:?}" "${APP_URL:?}" "${APP_HOST:?}"
 : "${CANARY_MARKER:?}" "${CANARY_RULE:?}" "${FOREIGN_ENTITY:?}" "${OPTED_ENTITIES:?}"
 : "${INDEXER_URL:?}" "${INDEXER_USER:?}" "${INDEXER_PASSWORD:?}" "${MANAGER_LOGS_VOLUME:?}"
 : "${SELFTEST_TAG:?}" "${SELFTEST_DECODER:?}" "${RETRIES:?}" "${SLEEP_SECONDS:?}"
@@ -75,17 +76,17 @@ indexer_count() {
 		python3 -c 'import json, sys; print(json.load(sys.stdin)["count"])'
 }
 
+# Param: triples of query type, field and value, one bool filter clause each, e.g. term rule.id 100110.
 alert_query() {
-	python3 -c 'import json, sys; print(json.dumps({"query": {"bool": {"filter": [
-		{"term": {"decoder.name": sys.argv[1]}},
-		{"match_phrase": {"full_log": sys.argv[2]}}]}}}))' "$1" "$2"
+	python3 -c 'import json, sys; args = sys.argv[1:]; print(json.dumps({"query": {"bool": {"filter": [
+		{args[i]: {args[i + 1]: args[i + 2]}} for i in range(0, len(args), 3)]}}}))' "$@"
 }
 
 wait_alert() {
 	local query attempt
-	query="$(alert_query "$1" "$2")"
+	query="$(alert_query term decoder.name "$1" match_phrase full_log "$2")"
 	for ((attempt = 0; attempt < RETRIES; attempt++)); do
-		if [[ "$(indexer_count 'wazuh-alerts-*' "${query}")" -gt 0 ]]; then
+		if [[ "$(indexer_count "${ALERTS_INDEX}" "${query}")" -gt 0 ]]; then
 			return 0
 		fi
 		sleep "${SLEEP_SECONDS}"
@@ -105,10 +106,8 @@ check_identical_text() {
 	emit "${APP_ENTITY}" b-app "${text}"
 	wait_alert "${SELFTEST_DECODER}" "${text}"
 	wait_alert "${APP_DECODER}" "${text}"
-	query="$(python3 -c 'import json, sys; print(json.dumps({"query": {"bool": {"filter": [
-		{"term": {"rule.id": sys.argv[1]}}, {"match_phrase": {"full_log": sys.argv[2]}}]}}}))' \
-		"${CANARY_RULE}" "${text}")"
-	[[ "$(indexer_count 'wazuh-alerts-*' "${query}")" -eq 2 ]] ||
+	query="$(alert_query term rule.id "${CANARY_RULE}" match_phrase full_log "${text}")"
+	[[ "$(indexer_count "${ALERTS_INDEX}" "${query}")" -eq 2 ]] ||
 		fail "B: expected exactly two canary alerts for '${text}'"
 	pass "B: identical text from ${SELFTEST_TAG} and ${APP_ENTITY} stays two alerts with their own decoders"
 }

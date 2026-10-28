@@ -5,8 +5,8 @@
     cmd: >-
       set -o pipefail &&
       tac {{ WAZUH_AGENT_FIM_LOG | quote }}
-      | sed '/wazuh-syscheckd: INFO: Started (pid/q'
-      | grep -oE '\((6019|6048|6913|6923|9203)\)|wazuh-syscheckd: INFO: Started'
+      | sed {{ ('/' ~ WAZUH_AGENT_SYSCHECK_STARTED ~ ' (pid/q') | quote }}
+      | grep -oE {{ (WAZUH_AGENT_SYSCHECK_CODES_PATTERN ~ '|' ~ WAZUH_AGENT_SYSCHECK_STARTED) | quote }}
       || true
     executable: /bin/bash
   register: wazuh_agent_whodata_log
@@ -16,20 +16,19 @@
   retries: "{{ WAZUH_AGENT_FIM_STATE_RETRIES }}"
   delay: "{{ WAZUH_AGENT_FIM_STATE_DELAY }}"
   until: >-
-    'wazuh-syscheckd: INFO: Started' not in wazuh_agent_whodata_log.stdout
-    or ('(9203)' in wazuh_agent_whodata_log.stdout
+    WAZUH_AGENT_SYSCHECK_STARTED not in wazuh_agent_whodata_log.stdout
+    or (('(' ~ WAZUH_AGENT_SYSCHECK_READY_CODE ~ ')') in wazuh_agent_whodata_log.stdout
         and (not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool)
-             or wazuh_agent_whodata_log.stdout is search('\((6019|6048|6913|6923)\)')))
+             or wazuh_agent_whodata_log.stdout is search(WAZUH_AGENT_WHODATA_CODES_PATTERN)))
 
 - name: "🧭 Resolve the who-data state"
   ansible.builtin.set_fact:
     wazuh_agent_whodata_state: >-
       {%- set log = wazuh_agent_whodata_log.stdout -%}
+      {%- set verdicts = WAZUH_AGENT_WHODATA_CODES | dict2items | selectattr('key', 'in', log | regex_findall('[(]([0-9]+)[)]')) | map(attribute='value') | list -%}
       {%- if not (WAZUH_AGENT_FIM_WHODATA_ENABLED | bool) -%}whodata=unavailable reason=switched-off
-      {%- elif 'wazuh-syscheckd: INFO: Started' not in log -%}whodata=unknown reason=no-syscheckd-start-in-log
-      {%- elif '(6019)' in log -%}whodata=audit reason=engine-started
-      {%- elif '(6048)' in log -%}whodata=ebpf reason=healthcheck-passed
-      {%- elif '(6913)' in log or '(6923)' in log -%}whodata=unavailable reason=realtime-fallback
+      {%- elif WAZUH_AGENT_SYSCHECK_STARTED not in log -%}whodata=unknown reason=no-syscheckd-start-in-log
+      {%- elif verdicts -%}{{ verdicts | first }}
       {%- else -%}whodata=unknown reason=no-verdict-in-log
       {%- endif -%}
 

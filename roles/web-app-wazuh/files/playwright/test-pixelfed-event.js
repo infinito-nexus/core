@@ -9,10 +9,15 @@ test.use({ ignoreHTTPSErrors: true });
 const pixelfedBaseUrl = normalizeBaseUrl(process.env.PIXELFED_BASE_URL || "");
 const canaryMarker = decodeDotenvQuotedValue(process.env.CANARY_MARKER);
 const httpCanaryRuleId = decodeDotenvQuotedValue(process.env.HTTP_CANARY_RULE_ID);
+const alertsIndex = decodeDotenvQuotedValue(process.env.ALERTS_INDEX);
+const canaryWaitMs = Number(process.env.CANARY_WAIT_MS);
+const canaryPollMs = Number(process.env.CANARY_POLL_MS);
+const pixelfedDecoder = decodeDotenvQuotedValue(process.env.PIXELFED_DECODER);
+const pixelfedProgram = decodeDotenvQuotedValue(process.env.PIXELFED_PROGRAM);
 
 async function searchAlerts(page, marker) {
   const response = await page.request.post(
-    `${shared.env.appBaseUrl}/api/console/proxy?path=${encodeURIComponent("wazuh-alerts-*/_search")}&method=POST`,
+    `${shared.env.appBaseUrl}/api/console/proxy?path=${encodeURIComponent(`${alertsIndex}/_search`)}&method=POST`,
     {
       headers: { "osd-xsrf": "true", "content-type": "application/json" },
       data: {
@@ -46,13 +51,13 @@ test("administrator: a Pixelfed request shows up as its canary alert in the dash
       let hits = [];
       await expect
         .poll(async () => (hits = await searchAlerts(p, marker)).length, {
-          timeout: resolveTimeout(180_000),
-          intervals: [5_000],
-          message: `canary alert for ${marker} in wazuh-alerts-*`,
+          timeout: resolveTimeout(canaryWaitMs),
+          intervals: [canaryPollMs],
+          message: `canary alert for ${marker} in ${alertsIndex}`,
         })
         .toBeGreaterThan(0);
-      expect(hits[0]._source.decoder.name).toBe("infinito-pixelfed");
-      expect(hits[0]._source.predecoder.program_name).toBe("pixelfed");
+      expect(hits[0]._source.decoder.name).toBe(pixelfedDecoder);
+      expect(hits[0]._source.predecoder.program_name).toBe(pixelfedProgram);
 
       const kuery = `rule.id:${httpCanaryRuleId} and full_log:"${marker}"`;
       await gotoOnion(

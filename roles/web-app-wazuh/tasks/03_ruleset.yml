@@ -32,7 +32,7 @@
 
     - name: "🔄 Restart the Wazuh manager onto the restored ruleset"
       ansible.builtin.shell:
-        cmd: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} /var/ossec/bin/wazuh-control restart 2>&1"
+        cmd: "{{ WAZUH_MANAGER_RESTART }}"
         chdir: "{{ WAZUH_INSTANCE_DIR }}"
       when: wazuh_ruleset_restart is defined and wazuh_ruleset_restart is changed
       changed_when: true

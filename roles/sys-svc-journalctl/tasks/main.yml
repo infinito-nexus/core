@@ -48,15 +48,16 @@
   when: sys_svc_journalctl_docker_state.stdout | trim == 'active'
 
 - name: "⚠️ Warn when Docker's active log rate limit differs from the configured one"
+  vars:
+    sys_svc_journalctl_docker_expected: >-
+      {{ (SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC * 1000000) | string ~ ' ' ~ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST | string }}
   ansible.builtin.debug:
     msg: >-
       {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }} runs with log rate limit '{{ sys_svc_journalctl_docker_active.stdout | trim }}'
       (interval usec, burst; '-' means none of its own), but {{ SYS_SVC_JOURNALCTL_DOCKER_DROPIN }} sets
-      {{ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC * 1000000 }} {{ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST }}.
+      {{ sys_svc_journalctl_docker_expected }}.
       systemd applies it at the next start of {{ SYS_SVC_JOURNALCTL_DOCKER_UNIT }}; the role does not restart Docker,
       because that restarts every container.
   when:
     - sys_svc_journalctl_docker_active is not skipped
-    - >-
-      (sys_svc_journalctl_docker_active.stdout | trim) !=
-      ((SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC * 1000000) | string ~ ' ' ~ SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST | string)
+    - (sys_svc_journalctl_docker_active.stdout | trim) != sys_svc_journalctl_docker_expected
