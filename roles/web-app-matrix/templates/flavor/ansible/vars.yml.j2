@@ -153,8 +153,8 @@ matrix_client_element_branding_auth_header_logo_url: {{ MATRIX_DESIGN_LOGO_URL |
 {% endif %}
 {% if MATRIX_DESIGN_ENABLED | bool %}
 matrix_client_element_branding_welcome_background_url: ""
-matrix_client_element_configuration_extension_json: '{"default_theme": null}'
 {% endif %}
+matrix_client_element_configuration_extension_json: {{ ({'force_verification': MATRIX_ELEMENT_FORCE_VERIFICATION | bool} | combine({'default_theme': none} if MATRIX_DESIGN_ENABLED | bool else {})) | to_json | to_json }}
 matrix_synapse_configuration_extension_yaml: |
   web_client_location: "{{ lookup('canonical_url', application_id, 'element') }}"
 

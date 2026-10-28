@@ -19,6 +19,8 @@
       shared: false
     container_backup:
       enabled: true
+    element:
+      force_verification: false
     matrix:
       flavor: ansible
     n8n:
@@ -125,6 +127,8 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    element:
+      force_verification: false
     matrix:
       flavor: compose
     n8n:
