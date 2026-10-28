@@ -81,7 +81,7 @@ For the file-level contract, use [Contributing `playwright.env.j2`](../../docs/a
 
 This role ships central Playwright defaults:
 
-- `templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`
+- `templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`, and `@axe-core/playwright` (WCAG checks through `AxeBuilder`) pinned by `meta/services.yml.playwright.axe_version`
 - `files/playwright.config.js`: shared Playwright configuration
 
 Both are used as central defaults for every app role.
