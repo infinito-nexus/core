@@ -13,7 +13,7 @@
 - name: 🔧 Configure Docker apt repository
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/docker.list
-    content: >-
+    content: >
       deb [arch={{ SYS_SVC_CONTAINER_DPKG_ARCH_BY_ANSIBLE_ARCH.get(ansible_facts['architecture'], ansible_facts['architecture']) }}
       signed-by=/etc/apt/keyrings/docker.asc]
       https://download.docker.com/linux/{{ SYS_SVC_CONTAINER_DOCKER_REPO_DISTRO_BY_DISTRIBUTION[ansible_facts['distribution']] }}

@@ -27,14 +27,13 @@
     owner: root
     group: root
     mode: "0600"
+    modification_time: preserve
+    access_time: preserve
 
 - name: ✅ Ensure compositions dir exists (baudolo scans it; absent on fresh host)
   ansible.builtin.file:
     path: "{{ DIR_COMPOSITIONS }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: ✅ Assert the configured snapshot_mode names a snapshot mode
   ansible.builtin.assert:

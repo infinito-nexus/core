@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ CA_ROOT.base_dir }}"
     state: directory
-    mode: "0750"
+    mode: "0755"
     owner: root
     group: root
 

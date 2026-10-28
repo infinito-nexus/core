@@ -24,9 +24,6 @@
   ansible.builtin.file:
     path: "{{ DIR_BACKUPS }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - include_role:
     name: sys-service
