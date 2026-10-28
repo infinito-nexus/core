@@ -12,7 +12,9 @@ from . import PROJECT_ROOT
 _RULE = "compose-argv-secret"
 
 _SCAN_PREFIX = "roles/"
-_ARGV_KEY = re.compile(r"^(?P<indent>\s*)(?:-\s+)?(?:command|entrypoint|healthcheck|test)\s*:")
+_ARGV_KEY = re.compile(
+    r"^(?P<indent>\s*)(?:-\s+)?(?:command|entrypoint|healthcheck|test)\s*:"
+)
 _EXPRESSION = re.compile(r"\{\{(.*?)\}\}")
 _CREDENTIAL = re.compile(
     r"(?i)(?:password|passwd|pwd|secret|token|api_?key|private_?key|credential)"
@@ -73,9 +75,11 @@ class TestComposeArgvNoSecret(unittest.TestCase):
             if not rel.startswith(_SCAN_PREFIX) or "/templates/" not in rel:
                 continue
             lines = content.splitlines()
-            for line_no in _argv_secret_lines(lines):
-                if not is_suppressed_at(lines, line_no, _RULE, mode="same-or-above"):
-                    findings.append(f"- {rel}:{line_no}: {lines[line_no - 1].strip()}")
+            findings.extend(
+                f"- {rel}:{line_no}: {lines[line_no - 1].strip()}"
+                for line_no in _argv_secret_lines(lines)
+                if not is_suppressed_at(lines, line_no, _RULE, mode="same-or-above")
+            )
 
         self.assertFalse(
             findings,
