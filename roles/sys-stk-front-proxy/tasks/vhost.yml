@@ -4,7 +4,9 @@
     front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
     front_proxy_probe_url: "{{ front_proxy_probe.url }}"
     front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
-    front_proxy_deferred_probes: "{{ front_proxy_deferred_probes | combine({front_proxy_domain: front_proxy_probe}) }}"
+    front_proxy_deferred_probes: >-
+      {{ front_proxy_deferred_probes
+         | combine({front_proxy_domain: front_proxy_probe} if (front_proxy_domain | network_of) != 'tor' else {}) }}
   vars:
     front_proxy_probe:
       url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
