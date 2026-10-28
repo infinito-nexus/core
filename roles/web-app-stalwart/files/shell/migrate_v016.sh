@@ -160,13 +160,29 @@ phase_target() {
   fi
 }
 
+accept_recommended_answers() {
+  local answers="${STATE_DIR}/answers.toml"
+  [ -f "$answers" ] || die "prepare wrote no ${answers}"
+  awk '
+    /^# Not answered yet: uncomment the table to accept the recommended values\.$/ { open = 1; print; next }
+    open && /^# / { sub(/^# /, ""); print; next }
+    { open = 0; print }
+  ' "$answers" > "${answers}.part"
+  mv "${answers}.part" "$answers"
+}
+
 phase_prepare() {
   mkdir -p "$STATE_DIR"
-  local mode=()
-  if ! { [ -t 0 ] && [ -t 1 ]; }; then
-    mode=(--non-interactive)
+  if [ -t 0 ] && [ -t 1 ]; then
+    migrate prepare --source "${SOURCE_MOUNT}/config.json" --state "$STATE_MOUNT"
+    return 0
   fi
-  migrate prepare --source "${SOURCE_MOUNT}/config.json" --state "$STATE_MOUNT" "${mode[@]}"
+  if ! migrate prepare --source "${SOURCE_MOUNT}/config.json" --state "$STATE_MOUNT" --non-interactive; then
+    accept_recommended_answers
+    migrate prepare --source "${SOURCE_MOUNT}/config.json" --state "$STATE_MOUNT" --non-interactive \
+      || die "questions remain open after accepting the recommended answers; run prepare on a terminal"
+    echo "prepare: accepted the recommended answers in ${STATE_DIR}/answers.toml"
+  fi
 }
 
 phase_sync() {

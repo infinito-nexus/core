@@ -401,7 +401,7 @@ A deploy without the marker reads the store:
 
 Migrate the store with [`stalwart-migrate`](https://github.com/stalwartlabs/stalwart-migrate) into a new database and swap it in under the role's database name. That name is fixed to `stalwart` ([`plugins/lookup/database.py`](../../plugins/lookup/database.py) derives it from the entity name), so the migration targets a second database that later takes over the name.
 
-A deploy that stops at the store guard stages the migration on the stack host: `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration. Run it as root:
+A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The phases also run by hand, as root:
 
 | Phase | Steps below |
 |---|---|
@@ -409,7 +409,7 @@ A deploy that stops at the store guard stages the migration on the stack host: `
 | `check` | 1: the running Stalwart must be that exact image and the role's `version` must belong to the banner's target series; plus the guard's own conditions: 0.16 store, no swap yet, no marker |
 | `backup` | 2, the database dump only |
 | `target` | 3 |
-| `prepare` | 5, interactive on a terminal; without one it needs a complete `answers.toml` in `migrate-v016/state` |
+| `prepare` | 5, interactive on a terminal; without one it accepts the recommended answer of every question `stalwart-migrate` marks as not answered in `migrate-v016/state/answers.toml` |
 | `sync` | 5, repeatable while 0.16 serves |
 | `final` | 6 and 7 |
 | `status` | the progress `stalwart-migrate status` reports |
