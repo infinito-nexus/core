@@ -13,6 +13,8 @@
 #   DOCS_TEST_WORK           work directory, holds the replay key pair and the
 #                            rendered Corefile
 #   DOCS_TEST_REPLAY_PUBKEY  public half, authorized for root on the target
+#   INFINITO_PULL_POLICY     never: build the image the block runs from
+#                            DOCS_TEST_SRC_DIR on the stack daemon first
 
 set -euo pipefail
 
@@ -158,7 +160,19 @@ guard_placeholders() {
 	return 0
 }
 
+replay_image() {
+	sed -nE '/^[[:space:]]*[^[:space:]]+ bash -c /{s#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p;q}' "${BLOCK}"
+}
+
+build_replay_image() {
+	local image="$1" distro
+	distro="$(sed -n 's/^INFINITO_DISTRO=//p' "${DOCS_TEST_SRC_DIR}/.env")"
+	echo "=== Building ${image} on the stack daemon from ${DOCS_TEST_SRC_DIR} ==="
+	(cd "${DOCS_TEST_SRC_DIR}" && INFINITO_DISTRO="${distro:?}" IMAGE_TAG="${image:?}" bash scripts/image/build.sh)
+}
+
 replay_over_ssh() {
+	local image
 	echo "=== Giving the target an ssh server the published recipe can reach ==="
 	machine exec -T -e DOCS_TEST_REPLAY_PUBKEY machine sh -s <"${STAGE}/sshd.sh"
 
@@ -167,7 +181,11 @@ replay_over_ssh() {
 	sed -i "s#^HOST=.*#HOST=${TARGET_ADDRESS}#" "${BLOCK}"
 	guard_placeholders
 
-	echo "=== Replay image: $(sed -nE 's#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p' "${BLOCK}" | head -1 || true) ==="
+	image="$(replay_image)"
+	if [ "${INFINITO_PULL_POLICY}" = "never" ]; then
+		build_replay_image "${image}"
+	fi
+	echo "=== Replay image: ${image} ==="
 	echo "=== Replaying the instructions against ${TARGET_ADDRESS} ==="
 	if ! (cd "${DOCS_TEST_WORK}" && bash -e "${BLOCK}"); then
 		report_failed_units
