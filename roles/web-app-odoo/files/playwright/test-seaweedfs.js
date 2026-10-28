@@ -38,11 +38,11 @@ test("seaweedfs: an Odoo chatter attachment is stored in the SeaweedFS bucket", 
         "the Odoo contact form must render the chatter that owns the attachment uploader",
       ).toBeVisible({ timeout: resolveTimeout(120_000) });
 
-      const fileInput = chatter.locator('input.o-mail-Chatter-fileUploader, input[type="file"]').first();
+      const attachFiles = chatter.locator(".o-mail-Chatter-attachFiles").first();
       await expect(
-        fileInput,
-        "the Odoo chatter must expose its file uploader input",
-      ).toBeAttached({ timeout: resolveTimeout(120_000) });
+        attachFiles,
+        "the Odoo chatter must offer its attach-files button",
+      ).toBeEnabled({ timeout: resolveTimeout(120_000) });
 
       const upload = appPage.waitForResponse(
         (response) =>
@@ -51,11 +51,16 @@ test("seaweedfs: an Odoo chatter attachment is stored in the SeaweedFS bucket", 
         { timeout: resolveTimeout(120_000) },
       );
 
-      await fileInput.setInputFiles({
-        name: `${stem}.txt`,
-        mimeType: "text/plain",
-        buffer: ATTACHMENT_BODY,
-      });
+      const fileInput = chatter.locator("input.o-mail-Chatter-fileUploader").first();
+      // Odoo renders the top-bar uploader only while the record has no attachment; with one, the button toggles the attachment box that carries it.
+      if ((await fileInput.count()) === 0) {
+        await attachFiles.click({ timeout: resolveTimeout(60_000) });
+      }
+      await expect(
+        fileInput,
+        "the Odoo chatter must expose its file uploader input",
+      ).toBeAttached({ timeout: resolveTimeout(120_000) });
+      await fileInput.setInputFiles({ name: `${stem}.txt`, mimeType: "text/plain", buffer: ATTACHMENT_BODY });
 
       const response = await upload.catch(() => null);
       expect(
