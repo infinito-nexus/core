@@ -113,6 +113,22 @@ GATED_INCLUDES = (
     "roles/sys-svc-proxy/templates/headers/buffers.conf.j2",
 )
 
+ACL_INCLUDE = "roles/sys-svc-proxy/templates/location/sso_acl.conf.j2"
+
+
+def sso_block(role: str) -> Mapping | None:
+    """Return the role's ``sso`` service block from ``meta/services.yml``.
+
+    Args:
+        role: the role directory name.
+    """
+    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
+    if not meta.is_file():
+        return None
+    block = load_yaml_any(str(meta), default_if_missing={})
+    sso = block.get("sso") if isinstance(block, Mapping) else None
+    return sso if isinstance(sso, Mapping) else None
+
 
 def is_proxy_gated(role: str) -> bool:
     """Return whether oauth2-proxy fronts the role, per ``meta/services.yml``.
@@ -124,14 +140,19 @@ def is_proxy_gated(role: str) -> bool:
     ``oauth2``. An ``oidc`` role authenticates inside the application and its
     vhost carries no gate.
     """
-    meta = PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES
-    if not meta.is_file():
-        return False
-    block = load_yaml_any(str(meta), default_if_missing={})
-    sso = block.get("sso") if isinstance(block, Mapping) else None
-    if not isinstance(sso, Mapping):
-        return False
-    return bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+    sso = sso_block(role)
+    return sso is not None and bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+
+
+def declares_acl(role: str) -> bool:
+    """Return whether the role declares ``services.sso.oauth2.acl``.
+
+    Args:
+        role: the role directory name.
+    """
+    sso = sso_block(role)
+    oauth2 = sso.get("oauth2") if sso is not None else None
+    return isinstance(oauth2, Mapping) and bool(oauth2.get("acl"))
 
 
 def gated_without_the_gate() -> list[str]:
@@ -139,9 +160,10 @@ def gated_without_the_gate() -> list[str]:
 
     A gated vhost needs the oauth2-proxy endpoint to authenticate at all, and
     the raised header buffers because a Keycloak session cookie does not fit
-    nginx's defaults. Neither is in the shared flavours' intersection, so the
-    rule above cannot ask for them; an override that flips to ``oauth2`` later
-    would drop both without a word.
+    nginx's defaults. One that declares an ACL also needs the ACL locations,
+    or the paths it opens stay behind the gate. None is in the shared
+    flavours' intersection, so the rule above cannot ask for them; an override
+    that flips to ``oauth2`` later would drop them without a word.
     """
     findings = []
     for path in OVERRIDES:
@@ -151,7 +173,8 @@ def gated_without_the_gate() -> list[str]:
         content = read_text(str(path))
         if is_suppressed_in_head(content.splitlines(), _RULE):
             continue
-        for missing in GATED_INCLUDES:
+        required = GATED_INCLUDES + ((ACL_INCLUDE,) if declares_acl(role) else ())
+        for missing in required:
             if missing not in content:
                 rel = path.relative_to(PROJECT_ROOT)
                 findings.append(f"{rel}: is proxy-gated but omits {missing!r}")
@@ -198,6 +221,17 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
         self.assertTrue(
             [role_of(p) for p in OVERRIDES if is_proxy_gated(role_of(p))],
             "no role both overrides its vhost and is fronted by oauth2-proxy",
+        )
+
+    def test_an_acl_declaring_gated_override_is_actually_reached(self) -> None:
+        """Without one the ACL requirement would pass over nothing."""
+        self.assertTrue(
+            [
+                role_of(p)
+                for p in OVERRIDES
+                if is_proxy_gated(role_of(p)) and declares_acl(role_of(p))
+            ],
+            "no gated override declares services.sso.oauth2.acl",
         )
 
     def test_an_mcp_serving_override_is_actually_reached(self) -> None:
