@@ -2,7 +2,10 @@
 set -euo pipefail
 
 # Usage:
-#   set_postgres_superuser_password.sh <container_name> <new_password> <role>
+#   set_postgres_superuser_password.sh <container_name> <role>
+#   POSTGRES_SUPERUSER_PASSWORD: the password to write, read from the
+#   environment only, so it reaches neither this script's argv nor that of the
+#   container exec calls it makes.
 #
 # The role is the cluster's superuser: "postgres" for the shared engine, and
 # whatever POSTGRES_USER a dedicated one was initialised with. Both are reached
@@ -11,13 +14,21 @@ set -euo pipefail
 # written into an engine nobody can log into any more.
 
 container_raw="${1:-}"
-new_pw="${2:-}"
-role="${3:-}"
+role="${2:-}"
+new_pw="${POSTGRES_SUPERUSER_PASSWORD:-}"
 
-if [[ -z "$container_raw" || -z "$new_pw" || -z "$role" ]]; then
-  echo "Usage: $0 <container_name> <new_password> <role>" >&2
+if [[ -z "$container_raw" || -z "$role" ]]; then
+  echo "Usage: $0 <container_name> <role>" >&2
   exit 2
 fi
+
+if [[ -z "$new_pw" ]]; then
+  echo "[FAIL] POSTGRES_SUPERUSER_PASSWORD is empty; refusing to set an empty password." >&2
+  exit 1
+fi
+
+export PGPASSWORD="$new_pw"
+export NEW_POSTGRES_PASSWORD="$new_pw"
 
 container=""
 eval "container=$container_raw"
@@ -27,12 +38,17 @@ pg_exec() {
     "psql -U \"\$PG_ROLE\" -d postgres -Atc '$1'" 2>/dev/null
 }
 
+# Returns 0 when TCP auth over 127.0.0.1 accepts the new password.
+auth_once() {
+  # shellcheck disable=SC2016
+  container exec -e PGPASSWORD -e PG_ROLE="$role" "$container" bash -lc \
+    'psql -h 127.0.0.1 -p 5432 -U "$PG_ROLE" -d postgres -Atc "SELECT 1" >/dev/null 2>&1'
+}
+
 # Retry TCP auth up to 15 times (30s) to handle HBA reload delay
 auth_test() {
   for _ in {1..15}; do
-    # shellcheck disable=SC2016
-    if container exec -e PGPASSWORD="$new_pw" -e PG_ROLE="$role" "$container" bash -lc \
-        'psql -h 127.0.0.1 -p 5432 -U "$PG_ROLE" -d postgres -Atc "SELECT 1" >/dev/null 2>&1'; then
+    if auth_once; then
       return 0
     fi
     sleep 2
@@ -43,7 +59,7 @@ auth_test() {
 # Args: password. Returns 0 when TCP auth over the container's own address accepts it.
 own_address_auth() {
   # shellcheck disable=SC2016
-  container exec -e PGPASSWORD="$1" -e PG_ROLE="$role" "$container" bash -lc \
+  PGPASSWORD="$1" container exec -e PGPASSWORD -e PG_ROLE="$role" "$container" bash -lc \
     'set -- $(hostname -i) && psql -h "$1" -p 5432 -U "$PG_ROLE" -d postgres -Atc "SELECT 1" >/dev/null 2>&1'
 }
 
@@ -90,10 +106,10 @@ for _ in {1..30}; do
   fi
 
   pre_ok=0
-  if auth_test; then pre_ok=1; fi
+  if auth_once; then pre_ok=1; fi
 
   # shellcheck disable=SC2016
-  if ! container exec -e NEW_POSTGRES_PASSWORD="$new_pw" -e PG_ROLE="$role" "$container" bash -lc '
+  if ! container exec -e NEW_POSTGRES_PASSWORD -e PG_ROLE="$role" "$container" bash -lc '
     psql -U "$PG_ROLE" -d postgres -v ON_ERROR_STOP=1 -v role="$PG_ROLE" -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
 ALTER USER :"role" WITH PASSWORD :'"'"'password'"'"';
 SQL
