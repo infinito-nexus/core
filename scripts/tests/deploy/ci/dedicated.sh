@@ -23,8 +23,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 # shellcheck source=/dev/null
 source <(grep -E '^INFINITO_(PLAYWRIGHT_REPORTS_BASE_DIR|RESCUE_DIAGNOSTICS_DIR|RESCUE_DIAGNOSTICS_BASE|DNS53_SAMPLER_LOG)=' "${REPO_ROOT}/.env")
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?INFINITO_RESCUE_DIAGNOSTICS_BASE must be set}"
-# shellcheck source=scripts/tests/deploy/utils/rescue_window.sh
-. "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_window.sh"
+# shellcheck source=scripts/tests/deploy/utils/rescue/window.sh
+. "${REPO_ROOT}/scripts/tests/deploy/utils/rescue/window.sh"
 
 apps=""
 
@@ -108,7 +108,7 @@ cleanup() {
 		timeout --foreground "${rescue_secs}" python3 "${REPO_ROOT}/utils/diagnostics/container.py" \
 		"${apps}" "ci host at compose post-deploy failure" 2>/dev/null || true # nocheck: shell-or-true -- the collector exits 1 by contract so the caller cannot mistake a snapshot for a passing deploy
 
-	bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue_host_dir}"
+	bash scripts/tests/deploy/utils/rescue/index.sh "${_rescue_host_dir}"
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
 	"${PYTHON}" -m cli.administration.deploy.development down || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

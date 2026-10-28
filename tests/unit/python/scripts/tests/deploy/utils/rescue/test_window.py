@@ -13,12 +13,13 @@ from pathlib import Path
 from utils.cache.files import PROJECT_ROOT, read_text
 
 DEPLOY = PROJECT_ROOT / "scripts" / "tests" / "deploy"
-HELPER = DEPLOY / "utils" / "rescue_window.sh"
-INDEX = DEPLOY / "utils" / "rescue_index.sh"
+HELPER = DEPLOY / "utils" / "rescue" / "window.sh"
+INDEX = DEPLOY / "utils" / "rescue" / "index.sh"
 DEDICATED = DEPLOY / "ci" / "dedicated.sh"
 COLLECTOR = PROJECT_ROOT / "utils" / "diagnostics" / "container.py"
 DISTRO_PREFIX = "INFINITO_CI_DISTRO_"  # nocheck: prefix the drills strip, not a key
 GRACE = 8
+KILL_BUDGET = 3
 SKIPPED = b"[skipped: past RESCUE_DEADLINE]\n"
 
 WINDOW = """\
@@ -114,7 +115,7 @@ class RescueWindowTests(unittest.TestCase):
 class DedicatedWiringTests(unittest.TestCase):
     def test_every_capture_runs_inside_the_window(self) -> None:
         text = read_text(str(DEDICATED))
-        self.assertIn("utils/rescue_window.sh", text)
+        self.assertIn("utils/rescue/window.sh", text)
         self.assertIn("rescue_window 1500", text)
         self.assertIn("rescue_window 900", text)
         commands = text.replace("\\\n", " ").replace('"', "").splitlines()
@@ -172,7 +173,7 @@ class BudgetKillDrillTests(unittest.TestCase):
 
     def test_a_budget_kill_copies_a_partial_snapshot_out_inside_the_grace(self) -> None:
         proc, kill_epoch, rescued, files = self._drill(
-            "sleep", "1000", budget=1, journal_seconds="30", epochs=True
+            "sleep", "1000", budget=KILL_BUDGET, journal_seconds="30", epochs=True
         )
         self.assertEqual(proc.returncode, 124, proc.stdout)
         self.assertIn("Budget kill:", proc.stdout)
@@ -185,7 +186,7 @@ class BudgetKillDrillTests(unittest.TestCase):
 
     def test_without_the_window_the_kill_lands_before_the_copy(self) -> None:
         proc, _kill_epoch, rescued, files = self._drill(
-            "sleep", "1000", budget=1, journal_seconds="30", epochs=False
+            "sleep", "1000", budget=KILL_BUDGET, journal_seconds="30", epochs=False
         )
         self.assertEqual(proc.returncode, 137, proc.stdout)
         self.assertIsNone(rescued)

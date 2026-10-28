@@ -168,7 +168,7 @@ jobs:
           INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
             python3 utils/diagnostics/container.py \
             "${INFINITO_WORKSPACE_SLUG}" "workspace suite failure" || true
-          bash ./scripts/tests/deploy/utils/rescue_index.sh "${rescue_dir}"
+          bash ./scripts/tests/deploy/utils/rescue/index.sh "${rescue_dir}"
 
       - name: ⬆️ Upload rescue diagnostics
         if: always()

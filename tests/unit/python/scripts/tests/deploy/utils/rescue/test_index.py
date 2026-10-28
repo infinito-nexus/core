@@ -1,6 +1,6 @@
 """The caller contract of the rescue-artifact index.
 
-``rescue_index.sh`` runs inside cleanup handlers and in a GitHub step under
+``rescue/index.sh`` runs inside cleanup handlers and in a GitHub step under
 ``bash -e`` with no fallback, so its exit status decides whether the caller
 finishes tearing down: a fatal usage error and a ``find`` that rejects
 ``-printf`` both have to leave the caller at rc 0, and the latter has to stay
@@ -21,7 +21,7 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
-INDEX = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "utils" / "rescue_index.sh"
+INDEX = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "utils" / "rescue" / "index.sh"
 FIND_WITHOUT_PRINTF = '#!/bin/sh\necho "find: unrecognized: -printf" >&2\nexit 1\n'
 GLYPHS = ("📁", "📄", "📜", "🧾")
 FIND_CUT_SHORT = (

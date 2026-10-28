@@ -9,7 +9,7 @@
 set -euo pipefail
 trap 'exit 0' EXIT
 
-DIR="${1:?usage: rescue_index.sh DIR [LIMIT]}"
+DIR="${1:?usage: index.sh DIR [LIMIT]}"
 LIMIT="${2:-400}"
 
 [ -d "${DIR}" ] || exit 0
