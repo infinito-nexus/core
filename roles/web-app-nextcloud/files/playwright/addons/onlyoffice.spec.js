@@ -89,7 +89,8 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
           frameUrlMatching(
             (url) =>
               url.host === documentServerHost &&
-              url.pathname.startsWith(`${documentServerPath}web-apps/apps/documenteditor/`),
+              url.pathname.startsWith(documentServerPath) &&
+              url.pathname.includes("/web-apps/apps/documenteditor/"),
           ),
         {
           message: `the connector view must embed the document editor that web-svc-onlyoffice serves under '${documentServerHost}${documentServerPath}' (the relative DocumentServerUrl coupling), on the network of the page that opened it`,

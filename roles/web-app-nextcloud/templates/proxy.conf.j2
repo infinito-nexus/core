@@ -29,9 +29,9 @@ server
 
   {% if NEXTCLOUD_ONLYOFFICE_ENABLED | bool %}
   location ~* ^{{ NEXTCLOUD_ONLYOFFICE_LOCATION }} {
+    {{ lookup('proxy_pass', 'web-svc-onlyoffice', 'onlyoffice', 'http', tail='oauth2') }}
     rewrite ^{{ NEXTCLOUD_ONLYOFFICE_LOCATION }}(.*) /$1 break;
     {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
-    {{ lookup('proxy_pass', 'web-svc-onlyoffice', 'onlyoffice', 'http', tail='oauth2') }}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
