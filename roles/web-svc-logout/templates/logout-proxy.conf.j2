@@ -8,7 +8,7 @@ location = /logout {
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
-    {%- set aca_origin = (lookup('tls', 'web-svc-logout', 'url.base') | regex_replace('/$', '')) ~ " always" -%}
+    {%- set aca_origin = lookup('tls', 'web-svc-logout', 'url.origin') ~ " always" -%}
     {%- set aca_credentials = "'true' always" -%}
     {%- set aca_methods = "'GET, OPTIONS' always" -%}
     {%- set aca_headers = "'Accept, Authorization' always" -%}

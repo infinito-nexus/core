@@ -98,7 +98,7 @@
         bench set-config -g redis_queue    "{{ ERPNEXT_REDIS_URL }}/1";
         bench set-config -g redis_socketio "{{ ERPNEXT_REDIS_URL }}/2";
         bench set-config -gp socketio_port {{ ERPNEXT_WEBSOCKET_PORT }};
-        bench set-config -g host_name "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}";
+        bench set-config -g host_name "{{ lookup('tls', application_id, 'url.origin') }}";
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}

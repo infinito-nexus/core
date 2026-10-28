@@ -11,5 +11,5 @@ config:
   plugin_configuration:
     - appid: "integration_openai"
       configkey: "url"
-      configvalue: "{{ (lookup('tls', 'web-app-openwebui', 'url.base') | regex_replace('/+$', '') ~ '/api') if ('web-app-openwebui' in group_names) else (LITELLM_BASE_LOCAL_URL
+      configvalue: "{{ (lookup('tls', 'web-app-openwebui', 'url.origin') ~ '/api') if ('web-app-openwebui' in group_names) else (LITELLM_BASE_LOCAL_URL
         ~ '/v1') }}"

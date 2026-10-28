@@ -16,7 +16,7 @@ config:
       configvalue: "{{ NEXTCLOUD_COLLABORA_URL }}"
     - appid: "richdocuments"
       configkey: "public_wopi_url"
-      configvalue: "{{ NEXTCLOUD_COLLABORA_URL | regex_replace('/$', '') }}"
+      configvalue: "{{ lookup('tls', 'web-svc-collabora', 'url.origin') }}"
     - appid: "richdocuments"
       configkey: "disable_certificate_verification"
       configvalue: 0
