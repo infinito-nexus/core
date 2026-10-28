@@ -41,6 +41,33 @@ def local_image_id(image: str) -> str:
     return proc.stdout.strip() if proc.returncode == 0 else ""
 
 
+IMAGE_ID_LABEL = "infinito.image-id"
+
+
+def _label_image_id(svc: dict, image_id: str) -> bool:
+    """Pin the local image ID as a container label; True when it changed.
+
+    Args:
+        svc: one compose service, mutated in place.
+        image_id: ID of the locally built image the service runs.
+    """
+    labels = svc.get("labels")
+    if isinstance(labels, list):
+        entry = f"{IMAGE_ID_LABEL}={image_id}"
+        if entry in labels:
+            return False
+        svc["labels"] = [
+            *(item for item in labels if not str(item).startswith(f"{IMAGE_ID_LABEL}=")),
+            entry,
+        ]
+        return True
+    current = labels if isinstance(labels, dict) else {}
+    if current.get(IMAGE_ID_LABEL) == image_id:
+        return False
+    svc["labels"] = {**current, IMAGE_ID_LABEL: image_id}
+    return True
+
+
 def sync(*, compose_file: Path, prefix: str) -> int:
     with compose_file.open() as f:
         doc = yaml.safe_load(f)  # nocheck: direct-yaml
@@ -105,6 +132,15 @@ def sync(*, compose_file: Path, prefix: str) -> int:
         if rc != 0:
             raise RuntimeError(f"docker tag {image} {new_image} failed (rc={rc})")
         pulled.append((image, new_image))
+
+    for svc in services.values():
+        if not isinstance(svc, dict) or not isinstance(svc.get("image"), str):
+            continue
+        if svc["image"].removeprefix(prefix) not in locally_built:
+            continue
+        image_id = local_image_id(svc["image"])
+        if image_id and _label_image_id(svc, image_id):
+            changed = True
 
     if changed:
         with compose_file.open("w") as f:

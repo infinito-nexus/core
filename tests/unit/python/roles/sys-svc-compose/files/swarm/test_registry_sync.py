@@ -60,6 +60,51 @@ class TestSwarmRegistrySync(unittest.TestCase):
         self.assertEqual(rc, 0)
         return calls
 
+    def _synced_services(self, services: dict, image_id: str) -> dict:
+        with tempfile.TemporaryDirectory() as td:
+            cf = Path(td) / "compose.yml"
+            dump_yaml(cf, {"services": services})
+            with (
+                patch.object(self.m, "run", return_value=0),
+                patch.object(self.m, "manifest_exists", return_value=False),
+                patch.object(self.m, "local_image_id", return_value=image_id),
+            ):
+                self.m.sync(compose_file=cf, prefix=PREFIX)
+            return self.m.yaml.safe_load(cf.read_text())["services"]
+
+    def test_a_built_image_and_its_siblings_carry_the_local_image_id(self) -> None:
+        services = self._synced_services(
+            {
+                "bookwyrm": {"build": {"context": "."}, "image": "bookwyrm_custom:3.11-slim"},
+                "worker": {"image": "bookwyrm_custom:3.11-slim"},
+                "redis": {"image": "redis:8"},
+            },
+            image_id="sha256:rebuilt",
+        )
+        self.assertEqual(
+            services["bookwyrm"]["labels"], {"infinito.image-id": "sha256:rebuilt"}
+        )
+        self.assertEqual(
+            services["worker"]["labels"], {"infinito.image-id": "sha256:rebuilt"},
+            "a sibling running the same tag must roll with the rebuilt image too",
+        )
+        self.assertNotIn("labels", services["redis"])
+
+    def test_a_rebuild_under_the_same_tag_changes_the_label(self) -> None:
+        services = self._synced_services(
+            {
+                "pretix": {
+                    "build": {"context": "."},
+                    "image": "pretix_custom:3.13",
+                    "labels": ["keep=1", "infinito.image-id=sha256:old"],
+                },
+            },
+            image_id="sha256:new",
+        )
+        self.assertEqual(
+            services["pretix"]["labels"], ["keep=1", "infinito.image-id=sha256:new"]
+        )
+
     def test_sibling_of_local_build_is_not_pulled(self) -> None:
         """daemon/websocket reference espocrm's already-prefixed build image
         without their own build:; that local-only ref must NOT be pulled from
