@@ -51,6 +51,12 @@
       {% if networks.internet.ip6 | default('') %}
       --external-ip={{ networks.internet.ip6 }}
       {% endif %}
+      {% if COTURN_ADDRESSES_PINNED | bool %}
+      {% for listening_ip in COTURN_LISTENING_IPS %}
+      --listening-ip={{ listening_ip }}
+      {% endfor %}
+      --relay-ip={{ COTURN_RELAY_IP }}
+      {% endif %}
       --realm="${COTURN_REALM}"
       --fingerprint
       --total-quota={{ COTURN_TOTAL_QUOTA }}
@@ -67,7 +73,7 @@
       {% endif %}
       --cipher-list=DEFAULT
     healthcheck:
-      test: ["CMD", "sh", "-c", "command -v turnutils_stunclient >/dev/null && turnutils_stunclient -p {{ COTURN_STUN_TURN_PORT }} 127.0.0.1 || nc -z 127.0.0.1 {{ COTURN_STUN_TURN_PORT }}"]
+      test: ["CMD", "sh", "-c", "command -v turnutils_stunclient >/dev/null && turnutils_stunclient -p {{ COTURN_STUN_TURN_PORT }} {{ COTURN_LOOPBACK_IP }} || nc -z {{ COTURN_LOOPBACK_IP }} {{ COTURN_STUN_TURN_PORT }}"]
       interval: 2m
       timeout: 5s
       retries: 3
