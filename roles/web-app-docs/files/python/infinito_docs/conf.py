@@ -63,6 +63,7 @@ extensions = [
     "infinito_docs.extensions.parallel_postprocess",
     "infinito_docs.extensions.untranslated.yaml",
     "infinito_docs.extensions.untranslated.markup",
+    "infinito_docs.extensions.translated_nodes",
     "infinito_docs.extensions.yaml_source",
     "infinito_docs.extensions.directory_index",
     "infinito_docs.extensions.mermaid",
