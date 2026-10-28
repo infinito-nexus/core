@@ -9,6 +9,7 @@
   ansible.builtin.set_fact:
     nextcloud_plugin_plan: "{{ NEXTCLOUD_PLUGIN_ITEMS | nextcloud_plugin_plan(nextcloud_app_list.stdout | from_json) }}"
     nextcloud_plugin_configure_keys: []
+    nextcloud_plugin_background_jobs: []
 
 - name: "🔴 Disable the plugins that end up disabled"
   ansible.builtin.command:
@@ -16,9 +17,44 @@
   when: nextcloud_plugin_plan.disable | length > 0
   changed_when: true
 
-- name: "📦 Install and enable the plugins Nextcloud lacks"
-  ansible.builtin.include_tasks: 06_plugin/01_install.yml
-  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.install) | list }}"
+- name: "📦 Install the plugins Nextcloud lacks, the background ones beside the loop"
+  block:
+    - name: "🛫 Start the installs that run beside the install loop"
+      ansible.builtin.include_tasks: 06_plugin/01_background.yml
+      loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.background) | list }}"
+      loop_control:
+        loop_var: plugin_item
+        label: "{{ plugin_item.key }}"
+      vars:
+        plugin_key: "{{ plugin_item.key }}"
+
+    - name: "📦 Install and enable the plugins Nextcloud lacks"
+      ansible.builtin.include_tasks: 06_plugin/02_install.yml
+      loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.install) | list }}"
+      loop_control:
+        loop_var: plugin_item
+        label: "{{ plugin_item.key }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      vars:
+        plugin_key: "{{ plugin_item.key }}"
+        plugin_value: "{{ plugin_item.value }}"
+  always:
+    - name: "⏳ Join the background installs"
+      ansible.builtin.async_status:
+        jid: "{{ item.jid }}"
+      loop: "{{ nextcloud_plugin_background_jobs }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: nextcloud_plugin_background_result
+      until: nextcloud_plugin_background_result is finished
+      retries: "{{ ((NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME | int) / 5) | round(0, 'ceil') | int }}"
+      delay: 5
+      changed_when: (nextcloud_plugin_background_result | nextcloud_install_status).changed
+      failed_when: nextcloud_plugin_background_result | nextcloud_background_lost
+
+- name: "📦 Enable and configure the plugins installed in the background"
+  ansible.builtin.include_tasks: 06_plugin/02_install.yml
+  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.background) | list }}"
   loop_control:
     loop_var: plugin_item
     label: "{{ plugin_item.key }}"
@@ -28,7 +64,7 @@
     plugin_value: "{{ plugin_item.value }}"
 
 - name: "🟢 Enable the installed plugins Nextcloud keeps disabled"
-  ansible.builtin.include_tasks: 06_plugin/02_enable.yml
+  ansible.builtin.include_tasks: 06_plugin/03_enable.yml
   loop: "{{ NEXTCLOUD_PLUGIN_ITEMS | selectattr('key', 'in', nextcloud_plugin_plan.enable) | list }}"
   loop_control:
     loop_var: plugin_item
@@ -43,5 +79,5 @@
     nextcloud_plugin_configure_keys: "{{ nextcloud_plugin_configure_keys + nextcloud_plugin_plan.configure }}"
 
 - name: "🔧 Configure every queued plugin in one batch"
-  ansible.builtin.include_tasks: 06_plugin/03_configure.yml
+  ansible.builtin.include_tasks: 06_plugin/04_configure.yml
   when: nextcloud_plugin_configure_keys | length > 0
