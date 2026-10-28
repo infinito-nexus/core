@@ -65,9 +65,13 @@ count_lines() {
 	awk -v a="$2" -v b="$3" 'index($0, a) && index($0, b) { n++ } END { print n + 0 }' "$1"
 }
 
+# Param: $1 index pattern; $2 query JSON. The credentials reach curl as a config on stdin, never in its argv.
 indexer_count() {
-	curl -sk --connect-timeout 10 --max-time 30 -u "${INDEXER_USER}:${INDEXER_PASSWORD}" -H 'Content-Type: application/json' \
-		"${INDEXER_URL}/$1/_count" -d "$2" |
+	local user="${INDEXER_USER}:${INDEXER_PASSWORD}"
+	user="${user//\\/\\\\}"
+	printf 'user = "%s"\n' "${user//\"/\\\"}" |
+		curl -sk --connect-timeout 10 --max-time 30 -K - -H 'Content-Type: application/json' \
+			"${INDEXER_URL}/$1/_count" -d "$2" |
 		python3 -c 'import json, sys; print(json.load(sys.stdin)["count"])'
 }
 
