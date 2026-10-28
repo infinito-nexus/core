@@ -244,8 +244,8 @@ account (or the Keycloak SSO token when SSO is enabled).
 - **HTTP clients are rate-limited and banned by their own address.** The
   vhost sets `proxy_forwarded_client_address`, so OpenResty sends
   `Forwarded: for=$remote_addr` on every location and replaces any
-  client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`,
-  `useXForwarded`).
+  client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`:
+  `clientIpSource: forwarded` with one trusted hop, `forwardedHops: 1`).
 - **Bans and failed logins also go to the container output**
   (`STALWART_BAN_TRACER`, `tasks/tracing.yml`), next to the daily log file in
   the data volume.
