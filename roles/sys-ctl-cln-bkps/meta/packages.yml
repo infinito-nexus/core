@@ -6,3 +6,4 @@ lsof:
     - lsof
   RedHat:
     - lsof
+  batch: false

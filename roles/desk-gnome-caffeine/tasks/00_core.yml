@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install caffeine
-  package_install:
-    id: caffeine
-
 - name: 📁 Create autostart directory if it doesn't exist
   file:
     path: "{{auto_start_directory}}"

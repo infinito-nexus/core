@@ -13,14 +13,6 @@
       is the dedicated NFS server (svc-storage-nfs-server). Hosts outside
       the swarm (svc-swarm-node) keep a local {{ DIR_VAR_LIB }}.
 
-- name: 📦 Install msmtp base package
-  package_install:
-    id: msmtp
-
-- name: "📦 Install the CA trust store"
-  package_install:
-    id: ca-certificates
-
 - name: ✅ Ensure the shared Root CA is trusted for the TLS mail relay
   include_role:
     name: sys-ca-selfsigned

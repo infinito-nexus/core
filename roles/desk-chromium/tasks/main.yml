@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install Chromium browser
-  package_install:
-    id: chromium
-
 - name: 📂 Include dependency 'desk-keepassxc'
   include_role:
     name: desk-keepassxc

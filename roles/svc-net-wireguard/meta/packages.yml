@@ -9,3 +9,4 @@ wireguard:
   RedHat:
     - procps-ng
     - wireguard-tools
+  batch: false

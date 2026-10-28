@@ -41,6 +41,26 @@ which counts as covered; a *missing* key is a coverage gap.
 ``virtual: true`` records that the package manager satisfies the name
 through an RPM ``Provides`` rather than a package of that name, so an index
 lookup by name legitimately finds nothing while the install works.
+
+Every id is installed by the one ``package_install`` run the constructor
+starts each deploy with, for every role that deploy may run. ``batch: false``
+on the id, next to its distro keys, takes it out of that run; the role's own
+``package_install`` task then installs it, which is required when the install
+is conditional or must wait for a setup step::
+
+    docker-cli:
+      Archlinux: [docker]
+      Debian:
+        names: [docker-ce]
+        repo:
+          managed_externally: the role adds the Docker repository first
+      batch: false
+
+A role that needs an id of the shared root file references it in its own
+file, so the batch knows to install it with the role::
+
+    git:
+      shared: true
 """
 
 from __future__ import annotations
@@ -56,6 +76,12 @@ if TYPE_CHECKING:
 ROLE_FILE_META_PACKAGES = "meta/packages.yml"
 INVENTORY_PACKAGES_VAR = "PACKAGES"
 """Inventory variable listing extra package ids a bundle installs."""
+
+BATCH_KEY = "batch"
+"""Id-level flag; ``false`` keeps the id out of the deploy-start batch."""
+
+SHARED_REFERENCE: dict[str, bool] = {"shared": True}
+"""The whole mapping of a role-file entry that references a root id."""
 
 SOURCE_REPO = "repo"
 SOURCE_AUR = "aur"

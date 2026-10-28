@@ -177,6 +177,20 @@
   applications_carrier: {}
   when: DEPLOYMENT_MODE == 'swarm'
 
+- name: "📦 Install the packages of every role this host may run, in one run"
+  package_install:
+    id: "{{ _package_batch_ids }}"
+  vars:
+    _package_batch_inventory: "{{ PACKAGES | default([]) }}"
+    _package_batch_ids: >-
+      {{
+        (
+          lookup('package_batch', group_names)
+          + ([_package_batch_inventory] if _package_batch_inventory is string else _package_batch_inventory)
+        ) | unique
+      }}
+  when: _package_batch_ids | length > 0
+
 - name: "🥾 Bootstrap svc-swarm-node"
   ansible.builtin.include_role:
     name: svc-swarm-node
@@ -231,8 +245,3 @@
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}"
-
-- name: 📦 Install inventory-defined packages
-  package_install:
-    id: "{{ PACKAGES }}"
-  when: PACKAGES | default([]) | length > 0

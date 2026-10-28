@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install CopyQ clipboard manager
-  package_install:
-    id: copyq
-
 - name: ✅ Ensure autostart directory exists
   file:
     path: "{{ ansible_facts['env']['HOME'] }}/.config/autostart"

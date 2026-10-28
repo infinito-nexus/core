@@ -2,10 +2,6 @@
 - include_role:
     name: sys-ctl-alm-compose
 
-- name: 📦 Install MSI packages
-  package_install:
-    id: msi-perkeyrgb
-
 - include_role:
     name: sys-service
   vars:

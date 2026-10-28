@@ -2,10 +2,12 @@ import unittest
 import unittest.mock as mock
 
 from ansible.errors import AnsibleActionFail
+from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import become_loader, shell_loader
 
 from plugins.action.package_install import ActionModule
 from utils.packages.calls import GENERIC_PACKAGE, ModuleCall, RetryPolicy
+from utils.packages.schema import PackageSpec
 
 
 def _action(args) -> ActionModule:
@@ -236,6 +238,47 @@ class TestTargetFacts(unittest.TestCase):
         with self.assertRaises(AnsibleActionFail) as caught:
             action._target_facts({"inventory_hostname": "nfs-node"})
         self.assertIn("localhost", str(caught.exception))
+
+
+class TestRunMergesPlainPlans(unittest.TestCase):
+    FACTS = {"distribution": "Debian", "os_family": "Debian", "pkg_mgr": "apt"}
+
+    def _run(self, package_ids, specs):
+        action = _action({"id": package_ids})
+        action._task._role = None
+        action._task.delegate_to = None
+        action._connection = mock.Mock(become=None, transport="local")
+        action._execute_module = mock.Mock(return_value={"changed": False})
+        registry = {
+            package_id: mock.Mock(package_id=package_id, role=None, shared=True)
+            for package_id in package_ids
+        }
+        with (
+            mock.patch.object(ActionBase, "run", return_value={}),
+            mock.patch(
+                "plugins.action.package_install.build_registry", return_value=registry
+            ),
+            mock.patch(
+                "plugins.action.package_install.resolve",
+                side_effect=lambda declaration, *_: specs[declaration.package_id],
+            ),
+        ):
+            result = action.run(task_vars={"ansible_facts": self.FACTS})
+        return action._execute_module, result
+
+    def test_two_repository_ids_cost_one_package_manager_call(self):
+        execute, _result = self._run(
+            ["git", "curl"],
+            {"git": PackageSpec(("git",)), "curl": PackageSpec(("curl",))},
+        )
+        execute.assert_called_once()
+        self.assertEqual(execute.call_args.kwargs["module_args"]["name"], ["git", "curl"])
+
+    def test_an_id_without_names_is_reported_skipped(self):
+        _execute, result = self._run(
+            ["git", "mhwd"], {"git": PackageSpec(("git",)), "mhwd": PackageSpec(())}
+        )
+        self.assertEqual(result["skipped_ids"], ["mhwd"])
 
 
 class TestAttempt(unittest.TestCase):
