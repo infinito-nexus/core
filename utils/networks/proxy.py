@@ -1,7 +1,7 @@
 """Mode-aware nginx ``proxy_pass`` directive renderer (compose/swarm), SPOT.
 
 Trip-wire: the swarm oauth2 endpoint must forward ``$uri$is_args$args``, not
-``$request_uri`` — during ``error_page 401 = /oauth2/start`` the original
+``$request_uri`` — during the ``error_page 401 = @oauth2_start`` jump the original
 ``$request_uri`` stays ``/`` and oauth2-proxy 403s instead of redirecting.
 """
 

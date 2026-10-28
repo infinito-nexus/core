@@ -12,3 +12,27 @@ location /oauth2/ {
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
 }
+
+location @oauth2_start {
+    {{ lookup('proxy_pass', application_id, 'sso-proxy', 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso'), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    set $oauth2_start_redirect $request_uri;
+    if ($request_method !~ ^(GET|HEAD)$) {
+        set $oauth2_start_redirect "";
+    }
+    if ($request_uri ~ "^.{3500}") {
+        set $oauth2_start_redirect "";
+    }
+    rewrite ^ /oauth2/start? break;
+    proxy_set_header X-Auth-Request-Redirect $oauth2_start_redirect;
+
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+}
