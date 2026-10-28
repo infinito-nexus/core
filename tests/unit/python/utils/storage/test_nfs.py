@@ -6,6 +6,7 @@ from utils.storage.nfs import (
     mount_opts,
     state_path,
     swarm_nfs_backed,
+    volume_dir,
 )
 
 
@@ -61,6 +62,15 @@ class TestNfsHelpers(unittest.TestCase):
             client_src("1.2.3.4", 3, "kernel", "/srv/nfs/infinito-state"),
             "1.2.3.4:/srv/nfs/infinito-state",
         )
+
+    def test_volume_dir_is_the_pinned_name(self):
+        self.assertEqual(
+            volume_dir("whiteboard_tmp", {"name": "nextcloud_whiteboard_tmp"}),
+            "nextcloud_whiteboard_tmp",
+        )
+
+    def test_volume_dir_falls_back_to_the_key_without_a_pin(self):
+        self.assertEqual(volume_dir("docs_sites", {"backup": False}), "docs_sites")
 
 
 class TestSwarmNfsBacked(unittest.TestCase):
