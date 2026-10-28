@@ -65,6 +65,13 @@ echo "=== distro=${INFINITO_DISTRO} app=${apps} (debug always on) ==="
 cleanup() {
 	rc=$?
 
+	local _inv_parent
+	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"
+	echo ">>> Copying generated inventory from ${INFINITO_CONTAINER} to host ${_inv_parent}"
+	mkdir -p "${_inv_parent}"
+	# nocheck: container-cp - container-to-host extraction on the CI host itself
+	docker cp "${INFINITO_CONTAINER}:${_inv_parent}/." "${_inv_parent}/" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
 	local _playwright_host_dir="/tmp/playwright-artifacts/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_playwright_host_dir}"
 	echo ">>> Copying Playwright artifacts from ${INFINITO_CONTAINER} to ${_playwright_host_dir}"
@@ -95,13 +102,6 @@ cleanup() {
 		"${apps}" "ci host at compose post-deploy failure" 2>/dev/null || true # nocheck: shell-or-true -- the collector exits 1 by contract so the caller cannot mistake a snapshot for a passing deploy
 
 	bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue_host_dir}"
-
-	local _inv_parent
-	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"
-	echo ">>> Copying generated inventory from ${INFINITO_CONTAINER} to host ${_inv_parent}"
-	mkdir -p "${_inv_parent}"
-	# nocheck: container-cp - container-to-host extraction on the CI host itself
-	docker cp "${INFINITO_CONTAINER}:${_inv_parent}/." "${_inv_parent}/" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	echo ">>> Removing stack for distro ${INFINITO_DISTRO} (fresh start for next distro)"
 	"${PYTHON}" -m cli.administration.deploy.development down || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

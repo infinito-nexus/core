@@ -448,8 +448,8 @@ jobs:
           set -euo pipefail
           kind=swarm
           [ "${{ matrix.mode }}" = "swarm" ] || kind=compose
-          bash "scripts/github/inventory/zip/${kind}_for_upload.sh"
           echo "INVENTORY_ZIP=/tmp/inventory-${kind}-${APP_ID}.zip" >> "$GITHUB_ENV"
+          bash "scripts/github/inventory/zip/${kind}_for_upload.sh"
 
       - name: "⬆️ Upload inventory artifact"
         if: ${{ always() && !env.ACT }}
