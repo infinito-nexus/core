@@ -112,8 +112,15 @@ Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 split forces a chunk boundary at the priority/regular seam, so a chunk is
 either all priority or all regular — the seam chunk stays short rather than
 being topped up. That is what guarantees every priority row is deployed before
-the first regular one starts. Priority rows wear a trailing `⭐` in their job
-name and never move with the sweep offset.
+the first regular one starts. Priority rows never move with the sweep offset.
+
+Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `3️⃣ Batch`,
+and its discover job as `🔍 Batch <index>`. A batch that holds priority rows
+wears a trailing `⭐` on both (`0️⃣ Batch ⭐`, `🔍 Batch 0 ⭐`); its deploy rows
+carry no star of their own. The selection job counts those batches before any
+of them runs and exposes the count as its `starred` output
+(`cli.meta.ci.matrix --priority-chunks`); batch `N` is starred while that count
+exceeds `N`.
 
 They are also the rows a run must not sample. A priority row is deployed in
 **every combination it can take** — each variant, in each mode its role offers,

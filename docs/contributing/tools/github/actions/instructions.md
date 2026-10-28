@@ -12,7 +12,7 @@ The replay rides along on a deploy row of the sweep instead of holding a job of 
 - only when the role is invokable, because that is what makes the documentation build emit a Production block for it;
 - only when the guide's own mode (`compose` for a role shipping a container stack, `host` otherwise) is enabled in `meta/services.yml` and not listed under `skip` in `meta/tests.yml`.
 
-The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row.
+The marked row carries `instructions: <mode>` in the matrix JSON, and the plan table names that mode in its 📖 column; its job title is that of an ordinary deploy row.
 
 ## What the row does 🚀
 

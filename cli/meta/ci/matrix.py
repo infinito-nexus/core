@@ -1,7 +1,7 @@
 """Build the CI deploy matrix of one sweep, chunk by chunk.
 
 Usage:
-  python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]
+  python -m cli.meta.ci.matrix (--index N | --priority-chunks) [--sweep S] [--modes auto]
       [--whitelist "..."] [--priority "..."] [--lifecycles "..."] [--network auto]
       [--distros "..."] [--filesystem "..."] [--architectures "..."]
 
@@ -24,6 +24,9 @@ the run's shape is decided:
 ``--index`` then prints one chunk as the matrix JSON. Every chunk block runs
 the same computation and takes its own slice, so the blocks agree without
 passing state between them.
+
+``--priority-chunks`` prints how many leading chunks hold priority rows
+instead.
 """
 
 from __future__ import annotations
@@ -48,6 +51,28 @@ DROPPED = ("priority", "id", "covered", "clone")
 job cannot reference one: they describe the row's rank, not its deployment."""
 
 
+def priority_candidates(
+    *,
+    modes: tuple[str, ...],
+    priority: str,
+    lifecycles: str,
+) -> list[dict]:
+    """The priority line's candidate rows, which lead the sweep: queried on
+    their own whitelist, each annotated with the modes it offers."""
+    leading = selection.parse_list(priority)
+    if not leading:
+        return []
+    return [
+        {**row, "priority": True, "modes": query.row_modes(row, modes)}
+        for row in selection.apply(
+            query.discover_rows(
+                modes, whitelist=selection.names(leading), lifecycles=lifecycles
+            ),
+            leading,
+        )
+    ]
+
+
 def candidates(
     *,
     modes: tuple[str, ...],
@@ -60,17 +85,7 @@ def candidates(
     priority."""
     leading = selection.parse_list(priority)
     keep = selection.parse_list(whitelist)
-    rows: list[dict] = []
-    if leading:
-        rows += [
-            {**row, "priority": True}
-            for row in selection.apply(
-                query.discover_rows(
-                    modes, whitelist=selection.names(leading), lifecycles=lifecycles
-                ),
-                leading,
-            )
-        ]
+    rows = priority_candidates(modes=modes, priority=priority, lifecycles=lifecycles)
     pinned = {(pin.app, variant) for pin in leading for variant in pin.variants}
     regular = [
         row
@@ -82,8 +97,10 @@ def candidates(
         )
         if (row["name"], row.get("variant")) not in pinned
     ]
-    rows += [{**row, "priority": False} for row in selection.apply(regular, keep)]
-    return [{**row, "modes": query.row_modes(row, modes)} for row in rows]
+    return rows + [
+        {**row, "priority": False, "modes": query.row_modes(row, modes)}
+        for row in selection.apply(regular, keep)
+    ]
 
 
 @functools.cache
@@ -118,16 +135,36 @@ def entries_of(
     architectures: tuple[str, ...] = pools.ARCHITECTURES,
 ) -> list[dict[str, str]]:
     """Every candidate row of the sweep, axes assigned, in global order."""
+    return assigned(
+        candidates(
+            modes=modes,
+            whitelist=whitelist,
+            priority=priority,
+            lifecycles=lifecycles,
+        ),
+        sweep=sweep,
+        network_input=network_input,
+        vpn_mode=vpn_mode,
+        distros=distros,
+        filesystems=filesystems,
+        architectures=architectures,
+    )
+
+
+def assigned(
+    rows: list[dict],
+    *,
+    sweep: int,
+    network_input: str,
+    vpn_mode: str,
+    distros: tuple[str, ...],
+    filesystems: tuple[str, ...],
+    architectures: tuple[str, ...],
+) -> list[dict[str, str]]:
+    """*rows* narrowed to the services their variant deploys and assigned their
+    axes, in the order given."""
     return axes.assign(
-        [
-            with_deployed_services(row)
-            for row in candidates(
-                modes=modes,
-                whitelist=whitelist,
-                priority=priority,
-                lifecycles=lifecycles,
-            )
-        ],
+        [with_deployed_services(row) for row in rows],
         sweep=sweep,
         network_input=network_input,
         vpn_mode=vpn_mode,
@@ -206,6 +243,19 @@ def chunks_of(
     ]
 
 
+def priority_chunks(entries: list[dict[str, str]]) -> int:
+    """How many chunks of the sweep hold priority rows.
+
+    Args:
+        entries: the sweep's entries, axes assigned (:func:`assigned`).
+
+    Returns:
+        the count ``n``; chunks ``0`` to ``n - 1`` are the priority chunks,
+        which :func:`cli.meta.ci.chunks.plan` puts first and never mixes.
+    """
+    return len(chunks_of([entry for entry in entries if entry["priority"] == "true"]))
+
+
 def build_sweep(
     *,
     modes: tuple[str, ...],
@@ -242,7 +292,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Build the CI deploy matrix of one sweep chunk."
     )
-    parser.add_argument("--index", type=int, required=True)
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--index", type=int)
+    target.add_argument("--priority-chunks", action="store_true")
     parser.add_argument("--sweep", type=int, default=None)
     parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--whitelist", default="")
@@ -260,18 +312,39 @@ def main(argv: list[str] | None = None) -> int:
     if args.lifecycles.strip():
         os.environ["INFINITO_LIFECYCLES"] = args.lifecycles
 
+    modes = query.resolve_modes(args.modes)
+    priority = codec.decode_list(args.priority)
     sweep = axes.resolve_sweep() if args.sweep is None else args.sweep
+    network_input = network.resolve_network_input(args.network)
+    vpn_mode = vpn.resolve_vpn_mode(args.vpn)
+    distros = pools.resolve_distros(args.distros)
+    filesystems = pools.resolve_filesystems(args.filesystem)
+    architectures = pools.resolve_architectures(args.architectures)
+    if args.priority_chunks:
+        leading = assigned(
+            priority_candidates(
+                modes=modes, priority=priority, lifecycles=args.lifecycles
+            ),
+            sweep=sweep,
+            network_input=network_input,
+            vpn_mode=vpn_mode,
+            distros=distros,
+            filesystems=filesystems,
+            architectures=architectures,
+        )
+        print(priority_chunks(leading))
+        return 0
     plan = build_sweep(
-        modes=query.resolve_modes(args.modes),
+        modes=modes,
         whitelist=codec.decode_list(args.whitelist),
-        priority=codec.decode_list(args.priority),
+        priority=priority,
         lifecycles=args.lifecycles,
         sweep=sweep,
-        network_input=network.resolve_network_input(args.network),
-        vpn_mode=vpn.resolve_vpn_mode(args.vpn),
-        distros=pools.resolve_distros(args.distros),
-        filesystems=pools.resolve_filesystems(args.filesystem),
-        architectures=pools.resolve_architectures(args.architectures),
+        network_input=network_input,
+        vpn_mode=vpn_mode,
+        distros=distros,
+        filesystems=filesystems,
+        architectures=architectures,
         offset=resolve_offset(args.offset),
     )
     chunk = plan[args.index] if 0 <= args.index < len(plan) else []

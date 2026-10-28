@@ -10,7 +10,7 @@ from utils.roles.mapping import (
     ROLE_FILE_META_NETWORKS,
     ROLE_FILE_META_SERVICES,
 )
-from utils.symbol_glossary import to_emoji
+from utils.symbol_glossary import keycap, to_emoji
 
 _REACTIVE = "{{ 'svc-net-tor' in group_names }}"
 
@@ -418,12 +418,12 @@ class TestAssign(unittest.TestCase):
         for state in _ALL:
             self.assertNotIn(to_emoji(state), entry["label"])
 
-    def test_a_priority_row_wears_the_star(self) -> None:
+    def test_a_priority_row_leaves_the_star_to_its_batch(self) -> None:
         rows = [_row("web-app-b", 0, ("compose",), priority=True)]
         entry = _assign(
             rows, sweep=0, network_input="auto", variants_per_app=_VARIANTS
         )[0]
-        self.assertTrue(entry["label"].endswith(to_emoji("priority")))
+        self.assertNotIn(to_emoji("priority"), entry["label"])
         self.assertEqual(entry["priority"], "true")
 
     def test_a_named_input_keeps_only_the_rows_that_can_take_it(self) -> None:
@@ -875,9 +875,13 @@ class TestParseLabel(unittest.TestCase):
         title = self._title("host", "web-app-a", "0")
         self.assertEqual(axes.parse_label(title).network, "clearnet")
 
-    def test_the_priority_star_does_not_bleed_into_the_name(self) -> None:
+    def test_the_trailing_star_of_an_older_title_stays_out_of_the_name(
+        self,
+    ) -> None:
         title = self._title("compose", "web-app-a", "0", priority=True)
-        label = axes.parse_label(title)
+        label = axes.parse_label(f"{title} {to_emoji('priority')}")
+        self.assertEqual(label.mode, "compose")
+        self.assertEqual(label.variant, "0")
         self.assertEqual(display_names().decode(label.name), "web-app-a")
 
     def test_a_reusable_workflow_prefix_is_tolerated(self) -> None:
@@ -885,6 +889,15 @@ class TestParseLabel(unittest.TestCase):
             "swarm", "web-app-a", "0"
         )
         self.assertEqual(axes.parse_label(title).mode, "swarm")
+
+    def test_a_starred_batch_in_the_caller_path_is_tolerated(self) -> None:
+        title = f"🎶 Orchestrate CI / {keycap(0)} Batch {to_emoji('priority')} / "
+        label = axes.parse_label(
+            title + self._title("swarm", "web-app-a", "0", priority=True)
+        )
+        self.assertEqual(label.mode, "swarm")
+        self.assertEqual(label.variant, "0")
+        self.assertEqual(display_names().decode(label.name), "web-app-a")
 
     def test_the_distro_and_filesystem_survive_the_round_trip(self) -> None:
         entry = _assign(

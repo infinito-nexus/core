@@ -122,6 +122,8 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}
       lifecycles: ${{ inputs.lifecycles }}
+      sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
+      chunk_size: ${{ inputs.chunk_size }}
       fork_prereqs: true
       trusted_pr: ${{ inputs.trusted_pr }}
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
@@ -178,7 +180,7 @@ jobs:
     secrets: inherit
 
   test-deploy-chunk-0:
-    name: 🧱 Chunk 0
+    name: "0️⃣ Batch${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 0
@@ -196,6 +198,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "0"
+      marker: ${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -210,7 +213,7 @@ jobs:
       meshes: ${{ inputs.meshes }}
 
   test-deploy-chunk-1:
-    name: 🧱 Chunk 1
+    name: "1️⃣ Batch${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 1
@@ -231,6 +234,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "1"
+      marker: ${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -245,7 +249,7 @@ jobs:
       meshes: ${{ inputs.meshes }}
 
   test-deploy-chunk-2:
-    name: 🧱 Chunk 2
+    name: "2️⃣ Batch${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 2
@@ -268,6 +272,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "2"
+      marker: ${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}
@@ -282,7 +287,7 @@ jobs:
       meshes: ${{ inputs.meshes }}
 
   test-deploy-chunk-3:
-    name: 🧱 Chunk 3
+    name: "3️⃣ Batch${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}"
     if: >-
       ${{ !cancelled()
           && inputs.resume_from_chunk <= 3
@@ -307,6 +312,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "3"
+      marker: ${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
       chunk_size: ${{ inputs.chunk_size }}

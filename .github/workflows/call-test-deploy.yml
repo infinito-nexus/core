@@ -57,7 +57,7 @@ on:
         type: string
         default: ""
       marker:
-        description: "Optional suffix appended to the discover job name (e.g. ' ⭐' for a priority chunk)"
+        description: "Optional suffix appended to the discover job name (' ⭐' for a batch that holds priority rows)"
         required: false
         type: string
         default: ""
@@ -173,7 +173,7 @@ env:
 
 jobs:
   discover:
-    name: 🔍 Chunk ${{ inputs.index }}${{ inputs.marker }}
+    name: 🔍 Batch ${{ inputs.index }}${{ inputs.marker }}
     runs-on: ubuntu-26.04
     timeout-minutes: 60
     outputs:
