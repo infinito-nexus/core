@@ -8,17 +8,19 @@ Configures `systemd-journald` on every server: persistent storage, a disk cap, a
 
 ## Overview
 
-`journald.conf` sets, each value overridable per host in `defaults/main.yml`:
+`journald.conf` sets, on every host that runs the role, each value overridable per host in `defaults/main.yml`:
 
 | Setting | Value | Reason |
 |---|---|---|
 | `Storage` | `persistent` | The journal must survive reboots; `auto` depends on whether `/var/log/journal` happens to exist. |
-| `SystemMaxUse` | `4G` | Explicit disk cap, independent of the filesystem size (the upstream default is 10 % of it, at most 4G). |
+| `SystemMaxUse` | `4G`, but at most 10 % of the journal's filesystem | A 4G target keeps the forensic window independent of the disk size, and the 10 % bound (journald's own default share) keeps a fixed 4G from taking a large part of a small disk. The role measures the filesystem holding `/var/log` at every deploy (`df`) and writes `4G`, or the 10 % in bytes when that is smaller (`SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE`, `SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_FS_PERCENT`). |
 | `SystemKeepFree` | `15%` | journald gives way before the disk fills (upstream default, stated explicitly). |
 | `MaxRetentionSec` | `604800` (7 days) | Upper bound for data minimisation; not a guarantee (see the forensic window). |
 | `RateLimitIntervalSec` / `RateLimitBurst` | `30s` / `10000` | Per-unit limit of every unit without its own (upstream defaults, stated explicitly). |
 
 A change restarts `systemd-journald`.
+
+These settings, and the Docker drop-in below, apply to every host that runs the role, not only to hosts with Wazuh.
 
 **Docker's log rate limit.** Every container's log line belongs to `docker.service`, so all containers share one rate limit; at the default that is 10000 lines per 30 s, about 333 lines/s for the whole host. A drop-in `/etc/systemd/system/docker.service.d/log-rate-limit.conf` gives `docker.service` its own `LogRateLimitIntervalSec=30s` and `LogRateLimitBurst=50000` (about 1,667 lines/s), an engineering value to be re-measured during rollout. systemd needs version 240 or later for it, which the current releases of all five distributions have.
 systemd hands this limit to journald only when `docker.service` starts, and restarting Docker restarts every container, so the role never restarts Docker. On a fresh host `sys-svc-container` writes the drop-in before Docker's first start, so the limit is active from the start. On an existing host it becomes active at the next Docker restart or reboot; until then every deploy prints a warning with the active and the configured value; the active value is what systemd exported for the running unit in `/run/systemd/units/log-rate-limit-{interval,burst}:docker.service`.
@@ -42,7 +44,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-- **Persistent, capped journal:** survives reboots, at most 4G, entries kept up to 7 days.
+- **Persistent, capped journal:** survives reboots, at most 4G and at most 10 % of its filesystem, entries kept up to 7 days.
 - **Docker's own rate limit:** a separate budget for all container lines, active from Docker's first start on fresh hosts.
 - **Visible loss:** every suppression becomes a Wazuh alert where the agent runs.
 - Integration with `sys-ctl-hlth-journalctl` for downstream monitoring

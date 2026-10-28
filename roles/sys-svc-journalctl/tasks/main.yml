@@ -7,6 +7,22 @@
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_journalctl is not defined
 
+- name: "📏 Read the size of the journal's filesystem"
+  ansible.builtin.command:
+    argv: [df, --block-size=1, --output=size, "{{ SYS_SVC_JOURNALCTL_JOURNAL_FS_PATH }}"]
+  register: sys_svc_journalctl_fs_size
+  changed_when: false
+
+- name: "📐 Cap the journal at its target, but at most its share of the filesystem"
+  ansible.builtin.set_fact:
+    sys_svc_journalctl_system_max_use: >-
+      {{ SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE
+         if (SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE | human_to_bytes) <= sys_svc_journalctl_fs_cap | int
+         else sys_svc_journalctl_fs_cap }}
+  vars:
+    sys_svc_journalctl_fs_cap: >-
+      {{ (sys_svc_journalctl_fs_size.stdout_lines[-1] | trim | int) * SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_FS_PERCENT // 100 }}
+
 - name: 📋 copy journald.conf
   template: # nocheck: stack-host-template (per-host /etc/systemd/journald.conf, not stack-host-only)
     src: templates/journald.conf.j2

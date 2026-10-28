@@ -1,3 +1,4 @@
 ---
+SYS_SVC_JOURNALCTL_JOURNAL_FS_PATH: "/var/log"
 SYS_SVC_JOURNALCTL_DOCKER_UNIT: "docker.service"
 SYS_SVC_JOURNALCTL_DOCKER_DROPIN: "{{ [ DIR_SYSTEM_SERVICE, SYS_SVC_JOURNALCTL_DOCKER_UNIT ~ '.d', 'log-rate-limit.conf' ] | path_join }}"
