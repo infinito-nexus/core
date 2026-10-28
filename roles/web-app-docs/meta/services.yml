@@ -41,8 +41,8 @@ docs:
       checksum_url: "https://cdn.jsdelivr.net/npm/mermaid@{version}/dist/mermaid.min.js"
   fetch_interval: 900
   build:
-    sphinx_process_mb: 3072
-    sphinx_overhead_mb: 2048
+    sphinx_process_mb: 5120
+    sphinx_overhead_mb: 5632
   sphinx:
     project: "{{ SOFTWARE_NAME }}"
     copyright: "2025, {{ INVENTOR }}"
