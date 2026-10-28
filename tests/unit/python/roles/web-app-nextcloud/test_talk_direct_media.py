@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from jinja2 import (
     ChainableUndefined,
