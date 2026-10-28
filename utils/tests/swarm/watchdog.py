@@ -14,8 +14,12 @@ happens anyway can still be attributed afterwards from the step log alone.
 
 from __future__ import annotations
 
+import contextlib
+import os
 import shutil
+import signal
 import subprocess
+from typing import TYPE_CHECKING
 
 from utils import PROJECT_ROOT
 from utils.env.runtime import (
@@ -27,6 +31,9 @@ from utils.env.runtime import (
     uninterruptible_procs,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 DISK_FLOOR_MB = 6 * 2**10
 MEM_FLOOR_RATIO = 0.06
 IO_STALL_CEILING_PCT = 50.0
@@ -34,17 +41,35 @@ SAMPLE_INTERVAL_S = 10
 STALL_WINDOW_S = 60
 WEDGE_SAMPLES = 2
 ABORT_RC = 75
+_FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM)
+
+
+def _signal_step(proc: subprocess.Popen[bytes], sig: int) -> None:
+    with contextlib.suppress(ProcessLookupError):
+        os.killpg(proc.pid, sig)
+
+
+@contextlib.contextmanager
+def _forwarding(proc: subprocess.Popen[bytes]) -> Iterator[None]:
+    previous = {
+        sig: signal.signal(sig, lambda signum, _frame: _signal_step(proc, signum))
+        for sig in _FORWARDED_SIGNALS
+    }
+    try:
+        yield
+    finally:
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
 
 
 def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
     print(banner, flush=True)
     subprocess.run(probe, check=False)
-    proc.terminate()
-    try:
+    _signal_step(proc, signal.SIGTERM)
+    with contextlib.suppress(subprocess.TimeoutExpired):
         proc.wait(timeout=30)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.wait()
+    _signal_step(proc, signal.SIGKILL)
+    proc.wait()
     return ABORT_RC
 
 
@@ -103,7 +128,12 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     Returns:
         The step's exit code, or ABORT_RC when a floor was hit.
     """
-    proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
+    proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env, process_group=0)
+    with _forwarding(proc):
+        return _watch(proc)
+
+
+def _watch(proc: subprocess.Popen[bytes]) -> int:
     samples = 0
     wedged = 0
     while True:
