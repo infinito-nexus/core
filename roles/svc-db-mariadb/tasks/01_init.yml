@@ -1,7 +1,7 @@
 ---
 - block:
-    - name: "📁 Create database: {{ database_name }} (host via mysql_db)"
-      ansible.mysql.mysql_db:
+    - name: "📁 Create database: {{ database_name }} (host via mariadb_db)"
+      ansible.mariadb.mariadb_db:
         name: "{{ database_name }}"
         state: present
         login_user: root
@@ -12,8 +12,8 @@
         collation: "{{ MARIADB_COLLATION }}"
         config_file: ""
 
-    - name: "📁 Create database user: {{ database_username }} (host via mysql_user)"
-      ansible.mysql.mysql_user:
+    - name: "📁 Create database user: {{ database_username }} (host via mariadb_user)"
+      ansible.mariadb.mariadb_user:
         name: "{{ database_username }}"
         password: "{{ database_password }}"
         host: "%"
