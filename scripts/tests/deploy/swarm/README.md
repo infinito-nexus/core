@@ -44,7 +44,7 @@ flowchart TB
             s1["1️⃣ seed markers into the live NFS volume<br/>and the manager secrets"]:::drill
             s2["2️⃣ trigger backup units<br/>volume + secrets @ manager, nfs-2-local @ NFS server"]:::drill
             s3["3️⃣ locate the generation holding the marker<br/>3️⃣b assert the volume repo is fresh + non-empty<br/>(its NFS-backed volumes are excluded by design)"]:::drill
-            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper"]:::drill
+            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper,<br/>then drop the nfs server's generation"]:::drill
             s5["5️⃣ space gate: pulled tree + watchdog floor,<br/>du breakdown on failure; then LUKS loop 'USB'<br/>via the local-2-device unit"]:::drill
             s6["6️⃣ full disaster: stack rm"]:::drill
             s7["7️⃣ wipe the pulled tree, recover device → local root<br/>(luksOpen; the device holds the only copy left)"]:::drill

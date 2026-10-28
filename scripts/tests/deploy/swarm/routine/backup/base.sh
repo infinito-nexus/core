@@ -169,6 +169,8 @@ if ! docker exec "${BACKUP_NODE}" test -f "${DIR_BACKUPS}/${SRC_REL}/${DR_MARKER
 	exit 1
 fi
 echo "    marker present on backup host after pull"
+docker exec "${NFS_SERVER}" rm -rf "${DIR_BACKUPS:?}/${NFS_MID:?}/${NFS_REPO:?}"
+echo "    dropped ${NFS_REPO} on ${NFS_SERVER}: ${BACKUP_NODE} holds the pulled copy"
 
 echo "==> [5/9] plug the LUKS 'USB' and sync via the deployed local-2-device unit"
 PULLED_MB="$(docker exec "${BACKUP_NODE}" du -sm "${DIR_BACKUPS}" | awk '{print $1}')"
