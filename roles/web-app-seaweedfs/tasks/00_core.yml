@@ -69,3 +69,16 @@
   until: _seaweedfs_ready.rc == 0
   changed_when: false
   when: IS_STACK_HOST | bool
+
+- name: "🔐 Converge the bucket policy of every existing consumer bucket"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "📋 List SeaweedFS buckets"
+      include_tasks: utils/bucket/list.yml
+
+    - name: "🔐 Converge the bucket policy of each consumer whose bucket exists"
+      include_tasks: utils/bucket/policy.yml
+      loop: "{{ lookup('objstore_consumers', 'seaweedfs') }}"
+      loop_control:
+        loop_var: seaweedfs_bucket_policy_consumer
+      when: lookup('objstore', seaweedfs_bucket_policy_consumer, 'bucket') in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names)

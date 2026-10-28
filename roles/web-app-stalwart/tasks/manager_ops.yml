@@ -51,3 +51,9 @@
 - name: "📨 Provision the declared per-account forwards"
   include_tasks: 16_forwards.yml
   when: STALWART_FORWARDS | length > 0
+
+- name: "📝 Record that Stalwart 1.x serves the store of this host"
+  stack_host_copy:
+    content: "{{ STALWART_STORE_LAYOUT_VERSION }}\n"
+    dest: "{{ STALWART_STORE_MARKER_FILE }}"
+    mode: "0644"

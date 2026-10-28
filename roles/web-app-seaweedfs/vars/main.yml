@@ -20,6 +20,13 @@ SEAWEEDFS_MASTER_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical
 
 SEAWEEDFS_ADMIN_ACCESS_KEY: "{{ lookup('users', 'administrator').username }}"
 SEAWEEDFS_ADMIN_SECRET_KEY: "{{ lookup('users', 'administrator').password }}"
+SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_ACCESS_KEY }}:{{ SEAWEEDFS_ADMIN_SECRET_KEY }}"
+
+SEAWEEDFS_S3_REGION: "{{ lookup('config', application_id, 'services.seaweedfs.region') }}"
+# Exception: curl expands the credential itself via --variable, because --user "$VAR" puts it on curl's argv, visible in the host's ps.
+SEAWEEDFS_S3_ADMIN_CURL: >-
+  container exec -i -e SEAWEEDFS_ADMIN_CREDENTIALS {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+  sh -c 'exec {{ lookup('timeout', 30) | curl(retries=0) }} -S --aws-sigv4 "aws:amz:{{ SEAWEEDFS_S3_REGION }}:s3" --variable %SEAWEEDFS_ADMIN_CREDENTIALS --expand-user "{{ '{{' }}SEAWEEDFS_ADMIN_CREDENTIALS{{ '}}' }}" "$@"' curl
 
 SEAWEEDFS_S3_CONFIG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 's3.json' ] | path_join }}"
 
