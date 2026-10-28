@@ -23,6 +23,12 @@
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: 📋 Copy the shared GitHub API client next to the check
+  copy:
+    src: "{{ HLTH_DEPLOYED_CODE_API_MODULE_SRC }}"
+    dest: "{{ HLTH_DEPLOYED_CODE_API_MODULE }}"
+    mode: "0644"
+
 - include_role:
     name: sys-service
   vars:

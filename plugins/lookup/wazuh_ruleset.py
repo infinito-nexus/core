@@ -10,8 +10,10 @@ from utils.cache import ROLES_DIR
 from utils.roles.applications.services.wazuh import (
     CONTAINER_COMM,
     DEPLOY_TAG,
+    DEPLOYED_CODE_RULE_IDS,
     DEPLOYED_CODE_TAG,
     FIM_TAG,
+    GITHUB_SETTINGS_RULE_IDS,
     GITHUB_SETTINGS_TAG,
     JOURNALD_DECODER,
     JOURNALD_PROGRAM,
@@ -44,8 +46,12 @@ class LookupModule(LookupBase):
             this host's ``group_names``, which is what its agent collects.
 
     Returns:
-        ``{selftest, deploy, fim, watch, github_settings, deployed_code, own,
-        journald, system_tags, container_comm, entities, files, samples}``.
+        ``{selftest, deploy, fim, watch, github_settings, deployed_code,
+        rule_ids, own, journald, system_tags, container_comm, entities, files,
+        samples}``.
+        ``rule_ids`` is ``{github_settings, deployed_code}``, each mapping a
+        check's event kind (``run``, a finding kind, ``failed``) to the Wazuh
+        rule ID it raises, so the rules and the role tests share one source.
         ``system_tags`` lists the host programs the agent collects as root,
         ``container_comm`` the ``_COMM`` of container log lines.
         ``selftest``, ``deploy``, ``fim``, ``watch``, ``github_settings`` and
@@ -176,6 +182,10 @@ class LookupModule(LookupBase):
                 "watch": own[WATCH_TAG],
                 "github_settings": own[GITHUB_SETTINGS_TAG],
                 "deployed_code": own[DEPLOYED_CODE_TAG],
+                "rule_ids": {
+                    "github_settings": dict(GITHUB_SETTINGS_RULE_IDS),
+                    "deployed_code": dict(DEPLOYED_CODE_RULE_IDS),
+                },
                 "own": [own[tag] for tag in OWN_TAGS],
                 "journald": journald,
                 "system_tags": list(SYSTEM_TAGS),

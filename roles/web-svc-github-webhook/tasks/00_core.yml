@@ -6,6 +6,7 @@
     name: sys-stk-full
   vars:
     webserver_vhost_flavour: "basic"
+    webserver_client_max_body_size: "{{ GITHUB_WEBHOOK_PROXY_MAX_BODY }}"
 
 - name: "📋 Copy the webhook receiver and its payload module"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)

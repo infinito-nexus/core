@@ -29,7 +29,6 @@ WAZUH_CERTS_GENERATOR_ENV:
   CERTS_OUT_DIR: "{{ WAZUH_CERTS_DIR_TARGET }}"
   CERTS_MIN_VALID_DAYS: "{{ WAZUH_CERTS_MIN_VALID_DAYS }}"
 WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
-WAZUH_CERTS_MIN_VALID_DAYS: 30
 WAZUH_CERTS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'certs_generator_config').target }}"
 WAZUH_CERTS_DIR_TARGET: "{{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
 
@@ -52,8 +51,12 @@ WAZUH_CERTS_REQUIRED_FILES:
   - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '.pem' ] | path_join }}"
   - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '-key.pem' ] | path_join }}"
 
-WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
-WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ROOT_CA_CONTAINER: "{{ lookup('volume', application_id, 'root_ca_pem').targets.indexer }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_CERT_CONTAINER: "{{ lookup('volume', application_id, 'indexer_cert_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_KEY_CONTAINER: "{{ lookup('volume', application_id, 'indexer_key_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ADMIN_CERT_CONTAINER: "{{ lookup('volume', application_id, 'admin_cert_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ADMIN_KEY_CONTAINER: "{{ lookup('volume', application_id, 'admin_key_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "{{ lookup('volume', application_id, 'internal_users_yml').target | dirname }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_INDEXER_SECURITYADMIN_MARKER_CONTAINER: "{{ [ lookup('volume', application_id, 'indexer_data').target, '.infinito-securityadmin.sha256' ] | path_join }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 
 WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
@@ -122,17 +125,19 @@ WAZUH_WHODATA_UNKNOWN_RULE_ID: 100131
 WAZUH_JOURNALD_SUPPRESSED_RULE_ID: 100140
 WAZUH_COLLECTOR_FROZEN_RULE_ID: 100150
 WAZUH_COLLECTOR_RESUMED_RULE_ID: 100151
-WAZUH_GITHUB_SETTINGS_RULE_ID: 100160
-WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID: 100161
-WAZUH_GITHUB_SETTINGS_PRT_RULE_ID: 100162
-WAZUH_GITHUB_SETTINGS_FAILED_RULE_ID: 100163
+WAZUH_GITHUB_SETTINGS_RULE_IDS: "{{ WAZUH_RULESET.rule_ids.github_settings }}"
+WAZUH_GITHUB_SETTINGS_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.run }}"
+WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.drift }}"
+WAZUH_GITHUB_SETTINGS_PRT_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.pull_request_target }}"
+WAZUH_GITHUB_SETTINGS_FAILED_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.failed }}"
 WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL: 10
 WAZUH_GITHUB_SETTINGS_FAILED_LEVEL: 7
-WAZUH_DEPLOYED_CODE_RULE_ID: 100170
-WAZUH_DEPLOYED_CODE_UNVERIFIED_RULE_ID: 100171
-WAZUH_DEPLOYED_CODE_UNMERGED_RULE_ID: 100172
-WAZUH_DEPLOYED_CODE_MODIFIED_RULE_ID: 100173
-WAZUH_DEPLOYED_CODE_FAILED_RULE_ID: 100174
+WAZUH_DEPLOYED_CODE_RULE_IDS: "{{ WAZUH_RULESET.rule_ids.deployed_code }}"
+WAZUH_DEPLOYED_CODE_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.run }}"
+WAZUH_DEPLOYED_CODE_UNVERIFIED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.unverified }}"
+WAZUH_DEPLOYED_CODE_UNMERGED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.unmerged }}"
+WAZUH_DEPLOYED_CODE_MODIFIED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.modified }}"
+WAZUH_DEPLOYED_CODE_FAILED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.failed }}"
 WAZUH_DEPLOYED_CODE_UNVERIFIED_LEVEL: 10
 # Exception: above the other deployed-code findings, because code that never reached the default branch skipped review entirely.
 WAZUH_DEPLOYED_CODE_UNMERGED_LEVEL: 12
@@ -148,9 +153,6 @@ WAZUH_JOURNALD_SUPPRESSED_LEVEL: 7
 WAZUH_CANARY_MARKER: "INFINITO_WAZUH_CANARY"
 
 WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
-WAZUH_AGENT_WAIT_DELAY: 5
-WAZUH_AGENT_WAIT_RECONNECTS: 3
-WAZUH_CANARY_WAIT_RETRIES: 36
 WAZUH_CANARY_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'in', lookup('deployment').running) | list }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

@@ -1,0 +1,7 @@
+---
+# Param WAZUH_CERTS_MIN_VALID_DAYS: the certificate generator renews every certificate that expires within this many days.
+WAZUH_CERTS_MIN_VALID_DAYS: 30
+# Param WAZUH_POLL_DELAY: seconds between two polls of every wait in this role (agents Active, canary alerts, manager and ruleset readiness).
+WAZUH_POLL_DELAY: 5
+# Param WAZUH_CANARY_WAIT_RETRIES: polls a canary alert gets to reach the indexer, WAZUH_POLL_DELAY apart.
+WAZUH_CANARY_WAIT_RETRIES: 36

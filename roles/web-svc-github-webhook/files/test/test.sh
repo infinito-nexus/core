@@ -12,8 +12,10 @@
 #   When the Wazuh manager runs on this host (WAZUH_MANAGER_LOCAL=true), each logged outcome must also raise its alert.
 #
 # Env (all required; the role's test.env carries them):
+#   API_TIMEOUT              seconds the throwaway receiver's GitHub API request may take
 #   ENTITY                   the receiver's journald tag
 #   EVENTS_SCRIPT            the receiver's payload module on the host, mounted next to it
+#   EVENTS_TARGET            where the receiver's container mounts the payload module
 #   DEFAULT_BRANCH           the default branch the synthetic payloads give their repository
 #   MANAGER_LOGS_VOLUME      the Docker volume holding the Wazuh manager's logs; empty without a local manager
 #   MAX_BYTES                the receiver's body limit
@@ -22,8 +24,11 @@
 #   RECEIVER_PATH            path GitHub posts to
 #   RECEIVER_PORT            port the receiver listens on inside its container
 #   RECEIVER_SCRIPT          the receiver script on the host
+#   RECEIVER_TARGET          where the receiver's container mounts the receiver script
 #   RECEIVER_URL             the deployed receiver's local base URL
 #   RETRIES, SLEEP_SECONDS   polling for a journald line or an alert
+#   SETTINGS_DRIFT_RULE, SETTINGS_PRT_RULE, SETTINGS_FAILED_RULE
+#                            the Wazuh rule IDs of a drifted field, an enabled pull_request_target and a failed check
 #   SETTINGS_SCRIPT          the deployed GitHub settings check
 #   SETTINGS_TAG             the journald tag the settings check logs under
 #   WAZUH_MANAGER_LOCAL      true when the deployment runs the Wazuh manager on this host, else false
@@ -31,9 +36,10 @@
 
 set -euo pipefail
 
-: "${ENTITY:?}" "${EVENTS_SCRIPT:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
+: "${API_TIMEOUT:?}" "${ENTITY:?}" "${EVENTS_SCRIPT:?}" "${EVENTS_TARGET:?}" "${RECEIVER_TARGET:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
 : "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WAZUH_MANAGER_LOCAL:?}"
+: "${SETTINGS_DRIFT_RULE:?}" "${SETTINGS_PRT_RULE:?}" "${SETTINGS_FAILED_RULE:?}"
 : "${WEBHOOK_SECRET:?}"
 
 fail() {
@@ -294,12 +300,12 @@ container run --detach --name="github-api-stub-${RUN}" --label="${LABEL}" --netw
 	--network-alias=github-api-stub "${RECEIVER_IMAGE}" python3 -c "${STUB_CODE}" >/dev/null
 container run --detach --name="github-webhook-test-${RUN}" --label="${LABEL}" --network="${NETWORK}" \
 	--log-driver=journald --log-opt="tag=${ENTITY}" --publish="127.0.0.1::${RECEIVER_PORT}" \
-	--volume="${RECEIVER_SCRIPT}:/app/receiver.py:ro" --volume="${EVENTS_SCRIPT}:/app/github_events.py:ro" \
+	--volume="${RECEIVER_SCRIPT}:${RECEIVER_TARGET}:ro" --volume="${EVENTS_SCRIPT}:${EVENTS_TARGET}:ro" \
 	--env=WEBHOOK_SECRET="${STUB_SECRET}" --env=WEBHOOK_PORT="${RECEIVER_PORT}" --env=WEBHOOK_PATH="${RECEIVER_PATH}" \
 	--env=WEBHOOK_MAX_BYTES="${MAX_BYTES}" --env=WEBHOOK_STATE_DB=/tmp/deliveries.sqlite --env=WEBHOOK_REPLAY_DAYS=1 \
-	--env=GITHUB_API_URL=http://github-api-stub:8080 --env=GITHUB_TOKEN=stub-token \
+	--env=GITHUB_API_URL=http://github-api-stub:8080 --env=GITHUB_TOKEN=stub-token --env=WEBHOOK_API_TIMEOUT="${API_TIMEOUT}" \
 	--env=WEBHOOK_PR_ATTEMPTS=2 --env=WEBHOOK_PR_DELAY=1 --env=PYTHONUNBUFFERED=1 \
-	"${RECEIVER_IMAGE}" python3 /app/receiver.py >/dev/null
+	"${RECEIVER_IMAGE}" python3 "${RECEIVER_TARGET}" >/dev/null
 STUB_URL="http://$(container port "github-webhook-test-${RUN}" "${RECEIVER_PORT}/tcp" | head -1)${RECEIVER_PATH}"
 for ((attempt = 1; attempt <= RETRIES; attempt++)); do
 	curl -sf --connect-timeout 5 --max-time 10 -o /dev/null "${STUB_URL%"${RECEIVER_PATH}"}/healthz" && break
@@ -435,6 +441,7 @@ expect_journal "${SETTINGS_TAG}" "$(python3 -c 'import json, sys; print(json.dum
 if [[ -n "${ALERTS}" ]]; then
 	python3 - "${ALERTS}" "${SETTINGS_DIR}" "${RUN}" "${TIMEOUT}" <<'PY' || fail "GitHub settings alerts"
 import json
+import os
 import sys
 import time
 
@@ -444,9 +451,10 @@ for mode in ("drift", "fail"):
     for line in open(f"{directory}/{mode}.out", encoding="utf-8"):
         event = json.loads(line)
         if event["gs_kind"] == "drift":
-            rule = "100162" if event["gs_check"] == "pull_request_target" and event["gs_actual"] == "present" else "100161"
+            prt = event["gs_check"] == "pull_request_target" and event["gs_actual"] == "present"
+            rule = os.environ["SETTINGS_PRT_RULE" if prt else "SETTINGS_DRIFT_RULE"]
         elif event["gs_kind"] == "error":
-            rule = "100163"
+            rule = os.environ["SETTINGS_FAILED_RULE"]
         else:
             continue
         wanted.append((rule, event))

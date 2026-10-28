@@ -38,19 +38,15 @@
   become: true
   become_user: "{{ WAZUH_AGENT_BUILD_USER }}"
   register: wazuh_agent_build_deps
-  retries: 3
-  delay: 15
+  retries: "{{ WAZUH_AGENT_BUILD_DEPS_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
   until: wazuh_agent_build_deps is succeeded
   changed_when: true
 
 # Exception: make deps verifies nothing it downloads, and Wazuh replaces files under the same deps version, so every top-level entry of the extracted tree is hashed on its own and compared to its pin.
 - name: "🔍 Hash each external dependency"
-  ansible.builtin.shell:
-    cmd: |
-      set -o pipefail
-      find external -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort | while IFS= read -r name; do
-        printf '%s %s\n' "${name}" "$(find "external/${name}" -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
-      done
+  ansible.builtin.script:
+    cmd: shell/deps_manifest.sh
     chdir: "{{ [wazuh_agent_build_dir.path, 'src', 'src'] | path_join }}"
     executable: /bin/bash
   become: true

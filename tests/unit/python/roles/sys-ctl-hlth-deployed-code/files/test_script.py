@@ -1,10 +1,16 @@
 import importlib.util
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+
+sys.path.insert(
+    0, str(PROJECT_ROOT / "roles/sys-ctl-hlth-github-settings/files/python")
+)
+import github_api
 
 _spec = importlib.util.spec_from_file_location(
     "deployed_code_check",
@@ -242,11 +248,9 @@ class TestHelpers(unittest.TestCase):
             "fatal: unable to access 'https://***@github.example/o/r.git/'",
         )
 
-    def test_rate_limit_reason(self):
-        self.assertEqual(
-            script.failure_reason(403, b'{"message": "API rate limit exceeded"}', {}),
-            "HTTP 403: rate limit exceeded",
-        )
+    def test_uses_the_shared_github_client(self):
+        self.assertIs(script.Api, github_api.Api)
+        self.assertIs(script.CheckError, github_api.CheckError)
 
 
 if __name__ == "__main__":

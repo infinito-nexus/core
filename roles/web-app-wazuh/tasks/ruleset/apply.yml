@@ -93,7 +93,7 @@
   register: wazuh_ruleset_status
   until: "'wazuh-analysisd is running' in wazuh_ruleset_status.stdout"
   retries: 30
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
   changed_when: false
   failed_when: "'wazuh-analysisd is running' not in wazuh_ruleset_status.stdout"
 
@@ -110,7 +110,7 @@
   register: wazuh_ruleset_canary
   until: wazuh_ruleset_canary.rc == 0
   retries: 6
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
   changed_when: false
   failed_when: false
 

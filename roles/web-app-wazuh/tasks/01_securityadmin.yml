@@ -22,9 +22,9 @@
       /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh
       -cd {{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/
       -icl
-      -key {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin-key.pem
-      -cert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin.pem
-      -cacert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
+      -key {{ WAZUH_INDEXER_ADMIN_KEY_CONTAINER }}
+      -cert {{ WAZUH_INDEXER_ADMIN_CERT_CONTAINER }}
+      -cacert {{ WAZUH_INDEXER_ROOT_CA_CONTAINER }}
       -nhnv
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_securityadmin

@@ -8,8 +8,8 @@
     label: "{{ item.id }} {{ item.name }}"
   register: wazuh_agent_status
   until: wazuh_agent_status.stdout is search('Status:\\s+Active')
-  retries: "{{ ((item.time_reconnect * WAZUH_AGENT_WAIT_RECONNECTS) / WAZUH_AGENT_WAIT_DELAY) | round(0, 'ceil') | int }}"
-  delay: "{{ WAZUH_AGENT_WAIT_DELAY }}"
+  retries: "{{ (item.active_window / WAZUH_POLL_DELAY) | round(0, 'ceil') | int }}"
+  delay: "{{ WAZUH_POLL_DELAY }}"
   changed_when: false
 
 - name: "🏷️ Name this deploy's canary"
@@ -45,5 +45,5 @@
     wazuh_canary_search.json is defined and
     wazuh_canary_search.json.hits.total.value > 0
   retries: "{{ WAZUH_CANARY_WAIT_RETRIES }}"
-  delay: "{{ WAZUH_AGENT_WAIT_DELAY }}"
+  delay: "{{ WAZUH_POLL_DELAY }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

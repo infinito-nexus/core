@@ -1,0 +1,5 @@
+---
+# Param HLTH_DEPLOYED_CODE_API_URL: GitHub REST API base URL the signature check asks.
+HLTH_DEPLOYED_CODE_API_URL: "https://api.github.com"
+# Param HLTH_DEPLOYED_CODE_TIMEOUT: seconds one git command or GitHub API request may take.
+HLTH_DEPLOYED_CODE_TIMEOUT: 120

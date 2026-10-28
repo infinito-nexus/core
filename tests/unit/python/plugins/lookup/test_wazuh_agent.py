@@ -5,7 +5,11 @@ import unittest.mock as mock
 from unittest.mock import patch
 
 from plugins.lookup.wazuh_agent import LookupModule
-from utils.roles.applications.services.wazuh import AGENT_ID, AGENT_TIME_RECONNECT
+from utils.roles.applications.services.wazuh import (
+    AGENT_ACTIVE_RECONNECTS,
+    AGENT_ID,
+    AGENT_TIME_RECONNECT,
+)
 
 
 def _run(hostname: str) -> dict:
@@ -48,6 +52,7 @@ class TestWazuhAgent(unittest.TestCase):
                 "name": "infinito.test",
                 "key": "vault-agent-key",
                 "time_reconnect": AGENT_TIME_RECONNECT,
+                "active_window": AGENT_TIME_RECONNECT * AGENT_ACTIVE_RECONNECTS,
             },
         )
 

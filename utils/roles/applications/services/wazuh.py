@@ -47,6 +47,20 @@ MANAGER_ROLE = "web-app-wazuh"
 SAMPLES_FILE = "samples.yml"
 AGENT_ID = "001"
 AGENT_TIME_RECONNECT = 60
+AGENT_ACTIVE_RECONNECTS = 3
+GITHUB_SETTINGS_RULE_IDS = {
+    "run": 100160,
+    "drift": 100161,
+    "pull_request_target": 100162,
+    "failed": 100163,
+}
+DEPLOYED_CODE_RULE_IDS = {
+    "run": 100170,
+    "unverified": 100171,
+    "unmerged": 100172,
+    "modified": 100173,
+    "failed": 100174,
+}
 
 
 def decoder_name(entity: str) -> str:

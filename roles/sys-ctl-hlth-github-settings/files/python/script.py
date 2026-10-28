@@ -3,12 +3,12 @@ import argparse
 import base64
 import json
 import re
-import syslog
 import urllib.parse
 from pathlib import Path
 
-from github_api import Api, CheckError
+from github_api import Api, CheckError, emit, read_token
 
+USER_AGENT = "infinito-github-settings"
 ABSENT = "absent"
 MAX_VALUE = 300
 WORKFLOW_DIR = ".github/workflows"
@@ -404,24 +404,18 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    token = Path(args.token_file).read_text(encoding="utf-8").strip()
+    api = Api(args.api_url, read_token(args.token_file), args.timeout, USER_AGENT)
     expected = json.loads(Path(args.expected).read_text(encoding="utf-8"))
     if args.print_current:
         try:
-            state = current_state(Api(args.api_url, token, args.timeout), expected)
+            state = current_state(api, expected)
         except CheckError as failure:
             raise SystemExit(
                 f"cannot read the current GitHub settings: {failure}"
             ) from failure
         print("\n".join(["---", *to_yaml(state)]))
         return
-    syslog.openlog(ident=args.tag, facility=syslog.LOG_DAEMON)
-    for event in run(Api(args.api_url, token, args.timeout), expected):
-        line = json.dumps(event)
-        syslog.syslog(
-            syslog.LOG_WARNING if event["gs_kind"] != "run" else syslog.LOG_INFO, line
-        )
-        print(line)
+    emit(args.tag, run(api, expected), "gs_kind")
 
 
 if __name__ == "__main__":

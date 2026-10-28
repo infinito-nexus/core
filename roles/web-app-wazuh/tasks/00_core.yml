@@ -117,7 +117,7 @@
   register: wazuh_indexer_ready
   until: wazuh_indexer_ready is succeeded
   retries: 60
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
 
 - name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
   include_tasks: 01_securityadmin.yml
@@ -151,7 +151,7 @@
     wazuh_indexer_health.json is defined and
     wazuh_indexer_health.json.status in ['green', 'yellow']
   retries: 30
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🛡️ Load the Wazuh agent of the manager host"

@@ -206,10 +206,11 @@
     <decoder_dir>etc/decoders</decoder_dir>
     <rule_dir>etc/rules</rule_dir>
 {% set ruleset_dir = WAZUH_RULESET_DIR_CONTAINER | regex_replace('^/var/ossec/', '') %}
-    <decoder_dir>{{ ruleset_dir }}/base/decoders</decoder_dir>
-    <decoder_dir>{{ ruleset_dir }}/decoders</decoder_dir>
-    <rule_dir>{{ ruleset_dir }}/base/rules</rule_dir>
-    <rule_dir>{{ ruleset_dir }}/rules</rule_dir>
+{% for kind in ['decoder', 'rule'] %}
+{% for dir in WAZUH_RULESET_DIRS | select('search', '(^|/)' ~ kind ~ 's$') %}
+    <{{ kind }}_dir>{{ ruleset_dir }}/{{ dir }}</{{ kind }}_dir>
+{% endfor %}
+{% endfor %}
   </ruleset>
 
   <rule_test>

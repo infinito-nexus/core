@@ -27,12 +27,16 @@
 #   K_WATCH_TAG      journald tag of the collector freeze messages
 #   K_SETTLE_S       seconds the archive count must stay unchanged before counting
 #   K_MAX_WAIT_S     upper bound for that wait
+#   K_SUPPRESSED_RULE  the Wazuh rule ID of journald's suppression message (WAZUH_JOURNALD_SUPPRESSED_RULE_ID)
 
 set -euo pipefail
 
 CASE="${1:?usage: measure_k.sh <case>}"
 : "${K_TAG:?}" "${K_IMAGE:?}" "${K_MANAGER:?}" "${K_LOGS_VOLUME:?}" "${K_MANAGER_CONF:?}"
 : "${K_AGENT_STATE:?}" "${K_HEALTH_UNIT:?}" "${K_JOURNAL_UNIT:?}" "${K_SETTLE_S:?}" "${K_MAX_WAIT_S:?}" "${K_WATCH_TAG:?}"
+: "${K_SUPPRESSED_RULE:?}"
+
+AGENT_DOWN_MARGIN_S=20
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
 LABEL="infinito-wazuh-k=${RUN}"
@@ -137,7 +141,7 @@ result_row() {
 		sed -n 's/^Suppressed \([0-9]*\) messages from docker\.service.*/\1/p' | awk '{ s += $1 } END { print s + 0 }')"
 	printf '| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
 		"${name}" "${rate}" "${sent}" "${journal}" "${archived}" "$((sent - journal))" "$((journal - archived))" \
-		"${summary}" "${duplicates}" "${suppressed} ($(alert_count 100140))" \
+		"${summary}" "${duplicates}" "${suppressed} ($(alert_count "${K_SUPPRESSED_RULE}"))" \
 		"$(alert_count 202)" "$(alert_count 203)" "$(alert_count 204)" "$(($(date +%s) - started))s"
 	echo
 	echo "Missing seq (${name}): ${missing}"
@@ -155,7 +159,7 @@ agent_memory() {
 }
 
 header() {
-	echo "| Case | Rate | Sent | In journald | In archive | Lost in journald | Lost in agent/transport | Missing seq | Duplicates | Suppressed (100140) | 202 | 203 | 204 | Duration |"
+	echo "| Case | Rate | Sent | In journald | In archive | Lost in journald | Lost in agent/transport | Missing seq | Duplicates | Suppressed (${K_SUPPRESSED_RULE}) | 202 | 203 | 204 | Duration |"
 	echo "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"
 }
 
@@ -237,10 +241,11 @@ run_agent_restart() {
 }
 
 run_agent_down() {
-	local rc=0 alarm
+	local rc=0 alarm threshold
 	precondition
+	threshold="$(systemctl cat "${K_HEALTH_UNIT}" | grep -oP -- '--threshold \K[0-9]+')" || fail "no --threshold in ${K_HEALTH_UNIT}"
 	systemctl stop wazuh-agent
-	sleep 200
+	sleep "$((threshold + AGENT_DOWN_MARGIN_S))"
 	systemctl start "${K_HEALTH_UNIT}" || rc=$?
 	sleep 10
 	alarm="$(journalctl --since "@${START_EPOCH}" -o cat -u "alm-compose*@${K_HEALTH_UNIT}*" | wc -l)"

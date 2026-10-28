@@ -39,6 +39,7 @@ def config(tmp, **overrides):
         "keep_seconds": 86400,
         "api_url": "http://api.invalid",
         "token": "token",
+        "api_timeout": 1,
         "pr_attempts": 2,
         "pr_delay": 0,
         "trusted_proxy": None,

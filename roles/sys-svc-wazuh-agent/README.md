@@ -75,7 +75,7 @@ On Arch Linux the role builds the agent from Wazuh's official release tarball (`
 The build tools (`base-devel`, `gcc15`, `python` from the `wazuh-agent-build` id, plus the shared `cmake` id; `curl` for `make deps` is always there as a `pacman` dependency) stay installed after the build: a known trade-off, faster rebuilds on the next version bump versus a compiler on the host.
 A build takes about 4 minutes on 8 cores (deps 45-73 s, compile 133-137 s, `install.sh` about 10 s), measured in probes of 4.14.6 and 4.14.9.
 
-**Pinning a new version.** Compute the hashes in a throwaway `archlinux:latest` container, for example with `make compose-inner-run IMAGE=archlinux:latest`. The `sha256sum source.tar.gz` line gives `source`; every following `<entry> <sha256>` line is one `deps` entry, the same command the role runs:
+**Pinning a new version.** Compute the hashes in a throwaway `archlinux:latest` container with the repository mounted, for example with `make compose-inner-run IMAGE=archlinux:latest INFINITO_RUN_FLAGS='-v /opt/src/infinito:/opt/src/infinito:ro'`. The `sha256sum source.tar.gz` line gives `source`; every line of [`files/shell/deps_manifest.sh`](files/shell/deps_manifest.sh), the script the role runs, is one `deps` entry:
 
 ```bash
 V=4.14.9
@@ -84,9 +84,7 @@ sha256sum source.tar.gz
 mkdir src && tar -xzf source.tar.gz -C src --strip-components=1
 make -C src/src TARGET=agent deps
 cd src/src
-find external -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort | while IFS= read -r name; do
-  printf '%s %s\n' "${name}" "$(find "external/${name}" -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
-done
+bash /opt/src/infinito/roles/sys-svc-wazuh-agent/files/shell/deps_manifest.sh
 ```
 
 Run it twice from a fresh unpack: both runs must print the same lines before they become pins.
@@ -166,7 +164,7 @@ The role therefore freezes the collector instead: `wazuh-collector-freeze.path` 
 [scripts/tests/wazuh/measure_k.sh](../../scripts/tests/wazuh/measure_k.sh) measures delivery in the dev stack; no role deploys it and CI does not run it. It sends numbered events through an opted-in tag from throwaway journald containers (`--rm`, a per-run label, removed on exit), compares what was sent, what journald stored and what reached the manager's archive, and prints one markdown row per case: missing sequence ranges, duplicates, journald suppression (with alert `100140`) and the agent buffer alerts `202`, `203` and `204`. Before each case it requires the manager archive (`logall_json`) on, the manager running and the agent connected with an empty buffer; on exit, also on failure, it starts the manager and the agent again if a case stopped them. Run one case at a time inside the dev container:
 
 ```bash
-make compose-exec cmd="K_TAG=pixelfed K_IMAGE=alpine:3.20 K_MANAGER=wazuh.manager K_LOGS_VOLUME=wazuh_manager_logs K_MANAGER_CONF=/opt/compose/wazuh/wazuh_manager.conf K_AGENT_STATE=/var/ossec/var/run/wazuh-agentd.state K_HEALTH_UNIT=hlth-wazuh-agent.16.2.3.infinito.nexus.service K_JOURNAL_UNIT=hlth-journalctl.16.2.3.infinito.nexus.service K_SETTLE_S=60 K_MAX_WAIT_S=1800 K_WATCH_TAG=infinito-wazuh-watch bash /opt/src/infinito/scripts/tests/wazuh/measure_k.sh normal"
+make compose-exec cmd="K_TAG=pixelfed K_IMAGE=alpine:3.20 K_MANAGER=wazuh.manager K_LOGS_VOLUME=wazuh_manager_logs K_MANAGER_CONF=/opt/compose/wazuh/wazuh_manager.conf K_AGENT_STATE=/var/ossec/var/run/wazuh-agentd.state K_HEALTH_UNIT=hlth-wazuh-agent.16.2.3.infinito.nexus.service K_JOURNAL_UNIT=hlth-journalctl.16.2.3.infinito.nexus.service K_SETTLE_S=60 K_MAX_WAIT_S=1800 K_WATCH_TAG=infinito-wazuh-watch K_SUPPRESSED_RULE=100140 bash /opt/src/infinito/scripts/tests/wazuh/measure_k.sh normal"
 ```
 
 The cases are `normal`, `burst-buffer`, `burst-journald`, `outage-5`, `outage-15`, `agent-restart`, `restart-frozen`, `agent-down` and `journal-check`; the script's header describes each.

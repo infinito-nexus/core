@@ -12,8 +12,10 @@ from plugins.lookup.wazuh_ruleset import LookupModule
 from utils.roles.applications.services.wazuh import (
     CONTAINER_COMM,
     DEPLOY_TAG,
+    DEPLOYED_CODE_RULE_IDS,
     DEPLOYED_CODE_TAG,
     FIM_TAG,
+    GITHUB_SETTINGS_RULE_IDS,
     GITHUB_SETTINGS_TAG,
     JOURNALD_DECODER,
     JOURNALD_PROGRAM,
@@ -35,6 +37,10 @@ _EMPTY = {
     "watch": _WATCH,
     "github_settings": _GITHUB_SETTINGS,
     "deployed_code": _DEPLOYED_CODE,
+    "rule_ids": {
+        "github_settings": GITHUB_SETTINGS_RULE_IDS,
+        "deployed_code": DEPLOYED_CODE_RULE_IDS,
+    },
     "own": [_SELFTEST, _DEPLOY, _FIM, _WATCH, _GITHUB_SETTINGS, _DEPLOYED_CODE],
     "journald": {"program": JOURNALD_PROGRAM, "decoder": JOURNALD_DECODER},
     "system_tags": list(SYSTEM_TAGS),

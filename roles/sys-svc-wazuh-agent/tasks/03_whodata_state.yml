@@ -14,7 +14,7 @@
   # Exception: a verdict that never appears is reported as whodata=unknown, which alerts, instead of failing the deploy.
   ignore_errors: true
   retries: "{{ WAZUH_AGENT_FIM_STATE_RETRIES }}"
-  delay: 5
+  delay: "{{ WAZUH_AGENT_FIM_STATE_DELAY }}"
   until: >-
     'wazuh-syscheckd: INFO: Started' not in wazuh_agent_whodata_log.stdout
     or ('(9203)' in wazuh_agent_whodata_log.stdout

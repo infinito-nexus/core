@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-import ipaddress
-import json
 import os
 import re
 import subprocess
-import syslog
-import urllib.error
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
-API_VERSION = "2022-11-28"
+from github_api import Api, CheckError, emit, read_token
+
+USER_AGENT = "infinito-deployed-code"
 MAX_VALUE = 300
 MAX_MODIFIED = 50
 GITHUB_SLUG = re.compile(
@@ -20,89 +16,8 @@ GITHUB_SLUG = re.compile(
 URL_CREDENTIALS = re.compile(r"//[^/@\s]+@")
 
 
-class CheckError(Exception):
-    pass
-
-
 def clean(text):
     return URL_CREDENTIALS.sub("//***@", " ".join(str(text).split()))[:MAX_VALUE]
-
-
-def internal_host(host):
-    try:
-        return ipaddress.ip_address(host).is_loopback
-    except ValueError:
-        return host == "localhost" or (host != "" and "." not in host)
-
-
-def api_base_url(url):
-    """Return the GitHub API base URL without its trailing slash, refusing any scheme but https.
-
-    Plain http is accepted only for a loopback or dotless container-internal host, where the tests run their API stub.
-
-    Args:
-        url: the configured base URL.
-
-    Raises:
-        ValueError: the scheme is neither https nor http to such a host.
-    """
-    parts = urllib.parse.urlsplit(url)
-    if parts.scheme == "https" or (
-        parts.scheme == "http" and internal_host(parts.hostname or "")
-    ):
-        return url.rstrip("/")
-    raise ValueError(
-        f"refusing GitHub API URL {url}: https is required outside loopback and container-internal hosts"
-    )
-
-
-class Api:
-    def __init__(self, base_url, token, timeout):
-        self.base_url = api_base_url(base_url)
-        self.token = token
-        self.timeout = timeout
-
-    def get(self, path):
-        request = urllib.request.Request(  # noqa: S310 - api_base_url allows only https, or http to a loopback or container-internal stub
-            self.base_url + path,
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {self.token}",
-                "User-Agent": "infinito-deployed-code",
-                "X-GitHub-Api-Version": API_VERSION,
-            },
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:  # noqa: S310 - scheme checked by api_base_url
-                return json.loads(response.read() or b"null")
-        except urllib.error.HTTPError as error:
-            raise CheckError(
-                failure_reason(error.code, error.read(), error.headers)
-            ) from error
-        except (urllib.error.URLError, OSError, ValueError) as error:
-            raise CheckError(
-                f"GitHub API unreachable: {getattr(error, 'reason', error)}"
-            ) from error
-
-
-def failure_reason(status, body, headers):
-    """Return why a GitHub API call failed, naming the rate limit when it is the cause.
-
-    Args:
-        status: the HTTP status.
-        body: the response body.
-        headers: the response headers, None when there were none.
-    """
-    try:
-        message = str(json.loads(body).get("message", ""))
-    except (ValueError, AttributeError):
-        message = ""
-    remaining = headers.get("X-RateLimit-Remaining") if headers else None
-    if status == 429 or (
-        status == 403 and (remaining == "0" or "rate limit" in message.lower())
-    ):
-        return f"HTTP {status}: rate limit exceeded"
-    return f"HTTP {status}: {message or 'no message'}"
 
 
 class Git:
@@ -343,16 +258,8 @@ def parse_args(argv=None):
 
 def main():
     args = parse_args()
-    token = Path(args.token_file).read_text(encoding="utf-8").strip()
-    syslog.openlog(ident=args.tag, facility=syslog.LOG_DAEMON)
-    for event in run(
-        args.checkout, Api(args.api_url, token, args.timeout), args.timeout
-    ):
-        line = json.dumps(event)
-        syslog.syslog(
-            syslog.LOG_WARNING if event["dc_kind"] != "run" else syslog.LOG_INFO, line
-        )
-        print(line)
+    api = Api(args.api_url, read_token(args.token_file), args.timeout, USER_AGENT)
+    emit(args.tag, run(args.checkout, api, args.timeout), "dc_kind")
 
 
 if __name__ == "__main__":

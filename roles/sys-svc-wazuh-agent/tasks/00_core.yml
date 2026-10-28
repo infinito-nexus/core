@@ -17,7 +17,7 @@
   # Exception: a host still converging after boot gets retries; when they run out, the assert below fails with the reason.
   ignore_errors: true
   retries: "{{ WAZUH_AGENT_CLOCK_SYNC_RETRIES }}"
-  delay: 10
+  delay: "{{ WAZUH_AGENT_CLOCK_SYNC_DELAY }}"
   until: wazuh_agent_clock_sync.stdout | trim == 'yes'
 
 - name: "🧭 Resolve the clock synchronization state"
@@ -147,8 +147,8 @@
       - "{{ WAZUH_AGENT_DOCKER_LISTENER_SCRIPT }}"
   register: wazuh_agent_docker_listener_process
   changed_when: false
-  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * 2) / 5) | round(0, 'ceil') | int }}"
-  delay: 5
+  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS) / WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY) | round(0, 'ceil') | int }}"
+  delay: "{{ WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY }}"
   until: wazuh_agent_docker_listener_process.rc == 0
   when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool
 
@@ -159,6 +159,11 @@
 - name: "📂 Include dependency 'sys-ctl-hlth-wazuh-agent'"
   include_role:
     name: sys-ctl-hlth-wazuh-agent
+  vars:
+    HLTH_WAZUH_AGENT_MANAGER_ROLE: "{{ WAZUH_AGENT_MANAGER_ROLE }}"
+    HLTH_WAZUH_AGENT_SERVICE: "{{ WAZUH_AGENT_SERVICE }}"
+    HLTH_WAZUH_AGENT_RUN_DIR: "{{ WAZUH_AGENT_RUN_DIR }}"
+    HLTH_WAZUH_AGENT_WAIT_FILE: "{{ WAZUH_AGENT_WAIT_FILE }}"
   when: run_once_sys_ctl_hlth_wazuh_agent is not defined
 
 - name: "📂 Include dependency 'sys-ctl-hlth-deployed-code'"

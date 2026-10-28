@@ -26,8 +26,8 @@
     virtualenv: "{{ WAZUH_AGENT_DOCKER_LISTENER_VENV }}"
     virtualenv_command: "python3 -m venv"
   register: wazuh_agent_docker_listener_pip_self
-  retries: 5
-  delay: 15
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
   until: wazuh_agent_docker_listener_pip_self is succeeded
 
 - name: "📦 Install the Docker listener's pinned Python packages into its venv"
@@ -36,8 +36,8 @@
     virtualenv: "{{ WAZUH_AGENT_DOCKER_LISTENER_VENV }}"
     virtualenv_command: "python3 -m venv"
   register: wazuh_agent_docker_listener_pip
-  retries: 5
-  delay: 15
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
   until: wazuh_agent_docker_listener_pip is succeeded
   notify: wazuh-agent-restart
 

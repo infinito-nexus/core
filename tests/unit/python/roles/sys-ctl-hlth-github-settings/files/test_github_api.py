@@ -1,6 +1,11 @@
+import contextlib
 import importlib.util
+import io
 import json
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from utils import PROJECT_ROOT
 
@@ -60,12 +65,48 @@ class TestAllowedUrl(unittest.TestCase):
 
     def test_api_refuses_a_public_http_base_url(self):
         with self.assertRaises(ValueError):
-            github_api.Api("http://api.github.example", "t", 5)
+            github_api.Api("http://api.github.example", "t", 5, "test")
 
     def test_a_non_https_next_link_is_a_failed_check(self):
-        api = github_api.Api("https://api.github.example", "t", 5)
+        api = github_api.Api("https://api.github.example", "t", 5, "test")
         with self.assertRaises(github_api.CheckError):
             api._open("http://evil.example/next")
+
+
+class TestHelpers(unittest.TestCase):
+    def test_read_token_strips_whitespace(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "token"
+            path.write_text("  secret-token\n", encoding="utf-8")
+            self.assertEqual(github_api.read_token(str(path)), "secret-token")
+
+    def test_emit_logs_the_summary_as_info_and_findings_as_warnings(self):
+        events = [{"x_kind": "drift", "x_a": "1"}, {"x_kind": "run", "x_n": "1"}]
+        with (
+            mock.patch.object(github_api.syslog, "openlog") as openlog,
+            mock.patch.object(github_api.syslog, "syslog") as log,
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            github_api.emit("tag-x", events, "x_kind")
+        openlog.assert_called_once_with(
+            ident="tag-x", facility=github_api.syslog.LOG_DAEMON
+        )
+        self.assertEqual(
+            [call.args for call in log.call_args_list],
+            [
+                (github_api.syslog.LOG_WARNING, json.dumps(events[0])),
+                (github_api.syslog.LOG_INFO, json.dumps(events[1])),
+            ],
+        )
+        self.assertEqual(out.getvalue().splitlines(), [json.dumps(e) for e in events])
+
+    def test_user_agent_is_sent(self):
+        api = github_api.Api("https://api.github.example", "t", 5, "agent-x")
+        with mock.patch.object(github_api.urllib.request, "urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value.status = 200
+            urlopen.return_value.__enter__.return_value.read.return_value = b"{}"
+            api.get("/x")
+        self.assertEqual(urlopen.call_args.args[0].get_header("User-agent"), "agent-x")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,9 @@
 import importlib.util
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from unittest import TestCase, main
+
+import jinja2
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -17,8 +20,25 @@ SCRIPT = (
     / "script.py"
 )
 ROLE_VARS = PROJECT_ROOT / "roles" / "sys-ctl-hlth-wazuh-agent" / ROLE_FILE_VARS_MAIN
+AGENT_VARS = PROJECT_ROOT / "roles" / "sys-svc-wazuh-agent" / ROLE_FILE_VARS_MAIN
 NOW = datetime(2026, 10, 18, 12, 0, 0, tzinfo=UTC).astimezone()
 THRESHOLD = 180
+
+
+def render(role_vars, name):
+    """Return a role var with its path_join references resolved.
+
+    Args:
+        role_vars: the role's vars/main.yml.
+        name: the var to resolve.
+    """
+    environment = jinja2.Environment(undefined=jinja2.StrictUndefined)  # noqa: S701 - renders file paths, not HTML
+    environment.filters["path_join"] = lambda parts: str(Path(*parts))
+    value = role_vars[name]
+    while isinstance(value, str) and "{{" in value:
+        value = environment.from_string(value).render(role_vars)
+    return value
+
 
 LISTING = """Wazuh agent_control. List of available agents:
    ID: 000, Name: wazuh.manager (server), IP: 127.0.0.1, Active/Local
@@ -212,7 +232,11 @@ class TestParsing(TestCase):
             ]
         )
         role_vars = load_yaml(str(ROLE_VARS))
-        self.assertEqual(args.wait_file, role_vars["HLTH_WAZUH_AGENT_WAIT_FILE"])
+        agent_vars = load_yaml(str(AGENT_VARS))
+        self.assertEqual(
+            args.wait_file,
+            render(agent_vars, "WAZUH_AGENT_WAIT_FILE"),
+        )
         self.assertEqual(
             args.collector_grace, role_vars["HLTH_WAZUH_AGENT_COLLECTOR_GRACE"]
         )

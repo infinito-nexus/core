@@ -1,3 +1,0 @@
----
-# Exception: one megabyte above the receiver's own limit (WEBHOOK_MAX_BYTES), so a body between the two reaches the receiver and is refused and alerted there instead of silently at the proxy.
-client_max_body_size: 6M

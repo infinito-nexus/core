@@ -46,6 +46,6 @@
     wazuh_app_canary_search.json is defined and
     wazuh_app_canary_search.json.hits.total.value > 0
   retries: "{{ WAZUH_CANARY_WAIT_RETRIES }}"
-  delay: "{{ WAZUH_AGENT_WAIT_DELAY }}"
+  delay: "{{ WAZUH_POLL_DELAY }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

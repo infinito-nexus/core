@@ -1,9 +1,11 @@
 import ipaddress
 import json
 import re
+import syslog
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 API_VERSION = "2022-11-28"
 NEXT_LINK = re.compile(r'<([^>]+)>;\s*rel="next"')
@@ -49,8 +51,34 @@ def failure_reason(status, body, headers):
     return f"HTTP {status}: {message or 'no message'}"
 
 
+def read_token(path):
+    """Return the token stored in a file, without surrounding whitespace.
+
+    Args:
+        path: the token file.
+    """
+    return Path(path).read_text(encoding="utf-8").strip()
+
+
+def emit(tag, events, kind_key):
+    """Log each event as one JSON line to syslog under the tag, and print it.
+
+    Args:
+        tag: the syslog identifier the Wazuh agent collects.
+        events: the event dicts, in order.
+        kind_key: the key whose value ``run`` marks the run summary, logged as info; every other event is a warning.
+    """
+    syslog.openlog(ident=tag, facility=syslog.LOG_DAEMON)
+    for event in events:
+        line = json.dumps(event)
+        syslog.syslog(
+            syslog.LOG_INFO if event[kind_key] == "run" else syslog.LOG_WARNING, line
+        )
+        print(line)
+
+
 class Api:
-    def __init__(self, base_url, token, timeout):
+    def __init__(self, base_url, token, timeout, user_agent):
         if not allowed_url(base_url):
             raise ValueError(
                 f"refusing GitHub API URL {base_url}: https is required outside loopback and container-internal hosts"
@@ -58,6 +86,7 @@ class Api:
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.timeout = timeout
+        self.user_agent = user_agent
 
     def _open(self, url):
         if not allowed_url(url):
@@ -67,7 +96,7 @@ class Api:
             headers={
                 "Accept": "application/vnd.github+json",
                 "Authorization": f"Bearer {self.token}",
-                "User-Agent": "infinito-github-settings",
+                "User-Agent": self.user_agent,
                 "X-GitHub-Api-Version": API_VERSION,
             },
         )

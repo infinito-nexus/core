@@ -3,14 +3,16 @@
 #
 # Deployed code check proof, dev and CI only: rebuilds the throwaway checkout DEPLOYED_CODE_PROOF from a local
 # origin that pretends to be a GitHub repository, runs the deployed check against a local GitHub API stub, and waits
-# for each finding as an alert: a clean, verified commit on main raises nothing; a modified tracked file raises 100173
-# and a FIM alert; a commit not on main raises 100172; an unverified commit 100171; a failing API 100174.
+# for each finding as an alert: a clean, verified commit on main raises nothing; a modified tracked file raises its
+# rule and a FIM alert; a commit not on main, an unverified commit and a failing API each raise their own rule.
 #
 # Env (all required; test.sh passes them):
 #   ALERTS                   the manager's alerts.json
 #   DEPLOYED_CODE_PROOF      the throwaway checkout, also in DEPLOYED_CODE_CHECKOUTS; empty skips the proof
 #   DEPLOYED_CODE_SCRIPT     the deployed check
 #   DEPLOYED_CODE_TAG        the journald tag the check logs under
+#   DEPLOYED_CODE_MODIFIED_RULE, DEPLOYED_CODE_UNMERGED_RULE, DEPLOYED_CODE_UNVERIFIED_RULE, DEPLOYED_CODE_FAILED_RULE
+#                            the Wazuh rule ID each finding raises
 #   RETRIES, SLEEP_SECONDS   polling for an alert
 
 set -euo pipefail
@@ -21,6 +23,8 @@ if [[ -z "${DEPLOYED_CODE_PROOF}" ]]; then
 	exit 0
 fi
 : "${ALERTS:?}" "${DEPLOYED_CODE_SCRIPT:?}" "${DEPLOYED_CODE_TAG:?}" "${RETRIES:?}" "${SLEEP_SECONDS:?}"
+: "${DEPLOYED_CODE_MODIFIED_RULE:?}" "${DEPLOYED_CODE_UNMERGED_RULE:?}" "${DEPLOYED_CODE_UNVERIFIED_RULE:?}"
+: "${DEPLOYED_CODE_FAILED_RULE:?}"
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
 PROOF_URL="https://github.com/proof-org/core.git" # nocheck: repository-declared, url -- a fake origin rewritten to a local bare repository through insteadOf, never fetched from GitHub
@@ -140,6 +144,7 @@ g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --detach "${VERIFIED_SHA}"
 python3 - "${WORK}" "${ALERTS}" "${DEPLOYED_CODE_PROOF}" "${FILE}" "$((RETRIES * SLEEP_SECONDS))" \
 	"${VERIFIED_SHA}" "${FEATURE_SHA}" "${UNVERIFIED_SHA}" <<'PY' || fail "deployed code check"
 import json
+import os
 import sys
 import time
 
@@ -147,10 +152,10 @@ work, alerts, proof, name, timeout, verified, feature, unverified = sys.argv[1:9
 timeout = int(timeout)
 expected = {
     "clean": [],
-    "modified": [("modified", verified, "100173")],
-    "unmerged": [("unmerged", feature, "100172")],
-    "unverified": [("unverified", unverified, "100171")],
-    "failed": [("error", verified, "100174")],
+    "modified": [("modified", verified, os.environ["DEPLOYED_CODE_MODIFIED_RULE"])],
+    "unmerged": [("unmerged", feature, os.environ["DEPLOYED_CODE_UNMERGED_RULE"])],
+    "unverified": [("unverified", unverified, os.environ["DEPLOYED_CODE_UNVERIFIED_RULE"])],
+    "failed": [("error", verified, os.environ["DEPLOYED_CODE_FAILED_RULE"])],
 }
 wanted = []
 for case, kinds in expected.items():

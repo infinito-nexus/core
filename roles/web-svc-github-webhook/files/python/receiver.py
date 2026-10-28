@@ -37,6 +37,8 @@ LOG_LOCK = threading.Lock()
 STATE_LOCK = threading.Lock()
 MAX_LOGGED_PATH = 200
 MAX_DISCARD = 16 * 1024 * 1024
+DISCARD_CHUNK = 64 * 1024
+MAX_DELIVERY_ID = 64
 
 
 def logged_path(raw_path, known):
@@ -157,12 +159,13 @@ def allowed_url(url):
     return parts.scheme == "https" or (parts.scheme == "http" and internal)
 
 
-def merged_into(api_url, token, repo, sha, branch):
+def merged_into(api_url, token, timeout, repo, sha, branch):
     """Ask GitHub whether a commit belongs to a pull request merged into the branch.
 
     Args:
         api_url: GitHub REST API base URL.
         token: read-only token.
+        timeout: seconds the API request may take.
         repo: ``owner/name``.
         sha: the commit.
         branch: the repository's default branch.
@@ -186,7 +189,7 @@ def merged_into(api_url, token, repo, sha, branch):
             "X-GitHub-Api-Version": "2022-11-28",
         },
     )
-    with urllib.request.urlopen(request, timeout=15) as response:  # noqa: S310 - scheme checked by allowed_url
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - scheme checked by allowed_url
         pulls = json.load(response)
     return any(
         p.get("merged_at") and (p.get("base") or {}).get("ref") == branch for p in pulls
@@ -228,7 +231,14 @@ def check_direct_push(config, delivery, repo, payload, sleep=time.sleep):
     for sha in shas:
         for attempt in range(config["pr_attempts"]):
             try:
-                if merged_into(config["api_url"], config["token"], repo, sha, branch):
+                if merged_into(
+                    config["api_url"],
+                    config["token"],
+                    config["api_timeout"],
+                    repo,
+                    sha,
+                    branch,
+                ):
                     break
             except (urllib.error.URLError, OSError, ValueError) as error:
                 emit(
@@ -259,6 +269,7 @@ def load_config(env):
         "keep_seconds": int(env["WEBHOOK_REPLAY_DAYS"]) * 86400,
         "api_url": env["GITHUB_API_URL"],
         "token": env["GITHUB_TOKEN"],
+        "api_timeout": float(env["WEBHOOK_API_TIMEOUT"]),
         "pr_attempts": int(env["WEBHOOK_PR_ATTEMPTS"]),
         "pr_delay": float(env["WEBHOOK_PR_DELAY"]),
     }
@@ -300,7 +311,7 @@ def make_handler(config, store):
         def discard(self, length):
             remaining = min(length, MAX_DISCARD)
             while remaining > 0:
-                chunk = self.rfile.read(min(remaining, 65536))
+                chunk = self.rfile.read(min(remaining, DISCARD_CHUNK))
                 if not chunk:
                     return
                 remaining -= len(chunk)
@@ -333,7 +344,7 @@ def make_handler(config, store):
             if self.path.split("?", 1)[0] != config["path"]:
                 self.respond(404)
                 return
-            delivery = (self.headers.get("X-GitHub-Delivery") or "")[:64]
+            delivery = (self.headers.get("X-GitHub-Delivery") or "")[:MAX_DELIVERY_ID]
             try:
                 length = int(self.headers.get("Content-Length") or "")
             except ValueError:

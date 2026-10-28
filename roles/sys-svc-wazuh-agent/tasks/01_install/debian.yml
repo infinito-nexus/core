@@ -18,8 +18,8 @@
     update_cache: true
   when: wazuh_agent_apt_source is changed
   register: wazuh_agent_apt_cache
-  retries: 5
-  delay: 15
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
   until: wazuh_agent_apt_cache is succeeded
 
 - name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }} past the hold"
