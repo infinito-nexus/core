@@ -1,5 +1,5 @@
 ---
-# LiveKit runs in host network mode (7880/7881 not Docker-mapped). The
+# LiveKit runs in host network mode under compose (7880/7881 not Docker-mapped). The
 # controller uses the dedicated confidential Keycloak client
 # `opentalk-controller` because the shared `infinito.nexus` client is public
 # and cannot introspect access tokens; the same client doubles as the admin
