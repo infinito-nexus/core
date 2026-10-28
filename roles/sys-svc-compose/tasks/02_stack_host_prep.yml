@@ -8,6 +8,10 @@
     running_check: "{{ compose_mode == 'compose' }}"
   register: compose_instance_before_files
 
+- name: "📝 Record '{{ application_id }}' as a compose instance of this play"
+  ansible.builtin.set_fact:
+    compose_prepared_application_ids: "{{ compose_prepared_application_ids | union([application_id]) }}"
+
 - name: "🛡️ Ensure PHP hardening assets are installed"
   ansible.builtin.include_role:
     name: sys-svc-compose-php
