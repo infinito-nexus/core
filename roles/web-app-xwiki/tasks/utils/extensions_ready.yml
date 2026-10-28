@@ -32,6 +32,8 @@
   when:
     - _xwiki_running is not skipped
     - _xwiki_running.status == 200
+    - _xwiki_running.xwiki_user is defined
+    - _xwiki_running.xwiki_user.endswith(':XWiki.' ~ XWIKI_SUPERADMIN_USERNAME)
 
 - name: "🧭 XWIKI | Compare the running core with the pinned core {{ XWIKI_CORE_VERSION }}"
   set_fact:
