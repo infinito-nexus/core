@@ -29,6 +29,6 @@ git fetch "${source_remote}" main:refs/remotes/main-sync-source/main --force
 
 auth="$(printf 'x-access-token:%s' "${CI_SYNC_MAIN_TOKEN}" | base64 -w0)"
 GIT_CONFIG_COUNT=1 \
-	GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+	GIT_CONFIG_KEY_0="http.extraheader" \
 	GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${auth}" \
 	git push "https://github.com/${GITHUB_REPOSITORY}.git" refs/remotes/main-sync-source/main:refs/heads/main --force
