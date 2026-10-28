@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# Syntax-check the playbook, then run ansible-lint behind a content
-# fingerprint gate: when no file ansible-lint walks (or its config) changed
-# since the last green run, the lint is skipped; any change triggers the
-# full run again, so coverage never shrinks.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,33 +24,27 @@ if ! command -v ansible-lint >/dev/null 2>&1; then
 	exit 0
 fi
 
-LINT_SCOPE=(roles tasks group_vars host_vars library plugins playbook.yml ansible.cfg .ansible-lint .ansible-lint-ignore)
-STAMP="build/ansible-lint.stamp"
+# shellcheck source=scripts/lint/diff/files.sh
+source "${SCRIPT_DIR}/diff/files.sh"
+# shellcheck source=scripts/lint/ansible/stamp.sh
+source "${SCRIPT_DIR}/ansible/stamp.sh"
 
-fingerprint() {
-	{
-		git rev-parse HEAD 2>/dev/null
-		git ls-files -s -- "${LINT_SCOPE[@]}" 2>/dev/null
-		git status --porcelain -- "${LINT_SCOPE[@]}" 2>/dev/null |
-			awk '{print $NF}' | sort -u |
-			while IFS= read -r dirty; do
-				[ -f "${dirty}" ] && sha256sum "${dirty}"
-			done
-	} | sha256sum | cut -d' ' -f1
-}
-
-current=""
-if git rev-parse HEAD >/dev/null 2>&1; then
-	current="$(fingerprint)"
+current="$(ansible_lint_fingerprint all)"
+if ansible_lint_stamp_matches "${current}"; then
+	echo "ansible-lint: no file changed since the last green run; skipping"
+	exit 0
 fi
-if [[ -n "${current}" && -f "${STAMP}" && "$(cat "${STAMP}")" == "${current}" ]]; then
-	echo "ansible-lint: no lintable file changed since the last green run; skipping"
+
+if lint_diff_active ansible; then
+	mapfile -t yaml_files < <(lint_diff_files '\.ya?ml$' | ansible_lint_included)
+	if [[ "${#yaml_files[@]}" -eq 0 ]]; then
+		echo "ansible-lint: no changed YAML file; skipping"
+		exit 0
+	fi
+	ansible-lint "${yaml_files[@]}"
 	exit 0
 fi
 
 ansible-lint
 
-if [[ -n "${current}" ]]; then
-	mkdir -p "$(dirname "${STAMP}")"
-	printf '%s\n' "${current}" >"${STAMP}"
-fi
+ansible_lint_stamp_record "${current}"
