@@ -20,6 +20,18 @@
   become: false
   changed_when: false
 
+- name: 📦 Pack the shared Playwright helpers for a single transfer per role
+  ansible.builtin.command:
+    argv: >-
+      {{
+        ['tar', '-cf', TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE, '-C', TEST_E2E_PLAYWRIGHT_HELPERS_DIR]
+        + (query('fileglob', TEST_E2E_PLAYWRIGHT_HELPERS_DIR ~ '/*.js')
+           | map('basename') | reject('equalto', 'playwright.config.js') | list)
+      }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
 - name: ✅ Ensure the shared personas dir exists
   ansible.builtin.file:
     path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS }}"
