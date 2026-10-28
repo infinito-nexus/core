@@ -47,3 +47,9 @@
     - "'web-app-mailu' in group_names"
     - STALWART_ACTIVE_PROVIDER | bool
     - DEPLOYMENT_MODE == 'compose'
+
+- name: "📝 Record that Stalwart 1.x serves the store of this host"
+  stack_host_copy:
+    content: "{{ STALWART_STORE_LAYOUT_VERSION }}\n"
+    dest: "{{ STALWART_STORE_MARKER_FILE }}"
+    mode: "0644"

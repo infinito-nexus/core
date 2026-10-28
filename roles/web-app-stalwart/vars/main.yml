@@ -41,8 +41,15 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 STALWART_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
 STALWART_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if STALWART_OIDC_ONION_ISSUER | bool else '' }}"
+# Keycloak access tokens carry neither a Stalwart audience nor a urn:ietf:params:oauth:scope:mail scope, so the v1 defaults reject every one of them.
+STALWART_OIDC_TOKEN_VALIDATION:
+  skipAudienceValidation: true
+  unscopedTokens: "interoperable"
 
 STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name') }}"
+STALWART_DATABASE_SHARED: "{{ lookup('database', application_id, 'shared') | bool }}"
+STALWART_STORE_LAYOUT_VERSION: "1"
+STALWART_STORE_MARKER_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'store.layout' ] | path_join }}"
 
 STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
 STALWART_CLAMAV_HOST: "clamav"
@@ -65,6 +72,8 @@ STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join 
 STALWART_WEBUI_CONTAINER_FILE: "{{ lookup('volume', application_id, 'webui_bundle').target }}"
 STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"
 STALWART_WEBUI_APP_DESCRIPTION: "Stalwart Web Interface"
+STALWART_WEBUI_OAUTH_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.webui') }}"
+STALWART_WEBUI_BASE_URL: "{{ lookup('canonical_url', application_id) }}"
 
 STALWART_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
 STALWART_ACTIVE_PROVIDER: "{{ lookup('mail_provider') == application_id }}"

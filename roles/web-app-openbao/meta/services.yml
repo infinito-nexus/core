@@ -77,7 +77,7 @@ openbao:
 # nocheck: dynamic-flag  build-stage image, not group-gated
 auth-ldap:
   image: ghcr.io/openbao/openbao-plugin-auth-ldap
-  version: "v0.1.0"
+  version: "v0.2.0"
   enabled: false
 
 # nocheck: playwright-service-flag

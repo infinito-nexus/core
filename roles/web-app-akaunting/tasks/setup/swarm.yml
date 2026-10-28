@@ -16,6 +16,15 @@
   delay: 5
   until: akaunting_swarm_drained.rc == 0
 
+# Exception: the service runs the image built from the akaunting/docker repository, whose code lands in the shared volume; the upstream tag carries an older PHP that cannot run that code.
+- name: "🔍 Akaunting setup | Read the image the akaunting service runs"
+  ansible.builtin.command: >-
+    container service inspect {{ AKAUNTING_SERVICE }}
+    --format {{ '{{.Spec.TaskTemplate.ContainerSpec.Image}}' }}
+  register: akaunting_service_image
+  changed_when: false
+  failed_when: akaunting_service_image.rc != 0 or (akaunting_service_image.stdout | trim | length == 0)
+
 - name: "▶️ Akaunting setup | Run one-shot install"
   ansible.builtin.shell: |
     set -euo pipefail
@@ -28,7 +37,7 @@
       --mount type=volume,source={{ AKAUNTING_VOLUME | quote }},target={{ lookup('volume', 'web-app-akaunting', 'data').target }} \
       --network {{ application_id | get_entity_name | quote }} \
       {% if lookup('database', application_id, 'shared') | bool %}--network {{ lookup('database', application_id, 'network') | quote }} {% endif %}\
-      {{ AKAUNTING_IMAGE }}:{{ AKAUNTING_VERSION }} \
+      {{ akaunting_service_image.stdout | trim | quote }} \
       {{ AKAUNTING_ENTRYPOINT }}
   changed_when: true
 

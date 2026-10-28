@@ -71,7 +71,7 @@ discourse:
   repository: https://github.com/discourse/discourse_docker.git
   application:
     repository: https://github.com/discourse/discourse.git
-    ref: v2026.9.1
+    ref: v2026.10.0
   ports:
     local:
       http: 8020
