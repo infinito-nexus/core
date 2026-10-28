@@ -1,9 +1,6 @@
 location = /logout {
     {{ lookup('proxy_pass', 'web-svc-logout', 'logout', 'http', tail='/logout') }}
-    proxy_set_header   Host              $host;
-    proxy_set_header   X-Real-IP         $remote_addr;
-    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
-    proxy_set_header   X-Forwarded-Proto $scheme;
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
     proxy_http_version 1.1;
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}

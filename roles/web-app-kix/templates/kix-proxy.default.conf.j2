@@ -24,10 +24,7 @@ server {
     proxy_send_timeout    300s;
 
     location / {
-        proxy_set_header Host                $host;
-        proxy_set_header X-Real-IP           $remote_addr;
-        proxy_set_header X-Forwarded-For     $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto   $scheme;
+        {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
         proxy_set_header X-Forwarded-User    $http_x_forwarded_user;
         proxy_set_header Remote-User         $http_x_forwarded_user;
         proxy_set_header Upgrade             $http_upgrade;
