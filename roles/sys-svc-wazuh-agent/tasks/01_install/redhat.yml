@@ -1,11 +1,21 @@
 ---
+- name: "🔑 Fetch and verify the Wazuh signing key"
+  ansible.builtin.include_tasks: signing_key.yml
+  vars:
+    wazuh_agent_key_dest: "{{ WAZUH_AGENT_RPM_KEY }}"
+
+- name: "🔑 Import the verified Wazuh signing key into rpm"
+  ansible.builtin.rpm_key:
+    key: "{{ WAZUH_AGENT_RPM_KEY }}"
+    fingerprint: "{{ WAZUH_AGENT_GPG_KEY_FINGERPRINT }}"
+
 - name: "🔧 Configure the Wazuh repository with the agent excluded"
   ansible.builtin.yum_repository:
     name: "{{ WAZUH_AGENT_YUM_REPO }}"
     description: Wazuh
     baseurl: "{{ WAZUH_AGENT_REPO_URL }}/yum/"
     gpgcheck: true
-    gpgkey: "{{ WAZUH_AGENT_GPG_KEY_URL }}"
+    gpgkey: "file://{{ WAZUH_AGENT_RPM_KEY }}"
     exclude: "{{ WAZUH_AGENT_PACKAGE }}"
 
 - name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }} past the exclude"

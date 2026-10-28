@@ -10,6 +10,9 @@ WAZUH_AGENT_SERVICE: "wazuh-agent.service"
 WAZUH_AGENT_REPO_URL: "https://packages.wazuh.com/{{ WAZUH_AGENT_VERSION.split('.')[0] }}.x"
 WAZUH_AGENT_GPG_KEY_URL: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
 WAZUH_AGENT_APT_KEY: "/etc/apt/keyrings/wazuh.asc"
+WAZUH_AGENT_RPM_KEY: "/etc/pki/rpm-gpg/RPM-GPG-KEY-WAZUH"
+# Exception: pinned from `gpg --show-keys` of the published key ("Wazuh.com (Wazuh Signing Key) <support@wazuh.com>", expires 2027-05-15); a fetched key with any other fingerprint fails the deploy before a repository uses it.
+WAZUH_AGENT_GPG_KEY_FINGERPRINT: "0DCFCA5547B19D2A6099506096B3EE5F29111145"
 WAZUH_AGENT_APT_SOURCE: "/etc/apt/sources.list.d/wazuh.list"
 WAZUH_AGENT_YUM_REPO: "wazuh"
 

@@ -1,11 +1,8 @@
 ---
-- name: "🔑 Fetch the Wazuh package signing key"
-  get_url_retry:
-    url: "{{ WAZUH_AGENT_GPG_KEY_URL }}"
-    dest: "{{ WAZUH_AGENT_APT_KEY }}"
-    owner: root
-    group: root
-    mode: "0644"
+- name: "🔑 Fetch and verify the Wazuh signing key"
+  ansible.builtin.include_tasks: signing_key.yml
+  vars:
+    wazuh_agent_key_dest: "{{ WAZUH_AGENT_APT_KEY }}"
 
 - name: "🔧 Configure the Wazuh apt repository"
   ansible.builtin.copy:

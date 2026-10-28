@@ -1,0 +1,32 @@
+---
+- name: "🔑 Fetch the Wazuh package signing key"
+  get_url_retry:
+    url: "{{ WAZUH_AGENT_GPG_KEY_URL }}"
+    dest: "{{ wazuh_agent_key_dest }}.download"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "📖 Read the fetched Wazuh signing key"
+  ansible.builtin.slurp:
+    src: "{{ wazuh_agent_key_dest }}.download"
+  register: wazuh_agent_signing_key
+
+- name: "🛑 Require the pinned Wazuh signing key fingerprint"
+  ansible.builtin.assert:
+    that:
+      - (wazuh_agent_signing_key.content | b64decode | openpgp_fingerprint) == WAZUH_AGENT_GPG_KEY_FINGERPRINT
+    fail_msg: >-
+      {{ WAZUH_AGENT_GPG_KEY_URL }} served a key with fingerprint
+      {{ wazuh_agent_signing_key.content | b64decode | openpgp_fingerprint }}, not the pinned
+      {{ WAZUH_AGENT_GPG_KEY_FINGERPRINT }}. The key is not installed and nothing comes from the Wazuh repository.
+    quiet: true
+
+- name: "🔑 Install the verified Wazuh signing key"
+  ansible.builtin.copy:
+    src: "{{ wazuh_agent_key_dest }}.download"
+    dest: "{{ wazuh_agent_key_dest }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"

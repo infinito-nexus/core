@@ -46,6 +46,16 @@
       {{ WAZUH_AGENT_VERSION }}; a Wazuh agent must never be newer than its manager. Upgrade the manager first.
     quiet: true
 
+- name: "🛑 Require pinned source and deps checksums for Wazuh {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: WAZUH_AGENT_VERSION in WAZUH_AGENT_SOURCE_PINS
+    fail_msg: >-
+      No source pin for Wazuh {{ WAZUH_AGENT_VERSION }}: add WAZUH_AGENT_SOURCE_PINS['{{ WAZUH_AGENT_VERSION }}']
+      with the source and deps SHA-256 to roles/sys-svc-wazuh-agent/vars/main.yml; the role README
+      ("Arch Linux source build") shows how to compute both. Nothing has been changed on this host.
+    quiet: true
+  when: ansible_facts['os_family'] == 'Archlinux'
+
 # Exception: wazuh-control checks its daemons with ps -p, but the agent packages do not declare the package that ships ps; without it, wazuh-control start hangs until systemd's start timeout (seen on a minimal CentOS Stream 10).
 - name: "📦 Install ps, which wazuh-control needs to start the agent"
   package_install:
