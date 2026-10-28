@@ -23,7 +23,11 @@ def compose_hashed_entries(compose):
     entries = []
     for section in SECTIONS:
         for key, spec in ((compose or {}).get(section) or {}).items():
-            if not isinstance(spec, dict) or not spec.get("file") or not spec.get("name"):
+            if (
+                not isinstance(spec, dict)
+                or not spec.get("file")
+                or not spec.get("name")
+            ):
                 continue
             name = str(spec["name"])
             if re.search(rf"_{re.escape(str(key))}_[0-9a-f]{{{HASH_LENGTH}}}$", name):
@@ -43,7 +47,9 @@ def compose_rehashed_name(name, content_b64):
         ``compose_volumes`` lookup computes: sha256 of the file read as UTF-8
         text with universal newlines, as ``utils.cache.files.read_text`` does.
     """
-    text = io.StringIO(base64.b64decode(content_b64).decode("utf-8"), newline=None).read()
+    text = io.StringIO(
+        base64.b64decode(content_b64).decode("utf-8"), newline=None
+    ).read()
     return name[:-HASH_LENGTH] + content_hash(text, HASH_LENGTH)
 
 

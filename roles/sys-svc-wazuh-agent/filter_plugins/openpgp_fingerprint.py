@@ -20,7 +20,9 @@ def _packet(data):
         if length_byte == 255:
             length = int.from_bytes(data[2:6], "big")
             return tag, data[6 : 6 + length]
-        raise AnsibleFilterError("openpgp_fingerprint: partial body lengths are not a public key")
+        raise AnsibleFilterError(
+            "openpgp_fingerprint: partial body lengths are not a public key"
+        )
     length_type = first & 0x03
     if length_type == 3:
         raise AnsibleFilterError("openpgp_fingerprint: indeterminate packet length")
@@ -46,14 +48,20 @@ def openpgp_fingerprint(armored):
         start = lines.index("-----BEGIN PGP PUBLIC KEY BLOCK-----")
         end = lines.index("-----END PGP PUBLIC KEY BLOCK-----")
     except ValueError as error:
-        raise AnsibleFilterError("openpgp_fingerprint: no armored public key block") from error
+        raise AnsibleFilterError(
+            "openpgp_fingerprint: no armored public key block"
+        ) from error
     body = lines[start + 1 : end]
     body = body[body.index("") + 1 :] if "" in body else body
     data = base64.b64decode("".join(line for line in body if not line.startswith("=")))
     tag, packet = _packet(data)
     if tag != PUBLIC_KEY_TAG or not packet or packet[0] != 4:
-        raise AnsibleFilterError("openpgp_fingerprint: the first packet is no version 4 public key")
-    return hashlib.sha1(b"\x99" + len(packet).to_bytes(2, "big") + packet).hexdigest().upper()  # noqa: S324 - OpenPGP v4 fingerprints are defined as SHA-1
+        raise AnsibleFilterError(
+            "openpgp_fingerprint: the first packet is no version 4 public key"
+        )
+    prefix = b"\x99" + len(packet).to_bytes(2, "big")
+    digest = hashlib.sha1(prefix + packet)  # noqa: S324 - RFC 4880 defines OpenPGP v4 fingerprints as SHA-1
+    return digest.hexdigest().upper()
 
 
 class FilterModule:

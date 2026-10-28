@@ -24,7 +24,10 @@ class TestHashedEntries(unittest.TestCase):
         compose = {
             "services": {"app": {"configs": [{"source": "roles_yml"}]}},
             "configs": {
-                "roles_yml": {"file": "/c/roles.yml", "name": "wazuh_roles_yml_e614d1ac"},
+                "roles_yml": {
+                    "file": "/c/roles.yml",
+                    "name": "wazuh_roles_yml_e614d1ac",
+                },
                 "pinned": {"file": "/c/p.yml", "name": "fixed_name_deadbeef"},
                 "external": {"external": True, "name": "shared_x_12345678"},
             },
@@ -52,7 +55,9 @@ class TestRehashedName(unittest.TestCase):
         finally:
             Path(handle.name).unlink()
         self.assertEqual(
-            compose_rehash.compose_rehashed_name("wazuh_roles_yml_00000000", slurped(data)),
+            compose_rehash.compose_rehashed_name(
+                "wazuh_roles_yml_00000000", slurped(data)
+            ),
             expected,
         )
 
@@ -64,7 +69,9 @@ class TestRehashedName(unittest.TestCase):
 
     def test_unchanged_content_keeps_the_name(self):
         name = compose_rehash.compose_rehashed_name("x_k_00000000", slurped(b"v\n"))
-        self.assertEqual(compose_rehash.compose_rehashed_name(name, slurped(b"v\n")), name)
+        self.assertEqual(
+            compose_rehash.compose_rehashed_name(name, slurped(b"v\n")), name
+        )
 
 
 if __name__ == "__main__":

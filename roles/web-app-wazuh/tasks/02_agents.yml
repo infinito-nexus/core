@@ -1,25 +1,25 @@
 ---
-# Exception: the API credentials and the token reach curl through its own --variable %NAME expansion, so they travel in the environment, never in an argv the host's ps or Docker's exec events would show; the {{NAME}} placeholders inside the raw blocks are curl syntax, not Jinja.
+# Exception: curl reads the API credentials and the token from a config that bash's printf builtin writes into a process substitution inside the manager container, so they come from the environment and never appear in an argv the host's ps or Docker's exec events would show; the register call keeps stdin for its JSON body.
 - name: "🔑 Authenticate to the Wazuh manager API"
   ansible.builtin.shell:
     cmd: >-
       container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      {{ 30 | curl }} -k --variable %API_USERNAME --variable %API_PASSWORD
-      --expand-user '{% raw %}{{API_USERNAME}}:{{API_PASSWORD}}{% endraw %}'
-      -X POST "{{ WAZUH_API_URL }}/security/user/authenticate?raw=true"
+      bash -c 'user="$API_USERNAME:$API_PASSWORD"; user="${user//\\/\\\\}";
+      {{ 30 | curl }} -k -K <(printf "user = \"%s\"\n" "${user//\"/\\\"}")
+      -X POST "{{ WAZUH_API_URL }}/security/user/authenticate?raw=true"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   register: wazuh_api_token
   changed_when: false
   retries: 30
   delay: 10
   until: wazuh_api_token.rc == 0 and wazuh_api_token.stdout.startswith('ey')
+
 - name: "🔍 Read the registered key of each Wazuh agent"
   ansible.builtin.shell:
     cmd: >-
       container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      {{ 30 | curl }} -k --variable %WAZUH_API_TOKEN
-      --expand-header '{% raw %}Authorization: Bearer {{WAZUH_API_TOKEN}}{% endraw %}'
-      "{{ WAZUH_API_URL }}/agents/{{ item.id }}/key"
+      bash -c '{{ 30 | curl }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
+      "{{ WAZUH_API_URL }}/agents/{{ item.id }}/key"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   environment:
     WAZUH_API_TOKEN: "{{ wazuh_api_token.stdout }}"
@@ -28,16 +28,17 @@
     label: "{{ item.id }}"
   register: wazuh_agent_keys
   changed_when: false
+
 - name: "🧮 Select the Wazuh agents whose registration differs"
   ansible.builtin.set_fact:
     wazuh_agent_changes: "{{ WAZUH_AGENTS | wazuh_agent_changes(wazuh_agent_keys.results) }}"
+
 - name: "🗑️ Remove Wazuh agents registered with a different name or key"
   ansible.builtin.shell:
     cmd: >-
       container exec -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      {{ 30 | curl(retries=0) }} -k --variable %WAZUH_API_TOKEN
-      --expand-header '{% raw %}Authorization: Bearer {{WAZUH_API_TOKEN}}{% endraw %}'
-      -X DELETE "{{ WAZUH_API_URL }}/agents?agents_list={{ item.id }}&status=all&older_than=0s&purge=true"
+      bash -c '{{ 30 | curl(retries=0) }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
+      -X DELETE "{{ WAZUH_API_URL }}/agents?agents_list={{ item.id }}&status=all&older_than=0s&purge=true"'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
   environment:
     WAZUH_API_TOKEN: "{{ wazuh_api_token.stdout }}"
@@ -49,14 +50,14 @@
   failed_when: >-
     wazuh_agent_delete.rc != 0 or
     (wazuh_agent_delete.stdout | from_json).data.total_affected_items != 1
+
 - name: "➕ Register Wazuh agents with their vault key"
   ansible.builtin.shell:
     cmd: >-
       container exec -i -e WAZUH_API_TOKEN {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
-      {{ 30 | curl(retries=0) }} -k --variable %WAZUH_API_TOKEN
-      --expand-header '{% raw %}Authorization: Bearer {{WAZUH_API_TOKEN}}{% endraw %}'
+      bash -c '{{ 30 | curl(retries=0) }} -k -K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")
       -H "Content-Type: application/json"
-      -X POST "{{ WAZUH_API_URL }}/agents/insert" --data-binary @-
+      -X POST "{{ WAZUH_API_URL }}/agents/insert" --data-binary @-'
     chdir: "{{ WAZUH_INSTANCE_DIR }}"
     stdin: "{{ {'id': item.id, 'name': item.name, 'key': item.key, 'ip': 'any'} | to_json }}"
   environment:

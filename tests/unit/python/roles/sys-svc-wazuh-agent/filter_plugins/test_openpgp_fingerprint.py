@@ -10,7 +10,9 @@ from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "sys-svc-wazuh-agent"
-_spec = importlib.util.spec_from_file_location("openpgp_fingerprint", ROLE / "filter_plugins" / "openpgp_fingerprint.py")
+_spec = importlib.util.spec_from_file_location(
+    "openpgp_fingerprint", ROLE / "filter_plugins" / "openpgp_fingerprint.py"
+)
 openpgp = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(openpgp)
 
@@ -18,7 +20,9 @@ BODY = bytes([4]) + bytes(range(1, 200))
 
 
 def expected(body):
-    return hashlib.sha1(b"\x99" + len(body).to_bytes(2, "big") + body).hexdigest().upper()  # noqa: S324 - the v4 fingerprint definition
+    prefix = b"\x99" + len(body).to_bytes(2, "big")
+    digest = hashlib.sha1(prefix + body)  # noqa: S324 - RFC 4880 defines OpenPGP v4 fingerprints as SHA-1
+    return digest.hexdigest().upper()
 
 
 def armor(packet, header=True):
@@ -39,7 +43,9 @@ class TestOpenpgpFingerprint(unittest.TestCase):
     def test_old_format_two_byte_length_without_header(self):
         body = bytes([4]) + bytes(300)
         packet = bytes([0x99]) + len(body).to_bytes(2, "big") + body
-        self.assertEqual(openpgp.openpgp_fingerprint(armor(packet, header=False)), expected(body))
+        self.assertEqual(
+            openpgp.openpgp_fingerprint(armor(packet, header=False)), expected(body)
+        )
 
     def test_new_format_packet(self):
         body = BODY[:150]
@@ -65,7 +71,9 @@ class TestOpenpgpFingerprint(unittest.TestCase):
             openpgp.openpgp_fingerprint("not a key")
 
     def test_pinned_fingerprint_has_the_form_the_filter_returns(self):
-        pinned = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))["WAZUH_AGENT_GPG_KEY_FINGERPRINT"]
+        pinned = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))[
+            "WAZUH_AGENT_GPG_KEY_FINGERPRINT"
+        ]
         self.assertRegex(pinned, r"^[0-9A-F]{40}$")
 
 
