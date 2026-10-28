@@ -75,7 +75,10 @@ class TestSwarmRegistrySync(unittest.TestCase):
     def test_a_built_image_and_its_siblings_carry_the_local_image_id(self) -> None:
         services = self._synced_services(
             {
-                "bookwyrm": {"build": {"context": "."}, "image": "bookwyrm_custom:3.11-slim"},
+                "bookwyrm": {
+                    "build": {"context": "."},
+                    "image": "bookwyrm_custom:3.11-slim",
+                },
                 "worker": {"image": "bookwyrm_custom:3.11-slim"},
                 "redis": {"image": "redis:8"},
             },
@@ -85,7 +88,8 @@ class TestSwarmRegistrySync(unittest.TestCase):
             services["bookwyrm"]["labels"], {"infinito.image-id": "sha256:rebuilt"}
         )
         self.assertEqual(
-            services["worker"]["labels"], {"infinito.image-id": "sha256:rebuilt"},
+            services["worker"]["labels"],
+            {"infinito.image-id": "sha256:rebuilt"},
             "a sibling running the same tag must roll with the rebuilt image too",
         )
         self.assertNotIn("labels", services["redis"])

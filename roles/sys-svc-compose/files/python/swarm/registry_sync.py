@@ -57,7 +57,11 @@ def _label_image_id(svc: dict, image_id: str) -> bool:
         if entry in labels:
             return False
         svc["labels"] = [
-            *(item for item in labels if not str(item).startswith(f"{IMAGE_ID_LABEL}=")),
+            *(
+                item
+                for item in labels
+                if not str(item).startswith(f"{IMAGE_ID_LABEL}=")
+            ),
             entry,
         ]
         return True
