@@ -1,4 +1,4 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect, chromium } = require("@playwright/test");
 const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
@@ -7,7 +7,8 @@ const callParticipants = 6;
 const ocsHeaders = { "OCS-APIRequest": "true", Accept: "application/json" };
 const joinCallPattern = /^(join call|start call|anruf beitreten|anruf starten)$/i;
 const leaveCallPattern = /^(leave call|anruf verlassen)$/i;
-const displayNamePattern = /display name|anzeigename/i;
+const guestNamePattern = /enter your name|display name|anzeigename/i;
+const submitGuestNamePattern = /submit name and join/i;
 const turnQuotaReachedCode = 486;
 
 function trackPeerConnections() {
@@ -36,7 +37,7 @@ function readCallStats(page) {
 }
 
 async function createPublicRoom(page, baseUrl) {
-  const response = await page.request.post(`${baseUrl}/ocs/v2.php/apps/spreed/api/v4/room`, {
+  const response = await page.request.post(new URL("ocs/v2.php/apps/spreed/api/v4/room", baseUrl).toString(), {
     headers: ocsHeaders,
     data: { roomType: 3, roomName: `Playwright call capacity ${Date.now()}` },
   });
@@ -45,20 +46,31 @@ async function createPublicRoom(page, baseUrl) {
 }
 
 async function joinCallAsGuest(browser, roomUrl, name) {
-  const context = await browser.newContext({ ignoreHTTPSErrors: true, permissions: ["camera", "microphone"] });
+  // Talk flags a HeadlessChrome user agent as unsupported, and that error toast covers the call button.
+  const userAgent = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${browser.version()} Safari/537.36`;
+  const context = await browser.newContext({ ignoreHTTPSErrors: true, permissions: ["camera", "microphone"], userAgent });
   await context.addInitScript(trackPeerConnections);
   const page = await context.newPage();
   await gotoOnion(page, roomUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   const dialog = page.getByRole("dialog");
-  await dialog.getByLabel(displayNamePattern).first().fill(name, { timeout: resolveTimeout(60_000) });
-  const joinButton = dialog.getByRole("button", { name: joinCallPattern }).last();
-  await expect(joinButton, `${name}: the join button stays disabled after the display name`).toBeEnabled({
+  const submitName = dialog.getByRole("button", { name: submitGuestNamePattern });
+  const dialogJoin = dialog.getByRole("button", { name: joinCallPattern }).last();
+  const leaveButton = page.getByRole("button", { name: leaveCallPattern }).first();
+  await dialog.getByRole("textbox", { name: guestNamePattern }).fill(name, { timeout: resolveTimeout(60_000) });
+  await expect(submitName.or(dialogJoin).first(), `${name}: the name dialog offers neither submit nor join`).toBeVisible({
     timeout: resolveTimeout(30_000),
   });
-  await joinButton.click({ timeout: resolveTimeout(30_000) });
-  await expect(page.getByRole("button", { name: leaveCallPattern }).first(), `${name} never entered the call`).toBeVisible({
-    timeout: resolveTimeout(60_000),
-  });
+  if (await submitName.isVisible()) {
+    await submitName.click({ timeout: resolveTimeout(30_000) });
+    await page.getByRole("button", { name: joinCallPattern }).first().click({ timeout: resolveTimeout(60_000) });
+    await expect(leaveButton.or(dialogJoin).first(), `${name}: neither the call nor its device check opened`).toBeVisible({
+      timeout: resolveTimeout(60_000),
+    });
+  }
+  if (await dialogJoin.isVisible()) {
+    await dialogJoin.click({ timeout: resolveTimeout(30_000) });
+  }
+  await expect(leaveButton, `${name} never entered the call`).toBeVisible({ timeout: resolveTimeout(60_000) });
   return { name, page, context };
 }
 
@@ -71,6 +83,9 @@ exports.register = function (shared) {
     const baseUrl = shared.env.nextcloudBaseUrl;
     const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
     const adminPage = await adminContext.newPage();
+    const mediaBrowser = await chromium.launch({
+      args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+    });
     const guests = [];
     let token = "";
 
@@ -79,7 +94,7 @@ exports.register = function (shared) {
       token = await createPublicRoom(adminPage, baseUrl);
 
       for (let index = 1; index <= callParticipants; index += 1) {
-        guests.push(await joinCallAsGuest(browser, `${baseUrl}/call/${token}`, `Playwright guest ${index}`));
+        guests.push(await joinCallAsGuest(mediaBrowser, new URL(`call/${token}`, baseUrl).toString(), `Playwright guest ${index}`));
       }
 
       for (const guest of guests) {
@@ -95,12 +110,10 @@ exports.register = function (shared) {
         ).not.toContain(turnQuotaReachedCode);
       }
     } finally {
-      for (const guest of guests) {
-        await guest.context.close().catch(() => {});
-      }
+      await mediaBrowser.close().catch(() => {});
       if (token) {
         await adminPage.request
-          .delete(`${baseUrl}/ocs/v2.php/apps/spreed/api/v4/room/${token}`, { headers: ocsHeaders })
+          .delete(new URL(`ocs/v2.php/apps/spreed/api/v4/room/${token}`, baseUrl).toString(), { headers: ocsHeaders })
           .catch(() => {});
       }
       await adminContext.close().catch(() => {});
