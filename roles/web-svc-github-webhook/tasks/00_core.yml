@@ -7,11 +7,16 @@
   vars:
     webserver_vhost_flavour: "basic"
 
-- name: "📋 Copy the webhook receiver"
+- name: "📋 Copy the webhook receiver and its payload module"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
-    src: python/receiver.py
-    dest: "{{ GITHUB_WEBHOOK_RECEIVER_HOST }}"
+    src: "python/{{ item.src }}"
+    dest: "{{ item.dest }}"
     mode: "0444"
+  loop:
+    - { src: receiver.py, dest: "{{ GITHUB_WEBHOOK_RECEIVER_HOST }}" }
+    - { src: github_events.py, dest: "{{ GITHUB_WEBHOOK_EVENTS_HOST }}" }
+  loop_control:
+    label: "{{ item.src }}"
   when: IS_STACK_HOST | bool
   notify: compose-up
 

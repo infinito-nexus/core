@@ -13,5 +13,6 @@ GITHUB_WEBHOOK_PR_DELAY: 10
 GITHUB_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
 GITHUB_WEBHOOK_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.github_webhook_token') }}"
 GITHUB_WEBHOOK_RECEIVER_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'receiver.py'] | path_join }}"
+GITHUB_WEBHOOK_EVENTS_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'github_events.py'] | path_join }}"
 GITHUB_WEBHOOK_TEST_WAZUH: "{{ 'web-app-wazuh' in group_names }}"
 GITHUB_WEBHOOK_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

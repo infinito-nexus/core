@@ -3,6 +3,7 @@ import hmac
 import http.client
 import importlib.util
 import json
+import sys
 import tempfile
 import threading
 import unittest
@@ -12,9 +13,10 @@ from unittest import mock
 
 from utils import PROJECT_ROOT
 
+SCRIPT_DIR = PROJECT_ROOT / "roles/web-svc-github-webhook/files/python"
+sys.path.insert(0, str(SCRIPT_DIR))
 _spec = importlib.util.spec_from_file_location(
-    "github_webhook_receiver",
-    PROJECT_ROOT / "roles/web-svc-github-webhook/files/python/receiver.py",
+    "github_webhook_receiver", SCRIPT_DIR / "receiver.py"
 )
 receiver = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(receiver)
@@ -39,6 +41,7 @@ def config(tmp, **overrides):
         "token": "token",
         "pr_attempts": 2,
         "pr_delay": 0,
+        "trusted_proxy": None,
     }
     values.update(overrides)
     return values
@@ -394,6 +397,53 @@ class TestHandler(unittest.TestCase):
         body = json.dumps({"zen": "z"}).encode()
         self.assertEqual(self.post(body, signature="sha256=00"), 401)
         self.assertEqual(self.post(body), 202)
+
+    def test_x_real_ip_from_an_untrusted_peer_is_ignored(self):
+        self.request("GET", "/", headers={"X-Real-IP": "203.0.113.9"})
+        self.assertEqual(self.kinds("access")[0]["gh_srcip"], "127.0.0.1")
+
+    def test_x_real_ip_from_the_front_proxy_is_logged(self):
+        self.cfg["trusted_proxy"] = "127.0.0.1"
+        self.request("GET", "/", headers={"X-Real-IP": "203.0.113.9"})
+        self.assertEqual(self.kinds("access")[0]["gh_srcip"], "203.0.113.9")
+
+
+class TestClientIp(unittest.TestCase):
+    def test_trusted_proxy_passes_the_header_through(self):
+        self.assertEqual(
+            receiver.client_ip("192.168.82.1", "203.0.113.9", "192.168.82.1"),
+            "203.0.113.9",
+        )
+
+    def test_any_other_peer_is_logged_as_itself(self):
+        self.assertEqual(
+            receiver.client_ip("10.0.0.7", "203.0.113.9", "192.168.82.1"), "10.0.0.7"
+        )
+        self.assertEqual(
+            receiver.client_ip("10.0.0.7", "203.0.113.9", None), "10.0.0.7"
+        )
+
+    def test_missing_or_forged_header_falls_back_to_the_peer(self):
+        self.assertEqual(
+            receiver.client_ip("192.168.82.1", None, "192.168.82.1"), "192.168.82.1"
+        )
+        self.assertEqual(
+            receiver.client_ip("192.168.82.1", "evil\nline", "192.168.82.1"),
+            "192.168.82.1",
+        )
+
+
+class TestDefaultGateway(unittest.TestCase):
+    def test_reads_the_default_route(self):
+        table = (
+            "Iface\tDestination\tGateway\tFlags\tRefCnt\tUse\tMetric\tMask\n"
+            "eth0\t0052A8C0\t00000000\t0001\t0\t0\t0\t00FFFFFF\n"
+            "eth0\t00000000\t0152A8C0\t0003\t0\t0\t0\t00000000\n"
+        )
+        self.assertEqual(receiver.default_gateway(table), "192.168.82.1")
+
+    def test_no_default_route(self):
+        self.assertIsNone(receiver.default_gateway("Iface\tDestination\tGateway\n"))
 
 
 if __name__ == "__main__":

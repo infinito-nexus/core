@@ -29,13 +29,14 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+from github_events import MAX_COMMITS, default_branch, event_record, pushed_commits
 
 LOG_LOCK = threading.Lock()
 STATE_LOCK = threading.Lock()
 MAX_LOGGED_PATH = 200
-MAX_COMMITS = 50
 MAX_DISCARD = 16 * 1024 * 1024
-WORKFLOW_PREFIX = ".github/workflows/"
 
 
 def logged_path(raw_path, known):
@@ -63,8 +64,32 @@ def emit(record):
         sys.stdout.flush()
 
 
-def flag(value):
-    return "true" if value else "false"
+def default_gateway(route_table):
+    """Return the IPv4 default gateway listed in /proc/net/route, None when there is none.
+
+    Args:
+        route_table: the content of /proc/net/route.
+    """
+    for fields in (line.split() for line in route_table.splitlines()[1:]):
+        if len(fields) > 2 and fields[1] == "00000000":
+            return str(ipaddress.IPv4Address(int(fields[2], 16).to_bytes(4, "little")))
+    return None
+
+
+def client_ip(peer, real_ip, trusted_proxy):
+    """Return the client address to log: X-Real-IP only from the front proxy, otherwise the direct peer.
+
+    Args:
+        peer: the direct peer address.
+        real_ip: the X-Real-IP header, None when absent.
+        trusted_proxy: the address the front proxy connects from, None when unknown.
+    """
+    if trusted_proxy is None or peer != trusted_proxy or not real_ip:
+        return peer
+    try:
+        return str(ipaddress.ip_address(real_ip.strip()))
+    except ValueError:
+        return peer
 
 
 def signature_valid(secret, body, header):
@@ -115,128 +140,6 @@ class DeliveryStore:
                 return False
             self.db.commit()
             return True
-
-
-def workflow_paths(payload):
-    paths = set()
-    for commit in payload.get("commits") or []:
-        for key in ("added", "modified", "removed"):
-            paths.update(
-                p for p in commit.get(key) or [] if p.startswith(WORKFLOW_PREFIX)
-            )
-    return ",".join(sorted(paths))
-
-
-def default_branch(payload):
-    """Return the default branch of the payload's repository, e.g. ``main``; empty when the payload has no repository."""
-    return str((payload.get("repository") or {}).get("default_branch") or "")
-
-
-def event_record(event, payload):
-    """Reduce a webhook payload to the logged fields.
-
-    Args:
-        event: the X-GitHub-Event header.
-        payload: the decoded JSON body; for an organization webhook it can come from any repository of the organization.
-
-    Returns:
-        A flat dict of strings; keys start with ``gh_`` so they never collide with Wazuh's static fields.
-        Branch events carry the repository's default branch and whether the event hit it.
-    """
-    branch = default_branch(payload)
-    default_ref = "refs/heads/" + branch if branch else ""
-    record = {
-        "gh_event": event,
-        "gh_action": str(payload.get("action") or ""),
-        "gh_repo": str((payload.get("repository") or {}).get("full_name") or ""),
-        "gh_sender": str((payload.get("sender") or {}).get("login") or ""),
-    }
-    if event == "push":
-        ref = str(payload.get("ref") or "")
-        record.update(
-            gh_ref=ref,
-            gh_default_branch=branch,
-            gh_on_default_branch=flag(bool(default_ref) and ref == default_ref),
-            gh_forced=flag(payload.get("forced")),
-            gh_deleted=flag(payload.get("deleted")),
-            gh_created=flag(payload.get("created")),
-            gh_before=str(payload.get("before") or ""),
-            gh_after=str(payload.get("after") or ""),
-            gh_workflow_paths=workflow_paths(payload),
-        )
-    elif event == "delete":
-        ref = (
-            "refs/heads/" + str(payload.get("ref") or "")
-            if payload.get("ref_type") == "branch"
-            else ""
-        )
-        record.update(
-            gh_ref=ref,
-            gh_default_branch=branch,
-            gh_on_default_branch=flag(bool(default_ref) and ref == default_ref),
-            gh_deleted="true",
-        )
-    elif event == "branch_protection_rule":
-        record.update(gh_rule_name=str((payload.get("rule") or {}).get("name") or ""))
-    elif event == "repository_ruleset":
-        ruleset = payload.get("repository_ruleset") or {}
-        record.update(
-            gh_rule_name=str(ruleset.get("name") or ""),
-            gh_enforcement=str(ruleset.get("enforcement") or ""),
-        )
-    elif event == "member":
-        permission = ((payload.get("changes") or {}).get("permission") or {}).get(
-            "to"
-        ) or ""
-        record.update(
-            gh_member=str((payload.get("member") or {}).get("login") or ""),
-            gh_permission=str(permission),
-        )
-    elif event == "organization":
-        membership = payload.get("membership") or {}
-        record.update(
-            gh_member=str((membership.get("user") or {}).get("login") or ""),
-            gh_permission=str(membership.get("role") or ""),
-        )
-    elif event == "deploy_key":
-        key = payload.get("key") or {}
-        record.update(
-            gh_key_title=str(key.get("title") or ""),
-            gh_key_read_only=flag(key.get("read_only")),
-        )
-    elif event == "secret_scanning_alert":
-        alert = payload.get("alert") or {}
-        record.update(
-            gh_alert_number=str(alert.get("number") or ""),
-            gh_secret_type=str(alert.get("secret_type") or ""),
-            gh_url=str(alert.get("html_url") or ""),
-        )
-    elif event == "dependabot_alert":
-        alert = payload.get("alert") or {}
-        advisory = alert.get("security_advisory") or {}
-        record.update(
-            gh_alert_number=str(alert.get("number") or ""),
-            gh_severity=str(advisory.get("severity") or "").lower(),
-            gh_package=str(
-                ((alert.get("dependency") or {}).get("package") or {}).get("name") or ""
-            ),
-            gh_url=str(alert.get("html_url") or ""),
-        )
-    return record
-
-
-def pushed_commits(payload):
-    """Return the SHAs a push brought to the branch, or None when the payload lists too many to check."""
-    shas = [
-        str(c["id"])
-        for c in payload.get("commits") or []
-        if c.get("distinct", True) and c.get("id")
-    ]
-    if len(shas) > MAX_COMMITS:
-        return None
-    if not shas and payload.get("after"):
-        shas = [str(payload["after"])]
-    return shas
 
 
 def allowed_url(url):
@@ -370,7 +273,11 @@ def make_handler(config, store):
             return
 
         def client_ip(self):
-            return self.headers.get("X-Real-IP") or self.client_address[0]
+            return client_ip(
+                self.client_address[0],
+                self.headers.get("X-Real-IP"),
+                config["trusted_proxy"],
+            )
 
         def respond(self, status, body=b""):
             path = logged_path(self.path, ("/", "/healthz", config["path"]))
@@ -489,7 +396,13 @@ def make_handler(config, store):
 
 
 def main():
-    config = load_config(os.environ)
+    # Exception: the front proxy reaches the container through its published port, so its connections arrive from the network gateway; any other peer's X-Real-IP is ignored.
+    config = {
+        **load_config(os.environ),
+        "trusted_proxy": default_gateway(
+            Path("/proc/net/route").read_text(encoding="ascii")
+        ),
+    }
     store = DeliveryStore(config["state_db"], config["keep_seconds"])
     bind = "0.0.0.0"  # noqa: S104 - binds inside its own container network namespace; the compose port mapping decides what the host exposes
     server = ThreadingHTTPServer((bind, config["port"]), make_handler(config, store))

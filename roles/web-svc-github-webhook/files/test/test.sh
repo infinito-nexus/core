@@ -13,6 +13,7 @@
 #
 # Env (all required; the role's test.env carries them):
 #   ENTITY                   the receiver's journald tag
+#   EVENTS_SCRIPT            the receiver's payload module on the host, mounted next to it
 #   DEFAULT_BRANCH           the default branch the synthetic payloads give their repository
 #   MANAGER_LOGS_VOLUME      the Docker volume holding the Wazuh manager's logs; empty without a local manager
 #   MAX_BYTES                the receiver's body limit
@@ -30,7 +31,7 @@
 
 set -euo pipefail
 
-: "${ENTITY:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
+: "${ENTITY:?}" "${EVENTS_SCRIPT:?}" "${DEFAULT_BRANCH:?}" "${MANAGER_LOGS_VOLUME?}" "${MAX_BYTES:?}" "${RECEIVER_HOST:?}"
 : "${RECEIVER_IMAGE:?}" "${RECEIVER_PATH:?}" "${RECEIVER_PORT:?}" "${RECEIVER_SCRIPT:?}" "${RECEIVER_URL:?}"
 : "${RETRIES:?}" "${SETTINGS_SCRIPT:?}" "${SETTINGS_TAG:?}" "${SLEEP_SECONDS:?}" "${WAZUH_MANAGER_LOCAL:?}"
 : "${WEBHOOK_SECRET:?}"
@@ -142,8 +143,9 @@ sys.stdout.write(json.dumps(payloads[event]))
 PY
 }
 
+# Param: $1 the webhook secret, handed to python3 in its environment, never in its argv; stdin the body to sign.
 sign() {
-	python3 -c 'import hashlib, hmac, sys; print("sha256=" + hmac.new(sys.argv[1].encode(), sys.stdin.buffer.read(), hashlib.sha256).hexdigest())' "$1"
+	SIGN_SECRET="$1" python3 -c 'import hashlib, hmac, os, sys; print("sha256=" + hmac.new(os.environ["SIGN_SECRET"].encode(), sys.stdin.buffer.read(), hashlib.sha256).hexdigest())'
 }
 
 post() {
@@ -292,7 +294,7 @@ container run --detach --name="github-api-stub-${RUN}" --label="${LABEL}" --netw
 	--network-alias=github-api-stub "${RECEIVER_IMAGE}" python3 -c "${STUB_CODE}" >/dev/null
 container run --detach --name="github-webhook-test-${RUN}" --label="${LABEL}" --network="${NETWORK}" \
 	--log-driver=journald --log-opt="tag=${ENTITY}" --publish="127.0.0.1::${RECEIVER_PORT}" \
-	--volume="${RECEIVER_SCRIPT}:/app/receiver.py:ro" \
+	--volume="${RECEIVER_SCRIPT}:/app/receiver.py:ro" --volume="${EVENTS_SCRIPT}:/app/github_events.py:ro" \
 	--env=WEBHOOK_SECRET="${STUB_SECRET}" --env=WEBHOOK_PORT="${RECEIVER_PORT}" --env=WEBHOOK_PATH="${RECEIVER_PATH}" \
 	--env=WEBHOOK_MAX_BYTES="${MAX_BYTES}" --env=WEBHOOK_STATE_DB=/tmp/deliveries.sqlite --env=WEBHOOK_REPLAY_DAYS=1 \
 	--env=GITHUB_API_URL=http://github-api-stub:8080 --env=GITHUB_TOKEN=stub-token \
