@@ -24,6 +24,8 @@ design:
   enabled: false
   shared: false
 xmpp:
+  backup:
+    stop_required: true
   healthcheck:
     test: ["CMD", "ejabberdctl", "status"]
     # nocheck: healthcheck-timing-override  ejabberdctl starts an Erlang CLI node, which does not finish inside the 5s default

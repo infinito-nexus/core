@@ -31,6 +31,7 @@ conf:
 upload:
   type: volume
   name: ejabberd_upload
+  backup: false
   nfs:
     uid: "9000"
     gid: "9000"

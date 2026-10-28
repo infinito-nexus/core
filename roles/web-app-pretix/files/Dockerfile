@@ -78,6 +78,9 @@ RUN chmod +x /usr/local/bin/pretix && \
     chown -R pretixuser:pretixuser /pretix /data data && \
     sudo -u pretixuser make production
 
+ARG PRETIX_SOURCE_VERSION
+LABEL org.opencontainers.image.version="${PRETIX_SOURCE_VERSION}"
+
 USER pretixuser
 VOLUME ["/etc/pretix", "/data"]
 EXPOSE 80

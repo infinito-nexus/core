@@ -9,7 +9,8 @@
         PRETIX_BASE_IMAGE: "{{ PRETIX_BASE_IMAGE }}"
         PRETIX_BASE_VERSION: "{{ PRETIX_BASE_VERSION }}"
         PRETIX_OIDC_PLUGIN_VERSION: "{{ PRETIX_OIDC_PLUGIN_VERSION }}"
-    {{ lookup('container_image', application_id, 'pretix', version=PRETIX_SOURCE_VERSION) }}
+        PRETIX_SOURCE_VERSION: "{{ PRETIX_SOURCE_VERSION }}"
+    {{ lookup('container_image', application_id, 'pretix') }}
     {{ lookup('compose_only', 'container_name', PRETIX_CONTAINER) }}
     hostname: '{{ PRETIX_HOSTNAME}}'
     command: ["all"]

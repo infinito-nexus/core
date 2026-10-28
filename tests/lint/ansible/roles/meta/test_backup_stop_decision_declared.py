@@ -19,6 +19,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.mounts import compose_service_names
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 
 from . import PROJECT_ROOT
@@ -48,12 +49,34 @@ def _backed_up_by_service(volumes: dict[str, Any]) -> dict[str, bool]:
     return dict(backed_up)
 
 
+def _owners(services: dict[str, Any], compose_service: str) -> list[str]:
+    """Return the ``meta/services.yml`` keys a mounted compose service resolves to.
+
+    Args:
+        services: the role's ``meta/services.yml``.
+        compose_service: the ``service`` a ``meta/volumes.yml`` mount names.
+    """
+    if compose_service in services:
+        return [compose_service]
+    return [
+        key
+        for key, entry in services.items()
+        if compose_service in compose_service_names(key, entry)
+    ]
+
+
 def offenders() -> list[str]:
     found: list[str] = []
     for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
         services = _mapping(role_dir / ROLE_FILE_META_SERVICES)
         backed_up = _backed_up_by_service(_mapping(role_dir / ROLE_FILE_META_VOLUMES))
-        for key in sorted(key for key, value in backed_up.items() if value):
+        keys = {
+            key
+            for compose_service, value in backed_up.items()
+            if value
+            for key in _owners(services, compose_service)
+        }
+        for key in sorted(keys):
             service = services.get(key)
             if not isinstance(service, dict):
                 continue
