@@ -33,6 +33,7 @@
           - "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-postgres/files/shell/dump_pg_hba.sh')) }}"
           - dump_pg_hba.sh
         stdin: "{{ POSTGRES_PASSWORD }}"
+        expand_argument_vars: false
       environment:
         POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_LOCAL_CID }}"
       delegate_to: "{{ POSTGRES_HOST_NODE }}"

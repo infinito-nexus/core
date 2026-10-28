@@ -11,6 +11,7 @@
       - "{{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}"
       - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
     stdin: "{{ NEXTCLOUD_ADMINISTRATOR_PASSWORD }}"
+    expand_argument_vars: false
   register: _nextcloud_admin_password
   changed_when: _nextcloud_admin_password.stdout is search('\[CHANGED\]')
   failed_when: >-
