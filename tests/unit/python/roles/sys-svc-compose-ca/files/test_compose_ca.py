@@ -978,6 +978,37 @@ class TestComposeCaInject(unittest.TestCase):
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
         )
 
+    def test_render_override_keeps_the_compose_config_escape_of_a_service_command(self):
+        services = {
+            "svc": {
+                "image": "img:1",
+                "command": ["sh", "-c", 'exec server --pass "$$SERVER_PASSWORD"'],
+            }
+        }
+        service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}
+
+        with patch.object(
+            self.m,
+            "gather_image_meta",
+            return_value={"img:1": (True, ["/entry.sh"], ["serve"], True)},
+        ):
+            doc = self.m.render_override(
+                services,
+                service_to_cmd,
+                cwd=Path("/tmp"),
+                env={},
+                ca_host="/host/ca.crt",
+                wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
+                trust_name="infinito.local",
+            )
+
+        self.assertEqual(
+            doc["services"]["svc"].get("command"),
+            ["/entry.sh", "sh", "-c", 'exec server --pass "$$SERVER_PASSWORD"'],
+        )
+
     def test_render_override_points_the_replacing_vars_at_the_bundle(self):
         """A host that has a CA bundle gets the verifying vars pointed at it.
 
