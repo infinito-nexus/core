@@ -41,6 +41,7 @@ apache_vhost:
   mounts:
     - service: pixelfed
       target: /etc/apache2/sites-available/000-default.conf
+      when: "{{ lookup('config', 'web-app-pixelfed', 'services.wazuh.enabled') | bool }}"
 
 php_hardening:
   type: config

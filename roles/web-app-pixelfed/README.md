@@ -113,7 +113,9 @@ docker run --rm -it \
 
 Pixelfed opts into Wazuh (`services.wazuh` in [meta/services.yml](./meta/services.yml), rule block `101000`). Every container of the stack, the local Redis and MariaDB sidecars included, logs to journald with the tag `pixelfed`. Apache's access log goes to stdout, and Apache's error log and Laravel (`LOG_CHANNEL=stderr`) go to stderr. Logins, password resets and admin actions are written only to Pixelfed's database (`account_logs`, `mod_logs`), so the rules in [files/wazuh/rules.xml](./files/wazuh/rules.xml) read them from the access log by method, path and status. A failed and a successful login both answer `POST /login` with 302, so `101010` is a login attempt, and brute force is the frequency rule `101011`.
 
-The vhost in [templates/apache-vhost.conf.j2](./templates/apache-vhost.conf.j2) replaces the image's `000-default.conf`:
+**Opting into Wazuh logs client IP addresses.** The upstream image removes IP logging on purpose (`0001-remove-IP-logging.patch`). Only while `services.wazuh.enabled` is true does the role render the vhost in [templates/apache-vhost.conf.j2](./templates/apache-vhost.conf.j2) and mount it over the image's `000-default.conf`, because the brute-force rule `101011` and the API abuse rules count requests per client address and cannot work without it. With `services.wazuh.enabled: false` the role neither renders nor mounts the vhost, and Pixelfed's Apache configuration is the image's own, without IP logging. A deployment that turns Wazuh off after it was on keeps the rendered `apache-vhost.conf` in the instance directory, unmounted and unused.
+
+The Wazuh vhost:
 
 - The access log keeps the path without the query string and drops the Referer, and the token routes `/password/reset/{token}` and `/i/confirm-email/...` are not logged at all. The error log format drops the Referer, which Apache appends by default.
 - `mod_remoteip` takes the client address from `X-Real-IP`, which the front proxy overwrites with its own peer address, and trusts it only from the gateway of Pixelfed's network (`lookup('subnet_gateway')`).

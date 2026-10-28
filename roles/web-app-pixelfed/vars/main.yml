@@ -19,6 +19,7 @@ PIXELFED_ENTRYPOINT_DOCKER: "{{ lookup('volume', 'web-app-pixelfed', 'entrypoint
 PIXELFED_WORKER_ENTRYPOINT_FILE: "worker-entrypoint.sh"
 PIXELFED_WORKER_ENTRYPOINT_HOST_ABS: "{{ [PIXELFED_INSTANCE_DIR, PIXELFED_WORKER_ENTRYPOINT_FILE] | path_join }}"
 PIXELFED_WORKER_ENTRYPOINT_DOCKER: "{{ lookup('volume', 'web-app-pixelfed', 'worker_entrypoint').target }}"
+PIXELFED_WAZUH_ENABLED: "{{ lookup('config', application_id, 'services.wazuh.enabled') | bool }}"
 PIXELFED_APACHE_VHOST_HOST_ABS: "{{ [PIXELFED_INSTANCE_DIR, 'apache-vhost.conf'] | path_join }}"
 PIXELFED_PROXY_GATEWAY: "{{ lookup('subnet_gateway') }}"
 PIXELFED_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
