@@ -10,23 +10,26 @@
   include_role:
     name: sys-service-terminator
 
-- name: "🐤 Check every opted-in app's Wazuh canary"
-  include_role:
-    name: web-app-wazuh
-    tasks_from: 05_app_canary.yml
-  when:
-    - "'web-app-wazuh' in group_names"
-    - lookup('wazuh_ruleset', scope='deployment').entities | length > 0
+# Exception: the canary and the CLI tests may fail the deploy; the timers are unlocked either way, so a failed check never leaves them stopped.
+- name: "🔎 Check the deployed apps, then unlock the timers"
+  block:
+    - name: "🐤 Check the Wazuh canary of this run's opted-in apps"
+      include_role:
+        name: web-app-wazuh
+        tasks_from: 05_app_canary.yml
+      when:
+        - "'web-app-wazuh' in group_names"
+        - lookup('wazuh_ruleset', scope='deployment').entities | length > 0
 
-- name: 🧪 Run CLI tests for deployed roles
-  include_role:
-    name: test-e2e-cli
-  when: RUNTIME in ['dev', 'act', 'github']
-
-- name: "🔓 Unlock all timers"
-  include_role:
-    name: sys-service-terminator
-    tasks_from: 02_unlock.yml
+    - name: 🧪 Run CLI tests for deployed roles
+      include_role:
+        name: test-e2e-cli
+      when: RUNTIME in ['dev', 'act', 'github']
+  always:
+    - name: "🔓 Unlock all timers"
+      include_role:
+        name: sys-service-terminator
+        tasks_from: 02_unlock.yml
 
 - name: "🏁 Mark the deploy end"
   include_tasks: ./tasks/utils/deploy/marker.yml

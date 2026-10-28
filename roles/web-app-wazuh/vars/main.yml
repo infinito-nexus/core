@@ -152,6 +152,7 @@ WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
 WAZUH_AGENT_WAIT_DELAY: 5
 WAZUH_AGENT_WAIT_RECONNECTS: 3
 WAZUH_CANARY_WAIT_RETRIES: 36
+WAZUH_CANARY_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'in', lookup('deployment').running) | list }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"

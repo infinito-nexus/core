@@ -12,7 +12,7 @@
     follow_redirects: none
     status_code: "{{ range(100, 600) | list }}"
   delegate_to: "{{ groups[item.role][0] }}"
-  loop: "{{ WAZUH_RULESET_ENTITIES }}"
+  loop: "{{ WAZUH_CANARY_ENTITIES }}"
   loop_control:
     label: "{{ item.entity }}"
   changed_when: false
@@ -38,7 +38,7 @@
                 full_log: "{{ WAZUH_CANARY_MARKER }} {{ item.entity }}-{{ wazuh_app_canary_run }}"
     status_code: 200
     return_content: true
-  loop: "{{ WAZUH_RULESET_ENTITIES }}"
+  loop: "{{ WAZUH_CANARY_ENTITIES }}"
   loop_control:
     label: "{{ item.entity }}"
   register: wazuh_app_canary_search
