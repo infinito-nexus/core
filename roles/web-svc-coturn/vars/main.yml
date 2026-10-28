@@ -11,7 +11,8 @@ COTURN_RELAY_IP: "{{ networks.internet.ip4 }}"
 # nocheck: host-local-fact  read only for host networking in compose mode, where the host rendering this file is the host coturn binds on; Ansible omits both keys on a host without the ip binary, which leaves coturn unpinned
 COTURN_HOST_ADDRESSES: "{{ (ansible_facts['all_ipv4_addresses'] | default([])) + (ansible_facts['all_ipv6_addresses'] | default([])) }}"
 COTURN_IP6_UNSET: "{{ networks.internet.ip6 in ['', defaults_networks.internet.ip6] }}"
-COTURN_ADDRESSES_PINNED: "{{ COTURN_NETWORK_MODE == 'host' and DEPLOYMENT_MODE == 'compose' and COTURN_RELAY_IP in COTURN_HOST_ADDRESSES and (COTURN_IP6_UNSET or networks.internet.ip6 in COTURN_HOST_ADDRESSES) }}"
+COTURN_ADDRESSES_PINNED: "{{ COTURN_NETWORK_MODE == 'host' and (IS_COMPOSE_MODE | bool) and COTURN_RELAY_IP in COTURN_HOST_ADDRESSES and (COTURN_IP6_UNSET or
+  networks.internet.ip6 in COTURN_HOST_ADDRESSES) }}"
 COTURN_LISTENING_IPS: "{{ [COTURN_RELAY_IP, COTURN_LOOPBACK_IP] + ([] if COTURN_IP6_UNSET else [networks.internet.ip6]) }}"
 
 COTURN_STUN_TURN_PORT: "{{ lookup('config', application_id, 'services.coturn.ports.public.stun_turn') }}"

@@ -25,13 +25,20 @@ TEMPLATE = f"{ROLE}/{ROLE_FILE_TEMPL_COMPOSE}"
 PUBLIC_IP = "203.0.113.7"
 SERVICES = load_yaml_any(str(PROJECT_ROOT / ROLE / ROLE_FILE_META_SERVICES))
 
-LEGACY_BRIDGE_ONBOARD = """  talk:
-    <container-base>
-    <lookup container_healthcheck ('talk',)>
-    <lookup container_image ('web-app-nextcloud', 'talk')>
-    <lookup compose_only ('container_name', <NEXTCLOUD_HPB_CONTAINER>)>
-    init: true
-    ports:
+TALK_HEAD = (
+    "  talk:\n"
+    "    <container-base>\n"
+    "    <lookup container_healthcheck ('talk',)>\n"
+    "    <lookup container_image ('web-app-nextcloud', 'talk')>\n"
+    "    <lookup compose_only ('container_name', <NEXTCLOUD_HPB_CONTAINER>)>\n"
+    '    command: ["/start.sh", "sh", "<NEXTCLOUD_TALK_BACKENDS_SCRIPT>", "supervisord", "-c", "/supervisord.conf"]\n'
+    "    \n"
+    "    init: true\n"
+)
+
+LEGACY_BRIDGE_ONBOARD = (
+    TALK_HEAD
+    + """    ports:
       - "203.0.113.7:3480:3480/tcp"
       - "203.0.113.7:3480:3480/udp"
       - "203.0.113.7:50000-59999:50000-59999/udp"
@@ -39,24 +46,16 @@ LEGACY_BRIDGE_ONBOARD = """  talk:
     expose:
       - "8081"
     <lookup container_networks ()>"""
+)
 
-LEGACY_BRIDGE = """  talk:
-    <container-base>
-    <lookup container_healthcheck ('talk',)>
-    <lookup container_image ('web-app-nextcloud', 'talk')>
-    <lookup compose_only ('container_name', <NEXTCLOUD_HPB_CONTAINER>)>
-    init: true
-    expose:
+LEGACY_BRIDGE = (
+    TALK_HEAD
+    + """    expose:
       - "8081"
     <lookup container_networks ()>"""
+)
 
-LEGACY_HOST = """  talk:
-    <container-base>
-    <lookup container_healthcheck ('talk',)>
-    <lookup container_image ('web-app-nextcloud', 'talk')>
-    <lookup compose_only ('container_name', <NEXTCLOUD_HPB_CONTAINER>)>
-    init: true
-    network_mode: host"""
+LEGACY_HOST = TALK_HEAD + "    network_mode: host"
 
 DIRECT_MOUNT = (
     "    \n"
@@ -187,15 +186,6 @@ class TestTalkComposeBlock(unittest.TestCase):
             with self.subTest(**cell):
                 self.assertEqual(_talk_block(_render(template, **cell)), _legacy(cell))
 
-    def test_host_networking_ignores_direct_media(self):
-        template = read_text(str(PROJECT_ROOT / TEMPLATE))
-        for cell in _cells(direct=True):
-            if cell["network"] == "host":
-                with self.subTest(**cell):
-                    self.assertEqual(
-                        _talk_block(_render(template, **cell)), LEGACY_HOST
-                    )
-
     def test_direct_media_adds_only_the_janus_mount_and_the_udp_range(self):
         template = read_text(str(PROJECT_ROOT / TEMPLATE))
         for cell in _cells(direct=True):
@@ -205,7 +195,7 @@ class TestTalkComposeBlock(unittest.TestCase):
                 block = _talk_block(_render(template, **cell))
                 legacy = _legacy(cell)
                 expected = legacy.replace(
-                    "    init: true", "    init: true\n" + DIRECT_MOUNT
+                    "\n    \n    init: true", "\n" + DIRECT_MOUNT + "\n    init: true"
                 )
                 if cell["onboard"]:
                     expected = expected.replace(
@@ -217,21 +207,16 @@ class TestTalkComposeBlock(unittest.TestCase):
                     )
                 self.assertEqual(block, expected)
 
-    def test_negative_control_an_unguarded_mount_breaks_the_legacy_block(self):
-        template = read_text(str(PROJECT_ROOT / TEMPLATE)).replace(
-            "    {% if NEXTCLOUD_HPB_MEDIA_DIRECT | bool %}\n"
-            "    {{ lookup('container_volumes', service_name) | indent(4) }}\n",
-            "    {{ lookup('container_volumes', service_name) | indent(4) }}\n"
-            "    {% if NEXTCLOUD_HPB_MEDIA_DIRECT | bool %}\n",
-        )
+    def test_negative_control_direct_media_does_not_render_the_legacy_block(self):
+        template = read_text(str(PROJECT_ROOT / TEMPLATE))
         cell = {
             "onboard": False,
-            "direct": False,
+            "direct": True,
             "mode": "compose",
             "network": "bridge",
         }
         rendered = _render(template, **cell)
-        self.assertNotIn("janus_conf", rendered)
+        self.assertIn("janus_conf", rendered)
         self.assertNotEqual(_talk_block(rendered), _legacy(cell))
 
 
@@ -245,6 +230,7 @@ def _direct_media(group_names, *, mode="compose", ip4=PUBLIC_IP, applications=No
         "group_names": group_names,
         "applications": applications or {},
         "DEPLOYMENT_MODE": mode,
+        "IS_COMPOSE_MODE": mode == "compose",
         "networks": {"internet": {"ip4": ip4, "ip6": "::1"}},
         "ansible_facts": {"all_ipv4_addresses": [PUBLIC_IP, "10.208.0.1"]},
     }
@@ -277,6 +263,10 @@ class TestDirectMediaFlag(unittest.TestCase):
     def test_onboard_turn_keeps_it_off(self):
         forced = {"web-app-nextcloud": {"services": {"talk": {"enabled": True}}}}
         self.assertIs(_direct_media(["web-app-nextcloud"], applications=forced), False)
+
+    def test_host_networking_keeps_it_off(self):
+        host = {"web-app-nextcloud": {"services": {"talk": {"network_mode": "host"}}}}
+        self.assertIs(_direct_media(list(STANDALONE_TURN), applications=host), False)
 
 
 if __name__ == "__main__":

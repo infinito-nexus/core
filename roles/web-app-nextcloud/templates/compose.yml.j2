@@ -88,7 +88,6 @@
        ]) %}
     {% endif %}
     {% if NEXTCLOUD_HPB_MEDIA_DIRECT | bool %}
-    {{ lookup('container_volumes', service_name) | indent(4) }}
     {% set _ = _talk_ports.append(
          {'service': 'talk', 'protocol': 'relay',
           'ip': NEXTCLOUD_HPB_MEDIA_PUBLIC_IP,

@@ -102,6 +102,7 @@ def render(
         "defaults_networks": NETWORK_DEFAULTS,
         "ansible_facts": OWNED if facts is None else facts,
         "DEPLOYMENT_MODE": mode,
+        "IS_COMPOSE_MODE": mode == "compose",
         "COTURN_NETWORK_MODE": network,
     }
     declared = DataLoader().load_from_file(str(VARS), trusted_as_template=True)

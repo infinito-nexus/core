@@ -208,7 +208,7 @@ talk:
     {{ (lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool)
        and (lookup('config', 'web-app-nextcloud', 'services.talk.turn_server.standalone_enabled') | bool)
        and (lookup('config', 'web-app-nextcloud', 'services.talk.network_mode') == 'bridge')
-       and (DEPLOYMENT_MODE == 'compose')
+       and (IS_COMPOSE_MODE | bool)
        and (networks.internet.ip4 in ansible_facts['all_ipv4_addresses']) }}
   cpus: "2.0"
   mem_reservation: 1g

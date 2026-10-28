@@ -161,6 +161,7 @@ class TestComposeDecommission(unittest.TestCase):
             "BIN_COMPOSE": str(self.fake_compose),
             "MODE_CLEANUP": True,
             "DEPLOYMENT_MODE": "compose",
+            "IS_COMPOSE_MODE": True,
             "APPLICATIONS_WHITELIST": [],
             "CURRENT_PLAY_APPLICATIONS": {"web-app-closure": {}},
         }
@@ -267,7 +268,7 @@ class TestComposeDecommission(unittest.TestCase):
         gated = {
             "whitelisted": {"APPLICATIONS_WHITELIST": ["web-app-grouped"]},
             "cleanup_off": {"MODE_CLEANUP": False},
-            "swarm": {"DEPLOYMENT_MODE": "swarm"},
+            "swarm": {"DEPLOYMENT_MODE": "swarm", "IS_COMPOSE_MODE": False},
         }
         hosts = {"open": open_values}
         gated_roots = {}

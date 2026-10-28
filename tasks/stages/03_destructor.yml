@@ -34,7 +34,7 @@
         tasks_from: decommission.yml
       when:
         - MODE_CLEANUP | bool
-        - DEPLOYMENT_MODE == 'compose'
+        - IS_COMPOSE_MODE | bool
         - lookup('deployment').whitelist | length == 0
   always:
     - name: "🔓 Unlock all timers"
