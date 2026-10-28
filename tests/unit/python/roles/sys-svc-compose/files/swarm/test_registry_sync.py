@@ -6,7 +6,7 @@ from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
 
-from utils.cache.yaml import dump_yaml
+from utils.cache.yaml import dump_yaml, load_yaml
 
 from . import PROJECT_ROOT
 
@@ -70,7 +70,7 @@ class TestSwarmRegistrySync(unittest.TestCase):
                 patch.object(self.m, "local_image_id", return_value=image_id),
             ):
                 self.m.sync(compose_file=cf, prefix=PREFIX)
-            return self.m.yaml.safe_load(cf.read_text())["services"]
+            return load_yaml(cf)["services"]
 
     def test_a_built_image_and_its_siblings_carry_the_local_image_id(self) -> None:
         services = self._synced_services(
