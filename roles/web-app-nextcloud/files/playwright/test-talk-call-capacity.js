@@ -3,6 +3,10 @@ const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const talkEnabled = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_SETTINGS_CHECK_ENABLED) === "true";
+const directMediaEnabled = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_DIRECT_MEDIA_ENABLED) === "true";
+const directMediaAddress = decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_DIRECT_MEDIA_ADDRESS);
+const directMediaPortStart = Number(decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_DIRECT_MEDIA_PORT_START));
+const directMediaPortEnd = Number(decodeDotenvQuotedValue(process.env.NEXTCLOUD_TALK_DIRECT_MEDIA_PORT_END));
 const callParticipants = 6;
 const ocsHeaders = { "OCS-APIRequest": "true", Accept: "application/json" };
 const joinCallPattern = /^(join call|start call|anruf beitreten|anruf starten)$/i;
@@ -14,6 +18,33 @@ const turnQuotaReachedCode = 486;
 function trackPeerConnections() {
   const Original = window.RTCPeerConnection;
   const stats = { connections: [], iceErrorCodes: [] };
+  stats.selectedPairs = async () => {
+    const pairs = [];
+    for (const connection of stats.connections) {
+      if (connection.connectionState !== "connected") {
+        continue;
+      }
+      const entries = new Map();
+      (await connection.getStats()).forEach((entry) => entries.set(entry.id, entry));
+      const selectedIds = [...entries.values()]
+        .filter((entry) => entry.type === "transport" && entry.selectedCandidatePairId)
+        .map((entry) => entry.selectedCandidatePairId);
+      for (const id of selectedIds) {
+        const pair = entries.get(id);
+        const local = pair && entries.get(pair.localCandidateId);
+        const remote = pair && entries.get(pair.remoteCandidateId);
+        if (local && remote) {
+          pairs.push({
+            localType: local.candidateType,
+            remoteType: remote.candidateType,
+            remoteAddress: remote.address || remote.ip,
+            remotePort: remote.port,
+          });
+        }
+      }
+    }
+    return pairs;
+  };
   window.__talkCallStats = stats;
   function Tracked(...args) {
     const connection = new Original(...args);
@@ -34,6 +65,20 @@ function readCallStats(page) {
       iceErrorCodes: stats.iceErrorCodes,
     };
   });
+}
+
+function isDirectPair(pair) {
+  return (
+    pair.localType !== "relay" &&
+    pair.remoteType !== "relay" &&
+    pair.remoteAddress === directMediaAddress &&
+    pair.remotePort >= directMediaPortStart &&
+    pair.remotePort <= directMediaPortEnd
+  );
+}
+
+function readSelectedPairs(page) {
+  return page.evaluate(() => window.__talkCallStats.selectedPairs());
 }
 
 async function createPublicRoom(page, baseUrl) {
@@ -108,6 +153,20 @@ exports.register = function (shared) {
           (await readCallStats(guest.page)).iceErrorCodes,
           `${guest.name}: TURN answered ${turnQuotaReachedCode} Allocation Quota Reached`,
         ).not.toContain(turnQuotaReachedCode);
+        if (directMediaEnabled) {
+          await expect
+            .poll(
+              async () => {
+                const pairs = await readSelectedPairs(guest.page);
+                return pairs.some(isDirectPair) ? "direct" : JSON.stringify(pairs);
+              },
+              {
+                timeout: resolveTimeout(60_000),
+                message: `${guest.name} must carry media to Janus on ${directMediaAddress}:${directMediaPortStart}-${directMediaPortEnd} without a TURN relay`,
+              },
+            )
+            .toBe("direct");
+        }
       }
     } finally {
       await mediaBrowser.close().catch(() => {});

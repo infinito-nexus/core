@@ -7,6 +7,51 @@
     application_id: web-app-nextcloud
     webserver_client_max_body_size: 10G
 
+- name: "🔍 Read the Janus launcher and config from {{ NEXTCLOUD_HPB_IMAGE }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --pull
+      - always
+      - --entrypoint
+      - cat
+      - "{{ NEXTCLOUD_HPB_IMAGE }}"
+      - "{{ item }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  loop:
+    - "{{ NEXTCLOUD_HPB_JANUS_LAUNCHER }}"
+    - "{{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}"
+  register: nextcloud_janus_image_files
+  changed_when: false
+  retries: 3
+  delay: 30
+  until: nextcloud_janus_image_files is succeeded
+  when:
+    - NEXTCLOUD_HPB_MEDIA_DIRECT | bool
+    - IS_STACK_HOST | bool
+
+- name: "🛑 Assert Janus reads the mounted config and the image's copy still matches"
+  ansible.builtin.assert:
+    that: nextcloud_janus_drift | length == 0
+    fail_msg: >-
+      templates/janus.jcfg.j2 cannot replace {{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}
+      of {{ NEXTCLOUD_HPB_IMAGE }}: {{ nextcloud_janus_drift | join('; ') }}.
+      Re-derive the template from the new image before deploying.
+    quiet: true
+  vars:
+    nextcloud_janus_drift: >-
+      {{ lookup('template', 'janus.jcfg.j2')
+         | janus_config_drift(nextcloud_janus_image_files.results[1].stdout,
+                              NEXTCLOUD_HPB_JANUS_OVERRIDES,
+                              nextcloud_janus_image_files.results[0].stdout,
+                              NEXTCLOUD_HPB_JANUS_CONFIG_TARGET) }}
+  when:
+    - NEXTCLOUD_HPB_MEDIA_DIRECT | bool
+    - IS_STACK_HOST | bool
+
 - name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
   copy:
     src: "{{ NEXTCLOUD_INIT_GATE_SRC }}"
@@ -78,3 +123,13 @@
     role_templates:
       - src: "fpm-pool.conf.j2"
         dest: "{{ NEXTCLOUD_HOST_FPM_POOL_PATH }}"
+
+- name: "📄 Render the Janus config that publishes Talk media directly"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "janus.jcfg.j2"
+        dest: "{{ NEXTCLOUD_HPB_JANUS_CONFIG_HOST }}"
+        mode: "0644"
+  when: NEXTCLOUD_HPB_MEDIA_DIRECT | bool

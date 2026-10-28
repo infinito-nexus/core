@@ -61,6 +61,15 @@ infinito_conf:
     - service: cron
       target: *var_www_infinito_target
 
+janus_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: talk
+      target: /usr/local/etc/janus/janus.jcfg
+      when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.direct_media') | bool }}"
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"

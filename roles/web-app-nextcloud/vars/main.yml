@@ -154,6 +154,19 @@ NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spree
 NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
+NEXTCLOUD_HPB_MEDIA_DIRECT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool }}"
+NEXTCLOUD_HPB_MEDIA_PUBLIC_IP: "{{ networks.internet.ip4 }}"
+NEXTCLOUD_HPB_MEDIA_PORT_START: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.start') }}"
+NEXTCLOUD_HPB_MEDIA_PORT_END: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.end') }}"
+NEXTCLOUD_HPB_JANUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
+NEXTCLOUD_HPB_JANUS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'janus_conf').target }}"
+NEXTCLOUD_HPB_JANUS_LAUNCHER: "/supervisord.conf"
+NEXTCLOUD_HPB_JANUS_OVERRIDES:
+  - rtp_port_range
+  - nat_1_1_mapping
+  - keep_private_host
+NEXTCLOUD_HPB_IMAGE: "{{ lookup('image', application_id, NEXTCLOUD_HPB_SERVICE) }}"
+
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
 NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
