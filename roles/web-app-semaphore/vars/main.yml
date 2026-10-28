@@ -3,7 +3,7 @@ application_id: "web-app-semaphore"
 container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
 
 SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
-SEMAPHORE_WEB_ROOT: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+SEMAPHORE_WEB_ROOT: "{{ lookup('tls', lookup('domain', application_id), 'url.base') | regex_replace('/+$', '') }}"
 SEMAPHORE_SIBLING_BASE_REWRITE: >-
   sub_filter '<base href="{{ SEMAPHORE_WEB_ROOT }}/">' '<base href="/">';
 
