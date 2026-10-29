@@ -18,7 +18,7 @@
   when: MODE_ASSERT | bool
 
 - name: ✅ Ensure secrets directory exists (root only)
-  ansible.builtin.file:
+  ansible.builtin.file: # nocheck: path-single-owner sys-token-store sets the same root 0700 on STACK_HOST only, every other host needs it here
     path: "{{ DIR_SECRETS }}"
     state: directory
     owner: root

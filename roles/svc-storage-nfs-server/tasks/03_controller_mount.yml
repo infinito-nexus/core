@@ -24,9 +24,6 @@
   ansible.builtin.file:
     path: "{{ DIR_VAR_LIB }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: "📦 Install the NFS client"
   package_install: # nocheck: package-install runs on the controller by delegation, outside any host's batch
