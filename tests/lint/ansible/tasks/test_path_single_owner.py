@@ -8,7 +8,10 @@ host ends in depends on which role ran last.
 Paths are compared after substituting the plain ``{{ NAME }}`` variables of
 ``group_vars/all``; a literal ``loop`` over paths is expanded. A path spelled
 through a filter or a dict attribute in one role and through a variable in the
-other is not recognised as the same path.
+other is not recognised as the same path. A path built from ``application_id``
+is a different path in every role whose ``vars/main.yml`` pins its own
+application id, so it clashes only when a role without one, a helper that runs
+with its caller's id, sets it too.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -30,7 +33,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.invocations import iter_tasks
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -44,6 +47,7 @@ LOOP_KEYS = ("loop", "with_items", "with_list")
 
 _VARIABLE = re.compile(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
 _EXPRESSION = re.compile(r"\{\{\s*(.*?)\s*\}\}")
+_APPLICATION_ID = re.compile(r"(?<![\w.'\"])application_id(?![\w'\"])")
 
 
 @cache
@@ -159,19 +163,39 @@ def _task_files() -> list[str]:
     )
 
 
+def application_roles() -> set[str]:
+    """Return ``roles/<role>`` of every role whose vars pin its application_id."""
+    found: set[str] = set()
+    for vars_file in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_VARS_MAIN}")):
+        data = load_yaml_any(str(vars_file), default_if_missing={})
+        if isinstance(data, dict) and isinstance(data.get("application_id"), str):
+            found.add(_role_of(vars_file.relative_to(PROJECT_ROOT).as_posix()))
+    return found
+
+
+def _per_application(path: str) -> bool:
+    return any(_APPLICATION_ID.search(m.group(1)) for m in _EXPRESSION.finditer(path))
+
+
 def conflicts(
     setters: dict[str, list[tuple[str, int]]],
+    pinned: set[str],
 ) -> dict[str, list[tuple[str, int]]]:
     """Return the paths more than one role sets owner, group or mode on.
 
     Args:
         setters: canonical path to ``(file, line)`` of every unsuppressed setter.
+        pinned: ``roles/<role>`` of every role that pins its own application_id.
     """
-    return {
-        path: entries
-        for path, entries in setters.items()
-        if len({_role_of(rel) for rel, _ in entries}) > 1
-    }
+    found: dict[str, list[tuple[str, int]]] = {}
+    for path, entries in setters.items():
+        roles = {_role_of(rel) for rel, _ in entries}
+        if len(roles) < 2:
+            continue
+        if _per_application(path) and roles <= pinned:
+            continue
+        found[path] = entries
+    return found
 
 
 class TestPathSingleOwner(unittest.TestCase):
@@ -190,7 +214,7 @@ class TestPathSingleOwner(unittest.TestCase):
                     continue
                 setters[canonical].append((rel, line))
 
-        clashes = conflicts(setters)
+        clashes = conflicts(setters, application_roles())
         if clashes:
             report = []
             for path, entries in sorted(clashes.items()):
@@ -242,7 +266,37 @@ class TestPathSingleOwner(unittest.TestCase):
             setters.setdefault(canonical, []).append(
                 (f"roles/b/{ROLE_FILE_TASKS_MAIN}", 1)
             )
-        self.assertEqual(list(conflicts(setters)), ["/srv/x/sub"])
+        self.assertEqual(list(conflicts(setters, set())), ["/srv/x/sub"])
+
+    def test_an_application_id_path_clashes_only_with_a_helper(self) -> None:
+        path = owned_paths(
+            [
+                {
+                    "file": {
+                        "path": "{{ lookup('container', application_id, 'directories.volumes') }}",
+                        "state": "directory",
+                        "mode": "0755",
+                    }
+                }
+            ],
+            {},
+        )[0][0]
+        apps = {"roles/web-app-a", "roles/web-app-b"}
+        two_apps = {
+            path: [
+                (f"roles/web-app-a/{ROLE_FILE_TASKS_MAIN}", 1),
+                (f"roles/web-app-b/{ROLE_FILE_TASKS_MAIN}", 1),
+            ]
+        }
+        self.assertEqual(conflicts(two_apps, apps), {})
+        with_helper = {
+            path: two_apps[path] + [(f"roles/sys-helper/{ROLE_FILE_TASKS_MAIN}", 1)]
+        }
+        self.assertEqual(list(conflicts(with_helper, apps)), [path])
+
+    def test_the_application_roles_are_found(self) -> None:
+        self.assertIn("roles/web-svc-seaweedfs", application_roles())
+        self.assertNotIn("roles/sys-svc-compose", application_roles())
 
     def test_existence_only_and_absent_tasks_are_ignored(self) -> None:
         tasks = [
