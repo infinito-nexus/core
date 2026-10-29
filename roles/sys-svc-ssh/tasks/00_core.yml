@@ -12,7 +12,7 @@
   when: ansible_facts['os_family'] == 'Debian'
 
 - name: 📦 Install OpenSSH client
-  package_install:
+  package_install: # nocheck: package-install user-root and the mesh bootstrap need it before the update role and the batch run
     id: openssh-client
 
 - include_tasks: utils/once/flag.yml

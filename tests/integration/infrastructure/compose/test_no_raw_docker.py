@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
-from utils.cache.files import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -163,12 +162,7 @@ RULES: tuple[tuple[str, re.Pattern, str], ...] = (
 
 def git_ls_files(root: Path) -> list[Path]:
     try:
-        out = subprocess.check_output(
-            ["git", "-C", str(root), "ls-files", "-z"],
-            stderr=subprocess.STDOUT,
-        )
-        rels = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
-        return [root / p for p in rels]
+        return [root / p for p in repository_files(untracked=True)]
     except Exception:
         results: list[Path] = []
         for path_str in iter_project_files():

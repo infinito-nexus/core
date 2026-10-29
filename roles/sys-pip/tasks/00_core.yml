@@ -5,11 +5,11 @@
   when: run_once_dev_gcc is not defined
 
 - name: 🐍 python pip install
-  package_install:
+  package_install: # nocheck: package-install needed before the update role and the batch run
     id: python-pip
 
 - name: 🧱 python headers for the sdists pip is asked to build
-  package_install:
+  package_install: # nocheck: package-install needed before the update role and the batch run
     id: python-dev
 
 - include_tasks: utils/once/flag.yml

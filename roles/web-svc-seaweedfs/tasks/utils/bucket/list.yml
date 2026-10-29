@@ -1,0 +1,14 @@
+---
+- name: "📋 List SeaweedFS buckets"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.list' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+  args:
+    executable: /bin/bash
+  register: _seaweedfs_buckets
+  changed_when: false
+  check_mode: false
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  retries: 3
+  delay: 10
+  until: _seaweedfs_buckets is succeeded

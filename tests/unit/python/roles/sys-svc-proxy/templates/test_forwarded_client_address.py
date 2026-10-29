@@ -21,7 +21,7 @@ def render(**context) -> str:
         context: variables the template reads.
     """
     env = Environment(
-        loader=FileSystemLoader(str(TEMPLATE_DIR)),
+        loader=FileSystemLoader([str(TEMPLATE_DIR), str(PROJECT_ROOT)]),
         undefined=StrictUndefined,
         autoescape=select_autoescape(),
     )

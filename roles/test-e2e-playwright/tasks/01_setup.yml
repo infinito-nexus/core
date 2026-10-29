@@ -20,6 +20,18 @@
   become: false
   changed_when: false
 
+- name: 📦 Pack the shared Playwright helpers for a single transfer per role
+  ansible.builtin.command:
+    argv: >-
+      {{
+        ['tar', '-cf', TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE, '-C', TEST_E2E_PLAYWRIGHT_HELPERS_DIR]
+        + (query('fileglob', TEST_E2E_PLAYWRIGHT_HELPERS_DIR ~ '/*.js')
+           | map('basename') | reject('equalto', 'playwright.config.js') | list)
+      }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
 - name: ✅ Ensure the shared personas dir exists
   ansible.builtin.file:
     path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS }}"
@@ -48,7 +60,7 @@
       {{
         (not _playwright_shared_stamp_stat.stat.exists)
         or ((_playwright_shared_stamp_content.content | default('') | b64decode | trim)
-            != TEST_E2E_PLAYWRIGHT_VERSION)
+            != TEST_E2E_PLAYWRIGHT_INSTALL_STAMP)
       }}
 
 - name: ⬇️ Pull the Playwright image once for every role of this run
@@ -71,7 +83,7 @@
 - name: 🔧 Provision the shared Playwright install (npm install + stamp)
   when: _playwright_shared_install_needed | bool
   block:
-    - name: 📦 Install @playwright/test into the shared dir (once per host per version)
+    - name: 📦 Install @playwright/test and @axe-core/playwright into the shared dir
       ansible.builtin.command:
         argv:
           - container
@@ -98,5 +110,5 @@
     - name: ✏️ Write shared install stamp
       ansible.builtin.copy:
         dest: "{{ TEST_E2E_PLAYWRIGHT_SHARED_STAMP }}"
-        content: "{{ TEST_E2E_PLAYWRIGHT_VERSION }}"
+        content: "{{ TEST_E2E_PLAYWRIGHT_INSTALL_STAMP }}"
         mode: "0644"

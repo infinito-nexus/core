@@ -9,7 +9,7 @@
     loop_var: sys_ctl_cln_bkps_dependency
 
 - name: 📦 install lsof
-  package_install:
+  package_install: # nocheck: package-install only hosts that clean backups run this role
     id: lsof
 
 - name: 📦 install psutil via pip
@@ -24,9 +24,6 @@
   ansible.builtin.file:
     path: "{{ DIR_BACKUPS }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - include_role:
     name: sys-service

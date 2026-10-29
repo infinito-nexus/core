@@ -9,13 +9,13 @@
     quiet: true
 
 - name: "🧹 Remove the flavors that conflict with {{ code_flavor }}"
-  package_install:
+  package_install: # nocheck: package-install removes the flavors other than the configured one, the batch only installs
     id: "{{ item }}"
     state: absent
   loop: "{{ code_conflicting_flavors }}"
 
 - name: "📦 install {{ code_flavor }}"
-  package_install:
+  package_install: # nocheck: package-install installs only the configured flavor, the role removes the others
     id: "{{ code_flavor }}"
   register: code_install
 

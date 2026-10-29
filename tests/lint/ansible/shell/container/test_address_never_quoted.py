@@ -18,7 +18,7 @@ Add ``# nocheck: container-address-quote`` on the same line as the
 Reserved for sites that provably never see the swarm fragment
 (``IS_COMPOSE_MODE``-gated tasks, roles pinned via
 ``compose_mode_force``) or consumers that re-evaluate the argument
-themselves (e.g. ``set_postgres_superuser_password.sh``).
+themselves.
 """
 
 from __future__ import annotations

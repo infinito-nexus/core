@@ -42,6 +42,7 @@ prometheus:
   native_metrics:
     enabled: true
     port: 8200
+# nocheck: playwright-service-flag  self-provider
 openbao:
   # nocheck: default-placement-manager  raft keeps its BoltDB store mmap'd with fsync durability, so it cannot live on NFS; the node is pinned in swarm to stay with its volume
   placement: manager
@@ -50,6 +51,9 @@ openbao:
       enabled: true
     swarm:
       enabled: true
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
   cpus: 0.5
   mem_reservation: 128m
   mem_limit: 512m

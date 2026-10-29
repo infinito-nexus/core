@@ -1,6 +1,6 @@
 ---
 - name: ✅ Ensure pipx is installed
-  package_install:
+  package_install: # nocheck: package-install only when the MCP for Blender addon is enabled, which gates the include of this file
     id: pipx
   become: true
   become_user: root

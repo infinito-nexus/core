@@ -6,8 +6,8 @@
 # integration_gitlab coupling does.
 - name: 🔍 Resolve Zammad integration provisioning facts
   set_fact:
-    nextcloud_zammad_base_url: "{{ lookup('tls', 'web-app-zammad', 'url.base') | regex_replace('/$', '') }}"
-    nextcloud_zammad_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
+    nextcloud_zammad_base_url: "{{ lookup('tls', 'web-app-zammad', 'url.origin') }}"
+    nextcloud_zammad_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.origin') }}"
   changed_when: false
 
 - name: 📖 Read persisted integration_zammad OAuth client id

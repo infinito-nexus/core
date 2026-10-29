@@ -7,4 +7,4 @@ bridges:
   - openwebui
 config:
   plugin_id: mattermost-ai
-  partner_url: "{{ lookup('tls', 'web-app-openwebui', 'url.base') | regex_replace('/+$', '') ~ '/api' }}"
+  partner_url: "{{ lookup('tls', 'web-app-openwebui', 'url.origin') ~ '/api' }}"

@@ -68,7 +68,7 @@ For the file-level contract, use [Contributing `playwright.env.j2`](../../docs/a
 
 This role ships central Playwright defaults:
 
-- `templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`
+- `templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`, and `@axe-core/playwright` (WCAG checks through `AxeBuilder`) pinned by `meta/services.yml.playwright.axe_version`
 - `files/playwright.config.js`: shared Playwright configuration
 - `files/network-leak.spec.js`: guest persona and cross-network leak check, staged next to every role spec and skipped unless `PLAYWRIGHT_NETWORK_LEAK=true`, which the runner sets when the role is served on more than one network
 

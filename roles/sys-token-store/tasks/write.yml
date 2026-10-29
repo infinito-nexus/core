@@ -4,73 +4,10 @@
 #   sys_token_store_app
 #   sys_token_store_token  # must be non-empty
 
-- name: "✅ Ensure store exists"
-  ansible.builtin.import_tasks: 00_core.yml
-
-- name: "📐 Normalize incoming token"
-  ansible.builtin.set_fact:
-    sys_token_store_token_effective: "{{ sys_token_store_token | string | trim }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🛑 Abort if token is empty (do not persist empties)"
-  ansible.builtin.assert:
-    that:
-      - sys_token_store_token_effective != ''
-    fail_msg: "sys_token_store_token is empty – refusing to persist empty token."
-
-- name: "🔨 Build merged structure"
-  ansible.builtin.set_fact:
-    sys_token_store_users_merged: >-
-      {{
-        sys_token_store_users
-        | combine({
-            sys_token_store_user_key: (
-              sys_token_store_users.get(sys_token_store_user_key, {})
-              | combine({
-                  'tokens': (
-                    sys_token_store_users.get(sys_token_store_user_key, {}).get('tokens', {})
-                    | combine({ sys_token_store_app: sys_token_store_token_effective })
-                  )
-                }, recursive=True
-              )
-            )
-          }, recursive=True
-        )
-      }}
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "💾 Write the token store when the merge changed it"
-  when: sys_token_store_users_merged != sys_token_store_users
-  block:
-    - name: "💾 Persist store (idempotent, single-writer via STACK_HOST)"
-      ansible.builtin.copy:
-        dest: "{{ FILE_TOKENS }}"
-        owner: "{{ SYS_TOKEN_STORE_OWNER }}"
-        group: "{{ SYS_TOKEN_STORE_GROUP }}"
-        mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
-        content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
-      delegate_to: "{{ STACK_HOST }}"
-      run_once: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      become: true
-      register: sys_token_store_persisted
-
-    - name: "🪞 Mirror the store onto the controller, where every users lookup reads"
-      ansible.builtin.copy:
-        dest: "{{ FILE_TOKENS }}"
-        mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
-        content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
-      when: IS_SWARM_MODE
-      delegate_to: localhost # nocheck: localhost-become  FILE_TOKENS sits below the root-owned DIR_SECRETS
-      run_once: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      register: sys_token_store_mirrored
-
-    - name: "🔄 Hand the written store to the lookups of the rest of the play"
-      ansible.builtin.set_fact:
-        sys_token_store_users: "{{ sys_token_store_users_merged }}"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "🧊 Re-render the applications SPOT the new token invalidated"
-  applications_carrier: {}
-  when: sys_token_store_persisted is changed or sys_token_store_mirrored is changed
+- name: "💾 Persist the token as a one-entry batch"
+  ansible.builtin.import_tasks: write_many.yml
+  vars:
+    sys_token_store_entries:
+      - user_key: "{{ sys_token_store_user_key }}"
+        app: "{{ sys_token_store_app }}"
+        token: "{{ sys_token_store_token }}"

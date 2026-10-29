@@ -27,14 +27,13 @@
     owner: root
     group: root
     mode: "0600"
+    modification_time: preserve
+    access_time: preserve
 
 - name: ✅ Ensure compositions dir exists (baudolo scans it; absent on fresh host)
   ansible.builtin.file:
     path: "{{ DIR_COMPOSITIONS }}"
     state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: ✅ Assert the configured snapshot_mode names a snapshot mode
   ansible.builtin.assert:
@@ -49,7 +48,7 @@
 
 - name: 📦 Install the btrfs tools the snapshot launcher shells out to
   become: true
-  package_install:
+  package_install: # nocheck: package-install only on hosts with a btrfs mount
     id: btrfs-tools
   when: ansible_facts.mounts | selectattr('fstype', 'equalto', 'btrfs') | list | length > 0
 

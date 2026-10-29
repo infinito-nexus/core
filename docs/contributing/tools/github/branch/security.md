@@ -4,11 +4,12 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 ## Enforcement 🔒
 
-- Ruleset is **Enabled (Enforced)**
+- Ruleset `Main` is **Enabled (Enforced)**
 
 👉 **Meaning for contributors:**
 
-- All rules in this document are **actively enforced** on the default branch (`main`).
+- Every rule marked ✅ in this document is **actively enforced** on the default branch (`main`).
+- Rules marked ❌ are not part of the ruleset and block nothing.
 - Contributors MUST comply; violations will block pushes/merges.
 
 ---
@@ -168,45 +169,34 @@ See also [repository.md](../repository.md) for repository-wide security settings
 
 ---
 
-## Status Checks (CI/CD) ✅
+## Status Checks (CI/CD) ❌
 
-### Require Status Checks to Pass ✅
+### Require Status Checks to Pass ❌
 
 👉 **Contributor impact:**
 
-- Your PR MUST pass CI before merging
+- The ruleset names no required check, so a failing or missing CI run does not block the merge.
+- CI in your fork still MUST be green before you open the PR, see [pull-request.md](../../../artefact/git/pull-request.md).
 
 ---
 
-### Required Checks: NONE ⚠️
+### Require Branch to Be Up-To-Date ❌
 
 👉 **Contributor impact:**
 
-- Currently, no checks are enforced
-- Effectively: nothing blocks merge here
-
----
-
-### Require Branch to Be Up-To-Date ✅
-
-👉 **Contributor impact:**
-
-- You MUST update your branch before merging
-- Typically via:
-
-  - merge `main`
-  - or rebase
+- The ruleset does not block merging a branch that is behind `main`.
+- Your branch still MUST be up to date with `main`, see [pull-request.md](../../../artefact/git/pull-request.md).
 
 ---
 
 ## Security 🔐
 
-### Require Signed Commits ✅
+### Require Signed Commits ❌
 
 👉 **Contributor impact:**
 
-- All commits MUST be signed (GPG/SSH)
-- Unsigned commits will be rejected
+- The ruleset `Main` does not reject unsigned commits.
+- The ruleset `Signed`, which requires signed commits on `main`, is disabled.
 
 ---
 
@@ -227,6 +217,8 @@ Configured tools:
 
 - CodeQL (High severity)
 - Hadolint (High severity)
+
+No workflow uploads Hadolint results to code scanning. Hadolint checks `Dockerfile` as `lint-dockerfile` inside `make lint` and writes no SARIF.
 
 👉 **Contributor impact:**
 

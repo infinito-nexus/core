@@ -27,3 +27,42 @@
     [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
   register: openbao_admin_policy_write
   changed_when: "'OPENBAO_CHANGED' in openbao_admin_policy_write.stdout"
+
+- name: "📝 Fail unless the declared stdout audit device is active"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao audit list -format=json
+  register: openbao_audit_devices
+  changed_when: false
+  failed_when: >-
+    openbao_audit_devices.rc != 0
+    or (openbao_audit_devices.stdout | from_json).get(OPENBAO_AUDIT_PATH ~ '/', {}).get('type') != 'file'
+
+- name: "🔎 Read the audit probe secret through the AppRole session"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao kv get -mount={{ OPENBAO_KV_MOUNT | quote }} -field=value {{ OPENBAO_AUDIT_PROBE | quote }} 2>/dev/null ||
+    { bao kv put -mount={{ OPENBAO_KV_MOUNT | quote }} {{ OPENBAO_AUDIT_PROBE | quote }} value="probe-$(date +%s)-$$" >/dev/null &&
+    bao kv get -mount={{ OPENBAO_KV_MOUNT | quote }} -field=value {{ OPENBAO_AUDIT_PROBE | quote }}; }'
+  register: openbao_audit_probe
+  changed_when: false
+
+- name: "🧾 Fail unless the audit log recorded the probe read with identity and time"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container logs --since 10m {{ OPENBAO_LOCAL_CID | quote }} 2>&1
+    | grep -F '"type":"response"'
+    | grep -F '"path":"{{ OPENBAO_KV_MOUNT }}/data/{{ OPENBAO_AUDIT_PROBE }}"'
+    | grep -F '"operation":"read"'
+    | grep -F '"display_name":'
+    | grep -cF '"time":'
+  register: openbao_audit_entries
+  changed_when: false
+  failed_when: openbao_audit_entries.stdout | trim | int < 1
+
+- name: "🙈 Fail if the audit log holds the probe secret in plaintext"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container logs --since 10m {{ OPENBAO_LOCAL_CID | quote }} 2>&1
+    | grep -cF {{ openbao_audit_probe.stdout | trim | quote }}
+  register: openbao_audit_leak
+  changed_when: false
+  failed_when: openbao_audit_leak.stdout | trim | int > 0

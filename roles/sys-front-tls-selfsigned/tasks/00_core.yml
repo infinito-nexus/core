@@ -88,7 +88,7 @@
       subjectAltName = @alt_names
 
       [ alt_names ]
-      {% for d in _ss_san %}
+      {% for d in _ss_san | unique | sort %}
       DNS.{{ loop.index }} = {{ d }}
       {% endfor %}
 

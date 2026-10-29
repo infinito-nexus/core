@@ -6,3 +6,4 @@ msi-perkeyrgb:
       - msi-perkeyrgb
   Debian: [] # nocheck: empty - msi-perkeyrgb is published upstream on GitHub and PyPI only, so the role installs it from PyPI through sys-pip-install
   RedHat: [] # nocheck: empty - msi-perkeyrgb is carried by no RedHat-family repository, so the role installs it from PyPI through sys-pip-install
+  batch: false

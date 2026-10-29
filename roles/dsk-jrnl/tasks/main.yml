@@ -1,6 +1,6 @@
 ---
 - name: 📦 install jrnl
-  package_install:
+  package_install: # nocheck: package-install its skipped result picks the PyPI fallback below
     id: jrnl
   register: jrnl_package
 

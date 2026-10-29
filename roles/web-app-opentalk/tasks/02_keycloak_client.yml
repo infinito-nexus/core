@@ -76,7 +76,7 @@
 
 - name: "📝 Upsert dedicated public Keycloak client for the OpenTalk frontend"
   vars:
-    opentalk_frontend_origin: "{{ OPENTALK_URL | regex_replace('/+$', '') }}"
+    opentalk_frontend_origin: "{{ lookup('tls', application_id, 'url.origin') }}"
   keycloak_kcadm_update:
     object_kind: "client"
     lookup_value: "{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}"

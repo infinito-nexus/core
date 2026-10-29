@@ -1,6 +1,6 @@
 ---
 - name: "📦 Install the userspace nfs-ganesha server"
-  package_install:
+  package_install: # nocheck: package-install only the ganesha NFS flavor includes this file
     id:
       - nfs-ganesha
       - libntirpc

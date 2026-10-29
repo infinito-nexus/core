@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import json
+import re
+
+from ansible.errors import AnsibleFilterError
+
 VOLUME_GROW_BATCH = 7
 VOLUME_SIZE_LIMIT_MB = 1024
 MIN_FREE_SPACE_VOLUMES = 2
+POLICY_VERSION = "2012-10-17"
+ANONYMOUS_DENY_SID = "DenyAnonymousRead"
+NO_SUCH_BUCKET_POLICY = "<Code>NoSuchBucketPolicy</Code>"
+_BUCKET_LIST_ENTRY = re.compile(r"(\S+)\tsize:")
 
 
 def min_free_space():
@@ -107,9 +116,106 @@ def seaweedfs_sidecar_script(bucket, s3_port, access_key, secret_key):
     )
 
 
+def seaweedfs_anonymous_deny_policy(bucket):
+    """Build the bucket policy that denies every unsigned read of *bucket*.
+
+    SeaweedFS honours a public-read object or bucket ACL on an unsigned read
+    unless a bucket policy explicitly denies it first. A bare
+    ``Principal: "*"`` deny would also hit the consumer's own signed and
+    presigned requests; the ``Null`` condition on ``aws:username`` limits it to
+    unsigned ones, because SeaweedFS derives that key from a signed caller's
+    IAM user ARN and evaluates an unsigned request as principal ``*`` without
+    it.
+
+    Args:
+        bucket: bucket the policy is attached to; scopes both the bucket ARN
+            (listings) and its object ARNs (GET/HEAD).
+    """
+    return {
+        "Version": POLICY_VERSION,
+        "Statement": [
+            {
+                "Sid": ANONYMOUS_DENY_SID,
+                "Effect": "Deny",
+                "Principal": "*",
+                "Action": ["s3:Get*", "s3:List*"],
+                "Resource": [f"arn:aws:s3:::{bucket}", f"arn:aws:s3:::{bucket}/*"],
+                "Condition": {"Null": {"aws:username": "true"}},
+            }
+        ],
+    }
+
+
+def seaweedfs_bucket_names(output):
+    """Return the bucket names a ``weed shell`` ``s3.bucket.list`` printed.
+
+    Args:
+        output: stdout of the shell; every bucket line carries the name
+            followed by a tab and its ``size:`` column, and the first one may
+            follow the shell prompt on the same line.
+    """
+    return _BUCKET_LIST_ENTRY.findall(str(output))
+
+
+def seaweedfs_stored_bucket_policy(output):
+    """Return the policy SeaweedFS reports for a bucket.
+
+    Args:
+        output: stdout of the admin curl ``GET /<bucket>?policy`` run with
+            ``-w '\\n%{http_code}'``: the response body, a newline, and the
+            HTTP status.
+
+    Returns:
+        The stored policy document on HTTP 200, an empty dict on HTTP 404
+        ``NoSuchBucketPolicy``, and ``None`` on every other answer, a missing
+        bucket (``NoSuchBucket``) included.
+    """
+    body, _, status = str(output).rpartition("\n")
+    if status == "200":
+        return json.loads(body)
+    if status == "404" and NO_SUCH_BUCKET_POLICY in body:
+        return {}
+    return None
+
+
+def seaweedfs_bucket_policy_target(stored, bucket, public):
+    """Return the policy *bucket* converges to.
+
+    Every statement except ``DenyAnonymousRead`` is kept as stored; that one
+    is replaced by the current :func:`seaweedfs_anonymous_deny_policy`
+    statement on a private bucket and dropped on a public one.
+
+    Args:
+        stored: policy document the bucket carries, an empty dict for none.
+        bucket: bucket the deny statement scopes.
+        public: whether the consumer is marked public; must be a bool.
+
+    Returns:
+        The target policy document, or an empty dict when no statement
+        remains and the bucket must carry no policy.
+    """
+    if not isinstance(public, bool):
+        raise AnsibleFilterError(
+            f"seaweedfs_bucket_policy_target: public must be a bool, got {public!r}"
+        )
+    statements = [
+        statement
+        for statement in stored.get("Statement", [])
+        if statement.get("Sid") != ANONYMOUS_DENY_SID
+    ]
+    if not public:
+        statements.extend(seaweedfs_anonymous_deny_policy(bucket)["Statement"])
+    if not statements:
+        return {}
+    return {"Version": POLICY_VERSION, "Statement": statements}
+
+
 class FilterModule:
     def filters(self):
         return {
+            "seaweedfs_bucket_names": seaweedfs_bucket_names,
+            "seaweedfs_bucket_policy_target": seaweedfs_bucket_policy_target,
             "seaweedfs_command": seaweedfs_command,
             "seaweedfs_sidecar_script": seaweedfs_sidecar_script,
+            "seaweedfs_stored_bucket_policy": seaweedfs_stored_bucket_policy,
         }

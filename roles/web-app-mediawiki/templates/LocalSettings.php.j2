@@ -32,10 +32,10 @@ $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
 {% set mediawiki_hosts = lookup('network_siblings', lookup('domain', application_id)) %}
-$wgCanonicalServer = "{{ MEDIAWIKI_URL | regex_replace('/+$', '') }}";
+$wgCanonicalServer = "{{ lookup('tls', application_id, 'url.origin') }}";
 $infinito_servers = [
 {% for host in mediawiki_hosts %}
-	'{{ host }}' => "{{ lookup('tls', host, 'url.base') | regex_replace('/+$', '') }}",
+	'{{ host }}' => "{{ lookup('tls', host, 'url.origin') }}",
 {% endfor %}
 ];
 $infinito_request_host = strtolower( (string)parse_url( \MediaWiki\Request\WebRequest::detectServer(), PHP_URL_HOST ) );

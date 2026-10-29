@@ -267,6 +267,7 @@ def run_in_container(
             "-vv",
             "--assert",
             "true",
+            "--skip-pull",
             *deploy_args,
         ]
         print(">>> Deploy command inside container:")

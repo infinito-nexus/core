@@ -55,6 +55,26 @@ class TestKeycloakClient(unittest.TestCase):
         self.assertEqual(created, "new-id")
         self.assertEqual(sum(url.endswith("/token") for url in calls), 1)
 
+    def test_realm_level_calls_reach_any_realm_with_the_same_token(self):
+        token = json.dumps({"access_token": "t", "expires_in": 300}).encode()
+        calls = []
+
+        def urlopen(request, timeout):
+            calls.append(request.full_url)
+            if request.full_url.endswith("/token"):
+                return _Response(token)
+            return _Response(b"{}")
+
+        kc = m.Keycloak("http://kc", "r", "admin", "pw")
+        with mock.patch.object(m.urllib.request, "urlopen", urlopen):
+            kc.call("GET", "clients")
+            kc.admin("GET", "master")
+        self.assertEqual(
+            [url for url in calls if not url.endswith("/token")],
+            ["http://kc/admin/realms/r/clients", "http://kc/admin/realms/master"],
+        )
+        self.assertEqual(sum(url.endswith("/token") for url in calls), 1)
+
     def test_an_http_error_names_the_status_but_not_the_body(self):
         token = json.dumps({"access_token": "t", "expires_in": 300}).encode()
 

@@ -1,12 +1,16 @@
 # nocheck: mirrored-unit-test - runs in the OpenProject console against
 # Storages::NextcloudStorage; the model only exists once OpenProject has booted
+# Param PROVISION_INPUT: defined ahead of this script on the same stdin, with the keys
+# nextcloud_host, storage_name, nc_op_client_secret, rotate_op_secret,
+# nc_oauth_client_id and nc_oauth_client_secret.
 require "json"
 
-host = ENV.fetch("NEXTCLOUD_HOST").sub(%r{/+\z}, "")
-name = ENV.fetch("STORAGE_NAME")
-nc_client_id = ENV["NC_OAUTH_CLIENT_ID"].to_s.strip
-nc_client_secret = ENV["NC_OAUTH_CLIENT_SECRET"].to_s.strip
-nc_has_op_secret = ENV["NC_HAS_OP_SECRET"].to_s.strip
+host = PROVISION_INPUT.fetch("nextcloud_host").sub(%r{/+\z}, "")
+name = PROVISION_INPUT.fetch("storage_name")
+nc_client_id = PROVISION_INPUT.fetch("nc_oauth_client_id").to_s.strip
+nc_client_secret = PROVISION_INPUT.fetch("nc_oauth_client_secret").to_s.strip
+nc_op_client_secret = PROVISION_INPUT.fetch("nc_op_client_secret").to_s.strip
+rotate_op_secret = PROVISION_INPUT.fetch("rotate_op_secret") == true
 
 admins = User.where(admin: true)
 creator =
@@ -34,7 +38,7 @@ end
 application = storage.oauth_application
 op_client_secret = nil
 
-if application && nc_client_id.empty? && nc_has_op_secret.empty?
+if application && nc_client_id.empty? && nc_op_client_secret.empty?
   application.destroy
   storage.reload
   application = nil
@@ -63,7 +67,14 @@ if application.nil?
   application = result.is_a?(ServiceResult) ? result.result : result
   op_client_secret = application.plaintext_secret if application.respond_to?(:plaintext_secret)
   storage.reload
+elsif rotate_op_secret || nc_op_client_secret.empty? || !application.secret_matches?(nc_op_client_secret)
+  application.renew_secret
+  application.save!
+  op_client_secret = application.plaintext_secret || application.secret
+  storage.reload
 end
+
+application.update!(redirect_uri: redirect_uri) if application.redirect_uri != redirect_uri
 
 if nc_client_id.present? && nc_client_secret.present?
   client = storage.oauth_client
@@ -84,5 +95,5 @@ puts JSON.generate(
   openproject_client_id: storage.oauth_application&.uid,
   openproject_client_secret: op_client_secret,
   nc_oauth_client_id: storage.oauth_client&.client_id,
-  oauth_application_created: !op_client_secret.nil?
+  oauth_application_secret_issued: !op_client_secret.nil?
 )

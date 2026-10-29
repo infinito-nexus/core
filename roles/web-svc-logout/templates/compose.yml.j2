@@ -3,7 +3,7 @@
   {% set service_name = 'logout' | labelled(logout_instance.label, '-') %}
   {% set logout_urls = [] %}
   {% for logout_domain in lookup('applications') | logout_domains(group_names, lookup('domains'), logout_instance.network) | unique | sort %}
-  {% set _ = logout_urls.append(lookup('tls', logout_domain, 'url.base') | regex_replace('/+$', '')) %}
+  {% set _ = logout_urls.append(lookup('tls', logout_domain, 'url.origin')) %}
   {% endfor %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

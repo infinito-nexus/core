@@ -150,6 +150,7 @@ iproute:
     - iproute2
   RedHat:
     - iproute
+  batch: false
 
 iputils-ping:
   Archlinux:
@@ -158,6 +159,7 @@ iputils-ping:
     - iputils-ping
   RedHat:
     - iputils
+  batch: false
 
 java-jdk:
   Archlinux:
@@ -214,6 +216,7 @@ nfs-client:
     - nfs-common
   RedHat:
     - nfs-utils
+  batch: false
 
 npm:
   Archlinux:
@@ -243,6 +246,7 @@ postfix:
   RedHat:
     - postfix
     - postfix-lmdb
+  batch: false
 
 retext:
   Archlinux:

@@ -8,9 +8,11 @@ the module so the real repo tree is never touched.
 
 from __future__ import annotations
 
+import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from utils.cache import files as files_module
@@ -20,7 +22,7 @@ from utils.cache.files import (
     iter_project_files_with_content,
     read_text,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
 
 
 def _touch(path: Path, content: str = "") -> Path:
@@ -189,6 +191,56 @@ class TestReset(_ProjectRootFixture, unittest.TestCase):
         _reset()
         self.assertIn(str(self.root / "y.txt"), set(iter_project_files()))
         self.assertEqual(read_text(str(self.root / "x.txt")), "v1-changed")
+
+
+class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
+    TRACKED = f"roles/web-app-nextcloud/{ROLE_FILE_TASKS_MAIN}"
+    CUSTOM = f"roles/web-app-cst-demo/{ROLE_FILE_TASKS_MAIN}"
+
+    def _git(self, *listings: bytes):
+        return patch.object(
+            files_module.subprocess,
+            "run",
+            side_effect=[SimpleNamespace(stdout=listing) for listing in listings],
+        )
+
+    def test_lists_placed_custom_roles_next_to_the_tracked_files(self) -> None:
+        _touch(self.root / self.TRACKED, "- y")
+        _touch(self.root / self.CUSTOM, "- x")
+        _touch(self.root / "roles/web-app-cst-demo/__pycache__/x.pyc", "")
+        with self._git(f"{self.TRACKED}\0".encode()):
+            self.assertEqual(
+                (self.CUSTOM, self.TRACKED),
+                files_module.repository_files(),
+            )
+
+    def test_lists_only_the_tracked_files_without_placed_custom_roles(self) -> None:
+        _touch(self.root / self.TRACKED, "- y")
+        _touch(self.root / "build/install.stamp", "")
+        with self._git(f"{self.TRACKED}\0".encode()):
+            self.assertEqual((self.TRACKED,), files_module.repository_files())
+
+    def test_untracked_adds_the_files_gitignore_does_not_exclude(self) -> None:
+        with self._git(f"{self.TRACKED}\0".encode(), b"new.py\0") as run:
+            self.assertEqual(
+                ("new.py", self.TRACKED),
+                files_module.repository_files(untracked=True),
+            )
+        self.assertEqual(
+            ["--others", "--exclude-standard"],
+            run.call_args_list[1].args[0][-2:],
+        )
+
+    def test_a_git_failure_propagates(self) -> None:
+        with (
+            patch.object(
+                files_module.subprocess,
+                "run",
+                side_effect=subprocess.CalledProcessError(128, "git"),
+            ),
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            files_module.repository_files()
 
 
 class TestWalkIsKeyedOnTheRoot(_ProjectRootFixture, unittest.TestCase):

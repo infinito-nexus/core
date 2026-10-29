@@ -8,7 +8,7 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
 XWIKI_HOSTNAME: "{{ container_hostname }}"
-XWIKI_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+XWIKI_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
 XWIKI_DOCK_DATA_DIR: "{{ lookup('volume', 'web-app-xwiki', 'data').target }}"

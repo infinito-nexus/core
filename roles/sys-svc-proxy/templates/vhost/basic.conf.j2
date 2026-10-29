@@ -27,41 +27,8 @@ server
   {% elif lookup('network_handover', application_id, domain) %}
     {% include 'roles/sys-svc-proxy/templates/location/handover.conf.j2' %}
 
-  {% elif lookup('sso', application_id, 'is_proxy_gated') %}
-    {% set acl = lookup('sso', application_id, 'oauth2_acl') %}
-
-    {% if acl.blacklist is defined %}
-      {% set sso_proxy_enabled = false %}
-      {% set location = "/" %}
-      {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-
-      {% for loc in acl.blacklist %}
-        {% set sso_proxy_enabled = true %}
-        {% set location = loc %}
-        {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-      {% endfor %}
-
-    {% elif acl.whitelist is defined %}
-      {% set sso_proxy_enabled = true %}
-      {% set location = "/" %}
-      {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-
-      {% for loc in acl.whitelist %}
-        {% set sso_proxy_enabled = false %}
-        {% set location = loc %}
-        {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-      {% endfor %}
-
-    {% else %}
-      {% set sso_proxy_enabled = true %}
-      {% set location = "/" %}
-      {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-    {% endif %}
-
   {% else %}
-    {% set sso_proxy_enabled = false %}
-    {% set location = "/" %}
-    {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/location/sso_acl.conf.j2' %}
   {% endif %}
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}

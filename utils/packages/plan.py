@@ -9,7 +9,10 @@ plugin only executes what it is handed.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from utils.packages.calls import (
+    GENERIC_PACKAGE,
     STATE_ABSENT,
     STATE_PRESENT,
     ModuleCall,
@@ -64,3 +67,49 @@ def build_plan(spec: PackageSpec, state: str) -> list[ModuleCall]:
     if spec.repo:
         return repository_calls(spec.repo, names)
     return [package_call(names, STATE_PRESENT)]
+
+
+def _plain(plan: list[ModuleCall]) -> bool:
+    if not plan or any(
+        call.module != GENERIC_PACKAGE
+        or call.become_user is not None
+        or set(call.args) != {"name", "state"}
+        for call in plan
+    ):
+        return False
+    return len({call.args["state"] for call in plan}) == 1
+
+
+def merge_plans(plans: list[list[ModuleCall]]) -> list[list[ModuleCall]]:
+    """Fold the plans that only call the host's package manager into one plan.
+
+    The plain plans are aligned on their last call, so the n-th call from
+    the end of every plan lands in the same merged call and each plan's own
+    order survives: a bootstrap package still installs before the names it
+    unlocks. Every other plan follows unchanged, in request order.
+
+    Args:
+        plans: one plan per package id, in request order.
+
+    Returns:
+        one merged plan per state the plain plans bring their names into,
+        then every other plan.
+    """
+    groups: dict[str, list[list[ModuleCall]]] = {}
+    for plan in plans:
+        if _plain(plan):
+            groups.setdefault(plan[-1].args["state"], []).append(plan)
+    return [_merge(group) for group in groups.values()] + [
+        plan for plan in plans if not _plain(plan)
+    ]
+
+
+def _merge(plain: list[list[ModuleCall]]) -> list[ModuleCall]:
+    merged: list[ModuleCall] = []
+    for offset in range(max(len(plan) for plan in plain), 0, -1):
+        calls = [plan[-offset] for plan in plain if len(plan) >= offset]
+        names = list(
+            dict.fromkeys(name for call in calls for name in call.args["name"])
+        )
+        merged.append(replace(calls[0], args={**calls[0].args, "name": names}))
+    return merged

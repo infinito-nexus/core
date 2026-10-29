@@ -18,13 +18,12 @@ DASHBOARD_SIMPLEICONS_PROBE_URLS: >-
                 | map('regex_replace', '^', DASHBOARD_SIMPLEICONS_SYNC_URL_BASE)
                 | map('regex_replace', '$', '.svg'))) }}
 
-DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
 DASHBOARD_JS_FILES: >-
   {{ ['iframe.js']
      + (['oidc.js'] if (DASHBOARD_OIDC_ENABLED | bool) else []) }}
 DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | entity_name }}/{{ 'js' | labelled(DASHBOARD_NETWORK_LABEL, '-') }}"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
-DASHBOARD_JS_BASE_URL: "{{ (DASHBOARD_JS_CDN_URL | trim('/')) ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
+DASHBOARD_JS_BASE_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.origin') ~ '/' ~ (DASHBOARD_JS_BASE_PATH | trim('/')) }}"
 
 DASHBOARD_LOCATION_SILENT_CHECK: "/silent-check-sso.html"
 
@@ -36,7 +35,7 @@ DASHBOARD_I18N_CONTENT_DIR: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 
 DASHBOARD_IMAGE: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
 DASHBOARD_VERSION: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
 
-DASHBOARD_APP_BASE_URL: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') | regex_replace('/+$', '') }}/"
+DASHBOARD_APP_BASE_URL: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') }}"
 DASHBOARD_KEYCLOAK_LOGIN_URL: >-
   {{ OIDC.CLIENT.AUTHORIZE_URL
      ~ '?client_id=' ~ OIDC.CLIENT.ID

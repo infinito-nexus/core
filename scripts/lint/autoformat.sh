@@ -22,6 +22,11 @@ cd "${REPO_ROOT}"
 RUFF_CACHE_DIR="build/ruff-cache-$(id -u)"
 export RUFF_CACHE_DIR
 
+# shellcheck source=scripts/lint/diff/files.sh
+source "${SCRIPT_DIR}/diff/files.sh"
+# shellcheck source=scripts/lint/ansible/stamp.sh
+source "${SCRIPT_DIR}/ansible/stamp.sh"
+
 status_dir="$(mktemp -d)"
 
 # $1 = tool name, $2 = OK|SKIP
@@ -37,8 +42,10 @@ run_ruff() {
 		return 0
 	fi
 	local rc=0
-	ruff format . || rc=$?
-	[[ $rc -eq 0 ]] && { ruff check . --fix || rc=$?; }
+	local -a custom_roles=()
+	mapfile -t custom_roles < <(lint_custom_roles)
+	ruff format . "${custom_roles[@]}" || rc=$?
+	[[ $rc -eq 0 ]] && { ruff check . --fix "${custom_roles[@]}" || rc=$?; }
 	if [[ $rc -eq 0 ]]; then
 		write_status ruff OK
 	else
@@ -71,7 +78,11 @@ run_shell_pair() {
 	fi
 
 	if command -v shellcheck &>/dev/null; then
-		mapfile -t shellcheck_files < <(find . -type f -name '*.sh' 2>/dev/null | sort)
+		if lint_diff_active shellcheck; then
+			mapfile -t shellcheck_files < <(lint_diff_files '\.sh$')
+		else
+			mapfile -t shellcheck_files < <(find . -type f -name '*.sh' 2>/dev/null | sort)
+		fi
 		if [[ "${#shellcheck_files[@]}" -gt 0 ]]; then
 			local diff_file rc=0
 			diff_file="$(mktemp)"
@@ -102,7 +113,16 @@ run_markdownlint() {
 		return 0
 	fi
 	local rc=0
-	markdownlint-cli2 --fix >/dev/null 2>&1 || rc=$?
+	local -a args=()
+	if lint_diff_active markdown; then
+		mapfile -t args < <(lint_diff_files '\.md$' | sed 's/^/:/')
+		if [[ "${#args[@]}" -eq 0 ]]; then
+			write_status markdownlint-cli2 OK
+			return 0
+		fi
+		args=(--no-globs "${args[@]}")
+	fi
+	markdownlint-cli2 --fix "${args[@]}" >/dev/null 2>&1 || rc=$?
 	if [[ $rc -le 1 ]]; then
 		write_status markdownlint-cli2 OK
 	else
@@ -115,9 +135,26 @@ run_ansible_lint() {
 		write_status ansible-lint SKIP
 		return 0
 	fi
-	local rc=0 out
+	local rc=0 out yaml_before
+	local -a targets=() custom_roles=()
+	if lint_diff_active ansible; then
+		mapfile -t targets < <(lint_diff_files '\.ya?ml$' | ansible_lint_included)
+		if [[ "${#targets[@]}" -eq 0 ]]; then
+			write_status ansible-lint OK
+			return 0
+		fi
+	else
+		mapfile -t custom_roles < <(lint_custom_roles)
+	fi
 	out="$(mktemp)"
-	ansible-lint --fix >"${out}" 2>&1 || rc=$?
+	yaml_before="$(ansible_lint_fingerprint yaml)"
+	ansible-lint --fix "${targets[@]}" >"${out}" 2>&1 || rc=$?
+	if [[ "${#custom_roles[@]}" -gt 0 && ($rc -eq 0 || $rc -eq 2 || $rc -eq 8) ]]; then
+		ansible-lint --fix "${custom_roles[@]}" >>"${out}" 2>&1 || rc=$?
+	fi
+	if [[ $rc -eq 0 && "${#targets[@]}" -eq 0 && "$(ansible_lint_fingerprint yaml)" == "${yaml_before}" ]]; then
+		touch "${status_dir}/.ansible-lint-clean"
+	fi
 	if [[ $rc -eq 0 || $rc -eq 2 || $rc -eq 8 ]]; then
 		write_status ansible-lint OK
 	else
@@ -149,7 +186,15 @@ run_eslint() {
 		return 0
 	fi
 	local rc=0
-	npx --no-install eslint --fix 'roles/**/files/**/*.js' >/dev/null 2>&1 || rc=$?
+	local -a targets=('roles/**/files/**/*.js')
+	if lint_diff_active javascript; then
+		mapfile -t targets < <(lint_diff_files '^roles/[^/]+/files/.*\.js$')
+		if [[ "${#targets[@]}" -eq 0 ]]; then
+			write_status eslint OK
+			return 0
+		fi
+	fi
+	npx --no-install eslint --fix --no-warn-ignored "${targets[@]}" >/dev/null 2>&1 || rc=$?
 	if [[ $rc -le 1 ]]; then
 		write_status eslint OK
 	else
@@ -173,6 +218,10 @@ if is_truthy "${PARALLEL}"; then
 	wait || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 else
 	for w in "${workers[@]}"; do "${w}" || true; done # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+fi
+
+if [[ -f "${status_dir}/.ansible-lint-clean" ]]; then
+	ansible_lint_stamp_record "$(ansible_lint_fingerprint all)"
 fi
 
 ran=()

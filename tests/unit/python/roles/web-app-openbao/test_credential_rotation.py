@@ -31,6 +31,7 @@ HCL_CONTEXT = {
     "OPENBAO_SEAL_KEY_ID": "0123456789abcdef",
     "OPENBAO_SEAL_KEY_PREVIOUS_ID": "fedcba9876543210",
     "OPENBAO_BASE_URL": "https://bao.example.com",
+    "OPENBAO_AUDIT_PATH": "stdout",
 }
 
 ENV_CONTEXT = {

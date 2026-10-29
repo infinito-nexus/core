@@ -6,6 +6,7 @@
     _playwright_spec_src: "{{ lookup('path_absolute', 'roles', application_id, 'files/playwright/playwright.spec.js') }}"
     _playwright_stage_dir: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/{{ application_id }}"
     _playwright_stage_tests_dir: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/{{ application_id }}/tests"
+    _playwright_tree_archive: "/tmp/infinito-playwright-{{ application_id }}.tar"
     _playwright_reports_dir: "{{ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR }}/{{ application_id }}"
     _playwright_default_package_template: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/templates/package.json.j2') }}"
     _playwright_default_config_js: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files/playwright.config.js') }}"
@@ -143,21 +144,23 @@
     dest: "{{ _playwright_stage_dir }}/playwright.config.js"
     mode: "0644"
 
-- name: 📋 Copy Playwright tree (spec + companions + addons/ + fixtures/) to staging
-  ansible.builtin.copy:
-    src: "{{ _playwright_files_dir }}/"
-    dest: "{{ _playwright_stage_tests_dir }}/"
-    mode: "0644"
-    directory_mode: "0755"
+- name: 📦 Pack the role's Playwright tree for a single transfer
+  ansible.builtin.command:
+    argv: [tar, -cf, "{{ _playwright_tree_archive }}", -C, "{{ _playwright_files_dir }}", .]
+  delegate_to: localhost
+  become: false
+  changed_when: false
 
-- name: 📋 Copy shared Playwright helpers into staging tests directory
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ _playwright_stage_tests_dir }}/{{ item | basename }}"
-    mode: "0644"
-  when: (item | basename) != 'playwright.config.js'
-  with_fileglob:
-    - "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}/*.js"
+- name: 📋 Stage the Playwright tree and the shared helpers
+  ansible.builtin.unarchive:
+    src: "{{ playwright_archive }}"
+    dest: "{{ _playwright_stage_tests_dir }}/"
+    extra_opts: [--no-same-owner]
+  loop:
+    - "{{ _playwright_tree_archive }}"
+    - "{{ TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE }}"
+  loop_control:
+    loop_var: playwright_archive
 
 - name: ✅ Ensure staging volume directory exists
   ansible.builtin.file:

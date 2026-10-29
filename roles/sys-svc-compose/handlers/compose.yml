@@ -8,36 +8,6 @@
     - container-recreate
     - compose-service-up
 
-- name: 📝 Generate CA trust override
-  ansible.builtin.shell: |
-    set -euo pipefail
-    {{ lookup('compose_ca_inject_cmd', application_id) }}
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  register: compose_ca_override
-  timeout: "{{ lookup('timeout', 1200) | int }}"
-  retries: 7
-  delay: 20
-  until: compose_ca_override is succeeded
-  listen:
-    - compose-up
-  when: lookup('ca_injected', application_id)
-
-- name: ✅ Validate Docker Compose configuration
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose config --quiet
-  args:
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-    executable: /bin/bash
-  register: dc_validate
-  changed_when: false
-  failed_when: dc_validate.rc != 0
-  listen:
-    - compose-up
-  when: MODE_ASSERT_LOCAL | bool
-
 - name: 📥 compose pull
   ansible.builtin.script:
     cmd: >-
@@ -91,6 +61,36 @@
   when: compose_build is failed
   listen:
     - compose-build
+
+- name: 📝 Generate CA trust override
+  ansible.builtin.shell: |
+    set -euo pipefail
+    {{ lookup('compose_ca_inject_cmd', application_id) }}
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_ca_override
+  timeout: "{{ lookup('timeout', 1200) | int }}"
+  retries: 7
+  delay: 20
+  until: compose_ca_override is succeeded
+  listen:
+    - compose-up
+  when: lookup('ca_injected', application_id)
+
+- name: ✅ Validate Docker Compose configuration
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose config --quiet
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: dc_validate
+  changed_when: false
+  failed_when: dc_validate.rc != 0
+  listen:
+    - compose-up
+  when: MODE_ASSERT_LOCAL | bool
 
 - name: "🌐 compose: pre-create external provider networks for the stack"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"

@@ -14,6 +14,7 @@ venv
 *tree.json
 roles/list.json
 roles/importer_result.json
+roles/web-app-cst-*
 *.pyc
 *.egg-info
 build/*

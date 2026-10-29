@@ -4,7 +4,6 @@ entity_name: "{{ application_id | entity_name }}"
 
 swarm_stack_converge_retries: 600
 
-GITLAB_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 GITLAB_HOSTNAME: "{{ lookup('container_hostname', application_id) }}"
 GITLAB_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 GITLAB_WEB_PORT: "{{ lookup('tls', application_id, 'ports.web') }}"

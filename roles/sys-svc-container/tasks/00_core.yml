@@ -22,7 +22,7 @@
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: 📦 Install Docker packages
-  package_install:
+  package_install: # nocheck: package-install needs the Docker repository the role adds first
     id: docker-cli
   register: sys_svc_container_packages_install
   retries: 5

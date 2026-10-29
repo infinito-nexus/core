@@ -11,6 +11,9 @@ The role box lists EVERY service the role declares. Around it:
                 above: another role names this one, or declares a service keyed
                 by this role's ``provides`` name (e.g. web-app-keycloak
                 ``provides: sso`` and every role with an ``sso`` service).
+                An in-tree role never lists a custom role (``web-app-cst-*``)
+                here: Git ignores custom roles, so a tracked README never
+                names one.
 
 ``provides`` matching runs in both directions, so a provider (e.g. openldap
 ``provides: ldap``) is picked up even when the consuming flag uses a
@@ -44,6 +47,7 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     is_explicit_truth,
 )
+from utils.roles.custom import is_custom
 from utils.roles.deploy import role_deploy_modes
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES
 from utils.symbol_glossary import to_emoji
@@ -298,7 +302,7 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
     dpt_kind: dict[str, str] = {}
     gear_dependents: set[str] = set()
     for other, other_services in meta.items():
-        if other == role_name:
+        if other == role_name or (is_custom(other) and not is_custom(role_name)):
             continue
         kind = _consumption_kind(other_services, role_name, my_provides, my_primary_key)
         if role_name in ansible_deps.get(other, set()):

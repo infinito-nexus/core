@@ -6,7 +6,7 @@ swarm_stack_converge_retries: 600
 PIXELFED_CONTAINER: "{{ lookup('config', application_id, 'services.pixelfed.name') }}"
 PIXELFED_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 PIXELFED_TITLE: "{{ lookup('design', application_id).label }}"
-PIXELFED_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+PIXELFED_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 PIXELFED_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PIXELFED_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
 PIXELFED_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if PIXELFED_OIDC_ONION_ISSUER | bool else '' }}"

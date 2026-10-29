@@ -6,7 +6,7 @@ This Ansible role installs the [Spotify](https://www.spotify.com/) desktop clien
 
 ## Overview
 
-Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. The role calls `package_install` with the `spotify` id; [`meta/packages.yml`](meta/packages.yml) declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client.
+Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. The package batch the constructor runs at deploy start installs the `spotify` id; [`meta/packages.yml`](meta/packages.yml) declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client.
 
 ## Purpose
 

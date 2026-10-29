@@ -36,7 +36,7 @@ Contract:
 
 The Keycloak group tree behind these paths is materialised by a
 per-application group-ldap-mapper
-(roles/web-app-keycloak/tasks/update/05_per_app_mappers.yml), anchored at
+(roles/web-app-keycloak/tasks/update/03_per_app_mappers.yml), anchored at
 `/<group_root>/<application_id>` with `group.name.ldap.attribute=description`.
 """
 

@@ -56,7 +56,7 @@ pretix:
   # nocheck: docker-version  runtime base of the source build, not the served application
   version: "3.13"
   source_repository: https://github.com/pretix/pretix.git
-  source_version: v2026.8.0
+  source_version: v2026.8.1
   update:
     - key: source_version
       type: git_tags

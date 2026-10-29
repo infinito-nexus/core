@@ -10,7 +10,8 @@ run; every other section stays untouched. Rows are the invokable roles,
 sorted ascending by the Entity column.
 
 Rows are the invokable roles inside the tested lifecycle envelope, sorted
-ascending by name.
+ascending by name. Custom roles (``web-app-cst-*``) are left out: Git ignores
+them, so the tracked README never names one.
 
 Columns::
 
@@ -34,6 +35,7 @@ from pathlib import Path
 from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.custom import is_custom
 from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import (
@@ -111,7 +113,9 @@ def build_table(roles_dir: Path) -> str:
     roles = sorted(
         p.name
         for p in roles_dir.iterdir()
-        if p.is_dir() and _is_role_invokable(p.name, invokable_paths)
+        if p.is_dir()
+        and not is_custom(p.name)
+        and _is_role_invokable(p.name, invokable_paths)
     )
     complexity = {row.name: row for row in compute_complexity_rows(roles_dir)}
     roles = [

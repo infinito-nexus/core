@@ -20,6 +20,8 @@ OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name
 OPENLDAP_SERVICE: "{{ entity_name }}"
 OPENLDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
+OPENLDAP_LDAPSM_COMMAND: |-
+  {{ ansible_python_interpreter }} -c 'import sys; from ldapsm.__main__ import main; sys.argv = ["ldapsm", *sys.argv[1:], "-W", sys.stdin.readline().rstrip("\n")]; sys.exit(main())'
 
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
