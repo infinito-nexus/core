@@ -8,6 +8,7 @@
     rest_script: email_verified.py
     rest_script_env:
       USERNAMES: "{{ lookup('users_non_reserved') | dict2items | map(attribute='value.username') | join(' ') }}"
+    rest_script_stdin: ""
     rest_script_ok_rcs: [0]
     rest_script_changed: "updated=[1-9]"
     rest_script_register: kc_email_verified

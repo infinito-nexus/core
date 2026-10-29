@@ -21,7 +21,7 @@
 # `preserve.group.inheritance=false` suffices per mapper because the
 # anchor is per-app — no collisions between apps exist within a mapper.
 #
-# The shared default `ldap-roles` mapper (created by update/05_ldap/main.yml)
+# The shared default `ldap-roles` mapper (created by update/03_ldap/main.yml)
 # is removed here so it does not shadow the per-app mappers, and any
 # Keycloak groups it had imported flat under /roles are pruned.
 
@@ -59,6 +59,7 @@
       SYNC_ATTEMPTS: "3"
       SYNC_DELAY: "20"
       SYNC_TIMEOUT: "{{ lookup('timeout', 60) | int }}"
+    rest_script_stdin: ""
     rest_script_ok_rcs: [0, 1, 2]
     rest_script_changed: "synced=[1-9]"
     rest_script_register: per_app_reconcile
