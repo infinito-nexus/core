@@ -1,6 +1,7 @@
 # nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
 from utils.roles.entity.name import get_entity_name
@@ -86,6 +88,19 @@ def _render(
         if value == prev:
             break
     return value
+
+
+def _provider_carrier(variables: dict[str, Any], host: str) -> Mapping[str, Any] | None:
+    hostvars = variables.get("hostvars")
+    raw_get = getattr(hostvars, "raw_get", None)
+    try:
+        host_vars = raw_get(host) if callable(raw_get) else hostvars[host]
+    except (KeyError, TypeError):
+        return None
+    if not isinstance(host_vars, Mapping):
+        return None
+    carrier = host_vars.get(APPLICATIONS_RENDERED_FACT)
+    return carrier if isinstance(carrier, Mapping) else None
 
 
 class LookupModule(LookupBase):
@@ -313,6 +328,9 @@ class LookupModule(LookupBase):
             provider_groups = fallback
         provider_view = dict(variables)
         provider_view["group_names"] = list(provider_groups or fallback)
+        carrier = _provider_carrier(variables, provider_hosts[0])
+        if carrier is not None:
+            provider_view[APPLICATIONS_RENDERED_FACT] = carrier
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
