@@ -113,11 +113,11 @@ Where the WebUI sends a login depends on the account:
 | Account in a domain bound to the Keycloak OIDC directory | Keycloak | Keycloak client from `templates/keycloak/clients.json.j2` |
 | Recovery admin (`STALWART_ADMIN_USER`), and every account while SSO is off | Stalwart | OAuth client the role registers in Stalwart (`tasks/02_webadmin.yml`) |
 
-The role registers that Stalwart client over JMAP (`templates/jmap/oauth_client/`) as a public first-party client, with one redirect URI `<origin>/<prefix>/oauth/callback` and one post-logout URI `<origin>/<prefix>/login` per URL prefix of the WebUI Application.
-`<origin>` is the role's canonical WebUI URL (`STALWART_WEBUI_BASE_URL`), so a Tor deployment registers its `http://` onion origin.
+The role registers that Stalwart client over JMAP (`templates/jmap/oauth_client/`) as a public first-party client, with one redirect URI `<origin>/<prefix>/oauth/callback` and one post-logout URI `<origin>/<prefix>/login` per origin and URL prefix of the WebUI Application.
+The origins are the role's canonical WebUI URL (`STALWART_WEBUI_BASE_URL`) in every network the node serves it on (`lookup('network_urls')`), so a Tor deployment registers its `http://` onion origin next to the clearnet one.
 Every deploy compares the registered client with that target and updates it when they differ.
-A deployment that serves the WebUI on a further origin MUST add that origin's URIs to [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
-Stalwart's login page asks for consent before the password form for every registered client, so a native WebUI login shows an **Allow** step.
+An origin that is no network sibling of the canonical WebUI URL MUST be added in [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
+Stalwart's login page asks for consent for the client after the password form, so a native WebUI login shows an **Allow** step.
 
 ## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
 
