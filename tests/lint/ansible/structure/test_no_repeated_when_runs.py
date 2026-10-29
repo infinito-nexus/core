@@ -35,6 +35,7 @@ _TASK_MARKER = re.compile(
     r"^(?P<indent>\s*)-\s+(?:name|include_tasks|import_tasks|block|hosts)\s*:"
 )
 _WHEN_INLINE = re.compile(r"^\s*when\s*:\s*(?P<expr>.+?)\s*$")
+_BLOCK_SCALAR = re.compile(r"^[|>][+-]?[1-9]?$|^[|>][1-9][+-]$")
 
 
 def _is_role_task_file(rel_path: str) -> bool:
@@ -65,6 +66,26 @@ def _first_list_item(lines: list[str], when_idx: int, indent_len: int) -> str | 
     return None
 
 
+def _block_scalar_body(lines: list[str], when_idx: int, indent_len: int) -> str:
+    """Return the body of a ``when: >-`` style block scalar on one line.
+
+    Args:
+        lines: the task file's lines.
+        when_idx: index of the ``when:`` line carrying the indicator.
+        indent_len: indent of the task the ``when:`` belongs to.
+    """
+    body: list[str] = []
+    for j in range(when_idx + 1, len(lines)):
+        raw = lines[j]
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if len(raw) - len(raw.lstrip()) <= indent_len + 2:
+            break
+        body.append(stripped)
+    return " ".join(body)
+
+
 def _task_block_when(lines: list[str], start_idx: int, indent_len: int) -> str | None:
     """Return the textual ``when:`` expression of the task starting at
     *start_idx*, or None if the task carries no ``when:``. The body is
@@ -87,13 +108,89 @@ def _task_block_when(lines: list[str], start_idx: int, indent_len: int) -> str |
         if not raw.startswith(indent_prefix + "  when:"):
             continue
         match = _WHEN_INLINE.match(raw)
+        if match and _BLOCK_SCALAR.match(match.group("expr").strip()):
+            return _block_scalar_body(lines, j, indent_len)
         if match:
             return match.group("expr").strip()
         return _first_list_item(lines, j, indent_len)
     return None
 
 
+def _shared_when_runs(lines: list[str]) -> list[tuple[int, str]]:
+    """Return ``(first line, expression)`` of every unsuppressed run.
+
+    Args:
+        lines: the task file's lines.
+    """
+    findings: list[tuple[int, str]] = []
+    run_when: str | None = None
+    run_indent: int | None = None
+    run_count = 0
+    run_start_line = 0
+    for idx, line in enumerate(lines):
+        marker = _TASK_MARKER.match(line)
+        if not marker:
+            continue
+        cur_indent = len(marker.group("indent"))
+        when_expr = _task_block_when(lines, idx, cur_indent)
+        same_run = (
+            when_expr is not None and when_expr == run_when and cur_indent == run_indent
+        )
+        if same_run:
+            run_count += 1
+        else:
+            if (
+                run_count >= _MIN_RUN
+                and run_when is not None
+                and not is_suppressed_at(
+                    lines, run_start_line, _RULE, mode="same-or-above"
+                )
+            ):
+                findings.append((run_start_line, run_when))
+            if when_expr is not None:
+                run_when = when_expr
+                run_indent = cur_indent
+                run_count = 1
+                run_start_line = idx + 1
+            else:
+                run_when = None
+                run_indent = None
+                run_count = 0
+                run_start_line = 0
+    if (
+        run_count >= _MIN_RUN
+        and run_when is not None
+        and not is_suppressed_at(lines, run_start_line, _RULE, mode="same-or-above")
+    ):
+        findings.append((run_start_line, run_when))
+    return findings
+
+
+_FOLDED_SIBLINGS = """\
+- name: first
+  ansible.builtin.command: "true"
+  when: >-
+    {first}
+- name: second
+  ansible.builtin.command: "true"
+  when: >-
+    {second}
+"""
+
+
 class TestNoRepeatedWhenRuns(unittest.TestCase):
+    def test_different_folded_conditions_are_no_run(self) -> None:
+        lines = _FOLDED_SIBLINGS.format(
+            first="target | length > 0", second="target | length == 0"
+        ).splitlines()
+        self.assertEqual(_shared_when_runs(lines), [])
+
+    def test_identical_folded_conditions_are_a_run(self) -> None:
+        lines = _FOLDED_SIBLINGS.format(
+            first="target | length > 0", second="target | length > 0"
+        ).splitlines()
+        self.assertEqual(_shared_when_runs(lines), [(1, "target | length > 0")])
+
     def test_no_three_consecutive_tasks_share_a_when(self) -> None:
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
@@ -103,51 +200,10 @@ class TestNoRepeatedWhenRuns(unittest.TestCase):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
             if not _is_role_task_file(rel):
                 continue
-            lines = content.splitlines()
-            run_when: str | None = None
-            run_indent: int | None = None
-            run_count = 0
-            run_start_line = 0
-            for idx, line in enumerate(lines):
-                marker = _TASK_MARKER.match(line)
-                if not marker:
-                    continue
-                cur_indent = len(marker.group("indent"))
-                when_expr = _task_block_when(lines, idx, cur_indent)
-                same_run = (
-                    when_expr is not None
-                    and when_expr == run_when
-                    and cur_indent == run_indent
-                )
-                if same_run:
-                    run_count += 1
-                else:
-                    if (
-                        run_count >= _MIN_RUN
-                        and run_when is not None
-                        and not is_suppressed_at(
-                            lines, run_start_line, _RULE, mode="same-or-above"
-                        )
-                    ):
-                        findings.append((rel, run_start_line, run_when))
-                    if when_expr is not None:
-                        run_when = when_expr
-                        run_indent = cur_indent
-                        run_count = 1
-                        run_start_line = idx + 1
-                    else:
-                        run_when = None
-                        run_indent = None
-                        run_count = 0
-                        run_start_line = 0
-            if (
-                run_count >= _MIN_RUN
-                and run_when is not None
-                and not is_suppressed_at(
-                    lines, run_start_line, _RULE, mode="same-or-above"
-                )
-            ):
-                findings.append((rel, run_start_line, run_when))
+            findings.extend(
+                (rel, line, expression)
+                for line, expression in _shared_when_runs(content.splitlines())
+            )
 
         if findings:
             formatted = "\n".join(
