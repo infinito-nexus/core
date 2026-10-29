@@ -161,6 +161,10 @@ msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Comhéadan riaracháin bhrabhsálaí le haghaidh SeaweedFS siopa réad, ag freastal ar an comhadóir agus máistir Consóil taobh thiar SSO"
 
+msgctxt "role:web-app-map-animator:description"
+msgid "Browser editor for keyframe camera animations on a VersaTiles map, with a render server that turns them into videos"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"

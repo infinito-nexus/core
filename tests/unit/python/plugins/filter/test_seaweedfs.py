@@ -81,7 +81,7 @@ class TestSeaweedfsSidecarScriptFilter(unittest.TestCase):
         self.assertLess(create, grant)
         self.assertIn("-access_key AKID", script)
         self.assertIn("-secret_key SEC", script)
-        self.assertIn("-actions Read,Write,List,Tagging", script)
+        self.assertIn("-actions Read,Write,WriteAcp,List,Tagging", script)
 
     def test_keeps_server_in_foreground(self):
         script = seaweedfs_sidecar_script("app", 8333, "AK", "SK")

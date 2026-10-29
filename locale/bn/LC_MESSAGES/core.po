@@ -162,6 +162,10 @@ msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "প্রাপ্ত করার জন্য ব্রাউজারের প্রশাসন ইন্টারফেস SeaweedFS বস্তু সংরক্ষণ করো, ফাইল এবং মাস্টার কনসোল এস.এস.ও এর পিছনে রেখে দাও"
 
+msgctxt "role:web-app-map-animator:description"
+msgid "Browser editor for keyframe camera animations on a VersaTiles map, with a render server that turns them into videos"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"

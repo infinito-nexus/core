@@ -1,0 +1,4 @@
+---
+canonical:
+  - animator.map.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,0 +1,1 @@
+{{ lookup('users_non_reserved', pinned_only=true) | map_animator_users_file(MAP_ANIMATOR_USERS_SALT_KEY) }}

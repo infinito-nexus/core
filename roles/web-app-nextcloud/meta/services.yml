@@ -141,7 +141,7 @@ context_agent:
   shared: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
   name: nextcloud-context-agent
   image: ghcr.io/nextcloud/context_agent
-  version: 2.9.1
+  version: 2.10.0
   backup:
     no_stop_required: true
   # nocheck: single-replica
@@ -155,7 +155,7 @@ context_agent:
     internal:
       http: 23000
   healthcheck:
-    flavor: curl
+    flavor: http_status
     path: heartbeat
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m

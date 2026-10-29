@@ -46,6 +46,7 @@ LAST_MIGRATION_VERSIONS: dict[str, int] = {
     "8.2.4": 1040,
     "8.3.0": 1125,
     "8.3.1": 1130,
+    "8.3.2": 1130,
 }
 
 _RELEASE_RE = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?$")
