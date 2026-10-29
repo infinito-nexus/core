@@ -44,7 +44,22 @@ if [ "${EPOCHS}" = true ]; then
 	export INFINITO_CI_DISTRO_KILL_EPOCH="$((deadline + GRACE))"
 fi
 echo "kill_epoch=$((deadline + GRACE))"
-timeout -k "${GRACE}" "$((deadline - now))s" bash "${SANDBOX}/stand-in.sh" "$@"
+mkfifo "${SANDBOX}/armed"
+timeout -k "${GRACE}" 0 bash "${SANDBOX}/stand-in.sh" "$@" &
+deploy="$!"
+read -r _ <"${SANDBOX}/armed"
+left="$((deadline - $(date +%s)))"
+sleep "$((left > 0 ? left : 0))" &
+clock="$!"
+status=0
+wait -n -p first "${deploy}" "${clock}" || status="$?"
+if [ "${first}" = "${clock}" ]; then
+	kill -ALRM "${deploy}"
+	wait "${deploy}" || status="$?"
+else
+	kill "${clock}"
+fi
+exit "${status}"
 """
 
 STAND_IN = """\
@@ -65,6 +80,7 @@ cleanup() {
 	date +%s >"${SANDBOX}/rescued"
 }
 trap cleanup EXIT
+echo armed >"${SANDBOX}/armed"
 "$@"
 """
 
