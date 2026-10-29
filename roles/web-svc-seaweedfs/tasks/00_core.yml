@@ -37,22 +37,21 @@
     domain: "{{ SEAWEEDFS_S3_DOMAIN }}"
     http_port: "{{ SEAWEEDFS_S3_PORT_PUBLIC }}"
 
-- name: "⏳ Wait until the SeaweedFS S3 gateway answers"
-  ansible.builtin.shell: >
-    container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
-    wget -q -O - http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/status
-  args:
-    executable: /bin/bash
-  register: _seaweedfs_ready
-  retries: 30
-  delay: 5
-  until: _seaweedfs_ready.rc == 0
-  changed_when: false
-  when: IS_STACK_HOST | bool
-
-- name: "🔐 Converge the bucket policy of every existing consumer bucket"
+- name: "🔐 Converge every consumer bucket's policy once the S3 gateway answers"
   when: IS_STACK_HOST | bool
   block:
+    - name: "⏳ Wait until the SeaweedFS S3 gateway answers"
+      ansible.builtin.shell: >
+        container exec {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+        wget -q -O - http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/status
+      args:
+        executable: /bin/bash
+      register: _seaweedfs_ready
+      retries: 30
+      delay: 5
+      until: _seaweedfs_ready.rc == 0
+      changed_when: false
+
     - name: "📋 List SeaweedFS buckets"
       include_tasks: utils/bucket/list.yml
 
