@@ -519,6 +519,46 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
                 merged["rendered"]["foo"]["tokens"]["web-app-foo"], "rotated"
             )
 
+    def _park_from_the_tokens_file(self, tmp: Path, token: str) -> tuple:
+        roles = _seed_minimal_user_role(tmp)
+        tokens = tmp / "tokens.yml"
+        tokens.write_text(
+            f"users: {{foo: {{tokens: {{web-app-foo: {token}}}}}}}\n",
+            encoding="utf-8",
+        )
+        variables = self._variables()
+        del variables[cache_users_store.STORE_FACT]
+        variables["FILE_TOKENS"] = str(tokens)
+        carried = self._park(roles, variables, {"foo": {"carried": True}})
+        return roles, variables, tokens, carried
+
+    def test_a_changed_tokens_file_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, variables, tokens, _ = self._park_from_the_tokens_file(
+                Path(tmp), "minted"
+            )
+            tokens.write_text(
+                "users: {foo: {tokens: {web-app-foo: rotated-token}}}\n",
+                encoding="utf-8",
+            )
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertEqual(
+                merged["rendered"]["foo"]["tokens"]["web-app-foo"], "rotated-token"
+            )
+
+    def test_the_store_fact_with_the_file_tokens_keeps_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, variables, _, carried = self._park_from_the_tokens_file(
+                Path(tmp), "minted"
+            )
+            variables[cache_users_store.STORE_FACT] = {
+                "foo": {"tokens": {"web-app-foo": "minted"}}
+            }
+            merged, renders = self._merged(roles, variables)
+            self.assertIs(merged, carried)
+            self.assertEqual(renders, 0)
+
     def test_a_rotated_inventory_password_rejects_the_carrier(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_user_role(Path(tmp))

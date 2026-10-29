@@ -24,7 +24,8 @@ The `users` lookup is the ONLY supported runtime entry point for merged user con
 
 The [applications_carrier](../../../../../../plugins/action/applications_carrier.py) action parks the rendered users next to the applications in the host fact `_INFINITO_USERS_RENDERED`, at every point listed in [applications.md](applications.md), and `clear: true` drops both facts. `get_merged_users` serves the fact to a templated read when its key matches and renders otherwise.
 
-- The key is the applications carrier key plus `inventory_hostname`: a changed `applications`, `users`, `DOMAIN_PRIMARY`, `SYSTEM_EMAIL_DOMAIN`, `group_names`, token store or host rejects the carrier.
+- The key is the applications carrier key plus the token store and `inventory_hostname`: a changed `applications`, `users`, `DOMAIN_PRIMARY`, `SYSTEM_EMAIL_DOMAIN`, `group_names`, token store or host rejects the carrier.
+- The token store enters the key as the SHA-256 of exactly the tokens the users are hydrated from: the controller's tokens file until `sys-token-store` loads, the `sys_token_store_users` fact after. Both sources key alike when they hold the same tokens, so loading an unchanged store keeps the carrier, and a touch keeps the key. The carrier action opens the file before it computes the key, so an NFS client keys on revalidated attributes.
 - A read without a templar (the raw users inside an applications render) never takes the carrier.
 - The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_USERS_RENDERED`; they keep going through `lookup('users')` or `lookup('config', <app>, 'users.<key>...')`.
 

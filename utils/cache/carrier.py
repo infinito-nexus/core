@@ -37,21 +37,17 @@ def merged_applications_cache_key(
 
     Args:
         variables: The play's variable scope. Only the subset that
-            `_stable_variables_signature` reads, and the token store the users
-            are hydrated from, influence the key.
+            `_stable_variables_signature` reads influences the key; the token
+            store keys the users carrier instead (`merged_users_cache_key`).
         roles_dir: Roles tree the payload is built from; defaults to the
             repository's `roles/`.
 
     Returns:
-        ``(resolved roles dir, stable variables signature extended by the
-        token store signature)``.
+        ``(resolved roles dir, stable variables signature)``.
     """
-    from .users import _resolve_tokens_file, _store_signature
-
-    tokens = _store_signature(variables, _resolve_tokens_file(variables))
     return (
         _cache_key(_resolve_roles_dir(roles_dir=roles_dir)),
-        (*_stable_variables_signature(variables), *(str(part) for part in tokens)),
+        _stable_variables_signature(variables),
     )
 
 
@@ -63,18 +59,25 @@ def merged_users_cache_key(
     """Key under which one rendered users payload stays valid.
 
     Args:
-        variables: The play's variable scope. The applications key's inputs
-            plus ``inventory_hostname`` influence the key.
+        variables: The play's variable scope. The applications key's inputs,
+            the token store the users are hydrated from and
+            ``inventory_hostname`` influence the key.
         roles_dir: Roles tree the payload is built from; defaults to the
             repository's `roles/`.
 
     Returns:
         ``(resolved roles dir, applications key signature extended by the
-        host the payload was rendered for)``.
+        token store signature and the host the payload was rendered for)``.
     """
+    from .users import _resolve_tokens_file, _store_signature
+
     roles_key, signature = merged_applications_cache_key(variables, roles_dir=roles_dir)
+    tokens = _store_signature(variables, _resolve_tokens_file(variables))
     host = (variables or {}).get("inventory_hostname")
-    return (roles_key, (*signature, str(host or "")))
+    return (
+        roles_key,
+        (*signature, *(str(part) for part in tokens), str(host or "")),
+    )
 
 
 def revalidate_tokens_file(variables: Mapping[str, Any] | None) -> None:

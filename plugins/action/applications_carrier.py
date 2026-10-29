@@ -7,7 +7,7 @@ renders in the worker of one constructor task and returns both payloads as
 host facts; every later worker inherits them at fork time and
 ``get_merged_applications`` / ``get_merged_users`` serve them instead of
 rendering. The users carrier is keyed like the applications carrier plus
-``inventory_hostname``::
+the token store digest and ``inventory_hostname``::
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
@@ -15,11 +15,12 @@ rendering. The users carrier is keyed like the applications carrier plus
 ``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
 for the merge block, which it drops again at the block's end, one after the
 ``add_host`` tasks for the swarm bootstrap roles, parked only when
-``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and a
-digest of the tokens the users are hydrated from (the tokens file, or the
-``sys_token_store_users`` fact once the token store loaded; both key alike for
-the same tokens), so a carrier whose groups or tokens no longer match is
-rejected and the reader renders afresh::
+``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
+carrier whose groups no longer match is rejected and the reader renders
+afresh. ``merged_users_cache_key`` adds a digest of the tokens the users are
+hydrated from (the tokens file, or the ``sys_token_store_users`` fact once the
+token store loaded; both key alike for the same tokens), so changed tokens
+reject the users carrier only::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:
@@ -30,7 +31,7 @@ rejected and the reader renders afresh::
 ``roles/sys-token-store/tasks/write_many.yml`` one after every store write;
 where the key still matches they serve the carried payload without rendering,
 and a users carrier that still matches is left in place instead of being
-returned again.
+returned again. A store write therefore re-renders the users alone.
 
 The result is masked by the action itself: the facts are the whole rendered
 trees, about 0.4 MB with every application's and user's credentials, and
