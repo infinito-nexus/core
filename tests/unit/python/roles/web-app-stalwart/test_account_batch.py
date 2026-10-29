@@ -82,19 +82,42 @@ BASE = {
     "stalwart_app_password_stale": {},
 }
 
+PASSWORD = {"@type": "Password", "secret": "********"}
+APP_PASSWORD = {"@type": "AppPassword", "description": DESCRIPTION}
+
+
+def _violation(object_id: str, object_type: str = "Account") -> dict:
+    return {
+        "type": "primaryKeyViolation",
+        "properties": ["email"],
+        "objectId": {"object": object_type, "id": object_id},
+    }
+
+
+def _held(object_id: str, name: str, credentials: dict | None = None) -> dict:
+    return {
+        "id": object_id,
+        "name": name,
+        "domainId": "d1",
+        "credentials": {"0": PASSWORD} if credentials is None else credentials,
+    }
+
+
 CREATE_RESPONSE = [
     [
         "x:Account/set",
         {
             "created": {"u0": {"id": "a"}},
-            "notCreated": {
-                "u1": {"type": "alreadyExists", "objectId": {"id": "b"}},
-                "u2": {"type": "alreadyExists", "objectId": {"id": "c"}},
-            },
+            "notCreated": {"u1": _violation("b"), "u2": _violation("c")},
         },
         "c0",
     ]
 ]
+HELD = (
+    _held("a", "administrator"),
+    _held("b", "no-reply"),
+    _held("c", "contact"),
+)
 
 
 def _resolved() -> list[dict]:
@@ -106,7 +129,7 @@ def _resolved() -> list[dict]:
     )
 
 
-def _matched(response: list = CREATE_RESPONSE, listed: tuple = ()) -> list[dict]:
+def _matched(response: list = CREATE_RESPONSE, listed: tuple = HELD) -> list[dict]:
     return _fact(
         "04_manage_user.yml",
         "🔍 Match every account to its Stalwart id",
@@ -209,10 +232,73 @@ class TestAccountPhases(unittest.TestCase):
 
     def test_an_existing_account_without_an_id_fails(self):
         response = [
-            ["x:Account/set", {"notCreated": {"u0": {"type": "alreadyExists"}}}, "c0"]
+            [
+                "x:Account/set",
+                {"notCreated": {"u0": {"type": "primaryKeyViolation"}}},
+                "c0",
+            ]
+        ]
+        refused = _refused(_matched(response, listed=()))
+        self.assertIn("administrator@infinito.test", refused)
+
+    def test_a_primary_key_violation_on_the_listed_account_is_existing(self):
+        accounts = {a["key"]: a for a in _matched()}
+        self.assertEqual(
+            {key: (a["id"], a["existing"]) for key, a in accounts.items()},
+            {
+                "administrator": ("a", False),
+                "no-reply": ("b", True),
+                "contact": ("c", True),
+            },
+        )
+        self.assertEqual(_refused(list(accounts.values())), {})
+
+    def test_a_violation_against_another_object_is_refused(self):
+        alias = _violation("a")
+        mailing_list = _violation("c", "MailingList")
+        response = [
+            [
+                "x:Account/set",
+                {
+                    "created": {"u0": {"id": "a"}},
+                    "notCreated": {"u1": alias, "u2": mailing_list},
+                },
+                "c0",
+            ]
+        ]
+        accounts = _matched(response)
+        self.assertEqual([a["existing"] for a in accounts], [False, False, False])
+        self.assertEqual(
+            _refused(accounts),
+            {"no-reply@infinito.test": alias, "contact@infinito.test": mailing_list},
+        )
+
+    def test_an_unknown_refusal_of_a_listed_bot_fails_without_sso(self):
+        refusal = {"type": "invalidProperties", "properties": ["description"]}
+        response = [
+            [
+                "x:Account/set",
+                {"notCreated": {"u0": _violation("a"), "u1": refusal, "u2": refusal}},
+                "c0",
+            ]
         ]
         refused = _refused(_matched(response))
-        self.assertIn("administrator@infinito.test", refused)
+        self.assertEqual(
+            refused,
+            {"no-reply@infinito.test": refusal, "contact@infinito.test": refusal},
+        )
+
+    def test_an_unknown_refusal_of_a_listed_bot_fails_under_sso(self):
+        refusal = {"type": "invalidProperties", "properties": ["description"]}
+        response = [
+            [
+                "x:Account/set",
+                {"notCreated": {"u0": EXTERNAL, "u1": refusal, "u2": EXTERNAL}},
+                "c0",
+            ]
+        ]
+        refused = _refused(_matched(response), sso=True)
+        self.assertEqual(refused, {"no-reply@infinito.test": refusal})
 
     def test_accounts_of_an_external_directory_take_their_listed_ids(self):
         listed = (
@@ -271,9 +357,65 @@ class TestAccountPhases(unittest.TestCase):
         )
         method, arguments, _ = body["methodCalls"][0]
         self.assertEqual(method, "x:Account/set")
-        self.assertEqual(sorted(arguments["update"]), ["b", "c"])
         self.assertEqual(
-            arguments["update"]["c"]["credentials"]["0"]["secret"], _sha("contact-pw")
+            arguments["update"],
+            {
+                "b": {"credentials/0/secret": _sha("no-reply-pw")},
+                "c": {"credentials/0/secret": _sha("contact-pw")},
+            },
+        )
+
+    def _update_of_contact(self, credentials: dict) -> dict:
+        listed = (*HELD[:2], _held("c", "contact", credentials))
+        body = _body(
+            "04_manage_user.yml",
+            "🔄 Send the passwords of the pre-existing accounts",
+            **BASE,
+            stalwart_accounts=_matched(listed=listed),
+        )
+        return body["methodCalls"][0][1]["update"]["c"]
+
+    def test_the_patch_keeps_the_other_credentials_of_the_account(self):
+        update = self._update_of_contact({"0": APP_PASSWORD, "3": PASSWORD})
+        self.assertEqual(update, {"credentials/3/secret": _sha("contact-pw")})
+
+    def test_an_account_without_a_password_gets_one_at_a_free_key(self):
+        self.assertEqual(
+            self._update_of_contact({"0": APP_PASSWORD, "1": APP_PASSWORD}),
+            {"credentials/2/secret": _sha("contact-pw")},
+        )
+        self.assertEqual(
+            self._update_of_contact({}), {"credentials/0/secret": _sha("contact-pw")}
+        )
+
+    def test_one_store_write_carries_every_bot(self):
+        task = _task(
+            "04_manage_user.yml",
+            "💾 Persist the Stalwart submission credential of every bot",
+        )
+        self.assertEqual(
+            task["ansible.builtin.include_role"]["tasks_from"], "write_many.yml"
+        )
+        self.assertNotIn("loop", task)
+        entries = _render(
+            task["vars"]["sys_token_store_entries"],
+            **BASE,
+            stalwart_accounts=_matched(),
+        )
+        self.assertEqual(
+            entries,
+            [
+                {
+                    "user_key": "no-reply",
+                    "app": "web-app-stalwart",
+                    "token": _sha("no-reply-pw"),
+                },
+                {
+                    "user_key": "contact",
+                    "app": "web-app-stalwart",
+                    "token": _sha("contact-pw"),
+                },
+            ],
         )
 
     def test_a_refused_update_fails_naming_the_account(self):
@@ -490,6 +632,31 @@ class TestAppPasswordPhases(unittest.TestCase):
                     {"accountId": "c", "destroy": ["1", "4"]},
                     "contact@infinito.test",
                 ],
+            ],
+        )
+
+    def test_the_minted_passwords_land_in_one_store_write(self):
+        task = _task(
+            "04_manage_user/app_password.yml", "💾 Persist the new app passwords"
+        )
+        self.assertEqual(
+            task["ansible.builtin.include_role"]["tasks_from"], "write_many.yml"
+        )
+        self.assertNotIn("loop", task)
+        minted = [
+            {"key": "no-reply", "address": "no-reply@infinito.test", "secret": "p1"},
+            {"key": "contact", "address": "contact@infinito.test", "secret": "p2"},
+        ]
+        entries = _render(
+            task["vars"]["sys_token_store_entries"],
+            **BASE,
+            stalwart_app_password_minted=minted,
+        )
+        self.assertEqual(
+            entries,
+            [
+                {"user_key": "no-reply", "app": "web-app-stalwart", "token": "p1"},
+                {"user_key": "contact", "app": "web-app-stalwart", "token": "p2"},
             ],
         )
 

@@ -98,9 +98,21 @@ This is the **canonical way** to store tokens.
 
 - Updates the token store file (idempotent)
 - Makes the token available via `lookup('users', '<user>').tokens['<app>']`
-- Exports `sys_token_store_token`
 
-Empty tokens are rejected explicitly.
+Empty tokens are rejected explicitly. `write.yml` hands its token to `write_many.yml` as a one-entry list.
+
+### `write_many.yml`
+
+Persists several tokens with one store write and at most one re-render of the applications SPOT.
+
+**Input**
+
+- `sys_token_store_entries`: list of `{user_key, app, token}`; every `token` must be non-empty
+
+**Effects**
+
+- Merges every entry into the store in list order, so a later entry for the same user and app wins
+- Writes the store file and re-renders the applications SPOT once, and only when the merged store differs from the loaded one
 
 ---
 
@@ -124,6 +136,22 @@ After this, the token is available as:
 
 ```yaml
 lookup('users', 'administrator').tokens['web-app-matomo']
+```
+
+### Persist several tokens at once
+
+```yaml
+- include_role:
+    name: sys-token-store
+    tasks_from: write_many.yml
+  vars:
+    sys_token_store_entries:
+      - user_key: administrator
+        app: web-app-matomo
+        token: "{{ matomo_token_value }}"
+      - user_key: no-reply
+        app: web-app-stalwart
+        token: "{{ stalwart_bot_secret }}"
 ```
 
 ---

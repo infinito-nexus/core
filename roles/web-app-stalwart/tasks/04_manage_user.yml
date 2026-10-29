@@ -44,17 +44,23 @@
       {%- set result = stalwart_jmap.methodResponses[0][1] -%}
       {%- set listed = {} -%}
       {%- for held in stalwart_jmap.methodResponses[1][1].list if held.domainId == stalwart_domain_id -%}
-      {%-   set _ = listed.update({held.name | lower: held.id}) -%}
+      {%-   set _ = listed.update({held.name | lower: held}) -%}
       {%- endfor -%}
       {%- set accounts = [] -%}
       {%- for account in stalwart_accounts -%}
       {%-   set created = (result.created | default({}, true)).get('u' ~ loop.index0) or {} -%}
       {%-   set refusal = (result.notCreated | default({}, true)).get('u' ~ loop.index0) or {} -%}
-      {%-   set existing = refusal.get('type') == 'alreadyExists' -%}
+      {%-   set held = listed.get(account.name | lower) or {} -%}
+      {%-   set conflict = refusal.get('objectId') or {} -%}
+      {%-   set credentials = held.get('credentials') or {} -%}
+      {%-   set passwords = credentials | dict2items | selectattr('value.@type', 'equalto', 'Password')
+                            | map(attribute='key') | list -%}
       {%-   set _ = accounts.append(account | combine({
-              'id': ((refusal.get('objectId') or {}).get('id') if existing else created.get('id'))
-                    or listed.get(account.name | lower, ''),
-              'existing': existing,
+              'id': created.get('id') or held.get('id', ''),
+              'existing': refusal.get('type') == 'primaryKeyViolation' and conflict.get('object') == 'Account'
+                          and held.get('id') is not none and conflict.get('id') == held.get('id'),
+              'password_key': passwords | first if passwords
+                            else (credentials | map('int') | max + 1 if credentials else 0),
               'refusal': refusal})) -%}
       {%- endfor -%}
       {{ accounts }}
@@ -68,8 +74,10 @@
   vars:
     stalwart_account_refused: >-
       {%- set refused = {} -%}
-      {%- for account in stalwart_accounts if not account.id -%}
-      {%-   if account.bot or not (STALWART_SSO_ENABLED | bool and account.refusal.get('type') == 'forbidden') -%}
+      {%- for account in stalwart_accounts -%}
+      {%-   set external = STALWART_SSO_ENABLED | bool and account.refusal.get('type') == 'forbidden' -%}
+      {%-   if (not account.id and (account.bot or not external))
+              or (account.refusal and not (account.existing or external)) -%}
       {%-     set _ = refused.update({account.address: account.refusal}) -%}
       {%-   endif -%}
       {%- endfor -%}
@@ -86,7 +94,7 @@
           {%- set changes = {} -%}
           {%- for account in stalwart_accounts if account.existing -%}
           {%-   set _ = changes.update({account.id: {
-                  'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}}) -%}
+                  'credentials/' ~ account.password_key ~ '/secret': account.secret}}) -%}
           {%- endfor -%}
           {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
               'methodCalls': [['x:Account/set', {'update': changes}, 'c0']]} | to_json }}
@@ -108,16 +116,17 @@
 - name: "💾 Persist the Stalwart submission credential of every bot"
   ansible.builtin.include_role:
     name: sys-token-store
-    tasks_from: write.yml
+    tasks_from: write_many.yml
   vars:
-    sys_token_store_user_key: "{{ stalwart_bot.key }}"
-    sys_token_store_app: "{{ application_id }}"
-    sys_token_store_token: "{{ stalwart_bot.secret }}"
-  loop: "{{ stalwart_accounts | selectattr('bot') | list }}"
-  loop_control:
-    loop_var: stalwart_bot
-    label: "{{ stalwart_bot.address }}"
-  when: not (STALWART_SSO_ENABLED | bool)
+    sys_token_store_entries: >-
+      {%- set entries = [] -%}
+      {%- for bot in stalwart_accounts if bot.bot -%}
+      {%-   set _ = entries.append({'user_key': bot.key, 'app': application_id, 'token': bot.secret}) -%}
+      {%- endfor -%}
+      {{ entries }}
+  when:
+    - not (STALWART_SSO_ENABLED | bool)
+    - stalwart_accounts | selectattr('bot') | list | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 Keep an app password for every bot under SSO"
