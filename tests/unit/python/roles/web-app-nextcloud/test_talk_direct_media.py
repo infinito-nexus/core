@@ -374,7 +374,9 @@ class TestDirectMediaFlag(unittest.TestCase):
 
     def test_the_loopback_placeholder_keeps_it_off(self):
         self.assertIs(
-            _direct_media(list(STANDALONE_TURN), ip4="127.0.0.1", applications=OPTED_IN),
+            _direct_media(
+                list(STANDALONE_TURN), ip4="127.0.0.1", applications=OPTED_IN
+            ),
             False,
         )
 
