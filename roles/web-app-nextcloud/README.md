@@ -190,6 +190,7 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 | `spreed` | `plugin` | enabled with the `talk` service | `talk`, `coturn` |
 | `whiteboard` | `plugin` | `required` (always installed) | none (self-hosted backend) |
 | `xwiki` | `plugin` | enabled with the `xwiki` partner | `xwiki` → `web-app-xwiki` |
+| `app_api` | `plugin` | enabled while `mcp.enabled` is true, disabled otherwise | none |
 | `logreader` | `plugin` | disabled, `log_type` is `errorlog` | none |
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
@@ -294,7 +295,7 @@ Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `w
 
 ### How to disable
 
-Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, and no app password is minted.
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, no app password is minted, and the `app_api` app is disabled.
 
 ## Documentation
 

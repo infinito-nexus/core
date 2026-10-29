@@ -1,0 +1,5 @@
+---
+enabled: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
