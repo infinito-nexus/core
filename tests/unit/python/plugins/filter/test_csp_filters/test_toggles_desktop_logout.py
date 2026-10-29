@@ -89,6 +89,47 @@ class TestCspTogglesDashboardLogout(unittest.TestCase):
         self.assertIn("'unsafe-inline'", attr)
         self.assertIn("'unsafe-inline'", elem)
 
+    def test_logout_respects_explicit_disable_on_elem_directive(self):
+        apps = copy.deepcopy(self.apps)
+        apps["app1"]["csp"]["flags"]["script-src-elem"] = {"unsafe-inline": False}
+        self._set_service_enabled(apps, "logout", True)
+
+        header = self.filter.build_csp_header(
+            apps,
+            "app1",
+            self.domains,
+            "https",
+            extra_hashes={"script-src-elem": ["console.log('logout');"]},
+        )
+        elem = self._get_directive_tokens(header, "script-src-elem")
+        attr = self._get_directive_tokens(header, "script-src-attr")
+        expected_hash = self.filter.get_csp_hash("console.log('logout');")
+
+        self.assertNotIn("'unsafe-inline'", elem)
+        self.assertIn(expected_hash, elem)
+        self.assertIn("'unsafe-inline'", attr)
+
+    def test_logout_respects_explicit_disable_on_whole_script_family(self):
+        apps = copy.deepcopy(self.apps)
+        for directive in ("script-src", "script-src-elem", "script-src-attr"):
+            apps["app1"]["csp"]["flags"][directive] = {"unsafe-inline": False}
+        self._set_service_enabled(apps, "logout", True)
+
+        header = self.filter.build_csp_header(
+            apps,
+            "app1",
+            self.domains,
+            "https",
+            extra_hashes={"script-src-elem": ["console.log('logout');"]},
+        )
+        expected_hash = self.filter.get_csp_hash("console.log('logout');")
+
+        for directive in ("script-src", "script-src-elem", "script-src-attr"):
+            self.assertNotIn(
+                "'unsafe-inline'", self._get_directive_tokens(header, directive)
+            )
+        self.assertIn(expected_hash, self._get_directive_tokens(header, "script-src"))
+
     def test_logout_propagates_to_base_when_not_explicitly_disabled(self):
         apps = copy.deepcopy(self.apps)
         apps["app1"].setdefault("csp", {}).setdefault("flags", {})

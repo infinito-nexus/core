@@ -109,12 +109,13 @@ jobs:
           PR_SCOPE: ${{ inputs.pr_scope }}
         run: ./scripts/meta/resolve/pr/branch_prefix.sh
 
-      - name: 🔀 Assert the base branch is fully merged into the PR head
+      - name: 🔀 Assert the event's base commit is merged into the PR head
         if: ${{ github.event_name == 'pull_request' && inputs.pr_scope != '' }}
         working-directory: pr-head
         env:
           INFINITO_MAIN_REMOTE: origin
           INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
+          INFINITO_MAIN_COMMIT: ${{ github.event.pull_request.base.sha }}
         run: bash "${GITHUB_WORKSPACE}/.base-tooling/scripts/git/assert/main_merged.sh"
 
       - name: 🔧 Set up Python

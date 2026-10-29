@@ -8,11 +8,14 @@ configs from their own `meta/volumes.yml`.
 
 ## Overview
 
-This role installs one PHP ini (`FILE_PHP_HARDENING_INI`) and one PHP-FPM pool
-drop-in (`FILE_PHP_FPM_HARDENING_CONF`). A PHP role opts in by declaring a
+This role installs one PHP ini (`FILE_PHP_HARDENING_INI`), one interim PHP ini
+(`FILE_PHP_MEMORY_UNLIMITED_INI`) and one PHP-FPM pool drop-in
+(`FILE_PHP_FPM_HARDENING_CONF`). A PHP role opts in by declaring a
 `type: config` entry with that file as `source` and a file inside the scan dir
 of its image as `target`, e.g. `conf.d/zz-infinito-hardening.ini` or, for the
-pool, `php-fpm.d/zz-infinito-hardening.conf`.
+pool, `php-fpm.d/zz-infinito-hardening.conf`. Only roles whose image still
+ships a PHP release without the CVE-2026-109618 fix also mount
+`FILE_PHP_MEMORY_UNLIMITED_INI`, as `conf.d/zz-infinito-memory-unlimited.ini`.
 
 ## Cosmos
 
@@ -29,7 +32,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Features
 
-- **PHP ini hardening:** `expose_php` off; `session.upload_progress.enabled = 0` and, on PHP 8.5 only, `fatal_error_backtraces = 0` against CVE-2026-109619; the interim `memory_limit = -1` against CVE-2026-109618.
+- **PHP ini hardening:** `expose_php` off; `session.upload_progress.enabled = 0` and, on PHP 8.5 only, `fatal_error_backtraces = 0` against CVE-2026-109619.
+- **Interim CVE-2026-109618 mitigation:** `memory_limit = -1` for images that predate PHP 8.2.35, 8.3.36, 8.4.27 and 8.5.12.
 - **PHP-FPM worker recycling:** `pm.max_requests` from `PHP_FPM_MAX_REQUESTS` for images whose `[www]` pool reads `php-fpm.d/*.conf`.
 
 ## Credits
