@@ -11,15 +11,20 @@ from __future__ import annotations
 
 import base64
 import unittest
+from typing import TYPE_CHECKING
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.invocations import NESTED_KEYS
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-stalwart"
 GUARD = ROLE / "tasks" / "store_guard.yml"
@@ -48,6 +53,23 @@ def _holds(condition: str, facts: dict) -> bool:
 
 def _module(task: dict, name: str) -> dict | None:
     return task.get(f"ansible.builtin.{name}") or task.get(name)
+
+
+def _conditions(task: dict) -> list[str]:
+    if "when" not in task:
+        return []
+    when = task["when"]
+    return when if isinstance(when, list) else [when]
+
+
+def _walk(tasks: list[dict], gates: list[str]) -> Iterator[tuple[dict, list[str]]]:
+    for task in tasks:
+        conditions = gates + _conditions(task)
+        nested = [key for key in NESTED_KEYS if key in task]
+        if not nested:
+            yield task, conditions
+        for key in nested:
+            yield from _walk(task[key], conditions)
 
 
 def _layout_version() -> str:
@@ -83,11 +105,8 @@ def _guard(results: dict[str, dict], *, shared: bool) -> str:
         "STALWART_DATABASE_SHARED": shared,
         "STALWART_STORE_LAYOUT_VERSION": _layout_version(),
     }
-    for task in load_yaml_any(str(GUARD), default_if_missing=[]):
-        when = task.get("when", [])
-        if not all(
-            _holds(c, facts) for c in (when if isinstance(when, list) else [when])
-        ):
+    for task, conditions in _walk(load_yaml_any(str(GUARD), default_if_missing=[]), []):
+        if not all(_holds(c, facts) for c in conditions):
             if "register" in task:
                 facts[task["register"]] = SKIPPED
             continue
