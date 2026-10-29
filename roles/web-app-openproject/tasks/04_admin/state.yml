@@ -2,7 +2,7 @@
 - name: 🔍 Read the settings, administrator and LDAP link OpenProject holds
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ [role_path, 'files/sql/select-admin-state.sql'] | path_join }}"
+    query_file: "{{ [role_path, 'files/sql/select/admin-state.sql'] | path_join }}"
     named_args:
       login: "{{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
       ldap_name: "{{ OPENPROJECT_ADMIN_LDAP_NAME }}"

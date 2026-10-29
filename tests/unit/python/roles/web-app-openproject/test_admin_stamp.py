@@ -19,7 +19,7 @@ STATE = ROLE / "tasks" / "04_admin" / "state.yml"
 PROVISION = ROLE / "tasks" / "04_admin" / "provision.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 SERVICES = ROLE / ROLE_FILE_META_SERVICES
-QUERY = ROLE / "files" / "sql" / "select-admin-state.sql"
+QUERY = ROLE / "files" / "sql" / "select" / "admin-state.sql"
 
 FIRST_READ = "📖 Read the settings, administrator and LDAP link OpenProject holds"
 READ = "🔍 Read the settings, administrator and LDAP link OpenProject holds"
