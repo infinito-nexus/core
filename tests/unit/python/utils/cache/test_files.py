@@ -208,7 +208,9 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
 
     def test_leaves_out_a_tracked_file_deleted_in_the_worktree(self) -> None:
         gone = "roles/web-app-nextcloud/filter_plugins/gone.py"
-        with self._git(f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode()) as run:
+        with self._git(
+            f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode()
+        ) as run:
             self.assertEqual((self.TRACKED,), files_module.repository_files())
         self.assertEqual(["--deleted"], run.call_args_list[1].args[0][-1:])
 
