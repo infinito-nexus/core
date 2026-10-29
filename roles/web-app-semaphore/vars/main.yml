@@ -3,9 +3,20 @@ application_id: "web-app-semaphore"
 container_port: "{{ lookup('config', application_id, 'services.semaphore.ports.internal.http') }}"
 
 SEMAPHORE_NAME: "{{ lookup('config', application_id, 'services.semaphore.name') }}"
-SEMAPHORE_WEB_ROOT: "{{ lookup('tls', lookup('domain', application_id), 'url.base') | regex_replace('/+$', '') }}"
+SEMAPHORE_DOMAIN: "{{ lookup('domain', application_id) }}"
+SEMAPHORE_WEB_ROOT: "{{ lookup('tls', SEMAPHORE_DOMAIN, 'url.origin') }}"
+SEMAPHORE_ONION_DOMAIN: "{{ lookup('network_siblings', SEMAPHORE_DOMAIN) | in_network('tor') | reject('equalto', SEMAPHORE_DOMAIN) | first | default('') }}"
+SEMAPHORE_ONION_WEB_ROOT: "{{ lookup('tls', SEMAPHORE_ONION_DOMAIN, 'url.origin') }}"
+SEMAPHORE_VHOST_IS_SIBLING: "{{ domain != SEMAPHORE_DOMAIN }}"
 SEMAPHORE_SIBLING_BASE_REWRITE: >-
   sub_filter '<base href="{{ SEMAPHORE_WEB_ROOT }}/">' '<base href="/">';
+SEMAPHORE_SIBLING_PROXY: |-
+  proxy_redirect {{ SEMAPHORE_WEB_ROOT }}/ /;
+  proxy_cookie_flags semaphore nosecure;
+SEMAPHORE_SIBLING_LOCATION: |-
+  {{ SEMAPHORE_SIBLING_BASE_REWRITE }}
+  {{ SEMAPHORE_SIBLING_PROXY }}
+SEMAPHORE_LOCATION_CONFIGURATION: "{{ SEMAPHORE_SIBLING_LOCATION if SEMAPHORE_VHOST_IS_SIBLING | bool else '' }}"
 
 SEMAPHORE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 SEMAPHORE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
@@ -23,19 +34,46 @@ SEMAPHORE_OIDC_ADMIN_LOGIN: "{{ lookup('users', 'platform_administrator').userna
 SEMAPHORE_OIDC_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 SEMAPHORE_OIDC_ADMIN_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 
-SEMAPHORE_OIDC_PROVIDERS_JSON: >-
+SEMAPHORE_OIDC_PROVIDER_ID: "keycloak"
+SEMAPHORE_OIDC_ONION_PROVIDER_ID: "keycloak_onion"
+SEMAPHORE_OIDC_ONION_ENABLED: "{{ (SEMAPHORE_OIDC_ENABLED | bool) and SEMAPHORE_ONION_DOMAIN != '' }}"
+SEMAPHORE_OIDC_PROVIDER: >-
   {{ {
-       "keycloak": {
-         "display_name":   "Sign in with Keycloak",
-         "provider_url":   OIDC.CLIENT.ISSUER_URL,
-         "client_id":      OIDC.CLIENT.ID,
-         "client_secret":  OIDC.CLIENT.SECRET,
-         "redirect_url":   SEMAPHORE_WEB_ROOT ~ "/api/auth/oidc/keycloak/redirect",
-         "username_claim": OIDC.ATTRIBUTES.USERNAME,
-         "email_claim":    "email",
-         "name_claim":     "name",
-         "scopes":         ["openid", "profile", "email"]
-       }
-     } | to_json }}
+       "display_name":   "Sign in with Keycloak",
+       "provider_url":   OIDC.CLIENT.ISSUER_URL,
+       "client_id":      OIDC.CLIENT.ID,
+       "client_secret":  OIDC.CLIENT.SECRET,
+       "redirect_url":   SEMAPHORE_WEB_ROOT ~ "/api/auth/oidc/" ~ SEMAPHORE_OIDC_PROVIDER_ID ~ "/redirect",
+       "username_claim": OIDC.ATTRIBUTES.USERNAME,
+       "email_claim":    "email",
+       "name_claim":     "name",
+       "scopes":         ["openid", "profile", "email"]
+     } }}
+SEMAPHORE_OIDC_PROVIDERS: >-
+  {{ {SEMAPHORE_OIDC_PROVIDER_ID: SEMAPHORE_OIDC_PROVIDER}
+     | combine({SEMAPHORE_OIDC_ONION_PROVIDER_ID: SEMAPHORE_OIDC_PROVIDER | combine({
+         "redirect_url": SEMAPHORE_ONION_WEB_ROOT ~ "/api/auth/oidc/" ~ SEMAPHORE_OIDC_ONION_PROVIDER_ID ~ "/redirect"
+       })} if SEMAPHORE_OIDC_ONION_ENABLED | bool else {}) }}
+SEMAPHORE_OIDC_PROVIDERS_JSON: "{{ SEMAPHORE_OIDC_PROVIDERS | to_json }}"
+SEMAPHORE_OIDC_VHOST_PROVIDER_ID: "{{ SEMAPHORE_OIDC_ONION_PROVIDER_ID if domain == SEMAPHORE_ONION_DOMAIN else SEMAPHORE_OIDC_PROVIDER_ID }}"
+SEMAPHORE_OIDC_LOGIN_CONFIGURATION: |-
+  {% for id, provider in SEMAPHORE_OIDC_PROVIDERS.items() if id != SEMAPHORE_OIDC_VHOST_PROVIDER_ID %}
+  {% set listed = {"id": id, "name": provider.display_name, "color": "", "icon": ""} | to_json(separators=(",", ":")) %}
+  sub_filter ',{{ listed }}' '';
+  sub_filter '{{ listed }},' '';
+  {% endfor %}
+  sub_filter_types application/json;
+  {% if SEMAPHORE_VHOST_IS_SIBLING | bool %}
+  {{ SEMAPHORE_SIBLING_PROXY }}
+  {% endif %}
+SEMAPHORE_OIDC_LOGIN_LOCATION: >-
+  {{ lookup('ansible.builtin.template',
+            lookup('path_absolute', 'roles/sys-svc-proxy/templates/location/html.conf.j2'),
+            template_vars={
+              'location': '= /api/auth/login',
+              'sso_proxy_enabled': false,
+              'webserver_location_extra_configuration': SEMAPHORE_OIDC_LOGIN_CONFIGURATION
+            }) | trim
+     if SEMAPHORE_OIDC_ONION_ENABLED | bool else '' }}
 
 SEMAPHORE_LDAP_SEARCH_FILTER: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"
