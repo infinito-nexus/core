@@ -46,6 +46,7 @@ VARIABLES = {
     "NEXTCLOUD_RECORDING_USER_ID": 122,
     "NEXTCLOUD_RECORDING_CONFIG_TARGET": "/conf/recording.conf",
     "NEXTCLOUD_RECORDING_CA_CERT": "/tmp/infinito/ca/root-ca.crt",
+    "NEXTCLOUD_RECORDING_CA_BUNDLE": "/tmp/infinito/ca/ca-bundle.crt",
 }
 
 AIO_SIGNALING = {
@@ -345,6 +346,11 @@ class TestTalkDockerfiles(unittest.TestCase):
         self.assertIn(
             """printf '{"policies":{"Certificates":{"Install":["%s"]}}}\\n' """
             '"/tmp/infinito/ca/root-ca.crt" > /etc/firefox/policies/policies.json',
+            rendered,
+        )
+        self.assertIn(
+            'ln -sf "/tmp/infinito/ca/ca-bundle.crt" '
+            "\"$(python3 -c 'import certifi; print(certifi.where())')\"",
             rendered,
         )
         self.assertIn("USER 122", rendered)

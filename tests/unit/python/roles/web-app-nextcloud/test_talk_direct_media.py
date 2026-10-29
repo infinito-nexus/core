@@ -106,6 +106,7 @@ RECORDING = """  talk_recording:
         RECORDING_DIRECTORY: "<NEXTCLOUD_RECORDING_DIRECTORY>"
         RECORDING_CONFIG_DIRECTORY: "<dirname <NEXTCLOUD_RECORDING_CONFIG_TARGET>>"
         RECORDING_CA_CERT: "<NEXTCLOUD_RECORDING_CA_CERT>"
+        RECORDING_CA_BUNDLE: "<NEXTCLOUD_RECORDING_CA_BUNDLE>"
     <lookup compose_only ('pull_policy', 'never')>
     <lookup container_image ('web-app-nextcloud', 'talk_recording') {'version': <NEXTCLOUD_RECORDING_TAG>}>
     <lookup compose_only ('container_name', <NEXTCLOUD_RECORDING_CONTAINER>)>
