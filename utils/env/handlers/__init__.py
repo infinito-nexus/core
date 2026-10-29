@@ -21,7 +21,6 @@ from .infinito import (
     domain,
     ghcr_mirror,
     git_identity,
-    gpu_count,
     image,
     image_repository,
     inventory,
@@ -52,6 +51,8 @@ from .infinito.docker import embedded_dns as docker_embedded_dns
 from .infinito.docker import volume as docker_volume
 from .infinito.fork import account as fork_account
 from .infinito.fork import repository_url as fork_repository_url
+from .infinito.gpu import count as gpu_count
+from .infinito.gpu import only_tests as gpu_only_tests
 from .infinito.i18n import tuning as i18n_tuning
 from .infinito.package_cache import admin_password as package_cache_admin_password
 from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
@@ -124,6 +125,7 @@ ORDERED_HANDLERS = [
     registry_cache_max_size,
     git_identity,
     gpu_count,
+    gpu_only_tests,
     tools_libretranslate,
     tools_litellm,
     tools_models,
