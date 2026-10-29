@@ -156,10 +156,6 @@ def _check_local(
 
 
 def _git(cwd: str | None, arguments: list[str], failure: str) -> bytes:
-    # Exception: a git hook exports GIT_DIR, GIT_INDEX_FILE and friends, which
-    # would point the scratch repository at the core checkout; the askpass
-    # helpers and the detached session keep a fetch that needs credentials
-    # from prompting.
     env = {key: value for key, value in os.environ.items() if key not in _DROPPED_ENV}
     env.update(GIT_TERMINAL_PROMPT="0", SSH_ASKPASS_REQUIRE="never")
     result = subprocess.run(

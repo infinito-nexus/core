@@ -101,8 +101,6 @@ def placed_roles(roles_dir: Path) -> list[Path]:
 
 
 def _fields(role: Path) -> dict[str, str]:
-    # Exception: O_NONBLOCK keeps a FIFO planted under the marker name from
-    # blocking the open; the fstat below refuses it.
     try:
         descriptor = os.open(
             role / MARKER_FILE, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
