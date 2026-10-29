@@ -34,13 +34,16 @@ certificates: {
 }
 
 media: {
+{% if NEXTCLOUD_HPB_MEDIA_DIRECT | bool %}
 	rtp_port_range = "{{ NEXTCLOUD_HPB_MEDIA_PORT_START }}-{{ NEXTCLOUD_HPB_MEDIA_PORT_END }}"
+{% endif %}
 }
 
 nat: {
-	nice_debug = false
+{% if NEXTCLOUD_HPB_MEDIA_DIRECT | bool %}
 	nat_1_1_mapping = "{{ NEXTCLOUD_HPB_MEDIA_PUBLIC_IP }}"
 	keep_private_host = true
+{% endif %}
 	ice_ignore_list = "vmnet"
 }
 

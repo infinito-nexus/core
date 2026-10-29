@@ -6,13 +6,12 @@
     with no upstream homepage or demo video to name;
   * file-root convention: the file's content IS the value of
     ``applications.<role>.info`` — there is NO wrapping ``info:`` key;
-  * allowed top-level keys: ``logo``, ``homepage``, ``video``, ``display``;
+  * allowed top-level keys: ``logo``, ``homepage``, ``video``;
     the licence of the deployed software lives in ``meta/license.yml``,
     which ``test_license_declared.py`` guards;
   * ``logo`` is a mapping with at least a string ``class:`` field;
   * ``homepage`` and ``video`` are non-empty strings;
-  * ``display`` is a bool;
-  * none of these four fields may reappear under
+  * none of these three fields may reappear under
     ``meta/main.yml.galaxy_info``.
 
 Caching: parsed YAML comes through the shared process-wide
@@ -37,13 +36,11 @@ if TYPE_CHECKING:
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-_ALLOWED_INFO_KEYS: frozenset[str] = frozenset({"logo", "homepage", "video", "display"})
+_ALLOWED_INFO_KEYS: frozenset[str] = frozenset({"logo", "homepage", "video"})
 
 _INFO_MEDIA_RULE = "info-media"
 
-_FORBIDDEN_GALAXY_INFO_KEYS: frozenset[str] = frozenset(
-    {"logo", "homepage", "video", "display"}
-)
+_FORBIDDEN_GALAXY_INFO_KEYS: frozenset[str] = frozenset({"logo", "homepage", "video"})
 
 
 def _meta_main_paths() -> list[Path]:
@@ -107,9 +104,6 @@ def _validate_meta_info(path: Path) -> list[str]:
             if not isinstance(value, str) or not value.strip():
                 problems.append(f"`{str_field}` must be a non-empty string")
 
-    if "display" in parsed and not isinstance(parsed["display"], bool):
-        problems.append("`display` must be a bool (true/false)")
-
     return problems
 
 
@@ -155,7 +149,7 @@ class TestMetaInfoShape(unittest.TestCase):
 
 
 class TestMetaMainHasNoMigratedFields(unittest.TestCase):
-    """galaxy_info MUST NOT carry the four fields after."""
+    """galaxy_info MUST NOT carry the three meta/info.yml fields."""
 
     def test_no_forbidden_keys_in_galaxy_info(self) -> None:
         offenders: dict[Path, list[str]] = {}

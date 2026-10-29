@@ -52,6 +52,16 @@ Each `tasks/02_manager_ops/06_plugin/<step>.yml` file owns exactly one OCC stage
 | [03_enable.yml](./03_enable.yml) | enable | `occ app:enable` | enable result is not flagged `incompatible`; the plugin is then queued for the configure stage |
 | [04_configure.yml](./04_configure.yml) | configure | one `occ config:list`, then `occ config:app:set` for the values that differ, plus optional hook | (terminal stage) |
 
+## Pinned archives
+
+An addon MAY pin a release through `config.archive`. Before `occ app:install`, [02_install.yml](./02_install.yml) stages the archive on the node and pipes it into [files/shell/utils/replace_pinned_app.sh](../../../files/shell/utils/replace_pinned_app.sh) inside the container:
+
+1. The script unpacks the archive into `custom_apps/.<app>.stage`, a directory Nextcloud skips because of its leading dot, and fails without touching the installed app when the archive lacks `<app>/appinfo/info.xml`.
+2. When `diff -rq` finds the installed app identical to the release, it removes the stage and the task reports no change.
+3. Otherwise it renames the installed app to `custom_apps/.<app>.old`, moves the release into its place and removes both, so the app directory holds exactly the files of the release and the task reports a change.
+
+`occ app:install` then answers `already installed`.
+
 ## Configure stage
 
 [04_configure.yml](./04_configure.yml) runs once for every queued plugin: first the plugins the install loop enabled, then the background installs, then those the enable loop enabled, then those of the `configure` plan list.

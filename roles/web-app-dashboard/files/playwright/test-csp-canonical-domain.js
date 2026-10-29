@@ -23,6 +23,12 @@ exports.register = function (shared) {
 
     const directives = assertCspResponseHeader(response, "dashboard landing");
     await assertCspMetaParity(page, directives, "dashboard landing");
+    for (const directive of ["script-src", "script-src-elem"]) {
+      expect(
+        directives[directive],
+        `dashboard landing: ${directive} MUST NOT carry 'unsafe-inline', inline scripts run by hash`
+      ).not.toContain("'unsafe-inline'");
+    }
 
     const documentHtml = await response.text();
     const documentUrl = response.url();

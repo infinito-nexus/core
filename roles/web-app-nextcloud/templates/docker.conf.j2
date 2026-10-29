@@ -119,13 +119,9 @@ http {
         }
 {% if NEXTCLOUD_HPB_SIGNALING_ENABLED | bool %}
         location {{ NEXTCLOUD_HPB_SIGNALING_LOCATION }} {
-{% if NEXTCLOUD_HPB_NETWORK_MODE == 'host' %}
-            proxy_pass          http://host.docker.internal:{{ NEXTCLOUD_HPB_SIGNALING_PORT }}/;
-{% else %}
-            set $upstream_nextcloud_talk http://talk:{{ NEXTCLOUD_HPB_SIGNALING_PORT }};
+            set $upstream_nextcloud_talk http://{{ NEXTCLOUD_HPB_SIGNALING_SERVICE }}:{{ NEXTCLOUD_HPB_SIGNALING_PORT }};
             rewrite ^{{ NEXTCLOUD_HPB_SIGNALING_LOCATION }}(.*)$ /$1 break;
             proxy_pass          $upstream_nextcloud_talk;
-{% endif %}
             proxy_http_version  1.1;
             proxy_set_header    Host              $host;
             proxy_set_header    Upgrade           $http_upgrade;

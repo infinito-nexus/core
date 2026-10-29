@@ -18,5 +18,9 @@ whitelist:
     - "*.{{ DOMAIN_PRIMARY }}"
     - "{{ lookup('domain', 'web-app-keycloak') }}"
 flags:
+  script-src:
+    unsafe-inline: false
+  script-src-elem:
+    unsafe-inline: false
   script-src-attr:
-    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: port-ui 2.2.2 renders inline event handlers (menu onclick entries, openDynamicPopup, closeAllModals, card image onerror)

@@ -119,6 +119,10 @@ async function joinCallAsGuest(browser, roomUrl, name) {
   return { name, page, context };
 }
 
+exports.ocsHeaders = ocsHeaders;
+exports.createPublicRoom = createPublicRoom;
+exports.joinCallAsGuest = joinCallAsGuest;
+
 exports.register = function (shared) {
   test("nextcloud talk call holds more than five participants", async ({ browser }) => {
     test.skip(!talkEnabled, "Talk is disabled in the current Playwright env");

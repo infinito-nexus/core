@@ -1,11 +1,13 @@
-"""Render the applications SPOT once and park it as the play-scoped carrier fact.
+"""Render the applications and users SPOTs once and park them as play-scoped carrier facts.
 
-Ansible forks a fresh worker per task, so the in-process render cache of
-``lookup('applications')`` is cold in every task until something renders in
-a place all later workers inherit. This action renders in the worker of one
-constructor task and returns the payload as a host fact; every later worker
-inherits that fact at fork time and ``get_merged_applications`` serves it
-instead of rendering::
+Ansible forks a fresh worker per task, so the in-process render caches of
+``lookup('applications')`` and ``lookup('users')`` are cold in every task
+until something renders in a place all later workers inherit. This action
+renders in the worker of one constructor task and returns both payloads as
+host facts; every later worker inherits them at fork time and
+``get_merged_applications`` / ``get_merged_users`` serve them instead of
+rendering. The users carrier is keyed like the applications carrier plus
+the token store digest and ``inventory_hostname``::
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
@@ -13,11 +15,12 @@ instead of rendering::
 ``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
 for the merge block, which it drops again at the block's end, one after the
 ``add_host`` tasks for the swarm bootstrap roles, parked only when
-``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names`` and a
-digest of the tokens the users are hydrated from (the tokens file, or the
-``sys_token_store_users`` fact once the token store loaded; both key alike for
-the same tokens), so a carrier whose groups or tokens no longer match is
-rejected and the reader renders afresh::
+``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
+carrier whose groups no longer match is rejected and the reader renders
+afresh. ``merged_users_cache_key`` adds a digest of the tokens the users are
+hydrated from (the tokens file, or the ``sys_token_store_users`` fact once the
+token store loaded; both key alike for the same tokens), so changed tokens
+reject the users carrier only::
 
     - name: 🧊 Drop the merge-block carrier so later stages re-render
       applications_carrier:
@@ -26,14 +29,16 @@ rejected and the reader renders afresh::
 ``tasks/utils/setup/role.yml`` parks one after every role,
 ``tasks/utils/load/app.yml`` one after every nested application load and
 ``roles/sys-token-store/tasks/write_many.yml`` one after every store write;
-where the key still matches they serve the carried payload without rendering.
+where the key still matches they serve the carried payload without rendering,
+and a users carrier that still matches is left in place instead of being
+returned again. A store write therefore re-renders the users alone.
 
-The result is masked by the action itself: the fact is the whole rendered
-tree, about 0.4 MB with every application's credentials, and printing it at
-``-v`` is neither credential debugging nor readable.
+The result is masked by the action itself: the facts are the whole rendered
+trees, about 0.4 MB with every application's and user's credentials, and
+printing them at ``-v`` is neither credential debugging nor readable.
 
 Args:
-    clear: drop the carrier fact instead of rendering. Defaults to false.
+    clear: drop both carrier facts instead of rendering. Defaults to false.
         Any other argument is an error.
 """
 
@@ -46,7 +51,12 @@ from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, revalidate_tokens_file
+from utils.cache.carrier import (
+    APPLICATIONS_RENDERED_FACT,
+    USERS_RENDERED_FACT,
+    _carried_users,
+    revalidate_tokens_file,
+)
 
 
 class ActionModule(ActionBase):
@@ -67,7 +77,11 @@ class ActionModule(ActionBase):
 
         if boolean(args.get("clear", False)):
             result.update(
-                changed=False, ansible_facts={APPLICATIONS_RENDERED_FACT: None}
+                changed=False,
+                ansible_facts={
+                    APPLICATIONS_RENDERED_FACT: None,
+                    USERS_RENDERED_FACT: None,
+                },
             )
             return result
 
@@ -77,16 +91,25 @@ class ActionModule(ActionBase):
         previous = self._templar.available_variables
         self._templar.available_variables = render_vars
         try:
-            lookup = lookup_loader.get(
-                "applications", loader=self._loader, templar=self._templar
-            )
-            carrier = lookup.run([], variables=render_vars, carrier=True)[0]
+            carriers = {
+                fact: lookup_loader.get(
+                    name, loader=self._loader, templar=self._templar
+                ).run([], variables=render_vars, carrier=True)[0]
+                for fact, name in (
+                    (APPLICATIONS_RENDERED_FACT, "applications"),
+                    (USERS_RENDERED_FACT, "users"),
+                )
+            }
         finally:
             self._templar.available_variables = previous
 
+        users_key = carriers[USERS_RENDERED_FACT]["key"]
+        if _carried_users(task_vars, (users_key[0], tuple(users_key[1]))) is not None:
+            del carriers[USERS_RENDERED_FACT]
+
         result.update(
             changed=False,
-            ansible_facts={APPLICATIONS_RENDERED_FACT: carrier},
+            ansible_facts=carriers,
             _ansible_no_log=True,
         )
         return result

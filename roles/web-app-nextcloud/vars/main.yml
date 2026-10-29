@@ -10,7 +10,8 @@ database_password: "{{ lookup('config', application_id, 'secrets.credentials.dat
 NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
+NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
+NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
@@ -40,8 +41,6 @@ NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 NEXTCLOUD_HOST_FPM_POOL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'fpm-pool.conf' ] | path_join }}"
-NEXTCLOUD_HOST_TALK_BACKENDS_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'talk-network-backends.sh' ] | path_join }}"
-NEXTCLOUD_TALK_BACKENDS_SCRIPT: "{{ lookup('volume', application_id, 'talk_network_backends').target }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
@@ -156,51 +155,64 @@ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO: >-
 NEXTCLOUD_CRON_SERVICE: "cron"
 NEXTCLOUD_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CRON_SERVICE ~ '.name') }}"
 
+NEXTCLOUD_TASKPROCESSING_SERVICE: "taskprocessing"
+NEXTCLOUD_TASKPROCESSING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_TASKPROCESSING_SERVICE ~ '.name') }}"
+
 NEXTCLOUD_HPB_SERVICE: "talk"
 NEXTCLOUD_HPB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.name') }}"
 NEXTCLOUD_HPB_NETWORK_MODE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.network_mode') }}"
 NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spreed.enabled') }}"
 NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
+NEXTCLOUD_HPB_BACKEND_URL: "{{ NEXTCLOUD_PROTOCOL }}://{{ NEXTCLOUD_HPB_DOMAIN }}"
+NEXTCLOUD_HPB_SIGNALING_BACKEND_URLS: "{{ lookup('network_urls', NEXTCLOUD_HPB_BACKEND_URL) | join(',') }}"
 
-NEXTCLOUD_HPB_MEDIA_DIRECT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool }}"
+# nocheck: host-local-fact  read only in compose mode, where the host rendering this file is the host Janus publishes its media ports on; Ansible omits the key on a host without the ip binary, which leaves the media on TURN
+NEXTCLOUD_HPB_HOST_ADDRESSES: "{{ ansible_facts['all_ipv4_addresses'] | default([]) }}"
+NEXTCLOUD_HPB_MEDIA_DIRECT: >-
+  {{ (lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool)
+     and (NEXTCLOUD_HPB_SIGNALING_ENABLED | bool)
+     and (NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool)
+     and IS_COMPOSE_MODE
+     and (networks.internet.ip4 in NEXTCLOUD_HPB_HOST_ADDRESSES) }}
 NEXTCLOUD_HPB_MEDIA_PUBLIC_IP: "{{ networks.internet.ip4 }}"
 NEXTCLOUD_HPB_MEDIA_PORT_START: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.start') }}"
 NEXTCLOUD_HPB_MEDIA_PORT_END: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.end') }}"
 NEXTCLOUD_HPB_JANUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
 NEXTCLOUD_HPB_JANUS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'janus_conf').target }}"
-NEXTCLOUD_HPB_JANUS_LAUNCHER: "/supervisord.conf"
-NEXTCLOUD_HPB_JANUS_OVERRIDES:
-  - rtp_port_range
-  - nat_1_1_mapping
-  - keep_private_host
-NEXTCLOUD_HPB_IMAGE: "{{ lookup('image', application_id, NEXTCLOUD_HPB_SERVICE) }}"
+NEXTCLOUD_HPB_JANUS_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.internal.websocket') }}"
+NEXTCLOUD_HPB_JANUS_HOST_NETWORK: "{{ NEXTCLOUD_HPB_NETWORK_MODE == 'host' }}"
+NEXTCLOUD_HPB_JANUS_URL: "ws://{{ 'host.docker.internal' if NEXTCLOUD_HPB_JANUS_HOST_NETWORK | bool else NEXTCLOUD_HPB_SERVICE }}:{{ NEXTCLOUD_HPB_JANUS_PORT }}"
+NEXTCLOUD_HPB_JANUS_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.repository') }}"
+NEXTCLOUD_HPB_JANUS_REF: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ref') }}"
+NEXTCLOUD_HPB_JANUS_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.image') }}"
+NEXTCLOUD_HPB_JANUS_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.version') }}"
+NEXTCLOUD_HPB_JANUS_TAG: "{{ NEXTCLOUD_HPB_JANUS_REF }}-{{ NEXTCLOUD_HPB_JANUS_BASE_VERSION }}"
+NEXTCLOUD_HPB_JANUS_BUILD_DIRECTORY: "{{ [ lookup('container', application_id, 'directories.services'), 'talk-janus' ] | path_join }}"
+NEXTCLOUD_HPB_JANUS_DOCKERFILE: "{{ [ NEXTCLOUD_HPB_JANUS_BUILD_DIRECTORY, 'Dockerfile' ] | path_join }}"
 
+NEXTCLOUD_HPB_SIGNALING_SERVICE: "talk_signaling"
+NEXTCLOUD_HPB_SIGNALING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SIGNALING_SERVICE ~ '.name') }}"
+NEXTCLOUD_HPB_SIGNALING_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SIGNALING_SERVICE ~ '.version') }}"
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
-NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
+NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SIGNALING_SERVICE ~ '.ports.internal.signaling') }}"
 NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ lookup('tls', NEXTCLOUD_DOMAIN, 'url.base'), NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
 NEXTCLOUD_HPB_SIGNALING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
+NEXTCLOUD_HPB_SIGNALING_MAX_STREAM_BITRATE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SIGNALING_SERVICE ~ '.max_stream_bitrate') }}"
+NEXTCLOUD_HPB_SIGNALING_MAX_SCREEN_BITRATE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SIGNALING_SERVICE ~ '.max_screen_bitrate') }}"
+NEXTCLOUD_HPB_SIGNALING_USER_ID: 850
+NEXTCLOUD_HPB_SIGNALING_BINARY: "/usr/bin/nextcloud-spreed-signaling"
+NEXTCLOUD_HPB_SIGNALING_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'signaling.conf' ] | path_join }}"
+NEXTCLOUD_HPB_SIGNALING_CONFIG_TARGET: "{{ lookup('volume', application_id, 'talk_signaling_conf').target }}"
 NEXTCLOUD_TALK_ADMIN_URL: "{{ [ NEXTCLOUD_URL, 'settings/admin/talk' ] | url_join }}"
 
-NEXTCLOUD_HPB_TURN_ONBOARD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.stun_turn') }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST: "{{ DOCKER_PUBLIC_BIND_HOST }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.turn_server.onboard_enabled') if NEXTCLOUD_HPB_PLUGIN_ENABLED
-  else false }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_turn_secret') }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS: "{{ not DOCKER_IN_CONTAINER | bool }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.relay.start') }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.relay.end') }}"
-NEXTCLOUD_HPB_STUN_ONBOARD_CONFIG: "{{ NEXTCLOUD_HPB_DOMAIN }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_CONFIG: >-
-  {{
-    {
-      'server':     NEXTCLOUD_HPB_DOMAIN ~ ':' ~ NEXTCLOUD_HPB_TURN_ONBOARD_PORT,
-      'secret':     NEXTCLOUD_HPB_TURN_ONBOARD_SECRET,
-      'ttl':        86400,
-      'protocols':  'udp,tcp'
-    }
-  }}
+NEXTCLOUD_HPB_NATS_SERVICE: "talk_nats"
+NEXTCLOUD_HPB_NATS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_NATS_SERVICE ~ '.name') }}"
+NEXTCLOUD_HPB_NATS_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_NATS_SERVICE ~ '.ports.internal.nats') }}"
+NEXTCLOUD_HPB_NATS_MONITOR_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_NATS_SERVICE ~ '.ports.internal.http') }}"
+NEXTCLOUD_HPB_NATS_URL: "nats://{{ NEXTCLOUD_HPB_NATS_SERVICE }}:{{ NEXTCLOUD_HPB_NATS_PORT }}"
+NEXTCLOUD_HPB_NATS_USER_ID: 65534
 
 NEXTCLOUD_HPB_TURN_STANDALONE_ROLE: "web-svc-coturn"
 NEXTCLOUD_HPB_TURN_STANDALONE_PORT: "{{ lookup('config', NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'services.coturn.ports.public.stun_turn') }}"
@@ -218,26 +230,8 @@ NEXTCLOUD_HPB_TURN_STANDALONE_CONFIG: >-
       'protocols':  'udp,tcp'
     }
   }}
-NEXTCLOUD_HPB_STUN_ACTIVE_CONFIG: >-
-  {{
-    NEXTCLOUD_HPB_STUN_STANDALONE_CONFIG
-    if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool
-    else (
-      NEXTCLOUD_HPB_STUN_ONBOARD_CONFIG
-      if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool
-      else ''
-    )
-  }}
-NEXTCLOUD_HPB_TURN_ACTIVE_CONFIG: >-
-  {{
-    NEXTCLOUD_HPB_TURN_STANDALONE_CONFIG
-    if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool
-    else (
-      NEXTCLOUD_HPB_TURN_ONBOARD_CONFIG
-      if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool
-      else {}
-    )
-  }}
+NEXTCLOUD_HPB_STUN_ACTIVE_CONFIG: "{{ NEXTCLOUD_HPB_STUN_STANDALONE_CONFIG if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool else '' }}"
+NEXTCLOUD_HPB_TURN_ACTIVE_CONFIG: "{{ NEXTCLOUD_HPB_TURN_STANDALONE_CONFIG if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool else {} }}"
 NEXTCLOUD_HPB_TURN_ACTIVE_SERVER: "{{ NEXTCLOUD_HPB_TURN_ACTIVE_CONFIG.server | default('') }}"
 
 NEXTCLOUD_WHITEBOARD_SERVICE: "whiteboard"
@@ -258,6 +252,18 @@ NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' 
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
 NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
 NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_recording_secret') }}"
+NEXTCLOUD_RECORDING_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.repository') }}"
+NEXTCLOUD_RECORDING_REF: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.ref') }}"
+NEXTCLOUD_RECORDING_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.image') }}"
+NEXTCLOUD_RECORDING_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.version') }}"
+NEXTCLOUD_RECORDING_TAG: "{{ NEXTCLOUD_RECORDING_REF }}-{{ NEXTCLOUD_RECORDING_BASE_VERSION }}"
+NEXTCLOUD_RECORDING_BUILD_DIRECTORY: "{{ [ lookup('container', application_id, 'directories.services'), 'talk-recording' ] | path_join }}"
+NEXTCLOUD_RECORDING_DOCKERFILE: "{{ [ NEXTCLOUD_RECORDING_BUILD_DIRECTORY, 'Dockerfile' ] | path_join }}"
+NEXTCLOUD_RECORDING_USER_ID: 122
+NEXTCLOUD_RECORDING_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'recording.conf' ] | path_join }}"
+NEXTCLOUD_RECORDING_CONFIG_TARGET: "{{ lookup('volume', application_id, 'talk_recording_conf').target }}"
+NEXTCLOUD_RECORDING_DIRECTORY: "{{ lookup('volume', application_id, 'talk_recording_tmp').target }}"
+NEXTCLOUD_RECORDING_CA_CERT: "{{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else '' }}"
 
 NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 
