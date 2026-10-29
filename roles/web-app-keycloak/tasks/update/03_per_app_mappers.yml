@@ -1,0 +1,75 @@
+---
+# produce OIDC `groups` claims of shape
+#   /roles/<application_id>/<role_name>                       (non-tenant / global)
+#   /roles/<application_id>/<tenant_id>/<role_name>           (per-tenant)
+# with no redundant segments.
+#
+# Why per-app mappers instead of the shared default one:
+# Keycloak's shared `group-ldap-mapper` with
+# `preserve.group.inheritance=true` keys its parent-child resolution on
+# the LDAP group's name (the attribute selected by
+# `group.name.ldap.attribute`). Role names repeat across applications
+# (administrator, editor, ...) so a single mapper with description-
+# based naming hits the Keycloak GroupTreeResolver collision: the map
+# is keyed by name and the second "administrator" silently overwrites
+# the first. The filter solution is to run **one mapper per deployed
+# application**: each mapper's LDAP filter
+#   (&(objectClass=groupOfNames)(cn=<application_id>-*))
+# sees only that app's role groups, anchors them under
+# `/roles/<application_id>`, and names each by the `description`
+# attribute (set by build_ldap_role_entries to the final path segment).
+# `preserve.group.inheritance=false` suffices per mapper because the
+# anchor is per-app — no collisions between apps exist within a mapper.
+#
+# The shared default `ldap-roles` mapper (created by update/03_ldap/main.yml)
+# is removed here so it does not shadow the per-app mappers, and any
+# Keycloak groups it had imported flat under /roles are pruned.
+
+- name: "🚿 per-app mappers: flush pending handlers before mutating the shared mapper"
+  ansible.builtin.meta: flush_handlers
+
+- name: "👁️ per-app mappers: show deployed apps with rbac (all / current run)"
+  ansible.builtin.debug:
+    msg:
+      all_deployed: "{{ KEYCLOAK_RBAC_ALL_APP_IDS }}"
+      current_run: "{{ KEYCLOAK_RBAC_RUN_APP_IDS }}"
+
+- name: "📄 per-app mappers: render the mapper payloads of every rbac app in current run"
+  ansible.builtin.copy:
+    dest: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
+    mode: "0600"
+    content: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS }}"
+  changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "✅ per-app mappers: reconcile groups and mappers of every rbac app over REST"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: rbac_reconcile.py
+    rest_script_env:
+      LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
+      RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
+      DEPLOYED_APP_IDS: "{{ KEYCLOAK_RBAC_ALL_APP_IDS | join(' ') }}"
+      PAYLOADS_FILE: "{{ KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS_FILE }}"
+      WORKERS: "{{ KEYCLOAK_RBAC_WORKERS }}"
+      SYNC_ATTEMPTS: "3"
+      SYNC_DELAY: "20"
+      SYNC_TIMEOUT: "{{ lookup('timeout', 60) | int }}"
+    rest_script_stdin: ""
+    rest_script_ok_rcs: [0, 1, 2]
+    rest_script_changed: "synced=[1-9]"
+    rest_script_register: per_app_reconcile
+
+- name: "📊 per-app mappers: report how many rbac apps were synced"
+  ansible.builtin.debug:
+    msg: "{{ per_app_reconcile.stdout_lines | select('match', '^summary ') | list }}"
+
+- name: "⚠️ per-app mappers: report the rbac apps that failed"
+  ansible.builtin.fail:
+    msg: "{{ per_app_reconcile.stdout_lines + per_app_reconcile.stderr_lines }}"
+  when: per_app_reconcile.rc != 0
+  ignore_errors: "{{ per_app_reconcile.rc == 2 }}"

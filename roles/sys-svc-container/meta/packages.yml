@@ -23,3 +23,4 @@ docker-cli:
       - iptables-nft
     repo:
       managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing
+  batch: false

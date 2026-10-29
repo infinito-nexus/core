@@ -94,6 +94,24 @@ class TestCompareApplicationKeys(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("services.dashbaord", result[0])
 
+    def test_custom_role_declaration_keys_are_legal(self):
+        apps = {
+            "web-app-cst-demo": {
+                "custom": True,
+                "source": {"url": "https://x/y.git", "version": "v1", "path": "r"},
+                "services": {"port": 8080},
+            }
+        }
+        defaults = {"web-app-cst-demo": {"services": {"port": 8080}}}
+        self.assertEqual(compare_application_keys(apps, defaults, "src"), [])
+
+    def test_declaration_keys_on_an_in_tree_role_are_flagged(self):
+        apps = {"app1": {"custom": True, "source": {"url": "https://x/y.git"}}}
+        defaults = {"app1": {"services": {}}}
+        result = compare_application_keys(apps, defaults, "src")
+        self.assertEqual(3, len(result))
+        self.assertTrue(any(err.endswith("app1: custom") for err in result))
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

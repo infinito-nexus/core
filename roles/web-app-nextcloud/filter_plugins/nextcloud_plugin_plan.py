@@ -25,10 +25,12 @@ def nextcloud_plugin_plan(plugin_items, app_list):
 
     Returns:
       dict of app ids:
-        disable   - wanted off and enabled right now
-        install   - wanted on and not installed, or shipped as a pinned archive
-        enable    - wanted on, installed, not enabled
-        configure - wanted on and already enabled
+        disable    - wanted off and enabled right now
+        install    - wanted on and not installed, or shipped as a pinned archive
+        background - wanted on, not installed, marked ``background_install``,
+                     neither pinned nor mandatory; disjoint from ``install``
+        enable     - wanted on, installed, not enabled
+        configure  - wanted on and already enabled
     """
     enabled_now = set((app_list or {}).get("enabled") or {})
     installed = enabled_now | set((app_list or {}).get("disabled") or {})
@@ -46,15 +48,23 @@ def nextcloud_plugin_plan(plugin_items, app_list):
     plan = {
         "disable": [app for app, on in wanted.items() if not on and app in enabled_now],
         "install": [],
+        "background": [],
         "enable": [],
         "configure": [],
     }
     for item in plugin_items:
         key = item["key"]
+        plugin = item["value"]
         if not wanted.get(key):
             continue
-        if key not in installed or _setting(item["value"], "archive", ""):
+        if _setting(plugin, "archive", ""):
             plan["install"].append(key)
+        elif key not in installed:
+            background = _flag(_setting(plugin, "background_install", False))
+            mandatory = _flag(_setting(plugin, "mandatory", False))
+            plan["background" if background and not mandatory else "install"].append(
+                key
+            )
         elif key not in enabled_now:
             plan["enable"].append(key)
         else:

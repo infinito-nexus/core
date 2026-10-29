@@ -1,7 +1,7 @@
 ---
 - name: ✅ Ensure hostname package is installed
   become: true
-  package_install:
+  package_install: # nocheck: package-install skipped inside containers
     id: hostname-tool
   when: not DOCKER_IN_CONTAINER | bool
 

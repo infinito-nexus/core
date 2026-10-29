@@ -48,7 +48,8 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 ASSEMBLY = ROLE / "templates" / "logout-panel.js.j2"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
-FRAMED_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+FRAMED_URL_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+PANEL_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.origin')"
 ORIGIN = "https://logout.example.test"
 DOMAINS = ("https://shop.example.test", "https://cloud.example.test")
 
@@ -356,15 +357,16 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
             declaration, f"KEYCLOAK_FRONTCHANNEL_LOGOUT_URL missing from {VARS}"
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            FRAMED_URL_LOOKUP,
             declaration,
             "the front-channel logout URL decides which origin ends up framed",
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            PANEL_ORIGIN_LOOKUP,
             read_text(str(ASSEMBLY)),
-            "the panel discards messages from any other origin, so its constant and"
-            " the framed URL must come from one expression or the panel goes silent",
+            "the panel discards messages from any other origin, so its constant must"
+            " be the origin of the same tls resolution that builds the framed URL,"
+            " or the panel goes silent",
         )
 
 

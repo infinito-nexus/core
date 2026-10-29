@@ -1,0 +1,30 @@
+---
+- name: 🔍 Read the settings, administrator and LDAP link OpenProject holds
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/admin-state.sql'] | path_join }}"
+    named_args:
+      login: "{{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
+      ldap_name: "{{ OPENPROJECT_ADMIN_LDAP_NAME }}"
+      settings: "{{ OPENPROJECT_RAILS_SETTINGS | list | to_json }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: openproject_admin_state
+  until: openproject_admin_state is succeeded
+  retries: 6
+  delay: 5
+  changed_when: false
+
+- name: 🧮 Digest the run's sources, inputs and the state OpenProject holds
+  ansible.builtin.set_fact:
+    openproject_admin_digest: >-
+      {{ {
+           'sources': query('file', *OPENPROJECT_ADMIN_SOURCES) | map('hash', 'sha256') | list,
+           'version': OPENPROJECT_VERSION,
+           'login': OPENPROJECT_ADMINISTRATOR_USERNAME,
+           'email': OPENPROJECT_ADMINISTRATOR_EMAIL,
+           'password': OPENPROJECT_ADMINISTRATOR_PASSWORD | hash('sha256'),
+           'settings': OPENPROJECT_RAILS_SETTINGS | to_json(sort_keys=true) | hash('sha256'),
+           'ldap_name': OPENPROJECT_ADMIN_LDAP_NAME,
+           'state': openproject_admin_state.rows
+         } | to_json(sort_keys=true) | hash('sha256') }}

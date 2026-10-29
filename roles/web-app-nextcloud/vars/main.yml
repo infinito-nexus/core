@@ -25,6 +25,7 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME: "{{ lookup('timeout', 604800) | int }}"
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
@@ -254,6 +255,16 @@ NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 
 NEXTCLOUD_ONLYOFFICE_URL: "{{ lookup('tls', 'web-svc-onlyoffice', 'url.base') }}"
 NEXTCLOUD_ONLYOFFICE_ENABLED: "{{ lookup('config', application_id, 'addons.onlyoffice.enabled') }}"
+
+NEXTCLOUD_OPENPROJECT_URL: "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}"
+NEXTCLOUD_OPENPROJECT_CLIENT_NAME: "OpenProject client"
+NEXTCLOUD_OPENPROJECT_STAMP_FILE: "{{ [lookup('container', application_id, 'directories.instance'), 'openproject-provision.sha256'] | path_join }}"
+NEXTCLOUD_OPENPROJECT_PROVISION_SOURCES:
+  - "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
+  - "{{ [role_path, 'files/php/addons/openproject/ensure_nc_client.php'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/utils/doorkeeper_allow_onion_redirect.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/addons/openproject/ensure_nextcloud_storage.rb'] | path_join }}"
+  - "{{ [role_path, 'filter_plugins/nextcloud_oauth_client.py'] | path_join }}"
 
 NEXTCLOUD_DOCKER_USER_ID: 82
 NEXTCLOUD_DOCKER_USER: "www-data"

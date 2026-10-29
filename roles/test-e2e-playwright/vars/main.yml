@@ -2,6 +2,8 @@
 TEST_E2E_PLAYWRIGHT_IMAGE: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.image') }}:{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version')
   }}"
 TEST_E2E_PLAYWRIGHT_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.version') | image_version }}"
+TEST_E2E_PLAYWRIGHT_AXE_VERSION: "{{ lookup('config', 'test-e2e-playwright', 'services.playwright.axe_version') }}"
+TEST_E2E_PLAYWRIGHT_INSTALL_STAMP: "{{ TEST_E2E_PLAYWRIGHT_VERSION }} axe-{{ TEST_E2E_PLAYWRIGHT_AXE_VERSION }}"
 
 TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
@@ -24,6 +26,8 @@ TEST_E2E_PLAYWRIGHT_SHARED_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_share
 TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/node_modules"
 TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/personas"
 TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE: "/tmp/infinito-playwright-personas.tar"
+TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}"
+TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE: "/tmp/infinito-playwright-helpers.tar"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
 
 TEST_E2E_PLAYWRIGHT_IS_ONION: "{{ lookup('tls', application_id, 'url.base') is search('\\.onion') }}"

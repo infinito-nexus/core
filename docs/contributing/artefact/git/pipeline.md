@@ -40,7 +40,7 @@ The `security-codeql` job runs the CodeQL scan (catalogued in the `Security and 
 
 ### 3. Linting 🧹
 
-The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues.
+The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, hadolint on `Dockerfile` included. It MUST pass before the pipeline continues.
 
 ### 4. CI Image Build 🐳
 

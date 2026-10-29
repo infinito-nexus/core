@@ -4,6 +4,8 @@ import importlib.util
 import sys
 import unittest
 
+from utils.cache.yaml import load_yaml_any
+
 from . import PROJECT_ROOT
 
 
@@ -46,6 +48,7 @@ class TestNextcloudPluginPlan(unittest.TestCase):
             {
                 "disable": [],
                 "install": [],
+                "background": [],
                 "enable": [],
                 "configure": ["calendar", "deck"],
             },
@@ -140,6 +143,121 @@ class TestNextcloudPluginPlan(unittest.TestCase):
     def test_empty_app_list_installs_every_wanted_plugin(self):
         plan = nextcloud_plugin_plan(_items(("deck", {"enabled": True})), {})
         self.assertEqual(plan["install"], ["deck"])
+
+
+BACKGROUND = {"enabled": True, "config": {"background_install": True}}
+
+
+class TestBackgroundPlan(unittest.TestCase):
+    def test_a_missing_plugin_marked_background_leaves_the_install_loop(self):
+        plan = nextcloud_plugin_plan(
+            _items(("deck", {"enabled": True}), ("recognize", BACKGROUND)), _apps()
+        )
+        self.assertEqual(plan["background"], ["recognize"])
+        self.assertEqual(plan["install"], ["deck"])
+
+    def test_an_unmarked_plugin_stays_in_the_install_loop(self):
+        plan = nextcloud_plugin_plan(_items(("recognize", {"enabled": True})), _apps())
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["install"], ["recognize"])
+
+    def test_a_marked_plugin_on_disk_is_enabled_not_reinstalled(self):
+        plan = nextcloud_plugin_plan(
+            _items(("recognize", BACKGROUND)), _apps(disabled=("recognize",))
+        )
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["enable"], ["recognize"])
+
+    def test_a_marked_running_plugin_is_only_configured(self):
+        plan = nextcloud_plugin_plan(
+            _items(("recognize", BACKGROUND)), _apps(enabled=("recognize",))
+        )
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["configure"], ["recognize"])
+
+    def test_a_marked_plugin_switched_off_is_not_installed(self):
+        plan = nextcloud_plugin_plan(
+            _items(
+                (
+                    "recognize",
+                    {"enabled": False, "config": {"background_install": True}},
+                )
+            ),
+            _apps(),
+        )
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["install"], [])
+
+    def test_a_pinned_archive_never_runs_in_the_background(self):
+        plan = nextcloud_plugin_plan(
+            _items(
+                (
+                    "onlyoffice",
+                    {
+                        "enabled": True,
+                        "config": {
+                            "archive": "https://x/o.tar.gz",
+                            "background_install": True,
+                        },
+                    },
+                )
+            ),
+            _apps(),
+        )
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["install"], ["onlyoffice"])
+
+    def test_a_mandatory_plugin_keeps_its_install_guard(self):
+        plan = nextcloud_plugin_plan(
+            _items(
+                (
+                    "oidc_login",
+                    {
+                        "enabled": True,
+                        "config": {"background_install": True, "mandatory": True},
+                    },
+                )
+            ),
+            _apps(),
+        )
+        self.assertEqual(plan["background"], [])
+        self.assertEqual(plan["install"], ["oidc_login"])
+
+    def test_a_templated_string_flag_is_honoured(self):
+        plan = nextcloud_plugin_plan(
+            _items(
+                (
+                    "recognize",
+                    {"enabled": "True", "config": {"background_install": "True"}},
+                )
+            ),
+            _apps(),
+        )
+        self.assertEqual(plan["background"], ["recognize"])
+
+    def test_every_wanted_plugin_lands_in_exactly_one_list(self):
+        items = _items(
+            ("deck", {"enabled": True}),
+            ("recognize", BACKGROUND),
+            ("news", {"enabled": True}),
+            ("calendar", {"enabled": True}),
+        )
+        plan = nextcloud_plugin_plan(
+            items, _apps(enabled=("calendar",), disabled=("news",))
+        )
+        placed = (
+            plan["install"] + plan["background"] + plan["enable"] + plan["configure"]
+        )
+        self.assertCountEqual(placed, ["deck", "recognize", "news", "calendar"])
+
+
+class TestRecognizeAddon(unittest.TestCase):
+    def test_recognize_is_installed_in_the_background(self):
+        spec = load_yaml_any(
+            str(PROJECT_ROOT / "roles/web-app-nextcloud/meta/addons/recognize.yml")
+        )
+        plan = nextcloud_plugin_plan(_items(("recognize", spec)), _apps())
+        self.assertEqual(plan["background"], ["recognize"])
 
 
 if __name__ == "__main__":

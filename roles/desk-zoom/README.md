@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role installs Zoom through `package_install` with the `zoom` id. [`meta/packages.yml`](meta/packages.yml) declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client.
+The package batch the constructor runs at deploy start installs Zoom through the `zoom` id. [`meta/packages.yml`](meta/packages.yml) declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client.
 
 ## Cosmos
 

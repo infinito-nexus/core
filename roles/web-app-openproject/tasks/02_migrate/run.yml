@@ -1,0 +1,34 @@
+---
+- name: ▶️ Run database migrations
+  shell: >- # nocheck: container-exec-resolver  OPENPROJECT_WEB_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec -i {{ OPENPROJECT_WEB_LOCAL_CID | quote }} bash -lc
+    "cd /app && bin/rails db:migrate RAILS_ENV=production"
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
+  register: openproject_migrate
+  retries: 30
+  delay: 10
+  until: openproject_migrate.rc == 0
+
+- name: 🏷️ Stamp the schema with the image that migrated it
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/migration-stamp/write.sql"
+    named_args:
+      image: "{{ openproject_web_image.stdout | trim }}"
+
+- name: ⏳ Wait until OpenProject web container is running (after migrations, compose)
+  shell: >
+    container inspect --type container
+    -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}
+  register: openproject_web_state_after_migrate
+  retries: 60
+  delay: 5
+  until: openproject_web_state_after_migrate.stdout.strip() == "running"
+  changed_when: false
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: ⏳ Wait until OpenProject web service converged (after migrations, swarm)
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ OPENPROJECT_WEB_SERVICE }}"

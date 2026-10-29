@@ -27,12 +27,11 @@ overrides not exposed as a stack-wide variable).
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -54,21 +53,6 @@ class Violation:
     line_no: int
     rule: str
     detail: str
-
-
-def _git_ls_files() -> list[str]:
-    out = subprocess.check_output(
-        [
-            "git",
-            "-c",
-            "safe.directory=*",
-            "-C",
-            str(PROJECT_ROOT),
-            "ls-files",
-        ],
-        text=True,
-    )
-    return [line for line in out.splitlines() if line]
 
 
 def _scan_file(path: Path) -> list[Violation]:
@@ -117,7 +101,7 @@ def _scan_file(path: Path) -> list[Violation]:
 
 
 def _scan_targets() -> list[Path]:
-    return [PROJECT_ROOT / rel for rel in _git_ls_files() if rel.endswith(".sh")]
+    return [PROJECT_ROOT / rel for rel in repository_files() if rel.endswith(".sh")]
 
 
 class TestShellNoInfinitoDefaults(unittest.TestCase):

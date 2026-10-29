@@ -10,7 +10,7 @@
     loop_var: sys_ctl_mtn_cert_renew_dependency
 
 - name: 📦 install certbot
-  package_install:
+  package_install: # nocheck: package-install only hosts with Let's Encrypt certificates run this role
     id: certbot-nginx
 
 - include_role:

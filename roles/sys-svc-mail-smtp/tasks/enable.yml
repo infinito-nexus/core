@@ -12,7 +12,7 @@
   when: run_once_sys_daemon is not defined
 
 - name: "📦 Install local SMTP relay (Postfix)"
-  package_install:
+  package_install: # nocheck: package-install only when the email relay is not external
     id: postfix
 
 - name: "🔧 Configure Postfix as localhost-only relay"

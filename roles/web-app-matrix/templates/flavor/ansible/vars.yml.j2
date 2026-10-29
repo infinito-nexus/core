@@ -144,6 +144,7 @@ matrix_client_element_enabled: true
 matrix_client_element_default_hs_url: "{{ MATRIX_SYNAPSE_URL }}"
 matrix_synapse_configuration_extension_yaml: |
   web_client_location: "{{ lookup('canonical_url', application_id, 'element') }}"
+matrix_client_element_configuration_extension_json: {{ {'force_verification': MATRIX_ELEMENT_FORCE_VERIFICATION | bool} | to_json | to_json }}
 
 matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
 matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}

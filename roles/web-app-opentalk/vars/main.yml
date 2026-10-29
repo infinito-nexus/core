@@ -42,7 +42,7 @@ OPENTALK_RECORDER_HTTP_PORT: "{{ lookup('config', application_id, 'services.reco
 OPENTALK_RECORDER_API_KEY_ID: "recorder"
 OPENTALK_RECORDER_API_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recorder_api_secret') }}"
 
-OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
+OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.origin') }}"
 OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 

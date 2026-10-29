@@ -1,7 +1,6 @@
 ---
 - name: "📥 Pre-pull the images of this deploy in the background"
   when:
-    - ASYNC_ENABLED | bool
     - not (STORAGE_CONSTRAINED | bool)
     - not (MODE_RESET | bool)
     - IS_STACK_HOST | bool

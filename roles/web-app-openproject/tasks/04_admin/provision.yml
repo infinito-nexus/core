@@ -1,0 +1,30 @@
+---
+- name: "🔍 Resolve openproject web hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: web
+    resolve_output_prefix: OPENPROJECT_WEB
+    resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
+
+- name: 🔧 Apply settings, ensure the administrator and link it to LDAP
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
+      container exec -i
+      -e {{ ('OPENPROJECT_ADMIN_LOGIN=' ~ OPENPROJECT_ADMINISTRATOR_USERNAME) | quote }}
+      -e {{ ('OPENPROJECT_ADMIN_EMAIL=' ~ OPENPROJECT_ADMINISTRATOR_EMAIL) | quote }}
+      {% if OPENPROJECT_HEADER_SSO_ENABLED | bool %}-e {{ ('OPENPROJECT_LDAP_NAME=' ~ OPENPROJECT_ADMIN_LDAP_NAME) | quote }}{% endif %}
+      {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
+      sh -c 'IFS= read -r OPENPROJECT_ADMIN_PASSWORD; IFS= read -r OPENPROJECT_RAILS_SETTINGS; export OPENPROJECT_ADMIN_PASSWORD OPENPROJECT_RAILS_SETTINGS; exec
+      "$@"' sh bash -lc 'cd /app && bundle exec rails runner -'
+    stdin: |-
+      {{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}
+      {{ OPENPROJECT_RAILS_SETTINGS | to_json }}
+      {{ lookup('file', 'ruby/apply_settings.rb') }}
+      {{ lookup('file', 'ruby/ensure_admin_user.rb') }}
+      {% if OPENPROJECT_HEADER_SSO_ENABLED | bool %}{{ lookup('file', 'ruby/link_admin_to_ldap.rb') }}{% endif %}
+  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
+  register: openproject_rails_runner
+  retries: 30
+  delay: 5
+  until: openproject_rails_runner.rc == 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

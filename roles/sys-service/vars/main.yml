@@ -8,11 +8,40 @@ system_service_scope: "system" # 'system' for root units, 'user' for per-login u
 system_service_unit_dir: "{{ DIR_SYSTEM_SERVICE if system_service_scope == 'system' else DIR_SYSTEM_SERVICE_USER }}"
 system_service_unit_owner: "{{ 'root' if system_service_scope == 'system' else omit }}"
 system_service_unit_become: "{{ system_service_scope == 'system' }}"
-system_service_systemctl_show: "{{ ['systemctl'] + (['--user'] if system_service_scope == 'user' else []) + ['--no-pager', 'show', '--value', '-p'] }}"
+system_service_systemctl_show: "{{ ['systemctl'] + (['--user'] if system_service_scope == 'user' else []) + ['--no-pager', 'show', '-p', 'Result', '-p', 'ExecMainStatus']
+  }}"
 
 system_service_role_name: "{{ system_service_id | regex_replace('@','') }}"
 system_service_role_dir: "{{ lookup('path_absolute', 'roles', system_service_role_name) }}"
 system_service_script_dir: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
+system_service_script_src: >-
+  {{ lookup('first_found',
+    {
+      'files': [
+        'templates/script.sh.j2',
+        'templates/script.py.j2',
+        'files/shell/script.sh',
+        'files/python/script.py'
+      ],
+      'paths': [ system_service_role_dir ]
+    },
+    errors='strict'
+  ) }}
+system_service_template_src: >-
+  {{ lookup(
+       'first_found',
+       {
+         'files': [
+           'templates/systemctl@.service.j2',
+           'templates/systemctl.service.j2'
+         ],
+         'paths': [
+           system_service_role_dir,
+           role_path
+         ]
+       },
+       errors='strict'
+     ) }}
 
 system_service_force_linear_sync: "{{ system_service_name in SYS_SERVICE_GROUP_MANIPULATION }}" # Disables automatic async
 system_service_force_flush_instant: "{{ (SYS_SERVICE_ALL_ENABLED | bool) and not system_service_force_flush_final }}" # When set to true it activates the flushing of services. defaults to SYS_SERVICE_ALL_ENABLED

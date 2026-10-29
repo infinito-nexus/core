@@ -1,6 +1,6 @@
 ---
 - name: 📦 Install ACL utilities
-  package_install:
+  package_install: # nocheck: package-install only the permissions step this file is included for needs setfacl
     id: acl
 
 - name: ✅ Ensure backups root exists and owned by backup

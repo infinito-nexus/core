@@ -6,3 +6,4 @@ openssh-client:
     - openssh-client
   RedHat:
     - openssh-clients
+  batch: false

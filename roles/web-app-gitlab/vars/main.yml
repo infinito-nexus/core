@@ -4,7 +4,6 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 swarm_stack_converge_retries: 600
 
-GITLAB_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 GITLAB_HOSTNAME: "{{ lookup('container_hostname', application_id) }}"
 GITLAB_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 GITLAB_WEB_PORT: "{{ lookup('tls', application_id, 'ports.web') }}"
@@ -27,7 +26,7 @@ GITLAB_OIDC_UID_FIELD: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 GITLAB_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 GITLAB_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 GITLAB_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
-GITLAB_OIDC_REDIRECT_URI: "{{ (GITLAB_URL | regex_replace('/$', '')) ~ '/users/auth/openid_connect/callback' }}"
+GITLAB_OIDC_REDIRECT_URI: "{{ lookup('tls', application_id, 'url.origin') ~ '/users/auth/openid_connect/callback' }}"
 
 GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 

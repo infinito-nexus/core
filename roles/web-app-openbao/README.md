@@ -63,6 +63,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Automatic unsealing:** A `static` seal reads a 32-byte key from the encrypted inventory, so the node unseals itself on every container restart.
 - **Machine identity:** AppRole is configured independently of human login, so services and automation use their own identities and short-lived tokens instead of a shared administrator token.
 - **Optional internal PKI:** A service flag mounts the `pki` engine with an internal root CA and an issuing role.
+- **Audit trail:** A `file` audit device at `stdout/`, declared in the server config, writes every request, with the accessing identity and a timestamp, to the server's stdout and so to the container log. Secret values appear only as salted HMACs. Every deploy reads a probe secret and fails unless the log shows that read with its identity and time.
 - **Monitoring:** Prometheus scrapes `/v1/sys/metrics` on the role-local network. A sealed node is detected from `/v1/sys/health`, which answers 503 while sealed and 200 once unsealed.
 - **Automated provisioning:** Configured by Ansible without manual steps; no Keycloak client or OpenBao path has to be created by hand.
 

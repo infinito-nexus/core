@@ -16,7 +16,7 @@
   255-char column.
 #}
 {% set stalwart_kc_webmail_base = lookup('canonical_url', 'web-app-stalwart', 'webmail') %}
-{% set stalwart_kc_webui_base = lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '') %}
+{% set stalwart_kc_webui_base = lookup('tls', 'web-app-stalwart', 'url.origin') %}
 {
   "clientId": "{{ lookup('config', 'web-app-stalwart', 'services.sso.oidc.clients.webui') }}",
   "name": "Stalwart WebAdmin",

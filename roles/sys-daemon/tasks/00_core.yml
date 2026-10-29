@@ -1,9 +1,4 @@
 ---
-- name: 📦 Install systemd tools (provides systemd-analyze)
-  package_install:
-    id: systemd-tools
-  become: true
-
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 01_reset.yml
   when: MODE_RESET | bool and run_once_sys_daemon is not defined

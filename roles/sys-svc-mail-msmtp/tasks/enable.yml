@@ -13,14 +13,6 @@
       is the dedicated NFS server (svc-storage-nfs-server). Hosts outside
       the swarm (svc-swarm-node) keep a local {{ DIR_VAR_LIB }}.
 
-- name: 📦 Install msmtp base package
-  package_install:
-    id: msmtp
-
-- name: "📦 Install the CA trust store"
-  package_install:
-    id: ca-certificates
-
 - name: ✅ Ensure the shared Root CA is trusted for the TLS mail relay
   include_role:
     name: sys-ca-selfsigned
@@ -34,7 +26,7 @@
 - when: lookup('email').external | bool
   block:
     - name: 📦 Install msmtp-mta when Mailu is used and package exists on distro
-      package_install:
+      package_install: # nocheck: package-install only inside the Mailu block and only where the distro ships msmtp-mta
         id: msmtp-mta
       register: sys_svc_mail_msmtp_mta
 
@@ -50,7 +42,7 @@
   template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)
     src: "msmtprc.conf.j2"
     dest: "/root/.msmtprc"
-    mode: 600
+    mode: "0600"
   vars:
     sys_svc_mail_msmtp_in_container: false
 

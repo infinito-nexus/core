@@ -43,7 +43,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 - **Image Pre-Pull**  
   [start.yml](tasks/utils/prepull/start.yml) pulls the images the deploy of the host runs, as listed by the `update_pull_images` filter, that the host does not hold yet under the pinned reference ([pull.yml](tasks/utils/prepull/pull.yml)), three at a time in a background job right before the shared services load; with nothing missing no job starts.
-  It runs when `ASYNC_ENABLED` is true, `STORAGE_CONSTRAINED` and `MODE_RESET` are false, and the host is a stack host, so never on a swarm worker.
+  It runs whatever `ASYNC_ENABLED` says, when `STORAGE_CONSTRAINED` and `MODE_RESET` are false and the host is a stack host, so never on a swarm worker.
   [reap.yml](tasks/utils/prepull/reap.yml) collects the job before the E2E run, or at the start of the destructor on a host without a server stage, and prints the pulls that failed.
   A failed pull or the time limit of `SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME` does not fail the deploy, and each app still pulls its images itself.
 

@@ -54,7 +54,8 @@ else
 fi
 
 cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
-_act_workflows_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/.github/workflows"
+_act_repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+_act_workflows_dir="${_act_repo_root}/.github/workflows"
 while read -r _act_label; do
 	cmd+=(-P "${_act_label}=${ACT_PLATFORM_IMAGE}")
 done < <(grep -rhE 'runs-on:' "${_act_workflows_dir}" | grep -oE 'ubuntu-[0-9]+\.[0-9]+' | sort -u)
@@ -99,6 +100,12 @@ if [[ "${ACT_RM}" == "true" ]]; then
 fi
 cmd+=(--cache-server-addr 127.0.0.1)
 cmd+=(--artifact-server-addr 127.0.0.1)
+if [[ "${ACT_BIND}" != "true" ]] && compgen -G "${_act_repo_root}/roles/web-app-cst-*" >/dev/null; then
+	# Exception: act copies the checkout through .gitignore, which drops the
+	# pulled custom roles, so the job binds the checkout to keep them.
+	echo "act: binding the checkout to carry the pulled custom roles (roles/web-app-cst-*)"
+	ACT_BIND=true
+fi
 if [[ "${ACT_BIND}" == "true" ]]; then
 	cmd+=(--bind)
 fi

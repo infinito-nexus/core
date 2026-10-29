@@ -15,6 +15,7 @@ def compose_file_args() -> list[str]:
     stack outright, so a checkout that was never handed a shared git dir or
     cache network simply does not layer that file in.
     """
+    from .extra_mounts import parse_mounts, write_mounts_override
     from .profile import Profile
 
     profile = Profile()
@@ -33,6 +34,11 @@ def compose_file_args() -> list[str]:
         from .runner_mirror import write_override
 
         out += ["-f", write_override(PROJECT_ROOT, out[1::2])]
+    mounts = parse_mounts(os.environ.get("INFINITO_EXTRA_MOUNTS") or "")
+    if mounts:
+        from utils.cache.files import PROJECT_ROOT
+
+        out += ["-f", write_mounts_override(PROJECT_ROOT, mounts)]
     return out
 
 

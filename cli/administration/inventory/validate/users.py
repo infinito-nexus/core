@@ -9,7 +9,8 @@ def compare_user_keys(users, user_defaults, source) -> list[str]:
     errs: list[str] = []
     for user, conf in users.items():
         if user not in user_defaults:
-            print(f"Warning: {source}: Unknown user '{user}'", file=sys.stderr)
+            if not (isinstance(conf, dict) and conf.get("username")):
+                print(f"Warning: {source}: Unknown user '{user}'", file=sys.stderr)
             continue
         def_conf = user_defaults[user]
         for key in conf:

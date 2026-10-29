@@ -15,4 +15,4 @@ config:
       configkey: "instances"
       configvalue:
         - name: "XWiki"
-          url: "{{ lookup('tls', 'web-app-xwiki', 'url.base') }}"
+          url: "{{ lookup('tls', 'web-app-xwiki', 'url.origin') }}"

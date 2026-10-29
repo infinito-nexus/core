@@ -21,3 +21,4 @@
     NODE_IMAGE: "{{ '' if DEPLOYMENT_MODE == 'swarm' else lookup('config', 'sys-svc-container', 'services.node.image') ~ ':' ~ lookup('config', 'sys-svc-container',
       'services.node.version') }}"
     DOMAIN: "{{ DOMAIN_PRIMARY }}"
+    CA_CONTAINER_ENABLED: "0"

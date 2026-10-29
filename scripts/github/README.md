@@ -12,6 +12,7 @@ This directory holds the shell helpers that GitHub Actions workflows under [`.gi
 | [resolve/](resolve/) | Derivation of structured workflow inputs and outputs from repository state. |
 | [update/](update/) | The scheduled `🔄 Update versions` pipeline (version bumps and PR open/refresh). |
 | [release/](release/) | Release-time gates that decide whether a tagged commit may be released. |
+| [sync/](sync/) | Mirroring the source repository's `main` into a fork on every push. |
 
 A new helper MUST live in the subfolder that matches its responsibility. New responsibilities MAY motivate a new subfolder, but MUST NOT flatten back into the top level.
 

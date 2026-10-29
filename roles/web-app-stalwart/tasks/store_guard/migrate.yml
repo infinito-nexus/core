@@ -1,0 +1,25 @@
+---
+- name: "📝 Stage the stalwart-migrate script for the 0.16 store"
+  ansible.builtin.include_tasks: store_guard/stage_migration.yml
+
+- name: "🚚 Migrate the 0.16 store to 1.x (upgrade to final)"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - "{{ STALWART_MIGRATE_SCRIPT }}"
+      - all
+  register: stalwart_store_migration
+  changed_when: true
+
+- name: "🔍 Read the layout of the store after the migration"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/store/layout.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: stalwart_store_layout
+  until: stalwart_store_layout is succeeded
+  retries: 6
+  delay: 5
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

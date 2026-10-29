@@ -6,3 +6,4 @@ hostname-tool:
     - hostname
   RedHat:
     - hostname
+  batch: false

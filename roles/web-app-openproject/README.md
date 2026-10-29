@@ -143,6 +143,12 @@ docker run --rm -it \
 
 To inspect and modify live settings inside the container, open a shell and use the Rails console for full LDAP and SMTP configuration.
 
+[tasks/04_admin.yml](./tasks/04_admin.yml) applies the settings, the administrator and its LDAP link only when the digest of its sources, its inputs and the state OpenProject holds differs from the stamp `admin-provision.sha256` in the instance directory. Set `services.openproject.admin.force` to `true` to run it regardless.
+
+## Database migrations
+
+A deploy runs `bin/rails db:migrate` in the web container only while the comment on `schema_migrations` names another image than the one the web container runs, and writes the running image id there once the run succeeds. `COMMENT ON TABLE schema_migrations IS NULL` makes the next deploy migrate again.
+
 ## Major Upgrades
 
 A compose deploy reads `schema_migrations` of an existing database before the pinned image starts. The newest aggregated migration `1000NNN` marks a schema migrated by major NNN + 1; without one, `20241015081341` marks 15 and anything older counts as 14. For every major between that stage and the pinned `services.web.version`, the deploy stops the old app containers, runs the seeder of `openproject/openproject:<major>` and works off the queued GoodJob jobs with [drain_jobs.rb](./files/ruby/drain_jobs.rb), then starts the pinned major. A database migrated by a newer major than the pinned one stops the deploy. Swarm deploys skip the stepping, so the pinned seeder reports an incompatible schema itself.

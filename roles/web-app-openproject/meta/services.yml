@@ -138,6 +138,8 @@ openproject:
     filters:
       administrators: false
       users: false
+  admin:
+    force: false
   ports:
     local:
       sso: 16483

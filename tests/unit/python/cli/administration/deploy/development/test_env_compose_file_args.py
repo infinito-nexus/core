@@ -8,7 +8,9 @@ because an unsatisfied `:?` guard inside one of them aborts the whole stack.
 from __future__ import annotations
 
 import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from cli.administration.deploy.development.env import compose_file_args
@@ -23,6 +25,7 @@ _LOCAL_PRIMARY = {
     "INFINITO_CACHE_STACK": "",
     "INFINITO_GHCR_MIRROR": "",
     "INFINITO_PUBLISH_PORTS": "",
+    "INFINITO_EXTRA_MOUNTS": "",
 }
 
 _WORKTREE = {
@@ -98,6 +101,35 @@ class TestComposeFileArgs(unittest.TestCase):
         self.assertEqual(
             compose_file_args()[-2:], ["-f", "compose/noports.override.yml"]
         )
+
+    def test_extra_mounts_append_their_generated_override(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as mount,
+            patch.dict(
+                os.environ,
+                {**_LOCAL_PRIMARY, "INFINITO_EXTRA_MOUNTS": mount},
+                clear=False,
+            ),
+            patch(
+                "cli.administration.deploy.development.extra_mounts.write_mounts_override",
+                return_value="build/compose/extra-mounts.override.yml",
+            ) as write,
+        ):
+            args = compose_file_args()
+            self.assertEqual(write.call_args.args[1], [Path(mount)])
+        self.assertEqual(args[-2:], ["-f", "build/compose/extra-mounts.override.yml"])
+
+    def test_an_entry_that_is_no_directory_stops_the_stack_naming_it(self) -> None:
+        with (
+            patch.dict(
+                os.environ,
+                {**_LOCAL_PRIMARY, "INFINITO_EXTRA_MOUNTS": "/nonexistent/gui"},
+                clear=False,
+            ),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            compose_file_args()
+        self.assertIn("/nonexistent/gui", str(ctx.exception.code))
 
 
 if __name__ == "__main__":  # pragma: no cover

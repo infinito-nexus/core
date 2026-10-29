@@ -1,6 +1,7 @@
 ---
 # Param: rest_script          - script under files/python/ that imports keycloak_admin.py
 # Param: rest_script_env      - script environment besides KC_URL, KC_PID, KC_REALM and PYTHONPATH
+# Param: rest_script_stdin    - text the script reads on stdin, the only channel for secrets
 # Param: rest_script_ok_rcs   - exit codes that do not fail the run
 # Param: rest_script_changed  - regex on stdout that marks the run changed
 # Param: rest_script_register - fact the command result is stored under
@@ -48,6 +49,7 @@
           - --
           - python3
           - "{{ kc_rest_script_dir.path }}/{{ rest_script }}"
+        stdin: "{{ rest_script_stdin }}"
       environment: "{{ rest_script_env | combine(kc_rest_script_base_env) }}"
       vars:
         kc_rest_script_base_env:

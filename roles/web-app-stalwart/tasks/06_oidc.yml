@@ -28,10 +28,10 @@
     stalwart_oidc_dir_id: "{{ stalwart_jmap.methodResponses[0][1].created.kc.id }}"
   when: stalwart_oidc_dir_id | length == 0
 
-- name: "🧹 Clear the OIDC directory's required audience"
+- name: "🔧 Accept Keycloak tokens without a Stalwart audience or mail scope"
   include_tasks: jmap_call.yml
   vars:
-    stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/clear_audience.json.j2') }}"
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/token_validation.json.j2') }}"
   when: stalwart_oidc_dir_id | length > 0
 
 - name: "📖 List Stalwart built-in roles"

@@ -1,30 +1,42 @@
 ---
-- name: "🔍 Resolve openproject web hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: web
-    resolve_output_prefix: OPENPROJECT_WEB
-    resolve_compose_cid: "{{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}"
+- name: 📖 Read the settings, administrator and LDAP link OpenProject holds
+  include_tasks:
+    file: 04_admin/state.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: 🔧 Apply settings, ensure the administrator and link it to LDAP
-  ansible.builtin.shell:
-    cmd: >- # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
-      container exec -i
-      -e {{ ('OPENPROJECT_ADMIN_LOGIN=' ~ OPENPROJECT_ADMINISTRATOR_USERNAME) | quote }}
-      -e {{ ('OPENPROJECT_ADMIN_EMAIL=' ~ OPENPROJECT_ADMINISTRATOR_EMAIL) | quote }}
-      {% if OPENPROJECT_HEADER_SSO_ENABLED | bool %}-e {{ ('OPENPROJECT_LDAP_NAME=' ~ OPENPROJECT_LDAP.name) | quote }}{% endif %}
-      {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
-      sh -c 'IFS= read -r OPENPROJECT_ADMIN_PASSWORD; IFS= read -r OPENPROJECT_RAILS_SETTINGS; export OPENPROJECT_ADMIN_PASSWORD OPENPROJECT_RAILS_SETTINGS; exec
-      "$@"' sh bash -lc 'cd /app && bundle exec rails runner -'
-    stdin: |-
-      {{ OPENPROJECT_ADMINISTRATOR_PASSWORD }}
-      {{ OPENPROJECT_RAILS_SETTINGS | to_json }}
-      {{ lookup('file', 'ruby/apply_settings.rb') }}
-      {{ lookup('file', 'ruby/ensure_admin_user.rb') }}
-      {% if OPENPROJECT_HEADER_SSO_ENABLED | bool %}{{ lookup('file', 'ruby/link_admin_to_ldap.rb') }}{% endif %}
-  delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
-  register: openproject_rails_runner
-  retries: 30
-  delay: 5
-  until: openproject_rails_runner.rc == 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: 🔍 Find the stamp of the last settings and administrator run
+  ansible.builtin.stat:
+    path: "{{ OPENPROJECT_ADMIN_STAMP_FILE }}"
+  register: openproject_admin_stamp_file
+
+- name: 📖 Read the stamp of the last settings and administrator run
+  ansible.builtin.slurp:
+    src: "{{ OPENPROJECT_ADMIN_STAMP_FILE }}"
+  register: openproject_admin_stamp
+  when: openproject_admin_stamp_file.stat.exists
+
+- name: 🧮 Decide whether the settings and administrator need a run
+  ansible.builtin.set_fact:
+    openproject_admin_due: >-
+      {{ (OPENPROJECT_ADMIN_FORCE | bool)
+         or openproject_admin_stamp is skipped
+         or (openproject_admin_stamp.content | b64decode | trim) != openproject_admin_digest }}
+
+- name: 🔧 Run the settings and administrator step and stamp what it left
+  when: openproject_admin_due | bool
+  block:
+    - name: 🔧 Apply settings, ensure the administrator and link it to LDAP
+      include_tasks: 04_admin/provision.yml
+
+    - name: 📖 Read the settings, administrator and LDAP link the run left
+      include_tasks:
+        file: 04_admin/state.yml
+        apply:
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: 📝 Stamp the settings, administrator and LDAP link the run left
+      stack_host_copy:
+        content: "{{ openproject_admin_digest }}\n"
+        dest: "{{ OPENPROJECT_ADMIN_STAMP_FILE }}"
+        mode: "0600"

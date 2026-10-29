@@ -19,6 +19,27 @@ permissions:
   contents: read
 
 jobs:
+  sync-main:
+    name: 🔄 Sync main
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🔄 Sync main from source repository
+        shell: bash
+        env:
+          CI_SYNC_MAIN_TOKEN: ${{ secrets.CI_SYNC_MAIN_TOKEN }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
+          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
+        run: bash scripts/github/sync/main_from_repository.sh
+
   run-policy:
     name: 🧭 Decide CI policy
     runs-on: ubuntu-26.04
