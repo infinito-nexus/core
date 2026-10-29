@@ -1,7 +1,7 @@
 ---
 # Reusable management JMAP call: in `stalwart_jmap_body` (JSON), out `stalwart_jmap`.
 # Param: stalwart_jmap_body - JSON request; a batch carries one method call per object owner, its call id naming that owner in a refusal.
-# Param: stalwart_jmap_tolerate_rejected - true when the caller reads a set-level rejection itself (e.g. alreadyExists).
+# Param: stalwart_jmap_tolerate_rejected - true when the caller reads a set-level rejection itself (e.g. primaryKeyViolation).
 - name: "🔧 Stalwart JMAP call"
   ansible.builtin.shell:
     cmd: >-

@@ -25,7 +25,7 @@ rejected and the reader renders afresh::
 
 ``tasks/utils/setup/role.yml`` parks one after every role,
 ``tasks/utils/load/app.yml`` one after every nested application load and
-``roles/sys-token-store/tasks/write.yml`` one after every persisted token;
+``roles/sys-token-store/tasks/write_many.yml`` one after every store write;
 where the key still matches they serve the carried payload without rendering.
 
 The result is masked by the action itself: the fact is the whole rendered
