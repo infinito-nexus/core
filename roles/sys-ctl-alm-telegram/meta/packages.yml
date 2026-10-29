@@ -6,3 +6,4 @@ curl:
     - curl
   RedHat:
     - curl
+  batch: false

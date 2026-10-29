@@ -32,7 +32,7 @@ from utils.roles.applications.services.database import (
     resolve_database_service_key,
 )
 from utils.roles.applications.services.sso import get_sso_config
-from utils.storage.nfs import swarm_nfs_backed
+from utils.storage.nfs import swarm_nfs_backed, volume_dir
 from utils.templating.ansible import _trust_as_template, to_plain
 
 
@@ -267,8 +267,9 @@ def compose_volumes(
             deployment_mode=deployment_mode,
             storage_backend=storage_backend,
         ):
-            named = vol_spec.get("name", vol_name)
-            vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
+            vol_spec.update(
+                _swarm_nfs_driver_opts(dir_var_lib, volume_dir(vol_name, vol_spec))
+            )
             if isinstance(nfs_meta, dict):
                 vol_spec["x-infinito-nfs"] = dict(nfs_meta)
 

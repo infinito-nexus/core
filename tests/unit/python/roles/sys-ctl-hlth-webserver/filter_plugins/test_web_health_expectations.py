@@ -657,6 +657,18 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self._served(apps, {"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]})
         self.assertEqual(out, {f"a.{DOMAIN}": [200, 301], f"a.{self.ONION}": [302]})
 
+    def test_a_redirect_source_expects_301_on_every_network_sibling(self):
+        apps = self._app_a(networks={"reachability": {"handover": True}})
+        out = self.mod.web_health_expectations(
+            apps,
+            group_names=["app-a"],
+            primary_domain=DOMAIN,
+            node_onion=self.ONION,
+            served_domains={"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]},
+            redirect_maps=[{"source": f"a.{DOMAIN}"}],
+        )
+        self.assertEqual(out, {f"a.{DOMAIN}": [301], f"a.{self.ONION}": [301]})
+
     def test_app_missing_from_served_keeps_declared_domains(self):
         out = self._served(self._app_a(), {})
         self.assertEqual(out, {f"a.{DOMAIN}": [200, 302, 301]})

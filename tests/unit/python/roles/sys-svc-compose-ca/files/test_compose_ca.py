@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils.cache.yaml import load_yaml, load_yaml_str
+from utils.cache.yaml import load_yaml, load_yaml_any, load_yaml_str
 
 from . import PROJECT_ROOT
 
@@ -15,6 +15,24 @@ _CA_TRUST = load_yaml(str(PROJECT_ROOT / "group_vars" / "all" / "02_tls.yml"))[
 ]
 CA_CERT_CONTAINER = _CA_TRUST["inject_cert_container"]
 CA_WRAPPER_CONTAINER = _CA_TRUST["inject_wrapper_container"]
+COMPOSE_HANDLERS = PROJECT_ROOT / "roles/sys-svc-compose/handlers/compose.yml"
+
+
+def _flushed_shells(*topics: str) -> list[str]:
+    """Shell bodies of the compose handlers one flush runs, in run order.
+
+    Args:
+        topics: the notified listen topics.
+
+    Returns:
+        the `ansible.builtin.shell` body of every handler listening on any
+        topic, in definition order.
+    """
+    return [
+        handler.get("ansible.builtin.shell", "")
+        for handler in load_yaml_any(str(COMPOSE_HANDLERS))
+        if set(topics) & set(handler["listen"])
+    ]
 
 
 def _load_module(rel_path: str, name: str):
@@ -960,6 +978,37 @@ class TestComposeCaInject(unittest.TestCase):
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
         )
 
+    def test_render_override_keeps_the_compose_config_escape_of_a_service_command(self):
+        services = {
+            "svc": {
+                "image": "img:1",
+                "command": ["sh", "-c", 'exec server --pass "$$SERVER_PASSWORD"'],
+            }
+        }
+        service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}
+
+        with patch.object(
+            self.m,
+            "gather_image_meta",
+            return_value={"img:1": (True, ["/entry.sh"], ["serve"], True)},
+        ):
+            doc = self.m.render_override(
+                services,
+                service_to_cmd,
+                cwd=Path("/tmp"),
+                env={},
+                ca_host="/host/ca.crt",
+                wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
+                trust_name="infinito.local",
+            )
+
+        self.assertEqual(
+            doc["services"]["svc"].get("command"),
+            ["/entry.sh", "sh", "-c", 'exec server --pass "$$SERVER_PASSWORD"'],
+        )
+
     def test_render_override_points_the_replacing_vars_at_the_bundle(self):
         """A host that has a CA bundle gets the verifying vars pointed at it.
 
@@ -1181,6 +1230,65 @@ class TestComposeCaInject(unittest.TestCase):
             parsed["services"]["app"].get("command"),
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
         )
+
+
+class TestFirstDeployFlush(unittest.TestCase):
+    def setUp(self):
+        self.m = _load_module(
+            "roles/sys-svc-compose-ca/files/python/compose_ca.py",
+            "compose_ca_first_deploy_mod",
+        )
+
+    def test_compose_up_starts_a_freshly_built_image_behind_the_wrapper(self):
+        image = "app_custom:1"
+        built: set[str] = set()
+
+        def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
+            if cmd[:3] == ["docker", "image", "inspect"]:
+                if cmd[3] not in built:
+                    return 1, "", f"No such image: {cmd[3]}"
+                cfg = [{"Config": {"Entrypoint": ["/entry.sh"], "Cmd": ["serve"]}}]
+                return 0, json.dumps(cfg), ""
+            if cmd[:5] == ["docker", "run", "--rm", "--entrypoint", "/bin/sh"]:
+                return 0, "", ""
+            return 1, "", "unexpected"
+
+        override: dict = {}
+        started_with = None
+        for shell in _flushed_shells("compose-build", "compose-up"):
+            if "compose build" in shell:
+                built.add(image)
+            elif "compose_ca_inject_cmd" in shell:
+                with patch.object(self.m, "run", side_effect=fake_run):
+                    override = self.m.render_override(
+                        {"app": {"image": image, "build": {"context": "."}}},
+                        {"app": ["docker", "compose", "-p", "p", "-f", "compose.yml"]},
+                        cwd=Path("/tmp"),
+                        env={},
+                        ca_host="/host/ca.crt",
+                        wrapper_host="/host/with-ca-trust.sh",
+                        ca_container=CA_CERT_CONTAINER,
+                        wrapper_container=CA_WRAPPER_CONTAINER,
+                        trust_name="infinito.local",
+                    )
+            elif "compose up -d --force-recreate" in shell:
+                started_with = dict(override)
+
+        self.assertIsNotNone(started_with, "the flush never reached compose up")
+        self.assertIn(
+            "services",
+            started_with,
+            "compose up ran before the CA override was generated",
+        )
+        service = started_with["services"]["app"]
+        self.assertEqual(
+            service.get("entrypoint"),
+            [CA_WRAPPER_CONTAINER],
+            "compose up started the image this flush built without the CA "
+            "wrapper: the override was generated before compose build, when "
+            "the locally built tag could not be inspected yet",
+        )
+        self.assertEqual(service.get("command"), ["/entry.sh", "serve"])
 
 
 if __name__ == "__main__":

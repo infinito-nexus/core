@@ -6,3 +6,4 @@ dnsmasq:
     - dnsmasq
   RedHat:
     - dnsmasq
+  batch: false

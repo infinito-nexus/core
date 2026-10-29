@@ -11,7 +11,7 @@ workspace:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: gitpod/openvscode-server
   # nocheck: docker-version  base of a self-built image that adds the Claude Code extension, not the served application
   version: "1.99.3"

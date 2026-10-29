@@ -49,7 +49,7 @@ listmonk:
   image: listmonk/listmonk
   version: "v6.2.0"
   backup:
-    no_stop_required: true
+    stop_required: false
   name: listmonk
   ports:
     internal:

@@ -22,7 +22,7 @@
   when: ansible_facts['os_family'] == 'RedHat'
 
 - name: 📦 Install Docker packages
-  package_install:
+  package_install: # nocheck: package-install needs the Docker repository the role adds first
     id: docker-cli
   register: sys_svc_container_packages_install
   retries: 5
@@ -116,5 +116,15 @@
 - name: "📂 Load reset tasks when MODE_RESET is enabled"
   include_tasks: "03_reset.yml"
   when: MODE_RESET | bool
+
+- name: "🧭 Route docker cleanup/health deps through service-loader"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-cln-docker
+      - sys-ctl-hlth-container
+      - sys-ctl-hlth-volumes
 
 - include_tasks: utils/once/flag.yml

@@ -18,12 +18,12 @@ from __future__ import annotations
 import re
 import unittest
 
+from tests.utils.gpu import FLAG, gpu_tests_enabled
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.i18n.extract import logout_context
 from utils.i18n.keyed import keyed_catalogue
 from utils.i18n.languages import load_languages
-from utils.i18n.libretranslate import accelerated
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
@@ -97,7 +97,7 @@ class TestLogoutCatalogue(unittest.TestCase):
                     )
 
 
-@unittest.skipUnless(accelerated(), "no NVIDIA runtime on this host")
+@unittest.skipUnless(gpu_tests_enabled(), f"{FLAG} is false")
 class TestLogoutCatalogueIsTranslated(unittest.TestCase):
     def setUp(self) -> None:
         self.catalogue = keyed_catalogue(

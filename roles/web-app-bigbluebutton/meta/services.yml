@@ -113,6 +113,8 @@ prometheus:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-web:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-web
   version: "v3.0.39"
   update:
@@ -123,6 +125,8 @@ bbb-web:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 freeswitch:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-freeswitch
   version: "v1.11.3-v3.0.39"
   update:
@@ -134,6 +138,8 @@ freeswitch:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 nginx:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-nginx
   version: "v3.0.39-v5.4.8-1.29"
   update:
@@ -157,6 +163,8 @@ bbb-shared-notes-server:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-bbb-export-annotations
   version: "v3.0.39"
   update:
@@ -167,6 +175,8 @@ bbb-export-annotations:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-webrtc-sfu
   version: "v2.24.0"
   update:
@@ -187,6 +197,8 @@ fsesl-akka:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-apps-akka
   version: "v3.0.39"
   update:
@@ -232,6 +244,8 @@ bbb-graphql-middleware:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 periodic:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-periodic
   version: "v3.0.0"
   update:
@@ -242,6 +256,8 @@ periodic:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
+  backup:
+    stop_required: true
   image: alangecker/bbb-docker-recordings
   version: "v3.0.39"
   update:

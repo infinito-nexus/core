@@ -10,6 +10,7 @@ import io
 import os
 import subprocess
 import tempfile
+import time
 import unittest
 import unittest.mock as mock
 from pathlib import Path
@@ -618,6 +619,86 @@ class RecurseTests(unittest.TestCase):
             extract = next(c for c in calls if c[:2] == ["tar", "-C"])
             self.assertIn(str(out / "containers" / "node1" / "nested"), extract)
             self.assertTrue(any("rm" in c for c in calls))
+
+
+class DeadlineTests(unittest.TestCase):
+    def _run_with(self, deadline: str, **kwargs):
+        mod = _load()
+        with (
+            mock.patch.dict(os.environ, {mod._DEADLINE_ENV: deadline}),
+            mock.patch.object(mod.subprocess, "run", return_value=_cp([])) as spawn,
+        ):
+            result = mod.run(["probe"], **kwargs)
+        return mod, result, spawn
+
+    def test_without_a_deadline_the_nominal_timeout_stands(self):
+        _mod, _result, spawn = self._run_with("", timeout=600)
+        self.assertEqual(spawn.call_args.kwargs["timeout"], 600)
+
+    def test_a_command_is_capped_at_the_deadline(self):
+        _mod, _result, spawn = self._run_with(str(time.time() + 5), timeout=600)
+        self.assertGreater(spawn.call_args.kwargs["timeout"], 0)
+        self.assertLessEqual(spawn.call_args.kwargs["timeout"], 5)
+
+    def test_a_command_past_the_deadline_is_skipped_unrun(self):
+        mod, result, spawn = self._run_with(str(time.time() - 1))
+        spawn.assert_not_called()
+        self.assertEqual(result.returncode, 124)
+        self.assertEqual(result.stderr, mod._SKIPPED)
+
+    def test_a_running_command_is_cut_at_the_deadline(self):
+        mod = _load()
+        with mock.patch.dict(os.environ, {mod._DEADLINE_ENV: str(time.time() + 1)}):
+            started = time.monotonic()
+            result = mod.run(["sleep", "30"])
+        self.assertEqual(result.returncode, 124)
+        self.assertLess(time.monotonic() - started, 10)
+
+    def test_the_deadline_reaches_the_nested_capture(self):
+        mod = _load()
+        calls: list[list[str]] = []
+
+        def fake_run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[-1] == "{{.Names}}":
+                return _cp(cmd, stdout=b"node1\n")
+            if "{{.Id}}" in cmd:
+                return _cp(cmd, stdout=b"d00d1234\n")
+            return _cp(cmd)
+
+        deadline = str(int(time.time()) + 3600)
+        with (
+            tempfile.TemporaryDirectory() as td,
+            mock.patch.dict(os.environ, {mod._DEADLINE_ENV: deadline}),
+            mock.patch.object(mod, "run", side_effect=fake_run),
+        ):
+            mod.recurse(Path(td), "docker", "app", "ctx", 0, [], "S")
+        nested_exec = next(c for c in calls if "python3" in c)
+        self.assertIn(f"{mod._DEADLINE_ENV}={deadline}", nested_exec)
+
+    def test_a_capture_past_the_deadline_still_leaves_a_snapshot(self):
+        mod = _load()
+        with tempfile.TemporaryDirectory() as td:
+            env = {
+                "INFINITO_RESCUE_DIAGNOSTICS_DIR": td,
+                mod._DEADLINE_ENV: str(time.time() - 1),
+            }
+            with (
+                mock.patch.dict(os.environ, env),
+                mock.patch.object(mod, "runtime_bin", return_value="docker"),
+                mock.patch.object(mod.subprocess, "run") as spawn,
+            ):
+                self.assertEqual(mod.main(["rescue.py", "app", "ctx"]), 1)
+            spawn.assert_not_called()
+            snapshot = next(Path(td).glob("app-*"))
+            meta = (
+                snapshot / "meta.txt"
+            ).read_text()  # nocheck: cache-read - tempdir fixture
+            journal = (
+                snapshot / "journal.txt"
+            ).read_bytes()  # nocheck: cache-read - tempdir fixture
+            self.assertIn("application_id: app", meta)
+            self.assertEqual(journal, mod._SKIPPED)
 
 
 class MainTests(unittest.TestCase):

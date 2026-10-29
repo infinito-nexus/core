@@ -75,7 +75,7 @@ msgstr "Alerta"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Servidor de correu Saltawart amb SMTP, IMAP, JMAP, POP3, Gestiona el correu brossa, CalDAV, CardDAV i integratName"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -86,6 +86,10 @@ msgstr "Absions"
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Un paper d' ajuda impossible per a la persisteix i cerca de fitxes d' aplicacions per usuari en una botiga d'usuari local de YALM"
+
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
@@ -450,6 +454,10 @@ msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Manteniment de manteniment de la distribució creuada per a la recuperació de discs a través del CI, el recipient i els entorns de construcció"
 
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
@@ -587,7 +595,7 @@ msgstr "Eines de desenvolupament i CI/CD"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "S distribuït3Una botiga d'objectes incompatibles per a compartir-se, per pal·licador cubetejar a través dels rols web-app"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1601,7 +1609,7 @@ msgstr "Servei de directori LDAP auto- màquina per a l' usuari descentralitzat,
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "S auto- hosted3- emmagatzematge incompatible per als fitxers, suports, còpies de seguretat i defectes de l'AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2156,7 +2164,7 @@ msgstr "Client LDAP basat en Web per a explorar, cercar i administrar entrades d
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Una plataforma d'administració i desenvolupament web per gestionar múltiples servidors PostgreSQL, amb OAuth opcional2 accés"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

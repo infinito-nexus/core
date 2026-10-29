@@ -1,0 +1,17 @@
+{# firstParty is load-bearing: a third-party client's tokens are cut down to their granted scopes, which locks the WebUI out of the management API. #}
+{
+  "clientId": {{ STALWART_WEBUI_OAUTH_CLIENT_ID | to_json }},
+  "description": {{ STALWART_WEBUI_APP_DESCRIPTION | to_json }},
+  "firstParty": true,
+  "grantTypes": {"authorizationCode": true, "refreshToken": true},
+  "redirectUris": {
+{% for prefix in stalwart_webui_url_prefixes %}
+    {{ (STALWART_WEBUI_BASE_URL ~ '/' ~ (prefix | trim('/')) ~ '/oauth/callback') | to_json }}: true{{ '' if loop.last else ',' }}
+{% endfor %}
+  },
+  "postLogoutRedirectUris": {
+{% for prefix in stalwart_webui_url_prefixes %}
+    {{ (STALWART_WEBUI_BASE_URL ~ '/' ~ (prefix | trim('/')) ~ '/login') | to_json }}: true{{ '' if loop.last else ',' }}
+{% endfor %}
+  }
+}

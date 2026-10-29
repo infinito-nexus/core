@@ -30,7 +30,7 @@ The per-variable default + comment lives next to the key in [default.env](../../
 | Variable | Purpose |
 |---|---|
 | `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds from source. |
-| `INFINITO_PULL_POLICY` | Compose `pull_policy`. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
+| `INFINITO_PULL_POLICY` | Compose `pull_policy`, also exported into the `infinito` container. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
 | `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py). |
 | `NIX_CONFIG` | Build-arg forwarded to the Dockerfile for Nix configuration. Pass-through if set in the calling shell. |
 

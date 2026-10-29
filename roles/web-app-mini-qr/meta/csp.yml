@@ -1,9 +1,7 @@
 ---
 whitelist:
-  script-src-elem:
-    - https://*.clarity.ms/
+  script-src-elem: []
   connect-src:
-    - https://*.clarity.ms
     - "data:"
   style-src-elem: []
   font-src: []

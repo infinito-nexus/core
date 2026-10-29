@@ -1,5 +1,7 @@
 ---
 openldap:
+  backup:
+    stop_required: true
   modes:
     compose:
       enabled: true

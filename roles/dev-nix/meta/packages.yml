@@ -1,6 +1,10 @@
 ---
+ca-certificates:
+  shared: true
+
 nix:
   Archlinux:
     - nix
   Debian: [] # nocheck: empty - the role installs nix from the official releases.nixos.org installer on this family
   RedHat: [] # nocheck: empty - the role installs nix from the official releases.nixos.org installer on this family
+  batch: false

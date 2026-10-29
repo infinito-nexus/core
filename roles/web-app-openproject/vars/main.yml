@@ -51,6 +51,15 @@ OPENPROJECT_UPGRADE_RUN:
 OPENPROJECT_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 OPENPROJECT_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 OPENPROJECT_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+OPENPROJECT_ADMIN_FORCE: "{{ lookup('config', application_id, 'services.openproject.admin.force') }}"
+OPENPROJECT_ADMIN_LDAP_NAME: "{{ OPENPROJECT_LDAP.name if (OPENPROJECT_HEADER_SSO_ENABLED | bool) else '' }}"
+OPENPROJECT_ADMIN_STAMP_FILE: "{{ [lookup('container', application_id, 'directories.instance'), 'admin-provision.sha256'] | path_join }}"
+OPENPROJECT_ADMIN_SOURCES:
+  - "{{ [role_path, 'tasks/04_admin/provision.yml'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/apply_settings.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/ensure_admin_user.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/lock_seeded_admin.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/link_admin_to_ldap.rb'] | path_join }}"
 
 OPENPROJECT_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
 

@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install Firefox
-  package_install:
-    id: firefox
-
 - name: ✅ Ensure Firefox distribution policies directory exists
   file:
     path: "{{ firefox_policy_dir }}"

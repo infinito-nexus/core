@@ -15,7 +15,7 @@
   limit. Reuses the shared client secret. Keep `description` under Keycloak's
   255-char column.
 #}
-{% set stalwart_kc_webui = lookup('network_urls', lookup('tls', 'web-app-stalwart', 'url.base') | regex_replace('/+$', '')) %}
+{% set stalwart_kc_webui = lookup('network_urls', lookup('tls', 'web-app-stalwart', 'url.origin')) %}
 {% set stalwart_kc_webmail = lookup('network_urls', lookup('canonical_url', 'web-app-stalwart', 'webmail')) %}
 {% set stalwart_kc_webui_redirects = stalwart_kc_webui | map('regex_replace', '$', '/*') | list %}
 {% set stalwart_kc_webmail_redirects = stalwart_kc_webmail | map('regex_replace', '$', '/*') | list %}

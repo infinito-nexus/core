@@ -22,7 +22,7 @@ header_filter_by_lua_block {
         ngx.ctx.is_html = true
         ngx.header.content_length = nil
 {% if _network == 'clearnet' and _onion.host and domain != (OIDC.URL | urlsplit('hostname')) and not lookup('config', application_id, 'networks.reachability.handover', False) %}
-        ngx.header["Onion-Location"] = "{{ lookup('tls', _onion.host, 'url.base') | regex_replace('/+$', '') }}" .. ngx.var.request_uri
+        ngx.header["Onion-Location"] = "{{ lookup('tls', _onion.host, 'url.origin') }}" .. ngx.var.request_uri
 {% endif %}
     else
         ngx.ctx.is_html = false

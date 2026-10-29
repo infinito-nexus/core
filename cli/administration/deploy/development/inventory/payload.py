@@ -11,11 +11,42 @@ always win" rule.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 from typing import Any
 
 from utils.cache.applications import get_variant_overrides_only
-from utils.roles.applications.topics import apply_topic
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
+from utils.roles.applications.topics import apply_topic, provider_of
 from utils.roles.applications.variants import collect_provider_overrides
+from utils.roles.guide import GUIDE_SERVICE_KEY, without_guide
+
+
+def _guide_services(payload: Any) -> Mapping[str, Any] | None:
+    services = payload.get("services") if isinstance(payload, Mapping) else None
+    if isinstance(services, Mapping) and GUIDE_SERVICE_KEY in services:
+        return services
+    return None
+
+
+def _drop_undeployed_guide(
+    resolved: dict[str, Any], *, roles_dir: str, include: Sequence[str]
+) -> dict[str, Any]:
+    if not any(_guide_services(payload) for payload in resolved.values()):
+        return resolved
+    registry = build_service_registry_from_roles_dir(Path(roles_dir))
+    if provider_of(GUIDE_SERVICE_KEY, registry) in include:
+        return resolved
+    stripped: dict[str, Any] = {}
+    for app_id, payload in resolved.items():
+        services = _guide_services(payload)
+        stripped[app_id] = (
+            payload
+            if services is None
+            else {**payload, "services": without_guide(services)}
+        )
+    return stripped
 
 
 def _resolve_variant_payloads(
@@ -38,6 +69,9 @@ def _resolve_variant_payloads(
     A config topic a variant declares under a service it depends on is
     finally moved onto that service's provider, so the role pulling a
     dependency in is what decides how lean the dependency runs.
+
+    A guide host entry is baked only while the round deploys the guide
+    host itself.
     """
     overrides_per_app = get_variant_overrides_only(roles_dir=roles_dir)
     resolved: dict[str, Any] = {}
@@ -49,6 +83,7 @@ def _resolve_variant_payloads(
         if not 0 <= index < len(variant_list):
             index = 0
         resolved[app_id] = variant_list[index]
+    resolved = _drop_undeployed_guide(resolved, roles_dir=roles_dir, include=include)
     for provider, topics in collect_provider_overrides(
         resolved, roles_dir=roles_dir
     ).items():

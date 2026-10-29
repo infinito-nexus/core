@@ -37,7 +37,7 @@ matomo:
   name: matomo
   min_storage: 404MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 1.0
   mem_reservation: 512m
   mem_limit: 1g

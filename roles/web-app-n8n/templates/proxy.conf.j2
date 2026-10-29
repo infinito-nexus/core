@@ -3,6 +3,7 @@
 server
 {
   server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
@@ -14,6 +15,7 @@ server
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
   {% if (domain | network_of) == 'tor' %}
+  proxy_cookie_flags n8n-auth nosecure;
     {% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
     {% set webserver_location_extra_configuration %}
   sub_filter '"authCookie":{"secure":true}' '"authCookie":{"secure":false}';

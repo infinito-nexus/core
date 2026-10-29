@@ -317,7 +317,7 @@ def assign(
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",
-                    "disable": disabled_services(state),
+                    "disable": disabled_services(state, row.get("services", ())),
                     "priority": "true" if priority else "false",
                     "instructions": "",
                     "id": str(row.get("id", 0)),
@@ -333,8 +333,7 @@ def assign(
                         architecture,
                         meshed,
                     ),
-                    "label": f"{glyphs}{label}"
-                    + (f" {to_emoji('priority')}" if priority else ""),
+                    "label": f"{glyphs}{label}",
                 }
             )
     return instructions.mark(_one_per_deploy(entries), variants_per_app)

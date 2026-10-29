@@ -27,6 +27,7 @@ echo ">>> entry.sh bootstrap"
 cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--skip-backup
 	--skip-cleanup
+	--skip-pull
 	-l "${INFINITO_LIMIT_HOST}"
 	--diff
 	-vv

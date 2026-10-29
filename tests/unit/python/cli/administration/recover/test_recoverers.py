@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import sys
 import unittest
+from pathlib import PurePosixPath
 
 from cli.administration.recover import paths, recoverers
+from utils.storage.nfs import STATE_SUBDIR, get_export_base, state_path
 
 
 def _args(name: str, source: str, **kw) -> list[str]:
@@ -14,7 +16,13 @@ def _args(name: str, source: str, **kw) -> list[str]:
 
 class NfsTest(unittest.TestCase):
     def test_default_target(self):
-        self.assertEqual(_args("nfs", "/snap"), ["/snap", paths.NFS_EXPORT_STATE])
+        self.assertEqual(_args("nfs", "/snap"), ["/snap", get_export_base()])
+
+    def test_snapshot_state_dir_lands_on_the_live_state_path(self):
+        target = PurePosixPath(_args("nfs", "/snap")[1])
+        self.assertEqual(
+            str(target / STATE_SUBDIR), state_path(get_export_base(), STATE_SUBDIR)
+        )
 
     def test_absolute_colon_target_overrides(self):
         self.assertEqual(
@@ -111,7 +119,7 @@ class RemoteTest(unittest.TestCase):
     def test_nfs_remote_source_passthrough_default_target(self):
         self.assertEqual(
             _args("nfs", "user@host:/remote/snap"),
-            ["user@host:/remote/snap", paths.NFS_EXPORT_STATE],
+            ["user@host:/remote/snap", get_export_base()],
         )
 
     def test_volume_remote_source(self):
@@ -133,7 +141,7 @@ class RemoteTargetTest(unittest.TestCase):
     def test_nfs_remote_target_prefixes_host(self):
         self.assertEqual(
             _args("nfs", "/snap", target="user@host"),
-            ["/snap", "user@host:/srv/nfs/infinito-state"],
+            ["/snap", f"user@host:{get_export_base()}"],
         )
 
     def test_volume_remote_target_docker_host(self):
@@ -150,7 +158,7 @@ class RemoteTargetTest(unittest.TestCase):
 
     def test_localhost_stays_local(self):
         self.assertEqual(
-            _args("nfs", "/snap", target="localhost"), ["/snap", paths.NFS_EXPORT_STATE]
+            _args("nfs", "/snap", target="localhost"), ["/snap", get_export_base()]
         )
 
 

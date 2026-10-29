@@ -22,11 +22,11 @@ fail() {
 
 probe() {
 	# nocheck: container-exec-resolver  container resolved by the harness and passed in
-	container exec -i \
+	KEY="$3" container exec -i \
 		-e "PORT=${AGENT_PROVISIONER_PORT}" \
 		-e "METHOD=$1" \
 		-e "REQ_PATH=$2" \
-		-e "KEY=$3" \
+		-e KEY \
 		-e "BODY=$4" \
 		-e "TIMEOUT=${REQUEST_TIMEOUT}" \
 		"${AGENT_PROVISIONER_CONTAINER}" python3 - <"${here}/probe.py"

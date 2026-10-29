@@ -121,7 +121,7 @@ class TestRelayRouteRendersValidJson(unittest.TestCase):
         route = args["create"][ROUTE_NAME]
         self.assertEqual(route["@type"], "Relay")
         self.assertEqual(route["name"], ROUTE_NAME)
-        self.assertEqual(route["address"], "tor-smtp")
+        self.assertEqual(route["host"], "tor-smtp")
         self.assertEqual(route["port"], 1525)
 
     def test_the_relay_hop_is_plaintext_smtp(self):

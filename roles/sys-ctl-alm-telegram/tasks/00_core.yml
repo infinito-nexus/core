@@ -17,7 +17,7 @@
     system_service_tpl_on_failure: "{{ lookup('unit_name','sys-ctl-alm-email@', suffix=False) }}%i.service"
 
 - name: 📦 install curl
-  package_install:
+  package_install: # nocheck: package-install only hosts with Telegram alerts run this role
     id: curl
 
 - include_tasks: utils/once/flag.yml

@@ -23,10 +23,10 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import ClassVar, NamedTuple
 
+from tests.utils.gpu import FLAG, gpu_tests_enabled
 from utils import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
 from utils.i18n.languages import DOMAINS, domain_languages, load_languages
-from utils.i18n.libretranslate import accelerated
 from utils.i18n.translate import damaged, pending
 
 
@@ -49,7 +49,7 @@ def measure(task: tuple[str, str]) -> Counts:
     )
 
 
-@unittest.skipUnless(accelerated(), "no NVIDIA runtime on this host")
+@unittest.skipUnless(gpu_tests_enabled(), f"{FLAG} is false")
 class TestCatalogsCompleteOnGpu(unittest.TestCase):
     root: ClassVar[Path] = Path(PROJECT_ROOT)
     missing: ClassVar[list[str]] = []

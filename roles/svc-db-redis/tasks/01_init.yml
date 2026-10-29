@@ -46,15 +46,15 @@
 
 - name: "🔧 REDIS | Provision ACL user {{ redis_acl_username }} (auth-isolated)"
   ansible.builtin.shell: >
-    container exec
+    IFS= read -r REDIS_ACL_PASSWORD && export REDIS_ACL_PASSWORD && container exec
     -e REDIS_ACL_PASSWORD
     {{ REDIS_CONTAINER_ADDRESS }} sh -lc
     'printf "%s" ">$REDIS_ACL_PASSWORD" | {{ REDIS_CLI }} -x ACL SETUSER {{ redis_acl_username }}
     on resetkeys resetchannels
     allkeys allchannels
     +@all'
-  environment:
-    REDIS_ACL_PASSWORD: "{{ redis_acl_password }}"
+  args:
+    stdin: "{{ redis_acl_password }}"
   register: redis_acl_set
   until: redis_acl_set.rc == 0
   retries: "{{ REDIS_RETRIES }}"

@@ -6,6 +6,7 @@ certbot-nginx:
     - python3-certbot-nginx
   RedHat:
     - python3-certbot-nginx
+  batch: false
   centos:
     names:
       - python3-certbot-nginx

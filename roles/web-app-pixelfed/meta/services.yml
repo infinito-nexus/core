@@ -53,7 +53,7 @@ pixelfed:
   name: pixelfed
   min_storage: 588MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 0.75
   mem_reservation: 0.5g
   mem_limit: 0.75g

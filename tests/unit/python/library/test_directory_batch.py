@@ -21,10 +21,13 @@ if TYPE_CHECKING:
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from utils import directory_batch
+
 MODULE_PATH = PROJECT_ROOT / "library" / "directory_batch.py"
 
 
 def _load_directory_batch() -> ModuleType:
+    sys.modules.setdefault("ansible.module_utils.directory_batch", directory_batch)
     spec = importlib.util.spec_from_file_location(
         "library_directory_batch", str(MODULE_PATH)
     )

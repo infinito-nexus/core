@@ -9,20 +9,12 @@
   vars:
     domain: "{{ _le_cert_domain }}"
 
-- name: "🔎 TLS | (letsencrypt) re-check cert files exist"
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  register: _le_stat2
-  loop:
-    - "{{ _cert_file }}"
-    - "{{ _cert_key }}"
-  changed_when: false
+- name: "🔎 TLS | (letsencrypt) refresh the certificate inventory"
+  include_tasks: utils/certificates.yml
 
 - name: "🛑 TLS | (letsencrypt) fail if still missing"
   ansible.builtin.fail:
     msg: >-
       Let's Encrypt certificate files not found after issuance:
       cert={{ _cert_file }} key={{ _cert_key }}
-  when: >
-    (not _le_stat2.results[0].stat.exists | default(false)) or
-    (not _le_stat2.results[1].stat.exists | default(false))
+  when: not ([_cert_file, _cert_key] is subset(tls_letsencrypt_certificates))

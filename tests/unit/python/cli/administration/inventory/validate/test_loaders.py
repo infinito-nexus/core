@@ -27,7 +27,7 @@ class TestLoadYamlFile(LoadersTestBase, unittest.TestCase):
         data = load_yaml_file(path)
         self.assertEqual(data, {"applications": {"app1": {"key": "value"}}})
 
-    def test_vault_blocks_are_stripped_before_parse(self):
+    def test_a_vaulted_value_loads_as_its_ciphertext(self):
         path = self.tmp_path / "vaulted.yml"
         path.write_text(
             "applications:\n"
@@ -43,9 +43,59 @@ class TestLoadYamlFile(LoadersTestBase, unittest.TestCase):
         data = load_yaml_file(path)
         self.assertEqual(
             data["applications"]["app1"]["credentials"]["api_key"],
-            "<vaulted>",
+            "$ANSIBLE_VAULT;1.1;AES256\n61626364656667686970716e\n",
         )
         self.assertEqual(data["users"], {"alice": {}})
+
+    def test_keys_after_a_vaulted_value_survive(self):
+        path = self.tmp_path / "siblings.yml"
+        path.write_text(
+            "users:\n"
+            "  administrator:\n"
+            "    password: !vault |\n"
+            "      $ANSIBLE_VAULT;1.1;AES256\n"
+            "      61626364\n"
+            "    email: admin@example.org\n"
+            "  biber:\n"
+            "    username: biber\n"
+            "  carl:\n"
+            "    tokens:\n"
+            "      - !vault |\n"
+            "        $ANSIBLE_VAULT;1.1;AES256\n"
+            "        65666768\n"
+            "applications:\n"
+            "  app1:\n"
+            "    credentials:\n"
+            "      api_key: !vault |\n"
+            "        $ANSIBLE_VAULT;1.1;AES256\n"
+            "\n"
+            "        65666768\n"
+            "  app2: {}\n",
+            encoding="utf-8",
+        )
+        data = load_yaml_file(path)
+        self.assertEqual(
+            data["users"],
+            {
+                "administrator": {
+                    "password": "$ANSIBLE_VAULT;1.1;AES256\n61626364\n",
+                    "email": "admin@example.org",
+                },
+                "biber": {"username": "biber"},
+                "carl": {"tokens": ["$ANSIBLE_VAULT;1.1;AES256\n65666768\n"]},
+            },
+        )
+        self.assertEqual(
+            data["applications"],
+            {
+                "app1": {
+                    "credentials": {
+                        "api_key": "$ANSIBLE_VAULT;1.1;AES256\n\n65666768\n"
+                    }
+                },
+                "app2": {},
+            },
+        )
 
     def test_missing_file_returns_none_and_warns(self):
         data = load_yaml_file(self.tmp_path / "does-not-exist.yml")

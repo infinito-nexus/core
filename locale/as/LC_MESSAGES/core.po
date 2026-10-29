@@ -96,6 +96,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 # translated as "Appaskólagar" in the context of computing in Icelandic.
 # However, it's worth noting that "Applications" is widely understood in
@@ -326,7 +330,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "云计算"
+msgstr ""
 
 # translated-by: libretranslate
 # A/AAAA rekorðar (og valmót CAA) í web-stackinu grunnþjónum
@@ -517,6 +521,10 @@ msgstr ""
 # rekinningar á CI, container, og byggingum umumnissa
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr ""
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
 msgstr ""
 
 # translated-by: libretranslate
@@ -2485,7 +2493,7 @@ msgstr ""
 # docker grupp for rootless utveksling búnaðast
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "工作站設定for Docker og Docker Compose med lokali user i docker grupp for rootless utveksling búnaðast"
+msgstr ""
 
 # translated-by: libretranslate
 # for Arduino bord ferðir í Línx

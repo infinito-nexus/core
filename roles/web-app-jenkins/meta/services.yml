@@ -47,6 +47,8 @@ ldap:
   shared: "{{ 'svc-db-openldap' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 jenkins:
+  backup:
+    stop_required: true
   enabled: true
   shared: true
   bond: 1
@@ -61,7 +63,7 @@ jenkins:
   # nocheck: single-replica
   replicas: 1
   image: jenkins/jenkins
-  version: 2.580.1-lts
+  version: 2.580.2-lts
   custom: true
   name: jenkins
   ports:

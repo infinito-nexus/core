@@ -97,18 +97,25 @@ exports.register = function (shared) {
           "the private files form saves over AJAX and confirms with a 'Changes saved' toast; leaving the page before it would drop the draft file instead of moving it into the private area",
         ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-        await gotoOnion(
-          appPage,
-          `${base}/admin/tool/task/schedule_task.php?task=${encodeURIComponent(PUSH_TASK)}`,
-          { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) },
-        );
+        await gotoOnion(appPage, `${base}/admin/tool/task/scheduledtasks.php`, {
+          waitUntil: "domcontentloaded",
+          timeout: resolveTimeout(60_000),
+        });
 
-        const runNow = appPage.getByRole("button", { name: /run now/i }).first();
+        const runNow = appPage
+          .locator("table.generaltable tr")
+          .filter({ hasText: PUSH_TASK })
+          .getByRole("link", { name: /^run now$/i });
         await expect(
           runNow,
-          "the scheduled-task page must offer Run now; its absence means the session is not a Moodle site administrator (schedule_task.php calls require_admin, and the OIDC administrator only reaches that account when its username claim matches), or tool_task/enablerunnow is off, or $CFG->pathtophp does not point at an executable PHP CLI",
+          "the scheduled-task list must offer Run now in the push task's row; since Moodle 5.3 schedule_task.php has no confirmation page and requires the sesskey this link carries, and the list renders it only for a Moodle site administrator (the OIDC administrator only reaches that account when its username claim matches), with tool_task/enablerunnow on, $CFG->pathtophp pointing at an executable PHP CLI, and the task not running at that moment",
         ).toBeVisible({ timeout: resolveTimeout(60_000) });
-        await runNow.click();
+        const runNowUrl = await runNow.getAttribute("href");
+        expect(
+          runNowUrl,
+          "the Run now link must target schedule_task.php with a sesskey; Moodle's confirmation modal opens exactly this URL",
+        ).toMatch(/\/admin\/tool\/task\/schedule_task\.php\?.*\bsesskey=\w+/);
+        await gotoOnion(appPage, runNowUrl, { waitUntil: "commit", timeout: resolveTimeout(60_000) });
 
         await expect(
           appPage.locator("pre.task-output"),

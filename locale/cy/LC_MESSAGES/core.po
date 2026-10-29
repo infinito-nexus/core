@@ -85,6 +85,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ról ansible gyldydd gyda perthendynol ei haliacwm a hydindwyr y datblyg cyfrin anfon cyffredinol y pwyllgor am gyffredinau y datganiad cyffredinol yn ein store YAML llais o flaen"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -415,10 +419,6 @@ msgstr "Core NGINX webserver gyffocawen HTTP ac stream stream gyffocawen TCP/UDP
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
-"Corporate design configuration owner și serviciu flag, redirecționând numele de domeniu spre CDN\n"
-"---\n"
-"\n"
-"`design`"
 
 # translated-by: ollama
 msgctxt "role:sys-front-inj-design:description"
@@ -444,6 +444,10 @@ msgstr "Installer de distribució entre files per a manager de paquets Nix amb i
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Routine drafn drafn arallau ar gyfer rhybys y llif a chyflwyno gan y pwynt cyhoeddus, CI, a'r llif a chyflwyno o'r ffrwydr"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Customer Relationship:title"
@@ -598,8 +602,6 @@ msgstr "Stack Docker per taniau datablysau ffeilliau'r llynedd gyffredinol gyda 
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
-"Bootstrapping iawn clustur a rollau benn trepa a chéile ar déaradh múltiple chéile stairm.\n"
-"chóirdeannan syne."
 
 # translated-by: ollama
 msgctxt "role:web-svc-onlyoffice:description"
@@ -1977,8 +1979,6 @@ msgstr "Cysccwlwr y drafod Python, prif sicrhau a datascience am Linsysys"
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Cymadeuwyr\n"
-"---"
 
 # translated-by: ollama
 msgctxt "menu:User Management:description"
@@ -2110,7 +2110,7 @@ msgstr "Client webdir web de LDAP per ei fod, ei gwyddoniedol a ei chymdeud i di
 # translated-by: ollama
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Web-based administration a chyfnodol ac drafodol pwyllgor gyfanol gyntafol o PostgreSQL pwyllgau, wrth gyhoeddydd Oauth2 log-in"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-phpmyadmin:description"

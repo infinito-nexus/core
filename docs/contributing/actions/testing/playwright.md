@@ -30,7 +30,7 @@ Every Playwright-enabled role MUST provide exactly these two files:
 
 `playwright.config.js` MUST remain centralized in `roles/test-e2e-playwright/files/` and `package.json` in `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy into the staging dir). You MUST NOT duplicate or override either per role.
 
-The `@playwright/test` version pinned into the rendered `package.json` comes from `playwright.version` in `roles/test-e2e-playwright/meta/services.yml` via the `image_version` filter. That YAML value is the single source of truth for the Playwright version.
+The `@playwright/test` version pinned into the rendered `package.json` comes from `playwright.version` in `roles/test-e2e-playwright/meta/services.yml` via the `image_version` filter. That YAML value is the single source of truth for the Playwright version. The rendered `package.json` also installs `@axe-core/playwright` at `playwright.axe_version` from the same file, so a spec MAY run WCAG checks with `const { default: AxeBuilder } = require("@axe-core/playwright");`.
 
 ## CI Image Source 🪞
 

@@ -9,7 +9,8 @@ Usage:
 The plan runs the same pipeline the deploy jobs discover through
 (``cli.meta.ci.matrix``), so what the table shows and what CI deploys cannot
 diverge. One row per ``role#variant`` candidate in global query order, with
-the chunk it falls into and the axes it was assigned.
+the batch it falls into, as the keycap its job name leads with, and the axes
+it was assigned.
 
 Status per row: ⭐ a priority row, ✅ deployed by this sweep, ❌ beyond the
 sweep's budget (raise ``--offset`` to reach it), ⭐❌ a priority row the budget
@@ -38,7 +39,7 @@ from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
 from utils.github.variant import axes, instructions, network, pools, vpn
 from utils.roles.display import display_names
-from utils.symbol_glossary import to_emoji
+from utils.symbol_glossary import keycap, to_emoji
 
 _STAR = to_emoji("priority")
 _OK = to_emoji("enabled")
@@ -47,7 +48,7 @@ _CUT = to_emoji("redundant")
 
 _COLUMNS = (
     "id",
-    "chunk",
+    "batch",
     "name",
     "variant",
     "mode",
@@ -121,7 +122,7 @@ def cells(
             where = ""
         else:
             status = _STAR if entry["priority"] == "true" else _OK
-            where = str(chunk)
+            where = keycap(chunk)
         covered = entry.get("covered", "0")
         rows.append(
             (

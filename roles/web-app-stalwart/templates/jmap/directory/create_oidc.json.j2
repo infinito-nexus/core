@@ -6,6 +6,8 @@
     "issuerUrl": {{ OIDC.CLIENT.ISSUER_URL | to_json }},
     "claimUsername": {{ OIDC.ATTRIBUTES.USERNAME | to_json }},
     "usernameDomain": {{ STALWART_DOMAIN | to_json }},
-    "claimName": "name"
+    "claimName": "name",
+    "skipAudienceValidation": {{ STALWART_OIDC_TOKEN_VALIDATION.skipAudienceValidation | to_json }},
+    "unscopedTokens": {{ STALWART_OIDC_TOKEN_VALIDATION.unscopedTokens | to_json }}
   }}}, "c0"]]
 }

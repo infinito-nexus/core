@@ -1,10 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: 📦 install blender
-  package_install:
-    id: blender
-
 - name: 🧩 Bind Blender to the agents on this workstation
   ansible.builtin.include_tasks:
     file: addons/mcp-for-blender.yml

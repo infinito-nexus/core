@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Полезная роль помощника для идемпотентной настойчивости и поиска токенов приложений для каждого пользователя в местном магазине YAML"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -446,6 +450,10 @@ msgstr "Кросс-распределительный установщик дл�
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Поперечное техническое обслуживание для рекультивации диска в CI, контейнере и средах сборки"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1068,7 +1076,7 @@ msgstr "Веб-платформа на основе NGINX и обратный п
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "Статическая страница, обслуживаемая NGINX, оставляя юридический отпечаток (Импрессум) Из джинджа2 шаблон"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1331,9 +1339,6 @@ msgstr "Держите эту страницу открытой до завер�
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
-"Here is the translation:\n"
-"\n"
-"Скачая и систематическиBackup дляhard-linkdeduplicatedsnapshotslocal backup tree на swappable USB device"
 
 # translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"

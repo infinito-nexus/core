@@ -22,7 +22,9 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | selectattr('value.config.archive', 'defined')
      | selectattr('value.enabled', 'true')
      | map(attribute='key') | list }}
+NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME: "{{ lookup('timeout', 604800) | int }}"
 NEXTCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 NEXTCLOUD_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
 NEXTCLOUD_DESIGN_PRIMARY: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light['--design-primary'] }}"
@@ -162,6 +164,19 @@ NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spree
 NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
+NEXTCLOUD_HPB_MEDIA_DIRECT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool }}"
+NEXTCLOUD_HPB_MEDIA_PUBLIC_IP: "{{ networks.internet.ip4 }}"
+NEXTCLOUD_HPB_MEDIA_PORT_START: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.start') }}"
+NEXTCLOUD_HPB_MEDIA_PORT_END: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.end') }}"
+NEXTCLOUD_HPB_JANUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
+NEXTCLOUD_HPB_JANUS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'janus_conf').target }}"
+NEXTCLOUD_HPB_JANUS_LAUNCHER: "/supervisord.conf"
+NEXTCLOUD_HPB_JANUS_OVERRIDES:
+  - rtp_port_range
+  - nat_1_1_mapping
+  - keep_private_host
+NEXTCLOUD_HPB_IMAGE: "{{ lookup('image', application_id, NEXTCLOUD_HPB_SERVICE) }}"
+
 NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
 NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
@@ -250,6 +265,16 @@ NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 NEXTCLOUD_ONLYOFFICE_URL: "{{ lookup('tls', 'web-svc-onlyoffice', 'url.base') }}"
 NEXTCLOUD_ONLYOFFICE_ENABLED: "{{ lookup('config', application_id, 'addons.onlyoffice.enabled') }}"
 NEXTCLOUD_ONLYOFFICE_LOCATION: "/ds-vpath/"
+
+NEXTCLOUD_OPENPROJECT_URL: "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}"
+NEXTCLOUD_OPENPROJECT_CLIENT_NAME: "OpenProject client"
+NEXTCLOUD_OPENPROJECT_STAMP_FILE: "{{ [lookup('container', application_id, 'directories.instance'), 'openproject-provision.sha256'] | path_join }}"
+NEXTCLOUD_OPENPROJECT_PROVISION_SOURCES:
+  - "{{ [role_path, 'tasks/addons/integration_openproject_provision.yml'] | path_join }}"
+  - "{{ [role_path, 'files/php/addons/openproject/ensure_nc_client.php'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/utils/doorkeeper_allow_onion_redirect.rb'] | path_join }}"
+  - "{{ [role_path, 'files/ruby/addons/openproject/ensure_nextcloud_storage.rb'] | path_join }}"
+  - "{{ [role_path, 'filter_plugins/nextcloud_oauth_client.py'] | path_join }}"
 
 NEXTCLOUD_DOCKER_USER_ID: 82
 NEXTCLOUD_DOCKER_USER: "www-data"

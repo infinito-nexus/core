@@ -1,5 +1,7 @@
 ---
 socialhome:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: http_status
     path: healthz

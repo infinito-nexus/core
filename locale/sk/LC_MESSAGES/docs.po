@@ -260,7 +260,7 @@ msgstr "**A `svc-ai-litellm` brána je jediným modelovým vstupným bodom.** Od
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A `svc-ai-lmstudio` role je pridaná ako routable backend, x86/Len GPU uzol.** Nasadzuje LM Studio v režime bezhlavého servera (`lms server`, OpenAI kompatibilný API) a zaregistrovať sa za bránu. LM Studio nemá žiadnu ruku64 Linux server vybudovať, takže musí byť pripnutý na x86 (typicky GPU) uzol cez obmedzenie umiestnenia a NESMIE byť naplánované na Malinová Pi / rameno64 pôvodcových uzlín [032](032-agent-employees-firecracker.md). LM Studio lode predovšetkým ako desktop GUI; rola MUSÍ používať svoj bezhlavý/server režim, a README MUSÍ dokumentovať kontajnera prehlásiť (GPU priechody, licencie/model-download obmedzenia)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -1360,11 +1360,11 @@ msgstr "**Viacúčelové zavedenie CNG:** webservice, sidekiq, workhorse, gitaly
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Vyvodenie procesora:** Úloha buduje svoj vlastný obraz z Pinned llmster vydanie pre hostiteľa architektúry, amd64 alebo rameno64, udržuje len procesor llama.cpp motor a neprejde žiadnym GPU zariadením do kontajnera."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Vyvodenie procesora:** Úloha buduje svoj vlastný obraz z pinned llmster vydanie pre hostiteľa architektúry, amd64 alebo rameno64, udržuje len procesor llama.cpp motor a neprejde žiadnym GPU zariadením do kontajnera."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -1826,7 +1826,7 @@ msgstr "**Konfig cez šablóny:** Plne prispôsobiteľné `.env` a `compose.yml`
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable `.env` and `compose.yml` with Jinja2 ⚙️"
-msgstr "**Konfig cez šablóny:** Plne prispôsobiteľné `.env` a `compose.yml` s Jinjou2 ⚙️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable ``.env`` and ``compose.yml`` rendered via Jinja2 ⚙️"
@@ -1834,7 +1834,7 @@ msgstr "**Konfig cez šablóny:** Plne prispôsobiteľné ``.env`` a ``compose.y
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable ``.env`` and ``compose.yml`` with Jinja2 ⚙️"
-msgstr "**Konfig cez šablóny:** Plne prispôsobiteľné ``.env`` a ``compose.yml`` s Jinjou2 ⚙️"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Configurable Environment:**"
@@ -3316,7 +3316,7 @@ msgstr "**Popis:** Self-hosted Fediverse stena pre zobrazenie nedávne verejné 
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "**Popis:** HTML s vlastným pohonom5 hra pieskovisko pre prehliadanie a beh ľahkých motorov demá a hry v prehliadači"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -3708,7 +3708,7 @@ msgstr "**Priame OIDC SSO** Keycloak klient; presmerujte URI autoregistrované p
 
 # translated-by: libretranslate
 msgid "**Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered."
-msgstr "**Direct OIDC SSO:** Prihlásiť sa cez zdieľané Keycloak Klient OIDC bez oautu2-proxy sidecar; presmerovanie URI je automaticky registrovaný."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Directory & Script Deployment:** Sets up ``sys-ctl-hlth-msmtp/`` and deploys a templated Bash script to send test emails via msmtp."
@@ -3911,7 +3911,7 @@ msgstr "**Extrakcia domény:** Všetky ``.conf`` súbory v priečinku NGINX konf
 
 # translated-by: libretranslate
 msgid "**Domain template deployment** – copies a Jinja2 vHost from *sys-svc-proxy*."
-msgstr "**Zavedenie šablóny domén** 2 vHost od *sys-svc-proxy*."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**DooD isolation:** Runner containers mount the host Docker socket. Each job gets its own Infinito DinD container with a unique subnet, container names, and Docker volume — parallel jobs never conflict."
@@ -3998,7 +3998,7 @@ msgstr "**Dynamické presmerovanie**: Stavia `source: \"www.domain\"` → `targe
 
 # translated-by: libretranslate
 msgid "**Dynamic Timer Configuration:** Uses a Jinja2 template to create a timer unit file based on provided variables."
-msgstr "**Nastavenie dynamického časovača:** Používa Jinju2 šablóna pre vytvorenie súboru jednotiek časovača na základe zadaných premenných."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Dynamic Volume Migration:** Moves Docker volumes based on container image types."
@@ -4814,7 +4814,7 @@ msgstr "**Plne plnené:** Skladať zásobník s vyhradeným dátovým objemom (`
 
 # translated-by: libretranslate
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
-msgstr "**Budúci dôkaz:** Moderné aplikácie a normy sa zblížili s UTF8; používanie `utf8mb4` neskôr sa vyhýba migračným výzvam."
+msgstr ""
 
 msgid "**Gallery links.** An Artifact whose sharing the operator changed can stop accepting updates from the session. Publish a new one, tell the operator that the old link stays on the old state, and update the README link."
 msgstr ""
@@ -5415,7 +5415,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Inline data manipulation:** Filters are designed for inline use in Jinja2 expressions (in templates, tasks, vars, etc.)."
-msgstr "**Inline manipulácia s údajmi:** Filtre sú určené na použitie v Jinji2 výrazy (vo vzoroch, úlohách, varách atď.)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Inner loop**: the edit-rerun cycle on `roles/<role>/files/playwright/playwright.spec.js` driven by `make compose-playwright role=<role>`, without a redeploy. On the act-swarm test cluster the equivalent is `make swarm-playwright role=<role>`, which first copies the working-tree's modified files into the node's frozen bootstrap copy (swarm nodes are not bind-mounted like compose)."
@@ -5803,11 +5803,11 @@ msgstr "**Keycloak OIDC login:** EÚ `jwt`/`oidc` Auth metóda je nastavená pro
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted `X-Remote-User` header (`auth_by_http_header`), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Spredu na nástupišti2-proxy bránka; overený užívateľ je odovzdaný Checkmk prostredníctvom dôveryhodných `X-Remote-User` hlavička (`auth_by_http_header`), Takže sa neobjaví žiadna druhá výzva prihlásenia."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted ``X-Remote-User`` header (``auth_by_http_header``), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Spredu na nástupišti2-proxy bránka; overený užívateľ je odovzdaný Checkmk prostredníctvom dôveryhodných ``X-Remote-User`` hlavička (``auth_by_http_header``), Takže sa neobjaví žiadna druhá výzva prihlásenia."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -5950,11 +5950,11 @@ msgstr "**LDAP** via ```svc-db-openldap`` <../svc-db-openldap/>`__ — enabled w
 
 # translated-by: libretranslate
 msgid "**LDAP-backed authentication:** Authenticate XMPP clients against ``svc-db-openldap`` using SCRAM-SHA-256."
-msgstr "**Autentifikácia krytá LDAP:** Overiť XMPP klienti proti ``svc-db-openldap`` s použitím SCRAM-SHA256."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**LDAP-backed authentication:** Authenticate XMPP clients against `svc-db-openldap` using SCRAM-SHA-256."
-msgstr "**Autentifikácia krytá LDAP:** Overiť XMPP klienti proti `svc-db-openldap` s použitím SCRAM-SHA256."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**LDAP-native administration:** Manage users, groups, and posix attributes directly against ``svc-db-openldap``."
@@ -6706,7 +6706,7 @@ msgstr "**Native OIDC SSO:** Semaphore robí svoj vlastný KeycloakTlačidlo cez
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "**Natívna príchuť OIDC** (`services.sso.flavor: oidc`), nie oauth2OpenBao hovorí sám, takže nasleduje [`web-app-semaphore`](../../roles/web-app-semaphore/) namiesto [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar."
 msgstr ""
@@ -7001,11 +7001,11 @@ msgstr "**OAuth2 Bránenie**: podpora pri poklese *web-app-keycloakSSO-proxy sid
 
 # translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by ``web-app-keycloak``\\ ’s SSO-proxy sidecar (``services.sso.enabled: true``). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**OAuth2 proxy brána:** Každá žiadosť je zrušená ``web-app-keycloak``SSO-proxy sidecar (``services.sso.enabled: true``). Keycloak realm-level OTP a WebAuthn Flow presadzuje 2FA pred OAutom2 proxy pripúšťa sedenie; KIX sám nenesie 2FA logika."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**OAuth2 proxy brána:** Každá žiadosť je zrušená `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). Keycloak realm-level OTP a WebAuthn Flow presadzuje 2FA pred OAutom2 proxy pripúšťa sedenie; KIX sám nenesie 2FA logika."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2/SSO protection** via Keycloak and oauth2-proxy"
@@ -7073,7 +7073,7 @@ msgstr "**Integrácia kancelárie:** Dovoz, vývoz a spolupráca na kancelársky
 
 # translated-by: libretranslate
 msgid "**Offline Python mint** at inventory build: ed25519 → address → exact Tor key-file formats → vault → `DOMAIN_PRIMARY`. Idempotent (existing key is reused, never regenerated). No Docker/Tor needed at build time."
-msgstr "**Offline Python mint** pri zostavovaní zásob:25519 → adresa → presné formáty Tor kľúčových súborov → trezor → `DOMAIN_PRIMARY`. Idempotentné (existujúci kľúč sa opätovne používa, nikdy sa neregeneruje). V čase výstavby nie je potrebný žiadny Docker/Tor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Offline deterministic minting:** the v3 key/address is generated without running Tor and pinned in the inventory (stable, backupable, restorable)."
@@ -7322,7 +7322,7 @@ msgstr "**Nepovinný OAuth2 Integrácia:**"
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**   Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "**Nepovinný OAuth2 Integrácia:** Zabezpečte si prístup k pgAdmin integrovaním externého OAutu2 poskytovateľ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load ``mod_oauth2_client`` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
@@ -7700,7 +7700,7 @@ msgstr "**Pin**: betónová stabilná v15.x semver (no ``:latest``, nie ``:edge`
 
 # translated-by: libretranslate
 msgid "**Pinned and verified:** the AppImage version and its sha256 live in the role, and a mismatch aborts the deploy."
-msgstr "**Vložený a overený:** AppImage verzia a jej ša256 žiť v úlohe a nesúlad poruší rozmiestnenie."
+msgstr ""
 
 msgid "**Pinned bridge:** Add-on and server ship from one version-pinned distribution, so the two halves cannot drift apart."
 msgstr ""
@@ -7733,7 +7733,7 @@ msgstr "**Otáčacie kolá (jeden alebo zväzok).** Obaja init a nasadiť prija�
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Piny, ktoré nemôžu starnúť bez povšimnutia.** Obrazové kolíky sú klasifikované a ťahať referencie vyrobené z triedy, pohyblivý tag deklaruje sa s markérom, ktorý už nesie, a obrazy role pohybovať ako jedno vydanie alebo vôbec. Aktuátor číta addon vyhlásenia, objednávky predajcu patch počítače a päť-komponentné verzie, číta uvoľňovací riadok napísaný pred číslom ako rodina, a teraz tiež sledovať prišpendovaný Pip požiadavky a Ansible zbierky. Sedem rolí sa presunulo zo základne kódu Debianu na tenký, a jeden zoznam zrkadlo Ubuntu s failover, krátky časový limit a zdravotný test slúži ako vyrovnávacia pamäť balíkov a obrázok buduje. *js-jaml* bola vypustená do 4.3.2 pre GHSA-2883-xcg3-v3Hh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8024,7 +8024,7 @@ msgstr "**Redis Integrácia:** Pridať Redis podpora cache a relácie."
 
 # translated-by: libretranslate
 msgid "**Redis** session storage for oauth2-proxy"
-msgstr "**Redis** Skladovanie outh2-proxy"
+msgstr ""
 
 msgid "**Refusals are counted on their own axis.** An engine whose answer is rejected is neither unreachable like decision 13's failures nor worse like decision 8's lost comparisons: it is unsuited to that pair. The three counts are stored separately so decision 5's criteria line can say which of the three happened, and so a pair an engine keeps mangling steers the next decision away from it without that engine losing standing on the pairs it serves well."
 msgstr ""
@@ -8437,14 +8437,14 @@ msgstr "**SSO Prihlásenie:** Prihlásenie s tlačidlom SSO (keď je OIDC povole
 
 # translated-by: libretranslate
 msgid "**SSO authentication:** Access is protected by Keycloak via oauth2-proxy."
-msgstr "**SSO autentifikácia:** Prístup je chránený Keycloak via oaut2-proxy."
+msgstr ""
 
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar against Keycloak), as in [`web-app-openclaw`](../../roles/web-app-openclaw/) and [`web-app-checkmk`](029-web-app-checkmk.md). The Keycloak client is provisioned by the platform for every role with `sso.enabled`."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**SSO chuť je `oauth2`** (oauth2- proxy postranný vozík → Keycloak), NOT natívne OIDC Checkmk Raw nemá OIDC. Oauth2-proxy autentifikáty proti Keycloak a pasy `X-Remote-User`; Checkmk stránky Apache verí cez `auth_by_http_header`. Tieto zrkadlá. [`web-app-openproject`](../../roles/web-app-openproject/)Most záhlavia SSO (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -8464,7 +8464,7 @@ msgstr "**SSO via oauth2-proxy s auto-poskytovaním:** V1 brány prístup cez zd
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**SSO via oauth2-proxy s auto-poskytovaním:** V1 brány prístup cez zdieľané Keycloak Klient OIDC (oauth2- Priehľadný okraj). openresty presmeruje overenú identitu na n8n ako dôveryhodný ``Remote-Email`` hlavička (``templates/proxy.conf.j2``); ``EXTERNAL_HOOK_FILES`` skript (``files/hooks.js``, upravené od `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) číta, že hlavička, auto-poskytuje miestne n8n užívateľ pri prvom prihlásení a problémy n8Vlastný session cookie Keycloak užívateľ pristane priamo v editore pracovných postupov, bez sekundy, n8n-miestny prihlasovací krok."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO** is SuiteCRM's own SAML login against Keycloak (`sso.flavor: saml` in [`meta/services.yml`](./meta/services.yml)), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall's SAML entry point, which redirects to Keycloak; the assertion comes back to `/saml/acs` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (`SAML_AUTO_CREATE`), and the IdP signing certificate is read from Keycloak's realm descriptor by [`files/shell/docker-entrypoint.sh`](./files/shell/docker-entrypoint.sh) at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is unresolvable directly. `/auth` stays reachable as the local break-glass login."
@@ -9446,11 +9446,11 @@ msgstr "**Súbory služby pripravené na šablóny:** Preddefinovaná servisná 
 
 # translated-by: libretranslate
 msgid "**Templated Configuration:** Delivers a Jinja2-based ``sshd_config`` with variables for debug logging, PAM support, and password-auth overrides."
-msgstr "**Nastavenie šablóny:** Dodáva Jinju2- na báze ``sshd_config`` s premennými pre protokolovanie ladenia, podporu PAM, a heslo-auth prepíše."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides."
-msgstr "**Nastavenie šablóny:** Dodáva Jinju2- na báze `sshd_config` s premennými pre protokolovanie ladenia, podporu PAM, a heslo-auth prepíše."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Tenant activation:** sets ``status=1`` on the tenant row so Fider serves the public page."
@@ -9606,7 +9606,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
-msgstr "**Táto práca dokazuje, že stroj predtým, ako sa rozmiestni.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) porovnáva `uname -m` v prípade priradenej hodnoty a nevyhovuje riadku o nesúlade. Bez nej, etiketa, ktorá prestane riešiť do ruky64 hardware by nahlásil každé rameno64 zelená rada z amd64 stroj, čo je presná porucha, ktorú os vylučuje."
+msgstr ""
 
 #, python-brace-format
 msgid "**The learning log is a `History`-shaped table in the gateway's own database**, one row per offered engine per decision, each row marking whether that engine won. The signature groups comparable requests: source language, target language, and a coarse content class derived from the payload's length and whether it carries markup. `wins(signature)` returns `{engine: (won, seen)}` and feeds decision 5's criteria line, so the next decision reads what earlier ones concluded. A log that cannot be read MUST degrade to deciding without it and MUST NOT fail the request."
@@ -10030,11 +10030,11 @@ msgstr "**Vlastník:** súbor patrí používateľovi pracovnej stanice a je či
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Oauth2-proxy hrana brány presmeruje všetky požiadavky na Keycloak. ``files/hooks.js`` číta dôveryhodné ``Remote-Email`` Záhlavie openresty sa nastaví akonáhle prejde brána a auto-dodávky/logy v zodpovedajúcej n8n užívateľ (Úloha ``global:member``, alebo už existujúci vlastník pre ``users.administrator.email``), takže každý Keycloak Užívateľ 8n8n-miestny prihlasovací krok."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Oauth2-proxy hrana brány presmeruje všetky požiadavky na Keycloak. `files/hooks.js` číta dôveryhodné `Remote-Email` Záhlavie openresty sa nastaví akonáhle prejde brána a auto-dodávky/logy v zodpovedajúcej n8n užívateľ (Úloha `global:member`, alebo už existujúci vlastník pre `users.administrator.email`), takže každý Keycloak Užívateľ 8n vlastná pracovná plocha bez sekundy, n8n-miestny prihlasovací krok."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10427,7 +10427,7 @@ msgstr "**``sys-svc-certs``**."
 
 # translated-by: libretranslate
 msgid "**``web-app-keycloak``\\ ’s SSO-proxy sidecar** *(optional)* – protects the site with OAuth2."
-msgstr "**``web-app-keycloak``SSO-proxy sidecar** *(nepovinné)* 2."
+msgstr ""
 
 msgid "**`administrative_surface` (5):** `web-app-fusiondirectory`, `web-app-lam`, `web-app-pgadmin`, `web-app-phpldapadmin`, `web-app-phpmyadmin`. These UIs expose identity or database administration rather than a bounded application-domain API and MUST NOT be represented by a shared service-account tool surface."
 msgstr ""
@@ -10522,7 +10522,7 @@ msgstr "**`hostname`** (reťazec):"
 
 # translated-by: libretranslate
 msgid "**`http://*.onion` is a Secure Context** → `Secure` cookies + secure-context APIs work over plain-HTTP onion; hence forward `X-Forwarded-Proto: https`. ([W3C Secure Contexts](https://www.w3.org/TR/secure-contexts/))"
-msgstr "**`http://*.onion` je bezpečný kontext** → `Secure` Cookies + bezpečný kontext API pracujú nad cibuľou plain-HTTP; teda dopredu `X-Forwarded-Proto: https`. ([Z3C bezpečné súvislosti](https://www.w3.org/TR/secure-contexts/))"
+msgstr ""
 
 msgid "**`hugo` reports template execution errors**: the theme's templates are incompatible with the bundled Hugo binary. Bump `services.hugo.builder_version` (e.g. to a newer `v<version>` tag) or pin the source repo to a tag known to build with the current Hugo."
 msgstr ""
@@ -10624,7 +10624,7 @@ msgstr "**`web-app-homeassistant` nasadenie Home Assistant v kontajnerovom reži
 
 # translated-by: libretranslate
 msgid "**`web-app-keycloak`'s SSO-proxy sidecar** *(optional)* – protects the site with OAuth2."
-msgstr "**`web-app-keycloak`'s SSO-proxy sidecar** *(nepovinné)* 2."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**`wsl2.sh`**. enables systemd as the WSL2 init system via `/etc/wsl.conf` and restarts WSL2 if needed"
@@ -10656,7 +10656,7 @@ msgstr "**architektúra** -- na ktorú CPU architektúru rad rozmiestňuje a cez
 
 # translated-by: libretranslate
 msgid "**arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md)."
-msgstr "**rameno64/ Malinová Pi je podporovaná.** Úloha pokračuje `arm64` takže to môže sedieť vedľa Pi agenta [032](032-agent-employees-firecracker.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Alejandro Roman Ibanez"
@@ -11900,11 +11900,11 @@ msgstr "**fullchain.pem** → Certifikát"
 
 # translated-by: libretranslate
 msgid "**gVisor runtime:** The pinned ``runsc`` release is fetched to ``/usr/local/bin/runsc`` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr "**gVisor runtime:** Pripnuté ``runsc`` vydanie je stiahnuté do ``/usr/local/bin/runsc`` a overil na základe uverejnených SHA512 Šaty. Kata Shim je prevzatá z hostiteľa, ako to je; úloha nie je inštalovať."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr "**gVisor runtime:** Pripnuté `runsc` vydanie je stiahnuté do `/usr/local/bin/runsc` a overil na základe uverejnených SHA512 Šaty. Kata Shim je prevzatá z hostiteľa, ako to je; úloha nie je inštalovať."
+msgstr ""
 
 # údajov," 'databases']
 # translated-by: libretranslate
@@ -12116,7 +12116,7 @@ msgstr "**systémovo riešené** stub poslucháč vypnutý, aby sa zabránilo po
 
 # translated-by: libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
-msgstr "**pracovné miesta v prostredí vývoja testov** Všetky 5 distro práce (arch, debian, ubuntu, fedora, centos) hit 4h30m horná hranica pri preťažení, zatiaľ čo stále pokračuje (Comment). Environmentálne, žiadny kód oprava - odlišné od distro sweep vlastný rozpočet, ktorý mal jeden: 508669809 knihy rozpočet SIGKILL ako preskočený, ktorý ad9222630 urobil len pre SIGTERM; všimnite si, že cibuľa e2V podstate predlžuje rutinu (×5 Cibuľa timeouts, obvod čaká), takže pri preťažení sú tieto pracovné miesta prvé, ktoré narazili na strop."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
@@ -12965,7 +12965,7 @@ msgstr "*web-app-prometheus* (Správca poplachu): v0.34.0 až v0.34.1"
 
 # translated-by: libretranslate
 msgid "*web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to v0.34.0, node-exporter v1.12.0 to v1.12.1"
-msgstr "*web-app-prometheus*: Prometheus v3.13.1 až v3.14.0, Alertmanager/0.33.1 až v0.34.0, exportér uzlín v1.12.0 až v1.12.1"
+msgstr ""
 
 msgid "*web-app-prometheus*: blackbox exporter v0.28.0 to v0.29.0"
 msgstr ""
@@ -13165,7 +13165,7 @@ msgstr "-- počet záznamov; -- retry-all-errors does it cover transport-layer r
 
 # translated-by: libretranslate
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
-msgstr "-> ponožky5h://host.docker.internal:<port> (kompozíciu)"
+msgstr ""
 
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 msgstr ""
@@ -13335,7 +13335,7 @@ msgstr "028 - atmo.rsvp (Udalosti protokolu AT) Úloha + Mobilizon/ActivityPub B
 
 # translated-by: libretranslate
 msgid "029 - Checkmk Role with oauth2-proxy SSO + LDAP"
-msgstr "029 - Checkmk Úloha s oautom2-proxy SSO + LDAP"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "030 - Jellyfin Role with LDAP / OIDC SSO"
@@ -13866,7 +13866,7 @@ msgstr "<https://gist.github.com/mtigas/565718bbb928ce439e95>"
 
 # translated-by: libretranslate
 msgid "<https://spec.torproject.org/address-spec> — v3 address + key formats"
-msgstr "<https://spec.torproject.org/address-spec> 3 adresa + kľúčové formáty"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "<https://www.rfc-editor.org/rfc/rfc7686.html> — `.onion` special-use domain"
@@ -14029,7 +14029,7 @@ msgstr "A ``mount --make-rshared /`` beží raz v kontajneri rozmiestniť pred �
 
 # translated-by: libretranslate
 msgid "A ``svc-bkp-*`` pre-backup hook for ``bench backup`` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard ``svc-bkp-*`` driver picking up the central MariaDB DB and the role’s named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A ``svc-bkp-*`` predzálohový hák na ``bench backup`` nie je napojený na v1 (odložené na následnú požiadavku). V1 záložný príbeh závisí od štandardu ``svc-bkp-*`` vodič zdvihne stred MariaDB DB a role a menované zväzky. Ak chcete urobiť Frappe-aware snímku v lete, bežte:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A ``type: volume`` entry may set ``nfs: false`` to opt out of the swarm NFS rewrite: the volume then stays a plain node-local named volume even when ``storage.backend`` is ``nfs`` (e.g. gitaly repository storage, which upstream forbids on NFS). Any other ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed by the NFS subdir pre-creation) keeps the rewrite."
@@ -14070,11 +14070,11 @@ msgstr "A `required_by` blok MÔŽE namiesto hniezda `compose:` / `swarm:` čias
 
 # translated-by: libretranslate
 msgid "A `svc-bkp-*` pre-backup hook for `bench backup` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard `svc-bkp-*` driver picking up the central MariaDB DB and the role's named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A `svc-bkp-*` predzálohový hák na `bench backup` nie je napojený na v1 (odložené na následnú požiadavku). V1 záložný príbeh závisí od štandardu `svc-bkp-*` vodič zdvihne stred MariaDB DB a rola je pomenované zväzky. Ak chcete urobiť Frappe-aware snímku v lete, bežte:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled."
-msgstr "A `templates/Dockerfile.j2` je prijateľné, ak súbor obsahuje Jinju2 control-flow logika, ktorá nemôže byť vyjadrená prostredníctvom Docker `ARG` sám, napríklad podmienený stavebný krok, ktorý nainštaluje voliteľný komponent len vtedy, keď je povolená príznak funkcie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A `v*` tag push fans out into two CI workflows:"
@@ -14621,7 +14621,7 @@ msgstr "Komentár kľúča je posledný susediaci blok `# ...` priamo nad čiara
 
 # translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr "Etiketa, ktorá ticho prestane rozlúštiť ruku64 zmení celú os na zelenú lož."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
@@ -15003,7 +15003,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A regex over dotted octets, e.g. ``192\\.168\\.24\\.\\d+`` for a /24 or ``192\\.168\\.(24|25)\\.\\d+`` for a /23."
-msgstr "Regex cez bodkované oktety, napr. ``192\\.168\\.24\\.\\d+`` pre24 alebo ``192\\.168\\.(24|25)\\.\\d+`` pre23."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A release tag (``vX.Y.Z``) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once."
@@ -15130,7 +15130,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role keeps declaring the service for inventory completeness but can opt out of this consumer-target list by setting ``services.<service>.scrape: false`` or ``services.<service>.track: false``. ``scrape: false`` is used by 301-redirect-only vhosts that declare ``services.prometheus`` (so the role-wiring contract stays satisfied) yet never serve a request through lua-resty-prometheus, so they emit no ``app=\"<role>\"`` label and have no scrape target. ``track: false`` is the symmetric matomo opt-out: static-file (autoindex) and 301-redirect vhosts that declare ``services.matomo`` keep the role-wiring intact but carry no user-facing HTML page worth a ``_paq`` tracker, so they are dropped from ``MATOMO_TARGET_ROLES_JSON`` and the matomo tracker e2e contract."
-msgstr "Úloha stále deklaruje službu pre úplnosť inventára, ale môže sa z tohto zoznamu cieľov spotrebiteľa vyňať stanovením ``services.<service>.scrape: false`` alebo ``services.<service>.track: false``. ``scrape: false`` používa 301- redirect-only vhosts, ktoré deklarujú ``services.prometheus`` (takže zmluva o rolách zostáva splnená) ale nikdy neslúži žiadosť prostredníctvom lua-resty-prometheus, takže emitujú nie ``app=\"<role>\"`` Štítok a žiadny cieľ. ``track: false`` je symetrický somatomo opt-out: statický súbor (autoindex) a 301- redirect vhosts, ktoré deklarujú ``services.matomo`` udržať role-wilring neporušený, ale niesť žiadne užívateľsky orientované HTML stránky stojí ``_paq`` Tracker, takže sú vypustené z ``MATOMO_TARGET_ROLES_JSON`` a somatomo tracker e2zmluva."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A role may consume an engine either *embedded* (a sidecar inside its own stack) or *central* (a single pinned ``svc-db-*`` / ``svc-dns-*`` stack shared by many roles), selected per consumer with the ``shared`` flag exactly like the RDBMS (postgres / mariadb) pattern in :mod:`utils.roles.applications.services.database`."
@@ -15223,7 +15223,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role whose upstream images are amd64-only must say so in `meta/services.yml`, or half its rows fail on the image pull. That failure is loud and names the role, which is the intended way to discover the gap."
-msgstr "Rôznorodé obrazy64- Len to musíme povedať. `meta/services.yml`, alebo polovica jeho riadkov zlyhá na obrázku ťahať. Toto zlyhanie je hlasné a označuje úlohu, ktorá je plánovaným spôsobom, ako odhaliť priepasť."
+msgstr ""
 
 msgid "A role whose vars derive a further tag from ``version`` lists the suffixes under ``<entity>.version_variants``; each yields its own ref, because this function is the only enumeration the mirror sees and a tag it never emits can never be mirrored."
 msgstr ""
@@ -15489,7 +15489,7 @@ msgstr "Jeden-element zoznam s rozšíreným zoznamom špecifikácie, takže vol
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Jednouzlové laboratórium nemôže odpovedať na multi-node kritériá: opakovacia škála, umiestnenie medzi dvoma `kata-capable` Malinová-Pi-Class uzly, a compose-plus-swarm end-to-end pass všetky potrebujú klaster požiadavky popisuje. Ruka64 polovica kritéria umiestnenia je dokázaná kontrolou zobrazenia vyššie; polovica dvoch čísel nie je."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
@@ -16099,11 +16099,11 @@ msgstr "Pridať DNS TXT záznam pre validáciu"
 
 # translated-by: libretranslate
 msgid "Add Jinja2 filters for data transformation."
-msgstr "Pridať Jinju2 filtre na prenos dát."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Add Jinja2 tests used in conditions and templates."
-msgstr "Pridať Jinju2 testy použité v podmienkach a šablónach."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Add Keycloak client auto-provisioning for the Semaphore consumer."
@@ -18510,7 +18510,7 @@ msgstr "Výber expresnej databázy aplikácií priamo cez koreň súboru `meta/s
 
 # translated-by: libretranslate
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
-msgstr "Aplikácie, ktoré hovoria3 (Pixelfed, Mastodon, Nextcloud, Flowiseatď.) ukladať a získavať objekty z MinIO Vedrá používajú známe SDK a CLIS. Administrátori riadia vedrá, používatelia, a prístupové politiky prostredníctvom prehliadača konzoly a zároveň udržujú všetko on-prem."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Applications 📦"
@@ -19388,7 +19388,7 @@ msgstr "Záloha a obnova (príkaz prevádzkovateľa, v1)"
 
 # translated-by: libretranslate
 msgid "Backup (Decision #13 — documented operator command in v1)"
-msgstr "Zálohovanie (Rozhodnutie #13 1)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Backup Docker Volumes"
@@ -19619,11 +19619,11 @@ msgstr "Pretože Jellyfin nemá natívne SSO a jeho aplikácie použitie API že
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) skip themselves via the ``workload: node-local`` declaration (``scripts/tests/deploy/swarm/utils/_context.sh`` maps ``node-local`` to ``HAS_SWARM_SERVICE=false``); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Pretože neexistuje žiadna stack služba, roj testovacej brány, ktoré prieskum ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) preskočiť cez ``workload: node-local`` vyhlásenie (``scripts/tests/deploy/swarm/utils/_context.sh`` mapy ``node-local`` do ``HAS_SWARM_SERVICE=false``); samotné nasadenie, distribučný reťazec registra a CLIE2Apartmán beží naplno."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll `docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves via the `workload: node-local` declaration (`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to `HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Pretože neexistuje žiadna stack služba, roj testovacej brány, ktoré prieskum `docker service ls` (`converge`, `seed`, `drain`, `assert`) preskočiť cez `workload: node-local` vyhlásenie (`scripts/tests/deploy/swarm/utils/_context.sh` mapy `node-local` do `HAS_SWARM_SERVICE=false`); samotné nasadenie, distribučný reťazec registra a CLIE2Apartmán beží naplno."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while ``svc-ai`` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
@@ -19792,7 +19792,7 @@ msgstr "Začnite objasnením každej otvorenej požiadavky s `active-listening` 
 # translated-by: libretranslate
 #, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill, escalating any root-cause question you are not ~99% sure of to the `dialectic` skill, then work under the `robot` skill until both phases pass clean. Report calibrated confidence per the `confidence` skill. Do not commit unless the operator asked for a commit."
-msgstr "Začnite objasnením každej otvorenej požiadavky s `active-listening` Zručnosť, eskalácia akéhokoľvek koreňa, pretože otázka nie si99% istý `dialectic` zručnosti, potom pracovať pod `robot` zručnosti, kým obe fázy neprejdú čisté. Hlásenie kalibrovanej spoľahlivosti na `confidence` zručnosti. Nezaväzujte sa, pokiaľ o to prevádzkovateľ nepožiadal."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Begin by clarifying every open requirement with the `active-listening` skill, then work under the `robot` skill. The task is finished only when the slot is reported as released and the branch is checkable out again."
@@ -23578,7 +23578,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
-msgstr "Spoločnosť so statickým stavom ``inventories/development/swarm.yml``; oba sú naložené schodíkom. Generuje25519 keypair pri ``KEY_PATH`` ak chýba, takže verejná polovica môže pristáť v ``users.administrator.authorized_keys``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Compare the pinned Galaxy requirements against what is on disk."
@@ -24064,7 +24064,7 @@ msgstr "Dôsledky 📉"
 
 # translated-by: libretranslate
 msgid "Conservative, stable parallel-worker count for the Playwright e2e suite. Derived from the control host's effective CPU and RAM, divided down because browser workers are heavy and run against the co-resident application stack, reserved against RAM, hard-capped for the application-under-test's concurrency limits, and reduced further on CI. Always returns an int >= 1."
-msgstr "Konzervatívny, stabilný paralelne pracujúci počet pre Playwright e2apartmán. Odvodené z riadiaceho hostiteľa efektívne CPU a RAM, rozdelené dole, pretože pracovníci prehliadača sú ťažké a beží proti spolurezident aplikácie stack, vyhradené proti RAM, hard-caped pre obmedzenia aplikácie pod-test je concurrency, a ďalej znížiť na CI. Vždy vracia int 1."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Consolidate duplicate logic before merging."
@@ -25717,7 +25717,7 @@ msgstr "Štandardná poloha:"
 
 # translated-by: libretranslate
 msgid "Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists."
-msgstr "Štandardný model: brána slúži `/v1` bez nastavenej `model.default`; agent otočí potreba `hermes config set model.default ollama/<alias>` proti poskytovateľovi krytému LiteLLM. Pečieme ho cez konfiguračnú šablónu raz turn-level e2Existuje tvrdenie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default output: the full selection matrix followed by every prompt block (workflow name plus its copy-paste prompt), verbatim and unshortened. When the operator names a situation, output only the matching prompt block."
@@ -26029,7 +26029,7 @@ msgstr "Závisí od: [`web-app-bluesky`](../../roles/web-app-bluesky/) (AT ident
 
 # translated-by: libretranslate
 msgid "Deploy **[Social Home](https://github.com/social-home-io/socialhome)**, a privacy-first federated social platform built for a single household. One container, an embedded SQLite database, and peer-to-peer federation between households over Ed25519-signed WebRTC data channels — no ActivityPub, no message broker, no object store."
-msgstr "Vypustiť **[Social Home](https://github.com/social-home-io/socialhome)**, sociálna platforma postavená pre jednu domácnosť. Jeden kontajner, vložená databáza SQLite a peer-to-peer federácia medzi domácnosťami nad Edom25519- podpísaný WebRTC dátové kanály."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploy Guide 🚀"
@@ -26045,7 +26045,7 @@ msgstr "Vypustiť OpenLDAP v prostredí Docker s podporou komunikácie zabezpeč
 
 # translated-by: libretranslate
 msgid "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, a privacy-first federated social platform built for a single household. One container, an embedded SQLite database, and peer-to-peer federation between households over Ed25519-signed WebRTC data channels — no ActivityPub, no message broker, no object store."
-msgstr "Vypustiť `Social Home <https://github.com/social-home-io/socialhome>`__, sociálna platforma postavená pre jednu domácnosť. Jeden kontajner, vložená databáza SQLite a peer-to-peer federácia medzi domácnosťami nad Edom25519- podpísaný WebRTC dátové kanály."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys."
@@ -26244,7 +26244,7 @@ msgstr "Nasadenie [Penpot](https://penpot.app/), open-source dizajn a prototypov
 
 # translated-by: libretranslate
 msgid "Deploys [Pi-hole](https://pi-hole.net/) — a network-wide DNS sinkhole for ad and tracker blocking — with OAuth2/Keycloak SSO protection as part of the Infinito.Nexus stack."
-msgstr "Nasadenie [Pi-hole](https://pi-hole.net/) 2/Keycloak Ochrana SSO ako súčasť Infinito.Nexus stack."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploys [Pi-hole](https://pi-hole.net/) — a network-wide ad blocker — as a Docker-based service within the Infinito.Nexus platform."
@@ -26264,7 +26264,7 @@ msgstr "Nasadenie `Penpot <https://penpot.app/>`__, open-source dizajn a prototy
 
 # translated-by: libretranslate
 msgid "Deploys `Pi-hole <https://pi-hole.net/>`__ — a network-wide DNS sinkhole for ad and tracker blocking — with OAuth2/Keycloak SSO protection as part of the Infinito.Nexus stack."
-msgstr "Nasadenie `Pi-hole <https://pi-hole.net/>`__ 2/Keycloak Ochrana SSO ako súčasť Infinito.Nexus stack."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Deploys `Pi-hole <https://pi-hole.net/>`__ — a network-wide ad blocker — as a Docker-based service within the Infinito.Nexus platform."
@@ -26652,7 +26652,7 @@ msgstr "Determinatívna stratégia:"
 
 # translated-by: libretranslate
 msgid "Deterministically derives a Tor v3 hidden-service address and the exact ``HiddenServiceDir`` key files from an ed25519 seed, without running Tor."
-msgstr "Determinatívne odvodzuje Tor v3 skrytá adresa služby a presné ``HiddenServiceDir`` kľúčové súbory z25519 semienka, bez toho, aby bežal Tor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev CLI entry that drives `build_dev_inventory_matrix` to materialise `<inventory-dir>-<round>` folders."
@@ -27473,7 +27473,7 @@ msgstr "Zdokumentované lokálne *kontrola* Ciele **Pevné**"
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Documents a `services.matomo.track: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.matomo.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('matomo')` drops it from `MATOMO_TARGET_ROLES_JSON` and the matomo tracker e2e contract. Reserved for static-file (autoindex) and 301-redirect vhosts that carry no user-facing HTML page worth a `_paq` tracker. The marker accompanies the `track:` data flag the lookup honors."
-msgstr "Dokumenty a `services.matomo.track: false` výnimka typu \"opt-out\" `roles/<role>/meta/services.yml`. Úloha drží `services.matomo.{enabled,shared}: true` (takže zmluva o rolách zostáva splnená) ale `roles_with_service('matomo')` padne z `MATOMO_TARGET_ROLES_JSON` a somatomo tracker e2zmluva. Vyhradené pre statický súbor (autoindex) a 301-redirect vhosts, ktoré nesú žiadne užívateľsky orientované HTML stránky stojí `_paq` Tracker. Značka sprevádza `track:` Data flag vyhľadanie pocty."
+msgstr ""
 
 # gained=['"opt-out"']
 # výnimka typu "opt-out" `roles/<role>/meta/services.yml`. Úloha drží
@@ -27595,7 +27595,7 @@ msgstr "Pohony `baudolo-snapshot`, spúšťač, ktorý rozhodne za spustenie, č
 
 # translated-by: libretranslate
 msgid "Drop `services.sso.enabled` for friendica — SAML handles SSO end-to- end, oauth2-proxy in front would double-gate."
-msgstr "Drop `services.sso.enabled` pre friendica 2- Vpredu by to bolo dvojité."
+msgstr ""
 
 msgid "Drop into an interactive shell on one of the swarm-test DinD nodes."
 msgstr ""
@@ -27813,7 +27813,7 @@ msgstr "Duálna číra sieť + ión s `Onion-Location` Mostové a zrkadlové SSO
 
 # translated-by: libretranslate
 msgid "Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved."
-msgstr "Rozlíšenie dvoch blokov: **web-app-bookwyrm** pripnuté na **chuť: oauth2**; **web-app-gitea** a **web-app-friendica** uchovajte **chuť: oauth2** s existujúcimi *oauth2.acl.blacklist* (*/používateľ/login*) a *oauth2.acl.whitelist* (Federácia + koncové ukazovatele objavenia) 2- Konzervovaná ďatelina."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dual-stack model: the node keeps its clearnet ``DOMAIN_PRIMARY``; the node onion is an ADDITIVE address opted-in apps (``services.tor.enabled``) are also reachable under as ``<sub>.<node-onion>`` over Tor. Idempotent: an existing key at ``<base_dir>/.onion-identity/hs`` is reused so the address is stable across runs. The key files are the single source of truth — the ``svc-net-tor`` role copies them into the daemon so it serves exactly this address, and the inventory provisioner writes the returned address into ``applications.svc-net-tor.services.tor.node`` (no env indirection)."
@@ -28334,7 +28334,7 @@ msgstr "Odstránené konflikty názvu kontajnera s dockerom opätovným použit�
 
 # translated-by: libretranslate
 msgid "Else: generate ed25519 seed → compute expanded secret key (SHA-512(seed), clamp) → derive address per the algorithm above → write the three Tor key files byte-exact."
-msgstr "@ info: tooltip25519 semienko → vypočítať rozšírený tajný kľúč (SHA-512(osivo), svorka) → odvodiť adresu pre algoritmus vyššie → napísať tri Tor kľúčové súbory byte-exact."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email"
@@ -28342,7 +28342,7 @@ msgstr "E-mail"
 
 # translated-by: libretranslate
 msgid "Email (Decision #8 — outbound only in v1)"
-msgstr "E-mail (Rozhodnutie #8 1)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email Configuration 📬"
@@ -33761,7 +33761,7 @@ msgstr "INFINITO_CACHE_HTTP_HOSTS: hostnames frontend slúži bez TLS."
 
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stable per-host Nexus admin password: sha256(host_path:hostname), truncated to 32 hex chars."
-msgstr "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: stabilný na-host Nexus admin heslo: ša256(host_path:hostname), skrátený na 32 Hex chars."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: Nexus blobstore quota (half of free disk at INFINITO_CACHE_PACKAGE_HOST_PATH, floor 2g)."
@@ -34198,7 +34198,7 @@ msgstr "Ak nejaká úloha nedokáže odpovedať na tieto otázky, pravdepodobne 
 
 # translated-by: libretranslate
 msgid "If a role uses another service around the application but the addon does not talk to that service directly, the service MUST stay in `meta/services.yml` and MUST NOT be listed in the addon's `bridges:`. Friendica's oauth2-proxy-backed `sso` service is such a front-door auth gate for `ldapauth`."
-msgstr "Ak rola používa inú službu okolo aplikácie, ale doplnok nehovorí s touto službou priamo, služba MUSÍ zostať v `meta/services.yml` a NESMIE byť uvedený v dodatku `bridges:`. Outh Friderica.2proxy- backed `sso` služba je ako predné dvere auth brána pre `ldapauth`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If a service can be removed without rewriting the whole stack, the design is usually healthy. If removing one part breaks everything else, the boundaries are probably too weak."
@@ -34802,7 +34802,7 @@ msgstr "Implementovať všeobecné tlačidlo odhlásenia"
 
 # translated-by: libretranslate
 msgid "Implement health check for oauth2-proxy"
-msgstr "Vykonávať kontrolu stavu oautu2-proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Implement loading of backend roles"
@@ -35055,7 +35055,7 @@ msgstr "Zlepšuje spoľahlivosť VOS a uvoľňovania tým, že zjednodušuje pra
 
 # translated-by: libretranslate
 msgid "Improves CI and test robustness by fixing Jinja2 templating edge cases, unifying unittest mock imports, hardening Docker image pull retries, and resolving multiple code-scanning alerts without suppressions."
-msgstr "Zlepšuje odolnosť VOS a test tým, že fixuje Jinju2 emptying edge cases, unifying unittest government imports, hardening Docker image pull retries, a riešenie viacerých kódov-skenovanie upozornenia bez potlačenia."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Improves CI stability by extending deploy job timeouts to 6 hours, moving compose pull retries into Ansible, and adding additional deployer metadata."
@@ -35144,11 +35144,11 @@ msgstr "V rojovom režime `restart:` Špičkový servisný kľúč je ticho igno
 
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM's own login form and finds no logout control there."
-msgstr "V variante SSO Keycloak okružná cesta spĺňa požiadavky2- proxy, ale listy LAM sám sa odhlásil, takže osoba pristane späť LAM's vlastnou prihlasovacou formou a nenájde tam žiadnu kontrolu odhlásenia."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM’s own login form and finds no logout control there."
-msgstr "V variante SSO Keycloak okružná cesta spĺňa požiadavky2- proxy, ale listy LAM sám sa odhlásil, takže osoba pristane späť LAMVlastný prihlasovací formulár a nenájde žiadne odhlásenie kontrolu tam."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the sidebar, choose **API Tokens**   Or use this direct link: [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)"
@@ -39992,7 +39992,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Matrix mosty modernizované: Signal, Telegram, WhatsApp a Slack mosty migrujú na mostv2 konfigurácia, mŕtvy mautrix-facebook / Instagram mosty sú nahradené mautrix-meta, most špecifikácie sú regulované nasadeným addon, Synapse načíta registrácie mosta z pripojeného adresára, a role teraz stopy *rozmiestnenie maticovo-dockerovo-resanlible* zo spantaleeva proti prúdu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40211,7 +40211,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Spojiť dva zoznamy kockou na danom kľúči. - zoznam1, zoznam2: každý musí byť zoznam[Dikt] - key_name: pole, ktoré sa zhoduje na Ak oba zoznamy obsahujú položku s rovnakým key_name hodnota, ich slovníky sú zlúčené (polia zo zoznamu2 prepísať alebo pridať do zoznamu1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40389,7 +40389,7 @@ msgstr "Mäta a v3 cibuľový kľúč od ``seed`` (32 náhodné bajty, ak sú vy
 
 # translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr "Mäta zo základne64- zakódované semeno."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mint helper & key persistence"
@@ -41390,7 +41390,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith."
-msgstr "Nový Jitsi Meet rola, ktorá pridáva outh2-proxy ogated stretnutie povrchu plus zodpovedajúce LDAP-variant Playwright pokrytie. Spec dispozične je reorganizovaný do zdieľaného modulu a na-scenario testovacie súbory, takže budúce scenáre môžu byť pridané bez dotyku monolitu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New OUs SHOULD NOT be invented. Place users under `OU.USERS`, RBAC roles under `OU.ROLES`, and organizational groups under `OU.GROUPS`."
@@ -42483,7 +42483,7 @@ msgstr "Jeden OpenAI kompatibilný `/v1`, trasy do akéhokoľvek backendu (bezhl
 
 # translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr "One Pi sa pripája ako `kata-capable` rameno64 uzol; `web-app-hermes` tam nasadzuje v rámci izolačného času zvoleného predletom (Rozhodnutie #4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
@@ -43556,7 +43556,7 @@ msgstr "Nepovinne nastaviť a **doménová prezývka** Takže staré adresy zost
 
 # translated-by: libretranslate
 msgid "Optionally integrates with OAuth2 proxy for authentication."
-msgstr "Nepovinne sa integruje s OAuthom2 proxy pre overenie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Optionally integrates with backup cleanup if backup variables are defined."
@@ -44791,7 +44791,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Persistence: the appview's aggregator cache (upstream D1/SQLite) is mapped to a **role-local SQLite volume**, not a central `svc-db-*`. Meilisearch is **optional**, gated on a dynamic `meilisearch` service flag, off by default."
-msgstr "Perzistencia: cache aggregator appview (D proti prúdu1/SQLite) je mapovaný na **rolový miestny objem SQLite**, nie centrálne `svc-db-*`. Meilisearch je **nepovinné**, sa vykonáva na dynamickej `meilisearch` servisná vlajka, automaticky vypnutá."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Persistent credential material that survives beyond the session and is consumed by every subsequent `docker push`/`pull`. Login prompts can also leak passwords into the transcript if entered interactively. Only one spelling exists, so no synonym wildcard is needed."
@@ -45215,7 +45215,7 @@ msgstr "Playwright sa vykonáva v Docker pre reprodukovateľnosť a konzistentn�
 
 # translated-by: libretranslate
 msgid "Playwright is the E2E framework for all `web-*` roles. Tests are role-local. Each role ships its own `files/playwright/playwright.spec.js` and `templates/playwright.env.j2` and is discovered automatically by the shared `test-e2e-playwright` runner."
-msgstr "Playwright je E.2E rámec pre všetkých `web-*` role. Testy sú miestne. Každá úloha lode svoju vlastnú `files/playwright/playwright.spec.js` a `templates/playwright.env.j2` a je objavený automaticky zdieľané `test-e2e-playwright` Bežec."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright keeps trace, screenshot and video only when a test fails"
@@ -47408,7 +47408,7 @@ msgstr "Zjednocuje 3.1.4 Streamable HTTP register a riadený tok. Žiadna požia
 
 # translated-by: libretranslate
 msgid "Reconciliation updates or removes only entries carrying its own ownership marker and preserves human-created configuration. Zero matches creates, one updates, more than one fails rather than guessing which duplicate to keep. The marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "Zosúladenie aktualizuje alebo odstraňuje len položky, ktoré majú svoj vlastný značkovač vlastníctva a zachováva konfiguráciu vytvorenú ľuďmi. Nulová zhoda vytvára, jedna aktualizácia, viac ako jedna zlyhá, namiesto toho, aby sme uhádli, ktoré duplikáty si necháme. Značka je na klienta, pretože názov nie je vždy zadarmo: Flowise záznamy registra sú `infinito:<provider-application-id>`, Open WebUI skupiny nesú cestu skupiny RBAC Keycloak otázky a8n používa svoj nakonfigurovaný názov workflow."
+msgstr ""
 
 msgid "Record the tree after every green gate: `GIT_INDEX_FILE=<scratch file> git read-tree HEAD`, then `git add -A` and `git write-tree` with the same `GIT_INDEX_FILE`. A working tree that writes the same hash needs no new gate."
 msgstr ""
@@ -48308,7 +48308,7 @@ msgstr "Premenovaná *compose.services.desktop* do *compose.services.dashboard*"
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Premenovaný na nasadenie na skladanie rozmiestnenia cez Make, `container-*` čistky a osvieženie `compose-*`, staré záložné úlohy `svc-bkp-*` s kontajnerom/miestne-2-vzdialené invokabilné vstupné body, vyhľadávací stav na nasadenie s rozmiestnenou vlajkou s rozmiestneným časom, `dmbs_*/dbms_base` šablóny container_depends_on hľadať, INFINITO_CMD na rovný cmd parameter a web-opt-rdr-www kanonické w3presmerovať pomocou mapovania na základe vyhľadávania"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed mirror workflows (*mirror-images-* → *images-mirror-*)"
@@ -50209,7 +50209,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the first paragraph below the H1 heading in ``<folder>/README.md``. Headings, leading blank lines, and trailing paragraphs are skipped. Returns ``\"-\"`` when no readable description is available."
-msgstr "Description1 Názov v ``<folder>/README.md``. Okruhy, prázdne čiary a za sebou idúce odseky sú preskočené. Description ``\"-\"`` ak nie je k dispozícii žiadny čitateľný opis."
+msgstr ""
 
 msgid "Return the free bytes on the filesystem where Docker's data grows."
 msgstr ""
@@ -50492,7 +50492,7 @@ msgstr "Description *role_dir*Značky."
 
 # translated-by: libretranslate
 msgid "Return the sha256 of every service's ``build`` section."
-msgstr "Návrat ša256 všetkých služieb ``build`` sekcia."
+msgstr ""
 
 msgid "Return the share a percentage names, the value itself otherwise."
 msgstr ""
@@ -53567,7 +53567,7 @@ msgstr "Testy SSO 🔐"
 
 # translated-by: libretranslate
 msgid "SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key."
-msgstr "SSO chuť je **Priame OIDC** (`services.sso.flavor: oidc`), NIE OAUTH2-proxy. Úloha využíva Frappeho vstavaný spoločenský kľúč."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO flavor is **`oidc` (native)** — Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`. No `oauth2-proxy` sidecar."
@@ -54012,7 +54012,7 @@ msgstr "Oddiel"
 
 # translated-by: libretranslate
 msgid "Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "Zabezpečte si prístup k pgAdmin integrovaním externého OAutu2 poskytovateľ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security"
@@ -54378,7 +54378,7 @@ msgstr "Self-hosted Fediverse stena pre zobrazenie nedávne verejné príspevky 
 
 # translated-by: libretranslate
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML s vlastným pohonom5 hra pieskovisko pre prehliadanie a beh ľahkých motorov demá a hry v prehliadači"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -58238,7 +58238,7 @@ msgstr "Podmienky:"
 
 # translated-by: libretranslate
 msgid "Terms: application_id and a dotted key path. A missing file, missing key, or non-mapping intermediate returns the ``default`` kwarg (``None`` when not given). ``meta/tests.yml`` carries per-role test-harness settings (e.g. the CLI e2e timeout for roles whose test legitimately outlasts the uniform default)."
-msgstr "Podmienky: application_id a bodkovanú kľúčovú cestu. Chýbajúci súbor, chýbajúci kľúč, alebo nemapujúci medziprodukt vracia ``default`` kwarg (``None`` ak sa nepodáva). ``meta/tests.yml`` nosí nastavenia pracovného testovacieho výkonu (napr. CLIE2@ info: tooltip)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test"
@@ -58310,11 +58310,11 @@ msgstr "Rozpočet na testy prekračuje️"
 
 # translated-by: libretranslate
 msgid "Test-e2e-cli Role"
-msgstr "Test-e2Úloha e-cli"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-e2e-playwright Role"
-msgstr "Test-e2Úloha e-playwright"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-fresh: the goal is green compose **and** swarm deploys on fresh act clusters. No embedded->central data migration path (that is a separate prod-upgrade concern)."
@@ -59366,7 +59366,7 @@ msgstr "CMD-SHELL pravopis :func:`curl_argv`, citovaná pre shell."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "Architektúra procesora je rovnaký druh majetku a nebol pokrytý vôbec. Každý rozmiestniť prácu bežal na `ubuntu-latest`, takže každá kontrola ukázala amd64 a nepovedal nič o ruke64, zatiaľ čo projekt lode úlohy, ktorých predné obrazy, kolesá a binárne súbory sa líšia podľa architektúry. Úloha, ktorá nemôže bežať po ruke64 bol nerozoznateľný od niekoho, kto tam nikdy nebol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -59584,7 +59584,7 @@ msgstr "Prihlásenie OIDC + cesty RBAC sú pokryté `test-admin-oidc-login.js` /
 
 # translated-by: libretranslate
 msgid "The OIDC login entry points (`oidc_login`, `sociallogin`, `user_oidc`) are mandatory because they gate SSO login: when one of them is the selected flavor and the system hides the native login form, an un-installed OIDC app leaves the instance with no usable login path. Failing at install time surfaces the version-pin mismatch immediately rather than as a downstream login timeout in the Playwright e2e suite."
-msgstr "Prihlasovacie miesta OIDC (`oidc_login`, `sociallogin`, `user_oidc`) sú povinné, pretože sú brány SSO login: keď jeden z nich je vybraná chuť a systém skrýva natívne prihlasovacie formulár, neinštalovaná OIDC aplikácia opustí inštanciu bez použiteľnej prihlasovacej cesty. Zlyhanie pri inštalácii času povrchy version-pin nesúlad okamžite, skôr než ako po prúde prihlasovacie čas v Playwright e2apartmán."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The OIDC role's `groups_claim` (JSON-pointer capable) names the claim holding the user's groups; those values resolve against identity groups of `type=external` via group aliases on the auth mount, which carry the policies."
@@ -60407,7 +60407,7 @@ msgstr "Agent nemá žiadny model vierohodnosti: volá `http://agent-broker:<por
 
 # translated-by: libretranslate
 msgid "The agent images run on arm64"
-msgstr "Obrázky agenta bežia po ruke64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes ``~/.claude/settings.json`` with an ``env`` block carrying the gateway URL, the workstation’s key and the model aliases to use, so every request leaves the machine through the gateway and is accounted there."
@@ -60894,7 +60894,7 @@ msgstr "Najbližšie existujúce analógy v tejto repo transakcii sú [`web-app-
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The cluster consists of privileged systemd containers on a dedicated lab bridge (`192.168.244.0/24`, MTU 1400): three swarm nodes (1 manager + 2 workers), a non-swarm NFSv4 server serving the shared volume storage, and a non-swarm backup host for the DR drill. The node image ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile)) bakes python3 + dnsmasq and masks the zfs boot units the parent image's userland enables; the containers and the lab network are declared in [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (project `${SWARM_NAME}`, backup host behind the `drill` profile) and started by one `docker compose up` in `routine/01_bootstrap.sh`. Lab DNS is provisioned by `compose/swarm/playbook.yml` over `ansible_connection: docker` (Ansible never uses ssh here); swarm init/join itself happens inside the deploy via the `svc-swarm-node` role, not in any bring-up script."
-msgstr "Zoskupenie pozostáva z privilegovaných systémových kontajnerov na vyhradenom laboratórnom moste (`192.168.244.0/24`, MTU 1400): tri rojové uzly (1 manažér + 2 pracovníci), a non-swarm NFSv4 server slúžiaci spoločnému úložisku objemu a neteplý záložný hostiteľ pre vŕtačku DR. Obrázok uzla ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile)) pakes pytón3 + dnsmasq a maskuje zfs boot jednotky, ktoré materská obrazová plocha umožňuje; kontajnery a laboratórna sieť sú deklarované v [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (projekt `${SWARM_NAME}`, záložný hostiteľ za `drill` profil) a začal jeden `docker compose up` on `routine/01_bootstrap.sh`. Lab DNS je zabezpečená `compose/swarm/playbook.yml` koniec `ansible_connection: docker` (Ansible tu nikdy nepoužíva ssh); roj init/pripojiť sa stane vnútri rozmiestnenie prostredníctvom `svc-swarm-node` rola, nie v žiadnom skripte."
+msgstr ""
 
 msgid "The code editor of the example browser stays a plain `<textarea>`: the browser console reports `Loading the script 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js' violates the following Content Security Policy directive` and the same for eleven theme stylesheets (measured on the compose stack; `document.querySelectorAll(\".CodeMirror\").length` is 0). Cause: upstream `examples/shorts.js` loads CodeMirror from cdnjs at run time and `meta/csp.yml` whitelists only the asset host for `script-src-elem` and `style-src-elem`. Options: whitelist `https://cdnjs.cloudflare.com` for both directives; or serve CodeMirror through the asset lookup and patch the URLs at build time; or keep the textarea."
 msgstr ""
@@ -61153,7 +61153,7 @@ msgstr "Dekorácia strana zabalí názov v sa odstráni ako prvý; pozri :func:`
 
 # translated-by: libretranslate
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
-msgstr "Oauth2-poskytovateľ proxy role (jeho adresár pod *roly/*) vypúšťa sa; 5 Sidecar šablóny a per-spotrebiteľ zložiť úlohu **web-app-keycloak** (*šablóny/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** teraz deklaruje **poskytuje: sso**."
+msgstr ""
 
 msgid "The default SSH private keys."
 msgstr ""
@@ -61856,7 +61856,7 @@ msgstr "Hostiteľ je zodpovedný za obavy na úrovni hostiteľa."
 
 # translated-by: libretranslate
 msgid "The host-side env-vars (`INFINITO_CACHE_REGISTRY_*`, `INFINITO_CACHE_PACKAGE_*`) are declared in [default.env](../../../default.env) and the dynamic ones (cache sizes from `df`/`/proc/meminfo`, sha256 admin password) are computed by [utils/env/builder.py](../../../utils/env/builder.py). `make dotenv` writes them into `.env`, which Compose auto-loads and which `BASH_ENV` makes available to every Makefile recipe through [scripts/meta/env/load.sh](../../../scripts/meta/env/load.sh). See [variables.md](variables.md)."
-msgstr "@ info: tooltip (`INFINITO_CACHE_REGISTRY_*`, `INFINITO_CACHE_PACKAGE_*`) sú deklarované v [default.env](../../../default.env) a tie dynamické (veľkosti vyrovnávacej pamäte od `df`/`/proc/meminfo`, ša256 admin heslo) sú vypočítané pomocou [utils/env/builder.py](../../../utils/env/builder.py). `make dotenv` napíše ich do `.env`, ktoré tvoria automatické zaťaženie a ktoré `BASH_ENV` umožňuje každému receptu Makefile [scripts/meta/env/load.sh](../../../scripts/meta/env/load.sh). Pozri [variables.md](variables.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The host-side purge flow invokes these modules through the app-keyed orchestrator [apps.sh](../../scripts/container/purge/apps.sh)."
@@ -62528,11 +62528,11 @@ msgstr "Počet skládok prehral."
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL [`meta/services.yml`](./meta/services.yml) iba čierne zoznamy `/login`, a `sys-svc-proxy` čiernu listinu *odhaliť všetko štandardne, potom chrániť uvedené cesty*. Pomocník pristane `/`, čo je verejné, takže proxy nikdy nezachytí to a Keycloak Okrúhly výlet nikdy nezačína."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Oauth2 ACL ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, čo je verejné, takže proxy nikdy nezachytí to a Keycloak Okrúhly výlet nikdy nezačína."
+msgstr ""
 
 msgid "The object store itself lives in [web-svc-seaweedfs](../web-svc-seaweedfs/), which owns the storage engine, the per-consumer identities and the public S3 endpoint. This role adds only the human-facing half: an nginx sidecar that routes two canonical domains to the engine's internal filer and master ports."
 msgstr ""
@@ -62754,11 +62754,11 @@ msgstr "Per-role komplexné skóre, jeho ``dna`` kľúč klastra a ``siblings``.
 # užívateľského účtu.
 # translated-by: libretranslate
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Vlajky osoby sú deklarované v [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` je zablokovaná iba v `sso: false` varianty: ako je opísané vyššie, Postmarks\" jediný domorodý kredit je jediný zdieľaný `ADMIN_KEY` formulár hesla, ktorý nie je Keycloak Správca tajne persona typy, takže bez dôveryhodné-header most nie je admin prihlásenie riadiť. `biber` je zablokovaný v každej variante2-proxy priznáva iba administrátor RBAC skupiny a premostenie kontroly `X-Forwarded-Groups`, takže `biber` je odmietnutý pred Postmarks sa dosiahne, a s SSO off jediný vierohodný vľavo nepatrí do užívateľského účtu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Vlajky osoby sú deklarované v `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` je zablokovaná iba v ``sso: false`` varianty: ako je opísané vyššie, Postmarks ``ADMIN_KEY`` formulár hesla, ktorý nie je Keycloak Správca tajne persona typy, takže bez dôveryhodné-header most nie je admin prihlásenie riadiť. ``biber`` je zablokovaný v každej variante2-proxy pripúšťa len prihlášku administrátor RBAC skupiny a most pre-kontroly ``X-Forwarded-Groups``, takže ``biber`` je odmietnutý pred Postmarks sa dosiahne, a s SSO off jediný vierohodný vľavo nepatrí do užívateľského účtu."
+msgstr ""
 
 msgid "The persona flows stay blocked with `sso` off because the shared native login fills `ADMIN_USERNAME`, while Mastodon's `/auth/sign_in` only accepts the e-mail. Option: teach the shared native login to fill `ADMIN_EMAIL` into an e-mail field and unblock the administrator persona."
 msgstr ""
@@ -62799,7 +62799,7 @@ msgstr "Pripnutá stavba je amd64 AppImage, a rola odmieta rad inej architektúr
 
 # translated-by: libretranslate
 msgid "The pinned image runs on arm64"
-msgstr "Pripnutý obrázok beží na paži64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle."
@@ -63087,7 +63087,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo."
-msgstr "Zoznam všetkých ciest projektu (jedna chôdza za proces) a na súbor UTF8 obsah (`read_text`). Používa sa testami leptania/integrácie a CLI nástrojmi, ktoré skenujú repo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The project's environment is owned by a single generator, not scattered across shell modules. Every variable is documented INLINE next to its definition with a one-line `# ...` comment above the key. This page is just a map of where to look."
@@ -63832,11 +63832,11 @@ msgstr "Úlohou je nainštalovať správny balík SSH klientov pre tieto platfor
 
 # translated-by: libretranslate
 msgid "The role installs the pinned upstream AppImage and puts it on `PATH`. Upstream signs its assets with the Tauri updater key and publishes no digest, so the role pins a sha256 taken from the released build itself and the download is verified against it. A rebuilt or replaced asset fails the deploy instead of being installed."
-msgstr "Úloha nainštaluje pinned upground AppImage a položí ho na `PATH`. Upstream podpisuje svoje aktíva s aktualizátorom Tauri kľúča a publikuje žiadne trávenie, takže rola kolčí ša256 prevzatý z vydanej stavby sám a stiahnutie je overené proti nemu. Prebudovaný alebo nahradený majetok zlyhá v nasadení namiesto inštalácie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role installs the pinned upstream AppImage and puts it on ``PATH``. Upstream signs its assets with the Tauri updater key and publishes no digest, so the role pins a sha256 taken from the released build itself and the download is verified against it. A rebuilt or replaced asset fails the deploy instead of being installed."
-msgstr "Úloha nainštaluje pinned upground AppImage a položí ho na ``PATH``. Upstream podpisuje svoje aktíva s aktualizátorom Tauri kľúča a publikuje žiadne trávenie, takže rola kolčí ša256 prevzatý z vydanej stavby sám a stiahnutie je overené proti nemu. Prebudovaný alebo nahradený majetok zlyhá v nasadení namiesto inštalácie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role is a critical component in a secure backup scheme. By isolating backup operations to a dedicated user, it minimizes the risk of unauthorized actions. The role configures the SSH environment so that only specific, allowed commands can be executed, and it sets up passwordless sudo rights for rsync, ensuring smooth and secure backup operations."
@@ -64417,7 +64417,7 @@ msgstr "Spoločné ``biber`` a ``administrator`` persona pomocníci sú vyhláse
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web answers Playwright’s headless Chromium user agent with a “browser not supported” splash unless ``forceAllowOldBrowser`` is seeded into ``localStorage`` before the first navigation, and its OIDC callback runs through OpenCloud’s own ``/oidc-callback`` → ``/web-oidc-callback`` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas’ Keycloak round trip is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, which does that priming in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
-msgstr "Spoločné ``biber`` a ``administrator`` persona pomocníci sú vyhlásené za blokované `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web odpovede Playwright a bezhlavé Chromium užívateľský agent s nepodporovaným prehliadačom ``forceAllowOldBrowser`` je zasadený do ``localStorage`` pred prvou navigáciou, a jeho OIDC callback beží cez OpenCloudVlastné ``/oidc-callback`` → ``/web-oidc-callback`` cesty namiesto oautu2-Proxy vzor zdieľaný pomocník detekuje. Obe osoby Keycloak spiatočná cesta je pokrytá `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, čo robí, že priming v `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in ``files/playwright/``."
@@ -64464,7 +64464,7 @@ msgstr "Spoločné ``biber`` a ``administrator`` osobnostná cesta je vybraná c
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Spoločné ``biber`` a ``administrator`` osobnostná cesta je vybraná cez ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` on ``templates/playwright.env.j2``. Oauth2-proxy sidecar iba brány vhost FusionDirectory udržuje svoje vlastné LDAP-bind login za ním, ktoré role a OIDC scenár v ``files/playwright/playwright.spec.js`` tvrdí tým, že očakáva, že tlačidlo Sign in Keycloak Round-trip. ``tasks/main.yml`` ustanovenia č. FusionDirectory - Keycloak Identita máp do žiadnych adresárových sedení zdieľaných pomocníkov mohol preniesť do in-app logout."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -64495,7 +64495,7 @@ msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené 
 # [files/playwright/_shared.js](./files/playwright/_shared.js).
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a \"browser not supported\" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js)."
-msgstr "Spoločné `biber` a `administrator` persona pomocníci sú vyhlásené za blokované [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web odpovede Playwright je bezhlavý Chromium užívateľský agent s \"prehliadač nepodporovaný\" splash, pokiaľ `forceAllowOldBrowser` je zasadený do `localStorage` pred prvou navigáciou, a jeho OIDC callback beží cez OpenCloud's vlastnou `/oidc-callback` → `/web-oidc-callback` cesty namiesto oautu2-Proxy vzor zdieľaný pomocník detekuje. Obe osoby\" Keycloak spiatočná cesta je pokrytá [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), čo robí, že priming v [files/playwright/_shared.js](./files/playwright/_shared.js)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in `files/playwright/`."
@@ -64548,7 +64548,7 @@ msgstr "Spoločné `biber` a `administrator` osobnostná cesta je vybraná cez `
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Spoločné `biber` a `administrator` osobnostná cesta je vybraná cez `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` on `templates/playwright.env.j2`. Oauth2-proxy sidecar iba brány vhost FusionDirectory drží svoje vlastné LDAP-bind login za ním, ktoré role je OIDC scenár v `files/playwright/playwright.spec.js` tvrdenia očakávaním \"Prihlásiť sa\" po Keycloak Round-trip. `tasks/main.yml` ustanovenia č. FusionDirectory - Keycloak Identita máp do žiadnych adresárových sedení zdieľaných pomocníkov mohol preniesť do in-app logout."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. web-app-hugo serves a statically built site: `services.sso` is hard-disabled in `meta/services.yml`, the container is a Hugo build baked into nginx (`templates/compose.yml.j2`), and the Playwright env file renders no `ADMIN_*` / `BIBER_*` credentials. There is no session, no admin surface and no logout control to drive, so the `guest` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -64620,11 +64620,11 @@ msgstr "Postranný vozík je dosiahnuteľný len na kontajnerovej sieti, takže 
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above. A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally."
-msgstr "Oauth bokom2-proxy priznáva len LibreTranslate Administrátor skupiny RBAC a biele zoznamy len stroj API cesty (`/translate`, `/detect`, ...); pozri [`meta/services.yml`](./meta/services.yml). V aplikácii je povolenie API- iba kľúčová úroveň a oddelené od IdP, ako je zdokumentované v [Jediný znak](#single-sign-on) vyššie. Non-admin návštevník preto nemá žiadne UI sedenie riadiť, takže [`templates/playwright.env.j2`](./templates/playwright.env.j2) vyhlásenie `PERSONA_BIBER_BLOCKED=true`. `administrator` a `guest` personas beží bezpodmienečne."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (``/translate``, ``/detect``, …); see ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Single sign-on <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas run unconditionally."
-msgstr "Oauth bokom2-proxy priznáva len LibreTranslate Administrátor skupiny RBAC a biele zoznamy len stroj API cesty (``/translate``, ``/detect``, ...); pozri ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Jediný znak <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas beží bezpodmienečne."
+msgstr ""
 
 msgid "The sidecar reaches the engine over the shared object-store network, so the console can be deployed, removed or left out of a node without touching the store. A node that does not run this role keeps its object store and its S3 endpoint; it simply has no browser console."
 msgstr ""
@@ -64856,11 +64856,11 @@ msgstr "Skúšaný obal 🧪"
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under ``themes/`` or referenced as a Hugo Module via ``go.mod``). V1 does not support a separate theme override."
-msgstr "Téma musí byť zviazaná s úložiskom zdroja (buď zaškrtnuté pod ``themes/`` alebo sa uvádza ako Hugo Modul cez ``go.mod``). V.1 nepodporuje samostatné prepísanie témy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under `themes/` or referenced as a Hugo Module via `go.mod`). V1 does not support a separate theme override."
-msgstr "Téma musí byť zviazaná s úložiskom zdroja (buď zaškrtnuté pod `themes/` alebo sa uvádza ako Hugo Modul cez `go.mod`). V.1 nepodporuje samostatné prepísanie témy."
+msgstr ""
 
 msgid "The theme sheets and `files/playwright/test-design.js` were generated against Odoo 20, the role runs 19.0 (`meta/services.yml`), and two assertions therefore target DOM this version does not render: `test-design.js:425` wants `.o_search_panel_category_value_header`, which 19 renders as a plain `<header>` without that class and without `tabindex`, so `:focus-visible` is unreachable; `test-design.js:533-534` want a `.btn-danger` in the delete dialog, and 19's `view_hook.js` sets `confirmLabel` without `confirmClass`. Dead on 19 for the same reason: `files/theme/backend.css:2205`. The pin cannot move: OCA publishes no 20.x of `fs_storage` or `fs_attachment_s3` on PyPI, and the modules on the `20.0` branch still carry `\"version\": \"19.0…\"` with `\"installable\": False`. Options: regenerate the theme sheets and the design spec against a live Odoo 19 once a stack is available; or move the image to 20.0 as soon as those two modules turn installable."
 msgstr ""
@@ -65114,7 +65114,7 @@ msgstr "Používateľské nástroje sú upečené do každého distro obrazu [fi
 
 # translated-by: libretranslate
 msgid "The v3 address is ``base32(PUBKEY || CHECKSUM || VERSION)`` where ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` and ``VERSION = 0x03`` (see spec.torproject.org/address-spec). Tor stores the *expanded* ed25519 secret key ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; the public key ``clamp(SHA512(seed)[:32]) * B`` equals the standard ed25519 public key, so it is taken straight from ``cryptography`` without needing scalar multiplication."
-msgstr "The v3 adresa ``base32(PUBKEY || CHECKSUM || VERSION)`` kde ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` a ``VERSION = 0x03`` (Pozri spec.torproject.org/adresa-špec)Tor ukladá *rozšírené* rác25519 tajný kľúč ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` on ``hs_ed25519_secret_key``; verejný kľúč ``clamp(SHA512(seed)[:32]) * B`` sa rovná štandardu ed25519 verejný kľúč, takže je prevzatý priamo z ``cryptography`` bez potreby množenia salaru."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value a row draws from *pool* this sweep: a plain rotation over the row's global position, so consecutive rows spread across the pool and consecutive sweeps move every row on to the next value."
@@ -65430,7 +65430,7 @@ msgstr "Tieto kroky sú zdieľaný tok úložiska a uplatňujú sa bez ohľadu n
 
 # translated-by: libretranslate
 msgid "These templates are intended for inclusion in larger NGINX configuration files via Jinja2.   They modularize your configuration by separating HTML, WebSocket, and media proxying, allowing for clear, reusable, and maintainable reverse proxy logic."
-msgstr "Tieto šablóny sú určené na zahrnutie do väčších konfiguračných súborov NGINX cez Jinju2. Oni modulalizovať vašu konfiguráciu oddelením HTML, WebSocket, a mediálne proxying, čo umožňuje jasné, opakované použitie, a udržiavateľný spätný proxy logiku."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "These variables cap the `infinito` container so local runs can reproduce GitHub-hosted runner pressure. Each default is `0`, which Docker interprets as \"unlimited\" and is identical to omitting the key. See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction profiles."
@@ -66024,7 +66024,7 @@ msgstr "Tento adresár obsahuje Súbory, ktoré sú potrebné na zber, použité
 
 # translated-by: libretranslate
 msgid "This directory contains Jinja2 templates for different NGINX `location` blocks, each designed to proxy and optimize different types of web traffic. These templates are used by the `sys-svc-proxy` role to modularize and standardize reverse proxy configuration across a wide variety of applications."
-msgstr "Tento adresár obsahuje Jinju2 šablóny pre rôzne NGINX `location` bloky, každý navrhnutý tak, aby proxy a optimalizovať rôzne typy webovej prevádzky. Tieto vzory používa `sys-svc-proxy` rola pre modularizáciu a štandardizáciu reverznej konfigurácie proxy v širokej škále aplikácií."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains Pull Request-specific resolver scripts used by the PR workflow."
@@ -67233,7 +67233,7 @@ msgstr "Táto úloha konfiguruje základné užívateľské prostredie (shell do
 
 # translated-by: libretranslate
 msgid "This role configures a systemd timer to periodically start a corresponding service. It uses a Jinja2 template to create a timer unit file that specifies the scheduling parameters (such as OnCalendar and RandomizedDelaySec) and then restarts the timer service accordingly."
-msgstr "Táto úloha konfiguruje systémový časovač pre pravidelné spustenie zodpovedajúcej služby. Používa Jinju2 šablóna pre vytvorenie súboru časovej jednotky, ktorá špecifikuje parametre plánovania (ako OnCalendar a RandomedDelaySec) a následne reštartuje službu časovača."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role configures an [NGINX](https://NGINX.org/) server to host a static HTML homepage securely over HTTPS. It automates domain configuration, SSL/TLS certificate retrieval using [Let's Encrypt](https://letsencrypt.org/), and ensures your site is ready for production with minimal setup."
@@ -67307,7 +67307,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. KIX sits behind an oauth2-proxy whose `sso.oauth2.allowed_groups` in `meta/services.yml` admits only `roles/web-app-kix/administrator` and `roles/web-app-kix/user`; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at `/auth` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Táto úloha deklaruje `PERSONA_BIBER_BLOCKED` on `templates/playwright.env.j2`. KIX sedí za outh2-proxy `sso.oauth2.allowed_groups` on `meta/services.yml` iba pripúšťa `roles/web-app-kix/administrator` a `roles/web-app-kix/user`; Bibler nepatrí ani, tak proxy popiera ho pred KIX robí čokoľvek. Za proxy KIX je dvojstupňové prihlásenie: SPA stále predstavuje svoju vlastnú formu agenta na `/auth` ktorá sa viaže proti LDAP, a zdieľaná osoba pomocník nemá žiadnu druhú fázu po Keycloak Round-trip."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
@@ -67337,7 +67337,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. KIX sits behind an oauth2-proxy whose ``sso.oauth2.allowed_groups`` in ``meta/services.yml`` admits only ``roles/web-app-kix/administrator`` and ``roles/web-app-kix/user``; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at ``/auth`` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Táto úloha deklaruje ``PERSONA_BIBER_BLOCKED`` on ``templates/playwright.env.j2``. KIX sedí za outh2-proxy ``sso.oauth2.allowed_groups`` on ``meta/services.yml`` iba pripúšťa ``roles/web-app-kix/administrator`` a ``roles/web-app-kix/user``; Bibler nepatrí ani, tak proxy popiera ho pred KIX robí čokoľvek. Za proxy KIX je dvojstupňové prihlásenie: SPA stále predstavuje svoju vlastnú formu agenta na ``/auth`` ktorá sa viaže proti LDAP, a zdieľaná osoba pomocník nemá žiadnu druhú fázu po Keycloak Round-trip."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role depends on ``sys-pip``, which ensures that ``pip`` is installed on the target system."
@@ -67538,7 +67538,7 @@ msgstr "Táto úloha nasadzuje OpenCloud použitie Docker Compose v jednobinárn
 
 # translated-by: libretranslate
 msgid "This role deploys Pi-hole as a containerized service within the Infinito.Nexus platform. Access is protected by OAuth2/Keycloak SSO, with RBAC enforced via OpenLDAP group membership."
-msgstr "Táto úloha rozmiestňuje Pi-hole ako kontajnerové služby v rámci Infinito.Nexus nástupište. Prístup je chránený OAuthom2/Keycloak SSO, s RBAC presadený prostredníctvom OpenLDAP členstvo v skupine."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys Pretix using Docker, automating the installation, configuration, and management of your Pretix server. It integrates with an external PostgreSQL database, Redis for caching and sessions, and an NGINX reverse proxy. The role supports advanced features such as global CSS injection, Matomo analytics, OIDC authentication, and centralized logout, making it a powerful and customizable solution within the Infinito.Nexus ecosystem."
@@ -67642,11 +67642,11 @@ msgstr "Táto úloha rozmiestňuje ejabberd na Docker Compose so štandardným v
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
-msgstr "Táto úloha rozmiestňuje n8n Vydanie Spoločenstva s použitím protiprúdu ``docker.n8n.io/n8nio/n8n`` obrázok podporený PostgreSQL databáza (spotrebovaný z centra ``svc-db-postgres`` via ``sys-stk-full``). Overenie je riešené **oauth2-proxy** postranný vozík (Keycloak OIDC) vo V1, alebo vľavo do n8n2. n8n Community Edition nepodporuje LDAP8N (``ldap.controller.ee.js`` nie je registrovaný v CE) Takže žiadna LDAP variant je ponúkaná. Dôverné informácie uložené vo vnútri n8n sú šifrované v pokoji so stabilnou ``N8N_ENCRYPTION_KEY``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
-msgstr "Táto úloha rozmiestňuje n8n Vydanie Spoločenstva s použitím protiprúdu `docker.n8n.io/n8nio/n8n` obrázok podporený PostgreSQL databáza (spotrebovaný z centra `svc-db-postgres` via `sys-stk-full`). Overenie je riešené **oauth2-proxy** postranný vozík (Keycloak OIDC) vo V1, alebo vľavo do n8n vlastné užívateľské riadenie UI vo V2. n8n Community Edition nepodporuje LDAP8n's Enterprise Licence (`ldap.controller.ee.js` nie je registrovaný v CE) Takže žiadna LDAP variant je ponúkaná. Dôverné informácie uložené vo vnútri n8n sú šifrované v pokoji so stabilnou `N8N_ENCRYPTION_KEY`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys no AI surface and declares no ``litellm`` service, because EspoCRM’s open-source distribution does not ship one. At the pinned version ``10.0.4``, ``application/Espo/Modules`` contains only ``Crm``, ``application/Espo/Resources/metadata/app/config.json`` declares no AI key, and the release ZIP the image is built from leaves ``custom/Espo/Modules`` empty. The AI features (Summary, Intelligent Paste, AI Email Composer, AI formula functions) live exclusively in the commercial `Intelligence extension <https://www.espocrm.com/extensions/intelligence/>`__, which is closed source, requires a purchased license, and is published in no ``espocrm`` GitHub repository. Bumping the version does not change this: the extension is documented as requiring EspoCRM 10.0.3 or greater, so newer cores stay hosts for it rather than absorbing it."
@@ -69184,7 +69184,7 @@ msgstr "Triage"
 
 # translated-by: libretranslate
 msgid "Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit."
-msgstr "Skúšal a meral: imidž práce prešiel z menej ako desať minút na viac ako dve hodiny, pretože každá ruka64 vrstva po `COPY .` znovu napodobní každý záväzok."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trigger"
@@ -69520,7 +69520,7 @@ msgstr "Dva integračné testy spotrebujú `ROLE_FILES` priamo tak pridáva aleb
 
 # translated-by: libretranslate
 msgid "Two joins carry the whole design and neither is accidental. The branch ends in ``; `` so a relay that refuses the message cannot decide liveness -- that verdict belongs to the probe this prefixes, and coupling them once left live web apps marked dead until the swarm converge gate gave up (ebdadd91b). The ``&&`` before ``touch`` stays, so a refused mail leaves no marker and the next probe retries instead of the smoke test becoming one-shot."
-msgstr "Dvaja spoja nesú celý dizajn a ani jedno nie je náhodné. Vetva končí ``; `` Takže relé, ktoré odmieta správu, nemôže rozhodnúť o živosti -- že verdikt patrí sonde tieto predpony, a spojiť ich akonáhle opustil živé webové aplikácie označené mŕtvy, kým roj konvergentná brána vzdal (ebdad91b). ``&&`` pred ``touch`` Zostáva, takže odmietnutá pošta nezanechá žiadny značkovač a ďalšia sonda sa namiesto testu dymu stane jednou ranou."
+msgstr ""
 
 msgid "Two kinds of role are left out. One the updaters do not maintain (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits outside the lifecycle envelope ``default.env`` tests, so no deploy can reach its images, and its upstream is free to withdraw them. MinIO's quay tags answer 401 to anonymous pulls and exist nowhere else, which failed the mirror job on every run while nothing could have consumed the result."
 msgstr ""
@@ -70278,7 +70278,7 @@ msgstr "Použitie:"
 
 # translated-by: libretranslate
 msgid "Usage: python3 utils/github/pytest_summary.py <reports-dir>  # nocheck: self-path-reference"
-msgstr "Použitie: pytón3 utils/github/pytest_summary.py <reports-dir> # Nocheck: self-path-reference"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Usage::"
@@ -70391,7 +70391,7 @@ msgstr "Použite priamy rozhovor pre blokovanie tém."
 
 # translated-by: libretranslate
 msgid "Use for pure data transformation in Jinja2 expressions."
-msgstr "Použitie na transformáciu čistých dát v Jinji2 výrazy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Use in"
@@ -72384,7 +72384,7 @@ msgstr "Čo je Infinito.Nexus? 📌"
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Čo je už bez neho preukázateľné: prijímací strážca odmieta zdieľaného hostiteľa alebo prázdne zariadenie povolené, obaja agenti obrázky publikovať `linux/arm64`, a ani jeden agent nie je pripnutý mimo ramena64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -74451,7 +74451,7 @@ msgstr "Nesmiete použiť `.md` súbory na opis logiky implementácie, ktorá je
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "You MUST NOT use `templates/Dockerfile.j2` unless the Dockerfile requires Jinja2 control-flow logic (e.g. `{% if %}`, `{% for %}`)."
-msgstr "Nesmiete použiť `templates/Dockerfile.j2` pokiaľ Dockerfile nevyžaduje Jinju2 logika riadiaceho toku (napr. `{% if %}`, `{% for %}`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "You MUST NOT use em dashes (—) as thought breaks or clause separators. You SHOULD prefer complete sentences. Hyphens (-) MAY be used for compound words and list items."
@@ -76028,7 +76028,7 @@ msgstr "[ ] Penpot úspešne nasadzuje s jedným príkazom na nového hostiteľa
 
 # translated-by: libretranslate
 msgid "[ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state."
-msgstr "[ ] Persona pokrytie prostredníctvom zdieľaného outu2-Vrátiť pomocníkov (zrkadlenie [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (dosiahnuteľnosť + guest/biber/administrator osoby), `test-oidc-login.js` (oauth2 Brána + `X-Remote-User` zasadnutie, vyhlásené dňa `sso`), `test-oidc-security.js` (obchvatový kryt z kovanej hlavy). `biber`/`administrator` boli udelené SSO prostredníctvom `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` odhaľuje každý čítaný env var; `make compose-playwright role=web-app-checkmk` východy 0 bez testov stub a čistý odhlásený konečný stav."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] Playwright test run documented"
@@ -77416,7 +77416,7 @@ msgstr "[AUR balíček pre Zoom](https://aur.archlinux.org/packages/zoom)"
 
 # translated-by: libretranslate
 msgid "[ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)"
-msgstr "[ActivityPub (Z3Odporúčanie C)](https://www.w3.org/TR/activitypub/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)"
@@ -77424,7 +77424,7 @@ msgstr "[ActivityPub (Wikipédia)](https://en.wikipedia.org/wiki/ActivityPub)"
 
 # translated-by: libretranslate
 msgid "[ActivityPub Specification (W3C)](https://www.w3.org/TR/activitypub/)"
-msgstr "[Špecifikácia ActivityPub (Z3C)](https://www.w3.org/TR/activitypub/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Add custom CSS injection support](https://open.project.infinito.nexus/wp/563)"
@@ -77855,7 +77855,7 @@ msgstr "[Bridgy Fed Zdroj GitHub](https://github.com/snarfed/bridgy-fed)"
 
 # translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "[Bridgy Fed](https://fed.brid.gy/) je federálny most medzi ActivityPub (Fediverse), AT protokol (Bluesky)a IndieWeb (webmentóny a mikroformáty2)Odráža identity a vzájomné pôsobenie medzi sieťami, takže príspevok na jednej sieti sa dostane k nasledovníkom na druhej."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -78386,7 +78386,7 @@ msgstr "[Docker Sharm Manager](roles/svc-swarm-manager/)"
 
 # translated-by: libretranslate
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) groups Docker hosts into a single virtual host. A swarm has exactly one manager node in v1; managers run the Raft store and accept service-API calls."
-msgstr "[Docker Sharm](https://docs.docker.com/engine/swarm/) skupiny Docker hostí do jedného virtuálneho hostiteľa. Roj má presne jeden manažér uzol v V1; manažéri prevádzkujú obchod Raft a prijímajú služby-API Volá."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) is Docker's built-in clustering and container-orchestration mode. It groups multiple Docker hosts into a single virtual host that can schedule services, replicate tasks, and route traffic via an internal mesh."
@@ -81374,7 +81374,7 @@ msgstr "[x] Všetky tri varianty nasadiť čisto na čerstvom boxe (FULL maticov
 
 # translated-by: libretranslate
 msgid "[x] Among the hosts in `svc-swarm-node`, the cluster manager is identified by membership in the additional group `svc-swarm-manager`. Exactly one host MUST be a member of `svc-swarm-manager` in v1; all other `svc-swarm-node` members join as workers. A deploy with zero or more-than-one manager MUST fail at inventory-validation time, not at runtime."
-msgstr "[x] Medzi hostiteľmi `svc-swarm-node`, správca klastrov je identifikovaný podľa členstva v dodatočnej skupine `svc-swarm-manager`. Presne jeden hostiteľ musí byť členom `svc-swarm-manager` vo1; všetky ostatné `svc-swarm-node` členovia sa pripájajú ako pracovníci. Nasadenie s nulou alebo viac-ako-jeden manažér MUSÍ zlyhať v čase inventarizácie-validácie, nie v čase prevádzky."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] An LDAP user in the `administrator` role group logs in through the `ldap` auth method and receives the `administrator` policy. (`test-ldap-login.js`, asserts `auth.policies` contains `administrator`.)"
@@ -81851,7 +81851,7 @@ msgstr "[x] Integrované úložisko Raft je nakonfigurované so svojím dátový
 
 # translated-by: libretranslate
 msgid "[x] Reconciliation owns only deterministically named resources, fails on duplicates, and preserves human-created resources. The ownership marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
-msgstr "[x] Zmierenie vlastní iba jednoznačne pomenované zdroje, zlyháva na duplikátoch a zachováva ľudské zdroje. Značka vlastníctva je na klienta, pretože názov nie je vždy zadarmo: Flowise záznamy registra sú `infinito:<provider-application-id>`, Open WebUI skupiny nesú cestu skupiny RBAC Keycloak otázky a8n používa svoj nakonfigurovaný názov workflow."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Redis is provided via the `redis` service block in `meta/services.yml` (auto-emitted `svc-db-redis` sidecar; service name `redis`)."
@@ -81889,7 +81889,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name."
-msgstr "[x] Testy rotácie a zneškodňovania dokazujú, že starý kredit je odmietnutý, nová kreditová práca a žiadny zastavený vstup klientov si neudrží prístup. Prvé dva beží na každom nasadení: spoločná zmluvná sonda otvorí povrch s vyhlásenou vierohodnosťou a zlyhá, ak deterministické čítanie neuspeje a samostatne dokáže, že nesprávna vierohodnosť je odmietnutá. Každý z ôsmich povolených servírovacích plôch zahŕňa túto sondu, takže ani polovica nie je uplatnená pre niektoré úlohy a pre ostatné. Tretí je jednotka testovaný na klienta, a len traja klienti môžu držať stale záznam vôbec, pretože Hermes a OpenClaw neudržujte žiadnu registráciu na strane servera: ich konfigurácia je vykresľovaná z vlastnej snímky objavu, takže nezostáva nič, čo by stačilo. Flowise prepíše položku `authConfig` a Open WebUI registrované spojenie, oba už zahrnuté; n8n bola medzera a teraz dokazuje, že rotačný nositeľ nahrádza dôveryhodnosť skôr ako sa porovnáva s jedným n8Nikdy sa neodovzdá, na strane servera a pre každého klienta. Pri audite tretej polovice sa objavil skutočný únik. Nextcloud mints heslo aplikácie pod pevným riadeným menom a nikdy nezrušil predchádzajúce meno, takže každý spustiť, ktorý našiel uložené heslo odmietol pridať ďalší platný token na účet, zatiaľ čo staré tie držal plný prístup. Mincovni predchádza teraz zoznam a zrušenie každého žetónu s týmto riadeným menom."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Running `make i18n-extract` twice in a row leaves the working tree unchanged."
@@ -82874,7 +82874,7 @@ msgstr "[x] `svc-ai-litellm` uverejňuje dodatočné `auto` prezývka a každá 
 # je nikdy naplánovaný na rameno64"Pi uzol.".
 # translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr "[x] `svc-ai-lmstudio` je obmedzená na x86 uzol a nie je nikdy naplánovaný na rameno64\"Pi uzol.\"."
+msgstr ""
 
 msgid "[x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group."
 msgstr ""
@@ -83316,7 +83316,7 @@ msgstr "`.../<volume>/files` alebo hostiteľ"
 
 # translated-by: libretranslate
 msgid "`.env` (gitignored) is generated by `make dotenv`, which delegates to `python -m cli.meta.env`. It combines `default.env` with runtime-resolved values (selected distro, GHA/Act flags, df/meminfo-derived cache sizes, sha256 secrets, repository owner, ...). Each line in `.env` is preceded by its own comment, so the file is self-describing. Open it after `make dotenv` to inspect the effective value-set together with its documentation."
-msgstr "`.env` (gitizogred) vytvára `make dotenv`, ktorý deleguje `python -m cli.meta.env`. Kombinuje `default.env` s vyriešenými hodnotami (vybrané distro, GHA/Act vlajky, df/meminfo- derivované veľkosti vyrovnávacej pamäte, ša256 tajomstvá, majiteľ úložiska, ...). Každý riadok v `.env` predchádza jeho vlastný komentár, takže súbor je samoopisuje. Otvor to po `make dotenv` kontrolovať skutočnú nastavenú hodnotu spolu s jej dokumentáciou."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`.env` is consumed by bash `source` and docker-compose `--env-file`, neither of which round-trips multi-line values; the writer therefore rejects them. Other NIX_CONFIG settings (`accept-flake-config`, `experimental-features`, …) belong in `/etc/nix/nix.conf` (Dockerfile injects them inside the dev container; host operators set them once in `~/.config/nix/nix.conf`)."
@@ -83507,7 +83507,7 @@ msgstr "`Bluesky <https://bsky.social/>`__ je decentralizovaná sociálna sieť,
 
 # translated-by: libretranslate
 msgid "`Bridgy Fed <https://fed.brid.gy/>`__ is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "`Bridgy Fed <https://fed.brid.gy/>`__ je federálny most medzi ActivityPub (Fediverse), AT protokol (Bluesky)a IndieWeb (webmentóny a mikroformáty2)Odráža identity a vzájomné pôsobenie medzi sieťami, takže príspevok na jednej sieti sa dostane k nasledovníkom na druhej."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`CA_ROOT.cert_host` (default: `/etc/infinito.nexus/ca/root-ca.crt`)"
@@ -83611,7 +83611,7 @@ msgstr "`DevInventorySpec` je typ hodnoty `build_dev_inventory` konzumuje všetk
 
 # translated-by: libretranslate
 msgid "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ groups Docker hosts into a single virtual host. A swarm has exactly one manager node in v1; managers run the Raft store and accept service-API calls."
-msgstr "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ skupiny Docker hostí do jedného virtuálneho hostiteľa. Roj má presne jeden manažér uzol v V1; manažéri prevádzkujú obchod Raft a prijímajú služby-API Volá."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ is Docker’s built-in clustering and container-orchestration mode. It groups multiple Docker hosts into a single virtual host that can schedule services, replicate tasks, and route traffic via an internal mesh."
@@ -84063,7 +84063,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ rá Node.j
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (základ64 32 bajty, `head -c32 /dev/urandom | base64`) šifrova uložené prístupové kľúče; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` Bezpečné sedenie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -85264,7 +85264,7 @@ msgstr "``ldap``: tri RBAC scenáre navyše závisí na LDAP skupiny synchroniz�
 
 # translated-by: libretranslate
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "``ldapauth`` je jediná cesta, ktorá naplní ``friendica.user`` riadok, takže jeho možnosť pochádza priamo z ``ldap`` servisná vlajka. Oauth2-proxy ``sso`` Brána pred vhost je predo dvermi auth brána, nie addon most, a zostane v ```meta/services.yml`` <./meta/services.yml>` . Prihlasovacia cesta LDAP je pokrytá existujúcou špecifikáciou LDAP Playwright (požiadavka 018), takže nie je pridaná žiadna špecifická doplnková špecifikácia."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``libaacs`` (AACS decryption library)"
@@ -85477,7 +85477,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``noqa`` and ``nocheck`` are accepted as synonyms (case-insensitive) by this parser. By repo convention every project rule from ``docs/contributing/actions/testing/suppression.md`` MUST use ``nocheck:`` because ``# noqa: <code>`` is also parsed by ruff as a flake8 directive and triggers ``invalid-noqa-code`` warnings on every project-specific rule key. ``noqa:`` is reserved for real flake8 / ruff codes (``E402``, ``F401``, …). The ``direct-yaml`` lint enforces the convention by hard-rejecting the ``noqa:`` form."
-msgstr "``noqa`` a ``nocheck`` sú akceptované ako synonymá (prípad-necitlivý) týmto parserom. Podľa repo konvencie každé pravidlo projektu ``docs/contributing/actions/testing/suppression.md`` MUSÍ ``nocheck:`` pretože ``# noqa: <code>`` je tiež parsed by ruff ako vločka8 smernice a spúšťacie mechanizmy ``invalid-noqa-code`` varovania o každom kľúči pre jednotlivé projekty. ``noqa:`` je vyhradený pre skutočné šupky8 / ruff kódy (``E402``, ``F401``, ...). ``direct-yaml`` Lint presadzuje dohovor tým, že tvrdo odmieta ``noqa:`` forma."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``offset`` moves that start deliberately: it is how an operator reaches the tail without waiting for anything. It defaults to 0, so every run that does not ask for it deploys the same head and can be compared against the last one. This used to be derived from the sweep number instead, which bought tail coverage at the price of the head -- chunk 0 began wherever the arithmetic pointed, the rows that matter most ran only every few sweeps, and no two runs were comparable."
@@ -86125,7 +86125,7 @@ msgstr "`algorithm:` štandardné `plain` ak sa vynechá."
 
 # translated-by: libretranslate
 msgid "`alicloudkms`, `awskms`, `azurekeyvault`, `gcpckms`, `kmip`, `ocikms`, `ovhcloud`, `pkcs11`, **`static`**, `tcloudpublic`, `transit`. From v2.7.0 many become external plugins; `static` and `transit` stay built in."
-msgstr "`alicloudkms`, `awskms`, `azurekeyvault`, `gcpckms`, `kmip`, `ocikms`, `ovhcloud`, `pkcs11`, **`static`**, `tcloudpublic`, `transit`. Od2.7.0 mnohí sa stávajú externými modulmi; `static` a `transit` Zostaň vstavaný."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`all.sh` covers every discovered application; `selection.sh` covers one or more apps passed via `apps` (or a positional argument)."
@@ -87217,7 +87217,7 @@ msgstr "`ldap`: tri RBAC scenáre navyše závisí na LDAP skupiny synchronizác
 
 # translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "`ldapauth` je jediná cesta, ktorá naplní `friendica.user` riadok, takže jeho možnosť pochádza priamo z `ldap` servisná vlajka. Oauth2-proxy `sso` Brána pred vhost je predo dvermi auth brána, nie addon most, a zostane v [`meta/services.yml`](./meta/services.yml). LDAP login trasa je pokrytá existujúcim LDAP Playwright špecifiká (požiadavka 018), takže nie je pridaná žiadna špecifická doplnková špecifikácia."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
@@ -87589,7 +87589,7 @@ msgstr "`no-reply` užívateľa `web-app-mailu` token, iný prázdny reťazec"
 
 # translated-by: libretranslate
 msgid "`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\\d+`."
-msgstr "`noqa` a `nocheck` sú case-necitlivé synonymá v parser. Každé pravidlo projektu musí byť použité `nocheck:` pretože `# noqa: <code>` je tiež parsed by ruff ako vločka8 smernica a varuje pred nefalšovaním8 kľúče. Rezerva `noqa:` pre skutočnú vločku8 / ruff kódy (`E402`, `F401`, ...). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) tvrdé odmietnutia `# noqa: <code>` ktorých kódy nezodpovedajú `[A-Z]+\\d+`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`npm install` (Ansible task in runner)"
@@ -89685,11 +89685,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64"
-msgstr "rameno64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64 runner capacity becomes a dependency of the deploy matrix. A pool without capacity queues those rows rather than failing them."
-msgstr "rameno64 kapacita bežcov sa stáva závislosťou od rozmiestnenia matice. Pool bez kapacitných frontov radšej tieto riadky ako ich zlyhanie."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "as `enforced`, and rows that cannot take an onion are dropped"
@@ -89855,7 +89855,7 @@ msgstr "základ alebo faktor nie je numerický alebo negatívny."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "základ64- kódovaný 32 náhodné bajty; AES-256- GCM kľúč."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -91215,7 +91215,7 @@ msgstr "potvrdiť vzostup S3 podpora ukladania súborov"
 
 # translated-by: libretranslate
 msgid "confirm upstream storage-provider S3 support"
-msgstr "potvrdenie dodávateľa S pre skladovanie vopred3 podpora"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "confirmed, the role installs the extension in `tasks/addons/ai-llm.yml`"
@@ -95207,7 +95207,7 @@ msgstr "pytón -m cli.administration.inventory.devices ..."
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "pytón -m cli.meta.ci.architectures [\"amd64 rameno64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -95243,19 +95243,19 @@ msgstr "pytón -m utils.parse_trace <trace.zip>"
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
-msgstr "pytón3 -m cli.meta.ci.dev_runtime obrázky python3 -m cli.meta.ci.dev_runtime distro -- image fedora:posledný python3 -m cli.meta.ci.dev_runtime matica -- režim otáčania -- beh 42"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.image_ref --kind environment"
-msgstr "pytón3 -m cli.meta.ci.image_ref --druh prostredia"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m utils.annotations.summarize <logfile> [<title>]"
-msgstr "pytón3 -m utils.annotations.summarize <logfile> [<title>]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 utils/github/playwright_summary.py <reports-dir> [<context-label>]  # nocheck: self-path-reference"
-msgstr "pytón3 utils/github/playwright_summary.py <reports-dir> [<context-label>] # Nocheck: self-path-reference"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "qdrant has no per-consumer principals, only two engine-wide keys, so a consumer that owns data here holds the engine's own key. The read-only key is deliberately never returned: it belongs to the MCP adapter, whose whole read-only guarantee rests on being unable to present anything else."
@@ -96696,7 +96696,7 @@ msgstr "aplikácie, ktoré toto kolo rozmiestňuje."
 
 # translated-by: libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
-msgstr "architektúra nemá označenie. Sťahujem sa späť do amd64 bežec by rozmiestnil ruku64 riadok na amd64 hardware a nahláste zelenú pod ramenom64 pracovné zaradenie."
+msgstr ""
 
 msgid "the browser binary."
 msgstr ""
@@ -98547,7 +98547,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ wsl2 modul"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
@@ -98889,7 +98889,7 @@ msgstr "utils.install.lint.hadolint modul"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ cli2 modul"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -99883,7 +99883,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\.168\\.24\\.\\d+"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} -> ponožky5h://tor:<port> (roj)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""

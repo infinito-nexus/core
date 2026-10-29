@@ -82,6 +82,7 @@ seaweedfs-console:
   ports:
     local:
       sso: 16507
+      sso_onion: 16549
     internal:
       http: 80
   healthcheck:

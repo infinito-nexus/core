@@ -21,6 +21,7 @@ _VALUE = {
     "--tor-confine-allow": "auth.example.org",
     "--onion-timeout": "1000",
     "--clearnet-timeout": "1000",
+    "--concurrency": "4",
 }
 _LIST_VALUE = {
     "--ignore-network-blocks-from": "a.test",
@@ -63,6 +64,7 @@ class TestUnitFlagsAreParsable(unittest.TestCase):
 
         self.assertIn("--accept-status", found)
         self.assertIn("--onion-timeout", found)
+        self.assertIn("--concurrency", found)
 
     def test_every_flag_the_unit_passes_is_accepted_by_the_script(self):
         for flag in sorted(_flags_the_unit_passes()):

@@ -1,4 +1,4 @@
-{% set base = lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') %}
+{% set base = lookup('tls', application_id, 'url.origin') %}
 body {
   background-color: var(--design-surface-1);
   color: var(--design-text);

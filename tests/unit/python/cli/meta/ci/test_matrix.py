@@ -90,6 +90,48 @@ class TestChunksOf(unittest.TestCase):
         self.assertEqual([e["apps"] for e in chunks[1]], ["web-app-b"])
 
 
+class TestPriorityChunks(unittest.TestCase):
+    def _patched(self, *, size: int, blocks: int = 4):
+        return (
+            mock.patch.object(matrix.slots, "chunk_size", return_value=size),
+            mock.patch.object(matrix.slots, "chunk_blocks", return_value=blocks),
+            mock.patch.object(matrix.slots, "available", return_value=99),
+        )
+
+    def _count(self, entries: list[dict], *, size: int, blocks: int = 4) -> int:
+        chunk_size, chunk_blocks, available = self._patched(size=size, blocks=blocks)
+        with chunk_size, chunk_blocks, available:
+            return matrix.priority_chunks(entries)
+
+    def _sweep(self, priority: int, regular: int) -> list[dict]:
+        return [
+            _entry(f"web-app-p{index}", "0", "compose", priority=True)
+            for index in range(priority)
+        ] + [_entry(f"web-app-r{index}", "0", "compose") for index in range(regular)]
+
+    def test_a_sweep_without_a_priority_line_stars_no_batch(self) -> None:
+        self.assertEqual(self._count(self._sweep(0, 5), size=2), 0)
+
+    def test_the_priority_rows_count_the_chunks_they_fill(self) -> None:
+        self.assertEqual(self._count(self._sweep(3, 5), size=2), 2)
+
+    def test_the_declared_blocks_cap_the_count(self) -> None:
+        self.assertEqual(self._count(self._sweep(5, 0), size=1, blocks=3), 3)
+
+    def test_the_count_splits_the_sweep_at_its_priority_seam(self) -> None:
+        entries = self._sweep(3, 5)
+        chunk_size, chunk_blocks, available = self._patched(size=2)
+        with chunk_size, chunk_blocks, available:
+            chunks = matrix.chunks_of(entries, 0)
+            count = matrix.priority_chunks(entries)
+        self.assertTrue(
+            all(e["priority"] == "true" for chunk in chunks[:count] for e in chunk)
+        )
+        self.assertTrue(
+            all(e["priority"] == "false" for chunk in chunks[count:] for e in chunk)
+        )
+
+
 _REGULAR = [
     _entry("web-app-a", "0", "compose"),
     _entry("web-app-b", "1", "swarm", network="tor"),
@@ -197,6 +239,28 @@ class TestCandidates(unittest.TestCase):
                 modes=("compose",), whitelist="", priority="web-app-b", lifecycles=""
             )
         self.assertEqual(discovered.call_args.kwargs["blacklist"], "web-app-b")
+
+    def test_the_priority_line_alone_runs_only_its_own_query(self) -> None:
+        with mock.patch.object(
+            matrix.query, "discover_rows", return_value=list(self._DISCOVERED)
+        ) as discovered:
+            rows = matrix.priority_candidates(
+                modes=("compose",), priority="web-app-b#1", lifecycles=""
+            )
+        discovered.assert_called_once()
+        self.assertEqual(
+            [(row["name"], row["variant"], row["priority"]) for row in rows],
+            [("web-app-b", 1, True)],
+        )
+        self.assertEqual(rows[0]["modes"], ("compose",))
+
+    def test_an_empty_priority_line_queries_nothing(self) -> None:
+        with mock.patch.object(matrix.query, "discover_rows") as discovered:
+            rows = matrix.priority_candidates(
+                modes=("compose",), priority="", lifecycles=""
+            )
+        self.assertEqual(rows, [])
+        discovered.assert_not_called()
 
 
 class TestWithDeployedServices(unittest.TestCase):

@@ -28,6 +28,7 @@ from utils.roles.applications.services.registry import (
 )
 from utils.roles.applications.topics import CONFIG_TOPICS, apply_topic, provider_of
 from utils.roles.applications.variant_pins import resolve_pins
+from utils.roles.guide import declares_guide, guide_off
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 __all__ = [
@@ -182,9 +183,11 @@ def services_overrides_for_round(
     their own variant count, unless a `# variant-pin:` marker in the
     round's active variant of another role pins them (see
     :mod:`utils.roles.applications.variant_pins`); a primary app keeps
-    its supplied index and no pin overrides it. Roles without variants
-    are absent from the result so the resolver falls through to its
-    disk-read path.
+    its supplied index and no pin overrides it. The guide host stays on
+    only where a primary app's variant declares it; every other role has
+    it off.
+    Roles without variants are absent from the result so the resolver
+    falls through to its disk-read path.
 
     The merged map is what the inventory ALSO bakes into host_vars, so
     feeding the same dict into `CombinedResolver(services_overrides=...)`
@@ -222,6 +225,10 @@ def services_overrides_for_round(
             continue
         merged = _deep_merge(dict(base_services), dict(variant_services))
         if isinstance(merged, dict):
-            overrides[role_name] = merged
+            overrides[role_name] = (
+                merged
+                if role_name in primary_app_variants and declares_guide(merged)
+                else guide_off(merged)
+            )
     _apply_nested_service_maps(overrides, roles_dir=roles_dir)
     return overrides

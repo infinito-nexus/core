@@ -33,6 +33,11 @@
     loop_var: role_group
     label: "{{ role_group }}"
 
+- name: "🔍 Probe the vhosts the server roles queued, in one parallel batch"
+  ansible.builtin.include_role:
+    name: sys-stk-front-proxy
+    tasks_from: deferred_probe.yml
+
 - name: "🔌 Converge every MCP client from the complete provider set"
   include_role:
     name: sys-svc-mcp-reconcile

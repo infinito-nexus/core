@@ -59,6 +59,6 @@
     msg: >-
       {{ application_id }}: the OpenProject side is configured. No GitLab webhook exists -
       register one against
-      {{ lookup('tls', application_id, 'url.base') | regex_replace('/$', '') }}{{ openproject_addon.value.config.webhook_path }}?key=<stored token>
+      {{ lookup('tls', application_id, 'url.origin') }}{{ openproject_addon.value.config.webhook_path }}?key=<stored token>
       with the X-Gitlab-Token header set to the webhook secret, triggers
       push/comments/issues/merge_request/pipeline.

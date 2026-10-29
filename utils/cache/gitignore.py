@@ -26,6 +26,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.roles.custom import ROLES_GLOB
+
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
@@ -45,6 +47,10 @@ def load_gitignore_patterns(root: str | None = None) -> tuple[str, ...]:
     would require a real pathspec implementation. If a future
     ``.gitignore`` adds them, extend this helper rather than duplicating
     the logic in callers.
+
+    The custom-role pattern (:data:`utils.roles.custom.ROLES_GLOB`) is
+    left out: Git ignores pulled custom roles, yet every project-tree
+    scan checks them like in-tree roles.
     """
     base = Path(root) if root else PROJECT_ROOT
     gitignore = base / ".gitignore"
@@ -53,7 +59,7 @@ def load_gitignore_patterns(root: str | None = None) -> tuple[str, ...]:
     patterns: list[str] = []
     for raw in gitignore.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
-        if not line or line.startswith(("#", "!")):
+        if not line or line.startswith(("#", "!")) or line == ROLES_GLOB:
             continue
         patterns.append(line)
     return tuple(patterns)

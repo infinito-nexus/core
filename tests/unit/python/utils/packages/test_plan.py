@@ -2,7 +2,7 @@ import re
 import unittest
 
 from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
-from utils.packages.plan import build_plan
+from utils.packages.plan import build_plan, merge_plans
 from utils.packages.schema import (
     SOURCE_AUR,
     SOURCE_BUILD,
@@ -365,6 +365,56 @@ class TestFlatpakSource(unittest.TestCase):
         self.assertEqual(
             _modules(build_plan(spec, STATE_ABSENT)), ["ansible.builtin.package"]
         )
+
+
+def _plan(*names, **spec):
+    return build_plan(PackageSpec(tuple(names), **spec), STATE_PRESENT)
+
+
+def _names(call):
+    return call.args["name"]
+
+
+class TestMergePlans(unittest.TestCase):
+    def test_plain_plans_share_one_call(self):
+        merged = merge_plans([_plan("git"), _plan("curl", "jq")])
+        self.assertEqual(len(merged), 1)
+        self.assertEqual([_names(call) for call in merged[0]], [["git", "curl", "jq"]])
+
+    def test_a_name_requested_twice_is_installed_once(self):
+        merged = merge_plans([_plan("git"), _plan("git")])
+        self.assertEqual(_names(merged[0][0]), ["git"])
+
+    def test_bootstrap_packages_install_before_every_name(self):
+        epel = {"repo": {"bootstrap_package": "epel-release"}}
+        merged = merge_plans(
+            [_plan("git"), _plan("micro", **epel), _plan("jq", **epel)]
+        )
+        self.assertEqual(
+            [_names(call) for call in merged[0]],
+            [["epel-release"], ["git", "micro", "jq"]],
+        )
+
+    def test_a_plan_with_other_modules_runs_unchanged_after_the_merged_one(self):
+        aur = _plan("caffeine", source=SOURCE_AUR)
+        merged = merge_plans([aur, _plan("git")])
+        self.assertEqual([_names(call) for call in merged[0]], [["git"]])
+        self.assertEqual(merged[1], aur)
+
+    def test_plans_of_different_states_never_merge(self):
+        absent = build_plan(PackageSpec(("postfix",)), STATE_ABSENT)
+        merged = merge_plans([_plan("git"), absent])
+        self.assertEqual(
+            [(call.args["state"], _names(call)) for plan in merged for call in plan],
+            [(STATE_PRESENT, ["git"]), (STATE_ABSENT, ["postfix"])],
+        )
+
+    def test_no_plans_merge_to_nothing(self):
+        self.assertEqual(merge_plans([]), [])
+
+    def test_the_merged_call_keeps_the_retry_policy(self):
+        merged = merge_plans([_plan("git"), _plan("curl")])
+        self.assertIsNotNone(merged[0][0].retry)
 
 
 if __name__ == "__main__":

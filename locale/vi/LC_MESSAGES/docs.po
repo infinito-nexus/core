@@ -167,7 +167,7 @@ msgstr "(``services_flags`` Chỉ)"
 
 # translated-by: libretranslate
 msgid "(a) Run the upstream worker under **`workerd`** (Cloudflare's open-source runtime) or **Miniflare**, with D1 → local SQLite. Closest to upstream, but D1/KV bindings must be shimmed and tracked across upstream bumps."
-msgstr "(a) Chạy ngược dòng công nhân dưới **`workerd`** (Thời gian chạy mã nguồn mở của Cloudflare) hay **Minifre**Với D1 Bạn đang ở đâu? Gần cuối dòng, nhưng D1Dây buộc KV phải được cắt và theo dõi trên dòng ngược."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "(b) Use a **Node/SvelteKit adapter** build if upstream exposes one (the Svelte portion suggests a possible `@sveltejs/adapter-node` path). Simpler ops, but may not cover the worker-only routes."
@@ -264,7 +264,7 @@ msgstr "**A `svc-ai-litellm` cửa ra vào là điểm nhập mô hình đơn.**
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A `svc-ai-lmstudio` Vai trò được thêm vào như một hậu phương có thể giải quyết, x86Chỉ có nút GPU.** Nó triển khai LM Studio trong chế độ máy chủ không đầu (`lms server`, OpenAI tương ứng API) và đăng ký sau cánh cổng. Phòng thu LM không có tay64 Trình phục vụ Linux xây dựng, vì vậy nó phải được buộc vào một x86 (điển hình GPU) nút thông qua dấu chấm và phải KHÔNG được lên lịch trên Raspberry Pi / cánh tay64 Comment [032](032-agent-employees-firecracker.md). LM Studio tàu chủ yếu là giao diện màn hình nền; vai trò phải sử dụng chế độ không đầu/máy chủ của nó, và tài liệu chuẩn của container (Thông qua GPU, hạn chế tải/ xuống)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -737,7 +737,7 @@ msgstr "**Arch hôm nay:** Các tàu bán hàng không phải là kho vũ khí c
 
 # translated-by: libretranslate
 msgid "**Architecture-guarded:** a host that is not amd64 aborts before the download."
-msgstr "**Được bảo vệ bởi kiến trúc:** một máy không được thỏa mãn64 hủy bỏ trước khi tải về."
+msgstr ""
 
 msgid "**Archive duties**: before deleting a scratchpad, grep the memory directory for its name and for `archiv`. The designer generator dirs (`scratchpad/cssmap/`) go to `refs/backup/designer/tools/` first."
 msgstr ""
@@ -1382,11 +1382,11 @@ msgstr "**Triển khai đa dịch vụ CNG:** Dịch vụ web, mai phục, ngự
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Suy ra CPU:** Vai trò xây dựng hình ảnh của chính nó từ việc giải phóng đinh cho kiến trúc của vật chủ, amd64 cánh tay64Chỉ giữ CPU llama.cpp Động cơ và không đưa thiết bị GPU vào trong container."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**Suy ra CPU:** Vai trò xây dựng hình ảnh của chính mình từ việc giải phóng đinh cho kiến trúc của chủ nhà, được đóng góp64 cánh tay64Chỉ giữ CPU llama.cpp Động cơ và không đưa thiết bị GPU vào trong container."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -1815,7 +1815,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Comprehensive Email Protocols:** Supports SMTP, IMAP, and POP3 for reliable email delivery and retrieval."
-msgstr "**Giao thức email đầy đủ:** Hỗ trợ Sổ tay, IPP và PP3 để gửi email và lấy lại."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Comprehensive Identity Management:** Manage users, roles, and permissions across your applications with robust SSO and user federation."
@@ -1847,7 +1847,7 @@ msgstr "**Khởi chạy lại khó điều kiện:** Ứng dụng thủ tục kh
 
 # translated-by: libretranslate
 msgid "**Conditional OAuth2**: easily toggle authentication per application."
-msgstr "**Name2**: dễ bật/tắt xác thực cho mỗi ứng dụng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable `.env` and `compose.yml` rendered via Jinja2 ⚙️"
@@ -2341,7 +2341,7 @@ msgstr "**Ý thức co sở dữ liệu:** Ứng dụng khách gieo siêu dữ l
 
 # translated-by: libretranslate
 msgid "**De-dup / loop prevention.** With any future bidirectional bridge, an event mirrored A→B must not echo back B→A. v1 (one-way) sidesteps this, but the record↔event id mapping table introduced in v1 MUST be designed so a future reverse path can detect \"already mirrored\"."
-msgstr "**Bảo vệ vòng lặp.** Với bất kỳ cây cầu hai hướng nào trong tương lai, một sự kiện phản ánh A-C-B không được phản hồi lại B-A. v.1 (Một chiều) Các bước bên này, nhưng bảng bản đồ mã nhận dạng kỷ lục được giới thiệu trong v1 Phải được thiết kế để một con đường đảo ngược tương lai có thể phát hiện \"Đã phản chiếu\"."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Debug Mode**"
@@ -3156,7 +3156,7 @@ msgstr "**Mô tả:** Hệ thống mã nguồn mở, hệ thống tin nhắn cho
 
 # translated-by: libretranslate
 msgid "**Description:** OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "**Mô tả:** Name1 kết thúc điểm tới hậu phương mô hình cục bộ và máy chủ với các phím trên máy chủ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
@@ -3342,7 +3342,7 @@ msgstr "**Mô tả:** Bức tường tự chủ cho việc hiển thị các bà
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "**Mô tả:** Comment5 Hộp cát để duyệt và chạy bản demo động cơ nhẹ và trò chơi trong trình duyệt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -4713,7 +4713,7 @@ msgstr "**Chảy 3.1.4** được hòa giải thông qua xác thực `/api/v1/cu
 
 # translated-by: libretranslate
 msgid "**Flowise cross-agent supervisor is Phase 2, deferred.** The supervisor (Flowise as MCP client delegating to Hermes' MCP-server mode v0.6.0+ and OpenClaw's MCP-server, chaining cross-agent pipelines) is a separate later slice, not the first implementation. Rationale: it depends on the young hermes MCP-server mode and adds a second orchestration tier. The first slice ships each agent standalone; the supervisor design below is retained as the Phase 2 target. Single-agent use MUST always work without Flowise."
-msgstr "**Người giám sát xuyên quốc gia là giai đoạn 2, hoãn lại.** Người giám sát (Flowise Là khách hàng gốc của đài phát thanh0.6.0+ và OpenClawMáy chủ MCP, các đường ống xuyên biên giới) là một lát riêng biệt sau đó, không phải thực hiện đầu tiên. Rationale: nó phụ thuộc vào chế độ máy chủ MCP trẻ tuổi và thêm vào một bộ điều hòa giao hưởng thứ hai. Các tàu cắt lát đầu tiên mỗi tác nhân đứng một; thiết kế giám sát dưới đây được giữ lại như là giai đoạn 2 Mục tiêu. Một tác vụ phải luôn làm việc mà không cần Flowise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Flowise's published images do not contain the version their tag claims:** `3.1.3`, `3.1.4` and `latest` all ship `flowise` 3.1.2, because upstream's Dockerfile runs an unpinned `npm install -g flowise` whose layer the release CI reuses. The role builds from an explicit npm pin and verifies the served route set."
@@ -4790,7 +4790,7 @@ msgstr "**Docker Prune đầy đủ:** Thực hiện `container system prune -a 
 
 # translated-by: libretranslate
 msgid "**Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss."
-msgstr "**Hỗ trợ Unicode đầy đủ**: `utf8mb4` là MyQL duy nhất/MariaDB Bộ ký tự đầy đủ 4tôm sông UTF8Cho phép lưu trữ các emojis, các biểu tượng bổ sung và tất cả các văn lệnh toàn cầu mà không mất dữ liệu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Full extraction set:** the `-full` image ships the OCR and language detection dependencies, so scanned documents are extracted too."
@@ -4838,7 +4838,7 @@ msgstr "**Bị gõ xong:** Name (`jira_data`) và ảnh được phủ tối thi
 
 # translated-by: libretranslate
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
-msgstr "**Cách giải quyết tương lai:** Những ứng dụng và tiêu chuẩn hiện đại đã hội tụ trên UTF8; sử dụng `utf8mb4` tránh những thử thách di trú sau này."
+msgstr ""
 
 msgid "**Gallery links.** An Artifact whose sharing the operator changed can stop accepting updates from the session. Publish a new one, tell the operator that the old link stays on the old state, and update the README link."
 msgstr ""
@@ -5805,7 +5805,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**JWT-bridged SSO:** Prosody validates Keycloak-issued RS256 tokens via JWKS so the OIDC client controls room moderation rights."
-msgstr "**JWT-bridged SSO:** Bằng chứng về kinh tế Keycloak- RS được phát hành256 thông qua JWKS để khách hàng OIDC điều khiển quyền điều chỉnh phòng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**KeePassXC ready**: Ensures compatibility with password managers that support SSH agent integration."
@@ -5837,11 +5837,11 @@ msgstr "**Đăng nhập Keycloak OIDC:** Hạt `jwt`/`oidc` phương pháp thô 
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted `X-Remote-User` header (`auth_by_http_header`), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Đứng trước sân ga Oauth2- Cổng thay thế; người dùng xác thực được truyền cho Checkmk thông qua các điều tin cậy `X-Remote-User` đầu trang (`auth_by_http_header`), Vì vậy không có dấu nhắc đăng nhập thứ hai xuất hiện."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted ``X-Remote-User`` header (``auth_by_http_header``), so no second login prompt appears."
-msgstr "**Keycloak SSO:** Đứng trước sân ga Oauth2- Cổng thay thế; người dùng xác thực được truyền cho Checkmk thông qua các điều tin cậy ``X-Remote-User`` đầu trang (``auth_by_http_header``), Vì vậy không có dấu nhắc đăng nhập thứ hai xuất hiện."
+msgstr ""
 
 # '82']
 # ``roles/web-app-erpnext/administrator`` teppi82 ``System Manager``.
@@ -6752,7 +6752,7 @@ msgstr "**Người bản địa OIDC SSO:** Ông Sê - ma - phô - rơ tự “d
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "**Vị người bản xứ** (`services.sso.flavor: oidc`), Không, không phải đền thờ.2Mở Bao tự nói OIDC, nên nó đi theo [`web-app-semaphore`](../../roles/web-app-semaphore/) thay vì [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar."
 msgstr ""
@@ -7183,11 +7183,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**One contract, three flavors.** ``laya`` serves multilingual checkpoints and preloads them at start; ``torch`` runs the GLiFormer checkpoint as published; ``onnx`` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same ``POST /v1/systemone``, so the gateway does not know which one it asked."
-msgstr "**Một hợp đồng, ba hương vị.** ``laya`` phục vụ các trạm kiểm soát đa ngôn ngữ và nạp chúng trước; ``torch`` Chạy kiểm tra GLiFormer như được xuất bản; ``onnx`` xuất khẩu một tham số8 đồ thị trong thời gian xây dựng và cần khoảng một phần tư bộ nhớ. Mọi mùi vị đều trả lời như nhau ``POST /v1/systemone``, Để cánh cổng không biết nó hỏi cái nào."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**One contract, three flavors.** `laya` serves multilingual checkpoints and preloads them at start; `torch` runs the GLiFormer checkpoint as published; `onnx` exports an int8 graph at build time and needs roughly a quarter of the memory. Every flavor answers the same `POST /v1/systemone`, so the gateway does not know which one it asked."
-msgstr "**Một hợp đồng, ba hương vị.** `laya` phục vụ các trạm kiểm soát đa ngôn ngữ và nạp chúng trước; `torch` Chạy kiểm tra GLiFormer như được xuất bản; `onnx` xuất khẩu một tham số8 đồ thị trong thời gian xây dựng và cần khoảng một phần tư bộ nhớ. Mọi mùi vị đều trả lời như nhau `POST /v1/systemone`, Để cánh cổng không biết nó hỏi cái nào."
+msgstr ""
 
 msgid "**One credential.** The bearer the backend issues is the bearer the caller sends."
 msgstr ""
@@ -7393,11 +7393,11 @@ msgstr "**Trình giả lập Firestore tùy chọn:** Sử dụng xe mô phỏng
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**"
-msgstr "**OAuth tùy chọn2 Hợp nhất:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**   Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "**OAuth tùy chọn2 Hợp nhất:** Bảo mật truy cập pgAdmin của bạn bằng cách tích hợp một OAuth bên ngoài2 Nhà cung cấp."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load ``mod_oauth2_client`` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
@@ -7779,7 +7779,7 @@ msgstr "**Pin**: một bê tông ổn định v15.x semver (không ``:latest``, 
 
 # translated-by: libretranslate
 msgid "**Pinned and verified:** the AppImage version and its sha256 live in the role, and a mismatch aborts the deploy."
-msgstr "**Đã bấm và xác nhận:** Phiên bản ứng dụng và vai trò của nó256 Sống trong vai diễn, và một trận đấu sai lầm phá hủy cuộc triển khai."
+msgstr ""
 
 msgid "**Pinned bridge:** Add-on and server ship from one version-pinned distribution, so the two halves cannot drift apart."
 msgstr ""
@@ -7813,7 +7813,7 @@ msgstr "**Quay vòng. (đơn hay gói).** Cả nhập và triển khai chấp nh
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Những ngọn đèn không thể bị chú ý.** Điểm ảnh được phân loại và kéo được xây dựng từ lớp học, một thẻ chuyển động tự nó tuyên bố với các đánh dấu nó đã mang, và một hình ảnh của vai trò di chuyển như một phát hành hoặc không có ở tất cả. Người cập nhật đọc các tuyên bố bổ sung, lệnh nhà cung cấp băng và các phiên bản năm phiên bản song song, đọc một dòng giải phóng được viết trước số lượng một gia đình, và bây giờ cũng xem các yêu cầu gắn kết ống và bộ sưu tập có thể sử dụng. Bảy vai trò được di chuyển ra khỏi cơ sở mật danh Debian, và một danh sách gương Ubuntu bị lỗi, thời hạn ngắn và một thử nghiệm sức khỏe phục vụ cả bộ nhớ tạm gói lẫn ảnh được xây dựng. *js-yaml* đã được nâng lên 4.3.2 Cho GHSA-2883-xcg3-v3Ahh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8044,7 +8044,7 @@ msgstr "**RBAC** - chỉ người dùng trong `web-app-pihole-administrator` nh�
 
 # translated-by: libretranslate
 msgid "**Raspberry Pi is a real deploy target.** Agent images MUST publish an `arm64` manifest so a Pi-class node can pull them, and the agents MUST schedule across at least two labelled worker nodes. This is arch coverage, not arch exclusivity: the same images keep running on the amd64 nodes that CI and the lab use, so the requirement is that every architecture a node may have is published, never that a deploy is pinned to one."
-msgstr "**Raspberry Pi thực sự là mục tiêu triển khai.** Name `arm64` Biểu thị một lõi Pi- class có thể kéo chúng, và các đặc vụ phải lịch trình thông qua ít nhất hai nút công nhân dán nhãn. Đây là sự bảo vệ kiểu cổ, không phải sự tách biệt cổ xưa: những hình ảnh giống nhau vẫn chạy trên quảng cáo64 nút mà CI và phòng thí nghiệm sử dụng, vì vậy yêu cầu là mỗi nút kiến trúc có thể được xuất bản, không bao giờ một cuộc triển khai được gắn chặt vào một."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Read-only by default:** A non-`GET`/`HEAD` operation is refused unless `mutating_tools_enabled` is explicitly true."
@@ -8104,7 +8104,7 @@ msgstr "**Hợp nhất Redis:** Thêm Redis hỗ trợ đau nhức và xử lý 
 
 # translated-by: libretranslate
 msgid "**Redis** session storage for oauth2-proxy"
-msgstr "**Redis** Name2-Praxy"
+msgstr ""
 
 msgid "**Refusals are counted on their own axis.** An engine whose answer is rejected is neither unreachable like decision 13's failures nor worse like decision 8's lost comparisons: it is unsuited to that pair. The three counts are stored separately so decision 5's criteria line can say which of the three happened, and so a pair an engine keeps mangling steers the next decision away from it without that engine losing standing on the pairs it serves well."
 msgstr ""
@@ -8533,7 +8533,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**Mùi vị SSO là `oauth2`** (Oauth2- Xe bên ryxy Keycloak), không phải OIDC — bởi vì Checkmk Raw không có OIDC. Name2- Xác thực thời trang chống lại Keycloak và qua `X-Remote-User`; Nơi Mạng của Checkmk Apache tin tưởng nó thông qua `auth_by_http_header`. Cái gương này [`web-app-openproject`](../../roles/web-app-openproject/)Cây cầu lãnh đạo SSO (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` GenericName)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -8549,11 +8549,11 @@ msgstr "**SSO qua Keycloak:** Cấu hình tự động khi triển khai lần đ
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**SSO qua Oauth2- Phiên bản tự động phân tích:** V1 Tất cả các cổng vào thông qua chia sẻ Keycloak Trình khách OIDC (Oauth2- Mầm oxy). openresy trước danh sách xác thực cho n8n là một điều đáng tin cậy `Remote-Email` đầu trang (`templates/proxy.conf.j2`); a `EXTERNAL_HOOK_FILES` văn lệnh (`files/hooks.js`, thích nghi từ [Pavel Sozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) đọc đầu trang, phát hiện tự động một n cục bộ8n user trên đăng nhập đầu tiên, và số n8cookie phiên chạy riêng của n — vì vậy mỗi Keycloak Người dùng hạ cánh trực tiếp trong trình soạn thảo luồng công việc, không có giây, n8Bước đăng nhập n-local."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted ``Remote-Email`` header (``templates/proxy.conf.j2``); an ``EXTERNAL_HOOK_FILES`` script (``files/hooks.js``, adapted from `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n’s own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step."
-msgstr "**SSO qua Oauth2- Phiên bản tự động phân tích:** V1 Tất cả các cổng vào thông qua chia sẻ Keycloak Trình khách OIDC (Oauth2- Mầm oxy). openresy trước danh sách xác thực cho n8n là một điều đáng tin cậy ``Remote-Email`` đầu trang (``templates/proxy.conf.j2``); a ``EXTERNAL_HOOK_FILES`` văn lệnh (``files/hooks.js``, thích nghi từ `PavelSozonov/n8n-community-sso <https://github.com/PavelSozonov/n8n-community-sso>`__) đọc đầu trang, phát hiện tự động một n cục bộ8n user trên đăng nhập đầu tiên, và số n8cookie phiên chạy riêng của n — vì vậy mỗi Keycloak Người dùng hạ cánh trực tiếp trong trình soạn thảo luồng công việc, không có giây, n8Bước đăng nhập n-local."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO** is SuiteCRM's own SAML login against Keycloak (`sso.flavor: saml` in [`meta/services.yml`](./meta/services.yml)), not a proxy in front of it. Unauthenticated requests hit the Symfony firewall's SAML entry point, which redirects to Keycloak; the assertion comes back to `/saml/acs` and establishes a real SuiteCRM session, so the app renders its own authenticated UI including its logout control. Accounts are created on first login from the assertion (`SAML_AUTO_CREATE`), and the IdP signing certificate is read from Keycloak's realm descriptor by [`files/shell/docker-entrypoint.sh`](./files/shell/docker-entrypoint.sh) at boot, over the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is unresolvable directly. `/auth` stays reachable as the local break-glass login."
@@ -9539,11 +9539,11 @@ msgstr "**Tập tin dịch vụ đã có mẫu:** Các mẫu kiểm tra sức kh
 
 # translated-by: libretranslate
 msgid "**Templated Configuration:** Delivers a Jinja2-based ``sshd_config`` with variables for debug logging, PAM support, and password-auth overrides."
-msgstr "**Cấu hình mẫu:** Giao Kim Gia2- dựa vào ``sshd_config`` với biến cho việc ghi lưu gỡ lỗi, hỗ trợ PAM, và quyền ghi đè mật khẩu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides."
-msgstr "**Cấu hình mẫu:** Giao Kim Gia2- dựa vào `sshd_config` với biến cho việc ghi lưu gỡ lỗi, hỗ trợ PAM, và quyền ghi đè mật khẩu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Tenant activation:** sets ``status=1`` on the tenant row so Fider serves the public page."
@@ -9699,7 +9699,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
-msgstr "**Công việc chứng minh cái máy trước khi nó triển khai.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) So sánh `uname -m` chống lại giá trị được chỉ định và thất bại trong một trận đấu sai. Không có nó, một nhãn hiệu mà ngừng giải quyết để vũ khí64 Phần cứng sẽ báo cáo mọi cánh tay64 dòng xanh lá cây từ một amd64 Cỗ máy, đó chính xác là thất bại trục tồn tại để loại trừ."
+msgstr ""
 
 #, python-brace-format
 msgid "**The learning log is a `History`-shaped table in the gateway's own database**, one row per offered engine per decision, each row marking whether that engine won. The signature groups comparable requests: source language, target language, and a coarse content class derived from the payload's length and whether it carries markup. `wins(signature)` returns `{engine: (won, seen)}` and feeds decision 5's criteria line, so the next decision reads what earlier ones concluded. A log that cannot be read MUST degrade to deciding without it and MUST NOT fail the request."
@@ -10128,11 +10128,11 @@ msgstr "**Tên người dùng:** tập tin thuộc về người dùng trạm l�
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Name2- Cổng vòm oxy chuyển hướng mọi yêu cầu Keycloak. ``files/hooks.js`` đọc tin tưởng ``Remote-Email`` bộ mở đầu khi cổng đi qua và tài liệu tự động trong n8người dùng (vai ``global:member``, hoặc là chủ sở hữu tiền tồn tại cho ``users.administrator.email``)Vì vậy, mỗi Keycloak người dùng — quản trị và người dùng đều đều — hạ cánh trực tiếp trên n8Bề mặt làm việc của n không có giây, n8Bước đăng nhập n-local."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Name2- Cổng vòm oxy chuyển hướng mọi yêu cầu Keycloak. `files/hooks.js` đọc tin tưởng `Remote-Email` bộ mở đầu khi cổng đi qua và tài liệu tự động trong n8người dùng (vai `global:member`, hoặc là chủ sở hữu tiền tồn tại cho `users.administrator.email`)Vì vậy, mỗi Keycloak người dùng — quản trị và người dùng đều đều — hạ cánh trực tiếp trên n8Bề mặt làm việc của n8Bước đăng nhập n-local."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10647,7 +10647,7 @@ msgstr "**`hostname`** (chuỗi):"
 # mật](https://www.w3.org/TR/secure-contexts/))
 # translated-by: libretranslate
 msgid "**`http://*.onion` is a Secure Context** → `Secure` cookies + secure-context APIs work over plain-HTTP onion; hence forward `X-Forwarded-Proto: https`. ([W3C Secure Contexts](https://www.w3.org/TR/secure-contexts/))"
-msgstr "**`http://*.onion` là một văn bản bảo mật** teppi82 `Secure` cookie + an toàn- văn bản APIs làm việc trên đơn giản-HTTP hành; do đó về phía trước `X-Forwarded-Proto: https`. ([W3Văn cảnh bảo mật](https://www.w3.org/TR/secure-contexts/))"
+msgstr ""
 
 msgid "**`hugo` reports template execution errors**: the theme's templates are incompatible with the bundled Hugo binary. Bump `services.hugo.builder_version` (e.g. to a newer `v<version>` tag) or pin the source repo to a tag known to build with the current Hugo."
 msgstr ""
@@ -10781,7 +10781,7 @@ msgstr "**kiến trúc** -- mà CPU kiến trúc các hàng triển khai, và th
 
 # translated-by: libretranslate
 msgid "**arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md)."
-msgstr "**cánh tay64Raspberry Pi được hỗ trợ.** Vai diễn tiếp tục `arm64` Vì vậy nó có thể ngồi cạnh Pi đại lý từ [032](032-agent-employees-firecracker.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Alejandro Roman Ibanez"
@@ -11678,7 +11678,7 @@ msgstr "**Mô tả**: Bức tường tự chủ của Fediver để hiển thị
 
 # translated-by: libretranslate
 msgid "**description**: Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "**Mô tả**Comment5 Hộp cát để duyệt và chạy bản demo động cơ nhẹ và trò chơi trong trình duyệt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -11686,7 +11686,7 @@ msgstr "**Mô tả**: dịch vụ thư mục LDAP tự chủ cho người dùng 
 
 # translated-by: libretranslate
 msgid "**description**: Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "**Mô tả**:3- Lưu trữ vật thể tương ứng cho tập tin, phương tiện truyền thông, bản sao lưu, và cổ vật AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
@@ -12004,7 +12004,7 @@ msgstr "**ditro** -- mà tuyên bố phân phối các hàng đang triển khai.
 
 # translated-by: libretranslate
 msgid "**dnsmasq** with the discovered WSL2 upstream DNS gateway as forwarder."
-msgstr "**dnsmasq** với WSL được phát hiện2 ngược dòng cổng DNS làm người dẫn đầu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**dsk-gnome-caffeine:** Prevents the system from sleeping or locking automatically."
@@ -12169,7 +12169,7 @@ msgstr "**Màu đỏ cục bộ, xanh dương**: Thường thì người chạy 
 
 # translated-by: libretranslate
 msgid "**matomo container health flake (checkmk batch)** — in the checkmk job the 4th deploy play failed at `Wait for Matomo container to be healthy` with `container inspect: map has no entry for key \"State\"` for the whole retry window (container started, then vanished — likely crash + prune). Plays 1–3 in the SAME job deployed matomo healthy, so classified transient (resource/prune pressure after ~3h). No code fix derivable. If it recurs, investigate as a real matomo crash/OOM (container logs, mem_limit)."
-msgstr "**gói sức khỏe của Mattomo (Comment)** - trong công việc checkmk 4Việc triển khai trò chơi thứ thất bại tại `Wait for Matomo container to be healthy` có `container inspect: map has no entry for key \"State\"` cho toàn bộ cửa sổ thử lại (Thùng khởi động, rồi biến mất — rất có thể rơi + mận)Phát 1-3 trong cùng một công việc, triển khai maomo khỏe mạnh, vì vậy phân loại tạm thời (Tài nguyên/ Áp lực phù hợp sau3H)Không mã số nào có thể sử dụng được. Nếu nó tái phát, điều tra như một vụ tai nạn matomo thực sự/OOM (Bản ghi container, mem_limit)."
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format
@@ -12227,7 +12227,7 @@ msgstr "**role_name**: bàn phím- màu"
 # sơ đồ nhà xuất bản, cố định trong 2389b6e38.
 # translated-by: libretranslate
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
-msgstr "**Ứng dụng khả năng truy cập đến máy chủ- bên OIDC** - joomla thất bại vì công-te-nơ ứng dụng của nó thực hiện phát hiện bên server-IDC chống lại `http://auth.<onion>` không có `extra_hosts` Bản đồ. Vai trò của cùng một thợ máy và không `container_extra_hosts` Đang tìm kiếm (Sửa chữa là cùng một nhìn vào một dòng, áp dụng trên bằng chứng CN): Chữ (bổ sung dao cạo) và đa phương tiện (Name) là các phần bổ sung có cấu trúc giống hệt nhau. (có khả năng cao); phát biểu bây giờ được xác nhận và kết nối (chạy 33445831564, công việc Nextcloud#7); jenkins, jira, confuence, odoo, openwebui, pretix, zammad, semaphore, thạchfin, listmonk, xwiki, máttodon cũng tiêu thụ bên chủ nhà hàng (Đường dẫn mạng chưa được chứng nhận). oauth2Ứng dụng dựa trên oxy không bị ảnh hưởng (xanh lá cây: prometheus Adam SSO)Có hai cái tên đã để lại danh sách này trên các bằng chứng: 0e39f3Theo thời gian sau cuộc gọi mã hóa của nó. OAuth2.Error Kết nối từ chối 24 lần, và gitlab không bao giờ là một thành viên - chạy 31756560361 hiển thị nó giải quyết và kết nối (phân loại =172.30.0.10:443); thất bại là openid_connect Viên ngọc được xây dựng lại URL phát hiện trên https bất kể sơ đồ nhà xuất bản, cố định trong 2389b6e38."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**social-app upstream error:** the broker forwards the upstream's error response."
@@ -12594,11 +12594,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*test-e2e-playwright*: v1.61.1-noble to v1.62.1-noble"
-msgstr "*test-e2e-playwright*: v1.61.1- Không thể...1.62.1- Tuyệt vời."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*test-e2e-playwright*: v1.62.1-noble to v1.63.0-noble"
-msgstr "*test-e2e-playwright*: v1.62.1- Không thể...1.63.0- Tuyệt vời."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*tests/lint/repository/no_legacy_sso_paths/* static guard against the legacy strings re-entering the source tree."
@@ -13440,7 +13440,7 @@ msgstr "020 - Chạy CI 25705903504 Khởi động vòng lặp phục hồi"
 
 # translated-by: libretranslate
 msgid "021 - SSO Flavor Migration (oauth2 + oidc → unified `sso` service)"
-msgstr "021 - SSO Flavor migration (Oauth2 + oidc hợp nhất `sso` dịch vụ)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "022 - Zammad Helpdesk Role with OIDC SSO"
@@ -13552,7 +13552,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "039 - Core i18n Consumers"
-msgstr "039 - Cái lõi18GenericName"
+msgstr ""
 
 msgid "039 - svc-net-wireguard: Test Full Meshes on the Role's Own CI Row"
 msgstr ""
@@ -14768,7 +14768,7 @@ msgstr "Lời bình luận của chìa khóa là khối liên tục gần đây 
 
 # translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr "Name64 Biến toàn bộ trục thành một lời nói dối xanh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
@@ -14854,7 +14854,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A minted Tor v3 onion key and its ``HiddenServiceDir`` file contents."
-msgstr "Name3 Chìa khóa hành và nó ``HiddenServiceDir`` Nội dung tập tin."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A missing event indicates a coverage regression in the deploy chain (typically: a once-flag swallowed an include before the role could run)."
@@ -14946,7 +14946,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A parsed README: everything before the first H2, then its H2 blocks."
-msgstr "Một bản dịch đã được phân tích: mọi thứ trước chữ H đầu tiên2, Sau đó là H2 tòa nhà."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A path is yielded iff it survives both the in-process skip-dir pruning of :func:`iter_project_files` and the ``.gitignore`` match."
@@ -15275,7 +15275,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role keeps declaring the service for inventory completeness but can opt out of this consumer-target list by setting ``services.<service>.scrape: false`` or ``services.<service>.track: false``. ``scrape: false`` is used by 301-redirect-only vhosts that declare ``services.prometheus`` (so the role-wiring contract stays satisfied) yet never serve a request through lua-resty-prometheus, so they emit no ``app=\"<role>\"`` label and have no scrape target. ``track: false`` is the symmetric matomo opt-out: static-file (autoindex) and 301-redirect vhosts that declare ``services.matomo`` keep the role-wiring intact but carry no user-facing HTML page worth a ``_paq`` tracker, so they are dropped from ``MATOMO_TARGET_ROLES_JSON`` and the matomo tracker e2e contract."
-msgstr "Một vai trò tiếp tục tuyên bố dịch vụ cho kho lưu trữ đầy đủ nhưng có thể loại ra khỏi danh sách tiêu dùng này bằng cách thiết lập ``services.<service>.scrape: false`` hay ``services.<service>.track: false``. ``scrape: false`` được dùng bởi 301-chỉ có các máy chủ tuyên bố ``services.prometheus`` (Vì vậy, các hợp đồng đóng vai trò vẫn được thỏa mãn) nhưng không bao giờ phục vụ một yêu cầu thông qua lua-resteus, vì vậy họ phát ra không ``app=\"<role>\"`` nhãn và không có mục tiêu. ``track: false`` là đối xứng Mattomo tối ưu: tĩnh-file (Tự động chạy) và 301- những máy chủ tự động tuyên bố ``services.matomo`` giữ cho vai trò còn nguyên vẹn nhưng thực hiện không xứng đáng với trang HTML của người dùng ``_paq`` Thiết bị theo dõi, vì vậy họ thả từ ``MATOMO_TARGET_ROLES_JSON`` Và máy theo dõi Mattomo e2Hợp đồng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A role may consume an engine either *embedded* (a sidecar inside its own stack) or *central* (a single pinned ``svc-db-*`` / ``svc-dns-*`` stack shared by many roles), selected per consumer with the ``shared`` flag exactly like the RDBMS (postgres / mariadb) pattern in :mod:`utils.roles.applications.services.database`."
@@ -15368,7 +15368,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A role whose upstream images are amd64-only must say so in `meta/services.yml`, or half its rows fail on the image pull. That failure is loud and names the role, which is the intended way to discover the gap."
-msgstr "Name64- chỉ cần nói như vậy trong `meta/services.yml`, Hoặc một nửa hàng của nó bị hỏng khi kéo ảnh. Thất bại đó là lớn tiếng và đặt tên cho vai trò, đó là cách để khám phá khoảng cách."
+msgstr ""
 
 msgid "A role whose vars derive a further tag from ``version`` lists the suffixes under ``<entity>.version_variants``; each yields its own ref, because this function is the only enumeration the mirror sees and a tag it never emits can never be mirrored."
 msgstr ""
@@ -15570,11 +15570,11 @@ msgstr "Một đoạn ngắn miêu tả những gì các **phần mềm** là. B
 
 # translated-by: libretranslate
 msgid "A sidecar ``web-app-keycloak`` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the ``X-Forwarded-*`` identity headers on every proxied request."
-msgstr "Xe phụ ``web-app-keycloak`` Oauth2-Porxy xác nhận khách truy cập chống lại Keycloak (OIDC, hoặc LDAP liên kết qua Keycloak) và nginx ghi đè ``X-Forwarded-*`` Người đứng đầu mọi yêu cầu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A sidecar `web-app-keycloak` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the `X-Forwarded-*` identity headers on every proxied request."
-msgstr "Xe phụ `web-app-keycloak` Oauth2-Porxy xác nhận khách truy cập chống lại Keycloak (OIDC, hoặc LDAP liên kết qua Keycloak) và nginx ghi đè `X-Forwarded-*` Người đứng đầu mọi yêu cầu."
+msgstr ""
 
 msgid "A sidecar that a provider role ships into other stacks passes ``provider``:"
 msgstr ""
@@ -15641,7 +15641,7 @@ msgstr "Một danh sách một bản sao đang mở rộng danh sách thông min
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Một phòng thí nghiệm một nút không thể trả lời các tiêu chuẩn đa nút: sao chép, đặt trên hai `kata-capable` Raspberry-Pi nodes, và dàn hợp đồng kết thúc để kết thúc tất cả cần thiết tất cả các cụm yêu cầu mô tả. Tay64 Một nửa của tiêu chuẩn vị trí được chứng minh bằng việc kiểm tra hình ảnh ở trên; một nửa của hai nút thì không."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A small Express middleware (``files/sso/header_auth.js``, mounted into ``server.js`` at build time by ``files/sso/patch_server.js``) reads only those nginx-overwritten ``X-Forwarded-*`` headers and flips ``req.session.loggedIn = true``, so the existing ``isAuthenticated`` gate on ``/admin`` opens for the proxied owner."
@@ -16514,7 +16514,7 @@ msgstr "Thêm những lỗi đã được xây dựng sẵn và phát hiện l�
 
 # translated-by: libretranslate
 msgid "Added full Nix installer integration with dynamic upstream SHA256 verification, OS-specific installation paths, template-driven configuration, and updated pkgmgr integration."
-msgstr "Đã thêm toàn bộ sự kết hợp bộ cài đặt Nix với bộ đệm lên dòng động256 xác thực, đường dẫn cài đặt đặc trưng hệ điều hành, cấu hình mẫu, và cập nhật độ tích hợp pkggr."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added generic OIDC group-to-RBAC auto-provisioning for WordPress through OpenLDAP-backed role mapping"
@@ -16559,7 +16559,7 @@ msgstr "Đăng nhập Adam bản địa web-app-bluesky khi oauth2 bị tắt, b
 
 # translated-by: libretranslate
 msgid "Added new application roles: web-app-opencloud and web-app-opentalk with shared OIDC + LDAP, web-app-hugo for static-site hosting (req-016), web-app-moodle self-built image with OIDC+LDAP hybrid and LDAP-only variants (req-015), web-app-fediwall as multi-wall public-timeline aggregator, plus web-app-mig and web-app-sphinx E2E coverage"
-msgstr "Thêm vai trò ứng dụng mới: web-app-opencloud và web-app-opentalk với OIDC + LDAP, web-app-hugo cho máy chủ tĩnh (req-016). web-app-moodle Ảnh tự xây dựng với biến thể OIDC+LAP và LDAP (req-015). web-app-fediwall là tổng hợp dòng thời gian đa tường, cộng với web-app-mig và web-app-sphinx E2Tin tức"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
@@ -16595,7 +16595,7 @@ msgstr "Thêm các hình ảnh bên ngoài docker kiểm tra luồng làm việc
 
 # translated-by: libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Thêm mục lục cho: dự án - bộ nhớ tạm / di chuyển / di chuyển / di chuyển / no- lookup-fig-jin-kin / không có thư mục địa chỉ / không có dòng-ti-line-in-sh / no-inlineline-sql / no-viewing-fig-ja-dimp / ase-fire-fire-lay out / web-mole-web-ency / run-on-on-har- Services- Services / any-hands-handy-hands / any-up-up-up-handy2 Vùng chọn"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -16878,7 +16878,7 @@ msgstr "Nhận nuôi các công cụ gt-mainaner cho ngã ba / lên dòng từ x
 
 # translated-by: libretranslate
 msgid "Adopted the unified `# nocheck: <kebab-rule>` suppression marker repo-wide; reserved `# noqa:` markers for real ruff/flake8 codes"
-msgstr "Nhận sự hợp nhất `# nocheck: <kebab-rule>` Tải lại đánh dấu; dành riêng `# noqa:` Name8 Mật mã"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Advantages"
@@ -17523,7 +17523,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "All three personas (`guest`, `biber`, `administrator`) start at `${APP_BASE_URL}/` via direct goto (bookmark-style entry). The OAuth2-Proxy gate fires on the first request and redirects unauthenticated requests through Keycloak. No dashboard-tile click sits in the persona path."
-msgstr "Cả ba nhân vật (`guest`. `biber`. `administrator`) bắt đầu lúc `${APP_BASE_URL}/` đi qua goto trực tiếp (Kiểu đánh dấu)OAuth2Yêu cầu đầu tiên được bắn và chuyển hướng yêu cầu chưa được chứng thực qua KeycloakKhông có nút nhấn bảng điều khiển nằm trên đường đi cá nhân."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All variables consumed by [compose.yml](../../../../compose.yml). The per-variable default + comment lives next to the key in [default.env](../../../../default.env); the tables below stay scoped to \"what role does this variable play in compose.yml\" and stop duplicating the default."
@@ -17831,7 +17831,7 @@ msgstr "Sửa đổi sau khi thực hiện: phiên bản Hermes đã triển kha
 # svc-swarm-manager` - không trùng danh sách `group_vars`.
 # translated-by: libretranslate
 msgid "Among the hosts in `svc-swarm-node`, the cluster manager is identified by additional membership in `svc-swarm-manager`. v1 scope: exactly ONE host. Workers are derived as `svc-swarm-node − svc-swarm-manager` — no duplicated list in `group_vars`."
-msgstr "Trong số các máy ở `svc-swarm-node`, Bộ quản lý cụm được xác định bởi các thành viên bổ sung trong `svc-swarm-manager`. v.1 Phạm vi: chính xác 1 vật chủ. Công nhân xuất thân từ `svc-swarm-node − svc-swarm-manager` - không trùng danh sách `group_vars`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "An \"application role\" carries at least one project-owned `meta/<topic>.yml` marker file (services, server, rbac, volumes, schema, users)."
@@ -18466,7 +18466,7 @@ msgstr "Bất kỳ hướng dẫn hay tài liệu liên quan khác:"
 
 # translated-by: libretranslate
 msgid "Any strings returned by this method that could ever contain non-ascii must be converted into python's unicode type as the strings will be run through jinja2 which has this requirement.  You can use::"
-msgstr "Bất kỳ chuỗi nào được trả lại bởi phương pháp này mà có thể chứa không-asii phải được chuyển đổi thành kiểu unicode của python như chuỗi sẽ được chạy thông quajinja2 mà có yêu cầu này. Bạn có thể dùng:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Any team-scoped API call."
@@ -19185,7 +19185,7 @@ msgstr "Bắt đầu mỗi cuộc trò chuyện, bạn phải đọc [.claude/se
 
 # translated-by: libretranslate
 msgid "Atlassian DC attachment store on S3 (edition/version dependent)"
-msgstr "Name3 (phụ thuộc phiên bản/ chuyển đổi)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Atlassian Intelligence is vendor-hosted"
@@ -19791,11 +19791,11 @@ msgstr "Bởi vì Jellyfin không có bản địa SSO và ứng dụng của n�
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) skip themselves via the ``workload: node-local`` declaration (``scripts/tests/deploy/swarm/utils/_context.sh`` maps ``node-local`` to ``HAS_SWARM_SERVICE=false``); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Bởi vì không có dịch vụ xếp chồng nào tồn tại, các cổng thử nghiệm của đàn ông mà thăm dò ``docker service ls`` (``converge``. ``seed``. ``drain``. ``assert``) nhảy qua ``workload: node-local`` khai báo (``scripts/tests/deploy/swarm/utils/_context.sh`` Bản đồ ``node-local`` phải ``HAS_SWARM_SERVICE=false``); triển khai chính nó, chuỗi phân phối đăng ký và cLI e2Tôi không biết."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll `docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves via the `workload: node-local` declaration (`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to `HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Bởi vì không có dịch vụ xếp chồng nào tồn tại, các cổng thử nghiệm của đàn ông mà thăm dò `docker service ls` (`converge`. `seed`. `drain`. `assert`) nhảy qua `workload: node-local` khai báo (`scripts/tests/deploy/swarm/utils/_context.sh` Bản đồ `node-local` phải `HAS_SWARM_SERVICE=false`); triển khai chính nó, chuỗi phân phối đăng ký và cLI e2Tôi không biết."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while ``svc-ai`` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
@@ -21473,7 +21473,7 @@ msgstr "Sự kết hợp ủy nhiệm ngược ý thức"
 
 # translated-by: libretranslate
 msgid "CSP3-aware: supports base/elem/attr for styles and scripts."
-msgstr "CNP3- ý thức: hỗ trợ base/elem/attr Cho kiểu dáng và kịch bản."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CSP‑friendly: manages script hash for you."
@@ -23356,7 +23356,7 @@ msgstr "@ info: tooltip [`roles/web-app-odoo/`](../../roles/web-app-odoo/)"
 
 # translated-by: libretranslate
 msgid "Closest in-repo analogue: [`roles/web-app-openproject/`](../../roles/web-app-openproject/) (oauth2 + header SSO + LDAP)"
-msgstr "Sự tương tự gần nhất: [`roles/web-app-openproject/`](../../roles/web-app-openproject/) (Oauth2 + đầu trang SSO + LDAP)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Closest in-repo analogue: [`roles/web-app-semaphore/`](../../roles/web-app-semaphore/) (native OIDC + LDAP, no oauth2 gate)"
@@ -23576,7 +23576,7 @@ msgstr "Co lại bất kỳ chuỗi đa dòng nào thành một dòng riêng l�
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Collapses the parallel **oauth2** and **oidc** top-level blocks in every role *meta/services.yml* into a single *services.sso* block with a **flavor** discriminator (*oidc* | *oauth2* | *saml*, default *oidc*). Flavor-specific keys live under *sso.<flavor>* (*sso.oauth2.{origin,acl,allowed_groups}*, *sso.oidc.plugin*)."
-msgstr "Co lại song song **Oauth2** và **oidc** khối cấp cao trong mỗi vai trò *meta/services.yml* vào một *services.sso* khối với một **mùi** ô phân loại (*oidc* teppi82 *Oauth2* teppi82 *Saml*mặc định *oidc*). Chìa khóa đặc trưng Flavor sống dưới *sso.<flavor>* (*sso.oauth2.{Nguồn gốc,acl,allowed_groups}*. *sso.oidc.plugin*)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Collapses your JavaScript into a single line and injects it via ``sub_filter`` for minimal footprint and maximal compatibility."
@@ -23989,7 +23989,7 @@ msgstr "Hậu quả tính toán không độc lập. `_compute` đọc các chì
 
 # translated-by: libretranslate
 msgid "Computes the SHA256 hash of the given inline content and returns a CSP token like \"'sha256-<base64>'\"."
-msgstr "Tính toán lớp vỏ256 hah của nội dung trực tiếp cho và trả lại một tín hiệu CNP như \"'sha256-<base64>'\"."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Conclusion flags select which jobs' logs are fetched (`-s`/`--success`, `-f`/`--failed`, `-c`/`--cancelled`, `--skipped`); with none given every completed job is fetched. Logs land under `DEST/logs/`, artifacts under `DEST/artifacts/`. `DEST` defaults to `/tmp/logs/<run-id>`. Job logs are available per job even while the run is still in progress; `--no-logs` / `--no-artifacts` skip either half."
@@ -24245,7 +24245,7 @@ msgstr "Hậu quả 📉"
 
 # translated-by: libretranslate
 msgid "Conservative, stable parallel-worker count for the Playwright e2e suite. Derived from the control host's effective CPU and RAM, divided down because browser workers are heavy and run against the co-resident application stack, reserved against RAM, hard-capped for the application-under-test's concurrency limits, and reduced further on CI. Always returns an int >= 1."
-msgstr "Số người làm việc song song, bảo tồn, ổn định cho nhà soạn kịch E2phòng khác. Từ các máy điều khiển hiệu quả CPU và RAM, bị chia cắt bởi vì các công nhân trình duyệt là nặng và chạy chống lại chồng ứng dụng cùng nhau, được dành riêng cho RAM, bị bao bọc cứng cho các giới hạn hợp tác dưới thử nghiệm ứng dụng, và giảm nhiều hơn trên CN. Luôn luôn trả lại một int > = 1."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Consolidate duplicate logic before merging."
@@ -25918,7 +25918,7 @@ msgstr "Vị trí mặc định:"
 
 # translated-by: libretranslate
 msgid "Default model: the gateway serves `/v1` without a configured `model.default`; agent turns need `hermes config set model.default ollama/<alias>` against the LiteLLM-backed provider. Bake it via a config template once a turn-level e2e assertion exists."
-msgstr "Mô hình mặc định: cổng ra phục vụ `/v1` không có cấu hình `model.default`; đặc vụ quay cần `hermes config set model.default ollama/<alias>` chống lại nhà cung cấp LiteM-backed. Brake nó thông qua một cấu trúc con một khi một quay cấp e2khẳng định tồn tại."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Default output: the full selection matrix followed by every prompt block (workflow name plus its copy-paste prompt), verbatim and unshortened. When the operator names a situation, output only the matching prompt block."
@@ -27673,7 +27673,7 @@ msgstr "Tài liệu cục bộ *Kiểm tra xem* Mục tiêu **Cố định**"
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Documents a `services.matomo.track: false` opt-out in `roles/<role>/meta/services.yml`. The role keeps `services.matomo.{enabled,shared}: true` (so the role-wiring contract stays satisfied) but `roles_with_service('matomo')` drops it from `MATOMO_TARGET_ROLES_JSON` and the matomo tracker e2e contract. Reserved for static-file (autoindex) and 301-redirect vhosts that carry no user-facing HTML page worth a `_paq` tracker. The marker accompanies the `track:` data flag the lookup honors."
-msgstr "Tài liệu `services.matomo.track: false` Tốt nhất `roles/<role>/meta/services.yml`. Vai trò giữ lại `services.matomo.{enabled,shared}: true` (Vì vậy, các hợp đồng đóng vai trò vẫn được thỏa mãn) Nhưng `roles_with_service('matomo')` Thả nó xuống từ `MATOMO_TARGET_ROLES_JSON` Và máy theo dõi Mattomo e2Hợp đồng. Name (Tự động chạy) và 301- thứ thực sự với thực phẩm thực sự không thực hiện được trang HTML người dùng nào đáng giá `_paq` Thợ săn. Bộ đánh dấu đi kèm `track:` dữ liệu sẽ đánh dấu vào danh dự tìm kiếm."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -28007,7 +28007,7 @@ msgstr "Name `Onion-Location` Cây cầu và vương quốc SSO đã phản chi�
 
 # translated-by: libretranslate
 msgid "Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved."
-msgstr "Chọn **web-app-bookwyrm** Bị hạn chế **hương vị: oauth2**; **web-app-gitea** và **web-app-friendica** Giữ **hương vị: oauth2** có sẵn *oauth2.acl.blacklist* (*/user/login*) và *oauth2.acl.whitelist* (Liên kết + kết thúc điểm) - ...có nhiệm vụ2- được bảo quản bằng bạc hà."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dual-stack model: the node keeps its clearnet ``DOMAIN_PRIMARY``; the node onion is an ADDITIVE address opted-in apps (``services.tor.enabled``) are also reachable under as ``<sub>.<node-onion>`` over Tor. Idempotent: an existing key at ``<base_dir>/.onion-identity/hs`` is reused so the address is stable across runs. The key files are the single source of truth — the ``svc-net-tor`` role copies them into the daemon so it serves exactly this address, and the inventory provisioner writes the returned address into ``applications.svc-net-tor.services.tor.node`` (no env indirection)."
@@ -28056,11 +28056,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "E2E CI job (torsocks, retries)."
-msgstr "E2Công việc AI (Comment)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "E2E Tests"
-msgstr "E2Thử ra"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "EMPTY INPUT"
@@ -28552,7 +28552,7 @@ msgstr "Địa chỉ thư"
 
 # translated-by: libretranslate
 msgid "Email delivery via Mailu / external SMTP (allow ≥ 60 s for the first inbox poll, ≥ 600 s for full P2P round-trips that wait for matterbot, antivirus scan, etc.)."
-msgstr "Gửi thư qua Mailu / Ngoại MSPS (Cho phép chọn 60 s cho cuộc thăm dò hộp thư đầu tiên, vội 600 s cho đầy đủ p2P tròn-trips chờ vật chất robot, quét kháng virus, v.v...)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email integration in v1: **outbound SMTP only**. When `web-app-mailu` is in `group_names`, Frappe's outbound Email Account is auto-configured against the central SMTP endpoint so notification / password-reset emails leave the box. **IMAP inbound (mail-to-Communication) is deferred to a follow-up requirement.** Rationale: the survey found no precedent in this repo for auto-provisioning role-owned mailboxes in Mailu, so the inbound side requires a new generic Mailu mechanism that is out of scope for this PR."
@@ -29562,7 +29562,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every other agent deployment in [032](032-agent-employees-firecracker.md) keeps the agent kernel-isolated. This role is the deliberate inverse defined by [032](032-agent-employees-firecracker.md) Decision #12 (embodied / dedicated-device mode): for a robot, the useful trust boundary is the **whole device**, because the agent's job is to drive that device's hardware (GPIO, I2C/SPI sensors, cameras, actuators, motors). A microVM around the agent would only get in the way of the very hardware it is meant to control."
-msgstr "Tất cả các đặc vụ khác triển khai. [032](032-agent-employees-firecracker.md) giữ cho đặc vụ bị phá hủy. Vai trò này là nghịch đảo cố ý được xác định bởi [032](032-agent-employees-firecracker.md) Quyết định12 (Chế độ xác thực và tiêu dùng): Đối với một robot, ranh giới tin tưởng hữu ích là **toàn bộ thiết bị**Bởi vì công việc của đặc vụ là lái phần cứng của thiết bị đó (GPAO, I2Cảm biến C/PRI, máy ảnh, bộ kích hoạt, động cơ)Một microVM xung quanh đặc vụ sẽ chỉ cản trở các phần cứng mà nó có nghĩa là kiểm soát."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every page carries a version switcher in its sidebar. Switching keeps the current page and falls back to the start page of a version that lacks it."
@@ -29746,7 +29746,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
-msgstr "Mỗi lần rà soát đều tập luyện cả hai kiến trúc qua danh mục thay vì chứng minh sự kết dính64 và không đòi hỏi gì, không được tính thêm công việc."
+msgstr ""
 
 msgid "Every target of the repository's ``Makefile`` that carries a documentation comment, with the description and parameters declared beside it. Generated by the documentation build; edit the ``Makefile`` rather than this page."
 msgstr ""
@@ -30005,7 +30005,7 @@ msgstr "Thực hiện lệnh MIME"
 
 # translated-by: libretranslate
 msgid "Execute autonomously after the Open Questions are resolved. Scaffold using [`roles/web-app-openproject/`](../../roles/web-app-openproject/) as the structural template (oauth2 flavor + header SSO + LDAP). Verify all Checkmk env names, the `auth_by_http_header` config mechanism, site-path routing, and the GUI selectors against the pinned upstream version before claiming done."
-msgstr "Thực hiện tự động sau khi giải quyết các câu hỏi mở. Da đầu dùng [`roles/web-app-openproject/`](../../roles/web-app-openproject/) là mẫu cấu trúc (Oauth2 hương vị + đầu trang SSO + LDAP)Kiểm tra tất cả Checkmk Tên env, các `auth_by_http_header` Cơ chế cấu trúc, định tuyến địa điểm, và các bộ chọn giao diện người dùng giao diện đồ hoạ chống lại phiên bản lên dòng trước khi tuyên bố đã làm xong."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Execute autonomously after the Open Questions are resolved. Verify the plugin install + config mechanism (plugin DLL placement under `/config/plugins`, the plugin configuration XML schema, and the catalog/version) against the pinned upstream plugin release before claiming done."
@@ -31304,7 +31304,7 @@ msgstr "Name Open WebUI là khách hàng, không phải cửa an ninh chung. n8n
 
 # translated-by: libretranslate
 msgid "Flowise and n8n"
-msgstr "Name8n"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Flowise consumes MCP through the *Custom MCP* tool node, which is configured **inside a flow**. It exposes no instance-level registry API, so the role prepares the instance and leaves the per-flow wiring to the operator."
@@ -32443,7 +32443,7 @@ msgstr "Cơ sở trước (HTTPS + mây)"
 
 # translated-by: libretranslate
 msgid "Front-door auth gates (e.g. an oauth2-proxy `sso` service in front of the vhost) are NOT addon bridges unless the addon itself talks to that service; they stay in `meta/services.yml` and MUST NOT appear under `bridges:`."
-msgstr "Cửa chính (e.g. aauth2-Praxy `sso` Dịch vụ trước vma) không phải là cầu bổ sung trừ khi các phụ tùng tự nói chuyện với dịch vụ đó; họ ở lại `meta/services.yml` và không nên xuất hiện dưới `bridges:`."
+msgstr ""
 
 msgid "Frontend client ID: `{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}`, a dedicated public client whose audience mapper adds the controller client to every access token, so the controller's token introspection accepts it"
 msgstr ""
@@ -32938,7 +32938,7 @@ msgstr "Hướng dẫn quản lý GitHub 🛡️"
 
 # translated-by: libretranslate
 msgid "GitHub i18n Helpers 🌐"
-msgstr "GitHub i18Trợ giúp n 🌐"
+msgstr ""
 
 msgid "GitHub lists its hosted images in the runner-images README; the newest x64 Ubuntu label whose image carries no preview or beta badge is the target."
 msgstr ""
@@ -33282,7 +33282,7 @@ msgstr "HTTP+SSE (`adapter.upstream_transport: sse`)"
 
 # translated-by: libretranslate
 msgid "HTTP/2 support, TLS/SSL integration"
-msgstr "HTTP/ HTTP2 hỗ trợ, tích hợp TLS/SSL"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [ca.sh](../../../roles/svc-cache-package/files/shell/ca.sh)."
@@ -33369,7 +33369,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Hardened CI and local development with better WSL2 bootstrap support, safer swap / disk handling, stronger GHCR mirroring and release workflows, and updated fork / PR automation"
-msgstr "Hệ thống cảm ứng cứng và phát triển địa phương với WSL tốt hơn2 Hỗ trợ bẫy, trao đổi / xử lý đĩa an toàn hơn, chiếu gương và phát hành luồng công việc, và cập nhật nĩa / PR"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Hardened CI/CD pipelines with retries and Git fallback for Ansible Galaxy collections"
@@ -34983,7 +34983,7 @@ msgstr "Nguồn ảnh"
 
 # translated-by: libretranslate
 msgid "Image strategy: **upstream `frappe/erpnext`** (the official image from [frappe_docker](https://github.com/frappe/frappe_docker)), pinned to the **latest stable v15.x** in `meta/services.yml` (no `:latest`, no `:edge`). v14 LTS and the v16 pre-release line are explicitly NOT used. Bump path follows the same convention as other upstream-pinned roles."
-msgstr "Chiến lược ảnh: **ngược dòng `frappe/erpnext`** (ảnh chính thức từ [frappe_docker](https://github.com/frappe/frappe_docker))bị trói chặt vào **ổn định mới nhất v15.x** in `meta/services.yml` (không `:latest`, không `:edge`)v.14 LTS và v16 Dòng tiền đề hoàn toàn không được dùng. Con đường nứt theo cùng một quy ước với những vai trò được đẩy ngược ngược dòng khác."
+msgstr ""
 
 msgid "Image version of the primary entity at ``designed``."
 msgstr ""
@@ -35263,7 +35263,7 @@ msgstr "Đã cải tiến Mailu và MariaDB Người dùng/ Phép ẩn danh và 
 
 # translated-by: libretranslate
 msgid "Improved WSL2 and local development bootstrap flow with better Docker, DNS, CA trust, package installation, and smoke-test coverage"
-msgstr "Comment2 và phát triển khởi động tại địa phương với tốt hơn Docker, DNS, CA lòng tin, cài đặt gói, và che khói kiểm tra"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Improved XWiki Ansible idempotency and URL handling Normalized internal URLs, clarified uri auth parameters, and made extension install and admin setup fully repeatable."
@@ -35299,7 +35299,7 @@ msgstr "Để cải thiện và giải phóng lòng tin bằng cách đơn giả
 
 # translated-by: libretranslate
 msgid "Improves CI and test robustness by fixing Jinja2 templating edge cases, unifying unittest mock imports, hardening Docker image pull retries, and resolving multiple code-scanning alerts without suppressions."
-msgstr "Sửa Jinja để cải thiện trí tuệ và thử nghiệm.2 Đồng bộ hóa các trường hợp cạnh, hợp nhất hóa việc nhập khẩu thử nghiệm, làm cứng lại hình ảnh Docker, và giải quyết nhiều cảnh báo mã hóa mà không bị đàn áp."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Improves CI stability by extending deploy job timeouts to 6 hours, moving compose pull retries into Ansible, and adding additional deployer metadata."
@@ -35346,11 +35346,11 @@ msgstr "Trong chế độ soạn thảo, tìm kiếm trở lại chuỗi rỗng 
 
 # translated-by: libretranslate
 msgid "In embedded mode (``shared: false``) a consumer’s compose stack receives a storage-only SeaweedFS container without UI or published ports. The embedded S3 listener performs no authentication, so it MUST stay confined to the consumer’s isolated compose network."
-msgstr "Trong chế độ nhúng (``shared: false``) Một chồng của người tiêu dùng chỉ nhận được một kho SeaweedFS Vật chứa không có UI hoặc xuất bản. Chữ S nhúng3 Người nghe không thực hiện được sự xác thực, vì thế nó phải ở trong mạng lưới độc lập của người tiêu dùng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In embedded mode (`shared: false`) a consumer's compose stack receives a storage-only SeaweedFS container without UI or published ports. The embedded S3 listener performs no authentication, so it MUST stay confined to the consumer's isolated compose network."
-msgstr "Trong chế độ nhúng (`shared: false`) Comment SeaweedFS Vật chứa không có UI hoặc xuất bản. Chữ S nhúng3 Người nghe không thực hiện xác thực, vì vậy nó phải được giới hạn trong mạng lưới độc lập của người tiêu dùng."
+msgstr ""
 
 msgid "In front of the dashboard"
 msgstr ""
@@ -37481,7 +37481,7 @@ msgstr "Bước lặp lại:"
 
 # translated-by: libretranslate
 msgid "Its SHA256 checksum is fetched from the same release"
-msgstr "Nó bị hở256 Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Its purpose is to keep runtime configuration centralized, deterministic, and easy to reuse across local runs, CI, and container-based execution. 🧭"
@@ -37570,7 +37570,7 @@ msgstr "Lọc Jinja: `external_asset_origins` trích xuất các máy chủ tài
 
 # translated-by: libretranslate
 msgid "Jinja filters for building a robust, CSP3-aware Content-Security-Policy header. Safari/CSP2 compatibility is ensured by merging the -elem/-attr variants into the base directives (style-src, script-src). We intentionally do NOT mirror back into -elem/-attr to allow true CSP3 granularity on modern browsers."
-msgstr "Bộ lọc Jinja để xây dựng một hệ thống lọc âm thanh mạnh mẽ3- Tôi biết thủ cấp nội dung. Comment2 c tương thích được bảo đảm bằng cách trộn các biến thể -elem/ atr vào các chỉ thị cơ bản (Kiểu dáng:). chúng tôi cố ý không phản ánh trở lại -elem/ atr để cho phép CNP thật3 Sự đa dạng trong các trình duyệt hiện đại."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Jinja filters: ``cdn_paths``, ``cdn_urls``, ``cdn_dirs``"
@@ -37885,11 +37885,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Keeps the upstream playbook auditable (every consumer sees the exact SHA); avoids carrying the ~10MB upstream tree in this repo."
-msgstr "Giữ cho trò chơi ngược dòng được kiểm toán (Mỗi người tiêu dùng nhìn thấy chính xác chia sẻ); tránh mang theo10MB cây đảo ngược này."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Keeps v1 surface small; multi-site can land in a follow-up requirement if needed."
-msgstr "Giữ1 bề mặt nhỏ; nhiều loại có thể hạ cánh theo yêu cầu nếu cần."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Kept in its own module so ``utils.cache.applications`` stays under the repo's per-file line cap. Strictly ansible-free (stdlib only) so the runner-host CLI path keeps importing it without ansible installed."
@@ -37968,14 +37968,14 @@ msgstr "Khóa dưới mà trước khi được tạo ra ``<entity>`` mạng xu�
 
 # translated-by: libretranslate
 msgid "Key variable: `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (default: `false`) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Biến `SYS_SVC_SSHD_PASSWORD_AUTHENTICATION` (mặc định `false`) hiệu lực khả năng xác thực mật khẩu khi rõ ràng cần thiết bởi môi trường được điều khiển như địa phương E2Mục tiêu thử nghiệm E."
+msgstr ""
 
 msgid "Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `\"no\"`) sets `PermitRootLogin`. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before `user-administrator` exists, so that deploy passes `\"prohibit-password\"` through its `--vars` JSON."
 msgstr ""
 
 # translated-by: libretranslate
 msgid "Key variable: ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (default: ``false``) enables password authentication when explicitly required by controlled environments such as local E2E test targets."
-msgstr "Biến ``SYS_SVC_SSHD_PASSWORD_AUTHENTICATION`` (mặc định ``false``) hiệu lực khả năng xác thực mật khẩu khi rõ ràng cần thiết bởi môi trường được điều khiển như địa phương E2Mục tiêu thử nghiệm E."
+msgstr ""
 
 msgid "Key variable: ``SYS_SVC_SSHD_PERMIT_ROOT_LOGIN`` (default: ``\"no\"``) sets ``PermitRootLogin``. A first deploy onto a fresh server arrives over root, because the inventory vaults a random become password before ``user-administrator`` exists, so that deploy passes ``\"prohibit-password\"`` through its ``--vars`` JSON."
 msgstr ""
@@ -38786,7 +38786,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Lists tags and checks tag reachability for ANY registry that speaks the standard v2 API (Docker Hub, GHCR, MCR, Quay, GitLab/opencode, …) via the RFC-standard ``WWW-Authenticate: Bearer`` token-challenge flow, so no per-registry special case is needed. ``docker.io`` resolves to ``registry-1.docker.io`` and bare official names are prefixed with ``library/``."
-msgstr "Name2 API (Căn cứ Docker, GHCR, MCR, Quay, GitLabMở mã, ...) thông qua tiêu chuẩn RFC ``WWW-Authenticate: Bearer`` nên không cần cái gì đặc biệt cả. ``docker.io`` Quyết định tới ``registry-1.docker.io`` và tên chính thức được tiền tố bởi ``library/``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LiteLLM Admin UI"
@@ -38823,11 +38823,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS Playground is designed as a lightweight HTML5 game sandbox for education, prototyping, and fun. It exposes the original LittleJS ``examples/`` browser and adds a Bootstrap-based landing page that lists all examples as clickable tiles and offers quick links to popular games such as platformers and arcade-style demos. The app runs as a single Docker container and requires no additional database or backend services."
-msgstr "LittleJS Sân chơi được thiết kế dạng HTML nhẹ5 Hộp cát cho giáo dục, nguyên mẫu và niềm vui. Nó phơi bày bản gốc LittleJS ``examples/`` Trình duyệt và thêm vào một trang khởi động dựa trên khởi động mà liệt kê tất cả các ví dụ như gạch có thể click và cung cấp liên kết nhanh đến các trò chơi phổ biến như các nền tảng và các bản thử nghiệm kiểu trò chơi. Ứng dụng chạy dưới dạng một container Docker và không cần thêm cơ sở dữ liệu hay dịch vụ hậu phương."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS Playground is designed as a lightweight HTML5 game sandbox for education, prototyping, and fun. It exposes the original LittleJS `examples/` browser and adds a Bootstrap-based landing page that lists all examples as clickable tiles and offers quick links to popular games such as platformers and arcade-style demos. The app runs as a single Docker container and requires no additional database or backend services."
-msgstr "LittleJS Sân chơi được thiết kế dạng HTML nhẹ5 Hộp cát cho giáo dục, nguyên mẫu và niềm vui. Nó phơi bày bản gốc LittleJS `examples/` Trình duyệt và thêm vào một trang khởi động dựa trên khởi động mà liệt kê tất cả các ví dụ như gạch có thể click và cung cấp liên kết nhanh đến các trò chơi phổ biến như các nền tảng và các bản thử nghiệm kiểu trò chơi. Ứng dụng chạy dưới dạng một container Docker và không cần thêm cơ sở dữ liệu hay dịch vụ hậu phương."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LittleJS README & docs: [GitHub – LittleJS](https://github.com/KilledByAPixel/LittleJS#readme)"
@@ -40252,7 +40252,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Ma trận hiện đại hóa: tín hiệu, Telegram, Whats App và Slack Bridge di cư đến Bridgev2 config, các cây cầu mautrix-facebook /instagram được thay thế bởi mautrix-eta, cây cầu kính được đóng cửa bởi addon triển khai, Synapse nạp số đăng ký cầu từ một thư mục đã gắn kết, và các vai trò bây giờ *Comment* từ tiếng Tây Ban Nha ngược dòng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40469,7 +40469,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Nhập hai danh sách các câu lệnh vào một phím cho trước. - danh sách1, danh sách2: mỗi phải là một danh sách[Từ điển] - key_name: trường cần khớp nếu cả hai danh sách chứa một mục cùng một key_name giá trị, từ điển của họ được trộn lẫn (trường từ danh sách2 Ghi đè hoặc thêm vào danh sách1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40647,7 +40647,7 @@ msgstr "Mint a v3 Phím hành từ ``seed`` (32 byte ngẫu nhiên nếu bị b�
 
 # translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr "Bạc hà từ một cơ sở64- Hạt giống được mã hóa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mint helper & key persistence"
@@ -41629,7 +41629,7 @@ msgstr "Mới *unit_name* Name"
 
 # translated-by: libretranslate
 msgid "New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md)."
-msgstr "Mới *web-app-n8n* vai: n8Comment (Ấn bản cộng đồng). SSO được kết nối qua một lưỡi câu uy tín được sao chép và gắn kết chỉ khi SSO được bật (Người bản xứ SSO chỉ là doanh nghiệp vào năm CN)Tín hiệu LDAP được hỗ trợ, và một nhà biên kịch trên sân khấu được thực hiện mô hình CE cạnh-SSO. Những chiếc tàu cứu sinh *Alpha*; subnet và cổng va chạm với mới *web-app-semaphore* vai trò đã được giải quyết trên đường vào. Xem [web-app-n8n ĐỌCME](roles/web-app-n8n/README.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New Apps"
@@ -41653,7 +41653,7 @@ msgstr "Mới Penpot vai (web-app-penpotyêu cầu 235) rằng thuyền ngược
 
 # translated-by: libretranslate
 msgid "New Pi-hole role (*web-app-pihole*) that ships the upstream Pi-hole DNS sinkhole and network-wide ad blocker, with its admin web interface gated behind *oauth2-proxy* and Keycloak RBAC and a native admin-password login (the *FTLCONF* web API password) available as a fallback variant. The upstream resolver and timezone are configurable, the role waits on the Pi-hole HTTP endpoint during deploy, and it is exercised end-to-end with Playwright covering the OAuth2, native-login and guest-access scenarios. The role ships at lifecycle beta."
-msgstr "Vai trò lỗ Pi mới (*web-app-pihole*) mà tàu chiến các pi-hole DNS sushhole và ad blocker mạng, với giao diện admin của nó cửa sau *Oauth2-Praxy* và Keycloak Name (Cây *FTLCONF* Mạng API Mật khẩu) hiện có như là một biến thể phụ. Bộ giải quyết xuôi dòng và múi giờ là cấu hình được, vai trò chờ ở điểm cuối Pi-hole HTTP trong khi triển khai, và nó được thực hiện kết thúc để kết thúc với Playwright bao gồm OAuth2kịch bản về khách mời. Vai trò của những con tàu ở vòng đời."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New `--mirror` support for inventory generation"
@@ -41672,7 +41672,7 @@ msgstr "Trung tâm mới API Điểm sự thật đơn: *api* Name API ʹ như v
 
 # translated-by: libretranslate
 msgid "New engine-agnostic object-store service (*web-app-seaweedfs*, backed by either *SeaweedFS* or *MinIO*) that exposes a shared S3 endpoint, now consumed across 14 web-app roles for media and asset storage. Nextcloud, Decidim, Shopware, PeerTube, Pixelfed, Taiga, Fider, Akaunting, Mobilizon and Matrix route their uploads to the central bucket, each exercised end-to-end with a SeaweedFS consumer check that requires a fresh object key per upload."
-msgstr "Comment (*web-app-seaweedfs*hỗ trợ bởi một trong hai *SeaweedFS* hay *MinIO*) mà phơi bày một S chia sẻ3 điểm cuối, giờ đã cạn kiệt. 14 Vai trò của web-pp cho việc lưu trữ truyền thông và tài sản. Đám mây tiếp theo, Decidim. Shopware. PeerTube. Pixelfed. Taiga. Fider. Akaunting. Mobilizon và Matrix Mỗi lần tải lên một xô trung tâm, mỗi lần thực hành để kết thúc với một SeaweedFS Người tiêu dùng kiểm tra mà yêu cầu một khóa đồ vật mới cho mỗi lần tải lên."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New features or enhancements"
@@ -42052,7 +42052,7 @@ msgstr "Không có vải vẽ chương trình trợ giúp và đường ống"
 
 # translated-by: libretranslate
 msgid "Node Tor v3 onion identity for the harness."
-msgstr "Name3 Danh tính củ hành cho bộ giáp."
+msgstr ""
 
 # scripts/tests/deploy/swarm/utils/topology/base.sh); chỉ có SWARM_NAME Tiền
 # tố được áp dụng ở đây để tên máy tương ứng với các thùng chứa. ♪ The env
@@ -42531,7 +42531,7 @@ msgstr "Nơi chính thức: https://www.postfix.org/"
 
 # translated-by: libretranslate
 msgid "Offline Tor v3 onion-service key minting."
-msgstr "Name3 Nhân viên lấy chìa khóa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Old redirects or headers persist even after config changes."
@@ -42603,7 +42603,7 @@ msgstr "Trên WSL2 hoặc Windows, bạn cần phải qua cờ thêm để cấu
 
 # translated-by: libretranslate
 msgid "On Windows, use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) as the development environment and run the repository commands inside WSL2, not directly in [PowerShell](https://learn.microsoft.com/en-us/powershell/). Use Ubuntu 24.04 with [Docker Desktop WSL2 integration](https://docs.docker.com/desktop/features/wsl/), enable [`systemd`](https://systemd.io/), and expect a few Windows-specific follow-up steps around [certificate authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) trust and local name resolution."
-msgstr "Trên cửa sổ, hãy dùng [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) là môi trường phát triển và chạy lệnh kho phần mềm bên trong WSL2không trực tiếp trong [Name](https://learn.microsoft.com/en-us/powershell/). Dùng Ubuntu 24.04 có [Comment2 Hợp nhất](https://docs.docker.com/desktop/features/wsl/), Bật [`systemd`](https://systemd.io/), và mong đợi vài bước theo dõi đặc trưng của Windows [thẩm quyền chứng nhận (CA)](https://en.wikipedia.org/wiki/Certificate_authority) tin tưởng và giải quyết tên địa phương."
+msgstr ""
 
 msgid "On `pull_request` and `pull_request_target` the deploy and workspace matrices run `fail-fast`: the first failed row cancels its siblings in that matrix. Push and manual runs keep every row."
 msgstr ""
@@ -42649,7 +42649,7 @@ msgstr "Khi thất bại: hãy hỏi nhà điều hành xem có nên tuân theo 
 
 # translated-by: libretranslate
 msgid "On first run it self-installs `iputils-ping` + `iproute2` via the container's package manager (Debian / Ubuntu apt, Arch pacman, Fedora / CentOS / RHEL dnf). The installer waits up to two minutes for an apt-lock if a parallel deploy is running. IPv6 probes are auto-skipped when the bridge has no usable IPv6 default route."
-msgstr "Đầu tiên, nó tự cài đặt `iputils-ping` + `iproute2` qua bộ quản lý gói của container (Debian / Ubuntu apt, Arch pacman, Fedora / CentOS / RHEL dnf). Bộ cài đặt chờ đến hai phút cho một apt-lock nếu một cuộc triển khai song song đang chạy. IPv6 Máy thăm dò được tự động trượt khi cầu không có IPv có thể sử dụng6 mặc định lộ trình."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "On macOS and Windows, you MUST use Docker Desktop settings instead of `daemon.json`."
@@ -42740,7 +42740,7 @@ msgstr "Name `/v1`, đường tới bất kỳ hậu phương nào (không đầ
 
 # translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr "Một Pi tham gia như một `kata-capable` cánh tay64 nút; `web-app-hermes` triển khai ở đó dưới thời gian chạy riêng lẻ được chọn trước khi bay (Quyết định4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
@@ -43285,7 +43285,7 @@ msgstr "Nền tảng dân chủ mở cho các tư vấn cộng đồng, các quy
 
 # translated-by: libretranslate
 msgid "Open-source pretix has no S3/object-store backend (local `MEDIA_ROOT` only; no django-storages/boto3, no config hook)."
-msgstr "Tiền tố mã nguồn mở không có chữ S3/ Hậu phương đồ thị (cục bộ `MEDIA_ROOT` Chỉ có; không có django-storages/boto3Không móc câu)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
@@ -43293,7 +43293,7 @@ msgstr "Hệ thống mã nguồn mở, hệ thống tin nhắn cho sự hợp t�
 
 # translated-by: libretranslate
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "Name1 kết thúc điểm tới hậu phương mô hình cục bộ và máy chủ với các phím trên máy chủ"
+msgstr ""
 
 msgid "OpenBao Architecture"
 msgstr ""
@@ -45046,7 +45046,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Persistence: the appview's aggregator cache (upstream D1/SQLite) is mapped to a **role-local SQLite volume**, not a central `svc-db-*`. Meilisearch is **optional**, gated on a dynamic `meilisearch` service flag, off by default."
-msgstr "Kiên trì: Bộ nhớ tạm tổng hợp của appview (ngược dòng D1Châu Âu) được vẽ thành a **khối lượng vai trò**không phải trung tâm `svc-db-*`. Khám phá là **Tùy chọn**Đang mở cổng. `meilisearch` Cờ dịch vụ, tắt theo mặc định."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Persistent credential material that survives beyond the session and is consumed by every subsequent `docker push`/`pull`. Login prompts can also leak passwords into the transcript if entered interactively. Only one spelling exists, so no synonym wildcard is needed."
@@ -45461,7 +45461,7 @@ msgstr "Cho nhà biên soạn: đây là những phần mở rộng trình duy�
 
 # translated-by: libretranslate
 msgid "Playwright gating helpers (*isServiceEnabled*, *skipUnlessServiceEnabled*, *requireService*, *safeIsEnabled*, *safeSkipUnlessEnabled*) move from service *oidc* / *oauth2* to *sso*"
-msgstr "Bộ trợ giúp phát âm (*isServiceEnabled*. *Bỏ qua trừ khi ServiceEnid*. *yêu cầuService*. *An toàn*. *Biểu thức chính quy*) từ dịch vụ *oidc* / *Oauth2* phải *sso*"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright is executed in Docker for reproducibility and consistent browser dependencies."
@@ -45469,7 +45469,7 @@ msgstr "Trình soạn thảo được thực hiện trong Docker cho tính khả
 
 # translated-by: libretranslate
 msgid "Playwright is the E2E framework for all `web-*` roles. Tests are role-local. Each role ships its own `files/playwright/playwright.spec.js` and `templates/playwright.env.j2` and is discovered automatically by the shared `test-e2e-playwright` runner."
-msgstr "Tác giả là E2Comment `web-*` Vai diễn. Kiểm tra vai trò. Mỗi vai diễn của nó đều là của riêng nó. `files/playwright/playwright.spec.js` và `templates/playwright.env.j2` và được phát hiện tự động bởi chia sẻ `test-e2e-playwright` Chạy."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Playwright keeps trace, screenshot and video only when a test fails"
@@ -48574,7 +48574,7 @@ msgstr "Thay tên *compose.services.desktop* phải *compose.services.dashboard*
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Thay tên cho việc triển khai để tạo ra sự nổ tung qua Make, `container-*` Name `compose-*`, các vai trò dự phòng di sản `svc-bkp-*` với container/local-2-Những điểm nhập không thể chuyển đổi, tìm kiếm tình trạng triển khai với một lá cờ thời gian chạy, `dmbs_*/dbms_base` mẫu cho a container_depends_on Tìm kiếm, INFINITO_CMD cho một tham số đơn giản, và web-opt-rdr-www có thể chính thống để w3Chuyển tiếp với bản đồ dựa trên tra cứu"
+msgstr ""
 
 # ảnh-mrror-*)
 # translated-by: libretranslate
@@ -49328,7 +49328,7 @@ msgstr "Giải quyết mỗi tên được thăm dò, một lần qua chồng v�
 
 # translated-by: libretranslate
 msgid "Resolve engine-agnostic S3 object-store values for a consumer."
-msgstr "Comment3 Các giá trị đối tượng cho người tiêu dùng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolve executable paths from command names."
@@ -49601,7 +49601,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Restores the previous IPv6 settings and restarts `docker.service`."
-msgstr "Phục hồi IPv trước6 cài đặt và khởi chạy lại `docker.service`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Restrict Creations ❌"
@@ -50643,7 +50643,7 @@ msgstr "Trả lại các bù đắp của mỗi tên ``text`` mang theo."
 
 # translated-by: libretranslate
 msgid "Return the ordered H2 titles of a Markdown document (fence-aware)."
-msgstr "Trả lại lệnh H.2 Tựa của tài liệu Đánh dấu (hàng đợi)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Return the ordered module calls that bring ``spec`` into ``state``."
@@ -50896,7 +50896,7 @@ msgstr "Name ``role_name`` trên ``application_id``."
 
 # translated-by: libretranslate
 msgid "Return the v3 ``.onion`` address for a 32-byte ed25519 public key."
-msgstr "Trả lại V3 ``.onion`` địa chỉ cho một 32- byte ed25519 Chìa khóa công cộng."
+msgstr ""
 
 msgid "Return the version *current* should move to, or ``None``."
 msgstr ""
@@ -53896,7 +53896,7 @@ msgstr "SSO / Tính thống nhất"
 
 # translated-by: libretranslate
 msgid "SSO / oauth2 + header auth (Decision #3)"
-msgstr "SSO / Oauth2 + đầu trang auth (Quyết định3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO Tests 🔐"
@@ -53912,7 +53912,7 @@ msgstr "Mùi vị SSO là **`oidc` (bản xứ)** - Semaphore tự làm \"Đăng
 
 # translated-by: libretranslate
 msgid "SSO is the **oauth2-proxy gate + Checkmk header-auth (`auth_by_http_header = \"X-Remote-User\"`) + native LDAP**."
-msgstr "SSO là **Oauth2- Cổng đệm + Checkmk mũ (`auth_by_http_header = \"X-Remote-User\"`) Name**."
+msgstr ""
 
 msgid "SSO is the **oauth2-proxy gate only**. No native OIDC, no user mapping, no in-app accounts."
 msgstr ""
@@ -53942,7 +53942,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Safari/CSP2 fallback: base directives (style-src, script-src) always include the union of their -elem/-attr variants."
-msgstr "Comment2 hậu phương: chỉ thị cơ bản (Kiểu dáng:) luôn bao gồm sự kết hợp giữa các biến thể của chúng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Safe default: long-running services are the most common case and a typo in a role's `docker_restart_policy` would otherwise silently produce ``none``, which would skip respawning real services and look like a deploy success."
@@ -54349,7 +54349,7 @@ msgstr "Phần"
 
 # translated-by: libretranslate
 msgid "Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "Bảo mật truy cập pgAdmin của bạn bằng cách tích hợp một OAuth bên ngoài2 Nhà cung cấp."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security"
@@ -54443,11 +54443,11 @@ msgstr "Bảo mật: Giải quyết tất cả 80 Mở báo động mã thông b
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to `127.0.0.1` and every request traverses the oauth2-proxy that overwrites `X-Forwarded-*`. The `X-Auth-Request-*` / `Remote-User` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through `web-svc-logout` / the oauth2-proxy sign-out, not Postmarks' own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Bảo mật: người dẫn đầu danh tính được tin cậy vô điều kiện, chỉ an toàn vì cổng ứng dụng bị ràng buộc `127.0.0.1` và mọi yêu cầu đi qua đền thờ2- Cô gái ghi đè lên... `X-Forwarded-*`. Cái `X-Auth-Request-*` / `Remote-User` biến thể được cố ý bỏ qua để một khách hàng đã được chứng thực không thể tiêm vào một danh tính khác. Đăng xuất phải đi qua `web-svc-logout` / oauth2- Đăng ký thuốc giảm đau, không phải PostmarksLiên kết đăng xuất của riêng mình, bởi vì người dẫn đầu ủy nhiệm sẽ thiết lập lại phiên chạy theo yêu cầu tiếp theo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to ``127.0.0.1`` and every request traverses the oauth2-proxy that overwrites ``X-Forwarded-*``. The ``X-Auth-Request-*`` / ``Remote-User`` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through ``web-svc-logout`` / the oauth2-proxy sign-out, not Postmarks’ own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Bảo mật: người dẫn đầu danh tính được tin cậy vô điều kiện, chỉ an toàn vì cổng ứng dụng bị ràng buộc ``127.0.0.1`` và mọi yêu cầu đi qua đền thờ2- Cô gái ghi đè lên... ``X-Forwarded-*``. Cái ``X-Auth-Request-*`` / ``Remote-User`` biến thể được cố ý bỏ qua để một khách hàng đã được chứng thực không thể tiêm vào một danh tính khác. Đăng xuất phải đi qua ``web-svc-logout`` / oauth2- Đăng ký thuốc giảm đau, không phải PostmarksLiên kết đăng xuất của riêng mình, bởi vì người điều khiển ủy nhiệm sẽ tái thiết phiên chạy theo yêu cầu tiếp theo."
+msgstr ""
 
 msgid "See :mod:`utils.mail.provider` for why this is not simply ``MAIL_PROVIDER``."
 msgstr ""
@@ -54702,7 +54702,7 @@ msgstr "Tự chủ chạy cơ sở hạ tầng để thực hiện hành động
 
 # translated-by: libretranslate
 msgid "Self-hosted CI runners: new *svc-runner* role plus *cli/deploy/runner* command spin up N containerised GitHub Actions runners on any server, adding to the 20 GitHub-hosted ones. Each runner is isolated (own subnet, ports, inventory, Docker volume, DNS) and auto-re-registers. Runs on Debian, Ubuntu and Arch, supports Docker-in-Docker, and ships a full in-runner E2E deploy test. See the *svc-runner* README."
-msgstr "Chạy trình nền tự chủ: mới *svc-runner* vai trò cộng *cli/deploy/runner* lệnh quay lên N containered GitHub Actions trên bất kỳ máy chủ, thêm vào 20 Những cái có túi. Mỗi người chạy đua bị cô lập (mạng phụ, cổng, kho hàng, âm lượng Docker, DNS) và máy bay tự động. Chạy trên Debian, Ubuntu và Arch, hỗ trợ Docker-in-Docker, và tàu đầy đủ một người kéo E2Thử nghiệm E. Xem *svc-runner* Sẵn sàng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
@@ -54714,7 +54714,7 @@ msgstr "Bức tường tự chủ cho việc hiển thị các bài viết công
 
 # translated-by: libretranslate
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Comment5 Hộp cát để duyệt và chạy bản demo động cơ nhẹ và trò chơi trong trình duyệt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -56051,11 +56051,11 @@ msgstr "Gọi ngược lại thử nghiệm nhỏ hoặc định dạng đườn
 
 # translated-by: libretranslate
 msgid "Smaller role fixes: ERPNext bypasses the v16 setup wizard per app and clears the Frappe cache after applying social-login, LDAP and email configuration; Friendica strips a trailing slash from the base URL and makes the admin-follow Playwright test idempotent; Funkwhale starts its API with gunicorn and binds the port."
-msgstr "Sửa chữa vai trò nhỏ hơn: Lỗi chính tả16 đã cài đặt trợ lý cho mỗi ứng dụng và xóa bỏ bộ nhớ tạm Frappe sau khi áp dụng bộ nhớ tạm xã hội, LDAP và cấu hình email; Friendica lột bỏ một vết cắt có dấu vết từ địa chỉ URL cơ bản và làm cho việc kiểm tra phát âm theo dõi Playempotent; Funkbrale bắt đầu nó API Với cây lựu và cột cổng lại."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Smallest v1 surface; matches the upstream default Docker compose. External runner agents are a follow-up."
-msgstr "V nhỏ nhất1 bề mặt; phù hợp với chế độ theo dòng mặc định Docker. Các đặc vụ bên ngoài đang theo dõi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Smart Assist"
@@ -56644,11 +56644,11 @@ msgstr "Static IP được chỉ định cho toa phụ CoreDNS và được dùn
 
 # translated-by: libretranslate
 msgid "Static IPv4 address assigned to the `infinito` container. Default in [default.env](../../../../default.env)."
-msgstr "IPv tĩnh4 địa chỉ được gán cho `infinito` container. Mặc định [default.env](../../../../default.env)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Static IPv4 address for the frontend on the compose default network."
-msgstr "IPv tĩnh4 địa chỉ cho giao diện điều khiển trên mạng mặc định soạn thảo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Static analysis and linting"
@@ -57208,7 +57208,7 @@ msgstr "Đề nghị một `/28` mạng phụ (mặc định `--count 1`):"
 
 # translated-by: libretranslate
 msgid "Suggest five free oauth2-callback ports inside an explicit ad-hoc range:"
-msgstr "Đề nghị năm oauth miễn phí2- Có cổng sau trong phạm vi quảng cáo rõ ràng:"
+msgstr ""
 
 msgid "Suggest free host-bound ports based on the live role tree."
 msgstr ""
@@ -57538,7 +57538,7 @@ msgstr "Vai trò Svc-ai-robot"
 
 # translated-by: libretranslate
 msgid "Svc-ai-s1 Role"
-msgstr "Svc-ai1 Nhiệm vụ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-ai-searxng Role"
@@ -58596,7 +58596,7 @@ msgstr "Thay đổi"
 
 # translated-by: libretranslate
 msgid "Test E2E Cli"
-msgstr "Thử E2Name"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test Email"
@@ -58655,11 +58655,11 @@ msgstr "Name️"
 
 # translated-by: libretranslate
 msgid "Test-e2e-cli Role"
-msgstr "Thử ra2Vai trò e-cli"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-e2e-playwright Role"
-msgstr "Thử ra2Vai trò nhà soạn thảo điện tử"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test-fresh: the goal is green compose **and** swarm deploys on fresh act clusters. No embedded->central data migration path (that is a separate prod-upgrade concern)."
@@ -58671,7 +58671,7 @@ msgstr "Chỉ nội dung thử nghiệm của phân tích hoặc đối tượng
 
 # translated-by: libretranslate
 msgid "Test: E2E Playwright Runner"
-msgstr "Thử ra: E2GenericName"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Testing"
@@ -58709,7 +58709,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Tests in this directory MUST NOT cover unrelated OAuth2 or OIDC configuration. Generic OAuth2 / OIDC invariants belong one level up under `oauth2_oidc/`. Port and domain checks belong under `tests/integration/ports/` and `tests/integration/domains/`."
-msgstr "Thử ra trong thư mục này không nên bao gồm OAuth không liên quan2 hoặc cấu hình OIDC. OAuthGenericName2 / OIDC inveriants thuộc về một cấp lên dưới `oauth2_oidc/`. Kiểm tra cổng và miền thuộc về `tests/integration/ports/` và `tests/integration/domains/`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Tests in this directory MUST only cover Ansible module / task usage rules."
@@ -59715,7 +59715,7 @@ msgstr "Name :func:`curl_argv`, trích dẫn một vỏ sò."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "Kiến trúc CPU là cùng một loại tài sản và không được bao phủ ở tất cả. Mọi công việc triển khai đều được thực hiện `ubuntu-latest`, Vì vậy, mỗi lần quét đã chứng minh64 và không nói gì về cánh tay64Trong khi dự án đóng vai trò tàu có hình ảnh ngược dòng, bánh xe và nhị phân khác nhau tùy theo kiến trúc. Một vai diễn không thể chạy trên cánh tay64 không thể phân biệt được với bất cứ ai từng thử ở đó."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -59873,7 +59873,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The MDAD inventory is templated to enable a conservative-default bridge set plus Jitsi + Element Call. Bridge enablement is gated on `lookup('config', application_id, 'services.matrix.plugins.<bridge>')`. v1 default-ON set (operator-confirmed): `mautrix_signal`, `mautrix_telegram`, `mautrix_twitter`, `mautrix_slack`, `appservice_irc`, `heisenbridge`, `discord`, `gitter`, `hookshot`. Default-OFF (operator opts in): every bridge that needs a third-party API token the operator must obtain manually — `facebook`, `instagram`, `googlechat`, `mautrix_whatsapp`, `sms`, `appservice_kakaotalk`, and the superseded `mx_puppet_{slack,discord}`."
-msgstr "Bản kiểm kê MDAD được mẫu để kích hoạt một cầu mặc định cộng với Jitsi + Call phần tử. Thiết bị điều khiển cầu đang mở cổng. `lookup('config', application_id, 'services.matrix.plugins.<bridge>')`. v.1 mặc định (thẩm tra tổng đài): `mautrix_signal`. `mautrix_telegram`. `mautrix_twitter`. `mautrix_slack`. `appservice_irc`. `heisenbridge`. `discord`. `gitter`. `hookshot`. mặc định (chọn): mỗi cây cầu cần một cây cầu thứ ba API để làm gì? `facebook`. `instagram`. `googlechat`. `mautrix_whatsapp`. `sms`. `appservice_kakaotalk`, và người bảo vệ `mx_puppet_{slack,discord}`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The MariaDB image tag to pull (e.g. `10.6`, `10.11`, or `latest`)."
@@ -59933,7 +59933,7 @@ msgstr "Các đường dẫn đăng nhập OIDC + RBAC được bao phủ bởi 
 
 # translated-by: libretranslate
 msgid "The OIDC login entry points (`oidc_login`, `sociallogin`, `user_oidc`) are mandatory because they gate SSO login: when one of them is the selected flavor and the system hides the native login form, an un-installed OIDC app leaves the instance with no usable login path. Failing at install time surfaces the version-pin mismatch immediately rather than as a downstream login timeout in the Playwright e2e suite."
-msgstr "Các điểm nhập khẩu OIDC (`oidc_login`. `sociallogin`. `user_oidc`) là bắt buộc bởi vì họ cổng đăng nhập SSO: khi một trong số họ là một trong những hương vị đã chọn và hệ thống giấu dạng đăng nhập bản địa, một ứng dụng phần mềm OIDC chưa cài đặt sẽ để lại ví dụ mà không có đường dẫn đăng nhập hữu ích. Thất bại tại thời gian cài đặt bề mặt phiên bản-pin lỗi ngay lập tức hơn là một thời gian đăng nhập xuôi dòng trong nhà viết kịch bản e2phòng khác."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The OIDC role's `groups_claim` (JSON-pointer capable) names the claim holding the user's groups; those values resolve against identity groups of `type=external` via group aliases on the auth mount, which carry the policies."
@@ -60764,7 +60764,7 @@ msgstr "Đặc vụ phải thực hiện yêu cầu này **Tự động**Mở ch
 
 # translated-by: libretranslate
 msgid "The agent can do anything the granted devices allow. A GPIO or I2C grant means it can drive whatever is wired to those pins; a video grant means it can watch the room; a serial grant means it can talk to whatever sits on the bus. The allowlist is the entire boundary, which is why an empty one is refused and why the device must be dedicated, single-tenant and network-segmented."
-msgstr "Đặc vụ có thể làm bất cứ điều gì các thiết bị cho phép. Comment2Tài trợ C có nghĩa là nó có thể lái bất cứ thứ gì được nối với những cái ghim đó; một tài trợ video có nghĩa là nó có thể xem phòng; một khoản trợ cấp nối tiếp nghĩa là nó có thể nói chuyện với bất cứ thứ gì đang ngồi trên xe buýt. Danh sách cho phép là toàn bộ ranh giới, đó là lý do tại sao một cái trống bị từ chối và lý do tại sao thiết bị này phải được dành riêng cho mục đích, duy nhất và được chứng minh qua mạng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent holds no model credential: it calls `http://agent-broker:<port>/llm/v1`, and the broker relays the call to LiteLLM with the broker's own virtual key and the owner in the OpenAI `user` field, and logs a `relay` event with owner, platform, path and upstream status."
@@ -60772,7 +60772,7 @@ msgstr "Đặc vụ không có dấu hiệu nhận diện: nó gọi `http://age
 
 # translated-by: libretranslate
 msgid "The agent images run on arm64"
-msgstr "Hình ảnh tác nhân chạy trên cánh tay64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes ``~/.claude/settings.json`` with an ``env`` block carrying the gateway URL, the workstation’s key and the model aliases to use, so every request leaves the machine through the gateway and is accounted there."
@@ -61711,7 +61711,7 @@ msgstr "Cạnh chấm là các tính chất mà trục tồn tại: một tiêu 
 
 # translated-by: libretranslate
 msgid "The double-login is UX-hostile (creds typed twice) and the second hop silently bypasses any 2FA Keycloak enforced on the first hop — anyone with the LDAP password can reach the app even when WebAuthn/OTP is required at the IdP. Friendica's stock `saml` addon (already on disk under `/var/www/html/addon/saml/`) supports a SAML2 AuthnRequest → IdP-initiated SSO with auto-account-creation, which collapses the chain to a single 2FA-gated round-trip."
-msgstr "Số song song là UX (creds đã gõ hai lần) Và cú nhảy thứ hai lặng lẽ vượt qua bất kỳ 2FA Keycloak Thực hiện chuyến nhảy đầu tiên — bất cứ ai có mật khẩu LDAP có thể đạt được ứng dụng ngay cả khi cần có WebAuthn/OTP tại IdP. Cổ phiếu của Friendica `saml` addon (đã nằm trên đĩa dưới `/var/www/html/addon/saml/`) Hỗ trợ SamL2 AuthnRequest IdP khởi động SSO với tự động tính hóa, nó sẽ phá vỡ chuỗi thành một 2FA-gated tròn-trip."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The drill owns the **lifecycle** and nothing else. Every restore is `python3 -m cli.administration.recover`, the same command an operator runs after a real loss, so the drill exercises that tool instead of a second implementation of it."
@@ -61960,7 +61960,7 @@ msgstr "Cờ là bắt buộc, được thi hành bởi [test_onion_port_flag.py
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The flavor enum is ``{oidc, oauth2, saml}`` with ``oidc`` as the default when omitted. The ``is_proxy_gated`` predicate is the one place that encodes \"the oauth2-proxy sidecar fronts this role\" — every other layer MUST consult this helper instead of re-implementing the ``enabled AND flavor == 'oauth2'`` compound. The ``oauth2_*`` keys expose the gated upstream config so call sites resolve cross-role data through one named property rather than a literal ``lookup('config', app_id, 'services.sso.oauth2.<sub>')`` (which would otherwise trip the literal-protocol-lookup and lookup-config-path static-scan guards)."
-msgstr "Vị của nó là ``{oidc, oauth2, saml}`` có ``oidc`` là mặc định khi bị bỏ qua. Hạt ``is_proxy_gated`` Định vị là nơi mã hóa \"Kho2- Trước xe hơi phụ rắp vai này\" - mỗi lớp khác nên tham khảo ý kiến trợ giúp này thay vì tăng cường lại ``enabled AND flavor == 'oauth2'`` Hợp chất. Hạt ``oauth2_*`` chìa khóa vạch trần cửa sổ lên dòng lệnh nên gọi các trang web giải quyết chéo dữ liệu thông qua một tên tài sản thay vì một nghĩa đen ``lookup('config', app_id, 'services.sso.oauth2.<sub>')`` (Mà nếu không sẽ di chuyển theo nghĩa đen-protocol-Loup và tìm kiếm lên-config-lòng trung tâm bảo vệ có thể)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The fleet is deployed on **every** cluster node, but not as a ``docker stack`` service (``workload: node-local`` in ``meta/services.yml``): each runner needs the docker socket and the registered identity of exactly its node. The image is built once on the manager and distributed through the registry dependency (``svc-registry-docker``), the only part that runs as a swarm service."
@@ -62146,7 +62146,7 @@ msgstr "Máy phát điện chỉ sở hữu các phần nó có thể lấy từ
 
 # translated-by: libretranslate
 msgid "The generic playwright biber and administrator personas are blocked via `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in `templates/playwright.env.j2` (req 019 Rule 11 explicit opt-out). Bluesky's social-app is a mobile-first SPA whose logout / account control sits behind a profile menu the auth-surface check cannot reach. The bespoke \"OIDC: oauth2-proxy + login-broker drop a Bluesky session into social-app via Keycloak (variant A+)\" test and its LDAP-variant counterpart in `files/playwright/playwright.spec.js` already verify both personas authenticate correctly (BSKY_STORAGE.accessJwt is present after the broker handoff). Once a stable selector for the social-app profile menu lands upstream, drop the opt-outs and let the persona helpers drive the dashboard → app → logout journey end-to-end."
-msgstr "Cá tính của nhà soạn kịch và nhà quản trị chung bị chặn `PERSONA_BIBER_BLOCKED=true` và `PERSONA_ADMINISTRATOR_BLOCKED=true` in `templates/playwright.env.j2` (req 019 Quy tắc 11 Tốt nhất rõ ràng). Ủy ban xã hội của Bluesky là một SPA di động đầu tiên có đăng nhập đăng nhập / kiểm soát tài khoản nằm sau một trình đơn hồ sơ mà không thể truy cập được. Tiếng thì thầm \"OIDC: Oauth2-poxy + đăng nhập-broker thả a Bluesky chạy vào mục nhập xã hội thông qua Keycloak (biến số A+)\" kiểm tra và tương ứng với LDAP `files/playwright/playwright.spec.js` đã xác minh cả hai nhân vật (BSKY_STORAGE.accessJwt có mặt sau khi nhà môi giới ra đời)Một khi một người lựa chọn ổn định cho trình đơn hồ sơ xã hội hạ cánh theo chiều ngược dòng và để cho người giúp đỡ lái bảng điều khiển ứng dụng đăng nhập vào cuối chuyến đi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The goal of this deployment is to provide a production-ready, scalable WordPress instance with multisite capabilities and enhanced performance. By automating the custom image build and configuration processes via Docker Compose and Ansible, it minimizes manual intervention, reduces errors, and allows you to concentrate on building great content."
@@ -62611,11 +62611,11 @@ msgstr "Thuộc tính đăng nhập được kết hợp với yêu cầu tên n
 
 # translated-by: libretranslate
 msgid "The login button in the UI will read \"SSO with Infinito.Nexus\" (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr "Nút đăng nhập trong UI sẽ đọc \"SSO với Infinito.Nexus\" (Thay đổi tên bằng JavaScript đã được tiêm). Dòng chảy bí mật là OAuth chuẩn2/OIDC chống lại Keycloak."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The login button in the UI will read “SSO with Infinito.Nexus” (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak."
-msgstr "Nút đăng nhập ở Hoa Kỳ sẽ đọc “SSO With Infinito.Nexus” (Thay đổi tên bằng JavaScript đã được tiêm). Dòng chảy bí mật là OAuth chuẩn2/OIDC chống lại Keycloak."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
@@ -62935,11 +62935,11 @@ msgstr "Số lượng bãi rác quay lại."
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Name2 ACL trong [`meta/services.yml`](./meta/services.yml) chỉ danh sách đen `/login`, và `sys-svc-proxy` Vẽ một danh sách đen *Hiển thị mọi thứ theo mặc định, sau đó bảo vệ các đường dẫn được liệt kê*Người giúp việc đáp xuống `/`, đó là công khai, do đó ủy nhiệm không bao giờ ngăn chặn nó và Keycloak không bao giờ bắt đầu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Name2 ACL trong ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, đó là công khai, do đó ủy nhiệm không bao giờ ngăn chặn nó và Keycloak không bao giờ bắt đầu."
+msgstr ""
 
 msgid "The object store itself lives in [web-svc-seaweedfs](../web-svc-seaweedfs/), which owns the storage engine, the per-consumer identities and the public S3 endpoint. This role adds only the human-facing half: an nginx sidecar that routes two canonical domains to the engine's internal filer and master ports."
 msgstr ""
@@ -62953,7 +62953,7 @@ msgstr "Chế độ được đề nghị đã được thu hẹp bởi chạy `
 
 # translated-by: libretranslate
 msgid "The official Baserow SSO feature is Enterprise-only. This role instead gates the community image with the shared Keycloak oauth2-proxy and installs a small trusted-header bridge in the Baserow backend. The bridge trusts the identity headers injected by nginx after oauth2-proxy authentication and converts them into native Baserow JWT refresh/access tokens for the frontend."
-msgstr "Viên chức Baserow Chức năng của SSO chỉ là tầu Enterprise. Vai trò này thay vào đó là cổng hình ảnh cộng đồng với chia sẻ Keycloak Oauth2- Phi lý và lắp đặt một cây cầu tín nhiệm nhỏ trong Baserow Hậu phương. Cây cầu tin rằng đầu não nhân dạng được tiêm bởi nginx sau khi oauth2- Xác thực thời tiết và biến chúng thành bản địa. Baserow Nhật ký cập nhật JWT cho giao diện điều khiển."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The official WordPress MCP adapter pinned, its HTTP endpoint exposed, only reviewed Abilities with permission callbacks registered, authenticated as a real restricted user."
@@ -63160,11 +63160,11 @@ msgstr "Điểm phức tạp theo từng vòng tròn, ``dna`` Phím cụm và ``
 
 # translated-by: libretranslate
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Name [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` bị khóa trong `sso: false` biến thể: như được miêu tả ở trên, Postmarks'Chỉ riêng bản xứ ủy nhiệm là chia sẻ duy nhất `ADMIN_KEY` Đơn mật khẩu, mà không phải là Keycloak Quản trị bí mật kiểu cá nhân, vì vậy nếu không có cầu đầu uy tín thì không có khả năng đăng nhập Admin để lái. `biber` bị chặn trong mọi biến thể — ô cửa2-Porxy chỉ thừa nhận ban quản trị RBAC của ứng dụng và kiểm tra lại cầu `X-Forwarded-Groups`, Vậy `biber` bị từ chối trước đây Postmarks đã chạm tới, và với SSO off các dấu chấm phẩy còn lại chỉ thuộc về không có tài khoản người dùng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Name `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` bị khóa trong ``sso: false`` biến thể: như được miêu tả ở trên, PostmarksĐiểm chung duy nhất của người bản xứ ``ADMIN_KEY`` Đơn mật khẩu, mà không phải là Keycloak Quản trị bí mật kiểu cá nhân, vì vậy nếu không có cầu đầu uy tín thì không có khả năng đăng nhập Admin để lái. ``biber`` bị chặn trong mọi biến thể — ô cửa2-Porxy chỉ thừa nhận ban quản trị RBAC của ứng dụng và kiểm tra lại cầu ``X-Forwarded-Groups``, Vậy ``biber`` bị từ chối trước đây Postmarks đã chạm tới, và với SSO off các dấu chấm phẩy còn lại chỉ thuộc về không có tài khoản người dùng."
+msgstr ""
 
 msgid "The persona flows stay blocked with `sso` off because the shared native login fills `ADMIN_USERNAME`, while Mastodon's `/auth/sign_in` only accepts the e-mail. Option: teach the shared native login to fill `ADMIN_EMAIL` into an e-mail field and unblock the administrator persona."
 msgstr ""
@@ -63201,11 +63201,11 @@ msgstr "Bị kẹp 6.7.8.2 tiền sử người bản xứ thử nghiệm `/api/
 
 # translated-by: libretranslate
 msgid "The pinned build is the amd64 AppImage, and the role refuses a host of another architecture rather than linking a binary that cannot run there."
-msgstr "Xây dựng chặt chẽ là một quảng cáo.64 Áp dụng, và vai trò từ chối một vật chủ của một kiến trúc khác hơn là kết nối một nhị phân không thể chạy ở đó."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned image runs on arm64"
-msgstr "Name64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle."
@@ -64184,7 +64184,7 @@ msgstr "Vai trò của nó tiêm vào một liên kết CND toàn cầu để ph
 
 # translated-by: libretranslate
 msgid "The role installs **Nix** using either the native package manager (where supported and reliable) or the **official installer** with **SHA256 verification**."
-msgstr "Vai trò cài đặt **Nix** sử dụng hoặc bộ quản lý gói bản địa (nơi được hỗ trợ và đáng tin cậy) hoặc **Bộ cài đặt chính thức** có **Tạm biệt256 Mở đích**."
+msgstr ""
 
 # thể (Bao gồm cả việc tra tấn EPEL trên các chủ nhà EL khi cần thiết), và
 # triển khai một cấu hình sẵn ``msmtprc`` Tập tin qua Jinja2♪ Cho những cuộc
@@ -64476,7 +64476,7 @@ msgstr "Sự tương tác đặc biệt giữa các cuộc gọi lại và thử
 
 # translated-by: libretranslate
 msgid "The roles below are database-backed and their upstream app can store objects in S3, so the integration is **fundamentally possible but not yet implemented**. Roles whose upstream has no S3 backend, or whose S3 client is incompatible with SeaweedFS path-style, are listed at the end."
-msgstr "Các vai trò bên dưới được hỗ trợ cơ sở dữ liệu và ứng dụng ngược dòng của họ có thể lưu trữ các đối tượng trong S3, Vậy sự kết hợp là **Cơ bản là có thể nhưng chưa thực hiện**Vai trò mà ngược dòng không có chữ S3 Hậu phương, hoặc chữ S của ai3 trạm khách không tương thích với SeaweedFS Kiểu đường, được liệt kê ở cuối."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The role’s purpose is to automate the provisioning and configuration of a centralized database service. This not only reduces manual setup but also ensures consistent, reliable deployment across production and homelab environments."
@@ -64846,7 +64846,7 @@ msgstr "Chia sẻ ``biber`` và ``administrator`` Nhân vật trợ giúp bị p
 # `files/playwright/\_shared.js <./files/playwright/_shared.js>`__.
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web answers Playwright’s headless Chromium user agent with a “browser not supported” splash unless ``forceAllowOldBrowser`` is seeded into ``localStorage`` before the first navigation, and its OIDC callback runs through OpenCloud’s own ``/oidc-callback`` → ``/web-oidc-callback`` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas’ Keycloak round trip is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, which does that priming in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
-msgstr "Chia sẻ ``biber`` và ``administrator`` Nhân vật trợ giúp bị phong tỏa `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Mở các câu trả lời của nhà soạn kịch Chromium người dùng đặc vụ với “ thiết bị xịt lông mày không hỗ trợ khả năng bắn trừ khi ``forceAllowOldBrowser`` được gieo vào ``localStorage`` Trước khi định vị đầu tiên, và cuộc gọi ngược của nó chạy qua OpenCloudCủa riêng ``/oidc-callback`` teppi82 ``/web-oidc-callback`` Đường đi thay vì lối đi2- Mô hình kích thích các trợ lý chia sẻ phát hiện. Cả hai nhân cách Keycloak Chuyến đi đã được bao phủ bởi `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, Điều đó có nghĩa là `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in ``files/playwright/``."
@@ -64921,7 +64921,7 @@ msgstr "Chia sẻ `biber` và `administrator` Nhân vật trợ giúp bị phong
 # [files/playwright/_shared.js](./files/playwright/_shared.js).
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a \"browser not supported\" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js)."
-msgstr "Chia sẻ `biber` và `administrator` Nhân vật trợ giúp bị phong tỏa [templates/playwright.env.j2](./templates/playwright.env.j2). Mở các câu trả lời của nhà biên kịch Chromium đặc vụ người dùng với một \"không hỗ trợ trình duyệt\" bắn trừ khi `forceAllowOldBrowser` được gieo vào `localStorage` Trước khi định vị đầu tiên, và cuộc gọi ngược của nó chạy qua OpenCloudCủa riêng `/oidc-callback` teppi82 `/web-oidc-callback` Đường đi thay vì lối đi2- Mô hình kích thích các trợ lý chia sẻ phát hiện. Cả hai nhân cách. Keycloak Chuyến đi đã được bao phủ bởi [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), Điều đó có nghĩa là [files/playwright/_shared.js](./files/playwright/_shared.js)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in `files/playwright/`."
@@ -65038,11 +65038,11 @@ msgstr "Xe phụ chỉ có thể tiếp cận được trên mạng container, n
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above. A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally."
-msgstr "Xe bên hông2- Cô gái chỉ thừa nhận... LibreTranslate Name API các đường (`/translate`. `/detect`...); thấy [`meta/services.yml`](./meta/services.yml). Bên trong ứng dụng, cho phép API- Chỉ có điều khóa và bị tách khỏi IdP, như được ghi nhận dưới [Ký đơn](#single-sign-on) ở trên. Do đó không có phiên họp UI để lái xe. [`templates/playwright.env.j2`](./templates/playwright.env.j2) tuyên bố `PERSONA_BIBER_BLOCKED=true`. Cái `administrator` và `guest` một cách vô điều kiện."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (``/translate``, ``/detect``, …); see ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Single sign-on <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` personas run unconditionally."
-msgstr "Xe bên hông2- Cô gái chỉ thừa nhận... LibreTranslate Name API các đường (``/translate``. ``/detect``...); thấy ```meta/services.yml`` <./meta/services.yml>`__. Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under `Ký đơn <#single-sign-on>`__ above. A non-admin visitor therefore has no UI session to drive, so ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``. The ``administrator`` and ``guest`` một cách vô điều kiện."
+msgstr ""
 
 msgid "The sidecar reaches the engine over the shared object-store network, so the console can be deployed, removed or left out of a node without touching the store. A node that does not run this role keeps its object store and its S3 endpoint; it simply has no browser console."
 msgstr ""
@@ -65274,11 +65274,11 @@ msgstr "Phong bì đã thử 🧪"
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under ``themes/`` or referenced as a Hugo Module via ``go.mod``). V1 does not support a separate theme override."
-msgstr "Name (hoặc đăng ký dưới ``themes/`` hoặc được xem là a Hugo Module qua ``go.mod``). V.1 không hỗ trợ quyền ghi đè sắc thái riêng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under `themes/` or referenced as a Hugo Module via `go.mod`). V1 does not support a separate theme override."
-msgstr "Name (hoặc đăng ký dưới `themes/` hoặc được xem là a Hugo Module qua `go.mod`). V.1 không hỗ trợ quyền ghi đè sắc thái riêng."
+msgstr ""
 
 msgid "The theme sheets and `files/playwright/test-design.js` were generated against Odoo 20, the role runs 19.0 (`meta/services.yml`), and two assertions therefore target DOM this version does not render: `test-design.js:425` wants `.o_search_panel_category_value_header`, which 19 renders as a plain `<header>` without that class and without `tabindex`, so `:focus-visible` is unreachable; `test-design.js:533-534` want a `.btn-danger` in the delete dialog, and 19's `view_hook.js` sets `confirmLabel` without `confirmClass`. Dead on 19 for the same reason: `files/theme/backend.css:2205`. The pin cannot move: OCA publishes no 20.x of `fs_storage` or `fs_attachment_s3` on PyPI, and the modules on the `20.0` branch still carry `\"version\": \"19.0…\"` with `\"installable\": False`. Options: regenerate the theme sheets and the design spec against a live Odoo 19 once a stack is available; or move the image to 20.0 as soon as those two modules turn installable."
 msgstr ""
@@ -65531,7 +65531,7 @@ msgstr "Công cụ người dùng được nướng thành từng hình ảnh ph
 
 # translated-by: libretranslate
 msgid "The v3 address is ``base32(PUBKEY || CHECKSUM || VERSION)`` where ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` and ``VERSION = 0x03`` (see spec.torproject.org/address-spec). Tor stores the *expanded* ed25519 secret key ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; the public key ``clamp(SHA512(seed)[:32]) * B`` equals the standard ed25519 public key, so it is taken straight from ``cryptography`` without needing scalar multiplication."
-msgstr "V3 địa chỉ ``base32(PUBKEY || CHECKSUM || VERSION)`` nơi ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` và ``VERSION = 0x03`` (Xem spec.torproject.org/ Mã mũ)Tor kho *mở rộng* ed25519 phím bí mật ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; chìa khóa công cộng ``clamp(SHA512(seed)[:32]) * B`` bằng ed chuẩn25519 Chìa khóa công cộng, vì vậy nó được lấy ngay từ ``cryptography`` Mà không cần vô hướng nhân."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value a row draws from *pool* this sweep: a plain rotation over the row's global position, so consecutive rows spread across the pool and consecutive sweeps move every row on to the next value."
@@ -65990,7 +65990,7 @@ msgstr "Vai diễn này có thể thực hiện [BigBlueButton](https://bigblueb
 
 # translated-by: libretranslate
 msgid "This Ansible role deploys [PhpMyAdmin](https://www.phpmyadmin.net/) in a secure Docker environment, complete with optional OAuth2 proxy support. It enables seamless management of MariaDB/MySQL databases via a web-app-based interface."
-msgstr "Vai diễn này có thể thực hiện [PhpMyAdmin](https://www.phpmyadmin.net/) Trong một môi trường bảo mật docker, hoàn tất với OAuth tùy chọn2 Hỗ trợ ủy nhiệm. Nó cho phép quản lý liên tục MariaDBCơ sở dữ liệu của tôi qua một giao diện dựa trên web-app."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This Ansible role deploys `BigBlueButton <https://bigbluebutton.org/>`__ using Docker Compose. It includes support for Greenlight, OIDC, LDAP, TURN/STUN, health checks, and a modular ``.env`` setup. This role is ideal for educational institutions and teams requiring a self-hosted video conferencing solution. > 🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration. >"
@@ -65998,7 +65998,7 @@ msgstr "Vai diễn này có thể thực hiện `BigBlueButton <https://bigblueb
 
 # translated-by: libretranslate
 msgid "This Ansible role deploys `PhpMyAdmin <https://www.phpmyadmin.net/>`__ in a secure Docker environment, complete with optional OAuth2 proxy support. It enables seamless management of MariaDB/MySQL databases via a web-app-based interface."
-msgstr "Vai diễn này có thể thực hiện `PhpMyAdmin <https://www.phpmyadmin.net/>`__ Trong một môi trường bảo mật docker, hoàn tất với OAuth tùy chọn2 Hỗ trợ ủy nhiệm. Nó cho phép quản lý liên tục MariaDBCơ sở dữ liệu của tôi qua một giao diện dựa trên web-app."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This Ansible role deploys a central recursive/forwarding DNSSEC resolver (Unbound) in a Docker container using Docker Compose. It runs as a trivial single-service stack with a static IP on its own network, so consumer stacks can point their ``dns:`` at it instead of embedding their own resolver."
@@ -66328,7 +66328,7 @@ msgstr "Cái này Docker Compose Triển khai sử dụng khả năng tự độ
 
 # translated-by: libretranslate
 msgid "This Docker deployment uses Ansible automation to set up Snipe‑IT along with necessary services such as a MariaDB database, an optional OAuth2 proxy for additional security, and a reverse proxy configuration. The system is built for reliable asset management in various environments."
-msgstr "Việc triển khai Docker này sử dụng tự động hóa khả năng để thiết lập Snipe‑IT cùng với những dịch vụ cần thiết như a MariaDB Cơ sở dữ liệu, một OAuth tùy chọn2 Ủy nhiệm cho thêm bảo mật, và một cấu hình ủy nhiệm ngược. Hệ thống này được xây dựng để quản lý tài sản đáng tin cậy trong nhiều môi trường khác nhau."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This README accompanies the Hunspell Playbook, located within the ``infinito`` repository. The playbook is focused on installing Hunspell, a widely-used spell checker, along with various language packages to enhance its functionality."
@@ -67414,7 +67414,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers the catalogs, their extraction, their machine translation and their validation. Serving the catalogs is [038 - web-svc-api](README.md#archive); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md). The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green."
-msgstr "Điều kiện này bao gồm các danh mục, chiết xuất, bản dịch máy móc và sự xác nhận của chúng. Phục vụ danh mục là [038 - web-svc-api](README.md#archive); tiêu thụ chúng bên trong vai trò cốt lõi là [039 - Cái lõi18GenericName](039-core-i18n-consumers.md). . tái sử dụng khách hàng (infinito-nexus-gui, meta-finite-graph, đầu tư) Giữ các chuỗi giao diện của riêng họ trong danh mục nhận được văn bản của riêng họ và chỉ sau khi 037 phải 039 xanh lá cây."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers two related but separable deliverables:"
@@ -67704,7 +67704,7 @@ msgstr "Vai trò này tạo ra người dùng trạm làm việc được chọn
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (`MM_GITLABSETTINGS_*` in `templates/env.j2`); the resulting entry point is `a[href='/oauth/gitlab/login']`, relabelled \"SSO with Infinito.Nexus\" by `templates/javascript.js.j2`, which the shared helper's name-based login matcher does not recognise. Mattermost v11+ also serves a `/landing` interstitial to unauthenticated visitors that only clears once `localStorage.__landingPageSeen__` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Vai trò này tuyên bố `PERSONA_ADMINISTRATOR_BLOCKED` và `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` cùng một cơ chế. Đội xuất bản quan trọng nhất không có nhà cung cấp OIDC bản địa, do đó, vai trò braps Keycloak vào GitLab khe OAuth (`MM_GITLABSETTINGS_*` in `templates/env.j2`); điểm nhập kết quả là `a[href='/oauth/gitlab/login']`, nhãn \"SSO với Infinito.Nexus\" by `templates/javascript.js.j2`, Trình khớp tên người dùng chung không nhận diện được. Vật thể11+ cũng phục vụ một `/landing` Liên lạc với những vị khách chưa được chứng thực mà chỉ rõ ràng một lần `localStorage.__landingPageSeen__` được gieo trước khi định vị, và người giúp việc được chia sẻ không có cái móc để làm điều đó."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -67730,11 +67730,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. KIX sits behind an oauth2-proxy whose `sso.oauth2.allowed_groups` in `meta/services.yml` admits only `roles/web-app-kix/administrator` and `roles/web-app-kix/user`; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at `/auth` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Vai trò này tuyên bố `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. Comment2- Cô gái nào... `sso.oauth2.allowed_groups` in `meta/services.yml` Chỉ thừa nhận `roles/web-app-kix/administrator` và `roles/web-app-kix/user`; biber thuộc về cả hai, do đó ủy quyền từ chối anh ta trước khi KIX Làm gì cũng được. Đã quá hạn ủy nhiệm KIX là một đăng nhập hai giai đoạn: SPA vẫn còn trình bày hình thức đại diện riêng của nó tại `/auth` ràng buộc chống lại LDAP, và nhân cách chung trợ giúp không có giai đoạn thứ hai sau khi Keycloak Bay vòng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Vai trò này tuyên bố ``PERSONA_ADMINISTRATOR_BLOCKED`` và ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` cùng một cơ chế. Đội xuất bản quan trọng nhất không có nhà cung cấp OIDC bản địa, do đó, vai trò braps Keycloak vào GitLab khe OAuth (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); điểm nhập kết quả là ``a[href='/oauth/gitlab/login']``, chữ “SSO with Infinito.Nexus” bởi ``templates/javascript.js.j2``, Người trùng tên với người dùng chung không nhận ra. Vật thể11+ cũng phục vụ một ``/landing`` Liên lạc với những vị khách chưa được chứng thực mà chỉ rõ ràng một lần ``localStorage.__landingPageSeen__`` được gieo trước khi định vị, và người giúp việc được chia sẻ không có cái móc để làm điều đó."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for two different reasons. The MinIO Console version pinned here never renders an SSO button — ``/api/v1/login`` answers ``redirectRules: null`` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (``MINIO_OIDC_POLICY_NAME`` in ``vars/main.yml``, attached in ``tasks/02_ldap.yml``) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier."
@@ -67760,7 +67760,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. KIX sits behind an oauth2-proxy whose ``sso.oauth2.allowed_groups`` in ``meta/services.yml`` admits only ``roles/web-app-kix/administrator`` and ``roles/web-app-kix/user``; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at ``/auth`` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip."
-msgstr "Vai trò này tuyên bố ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. Comment2- Cô gái nào... ``sso.oauth2.allowed_groups`` in ``meta/services.yml`` Chỉ thừa nhận ``roles/web-app-kix/administrator`` và ``roles/web-app-kix/user``; biber thuộc về cả hai, do đó ủy quyền từ chối anh ta trước khi KIX Làm gì cũng được. Đã quá hạn ủy nhiệm KIX là một đăng nhập hai giai đoạn: SPA vẫn còn trình bày hình thức đại diện riêng của nó tại ``/auth`` ràng buộc chống lại LDAP, và nhân cách chung trợ giúp không có giai đoạn thứ hai sau khi Keycloak Bay vòng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role depends on ``sys-pip``, which ensures that ``pip`` is installed on the target system."
@@ -68047,11 +68047,11 @@ msgstr "Vai này triển khai ejabberd trên Docker Compose với mạng lưới
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
-msgstr "Vai trò này triển khai n8Ấn bản cộng đồng dùng ngược dòng ``docker.n8n.io/n8nio/n8n`` ảnh được hậu phương bởi a PostgreSQL Cơ sở dữ liệu (ăn từ trung tâm ``svc-db-postgres`` qua ``sys-stk-full``). Xác thực được quản lý bởi một **Oauth2-Praxy** toa bên (Keycloak OIDC) in V1, hoặc trái vào n8Giao diện quản lý người dùng của n ở V2. n8Ấn bản cộng đồng không hỗ trợ LDAP — cửa sau n8Giấy phép lái tầu Enterprise của n (``ldap.controller.ee.js`` chưa đăng ký vào năm CN) - nên không có biến thể LDAP. Dấu hiệu được cất giữ bên trong n8n được mã hóa tại phần còn lại với một chuồng ngựa ``N8N_ENCRYPTION_KEY``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
-msgstr "Vai trò này triển khai n8Ấn bản cộng đồng dùng ngược dòng `docker.n8n.io/n8nio/n8n` ảnh được hậu phương bởi a PostgreSQL Cơ sở dữ liệu (ăn từ trung tâm `svc-db-postgres` qua `sys-stk-full`). Xác thực được quản lý bởi một **Oauth2-Praxy** toa bên (Keycloak OIDC) in V1, hoặc trái vào n8Giao diện quản lý người dùng của n2. n8Ấn bản cộng đồng không hỗ trợ LDAP — cửa sau n8Giấy phép tầu Enterprise (`ldap.controller.ee.js` chưa đăng ký vào năm CN) - nên không có biến thể LDAP. Dấu hiệu được cất giữ bên trong n8n được mã hóa tại phần còn lại với một chuồng ngựa `N8N_ENCRYPTION_KEY`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys no AI surface and declares no ``litellm`` service, because EspoCRM’s open-source distribution does not ship one. At the pinned version ``10.0.4``, ``application/Espo/Modules`` contains only ``Crm``, ``application/Espo/Resources/metadata/app/config.json`` declares no AI key, and the release ZIP the image is built from leaves ``custom/Espo/Modules`` empty. The AI features (Summary, Intelligent Paste, AI Email Composer, AI formula functions) live exclusively in the commercial `Intelligence extension <https://www.espocrm.com/extensions/intelligence/>`__, which is closed source, requires a purchased license, and is published in no ``espocrm`` GitHub repository. Bumping the version does not change this: the extension is documented as requiring EspoCRM 10.0.3 or greater, so newer cores stay hosts for it rather than absorbing it."
@@ -68373,7 +68373,7 @@ msgstr "Vai trò này cài đặt bộ quản lý gói Nix vào một **Bảo v�
 
 # translated-by: libretranslate
 msgid "This role installs the Nix package manager via pacman on Arch x86_64 or via the official installer with SHA256 verification."
-msgstr "Vai trò này cài đặt bộ quản lý gói Nix qua pacman trên Arch x86_64 hoặc thông qua bộ cài đặt chính thức với vai trò256 Xác thực."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role installs the OBS Studio desktop application on Pacman-based workstations through the system package manager. It targets the desktop tier and does not configure scenes, capture devices, or streaming profiles."
@@ -69159,7 +69159,7 @@ msgstr "Để khởi chạy lại mọi dịch vụ, hãy dùng lệnh sau:"
 
 # translated-by: libretranslate
 msgid "To restore the original IPv6 settings afterwards:"
-msgstr "Để khôi phục IPv gốc6 thiết lập sau:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "To revoke a role, remove the user from the same group. Changes take effect the next time the user completes an OIDC sign-in; no immediate logout is required for the user to retain their current session's capabilities."
@@ -69599,7 +69599,7 @@ msgstr "Triage"
 # mô phỏng mỗi lần cam kết.
 # translated-by: libretranslate
 msgid "Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit."
-msgstr "Cố gắng và đo: công việc hình ảnh đi từ dưới 10 phút đến hơn hai giờ, bởi vì mỗi cánh tay64 lớp sau `COPY .` Những cuộc chạy lại mô phỏng mỗi lần cam kết."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trigger"
@@ -69935,7 +69935,7 @@ msgstr "Hai thử nghiệm tích hợp tiêu thụ `ROLE_FILES` trực tiếp th
 
 # translated-by: libretranslate
 msgid "Two joins carry the whole design and neither is accidental. The branch ends in ``; `` so a relay that refuses the message cannot decide liveness -- that verdict belongs to the probe this prefixes, and coupling them once left live web apps marked dead until the swarm converge gate gave up (ebdadd91b). The ``&&`` before ``touch`` stays, so a refused mail leaves no marker and the next probe retries instead of the smoke test becoming one-shot."
-msgstr "Hai tham gia mang theo toàn bộ thiết kế và cả hai đều không tình cờ. Chi nhánh kết thúc ở ``; `` Vì vậy, một bản tiếp âm từ chối thông điệp không thể quyết định sự sống -- phán quyết đó thuộc về các đầu dò này, và kết nối chúng một khi để lại các ứng dụng trực tiếp được đánh dấu đã chết cho đến khi cổng hội tụ từ bỏ (ebdad91b). Cái ``&&`` trước ``touch`` ở lại, vì vậy một thư từ từ chối không để lại dấu ấn và các thiết bị thăm dò tiếp theo tái sử dụng thay vì kiểm tra khói trở thành một chụp."
+msgstr ""
 
 msgid "Two kinds of role are left out. One the updaters do not maintain (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits outside the lifecycle envelope ``default.env`` tests, so no deploy can reach its images, and its upstream is free to withdraw them. MinIO's quay tags answer 401 to anonymous pulls and exist nowhere else, which failed the mirror job on every run while nothing could have consumed the result."
 msgstr ""
@@ -71828,7 +71828,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Verified official installer with SHA256 checksum validation"
-msgstr "Bộ cài đặt chính thức linh hoạt256 hợp lệ hoá checksum"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Verifies the existence of a root SSH public key."
@@ -72183,7 +72183,7 @@ msgstr "Chúng tôi cam kết nuôi dưỡng một môi trường mở và chào
 
 # translated-by: libretranslate
 msgid "We do NOT mirror back into -elem/-attr; finer CSP3 rules remain effective on modern browsers if you choose to use them."
-msgstr "Chúng tôi không phản ánh trở lại -elem/-atr; tốt hơn CNP3 quy tắc sẽ hiệu quả với trình duyệt hiện đại nếu bạn chọn sử dụng chúng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "We intentionally do NOT rely on Ansible's Templar here because in some lookup evaluation contexts it can silently keep Jinja markers untouched."
@@ -72417,7 +72417,7 @@ msgstr "Chức năng truy cập mạng"
 
 # translated-by: libretranslate
 msgid "Web-app-n8n Role"
-msgstr "Web-app-n8Nhiệm vụ"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Web-app-navigator Role"
@@ -72812,7 +72812,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Những gì đã có thể thực hiện được mà không có nó: người bảo vệ thú nhận từ chối một máy chia sẻ hoặc một thiết bị rỗng danh sách, cả hai ảnh đại diện xuất bản `linux/arm64`, Và không đặc vụ nào bị kẹt lại khỏi cánh tay64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -73211,7 +73211,7 @@ msgstr "Khi hoàn tất, hãy xác minh những người chạy đua xuất hi�
 
 # translated-by: libretranslate
 msgid "When compose pulls hang, image builds fail to resolve registry manifests, `make install-lint` times out on a TLS handshake, or DNS lookups return surprising addresses, the cause is almost always one of three things: MTU mismatch, IPv6 misrouting, or DNS / proxy interference."
-msgstr "Khi hợp tác kéo treo, hình ảnh xây dựng không thể giải quyết các bản kê khai đăng ký, `make install-lint` hoặc tra cứu DNS trả lại địa chỉ đáng ngạc nhiên, nguyên nhân hầu như luôn là một trong ba thứ:6 Sai định vị, hoặc là DNS hoặc là can thiệp ủy nhiệm."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "When debugging cross-variant interaction (for example \"the multisite variant breaks because single-site state was not purged\"), reproduce with the FULL matrix once, then pin `variant=<failing-idx>` and iterate the fix. Re-run the FULL matrix only when you believe the fix is complete."
@@ -73519,7 +73519,7 @@ msgstr "Mỗi khi đặc vụ chạy `git commit` (móc sẵn `make test`, Phả
 
 # translated-by: libretranslate
 msgid "Whenever the role enables an auth integration (OIDC, oauth2, LDAP), at least one persona's flow MUST exercise the integrated login path (not only a local-form login)."
-msgstr "Bất cứ khi nào vai trò cho phép tích hợp trầm tích (OIDC, Oauth2, LDAP), ít nhất một dòng chảy của cá nhân thực hiện các đường dẫn đăng nhập tích hợp (không chỉ đăng nhập dạng cục bộ)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Where"
@@ -76473,7 +76473,7 @@ msgstr "[ ] Penpot Triển khai thành công với một lệnh trên một máy
 
 # translated-by: libretranslate
 msgid "[ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state."
-msgstr "[ ] Thông qua các cửa sổ đã chia sẻ2- Ủng hộ (phản chiếu [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (Tính năng chạm tới + guest/biber/administrator mẫu). `test-oidc-login.js` (Oauth2 Cổng + `X-Remote-User` phiên chạy, cổng vào `sso`). `test-oidc-security.js` (Bảo vệ qua đường dây giả). `biber`/`administrator` được đóng cửa tới SSO thông qua `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` Hiển thị mỗi đọc env var; `make compose-playwright role=web-app-checkmk` thoát 0 Không có kiểm tra mật độ và tình trạng đăng nhập tốt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] Playwright test run documented"
@@ -77026,7 +77026,7 @@ msgstr "[ ] `meta/variants.yml` xác định chính xác ba biến số: V1 sso+
 
 # translated-by: libretranslate
 msgid "[ ] `meta/variants.yml` defines three variants (V1 all auth on, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box."
-msgstr "[ ] `meta/variants.yml` định nghĩa ba biến (V1 Tất cả đều bình tĩnh, V.2 Tất cả đều giả dối, V3 Chỉ ldap); tất cả triển khai gọn gàng trên một hộp mới."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] `meta/variants.yml` defines three variants (V1 sso+ldap, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box."
@@ -77122,7 +77122,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently."
-msgstr "[ ] Oauth2-Praxy `email_domains` đã sắp xếp `@<NODE_ONION>.onion` Người dùng; `LDAP_DN_BASE` + Tự giải quyết nhân dạng CA một cách nhất định."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`."
@@ -77239,7 +77239,7 @@ msgstr "[018 - Trình biên soạn tin xác thực LDAP](018-playwright-ldap-cov
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
-msgstr "[021](README.md#archive) được hợp nhất. Các vai trò mới phải đất trên giản đồ thống nhất trực tiếp, không phải trên di sản oauth2Hình dạng dịch vụ hình ảnh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[025 - MCP Role Integration](025-mcp-role-integration.md)"
@@ -77868,7 +77868,7 @@ msgstr "[Trang gói AUR cho Zoom](https://aur.archlinux.org/packages/zoom)"
 
 # translated-by: libretranslate
 msgid "[ActivityPub (W3C Recommendation)](https://www.w3.org/TR/activitypub/)"
-msgstr "[Name (W3Khuyên)](https://www.w3.org/TR/activitypub/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)"
@@ -78307,7 +78307,7 @@ msgstr "[Nguồn nhúng Bridgy trên GitHub](https://github.com/snarfed/bridgy-f
 
 # translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "[Name](https://fed.brid.gy/) là cầu liên kết giữa hoạt độngPub (Name), giao thức AT (Bluesky), và Indieweb (Các mạng và định dạng vi2)Nó phản ánh danh tính và tương tác qua mạng để một mạng lưới tiếp cận những người khác."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -79317,7 +79317,7 @@ msgstr "[Kevin Veen-Birkenbach](https://veen.world): mã hóa độ phân giải
 
 # translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): n8n review, CI fixes and version maintenance"
-msgstr "[Kevin Veen-Birkenbach](https://veen.world): n8thảo luận, sửa chữa CN và bảo trì phiên bản"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Kevin Veen-Birkenbach](https://veen.world): object-store service, trusted-header SSO bridges, role fixes and review"
@@ -80277,7 +80277,7 @@ msgstr "[Bí danh thiết bị cuối và phím tắt đặc vụ](shell/alias.m
 
 # translated-by: libretranslate
 msgid "[Test E2E Cli](https://example.com/) is an application."
-msgstr "[Thử E2Name](https://example.com/) là một ứng dụng."
+msgstr ""
 
 msgid "[The translation gateway that reads this memory](../web-svc-translate/)"
 msgstr ""
@@ -80557,11 +80557,11 @@ msgstr "[`mcp_tool_server_connections`](../../../../../../plugins/filter/mcp/too
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the Prometheus administrator RBAC group through the oauth2-proxy gate, so the `biber` persona is denied before it ever reaches a Prometheus page: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. That denial is not lost coverage — this role's own spec asserts it for every consumer, together with the admin reach and scrape-target parity checks. The `administrator` persona is blocked only when `services.sso.enabled` is false: without the co-deployed Keycloak there is no proxy in front of Prometheus, hence no login round-trip and no logout control to drive. The `guest` persona and the baseline reachability assertions run unconditionally."
-msgstr "[`meta/services.yml`](./meta/services.yml) Chỉ thừa nhận Prometheus Name2- Cổng đệm, nên... `biber` Nhân cách bị từ chối trước khi nó chạm tới Prometheus trang: [`templates/playwright.env.j2`](./templates/playwright.env.j2) tuyên bố `PERSONA_BIBER_BLOCKED=true`. Sự phủ nhận đó không phải là mất đi sự tin tưởng của bản thân vai trò này khẳng định nó cho mỗi người tiêu dùng, cùng với khả năng tiếp cận và kiểm tra chi tiêu. Hạt `administrator` cá nhân bị chặn chỉ khi `services.sso.enabled` là sai: không có đồng nghiệp Keycloak trước mắt không có ủy nhiệm PrometheusVì vậy không có liên lạc liên tục và không có điều khiển để lái. Hạt `guest` Nhân cách và ranh giới cơ bản khẳng định khả năng tiếp cận là vô điều kiện."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`."
-msgstr "[`meta/services.yml`](./meta/services.yml) Chỉ thừa nhận `web-app-lam` Name2-Praxy (`sso.oauth2.allowed_groups`), và `biber` có một danh sách đóng góp rỗng trong kho phát triển. Không chấp nhận ủy nhiệm `biber` trước LAM đã từng chạm tới, nên [`templates/playwright.env.j2`](./templates/playwright.env.j2) tuyên bố `PERSONA_BIBER_BLOCKED=true`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor and the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) — there is no login form, no account and no session to end. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The service's real coverage is per consumer: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) parameterises the injected logout JS over `roles_with_service('logout')`."
@@ -80683,7 +80683,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[`tasks/01_admin.yml`](./tasks/01_admin.yml) provisions only the administrator in Shopware's user table. [`meta/services.yml`](./meta/services.yml) pins `services.sso.flavor: oidc`, so no oauth2-proxy fronts the role and the storefront carries no authenticated surface at all; the Keycloak login provider that [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) configures covers the administration backend alone. `biber` therefore has no account in any matrix variant and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` unconditionally."
-msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml) cung cấp chỉ nhà quản trị ShopwareBàn người dùng. [`meta/services.yml`](./meta/services.yml) ghim `services.sso.flavor: oidc`, Cho nên không có chuyện gì2-poxy phía trước vai trò và mặt trước cửa hàng không có bề mặt xác thực ở tất cả; Keycloak Nhà cung cấp đăng nhập đó [`tasks/setup/oidc.yml`](./tasks/setup/oidc.yml) Cấu hình chỉ bảo vệ hậu phương quản lý. `biber` Do đó không có tài khoản trong bất kỳ ma trận biến dạng và [`templates/playwright.env.j2`](./templates/playwright.env.j2) Vẽ `PERSONA_BIBER_BLOCKED=true` Vô điều kiện."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
@@ -81068,7 +81068,7 @@ msgstr "[msmtp](https://marlam.de/msmtp/) là một ứng dụng khách gửi nh
 
 # translated-by: libretranslate
 msgid "[n8n Docker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
-msgstr "[n8nDocker Documentation](https://docs.n8n.io/hosting/installation/docker/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n GitHub](https://github.com/n8n-io/n8n)"
@@ -81076,11 +81076,11 @@ msgstr "[n8n GitHub](https://github.com/n8n-io/n8n)"
 
 # translated-by: libretranslate
 msgid "[n8n Official Website](https://n8n.io/)"
-msgstr "[n8Mạng chính thức](https://n8n.io/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n tag `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), especially `packages/@n8n/nodes-langchain/nodes/mcp/` and `packages/cli/src/public-api/v1/handlers/`"
-msgstr "[n8thẻ `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), Đặc biệt `packages/@n8n/nodes-langchain/nodes/mcp/` và `packages/cli/src/public-api/v1/handlers/`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
@@ -81539,7 +81539,7 @@ msgstr "[x] A **riêng** Trường hợp đăng nhập OIDC và trường hợp 
 
 # translated-by: libretranslate
 msgid "[x] A KV v2 secrets engine is mounted at a configurable path; the mount path is an Infinito.Nexus variable, not a literal in a task. (`OPENBAO_KV_MOUNT`, mounted at `infinito`.)"
-msgstr "[x] Comment2 Bộ máy bí mật được gắn trên một con đường có thể cấu trúc; con đường leo núi là một Infinito.Nexus biến, không phải nghĩa đen trong nhiệm vụ. (`OPENBAO_KV_MOUNT`, gắn kết tại `infinito`.)"
+msgstr ""
 
 msgid "[x] A Playwright OIDC flow (biber + administrator) clicks \"Sign in with Keycloak\", completes the Keycloak chain, and lands on an authenticated Semaphore surface (administrator persona additionally asserts the admin-only `/users` surface)."
 msgstr ""
@@ -81939,7 +81939,7 @@ msgstr "[x] Màn hình nền và các URL phóng tên lửa di động được 
 
 # translated-by: libretranslate
 msgid "[x] ERPNext's compose stack reaches a steady running state across all three variants in matrix r3 (`backend`, `frontend`, `websocket`, `scheduler`, `queue-short`, `queue-long`, plus the one-shot `configurator`). v1 ships two workers (`queue-short` + `queue-long`) per the canonical frappe_docker v15 layout — `queue-default` is absorbed into `queue-short`'s `--queue short,default` flag."
-msgstr "[x] ERPNextMột chồng soạn thảo đạt một trạng thái đều đặn chạy qua tất cả ba biến thể trong ma trận r3 (`backend`. `frontend`. `websocket`. `scheduler`. `queue-short`. `queue-long`, Thêm một phát `configurator`). v.1 tàu hai công nhân (`queue-short` + `queue-long`) trên chính điển frappe_docker v15 bố trí — `queue-default` được hấp thụ vào `queue-short`Của `--queue short,default` Cờ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Each addon spec guards on the addon being enabled (`skipUnlessAddonEnabled`) via the `ADDON_<ID>_ENABLED` flags rendered into `templates/playwright.env.j2`."
@@ -82394,7 +82394,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name."
-msgstr "[x] Thử nghiệm xoay và vô hiệu hóa chứng minh rằng thẻ chứng nhận cũ bị từ chối, kết quả nhận dạng mới, và không có mục nhập khách cũ nào giữ được truy cập. Hai lần chạy đầu tiên trên mỗi lần triển khai: máy dò hợp đồng chia sẻ mở bề mặt với giấy ủy nhiệm đã được công bố và thất bại trừ khi việc đọc xác định thành công, và chứng minh một dấu hiệu sai được từ chối một phiên họp. Mỗi người trong số tám người này có thể phục vụ bề mặt đó, vì vậy không một ai được xác nhận là có một số vai trò và cho phần còn lại. Thứ ba là thử nghiệm đơn vị cho mỗi khách hàng, và chỉ có ba khách hàng có thể giữ một lối vào cũ, bởi vì Hermes và OpenClaw Giữ cho không có đăng ký bên cạnh máy chủ: cấu hình của họ được thực hiện từ hình ảnh phát hiện của chạy của chính mình, vì vậy không còn lại gì phía sau để trở nên cũ. Hiệu ứng Quét Trang trình diễn `authConfig` và Open WebUI kết nối đã đăng ký, cả hai đều đã được bảo vệ; n8n là khoảng trống và bây giờ chứng minh rằng một quay mang thay thế thẻ thay vì được so sánh với một n8Không bao giờ trở lại, ở phía máy chủ và cho tất cả khách hàng giấy chứng nhận. Phát hành nửa thứ ba đã bị rò rỉ thực sự trên đường đi. Đám mây kế tiếp tạo một mật khẩu ứng dụng với tên cố định và không bao giờ thu hồi một cái trước đó, vì vậy mỗi lần chạy tìm mật khẩu đã được cất giữ, sẽ thêm một dấu hiệu hợp lệ khác vào tài khoản trong khi những cái cũ giữ quyền truy cập đầy đủ. Thời nay, bạc hà được liệt kê trước tất cả các biểu tượng mang tên đó."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Running `make i18n-extract` twice in a row leaves the working tree unchanged."
@@ -82822,7 +82822,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] V1 OIDC + administrator + biber Playwright specs land on the Frappe desk (matrix r3 5-passed-2-skipped on V1)."
-msgstr "[x] V1 OIDC + quản trị + nhà soạn kịch biber land trên bàn Frappe (ma trận r3 5- Qua rồi.2- V.1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Volume mounts follow Infinito.Nexus conventions."
@@ -83308,7 +83308,7 @@ msgstr "[x] `meta/variants.yml` xác định chính xác ba biến số theo th�
 
 # translated-by: libretranslate
 msgid "[x] `meta/variants.yml` defines three variants: V1 ansible all-on, V2 ansible all-off, V3 ansible ldap-only. (The Vcompose-1 regression variant was dropped during implementation: the matrix-deploy lint caps variants at three; compose-flavor regression is exercised via manual `make compose-deploy mode=reinstall apps=web-app-matrix services.matrix.flavor=compose` instead.)"
-msgstr "[x] `meta/variants.yml` xác định ba biến số: V1 V.2 V.3 chỉ là thuốc giảm đau. (Vcompos-1 Các biến thể hồi quy đã được thả trong khi thực hiện: các nắp ma trận nổ tung biến thể tại ba; hồi quy sáng chế được thực hiện bằng thủ công `make compose-deploy mode=reinstall apps=web-app-matrix services.matrix.flavor=compose` Thay vào đó.)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] `meta/volumes.yml` declares the role's named volumes."
@@ -83415,7 +83415,7 @@ msgstr "[x] `svc-ai-litellm` xuất bản thêm một bản `auto` Bí danh, và
 
 # translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr "[x] `svc-ai-lmstudio` là ràng buộc để một x86 nút và không bao giờ được lên lịch trên một cánh tay64-Pi node."
+msgstr ""
 
 msgid "[x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group."
 msgstr ""
@@ -83470,11 +83470,11 @@ msgstr "[x] `web-app-openwebui` con tàu là một thông số của người vi
 
 # translated-by: libretranslate
 msgid "[x] n8n 1.100.1 is declared as an SSE client and a Streamable HTTP server, and its managed credentials and workflows are idempotently provisioned through supported public APIs. The server moved from 1.95.3's SSE-only trigger because Open WebUI 0.11.0 ships only a Streamable HTTP client and answered the SSE route with a POST that n8n refused with 404. `meta/mcp.yml` declares `direction: both` and `transport: streamable_http` at `/mcp/infinito-mcp`; `files/python/provision/mcp.py` renders the server workflow and `files/python/provision/client.py` the agent workflow, both through `/api/v1/workflows`. Credentials go through `/rest` because the public API of that tag exposes only create and delete for them, which cannot converge an existing one. Two idempotence defects were fixed here: the run reported `CHANGED` forever, because the public-API key it minted was found again on the next run and counted as a change, and that key was left standing in n8n afterwards although nothing read it. It is now minted per run, revoked before the run ends, and no longer reported."
-msgstr "[x] n8n 1.100.1 được công bố là một trình khách SSE và một máy phục vụ HTTP có thể truyền, và nó có khả năng quản lý và luồng công việc được cung cấp một cách vô hạn được hỗ trợ qua hệ thống APIs công cộng. Máy phục vụ di chuyển từ 1.95.3Kích hoạt SSE-Chỉ bởi vì Open WebUI 0.11.0 tàu chỉ là một khách hàng HTTP có thể truyền nước và trả lời đường SSE với một PST mà n8n từ chối với 404. `meta/mcp.yml` tuyên bố `direction: both` và `transport: streamable_http` vào `/mcp/infinito-mcp`; `files/python/provision/mcp.py` Trình phục vụ chảy và `files/python/provision/client.py` cả hai đều thông qua `/api/v1/workflows`. Giấy chứng nhận đi qua `/rest` Bởi vì công chúng API của thẻ đó vạch trần chỉ tạo và xoá cho họ, mà không thể hội tụ một tồn tại. Hai khuyết điểm được sửa ở đây: chạy báo cáo `CHANGED` mãi mãi, vì công chúng...API Chìa khóa nó đúc được tìm thấy một lần nữa trong lần chạy tiếp theo và tính như một thay đổi, và chìa khóa đó là để lại trong n8N sau đó mặc dù không có gì đọc nó. Bây giờ nó được đúc mỗi lần chạy, thu hồi trước khi hết chạy, và không còn báo cáo nữa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] n8n client nodes use exact tool include lists; server triggers require Bearer auth, expose only connected checked-in tools, and remain disabled until operator opt-in. Each client node renders `include: selected` with the provider's own `mcp.tools.allowlist`, which the discovery snapshot now carries; the node's default is `all`, so an omitted list would hand the agent every tool an upstream happens to serve. The server trigger pins `authentication: bearerAuth` against a managed `httpBearerAuth` credential, and the surface ships `enabled: false`. \"Only connected checked-in tools\" is upstream's own mechanism: `getConnectedTools` in `@utils/helpers` collects exactly what reaches the trigger over an `ai_tool` connection, so the workflow's connection map is the allowlist. The workflow previously connected nothing at all, so the trigger served an empty tool set; it now carries one checked-in read tool, `infinito_health`, with an explicit input schema."
-msgstr "[x] n8Trình khách nút sử dụng danh sách chính xác bao gồm danh sách; máy phục vụ kích hoạt Haber auth, chỉ phơi bày kết nối công cụ đăng nhập, và bị tắt cho đến khi tối ưu trình điều hành. Mỗi nút trình khách `include: selected` với nhà cung cấp của riêng `mcp.tools.allowlist`, mà phát hiện chụp bây giờ; mặc định của nút là `all`, Vì vậy, một danh sách bị bỏ qua sẽ giao cho các đại lý mỗi công cụ lên dòng tình cờ phục vụ. Máy phục vụ gây ra ghim `authentication: bearerAuth` chống lại một quản lý `httpBearerAuth` Name `enabled: false`. \"Chỉ các công cụ đăng ký được kết nối\" là cơ chế của chính thượng nguồn: `getConnectedTools` in `@utils/helpers` Thu thập chính xác những gì đạt được kích hoạt trên một `ai_tool` kết nối, vì vậy bản đồ kết nối của dòng làm việc là danh sách cho phép. Dòng công việc trước đây kết nối không có gì, do đó, kích hoạt phục vụ một thiết lập công cụ rỗng; nó bây giờ mang một kiểm tra công cụ đọc, `infinito_health`, Với một ý tưởng rõ ràng."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] n8n tests cover creation, update, activation, authenticated tool listing and call, wrong/missing bearer rejection, rerun idempotence, and cleanup limited to managed resources. Creation, update, activation, rerun idempotence and the cleanup boundary are unit-tested in [test_mcp.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_mcp.py) and [test_client.py](../../tests/unit/python/roles/web-app-n8n/files/provision/test_client.py), including that a converged deployment reports `OK`, that a credential or workflow outside the managed names is never touched, and that a provider which vanished loses only its own credential. The authenticated half runs at deploy time through the shared contract probe, which opens an MCP session, lists tools against the declared allowlist, calls the read tool, and separately proves that an anonymous and a wrong-bearer probe are both refused a session. It cannot be a browser test: the bearer must not reach a Playwright environment file."
@@ -83862,7 +83862,7 @@ msgstr "`.../<volume>/files` máy"
 
 # translated-by: libretranslate
 msgid "`.env` (gitignored) is generated by `make dotenv`, which delegates to `python -m cli.meta.env`. It combines `default.env` with runtime-resolved values (selected distro, GHA/Act flags, df/meminfo-derived cache sizes, sha256 secrets, repository owner, ...). Each line in `.env` is preceded by its own comment, so the file is self-describing. Open it after `make dotenv` to inspect the effective value-set together with its documentation."
-msgstr "`.env` (gitignored) được tạo bởi `make dotenv`, đại biểu nào `python -m cli.meta.env`. Nó kết hợp `default.env` với giá trị đã giải quyết giờ (Đã chọn256 Bí mật, chủ kho, ...). mỗi dòng trong `.env` trước đó là lời bình luận của chính nó, nên hồ sơ đang tự hủy. Mở ra sau `make dotenv` để kiểm tra các giá trị đặt hiệu quả với các tài liệu hướng dẫn."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`.env` is consumed by bash `source` and docker-compose `--env-file`, neither of which round-trips multi-line values; the writer therefore rejects them. Other NIX_CONFIG settings (`accept-flake-config`, `experimental-features`, …) belong in `/etc/nix/nix.conf` (Dockerfile injects them inside the dev container; host operators set them once in `~/.config/nix/nix.conf`)."
@@ -84052,7 +84052,7 @@ msgstr "`Bluesky <https://bsky.social/>`__ là một mạng xã hội phân cấ
 
 # translated-by: libretranslate
 msgid "`Bridgy Fed <https://fed.brid.gy/>`__ is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "`Bridgy Fed <https://fed.brid.gy/>`__ là cầu liên kết giữa hoạt độngPub (Name), giao thức AT (Bluesky), và Indieweb (Các mạng và định dạng vi2)Nó phản ánh danh tính và tương tác qua mạng để một mạng lưới tiếp cận những người khác."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`CA_ROOT.cert_host` (default: `/etc/infinito.nexus/ca/root-ca.crt`)"
@@ -84387,7 +84387,7 @@ msgstr "`LDAP.USER.OBJECTS` Name"
 
 # translated-by: libretranslate
 msgid "`LDAP_DN_BASE`, user/admin emails, oauth2-proxy `email_domains`, CA identity: all onion, mutually consistent (users `@<NODE_ONION>.onion` pass the oauth2-proxy email filter)"
-msgstr "`LDAP_DN_BASE`, người dùng/adminmail, oauth2-Praxy `email_domains`, ID CA: tất cả hành, cùng nhất quán (Người dùng `@<NODE_ONION>.onion` Vượt qua tháng Năm2- Bộ lọc email thời trang)"
+msgstr ""
 
 msgid "`LISTMONK_DESIGN_BRANDING` in `vars/main.yml` and the `DESIGN_*_URL` keys in `templates/playwright.env.j2` read `LISTMONK_DESIGN.urls` unguarded. The design lookup builds those URLs for every slot, while `roles/sys-front-inj-design/tasks/assets.yml` publishes the files only when `design.logo` is a string, so with the logo replacement switched off `app.logo_url` and `app.favicon_url` point at files that do not exist and the design spec asserts them anyway. Option: take the `fallback` for both keys unless `LISTMONK_DESIGN.logo is string`, render the URL keys empty in that case like the other roles, and skip the logo assertions on empty keys."
 msgstr ""
@@ -84576,11 +84576,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "`RUN apk add` (Alpine ≥3.18 HTTPS)"
-msgstr "`RUN apk add` (Alpine3.18 HTTPS)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`RUN apk add` (inner Dockerfile build, Alpine ≤3.17 HTTP)"
-msgstr "`RUN apk add` (Xây dựng tập tin Docker nội bộ, Alpine3.17 HTTP)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`RUN apt-get install` (inner Dockerfile build, Debian/Ubuntu)"
@@ -84616,7 +84616,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ là một 
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (Cơ sở64 32 byte, `head -c32 /dev/urandom | base64`) Các mật mã được cất giữ các khóa truy cập; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` Các phiên họp an toàn."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -85848,7 +85848,7 @@ msgstr "``ldap``: ba kịch bản RBAC phụ thuộc vào sự đồng bộ củ
 
 # translated-by: libretranslate
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "``ldapauth`` là con đường duy nhất dẫn đến một ``friendica.user`` hàng, do đó, sự hiệu lực của nó lấy trực tiếp từ ``ldap`` Cờ phục vụ. Name2-Praxy ``sso`` Cánh cổng phía trước của vma là một cổng phía trước auth cửa, không phải một cầu bổ sung, và ở trong ```meta/services.yml`` <./meta/services.yml>`Này. Đường dẫn đăng nhập LDAP bị bao phủ bởi thông số nhà viết kịch LDAP tồn tại (yêu cầu 018), Vậy nên không thêm thông số đặc biệt nào nữa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``libaacs`` (AACS decryption library)"
@@ -86063,7 +86063,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "``noqa`` and ``nocheck`` are accepted as synonyms (case-insensitive) by this parser. By repo convention every project rule from ``docs/contributing/actions/testing/suppression.md`` MUST use ``nocheck:`` because ``# noqa: <code>`` is also parsed by ruff as a flake8 directive and triggers ``invalid-noqa-code`` warnings on every project-specific rule key. ``noqa:`` is reserved for real flake8 / ruff codes (``E402``, ``F401``, …). The ``direct-yaml`` lint enforces the convention by hard-rejecting the ``noqa:`` form."
-msgstr "``noqa`` và ``nocheck`` được chấp nhận là đồng nghĩa (nhạy cảm với trường hợp) bởi phân tích này. Bằng cách tổ chức lại mọi quy định của dự án ``docs/contributing/actions/testing/suppression.md`` Phải dùng ``nocheck:`` bởi vì ``# noqa: <code>`` cũng được phân tích bởi những kẻ vô lại như một bông hoa8 Chỉ thị và kích hoạt ``invalid-noqa-code`` Cảnh báo trên tất cả các phím quy tắc đặc trưng của dự án. ``noqa:`` là dành riêng cho flake thật8 Comment (``E402``. ``F401``...)Cái ``direct-yaml`` lit thi hành quy ước bằng cách cứng-tin ``noqa:`` mẫu đơn."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``offset`` moves that start deliberately: it is how an operator reaches the tail without waiting for anything. It defaults to 0, so every run that does not ask for it deploys the same head and can be compared against the last one. This used to be derived from the sweep number instead, which bought tail coverage at the price of the head -- chunk 0 began wherever the arithmetic pointed, the rows that matter most ran only every few sweeps, and no two runs were comparable."
@@ -86987,7 +86987,7 @@ msgstr "`cli contributing network address suggest` gợi ý định vị khe- đ
 
 # translated-by: libretranslate
 msgid "`cli contributing network address suggest` proposes the next free per-role IPv4 subnet(s) based on the live role tree. It walks every `roles/*/meta/server.yml`, collects occupied `networks.local.subnet` assignments, picks the smallest CIDR prefix that fits the requested client count, and proposes free sub-blocks gap-first then by increment within the established umbrella blocks."
-msgstr "`cli contributing network address suggest` Đề xuất địa chỉ IP miễn phí cho lần sau4 mạng phụ(s) dựa trên cây đóng vai trò sống. Nó đi bộ khắp nơi. `roles/*/meta/server.yml`, Thu thập bị chiếm đóng `networks.local.subnet` Nhiệm vụ, chọn một tiền tố CIDR nhỏ nhất phù hợp với số lượng khách hàng đã yêu cầu, và đề xuất khoảng trống phụ đầu tiên miễn phí sau đó bằng cách tăng lên trong những khối ô đã được thiết lập."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`cli contributing network address suggest`: propose free per-role subnets gap-first within established umbrella blocks."
@@ -86995,7 +86995,7 @@ msgstr "`cli contributing network address suggest`: Đề xuất một mạng l�
 
 # translated-by: libretranslate
 msgid "`cli contributing network address suggest`: propose the next free per-role IPv4 subnet(s) gap-first within the established umbrella blocks."
-msgstr "`cli contributing network address suggest`: đề xuất IPv miễn phí tiếp theo4 mạng phụ(s) Lỗ hổng đầu tiên trong những khối ô được thiết lập."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`cli contributing network ports suggest`   gap-first port allocation suggestions"
@@ -87809,7 +87809,7 @@ msgstr "`ldap`: ba kịch bản RBAC phụ thuộc vào sự đồng bộ của 
 
 # translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "`ldapauth` là con đường duy nhất dẫn đến một `friendica.user` hàng, do đó, sự hiệu lực của nó lấy trực tiếp từ `ldap` Cờ phục vụ. Name2-Praxy `sso` Cánh cổng phía trước của vma là một cổng phía trước auth cửa, không phải một cầu bổ sung, và ở trong [`meta/services.yml`](./meta/services.yml). đường dẫn đăng nhập LDAP bị bao phủ bởi thông số nhà viết kịch LDAP tồn tại (yêu cầu 018)Vậy nên không thêm thông số đặc biệt nào nữa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
@@ -88181,7 +88181,7 @@ msgstr "`no-reply` người dùng `web-app-mailu` chuỗi trống khác"
 
 # translated-by: libretranslate
 msgid "`noqa` and `nocheck` are case-insensitive synonyms in the parser. Every project rule MUST use `nocheck:` because `# noqa: <code>` is also parsed by ruff as a flake8 directive and warns on non-flake8 keys. Reserve `noqa:` for real flake8 / ruff codes (`E402`, `F401`, …). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hard-rejects `# noqa: <code>` whose codes do not match `[A-Z]+\\d+`."
-msgstr "`noqa` và `nocheck` là đồng nghĩa với trường hợp trong phân tích. Mọi quy tắc dự án phải được sử dụng `nocheck:` bởi vì `# noqa: <code>` cũng được phân tích bởi những kẻ vô lại như một bông hoa8 Chỉ thị và cảnh báo không được chia8 Chìa khóa. Kho `noqa:` cho flake thật8 Comment (`E402`. `F401`...). [test_noqa_only_ruff_codes.py](../../../../tests/lint/filesystem/python/test_noqa_only_ruff_codes.py) hoa `# noqa: <code>` Comment `[A-Z]+\\d+`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`npm install` (Ansible task in runner)"
@@ -89759,7 +89759,7 @@ msgstr "từ xa ``[user@]host[:/path]`` (Cái cây dự phòng trước tiên đ
 
 # translated-by: libretranslate
 msgid "a repository-owned allowlist adapter or a repository-owned n8n workflow;"
-msgstr "Một trình mô phỏng danh sách cho phép hay một kho phần mềm tên n8Không có luồng công việc;"
+msgstr ""
 
 msgid "a resolved rights row, or None when the licence is unread."
 msgstr ""
@@ -89823,7 +89823,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "a stored `openAiApi` credential carries `url` plus `apiKey`. The built-in assistant is out of reach: 1.95.3 exposes only `N8N_AI_ASSISTANT_BASE_URL`, which expects n8n's own assistant service rather than an OpenAI-compatible endpoint, and no `N8N_INSTANCE_AI_MODEL_URL` exists in that release"
-msgstr "một kho `openAiApi` Nhận dạng biểu tượng `url` thêm `apiKey`. Trợ lý có mặt ngoài tầm với: 1.95.3 Chỉ phơi bày `N8N_AI_ASSISTANT_BASE_URL`, chờ đợi n8Dịch vụ trợ lý của n là một điểm kết thúc tương thích với OpenAI, và không `N8N_INSTANCE_AI_MODEL_URL` tồn tại trong bản phát hành đó"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "a supported native MCP endpoint with an enforceable tool policy;"
@@ -90294,11 +90294,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64"
-msgstr "cánh tay64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64 runner capacity becomes a dependency of the deploy matrix. A pool without capacity queues those rows rather than failing them."
-msgstr "cánh tay64 Năng lực chạy trở thành phụ thuộc của ma trận triển khai. Một bể bơi không có khả năng xếp hàng thay vì thất bại."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "as `enforced`, and rows that cannot take an onion are dropped"
@@ -90465,7 +90465,7 @@ msgstr "Cơ sở hoặc yếu tố là phi số học hoặc tiêu cực."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "Cơ sở64- Đã mã hóa 32 byte ngẫu nhiên, AES-256- Chìa khóa GCM."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -93216,7 +93216,7 @@ msgstr "thời gian vô ích trước khi dừng"
 
 # translated-by: libretranslate
 msgid "if Jinja markers exist => render via strict Jinja2 using a robust context (recursive with depth limit)"
-msgstr "Nếu Jinja Mark tồn tại => trả bằng Jinja nghiêm khắc2 sử dụng một bối cảnh vững chắc (Đệ quy với giới hạn độ sâu)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "if a 3rd argument (default) is provided, strict=False and that default is returned"
@@ -93995,7 +93995,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "n8n client, trigger, and public provisioning API"
-msgstr "n8Trình khách, kích hoạt và cung cấp công cộng API"
+msgstr ""
 
 msgid "n8n: SSO hook, MCP provisioning and API paging work under n8n 2"
 msgstr ""
@@ -94213,11 +94213,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy SSO"
-msgstr "Oauth2-Praxy SSO"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "oauth2-proxy gate"
-msgstr "Oauth2- Cổng đệm"
+msgstr ""
 
 msgid "oauth2-proxy refuses to redirect to a host outside this list after a login or a logout. The entries are wildcard parents (a leading dot), one per address family the app actually serves: the deployment's primary domain for its clearnet hosts, the node onion for its onion hosts. An app that serves only one family gets only that entry, so a redirect into the other family stays refused."
 msgstr ""
@@ -94816,7 +94816,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "pgAdmin is the most popular and feature‑rich open source administration and development platform for PostgreSQL. This deployment provides a secure, containerized pgAdmin instance complete with optional OAuth2 proxy support for enhanced authentication. It is built for both developers and database administrators who want an easy‐to‐use web interface to manage multiple PostgreSQL servers."
-msgstr "pgAdmin là nền tảng phát triển và quản lý mã nguồn mở phổ biến nhất cho PostgreSQL. Việc triển khai này cung cấp một tiến trình pgAdmin bảo mật, đã đóng xong với OAuth tùy chọn2 Hỗ trợ ủy nhiệm để tăng cường khả năng xác thực. Nó được xây dựng cho cả hai nhà phát triển và nhà quản lý cơ sở dữ liệu những người muốn một giao diện web dễ dàng phân phối để quản lý nhiều PostgreSQL Máy chủ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "pgAdmin's own login id is the account e-mail `PGADMIN_DEFAULT_EMAIL` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)), not the Keycloak `administrator` username, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-pgadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before pgAdmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
@@ -94855,7 +94855,7 @@ msgstr "Ký hiệu phpMyAdmin trong vai MariaDB ``root`` tài khoản đã kết
 
 # translated-by: libretranslate
 msgid "phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); the Keycloak `administrator` username is not a MariaDB user, so in the `services.sso.enabled: false` matrix variants the `administrator` persona has no native login to drive and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-phpmyadmin` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`) and `biber` carries an empty role list, so `PERSONA_BIBER_BLOCKED=true` holds in every variant. The `guest` persona and the baseline assertions run unconditionally."
-msgstr "Ký hiệu phpMyAdmin trong vai MariaDB `root` tài khoản đã kết nối `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2). [`vars/main.yml`](./vars/main.yml)); Keycloak `administrator` Tên người dùng không phải là một MariaDB người dùng, vì vậy trong `services.sso.enabled: false` ma trận biến thể `administrator` cá nhân không có bản quyền đăng nhập để ổ đĩa và [`templates/playwright.env.j2`](./templates/playwright.env.j2) Vẽ `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) Chỉ thừa nhận `web-app-phpmyadmin` Name2-Praxy (`sso.oauth2.allowed_groups`) và `biber` mang một danh sách vai trò rỗng, vì vậy `PERSONA_BIBER_BLOCKED=true` giữ mọi biến thể. Hạt `guest` Nhân cách và đường cơ bản là vô điều kiện."
+msgstr ""
 
 msgid "phpldapadmin Architecture"
 msgstr ""
@@ -95816,7 +95816,7 @@ msgstr "python -m cli.administration.inventory.devices ..."
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "python -m cli.meta.ci.architectures [\"amd64 cánh tay64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -97311,7 +97311,7 @@ msgstr "Các ứng dụng vòng này triển khai."
 
 # translated-by: libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
-msgstr "Kiến trúc không có nhãn hiệu. Trở lại quảng cáo64 Người chạy sẽ triển khai một cánh tay64 dòng trên ad64 Name64 tựa đề công việc."
+msgstr ""
 
 msgid "the browser binary."
 msgstr ""
@@ -99161,7 +99161,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ sl2 module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
@@ -99502,7 +99502,7 @@ msgstr "utils.install.lint.hadolint module"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ cli2 module"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -100316,7 +100316,7 @@ msgstr "Cho dù một vận động viên chạy CI đang thực hiện, mà h�
 
 # translated-by: libretranslate
 msgid "whether oauth2-proxy fronts the application."
-msgstr "cho dù Oauth2-Porxy trước đơn xin việc."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "whether role names and titles take part. They do when a request is masked, so the translator never sees them, and they do not when two texts are compared: German capitalises every noun, so the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen`` and a set comparison would read the capital as a surplus span."
@@ -100497,7 +100497,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\168\\24\\d+"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} -> Tất5h vội vàng:<port> (bao gồm)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""
@@ -100888,11 +100888,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) can be layered in front of Taiga when you want proxy-level access control in addition to Taiga's own authentication flow."
-msgstr "🔐 **OAuth tùy chọn2 Bảo vệ truy cập ủy nhiệm:** [OAuth2 Ủy nhiệm](https://oauth2-proxy.github.io/oauth2-proxy/) có thể được lớp trước Taiga Khi bạn muốn kiểm soát cấp ủy nhiệm truy cập thêm vào TaigaDòng xác thực của chính mình."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ can be layered in front of Taiga when you want proxy-level access control in addition to Taiga’s own authentication flow."
-msgstr "🔐 **OAuth tùy chọn2 Bảo vệ truy cập ủy nhiệm:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ có thể được lớp trước Taiga Khi bạn muốn kiểm soát cấp ủy nhiệm truy cập thêm vào TaigaChính sự xác nhận của họ."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **SSO with OIDC & LDAP** (optional)"
@@ -101046,7 +101046,7 @@ msgstr "🟢 An toàn để vô hiệu hóa. Thường thì không có tác đ�
 
 # translated-by: libretranslate
 msgid "🧊 Install the ext4, btrfs and zfs userlands via `filesystem.sh` (distro packages, EPEL for btrfs on CentOS, the AUR PKGBUILD for zfs on Arch, the zfsonlinux repository on Fedora/CentOS); the kernel side comes from the host"
-msgstr "🧊 Cài đặt bộ mở4, btrfs và zfs userlands thông qua `filesystem.sh` (Các gói phân tách, EPEL cho btrfs on CentOS, AURGBUID cho zfs trên Arch, kho chứa zfsonlinux trên Fedora / Comment); hạt nhân bên đến từ máy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🧠 [RetroArch - Wikipedia](https://en.wikipedia.org/wiki/RetroArch)"

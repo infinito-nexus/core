@@ -42,6 +42,8 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 weblate:
+  backup:
+    stop_required: true
   name: weblate
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -72,6 +74,8 @@ weblate:
   site_title: Infinito.Nexus Translations
 # nocheck: playwright-service-flag — no browser surface; it runs Django's migrate and the beat scheduler
 beat:
+  backup:
+    stop_required: true
   name: weblate-beat
   bond: 1
   modes:
@@ -93,6 +97,8 @@ beat:
   pids_limit: 512
 # nocheck: playwright-service-flag — no browser surface; it drains the celery queues
 worker:
+  backup:
+    stop_required: true
   name: weblate-worker
   bond: 1
   modes:

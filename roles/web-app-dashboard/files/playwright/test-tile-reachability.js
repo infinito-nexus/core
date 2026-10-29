@@ -218,7 +218,7 @@ async function assertTabButtonOpensNewTab(page, context, target) {
     `Expected the dashboard header "Tab" button to be visible for the ${target.id} tile`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
-  const expectedHost = embeddedHost(page.url()) || landingDomain(target);
+  const expectedHost = target.handover_domain || embeddedHost(page.url()) || landingDomain(target);
   const [popup] = await Promise.all([
     context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
     tabButton.click(),

@@ -19,3 +19,12 @@ cache:
       target: *app_cache_target
     - service: worker
       target: *app_cache_target
+static:
+  type: tmpfs
+  mounts:
+    - service: weblate
+      target: &app_static_target /app/cache/static
+    - service: beat
+      target: *app_static_target
+    - service: worker
+      target: *app_static_target

@@ -1,8 +1,4 @@
 ---
-- name: ✅ Ensure npm is installed
-  package_install:
-    id: npm
-
 - name: 📦 install the pi coding agent
   ansible.builtin.command:
     cmd: npm install -g --ignore-scripts {{ agnt_pi_package }}

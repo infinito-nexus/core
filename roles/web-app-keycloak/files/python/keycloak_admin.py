@@ -3,7 +3,7 @@
 Exports:
     KeycloakError: an HTTP error status, naming method, path and status but never the body.
     container_credentials: the permanent admin read from ``/proc/<pid>/environ`` of the Keycloak container.
-    Keycloak: client whose ``call`` paths are relative to ``/admin/realms/<realm>/``.
+    Keycloak: client whose ``call`` paths are relative to ``/admin/realms/<realm>/`` and ``admin`` paths to ``/admin/realms/``.
     ADMIN_ENV_KEYS: container environment keys of the permanent admin user and password.
     PAGE: page size of every paged listing.
     TOKEN_MARGIN: seconds before expiry at which the master realm token is renewed.
@@ -96,9 +96,22 @@ class Keycloak:
             payload: JSON body, or None for none.
             timeout: seconds the request may take.
         """
+        return self.admin(method, f"{self.realm}/{path}", payload, timeout)
+
+    def admin(
+        self, method: str, path: str, payload: object = None, timeout: int = 60
+    ) -> tuple[object, str]:
+        """Return the decoded body and the id the ``Location`` header names.
+
+        Args:
+            method: HTTP method.
+            path: path below ``/admin/realms/``, starting with a realm name.
+            payload: JSON body, or None for none.
+            timeout: seconds the request may take.
+        """
         data = b"" if payload is None else json.dumps(payload).encode()
         request = urllib.request.Request(  # noqa: S310 fixed local Keycloak origin
-            f"{self.url}/admin/realms/{self.realm}/{path}",
+            f"{self.url}/admin/realms/{path}",
             data=data if method in ("POST", "PUT") else None,
             headers={
                 "Authorization": self._bearer(),

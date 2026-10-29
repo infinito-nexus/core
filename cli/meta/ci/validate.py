@@ -36,7 +36,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from cli.meta.ci import query
+from cli.meta.ci import matrix, query
 from utils.cache.applications import get_variants
 from utils.github.variant import axes, network, pools, selection, vpn
 from utils.roles.display import display_names
@@ -116,6 +116,7 @@ def problems(
                 message = f"{label}: {token!r} matches no discovered row ({reason})"
                 (errors if pin.pinned else warnings).append(message)
                 continue
+            deployed = matrix.with_deployed_services(discovered[(pin.app, variant)])
             try:
                 axes.check_pins(
                     pin.app,
@@ -131,13 +132,15 @@ def problems(
                         pin.app,
                         variant,
                         declared,
-                        pulls_tor=network.row_pulls_tor(discovered[(pin.app, variant)]),
+                        pulls_tor=network.row_pulls_tor(deployed),
                     ),
                     network_input=network_input,
                     vpn_mode=vpn_mode,
                     distros=distros,
                     filesystems=filesystems,
-                    architectures=axes.row_architectures(pin.app, architectures),
+                    architectures=axes.row_architectures(
+                        pin.app, architectures, deployed["services"]
+                    ),
                 )
             except SystemExit as refusal:
                 errors.append(f"{label}: {token!r} {str(refusal).split(': ', 1)[-1]}")

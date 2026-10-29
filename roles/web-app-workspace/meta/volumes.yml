@@ -4,3 +4,11 @@ workspace_data:
   mounts:
     - service: workspace
       target: /home/workspace
+
+workspace_connection_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-workspace', 'directories.instance'), 'connection-token' ] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: workspace
+      target: /run/secrets/workspace-connection-token

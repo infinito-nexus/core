@@ -17,7 +17,7 @@ OPENBAO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 OPENBAO_PKI_ENABLED: "{{ lookup('config', application_id, 'services.openbao.pki.enabled') }}"
 OPENBAO_LOG_LEVEL: "{{ lookup('config', application_id, 'services.openbao.log_level') }}"
 
-OPENBAO_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+OPENBAO_BASE_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 
 OPENBAO_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'openbao.hcl'] | path_join }}"
 OPENBAO_PLUGINS_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'plugins.hcl'] | path_join }}"
@@ -47,6 +47,8 @@ OPENBAO_RECOVERY_KEY: >-
 OPENBAO_SECRET_ID_REGISTERED: "{{ openbao_secret_id_registered | default('', true) }}"
 OPENBAO_SECRET_ID_ROTATING: "{{ (OPENBAO_SECRET_ID_REGISTERED | length > 0) and (OPENBAO_SECRET_ID_REGISTERED != OPENBAO_APPROLE_SECRET_ID) }}"
 OPENBAO_KV_MOUNT: "infinito"
+OPENBAO_AUDIT_PATH: "stdout"
+OPENBAO_AUDIT_PROBE: "audit-probe"
 OPENBAO_ANSIBLE_APPROLE: "ansible"
 OPENBAO_PKI_MOUNT: "pki"
 OPENBAO_PKI_ISSUING_ROLE: "internal"

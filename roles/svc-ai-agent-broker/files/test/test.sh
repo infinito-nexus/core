@@ -60,9 +60,9 @@ kc_membership() {
 
 probe() {
 	# nocheck: container-exec-resolver  address resolved by the caller and passed in
-	container exec -i \
+	KEY="$1" container exec -i \
 		-e "PORT=${AGENT_BROKER_PORT}" \
-		-e "KEY=$1" \
+		-e KEY \
 		-e "OWNER=$2" \
 		-e "EMAIL=$3" \
 		-e "MODEL=$4" \

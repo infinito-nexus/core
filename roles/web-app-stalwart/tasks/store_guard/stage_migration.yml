@@ -1,0 +1,28 @@
+---
+- name: "📁 Ensure the migration directories exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+  loop:
+    - "{{ STALWART_MIGRATE_DIR }}"
+    - "{{ STALWART_MIGRATE_TARGET_CONFIG | dirname }}"
+
+- name: "📄 Render the 1.x target configuration for stalwart-migrate"
+  stack_host_copy:
+    content: "{{ lookup('template', 'config.json.j2') | from_json | combine({'database': STALWART_MIGRATE_TARGET_DATABASE}) | to_nice_json }}\n"
+    dest: "{{ STALWART_MIGRATE_TARGET_CONFIG }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Render the values of the migration script"
+  stack_host_template:
+    src: migrate.env.j2
+    dest: "{{ [STALWART_MIGRATE_DIR, 'migrate.env'] | path_join }}"
+    mode: "0600"
+
+- name: "📄 Install the migration script"
+  stack_host_copy:
+    src: shell/migrate_v016.sh
+    dest: "{{ STALWART_MIGRATE_SCRIPT }}"
+    mode: "0700"

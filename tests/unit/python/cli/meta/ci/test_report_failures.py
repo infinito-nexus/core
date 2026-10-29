@@ -59,6 +59,25 @@ class TestReportFailures(unittest.TestCase):
             },
         )
 
+    def test_a_starred_batch_in_the_caller_path_is_read_past(self) -> None:
+        jobs = [
+            {
+                "name": "x / 0️⃣ Batch ⭐ / 🐝🧅 web-app-xwiki#0",
+                "conclusion": "failure",
+            },
+            {"name": "x / 1️⃣ Batch / 🐳🌐 web-app-xwiki#1", "conclusion": "failure"},
+            {"name": "x / 0️⃣ Batch ⭐ / 🔍 Batch 0 ⭐", "conclusion": "failure"},
+        ]
+        self.assertEqual(
+            failed_roles(jobs),
+            {
+                "web-app-xwiki": [
+                    Failure("swarm", "0", "tor", "", "", ""),
+                    Failure("compose", "1", "clearnet", "", "", ""),
+                ]
+            },
+        )
+
     def test_the_distro_and_filesystem_glyphs_are_read_off_the_title(self) -> None:
         jobs = [{"name": "🐳🌐🌀🦓 web-app-xwiki#0", "conclusion": "failure"}]
         self.assertEqual(

@@ -4,6 +4,7 @@ import unittest
 
 from utils.roles.applications.mounts import (
     VolumesSchemaError,
+    compose_service_names,
     content_hash,
     mount_default_read_only,
     mounts_for_service,
@@ -239,6 +240,22 @@ class TestMountsForService(unittest.TestCase):
         self.assertEqual(len(result), 2)
         targets = sorted(m["target"] for m in result)
         self.assertEqual(targets, ["/x", "/z"])
+
+
+class TestComposeServiceNames(unittest.TestCase):
+    def test_an_entry_without_a_proxy_is_only_its_own_key(self) -> None:
+        self.assertEqual(compose_service_names("app", {"image": "app"}), {"app"})
+
+    def test_a_proxy_service_key_joins_the_entry_key(self) -> None:
+        entry = {"proxy": {"service_key": "ejabberd"}}
+        self.assertEqual(compose_service_names("xmpp", entry), {"xmpp", "ejabberd"})
+
+    def test_a_templated_service_key_leaves_only_the_entry_key(self) -> None:
+        entry = {"proxy": {"service_key": "{{ 'synapse' if a else 'matrix' }}"}}
+        self.assertEqual(compose_service_names("app", entry), {"app"})
+
+    def test_a_non_mapping_entry_is_only_its_key(self) -> None:
+        self.assertEqual(compose_service_names("app", None), {"app"})
 
 
 if __name__ == "__main__":  # pragma: no cover

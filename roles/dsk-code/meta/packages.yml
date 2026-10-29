@@ -4,6 +4,7 @@ code-oss:
     - code
   Debian: [] # nocheck: empty - Code - OSS has no upstream build of its own here, and VSCodium is that build, installed through the vscodium id
   RedHat: [] # nocheck: empty - Code - OSS has no upstream build of its own here, and VSCodium is that build, installed through the vscodium id
+  batch: false
 
 vscode:
   Archlinux:
@@ -22,6 +23,7 @@ vscode:
       - com.visualstudio.code
     flatpak:
       command: code
+  batch: false
 
 vscodium:
   Archlinux:
@@ -40,3 +42,4 @@ vscodium:
       - com.vscodium.codium
     flatpak:
       command: codium
+  batch: false

@@ -1,3 +1,4 @@
 ---
 database_init: false # When true a database is initialized
 database_consumer_id: "svc-db-postgres" # Self consumer
+postgres_verified_target: ""

@@ -61,15 +61,14 @@ def row_label(
     *,
     network: str = CLEARNET,
     vpn: bool = False,
-    priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
     architecture: str = ARCHITECTURES[0],
 ) -> str:
     """The ``matrix.label`` axes assigns to one row: mode glyph, network glyph
     on the modes that carry the network axis, mesh glyph on the modes that
-    carry the mesh axis, distro, filesystem and architecture glyphs, display
-    name, and the priority star."""
+    carry the mesh axis, distro, filesystem and architecture glyphs, and the
+    display name."""
     deploy_mode = _MODE_NAMES[mode]
     glyphs = to_emoji(deploy_mode)
     glyphs += to_emoji(network) if deploy_mode in NETWORK_DEPLOY_MODES else LOCAL_GLYPH
@@ -79,8 +78,7 @@ def row_label(
         else ""
     )
     glyphs += to_emoji(distro) + to_emoji(filesystem) + to_emoji(architecture)
-    label = f"{glyphs}{display_names().encode(app, variant)}"
-    return f"{label} {to_emoji('priority')}" if priority else label
+    return f"{glyphs}{display_names().encode(app, variant)}"
 
 
 def deploy_job_name(
@@ -90,7 +88,6 @@ def deploy_job_name(
     *,
     network: str = CLEARNET,
     vpn: bool = False,
-    priority: bool = False,
     distro: str = DISTROS[0],
     filesystem: str = FILESYSTEMS[0],
     architecture: str = ARCHITECTURES[0],
@@ -104,7 +101,6 @@ def deploy_job_name(
         app: role id, e.g. ``'web-app-matomo'``.
         variant: the row's variant index, e.g. ``'0'`` (``''`` = none).
         network: the node network mode the row deploys in.
-        priority: whether the row belongs to the priority line.
         distro: the distribution the row was assigned.
         filesystem: the docker data-root kind the row was assigned.
         architecture: the CPU architecture the row was assigned.
@@ -119,7 +115,6 @@ def deploy_job_name(
             variant,
             network=network,
             vpn=vpn,
-            priority=priority,
             distro=distro,
             filesystem=filesystem,
             architecture=architecture,

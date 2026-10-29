@@ -9,4 +9,4 @@ config:
   plugin_configuration:
     - appid: "integration_zammad"
       configkey: "oauth_instance_url"
-      configvalue: "{{ lookup('tls', 'web-app-zammad', 'url.base') }}"
+      configvalue: "{{ lookup('tls', 'web-app-zammad', 'url.origin') }}"

@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ansible role ghin ipetumuli wa idempotent ya na karebe ka ghin sahala na karebe ka ghin sahala ya ka per-user aaplication tokens ya a kasa ya local a yaml kañọ̀"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -136,8 +140,6 @@ msgstr "Service de Restauration"
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr ""
-"Strategie gyamso ak\n"
-"Procedére de renversement ak"
 
 # translated-by: libretranslate
 msgctxt "role:dev-core:description"
@@ -450,6 +452,10 @@ msgstr "Installer za-distribution bihar bi ak pagbanu sa manager pagbanu Nix gye
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Routine za déploiement saisi întanso na akra za réclamation des disques întanso environs CI, environnement de conteneur, at environnement de build"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -852,8 +858,6 @@ msgstr "Infrastruktuwa"
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr ""
-"Infrastructure sahpo ta\n"
-"Networking sahpo"
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
@@ -1117,8 +1121,6 @@ msgstr "Servea za krikwa na nginx krama mda ka ndege akwolokoto nde ka ndege da 
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
-"Package-manager setup instalé npm et instalé optionellement 'npm ci' dans un répertoire de projet \n"
-"Node.js"
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1727,9 +1729,6 @@ msgstr "Agent AI personel ya kie ya-nyere ya nsohiti yagorombe ya browser yagaba
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr ""
-"Plateau yada pourfoureuté d'objets, partage et collaboration avec SSO yadda directory LDAP centrale \n"
-" \n"
-"Keycloak"
 
 # translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -2028,9 +2027,6 @@ msgstr ""
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Translate to Akak:\n"
-"\n"
-"Outils"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"

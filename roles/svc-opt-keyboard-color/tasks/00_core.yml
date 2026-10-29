@@ -3,7 +3,7 @@
     name: sys-ctl-alm-compose
 
 - name: 📦 Install MSI packages
-  package_install:
+  package_install: # nocheck: package-install its skipped result picks the PyPI fallback below
     id: msi-perkeyrgb
   register: msi_perkeyrgb_package
 

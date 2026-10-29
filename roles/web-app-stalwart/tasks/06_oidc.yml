@@ -32,10 +32,10 @@
 - name: "🔧 Reconcile the OIDC directory the realm is reached through"
   when: stalwart_oidc_dir_id | length > 0
   block:
-    - name: "🧹 Clear the OIDC directory's required audience"
+    - name: "🔧 Accept Keycloak tokens without a Stalwart audience or mail scope"
       include_tasks: jmap_call.yml
       vars:
-        stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/clear_audience.json.j2') }}"
+        stalwart_jmap_body: "{{ lookup('template', 'jmap/directory/token_validation.json.j2') }}"
 
     - name: "👥 Let the OIDC directory read the RBAC groups the token carries"
       include_tasks: jmap_call.yml

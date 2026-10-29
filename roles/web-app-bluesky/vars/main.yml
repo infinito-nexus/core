@@ -150,7 +150,6 @@ BLUESKY_FRONT_PROXY_ENDPOINTS:
 
 BLUESKY_BROKER_BUILD_CONTEXT: "{{ [ lookup('container', application_id, 'directories.services'), 'login-broker' ] | path_join }}"
 BLUESKY_BROKER_SRC_DIR: "{{ role_path }}/files/login-broker"
-BLUESKY_BROKER_IMAGE: "bluesky_broker_custom"
 BLUESKY_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.broker.image') }}"
 BLUESKY_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.broker.version') }}"
 BLUESKY_BROKER_SERVICE: "broker"

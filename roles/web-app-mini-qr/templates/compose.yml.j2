@@ -4,6 +4,11 @@
     {{ lookup('container_healthcheck', 'mini-qr') | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'mini-qr') }}
+    command:
+      - sh
+      - -c
+      - |-
+        sed -i -e 's#t=l.createElement(r);t.async=1;t.src="[^"]*clarity[^"]*"+i;##' -e 's#y=l.getElementsByTagName(r)\[0\];y.parentNode.insertBefore(t,y);##' dist/index.html && ! grep -q clarity.ms dist/index.html && exec serve -s dist -l 8080
     {{ lookup('compose_only', 'container_name', MINI_QR_CONTAINER) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['mini-qr', 'http', DOCKER_BIND_HOST]) | indent(4) }}

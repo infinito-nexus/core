@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from plugins.lookup.cdn import _cdn_paths, _to_url_tree
+from plugins.lookup.cdn import SAME_ORIGIN_PATH, _cdn_paths, _to_url_tree
 
 
 class TestCdnPaths(unittest.TestCase):
@@ -77,6 +77,14 @@ class TestCdnToUrlTree(unittest.TestCase):
         urls_with = _to_url_tree(self.tree, self.root, self.base_url + "/")
         urls_without = _to_url_tree(self.tree, self.root, self.base_url)
         self.assertEqual(urls_with["shared"]["css"], urls_without["shared"]["css"])
+
+    def test_same_origin_tree_is_host_relative(self):
+        urls = _to_url_tree(self.tree, self.root, SAME_ORIGIN_PATH)
+        self.assertEqual(urls["root"], "/_infinito/cdn/")
+        self.assertEqual(
+            urls["role"]["release"]["img"],
+            f"/_infinito/cdn/roles/{self.app}/latest/img",
+        )
 
     def test_different_apps_produce_different_role_urls(self):
         tree_other = _cdn_paths(self.root, "web-app-nextcloud", "latest")

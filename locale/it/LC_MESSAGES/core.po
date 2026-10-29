@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ansible ruolo di helper per la persistenza idempotent e la ricerca di token di applicazione per utente in un negozio locale YAML"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -447,6 +451,10 @@ msgstr "Installatore cross-distribution per il gestore del pacchetto Nix con ins
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "routine di manutenzione di distribuzione trasversale per la bonifica del disco attraverso CI, contenitore e ambienti di costruzione"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1272,7 +1280,7 @@ msgstr "Ottimizzazione di compilatore toolchain per la costruzione C, C++ e altr
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Involucro di orchestrazione per per-dominio NGINX con certificati TLS, modelli vHost e OAuth opzionale2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1584,7 +1592,7 @@ msgstr "Auto-hosted GitHub Azioni corridore distribuzione e configurazione"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML self-hosting5 gioco sandbox per la navigazione e l'esecuzione di demo del motore leggero e giochi nel browser"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1594,7 +1602,7 @@ msgstr "Servizio directory LDAP self-hosted per l'utente centralizzato, il grupp
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "S self-hosted3- archiviazione oggetti compatibile per file, supporti, backup e artefatti AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2065,7 +2073,7 @@ msgstr "Memoria di traduzione, glossari e il flusso di lavoro di revisione umano
 # translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
-msgstr "Tipologia2 hypervisor per macchine virtuali su workstation Pacman, con moduli del kernel e pacchetto di estensione"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
@@ -2143,7 +2151,7 @@ msgstr "Client LDAP basato sul Web per la navigazione, la ricerca e l'amministra
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Piattaforma di amministrazione e sviluppo Web per la gestione di più server PostgreSQL, con OAuth opzionale2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

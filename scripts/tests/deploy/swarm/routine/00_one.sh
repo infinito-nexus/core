@@ -111,7 +111,7 @@ collect_and_teardown() {
 			run_within_deadline 900 "$((collect_floor_seconds + index_floor_seconds * 2 + teardown_floor_seconds))" \
 			bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 		run_within_deadline 300 "$((collect_floor_seconds + index_floor_seconds + teardown_floor_seconds))" \
-			bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+			bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue/index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 	fi
 
 	run_within_deadline 900 "$((index_floor_seconds + teardown_floor_seconds))" \

@@ -42,6 +42,8 @@ redis:
   pids_limit: 256
 # nocheck: playwright-service-flag — self-provider entry; test_env_services_match.py:28-32 grants the forbidden-self-gate exemption
 suitecrm:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: curl
     # nocheck: healthcheck-timing-override  boots slower than the ten minute window; the value predates this default and has not been measured against it

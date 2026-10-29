@@ -94,6 +94,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 # Gljógvatn Skeið Skeiðardalur Skeiðarlaugur Skeiðarársandur Hrafnabjarg
 # Vestmannaeyja Djúpavágur Húsavík Hólar Hverfell Hverfjall Hverfellkvæði
@@ -511,6 +515,10 @@ msgstr ""
 # afstaðið til að skýða aðburði í CI, container, og býöntuframleiðisvélum
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr ""
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
 msgstr ""
 
 # translated-by: libretranslate
@@ -2295,7 +2303,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
-msgstr "Systemd-timed监视器偵測不健康或退出狀態非零的Docker容器並提昇失敗警示"
+msgstr ""
 
 # translated-by: libretranslate
 # fléppumflópurar sem flépparflópurun tekur bílum áður síðan sem

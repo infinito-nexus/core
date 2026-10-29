@@ -255,6 +255,28 @@ def mounts_for_service(
             yield mount
 
 
+def compose_service_names(key: str, entry: Any) -> set[str]:
+    """Return the compose services a ``meta/services.yml`` entry renders as.
+
+    Args:
+        key: the ``meta/services.yml`` key.
+        entry: the entry declared under ``key``.
+
+    Returns:
+        The key, plus the entry's literal ``proxy.service_key``; a templated
+        one contributes nothing.
+    """
+    proxy = entry.get("proxy") if isinstance(entry, dict) else None
+    service_key = proxy.get("service_key") if isinstance(proxy, dict) else None
+    if (
+        isinstance(service_key, str)
+        and "{{" not in service_key
+        and "{%" not in service_key
+    ):
+        return {key, service_key}
+    return {key}
+
+
 def mount_when_passes(
     mount: dict[str, Any], render_jinja: Callable[[str], str] | None
 ) -> bool:

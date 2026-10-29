@@ -20,6 +20,7 @@ webmail_data:
 clamav_data:
   type: volume
   name: stalwart_clamav_data
+  backup: false
   mounts:
     - service: clamav
       target: /var/lib/clamav

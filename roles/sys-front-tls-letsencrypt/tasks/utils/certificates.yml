@@ -1,0 +1,22 @@
+---
+- name: "🔎 TLS | (letsencrypt) check the live directory"
+  ansible.builtin.stat:
+    path: "{{ LETSENCRYPT_LIVE_PATH }}"
+  register: tls_letsencrypt_live
+
+- name: "🔎 TLS | (letsencrypt) find every certificate file in one call"
+  ansible.builtin.find:
+    paths: "{{ LETSENCRYPT_LIVE_PATH }}"
+    patterns: "{{ [_cert_file, _cert_key] | map('basename') | unique }}"
+    file_type: any
+    follow: true
+    recurse: true
+    depth: 2
+  register: tls_letsencrypt_found
+  when: tls_letsencrypt_live.stat.exists
+
+- name: "📌 TLS | (letsencrypt) remember the certificate files"
+  ansible.builtin.set_fact:
+    tls_letsencrypt_certificates: >-
+      {{ tls_letsencrypt_found.files | map(attribute='path') | list
+         if tls_letsencrypt_live.stat.exists else [] }}

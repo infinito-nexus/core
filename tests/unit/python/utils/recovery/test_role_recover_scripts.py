@@ -188,6 +188,27 @@ class NfsRecoverTests(unittest.TestCase):
             )
             self.assertFalse((target / "stale.txt").exists())
 
+    def test_a_volume_the_snapshot_does_not_hold_survives_the_restore(self):
+        mod = _load("svc-bkp-nfs-2-local", "nfs_recover")
+        state = mod.STATE_SUBDIR
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            target = Path(td) / "target"
+            (source / state / "app_data").mkdir(parents=True)
+            (source / state / "app_data" / "db").write_text("from-snapshot")
+            (target / state / "app_data").mkdir(parents=True)
+            (target / state / "app_data" / "stale").write_text("pre-recover")
+            (target / state / "docs_sites").mkdir(parents=True)
+            (target / state / "docs_sites" / "site").write_text("regenerable")
+            recovery = mod.NfsExportRecovery(
+                str(source), str(target), service_backup=False
+            )
+            self.assertEqual(recovery.volumes_missing_from_snapshot(), ["docs_sites"])
+            recovery.restore()
+            self.assertTrue((target / state / "docs_sites" / "site").exists())
+            self.assertTrue((target / state / "app_data" / "db").exists())
+            self.assertFalse((target / state / "app_data" / "stale").exists())
+
     def test_main_wires_argparse_to_recovery(self):
         mod = _load("svc-bkp-nfs-2-local", "nfs_recover")
         for argv, expect_backup in (

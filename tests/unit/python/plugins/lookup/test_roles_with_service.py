@@ -72,13 +72,15 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         handover: frozenset = frozenset(),
         **kwargs,
     ):
-        """Run the lookup with the ``applications``, ``tls`` and
-        ``network_handover`` sub-lookups patched to stay hermetic. The stubbed
-        tls answers ``[role_id, "url.base"]`` with the role's own configured
-        domain, which is what a clearnet deployment resolves; pass ``url_host``
-        (every role) or ``url_hosts`` (per role) to model a deployment whose URL
-        host differs, such as an onion one. A role in ``handover`` hands every
-        sibling outside its canonical network over."""
+        """Run the lookup with the ``applications``, ``tls``,
+        ``canonical_url`` and ``network_handover`` sub-lookups patched to stay
+        hermetic; any other sub-lookup raises ``KeyError``. The stubbed tls
+        answers ``[role_id, "url.base"]`` and the stubbed canonical_url
+        ``[role_id, key]`` with the role's own configured domain, which is what
+        a clearnet deployment resolves; pass ``url_host`` (every role) or
+        ``url_hosts`` (per role) to model a deployment whose URL host differs,
+        such as an onion one. A role in ``handover`` hands every sibling outside
+        its canonical network over."""
         lookup = self._make_lookup(vars_ or {})
         resolve = self.mod._resolve_canonical_domain
 
@@ -100,16 +102,31 @@ class RolesWithServiceLookupTests(unittest.TestCase):
                     role in handover and network_of(domain) != network_of(canonical)
                 ]
 
+        named = self.mod._resolve_named_canonical_domain
+
+        class _StubCanonicalUrl:
+            def run(self, terms_, variables=None, **kwargs):
+                role, key = str(terms_[0]), str(terms_[1])
+                host = (
+                    (url_hosts or {}).get(role)
+                    or url_host
+                    or named(role, applications.get(role, {}), key)
+                )
+                return [f"https://{host}"]
+
         class _StubApplications:
             def run(self, terms_, variables=None, **kwargs):
                 return [applications]
 
+        stubs = {
+            "applications": _StubApplications(),
+            "tls": _StubTls(),
+            "canonical_url": _StubCanonicalUrl(),
+            "network_handover": _StubHandover(),
+        }
+
         def _dispatch(name, **_kwargs):
-            if name == "applications":
-                return _StubApplications()
-            if name == "network_handover":
-                return _StubHandover()
-            return _StubTls()
+            return stubs[name]
 
         with patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
             return lookup.run(terms, variables=vars_ or {}, **kwargs)
@@ -682,6 +699,60 @@ class RolesWithServiceLookupTests(unittest.TestCase):
     def test_an_unknown_network_fails_loudly(self):
         with self.assertRaises(AnsibleError):
             self._network_ids({}, network="onion")
+
+    def _card_target_role(self, service: str, **block_extra) -> dict:
+        block = {"enabled": True, "shared": True}
+        block.update(block_extra)
+        return {
+            "web-app-chat": {
+                "services": {service: block},
+                "domains": {
+                    "canonical": {
+                        "synapse": "matrix.example.com",
+                        "element": "element.example.com",
+                    }
+                },
+            },
+        }
+
+    def test_dashboard_card_key_targets_that_domain(self):
+        applications = self._card_target_role("dashboard", card="element")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("element.example.com", "https://element.example.com"),
+        )
+
+    def test_dashboard_card_domain_follows_the_onion_url(self):
+        applications = self._card_target_role("dashboard", card="element")
+        entry = self._run(
+            ["dashboard"], applications, url_hosts={"web-app-chat": f"element.{ONION}"}
+        )[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            (f"element.{ONION}", f"https://element.{ONION}"),
+        )
+
+    def test_dashboard_without_card_key_targets_the_primary_domain(self):
+        applications = self._card_target_role("dashboard")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://matrix.example.com"),
+        )
+
+    def test_dashboard_unknown_card_key_fails_loudly(self):
+        applications = self._card_target_role("dashboard", card="nope")
+        with self.assertRaisesRegex(AnsibleError, "nope"):
+            self._run(["dashboard"], applications)
+
+    def test_other_services_ignore_a_card_key(self):
+        applications = self._card_target_role("prometheus", card="element")
+        entry = self._run(["prometheus"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://matrix.example.com"),
+        )
 
 
 if __name__ == "__main__":

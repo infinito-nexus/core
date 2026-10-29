@@ -64,7 +64,7 @@ xwiki:
   name: xwiki
   min_storage: 965MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 1.0
   mem_reservation: 1g
   mem_limit: 3g

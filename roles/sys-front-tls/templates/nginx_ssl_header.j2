@@ -13,9 +13,6 @@ ssl_session_tickets on;
 
 add_header Strict-Transport-Security max-age=31536000 always;
 
-ssl_stapling on;
-ssl_stapling_verify on;
-
 {% include 'roles/sys-front-tls/templates/ssl_credentials.j2' %}
 
 {% else %}

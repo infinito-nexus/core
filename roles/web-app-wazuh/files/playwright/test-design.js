@@ -235,7 +235,7 @@ exports.register = function () {
       "wazuh sign-in form",
       3,
     );
-    const svg = await (await apiGetOnion(page.request, loginUrl)).text();
+    const svg = await (await apiGetOnion(page.request, new URL(loginUrl, page.url()).href)).text();
     const onFrame = hex(await tokenValue(page, "--design-on-frame", "color"));
     expect(svg.toLowerCase(), "the lockup text takes the frame text color").toContain(`fill="${onFrame}"`);
   });
@@ -257,7 +257,7 @@ exports.register = function () {
       const html = await (await apiGetOnion(page.request, `${base}/app/home`)).text();
       expect(html, "the loading screen shows the generated mark").toContain(`src="${markUrl}"`);
       for (const url of [markUrl, faviconUrl, decodeDotenvQuotedValue(process.env.DESIGN_LOGIN_URL)]) {
-        expect((await apiGetOnion(page.request, url)).ok(), `${url} is published on the CDN`).toBe(true);
+        expect((await apiGetOnion(page.request, new URL(url, page.url()).href)).ok(), `${url} is served same-origin`).toBe(true);
       }
     }
   });

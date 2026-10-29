@@ -1,8 +1,10 @@
+import importlib.util
 import re
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 from unittest.mock import patch
 
 from ruamel.yaml import YAML
@@ -20,7 +22,10 @@ from cli.administration.inventory.provision.users_generator import (
     required_user_policies,
 )
 from cli.administration.inventory.validate.users import compare_user_keys
+from plugins.filter.reserved_users import non_reserved_users
+from utils.cache import ROLES_DIR
 from utils.cache.files import read_text
+from utils.cache.users import get_user_defaults
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 MODULE = "cli.administration.inventory.provision.users_generator"
@@ -69,14 +74,79 @@ def _write_role_users(roles_dir: Path, application_id: str, body: str) -> None:
 
 
 class TestRequiredUserPolicies(unittest.TestCase):
-    def test_only_the_resolved_roles_contribute(self):
+    def test_a_reservation_of_an_unresolved_role_is_not_required(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             roles_dir = Path(tmpdir)
             _write_role_users(roles_dir, "web-app-a", "alice: {}\n")
-            _write_role_users(roles_dir, "web-app-b", "bob: {}\n")
+            _write_role_users(roles_dir, "web-app-b", "bob:\n  accounts: []\n")
 
             self.assertEqual(
                 ["alice"], list(required_user_policies(roles_dir, ["web-app-a"]))
+            )
+
+    def test_a_reservation_of_a_resolved_role_is_required(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir, "web-app-a", "stalwartadmin:\n  accounts: []\n"
+            )
+
+            self.assertEqual(
+                ["stalwartadmin"],
+                list(required_user_policies(roles_dir, ["web-app-a"])),
+            )
+
+    def test_a_bot_of_an_unresolved_role_is_required(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(roles_dir, "web-app-a", "alice: {}\n")
+            _write_role_users(
+                roles_dir,
+                "web-app-b",
+                "no-reply:\n  roles: [bot]\n  accounts: [mailbox]\n",
+            )
+
+            self.assertIn("no-reply", required_user_policies(roles_dir, ["web-app-a"]))
+
+    def test_a_bot_without_an_account_of_its_own_is_required(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir, "web-app-b", "relay:\n  roles: [bot]\n  accounts: []\n"
+            )
+
+            self.assertEqual(["relay"], list(required_user_policies(roles_dir, [])))
+
+    def test_an_identity_user_of_an_unresolved_role_is_required(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(roles_dir, "web-app-b", "hermes: {}\n")
+
+            self.assertEqual(["hermes"], list(required_user_policies(roles_dir, [])))
+
+    def test_a_password_an_unresolved_role_states_outright_is_left_to_it(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir,
+                "web-app-b",
+                "breakglass:\n  password: '{{ ansible_become_password }}'\n",
+            )
+
+            self.assertEqual({}, required_user_policies(roles_dir, []))
+
+    def test_a_provisioned_user_takes_the_policy_of_its_unresolved_role(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir,
+                "web-app-b",
+                "relay:\n  roles: [bot]\n  password:\n    algorithm: alphanumeric\n",
+            )
+
+            self.assertEqual(
+                {"relay": {"algorithm": "alphanumeric", "validation": None}},
+                required_user_policies(roles_dir, []),
             )
 
     def test_a_user_declared_by_two_roles_appears_once(self):
@@ -158,14 +228,29 @@ class TestGenerateUserPasswords(unittest.TestCase):
             node = doc["users"][username]["password"]
             self.assertEqual("!vault", getattr(node, "tag", None))
 
-    def test_a_user_of_an_unresolved_role_is_not_pinned(self):
+    def test_a_reservation_of_an_unresolved_role_is_not_pinned(self):
         count, doc = self._run(
-            {"web-app-a": "alice: {}\n", "web-app-b": "bob: {}\n"}, ["web-app-a"]
+            {"web-app-a": "alice: {}\n", "web-app-b": "bob:\n  accounts: []\n"},
+            ["web-app-a"],
         )
 
         self.assertEqual(1, count)
         self.assertIn("alice", doc["users"])
         self.assertNotIn("bob", doc["users"])
+
+    def test_a_bot_of_an_unresolved_role_is_pinned(self):
+        count, doc = self._run(
+            {
+                "web-app-a": "alice:\n  accounts: []\n",
+                "web-app-b": "no-reply:\n  roles: [bot]\n  accounts: [mailbox]\n",
+            },
+            ["web-app-a"],
+        )
+
+        self.assertEqual(2, count)
+        self.assertEqual(
+            "!vault", getattr(doc["users"]["no-reply"]["password"], "tag", None)
+        )
 
     def test_an_existing_password_is_never_overwritten(self):
         existing = CommentedMap()
@@ -239,7 +324,7 @@ class TestGenerateUserPasswords(unittest.TestCase):
         self.assertIs(True, doc["TLS_ENABLED"])
 
     def test_no_required_users_writes_no_file(self):
-        count, doc = self._run({"web-app-a": "alice: {}\n"}, [])
+        count, doc = self._run({"web-app-a": "alice:\n  accounts: []\n"}, [])
 
         self.assertEqual(0, count)
         self.assertIsNone(doc)
@@ -514,6 +599,23 @@ class TestDeclaredPasswordPolicy(unittest.TestCase):
                 ],
             )
 
+    def test_a_role_that_asks_for_nothing_first_does_not_conflict(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(roles_dir, "web-app-a", "bot: {}\n")
+            _write_role_users(
+                roles_dir,
+                "web-app-b",
+                "bot:\n  password:\n    algorithm: strong_password\n",
+            )
+
+            self.assertEqual(
+                "strong_password",
+                required_user_policies(roles_dir, ["web-app-a", "web-app-b"])["bot"][
+                    "algorithm"
+                ],
+            )
+
     def test_the_generated_value_satisfies_the_declared_regex(self):
         password = generate_declared_user_password(
             "bot", "strong_password", "[^A-Za-z0-9]"
@@ -528,6 +630,57 @@ class TestDeclaredPasswordPolicy(unittest.TestCase):
         password = generate_declared_user_password("bot", None, None)
         self.assertRegex(password, r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
         self.assertRegex(password, r"[-_.]")
+
+
+def _role_plugin(role: str, name: str):
+    path = ROLES_DIR / role / "lookup_plugins" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"_users_generator_{name}", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class TestRepositoryCatalogue(unittest.TestCase):
+    """The roles of the local Stalwart stack whose bots re-rendered per deploy."""
+
+    STALWART_STACK: ClassVar[list[str]] = [
+        "svc-bkp-secrets-2-local",
+        "svc-bkp-volume-2-local",
+        "svc-net-tor-smtp",
+        "web-app-stalwart",
+    ]
+
+    def test_every_user_a_provider_creates_on_the_fallback_is_pinned(self):
+        stalwart = _role_plugin("web-app-stalwart", "stalwart_users")
+        mailu = _role_plugin("web-app-mailu", "mailu_users")
+        catalogue = get_user_defaults(roles_dir=ROLES_DIR)
+        directory = non_reserved_users(catalogue)
+        required = required_user_policies(ROLES_DIR, self.STALWART_STACK)
+
+        for username, user in catalogue.items():
+            created = (
+                stalwart.provisioned_by_stalwart(user)
+                or mailu.provisioned_by_mailu(user)
+                or username in directory
+            )
+            if created and "strong_password" in str(user["password"]):
+                with self.subTest(username=username):
+                    self.assertIn(username, required)
+
+    def test_the_bots_stalwart_provisions_are_pinned(self):
+        required = required_user_policies(ROLES_DIR, self.STALWART_STACK)
+
+        for username in (
+            "blackhole",
+            "bounce",
+            "contact",
+            "helpdesk",
+            "newsletter",
+            "no-reply",
+        ):
+            with self.subTest(username=username):
+                self.assertIn(username, required)
 
 
 if __name__ == "__main__":

@@ -67,6 +67,16 @@ on:
         required: false
         type: string
         default: ""
+      sweep:
+        description: "🔁 Sweep number driving the axis rotations the priority batches are counted under. Empty: INFINITO_CI_SWEEP from default.env."
+        required: false
+        type: string
+        default: ""
+      chunk_size:
+        description: "📦 Rows one batch holds, for counting the priority batches. Empty or 0 derives it like the deploy chain does."
+        required: false
+        type: string
+        default: ""
       fork_prereqs:
         description: "🍴 Wait for the privileged fork run's images. Off for entries that build their own."
         required: false
@@ -87,6 +97,10 @@ on:
         required: false
         type: string
         default: "10"
+    outputs:
+      starred:
+        description: "⭐ How many leading batches hold priority rows. Empty: the run has no priority line."
+        value: ${{ jobs.validation.outputs.starred }}
 
 permissions:
   contents: read
@@ -95,6 +109,8 @@ jobs:
   validation:
     name: ✅ Validation
     runs-on: ubuntu-26.04
+    outputs:
+      starred: ${{ steps.starred.outputs.count }}
     steps:
       - name: ⬇️ Checkout the calling ref for its tooling
         uses: actions/checkout@v7.0.0
@@ -154,6 +170,24 @@ jobs:
           INPUT_ARCHITECTURES: ${{ inputs.architectures }}
           INPUT_LIFECYCLES: ${{ inputs.lifecycles }}
         run: ./scripts/github/validate/selection.sh
+
+      - name: ⭐ Count the batches the priority line fills
+        id: starred
+        if: ${{ inputs.priority != '' }}
+        working-directory: pr-head
+        shell: bash
+        env:
+          INPUT_PRIORITY: ${{ inputs.priority }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_NETWORK: ${{ inputs.network }}
+          INPUT_VPN: ${{ inputs.vpn }}
+          INPUT_DISTROS: ${{ inputs.distros }}
+          INPUT_FILESYSTEM: ${{ inputs.filesystem }}
+          INPUT_ARCHITECTURES: ${{ inputs.architectures }}
+          INPUT_LIFECYCLES: ${{ inputs.lifecycles }}
+          INFINITO_CI_SWEEP: ${{ inputs.sweep }}
+          INFINITO_CI_CHUNK_SIZE: ${{ inputs.chunk_size }}
+        run: ./scripts/github/resolve/priority_batches.sh
 
   wait-fork-prereq-run:
     name: ⏳ Wait for fork run

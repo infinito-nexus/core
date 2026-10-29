@@ -5,6 +5,8 @@ map-animator:
       enabled: true
     swarm:
       enabled: true
+  backup:
+    stop_required: true
   image: ghcr.io/versatiles-org/versatiles-map-animator
   # nocheck: docker-version -- upstream publishes no release tag yet; sha-<commit>-server names one build of the server stage, and the image lookup joins every pin with ':' so a digest pin cannot be expressed
   version: sha-88a98f4-server

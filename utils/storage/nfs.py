@@ -125,3 +125,50 @@ def swarm_nfs_backed(entry, *, application_id, deployment_mode, storage_backend)
     if str(get_role_placement(application_id) or "").strip().lower() == "manager":
         return False
     return not _role_forces_other_mode(application_id)
+
+
+def volume_dir(semantic_name, entry):
+    """Directory under the NFS state path the swarm rewrite binds a volume to.
+
+    Args:
+        semantic_name: the volume's key in the compose ``volumes:`` block.
+        entry: the volume's spec; a pinned ``name`` wins over the key.
+    """
+    pinned = entry.get("name") if isinstance(entry, Mapping) else None
+    return str(pinned) if pinned else str(semantic_name)
+
+
+def backup_disabled_dirs(applications, *, deployment_mode, storage_backend):
+    """State-path directories of the NFS-backed volumes declared ``backup: false``.
+
+    Args:
+        applications: merged applications mapping whose ``volumes`` carry the
+            canonical ``meta/volumes.yml`` entries.
+        deployment_mode: cluster-wide ``compose`` or ``swarm``.
+        storage_backend: the ``storage.backend`` value, e.g. ``local`` or ``nfs``.
+
+    Returns:
+        The sorted directory names, without any a backed-up volume also binds to.
+    """
+    disabled: set[str] = set()
+    kept: set[str] = set()
+    for app_id, app in applications.items():
+        volumes = app.get("volumes") if isinstance(app, Mapping) else None
+        if not isinstance(volumes, Mapping):
+            continue
+        for semantic_name, entry in volumes.items():
+            if (
+                not isinstance(entry, Mapping)
+                or entry.get("type", "volume") != "volume"
+            ):
+                continue
+            if not swarm_nfs_backed(
+                entry,
+                application_id=str(app_id),
+                deployment_mode=deployment_mode,
+                storage_backend=storage_backend,
+            ):
+                continue
+            target = disabled if entry.get("backup") is False else kept
+            target.add(volume_dir(semantic_name, entry))
+    return sorted(disabled - kept)

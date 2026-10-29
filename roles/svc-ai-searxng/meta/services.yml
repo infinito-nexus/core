@@ -1,6 +1,8 @@
 ---
 # nocheck: playwright-service-flag - internal search backend consumed over the container network
 searxng:
+  backup:
+    stop_required: false
   modes:
     compose:
       enabled: true

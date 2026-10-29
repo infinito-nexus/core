@@ -11,4 +11,4 @@ update:
   upstream_id: integration-for-listmonk-mailing-list-and-newsletter-manager
 config:
   listmonk_settings:
-    api_url: "{{ lookup('tls', 'web-app-listmonk', 'url.base') }}/api"
+    api_url: "{{ lookup('tls', 'web-app-listmonk', 'url.origin') }}/api"

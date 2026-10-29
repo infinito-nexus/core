@@ -27,6 +27,12 @@ seal "static" {
 {% endif %}
 }
 
+audit "file" "{{ OPENBAO_AUDIT_PATH }}" {
+  options {
+    file_path = "stdout"
+  }
+}
+
 telemetry {
   prometheus_retention_time = "24h"
   disable_hostname          = true

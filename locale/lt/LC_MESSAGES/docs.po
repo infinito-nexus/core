@@ -261,7 +261,7 @@ msgstr "**A `svc-ai-litellm` Vartai yra vieno modelio entrypoint.** Jis atskleid
 
 # translated-by: libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A `svc-ai-lmstudio` vaidmuo pridedamas kaip roaide programinė sąsaja, x86Tik GPU mazgas.** Ji dislokuoja LM Studio serverio veiksenoje be ausų (`lms server`, su išoriniu suderinamumu API) ir registruojasi už vartų. LM Studio neturi rankos64 Linux serverio kūrimas, todėl jis PRIVALO būti pririštas prie x86 (paprastai GPU) mazgas per įdarbinimo apribojimus ir NEGALI būti suplanuotas į aviečių Pi / rankos64 agentai mazgai [032](032-agent-employees-firecracker.md). LM Studio laivai pirmiausia kaip darbastalio GUI; vaidmuo PRIVALO naudoti savo begalvę / serverio režimą, ir README PRIVALO dokumentuoti konteinerį cavuse (GPU passrough, licencijavimo / modelio parsisiuntimo apribojimai)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -601,7 +601,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Nieko.** Dalinis poslinkis (web svogūnai, identity clearnet) lūžiai2-proxy pašto atitikimas ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) rinkiniai `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Šviežių svogūnų mazgai tik; migruoti esamą frednet mazgas yra iš taikymo srities (bazinė DN + visos tapatybės būtų perkeltos)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -688,7 +688,7 @@ msgstr "**Paraiškos pataisymai jūs pastebėsite.** Nextcloud įdiegia OnlyOffi
 
 # translated-by: libretranslate
 msgid "**Application improvements.** Penpot gained hardened OIDC, LDAP and native-login variants, SeaweedFS-backed asset tests and Swarm-ready health checks. Pi-hole received its v6-compatible login and password flow, Keycloak RBAC integration and expanded persona coverage. Further deployment, replication and startup fixes landed across Akaunting, BigBlueButton, ERPNext, Gitea, Keycloak, Magento, Mailu, Mastodon, Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semaphore, Taiga, WordPress, XWiki and the internal CDN."
-msgstr "**taikymo patobulinimai.** Penpot įgijo grūdintas OIDC, LDAP ir nitive- prisijungimo variantai, SeaweedFS-užtikrinto turto testai ir užsakyti sveikatos patikrinimai. Pi- hole gavo savo v6suderinamu prisijungimo ir slaptažodžio srautu, Keycloak RBAC integracija ir išplėsta persona aprėptį. Tolesnis diegimas, atkartojimas ir paleidimas Akaunting, BigBlueButton, ERPNext, Gitea, Keycloak, Magento, Mailu, Mastodon, Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semafore, Taiga, WordPress, XWiki ir vidaus CDN."
+msgstr ""
 
 msgid "**Apps that walk `document.styleSheets`.** The injected sheets are linked without `crossorigin`, so app code can neither read nor rewrite their rules, and an app that reads `cssRules` unguarded throws on them. Keep the links that way: with readable sheets LibreTranslate rewrites the `prefers-color-scheme` rule of the shared sheet at load and the tokens stop following the system. Shield such an app in the role's design script, as `roles/web-svc-libretranslate/templates/design.js` does, and pin it with the test \"the app's theme switch raises no page error and leaves the injected sheets alone\"."
 msgstr ""
@@ -1043,7 +1043,7 @@ msgstr "**Atsarginė kopija paruošta:** Nuolatiniai duomenys pagal `{{ JIRA_STO
 
 # translated-by: libretranslate
 msgid "**Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers filesystem snapshots when available and can prepare btrfs hosts for snapshot-based backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export, *svc-bkp-secrets-2-local* captures secret material, and *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified *recover* CLI drives restores, while Compose recovery checks and a full Swarm disaster-recovery drill continuously verify the path. Rsync no longer retains superseded files as *~* copies."
-msgstr "**Atsargos ir nelaimių atkūrimas.** *svc- bkp- konteineriai2- vietinis* pakeičiamas *svc-bkp-volume-2-local*, kad atsarginės politikos aiškiai už kiekį. Vaidmuo pirmenybę teikia failų sistemos kadrų, kai įmanoma, ir gali parengti Btrfs šeimininkai Snapshot pagrindu atsargines kopijas. Naujas *svc-bkp-nfs-2-local* apsaugo bendrą NFS eksportą, *svc-bkp-secrets-2-local* fiksuoja slaptą medžiagą ir *svc-bkp-local-2-device* sinchronizuoja atsargines kopijas prie sumontuotų išorinių laikmenų. Suvienytas *pasveikimas* CLI diskai atstato, o komponuoti atkūrimo patikrinimus ir visą šiltas disaster- atkūrimo grąžtas nuolat patikrinti kelią. Rsync nebelaiko pakeistų failų kaip *~* kopijos."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Backup free:** The volume is backup-disabled and its backup consumer stays off; every artefact in it is re-fetchable from its upstream."
@@ -1059,7 +1059,7 @@ msgstr "**Atsarginės kopijos vartotojo SSH prieiga buvo grūdintas:** atsargini
 
 # translated-by: libretranslate
 msgid "**Backup/cleanup services are more reliable:** run-once flags execute earlier, user-backup is an explicit dependency, and cleanback now uses a configurable backups root and keeps the newest backups by default (force-keep=3)."
-msgstr "**Atsarginės kopijos / valymo paslaugos yra patikimesnės:** run- kai vėliavos vykdyti anksčiau, user-backup yra aiški priklausomybė, ir išvalyti dabar naudoja konfigūruojamas atsargines kopijas šaknis ir išlaiko naujausias atsargines kopijas pagal numatytuosius (Stencils3)."
+msgstr ""
 
 msgid "**Backups survive a file truncated mid-copy.** *baudolo* 7.0.2 lets the stopped checksum copy replace a live pre-copy that a writing container broke by truncating files under rsync, which used to abort the backup."
 msgstr ""
@@ -1217,7 +1217,7 @@ msgstr "**Išdaužti pakeitimus:** Migracija iš *util-* į rinkinio inventorius
 
 # translated-by: libretranslate
 msgid "**Bridges are explicit and validated.** When an addon itself integrates with another role, it MUST list the bridged service key under `bridges:`. Each listed key MUST resolve to a service block already declared in the same role's `meta/services.yml`. Lint fails otherwise. Front-door auth gates such as oauth2-proxy are not addon bridges unless the addon itself talks to that service. **Two distinct meanings of \"bridge\" exist and MUST NOT be conflated:** the `bridges:` *field* names an in-repo cross-role service dependency (e.g. an addon that talks to `svc-db-openldap`), whereas `mechanism: bridge` marks an addon that *is* a network/appservice bridge to an external system (e.g. a Matrix mautrix bridge to WhatsApp/Telegram). A single addon MAY be both: a `mechanism: bridge` addon MAY also declare a `bridges:` dependency on an in-repo service it relies on."
-msgstr "**Tiltai yra aiškūs ir patvirtinti.** Kai adonas pats integruojasi su kitu vaidmeniu, jis PRIVALO išvardyti sutrumpintą tarnybos raktą pagal `bridges:`. Kiekvienas įtrauktas raktas PRIVALO išspręsti į paslaugų blokas jau deklaruotas to paties vaidmens `meta/services.yml`. Lint nepavyksta kitaip. Vartai prie durų, tokie kaip autas2-Įgaliotinis nėra tiltai addon nebent addon pats kalbėti su ta paslauga. **Dvi skirtingos reikšmės: \"bridge\" yra ir NEGALI būti prilygintas:** ir `bridges:` *laukas* įvardijama priklausomybė nuo atvirkštinio kryžminio vaidmens paslaugų srityje (Pvz., addon, kad derybos `svc-db-openldap`), kadangi `mechanism: bridge` pažymi, kad priedai *yra* tinklo / appservice tiltas į išorinę sistemą (pvz., a Matrix Mautrix tiltas į WhatsApp / Telegram). Vienas priedas gali būti tiek: a `mechanism: bridge` addon GEGUŽĖ taip pat paskelbti `bridges:` priklausomybė nuo atpirkimo paslaugos, kuria ji remiasi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Browser Cache:** Browsers cache responses based on HTTP headers like `Cache-Control` or `Expires`."
@@ -1378,11 +1378,11 @@ msgstr "**SGD kelių paslaugų diegimas:** web service, sidekiq, workhorse, gita
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**CPU išvada:** Vaidmuo kuria savo įvaizdį iš compllmster spaudai priimančiosios architektūra, amd64 arba rankos64, išlaiko tik procesoriaus llama.cpp variklis ir perduoda GPU įtaisą į konteinerį."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
-msgstr "**CPU išvada:** Vaidmuo kuria savo įvaizdį iš compllmster spaudai priimančiosios architektūra, amd64 arba rankos64, išlaiko tik procesoriaus llama.cpp variklis ir perduoda GPU įtaisą į konteinerį."
+msgstr ""
 
 msgid "**CPU or GPU:** the build installs the CPU-only torch wheels unless the deploy resolved a usable GPU."
 msgstr ""
@@ -1807,7 +1807,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Comprehensive Email Protocols:** Supports SMTP, IMAP, and POP3 for reliable email delivery and retrieval."
-msgstr "**Išsamūs e. pašto protokolai:** SMTP, IMAP ir POP palaikymas3 patikimas el. pašto pristatymas ir paieška."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Comprehensive Identity Management:** Manage users, roles, and permissions across your applications with robust SSO and user federation."
@@ -1839,7 +1839,7 @@ msgstr "**Sąlyginis kietasis atstatymas:** Name (pvz., Mailu)."
 
 # translated-by: libretranslate
 msgid "**Conditional OAuth2**: easily toggle authentication per application."
-msgstr "**Sąlyginis Oauth2**: lengvai perjungti autentiškumo nustatymą pagal programą."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Config via Templates:** Fully customizable `.env` and `compose.yml` rendered via Jinja2 ⚙️"
@@ -2068,7 +2068,7 @@ msgstr "**Pagalbininkai**"
 # būti pridėtas tarpinis sluoksnis, tačiau to nereikalaujama.
 # translated-by: libretranslate
 msgid "**Control is raw device access plus agent code execution; no robotics middleware is mandated.** Hermes drives the hardware by executing code directly against the granted devices (GPIO/I2C/SPI/serial/video libraries), consistent with its self-exploration. This is the deliberate choice over a ROS2/middleware abstraction: the embodied device is already the trust boundary (there is no microVM here), so the agent runs code on the device itself. A middleware layer MAY be added later per robot but is not required by this role."
-msgstr "**Valdymas yra neapdoroto prietaiso prieiga plius agentas kodas vykdymas; robotų vidurio reikmenys nėra privaloma.** \"Hermes\" vairuoja aparatinę įrangą tiesiogiai pagal kodą, skirtą nustatytiems prietaisams (GPIO/I2C/SPI/serial/video bibliotekos), dera su savo paties žvalgybos. Tai sąmoningas ROS pasirinkimas2/ vidurio reikmenų išėmimas: įmontuotas įrenginys jau yra pasitikėjimo riba (čia mikroVM nėra), todėl agentas veikia kodą ant paties prietaiso. Vėliau prie kiekvieno roboto gali būti pridėtas tarpinis sluoksnis, tačiau to nereikalaujama."
+msgstr ""
 
 msgid "**Corporate Design:** The InfinitoDesign theme plugin maps Matomo's theme colors onto the design tokens and ships the logo set; the administrator and the login page follow the browser color scheme. Both are removed when `design` is off."
 msgstr ""
@@ -2774,7 +2774,7 @@ msgstr "**Aprašymas:** Darbastalio vaizdo konferencijų klientas susitikimams i
 
 # translated-by: libretranslate
 msgid "**Description:** Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "**Aprašymas:** Paskirstyta S3suderinamų objektų saugykla bendro naudojimo, vartotojų kibirų tiekimas per web-app vaidmenis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Distributed version control system for tracking source code changes and coordinating development work"
@@ -3354,7 +3354,7 @@ msgstr "**Aprašymas:** Patalpinta fedyverse sienos parodyti neseniai viešųjų
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "**Aprašymas:** Name5 žaidimų smėlio dėžė naršyti ir veikti lengvų variklių demos ir žaidimai naršyklėje"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -3607,7 +3607,7 @@ msgstr "**Aprašymas:** Įrankių grandinė Python scenarijų, programų kūrima
 
 # translated-by: libretranslate
 msgid "**Description:** Tor daemon publishing the node as a v3 onion service"
-msgstr "**Aprašymas:** Tor tarnyba leidybos mazgas kaip prieš3 Valgomasis svogūnas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Description:** Tor network client and browser launcher for anonymous, privacy-focused web browsing"
@@ -3753,7 +3753,7 @@ msgstr "**Tiesioginis OIDC SSO** - Frappe socialinis logotipas raktas kalba su b
 
 # translated-by: libretranslate
 msgid "**Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered."
-msgstr "**Tiesioginis OIDC SSO:** Prisijungti per bendrą Keycloak OIDC klientas be auto2-proxy sidecar; rediredict URI yra automatiškai registruotas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Directory & Script Deployment:** Sets up ``sys-ctl-hlth-msmtp/`` and deploys a templated Bash script to send test emails via msmtp."
@@ -4761,7 +4761,7 @@ msgstr "**Lūžis 3.1.4** yra suderintas per autentiškumą `/api/v1/custom-mcp-
 
 # translated-by: libretranslate
 msgid "**Flowise cross-agent supervisor is Phase 2, deferred.** The supervisor (Flowise as MCP client delegating to Hermes' MCP-server mode v0.6.0+ and OpenClaw's MCP-server, chaining cross-agent pipelines) is a separate later slice, not the first implementation. Rationale: it depends on the young hermes MCP-server mode and adds a second orchestration tier. The first slice ships each agent standalone; the supervisor design below is retained as the Phase 2 target. Single-agent use MUST always work without Flowise."
-msgstr "**Lėtas kryžminio agento vadovas yra etapas 2, atidėta.** Priežiūros institucija (Flowise kaip MCP klientas deleguoja į Hermes 'MCP- serverio režimą prieš0.6.0+ ir OpenClawMCP- serveris, jungiantys mišrius vamzdynus) yra atskira vėlesndalis, o ne pirmasis įgyvendinimas. Raciale: tai priklauso nuo jaunų hermes MCP- serverio režimą ir prideda antrą orkestravimo pakopos. Pirmasis gabalas laivų kiekvienas agentas atskirai; vadovas dizainas toliau yra laikomas kaip etapas 2 taikinys. Vieno agento vartojimas PRIVALO visada dirbti be Flowise."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Flowise's published images do not contain the version their tag claims:** `3.1.3`, `3.1.4` and `latest` all ship `flowise` 3.1.2, because upstream's Dockerfile runs an unpinned `npm install -g flowise` whose layer the release CI reuses. The role builds from an explicit npm pin and verifies the served route set."
@@ -4890,7 +4890,7 @@ msgstr "**Visiškai dokumentuotas:** Komponuoti kaminą su skirta duomenų apimt
 
 # translated-by: libretranslate
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
-msgstr "**Atsparus ateičiai:** Šiuolaikinės taikymo sritys ir standartai sutapo su UTF8; `utf8mb4` vėliau išvengti migracijos problemų."
+msgstr ""
 
 msgid "**Gallery links.** An Artifact whose sharing the operator changed can stop accepting updates from the session. Publish a new one, tell the operator that the old link stays on the old state, and update the README link."
 msgstr ""
@@ -5078,11 +5078,11 @@ msgstr "**HTTP svogūnų pusėje** (TLS priverstas išjungti `.onion`), vhosters
 
 # translated-by: libretranslate
 msgid "**HTTP on the onion side:** TLS is forced off for `.onion` (no Let's Encrypt possible); onion v3 crypto is the transport auth."
-msgstr "**HTTP svogūnų pusėje:** TLS yra priverstas išjungti `.onion` (no Let 's Šifruoti įmanoma), svogūnai prieš3 Kripto yra transporto autas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**HTTP on the onion side:** TLS is forced off for ``.onion`` (no Let’s Encrypt possible); onion v3 crypto is the transport auth."
-msgstr "**HTTP svogūnų pusėje:** TLS yra priverstas išjungti ``.onion`` (no Let 's Šifruoti įmanoma), svogūnai prieš3 Kripto yra transporto autas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**HTTP serving** with MIME types, gzip compression, caching, and custom `NGINX.conf` templating."
@@ -5959,11 +5959,11 @@ msgstr "**LDAP atsarga:** Kada `svc-db-openldap` yra naudojamas, `ldap` Auth met
 
 # translated-by: libretranslate
 msgid "**LDAP federation** — when ``svc-db-openldap`` is present, Frappe’s LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1."
-msgstr "**LDAP federacija** - kada ``svc-db-openldap`` yra, Frappe LDAP nustatymai doksas yra automatiškai sukonfigūruotas. End-to-end LDAP prisijungimas (automatiškai sukurti Frappe vartotoją iš LDAP bind) atidedamas stebėsenos reikalavimui; v1 Laivai tik Parametrų doko tipą. LDAP- prisijungimo grojaraščiai sąmoningai nėra V1."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**LDAP federation** — when `svc-db-openldap` is present, Frappe's LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1."
-msgstr "**LDAP federacija** - kada `svc-db-openldap` yra, Frappe LDAP nustatymai doksas yra automatiškai sukonfigūruotas. End-to-end LDAP prisijungimas (automatiškai sukurti Frappe vartotoją iš LDAP bind) atidedamas stebėsenos reikalavimui; v1 Laivai tik Parametrų doko tipą. LDAP- prisijungimo grojaraščiai sąmoningai nėra V1."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**LDAP federation:** When ``svc-db-openldap`` is present, Zammad authenticates and provisions accounts against the central LDAP."
@@ -6805,7 +6805,7 @@ msgstr "**Native OIDC SSO:** Semafore daro savo \"Prisijungti Keycloak\"mygtukas
 
 # translated-by: libretranslate
 msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "**Natūralus OIDC skonis** (`services.sso.flavor: oidc`), ne autas2-proxy vartai: OpenBao kalba pats OIDC, todėl taip [`web-app-semaphore`](../../roles/web-app-semaphore/) o ne [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 msgid "**Native OIDC login:** The dashboard signs users in against Keycloak's discovery endpoint, without an oauth2-proxy sidecar."
 msgstr ""
@@ -7059,7 +7059,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Not native in any edition**; Raw only via Apache `mod_auth_openidc` (manual PoC). → use the platform oauth2-proxy gate instead."
-msgstr "**Nė viename leidime negimtoji**; Žaliavinis tik per Apache `mod_auth_openidc` (Rankinis poC). → naudoti platformą auth2- Vietoj to - proxiki vartai."
+msgstr ""
 
 # aplankas turi **Antarktiniai** Priedai (veiksmas / filtras / peržiūra) kad
 # išplėsti automatizavimo variklį pats. Kai kurios programos *taip pat*
@@ -7097,27 +7097,27 @@ msgstr "**OAUTH2_SERVICE_ENABLED** + **OIDC_SERVICE_ENABLED** → vienas **SSO_S
 
 # translated-by: libretranslate
 msgid "**OAuth2 Proxy Support:** Secure your admin interface with modern authentication."
-msgstr "**Oauth2 Proxy palaikymas:** Saugokite savo administratoriaus sąsają su šiuolaikiniu autentiškumo nustatymu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2 gating**: drop-in support when *web-app-keycloak's SSO-proxy sidecar* is present."
-msgstr "**Oauth2 gėjai**: lašas- paramos, kai *web-app-keycloakSSO proxy sidecar* yra."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2 gating**: drop-in support when *web-app-keycloak’s SSO-proxy sidecar* is present."
-msgstr "**Oauth2 gėjai**: lašas- paramos, kai *web-app-keycloakSSO proxy sidecar* yra."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by ``web-app-keycloak``\\ ’s SSO-proxy sidecar (``services.sso.enabled: true``). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**Oauth2 proxgate:** Kiekvienas prašymas pateiktas ``web-app-keycloak``\\ 's SSO- proxy sidecar (``services.sso.enabled: true``). Keycloak realm- level OTP ir Webaur srauto priemonės 2FA prieš OAuth2 Įgaliotinis pripažįsta sesiją; KIX pati atlieka ne 2FA logika."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**Oauth2 proxgate:** Kiekvienas prašymas pateiktas `web-app-keycloak`SSO proxy sidecar (`services.sso.enabled: true`). Keycloak realm- level OTP ir Webaur srauto priemonės 2FA prieš OAuth2 Įgaliotinis pripažįsta sesiją; KIX pati atlieka ne 2FA logika."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OAuth2/SSO protection** via Keycloak and oauth2-proxy"
-msgstr "**Oauth2/ SSO apsauga** per Keycloak ir auth2- proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**OIDC Authentication:** Seamless integration with identity providers such as Keycloak."
@@ -7181,7 +7181,7 @@ msgstr "**Biuro integracija:** Importuoti, eksportuoti ir bendradarbiauti su Tar
 
 # translated-by: libretranslate
 msgid "**Offline Python mint** at inventory build: ed25519 → address → exact Tor key-file formats → vault → `DOMAIN_PRIMARY`. Idempotent (existing key is reused, never regenerated). No Docker/Tor needed at build time."
-msgstr "**Pitonas** atsargų kaupime:25519 → adresas → tikslus Tor key- failo formatai → saugykla → `DOMAIN_PRIMARY`. Idemactive (esamas raktas yra pakartotinai naudojamas, niekada regeneruotas). Nėra Docker / Tor reikia statybos metu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Offline deterministic minting:** the v3 key/address is generated without running Tor and pinned in the inventory (stable, backupable, restorable)."
@@ -7426,11 +7426,11 @@ msgstr "**Neprivalomas firestauravimo emuliatorius:** Naudokite Datastore- mode 
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**"
-msgstr "**Neprivaloma2 Integracija:**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OAuth2 Integration:**   Secure your pgAdmin access by integrating an external OAuth2 provider."
-msgstr "**Neprivaloma2 Integracija:** Apsaugokite savo pgAdmin prieigą integruojant išorinį OAuth2 teikėjas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Optional OIDC bridge:** Load ``mod_oauth2_client`` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication."
@@ -7864,7 +7864,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pins that cannot age unnoticed.** Image pins are classified and pull references built from the class, a moving tag declares itself with the marker it already carries, and a role's images move as one release or not at all. The updater reads addon declarations, orders vendor patch counters and five-component versions, reads a release line written before the number as a family, and now also watches pinned pip requirements and Ansible collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu mirror list with failover, a short timeout and a health test serves both the package cache and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh."
-msgstr "**Dovanos, kurios negali būti nepastebėtos.** Vaizdo kaiščiai yra klasifikuojami ir traukti nuorodas pastatytas iš klasės, judantis žymeklis deklaruoja save su žymekliu jis jau atlieka, ir vaidmuo vaizdai judėti kaip vienas spaudai arba ne visi. Atnaujintojas skaito addon deklaracijas, užsakymus pardavėjas pleistras skaitikliai ir penkių komponentų versijas, skaito išleidimo eilutę parašyta prieš numerį kaip šeimos, ir dabar taip pat žiūri pririšimo reikalavimus ir Antenų kolekcijos. Septyni vaidmenys persikėlė iš Debian codename bazės į plonas, ir vienas Ubuntu veidrodinis sąrašas su nesėkme, trumpas pertrauka ir sveikatos testas tarnauja tiek pakuotės talpyklos ir vaizdas stato. *js- yaml* buvo atšauktas iki 4.3.2 GHS2883- ksantinas3- v3hh."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Pip Installation:** Installs python-pip if not already present."
@@ -8514,7 +8514,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**S3-compatible API:** Standard S3 SDKs and CLIs work against the gateway for uploads, media, attachments, and exports."
-msgstr "**S3- suderinamas API:** S standartas3 SDKs ir CLIs dirba prieš įkelti, žiniasklaidos, priedai ir eksportas vartai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**S3-compatible object storage (future):** Penpot supports an ``assets-s3`` backend (``PENPOT_STORAGE_ASSETS_FS_*`` → ``PENPOT_STORAGE_ASSETS_S3_*``). It is intentionally **not** implemented here; switching the backend and adding the S3 credentials to ``meta/secrets.yml`` is the documented upgrade path."
@@ -8578,7 +8578,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO flavor is `oauth2`** (oauth2-proxy sidecar → Keycloak), NOT native OIDC — because Checkmk Raw has no OIDC. The oauth2-proxy authenticates against Keycloak and passes `X-Remote-User`; Checkmk's site Apache trusts it via `auth_by_http_header`. This mirrors [`web-app-openproject`](../../roles/web-app-openproject/)'s header-SSO bridge (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` + LDAP-gated header trust)."
-msgstr "**SSO skonis yra `oauth2`** (oauth2- proxy sidecar → Keycloak), NE gimtoji OIDC - nes Checkmk Žalia neturi OIDC. Autas2- proxis atpažįsta Keycloak ir praėjimai `X-Remote-User`; Checkmk 's site Apache pasitiki jį per `auth_by_http_header`. Tai veidrodžiai. [`web-app-openproject`](../../roles/web-app-openproject/)Header- SSO tiltas (`OPENPROJECT_AUTH__SOURCE__SSO_HEADER` LDAP- paguldytas antraštinis pasitikėjimas)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**SSO round-trip test:** ``test-oidc-login.js`` drives ``/sso/key/generate`` through the Keycloak login form and asserts the UI no longer falls back to its own password gate."
@@ -9265,7 +9265,7 @@ msgstr "**Standartizuotas konteinerių vykdymas** visiškai pakeisti Docker CLI 
 
 # translated-by: libretranslate
 msgid "**Standards Support:** Seamlessly integrate with SAML, OpenID Connect, and OAuth2 to support various authentication flows."
-msgstr "**Standartų palaikymas:** Nesantūriai integruoti su SAML, OpenID Connect, ir Oauth2 remti įvairius autentiškumo patvirtinimo srautus."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Static Content Hosting:** Serve any type of static files (documents, software, media, etc.)."
@@ -9285,7 +9285,7 @@ msgstr "**Statinis svetainės kaupimas:** Sergia HTML, CSS, JavaScript ir kitus 
 
 # translated-by: libretranslate
 msgid "**Status codes / health.** An authenticated MCP endpoint returns a non-2xx status (e.g. `401`/`406`) to unauthenticated probes. The role MUST NOT let the MCP path break the platform uptime/status-code check: either the health probe targets an unauthenticated `mcp.endpoint.health_path`, or the MCP path is excluded from the canonical `status_codes` check. The chosen approach MUST be explicit in `server.yml`."
-msgstr "**Statuso kodai / sveikata.** Patvirtinta MCP baigtis grąžina ne2xx būsena (pvz., `401`/`406`) į nepatvirtintus zondus. Vaidmuo PRIVALO leisti MCP kelias nutraukti platforma iš anksto / būsenos-kodas patikrinimas: arba sveikatos zondas taiko nepatvirtintas `mcp.endpoint.health_path`, arba MCP kelias yra pašalintas iš kanoninio `status_codes` Patikrink. Pasirinktas metodas PRIVALO būti aiškus `server.yml`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Status:** accepted"
@@ -9770,7 +9770,7 @@ msgstr ""
 # tiksli gedimas ašis egzistuoja paneigti.
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
-msgstr "**Darbas įrodo, kad mašina prieš ją dislokuojant.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) palyginti `uname -m` Ši informacija yra susijusi su CR SA formos bendrų sumų 060 skiltimi. Be jo, etiketė, kuri nustoja spręsti rankos64 aparatinė įranga būtų pranešti kiekvieną ranką64 eilutė žalia iš amd64 mašina, kuri yra tiksli gedimas ašis egzistuoja paneigti."
+msgstr ""
 
 #, python-brace-format
 msgid "**The learning log is a `History`-shaped table in the gateway's own database**, one row per offered engine per decision, each row marking whether that engine won. The signature groups comparable requests: source language, target language, and a coarse content class derived from the payload's length and whether it carries markup. `wins(signature)` returns `{engine: (won, seen)}` and feeds decision 5's criteria line, so the next decision reads what earlier ones concluded. A log that cannot be read MUST degrade to deciding without it and MUST NOT fail the request."
@@ -10053,7 +10053,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Trusted-header SSO bridge:** Establishes the owner session from the oauth2-proxy identity (see below)."
-msgstr "**Patikimiausias SSO tiltas:** Nustato savininko sesiją auto2- proxy identity (žr. toliau)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Twenty-four roles' audit entries contradicted their own metadata** the first time the classification lint ran, nine of them shipping an adapter while the list called them untried candidates."
@@ -10225,11 +10225,11 @@ msgstr "**Naudotojo nuosavybė:** byla priklauso darbo vietos naudotojui ir ją 
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. ``files/hooks.js`` reads the trusted ``Remote-Email`` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role ``global:member``, or the pre-existing owner for ``users.administrator.email``), so every Keycloak user — administrator and regular users alike — lands directly on n8n’s own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Autas2-proxy krašto vartai nukreipia visus prašymus į Keycloak. ``files/hooks.js`` skaito patikimas ``Remote-Email`` antraštės openresty rinkiniai, kai vartai eina ir auto- nuostatos / rąstų atitikimo n8n naudotojas (vaidmuo ``global:member``, arba jau egzistuojantis savininkas ``users.administrator.email``)Taigi kiekvienas Keycloak vartotojas - administratorius ir reguliariai vartotojai tiek - žemės tiesiogiai n8n savas darbo srauto paviršius be sekundės, n8n vietos prisijungimo žingsnis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step."
-msgstr "**V1 (SSO):** Autas2-proxy krašto vartai nukreipia visus prašymus į Keycloak. `files/hooks.js` skaito patikimas `Remote-Email` antraštės openresty rinkiniai, kai vartai eina ir auto- nuostatos / rąstų atitikimo n8n naudotojas (vaidmuo `global:member`, arba jau egzistuojantis savininkas `users.administrator.email`)Taigi kiekvienas Keycloak vartotojas - administratorius ir reguliariai vartotojai tiek - žemės tiesiogiai n8n savas darbo srauto paviršius be sekundės, n8n vietos prisijungimo žingsnis."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**V2 (no auth)**: every service is off; there is no auth chain to drive end-to-end."
@@ -10439,7 +10439,7 @@ msgstr "**Kodėl šis rinkinys?** [Debian](https://www.debian.org) pirmenybė te
 
 # translated-by: libretranslate
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
-msgstr "**Kodėl:** Friendica šiuo metu autentifikuoja dviem etapais: auth2-proximate vhost (Keycloak- Autorization- Code- Flow, 2FA- vykdytini), tada vartotojas turi užpildyti Friendicasavų `/login` forma, nes atsargų Friendica turi **nėra header- patikimų auto- prisijungimo** - Owa.php / OAuth/Token.php Tik skaityti `HTTP_AUTHORIZATION` yra API tikslai, niekada interneto sesijos. Ldapauth addon lieka įjungtas tik kaip pirma- prisijungimo butstrap, kad realizuoja `friendica.user` eilutė nuo Openldap."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Wildcard A/AAAA records** (`*.parent`) for parent hosts via `sys-dns-wildcards`"
@@ -10868,7 +10868,7 @@ msgstr "**architektūra** -- kuri CPU architektūra yra eilutėje ir per ją :fu
 
 # translated-by: libretranslate
 msgid "**arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md)."
-msgstr "**rankos64/ Aviečių Pi yra palaikoma.** Šis vaidmuo `arm64` kad jis galėtų sėdėti šalia Pi agentas iš [032](032-agent-employees-firecracker.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**author**: Alejandro Roman Ibanez"
@@ -10896,7 +10896,7 @@ msgstr "**Batatai** (aplankas) → atrasti + atkurti `nfs → volume → secrets
 
 # translated-by: libretranslate
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
-msgstr "**Bazinės išimtys** - `web-app-fider` ir `web-app-bookwyrm` (taip pat keycloa- job, n8n) buvo raudonos prieš teikėjo filialas ir likti už jį; bookwyrm nepavyksta savo auth2 patikimas antraštės sesijos spec, fider savo bazinio. Fix atskirai nuo svogūnų. espokrm paliko šį sąrašą: jos svogūnai variantas nepavyko bendro admin persona (nustatytas b97cf8888) ir jo laisvojo tinklo variantas grąžina HTTP 500 dėl GET / api / v1/ App / Vartotojas, sukelti vis dar atvira."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**both red, different errors**: two causes, not one. Split them."
@@ -11179,7 +11179,7 @@ msgstr "**aprašymas**: Darbastalio vaizdo konferencijų klientas internetiniams
 
 # translated-by: libretranslate
 msgid "**description**: Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "**aprašymas**: Platinama S3suderinamų objektų saugykla bendro naudojimo, vartotojų kibirų tiekimas per web-app vaidmenis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Distributed version control system for tracking source code changes and coordinating development work"
@@ -12009,7 +12009,7 @@ msgstr "**aprašymas**: Toolchain Python scenarijų, programų kūrimas, ir duom
 
 # translated-by: libretranslate
 msgid "**description**: Tor daemon publishing the node as a v3 onion service"
-msgstr "**aprašymas**: Tor tarnyba leidybos mazgas kaip prieš3 Valgomasis svogūnas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Tor network client and browser launcher for anonymous, privacy-focused web browsing"
@@ -12239,7 +12239,7 @@ msgstr "**mazgas** (`[user@]host`) → rsync- traukti visą atsarginį medį, ta
 
 # translated-by: libretranslate
 msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.** OIDC Discovery / RFC 8414 want an https issuer, and an onion-exclusive Keycloak has none, so strict client libraries refuse it. Serving TLS on the onion is blocked on four independent things, in this order: (1) `roles/svc-net-tor/templates/torrc.j2` publishes only `HiddenServicePort 80`, and no role declares 443 in `ports.public`/`ports.local`, so `lookup('tor_ports')` can never emit it — flipping TLS on first makes Keycloak unreachable over Tor entirely, because `nginx_ssl_header.j2` is one if/else and port 80 disappears; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` writes an unguarded CN, which overflows X.509's 64-byte cap on a 62-char v3 onion — `group_vars/all/02_tls.yml` already guards exactly this for the root CA and nowhere else; (3) `nginx_ssl_header.j2` emits HSTS in the same branch, and browsers offer no click-through on an HSTS host with an untrusted chain, so a self-signed interim locks real users out while staying invisible to Playwright's `ignoreHTTPSErrors`; (4) it fixes zero libcurl consumers, because RFC 7686 refusal happens at name resolution and is scheme-independent. Unblocking needs a CA that issues for v3 `.onion` (HARICA, CA/B Forum ballot 144) — procurement, not code. Until then the per-consumer fixes stand: SOCKS proxy for libcurl clients. peertube is no longer among them - it is a clearnet-only role."
-msgstr "**https apie svogūnai IPP - ištirti ir REJECTED, ne iš naujo gauti.** OIDC Discovery / RFC 8414 nori plg. emitentas, ir išskirtinis Keycloak nėra, todėl griežtos klientų bibliotekos atsisako. Tarnauti TLS svogūnai blokuojami keturių nepriklausomų dalykų, šia tvarka: (1) `roles/svc-net-tor/templates/torrc.j2` skelbia tik `HiddenServicePort 80`, ir jokių pareigų deklaruoja 443 yra `ports.public`/`ports.local`, taigi `lookup('tor_ports')` negali jį išleisti - apverčiant TLS pirmą kartą daro Keycloak nepasiekiamas per Tor visiškai, nes `nginx_ssl_header.j2` yra vienas, jei / kita ir uosto 80 dingsta; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` rašo nesaugomą KN, kuris perkelia X.509' 64- gaubtelis ant 62- char v3 Valgomasis svogūnas `group_vars/all/02_tls.yml` jau saugo būtent tai šaknų CA ir niekur kitur; (3) `nginx_ssl_header.j2` išleidžia HSTS toje pačioje šakoje, ir naršyklės pasiūlyti ne klick- per ant HSTS priimančiosios su nepatikimu grandinės, todėl savarankiškai pasirašytas laikinas spynos realius vartotojus, o lieka nematomas Playwright `ignoreHTTPSErrors`; (4) ji nustato nulį libcurl vartotojams, nes RFC 7686 atsisakymas vyksta pavadinimo rezoliucijos ir yra nepriklausomas. Atblokavimui reikia CA, kad klausimai prieš3 `.onion` (HARICA, CA / B Forum voice 144) - viešieji pirkimai, ne kodas. Iki to laiko vartotojams nustatyti stovas: SOCKS proxy libcurl klientams. peertube nebėra tarp jų - tai aiškus vaidmuo."
+msgstr ""
 
 # `test-oidc-fallback.js:52` (ir `?fallback=local` avarinis liukas: vietinis
 # Joomla admin forma Prisijungimas turi pasiekti valdymo skydą). Pagrindinė
@@ -12344,7 +12344,7 @@ msgstr "**sistemiškai išspręsta** Stub klausytojas išjungtas, siekiant išve
 
 # translated-by: libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
-msgstr "**testų- plėtros aplinkos darbo vietų** - visi 5 Darbo vietos (archas, debian, ubuntu, fedora, centos) hit the 4h30m viršutinės ribos po perkrova, kol vis dar vyksta (grojimo dešinės atvaizdžio trauka). Aplinkos, nėra kodas nustatyti - skiriasi nuo districo shopp savo biudžetą, kuris turėjo vieną: 508669809 knygų biudžetą SIGKILL kaip praleista, kuris skelbimas9222630 padarė tik SIGTERM; Atkreipkite dėmesį, kad svogūnai e2e natūraliai prailgina įprastą tvarką; (×5 Valgomasis svogūnas), todėl dėl spūsčių šios darbo vietos yra pirmasis, kad nukentėjo viršutinės ribos."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**the role id is wrong.** Candidates assembled from memory or from a conversation get prefixes wrong: `web-svc-openresty` warns, `svc-prx-openresty` resolves. Check `roles/` for the id before dropping the candidate."
@@ -12359,7 +12359,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**v3 address algorithm** (needed for offline mint): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, PUBKEY = 32-byte ed25519 master pubkey."
-msgstr "**v3 adreso algoritmas** (reikalingas atsijungusioms mėtoms): `address = base32(PUBKEY ‖ CHECKSUM ‖ VERSION) + \".onion\"`, `CHECKSUM = SHA3-256(\".onion checksum\" ‖ PUBKEY ‖ VERSION)[:2]`, `VERSION = 0x03`, LEIDINIAI = 32- baitas25519 meistras pubkey."
+msgstr ""
 
 msgid "**vpn** -- whether a swarm row deploys over the WireGuard mesh (:mod:`utils.github.variant.vpn`); every other mode takes the direct arm."
 msgstr ""
@@ -12521,7 +12521,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12, hadolint v2.15.1, shfmt v3.13.1"
-msgstr "*vaidmenys /sys-lint* smeigtukai GitHub- spaudai įrankiai: actionlint prieš1.7.12, hadolint v2.15.1, shfmt v3.13.1"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*row* with ``services`` narrowed to what its variant deploys."
@@ -12579,7 +12579,7 @@ msgstr "*svc-ai-ollama*: perėjo į pareigūną *ollama* vaizdas taip infence da
 
 # translated-by: libretranslate
 msgid "*svc-bkp-container-2-local*, superseded by the volume-oriented backup roles."
-msgstr "*svc- bkp- konteineriai2- vietinis*, kurį pakeitė į apimtį orientuotos atsarginės funkcijos."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*svc-bkp-volume-2-local*: newly on alpine 3.24"
@@ -12687,7 +12687,7 @@ msgstr "*tests/lint/repository/no_legacy_sso_paths/* statiškas apsauga nuo pali
 # translated-by: libretranslate
 #, python-brace-format
 msgid "*utils/roles/applications/services/sso.py* — central resolver for **is_enabled** / **is_proxy_gated** / **is_oidc_native** plus the oauth2 sub-values (*oauth2_origin_{host,port}*, *oauth2_acl*, *oauth2_allowed_groups*)."
-msgstr "*utils/roles/applications/services/sso.py* - centrinis **is_enabled** / **is_proxy_gated** / **is_oidc_native** plius autas2 subvertės (*oauth2_origin_{šeimininkas, uostas}*, *oauth2_acl*, *oauth2_allowed_groups*)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-baserow*: 2.2.2 to 2.3.0"
@@ -12921,7 +12921,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4"
-msgstr "*web-app-keycloak*: 26.7.0 iki 26.7.2, auth2- proxy v7.15.3 į v7.15.4"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-keycloak*: 26.7.2 to 26.7.3"
@@ -13051,7 +13051,7 @@ msgstr "*web-app-nextcloud* Tarpininkas (nginx): nepritvirtinta *alpinas* iki 1.
 
 # translated-by: libretranslate
 msgid "*web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9"
-msgstr "*web-app-nextcloud* baltoji plokštė: nepritvirtinta *naujausia* į Implv1.5.9"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3"
@@ -13107,7 +13107,7 @@ msgstr "*web-app-opentalk* (RabbitMQ): 4.3.5 iki 4.3.6"
 
 # translated-by: libretranslate
 msgid "*web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the frontend (v2.9.0), controller (v0.34.1) and recorder (v0.16.2) stay pinned until the set is released as a bundle and *recorder.toml* is migrated"
-msgstr "*web-app-opentalk*: LiveKit prieš1.13.3 į v1.13.5, RabbitMQ 4.3.2 iki 4.3.4; frontent (v2.9.0), valdiklis (v0.34.1) ir savirašis (v0.16.2) būti prispaustas, kol rinkinys bus išleistas kaip pluoštas ir *recorder.toml* migravo"
+msgstr ""
 
 msgid "*web-app-opentalk*: LiveKit v1.13.7 to v1.13.10"
 msgstr ""
@@ -13196,7 +13196,7 @@ msgstr "*web-app-prometheus* (Alertmanagement): v0.34.0 į v0.34.1"
 
 # translated-by: libretranslate
 msgid "*web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to v0.34.0, node-exporter v1.12.0 to v1.12.1"
-msgstr "*web-app-prometheus*Prometheus prieš3.13.1 į v3.14.0, Alertmanager prieš0.33.1 į v0.34.0, node-eksportuotojas prieš1.12.0 į v1.12.1"
+msgstr ""
 
 msgid "*web-app-prometheus*: blackbox exporter v0.28.0 to v0.29.0"
 msgstr ""
@@ -13244,7 +13244,7 @@ msgstr "*web-app-semaphore*: Semafhore UI su OIDC SSO + LDAP. Break- stiklo admi
 
 # translated-by: libretranslate
 msgid "*web-app-semaphore*: pinned v2.18.16 (new role)"
-msgstr "*web-app-semaphore*: Implv2.18.16 (naujas vaidmuo)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "*web-app-semaphore*: v2.18.16 to v2.18.21"
@@ -13396,7 +13396,7 @@ msgstr "- pakartotinai suskaičiuoti; - retri- all- klaidos leidžia jį padengt
 
 # translated-by: libretranslate
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
-msgstr "- > kojinės5h: / /host.docker.internal:<port> (sudaryti)"
+msgstr ""
 
 msgid "-Xmx{{ lookup('service_memory_mb', application_id, 'search', 0.25) }}m memory_limit = {{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 msgstr ""
@@ -13634,7 +13634,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "039 - Core i18n Consumers"
-msgstr "039 - Pagrindinis18n Vartotojai"
+msgstr ""
 
 msgid "039 - svc-net-wireguard: Test Full Meshes on the Role's Own CI Row"
 msgstr ""
@@ -14266,7 +14266,7 @@ msgstr "A ``mount --make-rshared /`` veikia vieną kartą dislokavimo konteinery
 
 # translated-by: libretranslate
 msgid "A ``svc-bkp-*`` pre-backup hook for ``bench backup`` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard ``svc-bkp-*`` driver picking up the central MariaDB DB and the role’s named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A ``svc-bkp-*`` iki atsarginės kopijos kablys skirtas ``bench backup`` NETAIKOMA1 (atidedamas iki reikalavimo dėl tolesnių veiksmų). v.1 atsarginės kopijos istorija priklauso nuo standarto ``svc-bkp-*`` vairuotojas, užimantis centrinę MariaDB DB ir vaidmuo pavadintas apimtis. Norėdami padaryti Frappe- žinoti fotografiją skrydžio, paleisti:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A ``type: volume`` entry may set ``nfs: false`` to opt out of the swarm NFS rewrite: the volume then stays a plain node-local named volume even when ``storage.backend`` is ``nfs`` (e.g. gitaly repository storage, which upstream forbids on NFS). Any other ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed by the NFS subdir pre-creation) keeps the rewrite."
@@ -14307,7 +14307,7 @@ msgstr "A `required_by` blokuoti vietoj lizdą `compose:` / `swarm:` poblokis, k
 
 # translated-by: libretranslate
 msgid "A `svc-bkp-*` pre-backup hook for `bench backup` is NOT wired in v1 (deferred to a follow-up requirement). The v1 backup story relies on the standard `svc-bkp-*` driver picking up the central MariaDB DB and the role's named volumes. To make a Frappe-aware snapshot in flight, run:"
-msgstr "A `svc-bkp-*` iki atsarginės kopijos kablys skirtas `bench backup` NETAIKOMA1 (atidedamas iki reikalavimo dėl tolesnių veiksmų). v.1 atsarginės kopijos istorija priklauso nuo standarto `svc-bkp-*` vairuotojas, užimantis centrinę MariaDB DB ir vaidmuo pavadintas apimtis. Norėdami padaryti Frappe- žinoti fotografiją skrydžio, paleisti:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A `templates/Dockerfile.j2` is acceptable when the file contains Jinja2 control-flow logic that cannot be expressed through Docker `ARG` alone, for example a conditional build step that installs an optional component only when a feature flag is enabled."
@@ -14853,7 +14853,7 @@ msgstr "Key 's komentaras yra naujausias gretimos blokas `# ...` linijos tiesiai
 
 # translated-by: libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
-msgstr "Žymė, kuri tyliai nustoja sprukti į ranką64 visą ašį paverčia žaliu melu."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A lightweight, Docker-powered UI framework that offers Infinito.Nexus users a unified interface to access all their applications in one intuitive dashboard. 🚀"
@@ -14939,7 +14939,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A minted Tor v3 onion key and its ``HiddenServiceDir`` file contents."
-msgstr "Toras prieš3 Valgomasis svogūnas ir jo raktas ``HiddenServiceDir`` failo turinys."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A missing event indicates a coverage regression in the deploy chain (typically: a once-flag swallowed an include before the role could run)."
@@ -15067,7 +15067,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "A persona scenario MUST fail loudly when its contracted journey cannot execute end-to-end. A silent `test.skip(...)` on runtime detection of \"no logout button\", \"no authenticated surface\", or \"no admin UI marker\" is FORBIDDEN. Silent skips hide real regressions (broken OIDC mapping, removed logout button, misconfigured oauth2-proxy, drifted UI selectors) behind a green deploy."
-msgstr "Asmeninis scenarijus PRIVALO garsiai žlugti, kai jo užsakyta kelionė negali baigti. Tylus `test.skip(...)` dėl skrydžio laiko nustatymo \"be pašalinimo mygtuko\", \"nepatvirtintas paviršius\"arba \"Nėra admin UI žymens\" st FORBIDDEN. Tylūs praleidimai slepia realius regresus (sugadintas OIDC kartografavimas, pašalintas logout mygtuką, netinkamai konfigūruotas autas2-proxy, dryžuotieji UI selektoriai) už žalią dislokavimą."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "A persona scenario that only logs in and logs out is NOT enough. After the auth chain settles (or directly on the role surface when no auth is required), every persona MUST drive a real, app-specific interaction so the spec proves the role is responsive to user input, not just reachable."
@@ -15729,7 +15729,7 @@ msgstr "Atskiras elementų sąrašas, kuriame yra išplėstas spec sąrašas, to
 
 # translated-by: libretranslate
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
-msgstr "Vieno mazgo laboratorija negali atsakyti į kelių mazgų kriterijus: kartotinis mastelis, išdėstymas per du `kata-capable` Raspberry-Pi- klasės mazgai, ir kompozicinės-plus- swarm endo- to-end praeiti visi reikia klasteris reikalavimas apibūdina. Ranka64 pusė vietos kriterijus yra įrodyta vaizdo patikrinimo aukščiau; dviejų mazgų pusė nėra."
+msgstr ""
 
 # (``files/sso/header_auth.js``, ne mažiau kaip 0,1%, bet ne daugiau kaip 1%
 # masės molibdeno, ``server.js`` kūrimo metu pagal
@@ -16576,7 +16576,7 @@ msgstr "Pridėta *min_storage* perspėtų vaidmenų įrašai **Pakeista**"
 
 # translated-by: libretranslate
 msgid "Added *web-app-mattermost* with Docker Compose deployment, PostgreSQL support, Keycloak-based SSO via the GitLab OAuth2 provider, and optional Mailu integration"
-msgstr "Pridėta *web-app-mattermost* su Docker Compose dislokavimas, PostgreSQL parama, Keycloak- pagrįstas SSO per GitLab Oauth2 teikėjas, ir neprivaloma Mailu integracija"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added Manjaro ID support **Changed**"
@@ -16660,7 +16660,7 @@ msgstr "Pridėta didelių naujų taikymo vaidmenys, įskaitant web-app-odoo, web
 
 # translated-by: libretranslate
 msgid "Added native admin login for web-app-bluesky when oauth2 is disabled, native + LDAP + OIDC persona tests for web-app-openwebui, a multi-auth dispatcher for web-app-matrix (OIDC plus native/LDAP password), web-app-lam registered as a service provider with moodle v0/v1 opt-in, web-app-prometheus navbar logout injection, SMTP wiring for web-app-pgadmin, dynamic LDAP and Playwright LDAP coverage for web-app-opencloud, version-incompatible plugin tolerance for web-app-nextcloud, gated enable_local_logins for web-app-discourse, and biber+admin persona blocks for web-app-akaunting, web-app-bookwyrm, web-app-bluesky, and web-app-postmarks"
-msgstr "Pridėtas vietinis admin prisijungimas web-app-bluesky kai yra2 yra išjungtas, gimtoji + LDAP + OIDC persona testai web-app-openwebui, multiauth siuntėjas web-app-matrix (OIDC plius gimtasis / LDAP slaptažodis), web-app-lam registruotas kaip paslaugų teikėjas su Moodle v0/ v1 out- in, web-app-prometheus navbar išsiregistravimo injekcija, SMTP web-app-pgadmin, dinaminis LDAP ir Playwright LDAP dengtis web-app-opencloud, Version- nesuderinamas įskiepis tolerancija web-app-nextcloud, gath enable_local_logins yra web-app-discourse, ir biber + admin persona blokai web-app-akaunting, web-app-bookwyrm, web-app-bluesky, ir web-app-postmarks"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added new application roles: web-app-opencloud and web-app-opentalk with shared OIDC + LDAP, web-app-hugo for static-site hosting (req-016), web-app-moodle self-built image with OIDC+LDAP hybrid and LDAP-only variants (req-015), web-app-fediwall as multi-wall public-timeline aggregator, plus web-app-mig and web-app-sphinx E2E coverage"
@@ -16700,7 +16700,7 @@ msgstr "Pridėta išorinis Docker vaizdo versija- patikrinti darbų srautą, sav
 
 # translated-by: libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Pridėta Lint corpus for: project- walk / cache-read / project- root- direct- yaml / no- line-multiline-php-sh / no- inline- multiline- sql / no- look-config-sql / no- config-jo- default / role- map / web-no- web-colle- course / un- on- composide-services / seen-bool- schemes / sed- fee-sh- pipedefault / compoolection- limits / dingic-coversion / varison-coversion-approvisions / Anneed Galaxy-moxa-provit- cover-provit- provice / edix-provice / modix-provithol / edix-image / ediclom / mode-mode-col / mode-could / mode-2 Proxy-port paskirstymas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -16987,7 +16987,7 @@ msgstr "Priimtas git- maintainer-tools šakutės / į priekį nuotolinio maršru
 
 # translated-by: libretranslate
 msgid "Adopted the unified `# nocheck: <kebab-rule>` suppression marker repo-wide; reserved `# noqa:` markers for real ruff/flake8 codes"
-msgstr "Priimti unifikuotą `# nocheck: <kebab-rule>` slopinimo žymeklio plotis; rezervuota `# noqa:` žymekliai realiam glamžui / plikai8 kodai"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Advantages"
@@ -17637,7 +17637,7 @@ msgstr ""
 # translated-by: libretranslate
 #, python-brace-format
 msgid "All three personas (`guest`, `biber`, `administrator`) start at `${APP_BASE_URL}/` via direct goto (bookmark-style entry). The OAuth2-Proxy gate fires on the first request and redirects unauthenticated requests through Keycloak. No dashboard-tile click sits in the persona path."
-msgstr "Visi trys asmenys (`guest`, `biber`, `administrator`) prasideda `${APP_BASE_URL}/` per tiesioginį goto (bookmark- stiliaus įrašas). Oauth2-Proxy vartų gaisrai dėl pirmojo prašymo ir nukreipia nepatvirtintus prašymus per Keycloak. Nėra prietaisų-plytelių spustelėkite sėdi persona kelyje."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All variables consumed by [compose.yml](../../../../compose.yml). The per-variable default + comment lives next to the key in [default.env](../../../../default.env); the tables below stay scoped to \"what role does this variable play in compose.yml\" and stop duplicating the default."
@@ -19064,7 +19064,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want [Checkmk](https://github.com/Checkmk/checkmk) integrated as a `web-app-checkmk` role with Keycloak SSO (via the oauth2-proxy gate) and native LDAP user management so that operators can run the open-source Checkmk monitoring server behind the platform's central Single Sign-On, validated end-to-end with Playwright personas."
-msgstr "Kaip platformos administratorius Infinito.Nexus, Noriu [Checkmk](https://github.com/Checkmk/checkmk) integruota `web-app-checkmk` su Keycloak SSO (per autą2-proxmart) ir vietinis LDAP vartotojų valdymas, kad operatoriai galėtų paleisti atvirojo kodo Checkmk Stebėti serverį už platformos centrinis Single Sig- On, patvirtintas pabaigos-to-end su Playwright personais."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want [Jellyfin](https://jellyfin.org) integrated as a `web-app-jellyfin` role with Keycloak-backed Single Sign-On so that users can stream the media server behind the platform's central identity, validated end-to-end with Playwright personas."
@@ -19125,7 +19125,7 @@ msgstr "Kaip platforma vartotojas su agento prieigą, Aš noriu Open WebUI prad�
 
 # translated-by: libretranslate
 msgid "As a self-hoster running Infinito.Nexus behind NAT/CGNAT/dynamic IP (Raspberry Pi, edge node, home server), I want a `svc-net-tor` role that makes the node's primary domain a Tor v3 `.onion` address so that the entire stack (web, SSO, LDAP, CA) is reachable over Tor without public IP, port forwarding, VPS, or DynDNS — while individual apps can still attach extra public domains with their own TLS."
-msgstr "Kaip savarankiškai hoster veikia Infinito.Nexus už NAT/CGNAT/dynamic IP (Aviečių Pi, krašto mazgas, namų serveris), Aš noriu `svc-net-tor` vaidmuo, kad daro mazgo pagrindinis domenas Tor prieš3 `.onion` adresas, kad visą kamino (web, SSO, LDAP, CA) yra pasiekiamas per Tor be viešojo IP, uosto ekspedijavimas, VPS, arba DynDNS - o atskiros programos vis dar gali pridėti papildomų viešųjų domenų su savo TLS."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "As a visitor of an Infinito.Nexus deployment, I want the documentation, the universal logout panel and the dashboard to speak my language from the core gettext catalogs, and I want browser apps such as MIG to be allowed to read the API, so that every surface core renders follows the same translations."
@@ -19909,11 +19909,11 @@ msgstr "Kadangi Jellyfin neturi vietinio SSO ir jo programėlių naudojimo API �
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) skip themselves via the ``workload: node-local`` declaration (``scripts/tests/deploy/swarm/utils/_context.sh`` maps ``node-local`` to ``HAS_SWARM_SERVICE=false``); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Kadangi nėra kamino paslauga, supynės bandymo vartai, kad apklausa ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) praleisti save per ``workload: node-local`` deklaracija (``scripts/tests/deploy/swarm/utils/_context.sh`` žemėlapiai ``node-local`` iki ``HAS_SWARM_SERVICE=false``); pats dislokavimas, registro platinimo grandinė ir CLI e2Komplektas veikia pilnai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because no stack service exists, the swarm test gates that poll `docker service ls` (`converge`, `seed`, `drain`, `assert`) skip themselves via the `workload: node-local` declaration (`scripts/tests/deploy/swarm/utils/_context.sh` maps `node-local` to `HAS_SWARM_SERVICE=false`); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
-msgstr "Kadangi nėra kamino paslauga, supynės bandymo vartai, kad apklausa `docker service ls` (`converge`, `seed`, `drain`, `assert`) praleisti save per `workload: node-local` deklaracija (`scripts/tests/deploy/swarm/utils/_context.sh` žemėlapiai `node-local` iki `HAS_SWARM_SERVICE=false`); pats dislokavimas, registro platinimo grandinė ir CLI e2Komplektas veikia pilnai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while ``svc-ai`` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
@@ -20729,7 +20729,7 @@ msgstr "Tilto taisyklė"
 
 # translated-by: libretranslate
 msgid "Bridge v1 is **one-way: AT Protocol → ActivityPub**. It subscribes to the AT firehose/Jetstream filtered on `community.lexicon.calendar.event` (+ `.rsvp`) and creates/updates the matching Mobilizon event via Mobilizon's GraphQL API. ActivityPub → AT is **deferred** (see Open Question 3)."
-msgstr "Tiltas prieš1 yra **vienpusis: AT protokolas → ActivityPub**. Jis pasirašo AT ugniagesių žarna / Jetstream filtruotas `community.lexicon.calendar.event` (+ `.rsvp`) ir sukuria / atnaujina atitikimo Mobilizon įvykis per MobilizonGrapQL API. ActivityPub → AT is **atidėtas** (žr. Atverti klausimą 3)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Bridges"
@@ -21256,7 +21256,7 @@ msgstr "CA pasitikėjimo injekcija (`with-ca-trust.sh`)"
 
 # translated-by: libretranslate
 msgid "CA-trust and OIDC-over-self-signed-TLS hardening: the internal CA is installed into the OS bundle for PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plus a WordPress must-use plugin), the CA-trust wrapper is kept on probe timeout instead of degrading to env-only, and the CA injection is bounded so it cannot hang the handler. HSTS is now emitted on every response including non-2xx, *ansible-vault encrypt_string* reads plaintext from stdin so leading-dash values encrypt, and Mastodon allows inline *script-src-elem* for its server-rendered SPA."
-msgstr "CA- trust ir OIDC- over- signed- TLS sukietėjimas: vidinė CA yra įdiegta į OS paketą PHP libcurl OIDC (*web-app-pixelfed*, *web-app-joomla*, plius a WordPress bus- use įskiepis), CA- trust įvyniojimas yra laikomas zondas laiko, o ne menkinamas tik į env, ir CA injekcija yra apribota, todėl ji negali pakabinti tvarkyklę. HSTS dabar išleidžiamas į kiekvieną atsaką, įskaitant ne2xx, *antrinė saugykla encrypt_string* skaito paprastus iš stdin taip Leading- brūkšninių reikšmių šifruoti, ir Mastodon leidžia inline *script- src- elem* už savo serverį sukurtas SPA."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CA-trust env handlers."
@@ -24396,7 +24396,7 @@ msgstr "Pasekmės 📉"
 
 # translated-by: libretranslate
 msgid "Conservative, stable parallel-worker count for the Playwright e2e suite. Derived from the control host's effective CPU and RAM, divided down because browser workers are heavy and run against the co-resident application stack, reserved against RAM, hard-capped for the application-under-test's concurrency limits, and reduced further on CI. Always returns an int >= 1."
-msgstr "Konservatyvus, stabilus paralelas darbuotojų skaičius Playwright e2Apartamentai. Pagaminta iš valdymo kompiuterio veiksmingą CPU ir RAM, suskirstyti žemyn, nes naršyklės darbuotojai yra sunkūs ir paleisti prieš bendragyventojo paraiškos kamino, saugomos RAM, hard- clock už taikymo-under- test 's concurrency, ir toliau sumažinti CI. Visada grąžina int > = 1."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Consolidate duplicate logic before merging."
@@ -25366,7 +25366,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Cross-mode parity is the gate for Decision #11: run the compose loop first, then the swarm loop, then the round-trip sweep per [roundtrip.md](../agents/action/iteration/roundtrip.md). The role is not done until it is green in both."
-msgstr "Kryžminio režimo paritetas yra sprendimo # vartai11: paleisti komponavimo kilpa pirma, tada Swarm kilpa, tada žiedinė kelionė coup per [roundtrip.md](../agents/action/iteration/roundtrip.md). Vaidmuo nėra daroma tol, kol jis yra žalia tiek."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cross-reference every collected entry against ``git ls-remote --tags`` and return the entries whose ref is older than the latest semver tag with the same depth and flavor."
@@ -27014,7 +27014,7 @@ msgstr "Nustatytoji strategija:"
 
 # translated-by: libretranslate
 msgid "Deterministically derives a Tor v3 hidden-service address and the exact ``HiddenServiceDir`` key files from an ed25519 seed, without running Tor."
-msgstr "Determinalistiškai kyla Tor prieš3 Hidden- service adresas ir tikslus ``HiddenServiceDir`` pagrindiniai failai iš25519 sėklos, be Toro."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dev CLI entry that drives `build_dev_inventory_matrix` to materialise `<inventory-dir>-<round>` folders."
@@ -27404,7 +27404,7 @@ msgstr "Skiriasi nuo INFINITO_RESCUE_DIAGNOSTICS_DIR, kurį CI skambintojai igno
 
 # translated-by: libretranslate
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
-msgstr "Paskirstyta S3suderinamų objektų saugykla bendro naudojimo, vartotojų kibirų tiekimas per web-app vaidmenis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Distribution"
@@ -27942,7 +27942,7 @@ msgstr "Vartai `baudolo-snapshot`, leidykla, kuri nusprendžia per paleisti, ar 
 
 # translated-by: libretranslate
 msgid "Drop `services.sso.enabled` for friendica — SAML handles SSO end-to- end, oauth2-proxy in front would double-gate."
-msgstr "Mesti `services.sso.enabled` friendica - SAML rankenos SSO pabaigos-to-end, auth2- Proxy priekyje būtų dvigubas vartai."
+msgstr ""
 
 msgid "Drop into an interactive shell on one of the swarm-test DinD nodes."
 msgstr ""
@@ -28160,7 +28160,7 @@ msgstr "Dvisluoksnis tinklas + svogūnai, `Onion-Location` tiltas ir veidrodinis
 
 # translated-by: libretranslate
 msgid "Dual-block resolution: **web-app-bookwyrm** pinned to **flavor: oauth2**; **web-app-gitea** and **web-app-friendica** keep **flavor: oauth2** with the existing *oauth2.acl.blacklist* (*/user/login*) and *oauth2.acl.whitelist* (federation + discovery endpoints) — operative oauth2-proxy gating preserved."
-msgstr "Dviejų blokų skiriamoji geba: **web-app-bookwyrm** Pritvirtinta **skonis: oauth2**; **web-app-gitea** ir **web-app-friendica** išlaikyti **skonis: oauth2** su esamu *oauth2.acl.blacklist* (*/ naudotojas / registravimasis*) ir *oauth2.acl.whitelist* (federacija + atradimo vertinamosios baigtys) - operacinis autas2- Proxy gating konservuoti."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dual-stack model: the node keeps its clearnet ``DOMAIN_PRIMARY``; the node onion is an ADDITIVE address opted-in apps (``services.tor.enabled``) are also reachable under as ``<sub>.<node-onion>`` over Tor. Idempotent: an existing key at ``<base_dir>/.onion-identity/hs`` is reused so the address is stable across runs. The key files are the single source of truth — the ``svc-net-tor`` role copies them into the daemon so it serves exactly this address, and the inventory provisioner writes the returned address into ``applications.svc-net-tor.services.tor.node`` (no env indirection)."
@@ -28187,7 +28187,7 @@ msgstr "Dvigubas elgesys yra lengviau išlaikyti nuoseklų."
 
 # translated-by: libretranslate
 msgid "Duplicates an entire Projects v2 board."
-msgstr "Dublikuoja visą projektus prieš2 lenta."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Duplicates are returned as-is so the uniqueness lint can report all offenders instead of failing on the first one."
@@ -28699,7 +28699,7 @@ msgstr "Šalinami Docker konteinerio pavadinimo konfliktai pakartotinai naudojan
 
 # translated-by: libretranslate
 msgid "Else: generate ed25519 seed → compute expanded secret key (SHA-512(seed), clamp) → derive address per the algorithm above → write the three Tor key files byte-exact."
-msgstr "Elzė: generuoti25519 sėklų → skaičiuoti išplėstą slaptą raktą (SHA-512(Sėklos), clamp) → išvesti adresą pagal algoritmą aukščiau → rašyti tris Tor raktus pagal tikslius."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Email"
@@ -28841,7 +28841,7 @@ msgstr "Įjungti IP6 už dokerį."
 
 # translated-by: libretranslate
 msgid "Enable Keycloak SSO via GitLab OAuth2"
-msgstr "Įjungti Keycloak SSO via GitLab Oauth2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Enable Keycloak SSO via OpenID Connect"
@@ -29579,7 +29579,7 @@ msgstr "Kiekvienas vartotojas kala savo raktą ir vykdo vartų sutartį"
 
 # translated-by: libretranslate
 msgid "Every consumer of the legacy oauth2 / oidc service sub-trees, the **OAUTH2_PROXY_\\*** env / Jinja vars, **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, the dedicated oauth2-proxy provider role, or the legacy *oidc* / *oauth2* Playwright gating helper service names must migrate to the unified **sso** shape. Full plan and decisions are archived under req 21."
-msgstr "Kiekvienas palikimo auto vartotojas2 / oidc tarnyba sub- medžiai, į **OAUTH2_PROXY_\\*** env / Jinja vars **OAUTH2_SERVICE_ENABLED**, **OIDC_SERVICE_ENABLED**, *oauth2_proxy_cookie_secret*, *oauth2_proxy_application_id*, *ports.local.oauth2*, dedikuotas autas2-proxy teikėjo vaidmuo, arba palikimas *oidc* / *oauth2* Playwright gating pagalbininkas paslaugų pavadinimai turi migruoti į vieningą **sso** forma. Visas planas ir sprendimai archyvuojami req 21."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every consumer speaks only the gateway `/v1`; the gateway is the single place backends are wired."
@@ -30261,7 +30261,7 @@ msgstr "Išstumia a `roles/*/meta/services.yml` sveikatos patikrinimas skonis i�
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "Exempts a `roles/*/templates/*compose.yml.j2` line, or the whole file (head marker), from the canonical compose skeleton: base-include header, `{{ service_name }}:` service keys each preceded by their `{% set service_name %}`, all per-service `{% set %}` knobs on two-space-indented dash-free lines above the key, `{% include %}` at four spaces inside the service body, and column-0 `compose_volumes` / `compose_networks` at the tail. The layout renders correctly because the `stack_host_template` action plugin sets `lstrip_blocks=True` for `compose.yml.j2`. Reserved for legitimate deviations that genuinely cannot follow the skeleton."
-msgstr "Išstumia a `roles/*/templates/*compose.yml.j2` eilutė arba visas failas (galvos žyma), iš kanoninio piešinio skeleto: įdedama antraštė, `{{ service_name }}:` tarnybos raktus kiekvieną prieš jų `{% set service_name %}`, visos paslaugos `{% set %}` rankenėlės ant dviejų erdvių bešvinių linijų virš rakto, `{% include %}` keturiose tarnybinės įstaigos patalpose ir0 `compose_volumes` / `compose_networks` prie uodegos. Išdėstymas pateikiamas teisingai, nes `stack_host_template` veiksmų įskiepių rinkiniai `lstrip_blocks=True` yra `compose.yml.j2`. Rezervuota teisėtiems nukrypimams, kurie tikrai negali sekti skeleto."
+msgstr ""
 
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
@@ -32553,7 +32553,7 @@ msgstr "Name (Sprendimas #7 - Redis DB- skaičius)"
 
 # translated-by: libretranslate
 msgid "Frappe supports OIDC natively as an OAuth client; an oauth2-proxy sidecar would be redundant and break the Frappe \"Login with X\" UX."
-msgstr "Frappe palaiko OIDC native kaip OAuth klientas; auth2-proxy sidecar būtų nereikalingas ir nutraukti Frappe \"Prisijungimas prie X\" UX."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
@@ -32607,7 +32607,7 @@ msgstr "Priekinė bazė (HTTPS + Cloudhelller + Managers)"
 
 # translated-by: libretranslate
 msgid "Front-door auth gates (e.g. an oauth2-proxy `sso` service in front of the vhost) are NOT addon bridges unless the addon itself talks to that service; they stay in `meta/services.yml` and MUST NOT appear under `bridges:`."
-msgstr "Vartai prie durų (pvz., autas2- proxy `sso` tarnyba priešais vhost) yra ne addon tiltus, nebent addon pats kalbėti su ta paslauga; jie lieka `meta/services.yml` ir NEPRIVALO būti po `bridges:`."
+msgstr ""
 
 msgid "Frontend client ID: `{{ OPENTALK_FRONTEND_OIDC_CLIENT_ID }}`, a dedicated public client whose audience mapper adds the controller client to every access token, so the controller's token introspection accepts it"
 msgstr ""
@@ -34609,7 +34609,7 @@ msgstr "Jei vaidmuo negali atsakyti į šiuos klausimus, jis tikriausiai daro pe
 
 # translated-by: libretranslate
 msgid "If a role uses another service around the application but the addon does not talk to that service directly, the service MUST stay in `meta/services.yml` and MUST NOT be listed in the addon's `bridges:`. Friendica's oauth2-proxy-backed `sso` service is such a front-door auth gate for `ldapauth`."
-msgstr "Jei funkcija naudoja kitą paslaugą aplink paraišką, bet addon nekalba apie tą paslaugą tiesiogiai, paslauga PRIVALO likti `meta/services.yml` IR NEGALI būti įtrauktas į priedų sąrašą `bridges:`. Friendica 's auth2-proksiu pagrįstas `sso` tarnyba yra toks priekio durų auth vartai `ldapauth`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If a service can be removed without rewriting the whole stack, the design is usually healthy. If removing one part breaks everything else, the boundaries are probably too weak."
@@ -34708,7 +34708,7 @@ msgstr "Jei panaši logika egzistuoja ir kitur projekte, jūs atsakote į bendr�
 
 # translated-by: libretranslate
 msgid "If systemd is configured but not yet active, prints instructions to restart WSL2"
-msgstr "Jei sistemaName2"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If systemd is not configured at all, appends the `[boot]` section to `/etc/wsl.conf` and triggers `wsl --shutdown` to apply the change"
@@ -35223,7 +35223,7 @@ msgstr "@ info: whatsthis"
 
 # translated-by: libretranslate
 msgid "Implement health check for oauth2-proxy"
-msgstr "Atlikti oauth būklės patikrinimą2- proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Implement loading of backend roles"
@@ -35563,11 +35563,11 @@ msgstr "Jei veiksenoje yra sūkurinė `restart:` top-lygis paslaugų raktas yra 
 
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM's own login form and finds no logout control there."
-msgstr "SSO įjungtame variante Keycloak apvalios kelionės atitinka auth2-proxy bet palieka LAM pats pasirašė, todėl asmuo grįžta LAMsavo prisijungimo formą ir mano, kad registracijos kontrolės ten."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM’s own login form and finds no logout control there."
-msgstr "SSO įjungtame variante Keycloak apvalios kelionės atitinka auth2-proxy bet palieka LAM pats pasirašė, todėl asmuo grįžta LAMsavo prisijungimo formą ir mano, kad registracijos kontrolės ten."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In the sidebar, choose **API Tokens**   Or use this direct link: [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)"
@@ -37518,7 +37518,7 @@ msgstr "Tik **saugo ir propaguoja žetonus, kurie jau egzistuoja** (pvz., sukurt
 
 # translated-by: libretranslate
 msgid "It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack."
-msgstr "Jis gerai žaidžia su **Šifruoti**, **Oauth2 Proxy**, ir jūsų dabartinis Docker kamino."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "It provides a **single source of truth** for application tokens while keeping runtime usage simple and consistent across roles."
@@ -37747,7 +37747,7 @@ msgstr "Jinja filtras: `external_asset_origins` išskiria trišalio turto šeimi
 
 # translated-by: libretranslate
 msgid "Jinja filters for building a robust, CSP3-aware Content-Security-Policy header. Safari/CSP2 compatibility is ensured by merging the -elem/-attr variants into the base directives (style-src, script-src). We intentionally do NOT mirror back into -elem/-attr to allow true CSP3 granularity on modern browsers."
-msgstr "Jinja filtrai tvirtos statybos, CSP3-žinoti Content- Security- Policy Header. Safari / CSP2 suderinamumas užtikrinamas integruojant -elem / -attr variantus į pagrindines direktyvas (style- src, script- src). Mes sąmoningai ne veidrodis atgal į -elem / -attr leisti tikrą SPT3 Šiuolaikinių naršyklių detalumas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Jinja filters: ``cdn_paths``, ``cdn_urls``, ``cdn_dirs``"
@@ -38066,7 +38066,7 @@ msgstr "@ info: whatsthis (kiekvienas vartotojas mato tikslią SHA); vengia neš
 
 # translated-by: libretranslate
 msgid "Keeps v1 surface small; multi-site can land in a follow-up requirement if needed."
-msgstr "Keeps prieš1 Paviršius mažas; jei reikia, galima nusileisti ant kelių vietų."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Kept in its own module so ``utils.cache.applications`` stays under the repo's per-file line cap. Strictly ansible-free (stdlib only) so the runner-host CLI path keeps importing it without ansible installed."
@@ -38959,7 +38959,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Lists tags and checks tag reachability for ANY registry that speaks the standard v2 API (Docker Hub, GHCR, MCR, Quay, GitLab/opencode, …) via the RFC-standard ``WWW-Authenticate: Bearer`` token-challenge flow, so no per-registry special case is needed. ``docker.io`` resolves to ``registry-1.docker.io`` and bare official names are prefixed with ``library/``."
-msgstr "Sąrašų žymes ir tikrina žymos pasiekiamumas bet registrui, kuris kalba standartinis prieš2 API (Docker Hub, GHCR, MCR, Quay, GitLab/ opencode,...) per RFC- standartą ``WWW-Authenticate: Bearer`` iššūkį srautas, todėl per- registro specialus atvejis yra reikalingas. ``docker.io`` nusprendžia: ``registry-1.docker.io`` ir neoficialūs pavadinimai yra iš anksto nustatyti ``library/``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LiteLLM Admin UI"
@@ -40434,7 +40434,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "Modernizuoti Matrix tiltai: Signal, Telegram, WhatsApp ir Slock tiltai migruoti į Bridgev2 config, mirusių Mautrix- Facebook / Instagram tiltai pakeičiami mautrix- meta, tiltų specs yra surūšiuoti dislokuoto addon, Synapse įkelia tiltą registracijos iš sumontuoto katalogo, ir vaidmuo dabar takelius *Matrix- docker- anselected* nuo pantaleev prieš."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
@@ -40651,7 +40651,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
-msgstr "Sulieti du kadrų sąrašus ant konkretaus rakto. - sąrašas1, sąrašas2: kiekvienas turi būti sąrašas[Diktas] - key_name: laukas, kuris sutampa Jei abu sąrašai yra elementą su tuo pačiu key_name vertė, jų žodynai yra sujungti (laukai iš sąrašo2 perrašyti arba pridėti į sąrašą1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Merge without approvals"
@@ -40744,7 +40744,7 @@ msgstr "Migratas `web-app-friendica` kaip pirmoji galinė dalis (addon list + br
 
 # translated-by: libretranslate
 msgid "Migrate auth to the `saml` addon (replaces oauth2-proxy + ldapauth + double-login)"
-msgstr "Migrate auth to the `saml` addon (pakeičia oauth2proxy + ldapauth + dvigubas prisijungimas)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Migrate emails using IMAP tools (e.g. `imapsync`)"
@@ -40829,7 +40829,7 @@ msgstr "Mint a v3 Valgomasis svogūnas ``seed`` (32 atsitiktiniai baitai, jei pr
 
 # translated-by: libretranslate
 msgid "Mint from a base64-encoded seed."
-msgstr "Mėtos iš bazės64- užkoduota sėkla."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Mint helper & key persistence"
@@ -41266,7 +41266,7 @@ msgstr "Perkelia ne duomenų bazės Docker apimtis į masinę saugyklą (HDD) op
 
 # translated-by: libretranslate
 msgid "Moving tags that now carry a release, one per role: *web-app-discourse* master to v2026.8.0, *web-app-jenkins* lts to 2.568.3-lts, *web-app-openwebui* main to 0.11.0, *web-app-pretix* stable to 2026.7.0, *web-app-xwiki* lts-postgres-tomcat to 17.10.13-postgres-tomcat, *web-app-pixelfed* latest to 20260917, *web-app-matrix* (upstream playbook ref) master to a commit pin, *svc-db-memcached* alpine to 1.6.45-alpine, *svc-db-redis* alpine to 8.10.1-alpine, *svc-prx-openresty* alpine to 1.31.1.1-alpine, *svc-runner* (BuildKit) buildx-stable-1 to v0.33.0, *web-app-bigbluebutton* (dockerize) latest to v0.15.1, and the nginx sidecars of *web-app-fediwall*, *web-app-littlejs*, *web-app-taiga* and *web-svc-coturn* to 1.31.6-alpine. The Debian codename bases became numeric slim tags in *svc-db-openldap* (12.15-slim), *svc-net-tor* (13.6-slim), *web-app-bookwyrm*, *web-app-bridgy-fed*, *web-app-postmarks*, *web-app-roulette-wheel*, *web-svc-cdn* and *web-svc-simpleicons*, and *web-app-flowise* is built from node 24-slim instead of pulled (Flowise itself stays at 3.1.4)."
-msgstr "Perkelti žymas, kad dabar nešiojamas išleidimo, po vieną vaidmenį: *web-app-discourse* V kapitonas2026.8.0, *web-app-jenkins* tas 2.568.3- lts, *web-app-openwebui* pagrindinis 0.11.0, *web-app-pretix* stabilus iki 2026.7.0, *web-app-xwiki* lts- postgres- tomcat to 17.10.13- postgres- tomcat, *web-app-pixelfed* Vėliausiai iki 20260917, *web-app-matrix* (prieš grojimo knygą ref) kapitonas į patvirtinimo pin, *svc-db-memcached* alpino 1.6.45- alpinas, *svc-db-redis* alpino 8.10.1- alpinas, *svc-prx-openresty* alpino 1.31.1.1- alpinas, *svc-runner* (BuildKit) Status1 į v0.33.0, *web-app-bigbluebutton* (dockerize) Vėliausiai iki v0.15.1, ir nginx šoninės *web-app-fediwall*, *web-app-littlejs*, *web-app-taiga* ir *web-svc-coturn* iki 1.31.6- Alpine. Debian codename bazės tapo skaitinėmis slankiosiomis žymėmis *svc-db-openldap* (12.15-plonas), *svc-net-tor* (13.6-plonas), *web-app-bookwyrm*, *web-app-bridgy-fed*, *web-app-postmarks*, *web-app-roulette-wheel*, *web-svc-cdn* ir *web-svc-simpleicons*, ir *web-app-flowise* yra pastatytas iš mazgo 24-Plonas vietoj ištrauktas (Flowise Pati lieka 3.1.4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Multi-Entity Roles 🎛️"
@@ -41405,7 +41405,7 @@ msgstr "Duomenų bazių NFS"
 
 # translated-by: libretranslate
 msgid "NFS mount fstype (nfs4/nfs): {{ lookup('nfs_fstype') }}."
-msgstr "NFS mount fstype (unit description in lists4/ nfs): {{ lookup('nfs_fstype') }}."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "NFS mount options: {{ lookup('nfs_mount_opts') }}."
@@ -41835,7 +41835,7 @@ msgstr "Naujos programos"
 
 # translated-by: libretranslate
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
-msgstr "Naujas ERPNext vaidmuo, kad laivai prieš Frappe sistema prieš15 kamino kaip a web-app-erpnext vaidmuo - programinė sąsaja, frontend, websocket, reguliatorius ir du eilėje darbuotojai - prijungtas į centrinę Keycloak per built- in Keycloak Socialinis Login raktas ir į centrinę OpenLDAP per LDAP nustatymų doką. Trijų variantų matrica (SSO plius LDAP, nėra auth, tik LDAP) yra naudojamas galutinis-iki-end ir repo- platus lint kepurės 120 ženklai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith."
@@ -42248,7 +42248,7 @@ msgstr "No / low-code drobė statyti padėjėjai ir vamzdynai"
 
 # translated-by: libretranslate
 msgid "Node Tor v3 onion identity for the harness."
-msgstr "Node Tor prieš3 Svogūnų tapatybė."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Node base names are the SPOT in default.env (shared with scripts/tests/deploy/swarm/utils/topology/base.sh); only the SWARM_NAME prefix is applied here so host names match the containers. The env get() keeps SWARM_NAME import-safe; main() enforces it at run time."
@@ -42724,7 +42724,7 @@ msgstr "Oficiali svetainė: https://www.postfix.org/"
 
 # translated-by: libretranslate
 msgid "Offline Tor v3 onion-service key minting."
-msgstr "Atsijungęs Tor prieš3 N-service raktas kalimas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Old redirects or headers persist even after config changes."
@@ -42796,7 +42796,7 @@ msgstr "WSL2 arba Windows, Jūs turite praeiti papildomą vėliavą taip pat kon
 
 # translated-by: libretranslate
 msgid "On Windows, use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) as the development environment and run the repository commands inside WSL2, not directly in [PowerShell](https://learn.microsoft.com/en-us/powershell/). Use Ubuntu 24.04 with [Docker Desktop WSL2 integration](https://docs.docker.com/desktop/features/wsl/), enable [`systemd`](https://systemd.io/), and expect a few Windows-specific follow-up steps around [certificate authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) trust and local name resolution."
-msgstr "Languose naudoti [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) kaip kūrimo aplinka ir paleisti saugyklos komandas WSL2ne tiesiogiai [PowerShell](https://learn.microsoft.com/en-us/powershell/). Naudoti Ubuntu 24.04 su [Comment2 integracija](https://docs.docker.com/desktop/features/wsl/), galima [`systemd`](https://systemd.io/), ir tikėtis keletą Windows- konkrečių tolesnių žingsnių aplink [Sertifikavimo institucija (CA)](https://en.wikipedia.org/wiki/Certificate_authority) pasitikėjimo ir vietos pavadinimo sprendimas."
+msgstr ""
 
 msgid "On `pull_request` and `pull_request_target` the deploy and workspace matrices run `fail-fast`: the first failed row cancels its siblings in that matrix. Push and manual runs keep every row."
 msgstr ""
@@ -42946,7 +42946,7 @@ msgstr "Vienas OpenAI- suderinamas `/v1`, maršrutai į bet kokią realizaciją 
 
 # translated-by: libretranslate
 msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4)."
-msgstr "Vienas Pi prisijungia kaip `kata-capable` rankos64 mazgas; `web-app-hermes` dislokuoja ten pagal izoliavimo kilimo laikas pasirinktas prefektūros (Sprendimas #4)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
@@ -43231,7 +43231,7 @@ msgstr "Laiko nustatymas (paleisti vieną kartą po klonavimo, už Claude sandbo
 
 # translated-by: libretranslate
 msgid "Onion e2e (feature/svc-net-tor) — remaining failures"
-msgstr "Svogūnai2e (funkcija /svc-net-tor) - likę gedimai"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Onion service extensions (phase 2, layered on a green onion core)"
@@ -43663,7 +43663,7 @@ msgstr "Operacijos 🛠️"
 # translated-by: libretranslate
 #, no-python-format
 msgid "Operator decision: 100% open source, matches the platform; OIDC handled via the oauth2-proxy gate."
-msgstr "Orlaivių naudotojo sprendimas: 100% atviro kodo, atitinka platformą; OIDC tvarkomi per auto2- Proxmarts."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Operator decision: Keycloak SSO at the proxy, Checkmk trusts the proxy-supplied user, LDAP supplies the user record/roles/contact groups."
@@ -43679,7 +43679,7 @@ msgstr "Operatoriaus sprendimas: leisti atokumo priimančiosios atstovas registr
 
 # translated-by: libretranslate
 msgid "Operator decision: self-contained v1; libraries added in-app."
-msgstr "Operatoriaus sprendimas: savarankiškai prieš1; bibliotekos pridėta in- app."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Operator decision: smallest, host-portable surface."
@@ -43759,7 +43759,7 @@ msgstr "Optimizuotas Arch Linux, funkcija diegia NGINX, rengia nuomonę konfigū
 
 # translated-by: libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts.   It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack."
-msgstr "Optimizuotas Arch Linux, funkcija diegia NGINX, rengia nuomonę konfigūracijos fragmentai ir rodo paprastą sąsają kitų vaidmenų lašas naujų virtualių šeimininkų. Jis gerai žaidžia su **Šifruoti**, **Oauth2 Proxy**, ir jūsų dabartinis Docker kamino."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Optimize buffering"
@@ -45417,7 +45417,7 @@ msgstr "Prisegti brangią vertę, kai"
 
 # translated-by: libretranslate
 msgid "Pin the experimental Frappe component in a small managed app, expose a few named read tools, reject generic DocType/method/SQL execution, and use a restricted API user or proven per-user OAuth, verified against the exact Frappe v16 pin."
-msgstr "Prisegti eksperimento Frappe komponentą į mažą valdomą programą, atskleisti keletą pavadintų skaitymo įrankius, atmesti generinių DocType/method/SQL vykdymo, ir naudoti ribotą API vartotojas arba įrodyta per vartotojo OAuth, patikrinti pagal tikslią Frappe prieš16 pin."
+msgstr ""
 
 msgid "Pin the instructions host to the variant its README documents."
 msgstr ""
@@ -48149,7 +48149,7 @@ msgstr "Reaguota į vidaus užduočių struktūrą siekiant aiškesnio vykdymo s
 
 # translated-by: libretranslate
 msgid "Refactored multiple roles (pgAdmin, Friendica, LibreTranslate, oauth2-proxy, Funkwhale, …)"
-msgstr "Atsakyta į kelis vaidmenis (pgAdmin, Friendica, LibreTranslate, auth2- proxy, Funkwhale,...)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Refactoring Steps"
@@ -48800,7 +48800,7 @@ msgstr "Pervadinta *compose.services.desktop* iki *compose.services.dashboard*"
 
 # translated-by: libretranslate
 msgid "Renamed deploy to compose-deploy across Make, `container-*` purges and refresh to `compose-*`, the legacy backup roles to `svc-bkp-*` with container/local-2-remote invokable entrypoints, lookup status to deployment with a runtime-aware deployed flag, `dmbs_*/dbms_base` templates to a container_depends_on lookup, INFINITO_CMD to a plain cmd parameter, and web-opt-rdr-www canonical to w3redirect with lookup-based mappings"
-msgstr "Pervadintas dislokavimas visoje Make, `container-*` Išvalo ir atnaujina `compose-*`, senosios atsarginės funkcijos į `svc-bkp-*` su konteineriu-2- nuotoliniai įvažiuojamieji taškai, peržiūrėta padėtis iki dislokavimo su nuskridimo metu žinomu įdiegtu vėliava, `dmbs_*/dbms_base` a šablonai container_depends_on žvalgyba, INFINITO_CMD su paprastu cmd parametru ir web-opt-rdr-www kanoninės3perorientuoti su vaizdo mafijos"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Renamed mirror workflows (*mirror-images-* → *images-mirror-*)"
@@ -51034,7 +51034,7 @@ msgstr "Grąžinti funkcijų tipų rinkinį, deklaruotą *role_dir*žymekliai."
 
 # translated-by: libretranslate
 msgid "Return the sha256 of every service's ``build`` section."
-msgstr "Grąžinti ša256 kiekvienos paslaugos ``build`` skyriuje."
+msgstr ""
 
 msgid "Return the share a percentage names, the value itself otherwise."
 msgstr ""
@@ -51117,7 +51117,7 @@ msgstr "Grąžinti naudotojų vardų valdą ``role_name`` on ``application_id``.
 
 # translated-by: libretranslate
 msgid "Return the v3 ``.onion`` address for a 32-byte ed25519 public key."
-msgstr "Grąžinti v3 ``.onion`` adresas 32- baitas25519 viešojo rakto."
+msgstr ""
 
 msgid "Return the version *current* should move to, or ``None``."
 msgstr ""
@@ -53740,11 +53740,11 @@ msgstr "Kilimai `system.sh` pridėjus platesnį saugyklos valymo paketą."
 
 # translated-by: libretranslate
 msgid "Runs a [Tor](https://www.torproject.org/) daemon on the node and publishes a Tor v3 onion service, turning an Infinito.Nexus instance behind NAT/CGNAT into a fully Tor-reachable node without a public IP, port forwarding, VPS, or DynDNS."
-msgstr "A [Toras](https://www.torproject.org/) daemon mazgas ir skelbia Tor prieš3 Valgomasis svogūnas, tekinimo Infinito.Nexus už NAT / CGNAT į visiškai Torachable mazgas be viešojo IP, uosto ekspedijavimas, VPS, arba DynDNS."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Runs a `Tor <https://www.torproject.org/>`__ daemon on the node and publishes a Tor v3 onion service, turning an Infinito.Nexus instance behind NAT/CGNAT into a fully Tor-reachable node without a public IP, port forwarding, VPS, or DynDNS."
-msgstr "A `Tor <https://www.torproject.org/>`__ daemon mazgas ir skelbia Tor prieš3 Valgomasis svogūnas, tekinimo Infinito.Nexus už NAT / CGNAT į visiškai Torachable mazgas be viešojo IP, uosto ekspedijavimas, VPS, arba DynDNS."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Runs a collected list of systemd services at the **end of a play**. This is useful for services where flush/restart is suppressed during setup, but should be started once everything they depend on is ready."
@@ -54136,7 +54136,7 @@ msgstr "SSO / tapatybės nuoseklumas"
 
 # translated-by: libretranslate
 msgid "SSO / oauth2 + header auth (Decision #3)"
-msgstr "SSO / Oauth2 + antraštė (Sprendimas #3)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO Tests 🔐"
@@ -54144,7 +54144,7 @@ msgstr "SSO bandymai 🔐"
 
 # translated-by: libretranslate
 msgid "SSO flavor is **OIDC-direct** (`services.sso.flavor: oidc`), NOT oauth2-proxy. The role uses Frappe's built-in Social Login Key."
-msgstr "SSO skonis yra **Tiesioginis OIDC** (`services.sso.flavor: oidc`), NETAIKOMA2- Proxy. Vaidmuo naudoja Frappe pastatas - Socialinis Login raktas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "SSO flavor is **`oidc` (native)** — Semaphore renders its own \"Sign in with Keycloak\" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`. No `oauth2-proxy` sidecar."
@@ -54167,7 +54167,7 @@ msgstr "SSO vartotojo dangtelis: LiteLLM atsisako SSO virš 5 eilutės `litellm_
 
 # translated-by: libretranslate
 msgid "SSO via Keycloak using the GitLab OAuth2 provider (see note below)"
-msgstr "SSO via Keycloak vartojimo GitLab Oauth2 teikėjas (žr. toliau pateiktą pastabą)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "STUN on Wikipedia: [en.wikipedia.org/wiki/STUN](https://en.wikipedia.org/wiki/STUN)"
@@ -54694,7 +54694,7 @@ msgstr "Saugumas: išspręsti visi 80 Atverti CodeQL / code- skenavimo perspėji
 # iš naujo nustato sesijos kitą prašymą.
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to `127.0.0.1` and every request traverses the oauth2-proxy that overwrites `X-Forwarded-*`. The `X-Auth-Request-*` / `Remote-User` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through `web-svc-logout` / the oauth2-proxy sign-out, not Postmarks' own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Saugumas: tapatybės antraštės yra patikimi besąlygiškai, kuris yra saugus tik todėl, kad app prievadas yra saistomas `127.0.0.1` ir kiekvienas prašymas keliauja auto2- proxy, kuris perrašo `X-Forwarded-*`. `X-Auth-Request-*` / `Remote-User` Aspektai sąmoningai ignoruojami, todėl klientas, kurio tapatybė yra patvirtinta, negali įkelti kitos tapatybės. Išsiregistruoti turi eiti per `web-svc-logout` / auth2- proxy sign- out, ne Postmarks\"savo registracijos nuorodą, nes proxy antraštė iš naujo nustato sesijos kitą prašymą."
+msgstr ""
 
 # besąlygiškai, kuris yra saugus tik todėl, kad app prievadas yra saistomas
 # ``127.0.0.1`` ir kiekvienas prašymas keliauja auto2- proxy, kuris perrašo
@@ -54705,7 +54705,7 @@ msgstr "Saugumas: tapatybės antraštės yra patikimi besąlygiškai, kuris yra 
 # nuorodą, nes proxy antraštė iš naujo nustato sesijos kitą prašymą.
 # translated-by: libretranslate
 msgid "Security: the identity headers are trusted unconditionally, which is only safe because the app port is bound to ``127.0.0.1`` and every request traverses the oauth2-proxy that overwrites ``X-Forwarded-*``. The ``X-Auth-Request-*`` / ``Remote-User`` variants are deliberately ignored so an already-authenticated client cannot inject a different identity. Logout must go through ``web-svc-logout`` / the oauth2-proxy sign-out, not Postmarks’ own logout link, because the proxy header re-establishes the session on the next request."
-msgstr "Saugumas: tapatybės antraštės yra patikimi besąlygiškai, kuris yra saugus tik todėl, kad app prievadas yra saistomas ``127.0.0.1`` ir kiekvienas prašymas keliauja auto2- proxy, kuris perrašo ``X-Forwarded-*``. ``X-Auth-Request-*`` / ``Remote-User`` Aspektai sąmoningai ignoruojami, todėl klientas, kurio tapatybė yra patvirtinta, negali įkelti kitos tapatybės. Išsiregistruoti turi eiti per ``web-svc-logout`` / auth2- proxy sign- out, ne Postmarks\"savo registracijos nuorodą, nes proxy antraštė iš naujo nustato sesijos kitą prašymą."
+msgstr ""
 
 msgid "See :mod:`utils.mail.provider` for why this is not simply ``MAIL_PROVIDER``."
 msgstr ""
@@ -54978,7 +54978,7 @@ msgstr "Patalpinta fedyverse sienos parodyti neseniai viešųjų pranešimų ha�
 
 # translated-by: libretranslate
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Name5 žaidimų smėlio dėžė naršyti ir veikti lengvų variklių demos ir žaidimai naršyklėje"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
@@ -57830,7 +57830,7 @@ msgstr "Svc- bkp- open-2-vietos vaidmuo"
 
 # translated-by: libretranslate
 msgid "Svc-bkp-secrets-2-local Role"
-msgstr "Svc- bkp - sekretoriai2-vietos vaidmuo"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Svc-bkp-volume-2-local Role"
@@ -58865,7 +58865,7 @@ msgstr "Bandymų pakeitimai"
 
 # translated-by: libretranslate
 msgid "Test E2E Cli"
-msgstr "E bandymas2E Cli"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Test Email"
@@ -60035,7 +60035,7 @@ msgstr "CDD- SHELL rašyba :func:`curl_argv`, cituojamas kiautas."
 
 # translated-by: libretranslate
 msgid "The CPU architecture is the same kind of property and was not covered at all. Every deploy job ran on `ubuntu-latest`, so every sweep proved amd64 and said nothing about arm64, while the project ships roles whose upstream images, wheels and binaries differ per architecture. A role that cannot run on arm64 was indistinguishable from one nobody had ever tried there."
-msgstr "CPU architektūra yra tos pačios rūšies nuosavybė ir nebuvo visiškai. Kiekvienas dislokavimas darbas vyko `ubuntu-latest`, todėl kiekvienas valymo įrodė amd64 ir nieko nesakė apie ranką64, o projektas laivų vaidmenis, kurių prieš atvaizdus, ratai ir dvisluoksnės skiriasi pagal architektūrą. Vaidmuo, kuris negali veikti ranka64 buvo neatskiriamai nuo vieno, kuris niekada nebuvo bandęs ten."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The CPU architectures this run spreads its rows over; empty means both."
@@ -60120,7 +60120,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The Frappe MCP component is experimental and unverified against the pinned Frappe v16."
-msgstr "Frappe MCP komponentas yra eksperimentinis ir nepatikrintas pagal Frappe prieš16."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The Frappe site-setup wizard is **bypassed** on first deploy via auto-bootstrap: `bench new-site` with `--admin-password`, `--db-name`, `--mariadb-user-host-login-scope=%` arguments, plus `bench install-app erpnext`, plus a post-start API call from the role's `tasks/` to mark the wizard as completed (`frappe.db.set_default('setup_complete', '1')`). A fresh deploy lands directly on the ERPNext desk."
@@ -60298,7 +60298,7 @@ msgstr "OIDC prisijungimo + RBAC kelius apima `test-admin-oidc-login.js` / `test
 
 # translated-by: libretranslate
 msgid "The OIDC login entry points (`oidc_login`, `sociallogin`, `user_oidc`) are mandatory because they gate SSO login: when one of them is the selected flavor and the system hides the native login form, an un-installed OIDC app leaves the instance with no usable login path. Failing at install time surfaces the version-pin mismatch immediately rather than as a downstream login timeout in the Playwright e2e suite."
-msgstr "OIDC prisijungimo taškai (`oidc_login`, `sociallogin`, `user_oidc`) yra privalomi, nes jie įveda SSO prisijungimo: kai vienas iš jų yra pasirinktas skonis ir sistema slepia gimtoji prisijungimo forma, neįdiegta OIDC app palieka pavyzdžiui be naudotinas prisijungimo kelias. Nepavyko įdiegti laiko paviršių version- pin neatitikimas iš karto, o ne kaip pasroviui prisijungimo laikas Playwright e2Apartamentai."
+msgstr ""
 
 # vardas ir pavardė (pavadinimas): `type=external` per grupę slapyvardžiai ant
 # auth kalno, kurie vykdo politiką.
@@ -60330,11 +60330,11 @@ msgstr "PR apimties trumpos grandinės [scope.sh](../../../../scripts/meta/resol
 
 # translated-by: libretranslate
 msgid "The Playwright ``biber`` persona is blocked permanently. ``meta/services.yml`` restricts ``sso.oauth2.allowed_groups`` to the ``web-app-baserow`` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user."
-msgstr "Grojimo teisė ``biber`` persona yra visam laikui užblokuotas. ``meta/services.yml`` Apribojimai ``sso.oauth2.allowed_groups`` į ``web-app-baserow`` administratorius RBAC grupė, todėl ne admin tapatybė yra atmetama auto2- proxy prieš Baserow atiduoda, ir nėra dislokavimo žingsnis nuostatos a Baserow sąskaitą, kad vartotojas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The Playwright `biber` persona is blocked permanently. `meta/services.yml` restricts `sso.oauth2.allowed_groups` to the `web-app-baserow` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user."
-msgstr "Grojimo teisė `biber` persona yra visam laikui užblokuotas. `meta/services.yml` Apribojimai `sso.oauth2.allowed_groups` į `web-app-baserow` administratorius RBAC grupė, todėl ne admin tapatybė yra atmetama auto2- proxy prieš Baserow atiduoda, ir nėra dislokavimo žingsnis nuostatos a Baserow sąskaitą, kad vartotojas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The Playwright container image is declared in `roles/test-e2e-playwright/meta/services.yml` under the `playwright` service entry (`image:` + `version:`). CI mirrors that image into GHCR through the standard mirror pipeline before deploy tests run, so Playwright jobs do not depend on direct pulls from MCR during the test phase."
@@ -61359,7 +61359,7 @@ msgstr "Agentas neturi modelio patikential: tai ragina `http://agent-broker:<por
 
 # translated-by: libretranslate
 msgid "The agent images run on arm64"
-msgstr "Agento paveikslėliai veikia ranka64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes ``~/.claude/settings.json`` with an ``env`` block carrying the gateway URL, the workstation’s key and the model aliases to use, so every request leaves the machine through the gateway and is accounted there."
@@ -61867,7 +61867,7 @@ msgstr "Arčiausiai esantys analogai šiame atpirkimo [`web-app-odoo`](../../rol
 # translated-by: libretranslate
 #, python-brace-format
 msgid "The cluster consists of privileged systemd containers on a dedicated lab bridge (`192.168.244.0/24`, MTU 1400): three swarm nodes (1 manager + 2 workers), a non-swarm NFSv4 server serving the shared volume storage, and a non-swarm backup host for the DR drill. The node image ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile)) bakes python3 + dnsmasq and masks the zfs boot units the parent image's userland enables; the containers and the lab network are declared in [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (project `${SWARM_NAME}`, backup host behind the `drill` profile) and started by one `docker compose up` in `routine/01_bootstrap.sh`. Lab DNS is provisioned by `compose/swarm/playbook.yml` over `ansible_connection: docker` (Ansible never uses ssh here); swarm init/join itself happens inside the deploy via the `svc-swarm-node` role, not in any bring-up script."
-msgstr "Grupę sudaro privilegijuoti sisteminiai konteineriai ant specialaus laboratorijos tilto (`192.168.244.0/24`, MTU 1400): trys sūkuriniai mazgai (1 valdytojas + 2 darbuotojai), non- swarm NFSv4 serveris, aptarnaujantis bendro garsumo atmintinę, ir nesukamas atsarginis mazgas DR grąžtai. Mazgo atvaizdis ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile)) pitonas3 + dnsmasq ir kaukės zfs įkrovos vienetai pirminio vaizdo userland leidžia; konteineriai ir laboratorijos tinklas deklaruojami [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (projektas `${SWARM_NAME}`, atsarginis mazgas už `drill` profilis) ir pradėjo vienas `docker compose up` yra `routine/01_bootstrap.sh`. Lab DNS yra numatyta `compose/swarm/playbook.yml` daugiau `ansible_connection: docker` (Antarktinis niekada nenaudoja ssh čia); Swarm init / prisijungti pati atsitinka viduje dislokavimo per `svc-swarm-node` vaidmuo, o ne jokių pering-up scenarijų."
+msgstr ""
 
 msgid "The code editor of the example browser stays a plain `<textarea>`: the browser console reports `Loading the script 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js' violates the following Content Security Policy directive` and the same for eleven theme stylesheets (measured on the compose stack; `document.querySelectorAll(\".CodeMirror\").length` is 0). Cause: upstream `examples/shorts.js` loads CodeMirror from cdnjs at run time and `meta/csp.yml` whitelists only the asset host for `script-src-elem` and `style-src-elem`. Options: whitelist `https://cdnjs.cloudflare.com` for both directives; or serve CodeMirror through the asset lookup and patch the URLs at build time; or keep the textarea."
 msgstr ""
@@ -63522,11 +63522,11 @@ msgstr "Pergrotų sąvartynų skaičius."
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Autas2 ACL [`meta/services.yml`](./meta/services.yml) Tik juodieji sąrašai `/login`, ir `sys-svc-proxy` padaro juodąjį sąrašą kaip *rodyti viską pagal nutylėjimą, tada apsaugoti nurodytus kelius*. Pagalbininkas nusileidžia ant `/`, kuris yra viešas, todėl įgaliotinis niekada sulaiko jį ir Keycloak kelionė neprasideda."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The oauth2 ACL in ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, which is public, so the proxy never intercepts it and the Keycloak round trip never starts."
-msgstr "Autas2 ACL ```meta/services.yml`` <./meta/services.yml>`__ blacklists only ``/login``, and ``sys-svc-proxy`` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on ``/``, kuris yra viešas, todėl įgaliotinis niekada sulaiko jį ir Keycloak kelionė neprasideda."
+msgstr ""
 
 msgid "The object store itself lives in [web-svc-seaweedfs](../web-svc-seaweedfs/), which owns the storage engine, the per-consumer identities and the public S3 endpoint. This role adds only the human-facing half: an nginx sidecar that routes two canonical domains to the engine's internal filer and master ports."
 msgstr ""
@@ -63754,7 +63754,7 @@ msgstr "Perrole sudėtingumo balas, jos ``dna`` klasterio klavišą ir ``sibling
 # kairėje priklauso ne vartotojo sąskaitą.
 # translated-by: libretranslate
 msgid "The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Asmeninės vėliavos deklaruojamos [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` yra užblokuotas tik `sso: false` variantai: kaip aprašyta pirmiau, Postmarks\"vienintelis gimtoji patikinimas yra vienas bendras `ADMIN_KEY` slaptažodžio forma, kuri nėra Keycloak administratorius paslaptis persona tipai, todėl be patikimų antraštės tilto nėra admin prisijungimo vairuoti. `biber` yra užblokuotas kiekvieno varianto - autas2-Įgaliotinis priima tik paraiškos administratoriaus RBAC grupės ir tilto pakartotinius patikrinimus `X-Forwarded-Groups`, taigi `biber` buvo atsisakyta anksčiau Postmarks yra pasiektas, ir su SSO išjungti tik patiklus kairėje priklauso ne vartotojo sąskaitą."
+msgstr ""
 
 # `templates/playwright.env.j2 <./templates/playwright.env.j2>`__.
 # ``administrator`` yra užblokuotas tik ``sso: false`` variantai: kaip
@@ -63768,7 +63768,7 @@ msgstr "Asmeninės vėliavos deklaruojamos [templates/playwright.env.j2](./templ
 # išjungti tik patiklus kairėje priklauso ne vartotojo sąskaitą.
 # translated-by: libretranslate
 msgid "The persona flags are declared in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` is blocked only in the ``sso: false`` variants: as described above, Postmarks’ sole native credential is the single shared ``ADMIN_KEY`` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. ``biber`` is blocked in every variant — the oauth2-proxy admits only the application’s administrator RBAC group and the bridge re-checks ``X-Forwarded-Groups``, so ``biber`` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account."
-msgstr "Asmeninės vėliavos deklaruojamos `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. ``administrator`` yra užblokuotas tik ``sso: false`` variantai: kaip aprašyta pirmiau, Postmarks\"vienintelis gimtoji patikinimas yra vienas bendras ``ADMIN_KEY`` slaptažodžio forma, kuri nėra Keycloak administratorius paslaptis persona tipai, todėl be patikimų antraštės tilto nėra admin prisijungimo vairuoti. ``biber`` yra užblokuotas kiekvieno varianto - autas2-Įgaliotinis priima tik paraiškos administratoriaus RBAC grupės ir tilto pakartotinius patikrinimus ``X-Forwarded-Groups``, taigi ``biber`` buvo atsisakyta anksčiau Postmarks yra pasiektas, ir su SSO išjungti tik patiklus kairėje priklauso ne vartotojo sąskaitą."
+msgstr ""
 
 msgid "The persona flows stay blocked with `sso` off because the shared native login fills `ADMIN_USERNAME`, while Mastodon's `/auth/sign_in` only accepts the e-mail. Option: teach the shared native login to fill `ADMIN_EMAIL` into an e-mail field and unblock the administrator persona."
 msgstr ""
@@ -63815,7 +63815,7 @@ msgstr "Dangtis yra amd64 AppImage, ir vaidmuo atsisako kitos architektūros še
 
 # translated-by: libretranslate
 msgid "The pinned image runs on arm64"
-msgstr "Name64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle."
@@ -64101,7 +64101,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo."
-msgstr "Visas projekto medžio kelių sąrašas (vienas ėjimas per procesą) ir8 turinys (`read_text`). Naudojamas lint / integracijos testai ir CLI įrankiai, kad nuskaityti atpirkimo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The project's environment is owned by a single generator, not scattered across shell modules. Every variable is documented INLINE next to its definition with a one-line `# ...` comment above the key. This page is just a map of where to look."
@@ -65452,7 +65452,7 @@ msgstr "Bendras ``biber`` ir ``administrator`` persona pagalbininkai yra paskelb
 # `files/playwright/\_shared.js <./files/playwright/_shared.js>`__.
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web answers Playwright’s headless Chromium user agent with a “browser not supported” splash unless ``forceAllowOldBrowser`` is seeded into ``localStorage`` before the first navigation, and its OIDC callback runs through OpenCloud’s own ``/oidc-callback`` → ``/web-oidc-callback`` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas’ Keycloak round trip is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, which does that priming in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
-msgstr "Bendras ``biber`` ir ``administrator`` persona pagalbininkai yra paskelbti blokuojami `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web atsakymai Playwright begalvė Chromium vartotojo agentas su \"naršyklė nepalaikoma\" splash nebent ``forceAllowOldBrowser`` yra pasėjamos į ``localStorage`` prieš pirmą navigaciją, ir jos OIDC skambina per OpenCloudsavų ``/oidc-callback`` → ``/web-oidc-callback`` maršrutai vietoj auth2-Proxy modelis dalinasi pagalbininkas aptinka. Abu asmenys \" Keycloak kelionė pirmyn ir atgal `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, kuris daro, kad užtaisymas `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in ``files/playwright/``."
@@ -65536,7 +65536,7 @@ msgstr "Bendras ``biber`` ir ``administrator`` persona kelionės pasirenkamos pe
 # registracijos.
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
-msgstr "Bendras ``biber`` ir ``administrator`` persona kelionės pasirenkamos per ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` yra ``templates/playwright.env.j2``. Autas2-proxy sidecar tik vartai vhost - FusionDirectory išlaiko savo LDAP- bind prisijungimo už jį, kuris vaidmuo OIDC scenarijus ``files/playwright/playwright.spec.js`` tvirtina tikintis \"Prisijungti\" mygtuką vis dar bus matomas po Keycloak Atvykimas. ``tasks/main.yml`` nuostatos FusionDirectory sąskaitą, todėl Keycloak tapatybės žemėlapiai, kad nebūtų aplanko sesijos, bendri pagalbininkai galėtų atlikti į in- app registracijos."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. web-app-hugo serves a statically built site: ``services.sso`` is hard-disabled in ``meta/services.yml``, the container is a Hugo build baked into nginx (``templates/compose.yml.j2``), and the Playwright env file renders no ``ADMIN_*`` / ``BIBER_*`` credentials. There is no session, no admin surface and no logout control to drive, so the ``guest`` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role."
@@ -65566,7 +65566,7 @@ msgstr "Bendras `biber` ir `administrator` persona pagalbininkai yra paskelbti b
 # [files/playwright/_shared.js](./files/playwright/_shared.js).
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a \"browser not supported\" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js)."
-msgstr "Bendras `biber` ir `administrator` persona pagalbininkai yra paskelbti blokuojami [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web atsakymai Playwright begalvė Chromium kartu su \"Naršyklė nepalaikoma\" splash, nebent `forceAllowOldBrowser` yra pasėjamos į `localStorage` prieš pirmą navigaciją, ir jos OIDC skambina per OpenCloudsavų `/oidc-callback` → `/web-oidc-callback` maršrutai vietoj auth2-Proxy modelis dalinasi pagalbininkas aptinka. Abu asmenys \" Keycloak kelionė pirmyn ir atgal [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), kuris daro, kad užtaisymas [files/playwright/_shared.js](./files/playwright/_shared.js)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in `files/playwright/`."
@@ -65972,11 +65972,11 @@ msgstr "Išbandytas vokas 🧪"
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under ``themes/`` or referenced as a Hugo Module via ``go.mod``). V1 does not support a separate theme override."
-msgstr "Tema PRIVALO būti susieta su šaltinio saugykla (arba patikrinta pagal ``themes/`` arba nuoroda į Hugo Modulis per ``go.mod``). V.1 nepalaiko atskiros temos valdymo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The theme MUST be bundled with the source repository (either checked in under `themes/` or referenced as a Hugo Module via `go.mod`). V1 does not support a separate theme override."
-msgstr "Tema PRIVALO būti susieta su šaltinio saugykla (arba patikrinta pagal `themes/` arba nuoroda į Hugo Modulis per `go.mod`). V.1 nepalaiko atskiros temos valdymo."
+msgstr ""
 
 msgid "The theme sheets and `files/playwright/test-design.js` were generated against Odoo 20, the role runs 19.0 (`meta/services.yml`), and two assertions therefore target DOM this version does not render: `test-design.js:425` wants `.o_search_panel_category_value_header`, which 19 renders as a plain `<header>` without that class and without `tabindex`, so `:focus-visible` is unreachable; `test-design.js:533-534` want a `.btn-danger` in the delete dialog, and 19's `view_hook.js` sets `confirmLabel` without `confirmClass`. Dead on 19 for the same reason: `files/theme/backend.css:2205`. The pin cannot move: OCA publishes no 20.x of `fs_storage` or `fs_attachment_s3` on PyPI, and the modules on the `20.0` branch still carry `\"version\": \"19.0…\"` with `\"installable\": False`. Options: regenerate the theme sheets and the design spec against a live Odoo 19 once a stack is available; or move the image to 20.0 as soon as those two modules turn installable."
 msgstr ""
@@ -66232,7 +66232,7 @@ msgstr "Userland įrankiai yra kepti į kiekvieną districo vaizdas [filesystem.
 
 # translated-by: libretranslate
 msgid "The v3 address is ``base32(PUBKEY || CHECKSUM || VERSION)`` where ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` and ``VERSION = 0x03`` (see spec.torproject.org/address-spec). Tor stores the *expanded* ed25519 secret key ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` in ``hs_ed25519_secret_key``; the public key ``clamp(SHA512(seed)[:32]) * B`` equals the standard ed25519 public key, so it is taken straight from ``cryptography`` without needing scalar multiplication."
-msgstr "V3 adresas ``base32(PUBKEY || CHECKSUM || VERSION)`` čia: ``CHECKSUM = SHA3-256(\".onion checksum\" || PUBKEY || VERSION)[:2]`` ir ``VERSION = 0x03`` (žr. spec.torproject.org/ adresu- spec). Tor saugo *išplėsta* tas25519 slaptas raktas ``clamp(SHA512(seed)[:32]) || SHA512(seed)[32:]`` yra ``hs_ed25519_secret_key``; viešasis raktas ``clamp(SHA512(seed)[:32]) * B`` yra25519 viešojo rakto, todėl jis paimtas tiesiai iš ``cryptography`` be skalaro dauginimosi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The value a row draws from *pool* this sweep: a plain rotation over the row's global position, so consecutive rows spread across the pool and consecutive sweeps move every row on to the next value."
@@ -66353,11 +66353,11 @@ msgstr "Laidai, kurie daro šį darbą yra tik `services` Deklaracija, nėra `ru
 
 # translated-by: libretranslate
 msgid "The workaround used here is the **GitLab OAuth2 provider** (`MM_GITLABSETTINGS_*`), which is generic enough to work with any OIDC-compatible identity provider including Keycloak. This provides true SSO: user accounts are automatically created in Mattermost on first login."
-msgstr "Darbas aplink čia yra **GitLab Oauth2 teikėjas** (`MM_GITLABSETTINGS_*`), kuris yra pakankamai bendro, kad galėtų dirbti su bet su OIDC suderinama tapatybės teikėjas, įskaitant Keycloak. Tai suteikia tikrą SSO: vartotojo paskyros yra automatiškai sukurta Mattermost pirmą kartą prisijungus."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The workaround used here is the **GitLab OAuth2 provider** (``MM_GITLABSETTINGS_*``), which is generic enough to work with any OIDC-compatible identity provider including Keycloak. This provides true SSO: user accounts are automatically created in Mattermost on first login."
-msgstr "Darbas aplink čia yra **GitLab Oauth2 teikėjas** (``MM_GITLABSETTINGS_*``), kuris yra pakankamai bendro, kad galėtų dirbti su bet su OIDC suderinama tapatybės teikėjas, įskaitant Keycloak. Tai suteikia tikrą SSO: vartotojo paskyros yra automatiškai sukurta Mattermost pirmą kartą prisijungus."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The workflow-driven jobs additionally require the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md). Without those secrets, runs fail at the token-minting step and no PR is opened."
@@ -68145,7 +68145,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers the catalogs, their extraction, their machine translation and their validation. Serving the catalogs is [038 - web-svc-api](README.md#archive); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md). The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green."
-msgstr "Šis reikalavimas taikomas katalogams, jų išvedimui, mašininiam vertimui ir patvirtinimui. Tarnauti katalogus yra [038 - web-svc-api](README.md#archive); vartoja juos viduje pagrindinių vaidmenų yra [039 - Pagrindinis18n Vartotojai](039-core-i18n-consumers.md). Vartotojų saugyklos (begalybės-nexus- gui, meta-begalybė-grafikas, portfelis) išsaugoti savo sąsajos eilutes savo gettext kataloguose ir perjungti tik po 037 iki 039 yra žali."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This requirement covers two related but separable deliverables:"
@@ -68443,7 +68443,7 @@ msgstr "Šis vaidmuo sukuria darbo vietos vartotoją, pasirinktą per WORKSTATIO
 
 # translated-by: libretranslate
 msgid "This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (`MM_GITLABSETTINGS_*` in `templates/env.j2`); the resulting entry point is `a[href='/oauth/gitlab/login']`, relabelled \"SSO with Infinito.Nexus\" by `templates/javascript.js.j2`, which the shared helper's name-based login matcher does not recognise. Mattermost v11+ also serves a `/landing` interstitial to unauthenticated visitors that only clears once `localStorage.__landingPageSeen__` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Šis vaidmuo deklaruoja `PERSONA_ADMINISTRATOR_BLOCKED` ir `PERSONA_BIBER_BLOCKED` yra `templates/playwright.env.j2` tam pačiam mechanizmui. Atokiausi Komanda Edition laivai ne gimtoji OIDC teikėjas, todėl vaidmuo Piggybacks Keycloak į GitLab Oauth lizdas (`MM_GITLABSETTINGS_*` yra `templates/env.j2`); gautas įvežimo punktas: `a[href='/oauth/gitlab/login']`, iš naujo paženklinti \"SSO Infinito.Nexus\" pagal `templates/javascript.js.j2`, Kuris dalinasi pagalbininkas anketa vardinis prisijungimo matcher nepripažįsta. Atominis11+ taip pat tarnauja `/landing` intersticinis neautentiškiems lankytojams, kurie išvalo tik vieną kartą `localStorage.__landingPageSeen__` yra pasėjamos prieš navigaciją, ir dalinimasis pagalbininkas neturi init- scenarijų kablys tai padaryti."
+msgstr ""
 
 # ir `PERSONA_BIBER_BLOCKED` yra `templates/playwright.env.j2` dėl dviejų
 # skirtingų priežasčių. 4. 4 skyrių). MinIO Konsolės versija prisegti čia
@@ -68493,7 +68493,7 @@ msgstr "Šis vaidmuo deklaruoja `PERSONA_BIBER_BLOCKED` yra `templates/playwrigh
 # dalinimasis pagalbininkas neturi init- scenarijų kablys tai padaryti.
 # translated-by: libretranslate
 msgid "This role declares ``PERSONA_ADMINISTRATOR_BLOCKED`` and ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2`` for the same mechanism. Mattermost Team Edition ships no native OIDC provider, so the role piggybacks Keycloak onto the GitLab OAuth slot (``MM_GITLABSETTINGS_*`` in ``templates/env.j2``); the resulting entry point is ``a[href='/oauth/gitlab/login']``, relabelled “SSO with Infinito.Nexus” by ``templates/javascript.js.j2``, which the shared helper’s name-based login matcher does not recognise. Mattermost v11+ also serves a ``/landing`` interstitial to unauthenticated visitors that only clears once ``localStorage.__landingPageSeen__`` is seeded before navigation, and the shared helper has no init-script hook to do that."
-msgstr "Šis vaidmuo deklaruoja ``PERSONA_ADMINISTRATOR_BLOCKED`` ir ``PERSONA_BIBER_BLOCKED`` yra ``templates/playwright.env.j2`` tam pačiam mechanizmui. Atokiausi Komanda Edition laivai ne gimtoji OIDC teikėjas, todėl vaidmuo Piggybacks Keycloak į GitLab Oauth lizdas (``MM_GITLABSETTINGS_*`` yra ``templates/env.j2``); gautas įvežimo punktas: ``a[href='/oauth/gitlab/login']``, iš naujo paženklinti \"SSO Infinito.Nexus\"pagal ``templates/javascript.js.j2``, Kuris dalinasi pagalbininkas anketa vardinis prisijungimo matcher nepripažįsta. Atominis11+ taip pat tarnauja ``/landing`` intersticinis neautentiškiems lankytojams, kurie išvalo tik vieną kartą ``localStorage.__landingPageSeen__`` yra pasėjamos prieš navigaciją, ir dalinimasis pagalbininkas neturi init- scenarijų kablys tai padaryti."
+msgstr ""
 
 # ``PERSONA_ADMINISTRATOR_BLOCKED`` ir ``PERSONA_BIBER_BLOCKED`` yra
 # ``templates/playwright.env.j2`` dėl dviejų skirtingų priežasčių. 4. 4
@@ -68748,11 +68748,11 @@ msgstr "Šis vaidmuo vykdomas Pretix naudojant Docker, automatizuoti montavimo, 
 
 # translated-by: libretranslate
 msgid "This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Compose. It exposes the Prometheus web UI at ``prometheus.<domain>`` and protects it with SSO via Keycloak using oauth2-proxy. Universal logout is integrated for session termination."
-msgstr "Šis vaidmuo vykdomas Prometheus kaip dalis Infinito.Nexus kamino naudojant Docker ComposeJis atskleidžia Prometheus web UI at ``prometheus.<domain>`` ir apsaugo jį su SSO per Keycloak naudojant autą2- Proxy. Visuotinis atsijungimas yra integruotas sesijų nutraukimui."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Compose. It exposes the Prometheus web UI at `prometheus.<domain>` and protects it with SSO via Keycloak using oauth2-proxy. Universal logout is integrated for session termination."
-msgstr "Šis vaidmuo vykdomas Prometheus kaip dalis Infinito.Nexus kamino naudojant Docker ComposeJis atskleidžia Prometheus web UI at `prometheus.<domain>` ir apsaugo jį su SSO per Keycloak naudojant autą2- Proxy. Visuotinis atsijungimas yra integruotas sesijų nutraukimui."
+msgstr ""
 
 msgid "This role deploys SeaweedFS as the central provider of the project-wide object-store service (engine ``seaweedfs``). Web-app roles consume it like a database: they enable a ``seaweedfs`` service in their ``meta/services.yml`` and resolve host, port, bucket, and credentials through the ``objstore`` lookup. A single server container runs master, volume, filer, and the S3 gateway in one process. The role serves one canonical domain:"
 msgstr ""
@@ -68853,11 +68853,11 @@ msgstr "Šis vaidmuo vykdo ejabberd Docker Compose su projekto standartiniu role
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream ``docker.n8n.io/n8nio/n8n`` image backed by a PostgreSQL database (consumed from the central ``svc-db-postgres`` via ``sys-stk-full``). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n’s own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n’s Enterprise license (``ldap.controller.ee.js`` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable ``N8N_ENCRYPTION_KEY``."
-msgstr "Šis vaidmuo vykdomas n8n Bendrijos leidimas, naudojant pradinį ``docker.n8n.io/n8nio/n8n`` paveikslėlis su PostgreSQL duomenų bazė (suvartoti iš centrinės ``svc-db-postgres`` per ``sys-stk-full``). Autentikacija tvarko **oauth2- proxy** sidecaras (Keycloak OIDC) V1, arba į kairę n8n savas naudotojo valdymo UI V2, n8n Bendrijos Edition nepalaiko LDAP - jis yra gated už n8n įmonės licencija (``ldap.controller.ee.js`` nėra registruotas CE) - taigi, LDAP variantas nesiūlomas. n viduje saugomi kreditai8n yra užšifruoti poilsio su stabilia ``N8N_ENCRYPTION_KEY``."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`."
-msgstr "Šis vaidmuo vykdomas n8n Bendrijos leidimas, naudojant pradinį `docker.n8n.io/n8nio/n8n` paveikslėlis su PostgreSQL duomenų bazė (suvartoti iš centrinės `svc-db-postgres` per `sys-stk-full`). Autentikacija tvarko **oauth2- proxy** sidecaras (Keycloak OIDC) V1, arba į kairę n8n savas naudotojo valdymo UI V2, n8n Bendrijos Edition nepalaiko LDAP - jis yra gated už n8n įmonės licencija (`ldap.controller.ee.js` nėra registruotas CE) - taigi, LDAP variantas nesiūlomas. n viduje saugomi kreditai8n yra užšifruoti poilsio su stabilia `N8N_ENCRYPTION_KEY`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys no AI surface and declares no ``litellm`` service, because EspoCRM’s open-source distribution does not ship one. At the pinned version ``10.0.4``, ``application/Espo/Modules`` contains only ``Crm``, ``application/Espo/Resources/metadata/app/config.json`` declares no AI key, and the release ZIP the image is built from leaves ``custom/Espo/Modules`` empty. The AI features (Summary, Intelligent Paste, AI Email Composer, AI formula functions) live exclusively in the commercial `Intelligence extension <https://www.espocrm.com/extensions/intelligence/>`__, which is closed source, requires a purchased license, and is published in no ``espocrm`` GitHub repository. Bumping the version does not change this: the extension is documented as requiring EspoCRM 10.0.3 or greater, so newer cores stay hosts for it rather than absorbing it."
@@ -68880,11 +68880,11 @@ msgstr "Šis vaidmuo dislokuoja LiteLLM admin UI kaip į naršyklę atsuktas į�
 
 # translated-by: libretranslate
 msgid "This role deploys the OpenTalk stack using Docker Compose and exposes the web frontend at ``open.talk.{{ DOMAIN_PRIMARY }}`` through the central reverse proxy. It runs the Rust controller, the LiveKit WebRTC media server, the React web frontend, a dedicated Redis, a dedicated MinIO bucket for controller assets, a RabbitMQ broker, and the OpenTalk recorder for meeting MP4 archives. The deployment integrates with the shared Keycloak realm via OIDC and reuses ``svc-db-postgres`` and ``web-svc-coturn`` for relational data and STUN/TURN. For identity wiring details see `IAM.md <docs/IAM.md>`__ and `LDAP.md <docs/LDAP.md>`__."
-msgstr "Šis vaidmuo atlieka OpenTalk kamino naudojant Docker Compose ir atskleidžia interneto fronto ``open.talk.{{ DOMAIN_PRIMARY }}`` per centrinį atvirkštinį proxy. Jis veikia Rusto valdiklis, LiveKit WebRTC media serveris, React web frontent, skirta Redis, skirta MinIO kibiras valdiklio turto, a RabbitMQ brokeris ir OpenTalk MP patenkinti skirtas rašytuvas4 archyvai. Diegimo integruojasi su bendra Keycloak karalystė per OIDC ir pakartotinai naudoja ``svc-db-postgres`` ir ``web-svc-coturn`` reliacinių duomenų ir STUN / TURN. Apie identiteto laidus žr. `IAM.md <docs/IAM.md>`__ ir `LDAP.md <docs/LDAP.md>`__."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys the OpenTalk stack using Docker Compose and exposes the web frontend at `open.talk.{{ DOMAIN_PRIMARY }}` through the central reverse proxy. It runs the Rust controller, the LiveKit WebRTC media server, the React web frontend, a dedicated Redis, a dedicated MinIO bucket for controller assets, a RabbitMQ broker, and the OpenTalk recorder for meeting MP4 archives. The deployment integrates with the shared Keycloak realm via OIDC and reuses `svc-db-postgres` and `web-svc-coturn` for relational data and STUN/TURN. For identity wiring details see [IAM.md](docs/IAM.md) and [LDAP.md](docs/LDAP.md)."
-msgstr "Šis vaidmuo atlieka OpenTalk kamino naudojant Docker Compose ir atskleidžia interneto fronto `open.talk.{{ DOMAIN_PRIMARY }}` per centrinį atvirkštinį proxy. Jis veikia Rusto valdiklis, LiveKit WebRTC media serveris, React web frontent, skirta Redis, skirta MinIO kibiras valdiklio turto, a RabbitMQ brokeris ir OpenTalk MP patenkinti skirtas rašytuvas4 archyvai. Diegimo integruojasi su bendra Keycloak karalystė per OIDC ir pakartotinai naudoja `svc-db-postgres` ir `web-svc-coturn` reliacinių duomenų ir STUN / TURN. Apie identiteto laidus žr. [IAM.md](docs/IAM.md) ir [LDAP.md](docs/LDAP.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role deploys the Python pull script that talks to each remote provider, installs the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL`), and serialises the run against the rest of the manipulation group via `sys-lock`. The remote side must expose a chrooted SSH/SFTP endpoint that publishes its backup tree: deploy [user-backup](../user-backup/) for the chrooted pull account and [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the published tree bounded."
@@ -69980,7 +69980,7 @@ msgstr "Norėdami iš naujo paleisti visas paslaugas, naudokite šią komandą:"
 
 # translated-by: libretranslate
 msgid "To restore the original IPv6 settings afterwards:"
-msgstr "Originalaus IPv atkūrimas6 nustatymai po:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "To revoke a role, remove the user from the same group. Changes take effect the next time the user completes an OIDC sign-in; no immediate logout is required for the user to retain their current session's capabilities."
@@ -70263,7 +70263,7 @@ msgstr "Toro ašies veiksena nuo ``INFINITO_TOR``; nežinomos arba tuščios pri
 
 # translated-by: libretranslate
 msgid "Tor daemon publishing the node as a v3 onion service"
-msgstr "Tor tarnyba leidybos mazgas kaip prieš3 Valgomasis svogūnas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Tor facts (verified upstream)"
@@ -70429,7 +70429,7 @@ msgstr "Tyrimas"
 
 # translated-by: libretranslate
 msgid "Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit."
-msgstr "Bandė ir išmatuoti: vaizdas darbas vyko nuo mažiau nei dešimt minučių daugiau nei dvi valandas, nes kiekviena ranka64 sluoksnis po `COPY .` pakartotinai patvirtina kiekvieną įsipareigojimą."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trigger"
@@ -70479,7 +70479,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Trip-wire: the swarm oauth2 endpoint must forward ``$uri$is_args$args``, not ``$request_uri`` — during ``error_page 401 = /oauth2/start`` the original ``$request_uri`` stays ``/`` and oauth2-proxy 403s instead of redirecting."
-msgstr "Trip- laidas: Swarm oauth2 vertinamoji baigtis turi būti pirmyn ``$uri$is_args$args``, ne ``$request_uri`` - ``error_page 401 = /oauth2/start`` originalas ``$request_uri`` buvimo vieta ``/`` ir auth2- proxy 403s vietoj perorientavimo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Troubleshooting Cache Issues"
@@ -70499,7 +70499,7 @@ msgstr "Teigiama, jei kuris nors subjektas yra `roles/<role_id>/meta/services.ym
 
 # translated-by: libretranslate
 msgid "True if the domain is a Tor v3 ``.onion`` address."
-msgstr "Tiesa, jei domenas yra Tor prieš3 ``.onion`` adresas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "True if this application is allowed to deploy, False otherwise."
@@ -70640,7 +70640,7 @@ msgstr "Patikėtinis ant tiltų (banga 1) yra *web-app-openproject*, *web-app-sn
 
 # translated-by: libretranslate
 msgid "Trusts the Infinito Root CA on **Windows** from inside a WSL2 environment. Only executes when running on WSL2 (detected via `/proc/version`)."
-msgstr "Patikina Infinito Root CA **Langai** iš WSL vidaus2 aplinka. Vykdo tik važiuojant WSL2 (per `/proc/version`)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Trusts the Infinito Root CA on the **Linux host system**."
@@ -73637,7 +73637,7 @@ msgstr "Kas yra Infinito.Nexus? 📌"
 
 # translated-by: libretranslate
 msgid "What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64."
-msgstr "Tai, ką jau galima įrodyti be jo: priėmimo sargybinis atsisako bendro kompiuterio arba tuščio įrenginio mawelist, abu agentai vaizdus skelbti `linux/arm64`, ir nė vienas agentas nėra nuo rankos64."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "What is checked, and when 🔎"
@@ -73838,7 +73838,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "When ``svc-net-tor`` is deployed, the node’s ``DOMAIN_PRIMARY`` is the minted ``.onion`` address, so the whole stack (web vhosts, Keycloak SSO, LDAP, CA) resolves onion domains consistently. The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (``HiddenServicePort 80 -> 127.0.0.1:80``); per-app subdomains (``<app>.<node>.onion``) are routed by the ``Host`` header. TLS is off on the onion side (onion v3 already provides transport encryption + server authentication); apps still receive ``X-Forwarded-Proto: https`` because ``.onion`` is a browser Secure Context."
-msgstr "Kada ``svc-net-tor`` yra dislokuotas, mazgas ``DOMAIN_PRIMARY`` yra kaltas ``.onion`` adresas, todėl visą kamino (interneto serveriai, Keycloak SSO, LDAP, CA) Išsprendžia svogūnų domenai nuosekliai. Tor tarnyba veikia kaip host- tinklas sudaro šalutinį ir žemėlapius vieną paslėptą paslaugą šeimininkui OpenResty (``HiddenServicePort 80 -> 127.0.0.1:80``); periapp subdomenai (``<app>.<node>.onion``) yra nukreipti pagal ``Host`` antraštė. TLS yra išjungti svogūnų pusėje (Valgomasis svogūnas prieš3 jau suteikia transportavimo šifravimą + serverio autentiškumo nustatymą); programos vis dar gauna ``X-Forwarded-Proto: https`` kadangi: ``.onion`` yra naršyklė Saugus Context."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "When ``svc-net-tor`` is in the deploy, mint (or reuse) the node onion and set ``applications.svc-net-tor.services.tor.node`` in the host_vars."
@@ -73887,7 +73887,7 @@ msgstr "Kada `services.talk.enabled` yra tiesa, Nextcloud Kalbėti PRIVALO naudo
 
 # translated-by: libretranslate
 msgid "When `svc-net-tor` is deployed, the node's `DOMAIN_PRIMARY` is the minted `.onion` address, so the whole stack (web vhosts, Keycloak SSO, LDAP, CA) resolves onion domains consistently. The Tor daemon runs as a host-network compose sidecar and maps one hidden service to the host OpenResty (`HiddenServicePort 80 -> 127.0.0.1:80`); per-app subdomains (`<app>.<node>.onion`) are routed by the `Host` header. TLS is off on the onion side (onion v3 already provides transport encryption + server authentication); apps still receive `X-Forwarded-Proto: https` because `.onion` is a browser Secure Context."
-msgstr "Kada `svc-net-tor` yra dislokuotas, mazgas `DOMAIN_PRIMARY` yra kaltas `.onion` adresas, todėl visą kamino (interneto serveriai, Keycloak SSO, LDAP, CA) Išsprendžia svogūnų domenai nuosekliai. Tor tarnyba veikia kaip host- tinklas sudaro šalutinį ir žemėlapius vieną paslėptą paslaugą šeimininkui OpenResty (`HiddenServicePort 80 -> 127.0.0.1:80`); periapp subdomenai (`<app>.<node>.onion`) yra nukreipti pagal `Host` antraštė. TLS yra išjungti svogūnų pusėje (Valgomasis svogūnas prieš3 jau suteikia transportavimo šifravimą + serverio autentiškumo nustatymą); programos vis dar gauna `X-Forwarded-Proto: https` kadangi: `.onion` yra naršyklė Saugus Context."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "When `timings.fastest` returns `None`, the measurement has too few samples to choose. That is not permission to leave the axis open; it moves the choice one rung down:"
@@ -74366,7 +74366,7 @@ msgstr "Kai agentas veikia `git commit` (iš anksto patvirtinti kablio vykdymo `
 
 # translated-by: libretranslate
 msgid "Whenever the role enables an auth integration (OIDC, oauth2, LDAP), at least one persona's flow MUST exercise the integrated login path (not only a local-form login)."
-msgstr "Kai vaidmuo leidžia auth integraciją (OIDC, auth2, LDAP), bent vienas persona srautas PRIVALO naudotis integruota prisijungimo kelią (ne tik vietinės formos prisijungimas)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Where"
@@ -75374,11 +75374,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the ``shunt_is_valid_user`` drop-in in ```files/sso/infinito_sso.php`` <./files/sso/infinito_sso.php>`__, which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group (```meta/services.yml`` <./meta/services.yml>`__), so ``biber`` is rejected before YOURLS renders anything: ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``, and the denial is asserted explicitly by ``files/playwright/test-biber-denied.js``. The ``administrator`` persona stays live and exercises the bridge end to end."
-msgstr "YOURLS neturi gimtosios SSO; admin sesija yra nukalta iš auto2- proxy tapatybės antraštė pagal ``shunt_is_valid_user`` drop- in ```files/sso/infinito_sso.php`` <./files/sso/infinito_sso.php>`__, which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group (```meta/services.yml`` <./meta/services.yml>`__), so ``biber`` is rejected before YOURLS renders anything: ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ declares ``PERSONA_BIBER_BLOCKED=true``, and the denial is asserted explicitly by ``files/playwright/test-biber-denied.js``. The ``administrator`` asmenybė gyvena ir pratimai tiltas baigiasi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the `shunt_is_valid_user` drop-in in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), which honours the header only on the gated admin path and only for members of the YOURLS administrator group. The gate itself admits only that same RBAC group ([`meta/services.yml`](./meta/services.yml)), so `biber` is rejected before YOURLS renders anything: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`, and the denial is asserted explicitly by `files/playwright/test-biber-denied.js`. The `administrator` persona stays live and exercises the bridge end to end."
-msgstr "YOURLS neturi gimtosios SSO; admin sesija yra nukalta iš auto2- proxy tapatybės antraštė pagal `shunt_is_valid_user` drop- in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), kuris pagerbia antraštę tik ant vartų admin kelio ir tik nariams YOURLS administratorių grupė. Pats vartai pripažįsta tik tą pačią RBAC grupę ([`meta/services.yml`](./meta/services.yml)), taigi `biber` yra atmestas anksčiau YOURLS Bet ką. [`templates/playwright.env.j2`](./templates/playwright.env.j2) deklaruoja `PERSONA_BIBER_BLOCKED=true`, ir neigimas aiškiai tvirtina `files/playwright/test-biber-denied.js`. `administrator` asmenybė gyvena ir pratimai tiltas baigiasi."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Yes"
@@ -76793,7 +76793,7 @@ msgstr "[ ] **🪙 (komercinis) ląstelės yra opta- in**: jie deklaruojami `met
 
 # translated-by: libretranslate
 msgid "[ ] A Playwright OIDC flow (biber + administrator) passes the oauth2-proxy → Keycloak chain and lands authenticated in the Checkmk GUI (administrator additionally reaches a Setup/admin-only surface)."
-msgstr "[ ] Name (biber + administratorius) eina autas2- proxy → Keycloak grandinės ir žemės patvirtintos Checkmk GUI (administratorius papildomai pasiekia Setup / admin- tik paviršiaus)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] A Playwright spec against a `<sub>.<node>.onion` surface passes through the Tor SOCKS proxy on an onion node; clearnet targets are unaffected."
@@ -77327,7 +77327,7 @@ msgstr "[ ] Penpot sėkmingai dislokuoja vieną komandą į naują šeimininką.
 
 # translated-by: libretranslate
 msgid "[ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state."
-msgstr "[ ] Persona dengtis per bendrą auth2-vartų pagalbininkai (vairavimas [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (Pasiekimas + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 vartai + `X-Remote-User` Sesija vyks `sso`), `test-oidc-security.js` (weather forecast). `biber`/`administrator` yra suskirstyti į SSO per `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` pateikia kiekvieną skaityti env var; `make compose-playwright role=web-app-checkmk` išėjimai 0 be tyrimų ir švaraus pašalinimo iš galutinio būvio."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] Playwright test run documented"
@@ -77614,7 +77614,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] When `svc-db-openldap` is in `group_names`, an LDAP connection is provisioned (`files/configure-sso.sh`) so LDAP users (matching the `X-Remote-User`) exist with roles/contact groups. LDAP is a backend identity source behind the oauth2 gate — there is no separate LDAP login surface, so it is exempted from a Playwright gate (`# nocheck: playwright-service-flag`), mirroring [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "[ ] Kada `svc-db-openldap` yra `group_names`, LDAP jungtis yra numatyta (`files/configure-sso.sh`) LDAP vartotojai (atitinka `X-Remote-User`) yra su vaidmenimis / kontaktų grupėmis. LDAP yra realizacijos tapatybės šaltinis už auto2 vartai - nėra atskiro LDAP prisijungimo paviršiaus, todėl jis atleidžiamas nuo grojaraščio vartų (`# nocheck: playwright-service-flag`), rodanti [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] When both OIDC and LDAP are enabled (V1), OIDC is the primary button and LDAP login still works; the deploy is clean."
@@ -77885,7 +77885,7 @@ msgstr "[ ] `meta/variants.yml` apibrėžia tris variantus (V1 sso + ldap, V2 vi
 
 # translated-by: libretranslate
 msgid "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI."
-msgstr "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` Išsprendžia per `sys-svc-proxy` (ir, kai SSO yra, auto2-proxmart) į Checkmk Apache; `GET /<site>/check_mk/` grąžina Checkmk Prisijungimas / GUI."
+msgstr ""
 
 msgid "[ ] `opentalk-controller` exits five to six times with `Failed to init controller` after every create or recreate before it stays up (measured `RestartCount` 5 and 6 on 2026-10-09); afterwards it is stable. Options: let the compose service wait for its dependencies to be healthy instead of `service_started`, or find which dependency the init reaches too early."
 msgstr ""
@@ -78090,7 +78090,7 @@ msgstr "[018 - Playwright LDAP autentiškumo nustatymo dengtis](018-playwright-l
 
 # translated-by: libretranslate
 msgid "[021](README.md#archive) is merged. New roles MUST land on the unified schema directly, not on the legacy oauth2/oidc service shape."
-msgstr "[021](README.md#archive) yra sujungtas. Nauji vaidmenys PRIVALO nusileisti ant vieningos schemos tiesiogiai, o ne ant palikimo auto2/ oidc paslaugos forma."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[025 - MCP Role Integration](025-mcp-role-integration.md)"
@@ -79164,7 +79164,7 @@ msgstr "[Bridgy Fed šaltinis GitHub](https://github.com/snarfed/bridgy-fed)"
 
 # translated-by: libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "[Bridgy Fed](https://fed.brid.gy/) yra federacijos tiltas tarp ActivityPub (Redyverse), AT protokolas (Bluesky), ir IndieWeb (žiniatinklio nuorodos ir mikroformatai2). Ji atspindi tapatybes ir tarptinklines sąveikas, todėl vieno tinklo paštu sekėjai pasiekia kitus."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -79212,7 +79212,7 @@ msgstr "[Checkmk GitHub saugykla](https://github.com/Checkmk/checkmk)"
 # translated-by: libretranslate
 #, no-python-format
 msgid "[Checkmk](https://checkmk.com/) (Raw / Community edition, 100% open source) is an IT and application monitoring system. This role deploys the official all-in-one `checkmk/check-mk-raw` container behind the Infinito.Nexus reverse proxy, with Keycloak SSO via the oauth2-proxy gate and native LDAP user management."
-msgstr "[Checkmk](https://checkmk.com/) (Žaliavos / Bendrijos leidimas, 100% atviro kodo) yra IT ir taikymo stebėsenos sistema. Šis vaidmuo vykdo oficialų all- in- `checkmk/check-mk-raw` talpyklė už Infinito.Nexus atvirkštinis proxy, Keycloak SSO per autą2-proxgate ir gimtoji LDAP vartotojų valdymas."
+msgstr ""
 
 # infrastruktūros ir taikomųjų programų stebėsenos sistema. 4. 4 skyrių).
 # **Žaliava / Bendrija** Leidimas (100% atviro kodo) Laivai oficialų all-in-
@@ -79698,7 +79698,7 @@ msgstr "[Comment](roles/svc-swarm-manager/)"
 
 # translated-by: libretranslate
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) groups Docker hosts into a single virtual host. A swarm has exactly one manager node in v1; managers run the Raft store and accept service-API calls."
-msgstr "[Comment](https://docs.docker.com/engine/swarm/) Grupės Docker šeimininkai į vieną virtualų kompiuterį. Swarm turi tiksliai vieną valdytojo mazgas V1; vadovai paleisti Reit parduotuvėje ir priimti paslaugas -API skambučius."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[Docker Swarm](https://docs.docker.com/engine/swarm/) is Docker's built-in clustering and container-orchestration mode. It groups multiple Docker hosts into a single virtual host that can schedule services, replicate tasks, and route traffic via an internal mesh."
@@ -81142,7 +81142,7 @@ msgstr "[Terminalo slapyvardžiai ir agento trumpiniai](shell/alias.md): `i8*` a
 
 # translated-by: libretranslate
 msgid "[Test E2E Cli](https://example.com/) is an application."
-msgstr "[E bandymas2E Cli](https://example.com/) yra paraiška."
+msgstr ""
 
 msgid "[The translation gateway that reads this memory](../web-svc-translate/)"
 msgstr ""
@@ -81434,7 +81434,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`."
-msgstr "[`meta/services.yml`](./meta/services.yml) pripažįsta tik `web-app-lam` administratorius RBAC grupė į auth2- proxy (`sso.oauth2.allowed_groups`), ir `biber` turi tuščią vaidmenų sąrašą plėtros inventoriuje. Pakaitiniai pavadinimai `biber` anksčiau LAM yra kada nors pasiektas, todėl [`templates/playwright.env.j2`](./templates/playwright.env.j2) deklaruoja `PERSONA_BIBER_BLOCKED=true`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor and the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) — there is no login form, no account and no session to end. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The service's real coverage is per consumer: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) parameterises the injected logout JS over `roles_with_service('logout')`."
@@ -81560,7 +81560,7 @@ msgstr "[`tasks/01_admin.yml`](./tasks/01_admin.yml) numato tik administratorius
 
 # translated-by: libretranslate
 msgid "[`tasks/01_setup.yml`](./tasks/01_setup.yml) seeds only the administrator into Magento's admin table (`bin/magento setup:install --admin-user`, credentials from [`templates/env.j2`](./templates/env.j2)); `biber` reaches the backend solely through the oauth2-proxy declared in [`meta/services.yml`](./meta/services.yml). In the `services.sso.enabled: false` matrix variants that proxy is absent and `biber` has no native account, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true`. The `administrator` persona keeps its native login via `ADMIN_NATIVE_PASSWORD` and runs in every variant."
-msgstr "[`tasks/01_setup.yml`](./tasks/01_setup.yml) sėklos tik administratorius į Magentoadmin lentelė (`bin/magento setup:install --admin-user`, įgaliojimai iš [`templates/env.j2`](./templates/env.j2)); `biber` pasiekia atgal tik per auth2-proxy deklaruota [`meta/services.yml`](./meta/services.yml). Į `services.sso.enabled: false` matricos variantai, kad proxy nėra ir `biber` neturi vietinės paskyros, todėl [`templates/playwright.env.j2`](./templates/playwright.env.j2) vienetai `PERSONA_BIBER_BLOCKED=true`. `administrator` persona išlaiko savo gimtąjį prisijungimo per `ADMIN_NATIVE_PASSWORD` ir veikia kiekvieno varianto."
+msgstr ""
 
 # [`tasks/05_administrator.yml`](./tasks/05_administrator.yml) kuria sąskaitą,
 # kurioje `tootctl accounts create` ir niekada nustato ar fiksuoja slaptažodį,
@@ -81891,7 +81891,7 @@ msgstr "[gitubas /](github/) yra GitHub darbo srauto pagalbininkas scenarijus."
 
 # translated-by: libretranslate
 msgid "[i18n/](i18n/)"
-msgstr "[ini18n /](i18n/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above. It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
@@ -81930,7 +81930,7 @@ msgstr "[aprašas /](../../../cli/administration/deploy/development/inventory/__
 
 # translated-by: libretranslate
 msgid "[ipv6/](ipv6/) for IPv6 enable/restore helpers"
-msgstr "[ipv6/](ipv6/) IPV6 įjungti / atkurti pagalbininkus"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-entity `ports` shape."
@@ -82517,7 +82517,7 @@ msgstr "[x] A distribucija su `services.mcp.enabled=false` visiems vaidmenims ne
 
 # translated-by: libretranslate
 msgid "[x] A deployment-managed Flowise fixture executes a deterministic MCP tool successfully and contains no plaintext MCP credential. The fixture is an Agentflow whose Tool node invokes one named tool with fixed arguments through `customMcpServerTool`, so the call is deterministic rather than left to a model, and the deploy runs it through `/api/v1/prediction` and fails on a non-200 answer or an error body. The node carries only the registry entry id: the bearer stays in Flowise's encrypted `authConfig`, which a unit test holds by asserting the serialised flow contains neither the token nor the word `Bearer`. The candidates are the three providers that admit Flowise, each with a read tool that takes no arguments; the first one registered is built and executed and stale fixtures from earlier runs are removed."
-msgstr "[x] @ info: tooltip Flowise Įrenginys vykdo deterministinį MCP įrankį sėkmingai ir neturi paprastojo MCP patvirtinimo. Įtaisas yra Agentflow, kurio Įrankis mazgas remiasi vieną pavadintą įrankį su fiksuotais argumentais per `customMcpServerTool`, todėl skambutis yra deterministinis, o ne palikti modelį, ir dislokavimas veikia jį per `/api/v1/prediction` ir nepavyksta ne200 atsakymo arba klaidos įstaiga. Mazgas turi tik registro įrašo ID: nešėjas lieka Flowiseužšifruotas `authConfig`, kurį turi riedmenų vieneto bandymas tvirtinant serijinį srautą, neturi nei ženklo, nei žodžio `Bearer`. Kandidatai yra trys tiekėjai, kurie pripažįsta Flowise, kiekvienas su skaitymo įrankis, kuris neturi jokių argumentų; pirmasis registruotas yra pastatytas ir įvykdytas ir stale archives iš ankstesnių važiavimų yra pašalintas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container."
@@ -82951,7 +82951,7 @@ msgstr "[x] Flowise Supaprastinamas HTTP palaikymas išlieka blokuotas arba sutr
 
 # translated-by: libretranslate
 msgid "[x] Flowise, Hermes, OpenClaw, and n8n prove their per-server user boundary or are restricted to an admin-only workspace/instance or isolated trust domain. All four take the restriction branch: their oauth2 gate admits only the application's own `administrator` and `mcp` groups, held there by [test_mcp_client_gate_scoped.py](../../tests/lint/ansible/services/test_mcp_client_gate_scoped.py), which derives the client set from `meta/mcp.yml` rather than a list. `web-app-n8n` shipped with no `allowed_groups` at all while declaring an `mcp` role nothing consulted; that gate is now closed."
-msgstr "[x] Flowise, Hermes, OpenClawir n8n įrodo savo serverių naudotojo ribą arba yra apribotas tik administracine darbo vieta / instancija arba izoliuota patikimumo sritis. Visi keturi imtis apribojimo filialas: jų autas2 vartai pripažįsta tik savo programą `administrator` ir `mcp` grupės, laikomos ten [test_mcp_client_gate_scoped.py](../../tests/lint/ansible/services/test_mcp_client_gate_scoped.py), kuris kilęs iš kliento rinkinys `meta/mcp.yml` o ne sąrašą. `web-app-n8n` išsiunčiami be `allowed_groups` iš viso, o deklaruoja `mcp` vaidmuo nieko konsultavosi; kad vartai dabar uždarytas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] For each integrated MCP client role, Playwright verifies the client's MCP surface: the configured server list where the upstream exposes one, otherwise that the client's own API refuses an unauthenticated caller, so the credential the client holds cannot be reached from outside."
@@ -83378,7 +83378,7 @@ msgstr "[x] README aiškiai teigia, kad garso atsarginės kopijos **Bevertis be 
 
 # translated-by: libretranslate
 msgid "[x] The README states the consequence of Decision #2 that surfaced during implementation: because the root token is revoked and the recovery keys are **not** persisted (persisting them would be the write-back the AppRole bootstrap exists to avoid), the Ansible AppRole is the *only* administrative path into the instance. Losing or out-of-band-changing those credentials means rebuilding from the volume backup plus the seal key."
-msgstr "[x] README nurodo sprendimo # pasekmes2 kad įvyko įgyvendinimo metu: nes šaknis raktas yra atšauktas ir išieškojimo raktai yra **nėra** išliko (atkakliai juos būtų rašyti atgal AppVaidmens butstrap egzistuoja išvengti), Smart AppVaidmuo yra *Tik* administracinis kelias į pavyzdį. Praradimas arba out- out-target-pakeisti tuos duomenis reiškia atkurti iš garso atsarginės kopijos plius antspaudo klavišą."
+msgstr ""
 
 # [`roles_with_service`](../../plugins/lookup/roles_with_service.py)
 # peržiūrėti, pratęstas `direction in [server, both]` ir galutinių duomenų
@@ -83747,7 +83747,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] V1 OIDC + administrator + biber Playwright specs land on the Frappe desk (matrix r3 5-passed-2-skipped on V1)."
-msgstr "[x] V1 OIDC + administratorius + biber Playwright spets žemė ant Frappe stalo (r matrica3 5-2-praleista V1)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Volume mounts follow Infinito.Nexus conventions."
@@ -83844,7 +83844,7 @@ msgstr "[x] Kai taikoma NFS mazgo, eksportas yra sukonfigūruotas pagal dokument
 
 # translated-by: libretranslate
 msgid "[x] When both are in `group_names` (variant V1), the role deploys cleanly with OIDC as the primary login button."
-msgstr "[x] Kai `group_names` (V variantas1), vaidmuo dislokuoja švarus su OIDC kaip pagrindinis prisijungimo mygtuką."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[x] Where KVM is unavailable (e.g. local `act` through DinD), the agent runs under the gVisor (`runsc`) fallback, never plain `runc`; the chosen runtime is logged at deploy time."
@@ -84339,7 +84339,7 @@ msgstr "[x] `svc-ai-litellm` skelbia papildomą `auto` alias, ir kiekvienas slap
 
 # translated-by: libretranslate
 msgid "[x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node."
-msgstr "[x] `svc-ai-lmstudio` yra apribotas x86 mazgas ir niekada nėra planuojama ant rankos64/ Pi mazgas."
+msgstr ""
 
 msgid "[x] `svc-net-wireguard` runs on a host exactly when the host is in the `svc-net-wireguard` group."
 msgstr ""
@@ -84979,7 +84979,7 @@ msgstr "`Bluesky <https://bsky.social/>`__ yra decentralizuotas socialinis tinkl
 
 # translated-by: libretranslate
 msgid "`Bridgy Fed <https://fed.brid.gy/>`__ is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
-msgstr "`Bridgy Fed <https://fed.brid.gy/>`__ yra federacijos tiltas tarp ActivityPub (Redyverse), AT protokolas (Bluesky), ir IndieWeb (žiniatinklio nuorodos ir mikroformatai2). Ji atspindi tapatybes ir tarptinklines sąveikas, todėl vieno tinklo paštu sekėjai pasiekia kitus."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`CA_ROOT.cert_host` (default: `/etc/infinito.nexus/ca/root-ca.crt`)"
@@ -85015,7 +85015,7 @@ msgstr "`CURRENT_RUN_ID` - Skambina gyvas."
 # translated-by: libretranslate
 #, no-python-format
 msgid "`Checkmk <https://checkmk.com/>`__ (Raw / Community edition, 100% open source) is an IT and application monitoring system. This role deploys the official all-in-one ``checkmk/check-mk-raw`` container behind the Infinito.Nexus reverse proxy, with Keycloak SSO via the oauth2-proxy gate and native LDAP user management."
-msgstr "`Checkmk <https://checkmk.com/>`__ (Žaliavos / Bendrijos leidimas, 100% atviro kodo) yra IT ir taikymo stebėsenos sistema. Šis vaidmuo vykdo oficialų all- in- ``checkmk/check-mk-raw`` talpyklė už Infinito.Nexus atvirkštinis proxy, Keycloak SSO per autą2-proxgate ir gimtoji LDAP vartotojų valdymas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`Claude Code <https://code.claude.com/>`__ is Anthropic’s terminal coding agent. This role installs it on a workstation and points it at the platform’s own model gateway instead of the vendor API."
@@ -85083,7 +85083,7 @@ msgstr "`DevInventorySpec` vertės tipas; `build_dev_inventory` suvartoja - ji n
 
 # translated-by: libretranslate
 msgid "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ groups Docker hosts into a single virtual host. A swarm has exactly one manager node in v1; managers run the Raft store and accept service-API calls."
-msgstr "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ Grupės Docker šeimininkai į vieną virtualų kompiuterį. Swarm turi tiksliai vieną valdytojo mazgas V1; vadovai paleisti Reit parduotuvėje ir priimti paslaugas -API skambučius."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`Docker Swarm <https://docs.docker.com/engine/swarm/>`__ is Docker’s built-in clustering and container-orchestration mode. It groups multiple Docker hosts into a single virtual host that can schedule services, replicate tasks, and route traffic via an internal mesh."
@@ -85315,7 +85315,7 @@ msgstr "`LDAP.USER.OBJECTS` išvardijamos prie naudotojo įrašų pridedamos str
 
 # translated-by: libretranslate
 msgid "`LDAP_DN_BASE`, user/admin emails, oauth2-proxy `email_domains`, CA identity: all onion, mutually consistent (users `@<NODE_ONION>.onion` pass the oauth2-proxy email filter)"
-msgstr "`LDAP_DN_BASE`, naudotojas / admin laiškus, auth2- proxy `email_domains`, CA tapatybė: visi svogūnai, tarpusavyje suderinti (vartotojai `@<NODE_ONION>.onion` perduoti autą2-proxy pašto filtras)"
+msgstr ""
 
 msgid "`LISTMONK_DESIGN_BRANDING` in `vars/main.yml` and the `DESIGN_*_URL` keys in `templates/playwright.env.j2` read `LISTMONK_DESIGN.urls` unguarded. The design lookup builds those URLs for every slot, while `roles/sys-front-inj-design/tasks/assets.yml` publishes the files only when `design.logo` is a string, so with the logo replacement switched off `app.logo_url` and `app.favicon_url` point at files that do not exist and the design spec asserts them anyway. Option: take the `fallback` for both keys unless `LISTMONK_DESIGN.logo is string`, render the URL keys empty in that case like the other roles, and skip the logo assertions on empty keys."
 msgstr ""
@@ -85544,7 +85544,7 @@ msgstr "`Roulette Wheel <https://github.com/p-wojt/roulette-wheel>`__ is Node.js
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (base64 32 bytes, `head -c32 /dev/urandom | base64`) encrypts stored access keys; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` secure sessions."
-msgstr "`SEMAPHORE_ACCESS_KEY_ENCRYPTION` (bazė64 32 baitai, `head -c32 /dev/urandom | base64`) Užšifruoti saugomus prieigos raktus; `SEMAPHORE_COOKIE_HASH` / `SEMAPHORE_COOKIE_ENCRYPTION` saugias sesijas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`SEMAPHORE_ADMIN`, `SEMAPHORE_ADMIN_PASSWORD`, `SEMAPHORE_ADMIN_NAME`, `SEMAPHORE_ADMIN_EMAIL` seed the first admin (no setup wizard)."
@@ -86050,7 +86050,7 @@ msgstr "``None`` dėl bet kokių neaiškių rezultatų (žr. :func:`fetch_manife
 
 # translated-by: libretranslate
 msgid "``None`` on any indeterminate outcome: unresolvable name, network error, auth wall, rate limit, non-200 status, or unparsable body."
-msgstr "``None`` dėl bet kokio neaiškaus rezultato: neišaiškinamas pavadinimas, tinklo klaida, auth wall, greičio riba, ne200 būklė, arba neprilygstamas kūnas."
+msgstr ""
 
 msgid "``None`` when the title carries no deploy row. ``name`` is the display name, returned unresolved -- callers decode it through ``utils.roles.display``, which is what knows the role tree. ``tor``, ``distro``, ``filesystem``, ``architecture`` and ``vpn`` matter because a priority role runs the same mode and variant several times over, and only the glyphs tell those jobs apart -- a retrigger built from the title alone would otherwise replay a different combination than the one that failed."
 msgstr ""
@@ -86763,7 +86763,7 @@ msgstr "``ldap``: trys RBAC scenarijai papildomai priklauso nuo LDAP grupės sin
 
 # translated-by: libretranslate
 msgid "``ldapauth`` is the only path that materialises a ``friendica.user`` row, so its enablement derives directly from the ``ldap`` service flag. The oauth2-proxy ``sso`` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in ```meta/services.yml`` <./meta/services.yml>`__. The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "``ldapauth`` yra vienintelis kelias, kuris realizuoja ``friendica.user`` eilutė, todėl jos galimybė atsiranda tiesiogiai iš ``ldap`` paslaugų žyma. Autas2- proxy ``sso`` vartai priešais vhost yra priekio durų auth vartai, ne addon tiltas, ir lieka ```meta/services.yml`` <./meta/services.yml>`_. LDAP prisijungimo kelias yra valdomas LDAP Playwright spec (reikalavimas 018), todėl nėra pridėta jokių priedų-specifinis spec."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "``libaacs`` (AACS decryption library)"
@@ -87409,7 +87409,7 @@ msgstr "``templates/roles/README.md.j2.tmpl`` yra vienintelis tiesos šaltinis r
 # translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth. The required sections are the H2s the template emits with no optional context; the optional sections are the extra H2s that appear once every ``{% if ... %}``-guarded variable is supplied. Rendering the template both ways and diffing the H2 sets keeps the lint and the generator in lock-step with the template."
-msgstr "``templates/roles/README.md.j2.tmpl`` yra vienintelis tiesos šaltinis. Reikalingi skyriai yra H2s šablonas išeina be neprivalomo konteksto; neprivalomi skirsniai yra papildomas H2tas ``{% if ... %}``- Saugomas kintamasis tiekiamas. Renkant šabloną abiem būdais ir skleidžiant H2 rinkiniai saugo lyno ir generatorius užraktas žingsnis su šablonu."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -88758,7 +88758,7 @@ msgstr "`ldap`: trys RBAC scenarijai papildomai priklauso nuo LDAP grupės sinch
 
 # translated-by: libretranslate
 msgid "`ldapauth` is the only path that materialises a `friendica.user` row, so its enablement derives directly from the `ldap` service flag. The oauth2-proxy `sso` gate in front of the vhost is a front-door auth gate, not an addon bridge, and stays in [`meta/services.yml`](./meta/services.yml). The LDAP login path is covered by the existing LDAP Playwright spec (requirement 018), so no addon-specific spec is added."
-msgstr "`ldapauth` yra vienintelis kelias, kuris realizuoja `friendica.user` eilutė, todėl jos galimybė atsiranda tiesiogiai iš `ldap` paslaugų žyma. Autas2- proxy `sso` vartai priešais vhost yra priekio durų auth vartai, ne addon tiltas, ir lieka [`meta/services.yml`](./meta/services.yml). LDAP prisijungimo kelią dengia esamas LDAP Playwright spec (reikalavimas 018), todėl nėra pridėta jokių priedų-specifinis spec."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`libaacs` (AACS decryption library)"
@@ -91244,11 +91244,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64"
-msgstr "rankos64"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "arm64 runner capacity becomes a dependency of the deploy matrix. A pool without capacity queues those rows rather than failing them."
-msgstr "rankos64 bėgikas pajėgumas tampa diegimo matricos priklausomybė. Fondą be pajėgumų eilės tos eilutės, o ne jų atsisakyti."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "as `enforced`, and rows that cannot take an onion are dropped"
@@ -91414,7 +91414,7 @@ msgstr "bazinė vertė arba koeficientas yra neskaitinė arba neigiama."
 
 # translated-by: libretranslate
 msgid "base64-encoded 32 random bytes; AES-256-GCM key."
-msgstr "bazė64- užkoduotas 32 AES-256- GCM raktas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
@@ -92762,15 +92762,15 @@ msgstr "sukonfigūruotas sąrašas (`services.gnome-extensions.plugins`)"
 
 # translated-by: libretranslate
 msgid "confirm S3 attachment store support"
-msgstr "S patvirtinti3 priedo saugyklos palaikymas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "confirm upstream S3 attachment support"
-msgstr "prieš pradedant bandymą S patvirtinti3 Pritvirtinimo palaikymas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "confirm upstream S3 file-storage support"
-msgstr "prieš pradedant bandymą S patvirtinti3 sandėliavimo palaikymas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "confirm upstream storage-provider S3 support"
@@ -94810,7 +94810,7 @@ msgstr "išmatuota ties žyma 10.0.4: nulinis medžių takų atitikimas `AI`/`In
 
 # translated-by: libretranslate
 msgid "measured at tag v8.2.4 across three independent surfaces: `config/production.yaml.example` `video_transcription:` carries only `enabled`/`engine`/`engine_path`/`model`/`model_path`/`timeout`/`remote_runners.enabled`; `support/docker/production/config/custom-environment-variables.yaml` exposes exactly the seven matching `PEERTUBE_VIDEO_TRANSCRIPTION_*` variables, none of them a URL or a key; `server/core/initializers/config.ts` agrees. Transcription is local Whisper, not an OpenAI-compatible endpoint"
-msgstr "išmatuota ties v žyma8.2.4 trijų atskirų paviršių: `config/production.yaml.example` `video_transcription:` turi tik `enabled`/`engine`/`engine_path`/`model`/`model_path`/`timeout`/`remote_runners.enabled`; `support/docker/production/config/custom-environment-variables.yaml` parodo tiksliai septynių atitikimo `PEERTUBE_VIDEO_TRANSCRIPTION_*` kintamieji, nė vienas iš jų nėra URL ar raktas; `server/core/initializers/config.ts` sutinka. Perraša yra vietinis Wisper, ne OpenAID suderinamas tikslas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "measurement point when the daemon's data root does not resolve in this mount namespace, as in docker_root_free_bytes."
@@ -95770,7 +95770,7 @@ msgstr "pgAdmin yra populiariausias ir pasižymi turtingiausias atviro kodo admi
 
 # translated-by: libretranslate
 msgid "pgAdmin's own login id is the account e-mail `PGADMIN_DEFAULT_EMAIL` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)), not the Keycloak `administrator` username, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-pgadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before pgAdmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
-msgstr "pgAdmin savo prisijungimo ID yra sąskaitos e-mail `PGADMIN_DEFAULT_EMAIL` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)), o ne Keycloak `administrator` vartotojo vardas, todėl `administrator` persona neturi in- app patikential, kai ji yra per auto2- Proxy. [`meta/services.yml`](./meta/services.yml) Be to, pripažįsta tik `web-app-pgadmin` Administratorius RBAC grupė pagal tą įgaliojimą (`sso.oauth2.allowed_groups`), ir `biber` turi tuščią pareigų sąrašą, todėl jis atmetamas prieš pasiekiama pgAdmin. [`templates/playwright.env.j2`](./templates/playwright.env.j2) Todėl pareiškia `PERSONA_BIBER_BLOCKED=true` ir `PERSONA_ADMINISTRATOR_BLOCKED=true`; `guest` persona ir pagrindiniai pareiškimai vyksta besąlygiškai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "pgAdmin’s own login id is the account e-mail ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
@@ -95789,11 +95789,11 @@ msgstr "PHP, kompozitorius, išformuotas arba vienas iš plėtinių vis dar nėr
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP ``administrator_database_password``, not with the Keycloak ``administrator`` username/password pair, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-phpldapadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before phpLDAPadmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
-msgstr "phpLDApadmin autentikuoja su LDAP jungtimi DN ir OpenLDAP ``administrator_database_password``, ne su Keycloak ``administrator`` vartotojo vardas / slaptažodis pora, todėl ``administrator`` persona neturi in- app patikential, kai ji yra per auto2- Proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-phpldapadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before phpLDAPadmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona ir pagrindiniai pareiškimai vyksta besąlygiškai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP `administrator_database_password`, not with the Keycloak `administrator` username/password pair, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally."
-msgstr "phpLDApadmin autentikuoja su LDAP jungtimi DN ir OpenLDAP `administrator_database_password`, ne su Keycloak `administrator` vartotojo vardas / slaptažodis pora, todėl `administrator` persona neturi in- app patikential, kai ji yra per auto2- Proxy. [`meta/services.yml`](./meta/services.yml) Be to, pripažįsta tik `web-app-phpldapadmin` Administratorius RBAC grupė pagal tą įgaliojimą (`sso.oauth2.allowed_groups`), ir `biber` turi tuščią vaidmenų sąrašą, todėl jis atmetamas prieš pasiekiama phpLDApadmin. [`templates/playwright.env.j2`](./templates/playwright.env.j2) Todėl pareiškia `PERSONA_BIBER_BLOCKED=true` ir `PERSONA_ADMINISTRATOR_BLOCKED=true`; `guest` persona ir pagrindiniai pareiškimai vyksta besąlygiškai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "phpLDAPadmin is a web‑based LDAP client that provides an intuitive interface for managing LDAP directories. This containerized deployment leverages Docker Compose and Ansible automation to offer a secure, configurable environment for administering and exploring your LDAP configurations."
@@ -96776,7 +96776,7 @@ msgstr "python-m cli.administration.inventory.devices ..."
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
-msgstr "python-m cli.meta.ci.architectures [\"amd64 rankos64\"]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]"
@@ -96812,19 +96812,19 @@ msgstr "python-m utils.parse_trace <trace.zip>"
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
-msgstr "pitonas3 - m cli.meta.ci.dev_runtime images python3 - m cli.meta.ci.dev_runtime districo -- image fedora: naujausia python3 - m cli.meta.ci.dev_runtime matrica --mode pasukti --run 42"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m cli.meta.ci.image_ref --kind environment"
-msgstr "pitonas3 - m cli.meta.ci.image_ref - natūra aplinka"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 -m utils.annotations.summarize <logfile> [<title>]"
-msgstr "pitonas3 - m utils.annotations.summarize <logfile> [<title>]"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "python3 utils/github/playwright_summary.py <reports-dir> [<context-label>]  # nocheck: self-path-reference"
-msgstr "pitonas3 utils/github/playwright_summary.py <reports-dir> [<context-label>] # nocheck: self-path- reference"
+msgstr ""
 
 # raktai, todėl vartotojas, kuriam priklauso duomenys, turi savo variklio
 # raktą. Raktas "Read- only" sąmoningai niekada negrąžinamas: jis priklauso
@@ -98273,7 +98273,7 @@ msgstr "programėlės šis turas dislokuoja."
 
 # translated-by: libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
-msgstr "architektūra neturi etiketės. Grįžimas prie amd64 bėgikas siųstų ranką64 eilutė ant amd64 aparatinė įranga ir pranešti apie žalia pagal rankos64 darbo pavadinimas."
+msgstr ""
 
 msgid "the browser binary."
 msgstr ""
@@ -100127,7 +100127,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.is\\_wsl2 module"
-msgstr "utils.env.handlers.infinito.is\\ _ wsl2 modulis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.env.handlers.infinito.outer\\_network\\_mtu module"
@@ -100464,7 +100464,7 @@ msgstr "utils.install.lint.hadolint modulis"
 
 # translated-by: libretranslate
 msgid "utils.install.lint.markdownlint\\_cli2 module"
-msgstr "utils.install.lint.markdownlint\\ _ cli2 modulis"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "utils.install.lint.mbake module"
@@ -101276,7 +101276,7 @@ msgstr "ar CI bėgikas vykdo, kuris sumažina lubų."
 
 # translated-by: libretranslate
 msgid "whether oauth2-proxy fronts the application."
-msgstr "ar auth2-proxy vadovauja programai."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "whether role names and titles take part. They do when a request is masked, so the translator never sees them, and they do not when two texts are compared: German capitalises every noun, so the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen`` and a set comparison would read the capital as a surplus span."
@@ -101443,7 +101443,7 @@ msgstr "{{ lookup('sso', application_id, 'is_proxy_gated') }} → boolis"
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated"
-msgstr "{{ lookup('sso', application_id, 'logout_url') }} → str, auth2- proxy sign- out pakavimas OIDC.CLIENT.LOGOUT_URL kai programa yra proxy-gated"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('sso', application_id, 'shared') }}          → bool"
@@ -101455,7 +101455,7 @@ msgstr "{{ lookup('subnet_address_regex') }} # 192\\.168\\.24\\.\\ d +"
 
 # translated-by: libretranslate
 msgid "{{ lookup('tor_socks_proxy') }}   -> socks5h://tor:<port>               (swarm)"
-msgstr "{{ lookup('tor_socks_proxy') }} - > kojinės5h: / / tor:<port> (pelkė)"
+msgstr ""
 
 msgid "~17.6 GB"
 msgstr ""
@@ -101849,11 +101849,11 @@ msgstr "🔎 Policijos išorės sistemos, kol laukiami artefaktai yra pasirengę
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) can be layered in front of Taiga when you want proxy-level access control in addition to Taiga's own authentication flow."
-msgstr "🔐 **Neprivaloma2 Proxy prieigos apsauga:** [Oauth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/) gali būti sluoksniuotas priešais Taiga kai norite proxy lygio prieigos kontrolės be TaigaSavo autentiškumo patvirtinimo srautas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **Optional OAuth2 Proxy access guard:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ can be layered in front of Taiga when you want proxy-level access control in addition to Taiga’s own authentication flow."
-msgstr "🔐 **Neprivaloma2 Proxy prieigos apsauga:** `OAuth2 Proxy <https://oauth2-proxy.github.io/oauth2-proxy/>`__ gali būti sluoksniuotas priešais Taiga kai norite proxy lygio prieigos kontrolės be TaigaSavo autentiškumo patvirtinimo srautas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🔐 **SSO with OIDC & LDAP** (optional)"
@@ -102006,7 +102006,7 @@ msgstr "🟢 Saugu išjungti. Paprastai jokio funkcinio poveikio."
 
 # translated-by: libretranslate
 msgid "🧊 Install the ext4, btrfs and zfs userlands via `filesystem.sh` (distro packages, EPEL for btrfs on CentOS, the AUR PKGBUILD for zfs on Arch, the zfsonlinux repository on Fedora/CentOS); the kernel side comes from the host"
-msgstr "🧊 Įdiegti plėtinį4, btrfs ir zfs userlands via `filesystem.sh` (districo paketai, EPEL btrfs on Centros, AUR PKGBUILD for zfs on Arch, zfsonlinux saugykla Fedora / CentoName); branduolio pusė ateina iš šeimininko"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "🧠 [RetroArch - Wikipedia](https://en.wikipedia.org/wiki/RetroArch)"

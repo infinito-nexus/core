@@ -23,12 +23,12 @@ fail() {
 
 probe() {
 	# nocheck: container-exec-resolver  container resolved by the harness and passed in
-	container exec -i \
+	KEY="$3" SECRET="$4" container exec -i \
 		-e "PORT=${AGENT_ORCHESTRATOR_PORT}" \
 		-e "METHOD=$1" \
 		-e "REQ_PATH=$2" \
-		-e "KEY=$3" \
-		-e "SECRET=$4" \
+		-e KEY \
+		-e SECRET \
 		-e "SIG_OVERRIDE=$5" \
 		-e "DELIVERY=$6" \
 		-e "BODY=$7" \

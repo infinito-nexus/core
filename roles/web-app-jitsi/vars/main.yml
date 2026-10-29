@@ -74,7 +74,7 @@ JITSI_KEYCLOAK_ADAPTER_WEB_FILES:
 JITSI_MODERATOR_GROUP_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 JITSI_JWT_APP_ID: "{{ application_id }}"
 JITSI_JWT_APP_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_app_secret') }}"
-JITSI_TOKEN_AUTH_URL: "{{ JITSI_PUBLIC_URL | regex_replace('/+$', '') }}/oidc/redirect?path=/{room}"
+JITSI_TOKEN_AUTH_URL: "{{ lookup('tls', application_id, 'url.origin') }}/oidc/redirect?path=/{room}"
 JITSI_AUTH_TYPE: "{{ 'jwt' if JITSI_KEYCLOAK_ADAPTER_ENABLED else ('ldap' if (JITSI_LDAP_ENABLED and not JITSI_OIDC_ENABLED) else 'internal') }}"
 JITSI_ENABLE_AUTH: "{{ JITSI_AUTH_TYPE != 'internal' }}"
 JITSI_ENABLE_GUESTS: "{{ JITSI_KEYCLOAK_ADAPTER_ENABLED }}"

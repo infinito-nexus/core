@@ -1,8 +1,4 @@
 ---
-- name: 📦 Install caffeine
-  package_install:
-    id: caffeine
-
 - name: 🔍 Probe for the caffeine binary
   ansible.builtin.stat:
     path: "{{ caffeine_binary }}"

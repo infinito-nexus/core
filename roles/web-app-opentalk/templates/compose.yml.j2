@@ -26,8 +26,11 @@
     {{ lookup('container_image', application_id, 'livekit') }}
     {{ lookup('compose_only', 'container_name', OPENTALK_LIVEKIT_CONTAINER) }}
     {{ lookup('compose_restart') }}
-    # nocheck: network-mode-host-without-swarm-gate
+    {% if IS_COMPOSE_MODE | bool %}
     network_mode: host
+    {% else %}
+    {{ lookup('container_networks') | indent(4) }}
+    {% endif %}
     command:
       - --config
       - {{ lookup('volume', 'web-app-opentalk', 'livekit_yaml').target }}

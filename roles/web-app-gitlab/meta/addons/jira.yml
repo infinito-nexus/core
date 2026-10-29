@@ -6,4 +6,4 @@ source: bundled
 bridges:
   - jira
 config:
-  url: "{{ lookup('tls', 'web-app-jira', 'url.base') }}"
+  url: "{{ lookup('tls', 'web-app-jira', 'url.origin') }}"

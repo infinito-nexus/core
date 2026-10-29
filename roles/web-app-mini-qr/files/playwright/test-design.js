@@ -11,7 +11,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -544,7 +544,7 @@ exports.register = function () {
         expect(manifest.short_name, "mini-qr: manifest short name").toBe(designTitle());
       }
       if (designLogoUrl()) {
-        const folder = new URL(".", designLogoUrl()).href;
+        const folder = new URL(requireDotenvValue(process.env.DESIGN_ICON_FOLDER, "DESIGN_ICON_FOLDER"), address).href;
         expect(manifest.icons.length, "mini-qr: the manifest must carry icons").toBeGreaterThan(1);
         for (const icon of manifest.icons) {
           const source = new URL(icon.src, address).href;

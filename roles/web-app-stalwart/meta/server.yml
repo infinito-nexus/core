@@ -1,4 +1,5 @@
 ---
+client_max_body_size: 31M
 status_codes:
   default:
     - 302

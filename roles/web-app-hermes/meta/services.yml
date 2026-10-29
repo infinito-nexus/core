@@ -13,7 +13,7 @@ hermes:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: nousresearch/hermes-agent
   version: "v2026.9.24"
   name: hermes

@@ -11,5 +11,7 @@ WORKSPACE_BASE_VERSION: "{{ lookup('config', application_id, 'services.workspace
 WORKSPACE_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 WORKSPACE_DATA_DIR: "{{ lookup('volume', application_id, 'workspace_data').target }}"
 WORKSPACE_CONNECTION_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.connection_token') }}"
+WORKSPACE_CONNECTION_TOKEN_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'connection-token' ] | path_join }}"
+WORKSPACE_CONNECTION_TOKEN_FILE: "{{ lookup('volume', application_id, 'workspace_connection_token').target }}"
 
 WORKSPACE_ISOLATION: "{{ lookup('config', application_id, 'services.workspace.isolation') }}"

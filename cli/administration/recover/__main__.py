@@ -28,11 +28,11 @@ from cli.administration.recover import full, recoverers, remote
 
 _EXAMPLES = """\
 examples:
-  # NFS export subtree, default destination (/srv/nfs/infinito-state):
+  # NFS export, default destination (the export base /srv/nfs, which GEN/files mirrors):
   recover nfs /var/lib/infinito/backup/HASH/backup-nfs-to-local/GEN/files host01
 
   # NFS into a specific export subtree (absolute :target overrides the default):
-  recover nfs /snap/files:/srv/nfs/infinito-state/matomo_data host01
+  recover nfs /snap/files/infinito-state/matomo_data:/srv/nfs/infinito-state/matomo_data host01
 
   # Docker volume (name taken from the .../<volume>/files source path):
   recover volume /backup/HASH/backup-docker-to-local/GEN/matomo_data/files host01

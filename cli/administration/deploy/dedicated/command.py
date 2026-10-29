@@ -4,6 +4,8 @@ import argparse
 import subprocess
 from typing import Any
 
+from cli.administration.roles.pull import pull_or_exit
+
 from .apps import validate_application_ids
 from .modes import add_dynamic_mode_args, build_modes_from_args, load_modes_from_yaml
 from .paths import INVENTORY_VALIDATOR_PATH, MODES_FILE, PLAYBOOK_PATH, PROJECT_ROOT
@@ -118,6 +120,14 @@ def build_parser() -> argparse.ArgumentParser:
         "-B", "--skip-build", action="store_true", help="Skip build phase."
     )
     parser.add_argument(
+        "--skip-pull",
+        action="store_true",
+        help=(
+            "Deploy the custom roles already under roles/ instead of pulling "
+            "the ones the inventory declares (generated test inventories)."
+        ),
+    )
+    parser.add_argument(
         "--id",
         nargs="+",
         default=[],
@@ -185,6 +195,16 @@ def parse_args(
     return args, passthrough, modes_spec
 
 
+def pull_custom_roles(args: Any) -> None:
+    """Place the custom roles the inventory declares before anything reads roles/.
+
+    Args:
+        args: parsed wrapper args; ``skip_pull`` keeps roles/ as it is.
+    """
+    if not args.skip_pull:
+        pull_or_exit(args.inventory)
+
+
 def run_from_args(
     args: Any,
     passthrough: list[str],
@@ -221,4 +241,5 @@ def main(argv: list[str] | None = None) -> int:
     ``cli.administration.deploy.swarm``.
     """
     args, passthrough, modes_spec = parse_args(argv)
+    pull_custom_roles(args)
     return run_from_args(args, passthrough, modes_spec)

@@ -4,6 +4,20 @@
 - name: "🧩 Load docker and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🔑 Render the connection token file of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "connection-token.j2"
+        dest: "{{ WORKSPACE_CONNECTION_TOKEN_FILE_HOST }}"
+        mode: "0600"
+
+- name: "🚿 Flush compose for {{ application_id }}"
+  meta: flush_handlers
 
 - name: "🛑 Refuse a privileged nested Docker fallback for {{ application_id }}"
   ansible.builtin.assert:

@@ -25,7 +25,11 @@ from utils.networks.reachability import (
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
-from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_META_SERVICES
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_SERVICES,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -100,6 +104,28 @@ def tor_provider() -> str | None:
 def row_pulls_tor(row: Mapping[str, Any]) -> bool:
     """Whether a discovery row's ``services`` closure takes the Tor provider in."""
     return tor_provider() in (row.get("services") or ())
+
+
+def _partner_networks(app: str) -> tuple[str, ...] | None:
+    """The networks a deployed partner may be served on.
+
+    Args:
+        app: the partner's application id.
+
+    Returns:
+        ``None`` for a partner without domains or without a Tor bond, which the
+        deploy's domain map never refuses; else its ``reachability.modes``,
+        without ``tor`` when its Tor gate is a literal false.
+    """
+    if not _meta(app, ROLE_FILE_META_DOMAINS):
+        return None
+    flag = _tor_flag({"services": _meta(app, ROLE_FILE_META_SERVICES)})
+    if flag is None:
+        return None
+    modes, _ = role_reachability(
+        {"networks": _meta(app, ROLE_FILE_META_NETWORKS)}, app=app
+    )
+    return tuple(name for name in modes or NETWORKS if flag is not False or name != TOR)
 
 
 def row_states(
@@ -202,7 +228,21 @@ def combinations(
     ]
 
 
-def disabled_services(state: str) -> str:
-    """The ``disable`` tokens a row deploys with: Tor goes when the node
-    serves no network that needs it."""
-    return "" if TOR in NODE_MODES[state] else TOR_SERVICE
+def disabled_services(state: str, services: Sequence[str] = ()) -> str:
+    """The ``disable`` tokens a row deploys with.
+
+    Args:
+        state: the node network mode of the row.
+        services: the roles the row's variant deploys.
+
+    Returns:
+        Tor when the node serves no network that needs it, and every deployed
+        partner (:func:`_partner_networks`) the node serves none of the
+        networks of, since the deploy refuses that partner there.
+    """
+    tokens = [] if TOR in NODE_MODES[state] else [TOR_SERVICE]
+    for name in services:
+        networks = _partner_networks(name)
+        if networks is not None and not set(NODE_MODES[state]) & set(networks):
+            tokens.append(name)
+    return " ".join(tokens)

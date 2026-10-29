@@ -46,6 +46,8 @@ javascript:
   shared: "{{ lookup('config', 'web-app-prometheus', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag — self-provider
 prometheus:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: wget
     path: -/healthy
@@ -83,6 +85,8 @@ prometheus:
   lifecycle: beta
   min_storage: 307MB
 alertmanager:
+  backup:
+    stop_required: false
   healthcheck:
     flavor: wget
     path: -/healthy

@@ -15,7 +15,7 @@
         BOOKWYRM_VERSION:    "{{ BOOKWYRM_VERSION }}"
         BOOKWYRM_REPOSITORY: "{{ BOOKWYRM_REPOSITORY }}"
         BOOKWYRM_REF:        "{{ BOOKWYRM_REF }}"
-    {{ lookup('container_image', application_id, 'bookwyrm', version=BOOKWYRM_REF) }}
+    {{ lookup('container_image', application_id, 'bookwyrm') }}
     {{ lookup('compose_only', 'container_name', BOOKWYRM_CONTAINER) }}
     hostname: "{{ container_hostname }}"
     {{ lookup('container_ports', ['bookwyrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
@@ -30,7 +30,7 @@
   {% set service_name = 'worker' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('container_image', application_id, 'worker', version=BOOKWYRM_REF) }}
+    {{ lookup('container_image', application_id, 'bookwyrm') }}
     {{ lookup('compose_only', 'container_name', BOOKWYRM_WORKER_CONTAINER) }}
     command: "/venv/bin/celery -A celerywyrm worker -l INFO"
     {{ lookup('compose_only', 'pull_policy', 'never') }}
@@ -45,7 +45,7 @@
   {% set docker_restart_policy = 'on-failure' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('container_image', application_id, 'migrate', version=BOOKWYRM_REF) }}
+    {{ lookup('container_image', application_id, 'bookwyrm') }}
     {{ lookup('compose_only', 'container_name', BOOKWYRM_MIGRATE_CONTAINER) }}
     command: >-
       bash -c '

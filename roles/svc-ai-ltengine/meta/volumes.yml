@@ -3,6 +3,7 @@
 # nocheck: embedded-state-on-nfs content-addressed GGUF weights, downloaded once and read-only after
 ltengine_models:
   type: volume
+  backup: false
   mounts:
     - service: ltengine
       target: /models

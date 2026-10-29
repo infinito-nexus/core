@@ -35,6 +35,7 @@ from utils.cache.files import read_text
 from utils.docker.image.config import image_volumes
 from utils.docker.image.discovery import iter_role_images, load_yaml
 from utils.docker.mirror import mirror_image
+from utils.roles.applications.mounts import compose_service_names
 from utils.roles.applications.services.database import RDBMS_SERVICE_KEYS
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 
@@ -77,11 +78,7 @@ def service_keys(role: str, service: str) -> set[str]:
     """
     services = load_yaml(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_SERVICES)
     entry = services.get(service) if isinstance(services, dict) else None
-    proxy = entry.get("proxy") if isinstance(entry, dict) else None
-    key = proxy.get("service_key") if isinstance(proxy, dict) else None
-    if isinstance(key, str) and "{{" not in key and "{%" not in key:
-        return {service, key}
-    return {service}
+    return compose_service_names(service, entry)
 
 
 def mount_targets(role: str, services: set[str]) -> set[str]:

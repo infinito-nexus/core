@@ -12,11 +12,11 @@ const KC_CONFIG = {
   realm: "{{ OIDC.CLIENT.REALM }}",      // e.g. cymais.cloud
   clientId: "{{ OIDC.CLIENT.ID }}",      // e.g. cymais.cloud
   redirectUri: "{{ DASHBOARD_APP_BASE_URL }}",   // canonical app URL for login/logout round-trips
-  silentCheckSsoRedirectUri: "{{ (DASHBOARD_APP_BASE_URL | regex_replace('/+$', '')) ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
+  silentCheckSsoRedirectUri: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.origin') ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
 };
 
 {% if (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (domain | network_of) == 'tor' %}
-const KC_MIRROR_BASE = "{{ lookup('tls', 'web-svc-mirror', 'url.base') | regex_replace('/+$', '') }}";
+const KC_MIRROR_BASE = "{{ lookup('tls', 'web-svc-mirror', 'url.origin') }}";
 {% else %}
 const KC_MIRROR_BASE = null;
 {% endif %}

@@ -1,4 +1,3 @@
-{% set design = lookup('design', application_id) %}
 .ui-selectable-helper,
 .ui-widget.ui-widget-content {
   border-color: var(--design-border-strong);
@@ -2904,10 +2903,3 @@ table tbody:first-of-type tr:nth-child(even) th {
 .breadcrumb-navbar {
   --design-focus: var(--design-on-frame);
 }
-{% if design.logo is string %}
-
-#imgpmalogo,
-#pmalogo h1 {
-  content: url("{{ design.urls.logo.svg }}");
-}
-{% endif %}

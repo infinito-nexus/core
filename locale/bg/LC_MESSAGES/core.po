@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Способна за подпомагане роля за идентично постоянство и търсене на жетони за приложение на потребител в местен магазин YAML"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -454,6 +458,10 @@ msgstr "Инсталатор на кръстосано разпределени�
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Транзакционна процедура за поддръжка на дисплея за възстановяване на диска през CI, контейнер и изграждане на среда"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1081,7 +1089,7 @@ msgstr "NGINX-базирана уеб платформа и обратно пр�
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX-запазена статичен лист, който дава правен отпечатък (Impresum) от Джинджа.2 образец"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
@@ -1779,9 +1787,6 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
-"Головни за гледка\n"
-"\n"
-" self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"

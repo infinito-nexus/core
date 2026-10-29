@@ -3,7 +3,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from utils.i18n.extract import core_messages
+from utils.i18n.extract import core_messages, role_messages
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 
@@ -74,6 +74,24 @@ class TestCoreMessages(unittest.TestCase):
                 ("logout:counter", "{done} of {total} services signed out"),
             ],
         )
+
+    def test_a_pulled_custom_role_stays_out_of_the_core_catalogs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(
+                root,
+                f"roles/web-app-wiki/{ROLE_FILE_META_MAIN}",
+                "galaxy_info:\n  description: A wiki\n",
+            )
+            _write(
+                root,
+                f"roles/web-app-cst-demo/{ROLE_FILE_META_MAIN}",
+                "galaxy_info:\n  description: A custom app\n",
+            )
+
+            messages = role_messages(root)
+
+        self.assertEqual(messages, [("role:web-app-wiki:description", "A wiki")])
 
 
 if __name__ == "__main__":

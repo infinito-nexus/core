@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Papel axudante insible para a persistencia idempotentes e a busca de tokens de aplicacións por usuario nunha tenda local de YAML."
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -450,6 +454,10 @@ msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "rutina de mantemento de distribución cruzada para a recuperación de disco a través de CI, contedores e construír ambientes"
 
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
@@ -807,7 +815,7 @@ msgstr "Ferramentas útiles"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Solucións de almacenamento de alto rendemento e auto-hosted para xestionar, escalar e acceder a datos non estruturados, incluíndo almacenamento de obxectos compatible con Amazon S.3 APIs."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1253,7 +1261,7 @@ msgstr "Plataforma de mensaxería en equipo de código aberto e auto-hosted para
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "pasarela LLM compatible con OpenAI enrutando un /v único1 backends de modelo local e aloxado con chaves per-consumer"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1593,7 +1601,7 @@ msgstr "GitHub Actions runner implantación e configuración"
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "HTML auto-hosting5 xogo sandbox para a navegación e execución de demos e xogos de motor lixeiros no navegador"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1603,7 +1611,7 @@ msgstr "Servizo de directorios LDAP aloxados por usuarios centralizados, grupo e
 # translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
-msgstr "Auto-hosted S3Almacenamento de obxectos compatibles para ficheiros, medios, copias de seguridade e artefactos AI"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
@@ -2158,7 +2166,7 @@ msgstr "cliente LDAP baseado na web para navegar, buscar e administrar entradas 
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Administración e plataforma de desenvolvemento baseada na web para xestionar varios servidores PostgreSQL, con opcional OAuth.2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

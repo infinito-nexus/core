@@ -18,9 +18,9 @@ flowchart TD
     TIMER["systemd timer<br>SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL (01:30)"] --> UNIT
     PRELOAD["sys-service-loader preload<br>MODE_BACKUP, run_after svc-storage-nfs-server<br>(force_flush_instant + state started)"] --> UNIT
     UNIT["svc-bkp-nfs-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
-    LOCK --> SCRIPT["ExecStart: script.sh &lt;export_base&gt; &lt;backups_dir&gt;<br>backup-nfs-to-local &lt;state&gt;/backup"]
+    LOCK --> SCRIPT["ExecStart: script.sh &lt;export_base&gt; &lt;backups_dir&gt;<br>backup-nfs-to-local &lt;state&gt;/backup &lt;state&gt;/&lt;backup-disabled volume&gt;..."]
     SCRIPT -->|export_base missing| ALARM["ERROR exit 1<br>OnFailure alarm"]
-    SCRIPT --> RSYNC["rsync -aHAX --delete<br>--exclude /&lt;state&gt;/backup (no backups-in-backups)<br>--link-dest previous generation (hard links)"]
+    SCRIPT --> RSYNC["rsync -aHAX --delete<br>--exclude /&lt;state&gt;/backup (no backups-in-backups)<br>--exclude /&lt;state&gt;/&lt;volume&gt; per backup: false volume<br>--link-dest previous generation (hard links)"]
     RSYNC -->|exit 24: live export churn| WARN["WARN, snapshot kept"]
     RSYNC -->|any other failure| CLEAN["generation removed, exit != 0"]
     RSYNC --> TREE["&lt;backups_dir&gt;/&lt;sha256(machine-id)&gt;/<br>backup-nfs-to-local/&lt;YYYYmmddHHMMSS&gt;/files/..."]
@@ -30,6 +30,7 @@ flowchart TD
 ## Features
 
 - **Differential snapshots:** rsync `--link-dest` against the previous generation deduplicates unchanged files.
+- **Backup-disabled volumes skipped:** the directory of every NFS-backed volume declared `backup: false` in its role's `meta/volumes.yml` is excluded, the same declaration [svc-bkp-volume-2-local](../svc-bkp-volume-2-local/) honours; a directory a backed-up volume also binds to stays in the snapshot.
 - **Baudolo-compatible layout:** snapshots land in the same `<machine-hash>/<repo>/<generation>` tree as the container backups, so pull and cleanup tooling applies unchanged.
 - **Schedule-coordinated:** the systemd unit is part of the global manipulation group, so it never races backup/cleanup/repair jobs on the same host.
 

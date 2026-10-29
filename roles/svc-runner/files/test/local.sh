@@ -43,8 +43,9 @@ container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
     bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C ${RUNNER_SRC_DIR} --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='./build' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
 container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c "cd ${_iso_src} && make install"
 
+_deploy_rc=0
 # shellcheck disable=SC2016
-if ! container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
+container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
     set -euo pipefail
     cd "'"${_iso_src}"'"
     INFINITO_DISTRO=debian make build
@@ -55,9 +56,10 @@ if ! container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
     INFINITO_IMAGE="$img" INFINITO_BUILD=0 INFINITO_PULL_POLICY=never \
     make compose-deploy mode=reinstall type=server \
         apps=web-app-dashboard variant=0 \
-        disable=matomo,sso,asset,simpleicons,logout,css,prometheus
-'; then
-    echo "FAIL: local full reinstall deploy failed"
+        disable=matomo,sso,asset,simpleicons,logout,css,prometheus,docs
+' || _deploy_rc=$?
+if [[ "${_deploy_rc}" -ne 0 ]]; then
+    echo "FAIL: local full reinstall deploy failed (rc=${_deploy_rc}; 124 means CONTAINER_EXEC_TIMEOUT=${CONTAINER_EXEC_TIMEOUT} ran out, 137 a SIGKILL from that timeout or the OOM killer)"
     exit 1
 fi
 echo "OK: local full reinstall deploy succeeded (dev stack, no GitHub)"

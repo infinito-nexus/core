@@ -109,7 +109,7 @@ redis:
 
 erpnext:
   backup:
-    no_stop_required: false             # Frappe's bench backup requires a quiesced site
+    stop_required: true                 # Frappe's bench backup requires a quiesced site
   image:  frappe/erpnext
   version: "X.Y.Z"                      # latest stable semver at the time of the PR
   name:   erpnext

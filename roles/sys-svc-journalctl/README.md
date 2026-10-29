@@ -6,6 +6,7 @@ This Ansible role manages the configuration of `systemd-journald` on target host
 
 - Copies a customized `journald.conf` to `/etc/systemd/journald.conf`  
 - Ensures log retention for one week  
+- Caps the persistent journal (`SystemMaxUse=`) at `system_max_use_percent` of the filesystem holding `/var/log/journal`, 2 % by default (`meta/services.yml`)  
 - Restarts the `systemd-journald` service when configuration changes  
 - Supports live log streaming via `journalctl -f`
 

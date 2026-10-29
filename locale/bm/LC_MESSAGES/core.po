@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Rol helper Ansible untuk kesetaraan mempertahanan dan mungkin perpindahan aplikasi walaupun dalam menyimpanan YAML yang lokal untuk token perpindaian yang berbeza peruser"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -219,10 +223,6 @@ msgstr "Central logout proxy untuk tindak lanjut keluar dari satu kali di semua 
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration role for Infinito.Nexus, integrating Email SaaS, msmtp, and an optional local SMTP relay"
 msgstr ""
-"Central orchestrir sa poshongmingi centraal, integrasik Email SaaS, msmtp, dan poshongmingi relay SMTP lokal\n"
-"---\n"
-"\n"
-"Infinito.Nexus"
 
 # translated-by: libretranslate
 msgctxt "category:svc.dns:description"
@@ -421,8 +421,6 @@ msgstr "Sesetara web NGINX core dengan sokongan HTTP dan siri-siri stream TCP/UD
 msgctxt "role:web-svc-design:description"
 msgid "Corporate design configuration owner and `design` service flag, redirecting its hostname to the CDN"
 msgstr ""
-"Konfigurasi pemilik tata letak korporat dan flag pelayan pemberituan, merujuk nama host kepada CDN \n"
-"`design`"
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-design:description"
@@ -448,6 +446,10 @@ msgstr "Installer pasal-distribusi antara untuk pemasang paket Nix dengan penyam
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Maintinann rutin di-distribusi antara disk menumpuk buat CI, container, dan jaringan pengerjaan"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1288,10 +1290,6 @@ msgstr "Menyediawan untuk menginstall dan mengatur paket Python pada host tujuan
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
-"Per-user Hermes dan OpenClaw agen started di permintaan dibawah endpoint yang kompatibel dengan OpenAI \n"
-"---\n"
-"\n"
-"Note: The translation maintains the structure and terms as closely as possible, ensuring \"OpenAI-compatible\" is translated to reflect its compatibility concept in Bahasa Melayu."
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
@@ -1520,9 +1518,6 @@ msgstr "Pemeriksaan kesihatan disediakan untuk tumpuan disiplin, mengingatkan ap
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
 msgstr ""
-"Scanning jurnal systemd untuk kesalahan harian dan mengeset pada pemicu yang sesuai\n"
-"---\n"
-"Penting: Terjemahan ini mungkin tidak sepenuhnya akurat tanpa konteks yang lebih luas, karena istilah teknis seperti \"systemd\" dan \"journal\" mungkin memerlukan penjelasan lebih lanjut untuk menggambarkan penggunaannya dalam bahasa Melayu."
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-webserver:description"
@@ -1891,9 +1886,6 @@ msgstr "Sarakanah"
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
-"---\n"
-"\n"
-"Skrip"
 
 # translated-by: libretranslate
 msgctxt "category:sys.front:title"
@@ -2013,8 +2005,6 @@ msgstr "Papan alat untuk pengetan Python, pengembangan aplikasi, dan sains data 
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr ""
-"Mekanik\n"
-"Machines"
 
 # translated-by: libretranslate
 msgctxt "menu:User Management:description"

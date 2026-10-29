@@ -277,6 +277,33 @@ class TestBuildDockerCmdTimeout(unittest.TestCase):
         )
 
 
+class TestBuildDockerCmdConcurrency(unittest.TestCase):
+    def test_concurrency_arg_precedes_the_url_separator(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["https://a.example/"],
+            short_mode=True,
+            ignore_network_blocks_from=["cdn.example"],
+            concurrency=4,
+        )
+        idx = cmd.index("--concurrency")
+        self.assertEqual(cmd[idx + 1], "4")
+        self.assertLess(
+            idx,
+            cmd.index("--"),
+            "an argument after the separator reaches the checker as a URL",
+        )
+
+    def test_no_concurrency_arg_without_one(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["https://a.example/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+        )
+        self.assertNotIn("--concurrency", cmd)
+
+
 class TestMainTimesOutOnionsOnly(unittest.TestCase):
     @patch("script.run_checker")
     @patch("script.build_urls_from_nginx_confs")

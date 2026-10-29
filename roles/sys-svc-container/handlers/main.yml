@@ -22,3 +22,4 @@
     NODE_IMAGE: "{{ '' if IS_SWARM_MODE else lookup('config', 'sys-svc-container', 'services.node.image') ~ ':' ~ lookup('config', 'sys-svc-container', 'services.node.version')
       }}"
     DOMAIN: "{{ DOMAIN_PRIMARY }}"
+    CA_CONTAINER_ENABLED: "0"

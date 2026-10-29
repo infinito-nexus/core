@@ -12,12 +12,12 @@ from pathlib import Path
 from utils.paths import DIR_BACKUPS as _DIR_BACKUPS
 from utils.paths import DIR_SECRETS as _DIR_SECRETS
 from utils.paths import DIR_VAR_LIB as _DIR_VAR_LIB
-from utils.storage.nfs import STATE_SUBDIR, get_export_base, state_path
+from utils.storage.nfs import get_export_base
 
 DIR_VAR_LIB = str(_DIR_VAR_LIB)
 BACKUP_ROOT = str(_DIR_BACKUPS)
 SECRETS_DIR = str(_DIR_SECRETS)
-NFS_EXPORT_STATE = state_path(get_export_base(), STATE_SUBDIR)
+NFS_EXPORT_BASE = get_export_base()
 RECOVER_MOUNT = "/mnt/infinito-recover"
 
 

@@ -1,8 +1,4 @@
 ---
 - block:
-    - name: "📦 Install git"
-      package_install:
-        id: git
-
     - include_tasks: utils/once/flag.yml
   when: run_once_dev_git is not defined

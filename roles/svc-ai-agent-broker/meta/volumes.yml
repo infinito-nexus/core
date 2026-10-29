@@ -10,6 +10,7 @@ docker_sock:
 
 engine_socket:
   type: volume
+  backup: false
   mounts:
     - service: socket-proxy
       target: &engine_socket_dir /run/agent-engine

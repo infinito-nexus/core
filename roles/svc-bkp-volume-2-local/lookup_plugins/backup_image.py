@@ -10,8 +10,8 @@ from ansible.plugins.lookup import LookupBase
 
 class LookupModule(LookupBase):
     """Exact deployed image references of every service whose ``backup.<marker>``
-    is truthy and that carries an ``image`` or is ``custom``-built, for baudolo's
-    exact ``--images-*`` matching.
+    equals the wanted boolean and that carries an ``image`` or is
+    ``custom``-built, for baudolo's exact ``--images-*`` matching.
 
     The ref is resolved via the ``image`` lookup, so it is byte-identical to the
     container's ``.Config.Image`` after deploy: swarm registry prefix included,
@@ -20,8 +20,16 @@ class LookupModule(LookupBase):
     non-custom shared references are skipped: their owner role carries the
     image and marker.
 
-    Takes exactly one term: the backup marker key (e.g. ``no_stop_required`` or
-    ``disabled``). Reads the live merged ``applications`` config.
+    Args:
+        terms: exactly two, the backup marker key (e.g. ``stop_required`` or
+            ``disabled``) and the boolean the marker must equal (e.g. ``false``
+            for the images baudolo may copy live, ``true`` for the images it
+            must skip).
+        variables: the play variables; the live merged ``applications``
+            config is read through them.
+
+    Returns:
+        One list: the sorted, de-duplicated image references.
     """
 
     def run(
@@ -30,11 +38,18 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[list[str]]:
-        if not terms or len(terms) != 1:
+        if not terms or len(terms) != 2:
             raise AnsibleError(
-                "backup_image requires exactly one term: the backup marker key"
+                "backup_image requires exactly two terms: the backup marker key "
+                "and the boolean it must equal"
             )
-        marker = str(terms[0])
+        marker, wanted = terms
+        if not isinstance(wanted, bool):
+            raise AnsibleError(
+                f"backup_image: the wanted value of '{marker}' must be a boolean, "
+                f"got {wanted!r}"
+            )
+        marker = str(marker)
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
@@ -58,7 +73,9 @@ class LookupModule(LookupBase):
                     continue
                 for service_key, svc in services.items():
                     backup = svc.get("backup") if isinstance(svc, Mapping) else None
-                    if not (isinstance(backup, Mapping) and backup.get(marker)):
+                    if not isinstance(backup, Mapping):
+                        continue
+                    if backup.get(marker) is not wanted:
                         continue
                     if not (svc.get("image") or svc.get("custom")):
                         continue

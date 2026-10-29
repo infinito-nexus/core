@@ -89,6 +89,7 @@ flowchart TD
 | 🔀 | the shape decides where the block runs | `docker run` on the stack host, `git clone` inside the target; steps 8️⃣ and 9️⃣ are the first of the two |
 | 8️⃣ | 🔐 `sshd.sh` is piped in | installs an ssh server, authorizes the run's public key for `root`, writes a `PermitRootLogin prohibit-password` drop-in |
 | 9️⃣ | 🚦 `HOST` is filled and the guard runs | the guard fails on any remaining `<your-` |
+| 🏗️ | the local image is built | with `INFINITO_PULL_POLICY=never`, `scripts/image/build.sh` builds the checkout at `DOCS_TEST_SRC_DIR` on the stack daemon, tagged with the image the block runs |
 | 🔟 | ▶️ the block executes | the recipe shape runs it on the stack host, where its `docker run` starts the published deploy image on the stack daemon and reaches the target over ssh as `root`; the host install runs it inside the target over the mounted checkout. Either way the target receives `docker-ce` and the role, and its `/var/lib/docker` is a named volume, so the installed daemon writes to a real filesystem |
 | ⏹️ | the evidence of a failed replay | a non-zero block prints `systemctl --failed` and a `journalctl -xeu` per failed unit from the target, because unit output never reaches the playbook stdout that is the only thing leaving it |
 | 🧹 | teardown | `compose down -v --rmi local` from an `EXIT` trap |
@@ -109,6 +110,7 @@ flowchart TD
 | `GITHUB_REPOSITORY` | `templates/test.env.j2` | names the GHCR repository the mirror lives under; empty outside CI, which leaves the block unmirrored |
 | `GITHUB_REPOSITORY_OWNER` | `templates/test.env.j2` | names the GHCR namespace; empty outside CI |
 | `INFINITO_GHCR_MIRROR_PREFIX` | `default.env` in `DOCS_TEST_SRC_DIR` | path segment separating mirrored images from the repository's own |
+| `INFINITO_PULL_POLICY` | `templates/test.env.j2` | `never` makes `machine.sh` build the image the block runs on the stack daemon; any other value leaves the pull to the block's own `docker run` |
 
 ## Files
 
@@ -117,7 +119,7 @@ flowchart TD
 | `test.sh` | entry point; extraction, key pair, placeholder fill |
 | `extract.py` | pulls the Production block off the live documentation site |
 | `mirror.sh` | points the extracted block's provision call at the GHCR image mirror when CI configured one |
-| `machine.sh` | target lifecycle, wildcard resolution, `HOST` fill, guard, replay, failed-unit report, teardown |
+| `machine.sh` | target lifecycle, wildcard resolution, `HOST` fill, guard, local image build, replay, failed-unit report, teardown |
 | `compose.yml` | the target service on the default bridge with a named volume at `/var/lib/docker`, and the resolver service in the target's network namespace |
 | `Corefile.tmpl` | the resolver's configuration; `${DOCS_TEST_DOMAIN}`, `${DOCS_TEST_TARGET_IP}` and `${DOCS_TEST_UPSTREAM}` are substituted into `DOCS_TEST_WORK/Corefile` |
 | `Dockerfile` | builds the target from the distribution base image |

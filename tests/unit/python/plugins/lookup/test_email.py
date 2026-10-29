@@ -10,10 +10,13 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.email import LookupModule
 from utils.cache import _reset_cache_for_tests
+from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_META_SERVICES
 
@@ -508,6 +511,91 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         result = self._run(self._worker())
 
         self.assertTrue(result["tls"])
+
+    def _park(self, variables: dict) -> dict:
+        lookup = ApplicationsLookup()
+        lookup._templar = self.lookup._templar
+        return lookup.run(
+            [], variables=variables, roles_dir=str(self._tmp / "roles"), carrier=True
+        )[0]
+
+    def _provider_view(self, worker: dict, **overrides) -> dict:
+        manager = worker["hostvars"]["mgr"]
+        view = dict(worker, inventory_hostname="mgr")
+        view["group_names"] = manager["group_names"]
+        if manager.get("NETWORK_MODE"):
+            view["NETWORK_MODE"] = manager["NETWORK_MODE"]
+        view.update(overrides)
+        return view
+
+    def _worker_with_carrier(self) -> dict:
+        worker = self._worker(network_mode="tor")
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        return worker
+
+    def _run_counting_renders(self, worker: dict) -> tuple[dict, int]:
+        _reset_cache_for_tests()
+        with patch.object(
+            cache_applications,
+            "_render_with_templar",
+            wraps=cache_applications._render_with_templar,
+        ) as render:
+            result = self._run(worker)
+        return result, render.call_count
+
+    def test_worker_reads_the_provider_view_from_the_provider_carrier(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._worker_with_carrier()
+        expected, baseline_renders = self._run_counting_renders(worker)
+        worker["hostvars"]["mgr"][APPLICATIONS_RENDERED_FACT] = self._park(
+            self._provider_view(worker)
+        )
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertEqual(baseline_renders, 1)
+        self.assertEqual(renders, 0)
+        self.assertEqual(result, expected)
+
+    def test_worker_renders_when_the_provider_carrier_key_differs(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._worker_with_carrier()
+        expected, _ = self._run_counting_renders(worker)
+        worker["hostvars"]["mgr"][APPLICATIONS_RENDERED_FACT] = self._park(
+            self._provider_view(worker, group_names=["web-app-mailprov"])
+        )
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertGreater(renders, 0)
+        self.assertEqual(result, expected)
+        self.assertFalse(result["tls"])
+
+    def test_worker_reads_the_provider_carrier_untemplated(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._worker_with_carrier()
+        expected, _ = self._run_counting_renders(worker)
+        raw = {
+            "mgr": dict(
+                worker["hostvars"]["mgr"],
+                **{APPLICATIONS_RENDERED_FACT: self._park(self._provider_view(worker))},
+            )
+        }
+        worker["hostvars"] = _RawGetHostvars(worker["hostvars"], raw)
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertEqual(renders, 0)
+        self.assertEqual(result, expected)
+
+
+class _RawGetHostvars(dict):
+    def __init__(self, templated: dict, raw: dict) -> None:
+        super().__init__(templated)
+        self._raw = raw
+
+    def raw_get(self, host: str) -> dict:
+        return self._raw[host]
 
 
 class _DummyTemplar:

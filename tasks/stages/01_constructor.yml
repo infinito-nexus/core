@@ -70,16 +70,30 @@
   applications_carrier: {}
   when: IS_SWARM_MODE
 
-- name: "🥾 Bootstrap svc-swarm-node"
-  ansible.builtin.include_role:
-    name: svc-swarm-node
-  when: "'svc-swarm-node' | application_allowed(group_names, lookup('deployment').whitelist)"
+- name: "📦 Install the packages of every role this host may run, in one run"
+  package_install:
+    id: "{{ _package_batch_ids }}"
+  vars:
+    _package_batch_inventory: "{{ PACKAGES | default([]) }}"
+    _package_batch_ids: >-
+      {{
+        (
+          lookup('package_batch', group_names)
+          + ([_package_batch_inventory] if _package_batch_inventory is string else _package_batch_inventory)
+        ) | unique
+      }}
+  when: _package_batch_ids | length > 0
 
 - name: "📂 Open service-loader preload context BEFORE Bootstrap"
   ansible.builtin.set_fact:
     service_loader_post_run: []
     service_loader_preloading: true
   changed_when: false
+
+- name: "🥾 Bootstrap svc-swarm-node"
+  ansible.builtin.include_role:
+    name: svc-swarm-node
+  when: "'svc-swarm-node' | application_allowed(group_names, lookup('deployment').whitelist)"
 
 - name: "🥾 Bootstrap storage + cache + registry + runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
@@ -104,6 +118,10 @@
   ansible.builtin.include_role:
     name: sys-svc-container
     tasks_from: utils/prepull/start.yml
+  vars:
+    sys_svc_container_prepull_extra: >-
+      {{ [lookup('config', 'test-e2e-playwright', 'services.playwright.image') ~ ':' ~ lookup('config', 'test-e2e-playwright', 'services.playwright.version')]
+         if RUNTIME in ['dev', 'act', 'github'] and 'server' in (group_names | get_deployment_types_from_groups) else [] }}
 
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:
@@ -114,14 +132,14 @@
     service_loader_preloading: false
   changed_when: false
 
+- name: "🔍 Probe the shared-service vhosts before any app role calls them"
+  ansible.builtin.include_role:
+    name: sys-stk-front-proxy
+    tasks_from: deferred_probe.yml
+
 - name: "🧩 Load base roles"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'constructor') }}"
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}"
-
-- name: 📦 Install inventory-defined packages
-  package_install:
-    id: "{{ PACKAGES }}"
-  when: PACKAGES | default([]) | length > 0

@@ -21,6 +21,7 @@ minio:
 rabbit:
   type: volume
   name: opentalk_rabbit
+  backup: false
   mounts:
     - service: rabbit
       target: /var/lib/rabbitmq

@@ -8,6 +8,8 @@ agent-provisioner:
   bond: 1
   enabled: true
   shared: true
+  backup:
+    stop_required: true
   image: python
   # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
   version: "3.13.15-slim"

@@ -36,6 +36,8 @@ mariadb:
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 moodle:
+  backup:
+    stop_required: false
   modes:
     compose:
       enabled: true
@@ -87,6 +89,8 @@ moodle:
     - web-app-keycloak
   lifecycle: beta
 nginx:
+  backup:
+    stop_required: false
   image: nginx
   version: 1.31-alpine
   name: moodle-nginx
@@ -100,7 +104,6 @@ nginx:
       http: 80
 cron:
   name: moodle-cron
-  custom: true
   min_storage: 1GB
   cpus: "0.2"
   mem_reservation: 128m

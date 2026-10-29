@@ -1,0 +1,38 @@
+---
+- name: "🔍 Probe the vhosts this play queued"
+  when:
+    - front_proxy_deferred_probes | length > 0
+    - inventory_hostname == groups['svc-prx-openresty'][0]
+  block:
+    - name: "🔍 Check if the queued vhosts are reachable"
+      uri_probe_batch:
+        urls: "{{ front_proxy_deferred_urls }}"
+        method: HEAD
+        status_codes: "{{ front_proxy_deferred_answers }}"
+        attempts: 3
+        delay: 2
+        timeout: "{{ lookup('timeout', 5) | int }}"
+        validate_certs: true
+        follow_redirects: none
+        workers: 16
+      register: front_proxy_deferred_check
+      failed_when: front_proxy_deferred_check is failed and front_proxy_deferred_check.unanswered is not defined
+      changed_when: false
+
+    - name: "🧮 Pick the vhosts that answered like a stale config"
+      ansible.builtin.set_fact:
+        front_proxy_deferred_stale: >-
+          {{
+            front_proxy_deferred_check.status
+            | front_proxy_unserved(front_proxy_deferred_probes, front_proxy_stale_config_status_codes)
+          }}
+      changed_when: false
+
+    - name: "🔄 Restart OpenResty for the vhosts that answered stale"
+      ansible.builtin.include_tasks: deferred_probe/restart.yml
+      when: front_proxy_deferred_stale | length > 0
+
+- name: "🧹 Empty the deferred probe queue"
+  ansible.builtin.set_fact:
+    front_proxy_deferred_probes: {}
+  changed_when: false

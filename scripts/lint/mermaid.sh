@@ -26,7 +26,14 @@ trap 'rm -rf "${workdir}"' EXIT
 puppeteer_cfg="${workdir}/puppeteer-config.json"
 printf '%s\n' '{"args":["--no-sandbox","--disable-gpu"]}' >"${puppeteer_cfg}"
 
-mapfile -t md_files < <(grep -rlF --include='*.md' '```mermaid' . 2>/dev/null | sort || true)
+# shellcheck source=scripts/lint/diff/files.sh
+source "${SCRIPT_DIR}/diff/files.sh"
+
+if lint_diff_active mermaid; then
+	mapfile -t md_files < <(lint_diff_files '\.md$' | xargs -r -d '\n' grep -lF '```mermaid' || true)
+else
+	mapfile -t md_files < <(grep -rlF --include='*.md' '```mermaid' . 2>/dev/null | sort || true)
+fi
 
 if [[ ${#md_files[@]} -eq 0 ]]; then
 	echo "No Markdown files contain a mermaid block; nothing to render."

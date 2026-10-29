@@ -57,7 +57,7 @@ flowise:
   enabled: true # nocheck: dynamic-flag
   shared: true
   backup:
-    no_stop_required: false
+    stop_required: true
   image: node
   # nocheck: docker-version
   version: "24-slim"

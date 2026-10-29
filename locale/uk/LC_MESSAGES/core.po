@@ -75,7 +75,7 @@ msgstr "Помилки"
 # translated-by: libretranslate
 msgctxt "role:web-app-stalwart:description"
 msgid "All-in-one Stalwart mail server with SMTP, IMAP, JMAP, POP3, ManageSieve, CalDAV, CardDAV and built-in spam filtering"
-msgstr "Статус на сервери3, ManageSieve, CalDAV, CardDAV та вбудований спам-фільтр"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Analytics:title"
@@ -86,6 +86,10 @@ msgstr "Аналітика"
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Нездатна роль помічника для ідемпотентної наполегливості та пошуку токени для застосування пер-користувацького інтерфейсу в локальному магазині YAML"
+
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
@@ -448,6 +452,10 @@ msgstr "Трансмісійний інсталятор для менеджер�
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Ведуться роботи з технічного обслуговування дисків для рекламації диска по ТПП, контейнеру та побудови середовищ"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1251,7 +1259,7 @@ msgstr "Open-source, самодостатня платформа обміну п
 # translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
-msgstr "OpenAI-сумісний LLM шлюзовий маршрут1 кінцева точка для локальних і розміщених моделей задніх ключів"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
@@ -1588,7 +1596,7 @@ msgstr "Self-hosted GitHub Дії розгортання та налаштува
 # translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "Статус на сервери5 ігри в браузері"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"

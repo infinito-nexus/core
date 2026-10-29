@@ -57,6 +57,23 @@ Rules:
 - `canonical:` is only used on alias entries that resolve back to the primary service key.
 - `frontend` vs. `backend` is derived from the role name prefix, not stored in config.
 
+## Dashboard Card Target 🃏
+
+A consumer's `dashboard` binding MAY name `card: <key>` to point its dashboard card, its Apps menu entry and its tile-reachability target at a domain other than the primary one:
+
+```yaml
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+  card: element
+```
+
+Rules:
+
+- `card:` MUST be a key of the role's `canonical` mapping in `meta/domains.yml`; the card URL is `lookup('canonical_url', <role>, <key>)`.
+- Without `card:` the card targets the primary domain via `lookup('tls', <role>, 'url.base')`.
+
 ## Service Discovery 🔍
 
 Service discovery is built from role configs, not from a central registry file.

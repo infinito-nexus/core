@@ -7,7 +7,7 @@ proxy_x_forwarded_proto: "https"
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
 OPENCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
-OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

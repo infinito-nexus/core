@@ -9,4 +9,4 @@ config:
   plugin_configuration:
     - appid: "integration_mastodon"
       configkey: "oauth_instance_url"
-      configvalue: "{{ lookup('tls', 'web-app-mastodon', 'url.base') }}"
+      configvalue: "{{ lookup('tls', 'web-app-mastodon', 'url.origin') }}"

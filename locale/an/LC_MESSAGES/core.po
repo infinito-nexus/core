@@ -86,6 +86,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Rol Ansible para persistència i consulta idempòtia de tokens de aplicació per usuaris al contingut YAML local"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -440,6 +444,10 @@ msgstr "Instalador de distribución cruzada para el gestor de paquetes Nix con c
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Manutencaón de transmisió entre distribucions per al recull de diskes entre entornos de CI, contornals i d'esborranyació"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
@@ -1261,10 +1269,6 @@ msgstr "Sullan por aquesta cosa podeixen un temps."
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
 msgstr ""
-"Cachés\n"
-"---\n"
-"\n"
-"Note: The term \"Caches\" is often translated as \"Cachés\" in Spanish, but it's important to understand that \"cache\" is a common English word and its translation can vary depending on the context and the specific language being used. In this case, \"Cachés\" is the direct translation of \"Caches\" in Spanish."
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"

@@ -100,6 +100,8 @@ proxy:
   mem_limit: 512m
   pids_limit: 512
 backend:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
   name: kix-backend
@@ -114,6 +116,8 @@ backend:
   mem_limit: 4g
   pids_limit: 1024
 frontend:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
   name: kix-frontend

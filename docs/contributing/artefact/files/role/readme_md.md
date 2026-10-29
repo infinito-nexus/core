@@ -92,6 +92,8 @@ Link text MUST be a descriptive label or the domain name. Never use the full URL
 
 CI replays the Production block off the published page rather than off this file, so the instructions that are tested are the ones a reader sees. See [instructions.md](../../../tools/github/actions/instructions.md).
 
+A custom role (`roles/web-app-cst-*`, pulled from its own repository) is exempt from the `Licensed under …` line above and states its own licence there instead; the rest of the format stays the same.
+
 ## Formatting Rules 📏
 
 - Role README files MUST NOT use emojis in headings.

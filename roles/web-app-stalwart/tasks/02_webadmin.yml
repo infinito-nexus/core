@@ -29,13 +29,46 @@
   ansible.builtin.set_fact:
     stalwart_webui_app_id: "{{ stalwart_webui_apps[0].id }}"
 
-- name: "🔗 Point the WebUI Application at the locally-staged bundle"
+- name: "📖 List Stalwart OAuth clients"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/oauth_client/get.json.j2') }}"
+
+- name: "🔍 Resolve the WebUI OAuth client"
+  ansible.builtin.set_fact:
+    stalwart_webui_oauth_client: "{{ lookup('template', 'jmap/oauth_client/webui.json.j2') | from_json }}"
+    stalwart_webui_oauth_clients: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | selectattr('clientId', 'equalto', STALWART_WEBUI_OAUTH_CLIENT_ID)
+         | list }}
+  vars:
+    stalwart_webui_url_prefixes: "{{ stalwart_webui_apps[0].urlPrefix | list }}"
+
+- name: "📁 Register the WebUI OAuth client"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/oauth_client/create.json.j2') }}"
+  when: stalwart_webui_oauth_clients | length == 0
+
+- name: "🔄 Align the WebUI OAuth client with the origin the WebUI is served from"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/oauth_client/update.json.j2') }}"
+  when:
+    - stalwart_webui_oauth_clients | length > 0
+    - >-
+      (stalwart_webui_oauth_clients[0] | dict2items
+       | selectattr('key', 'in', stalwart_webui_oauth_client) | items2dict)
+      != stalwart_webui_oauth_client
+
+- name: "🔗 Point the WebUI Application at the locally-staged bundle and its OAuth client"
   include_tasks: jmap_call.yml
   vars:
     stalwart_jmap_body: >-
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
           'methodCalls': [['x:Application/set',
-            {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL}}},
+            {'update': {stalwart_webui_app_id: {'resourceUrl': STALWART_WEBUI_LOCAL_URL,
+                                                'oauthClientId': STALWART_WEBUI_OAUTH_CLIENT_ID}}},
             'c0']]} | to_json }}
 
 - name: "📦 Unpack the WebUI bundle from the local file"

@@ -96,11 +96,11 @@ A role maps groups at login when the application reads the `groups` claim, an LD
 
 It sets `rbac_members` to the `{username, email}` list of the role group. With OpenLDAP deployed the list comes from `memberOf` in the directory, so memberships changed in the Keycloak admin console count; without it, from the inventory grants. A reconciler MUST promote every member and demote every account outside the group, except the bootstrap and break-glass accounts the role provisions itself.
 
-An application that reads its roles from `realm_access.roles` instead of the groups claim sets `realm_roles: true` in its `meta/rbac.yml`. [13_realm_role_grants.yml](../../../../roles/web-app-keycloak/tasks/update/13_realm_role_grants.yml) then creates one realm role `<application_id>-<role>` per declared role, `administrator` included, and grants it to the matching group. Every realm user also holds `default-roles-<realm>`, which the application can map to its lowest role so that nobody without a role group is locked out.
+An application that reads its roles from `realm_access.roles` instead of the groups claim sets `realm_roles: true` in its `meta/rbac.yml`. [10_realm_role_grants.yml](../../../../roles/web-app-keycloak/tasks/update/10_realm_role_grants.yml) then creates one realm role `<application_id>-<role>` per declared role, `administrator` included, and grants it to the matching group. Every realm user also holds `default-roles-<realm>`, which the application can map to its lowest role so that nobody without a role group is locked out.
 
 ## Keycloak admin console 🖥️
 
-[web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`. [12_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/12_console_rbac.yml) grants the matching `realm-management` client roles from `KEYCLOAK_CONSOLE_ROLE_GRANTS` to each group after the per-app mapper resync. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
+[web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`. [09_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/09_console_rbac.yml) grants the matching `realm-management` client roles from `KEYCLOAK_CONSOLE_ROLE_GRANTS` to each group after the per-app mapper resync. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
 
 ## See also 🔗
 

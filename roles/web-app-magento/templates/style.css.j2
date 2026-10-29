@@ -1,5 +1,5 @@
 {% set design = lookup('design', application_id) %}
-{% set static = MAGENTO_URL | regex_replace('/+$', '') ~ '/static' %}
+{% set static = lookup('tls', application_id, 'url.origin') ~ '/static' %}
 {% set admin = ':where(html:has(> head > link[href*="/adminhtml/"]))' %}
 :where(html:not(:has(> head > link[href*="/adminhtml/"]))) {
 & body {

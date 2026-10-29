@@ -11,6 +11,7 @@ the sampling cadence that decides how stale the last sample is.
 
 import contextlib
 import io
+import signal
 import subprocess
 import unittest
 import unittest.mock as mock
@@ -19,21 +20,24 @@ from utils.tests.swarm import watchdog
 
 
 class _FakeProc:
+    pid = 4242
+
     def __init__(self, *, timeouts: int, rc: int) -> None:
         self._timeouts = timeouts
         self._rc = rc
-        self.terminated = False
-        self.wait_timeouts: list[int] = []
+        self.signals: list[int] = []
+        self.wait_timeouts: list[int | None] = []
 
-    def wait(self, timeout: int) -> int:
+    @property
+    def terminated(self) -> bool:
+        return signal.SIGTERM in self.signals
+
+    def wait(self, timeout: int | None = None) -> int:
         self.wait_timeouts.append(timeout)
         if self._timeouts > 0 and not self.terminated:
             self._timeouts -= 1
             raise subprocess.TimeoutExpired(cmd="step", timeout=timeout)
         return self._rc
-
-    def terminate(self) -> None:
-        self.terminated = True
 
 
 class TestSampleLine(unittest.TestCase):
@@ -92,7 +96,15 @@ class TestRunWatched(unittest.TestCase):
         proc = _FakeProc(timeouts=timeouts, rc=rc)
         buffer = io.StringIO()
         with (
-            mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
+            mock.patch.object(watchdog.subprocess, "Popen", return_value=proc) as popen,
+            mock.patch.object(
+                watchdog.os,
+                "killpg",
+                side_effect=lambda _pgid, sig: proc.signals.append(sig),
+            ) as killpg,
+            mock.patch.object(
+                watchdog.signal, "signal", return_value=signal.SIG_DFL
+            ) as handlers,
             mock.patch.object(watchdog.subprocess, "run") as probe,
             mock.patch.object(
                 watchdog.shutil,
@@ -109,6 +121,9 @@ class TestRunWatched(unittest.TestCase):
         ):
             returned = watchdog.run_watched(["true"], env={})
         self.probe = probe
+        self.popen = popen
+        self.killpg = killpg
+        self.handlers = handlers
         return returned, buffer.getvalue(), proc
 
     def test_a_healthy_host_lets_the_step_finish(self) -> None:
@@ -184,6 +199,22 @@ class TestRunWatched(unittest.TestCase):
         self.assertEqual(returned, watchdog.ABORT_RC)
         self.assertTrue(proc.terminated)
         self.assertIn("DISK EXHAUSTION IMMINENT", output)
+
+    def test_the_abort_ends_the_whole_step_group_not_only_its_leader(self) -> None:
+        self._watch(timeouts=5, rc=0, io_stall=0.0, free_mb=watchdog.DISK_FLOOR_MB - 1)
+        self.assertEqual(self.popen.call_args.kwargs["process_group"], 0)
+        self.assertEqual(
+            self.killpg.call_args_list,
+            [
+                mock.call(_FakeProc.pid, signal.SIGTERM),
+                mock.call(_FakeProc.pid, signal.SIGKILL),
+            ],
+        )
+
+    def test_sigint_and_sigterm_are_forwarded_then_restored(self) -> None:
+        self._watch(timeouts=1, rc=0, io_stall=0.0)
+        touched = sorted(call.args[0] for call in self.handlers.call_args_list)
+        self.assertEqual(touched, sorted([signal.SIGINT, signal.SIGTERM] * 2))
 
 
 if __name__ == "__main__":

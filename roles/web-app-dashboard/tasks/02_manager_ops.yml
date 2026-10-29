@@ -23,6 +23,7 @@
     delay: 2
     timeout: "{{ lookup('timeout', 10) | int }}"
     validate_certs: false
+    follow_redirects: safe
     workers: 16
   register: dashboard_simpleicons_probe
   delegate_to: "{{ STACK_HOST }}"

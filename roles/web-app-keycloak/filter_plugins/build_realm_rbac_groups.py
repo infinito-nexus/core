@@ -9,7 +9,7 @@ the realm when no LDAP federation exists to import it from:
 
 Membership uses the same rule as the LDAP path: a user joins a role group iff
 that role name appears in the user's ``roles`` list. Members are restricted to
-the users 08_users_realm actually seeds (non-reserved, non-empty password) and
+the users update/06_users/realm.yml actually seeds (non-reserved, non-empty password) and
 are emitted by their ``username`` attribute (dict key fallback) so the realm
 lookup in ensure_group_path_members.sh matches the created accounts. The
 implicit ``administrator`` role is auto-added for every RBAC application,

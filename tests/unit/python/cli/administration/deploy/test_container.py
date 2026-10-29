@@ -83,6 +83,35 @@ class TestEnsureImage(unittest.TestCase):
         )
 
 
+class TestRunInContainer(unittest.TestCase):
+    @unittest.mock.patch("subprocess.run")
+    @unittest.mock.patch(
+        "cli.administration.deploy.container.command.docker_exec",
+        return_value=subprocess.CompletedProcess(args=[], returncode=0),
+    )
+    @unittest.mock.patch(
+        "cli.administration.deploy.container.command.start_ci_container",
+        return_value="infinito-ci-test",
+    )
+    def test_generated_inventory_keeps_the_placed_custom_roles(
+        self, _start, mock_docker_exec, _run
+    ):
+        deploy_container.run_in_container(
+            image="infinito:latest",
+            build=False,
+            rebuild=False,
+            no_cache=False,
+            inventory_dir="/tmp/inventory",
+            inventory_args=[],
+            deploy_args=["--debug"],
+        )
+
+        deploy_cmd = mock_docker_exec.call_args_list[-1].args[1]
+        self.assertIn("cli.administration.deploy.dedicated", deploy_cmd)
+        self.assertIn("--skip-pull", deploy_cmd)
+        self.assertEqual("--debug", deploy_cmd[-1])
+
+
 class TestMain(unittest.TestCase):
     @unittest.mock.patch("cli.administration.deploy.container.command.run_in_container")
     def test_main_requires_forwarded_args(self, mock_run_in_container):

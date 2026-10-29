@@ -11,10 +11,6 @@
     groups: docker
     append: true
 
-- name: "✅ Ensure npm is installed"
-  package_install:
-    id: npm
-
 - name: "📦 Install the agentbox CLI"
   include_role:
     name: sys-pip-install

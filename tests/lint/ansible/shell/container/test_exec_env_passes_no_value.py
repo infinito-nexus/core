@@ -1,4 +1,4 @@
-"""Ban ``-e NAME=VALUE`` in role files wherever VALUE is not a literal.
+"""Ban ``-e NAME=VALUE`` (or ``--env``) in role files wherever VALUE is not a literal.
 
 Rationale
 =========
@@ -9,13 +9,15 @@ table. A deployment rotates its credentials between the two passes of a
 matrix-deploy round, so the values that travel this way are live secrets.
 
 The safer form is ``-e NAME`` with no value. The engine then forwards the
-variable from its own environment, which an Ansible task fills with a
-task-level ``environment:`` mapping and a shell script with ``export``.
+variable from its own environment, which the calling shell fills from the
+task's ``stdin:``: ``IFS= read -r NAME && export NAME && container exec -e
+NAME …``, one line per secret, ahead of any payload that ``container exec
+-i`` passes on to the container.
 
-With ``ansible.builtin.script`` the value then reaches no argv; with
-``shell`` and ``command`` it still appears once on the module wrapper's own
-line, which ``Shell.env_prefix`` builds, so the exposure shrinks rather than
-vanishes.
+Only ``stdin:`` keeps the value out of every argv. A task-level
+``environment:`` does not: for ``command``, ``shell`` and ``script`` alike,
+Ansible runs ``/bin/sh -c 'NAME=value … && sleep 0'`` on the executing host,
+and that shell keeps the line in its argv for as long as the task runs.
 
 The check is on the flag, not on the command before it: associating an ``-e``
 with its ``container exec`` is unreliable across a YAML block scalar, and
@@ -48,8 +50,8 @@ line convicts too. A
 fact or task var defined in the same file whose value holds a credential key
 (``password:``) or source counts as a secret under any name. The first rule
 also reads the Jinja-built ``-e {{ ('NAME=' ~ …) }}``. Hand such a value over on
-the task's ``stdin:`` (``curl -H @-``, ``psql`` reading SQL) or as ``-e NAME``
-plus ``environment:``.
+the task's ``stdin:``, either to the program itself (``curl -H @-``, ``psql``
+reading SQL) or to the calling shell, which exports it for ``-e NAME``.
 
 Per-line opt-out
 ================
@@ -78,7 +80,8 @@ from .test_exec_requires_shell_module import _variable_values
 _RULE = "container-exec-env-value"
 _EXTENSIONS = (".yml", ".yaml", ".j2", ".sh")
 _ENV_WITH_VALUE = re.compile(
-    r"(?:^|\s)-e\s+(?:\{\{\s*\(*\s*['\"])?([A-Za-z_][A-Za-z0-9_]*)="
+    r"(?:^|\s)(?:-e|--env)(?:\s+|=)(?:\{\{\s*\(*\s*['\"])?['\"]?"
+    r"([A-Za-z_][A-Za-z0-9_]*)="
 )
 _INTERPOLATED = re.compile(r"\{\{|\$|`")
 _SECRET_NAME = re.compile(r"PASS|PWD|SECRET|TOKEN|KEY|CRED", re.IGNORECASE)
@@ -523,8 +526,11 @@ class TestExecArgvSecret(unittest.TestCase):
             self.fail(
                 "Secrets on a `container exec` / `docker exec` command line reach "
                 "the host process list and the daemon's exec_create event. Hand "
-                "them over on the task's `stdin:` (`curl -H @-`, SQL on psql's "
-                "stdin) or as `-e NAME` plus the task's `environment:`, or add "
+                "them over on the task's `stdin:`, to the program itself "
+                "(`curl -H @-`, SQL on psql's stdin) or to the calling shell "
+                "(`IFS= read -r NAME && export NAME`) for `-e NAME`; a task-level "
+                "`environment:` puts `NAME=value` on the host's `/bin/sh -c` "
+                "line instead. Or add "
                 f"`# nocheck: {_ARGV_RULE} <reason>` above the module key.\n"
                 + "\n".join(sorted(findings))
             )
@@ -536,6 +542,13 @@ class TestEnvAssignments(unittest.TestCase):
         [(name, value)] = list(_env_assignments(built))
         self.assertEqual(name, "DB")
         self.assertTrue(_carries_credential(name, value))
+
+    def test_the_long_flag_with_a_quoted_assignment_is_read_too(self) -> None:
+        line = 'runtime exec --env "PGPASSWORD=${PGPASSWORD}" "${CID}" psql'
+        [(name, value)] = list(_env_assignments(line))
+        self.assertEqual(name, "PGPASSWORD")
+        self.assertTrue(_carries_credential(name, value))
+        self.assertEqual(list(_env_assignments("--env-file=x.env --env=MODE=prod")), [])
 
     def test_a_literal_or_a_plain_neutral_value_passes(self) -> None:
         self.assertEqual(list(_env_assignments("-e RAILS_ENV=production x")), [])
@@ -606,12 +619,13 @@ class TestContainerExecEnvPassesNoValue(unittest.TestCase):
                 "account while the call runs, and `no_log` cannot mask a "
                 "process table.\n\n"
                 "Fix one of:\n"
-                "  - pass the name alone, `-e NAME`, and supply the value "
-                "through the task's `environment:` mapping (Ansible) or an "
-                "`export NAME=...` in the script (shell). With `script` the "
-                "value then reaches no argv; with `shell` and `command` it "
-                "appears once on the module wrapper's line instead of on "
-                "every container call;\n"
+                "  - pass the name alone, `-e NAME`, and hand the value to the "
+                "calling shell on the task's `stdin:`, which reads and exports "
+                "it ahead of the call (`IFS= read -r NAME && export NAME && "
+                "container exec -e NAME ...`). A task-level `environment:` is "
+                "no substitute: for `command`, `shell` and `script` alike "
+                "Ansible puts `NAME=value` on the host's `/bin/sh -c` line, "
+                "where `ps` shows it for the whole task;\n"
                 "  - for a templated value that provably carries no secret, "
                 "add `# nocheck: container-exec-env-value -- <reason>` on the "
                 "same line or the line above, naming what the value is.\n\n"

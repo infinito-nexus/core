@@ -9,8 +9,6 @@
       - "/data"
       - "--enable-cors"
       - "--reset-peers-on-error"
-      - "--api-key"
-      - "{{ TYPESENSE_API_KEY }}"
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if TYPESENSE_EXPOSE_LOCAL %}

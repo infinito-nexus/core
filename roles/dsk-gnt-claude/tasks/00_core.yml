@@ -1,10 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: ✅ Ensure npm is installed
-  package_install:
-    id: npm
-
 - name: 📦 install the claude coding agent
   ansible.builtin.command:
     cmd: npm install -g {{ agnt_claude_package }}

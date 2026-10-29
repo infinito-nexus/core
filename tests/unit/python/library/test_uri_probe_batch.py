@@ -24,6 +24,7 @@ PARAMS = {
     "delay": 0,
     "timeout": 1,
     "validate_certs": False,
+    "follow_redirects": "none",
     "workers": 4,
 }
 
@@ -93,6 +94,20 @@ class ProbeTests(unittest.TestCase):
     def test_no_response_reports_minus_one(self):
         with mock.patch.object(_MOD, "open_url", _replies(*[OSError()] * 3)):
             self.assertEqual(_MOD.probe("http://x/a.svg", PARAMS), -1)
+
+    def test_redirect_handling_reaches_open_url(self):
+        opener = mock.Mock(side_effect=_replies(200))
+        with mock.patch.object(_MOD, "open_url", opener):
+            _MOD.probe("http://x/", PARAMS)
+        self.assertEqual(opener.call_args.kwargs["follow_redirects"], "none")
+
+    def test_unfollowed_redirect_is_its_own_answer(self):
+        found = HTTPError("http://elsewhere/", 302, "Found", {}, None)
+        params = {**PARAMS, "status_codes": [200, 302]}
+        opener = mock.Mock(side_effect=_replies(found))
+        with mock.patch.object(_MOD, "open_url", opener):
+            self.assertEqual(_MOD.probe("http://x/", params), 302)
+        self.assertEqual(opener.call_count, 1)
 
 
 class ProbeAllTests(unittest.TestCase):

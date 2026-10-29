@@ -18,3 +18,4 @@
 
 - name: "🧊 Carry the applications SPOT past nested {{ load_app_id }}"
   applications_carrier: {}
+  run_once: false

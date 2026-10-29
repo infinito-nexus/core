@@ -1,6 +1,9 @@
 """Resolve nginx path configuration and an optional domain-specific server
 config path under ``<servers_dir>/<protocol>/<domain>.conf``.
 
+``files.lua`` is the body-filter Lua file of one vhost,
+``<lua_dir>/<domain>.lua``; it needs the domain term.
+
 The ``want=`` kwarg is intentionally ignored: want-path is ALWAYS the
 first positional argument so callers can't accidentally pass it both
 ways.
@@ -89,6 +92,8 @@ class LookupModule(LookupBase):
             raise AnsibleError("nginx: want_path is empty")
 
         domain = as_str(terms[1]).strip() if len(terms) == 2 else ""
+        if want == "files.lua" and not domain:
+            raise AnsibleError("nginx: files.lua requires a domain")
 
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
@@ -201,5 +206,6 @@ class LookupModule(LookupBase):
                 "protocol_overridden": bool(protocol_override),
             }
             resolved["files"]["domain"] = _join(servers_dir, protocol, f"{domain}.conf")
+            resolved["files"]["lua"] = _join(lua_dir, f"{domain}.lua")
 
         return [want_get(resolved, want)]

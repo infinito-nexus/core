@@ -27,14 +27,6 @@ _WORKFLOW = "entry-manual-steer.yml"
 _ALL = "__ALL__"
 
 
-def _fetch(run: str, repo: str) -> dict:
-    """The jobs and title of *run*, given as a URL or a bare id (which
-    resolves against *repo*, the current branch's own)."""
-    if run.isdigit():
-        return gh.fetch_run(run, repo=repo)
-    return gh.fetch_run(gh.run_id_from_url(run), repo=gh.slug_from_url(run))
-
-
 def _ranking(whitelist: str, config: dict[str, str]) -> list[dict[str, str]]:
     """The regular line the retrigger's own discovery would walk.
 
@@ -251,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
 
     source = None
     if args.run:
-        source = _fetch(args.run, repo)
+        source = gh.fetch_run_ref(args.run, repo)
     elif args.failed is not None:
         run = runs.find_last_deploy_run(branch, repo=repo)
         if run is None:
@@ -271,14 +263,8 @@ def main(argv: list[str] | None = None) -> int:
             p.error("--apps was empty")
         whitelist = apps
     elif args.failed is not None:
-        statuses = runs.parse_role_statuses(source["jobs"])
-        failed = selections.failed_selections(source["jobs"], strict=args.strict)
-        if args.roles_only:
-            failed = selections.collapse_failures(
-                failed, selections.failed_selections(source["jobs"], strict=True)
-            )
-        untriggered = runs.untriggered_priority(
-            runs.dispatched_priority(source, repo), statuses
+        failed, untriggered = selections.retrigger_entries(
+            source, repo, strict=args.strict, roles_only=args.roles_only
         )
         if not failed and not untriggered:
             print("Nothing failed in that run; not triggering.")

@@ -41,8 +41,8 @@ docs:
       checksum_url: "https://cdn.jsdelivr.net/npm/mermaid@{version}/dist/mermaid.min.js"
   fetch_interval: 900
   build:
-    sphinx_process_mb: 3072
-    sphinx_overhead_mb: 2048
+    sphinx_process_mb: 5120
+    sphinx_overhead_mb: 5632
   sphinx:
     project: "{{ SOFTWARE_NAME }}"
     copyright: "2025, {{ INVENTOR }}"
@@ -53,7 +53,7 @@ docs:
   # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB), the English sites of the deployed working tree and of the latest commit (2.3 GB each), one translated site of each (about 2 GB each, built without _sources) and the scratch of a running build (2.4 GB); every further version or translated language opened adds about 2.3 GB
   min_storage: 13GB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: docs
   ports:
     internal:

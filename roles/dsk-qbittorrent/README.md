@@ -17,7 +17,7 @@ This README is for the `dsk-qbittorrent` role within the `infinito` repository. 
 The `main.yml` file in the `dsk-qbittorrent` role includes the following task:
 
 1. **Install Torrent Software**:
-   - This task calls `package_install` with the `qbittorrent` id; the per-distribution names are declared in [`meta/packages.yml`](meta/packages.yml).
+   - The package batch the constructor runs at deploy start installs the `qbittorrent` id; the per-distribution names are declared in [`meta/packages.yml`](meta/packages.yml).
 
 ## Purpose and Usage
 

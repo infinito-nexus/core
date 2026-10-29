@@ -61,7 +61,7 @@ semaphore:
   image: semaphoreui/semaphore
   version: "v2.19.17"
   backup:
-    no_stop_required: true
+    stop_required: false
   name: semaphore
   ports:
     internal:

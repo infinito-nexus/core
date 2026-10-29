@@ -27,6 +27,8 @@ _VARIANTS = {
     ],
 }
 
+_NOTHING_DEPLOYED = ((), ())
+
 
 def _problems(
     tokens: str, *, network_input: str = "auto", vpn_mode: str = "auto"
@@ -34,6 +36,9 @@ def _problems(
     with (
         mock.patch.object(validate.query, "discover_rows", return_value=_ROWS),
         mock.patch.object(validate, "get_variants", return_value=_VARIANTS),
+        mock.patch.object(
+            validate.matrix, "deployed_rounds", return_value=_NOTHING_DEPLOYED
+        ),
     ):
         return validate.problems(
             tokens,
@@ -80,6 +85,9 @@ class TestProblems(unittest.TestCase):
             mock.patch.object(
                 validate, "get_variants", return_value={"web-app-c": [{"services": {}}]}
             ),
+            mock.patch.object(
+                validate.matrix, "deployed_rounds", return_value=_NOTHING_DEPLOYED
+            ),
         ):
             errors, warnings = validate.problems(
                 "web-app-c",
@@ -93,15 +101,15 @@ class TestProblems(unittest.TestCase):
             )
         self.assertEqual((errors, warnings), ([], []))
 
-    def test_a_role_without_a_bond_may_pin_multi_when_its_deploy_pulls_tor(
-        self,
-    ) -> None:
+    def _bondless_multi(
+        self, listed: list[str], deployed: tuple[str, ...]
+    ) -> tuple[list[str], list[str]]:
         rows = [
             {
                 "name": "web-app-c",
                 "variant": 0,
                 "test_compose": True,
-                "services": [network.tor_provider()],
+                "services": listed,
             }
         ]
         with (
@@ -109,8 +117,11 @@ class TestProblems(unittest.TestCase):
             mock.patch.object(
                 validate, "get_variants", return_value={"web-app-c": [{"services": {}}]}
             ),
+            mock.patch.object(
+                validate.matrix, "deployed_rounds", return_value=(deployed,)
+            ),
         ):
-            problems = validate.problems(
+            return validate.problems(
                 "web-app-c#0@compose+multi",
                 modes=("compose",),
                 network_input="auto",
@@ -120,7 +131,18 @@ class TestProblems(unittest.TestCase):
                 lifecycles="",
                 label="priority",
             )
-        self.assertEqual(problems, ([], []))
+
+    def test_a_role_without_a_bond_may_pin_multi_when_its_deploy_pulls_tor(
+        self,
+    ) -> None:
+        tor = network.tor_provider()
+        self.assertEqual(self._bondless_multi([tor], (tor,)), ([], []))
+
+    def test_multi_is_judged_on_what_the_variant_deploys_not_on_discovery(
+        self,
+    ) -> None:
+        errors, _warnings = self._bondless_multi([network.tor_provider()], ())
+        self.assertIn("pinned network mode 'multi' is impossible", errors[0])
 
     def test_a_warning_still_separates_a_missing_role_from_a_present_one(self) -> None:
         _errors, warnings = _problems("web-app-a web-app-gone web-app-b")
@@ -171,6 +193,9 @@ class TestMain(unittest.TestCase):
         with (
             mock.patch.object(validate.query, "discover_rows", return_value=_ROWS),
             mock.patch.object(validate, "get_variants", return_value=_VARIANTS),
+            mock.patch.object(
+                validate.matrix, "deployed_rounds", return_value=_NOTHING_DEPLOYED
+            ),
             redirect_stdout(out),
             redirect_stderr(err),
         ):

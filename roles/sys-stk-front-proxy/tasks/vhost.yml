@@ -1,10 +1,22 @@
 ---
-- name: "🧊 Freeze the probe target for '{{ front_proxy_domain }}'"
+- name: "🧊 Freeze the vhost target for '{{ front_proxy_domain }}'"
   ansible.builtin.set_fact:
     front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
-    front_proxy_probe_url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
-    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
+
+- name: "🧊 Freeze the probe target and queue it for '{{ front_proxy_domain }}'"
+  ansible.builtin.set_fact:
+    front_proxy_probe_url: "{{ front_proxy_probe.url }}"
+    front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
+    front_proxy_deferred_probes: >-
+      {{ front_proxy_deferred_probes
+         | combine({front_proxy_domain: front_proxy_probe} if (front_proxy_domain | network_of) != 'tor' else {}) }}
+  vars:
+    front_proxy_probe:
+      url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+      status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
+  changed_when: false
+  when: IS_STACK_HOST | bool
 
 - name: "📌 TLS | Apply tls layer for '{{ front_proxy_domain }}'"
   include_role:
@@ -39,9 +51,15 @@
     webserver_vhost_flavour: basic
 
 - name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
-  stack_host_template:
-    src: "{{ front_proxy_template_src }}"
-    dest: "{{ front_proxy_domain_conf_dst_resolved }}"
+  stack_host_contents:
+    files: >-
+      {{ ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
+            'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
+                              template_vars={'domain': front_proxy_domain})}]
+          if lookup('tls', front_proxy_domain, 'enabled') | bool else [])
+         + [{'path': front_proxy_domain_conf_dst_resolved,
+             'content': lookup('template', front_proxy_template_src)}] }}
+    mode: "0644"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
@@ -54,30 +72,11 @@
   register: nginx_conf
   notify: reload-openresty
 
-- block:
-    - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
-      uri_probe:
-        url: "{{ front_proxy_probe_url }}"
-        status_code: "{{ front_proxy_probe_status_codes }}"
-        follow_redirects: none
-      register: site_check
-      failed_when: false
-      changed_when: false
-
-    - name: "🔄 Redeploy: site answered {{ site_check.status | default('none') }}"
-      ansible.builtin.command:
-        cmd: "true"
-      notify: restart-openresty
-      when:
-        - site_check.status | default(-1) not in front_proxy_status_codes
-        - site_check.status | default(-1) in front_proxy_stale_config_status_codes
-  when: not nginx_conf.changed
-
 - name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
   ansible.builtin.meta: flush_handlers
 
 - name: "🔁 Re-check '{{ front_proxy_domain }}' after a config change"
-  when: nginx_conf.changed
+  when: front_proxy_vhost_changed
   block:
     - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
       uri_probe:

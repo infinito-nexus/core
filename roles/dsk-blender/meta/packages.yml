@@ -1,4 +1,7 @@
 ---
+blender:
+  shared: true
+
 pipx:
   Archlinux:
     - python-pipx
@@ -6,6 +9,7 @@ pipx:
     - pipx
   RedHat:
     - pipx
+  batch: false
   centos:
     names:
       - pipx

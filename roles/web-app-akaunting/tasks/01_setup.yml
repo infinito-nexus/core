@@ -24,6 +24,8 @@
         path: "{{ AKAUNTING_SETUP_MARKER }}"
         state: touch
         mode: "0644"
+        modification_time: preserve
+        access_time: preserve
 
 - name: "🔍 Akaunting | Resolve the hosting node and container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

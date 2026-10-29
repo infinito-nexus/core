@@ -44,7 +44,7 @@ flowchart TB
             s1["1️⃣ seed markers into the live NFS volume<br/>and the manager secrets"]:::drill
             s2["2️⃣ trigger backup units<br/>volume + secrets @ manager, nfs-2-local @ NFS server"]:::drill
             s3["3️⃣ locate the generation holding the marker<br/>3️⃣b assert the volume repo is fresh + non-empty<br/>(its NFS-backed volumes are excluded by design)"]:::drill
-            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper"]:::drill
+            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper,<br/>then drop the nfs server's generation"]:::drill
             s5["5️⃣ space gate: pulled tree + watchdog floor,<br/>du breakdown on failure; then LUKS loop 'USB'<br/>via the local-2-device unit"]:::drill
             s6["6️⃣ full disaster: stack rm"]:::drill
             s7["7️⃣ wipe the pulled tree, recover device → local root<br/>(luksOpen; the device holds the only copy left)"]:::drill
@@ -160,7 +160,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | chaos | `routine/06_drain_worker.sh` | drain the app's worker + force reschedule |
 | chaos | `routine/07_assert_state.sh` | assert the marker + reachability survived |
 | teardown | `utils/collect/diagnostics.sh` | write stack/service diagnostics on failure, one file per topic under the rescue dir |
-| teardown | `../utils/rescue_index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
+| teardown | `../utils/rescue/index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
 | teardown | `utils/collect/playwright_reports.sh` | pull Playwright reports from the manager into `/tmp/playwright-artifacts/<distro>/<app>` |
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |

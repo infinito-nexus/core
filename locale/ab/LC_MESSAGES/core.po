@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -150,7 +154,7 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
-msgstr "Blender工作站通过模型上下文协议安装到主机上的代理之中"
+msgstr ""
 
 msgctxt "role:web-app-workspace:description"
 msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
@@ -459,6 +463,10 @@ msgstr ""
 # lobuild
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr ""
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
 msgstr ""
 
 # translated-by: libretranslate

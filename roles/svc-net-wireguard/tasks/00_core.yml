@@ -18,7 +18,7 @@
   when: WIREGUARD_MESH_NAMES | length == 0
 
 - name: "📦 Install the WireGuard tooling"
-  package_install:
+  package_install: # nocheck: package-install the mesh bootstrap runs before the update role and the batch run
     id:
       - wireguard
       - iproute

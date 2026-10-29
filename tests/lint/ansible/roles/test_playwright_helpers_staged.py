@@ -27,11 +27,13 @@ from utils.cache.files import (
     iter_project_files_with_content,
     read_text,
 )
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 _RULE = "playwright-helper-staged"
 
 RUNNER_FILES = PROJECT_ROOT / "roles/test-e2e-playwright/files"
-STAGING_TASK = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/02_run_one.yml"
+STAGING_TASK = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/01_setup.yml"
+STAGING_VARS = PROJECT_ROOT / "roles/test-e2e-playwright" / ROLE_FILE_VARS_MAIN
 RERUN_SCRIPT = PROJECT_ROOT / "scripts/tests/e2e/rerun-spec.sh"
 LINT_SCRIPT = PROJECT_ROOT / "scripts/lint/playwright.sh"
 
@@ -41,7 +43,11 @@ _MOUNTED_AS_DIRECTORY = frozenset({"personas"})
 
 _NOT_A_HELPER = frozenset({"playwright.config.js"})
 
-_GLOB_MARKER = "roles/test-e2e-playwright/files') }}/*.js"
+_GLOB_MARKER = "query('fileglob', TEST_E2E_PLAYWRIGHT_HELPERS_DIR ~ '/*.js')"
+_DIR_MARKER = (
+    "TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "
+    "\"{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}\""
+)
 _SHELL_GLOB_MARKER = 'roles/test-e2e-playwright/files"/*.js'
 _LINT_GLOB_MARKER = '"${HELPERS_SRC}"/*.js'
 
@@ -88,7 +94,7 @@ def unstaged_requires() -> list[str]:
                 if f"{name}.js" not in staged:
                     findings.append(
                         f"{path}:{index}: requires {name!r}, which is neither a "
-                        f"sibling spec nor staged by 02_run_one.yml"
+                        f"sibling spec nor staged by 01_setup.yml"
                     )
     return findings
 
@@ -105,6 +111,7 @@ def stagers_without_the_glob() -> list[str]:
     findings = []
     for path, marker in (
         (STAGING_TASK, _GLOB_MARKER),
+        (STAGING_VARS, _DIR_MARKER),
         (RERUN_SCRIPT, _SHELL_GLOB_MARKER),
         (LINT_SCRIPT, _LINT_GLOB_MARKER),
     ):

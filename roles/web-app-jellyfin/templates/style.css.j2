@@ -17,6 +17,7 @@ html[data-design-palette] .splashLogo {
   }
 }
 {% endif %}
+{% set jellyfin_design_urls = design.urls %}
 {% filter replace(JELLYFIN_DESIGN_SCOPE, JELLYFIN_DESIGN_SCOPE ~ JELLYFIN_DESIGN_ADMIN_SCOPE) %}
 {% include 'branding.css.j2' %}
 {% endfilter %}

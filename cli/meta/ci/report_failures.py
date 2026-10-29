@@ -37,11 +37,11 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
 
     A deploy job is titled ``<mode glyph><network glyph><vpn glyph><distro
     glyph><filesystem glyph><architecture glyph><display name> <variant>``
-    with an optional trailing ⭐ for a
-    priority row. The middle is resolved through the display-name codec rather
-    than matched as a raw role id: job names carry display names, so a regex
-    over ``web-app-…`` silently matched nothing and every failure went
-    unreported.
+    behind the caller path of its batch (``0️⃣ Batch ⭐ / ``); a title from an
+    older run may instead end in a ⭐ of its own. The middle is resolved
+    through the display-name codec rather than matched as a raw role id: job
+    names carry display names, so a regex over ``web-app-…`` silently matched
+    nothing and every failure went unreported.
     """
     codec = display_names()
     out: dict[str, list[Failure]] = {}

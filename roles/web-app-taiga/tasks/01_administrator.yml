@@ -20,14 +20,14 @@
 
 - name: "📁 Create Taiga admin user (idempotent)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i
+    IFS= read -r DJANGO_SUPERUSER_PASSWORD && export DJANGO_SUPERUSER_PASSWORD && container exec -i
     -e DJANGO_SUPERUSER_PASSWORD
     {{ TAIGA_MANAGER_LOCAL_CID | quote }}
     python manage.py createsuperuser --noinput
     --username {{ TAIGA_SUPERUSER_NAME }}
     --email {{ TAIGA_SUPERUSER_EMAIL }}
-  environment:
-    DJANGO_SUPERUSER_PASSWORD: "{{ TAIGA_SUPERUSER_PASSWORD }}"
+  args:
+    stdin: "{{ TAIGA_SUPERUSER_PASSWORD }}"
   register: taiga_create_admin
   delegate_to: "{{ TAIGA_MANAGER_HOST_NODE }}"
   changed_when: taiga_create_admin.rc == 0
@@ -41,15 +41,17 @@
 - name: "📝 Upsert Taiga admin via manage.py shell"
   ansible.builtin.shell: # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     cmd: >
+      IFS= read -r DJANGO_SUPERUSER_PASSWORD && export DJANGO_SUPERUSER_PASSWORD &&
       container exec -i
       -e TAIGA_SUPERUSER_NAME -e TAIGA_SUPERUSER_EMAIL -e DJANGO_SUPERUSER_PASSWORD
       {{ TAIGA_MANAGER_LOCAL_CID | quote }}
       python manage.py shell
-    stdin: "{{ lookup('file', 'python/upsert_admin.py') }}"
+    stdin: |-
+      {{ TAIGA_SUPERUSER_PASSWORD }}
+      {{ lookup('file', 'python/upsert_admin.py') }}
   environment:
     TAIGA_SUPERUSER_NAME: "{{ TAIGA_SUPERUSER_NAME }}"
     TAIGA_SUPERUSER_EMAIL: "{{ TAIGA_SUPERUSER_EMAIL }}"
-    DJANGO_SUPERUSER_PASSWORD: "{{ TAIGA_SUPERUSER_PASSWORD }}"
   register: taiga_upsert_admin
   when: taiga_create_admin.rc != 0
   delegate_to: "{{ TAIGA_MANAGER_HOST_NODE }}"

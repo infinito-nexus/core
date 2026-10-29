@@ -55,7 +55,7 @@ mediawiki:
   custom: true
   min_storage: 546MB
   backup:
-    no_stop_required: true
+    stop_required: false
   name: mediawiki
   ports:
     local:

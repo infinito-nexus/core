@@ -10,7 +10,6 @@
       - "{{ JUPYTER_PORT }}"
     command: >
       start-notebook.py
-      --IdentityProvider.token={{ JUPYTER_AUTH_TOKEN }}
       --ServerApp.ip=0.0.0.0
       --ServerApp.port={{ JUPYTER_PORT }}
       --ServerApp.allow_origin=*

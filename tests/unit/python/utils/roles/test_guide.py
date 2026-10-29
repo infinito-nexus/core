@@ -3,11 +3,42 @@ import unittest.mock as mock
 from typing import ClassVar
 
 from utils.cache.applications import get_variants
-from utils.roles.guide import guide_deployable, guide_variant, smallest_variant
+from utils.roles.guide import (
+    declares_guide,
+    guide_deployable,
+    guide_off,
+    guide_variant,
+    smallest_variant,
+)
 
 
 def _variant(*enabled: str) -> dict:
     return {"services": {name: {"enabled": True} for name in enabled}}
+
+
+class TestDeclaresGuide(unittest.TestCase):
+    def test_a_literal_true_declares_it(self) -> None:
+        self.assertTrue(declares_guide({"docs": {"enabled": True}}))
+
+    def test_the_group_gated_base_flag_does_not(self) -> None:
+        self.assertFalse(
+            declares_guide({"docs": {"enabled": "{{ 'web-app-docs' in group_names }}"}})
+        )
+
+    def test_a_role_without_the_edge_does_not(self) -> None:
+        self.assertFalse(declares_guide({"postgres": {"enabled": True}}))
+
+
+class TestGuideOff(unittest.TestCase):
+    def test_the_edge_is_switched_off_and_its_other_keys_kept(self) -> None:
+        services = {"docs": {"bond": 0.5, "enabled": True, "shared": True}, "a": {}}
+        self.assertEqual(
+            guide_off(services),
+            {"docs": {"bond": 0.5, "enabled": False, "shared": False}, "a": {}},
+        )
+
+    def test_a_role_without_the_edge_is_left_as_it_is(self) -> None:
+        self.assertEqual(guide_off({"a": {"enabled": True}}), {"a": {"enabled": True}})
 
 
 class TestSmallestVariant(unittest.TestCase):

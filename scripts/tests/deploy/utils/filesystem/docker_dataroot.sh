@@ -282,7 +282,7 @@ done
 [ -n "${LOOP}" ] || decline "no loop device could be claimed after ${attempt} attempts"
 
 if [ "${FSTYPE}" = zfs ]; then
-	if ! zpool_out="$(zpool create -f -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
+	if ! zpool_out="$(zpool create -f -o autotrim=on -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
 		losetup -d "${LOOP}" ||
 			report "WARNING: ${LOOP} refused the detach and will leak into the next round"
 		rm -f "${IMAGE}"

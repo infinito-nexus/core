@@ -25,4 +25,5 @@ Provide **one-stop, idempotent domain provisioning** for NGINX-based homelabs or
 - **Template-driven vHosts**: choose *basic* or *ws_generic* flavours (or your own).  
 - **Conditional OAuth2**: easily toggle authentication per application.  
 - **Handler-safe**: automatically triggers an NGINX reload when templates change.  
+- **Deferred reachability probe**: every vhost is queued, and `tasks_from: deferred_probe.yml` probes the queue in one parallel batch and empties it. The play runs it twice: after the shared-service preload and after the server roles. A vhost answering like a stale config restarts OpenResty once; one still unserved after that fails the deploy by name. A vhost whose config changed is additionally verified right after its reload.  
 - **Composable**: designed to be called repeatedly for many domains.

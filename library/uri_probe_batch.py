@@ -8,6 +8,8 @@ Args:
     delay: seconds between two attempts at one URL.
     timeout: seconds per request.
     validate_certs: whether TLS certificates are verified.
+    follow_redirects: how a redirect is handled, as open_url takes it; with
+        ``none`` the redirect status itself is the answer.
     workers: requests in flight at once.
 
 Returns:
@@ -29,6 +31,11 @@ ARGUMENT_SPEC = {
     "delay": {"type": "int", "required": True},
     "timeout": {"type": "int", "required": True},
     "validate_certs": {"type": "bool", "required": True},
+    "follow_redirects": {
+        "type": "str",
+        "required": True,
+        "choices": ["all", "none", "safe", "urllib2"],
+    },
     "workers": {"type": "int", "required": True},
 }
 
@@ -44,6 +51,7 @@ def probe(url, params):
                 method=params["method"],
                 timeout=params["timeout"],
                 validate_certs=params["validate_certs"],
+                follow_redirects=params["follow_redirects"],
             ) as response:
                 status = response.status
         except HTTPError as error:

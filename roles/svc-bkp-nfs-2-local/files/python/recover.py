@@ -23,16 +23,42 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[4]  # nocheck: project-root-import
 sys.path.insert(0, str(_REPO_ROOT))
 
-from utils.recovery.base import DirectoryRecovery  # noqa: E402
+from utils.recovery.base import DirectoryRecovery, is_remote  # noqa: E402
 from utils.storage.nfs import STATE_SUBDIR  # noqa: E402
 
 
 class NfsExportRecovery(DirectoryRecovery):
     unit_pattern = "svc-bkp-nfs-2-local*.service"
-    rsync_extra_args = (
-        f"--filter=protect /{STATE_SUBDIR}/backup",
-        f"--exclude=/{STATE_SUBDIR}/backup",
-    )
+
+    @property
+    def rsync_extra_args(self) -> tuple[str, ...]:
+        return (
+            f"--filter=protect /{STATE_SUBDIR}/backup",
+            f"--exclude=/{STATE_SUBDIR}/backup",
+            *(
+                f"--filter=protect /{STATE_SUBDIR}/{name}"
+                for name in self.volumes_missing_from_snapshot()
+            ),
+        )
+
+    def volumes_missing_from_snapshot(self) -> list[str]:
+        """Volume directories of the live export the snapshot does not hold.
+
+        Returns:
+            The sorted names under the state path; empty when either side is
+            remote and cannot be listed.
+        """
+        if is_remote(str(self.source_dir)) or is_remote(str(self.target_dir)):
+            return []
+        live = self.target_dir / STATE_SUBDIR
+        if not live.is_dir():
+            return []
+        kept = self.source_dir / STATE_SUBDIR
+        return sorted(
+            entry.name
+            for entry in live.iterdir()
+            if entry.is_dir() and not (kept / entry.name).exists()
+        )
 
 
 def main() -> int:

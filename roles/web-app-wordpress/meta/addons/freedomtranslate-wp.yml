@@ -14,4 +14,4 @@ config:
     - name: freedomtranslate_service
       value: libretranslate
     - name: freedomtranslate_api_url
-      value: "{{ lookup('tls', 'web-svc-translate', 'url.base') | regex_replace('/+$', '') ~ '/translate' }}"
+      value: "{{ lookup('tls', 'web-svc-translate', 'url.origin') ~ '/translate' }}"

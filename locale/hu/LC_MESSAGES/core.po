@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Egy helyi YAML áruházban az idempoter perzisztenciájának és a peruser alkalmazás tokenek keresésének lehetséges segítője"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -450,6 +454,10 @@ msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Cross-distribution karbantartási rutin a lemez reklamáció a CI, tartály, és építeni környezet"
 
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
@@ -807,7 +815,7 @@ msgstr "Hasznos szerszámok"
 # translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Az Amazon S-szel kompatibilis, nem strukturált adatok kezelésére, méretezésére és hozzáférésére szolgáló nagy teljesítményű, önkiszolgáló tárolási megoldások - beleértve az objektumok tárolását3 API."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
@@ -1071,12 +1079,12 @@ msgstr "NGINX- alapú webes platform és fordított proxy validált konfig újra
 # translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX- served static page rendering a legal imprint (Impresszum) egy jinja2 sablon"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-nllb-engine:description"
 msgid "NLLB-200 translation model served over HTTP, for pipelines that call it directly"
-msgstr "NLLB200 fordítási modell szolgált felett HTTP, csővezetékek, amelyek hívják közvetlenül"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.net:title"
@@ -1276,7 +1284,7 @@ msgstr "A fordítóeszközlánc optimalizálása a C, C + + és más nemzeti nye
 # translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "TLS-tanúsítvánnyal, vHost sablonokkal és opcionális OAuth-val ellátott, perdomain NGINX-tartalékokhoz használt rekord2"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace_tor"
@@ -2159,7 +2167,7 @@ msgstr "Webalapú LDAP kliens böngészésre, keresésre és könyvtárbejegyzé
 # translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Webalapú adminisztrációs és fejlesztési platform több PostgreSQL kiszolgáló kezelésére, opcionális OAth2 login"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

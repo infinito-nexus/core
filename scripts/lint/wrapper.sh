@@ -28,9 +28,13 @@ if [[ ! -f "${target_script}" ]]; then
 	exit 2
 fi
 
+# shellcheck source=scripts/lint/diff/files.sh
+source scripts/lint/diff/files.sh
+diff_files="$(lint_diff_write "${lint_type}")"
+
 case "${INFINITO_LINT_RUNNER}" in
 host)
-	exec bash --login "${target_script}" "$@"
+	LINT_DIFF_FILES="${diff_files}" exec bash --login "${target_script}" "$@"
 	;;
 docker)
 	# like ruff / mbake / ansible-lint undiscoverable. BASH_ENV via -e
@@ -51,6 +55,7 @@ docker)
 		-e GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-}" \
 		-e GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-}" \
 		-e GITHUB_SHA="${GITHUB_SHA:-}" \
+		-e LINT_DIFF_FILES="${diff_files}" \
 		--workdir "${INFINITO_SRC_DIR}" \
 		infinito \
 		bash "${INFINITO_SRC_DIR}/${target_script}" "$@"

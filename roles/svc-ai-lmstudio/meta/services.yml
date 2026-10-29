@@ -12,7 +12,7 @@ lmstudio:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ubuntu
   version: "22.04"
   custom: true

@@ -87,6 +87,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ansible hulprol vir idempotente opslag en vooropgegee van toekennings vir per-app-toepasings-toekennes in 'n lokale YAML opslag"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -449,6 +453,10 @@ msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Kruysding-distributiewe onderhoudstas vir skakelrekming van skryp oor CI, kist en bouomgewingë"
 
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
@@ -630,10 +638,6 @@ msgstr "Driver integrasie vir dinamiese typerlyskleur en RGB lichtregulering op 
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr ""
-"Fietshouder\n"
-"---\n"
-"\n"
-"Hoewel daar geen woord voor \"drivers\" in Afrikaans is, is \"Fietshouder\" de beste benadering voor deze concept."
 
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
