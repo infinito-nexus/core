@@ -224,6 +224,10 @@
   ansible.builtin.include_role:
     name: sys-svc-container
     tasks_from: utils/prepull/start.yml
+  vars:
+    sys_svc_container_prepull_extra: >-
+      {{ [lookup('config', 'test-e2e-playwright', 'services.playwright.image') ~ ':' ~ lookup('config', 'test-e2e-playwright', 'services.playwright.version')]
+         if RUNTIME in ['dev', 'act', 'github'] and 'server' in (group_names | get_deployment_types_from_groups) else [] }}
 
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:
