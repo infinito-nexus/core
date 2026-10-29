@@ -23,10 +23,13 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
 
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
     environment:
+      {% if DEPLOYMENT_MODE == 'swarm' %}
       TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
-    {% endif %}
+      NC_serverid: "{% raw %}{{.Task.Slot}}{% endraw %}"
+      {% else %}
+      NC_serverid: "1"
+      {% endif %}
     sysctls:
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
