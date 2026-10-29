@@ -190,6 +190,7 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 | `spreed` | `plugin` | enabled with the `talk` service | `talk`, `coturn` |
 | `whiteboard` | `plugin` | `required` (always installed) | none (self-hosted backend) |
 | `xwiki` | `plugin` | enabled with the `xwiki` partner | `xwiki` → `web-app-xwiki` |
+| `logreader` | `plugin` | disabled, `log_type` is `errorlog` | none |
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
 
