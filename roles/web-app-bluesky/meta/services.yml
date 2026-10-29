@@ -43,6 +43,8 @@ sso:
 # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 web:
   enabled: true
+  domains:
+    - web
   healthcheck:
     flavor: tcp
   ports:
@@ -60,6 +62,8 @@ web:
 # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 view:
   enabled: false
+  domains:
+    - view
   repository: https://github.com/bluesky-social/social-app.git
   ref: "1.137.0"
   ports:
