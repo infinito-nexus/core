@@ -25,12 +25,13 @@ Env (rendered into test.env from templates/test.env.j2):
     ONION_HOST          the node onion host
     ONION_PORTS         space-separated forwarded ports; empty means there is
                         nothing to check
-    ONION_PORT_TIMEOUT  seconds per connect attempt. 60 for the same reason the
-                        domain probe uses it: Tor's SocksTimeout default is 120s
-                        and abandoning earlier is destructive, because the next
-                        attempt opens a fresh SOCKS connection and throws away
-                        the descriptor fetches and rendezvous retries the last
-                        one was still working through
+    ONION_PORT_TIMEOUT  seconds per connect attempt, above Tor's SocksTimeout
+                        (120s by default; torrc does not set it). Every attempt
+                        builds a fresh rendezvous, which Tor keeps working on
+                        until SocksTimeout and then ends itself with reply 0x06
+                        and a "Giving up" notice in its log. An attempt abandoned
+                        earlier throws away a rendezvous Tor may still complete
+                        and leaves Tor's log without a trace of the failure
     ONION_PORT_RETRIES  passes over the failing ports. Below the domain probe's
                         RETRIES because this phase multiplies by the port count,
                         and meta/tests.yml caps the whole CLI test
@@ -148,7 +149,7 @@ def main() -> int:
     retries = int(_required("ONION_PORT_RETRIES", "passes over the failing ports"))
     sleep_seconds = float(_required("SLEEP_SECONDS", "wait between passes"))
     timeout = float(
-        _required("ONION_PORT_TIMEOUT", "seconds per connect, flavor-dependent")
+        _required("ONION_PORT_TIMEOUT", "seconds per connect, above Tor's SocksTimeout")
     )
     ports = [int(entry) for entry in os.environ.get("ONION_PORTS", "").split()]
 

@@ -33,12 +33,14 @@ test("administrator: stalwart recovery admin native login and logout", async ({ 
     .first()
     .click();
 
-  // Stalwart asks consent for every registered OAuth client before it shows the password form.
+  // Stalwart v1.0.0 asks consent for the OAuth client before the password form; v1.0.1 shows the password form directly.
   const allow = page.getByRole("button", { name: /^allow$/i });
-  await allow.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
-  await allow.click();
-
   const passwordField = page.locator("input[type='password'], input[name='password']").first();
+  await allow.or(passwordField).first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
+
   await passwordField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await passwordField.fill(stalwartAdminPassword);
   await page
@@ -51,9 +53,15 @@ test("administrator: stalwart recovery admin native login and logout", async ({ 
     page.getByText(/invalid username or password/i)
   ).toBeHidden({ timeout: resolveTimeout(15_000) });
 
-  await expect(
-    page.locator("nav, .sidebar, [class*='menu'], h1, h2").filter({ hasText: /dashboard|domains|account|settings|directory/i }).first()
-  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  const dashboard = page
+    .locator("nav, .sidebar, [class*='menu'], h1, h2")
+    .filter({ hasText: /dashboard|domains|account|settings|directory/i })
+    .first();
+  await allow.or(dashboard).first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
+  await expect(dashboard).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   if (oidcIssuerUrl) {
     expect(page.url()).not.toContain(oidcIssuerUrl);

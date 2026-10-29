@@ -101,8 +101,6 @@ fi
 cmd+=(--cache-server-addr 127.0.0.1)
 cmd+=(--artifact-server-addr 127.0.0.1)
 if [[ "${ACT_BIND}" != "true" ]] && compgen -G "${_act_repo_root}/roles/web-app-cst-*" >/dev/null; then
-	# Exception: act copies the checkout through .gitignore, which drops the
-	# pulled custom roles, so the job binds the checkout to keep them.
 	echo "act: binding the checkout to carry the pulled custom roles (roles/web-app-cst-*)"
 	ACT_BIND=true
 fi

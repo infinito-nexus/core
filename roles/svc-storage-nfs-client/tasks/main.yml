@@ -45,7 +45,8 @@
     path: "{{ SVC_STORAGE_NFS_CLIENT_PROBE_DIR }}"
     src: "{{ STORAGE_NFS_CLIENT_SRC }}"
     fstype: "{{ STORAGE_NFS_FSTYPE }}"
-    opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev,noauto"
+    opts: "{{ STORAGE_NFS_MOUNT_OPTS }},_netdev"
+    boot: false
     state: ephemeral
   register: svc_storage_nfs_client_probe
   failed_when:

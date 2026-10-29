@@ -2,15 +2,23 @@
 # Reusable management JMAP call: in `stalwart_jmap_body` (JSON), out `stalwart_jmap`.
 # Param: stalwart_jmap_body - JSON request; a batch carries one method call per object owner, its call id naming that owner in a refusal.
 # Param: stalwart_jmap_tolerate_rejected - true when the caller reads a set-level rejection itself (e.g. primaryKeyViolation).
+- name: "🔧 Resolve the Stalwart management URL and admin login once per run"
+  ansible.builtin.set_fact:
+    stalwart_jmap_client:
+      url: "{{ STALWART_JMAP_URL }}"
+      user_password: "{{ STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD }}"
+  when: stalwart_jmap_client is not defined
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🔧 Stalwart JMAP call"
   ansible.builtin.shell:
     cmd: >-
       container exec -i {{ STALWART_CONTAINER_ADDRESS }}
       {{ 30 | curl }} -sS -f -K -
       -H "Content-Type:application/json"
-      {{ STALWART_JMAP_URL }}
+      {{ stalwart_jmap_client.url }}
     stdin: |-
-      user = {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | to_json(ensure_ascii=False) }}
+      user = {{ stalwart_jmap_client.user_password | to_json(ensure_ascii=False) }}
       data-binary = {{ stalwart_jmap_body | to_json(ensure_ascii=False) }}
   register: stalwart_jmap_raw
   changed_when: false

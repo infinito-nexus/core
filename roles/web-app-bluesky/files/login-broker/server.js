@@ -234,10 +234,6 @@ async function pdsAdminUpdatePassword(did, newPassword) {
 
 // --- High-level orchestration --------------------------------------
 
-// Exception: the account map lives in the broker's own volume, never in a
-// Keycloak user attribute; a bluesky_* attribute write under LDAP federation
-// in WRITABLE mode triggers a schema-violating sync push that breaks later
-// OIDC logins of that user.
 const store = openStore(CONFIG.storePath);
 
 class HandleChoiceRequired extends Error {}

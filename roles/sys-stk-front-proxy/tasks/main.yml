@@ -55,6 +55,7 @@
       url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
       status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
+  when: IS_STACK_HOST | bool
 
 - name: 📂 Include dependencies
   include_role:
