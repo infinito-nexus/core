@@ -11,6 +11,11 @@
     file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/vars/main.yml') }}"
     name: swarm_ingress_firewall
 
+- name: "🧮 Swarm ingress guard | Fingerprint the bound the swarm nodes need"
+  ansible.builtin.set_fact:
+    swarm_ingress_guard_digest: "{{ [SWARM_INGRESS_GUARDED, SWARM_INGRESS_PEERS] | to_json | hash('sha256') }}"
+  run_once: true
+
 - name: "🛡️ Swarm ingress guard | Reload the bound on every swarm node"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/svc-net-firewall/tasks/02_fragment.yml') }}"
@@ -24,6 +29,17 @@
     FIREWALL_TABLE: "{{ swarm_ingress_firewall.FIREWALL_TABLE }}"
     SWARM_INGRESS_GUARDED_PORTS: "{{ SWARM_INGRESS_GUARDED }}"
     SWARM_INGRESS_PEER_ADDRESSES: "{{ SWARM_INGRESS_PEERS }}"
+  loop: "{{ groups['svc-swarm-node'] }}"
+  loop_control:
+    loop_var: swarm_ingress_guard_node
+  run_once: true
+  when: (hostvars[swarm_ingress_guard_node].swarm_ingress_guard_loaded | default('')) != swarm_ingress_guard_digest
+
+- name: "🧾 Swarm ingress guard | Record the bound every swarm node now carries"
+  ansible.builtin.set_fact:
+    swarm_ingress_guard_loaded: "{{ swarm_ingress_guard_digest }}"
+  delegate_to: "{{ swarm_ingress_guard_node }}"
+  delegate_facts: true
   loop: "{{ groups['svc-swarm-node'] }}"
   loop_control:
     loop_var: swarm_ingress_guard_node
