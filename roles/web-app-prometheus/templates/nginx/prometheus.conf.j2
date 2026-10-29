@@ -41,6 +41,10 @@
       "Overall stack availability per vhost (1=up, 0=down)",
       {"host", "app"}
     )
+    metric_docker_health_entries = prometheus:gauge(
+      "nginx_docker_health_entries",
+      "Unexpired health_containers entries written by the docker-health poller"
+    )
     metric_tls_handshakes = prometheus:counter(
       "nginx_tls_handshakes_total",
       "Total TLS handshakes by protocol",

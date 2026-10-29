@@ -116,11 +116,12 @@ end
 local body = read("containers.json")
 local decoded = assert(loadfile(dir .. "/containers.lua"))(null)
 
-local function world(ptype)
-  local w = {connects = 0, at = {}, every = {}, store = {}, ttl = {}}
+local function world(ptype, connect_err)
+  local w = {connects = 0, warns = 0, now = 0, at = {}, every = {}, store = {}, ttl = {}, expires = {}, gauges = {}}
+  local function live(k) return w.store[k] ~= nil and (w.expires[k] == 0 or w.expires[k] > w.now) end
   local function metric(name)
     return {
-      set = function(_, v) w.gauge = name .. "=" .. tostring(v) end,
+      set = function(_, v) w.gauges[name] = v end,
       inc = function() end,
       observe = function() end,
     }
@@ -129,7 +130,7 @@ local function world(ptype)
     counter = function(_, n) return metric(n) end,
     histogram = function(_, n) return metric(n) end,
     gauge = function(_, n) return metric(n) end,
-    collect = function() end,
+    collect = function() w.collected = true end,
   }
   local modules = {
     ["ngx.process"] = {
@@ -141,12 +142,20 @@ local function world(ptype)
   }
   local ngx = {
     ERR = 4, WARN = 5, HTTP_OK = 200, HTTP_SERVICE_UNAVAILABLE = 503,
-    log = function() end,
+    log = function(level) if level == 5 then w.warns = w.warns + 1 end end,
     header = {},
     var = {},
     shared = {health_containers = {
-      set = function(_, k, v, ttl) w.store[k] = v w.ttl[k] = ttl return true end,
-      get = function(_, k) return w.store[k] end,
+      set = function(_, k, v, ttl)
+        w.store[k] = v w.ttl[k] = ttl w.expires[k] = ttl == 0 and 0 or w.now + ttl
+        return true
+      end,
+      get = function(_, k) if live(k) then return w.store[k] end end,
+      get_keys = function()
+        local keys = {}
+        for k in pairs(w.store) do if live(k) then keys[#keys + 1] = k end end
+        return keys
+      end,
     }},
     timer = {
       at = function(delay, fn) w.at[#w.at + 1] = delay fn(false) return true end,
@@ -156,7 +165,11 @@ local function world(ptype)
       local lines = {"HTTP/1.0 200 OK", "Api-Version: 1.41", "Content-Type: application/json", ""}
       local n = 0
       return {
-        connect = function(_, target) w.connects = w.connects + 1 w.target = target return true end,
+        connect = function(_, target)
+          w.connects = w.connects + 1 w.target = target
+          if connect_err then return nil, connect_err end
+          return true
+        end,
         send = function(_, data) w.request = data return #data end,
         receive = function(_, pattern)
           if pattern == "*l" then n = n + 1 return lines[n] end
@@ -195,15 +208,38 @@ for key, value in pairs(agent.store) do
   print("dict\t" .. key .. "\t" .. value .. "/" .. agent.ttl[key])
 end
 
-for i = 2, #arg do
-  agent.ngx.var = {container_name = arg[i], host = "h", app_id = "a"}
-  agent.probe = 200
-  agent.ngx.status = nil
-  run(agent, "live.lua")
-  print("live\t" .. arg[i] .. "\t" .. tostring(agent.ngx.status))
-  run(agent, "metricz.lua")
-  print("metricz\t" .. arg[i] .. "\t" .. tostring(agent.gauge))
+local function request(w, key)
+  w.ngx.var = {container_name = key, host = "h", app_id = "a"}
+  w.probe = 200
+  w.ngx.status = nil
+  run(w, "live.lua")
+  run(w, "metricz.lua")
+  return tostring(w.ngx.status), tostring(w.gauges.nginx_stack_up), tostring(w.gauges.nginx_docker_health_entries)
 end
+
+for i = 2, #arg do
+  local status, up, entries = request(agent, arg[i])
+  print("live\t" .. arg[i] .. "\t" .. status)
+  print("metricz\t" .. arg[i] .. "\t" .. up .. "\t" .. entries)
+end
+
+agent.now = 61
+local _, _, expired = request(agent, arg[2])
+print("expired\t" .. expired)
+
+local denied = world("privileged agent", "permission denied")
+run(denied, "init_worker.lua")
+print("denied\t" .. denied.connects .. "\t" .. denied.warns)
+for i = 2, #arg do
+  local status, up, entries = request(denied, arg[i])
+  print("denied_metricz\t" .. arg[i] .. "\t" .. status .. "\t" .. up .. "\t" .. entries)
+end
+
+local stale = world("worker")
+run(stale, "init_worker.lua")
+stale.env.metric_docker_health_entries = nil
+local stale_ok = pcall(request, stale, arg[2])
+print("stale_conf\t" .. tostring(stale_ok) .. "\t" .. tostring(stale.collected))
 """
 
 
@@ -395,8 +431,9 @@ def _harness_outcome(mode: str, keys: list[str]) -> dict:
         keys: ``$container_name`` values to request ``/healthz/live`` and ``/metricz`` with.
 
     Returns:
-        ``enabled``, ``worker`` and ``agent`` results plus the ``dict``,
-        ``live`` and ``metricz`` maps keyed by container key.
+        ``enabled``, ``worker``, ``agent``, ``expired``, ``denied`` and ``stale_conf`` results
+        plus the ``dict``, ``live``, ``metricz`` and ``denied_metricz`` maps
+        keyed by container key, each value a tuple of the printed fields.
     """
     conf = _lua_blocks(
         _render(
@@ -430,10 +467,11 @@ def _harness_outcome(mode: str, keys: list[str]) -> dict:
         )
     if result.returncode != 0:
         raise AssertionError(f"luajit failed in {mode}:\n{result.stderr}")
-    outcome: dict = {"dict": {}, "live": {}, "metricz": {}}
+    keyed = ("dict", "live", "metricz", "denied_metricz")
+    outcome: dict = {kind: {} for kind in keyed}
     for fields in (line.split("\t") for line in result.stdout.splitlines()):
-        if fields[0] in ("dict", "live", "metricz"):
-            outcome[fields[0]][fields[1]] = fields[2]
+        if fields[0] in keyed:
+            outcome[fields[0]][fields[1]] = tuple(fields[2:])
         else:
             outcome[fields[0]] = fields[1:]
     return outcome
@@ -1137,9 +1175,9 @@ class TestDockerHealthLuaRuntime(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertEqual(
                     {
-                        keys["unhealthy"]: "down/60",
-                        keys["healthy"]: "up/60",
-                        keys["mixed"]: "up/60",
+                        keys["unhealthy"]: ("down/60",),
+                        keys["healthy"]: ("up/60",),
+                        keys["mixed"]: ("up/60",),
                     },
                     {
                         key: self.outcomes[mode]["dict"].get(key)
@@ -1154,16 +1192,47 @@ class TestDockerHealthLuaRuntime(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertEqual(
                     {
-                        keys["unhealthy"]: ("503", "nginx_stack_up=0"),
-                        keys["healthy"]: ("200", "nginx_stack_up=1"),
-                        keys["mixed"]: ("200", "nginx_stack_up=1"),
-                        keys["unknown"]: ("200", "nginx_stack_up=1"),
+                        keys["unhealthy"]: ("503", "0"),
+                        keys["healthy"]: ("200", "1"),
+                        keys["mixed"]: ("200", "1"),
+                        keys["unknown"]: ("200", "1"),
                     },
                     {
-                        key: (outcome["live"][key], outcome["metricz"][key])
+                        key: (outcome["live"][key][0], outcome["metricz"][key][0])
                         for key in keys.values()
                     },
                 )
+
+    def test_entries_gauge_counts_the_unexpired_dict_entries(self):
+        for mode in _MODES:
+            outcome = self.outcomes[mode]
+            with self.subTest(mode=mode):
+                self.assertGreater(len(outcome["dict"]), 0)
+                self.assertEqual(
+                    {str(len(outcome["dict"]))},
+                    {fields[1] for fields in outcome["metricz"].values()},
+                )
+
+    def test_entries_gauge_drops_to_zero_once_the_poller_stops(self):
+        for mode in _MODES:
+            with self.subTest(mode=mode):
+                self.assertEqual(["0"], self.outcomes[mode]["expired"])
+
+    def test_entries_gauge_is_zero_when_the_socket_is_denied(self):
+        for mode in _MODES:
+            keys = self.keys[mode]
+            outcome = self.outcomes[mode]
+            with self.subTest(mode=mode):
+                self.assertEqual(["1", "1"], outcome["denied"])
+                self.assertEqual(
+                    dict.fromkeys(keys.values(), ("200", "1", "0")),
+                    outcome["denied_metricz"],
+                )
+
+    def test_metricz_still_collects_before_the_gauge_is_registered(self):
+        for mode in _MODES:
+            with self.subTest(mode=mode):
+                self.assertEqual(["true", "true"], self.outcomes[mode]["stale_conf"])
 
 
 class TestNativeAppMetrics(unittest.TestCase):
