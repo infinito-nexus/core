@@ -310,6 +310,7 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
             str(INVENTORY_DIR / ".password"),
             "--skip-backup",
             "--skip-cleanup",
+            "--skip-pull",
         ],
     ]
     outer = {

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from utils.cache.yaml import load_yaml_any
 from utils.i18n.catalog import LOCALE_DIR, read_catalog
+from utils.roles.custom import is_custom
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 CATEGORIES_FILE = Path("meta") / "categories.yml"
@@ -90,10 +91,12 @@ def role_messages(root: Path) -> list[tuple[str, str]]:
     messages = []
     roles = root / "roles"
     for main in sorted(roles.glob(f"*/{ROLE_FILE_META_MAIN}")):
+        role = main.relative_to(roles).parts[0]
+        if is_custom(role):
+            continue
         galaxy_info = (_load(main) or {}).get("galaxy_info") or {}
         description = _text(galaxy_info.get("description"))
         if description:
-            role = main.relative_to(roles).parts[0]
             messages.append((role_context(role), description))
     return messages
 
