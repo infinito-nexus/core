@@ -158,7 +158,15 @@ NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spree
 NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
-NEXTCLOUD_HPB_MEDIA_DIRECT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool }}"
+# nocheck: host-local-fact  read only in compose mode, where the host rendering this file is the host Janus publishes its media ports on; Ansible omits the key on a host without the ip binary, which leaves the media on TURN
+NEXTCLOUD_HPB_HOST_ADDRESSES: "{{ ansible_facts['all_ipv4_addresses'] | default([]) }}"
+NEXTCLOUD_HPB_MEDIA_DIRECT: >-
+  {{ (lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.direct_media') | bool)
+     and (NEXTCLOUD_HPB_SIGNALING_ENABLED | bool)
+     and (NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED | bool)
+     and (lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.network_mode') == 'bridge')
+     and (DEPLOYMENT_MODE == 'compose')
+     and (networks.internet.ip4 in NEXTCLOUD_HPB_HOST_ADDRESSES) }}
 NEXTCLOUD_HPB_MEDIA_PUBLIC_IP: "{{ networks.internet.ip4 }}"
 NEXTCLOUD_HPB_MEDIA_PORT_START: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.start') }}"
 NEXTCLOUD_HPB_MEDIA_PORT_END: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.ports.public.relay.end') }}"

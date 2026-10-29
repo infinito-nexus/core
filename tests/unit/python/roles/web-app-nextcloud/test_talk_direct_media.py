@@ -18,7 +18,11 @@ from plugins.lookup.container_volumes import container_volumes
 from utils.cache import _reset_cache_for_tests
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TEMPL_COMPOSE,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = "roles/web-app-nextcloud"
 TEMPLATE = f"{ROLE}/{ROLE_FILE_TEMPL_COMPOSE}"
@@ -236,48 +240,93 @@ class TestTalkComposeBlock(unittest.TestCase):
         self.assertNotEqual(_talk_block(rendered), _legacy(cell))
 
 
-def _direct_media(group_names, *, mode="compose", ip4=PUBLIC_IP, applications=None):
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.template import Templar
+ROLE_VARS = load_yaml_any(str(PROJECT_ROOT / ROLE / ROLE_FILE_VARS_MAIN))
+DIRECT_MEDIA_CHAIN = (
+    "NEXTCLOUD_HPB_PLUGIN_ENABLED",
+    "NEXTCLOUD_HPB_SIGNALING_ENABLED",
+    "NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED",
+    "NEXTCLOUD_HPB_HOST_ADDRESSES",
+)
 
-    from utils.cache.applications import get_merged_applications
+
+def _direct_media(
+    group_names, *, mode="compose", ip4=PUBLIC_IP, applications=None, facts=True
+):
+    from ansible.parsing.dataloader import DataLoader
+    from ansible.template import Templar, trust_as_template
 
     variables = {
         "group_names": group_names,
         "applications": applications or {},
+        "application_id": "web-app-nextcloud",
+        "NEXTCLOUD_HPB_SERVICE": "talk",
         "DEPLOYMENT_MODE": mode,
         "networks": {"internet": {"ip4": ip4, "ip6": "::1"}},
-        "ansible_facts": {"all_ipv4_addresses": [PUBLIC_IP, "10.208.0.1"]},
+        **{name: trust_as_template(ROLE_VARS[name]) for name in DIRECT_MEDIA_CHAIN},
     }
+    if facts:
+        variables["ansible_facts"] = {"all_ipv4_addresses": [PUBLIC_IP, "10.208.0.1"]}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
     _reset_cache_for_tests()
     try:
-        merged = get_merged_applications(variables=variables, templar=templar)
+        return templar.template(
+            trust_as_template(ROLE_VARS["NEXTCLOUD_HPB_MEDIA_DIRECT"])
+        )
     finally:
         _reset_cache_for_tests()
-    return merged["web-app-nextcloud"]["services"]["talk"]["direct_media"]
 
 
 STANDALONE_TURN = ("web-app-nextcloud", "web-svc-coturn")
 
 
+def _talk(**talk):
+    return {"web-app-nextcloud": {"services": {"talk": talk}}}
+
+
+OPTED_IN = _talk(direct_media=True)
+
+
 class TestDirectMediaFlag(unittest.TestCase):
-    def test_compose_with_standalone_turn_and_an_owned_address_turns_it_on(self):
-        self.assertIs(_direct_media(list(STANDALONE_TURN)), True)
+    def test_by_default_every_stream_goes_through_turn(self):
+        self.assertIs(_direct_media(list(STANDALONE_TURN)), False)
+
+    def test_opting_in_with_standalone_turn_and_an_owned_address_turns_it_on(self):
+        self.assertIs(_direct_media(list(STANDALONE_TURN), applications=OPTED_IN), True)
+
+    def test_host_networking_keeps_it_off(self):
+        host = _talk(direct_media=True, network_mode="host")
+        self.assertIs(_direct_media(list(STANDALONE_TURN), applications=host), False)
 
     def test_an_address_the_host_does_not_own_keeps_it_off(self):
-        self.assertIs(_direct_media(list(STANDALONE_TURN), ip4="198.51.100.9"), False)
+        self.assertIs(
+            _direct_media(
+                list(STANDALONE_TURN), ip4="198.51.100.9", applications=OPTED_IN
+            ),
+            False,
+        )
 
     def test_the_loopback_placeholder_keeps_it_off(self):
-        self.assertIs(_direct_media(list(STANDALONE_TURN), ip4="127.0.0.1"), False)
+        self.assertIs(
+            _direct_media(list(STANDALONE_TURN), ip4="127.0.0.1", applications=OPTED_IN),
+            False,
+        )
 
     def test_swarm_keeps_it_off(self):
-        self.assertIs(_direct_media(list(STANDALONE_TURN), mode="swarm"), False)
+        self.assertIs(
+            _direct_media(list(STANDALONE_TURN), mode="swarm", applications=OPTED_IN),
+            False,
+        )
 
     def test_onboard_turn_keeps_it_off(self):
-        forced = {"web-app-nextcloud": {"services": {"talk": {"enabled": True}}}}
+        forced = _talk(enabled=True, direct_media=True)
         self.assertIs(_direct_media(["web-app-nextcloud"], applications=forced), False)
+
+    def test_missing_host_facts_render_false_instead_of_a_raw_expression(self):
+        self.assertIs(
+            _direct_media(list(STANDALONE_TURN), facts=False, applications=OPTED_IN),
+            False,
+        )
 
 
 if __name__ == "__main__":
