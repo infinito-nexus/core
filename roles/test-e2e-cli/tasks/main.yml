@@ -42,12 +42,14 @@
   block:
     - name: 🚀 Run CLI test for each detected role
       ansible.builtin.include_tasks: run_one.yml
+      vars:
+        application_id: "{{ cli_role_id }}"
       loop: "{{ _cli_apps }}"
       loop_control:
-        loop_var: application_id # nocheck: loop-var-shadow  the item IS the role id, so run_one reads the same value the tested role declares
-        label: "{{ application_id }}"
+        loop_var: cli_role_id
+        label: "{{ cli_role_id }}"
       when: >-
-        not (lookup('role_tests', application_id, 'cli.controller_only', default=false) | bool)
+        not (lookup('role_tests', cli_role_id, 'cli.controller_only', default=false) | bool)
         or (ansible_connection | default('')) == 'local'
 
     - name: ✅ Fail if there were CLI test failures
