@@ -42,7 +42,7 @@ stalwart:
   # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind to the stack host IP (a floating task's egress IP breaks deliverability); the mail store is NFS-hostile and IS the app — same rationale as web-app-mailu
   placement: manager
   image: stalwartlabs/stalwart
-  version: "v1.0.0"
+  version: "v1.0.1"
   webui_version: "v2.0.2"
   update:
     key: webui_version

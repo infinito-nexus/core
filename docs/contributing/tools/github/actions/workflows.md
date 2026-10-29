@@ -44,7 +44,7 @@ Trigger column legend: **auto** = fires automatically (push, pull_request, sched
 |---|---|---|---|
 | [cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL` | CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour. | reusable, auto (`schedule`: weekly Mon 00:00 UTC) | none |
 | [cron-security-fuzz.yml](../../../../../.github/workflows/cron-security-fuzz.yml): `🧬 Fuzz parsers` | Runs the [atheris](https://github.com/google/atheris) harness [_yaml_bootstrap.py](../../../../../tests/fuzz/_yaml_bootstrap.py) for 15 minutes and uploads every crashing input as the `fuzz-crashes` artifact. Reproduce one locally with `pip install -e ".[fuzz]"` and `python3 tests/fuzz/_yaml_bootstrap.py <crash-file>`. | auto (`schedule`: weekly Sun 04:00 UTC), manual | none |
-| [call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint` | Runs `make lint` (every lint check in parallel: action, ansible, javascript, makefile, markdown, mermaid, packages, playwright, python, shellcheck) plus a hadolint SARIF job on `Dockerfile`. | reusable, manual | none |
+| [call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint` | Runs `make lint` (every lint check in parallel: action, ansible, css, dockerfile, javascript, makefile, markdown, mermaid, packages, php, playwright, python, ruby, shellcheck, sql). Hadolint checks `Dockerfile` as `lint-dockerfile` and uploads no SARIF. | reusable, manual | none |
 
 ### CI images 🐳
 

@@ -30,7 +30,9 @@ ENGINE_DOWN = "Ensure the dedicated store database runs"
 PRE_1_0 = "Ensure Stalwart opens no store from before 1.0"
 
 SKIPPED = {"skipped": True, "changed": False}
-NO_MARKER = {"stalwart_store_marker_file": {"changed": False, "stat": {"exists": False}}}
+NO_MARKER = {
+    "stalwart_store_marker_file": {"changed": False, "stat": {"exists": False}}
+}
 
 
 def _render(template: str, **variables):
@@ -47,7 +49,9 @@ def _module(task: dict, name: str) -> dict | None:
 
 
 def _layout_version() -> str:
-    return load_yaml_any(str(VARS), default_if_missing={})["STALWART_STORE_LAYOUT_VERSION"]
+    return load_yaml_any(str(VARS), default_if_missing={})[
+        "STALWART_STORE_LAYOUT_VERSION"
+    ]
 
 
 def _written_marker() -> str:
@@ -55,7 +59,8 @@ def _written_marker() -> str:
     copy = next(
         t["stack_host_copy"]
         for t in tasks
-        if t.get("stack_host_copy", {}).get("dest") == "{{ STALWART_STORE_MARKER_FILE }}"
+        if t.get("stack_host_copy", {}).get("dest")
+        == "{{ STALWART_STORE_MARKER_FILE }}"
     )
     return _render(copy["content"], STALWART_STORE_LAYOUT_VERSION=_layout_version())
 
@@ -77,7 +82,9 @@ def _guard(results: dict[str, dict], *, shared: bool) -> str:
     }
     for task in load_yaml_any(str(GUARD), default_if_missing=[]):
         when = task.get("when", [])
-        if not all(_holds(c, facts) for c in (when if isinstance(when, list) else [when])):
+        if not all(
+            _holds(c, facts) for c in (when if isinstance(when, list) else [when])
+        ):
             if "register" in task:
                 facts[task["register"]] = SKIPPED
             continue
