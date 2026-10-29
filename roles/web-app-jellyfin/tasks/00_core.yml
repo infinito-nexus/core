@@ -53,6 +53,7 @@
         jellyfin_design_title: "{{ lookup('design', application_id).title if JELLYFIN_DESIGN_ENABLED | bool else false }}"
         jellyfin_design_css_current: "{{ jellyfin_design_branding.json.get('CustomCss') or '' }}"
         jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"
+        jellyfin_design_urls: "{{ lookup('design', application_id).relative_urls }}"
         jellyfin_design_css_block: "{{ (JELLYFIN_DESIGN_CSS_OPEN ~ (lookup('template', 'branding.css.j2') | trim) ~ JELLYFIN_DESIGN_CSS_CLOSE) if JELLYFIN_DESIGN_ENABLED
           | bool else '' }}"
         jellyfin_design_css: "{{ [jellyfin_design_css_foreign, jellyfin_design_css_block] | select | join('\n') }}"

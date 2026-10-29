@@ -589,12 +589,12 @@ html[data-design-palette] .MuiMenuItem-root.Mui-selected:hover {
 }
 {% if design.logo is string %}
 html[data-design-palette] .pageTitleWithDefaultLogo {
-  background-image: url("{{ design.urls.brand.svg }}");
+  background-image: url("{{ jellyfin_design_urls.brand.svg }}");
 }
 html[data-design-palette].layout-tv .pageTitleWithDefaultLogo {
-  background-image: url("{{ design.urls.icon.svg }}");
+  background-image: url("{{ jellyfin_design_urls.icon.svg }}");
 }
 html[data-design-palette] .MuiDrawer-paper .MuiListItemIcon-root > img {
-  content: url("{{ design.urls.icon.svg }}");
+  content: url("{{ jellyfin_design_urls.icon.svg }}");
 }
 {% endif %}

@@ -17,6 +17,7 @@ const corporateTheme = decodeDotenvQuotedValue(process.env.DESIGN_THEME || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
 const lockupUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_URL || "");
+const lockupPath = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_PATH || "");
 const splashUrl = decodeDotenvQuotedValue(process.env.DESIGN_SPLASH_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const touchIconUrl = decodeDotenvQuotedValue(process.env.DESIGN_TOUCH_ICON_URL || "");
@@ -538,8 +539,10 @@ exports.register = function (shared) {
     if (lockupUrl) {
       expect(faviconUrl, "a role that renders a lockup also renders DESIGN_FAVICON_URL").toBeTruthy();
       expect(touchIconUrl, "a role that renders a lockup also renders DESIGN_TOUCH_ICON_URL").toBeTruthy();
+      expect(lockupPath, "a role that renders a lockup also renders DESIGN_LOCKUP_PATH").toBeTruthy();
+      const headerLockupUrl = new URL(lockupPath, page.url()).href;
       const logo = page.locator(HEADER_LOGO);
-      await expect(logo).toHaveCSS("background-image", `url("${lockupUrl}")`);
+      await expect(logo).toHaveCSS("background-image", `url("${headerLockupUrl}")`);
       const box = await logo.boundingBox();
       expect(box.width, `the header gives the lockup a ${box.width}x${box.height} box that must be at least twice as wide as high`).toBeGreaterThanOrEqual(
         2 * box.height,
@@ -556,7 +559,7 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: null });
       await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
       await expect(page.locator("link[rel='apple-touch-icon']")).toHaveAttribute("href", touchIconUrl);
-      for (const url of [lockupUrl, iconUrl, faviconUrl, touchIconUrl]) await assertLoads(page, url);
+      for (const url of [lockupUrl, headerLockupUrl, iconUrl, faviconUrl, touchIconUrl]) await assertLoads(page, url);
     }
   });
 
