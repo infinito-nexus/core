@@ -28,8 +28,37 @@ def _tasks(name: str) -> list[dict]:
     return load_yaml_any(str(TASKS / name), default_if_missing=[])
 
 
+def _conditions(task: dict) -> list[str]:
+    if "when" not in task:
+        return []
+    when = task["when"]
+    return when if isinstance(when, list) else [when]
+
+
+def _walk(tasks: list[dict], gates: list[str]) -> list[tuple[dict, list[str]]]:
+    flat = []
+    for task in tasks:
+        conditions = gates + _conditions(task)
+        flat.append((task, conditions))
+        if "block" in task:
+            flat.extend(_walk(task["block"], conditions))
+    return flat
+
+
+def _flat(name: str) -> list[tuple[dict, list[str]]]:
+    return _walk(_tasks(name), [])
+
+
+def _gated(name: str) -> tuple[dict, list[str]]:
+    return next(
+        (task, conditions)
+        for task, conditions in _flat("write_many.yml")
+        if task.get("name") == name
+    )
+
+
 def _task(name: str) -> dict:
-    return next(t for t in _tasks("write_many.yml") if t.get("name") == name)
+    return _gated(name)[0]
 
 
 def _render(template, **variables):
@@ -46,11 +75,12 @@ def _merged(entries: list[dict], users: dict = USERS) -> dict:
 
 
 def _when(name: str, **variables) -> bool:
-    when = _task(name)["when"]
-    conditions = when if isinstance(when, list) else [when]
+    conditions = _gated(name)[1]
+    if not conditions:
+        return True
     return _render(
         "{{ ((" + ") and (".join(conditions) + ")) | bool }}",
-        DEPLOYMENT_MODE="swarm",
+        IS_SWARM_MODE=True,
         **variables,
     )
 
@@ -118,7 +148,9 @@ class TestWriteMany(unittest.TestCase):
                 sys_token_store_mirrored=SKIPPED,
             )
         )
-        rerenders = [t for t in _tasks("write_many.yml") if "applications_carrier" in t]
+        rerenders = [
+            t for t, _ in _flat("write_many.yml") if "applications_carrier" in t
+        ]
         self.assertEqual(len(rerenders), 1)
         self.assertNotIn("loop", rerenders[0])
 
