@@ -203,9 +203,9 @@ def iter_non_ignored_files(
 def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
     """Repository-relative POSIX paths of every file ``git ls-files`` lists.
 
-    Git ignores the custom roles an inventory pulls into ``roles/``, yet
-    every scan checks them like in-tree roles, so their files are listed
-    as well.
+    A tracked file deleted in the worktree is left out. Git ignores the custom
+    roles an inventory pulls into ``roles/``, yet every scan checks them like
+    in-tree roles, so their files are listed as well.
 
     Args:
         untracked: also list the untracked files ``.gitignore`` does not exclude.
@@ -215,7 +215,7 @@ def repository_files(*, untracked: bool = False) -> tuple[str, ...]:
         subprocess.CalledProcessError: git cannot list the files.
     """
     root = str(PROJECT_ROOT)
-    rels = _git_files()
+    rels = _git_files() - _git_files("--deleted")
     if untracked:
         rels.update(untracked_files())
     rels.update(

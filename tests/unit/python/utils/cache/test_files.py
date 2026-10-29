@@ -194,7 +194,7 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / self.CUSTOM, "- x")
         _touch(self.root / "roles/web-app-cst-demo/__pycache__/x.pyc", "")
-        with self._git(f"{self.TRACKED}\0".encode()):
+        with self._git(f"{self.TRACKED}\0".encode(), b""):
             self.assertEqual(
                 (self.CUSTOM, self.TRACKED),
                 files_module.repository_files(),
@@ -203,18 +203,24 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
     def test_lists_only_the_tracked_files_without_placed_custom_roles(self) -> None:
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / "build/install.stamp", "")
-        with self._git(f"{self.TRACKED}\0".encode()):
+        with self._git(f"{self.TRACKED}\0".encode(), b""):
             self.assertEqual((self.TRACKED,), files_module.repository_files())
 
+    def test_leaves_out_a_tracked_file_deleted_in_the_worktree(self) -> None:
+        gone = "roles/web-app-nextcloud/filter_plugins/gone.py"
+        with self._git(f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode()) as run:
+            self.assertEqual((self.TRACKED,), files_module.repository_files())
+        self.assertEqual(["--deleted"], run.call_args_list[1].args[0][-1:])
+
     def test_untracked_adds_the_files_gitignore_does_not_exclude(self) -> None:
-        with self._git(f"{self.TRACKED}\0".encode(), b"new.py\0") as run:
+        with self._git(f"{self.TRACKED}\0".encode(), b"", b"new.py\0") as run:
             self.assertEqual(
                 ("new.py", self.TRACKED),
                 files_module.repository_files(untracked=True),
             )
         self.assertEqual(
             ["--others", "--exclude-standard"],
-            run.call_args_list[1].args[0][-2:],
+            run.call_args_list[2].args[0][-2:],
         )
 
     def test_a_git_failure_propagates(self) -> None:
