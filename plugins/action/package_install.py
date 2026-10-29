@@ -18,7 +18,9 @@ Distribution repositories, the AUR, COPR, PPA and source builds all run
 through here, including the unprivileged build environment the AUR needs.
 :mod:`utils.packages.plan` decides which module calls that takes; this
 plugin only executes them. Ids whose plans only call the host's package
-manager share one call, so a long list costs one transaction.
+manager share one call, so a long list costs one transaction, and
+:mod:`utils.packages.installed` skips that call when the host's package
+database already shows every name in the requested state.
 
 Args:
     id: logical package id, or a list of ids, each declared either in the
@@ -32,7 +34,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from ansible.errors import AnsibleActionFail
+from ansible.errors import AnsibleActionFail, AnsibleError
 from ansible.plugins.action import ActionBase
 
 from utils.packages.calls import (
@@ -43,6 +45,7 @@ from utils.packages.calls import (
     ModuleCall,
 )
 from utils.packages.facts import distribution_and_family, read_fact
+from utils.packages.installed import query_argv, state_holds
 from utils.packages.outcome import aggregate
 from utils.packages.plan import build_plan, merge_plans
 from utils.packages.registry import build_registry, project_root_from_env, resolve
@@ -111,7 +114,14 @@ class ActionModule(ActionBase):
     ) -> dict[str, Any]:
         """Run *call* once, or up to its retry policy while it keeps
         failing. Returns the last result, tagged with the module that
-        produced it."""
+        produced it. A call whose state the host already holds does not
+        run at all."""
+        if self._state_holds(call, task_vars, facts):
+            return {
+                "changed": False,
+                "msg": f"{', '.join(call.args['name'])} already {call.args['state']}",
+                "module": call.module,
+            }
         if call.retry is None:
             return self._tagged(call, task_vars, facts)
         result: dict[str, Any] = {}
@@ -122,6 +132,23 @@ class ActionModule(ActionBase):
             if attempt < call.retry.attempts:
                 time.sleep(call.retry.seconds)
         return result
+
+    def _state_holds(
+        self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
+    ) -> bool:
+        pkg_mgr = read_fact(facts, "pkg_mgr")
+        argv = query_argv(call, pkg_mgr)
+        if argv is None:
+            return False
+        try:
+            result = self._execute_module(
+                module_name="ansible.builtin.command",
+                module_args={"argv": argv, "expand_argument_vars": False},
+                task_vars=task_vars,
+            )
+        except AnsibleError:
+            return False
+        return state_holds(call, pkg_mgr, result)
 
     def _tagged(
         self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
