@@ -4,6 +4,13 @@
 
   lua_shared_dict health_containers 1m;
 
+  init_by_lua_block {
+    local ok, err = require("ngx.process").enable_privileged_agent()
+    if not ok then
+      ngx.log(ngx.ERR, "docker-health: cannot enable the privileged agent: ", err)
+    end
+  }
+
   init_worker_by_lua_block {
     -- lua-resty-prometheus (master) requires init() in init_worker_by_lua_block,
     -- not init_by_lua_block, so that each worker initialises its own state.
@@ -40,12 +47,7 @@
       {"host", "app", "protocol"}
     )
 
-    -- Docker health polling — worker 0 only to avoid duplicate socket traffic.
-    -- Queries GET /v1.41/containers/json via the Docker Unix socket, then
-    -- stores each container's liveness in health_containers.  /healthz/live
-    -- reads the cache synchronously so Docker state is checked on every probe
-    -- without adding socket-connect latency to the request path.
-    if ngx.worker.id and ngx.worker.id() == 0 then
+    if require("ngx.process").type() == "privileged agent" then
       local function poll_docker_health(premature)
         if premature then return end
         local cjson  = require("cjson.safe")
@@ -81,6 +83,7 @@
         local containers = cjson.decode(body)
         if type(containers) ~= "table" then return end
 
+        local services = {}
         for _, c in ipairs(containers) do
           local names = c.Names
           if type(names) == "table" and names[1] then
@@ -95,7 +98,16 @@
             local is_up = (state == "running") and (health_tag ~= "unhealthy")
             -- TTL 60 s — entries expire if the container disappears between polls
             health:set(name, is_up and "up" or "down", 60)
+            local labels  = c.Labels
+            local service = type(labels) == "table" and labels["com.docker.swarm.service.name"]
+            if type(service) == "string" and service ~= "" then
+              services[service] = services[service] or is_up
+            end
           end
+        end
+
+        for service, up in pairs(services) do
+          health:set(service, up and "up" or "down", 60)
         end
       end
 
