@@ -379,7 +379,7 @@ video: https://youtu.be/3jcYJGQgenI?si=FDmoMSrAb9_WvviC
 | `video`    | string | Upstream demo / overview video URL.                                                                                      |
 
 The lint (`tests/lint/ansible/roles/meta/test_info.py`) rejects any other top-level key so the file does not become a dumping ground.
-Whether the dashboard shows the role's card is not set here but in `services.dashboard.display`, see [Dashboard Card Display](base.md#dashboard-card-display-).
+Whether the dashboard shows the role's card is not set here but in `services.dashboard.enabled`, see [Dashboard Card Display](base.md#dashboard-card-display-).
 
 ### Optionality
 

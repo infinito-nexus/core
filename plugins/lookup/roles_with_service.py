@@ -9,9 +9,7 @@ can tell embeddable cards from those that must open in a new tab.
 For the ``dashboard`` service a role MAY name ``services.dashboard.card:
 <key>``; its entry then carries ``domains.canonical.<key>`` and
 ``lookup('canonical_url', <role>, <key>)`` instead of the primary domain, so
-the tile target matches the card ``docker_cards`` renders. A role whose
-``services.dashboard.display`` is false renders no card, so it is no tile
-target either.
+the tile target matches the card ``docker_cards`` renders.
 
 A role keeps declaring the service for inventory completeness but can
 opt out of this consumer-target list by setting
@@ -52,11 +50,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
-from utils.roles.applications.dashboard import (
-    DASHBOARD_SERVICE,
-    card_is_displayed,
-    card_target_key,
-)
+from utils.roles.applications.dashboard import DASHBOARD_SERVICE, card_target_key
 from utils.roles.applications.mcp import (
     DEFAULT_MCP_TRANSPORT,
     derive_allowed_consumers,
@@ -207,8 +201,6 @@ class LookupModule(LookupBase):
             if deployed is not None and str(role_id) not in deployed:
                 continue
             if get_entity_name(str(role_id)) == service_name:
-                continue
-            if lists_dashboard_cards and not card_is_displayed(str(role_id), block):
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
             if not canonical and direction is None:

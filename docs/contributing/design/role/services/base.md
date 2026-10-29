@@ -76,22 +76,21 @@ Rules:
 
 ## Dashboard Card Display 👀
 
-`display: false` on a consumer's `dashboard` binding drops its dashboard card, its Apps menu entry and its tile-reachability target.
-The switch is read from the merged applications, so an inventory MAY set it per host without touching the role:
+`enabled: false` on a consumer's `dashboard` binding takes the role out of the dashboard: no card, no Apps menu entry, no tile-reachability target and no dashboard origin in its CSP `frame-ancestors`.
+The flag is read from the merged applications, so an inventory MAY set it per host without touching the role:
 
 ```yaml
 applications:
   web-app-gitea:
     services:
       dashboard:
-        display: false
+        enabled: false
 ```
 
 Rules:
 
-- `display:` MUST be a bool; any other value fails the card lookup.
-- Without `display:` the card is shown, so a role does not declare `display: true`.
-- The inventory validator accepts `services.dashboard.display` for every role whose contract declares `services.dashboard`.
+- `enabled:` MUST render to a boolean; any other value fails the card lookup.
+- A `web-app-*` role without a `dashboard` binding still gets a card.
 
 ## Service Discovery 🔍
 

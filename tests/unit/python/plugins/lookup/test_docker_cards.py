@@ -382,40 +382,34 @@ logo:
         fake_variables["group_names"] = ["portfolio", "other"]
         return fake_variables
 
-    def test_display_false_skips_the_card(self):
+    def test_enabled_false_skips_the_card(self):
         fake_variables = self._base_fake_variables()
         fake_variables["applications"]["portfolio"]["services"]["dashboard"][
-            "display"
+            "enabled"
         ] = False
 
         result = self._run_lookup(LookupModule(), fake_variables)
 
         self.assertEqual(result, [[]])
 
-    def test_absent_display_shows_the_card(self):
+    def test_a_role_without_a_dashboard_binding_shows_the_card(self):
         fake_variables = self._base_fake_variables()
-        self.assertNotIn(
-            "display",
-            fake_variables["applications"]["portfolio"]["services"]["dashboard"],
-        )
+        fake_variables["applications"]["portfolio"]["services"] = {}
 
         result = self._run_lookup(LookupModule(), fake_variables)
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
-    def test_display_true_shows_the_card(self):
+    def test_enabled_true_shows_the_card(self):
         fake_variables = self._base_fake_variables()
-        fake_variables["applications"]["portfolio"]["services"]["dashboard"][
-            "display"
-        ] = True
 
         result = self._run_lookup(LookupModule(), fake_variables)
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
-    def test_display_false_hides_only_its_own_card(self):
+    def test_enabled_false_hides_only_its_own_card(self):
         fake_variables = self._two_role_variables()
-        fake_variables["applications"]["other"]["services"]["dashboard"]["display"] = (
+        fake_variables["applications"]["other"]["services"]["dashboard"]["enabled"] = (
             False
         )
 
@@ -423,7 +417,7 @@ logo:
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
-    def test_both_cards_render_without_display(self):
+    def test_both_cards_render_when_both_are_enabled(self):
         fake_variables = self._two_role_variables()
 
         result = self._run_lookup(LookupModule(), fake_variables)
@@ -444,11 +438,11 @@ logo:
 
         self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
 
-    def test_non_bool_display_fails_loudly(self):
+    def test_non_boolean_enabled_fails_loudly(self):
         fake_variables = self._base_fake_variables()
         fake_variables["applications"]["portfolio"]["services"]["dashboard"][
-            "display"
-        ] = "false"
+            "enabled"
+        ] = "maybe"
 
         with self.assertRaisesRegex(AnsibleError, "portfolio"):
             self._run_lookup(LookupModule(), fake_variables)

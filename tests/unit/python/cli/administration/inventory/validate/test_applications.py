@@ -105,33 +105,6 @@ class TestCompareApplicationKeys(unittest.TestCase):
         defaults = {"web-app-cst-demo": {"services": {"port": 8080}}}
         self.assertEqual(compare_application_keys(apps, defaults, "src"), [])
 
-    def test_dashboard_display_is_legal_where_dashboard_is_declared(self):
-        apps = {"app1": {"services": {"dashboard": {"display": False}}}}
-        defaults = {"app1": {"services": {"dashboard": {"enabled": False}}}}
-        self.assertEqual(compare_application_keys(apps, defaults, "src"), [])
-
-    def test_dashboard_display_is_legal_where_a_variant_declares_dashboard(self):
-        apps = {"app1": {"services": {"dashboard": {"display": False}}}}
-        defaults = {"app1": {"services": {}}}
-        variants = {"app1": [{"services": {"dashboard": {"enabled": True}}}]}
-        self.assertEqual(compare_application_keys(apps, defaults, "src", variants), [])
-
-    def test_dashboard_display_without_a_dashboard_binding_is_flagged(self):
-        apps = {"app1": {"services": {"dashboard": {"display": False}}}}
-        defaults = {"app1": {"services": {"port": 8080}}}
-        result = compare_application_keys(apps, defaults, "src")
-        self.assertEqual(
-            sorted(err.rsplit(": ", 1)[1] for err in result),
-            ["services.dashboard", "services.dashboard.display"],
-        )
-
-    def test_other_undeclared_dashboard_keys_stay_flagged(self):
-        apps = {"app1": {"services": {"dashboard": {"dispaly": False}}}}
-        defaults = {"app1": {"services": {"dashboard": {"enabled": False}}}}
-        result = compare_application_keys(apps, defaults, "src")
-        self.assertEqual(len(result), 1)
-        self.assertIn("services.dashboard.dispaly", result[0])
-
     def test_declaration_keys_on_an_in_tree_role_are_flagged(self):
         apps = {"app1": {"custom": True, "source": {"url": "https://x/y.git"}}}
         defaults = {"app1": {"services": {}}}

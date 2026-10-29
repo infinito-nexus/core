@@ -31,7 +31,7 @@ class LookupModule(LookupBase):
           - Reads the title from the role's README.md (the first H1 line)
           - Retrieves the description from galaxy_info.description in meta/main.yml
           - Retrieves the icon class from meta/info.yml.logo.class
-          - Skips the role when services.dashboard.display in applications
+          - Skips the role when services.dashboard.enabled in applications
             is false
           - Retrieves the tags from galaxy_info.galaxy_tags
           - Builds the URL from the primary domain, or from the domains.canonical

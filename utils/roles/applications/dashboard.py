@@ -5,8 +5,9 @@ A role's ``services.dashboard`` binding MAY name ``card: <key>``, a key of its
 tile-reachability target then point at that domain instead of the role's
 primary domain.
 
-``display: false`` on the same binding drops the card, the Apps menu entry and
-the tile-reachability target.
+``enabled: false`` on the same binding takes the application out of the
+dashboard: no card and no Apps menu entry, and the tile-reachability targets
+and the CSP frame-ancestors already follow the same flag.
 """
 
 from __future__ import annotations
@@ -14,11 +15,12 @@ from __future__ import annotations
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.module_utils.parsing.convert_bool import boolean
 
 DASHBOARD_SERVICE = "dashboard"
 CARD_TARGET_KEY = "card"
-DISPLAY_KEY = "display"
-DISPLAY_PATH = f"services.{DASHBOARD_SERVICE}.{DISPLAY_KEY}"
+ENABLED_KEY = "enabled"
+ENABLED_PATH = f"services.{DASHBOARD_SERVICE}.{ENABLED_KEY}"
 
 
 def card_is_displayed(application_id: str, dashboard: Any) -> bool:
@@ -30,20 +32,22 @@ def card_is_displayed(application_id: str, dashboard: Any) -> bool:
             applications.
 
     Returns:
-        The ``display`` flag, or ``True`` when the binding sets none.
+        The ``enabled`` flag, or ``True`` when the role declares no binding or
+        the binding sets none.
 
     Raises:
-        AnsibleError: the binding sets ``display`` to something other than a
-            bool.
+        AnsibleError: the binding sets ``enabled`` to something that is not a
+            boolean.
     """
-    if not isinstance(dashboard, dict) or DISPLAY_KEY not in dashboard:
+    if not isinstance(dashboard, dict) or ENABLED_KEY not in dashboard:
         return True
-    display = dashboard[DISPLAY_KEY]
-    if not isinstance(display, bool):
+    enabled = dashboard[ENABLED_KEY]
+    try:
+        return boolean(enabled, strict=True)
+    except TypeError as exc:
         raise AnsibleError(
-            f"{application_id}: {DISPLAY_PATH} must be a bool, got {display!r}"
-        )
-    return display
+            f"{application_id}: {ENABLED_PATH} must be a boolean, got {enabled!r}"
+        ) from exc
 
 
 def card_target_key(application_id: str, dashboard: Any) -> str:
