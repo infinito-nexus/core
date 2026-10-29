@@ -47,7 +47,7 @@ shopware:
     swarm:
       enabled: true
   image: composer
-  version: "2.10"
+  version: "2.11"
   custom: true
   min_storage: 278MB
   package:
