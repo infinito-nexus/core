@@ -29,6 +29,7 @@ test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   await page.context().clearCookies();
+  await page.addLocatorHandler(page.getByTestId("alert-modal-remind-button"), (remind) => remind.click());
 });
 
 test("GitLab front page is served under canonical domain with TLS", async ({ page }) => {
