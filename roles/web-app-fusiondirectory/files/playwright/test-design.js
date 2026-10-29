@@ -248,16 +248,17 @@ exports.register = function () {
     const logo = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
     test.skip(!logo, "the logo replacement is disabled");
     await openLogin(page);
+    const logoUrl = new URL(logo, page.url()).href;
     const login = page.locator("div#window-titlebar img#fd-logo");
-    expect(await login.evaluate((img) => getComputedStyle(img).content)).toContain(logo);
-    const served = await apiGetOnion(page.request, logo);
+    expect(await login.evaluate((img) => getComputedStyle(img).content)).toContain(logoUrl);
+    const served = await apiGetOnion(page.request, logoUrl);
     expect(`${served.status()} ${served.headers()["content-type"]}`).toMatch(/^200 image\/svg/);
     const loginBox = await login.boundingBox();
     expect(loginBox.width, "the login lockup must be wider than high").toBeGreaterThan(loginBox.height * 2);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
     const header = page.locator("div#header-left img#fd-logo");
-    expect(await header.evaluate((img) => getComputedStyle(img).content)).toContain(logo);
+    expect(await header.evaluate((img) => getComputedStyle(img).content)).toContain(new URL(logo, page.url()).href);
     const headerBox = await header.boundingBox();
     expect(headerBox.width, "the header lockup must be wider than high").toBeGreaterThan(headerBox.height * 2);
   });
@@ -274,7 +275,7 @@ exports.register = function () {
     await expect(page).toHaveTitle(lead);
     const logo = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
     if (logo) {
-      const lockup = await (await apiGetOnion(page.request, logo)).text();
+      const lockup = await (await apiGetOnion(page.request, new URL(logo, page.url()).href)).text();
       const xml = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       expect(lockup, "the visible lockup carries the configured title").toContain(xml);
     }
