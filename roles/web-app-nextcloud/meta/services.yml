@@ -101,12 +101,6 @@ nextcloud:
     internal:
       http: 80
       fpm: 9000
-    public:
-      stun_turn: 3480
-      stun_turn_tls: 5350
-      relay:
-        start: 50000
-        end: 59999
   run_after:
     - web-app-keycloak
     - web-app-matomo
@@ -200,34 +194,79 @@ talk:
   bond: 1
   enabled: "{{ 'web-svc-coturn' in group_names }}"
   shared: "{{ 'web-svc-coturn' in group_names }}"
-  name: nextcloud-talk
-  image: nextcloud/aio-talk
-  # nocheck: docker-version -- upstream publishes only AIO build stamps and froze latest at 20250325_084656; later stamps start Janus from a generated /conf/janus.jcfg that the janus_conf mount cannot replace
-  version: "20260409_094910"
-  backup:
-    no_stop_required: false
+  name: nextcloud-talk-janus
+  image: alpine
+  version: 3.23.3
+  custom: nextcloud-talk-janus
+  repository: https://github.com/meetecho/janus-gateway.git
+  ref: v1.4.0
+  # nocheck: single-replica  the signaling server addresses exactly one Janus by URL and keeps every media session on it
+  replicas: 1
   turn_server:
-    onboard_enabled: "{{ not ( 'web-svc-coturn' in group_names ) }}"
     standalone_enabled: "{{ 'web-svc-coturn' in group_names }}"
   network_mode: bridge
   direct_media: false
   cpus: "2.0"
-  mem_reservation: 1g
-  mem_limit: 2g
+  mem_reservation: 512m
+  mem_limit: 1g
   pids_limit: 1024
-  min_storage: 279MB
+  min_storage: 600MB
   ports:
     internal:
-      signaling: 8081
+      websocket: 8188
     public:
       relay:
         start: 61000
         end: 61999
   healthcheck:
-    flavor: tcp
+    flavor: nc
+    port_key: websocket
+# nocheck: playwright-service-flag  the signaling server is part of the Talk deployment, covered by the Talk admin settings spec
+# nocheck: dynamic-flag  the signaling server is part of the Talk deployment, so it follows the talk entry rather than a role's presence
+talk_signaling:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+  shared: false
+  name: nextcloud-talk-signaling
+  image: strukturag/nextcloud-spreed-signaling
+  version: 2.1.1
+  # nocheck: single-replica  sessions live in this process; a second replica behind the VIP would split one call across servers
+  replicas: 1
+  max_stream_bitrate: 1048576
+  max_screen_bitrate: 2097152
+  cpus: "1.0"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  min_storage: 223MB
+  ports:
+    internal:
+      signaling: 8081
+  healthcheck:
+    flavor: http_status
     port_key: signaling
-    # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
-    start_period: 20m
+    path: api/v1/welcome
+# nocheck: playwright-service-flag  internal message bus, reachable only from the Talk signaling server
+# nocheck: dynamic-flag  the message bus is part of the Talk deployment, so it follows the talk entry rather than a role's presence
+talk_nats:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+  shared: false
+  name: nextcloud-talk-nats
+  image: nats
+  version: 2.12.6-alpine
+  # nocheck: single-replica  an unclustered NATS server; the signaling server connects to exactly one
+  replicas: 1
+  cpus: "0.5"
+  mem_reservation: 32m
+  mem_limit: 256m
+  pids_limit: 128
+  min_storage: 211MB
+  ports:
+    internal:
+      nats: 4222
+      http: 8222
+  healthcheck:
+    flavor: http
+    path: healthz
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
@@ -281,11 +320,13 @@ talk_recording:
   enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
   shared: false
   name: nextcloud-talk-recording
-  image: nextcloud/aio-talk-recording
-  # nocheck: docker-version -- upstream publishes only AIO build stamps and froze latest at 20250325_084656; stays on the AIO release of services.talk.version
-  version: "20260409_094910"
-  backup:
-    no_stop_required: true
+  image: python
+  version: 3.14.3-alpine3.23
+  custom: nextcloud-talk-recording
+  repository: https://github.com/nextcloud/nextcloud-talk-recording.git
+  ref: v0.2.1
+  # nocheck: single-replica  Talk starts and stops a recording on the server it reached; a second replica behind the VIP would receive half of the stop requests
+  replicas: 1
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 3g
@@ -294,6 +335,9 @@ talk_recording:
   ports:
     internal:
       recording: 1234
+  healthcheck:
+    flavor: nc
+    port_key: recording
 # nocheck: playwright-service-flag: verified by web-svc-css provider spec
 css:
   bond: 1

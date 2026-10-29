@@ -33,6 +33,8 @@ talk_recording_tmp:
   name: nextcloud_talk_recording_tmp
   type: volume
   backup: false
+  # nocheck: nfs-false-data-loss  Reason: scratch for Xvfb sockets, the Firefox profile and the ffmpeg output before its upload; single replica, nothing persists.
+  nfs: false
   mounts:
     - service: talk_recording
       target: *tmp_target
@@ -68,10 +70,29 @@ infinito_conf:
 janus_conf:
   type: config
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'janus.jcfg' ] | path_join }}"
+  mode: "0444"
   mounts:
     - service: talk
       target: /usr/local/etc/janus/janus.jcfg
-      when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.direct_media') | bool }}"
+      when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+
+talk_signaling_conf:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'signaling.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: talk_signaling
+      target: /config/server.conf
+      when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+
+talk_recording_conf:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'recording.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: talk_recording
+      target: /conf/recording.conf
+      when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
 
 php_hardening:
   type: config

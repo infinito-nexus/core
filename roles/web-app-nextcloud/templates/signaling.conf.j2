@@ -1,0 +1,34 @@
+[http]
+listen = 0.0.0.0:{{ NEXTCLOUD_HPB_SIGNALING_PORT }}
+
+[app]
+debug = false
+
+[sessions]
+hashkey = {{ ((NEXTCLOUD_HPB_SIGNALING_SECRET ~ '/sessions/hashkey') | hash('sha256'))[:32] }}
+blockkey = {{ ((NEXTCLOUD_HPB_SIGNALING_SECRET ~ '/sessions/blockkey') | hash('sha256'))[:32] }}
+
+[clients]
+internalsecret = {{ NEXTCLOUD_HPB_INTERNAL_SECRET }}
+
+[backend]
+backends = backend-1
+allowall = false
+timeout = 10
+connectionsperhost = 8
+skipverify = false
+
+[backend-1]
+urls = {{ NEXTCLOUD_HPB_BACKEND_URL }}
+secret = {{ NEXTCLOUD_HPB_SIGNALING_SECRET }}
+maxstreambitrate = {{ NEXTCLOUD_HPB_SIGNALING_MAX_STREAM_BITRATE }}
+maxscreenbitrate = {{ NEXTCLOUD_HPB_SIGNALING_MAX_SCREEN_BITRATE }}
+
+[nats]
+url = {{ NEXTCLOUD_HPB_NATS_URL }}
+
+[mcu]
+type = janus
+url = {{ NEXTCLOUD_HPB_JANUS_URL }}
+maxstreambitrate = {{ NEXTCLOUD_HPB_SIGNALING_MAX_STREAM_BITRATE }}
+maxscreenbitrate = {{ NEXTCLOUD_HPB_SIGNALING_MAX_SCREEN_BITRATE }}
