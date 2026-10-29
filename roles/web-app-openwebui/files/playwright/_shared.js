@@ -9,6 +9,14 @@ const {
   performKeycloakLoginForm,
 } = require("./personas");
 
+function strictBoolean(name, raw) {
+  const value = decodeDotenvQuotedValue(raw);
+  if (value !== "true" && value !== "false") {
+    throw new Error(`${name} must be "true" or "false" in the Playwright env file, got ${JSON.stringify(value)}`);
+  }
+  return value === "true";
+}
+
 const env = {
   oidcIssuerUrl: normalizeBaseUrl(process.env.OIDC_ISSUER_URL || ""),
   openwebuiBaseUrl: normalizeBaseUrl(process.env.OPENWEBUI_BASE_URL || ""),
@@ -21,6 +29,7 @@ const env = {
   mcpExpectedServers: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_SERVERS),
   mcpExpectedTools: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_TOOLS),
   lamBaseUrl: normalizeBaseUrl(process.env.LAM_BASE_URL || ""),
+  keycloakLdapFederation: strictBoolean("KEYCLOAK_LDAP_FEDERATION", process.env.KEYCLOAK_LDAP_FEDERATION),
   ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
   ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
   ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),
