@@ -61,7 +61,10 @@ flowchart LR
         svc_context_agent["context_agent"]
         svc_contextagentmcp["contextagentmcp"]
         svc_cron["cron"]
+        svc_taskprocessing["taskprocessing"]
         svc_talk["talk"]
+        svc_talk_signaling["talk_signaling"]
+        svc_talk_nats["talk_nats"]
         svc_whiteboard["whiteboard"]
         svc_onlyoffice["onlyoffice"]
         svc_collabora["collabora"]
@@ -229,6 +232,19 @@ A redeploy of an unchanged version includes [`03_upgrade/02_cached_updates.yml`]
 3. `occ app:update <id>` runs for every enabled app whose stored release is newer than the installed one, never for an app pinned through `archive`.
 
 An app the background job has not checked yet is not updated until its next run.
+
+## Talk
+
+While `services.talk.enabled` is true, the role runs the Talk high-performance backend and the recording server as four services:
+
+| Service | Component | Source |
+|---------|-----------|--------|
+| `talk_signaling` | signaling server | upstream image `strukturag/nextcloud-spreed-signaling`, semver pin |
+| `talk` | Janus media server | image the role builds from a semver tag of `meetecho/janus-gateway` |
+| `talk_nats` | NATS message bus | official image `nats`, semver pin |
+| `talk_recording` | recording server | image the role builds from a semver release tag of `nextcloud/nextcloud-talk-recording` |
+
+The role renders the signaling `server.conf`, `janus.jcfg` and the recording `server.conf` from [`templates/`](./templates/), and the version updaters raise every pin. [docs/Administration.md](docs/Administration.md#talk-high-performance-backend) describes how the services connect, how a version update reaches them and how the first deploy replaces `nextcloud/aio-talk`.
 
 ## MCP Server
 
