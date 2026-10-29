@@ -19,6 +19,8 @@ header_filter_by_lua_block {
         ngx.header["Content-Security-Policy-Report-Only"] = nil
     end
 
+{% include 'roles/sys-svc-proxy/templates/headers/security_headers.lua.j2' %}
+
     -- If you'll modify the body later, drop Content-Length on HTML
     if is_html then
         ngx.ctx.is_html = true

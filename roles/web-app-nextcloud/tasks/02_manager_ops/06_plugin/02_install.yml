@@ -14,15 +14,17 @@
     mode: "0644"
   when: plugin_archive | length > 0
 
-- name: "📦 Unpack the pinned {{ plugin_key }} release so occ finds it installed"
+- name: "📦 Replace {{ plugin_key }} with the pinned release when any of its files differ"
   ansible.builtin.shell: >-
     cat /tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz
     | {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }}
-    tar -xzf - -C {{ NEXTCLOUD_APPS_DIRECTORY | quote }}
+    sh -c {{ lookup('file', 'shell/utils/replace_pinned_app.sh') | quote }}
+    replace_pinned_app.sh {{ NEXTCLOUD_APPS_DIRECTORY | quote }} {{ plugin_key | quote }}
   args:
     executable: /bin/bash
+  register: nextcloud_plugin_archive_replace
   when: plugin_archive | length > 0
-  changed_when: false
+  changed_when: "'[CHANGED]' in nextcloud_plugin_archive_replace.stdout"
 
 - name: "🔴 Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
   ansible.builtin.shell: |

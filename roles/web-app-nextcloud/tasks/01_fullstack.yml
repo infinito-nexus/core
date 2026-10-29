@@ -1,4 +1,25 @@
 ---
+- name: "🛑 Assert Janus joins the host network only in compose mode"
+  ansible.builtin.assert:
+    that: DEPLOYMENT_MODE == 'compose'
+    fail_msg: >-
+      services.talk.network_mode host gives Janus the host network namespace,
+      which docker stack deploy cannot provide. Use bridge in swarm mode.
+    quiet: true
+  when:
+    - NEXTCLOUD_HPB_SIGNALING_ENABLED | bool
+    - NEXTCLOUD_HPB_JANUS_HOST_NETWORK | bool
+
+- name: "🛑 Assert Talk has the TURN server its calls relay through"
+  ansible.builtin.assert:
+    that: NEXTCLOUD_HPB_TURN_ACTIVE_SERVER | length > 0
+    fail_msg: >-
+      services.talk.enabled is true, but {{ NEXTCLOUD_HPB_TURN_STANDALONE_ROLE }} is not deployed
+      on this host, so Talk would hand out no STUN or TURN server and calls behind NAT would carry
+      no media. Deploy {{ NEXTCLOUD_HPB_TURN_STANDALONE_ROLE }} or set services.talk.enabled to false.
+    quiet: true
+  when: NEXTCLOUD_HPB_SIGNALING_ENABLED | bool
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
@@ -6,51 +27,6 @@
     compose_handlers_flush: false
     application_id: web-app-nextcloud
     webserver_client_max_body_size: 10G
-
-- name: "🔍 Read the Janus launcher and config from {{ NEXTCLOUD_HPB_IMAGE }}"
-  ansible.builtin.command:
-    argv:
-      - container
-      - run
-      - --rm
-      - --pull
-      - always
-      - --entrypoint
-      - cat
-      - "{{ NEXTCLOUD_HPB_IMAGE }}"
-      - "{{ item }}"
-  environment:
-    CA_CONTAINER_ENABLED: "0"
-  loop:
-    - "{{ NEXTCLOUD_HPB_JANUS_LAUNCHER }}"
-    - "{{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}"
-  register: nextcloud_janus_image_files
-  changed_when: false
-  retries: 3
-  delay: 30
-  until: nextcloud_janus_image_files is succeeded
-  when:
-    - NEXTCLOUD_HPB_MEDIA_DIRECT | bool
-    - IS_STACK_HOST | bool
-
-- name: "🛑 Assert Janus reads the mounted config and the image's copy still matches"
-  ansible.builtin.assert:
-    that: nextcloud_janus_drift | length == 0
-    fail_msg: >-
-      templates/janus.jcfg.j2 cannot replace {{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}
-      of {{ NEXTCLOUD_HPB_IMAGE }}: {{ nextcloud_janus_drift | join('; ') }}.
-      Re-derive the template from the new image before deploying.
-    quiet: true
-  vars:
-    nextcloud_janus_drift: >-
-      {{ lookup('template', 'janus.jcfg.j2')
-         | janus_config_drift(nextcloud_janus_image_files.results[1].stdout,
-                              NEXTCLOUD_HPB_JANUS_OVERRIDES,
-                              nextcloud_janus_image_files.results[0].stdout,
-                              NEXTCLOUD_HPB_JANUS_CONFIG_TARGET) }}
-  when:
-    - NEXTCLOUD_HPB_MEDIA_DIRECT | bool
-    - IS_STACK_HOST | bool
 
 - name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
   copy:
@@ -73,8 +49,8 @@
         mode: "0755"
 
     - name: "📄 Deploy Whiteboard Dockerfile to {{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
-      stack_host_template:
-        src: "Dockerfiles/Whiteboard.j2"
+      stack_host_copy:
+        src: "Dockerfiles/Whiteboard/Dockerfile"
         dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
       notify:
         - compose-build
@@ -124,12 +100,43 @@
       - src: "fpm-pool.conf.j2"
         dest: "{{ NEXTCLOUD_HOST_FPM_POOL_PATH }}"
 
-- name: "📄 Render the Janus config that publishes Talk media directly"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates:
-      - src: "janus.jcfg.j2"
-        dest: "{{ NEXTCLOUD_HPB_JANUS_CONFIG_HOST }}"
-        mode: "0644"
-  when: NEXTCLOUD_HPB_MEDIA_DIRECT | bool
+- when: NEXTCLOUD_HPB_SIGNALING_ENABLED | bool
+  block:
+    - name: "📁 Create the Talk build directories"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ NEXTCLOUD_HPB_JANUS_BUILD_DIRECTORY }}"
+        - "{{ NEXTCLOUD_RECORDING_BUILD_DIRECTORY }}"
+
+    - name: "📄 Deploy the Talk Dockerfiles that build Janus and the recording server"
+      stack_host_copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - { src: "Dockerfiles/Janus/Dockerfile", dest: "{{ NEXTCLOUD_HPB_JANUS_DOCKERFILE }}" }
+        - { src: "Dockerfiles/Recording/Dockerfile", dest: "{{ NEXTCLOUD_RECORDING_DOCKERFILE }}" }
+      notify:
+        - compose-build
+        - compose-up
+
+    - name: "📄 Render the Janus, signaling and recording configs (local + swarm peers)"
+      ansible.builtin.include_tasks:
+        file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+      vars:
+        role_templates:
+          - src: "janus.jcfg.j2"
+            dest: "{{ NEXTCLOUD_HPB_JANUS_CONFIG_HOST }}"
+            mode: "0644"
+          - src: "signaling.conf.j2"
+            dest: "{{ NEXTCLOUD_HPB_SIGNALING_CONFIG_HOST }}"
+            owner: "{{ NEXTCLOUD_HPB_SIGNALING_USER_ID }}"
+            group: "{{ NEXTCLOUD_HPB_SIGNALING_USER_ID }}"
+            mode: "0400"
+          - src: "recording.conf.j2"
+            dest: "{{ NEXTCLOUD_RECORDING_CONFIG_HOST }}"
+            owner: "{{ NEXTCLOUD_RECORDING_USER_ID }}"
+            group: "{{ NEXTCLOUD_RECORDING_USER_ID }}"
+            mode: "0400"

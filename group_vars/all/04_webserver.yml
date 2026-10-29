@@ -24,3 +24,13 @@ WEBSERVER_WORKER_CONNECTIONS: >-
       (lookup('applications') | resource_filter(application_id,      'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT)) | int
     ] | min
   }}
+
+# Response security headers of every vhost; an app overrides any key under `security_headers` in its meta/server.yml.
+WEBSERVER_SECURITY_HEADERS:
+  nosniff: false # X-Content-Type-Options: nosniff
+  referrer_policy: "" # Referrer-Policy, sent only when the upstream sends none; "" sends none
+  permissions_policy: "" # Permissions-Policy on HTML documents; "" sends none
+  hsts:
+    max_age: 31536000 # Strict-Transport-Security max-age in seconds
+    include_subdomains: false # adds includeSubDomains, which covers every subdomain of the vhost
+    preload: false # adds preload; requires include_subdomains and a max_age of one year

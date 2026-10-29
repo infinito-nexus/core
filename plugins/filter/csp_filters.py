@@ -351,10 +351,11 @@ class FilterModule:
                             )
                         )
 
-                if directive in (
-                    "script-src-attr",
-                    "script-src-elem",
-                ) and self.is_feature_enabled(applications, "logout", application_id):
+                if (
+                    directive in ("script-src-attr", "script-src-elem")
+                    and self.is_feature_enabled(applications, "logout", application_id)
+                    and explicit_flags.get("unsafe-inline") is not False
+                ):
                     tokens.append("'unsafe-inline'")
 
                 tokens += self.get_csp_whitelist(

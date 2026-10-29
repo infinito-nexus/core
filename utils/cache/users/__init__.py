@@ -27,6 +27,7 @@ from utils.cache.base import (
     _resolve_roles_dir,
     _stable_variables_signature,
 )
+from utils.cache.carrier import _carried_users, merged_users_cache_key
 from utils.cache.users import store as _store
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
@@ -441,6 +442,15 @@ def get_merged_users(
     cached = _MERGED_USERS_CACHE.get(cache_key)
     if cached is not None:
         return cached
+
+    if templar is not None and source_variables:
+        carried = _carried_users(
+            source_variables,
+            merged_users_cache_key(source_variables, roles_dir=resolved_roles_dir),
+        )
+        if carried is not None:
+            _MERGED_USERS_CACHE[cache_key] = carried
+            return carried
 
     defaults = get_user_defaults(roles_dir=roles_dir)
     overrides = _resolve_override_mapping(variables, "users", templar=templar)

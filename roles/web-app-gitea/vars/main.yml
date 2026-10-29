@@ -22,6 +22,7 @@ GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
 GITEA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 GITEA_USER: "git"
 GITEA_CONFIG: "/data/gitea/conf/app.ini"
+GITEA_LOOPBACK_VERSION_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}/api/v1/version"
 
 GITEA_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{ lookup('engine', 'redis', application_id, 'port') }}"

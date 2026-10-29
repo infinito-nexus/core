@@ -6,6 +6,8 @@ from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
 
+from utils.cache.yaml import load_yaml_any
+
 from . import PROJECT_ROOT
 
 
@@ -398,6 +400,24 @@ services:
             ):
                 self.m.main()
             self.assertIn("missing locally", str(ctx.exception))
+
+
+class TestBuildHandlersSharePullCache(unittest.TestCase):
+    def test_build_handlers_build_with_pull_and_fall_back_like_pull_py(self) -> None:
+        handlers = {
+            handler["name"]: handler.get("ansible.builtin.shell", "")
+            for handler in load_yaml_any(
+                str(PROJECT_ROOT / "roles/sys-svc-compose/handlers/compose.yml")
+            )
+        }
+        for name in (
+            "🔨 Build compose",
+            "🔨 Build the services queued for a lone recreate",
+        ):
+            with self.subTest(handler=name):
+                self.assertRegex(
+                    handlers[name], r"compose build --pull\b.*\|\| compose build\b"
+                )
 
 
 if __name__ == "__main__":

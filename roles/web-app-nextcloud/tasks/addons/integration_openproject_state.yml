@@ -36,6 +36,7 @@
   delay: 5
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
   when: IS_STACK_HOST | bool
 
 - name: 🧮 Digest the provisioning sources, inputs and coupling state
