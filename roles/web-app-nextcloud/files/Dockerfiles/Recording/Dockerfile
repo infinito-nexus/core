@@ -40,9 +40,13 @@ RUN set -ex; \
         linux-headers
 
 ARG RECORDING_CA_CERT
+ARG RECORDING_CA_BUNDLE
 RUN if [ -n "${RECORDING_CA_CERT}" ]; then \
       mkdir -p /etc/firefox/policies \
       && printf '{"policies":{"Certificates":{"Install":["%s"]}}}\n' "${RECORDING_CA_CERT}" > /etc/firefox/policies/policies.json; \
+    fi \
+ && if [ -n "${RECORDING_CA_BUNDLE}" ]; then \
+      ln -sf "${RECORDING_CA_BUNDLE}" "$(python3 -c 'import certifi; print(certifi.where())')"; \
     fi
 
 WORKDIR ${RECORDING_DIRECTORY}

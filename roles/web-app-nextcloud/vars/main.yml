@@ -264,6 +264,7 @@ NEXTCLOUD_RECORDING_CONFIG_HOST: "{{ [ lookup('container', application_id, 'dire
 NEXTCLOUD_RECORDING_CONFIG_TARGET: "{{ lookup('volume', application_id, 'talk_recording_conf').target }}"
 NEXTCLOUD_RECORDING_DIRECTORY: "{{ lookup('volume', application_id, 'talk_recording_tmp').target }}"
 NEXTCLOUD_RECORDING_CA_CERT: "{{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else '' }}"
+NEXTCLOUD_RECORDING_CA_BUNDLE: "{{ CA_TRUST.inject_bundle_container if lookup('ca_injected', application_id) else '' }}"
 
 NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 
