@@ -89,6 +89,7 @@ flowchart LR
         svc_postgres["postgres"]
         svc_webmail["webmail"]
         svc_clamav["clamav"]
+        svc_stalwart_migrate["stalwart_migrate ❌"]
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
