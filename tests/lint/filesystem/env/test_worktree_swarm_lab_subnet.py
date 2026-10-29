@@ -71,10 +71,16 @@ class TestWorktreeSwarmLabSubnet(unittest.TestCase):
             with self.subTest(slot=slot):
                 subnet = self._subnet(slot)
                 clashes = sorted(
-                    name for name, network in self.reserved.items() if subnet.overlaps(network)
+                    name
+                    for name, network in self.reserved.items()
+                    if subnet.overlaps(network)
                 )
-                self.assertEqual(clashes, [], f"slot {slot} lab {subnet} overlaps {clashes}")
-                self.assertNotIn(subnet, seen, f"slot {slot} repeats slot {seen.get(subnet)}")
+                self.assertEqual(
+                    clashes, [], f"slot {slot} lab {subnet} overlaps {clashes}"
+                )
+                self.assertNotIn(
+                    subnet, seen, f"slot {slot} repeats slot {seen.get(subnet)}"
+                )
                 seen[subnet] = slot
 
 
