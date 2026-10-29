@@ -188,6 +188,12 @@ cron:
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
+taskprocessing:
+  name: nextcloud-taskprocessing
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 1g
+  pids_limit: 256
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag: infrastructural sub-component (real-time communication)
 talk:

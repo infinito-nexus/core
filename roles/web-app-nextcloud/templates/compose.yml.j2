@@ -151,6 +151,31 @@
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
+  {% set service_name = NEXTCLOUD_TASKPROCESSING_SERVICE %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_TASKPROCESSING_CONTAINER) }}
+    {{ lookup('container_image', application_id, 'nextcloud') }}
+    {{ lookup('compose_restart') }}
+    logging:
+      driver: journald
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    entrypoint: ["su", "{{ NEXTCLOUD_DOCKER_USER }}", "-s", "/bin/sh", "-c", "while true; do php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} taskprocessing:worker -t 60 || sleep 10; done"]
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
+    healthcheck:
+      test: ["CMD", "su", "{{ NEXTCLOUD_DOCKER_USER }}", "-s", "/bin/sh", "-c", "php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} status"]
+      # nocheck: healthcheck-timing-override  occ boots the whole Nextcloud stack per probe, so it stays off a 30s loop
+      interval: 1m
+      # nocheck: healthcheck-timing-override  occ regularly needs more than the 5s default to answer
+      timeout: 30s
+      retries: 10
+      # nocheck: healthcheck-timing-override  a role variable the linter cannot compare, tuned per deployment size
+      start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
+
   {% if NEXTCLOUD_RECORDING_ENABLED | bool %}
   {% set service_name = 'talk_recording' %}
   {{ service_name }}:

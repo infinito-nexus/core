@@ -148,6 +148,9 @@ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO: >-
 NEXTCLOUD_CRON_SERVICE: "cron"
 NEXTCLOUD_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CRON_SERVICE ~ '.name') }}"
 
+NEXTCLOUD_TASKPROCESSING_SERVICE: "taskprocessing"
+NEXTCLOUD_TASKPROCESSING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_TASKPROCESSING_SERVICE ~ '.name') }}"
+
 NEXTCLOUD_HPB_SERVICE: "talk"
 NEXTCLOUD_HPB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.name') }}"
 NEXTCLOUD_HPB_NETWORK_MODE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.network_mode') }}"

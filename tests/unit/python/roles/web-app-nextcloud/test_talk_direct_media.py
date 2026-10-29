@@ -114,6 +114,7 @@ def _render(
         "NEXTCLOUD_PROXY_SERVICE": "proxy",
         "NEXTCLOUD_SERVICE": "nextcloud",
         "NEXTCLOUD_CRON_SERVICE": "cron",
+        "NEXTCLOUD_TASKPROCESSING_SERVICE": "taskprocessing",
         "DEPLOYMENT_MODE": mode,
         "NEXTCLOUD_HPB_SIGNALING_ENABLED": True,
         "NEXTCLOUD_HPB_SERVICE": "talk",

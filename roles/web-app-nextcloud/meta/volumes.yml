@@ -7,6 +7,8 @@ data:
       target: &var_www_html_target /var/www/html/
     - service: cron
       target: *var_www_html_target
+    - service: taskprocessing
+      target: *var_www_html_target
     - service: proxy
       target: *var_www_html_target
       read_only: true
@@ -59,6 +61,8 @@ infinito_conf:
     - service: nextcloud
       target: &var_www_infinito_target /var/www/infinito/
     - service: cron
+      target: *var_www_infinito_target
+    - service: taskprocessing
       target: *var_www_infinito_target
 
 janus_conf:
