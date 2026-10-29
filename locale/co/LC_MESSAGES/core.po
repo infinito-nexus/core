@@ -78,6 +78,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ansible rol para ajuda ao persistir e consulta de tokens de aplicações por usuário em armazenamento YAML local que são idempotentes"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -425,6 +429,10 @@ msgstr "Installer de distribución cruzada para el gestor de paquetes Nix con in
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Transmisión de mantenimiento rutinario para la reclasificación de discos entre CI, entornos de contenedor y de compilación"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Customer Relationship:title"

@@ -79,6 +79,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Ról cúntóir do mharthanacht idempotent agus lookup de tokens iarratas in aghaidh an-úsáideoir i siopa áitiúil YAML"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -446,6 +450,10 @@ msgstr "suiteálaí tras-dáileadh le haghaidh an bainisteoir pacáiste Nix le c
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Gnáthamh cothabhála tras-dáileadh do mhíntíriú diosca ar fud CI, coimeádán, agus timpeallachtaí a thógáil"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"

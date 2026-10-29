@@ -79,6 +79,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr ""
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # SettingsModule   AuthModule   UserModule   ProductModule   OrderModule
 # CartModule   CatalogModule   PaymentModule   NotificationModule
 # DiscountModule   CouponModule   CouponService   PaymentService
@@ -447,6 +451,10 @@ msgstr ""
 # translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr ""
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
 msgstr ""
 
 # translated-by: libretranslate

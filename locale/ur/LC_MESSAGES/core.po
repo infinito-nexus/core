@@ -79,6 +79,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "ایک مقامی یاس ایم ایل کی دکان میں پری اطلاقیہ کی نشان دہی کرنے والے معاون کردار کو تلاش کریں"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -432,6 +436,10 @@ msgstr "Cross-cros-confooder for Nix پیکج مینیجر کے لیے Chepum-ve
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "CI، سانچہ:تقویم 2/یکم تاریخ"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"

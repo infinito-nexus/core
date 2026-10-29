@@ -81,6 +81,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Анселим хелпер роль эс для идиМОПтентного уержунгук шундук шундук эмчык унтык сүрөттөө эс эми локал уйгуун YAML шундук"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -446,6 +450,10 @@ msgstr "Кросс-дистрибутивный инсталлятор для м
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Кросс-дистрибутивный рутинный обходок для рекапірування диска між CI, контейнерами та екімукаями‌‌"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Customer Relationship:title"

@@ -79,6 +79,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Vai trò trợ giúp có khả năng nhận diện sự kiên trì và tra cứu các biểu tượng ứng dụng cho người dùng trong một cửa hàng YAML cục bộ"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -432,6 +436,10 @@ msgstr "Bộ cài đặt cài đặt đa phân cách đối với bộ quản l�
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Chương trình bảo trì phân phối chéo cho việc sửa đổi đĩa thông qua CN, container, và xây dựng môi trường"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"

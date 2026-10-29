@@ -79,6 +79,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Nevidna vloga pomočnika za navidezno obstojnost in iskanje žetonov aplikacij na uporabnika v lokalni trgovini YAML"
 
+msgctxt "category:web.app.cst:description"
+msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
@@ -433,6 +437,10 @@ msgstr "Inštalat za navzkrižno porazdelitev za upravitelja paketa Nix s ponovl
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Redno vzdrževanje navzkrižne distribucije za predelavo diskov v okolju CI, zabojniku in gradnji"
+
+msgctxt "category:web.app.cst:title"
+msgid "Custom Applications"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"

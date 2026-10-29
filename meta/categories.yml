@@ -190,7 +190,7 @@ roles:
 
       cst:
         title: "Custom Applications"
-        hanzi: "定制" # Means "custom-made" or "tailored".
+        glyph: "𓍍"
         description: "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
         icon: "fas fa-puzzle-piece"
         run_after: [web-app]
