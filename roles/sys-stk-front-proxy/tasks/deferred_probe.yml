@@ -1,6 +1,8 @@
 ---
 - name: "🔍 Probe the vhosts this play queued"
-  when: front_proxy_deferred_probes | length > 0
+  when:
+    - front_proxy_deferred_probes | length > 0
+    - inventory_hostname == groups['svc-prx-openresty'][0]
   block:
     - name: "🔍 Check if the queued vhosts are reachable"
       uri_probe_batch:

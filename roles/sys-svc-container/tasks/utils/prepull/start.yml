@@ -1,4 +1,7 @@
 ---
+# REQUIRED:
+#   sys_svc_container_prepull_extra  # image references to pull besides the app images of the deploy, e.g. the E2E runner
+
 - name: "📥 Pre-pull the images of this deploy in the background"
   when:
     - not (STORAGE_CONSTRAINED | bool)
@@ -8,10 +11,9 @@
     - name: "🧮 Derive the images the deploy of the host runs"
       ansible.builtin.set_fact:
         sys_svc_container_prepull_plan: >-
-          {{
-            lookup('applications')
-            | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running)))
-          }}
+          {%- set plan = lookup('applications')
+                         | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running))) -%}
+          {{ plan | combine({'pull': plan.pull + (sys_svc_container_prepull_extra | reject('in', plan.pull) | list)}) }}
 
     - name: "📥 Pull the images the host does not hold yet"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/prepull/pull.yml"

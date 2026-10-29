@@ -32,4 +32,5 @@ the cluster after the join phase.
   to every routing-mesh port no application declares under `ports.public`.
   Loopback, the Docker bridges and the swarm nodes' own addresses stay
   admitted. The table is loaded before a node joins and reloaded on every node
-  after the join and after each stack deploy.
+  after the join and after each stack deploy that changes the published ports
+  or the swarm nodes.

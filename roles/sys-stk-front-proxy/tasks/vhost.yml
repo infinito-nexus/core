@@ -1,7 +1,11 @@
 ---
-- name: "🧊 Freeze and queue the probe target for '{{ front_proxy_domain }}'"
+- name: "🧊 Freeze the vhost target for '{{ front_proxy_domain }}'"
   ansible.builtin.set_fact:
     front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
+  changed_when: false
+
+- name: "🧊 Freeze the probe target and queue it for '{{ front_proxy_domain }}'"
+  ansible.builtin.set_fact:
     front_proxy_probe_url: "{{ front_proxy_probe.url }}"
     front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
     front_proxy_deferred_probes: >-
@@ -12,6 +16,7 @@
       url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
       status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
+  when: IS_STACK_HOST | bool
 
 - name: "📌 TLS | Apply tls layer for '{{ front_proxy_domain }}'"
   include_role:

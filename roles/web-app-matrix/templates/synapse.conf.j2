@@ -12,6 +12,6 @@ server {
 
     {% include 'roles/sys-svc-proxy/templates/location/upload.conf.j2' %}
 
-  {% set container_name = MATRIX_SYNAPSE_NAME if matrix_flavor == 'compose' else MATRIX_MDAD_CONTAINER %}
+  {% set container_name = MATRIX_SYNAPSE_SERVICE if matrix_flavor == 'compose' else lookup('container_service', application_id, MATRIX_MDAD_SERVICE_KEY) %}
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 }

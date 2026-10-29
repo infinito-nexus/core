@@ -90,6 +90,41 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
       )
       .toBe(true);
   }
+
+  const metriczHost = new URL(metriczUrl).hostname.toLowerCase();
+  const targetIds = new Set(prometheusTargetRoles.map((target) => target.id));
+  await expect
+    .poll(
+      async () => {
+        const scrape = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
+        const text = await scrape.text();
+        const entries = text.match(/^nginx_docker_health_entries (\S+)$/m);
+        const stackUp = [...text.matchAll(/^nginx_stack_up\{host="([^"]*)",app="([^"]*)"\} (\S+)$/gm)];
+        const failures = [];
+        if (!entries) {
+          failures.push("nginx_docker_health_entries is missing");
+        } else if (!(Number(entries[1]) > 0)) {
+          failures.push(`nginx_docker_health_entries is ${entries[1]}`);
+        }
+        if (!stackUp.some(([, host]) => host === metriczHost)) {
+          failures.push(`nginx_stack_up{host="${metriczHost}"} is missing`);
+        }
+        for (const [, host, app, value] of stackUp) {
+          if ((host === metriczHost || targetIds.has(app)) && value !== "1") {
+            failures.push(`nginx_stack_up{host="${host}",app="${app}"} is ${value}`);
+          }
+        }
+        return failures;
+      },
+      {
+        timeout: resolveTimeout(60_000),
+        message:
+          "/metricz must show a populated docker-health dict (nginx_docker_health_entries > 0) " +
+          "and nginx_stack_up 1 for the scraped vhost and every consumer role that has a series. " +
+          "An entries count of 0 means the OpenResty privileged agent cannot read /var/run/docker.sock.",
+      },
+    )
+    .toEqual([]);
 });
 
 // Scenario II: direct goto Prometheus → SSO login (as admin) → verify Prometheus UI → logout

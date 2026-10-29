@@ -117,4 +117,14 @@
   include_tasks: "03_reset.yml"
   when: MODE_RESET | bool
 
+- name: "🧭 Route docker cleanup/health deps through service-loader"
+  ansible.builtin.include_role:
+    name: sys-service-loader
+    tasks_from: list_or_shoot.yml
+  vars:
+    list_or_shoot_roles:
+      - sys-ctl-cln-docker
+      - sys-ctl-hlth-container
+      - sys-ctl-hlth-volumes
+
 - include_tasks: utils/once/flag.yml
