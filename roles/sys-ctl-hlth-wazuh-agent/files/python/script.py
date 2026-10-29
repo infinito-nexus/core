@@ -187,7 +187,23 @@ def epoch(timestamp):
     )
 
 
+def manager_container(name, stack, resolver):
+    """Return the manager container to inspect and exec into, None when it cannot be resolved.
+
+    Args:
+        name: the manager's compose container name, or its swarm service key when stack is set.
+        stack: the manager's swarm stack, empty in compose mode.
+        resolver: the resolve-container-id helper that maps stack and service key to the running task's container.
+    """
+    if not stack:
+        return name
+    resolved = run([resolver, stack, name])
+    return resolved.strip() if resolved else None
+
+
 def manager_problems(container, threshold):
+    if container is None:
+        return evaluate_manager(None, {}, None, time.time(), threshold)
     inspect = run(
         [
             "container",
@@ -242,7 +258,17 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--manager",
-        help="manager container name; checks every registered agent when set",
+        help="manager container name, or its service key with --manager-stack; checks every registered agent when set",
+    )
+    parser.add_argument(
+        "--manager-stack",
+        default="",
+        help="swarm stack of the manager; its running task's container is resolved on every run",
+    )
+    parser.add_argument(
+        "--resolver",
+        default="",
+        help="resolve-container-id helper used with --manager-stack",
     )
     # Exception: defaults equal the role's vars so units rendered before the collector freeze keep working without both args.
     parser.add_argument(
@@ -289,7 +315,10 @@ def main():
             collector_state(args.run_dir), Path(args.wait_file).exists()
         )
     if args.manager:
-        problems += manager_problems(args.manager, args.threshold)
+        problems += manager_problems(
+            manager_container(args.manager, args.manager_stack, args.resolver),
+            args.threshold,
+        )
 
     for problem in problems:
         print(f"❌ {problem}")

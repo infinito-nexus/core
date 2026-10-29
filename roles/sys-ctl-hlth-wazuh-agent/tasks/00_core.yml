@@ -16,7 +16,7 @@
       --threshold {{ HLTH_WAZUH_AGENT_THRESHOLD }}
       --wait-file {{ HLTH_WAZUH_AGENT_WAIT_FILE }}
       --collector-grace {{ HLTH_WAZUH_AGENT_COLLECTOR_GRACE }}
-      {{ ('--manager ' ~ HLTH_WAZUH_AGENT_MANAGER_NAME) if HLTH_WAZUH_AGENT_MANAGER_HOST | bool else '' }}
+      {{ HLTH_WAZUH_AGENT_MANAGER_ARGS if HLTH_WAZUH_AGENT_MANAGER_HOST | bool else '' }}
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
 
 - include_tasks: utils/once/flag.yml

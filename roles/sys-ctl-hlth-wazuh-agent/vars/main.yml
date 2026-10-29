@@ -4,4 +4,14 @@ system_service_id: sys-ctl-hlth-wazuh-agent
 HLTH_WAZUH_AGENT_COLLECTOR_GRACE: 5
 HLTH_WAZUH_AGENT_THRESHOLD: "{{ lookup('wazuh_agent').active_window }}"
 HLTH_WAZUH_AGENT_MANAGER_HOST: "{{ HLTH_WAZUH_AGENT_MANAGER_ROLE in group_names }}"
-HLTH_WAZUH_AGENT_MANAGER_NAME: "{{ lookup('config', HLTH_WAZUH_AGENT_MANAGER_ROLE, 'services.manager.name') }}"
+HLTH_WAZUH_AGENT_MANAGER_SERVICE_KEY: "manager"
+HLTH_WAZUH_AGENT_MANAGER_NAME: "{{ lookup('config', HLTH_WAZUH_AGENT_MANAGER_ROLE, 'services.' ~ HLTH_WAZUH_AGENT_MANAGER_SERVICE_KEY ~ '.name') }}"
+# Exception: swarm names the manager's task container <stack>_<key>.<slot>.<task>, so the check resolves it on every run instead of using the compose container name.
+HLTH_WAZUH_AGENT_MANAGER_ARGS: >-
+  {{
+    ('--manager ' ~ HLTH_WAZUH_AGENT_MANAGER_SERVICE_KEY
+     ~ ' --manager-stack ' ~ (HLTH_WAZUH_AGENT_MANAGER_ROLE | get_entity_name)
+     ~ ' --resolver ' ~ BIN_RESOLVE_CONTAINER_ID)
+    if DEPLOYMENT_MODE == 'swarm'
+    else ('--manager ' ~ HLTH_WAZUH_AGENT_MANAGER_NAME)
+  }}

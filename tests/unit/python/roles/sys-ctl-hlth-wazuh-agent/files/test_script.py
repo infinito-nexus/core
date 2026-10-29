@@ -199,6 +199,72 @@ class TestEvaluateCollector(TestCase):
         self.assertEqual(self.script.evaluate_collector(None, False), [])
 
 
+class TestManagerContainer(TestCase):
+    def setUp(self):
+        self.script = load_script()
+        self.calls = []
+
+    def fake_run(self, output):
+        def run(argv):
+            self.calls.append(argv)
+            return output
+
+        self.script.run = run
+
+    def test_compose_uses_the_container_name(self):
+        self.fake_run(None)
+        self.assertEqual(
+            self.script.manager_container("wazuh.manager", "", ""), "wazuh.manager"
+        )
+        self.assertEqual(self.calls, [])
+
+    def test_swarm_resolves_the_running_task_container(self):
+        self.fake_run("0123456789ab\n")
+        self.assertEqual(
+            self.script.manager_container(
+                "manager", "wazuh", "/usr/bin/resolve-container-id"
+            ),
+            "0123456789ab",
+        )
+        self.assertEqual(
+            self.calls, [["/usr/bin/resolve-container-id", "wazuh", "manager"]]
+        )
+
+    def test_swarm_without_a_running_task_is_unreachable(self):
+        self.fake_run(None)
+        container = self.script.manager_container(
+            "manager", "wazuh", "/usr/bin/resolve-container-id"
+        )
+        self.assertIsNone(container)
+        self.assertEqual(
+            self.script.manager_problems(container, THRESHOLD),
+            ["the Wazuh manager is unreachable"],
+        )
+        self.assertEqual(len(self.calls), 1)
+
+    def test_swarm_args_are_parsed(self):
+        args = self.script.parse_args(
+            [
+                "--service",
+                "wazuh-agent.service",
+                "--run-dir",
+                "/var/ossec/var/run",
+                "--threshold",
+                "180",
+                "--manager",
+                "manager",
+                "--manager-stack",
+                "wazuh",
+                "--resolver",
+                "/usr/bin/resolve-container-id",
+            ]
+        )
+        self.assertEqual(
+            (args.manager, args.manager_stack, args.resolver),
+            ("manager", "wazuh", "/usr/bin/resolve-container-id"),
+        )
+
+
 class TestParsing(TestCase):
     def setUp(self):
         self.script = load_script()
