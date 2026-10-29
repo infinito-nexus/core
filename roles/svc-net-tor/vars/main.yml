@@ -60,7 +60,6 @@ TOR_HEALTHCHECK_HOST: "{{ [ TOR_INSTANCE_DIR, 'healthcheck.sh' ] | path_join }}"
 TOR_ENTRYPOINT_PATH: "/usr/local/bin/tor-entrypoint.sh"
 TOR_HEALTHCHECK_PATH: "/usr/local/bin/tor-healthcheck.sh"
 TOR_RESTART_REQUIRED: >-
-  {{ (_tor_hs_keys is changed)
-     or (_tor_torrc is changed)
-     or (_tor_entrypoint is changed)
-     or (_tor_healthcheck is changed) }}
+  {{ ((_tor_hs_keys is changed) or (_tor_torrc is changed))
+     and (_tor_running_before is not skipped)
+     and (_tor_running_before.stdout | trim | length > 0) }}
