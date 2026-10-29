@@ -1,13 +1,17 @@
 {# Param sso_gated_location_extra_configuration: directives appended to every SSO-gated location. #}
 {# Param sso_open_location_extra_configuration: directives appended to every location the ACL leaves ungated. #}
+{# Param sso_open_location_http_port: local port every location the ACL leaves ungated proxies to; http_port when unset. #}
+{# Param sso_open_location_internal_port: internal port of that upstream; proxy_internal_port when unset. #}
 {% if lookup('sso', application_id, 'is_proxy_gated') %}
   {% set _base_extra = webserver_location_extra_configuration | default('') %}
   {% set _gated_extra = _base_extra ~ (sso_gated_location_extra_configuration | default('')) %}
   {% set _open_extra = _base_extra ~ (sso_open_location_extra_configuration | default('')) %}
+  {% set _open_http_port = sso_open_location_http_port if sso_open_location_http_port is defined else http_port %}
+  {% set _open_internal_port = sso_open_location_internal_port if sso_open_location_internal_port is defined else proxy_internal_port %}
   {% set acl = lookup('sso', application_id, 'oauth2_acl') %}
 
   {% if acl.blacklist is defined %}
-    {% with sso_proxy_enabled = false, location = "/", webserver_location_extra_configuration = _open_extra %}
+    {% with sso_proxy_enabled = false, location = "/", webserver_location_extra_configuration = _open_extra, http_port = _open_http_port, proxy_internal_port = _open_internal_port %}
       {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
     {% endwith %}
 
@@ -23,7 +27,7 @@
     {% endwith %}
 
     {% for loc in acl.whitelist %}
-      {% with sso_proxy_enabled = false, location = loc, webserver_location_extra_configuration = _open_extra %}
+      {% with sso_proxy_enabled = false, location = loc, webserver_location_extra_configuration = _open_extra, http_port = _open_http_port, proxy_internal_port = _open_internal_port %}
         {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
       {% endwith %}
     {% endfor %}
