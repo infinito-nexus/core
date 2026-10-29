@@ -264,7 +264,10 @@ exports.register = function (shared) {
       !shared.env.lamBaseUrl,
       "LAM_BASE_URL is empty; web-app-lam is not in this deployment's inventory"
     );
-    test.skip(!shared.env.keycloakLdapFederation, "Keycloak does not federate LDAP in this round"); // nocheck: playwright-sso-ldap-gate -- cross-role gate on Keycloak's LDAP federation, not this role's ldap service
+    expect(["true", "false"], "KEYCLOAK_LDAP_FEDERATION must be true or false in the Playwright env file").toContain(
+      shared.env.keycloakLdapFederation
+    );
+    test.skip(shared.env.keycloakLdapFederation !== "true", "Keycloak does not federate LDAP in this round"); // nocheck: playwright-sso-ldap-gate -- cross-role gate on Keycloak's LDAP federation, not this role's ldap service
     test.setTimeout(resolveTimeout(600_000));
 
     const server = firstExpectedServer(shared);
