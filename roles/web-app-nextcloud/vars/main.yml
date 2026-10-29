@@ -11,7 +11,7 @@ NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
-NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
+NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
