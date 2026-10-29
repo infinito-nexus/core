@@ -45,4 +45,6 @@ def batch_ids(roles: Iterable[str], project_root: Path) -> list[str]:
         project_root: repository root holding the package registry.
     """
     by_role = batch_ids_by_role(project_root)
-    return sorted({package_id for role in roles for package_id in by_role.get(role, ())})
+    return sorted(
+        {package_id for role in roles for package_id in by_role.get(role, ())}
+    )

@@ -72,9 +72,7 @@ def _fact(path: str, name: str, fact: str, **variables):
 def _body(path: str, name: str, **variables) -> dict:
     task = _task(path, name)
     return json.loads(
-        _render(
-            task["vars"]["stalwart_jmap_body"], **_with_task_vars(task, variables)
-        )
+        _render(task["vars"]["stalwart_jmap_body"], **_with_task_vars(task, variables))
     )
 
 
@@ -246,7 +244,11 @@ class TestForwardPhases(unittest.TestCase):
             [
                 [
                     "Blob/get",
-                    {"accountId": account, "ids": [blob], "properties": ["data:asText"]},
+                    {
+                        "accountId": account,
+                        "ids": [blob],
+                        "properties": ["data:asText"],
+                    },
                     address,
                 ]
                 for address, account, blob in (

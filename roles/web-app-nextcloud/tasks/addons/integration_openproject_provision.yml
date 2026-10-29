@@ -53,7 +53,8 @@
       container exec -i
       {{ NEXTCLOUD_OPENPROJECT_LOCAL_CID | quote }}
       bash -lc 'cd /app && bundle exec rails runner -'
-    stdin: "{{ 'require \"json\"\n' ~ nextcloud_op_provision_input ~ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/openproject/ensure_nextcloud_storage.rb') }}"
+    stdin: "{{ 'require \"json\"\n' ~ nextcloud_op_provision_input ~ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/openproject/ensure_nextcloud_storage.rb')
+      }}"
   delegate_to: "{{ NEXTCLOUD_OPENPROJECT_HOST_NODE }}"
   register: nextcloud_op_storage_create
   changed_when: >-

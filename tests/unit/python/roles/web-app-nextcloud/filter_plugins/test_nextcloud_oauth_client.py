@@ -11,7 +11,10 @@ from . import PROJECT_ROOT
 
 
 def _load_module():
-    path = PROJECT_ROOT / "roles/web-app-nextcloud/filter_plugins/nextcloud_oauth_client.py"
+    path = (
+        PROJECT_ROOT
+        / "roles/web-app-nextcloud/filter_plugins/nextcloud_oauth_client.py"
+    )
     spec = importlib.util.spec_from_file_location("nextcloud_oauth_client", str(path))
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -45,14 +48,22 @@ class TestNextcloudOauthClientState(unittest.TestCase):
         for action in ("redirect_fixed", "created"):
             with self.subTest(action=action):
                 state = MODULE.nextcloud_oauth_client_state(
-                    _stdout({"action": action, "id": 7, "client_id": "abc", "removed": 0})
+                    _stdout(
+                        {"action": action, "id": 7, "client_id": "abc", "removed": 0}
+                    )
                 )
                 self.assertTrue(state["changed"])
 
     def test_the_marker_is_found_among_php_notices(self):
         state = MODULE.nextcloud_oauth_client_state(
             _stdout(
-                {"action": "created", "id": 9, "client_id": "x", "client_secret": "s", "removed": 1},
+                {
+                    "action": "created",
+                    "id": 9,
+                    "client_id": "x",
+                    "client_secret": "s",
+                    "removed": 1,
+                },
                 before="PHP Deprecated: something\n",
                 after="PHP Notice: else\n",
             )
@@ -63,9 +74,11 @@ class TestNextcloudOauthClientState(unittest.TestCase):
     def test_a_missing_or_doubled_marker_fails(self):
         line = _stdout({"action": "unchanged", "id": 1, "client_id": "a", "removed": 0})
         for stdout in ("", "PHP Fatal error: class not found\n", line + line):
-            with self.subTest(stdout=stdout[:20]):
-                with self.assertRaises(AnsibleFilterError):
-                    MODULE.nextcloud_oauth_client_state(stdout)
+            with (
+                self.subTest(stdout=stdout[:20]),
+                self.assertRaises(AnsibleFilterError),
+            ):
+                MODULE.nextcloud_oauth_client_state(stdout)
 
     def test_an_unknown_action_fails(self):
         with self.assertRaises(AnsibleFilterError):

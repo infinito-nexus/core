@@ -141,7 +141,9 @@ def is_proxy_gated(role: str) -> bool:
     vhost carries no gate.
     """
     sso = sso_block(role)
-    return sso is not None and bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+    return (
+        sso is not None and bool(sso.get("enabled")) and sso.get("flavor") == "oauth2"
+    )
 
 
 def declares_acl(role: str) -> bool:
