@@ -613,6 +613,37 @@ class RolesWithServiceLookupTests(unittest.TestCase):
             ("matrix.example.com", "https://web-app-chat.example.com"),
         )
 
+    def test_dashboard_display_false_drops_the_tile_target(self):
+        applications = {
+            "web-app-hidden": {
+                "services": {
+                    "dashboard": {"enabled": True, "shared": True, "display": False}
+                },
+                "domains": {"canonical": ["hidden.example.com"]},
+            },
+            "web-app-shown": {
+                "services": {"dashboard": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["shown.example.com"]},
+            },
+        }
+        result = self._run(["dashboard"], applications)[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-shown"])
+
+    def test_dashboard_display_true_keeps_the_tile_target(self):
+        applications = self._card_target_role("dashboard", display=True)
+        result = self._run(["dashboard"], applications)[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-chat"])
+
+    def test_dashboard_non_bool_display_fails_loudly(self):
+        applications = self._card_target_role("dashboard", display="false")
+        with self.assertRaisesRegex(AnsibleError, "web-app-chat"):
+            self._run(["dashboard"], applications)
+
+    def test_other_services_ignore_a_display_key(self):
+        applications = self._card_target_role("prometheus", display=False)
+        result = self._run(["prometheus"], applications)[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-chat"])
+
 
 if __name__ == "__main__":
     unittest.main()

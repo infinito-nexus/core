@@ -7,7 +7,7 @@ All role-owned metadata lives under `roles/<role>/meta/<topic>.yml`.
 
 | File                     | Contents                                                                                                                                          |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `meta/main.yml`          | Ansible Galaxy metadata + Ansible `dependencies:`. No project-internal `run_after:` / `lifecycle:` keys, no `logo:` / `homepage:` / `video:` / `display:`. |
+| `meta/main.yml`          | Ansible Galaxy metadata + Ansible `dependencies:`. No project-internal `run_after:` / `lifecycle:` keys, no `logo:` / `homepage:` / `video:`. |
 | `meta/services.yml`      | Per-entity service config. **File root IS the services map** keyed by `<entity_name>`. No `compose:` and no `services:` wrapper.                  |
 | `meta/server.yml`        | CSP, `domains`, `status_codes`, plus per-role `networks.local.{subnet,dns_resolver}`. File root IS `applications.<app>.server`.                   |
 | `meta/rbac.yml`          | RBAC declarations. File root IS `applications.<app>.rbac`.                                                                                         |
@@ -15,7 +15,7 @@ All role-owned metadata lives under `roles/<role>/meta/<topic>.yml`.
 | `meta/addons/<id>.yml`   | Optional. One file per addon (file root IS the addon spec; filename stem = addon id). See [Unified Addons](#unified-addons-metaaddons-) below. |
 | `meta/users.yml`         | Role-local user definitions. File root IS the users map (no `users:` wrapper).                                                                     |
 | `meta/secrets.yml`        | Credential schema definitions and runtime credential values.                                                                                       |
-| `meta/info.yml`          | Optional. Descriptive role-level metadata (`logo`, `homepage`, `video`, `display`). File root IS `applications.<app>.info` (no `info:` wrapper). |
+| `meta/info.yml`          | Optional. Descriptive role-level metadata (`logo`, `homepage`, `video`). File root IS `applications.<app>.info` (no `info:` wrapper). |
 | `meta/variants.yml`      | Optional. Variant overrides deep-merged over the assembled application payload (used by `svc-ai-ollama`, `web-app-phpmyadmin`).                   |
 
 Ansible only auto-loads `meta/main.yml`.
@@ -359,7 +359,7 @@ The helper returns `[]` / `None` gracefully when `meta/services.yml` is absent o
 
 ## Descriptive Role-Level Metadata: `meta/info.yml` 📝
 
-Project-internal descriptive metadata (icon, upstream homepage, demo video, dashboard display flag) lives in an OPTIONAL `meta/info.yml`, not nested inside `galaxy_info:`.
+Project-internal descriptive metadata (icon, upstream homepage, demo video) lives in an OPTIONAL `meta/info.yml`, not nested inside `galaxy_info:`.
 The file-root convention applies: there is no wrapping `info:` key, and the file content IS `applications.<role>.info`.
 
 ```yaml
@@ -377,23 +377,23 @@ video: https://youtu.be/3jcYJGQgenI?si=FDmoMSrAb9_WvviC
 | `logo`     | map    | UI icon descriptor. Today only `class:` (FontAwesome). Future fields (`source:`, `svg:`) require an explicit allowlist update in the lint. |
 | `homepage` | string | Upstream project URL: the canonical landing page of the software the role deploys.                                      |
 | `video`    | string | Upstream demo / overview video URL.                                                                                      |
-| `display`  | bool   | Default `true`. `false` opts the role out of dashboards / cards / apps grids.                                            |
 
 The lint (`tests/lint/ansible/roles/meta/test_info.py`) rejects any other top-level key so the file does not become a dumping ground.
+Whether the dashboard shows the role's card is not set here but in `services.dashboard.display`, see [Dashboard Card Display](base.md#dashboard-card-display-).
 
 ### Optionality
 
 `meta/info.yml` is OPTIONAL.
-A role with none of the four fields does not grow the file.
-Consumers MUST treat a missing file or missing field as absent / default, and `display` defaults to `true`.
+A role with none of the three fields does not grow the file.
+Consumers MUST treat a missing file or missing field as absent / default.
 
 ### Materialised Path
 
 ```
-applications.<role>.info.{logo,homepage,video,display}
+applications.<role>.info.{logo,homepage,video}
 ```
 
-The dashboard's `web-app-dashboard/lookup_plugins/docker_cards.py` reads `logo.class` and `display` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
+The dashboard's `web-app-dashboard/lookup_plugins/docker_cards.py` reads `logo.class` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
 
 ## Unified Addons: `meta/addons/` 🧩
 

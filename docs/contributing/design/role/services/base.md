@@ -74,6 +74,25 @@ Rules:
 - `card:` MUST be a key of the role's `canonical` mapping in `meta/domains.yml`; the card URL is `lookup('canonical_url', <role>, <key>)`.
 - Without `card:` the card targets the primary domain via `lookup('tls', <role>, 'url.base')`.
 
+## Dashboard Card Display 👀
+
+`display: false` on a consumer's `dashboard` binding drops its dashboard card, its Apps menu entry and its tile-reachability target.
+The switch is read from the merged applications, so an inventory MAY set it per host without touching the role:
+
+```yaml
+applications:
+  web-app-gitea:
+    services:
+      dashboard:
+        display: false
+```
+
+Rules:
+
+- `display:` MUST be a bool; any other value fails the card lookup.
+- Without `display:` the card is shown, so a role does not declare `display: true`.
+- The inventory validator accepts `services.dashboard.display` for every role whose contract declares `services.dashboard`.
+
 ## Service Discovery 🔍
 
 Service discovery is built from role configs, not from a central registry file.
