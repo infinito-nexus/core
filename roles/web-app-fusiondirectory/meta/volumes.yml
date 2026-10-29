@@ -1,4 +1,11 @@
 ---
+php_hardening:
+  type: config
+  source: "{{ FILE_PHP_HARDENING_INI }}"
+  mode: "0444"
+  mounts:
+    - service: fusiondirectory
+      target: /etc/php7/conf.d/zz-infinito-hardening.ini
 # nocheck: embedded-state-on-nfs generated asset cache; the authoritative state lives in LDAP
 data:
   type: volume
