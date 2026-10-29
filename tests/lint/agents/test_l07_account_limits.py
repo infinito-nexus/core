@@ -43,7 +43,12 @@ def _policy_problems(role: str, policy: object) -> list[str]:
     if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
         problems.append(f"{role}: username_max_length must be a positive integer")
     pattern = policy.get("username_pattern")
-    if not isinstance(pattern, str) or not pattern or pattern[0] == "^" or pattern[-1] == "$":
+    if (
+        not isinstance(pattern, str)
+        or not pattern
+        or pattern[0] == "^"
+        or pattern[-1] == "$"
+    ):
         problems.append(f"{role}: username_pattern must be an unanchored regex")
     else:
         try:
@@ -58,7 +63,9 @@ def _policy_problems(role: str, policy: object) -> list[str]:
     return problems
 
 
-def check(roles_dir: Path, account_max_length: int, username_max_length: int) -> list[str]:
+def check(
+    roles_dir: Path, account_max_length: int, username_max_length: int
+) -> list[str]:
     """Return the problems with the account-policy declarations under roles_dir.
 
     Args:
@@ -95,12 +102,16 @@ def check(roles_dir: Path, account_max_length: int, username_max_length: int) ->
             f"characters overflows the agent account ceiling {derived_account}"
         )
 
-    for role in AGENT_REACHABLE_APPS:
-        if role in policies and policies[role]["agent_reachable"] is not True:
-            problems.append(f"{role}: must declare agent_reachable true")
-    for role in NO_AGENT_ACCOUNT_APPS:
-        if role in policies and policies[role]["agent_reachable"] is not False:
-            problems.append(f"{role}: must declare agent_reachable false")
+    problems.extend(
+        f"{role}: must declare agent_reachable true"
+        for role in AGENT_REACHABLE_APPS
+        if role in policies and policies[role]["agent_reachable"] is not True
+    )
+    problems.extend(
+        f"{role}: must declare agent_reachable false"
+        for role in NO_AGENT_ACCOUNT_APPS
+        if role in policies and policies[role]["agent_reachable"] is not False
+    )
     return problems
 
 

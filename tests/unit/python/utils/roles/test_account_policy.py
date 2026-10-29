@@ -29,9 +29,17 @@ class TestAccountPolicy(unittest.TestCase):
         (meta / name).write_text(dump_yaml_str(data), encoding="utf-8")
 
     def test_limits_are_the_minimum_over_all_and_over_agent_reachable_roles(self):
-        self.write("web-app-a", "account.yml", {"account_policy": policy(40, "[a-z]+", True)})
-        self.write("web-app-b", "account.yml", {"account_policy": policy(15, "[a-z0-9]+", False)})
-        self.write("web-app-c", "account.yml", {"account_policy": policy(20, "[a-z]+", True)})
+        self.write(
+            "web-app-a", "account.yml", {"account_policy": policy(40, "[a-z]+", True)}
+        )
+        self.write(
+            "web-app-b",
+            "account.yml",
+            {"account_policy": policy(15, "[a-z0-9]+", False)},
+        )
+        self.write(
+            "web-app-c", "account.yml", {"account_policy": policy(20, "[a-z]+", True)}
+        )
         self.write("web-app-d", "services.yml", {"sso": {"enabled": True}})
 
         policies = account_policy.load_policies(self.roles)

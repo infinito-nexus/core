@@ -38,9 +38,10 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from access import AccessError, Keycloak
-from agents import Agents, CapacityError
 from engine import ComposeBackend, Engine, EngineError
 from swarm import SwarmBackend
+
+from agents import Agents, CapacityError
 
 ENV = os.environ
 PORT = int(ENV["BROKER_PORT"])

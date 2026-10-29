@@ -1,6 +1,6 @@
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
@@ -12,7 +12,10 @@ EXPRESSION = load_yaml_any(
 
 
 def render(ldap_enabled):
-    env = Environment(undefined=StrictUndefined)
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     env.filters["bool"] = bool
     return env.from_string(EXPRESSION).render(
         KEYCLOAK_LDAP_ENABLED=ldap_enabled,

@@ -6,8 +6,16 @@ from ansible.errors import AnsibleError
 from plugins.lookup.account_policy import LookupModule
 
 POLICIES = {
-    "web-app-a": {"username_max_length": 30, "username_pattern": "[a-z]+", "agent_reachable": True},
-    "web-app-b": {"username_max_length": 15, "username_pattern": "[a-z]+", "agent_reachable": False},
+    "web-app-a": {
+        "username_max_length": 30,
+        "username_pattern": "[a-z]+",
+        "agent_reachable": True,
+    },
+    "web-app-b": {
+        "username_max_length": 15,
+        "username_pattern": "[a-z]+",
+        "agent_reachable": False,
+    },
 }
 
 

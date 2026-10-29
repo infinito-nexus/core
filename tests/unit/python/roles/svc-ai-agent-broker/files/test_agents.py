@@ -12,7 +12,7 @@ from . import PROJECT_ROOT
 BROKER_DIR = PROJECT_ROOT / "roles/svc-ai-agent-broker/files/python"
 sys.path.insert(0, str(BROKER_DIR))
 
-import engine
+import engine  # noqa: E402
 
 _AGENTS_SPEC = importlib.util.spec_from_file_location(
     "broker_agents", BROKER_DIR / "agents.py"
