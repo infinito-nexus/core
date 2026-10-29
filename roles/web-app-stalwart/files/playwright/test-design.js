@@ -65,6 +65,7 @@ const PASSWORD_STEP_PASSWORD = "#password";
 const PASSWORD_STEP_SUBMIT = "#submit-btn";
 const PASSWORD_STEP_LOGO = "svg.default-logo";
 const PASSWORD_STEP_ALERT = "#alert";
+const CONSENT_ALLOW = /^allow$/i;
 const ROLE_STYLESHEET = "link[rel='stylesheet'][href*='/roles/web-app-stalwart/']";
 const WEBMAIL_SIGN_IN = `${webmailBaseUrl}/?_task=login`;
 const WEBMAIL_INBOX = `${webmailBaseUrl}/?_task=mail&_mbox=INBOX`;
@@ -73,6 +74,7 @@ const WEBMAIL_PASSWORD = "#rcmloginpwd";
 const WEBMAIL_SUBMIT = "#rcmloginsubmit";
 const WEBMAIL_LOGO = "#logo";
 const WEBMAIL_LIST = "#messagelist";
+const WEBMAIL_LIST_PANE = "#layout-list";
 const WEBMAIL_FOLDER = "#mailboxlist li.mailbox";
 const WEBMAIL_FRAME = "#layout-menu";
 const WEBMAIL_TASK = "#taskmenu a";
@@ -187,6 +189,11 @@ async function signInWebui(page) {
     await page.locator(PASSWORD_STEP_PASSWORD).fill(stalwartAdminPassword);
     await page.locator(PASSWORD_STEP_SUBMIT).click();
   }
+  const allow = page.getByRole("button", { name: CONSENT_ALLOW });
+  await allow.or(page.locator(WEBUI_USER_MENU)).first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
   await expect(page.locator(WEBUI_USER_MENU)).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
@@ -204,7 +211,7 @@ async function signInWebmail(page) {
     await page.locator(WEBMAIL_PASSWORD).fill(adminPassword);
     await page.locator(WEBMAIL_SUBMIT).click();
   }
-  await expect(page.locator(WEBMAIL_LIST)).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator(WEBMAIL_LIST_PANE)).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 /**
@@ -444,7 +451,7 @@ function webuiViews() {
         await shown(WEBUI_ROW)(page);
         await webuiSidebarOpened(page);
         await page.getByRole("button", { name: "Domains", exact: true }).click();
-        await page.getByRole("button", { name: "DKIM Signatures", exact: true }).hover();
+        await page.getByRole("link", { name: "DKIM Signatures", exact: true }).hover();
         await animationsSettled(page);
       },
     },
@@ -791,7 +798,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await expect(page.locator("html")).toHaveClass(mode === "dark" ? /dark-mode/ : /^(?!.*dark-mode)/);
     await assertToken(page, WEBMAIL_FRAME, "background-color", "--design-frame", `frame ${mode}`);
     await assertToken(page, `${WEBMAIL_TASK}.contacts`, "color", "--design-on-frame", `frame ${mode}`);
@@ -804,7 +811,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
     await page.locator(`${WEBMAIL_TASK}.contacts`).hover();
     await assertToken(page, `${WEBMAIL_TASK}.contacts`, "background-color", "--design-frame-hover", `hovered task ${mode}`);
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await assertFrameFocus(page, mode);
     await gotoOnion(page, `${webmailBaseUrl}/?_task=mail&_action=compose`);
     await shown("#compose-subject")(page);
@@ -822,7 +829,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
   }
   await page.emulateMedia({ colorScheme: null });
   await gotoOnion(page, WEBMAIL_INBOX);
-  await shown(WEBMAIL_LIST)(page);
+  await shown(WEBMAIL_LIST_PANE)(page);
   await assertLightAndDark(page, "#layout-list", "webmail");
   await assertReadable(
     page,
@@ -838,7 +845,7 @@ test("design: the empty content frame and the phone task menu of the webmail kee
     await page.emulateMedia({ colorScheme: mode });
     await page.setViewportSize({ width: 1440, height: 900 });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     const surface = await tokenValue(page, "--design-surface-2", "background-color");
     await expect
       .poll(
@@ -853,7 +860,7 @@ test("design: the empty content frame and the phone task menu of the webmail kee
 
     await page.setViewportSize({ width: 390, height: 844 });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await webmailTaskMenuOpened(page);
     await assertToken(page, WEBMAIL_FRAME, "background-color", "--design-surface-2", `phone task menu ${mode}`);
     await assertToken(page, `${WEBMAIL_TASK}.compose`, "color", "--design-link", `phone task menu ${mode}`);
@@ -880,7 +887,7 @@ test("design: the dark mode switch of the webmail is respected and mirrored", as
   await assertToken(page, "body", "background-color", "--design-surface-2", "dark mode picked in the webmail");
 
   await gotoOnion(page, page.url());
-  await shown(WEBMAIL_LIST)(page);
+  await shown(WEBMAIL_LIST_PANE)(page);
   await expect(html, "the picked mode must survive a reload").toHaveAttribute("data-design-theme", "dark");
 
   await page.locator(WEBMAIL_THEME).click();

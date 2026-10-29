@@ -24,10 +24,9 @@ test("administrator: webmail password login reaches the mailbox (no sso)", async
   await page.locator("#rcmloginsubmit").click();
 
   await expect(
-    page.locator("#messagelist"),
+    page.locator("#mailboxlist li.mailbox.inbox"),
     "the webmail must reach the mailbox over its internal IMAP hop instead of reporting a storage connection failure",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await expect(page.locator("#mailboxlist li.mailbox.inbox")).toBeVisible();
 });
 
 // The account is Stalwart's recovery admin (STALWART_ADMIN_USER), not the platform's administrator:
