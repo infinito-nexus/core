@@ -9,6 +9,7 @@ secrets, so neither may reach curl's command line.
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from typing import ClassVar
 
@@ -24,6 +25,14 @@ TASK = PROJECT_ROOT / "roles" / "web-app-stalwart" / "tasks" / "jmap_call.yml"
 
 PASSWORD = 'p"a\\s$s`w#o[r]d é'
 
+SWARM_ADDRESS = '"$(/usr/bin/resolve-container-id stalwart stalwart)"'
+
+RESOLVED_ONCE = (
+    "STALWART_JMAP_URL",
+    "STALWART_ADMIN_USER",
+    "STALWART_ADMIN_PASSWORD",
+)
+
 
 def _tasks() -> list[dict]:
     return load_yaml_any(str(TASK), default_if_missing=[])
@@ -35,6 +44,15 @@ def _module(task: dict, name: str) -> dict:
 
 def _call_task() -> dict:
     return next(_module(t, "shell") for t in _tasks() if _module(t, "shell"))
+
+
+def _client_task() -> dict:
+    return next(t for t in _tasks() if "stalwart_jmap_client" in _module(t, "set_fact"))
+
+
+def _resolved_client(**variables) -> dict:
+    client = _module(_client_task(), "set_fact")["stalwart_jmap_client"]
+    return {key: _render(raw, **variables) for key, raw in client.items()}
 
 
 def _assert_task() -> dict:
@@ -220,15 +238,67 @@ class TestJmapSecretsStayOffArgv(unittest.TestCase):
 
     def test_stdin_config_round_trips_hostile_values(self):
         body = json.dumps({"secret": 'q"\\x', "name": "Zoë"})
-        rendered = _render(
-            self.task["stdin"],
+        client = _resolved_client(
+            STALWART_JMAP_URL="http://localhost:8080/jmap/",
             STALWART_ADMIN_USER="stalwartadmin",
             STALWART_ADMIN_PASSWORD=PASSWORD,
-            stalwart_jmap_body=body,
+        )
+        rendered = _render(
+            self.task["stdin"], stalwart_jmap_client=client, stalwart_jmap_body=body
         )
         config = dict(line.split(" = ", 1) for line in rendered.splitlines())
         self.assertEqual(json.loads(config["user"]), f"stalwartadmin:{PASSWORD}")
         self.assertEqual(json.loads(config["data-binary"]), body)
+
+
+class TestJmapClientResolvedOncePerRun(unittest.TestCase):
+    def setUp(self):
+        self.call = _call_task()
+        self.resolve = _client_task()
+
+    def test_the_call_templates_no_resolved_once_variable(self):
+        for field in ("cmd", "stdin"):
+            for name in RESOLVED_ONCE:
+                self.assertNotIn(name, self.call[field])
+
+    def test_the_client_carries_every_resolved_once_variable(self):
+        client = _module(self.resolve, "set_fact")["stalwart_jmap_client"]
+        for name in RESOLVED_ONCE:
+            self.assertTrue(any(name in raw for raw in client.values()), name)
+
+    def test_the_call_reads_only_keys_the_client_sets(self):
+        client = _module(self.resolve, "set_fact")["stalwart_jmap_client"]
+        used = set(
+            re.findall(
+                r"stalwart_jmap_client\.(\w+)", self.call["cmd"] + self.call["stdin"]
+            )
+        )
+        self.assertTrue(used)
+        self.assertLessEqual(used, set(client))
+
+    def test_the_client_resolves_only_while_undefined(self):
+        condition = "{{ (" + str(self.resolve.get("when", True)) + ") | bool }}"
+        self.assertTrue(_render(condition))
+        self.assertFalse(_render(condition, stalwart_jmap_client={"url": "u"}))
+
+    def test_the_client_resolution_is_masked(self):
+        self.assertEqual(
+            self.resolve["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        )
+
+    def test_a_swarm_address_reaches_the_shell_unresolved(self):
+        client = _resolved_client(
+            STALWART_JMAP_URL="http://localhost:8080/jmap/",
+            STALWART_ADMIN_USER="stalwartadmin",
+            STALWART_ADMIN_PASSWORD=PASSWORD,
+        )
+        cmd = _render(
+            self.call["cmd"],
+            STALWART_CONTAINER_ADDRESS=SWARM_ADDRESS,
+            stalwart_jmap_client=client,
+        )
+        self.assertTrue(cmd.startswith(f"container exec -i {SWARM_ADDRESS} curl "))
+        self.assertTrue(cmd.endswith(" http://localhost:8080/jmap/"))
 
 
 if __name__ == "__main__":
