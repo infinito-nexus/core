@@ -32,7 +32,7 @@ test("app_api addon: the AppAPI app is enabled for the logged-in user", async ({
     });
     expect(
       appApiEnabled,
-      "app_api must be listed in OC.appswebroots, which Nextcloud fills with the enabled apps only: the MCP surface proxies through AppAPI, so the role keeps it enabled while mcp.enabled is true",
+      "app_api must be listed in OC.appswebroots, which Nextcloud fills with the enabled apps only: the MCP surface proxies through AppAPI, so the role keeps it enabled while the context_agent service runs",
     ).toBe(true);
   } finally {
     await page.close().catch(() => {});
