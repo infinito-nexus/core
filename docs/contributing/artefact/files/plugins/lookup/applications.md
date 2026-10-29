@@ -40,7 +40,8 @@ The constructor stage renders once through the [applications_carrier](../../../.
 - The action renders with `application_id` removed from its variables, so the carried tree holds the play-scope result of every consumer-aligned `lookup('tls', ...)`, whichever role parks it.
 - The token store enters the key as the SHA-256 of exactly the tokens the users are hydrated from: the controller's tokens file until `sys-token-store` loads, the `sys_token_store_users` fact after. Both sources key alike when they hold the same tokens, so loading an unchanged store keeps the carrier, and a touch keeps the key. The carrier action opens the file before it computes the key, so an NFS client keys on revalidated attributes.
 - The action masks its own result: the fact is the whole rendered tree with every application's credentials, so it never reaches a log regardless of `MASK_CREDENTIALS_IN_LOGS`.
-- User records inside the payload are the token store's state at render time. Readers of tokens captured later in the play MUST go through `lookup('users', ...)` or `lookup('config', <app>, 'users.<key>...')`, both of which read the users cache fresh.
+- User records inside the payload are the token store's state at render time. Readers of tokens captured later in the play MUST go through `lookup('users', ...)` or `lookup('config', <app>, 'users.<key>...')`, both of which key the users on the current token store.
+- The action parks the users carrier `_INFINITO_USERS_RENDERED` at the same points, after the applications render; `clear: true` drops both. See [users.md](users.md).
 - The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_APPLICATIONS_RENDERED`; they keep going through `lookup('applications')`, which is what makes the carrier transparent.
 - The carrier is the only materialised merged view a play MAY hold. The rule against a top-level `applications` fact above is unchanged.
 
