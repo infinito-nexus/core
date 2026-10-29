@@ -7,45 +7,6 @@
 - name: 📖 Read the OpenProject coupling state of both sides
   include_tasks: integration_openproject_state.yml
 
-- name: 🔍 Find the stamp of the last OpenProject provisioning
-  ansible.builtin.stat:
-    path: "{{ NEXTCLOUD_OPENPROJECT_STAMP_FILE }}"
-  register: nextcloud_op_stamp_file
+- name: 🔧 Provision the OpenProject coupling when its stamp is stale
+  include_tasks: integration_openproject_converge.yml
   when: IS_STACK_HOST | bool
-
-- name: 📖 Read the stamp of the last OpenProject provisioning
-  ansible.builtin.slurp:
-    src: "{{ NEXTCLOUD_OPENPROJECT_STAMP_FILE }}"
-  register: nextcloud_op_stamp
-  when:
-    - IS_STACK_HOST | bool
-    - nextcloud_op_stamp_file.stat.exists
-
-- name: 🧮 Decide whether the OpenProject coupling needs a provisioning run
-  set_fact:
-    nextcloud_op_provision_due: >-
-      {{ (lookup('config', 'web-app-nextcloud', 'addons.integration_openproject.config.rotate_oauth_client') | bool)
-         or nextcloud_op_stamp is skipped
-         or (nextcloud_op_stamp.content | b64decode | trim) != nextcloud_op_digest }}
-  when: IS_STACK_HOST | bool
-
-- name: 🔧 Converge the bidirectional OpenProject <-> Nextcloud OAuth coupling
-  include_tasks: integration_openproject_provision.yml
-  when:
-    - IS_STACK_HOST | bool
-    - nextcloud_op_provision_due | bool
-
-- name: 📖 Read the OpenProject coupling state the provisioning left
-  include_tasks: integration_openproject_state.yml
-  when:
-    - IS_STACK_HOST | bool
-    - nextcloud_op_provision_due | bool
-
-- name: 📝 Stamp the OpenProject coupling state the provisioning left
-  stack_host_copy:
-    content: "{{ nextcloud_op_digest }}\n"
-    dest: "{{ NEXTCLOUD_OPENPROJECT_STAMP_FILE }}"
-    mode: "0600"
-  when:
-    - IS_STACK_HOST | bool
-    - nextcloud_op_provision_due | bool
