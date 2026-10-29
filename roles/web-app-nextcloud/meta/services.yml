@@ -202,8 +202,8 @@ talk:
   shared: "{{ 'web-svc-coturn' in group_names }}"
   name: nextcloud-talk
   image: nextcloud/aio-talk
-  # nocheck: docker-version -- all 174 tags upstream publishes are AIO build stamps, none is a version
-  version: latest
+  # nocheck: docker-version -- upstream publishes only AIO build stamps and froze latest at 20250325_084656; later stamps start Janus from a generated /conf/janus.jcfg that the janus_conf mount cannot replace
+  version: "20260409_094910"
   backup:
     no_stop_required: false
   turn_server:
@@ -220,7 +220,7 @@ talk:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  min_storage: 274MB
+  min_storage: 279MB
   ports:
     internal:
       signaling: 8081
@@ -287,15 +287,15 @@ talk_recording:
   shared: false
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording
-  # nocheck: docker-version -- all 104 tags upstream publishes are AIO build stamps, none is a version
-  version: latest
+  # nocheck: docker-version -- upstream publishes only AIO build stamps and froze latest at 20250325_084656; stays on the AIO release of services.talk.version
+  version: "20260409_094910"
   backup:
     no_stop_required: true
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 3g
   pids_limit: 1024
-  min_storage: 507MB
+  min_storage: 993MB
   ports:
     internal:
       recording: 1234
