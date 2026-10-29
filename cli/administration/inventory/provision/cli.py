@@ -240,7 +240,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"[INFO] Pinning a password for every user the {len(application_ids)} "
-        "resolved applications declare..."
+        "resolved applications declare and every catalogue user holding an account..."
     )
     pinned = generate_user_passwords(
         roles_dir=roles_dir,
