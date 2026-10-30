@@ -1,0 +1,46 @@
+---
+application_id: "web-app-grafana"
+entity_name: "{{ application_id | entity_name }}"
+
+GRAFANA_CONTAINER: "{{ lookup('config', application_id, 'services.grafana.name') }}"
+GRAFANA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'grafana') }}"
+GRAFANA_DOMAIN: "{{ lookup('domain', application_id) }}"
+GRAFANA_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
+GRAFANA_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.internal.grafana') }}"
+GRAFANA_LOCAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.local.grafana') }}"
+GRAFANA_LOCAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ GRAFANA_LOCAL_PORT }}"
+
+GRAFANA_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
+GRAFANA_DASHBOARDS_DOCKER_DIR: "{{ lookup('volume', application_id, 'dashboard_logs').target | dirname }}"
+
+GRAFANA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+GRAFANA_LOKI_ENABLED: "{{ lookup('config', application_id, 'services.loki.enabled') | bool }}"
+GRAFANA_PROMETHEUS_ENABLED: "{{ lookup('config', application_id, 'services.prometheus.enabled') | bool }}"
+
+GRAFANA_BREAKGLASS_USERNAME: "{{ lookup('users', 'web-app-grafana-breakglass').username }}"
+GRAFANA_BREAKGLASS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.breakglass_password') }}"
+
+GRAFANA_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+GRAFANA_RBAC_AUDITOR_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='auditor') }}"
+GRAFANA_ROLE_ATTRIBUTE_PATH: >-
+  contains({{ RBAC.GROUP.CLAIM }}[*] || `[]`, '{{ GRAFANA_RBAC_ADMIN_GROUP }}') && 'Admin'
+  || contains({{ RBAC.GROUP.CLAIM }}[*] || `[]`, '{{ GRAFANA_RBAC_AUDITOR_GROUP }}') && 'Viewer'
+GRAFANA_SIGNOUT_URL: >-
+  {{ OIDC.CLIENT.LOGOUT_URL }}?client_id={{ OIDC.CLIENT.ID | urlencode }}&post_logout_redirect_uri={{ (GRAFANA_URL ~ '/login') | urlencode }}
+
+GRAFANA_LOKI_ROLE: "web-svc-loki"
+GRAFANA_LOKI_DATASOURCE_UID: "loki"
+GRAFANA_LOKI_URL: "http://{{ GRAFANA_LOKI_ROLE | entity_name }}:{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.ports.internal.loki') }}" # nocheck: container-url-lookup  Loki listens on its own port category ports.internal.loki, container_url reads only ports.internal.http
+GRAFANA_LOKI_TENANT: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.tenant') }}"
+GRAFANA_LOG_ALERT_PATTERN: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.alerting.critical_pattern') }}"
+GRAFANA_LOG_ALERT_WINDOW: "{{ lookup('config', GRAFANA_LOKI_ROLE, 'services.loki.alerting.window') }}"
+GRAFANA_LOG_ALERT_EXPR: >-
+  sum by (application, host) (count_over_time({log_class="application"} |~ {{ GRAFANA_LOG_ALERT_PATTERN | to_json }} [{{ GRAFANA_LOG_ALERT_WINDOW }}]))
+
+GRAFANA_PROMETHEUS_ROLE: "web-app-prometheus"
+GRAFANA_PROMETHEUS_DATASOURCE_UID: "prometheus"
+GRAFANA_PROMETHEUS_NETWORK: "{{ GRAFANA_PROMETHEUS_ROLE | entity_name }}"
+GRAFANA_PROMETHEUS_URL: "http://{{ lookup('scrape_target', GRAFANA_PROMETHEUS_ROLE, 'prometheus') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
+GRAFANA_ALERTMANAGER_URL: "http://{{ lookup('scrape_target', GRAFANA_PROMETHEUS_ROLE, 'alertmanager') }}" # nocheck: literal-protocol-lookup  scrape_target names a container-network host:port, which speaks plaintext in compose and swarm
+
+GRAFANA_LOG_PROBE_APPLICATION: "svc-prx-openresty"

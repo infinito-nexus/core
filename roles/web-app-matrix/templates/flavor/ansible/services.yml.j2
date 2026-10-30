@@ -11,6 +11,7 @@
         MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION: {{ MATRIX_MDAD_RUNNER_DOCKER_CLI_VERSION }}
     image: "{{ MATRIX_MDAD_RUNNER_IMAGE }}"  # nocheck: container-image-lookup
     {{ lookup('compose_only', 'restart', DOCKER_RESTART_POLICY) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     privileged: true
     {{ lookup('compose_only', 'cgroup', 'host') }}

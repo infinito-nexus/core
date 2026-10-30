@@ -1,0 +1,82 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🐳 Ensure the container engine runs on {{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_container is not defined
+
+- name: "🧩 Install the compose wrapper on {{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
+- name: "📁 Create the collector directory"
+  ansible.builtin.file:
+    path: "{{ LOG_COLLECTOR_DIR }}"
+    state: directory
+    mode: "0750"
+
+- name: "📄 Render the collector pipeline"
+  ansible.builtin.template: # nocheck: stack-host-template (node-local collector: every server host renders and runs its own pipeline)
+    src: collector.alloy.j2
+    dest: "{{ LOG_COLLECTOR_CONFIG_HOST }}" # nocheck: volumes-template-spot  node-local collector outside any stack, every server host bind-mounts the pipeline it rendered for itself
+    mode: "0644"
+  register: log_collector_config
+
+- name: "🔐 Render the collector env file"
+  ansible.builtin.template: # nocheck: stack-host-template (node-local collector: every server host renders and runs its own pipeline)
+    src: env.j2
+    dest: "{{ LOG_COLLECTOR_ENV_FILE }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Render the collector compose file"
+  ansible.builtin.template: # nocheck: stack-host-template (node-local collector: every server host renders and runs its own pipeline)
+    src: collector.yml.j2
+    dest: "{{ LOG_COLLECTOR_COMPOSE_FILE }}"
+    mode: "0640"
+    lstrip_blocks: true
+
+- name: "🚀 Start the collector"
+  ansible.builtin.command:
+    argv:
+      - compose
+      - --chdir
+      - "{{ LOG_COLLECTOR_DIR }}"
+      - up
+      - -d
+      - --remove-orphans
+  register: log_collector_up
+  changed_when: "'Started' in log_collector_up.stderr or 'Recreated' in log_collector_up.stderr"
+
+- name: "🔄 Restart the collector so it reads the changed pipeline"
+  ansible.builtin.command:
+    argv:
+      - compose
+      - --chdir
+      - "{{ LOG_COLLECTOR_DIR }}"
+      - restart
+  changed_when: true
+  when: log_collector_config.changed
+
+- name: "⏳ Wait until the collector runs"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{{ '{{' }}.State.Status{{ '}}' }} {{ '{{' }}.State.Restarting{{ '}}' }}"
+      - "{{ LOG_COLLECTOR_CONTAINER }}" # nocheck: container-exec-resolver  node-local compose stack, compose_only(node_local=True) pins this literal container_name in compose and in swarm
+  register: log_collector_state
+  changed_when: false
+  retries: 30
+  delay: 2
+  until:
+    - log_collector_state.rc == 0
+    - log_collector_state.stdout is search('running')
+    - log_collector_state.stdout is not search('true')

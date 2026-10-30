@@ -1,0 +1,69 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "🕸️ Pre-create the Prometheus network Grafana reads metrics and Alertmanager on"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ GRAFANA_PROMETHEUS_ROLE }}"
+  when: GRAFANA_PROMETHEUS_ENABLED | bool
+
+- name: "📄 Render the Grafana provisioning (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "provisioning/datasources.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'datasources.yml'] | path_join }}"
+        mode: "0644"
+      - src: "provisioning/dashboards.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'dashboards.yml'] | path_join }}"
+        mode: "0644"
+      - src: "provisioning/alerting.yml.j2"
+        dest: "{{ [GRAFANA_CONFIG_DIR, 'alerting.yml'] | path_join }}"
+        mode: "0644"
+
+- name: "📋 Stage the central log dashboard"
+  stack_host_copy:
+    src: "dashboards/logs.json"
+    dest: "{{ [GRAFANA_CONFIG_DIR, 'logs.json'] | path_join }}"
+    mode: "0644"
+  notify: compose-up
+
+- name: "🚿 flush handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🔐 Align the break-glass administrator once Grafana answers"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "⏳ Wait until Grafana answers /api/health"
+      uri_retry:
+        url: "{{ GRAFANA_LOCAL_URL }}/api/health"
+        method: GET
+        status_code: 200
+      register: grafana_health
+      until: grafana_health is succeeded
+      retries: 60
+      delay: 5
+
+    - name: "🔐 Align the break-glass administrator password"
+      ansible.builtin.shell: >-
+        container exec -i {{ GRAFANA_CONTAINER_ADDRESS }}
+        grafana cli admin reset-admin-password --password-from-stdin
+      args:
+        stdin: "{{ GRAFANA_BREAKGLASS_PASSWORD }}"
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📂 Include front proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ GRAFANA_DOMAIN }}"
+    http_port: "{{ GRAFANA_LOCAL_PORT }}"
+    proxy_internal_port: "{{ GRAFANA_INTERNAL_PORT }}"

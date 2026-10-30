@@ -1,0 +1,8 @@
+---
+- name: "📜 Ship the journal of {{ inventory_hostname }} to Loki"
+  ansible.builtin.include_tasks: 00_core.yml
+  when:
+    - run_once_sys_svc_log_collector is not defined
+    - LOG_COLLECTOR_LOKI_ROLE in groups and groups[LOG_COLLECTOR_LOKI_ROLE] | length > 0
+  vars:
+    application_id: "{{ LOG_COLLECTOR_ROLE }}"

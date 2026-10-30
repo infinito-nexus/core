@@ -1,3 +1,9 @@
 ---
 SYS_SVC_JOURNALCTL_DIRECTORY: /var/log/journal
 SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_PERCENT: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.system_max_use_percent') }}"
+SYS_SVC_JOURNALCTL_SYSTEM_KEEP_FREE: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.system_keep_free') }}"
+SYS_SVC_JOURNALCTL_MAX_RETENTION_SEC: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.max_retention_sec') }}"
+SYS_SVC_JOURNALCTL_DOCKER_DROPIN_DIR: "{{ [DIR_SYSTEM_SERVICE, 'docker.service.d'] | path_join }}"
+SYS_SVC_JOURNALCTL_DOCKER_DROPIN: "{{ [SYS_SVC_JOURNALCTL_DOCKER_DROPIN_DIR, 'journald-rate-limit.conf'] | path_join }}"
+SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_INTERVAL_SEC: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.docker_rate_limit.interval_sec') }}"
+SYS_SVC_JOURNALCTL_DOCKER_RATE_LIMIT_BURST: "{{ lookup('config', 'sys-svc-journalctl', 'services.svc-journalctl.docker_rate_limit.burst') }}"

@@ -185,4 +185,8 @@ docker_args:
   - --add-host={{ extra_host }}
 {% endfor %}
   - --name={{ DISCOURSE_CONTAINER }}
+  - --label={{ DOCKER_LOG_LABEL }}={{ application_id }}
+  - --log-driver=journald
+  - --log-opt=tag={{ application_id }}
+  - --log-opt=labels={{ DOCKER_LOG_LABEL }}
 {{ lookup('container_extra_hosts', docker_flags=true) }}

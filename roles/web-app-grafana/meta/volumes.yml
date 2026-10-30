@@ -1,0 +1,41 @@
+---
+data:
+  type: volume
+  name: grafana_data
+  # nocheck: nfs-false-data-loss  Reason: holds Grafana's SQLite database, which corrupts over NFS; the single replica is pinned with placement: manager and the backup stops it first.
+  nfs: false
+  mounts:
+    - service: grafana
+      target: /var/lib/grafana
+
+datasources:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'datasources.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: /etc/grafana/provisioning/datasources/infinito.yml
+
+dashboard_provider:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'dashboards.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: /etc/grafana/provisioning/dashboards/infinito.yml
+
+dashboard_logs:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'logs.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: /etc/grafana/dashboards/logs.json
+
+alerting:
+  type: config
+  source: "{{ [lookup('container', 'web-app-grafana', 'directories.config'), 'alerting.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: grafana
+      target: /etc/grafana/provisioning/alerting/infinito.yml

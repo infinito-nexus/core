@@ -101,6 +101,15 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     dns:
       start: 9053
       end: 9053
+    grafana:
+      start: 3300
+      end: 3300
+    loki:
+      start: 3310
+      end: 3310
+    push:
+      start: 3311
+      end: 3311
   public:
     http:
       start: 80

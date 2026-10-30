@@ -35,8 +35,7 @@
       - --config
       - {{ lookup('volume', 'web-app-opentalk', 'livekit_yaml').target }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
 
   {% set service_name = 'rabbit' %}
   {{ service_name }}:
@@ -49,8 +48,7 @@
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
 
   {% set service_name = 'recorder' %}
   {{ service_name }}:
@@ -61,8 +59,7 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('depends_on', {'controller': 'service_started'}) }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

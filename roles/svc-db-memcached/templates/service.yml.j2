@@ -3,8 +3,7 @@
     {{ lookup('container_image', 'svc-db-memcached', 'memcached') }}
     {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-memcached')) }}
     {{ lookup('compose_restart') }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     command: ["memcached", "-m", "{{ lookup('service_memory_mb', application_id, 'memcached', 0.25, provider='svc-db-memcached') }}"]
     # nocheck: container-healthcheck-literal  probes every second, so the SPOT's 5s start cadence would report healthy later than this block already does
     healthcheck: # nocheck: healthcheck-timing-override, healthcheck-start-period-covers-interval  a swarm-init gate that must clear in seconds, so it runs without a start window rather than inside one

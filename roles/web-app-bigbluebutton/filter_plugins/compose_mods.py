@@ -4,7 +4,12 @@ from utils.cache.yaml import dump_yaml_str, load_yaml_str
 
 
 def compose_mods(
-    yml_text, compose_repository_path, env_file, extra_hosts=None, pinned=None
+    yml_text,
+    compose_repository_path,
+    env_file,
+    container_logging,
+    extra_hosts=None,
+    pinned=None,
 ):
     """Normalize the upstream-generated bigbluebutton compose file.
 
@@ -14,6 +19,10 @@ def compose_mods(
             all repo-relative ``./`` paths are rewritten against it because
             the final file lives in the instance dir, not the clone.
         env_file: env file broadcast to every service via ``env_file``.
+        container_logging: the rendered logging contract
+            (``roles/sys-svc-container/templates/logging.yml.j2``) as a
+            mapping with ``labels`` and ``logging``; its labels are merged
+            into and its logging block replaces every service's own.
         extra_hosts: optional host mappings added to every service that is
             not on the host network.
         pinned: names of services whose image the role pins in
@@ -34,6 +43,9 @@ def compose_mods(
         flags=re.MULTILINE,
     )
 
+    contract_labels = container_logging["labels"]
+    contract_logging = container_logging["logging"]
+
     data = load_yaml_str(yml_text) or {}
     services = data.get("services", {}) or {}
 
@@ -42,6 +54,17 @@ def compose_mods(
             continue
 
         svc["env_file"] = [env_file]
+
+        labels = svc.get("labels")
+        if isinstance(labels, list):
+            labels = {
+                key: value
+                for key, _, value in (str(entry).partition("=") for entry in labels)
+            }
+        elif not isinstance(labels, dict):
+            labels = {}
+        svc["labels"] = {**labels, **contract_labels}
+        svc["logging"] = dict(contract_logging)
 
         if extra_hosts and svc.get("network_mode") != "host":
             hosts = svc.get("extra_hosts")

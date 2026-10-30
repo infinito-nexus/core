@@ -98,10 +98,9 @@ MATRIX_MDAD_DAEMON_JSON:
   default-address-pools: "{{ NETWORK_NESTED_DOCKER_ADDRESS_POOLS }}"
   exec-opts: ["native.cgroupdriver=systemd"]
   iptables: true
-  log-driver: "json-file"
+  log-driver: "journald"
   log-opts:
-    max-size: "10m"
-    max-file: "3"
+    tag: "{{ '{{' }}.Name{{ '}}' }}"
 
 MATRIX_TELEGRAM_USABLE: >-
   {{ (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | string | trim | length > 0)

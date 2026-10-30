@@ -1,0 +1,4 @@
+---
+canonical:
+  - loki.{{ DOMAIN_PRIMARY }}
+aliases: []
