@@ -78,8 +78,44 @@ def nextcloud_plugin_config_pending(specs, app_config):
     return pending
 
 
+def nextcloud_occ_config_set_batch(pending):
+    """The ``occ config:app:set`` calls that write the pending entries.
+
+    Args:
+      pending: ``nextcloud_plugin_config_pending`` entries.
+
+    Returns:
+      list of dicts in entry order, the calls files/php/utils/occ_batch.php runs:
+        argv  - the ``occ`` arguments; a typed entry adds
+                ``--no-interaction --type=<type>``
+        label - ``appid/configkey``
+    """
+    batch = []
+    for item in pending:
+        typed = (
+            ["--no-interaction", "--type=" + item["type"]]
+            if item["type"] is not None
+            else []
+        )
+        batch.append(
+            {
+                "argv": [
+                    "config:app:set",
+                    item["appid"],
+                    item["configkey"],
+                    *typed,
+                    "--value",
+                    item["value"],
+                ],
+                "label": item["appid"] + "/" + item["configkey"],
+            }
+        )
+    return batch
+
+
 class FilterModule:
     def filters(self):
         return {
             "nextcloud_plugin_config_pending": nextcloud_plugin_config_pending,
+            "nextcloud_occ_config_set_batch": nextcloud_occ_config_set_batch,
         }

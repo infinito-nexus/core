@@ -4,8 +4,10 @@ join an `occ app:install` that runs in the background.
 """
 
 import json
+import re
 
 _INCOMPAT_MARKER = "is not compatible with this version of the server"
+_ENABLED_LINE = re.compile(r"^\S+ enabled$", re.MULTILINE)
 _ALREADY_MARKER = "already installed"
 _UNAVAILABLE_MARKER = "was not found on the appstore"
 _TRANSPORT_MARKERS = ("cURL error", "ConnectException")
@@ -31,6 +33,8 @@ def nextcloud_install_status(install_result):
                        (drives `until` and inverts to `failed_when`)
       - changed      : plugin was actually installed in this run
       - runnable     : plugin is available for enable/configure downstream
+      - enabled      : the install enabled the plugin too; its stdout holds
+                       an ``<app> enabled`` line
     """
     if not isinstance(install_result, dict):
         raise TypeError(
@@ -55,6 +59,7 @@ def nextcloud_install_status(install_result):
         "ok": success or already or incompatible,
         "changed": success and not already,
         "runnable": success or already,
+        "enabled": success and _ENABLED_LINE.search(stdout) is not None,
     }
 
 
