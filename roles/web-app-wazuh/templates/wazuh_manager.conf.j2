@@ -3,14 +3,14 @@
     <jsonout_output>yes</jsonout_output>
     <alerts_log>yes</alerts_log>
     <logall>no</logall>
-    <logall_json>no</logall_json>
+    <logall_json>{{ 'yes' if WAZUH_RAW_ARCHIVE | bool else 'no' }}</logall_json>
     <email_notification>no</email_notification>
     <agents_disconnection_time>10m</agents_disconnection_time>
     <agents_disconnection_alert_time>0</agents_disconnection_alert_time>
   </global>
 
   <alerts>
-    <log_alert_level>3</log_alert_level>
+    <log_alert_level>{{ WAZUH_LOG_ALERT_LEVEL }}</log_alert_level>
     <email_alert_level>12</email_alert_level>
   </alerts>
 
@@ -20,7 +20,7 @@
 
   <remote>
     <connection>secure</connection>
-    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_events') }}</port>
+    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent') }}</port>
     <protocol>tcp</protocol>
     <queue_size>131072</queue_size>
   </remote>
@@ -205,6 +205,12 @@
     <list>etc/lists/malicious-ioc/malware-hashes</list>
     <decoder_dir>etc/decoders</decoder_dir>
     <rule_dir>etc/rules</rule_dir>
+{% set ruleset_dir = WAZUH_RULESET_DIR_CONTAINER | regex_replace('^' ~ WAZUH_MANAGER_HOME ~ '/', '') %}
+{% for kind in ['decoder', 'rule'] %}
+{% for dir in WAZUH_RULESET_DIRS | select('search', '(^|/)' ~ kind ~ 's$') %}
+    <{{ kind }}_dir>{{ ruleset_dir }}/{{ dir }}</{{ kind }}_dir>
+{% endfor %}
+{% endfor %}
   </ruleset>
 
   <rule_test>
@@ -219,7 +225,7 @@
     <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_registration') }}</port>
     <use_source_ip>no</use_source_ip>
     <purge>yes</purge>
-    <use_password>no</use_password>
+    <use_password>yes</use_password>
     <ciphers>HIGH:!ADH:!EXP:!MD5:!RC4:!3DES:!CAMELLIA:@STRENGTH</ciphers>
     <ssl_verify_host>no</ssl_verify_host>
     <ssl_manager_cert>etc/sslmanager.cert</ssl_manager_cert>
@@ -246,6 +252,6 @@
 <ossec_config>
   <localfile>
     <log_format>syslog</log_format>
-    <location>/var/ossec/logs/active-responses.log</location>
+    <location>{{ WAZUH_MANAGER_HOME }}/logs/active-responses.log</location>
   </localfile>
 </ossec_config>

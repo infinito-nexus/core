@@ -1,0 +1,18 @@
+---
+application_id: web-svc-github-webhook
+entity_name: "{{ application_id | get_entity_name }}"
+
+GITHUB_WEBHOOK_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+GITHUB_WEBHOOK_PATH: "/github"
+# Exception: one megabyte above the receiver's own limit (WEBHOOK_MAX_BYTES), so a body between the two reaches the receiver and is refused and alerted there instead of silently at the proxy.
+GITHUB_WEBHOOK_PROXY_MAX_BODY: "{{ ((GITHUB_WEBHOOK_MAX_BYTES | int) // 1048576 + 1) ~ 'M' }}"
+GITHUB_WEBHOOK_STATE_DB: "{{ [lookup('volume', application_id, 'state').target, 'deliveries.sqlite'] | path_join }}"
+GITHUB_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.webhook_secret') }}"
+GITHUB_WEBHOOK_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.github_webhook_token') }}"
+GITHUB_WEBHOOK_RECEIVER_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'receiver.py'] | path_join }}"
+GITHUB_WEBHOOK_RECEIVER_TARGET: "{{ lookup('volume', application_id, 'receiver').target }}"
+GITHUB_WEBHOOK_EVENTS_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'github_events.py'] | path_join }}"
+GITHUB_WEBHOOK_EVENTS_TARGET: "{{ lookup('volume', application_id, 'events').target }}"
+GITHUB_WEBHOOK_TEST_WAZUH: "{{ 'web-app-wazuh' in group_names }}"
+GITHUB_WEBHOOK_SETTINGS_RULE_IDS: "{{ lookup('wazuh_ruleset', scope='host').rule_ids.github_settings }}"
+GITHUB_WEBHOOK_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}:{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"

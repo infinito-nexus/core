@@ -62,6 +62,31 @@ class TestBuildPlan(unittest.TestCase):
     def test_empty_names_produce_no_calls(self):
         self.assertEqual(build_plan(PackageSpec(()), STATE_PRESENT), [])
 
+    def test_a_version_pins_the_install_call_and_keeps_the_plain_name(self):
+        spec = PackageSpec(
+            ("wazuh-agent",),
+            repo={"managed_externally": "x"},
+            version="{{ WAZUH_AGENT_PACKAGE_VERSION }}",
+        )
+        plan = build_plan(spec, STATE_PRESENT)
+        self.assertEqual(plan[0].args["name"], ["wazuh-agent"])
+        self.assertEqual(plan[0].pin, "{{ WAZUH_AGENT_PACKAGE_VERSION }}")
+
+    def test_without_a_version_the_call_is_unpinned(self):
+        self.assertIsNone(build_plan(PackageSpec(("git",)), STATE_PRESENT)[0].pin)
+
+    def test_a_version_pins_only_its_own_name_not_a_bootstrap_package(self):
+        spec = PackageSpec(
+            ("micro",), repo={"bootstrap_package": "epel-release"}, version="1.0-1"
+        )
+        plan = build_plan(spec, STATE_PRESENT)
+        self.assertEqual([call.pin for call in plan], [None, "1.0-1"])
+
+    def test_a_version_without_a_plain_install_raises(self):
+        spec = PackageSpec(("micro",), repo={"enable_existing": "crb"}, version="1.0-1")
+        with self.assertRaises(ValueError):
+            build_plan(spec, STATE_PRESENT)
+
     def test_absent_never_needs_the_source(self):
         spec = PackageSpec(("nfs-ganesha",), source="aur")
         plan = build_plan(spec, STATE_ABSENT)

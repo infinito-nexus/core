@@ -1,0 +1,20 @@
+{% for source in WAZUH_DECODER_SOURCES %}
+<decoder name="{{ source.decoder }}">
+  <program_name>^{{ source.program }}$</program_name>
+</decoder>
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}
+
+<decoder name="{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}-json">
+  <parent>{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}</parent>
+  <prematch>^{"gs_</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>
+
+<decoder name="{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}-json">
+  <parent>{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}</parent>
+  <prematch>^{"dc_</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

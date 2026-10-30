@@ -1,0 +1,168 @@
+---
+WAZUH_AGENT_MANAGER_ROLE: "web-app-wazuh"
+WAZUH_AGENT_MANAGER_DEPLOYED: "{{ WAZUH_AGENT_MANAGER_ROLE in groups and groups[WAZUH_AGENT_MANAGER_ROLE] | length > 0 }}"
+# Exception: until multi-host is built (one agent ID and vault key per host, each host pre-registered, a manager address other than 127.0.0.1), only the manager's own host runs an agent.
+WAZUH_AGENT_MANAGER_LOCAL: "{{ WAZUH_AGENT_MANAGER_ROLE in group_names }}"
+
+WAZUH_AGENT_VERSION: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.version') }}"
+WAZUH_AGENT_PACKAGE: "wazuh-agent"
+WAZUH_AGENT_SERVICE: "wazuh-agent.service"
+WAZUH_AGENT_REPO_URL: "https://packages.wazuh.com/{{ WAZUH_AGENT_VERSION.split('.')[0] }}.x"
+WAZUH_AGENT_GPG_KEY_URL: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+WAZUH_AGENT_APT_KEY: "/etc/apt/keyrings/wazuh.asc"
+WAZUH_AGENT_RPM_KEY: "/etc/pki/rpm-gpg/RPM-GPG-KEY-WAZUH"
+# Exception: pinned from `gpg --show-keys` of the published key ("Wazuh.com (Wazuh Signing Key) <support@wazuh.com>", expires 2027-05-15); a fetched key with any other fingerprint fails the deploy before a repository uses it.
+WAZUH_AGENT_GPG_KEY_FINGERPRINT: "0DCFCA5547B19D2A6099506096B3EE5F29111145"
+WAZUH_AGENT_APT_SOURCE: "/etc/apt/sources.list.d/wazuh.list"
+WAZUH_AGENT_YUM_REPO: "wazuh"
+
+WAZUH_AGENT_DIR: "/var/ossec"
+WAZUH_AGENT_CLOCK_SYNC_RETRIES: 6
+WAZUH_AGENT_CLOCK_SYNC_DELAY: 10
+WAZUH_AGENT_FETCH_RETRIES: 5
+WAZUH_AGENT_FETCH_DELAY: 15
+WAZUH_AGENT_BUILD_DEPS_RETRIES: 3
+WAZUH_AGENT_VERSION_FILE: "{{ [ WAZUH_AGENT_DIR, 'VERSION.json' ] | path_join }}"
+
+WAZUH_AGENT_SOURCE_URL: "https://github.com/wazuh/wazuh/archive/v{{ WAZUH_AGENT_VERSION }}.tar.gz"
+# Param WAZUH_AGENT_SOURCE_PINS: version -> {source: SHA-256 of the release tarball, deps: top-level entry of src/src/external -> SHA-256 of its file manifest}; computed as in the README.
+WAZUH_AGENT_SOURCE_PINS:
+  "4.14.6":
+    source: "1de971b9d0663a020a4d55ea713cae07b5c4188e67da896b779bc439029e7ee3"
+    deps:
+      ".gitignore": "e8c101cc25c6fabed7f81528bf7b91ef0e9f857e7dc8f3cf002232c7798e3f98"
+      "audit-userspace": "5106527a9a69bc144602b36f0bd83c71184ad880e42b153403aabb4ec144ad3e"
+      "benchmark": "53f12b66412cdaacf0135fb772742f517abc66ce5ce3c76a0259fdcba214f1b8"
+      "bzip2": "d8fac4ec10135c14a015824a8477e8a034ed833557bc6f518ad5f20b60af55f0"
+      "cJSON": "64d33aea078f58d913a5e3d3cbc2c635681e63eea24d3637358b8734a4eb21d7"
+      "cpp-httplib": "f9b0bf00242c6904cd5c3c097c391bb1f35f36abc9296ff38522d9a64169d0a4"
+      "curl": "007dd2db2c4621aa29fcc957c1048b02643661fdf14879ba9a01c888143e494f"
+      "dbus": "6c90da2d349754486f3490dab96dd2022a77287bc2c1ee4921d1c13f4aaa4be5"
+      "googletest": "2f9ef22c5a5a98a176d016560870ebdb45ced2562e3439948231d6c8c5ae7ac3"
+      "libarchive": "b51ed7347638af7d9f861a36e2174a35043c471ec55560eaf1338b4a070152ac"
+      "libbpf-bootstrap": "cac1365c056a0fcd1914d5a07a6b80fd880b21537f7e675768b025da9b00494a"
+      "libdb": "2375c48e47e2b8520f946ef93daea5ae57384c445c9d816fd7f98d694242bf39"
+      "libffi": "abffc53ccabefb75f9ea8c6103f174167ed3909adb2fa7dfb696ec17b5b8f29a"
+      "libpcre2": "afc66e790cee62f9c67a616cc895f3e6d7de3590d71e9a92c401b5c089fa9aee"
+      "libplist": "44b1a5948526acab3e24526e03e8a228995371f8d7b3cb33b8f7d6e0d55a073e"
+      "libyaml": "8652508ad5c9fb3252bab20f2c2da4f53b24e7be8696c6ce4faff355b74752ff"
+      "lua": "74c3385c018f4e645b8c6e5a8ac7d8fd8c832b0ce453c78b0ee2cee01089be08"
+      "lzma": "19335fc103cc62dedc9b56d1ff8ea11104be1fcb27b1c738c4f8cbfe02b1fa24"
+      "msgpack": "5c2395427e26b5427abbab310b8297e9d36d1976dded9667d5ef9c2230bbd588"
+      "nlohmann": "a08b57df8343c39a0196c57ba7ad2412eb891fdc112a911e6de373851e7b7e09"
+      "openssl": "83cf8b66c73e17bac077aed55bfe62fbd5a3274890804616ba54c61aa2554758"
+      "pacman": "7ac56d76abb31030151140070ca60d234e579fadb4dceb08154725be6f40ff8d"
+      "popt": "a3e7b04caeb26b3f2f38c3550a39624ed5e4440eab5d18e66cf5ee808941c15f"
+      "procps": "5c9e7fc27a9c431e7947662e5787f83973f6941e097fa594658fd704d6f80b80"
+      "rocksdb": "f69fc0ec4f2ff698dccd5afb8c684b979aa5b2b83917198a8202593a439ba146"
+      "rpm": "1f24a2b21d9b61943a43f8e28c75ddbfd0263128b924be446c55ef11b9a97621"
+      "sqlite": "34f20c5598e786ee42a447983332a48c3eba88b7add6bfa806de4cf9751b3fba"
+      "zlib": "6fda8f7b7cfd166eee435e6fef5d24bad7cdd537ce2cd43400170c6bc364c82d"
+  "4.14.9":
+    source: "9d58c1c3cc42b4a0ccfc9424a4fe2b3d6fc88731380e97b4c687374dd5012fdc"
+    deps:
+      ".gitignore": "e8c101cc25c6fabed7f81528bf7b91ef0e9f857e7dc8f3cf002232c7798e3f98"
+      "audit-userspace": "5106527a9a69bc144602b36f0bd83c71184ad880e42b153403aabb4ec144ad3e"
+      "benchmark": "53f12b66412cdaacf0135fb772742f517abc66ce5ce3c76a0259fdcba214f1b8"
+      "bzip2": "d8fac4ec10135c14a015824a8477e8a034ed833557bc6f518ad5f20b60af55f0"
+      "cJSON": "64d33aea078f58d913a5e3d3cbc2c635681e63eea24d3637358b8734a4eb21d7"
+      "cpp-httplib": "f9b0bf00242c6904cd5c3c097c391bb1f35f36abc9296ff38522d9a64169d0a4"
+      "curl": "007dd2db2c4621aa29fcc957c1048b02643661fdf14879ba9a01c888143e494f"
+      "dbus": "6c90da2d349754486f3490dab96dd2022a77287bc2c1ee4921d1c13f4aaa4be5"
+      "googletest": "2f9ef22c5a5a98a176d016560870ebdb45ced2562e3439948231d6c8c5ae7ac3"
+      "libarchive": "b51ed7347638af7d9f861a36e2174a35043c471ec55560eaf1338b4a070152ac"
+      "libbpf-bootstrap": "923c4c5984509e07336b5d8347bf7f647b8585651a398ad30948c188a90a9628"
+      "libdb": "2375c48e47e2b8520f946ef93daea5ae57384c445c9d816fd7f98d694242bf39"
+      "libffi": "abffc53ccabefb75f9ea8c6103f174167ed3909adb2fa7dfb696ec17b5b8f29a"
+      "libpcre2": "afc66e790cee62f9c67a616cc895f3e6d7de3590d71e9a92c401b5c089fa9aee"
+      "libplist": "44b1a5948526acab3e24526e03e8a228995371f8d7b3cb33b8f7d6e0d55a073e"
+      "libyaml": "8652508ad5c9fb3252bab20f2c2da4f53b24e7be8696c6ce4faff355b74752ff"
+      "lua": "74c3385c018f4e645b8c6e5a8ac7d8fd8c832b0ce453c78b0ee2cee01089be08"
+      "lzma": "19335fc103cc62dedc9b56d1ff8ea11104be1fcb27b1c738c4f8cbfe02b1fa24"
+      "msgpack": "5c2395427e26b5427abbab310b8297e9d36d1976dded9667d5ef9c2230bbd588"
+      "nlohmann": "a08b57df8343c39a0196c57ba7ad2412eb891fdc112a911e6de373851e7b7e09"
+      "openssl": "83cf8b66c73e17bac077aed55bfe62fbd5a3274890804616ba54c61aa2554758"
+      "pacman": "7ac56d76abb31030151140070ca60d234e579fadb4dceb08154725be6f40ff8d"
+      "popt": "a3e7b04caeb26b3f2f38c3550a39624ed5e4440eab5d18e66cf5ee808941c15f"
+      "procps": "5c9e7fc27a9c431e7947662e5787f83973f6941e097fa594658fd704d6f80b80"
+      "rocksdb": "f69fc0ec4f2ff698dccd5afb8c684b979aa5b2b83917198a8202593a439ba146"
+      "rpm": "c6b58894bec011fc856331135ee012e0c4708fbb84d2ea04bb2f5de29918df0a"
+      "sqlite": "34f20c5598e786ee42a447983332a48c3eba88b7add6bfa806de4cf9751b3fba"
+      "zlib": "6fda8f7b7cfd166eee435e6fef5d24bad7cdd537ce2cd43400170c6bc364c82d"
+# Exception: Wazuh recommends GCC 14, which Arch no longer ships; gcc15 (meta/packages.yml) is the closest, with no fallback to Arch's default gcc.
+WAZUH_AGENT_ARCH_CC: "gcc-15"
+WAZUH_AGENT_ARCH_CXX: "g++-15"
+WAZUH_AGENT_BUILD_USER: "wazuh-build"
+WAZUH_AGENT_CONFIG: "{{ [ WAZUH_AGENT_DIR, 'etc', 'ossec.conf' ] | path_join }}"
+WAZUH_AGENT_CLIENT_KEYS: "{{ [ WAZUH_AGENT_DIR, 'etc', 'client.keys' ] | path_join }}"
+
+WAZUH_AGENT_RUN_DIR: "{{ [ WAZUH_AGENT_DIR, 'var', 'run' ] | path_join }}"
+WAZUH_AGENT_SOCKETS_DIR: "{{ [ WAZUH_AGENT_DIR, 'queue', 'sockets' ] | path_join }}"
+WAZUH_AGENT_WAIT_FILE: "{{ [ WAZUH_AGENT_SOCKETS_DIR, '.wait' ] | path_join }}"
+WAZUH_AGENT_CONTROL: "{{ [ WAZUH_AGENT_DIR, 'bin', 'wazuh-control' ] | path_join }}"
+WAZUH_AGENT_FREEZE_SCRIPT: "/usr/local/sbin/wazuh-collector-freeze"
+WAZUH_AGENT_FREEZE_UNIT: "wazuh-collector-freeze"
+WAZUH_AGENT_FREEZE_TAG: "{{ WAZUH_AGENT_RULESET.watch.program }}"
+WAZUH_AGENT_FREEZE_ARGS: "{{ WAZUH_AGENT_WAIT_FILE }} {{ WAZUH_AGENT_RUN_DIR }} {{ WAZUH_AGENT_FREEZE_TAG }}"
+WAZUH_AGENT_DROPIN_DIR: "{{ [ DIR_SYSTEM_SERVICE, WAZUH_AGENT_SERVICE ~ '.d' ] | path_join }}"
+WAZUH_AGENT_FREEZE_DROPIN: "{{ [ WAZUH_AGENT_DROPIN_DIR, 'collector-release.conf' ] | path_join }}"
+
+WAZUH_AGENT_ENTRY: "{{ lookup('wazuh_agent') }}"
+WAZUH_AGENT_MANAGER_ADDRESS: "{{ DOCKER_REACH_HOST }}"
+WAZUH_AGENT_MANAGER_PORT: "{{ lookup('config', WAZUH_AGENT_MANAGER_ROLE, 'services.manager.ports.local.agent') }}"
+
+WAZUH_AGENT_DOCKER_LISTENER_SCRIPT: "wodles/docker/DockerListener"
+WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS: 2
+WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY: 5
+WAZUH_AGENT_DOCKER_LISTENER_VENV: "/opt/wazuh-agent/docker-listener-venv"
+WAZUH_AGENT_DOCKER_LISTENER_PYTHON: "{{ [ WAZUH_AGENT_DOCKER_LISTENER_VENV, 'bin', 'python3' ] | path_join }}"
+WAZUH_AGENT_DOCKER_LISTENER_DROPIN: "{{ [ WAZUH_AGENT_DROPIN_DIR, 'docker-listener-venv.conf' ] | path_join }}"
+WAZUH_AGENT_DOCKER_LISTENER_PIP: "pip==26.2.1"
+# Exception: newer than Wazuh's documented pins (urllib3 1.26.20, requests 2.32.2) to clear pip-audit advisories; re-run pip-audit on every Wazuh version bump.
+WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES:
+  - docker==7.1.0
+  - urllib3==2.8.0
+  - requests==2.33.1
+
+WAZUH_AGENT_RULESET: "{{ lookup('wazuh_ruleset', scope='host') }}"
+WAZUH_AGENT_JOURNALD_SYSTEM_TAGS: "{{ WAZUH_AGENT_RULESET.system_tags }}"
+WAZUH_AGENT_JOURNALD_ROOT_TAGS: "{{ (WAZUH_AGENT_RULESET.own | map(attribute='program') | list) + WAZUH_AGENT_JOURNALD_SYSTEM_TAGS }}"
+WAZUH_AGENT_JOURNALD_CONTAINER_TAGS: "{{ WAZUH_AGENT_RULESET.entities | map(attribute='program') | list }}"
+WAZUH_AGENT_JOURNALD_CONTAINER_COMM: "{{ WAZUH_AGENT_RULESET.container_comm }}"
+
+WAZUH_AGENT_FIM_DOCKER_UNITS_RESTRICT: "docker.service$|docker.socket$|containerd.service$"
+WAZUH_AGENT_FIM_SYSTEMD_LIB_DIR: "/usr/lib/systemd/system"
+WAZUH_AGENT_FIM_NGINX_DIR: "{{ lookup('nginx', 'files.configuration') | dirname if 'svc-prx-openresty' in group_names else '' }}"
+WAZUH_AGENT_FIM_COMPOSE_VOLUMES: "{{ group_names | map('get_entity_name') | unique | map('regex_replace', '^(.+)$', DIR_COMPOSITIONS ~ '\\1/volumes') | list }}"
+WAZUH_AGENT_FIM_NODIFF: "ssh_host_"
+WAZUH_AGENT_FIM_HASH_DIRS: >-
+  {{
+    [
+      {'path': '/etc/docker', 'restrict': ''},
+      {'path': WAZUH_AGENT_FIM_SYSTEMD_LIB_DIR, 'restrict': WAZUH_AGENT_FIM_DOCKER_UNITS_RESTRICT},
+      {'path': [DIR_SYSTEM_SERVICE, 'docker.service.d'] | path_join, 'restrict': ''},
+      {'path': DIR_COMPOSITIONS | regex_replace('/$', ''), 'restrict': ''},
+    ]
+    + ([{'path': WAZUH_AGENT_FIM_NGINX_DIR | regex_replace('/$', ''), 'restrict': ''}] if WAZUH_AGENT_FIM_NGINX_DIR else [])
+  }}
+WAZUH_AGENT_FIM_REALTIME_DIRS: "{{ [[ WAZUH_AGENT_DIR, 'etc' ] | path_join] + DEPLOYED_CODE_CHECKOUTS }}"
+# Exception: the deployed code check fetches into each checkout's .git every hour, so watching it would alert on the check itself; tracked files stay watched.
+WAZUH_AGENT_FIM_CHECKOUT_GIT_DIRS: "{{ DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '/+$', '') | map('regex_replace', '$', '/.git') | list }}"
+WAZUH_AGENT_FIM_WHODATA_PROVIDER: "ebpf"
+WAZUH_AGENT_FIM_LOG: "{{ [ WAZUH_AGENT_DIR, 'logs', 'ossec.log' ] | path_join }}"
+WAZUH_AGENT_FIM_STATE_RETRIES: 12
+WAZUH_AGENT_FIM_STATE_DELAY: 5
+WAZUH_AGENT_SYSCHECK_STARTED: "wazuh-syscheckd: INFO: Started"
+WAZUH_AGENT_SYSCHECK_READY_CODE: "9203"
+WAZUH_AGENT_WHODATA_CODES:
+  "6019": "whodata=audit reason=engine-started"
+  "6048": "whodata=ebpf reason=healthcheck-passed"
+  "6913": "whodata=unavailable reason=realtime-fallback"
+  "6923": "whodata=unavailable reason=realtime-fallback"
+WAZUH_AGENT_WHODATA_CODES_PATTERN: "\\(({{ WAZUH_AGENT_WHODATA_CODES | list | join('|') }})\\)"
+WAZUH_AGENT_SYSCHECK_CODES_PATTERN: "\\(({{ (WAZUH_AGENT_WHODATA_CODES | list + [WAZUH_AGENT_SYSCHECK_READY_CODE]) | join('|') }})\\)"
+WAZUH_AGENT_AUDITD_SERVICE: "auditd.service"
+
+# Exception: decision 9 (policy P1) sets the agent buffer to Wazuh's maximum, 100000 events at 1000 events/s, instead of the defaults 5000 and 500.
+WAZUH_AGENT_BUFFER_QUEUE_SIZE: 100000
+WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND: 1000

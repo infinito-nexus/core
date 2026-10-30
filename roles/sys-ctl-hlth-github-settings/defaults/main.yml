@@ -1,0 +1,5 @@
+---
+# Param HLTH_GITHUB_SETTINGS_API_URL: GitHub REST API base URL the check reads the settings from.
+HLTH_GITHUB_SETTINGS_API_URL: "https://api.github.com"
+# Param HLTH_GITHUB_SETTINGS_TIMEOUT: seconds one GitHub API request may take.
+HLTH_GITHUB_SETTINGS_TIMEOUT: 30

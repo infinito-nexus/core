@@ -1,0 +1,12 @@
+---
+# Param GITHUB_WEBHOOK_MAX_BYTES: largest request body the receiver accepts; a larger one is refused and alerted.
+GITHUB_WEBHOOK_MAX_BYTES: 5242880
+# Param GITHUB_WEBHOOK_REPLAY_DAYS: days a delivery ID is remembered, so a replayed delivery is refused.
+GITHUB_WEBHOOK_REPLAY_DAYS: 7
+# Param GITHUB_WEBHOOK_API_URL: GitHub REST API base URL the direct-push check asks.
+GITHUB_WEBHOOK_API_URL: "https://api.github.com"
+# Param GITHUB_WEBHOOK_API_TIMEOUT: seconds one GitHub API request of the direct-push check may take.
+GITHUB_WEBHOOK_API_TIMEOUT: 15
+# Param GITHUB_WEBHOOK_PR_ATTEMPTS and _PR_DELAY: how often, and how many seconds apart, the direct-push check asks for a pull request before it reports none; GitHub links a merge to its pull request with a delay.
+GITHUB_WEBHOOK_PR_ATTEMPTS: 4
+GITHUB_WEBHOOK_PR_DELAY: 10

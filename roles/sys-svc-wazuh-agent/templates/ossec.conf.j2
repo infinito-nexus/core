@@ -1,0 +1,96 @@
+<ossec_config>
+  <client>
+    <server>
+      <address>{{ WAZUH_AGENT_MANAGER_ADDRESS }}</address>
+      <port>{{ WAZUH_AGENT_MANAGER_PORT }}</port>
+      <protocol>tcp</protocol>
+    </server>
+    <enrollment>
+      <enabled>no</enabled>
+    </enrollment>
+    <time-reconnect>{{ WAZUH_AGENT_ENTRY.time_reconnect }}</time-reconnect>
+    <auto_restart>yes</auto_restart>
+  </client>
+
+  <client_buffer>
+    <disabled>no</disabled>
+    <queue_size>{{ WAZUH_AGENT_BUFFER_QUEUE_SIZE }}</queue_size>
+    <events_per_second>{{ WAZUH_AGENT_BUFFER_EVENTS_PER_SECOND }}</events_per_second>
+  </client_buffer>
+{% macro journald(tag, filters={}) %}
+  <localfile>
+    <location>journald</location>
+    <log_format>journald</log_format>
+    <only-future-events>no</only-future-events>
+    <filter field="SYSLOG_IDENTIFIER">^{{ tag }}$</filter>
+    <filter field="_UID">^0$</filter>
+{% for field, pattern in filters.items() %}
+    <filter field="{{ field }}">{{ pattern }}</filter>
+{% endfor %}
+  </localfile>
+{%- endmacro %}
+{% for tag in WAZUH_AGENT_JOURNALD_ROOT_TAGS %}
+
+{{ journald(tag) }}
+{% endfor %}
+{% for tag in WAZUH_AGENT_JOURNALD_CONTAINER_TAGS %}
+
+{{ journald(tag, {'_COMM': '^' ~ WAZUH_AGENT_JOURNALD_CONTAINER_COMM ~ '$'}) }}
+{% endfor %}
+
+{{ journald(WAZUH_AGENT_RULESET.journald.program, {'_TRANSPORT': '^driver$', 'MESSAGE': '^Suppressed [0-9]+ messages from '}) }}
+
+{% set fim_mode = 'whodata="yes"' if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool else 'realtime="yes"' %}
+  <syscheck>
+    <disabled>{{ 'no' if WAZUH_AGENT_FIM_ENABLED | bool else 'yes' }}</disabled>
+    <frequency>{{ WAZUH_AGENT_FIM_FREQUENCY }}</frequency>
+    <scan_on_start>yes</scan_on_start>
+    <alert_new_files>yes</alert_new_files>
+    <directories>{{ WAZUH_AGENT_FIM_SCHEDULED_DIRS | join(',') }}</directories>
+{% for dir in WAZUH_AGENT_FIM_DIFF_DIRS %}
+    <directories {{ fim_mode }} report_changes="yes"{% if dir.restrict %} restrict="{{ dir.restrict }}"{% endif %}>{{ dir.path }}</directories>
+{% endfor %}
+{% for dir in WAZUH_AGENT_FIM_HASH_DIRS %}
+    <directories {{ fim_mode }}{% if dir.restrict %} restrict="{{ dir.restrict }}"{% endif %}>{{ dir.path }}</directories>
+{% endfor %}
+{% for path in WAZUH_AGENT_FIM_REALTIME_DIRS %}
+    <directories realtime="yes">{{ path }}</directories>
+{% endfor %}
+{% for path in WAZUH_AGENT_FIM_SCHEDULED_IGNORE + WAZUH_AGENT_FIM_COMPOSE_VOLUMES + WAZUH_AGENT_FIM_CHECKOUT_GIT_DIRS %}
+    <ignore>{{ path }}</ignore>
+{% endfor %}
+    <nodiff type="sregex">{{ WAZUH_AGENT_FIM_NODIFF }}</nodiff>
+{% if WAZUH_AGENT_FIM_WHODATA_ENABLED | bool %}
+    <whodata>
+      <provider>{{ WAZUH_AGENT_FIM_WHODATA_PROVIDER }}</provider>
+    </whodata>
+{% endif %}
+  </syscheck>
+
+  <wodle name="syscollector">
+    <disabled>no</disabled>
+    <interval>1h</interval>
+    <scan_on_start>yes</scan_on_start>
+    <packages>yes</packages>
+    <os>yes</os>
+    <hardware>no</hardware>
+    <network>no</network>
+    <ports>no</ports>
+    <processes>no</processes>
+    <users>no</users>
+    <groups>no</groups>
+    <services>no</services>
+    <browser_extensions>no</browser_extensions>
+  </wodle>
+{% if WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool %}
+
+  <wodle name="docker-listener">
+    <disabled>no</disabled>
+    <interval>{{ WAZUH_AGENT_DOCKER_LISTENER_INTERVAL }}s</interval>
+  </wodle>
+{% endif %}
+
+  <logging>
+    <log_format>plain</log_format>
+  </logging>
+</ossec_config>

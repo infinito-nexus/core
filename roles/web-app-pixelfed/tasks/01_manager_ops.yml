@@ -13,12 +13,21 @@
     mode: "0755"
   notify: compose-up
 
+- name: "📄 Render the Pixelfed Apache vhost for Wazuh (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "apache-vhost.conf.j2"
+        dest: "{{ PIXELFED_APACHE_VHOST_HOST_ABS }}"
+  when: PIXELFED_WAZUH_ENABLED | bool
+
 - name: "✅ Ensure Pixelfed .env ownership and permissions for www-data"
   ansible.builtin.file:
     path: "{{ PIXELFED_ENV_FILE }}"
     owner: "{{ PIXELFED_APP_USER }}"
     group: "{{ PIXELFED_APP_USER }}"
-    mode: "0660"
+    mode: "0640"
 
 - name: "▶️ Start Pixelfed containers with the repo-managed entrypoint"
   ansible.builtin.meta: flush_handlers

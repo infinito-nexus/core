@@ -1,0 +1,27 @@
+---
+organization: infinito-nexus
+owners:
+  - kevinveenbirkenbach # unverified
+repositories:
+  core:
+    branch_protection:
+      required_signatures: true # unverified
+      required_approving_review_count: 2
+      require_code_owner_review: true
+      dismiss_stale_reviews: true
+      force_push_blocked: true
+      deletion_blocked: true
+    collaborators: {} # unverified
+    deploy_keys: [] # unverified
+    actions:
+      enabled: true # unverified
+      allowed_actions: all # unverified
+      default_workflow_permissions: read # unverified
+      can_approve_pull_request_reviews: false # unverified
+    pull_request_target:
+      - .github/workflows/entry-cancel-superseded.yml
+      - .github/workflows/entry-pr-change-orchestrate.yml
+      - .github/workflows/entry-pr-closed-cancel-workflows.yml
+      - .github/workflows/entry-pr-open-dependabot-close.yml
+    open_secret_scanning_alerts: 0 # unverified
+    open_dependabot_alerts: 0 # unverified

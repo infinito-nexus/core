@@ -107,6 +107,72 @@ class TestModuleName(unittest.TestCase):
             self._module_name(GENERIC_PACKAGE, {})
 
 
+class TestVersionPin(unittest.TestCase):
+    def _action(self, task_args, variables):
+        from ansible.parsing.dataloader import DataLoader
+        from ansible.template import Templar
+
+        action = _action(task_args)
+        action._templar = Templar(loader=DataLoader(), variables=variables)
+        return action
+
+    def _wazuh_agent_call(self, distro):
+        from utils.cache import PROJECT_ROOT
+        from utils.packages.plan import build_plan
+        from utils.packages.registry import build_registry, resolve
+
+        spec = resolve(build_registry(PROJECT_ROOT)["wazuh-agent"], distro)
+        return build_plan(spec, "present")[0]
+
+    def test_the_wazuh_agent_entry_pins_the_manager_version_on_both_families(self):
+        expected = (
+            "{{ lookup('config', 'web-app-wazuh', 'services.manager.version') }}-1"
+        )
+        for distro in ("debian", "fedora"):
+            with self.subTest(distro=distro):
+                call = self._wazuh_agent_call(distro)
+                self.assertEqual(
+                    (call.args["name"], call.pin), (["wazuh-agent"], expected)
+                )
+
+    def test_a_rendered_pin_installs_the_exact_version_on_apt(self):
+        action = self._action({"id": "wazuh-agent"}, {"MANAGER_VERSION": "4.14.6"})
+        args = action._manager_args(
+            "apt", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1"
+        )
+        self.assertEqual(args["name"], ["wazuh-agent=4.14.6-1"])
+        self.assertTrue(args["allow_change_held_packages"])
+
+    def test_a_rendered_pin_lifts_only_the_given_repo_on_dnf(self):
+        action = self._action(
+            {"id": "wazuh-agent", "disable_excludes": "wazuh"},
+            {"MANAGER_VERSION": "4.14.6"},
+        )
+        args = action._manager_args(
+            "dnf5", {"name": ["wazuh-agent"]}, "{{ MANAGER_VERSION }}-1"
+        )
+        self.assertEqual(args["name"], ["wazuh-agent-4.14.6-1"])
+        self.assertEqual(args["disable_excludes"], "wazuh")
+
+    def test_an_unpinned_call_gets_only_the_managers_fixed_arguments(self):
+        action = self._action({"id": "git"}, {})
+        args = {"name": ["git"], "state": "present"}
+        self.assertEqual(
+            action._manager_args("apt", args, None),
+            {**args, "install_recommends": False},
+        )
+
+    def test_a_version_rendering_empty_fails(self):
+        action = self._action({"id": "x"}, {"V": ""})
+        with self.assertRaises(AnsibleActionFail):
+            action._manager_args("apt", {"name": ["x"]}, "{{ V }}")
+
+    def test_a_pin_on_pacman_fails(self):
+        action = self._action({"id": "x"}, {})
+        with self.assertRaises(AnsibleActionFail):
+            action._manager_args("pacman", {"name": ["x"]}, "1.0-1")
+
+
 class TestManagerArguments(unittest.TestCase):
     def _args(self, module, facts):
         action = _action({})

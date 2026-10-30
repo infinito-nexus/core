@@ -2,6 +2,20 @@
 application_id: "web-app-wazuh"
 
 WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'manager') }}"
+WAZUH_API_URL: "https://localhost:{{ lookup('config', application_id, 'services.manager.ports.internal.api') }}"
+WAZUH_API_TIMEOUT: 30
+# Exception: curl reads the bearer token from a config that bash's printf builtin writes into a process substitution, so the token comes from the environment and never appears in an argv; the text goes inside a single-quoted bash -c script.
+WAZUH_API_BEARER_CONFIG: '-K <(printf "header = \"Authorization: Bearer %s\"\n" "$WAZUH_API_TOKEN")'
+WAZUH_MANAGER_HOME: "/var/ossec"
+WAZUH_MANAGER_BIN: "{{ [ WAZUH_MANAGER_HOME, 'bin' ] | path_join }}"
+WAZUH_MANAGER_EXEC: "container exec {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}"
+WAZUH_MANAGER_RESTART: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-control restart 2>&1"
+WAZUH_LOGTEST: "container exec -i {{ WAZUH_MANAGER_CONTAINER_ADDRESS }} {{ WAZUH_MANAGER_BIN }}/wazuh-logtest"
+# Exception: wazuh-logtest predecodes a syslog line, so every sample gets a fixed timestamp and the manager's host name in front of "<program>[1]: ".
+WAZUH_LOGTEST_PREFIX: "Oct 17 00:00:00 {{ WAZUH_MANAGER_CONTAINER }} "
+WAZUH_ALERTS_INDEX: "wazuh-alerts-*"
+WAZUH_RUN_ID_FORMAT: "deploy-%Y%m%dT%H%M%S%f"
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
@@ -17,10 +31,25 @@ WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.co
 WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
 WAZUH_CERTS_GENERATOR_IMAGE: "{{ lookup('image', application_id, 'certs_generator', tag_only=True) }}"
 WAZUH_CERTS_GENERATOR_MOUNTS:
-  - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ lookup('volume', application_id, 'certs_generator_config').target }},readonly"
+  - "type=bind,source={{ WAZUH_CERTS_CONFIG_HOST }},target={{ WAZUH_CERTS_CONFIG_TARGET }},readonly"
   - "type=bind,source={{ WAZUH_CERTS_ENTRYPOINT_HOST }},target={{ WAZUH_CERTS_ENTRYPOINT_TARGET }},readonly"
-  - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
+  - "type=bind,source={{ WAZUH_CERTS_DIR_HOST }},target={{ WAZUH_CERTS_DIR_TARGET }}"
+WAZUH_CERTS_GENERATOR_ENV:
+  CERT_TOOL_VERSION: "{{ WAZUH_CERTS_TOOL_VERSION }}"
+  WAZUH_MANAGER_NODE: "{{ WAZUH_MANAGER_CONTAINER }}"
+  CERTS_CONFIG: "{{ WAZUH_CERTS_CONFIG_TARGET }}"
+  CERTS_OUT_DIR: "{{ WAZUH_CERTS_DIR_TARGET }}"
+  CERTS_MIN_VALID_DAYS: "{{ WAZUH_CERTS_MIN_VALID_DAYS }}"
+  CERTS_MARKER: "{{ [ WAZUH_CERTS_DIR_TARGET, WAZUH_CERTS_MARKER_NAME ] | path_join }}"
+  CERTS_OWNER: "{{ WAZUH_CERTS_OWNER }}"
+  CERTS_MANAGER_OWNER: "{{ WAZUH_CERTS_MANAGER_OWNER }}"
+# Exception: the UID:GID the images run as, wazuh-indexer and wazuh-dashboard as 1000 and the manager's wazuh user as 999; each service reads its 0400 certs only when it owns them.
+WAZUH_CERTS_OWNER: "1000:1000"
+WAZUH_CERTS_MANAGER_OWNER: "999:999"
+WAZUH_CERTS_MARKER_NAME: ".certs.sha256"
 WAZUH_CERTS_TOOL_VERSION: "{{ lookup('config', application_id, 'services.manager.version') | regex_replace('^(\\d+\\.\\d+).*$', '\\1') }}"
+WAZUH_CERTS_CONFIG_TARGET: "{{ lookup('volume', application_id, 'certs_generator_config').target }}"
+WAZUH_CERTS_DIR_TARGET: "{{ lookup('volume', application_id, 'wazuh_certs_dir').target }}"
 
 WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 WAZUH_MANAGER_ENV_FILE: "{{ [lookup('container', application_id, 'directories.env'), 'manager.env'] | path_join }}"
@@ -30,7 +59,7 @@ WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
 WAZUH_CERTS_ENTRYPOINT_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs-entrypoint.sh' ] | path_join }}"
 WAZUH_CERTS_ENTRYPOINT_TARGET: "{{ lookup('volume', application_id, 'certs_generator_entrypoint').target }}"
 WAZUH_INDEXER_ENTRYPOINT_TARGET: "{{ lookup('volume', application_id, 'indexer_entrypoint').target }}"
-WAZUH_CERTS_MARKER_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.complete' ] | path_join }}"
+WAZUH_CERTS_MARKER_HOST: "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_CERTS_MARKER_NAME ] | path_join }}"
 WAZUH_CERTS_REQUIRED_FILES:
   - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca.pem' ] | path_join }}"
   - "{{ [ WAZUH_CERTS_DIR_HOST, 'root-ca-manager.pem' ] | path_join }}"
@@ -41,10 +70,17 @@ WAZUH_CERTS_REQUIRED_FILES:
   - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '.pem' ] | path_join }}"
   - "{{ [ WAZUH_CERTS_DIR_HOST, WAZUH_INDEXER_CONTAINER ~ '-key.pem' ] | path_join }}"
 
-WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
-WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ROOT_CA_CONTAINER: "{{ lookup('volume', application_id, 'root_ca_pem').targets.indexer }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_CERT_CONTAINER: "{{ lookup('volume', application_id, 'indexer_cert_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_KEY_CONTAINER: "{{ lookup('volume', application_id, 'indexer_key_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ADMIN_CERT_CONTAINER: "{{ lookup('volume', application_id, 'admin_cert_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_ADMIN_KEY_CONTAINER: "{{ lookup('volume', application_id, 'admin_key_pem').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "{{ lookup('volume', application_id, 'internal_users_yml').target | dirname }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_INDEXER_SECURITYADMIN_MARKER_CONTAINER: "{{ [ lookup('volume', application_id, 'indexer_data').target, '.infinito-securityadmin.sha256' ] | path_join }}" # nocheck: container-var-name-lookup  in-container path, not a container name
 
 WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+
+WAZUH_RAW_ARCHIVE: "{{ (ENVIRONMENT | lower) == 'development' }}"
 
 WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
 
@@ -63,6 +99,85 @@ WAZUH_WUI_USERNAME: "{{ lookup('users', 'web-app-wazuh-api').username }}"
 WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
 
 WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"
+
+WAZUH_AUTHD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.authd_password') }}"
+WAZUH_AUTHD_PASS_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'authd.pass' ] | path_join }}"
+
+WAZUH_RULESET_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'ruleset' ] | path_join }}"
+WAZUH_STATE_DIR_HOST: "{{ [ DIR_VAR_LIB, application_id ] | path_join }}"
+WAZUH_RULESET_PREVIOUS_DIR_HOST: "{{ [ WAZUH_STATE_DIR_HOST, 'ruleset.previous' ] | path_join }}"
+WAZUH_RULESET_DIR_CONTAINER: "{{ lookup('volume', application_id, 'manager_ruleset').target }}" # nocheck: container-var-name-lookup  in-container path, not a container name
+WAZUH_RULESET_DIRS: ["base/decoders", "base/rules", "decoders", "rules"]
+WAZUH_RULESET: "{{ lookup('wazuh_ruleset', scope='deployment') }}"
+WAZUH_RULESET_FILES: "{{ WAZUH_RULESET.files }}"
+WAZUH_RULESET_ENTITIES: "{{ WAZUH_RULESET.entities }}"
+WAZUH_RULESET_SELFTEST: "{{ WAZUH_RULESET.selftest }}"
+WAZUH_RULESET_DEPLOY: "{{ WAZUH_RULESET.deploy }}"
+WAZUH_RULESET_FIM: "{{ WAZUH_RULESET.fim }}"
+WAZUH_RULESET_WATCH: "{{ WAZUH_RULESET.watch }}"
+WAZUH_RULESET_GITHUB_SETTINGS: "{{ WAZUH_RULESET.github_settings }}"
+WAZUH_RULESET_DEPLOYED_CODE: "{{ WAZUH_RULESET.deployed_code }}"
+WAZUH_RULESET_JOURNALD: "{{ WAZUH_RULESET.journald }}"
+WAZUH_RULESET_SAMPLES: "{{ WAZUH_RULESET.samples }}"
+WAZUH_DECODER_SOURCES: "{{ WAZUH_RULESET.own + WAZUH_RULESET_ENTITIES }}"
+WAZUH_CANARY_SOURCES: "{{ WAZUH_RULESET.own + [WAZUH_RULESET_JOURNALD] + WAZUH_RULESET_ENTITIES }}"
+# Exception: Wazuh loads decoder and rule files in file-name order across all directories, so a file that sorts before the one defining its parent fails the whole ruleset ("Parent decoder name invalid", unknown group or category); the 9000- prefix sorts after Wazuh's own 0010- to 0999- files and before every app's <entity>_*.xml.
+WAZUH_RULESET_BASE_FILES:
+  - { src: ruleset/base/decoders.xml.j2, dest: base/decoders/9000-infinito_base_decoders.xml }
+  - { src: ruleset/base/rules.xml.j2, dest: base/rules/9000-infinito_base_rules.xml }
+
+WAZUH_LOG_ALERT_LEVEL: 3
+WAZUH_SELFTEST_RULE_ID: 100100
+WAZUH_DEPLOY_RULE_ID: 100101
+WAZUH_FIM_RULE_ID: 100102
+WAZUH_JOURNALD_RULE_ID: 100103
+WAZUH_WATCH_RULE_ID: 100104
+WAZUH_CANARY_RULE_ID: 100110
+WAZUH_HTTP_CANARY_RULE_ID: 100111
+WAZUH_TEST_IMAGE: "alpine:3.20"
+# Exception: the canary goes to the app's published port on the host itself, because a host may not reach its own public domain; 0.0.0.0 is a bind address, not a target.
+WAZUH_APP_CANARY_HOST: "{{ '127.0.0.1' if DOCKER_BIND_HOST == '0.0.0.0' else DOCKER_BIND_HOST }}"
+WAZUH_DEPLOY_START_RULE_ID: 100120
+WAZUH_DEPLOY_END_RULE_ID: 100121
+WAZUH_WHODATA_UNAVAILABLE_RULE_ID: 100130
+WAZUH_WHODATA_UNKNOWN_RULE_ID: 100131
+WAZUH_JOURNALD_SUPPRESSED_RULE_ID: 100140
+WAZUH_COLLECTOR_FROZEN_RULE_ID: 100150
+WAZUH_COLLECTOR_RESUMED_RULE_ID: 100151
+WAZUH_GITHUB_SETTINGS_RULE_IDS: "{{ WAZUH_RULESET.rule_ids.github_settings }}"
+WAZUH_GITHUB_SETTINGS_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.run }}"
+WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.drift }}"
+WAZUH_GITHUB_SETTINGS_PRT_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.pull_request_target }}"
+WAZUH_GITHUB_SETTINGS_FAILED_RULE_ID: "{{ WAZUH_GITHUB_SETTINGS_RULE_IDS.failed }}"
+WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL: 10
+WAZUH_GITHUB_SETTINGS_FAILED_LEVEL: 7
+WAZUH_DEPLOYED_CODE_RULE_IDS: "{{ WAZUH_RULESET.rule_ids.deployed_code }}"
+WAZUH_DEPLOYED_CODE_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.run }}"
+WAZUH_DEPLOYED_CODE_UNVERIFIED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.unverified }}"
+WAZUH_DEPLOYED_CODE_UNMERGED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.unmerged }}"
+WAZUH_DEPLOYED_CODE_MODIFIED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.modified }}"
+WAZUH_DEPLOYED_CODE_FAILED_RULE_ID: "{{ WAZUH_DEPLOYED_CODE_RULE_IDS.failed }}"
+WAZUH_DEPLOYED_CODE_UNVERIFIED_LEVEL: 10
+# Exception: above the other deployed-code findings, because code that never reached the default branch skipped review entirely.
+WAZUH_DEPLOYED_CODE_UNMERGED_LEVEL: 12
+WAZUH_DEPLOYED_CODE_MODIFIED_LEVEL: 10
+WAZUH_DEPLOYED_CODE_FAILED_LEVEL: 7
+WAZUH_DOCKER_APP_LEVEL: 5
+WAZUH_DOCKER_OOM_LEVEL: 7
+# Exception: Wazuh's own "Docker: Container started" rule; the Docker samples use it to prove a foreign project is not attributed.
+WAZUH_DOCKER_FOREIGN_RULE_ID: 87903
+WAZUH_DOCKER_FOREIGN_LEVEL: 3
+# Exception: above the level-5 errors, because a flood in one container can get other apps' lines suppressed (log-flood evasion); below 8, because most suppressions are chatty containers.
+WAZUH_JOURNALD_SUPPRESSED_LEVEL: 7
+WAZUH_CANARY_MARKER: "INFINITO_WAZUH_CANARY"
+
+WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
+WAZUH_POLL_DELAY: 5
+WAZUH_CANARY_WAIT_RETRIES: 36
+WAZUH_CANARY_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'in', lookup('deployment').running) | list }}"
+# Exception: the agent runs only on the manager's host, so it never reads the journal of a swarm node that runs an opted-in app's task.
+WAZUH_REMOTE_APP_SKIP: "Wazuh agents on other hosts are not supported yet, skipping the canary"
+WAZUH_PIXELFED_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'equalto', 'web-app-pixelfed') | list }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"

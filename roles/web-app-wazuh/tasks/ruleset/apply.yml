@@ -1,0 +1,172 @@
+---
+- name: "🩺 Read the compose file of every opted-in app for its health checks"
+  ansible.builtin.slurp:
+    src: "{{ lookup('container', item.role, 'files.compose') }}"
+  delegate_to: "{{ groups[item.role][0] }}"
+  loop: "{{ WAZUH_RULESET_ENTITIES }}"
+  loop_control:
+    label: "{{ item.entity }}"
+  register: wazuh_ruleset_compose
+  failed_when: false
+
+- name: "🩺 Collect the health-check commands of every opted-in app"
+  ansible.builtin.set_fact:
+    wazuh_docker_healthchecks: >-
+      {{ dict(wazuh_ruleset_compose.results | selectattr('content', 'defined') | map(attribute='item.entity')
+         | zip(wazuh_ruleset_compose.results | selectattr('content', 'defined') | map(attribute='content')
+               | map('b64decode') | map('wazuh_healthcheck_actions'))) }}
+
+- name: "⚠️ Report apps whose health checks are not known yet"
+  ansible.builtin.debug:
+    msg: >-
+      {{ wazuh_ruleset_compose.results | rejectattr('content', 'defined') | map(attribute='item.entity') | list }}
+      have no compose file on their host yet, so their health-check execs alert until the next deploy of web-app-wazuh.
+  when: wazuh_ruleset_compose.results | rejectattr('content', 'defined') | list | length > 0
+
+- name: "📄 Render the base decoders and rules for every opted-in tag"
+  stack_host_template:
+    src: "{{ item.src }}"
+    dest: "{{ [ WAZUH_RULESET_DIR_HOST, item.dest ] | path_join }}"
+    mode: "0644"
+  loop: "{{ WAZUH_RULESET_BASE_FILES }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  register: wazuh_ruleset_base
+
+- name: "📋 Copy the rule files of the opted-in roles"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (03_ruleset.yml is included with `when: IS_STACK_HOST | bool`)
+    src: "{{ item.src }}"
+    dest: "{{ [ WAZUH_RULESET_DIR_HOST, item.kind, item.name ] | path_join }}"
+    mode: "0644"
+  loop: "{{ WAZUH_RULESET_FILES }}"
+  loop_control:
+    label: "{{ item.kind }}/{{ item.name }}"
+  register: wazuh_ruleset_copy
+
+- name: "🔍 Find the files in the ruleset directories"
+  ansible.builtin.find:
+    paths: "{{ WAZUH_RULESET_DIRS | map('regex_replace', '^', WAZUH_RULESET_DIR_HOST ~ '/') | list }}"
+    file_type: any
+    hidden: true
+  register: wazuh_ruleset_found
+
+- name: "🗑️ Remove the rule files of roles that no longer opt in"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: >-
+    {{ wazuh_ruleset_found.files | map(attribute='path')
+       | difference(wazuh_ruleset_copy.results | map(attribute='dest'))
+       | difference(wazuh_ruleset_base.results | map(attribute='dest')) }}
+  register: wazuh_ruleset_stale
+
+- name: "🔐 Check that the wazuh user can read the whole ruleset"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -u wazuh {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
+      find {{ WAZUH_RULESET_DIR_CONTAINER }} ! -readable
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_ruleset_readable
+  changed_when: false
+  failed_when: wazuh_ruleset_readable.rc != 0 or wazuh_ruleset_readable.stdout | length > 0
+
+- name: "🧪 Test the full ruleset with wazuh-analysisd -t"
+  ansible.builtin.shell:
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-analysisd -t 2>&1"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_ruleset_test
+  changed_when: false
+
+- name: "🔄 Restart the Wazuh manager to load the new ruleset"
+  ansible.builtin.shell:
+    cmd: "{{ WAZUH_MANAGER_RESTART }}"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  when: wazuh_ruleset_base is changed or wazuh_ruleset_copy is changed or wazuh_ruleset_stale is changed
+  register: wazuh_ruleset_restart
+  changed_when: true
+
+- name: "⏳ Wait for wazuh-analysisd to run again"
+  ansible.builtin.shell:
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/wazuh-control status"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  when: wazuh_ruleset_restart is changed
+  register: wazuh_ruleset_status
+  until: "'wazuh-analysisd is running' in wazuh_ruleset_status.stdout"
+  retries: 30
+  delay: "{{ WAZUH_POLL_DELAY }}"
+  changed_when: false
+  failed_when: "'wazuh-analysisd is running' not in wazuh_ruleset_status.stdout"
+
+- name: "🐤 Run the deploy canary through wazuh-logtest for every tag"
+  ansible.builtin.shell:
+    cmd: >-
+      printf '%s\n' {{ (WAZUH_LOGTEST_PREFIX ~ item.program ~ '[1]: ' ~ WAZUH_CANARY_MARKER ~ ' deploy') | quote }} |
+      {{ WAZUH_LOGTEST }}
+      -U {{ WAZUH_CANARY_RULE_ID }}:{{ WAZUH_LOG_ALERT_LEVEL }}:{{ item.decoder }} 2>&1
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_CANARY_SOURCES }}"
+  loop_control:
+    label: "{{ item.program }}"
+  register: wazuh_ruleset_canary
+  until: wazuh_ruleset_canary.rc == 0
+  retries: 6
+  delay: "{{ WAZUH_POLL_DELAY }}"
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail when the deploy canary did not fire for a tag"
+  ansible.builtin.fail:
+    msg: >-
+      Canary rule {{ WAZUH_CANARY_RULE_ID }} (level {{ WAZUH_LOG_ALERT_LEVEL }}) did not fire for
+      {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='item.program') | list }}.
+      wazuh-logtest output: {{ wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | map(attribute='stdout') | list }}
+  when: wazuh_ruleset_canary.results | rejectattr('rc', 'equalto', 0) | list | length > 0
+
+- name: "🧾 Run every role's sample events through wazuh-logtest"
+  ansible.builtin.shell:
+    cmd: >-
+      printf '%s\n'
+      {% for line in item.lines %}{{ (WAZUH_LOGTEST_PREFIX ~ item.program ~ '[1]: ' ~ line) | quote }} {% endfor %}|
+      {{ WAZUH_LOGTEST }}
+      -U {{ item.rule }}:{{ item.level }}:{{ item.decoder }} 2>&1
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_RULESET_SAMPLES }}"
+  loop_control:
+    label: "{{ item.role }} → {{ item.rule }}"
+  register: wazuh_ruleset_samples
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail when a sample event does not hit its expected rule"
+  ansible.builtin.fail:
+    msg: >-
+      {% for result in wazuh_ruleset_samples.results | rejectattr('rc', 'equalto', 0) %}
+      Role {{ result.item.role }}: sample {{ result.item.lines }} expected rule {{ result.item.rule }}
+      at level {{ result.item.level }} with decoder {{ result.item.decoder }}. wazuh-logtest output: {{ result.stdout }}
+      {% endfor %}
+  when: wazuh_ruleset_samples.results | rejectattr('rc', 'equalto', 0) | list | length > 0
+
+- name: "🐳 Run the Docker attribution samples of every opted-in app through wazuh-logtest"
+  ansible.builtin.shell:
+    cmd: >-
+      printf '%s\n' {{ item.line | quote }} |
+      {{ WAZUH_LOGTEST }}
+      -U {{ item.rule }}:{{ item.level }}:json 2>&1
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: >-
+    {{ WAZUH_RULESET_ENTITIES | wazuh_docker_samples(wazuh_docker_healthchecks, WAZUH_DOCKER_APP_LEVEL,
+       WAZUH_DOCKER_OOM_LEVEL, WAZUH_DOCKER_FOREIGN_RULE_ID, WAZUH_DOCKER_FOREIGN_LEVEL) }}
+  loop_control:
+    label: "{{ item.role }} → {{ item.rule }}"
+  register: wazuh_ruleset_docker_samples
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail when a Docker attribution sample does not hit its expected rule"
+  ansible.builtin.fail:
+    msg: >-
+      {% for result in wazuh_ruleset_docker_samples.results | rejectattr('rc', 'equalto', 0) %}
+      Role {{ result.item.role }}: Docker event {{ result.item.line }} expected rule {{ result.item.rule }}
+      at level {{ result.item.level }}. wazuh-logtest output: {{ result.stdout }}
+      {% endfor %}
+  when: wazuh_ruleset_docker_samples.results | rejectattr('rc', 'equalto', 0) | list | length > 0

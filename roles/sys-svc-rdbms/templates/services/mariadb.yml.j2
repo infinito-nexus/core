@@ -4,8 +4,13 @@
   {{ lookup('database', application_id, 'host') }}:
     {{ lookup('container_deploy', replicas=1) | indent(4) }}
     {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
+{# Exception: logging is inlined, not taken from sys-svc-container/templates/base.yml.j2; keep the condition and tag identical to it. #}
     logging:
       driver: journald
+{% if lookup('config', application_id, 'services.wazuh.enabled', False) %}
+      options:
+        tag: "{{ application_id | get_entity_name }}"
+{% endif %}
     {{ lookup('container_image', 'svc-db-mariadb', 'mariadb', image=lookup('database', application_id, 'image'), version=lookup('database', application_id, 'version')) }}
     {{ lookup('compose_restart') }}
     env_file:

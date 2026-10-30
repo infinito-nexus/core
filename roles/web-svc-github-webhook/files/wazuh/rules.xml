@@ -1,0 +1,152 @@
+<group name="github,">
+  <rule id="101101" level="3">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^delivery$</field>
+    <description>GitHub webhook: $(gh_event) delivery accepted for $(gh_repo).</description>
+  </rule>
+
+  <rule id="101110" level="12">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^push$</field>
+    <field name="gh_on_default_branch">^true$</field>
+    <field name="gh_forced">^true$</field>
+    <description>GitHub: force push to the default branch ($(gh_default_branch)) of $(gh_repo) by $(gh_sender).</description>
+    <group>github_branch,</group>
+  </rule>
+
+  <rule id="101111" level="12">
+    <if_sid>101101</if_sid>
+    <field name="gh_on_default_branch">^true$</field>
+    <field name="gh_deleted">^true$</field>
+    <description>GitHub: the default branch ($(gh_default_branch)) of $(gh_repo) was deleted by $(gh_sender).</description>
+    <group>github_branch,</group>
+  </rule>
+
+  <rule id="101112" level="8">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^push$</field>
+    <field name="gh_on_default_branch">^true$</field>
+    <field name="gh_workflow_paths">\S</field>
+    <description>GitHub: workflow files changed on the default branch ($(gh_default_branch)) of $(gh_repo): $(gh_workflow_paths).</description>
+    <group>github_workflow,</group>
+  </rule>
+
+  <rule id="101113" level="12">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^direct_push$</field>
+    <field name="gh_result">^no_pr$</field>
+    <description>GitHub: commits pushed to the default branch ($(gh_default_branch)) of $(gh_repo) without a merged pull request: $(gh_commits).</description>
+    <group>github_branch,</group>
+  </rule>
+
+  <rule id="101114" level="7">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^direct_push$</field>
+    <field name="gh_result">^error$</field>
+    <description>GitHub: could not check whether a push to $(gh_repo) came through a pull request: $(gh_reason).</description>
+    <group>github_branch,</group>
+  </rule>
+
+  <rule id="101120" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^branch_protection_rule$</field>
+    <description>GitHub: branch protection rule $(gh_rule_name) $(gh_action) in $(gh_repo) by $(gh_sender).</description>
+    <group>github_settings,</group>
+  </rule>
+
+  <rule id="101121" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^repository_ruleset$</field>
+    <description>GitHub: ruleset $(gh_rule_name) $(gh_action) in $(gh_repo) by $(gh_sender).</description>
+    <group>github_settings,</group>
+  </rule>
+
+  <rule id="101130" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^member$</field>
+    <field name="gh_action" type="pcre2">^(added|edited)$</field>
+    <description>GitHub: collaborator $(gh_member) $(gh_action) in $(gh_repo) with permission $(gh_permission).</description>
+    <group>github_access,</group>
+  </rule>
+
+  <rule id="101131" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^organization$</field>
+    <field name="gh_action" type="pcre2">^(member_added|member_invited)$</field>
+    <description>GitHub: organization member $(gh_member) $(gh_action) with role $(gh_permission).</description>
+    <group>github_access,</group>
+  </rule>
+
+  <rule id="101132" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^deploy_key$</field>
+    <field name="gh_action">^created$</field>
+    <description>GitHub: read-only deploy key $(gh_key_title) added to $(gh_repo).</description>
+    <group>github_access,</group>
+  </rule>
+
+  <rule id="101133" level="12">
+    <if_sid>101132</if_sid>
+    <field name="gh_key_read_only">^false$</field>
+    <description>GitHub: deploy key $(gh_key_title) with write access added to $(gh_repo).</description>
+    <group>github_access,</group>
+  </rule>
+
+  <rule id="101140" level="12">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^secret_scanning_alert$</field>
+    <field name="gh_action" type="pcre2">^(created|reopened)$</field>
+    <description>GitHub: secret-scanning alert $(gh_alert_number) ($(gh_secret_type)) $(gh_action) in $(gh_repo).</description>
+    <group>github_alert,</group>
+  </rule>
+
+  <rule id="101141" level="10">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^dependabot_alert$</field>
+    <field name="gh_action" type="pcre2">^(created|reopened)$</field>
+    <field name="gh_severity" type="pcre2">^(critical|high)$</field>
+    <description>GitHub: $(gh_severity) Dependabot alert $(gh_alert_number) for $(gh_package) $(gh_action) in $(gh_repo).</description>
+    <group>github_alert,</group>
+  </rule>
+
+  <rule id="101142" level="7">
+    <if_sid>101101</if_sid>
+    <field name="gh_event">^dependabot_alert$</field>
+    <field name="gh_action" type="pcre2">^(created|reopened)$</field>
+    <field name="gh_severity" type="pcre2">^(medium|moderate|low)$</field>
+    <description>GitHub: $(gh_severity) Dependabot alert $(gh_alert_number) for $(gh_package) $(gh_action) in $(gh_repo).</description>
+    <group>github_alert,</group>
+  </rule>
+
+  <rule id="101160" level="10">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^rejected$</field>
+    <field name="gh_reason" type="pcre2">^(unsigned|signature)$</field>
+    <description>GitHub webhook: delivery from $(gh_srcip) refused, $(gh_reason) check failed.</description>
+    <group>github_receiver,</group>
+  </rule>
+
+  <rule id="101161" level="8">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^rejected$</field>
+    <field name="gh_reason">^replay$</field>
+    <description>GitHub webhook: replayed delivery $(gh_delivery) from $(gh_srcip) refused.</description>
+    <group>github_receiver,</group>
+  </rule>
+
+  <rule id="101162" level="6">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^rejected$</field>
+    <field name="gh_reason">^oversized$</field>
+    <description>GitHub webhook: oversized delivery from $(gh_srcip) refused.</description>
+    <group>github_receiver,</group>
+  </rule>
+
+  <rule id="101163" level="5">
+    <if_sid>101100</if_sid>
+    <field name="gh_kind">^rejected$</field>
+    <field name="gh_reason">^malformed$</field>
+    <description>GitHub webhook: malformed request from $(gh_srcip) refused.</description>
+    <group>github_receiver,</group>
+  </rule>
+</group>

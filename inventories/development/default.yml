@@ -26,6 +26,9 @@ test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }
 MAIL_PRODUCTION_HOST: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_HOST') | default('', true) }}"
 MAIL_PRODUCTION_RESOLVER: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_RESOLVER') | default('', true) }}"
 SYS_TIMEOUT_CONTAINER_EXEC: "60min"
+# Exception: the dev checkout (INFINITO_SRC_DIR) runs a feature branch, so the deployed code check would alert on every run; dev checks only a throwaway clone the Wazuh CLI test builds.
+DEPLOYED_CODE_PROOF_CHECKOUT: "/var/lib/infinito/deployed-code-proof/core"
+DEPLOYED_CODE_CHECKOUTS: ["{{ DEPLOYED_CODE_PROOF_CHECKOUT }}"]
 networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_IP4') }}"

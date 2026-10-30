@@ -1,0 +1,25 @@
+---
+state:
+  type: volume
+  name: github_webhook_state
+  backup: false
+  nfs: false
+  mounts:
+    - service: github-webhook
+      target: /data
+
+receiver:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-github-webhook', 'directories.instance'), 'receiver.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: github-webhook
+      target: /app/receiver.py
+
+events:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-github-webhook', 'directories.instance'), 'github_events.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: github-webhook
+      target: /app/github_events.py

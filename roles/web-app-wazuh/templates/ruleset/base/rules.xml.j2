@@ -1,0 +1,186 @@
+<group name="infinito,">
+  <rule id="{{ WAZUH_SELFTEST_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_SELFTEST.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} Wazuh self-test event.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOY_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_DEPLOY.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} deploy marker event.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_FIM_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_FIM.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} FIM who-data state.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_WATCH_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_WATCH.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} Wazuh log collector watch.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_GITHUB_SETTINGS.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} GitHub settings check.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_DEPLOYED_CODE.decoder }}</decoded_as>
+    <description>{{ SOFTWARE_NAME }} deployed code check.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_JOURNALD_RULE_ID }}" level="0">
+    <decoded_as>{{ WAZUH_RULESET_JOURNALD.decoder }}</decoded_as>
+    <program_name>^{{ WAZUH_RULESET_JOURNALD.program }}$</program_name>
+    <description>journald message.</description>
+  </rule>
+{% for app in WAZUH_RULESET_ENTITIES %}
+
+  <rule id="{{ app.rule_block }}" level="0">
+    <decoded_as>{{ app.decoder }}</decoded_as>
+    <description>{{ app.entity }} event.</description>
+    <group>{{ app.entity }},</group>
+  </rule>
+{% endfor %}
+</group>
+
+<group name="infinito_canary,">
+  <rule id="{{ WAZUH_CANARY_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_group>infinito</if_group>
+    <match>^{{ WAZUH_CANARY_MARKER }} </match>
+    <description>{{ SOFTWARE_NAME }} deploy canary.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_HTTP_CANARY_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_group>infinito</if_group>
+    <match>GET /{{ WAZUH_CANARY_MARKER }} </match>
+    <description>{{ SOFTWARE_NAME }} deploy canary through an app's HTTP access log.</description>
+  </rule>
+</group>
+
+<group name="infinito_deploy,">
+  <rule id="{{ WAZUH_DEPLOY_START_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOY_RULE_ID }}</if_sid>
+    <match>^deploy start </match>
+    <description>{{ SOFTWARE_NAME }} deploy started.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOY_END_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOY_RULE_ID }}</if_sid>
+    <match>^deploy end </match>
+    <description>{{ SOFTWARE_NAME }} deploy finished.</description>
+  </rule>
+</group>
+
+<group name="infinito_fim,">
+  <rule id="{{ WAZUH_WHODATA_UNAVAILABLE_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_FIM_RULE_ID }}</if_sid>
+    <match>^whodata=unavailable </match>
+    <description>{{ SOFTWARE_NAME }} FIM who-data is not running; changes are reported without user and process.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_WHODATA_UNKNOWN_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_FIM_RULE_ID }}</if_sid>
+    <match>^whodata=unknown </match>
+    <description>{{ SOFTWARE_NAME }} FIM who-data state could not be read from the agent log.</description>
+  </rule>
+</group>
+
+{% for app in WAZUH_RULESET_ENTITIES %}
+<group name="infinito_docker,{{ app.entity }},">
+  <rule id="{{ app.docker.compose }}" level="{{ WAZUH_DOCKER_APP_LEVEL }}">
+    <if_group>docker</if_group>
+    <field name="docker.Type">^container$</field>
+    <field name="docker.Actor.Attributes.com.docker.compose.project">^{{ app.entity }}$</field>
+    <description>{{ app.entity }}: Docker $(docker.Action) in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.swarm }}" level="{{ WAZUH_DOCKER_APP_LEVEL }}">
+    <if_group>docker</if_group>
+    <field name="docker.Type">^container$</field>
+    <field name="docker.Actor.Attributes.com.docker.stack.namespace">^{{ app.entity }}$</field>
+    <description>{{ app.entity }}: Docker $(docker.Action) in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.healthcheck }}" level="0">
+    <if_sid>{{ app.docker.compose }}, {{ app.docker.swarm }}</if_sid>
+    <field name="docker.Action" type="pcre2">{{ wazuh_docker_healthchecks.get(app.entity, []) | wazuh_healthcheck_pattern }}</field>
+    <description>{{ app.entity }}: Docker health check in container $(docker.Actor.Attributes.name).</description>
+  </rule>
+
+  <rule id="{{ app.docker.oom }}" level="{{ WAZUH_DOCKER_OOM_LEVEL }}">
+    <if_sid>{{ app.docker.compose }}, {{ app.docker.swarm }}</if_sid>
+    <field name="docker.Action">^oom$</field>
+    <description>{{ app.entity }}: container $(docker.Actor.Attributes.name) ran out of memory (OOM kill).</description>
+  </rule>
+</group>
+
+{% endfor %}
+<group name="infinito_watch,">
+  <rule id="{{ WAZUH_COLLECTOR_FROZEN_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_WATCH_RULE_ID }}</if_sid>
+    <match>^collector frozen </match>
+    <description>{{ SOFTWARE_NAME }} Wazuh agent lost the manager; its log collector was frozen so the journal keeps the lines.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_COLLECTOR_RESUMED_RULE_ID }}" level="{{ WAZUH_LOG_ALERT_LEVEL }}">
+    <if_sid>{{ WAZUH_WATCH_RULE_ID }}</if_sid>
+    <match>^collector resumed </match>
+    <description>{{ SOFTWARE_NAME }} Wazuh agent reached the manager again; its log collector resumed from its journal position.</description>
+  </rule>
+</group>
+
+<group name="infinito_github_settings,">
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}</if_sid>
+    <field name="gs_kind">^drift$</field>
+    <description>GitHub settings drift in $(gs_scope): $(gs_check) $(gs_field) is $(gs_actual), expected $(gs_expected).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_PRT_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_DRIFT_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_DRIFT_RULE_ID }}</if_sid>
+    <field name="gs_check">^pull_request_target$</field>
+    <field name="gs_actual">^present$</field>
+    <description>GitHub: workflow $(gs_field) in $(gs_scope) runs on pull_request_target on the default branch and is not in the expected list.</description>
+  </rule>
+
+  <rule id="{{ WAZUH_GITHUB_SETTINGS_FAILED_RULE_ID }}" level="{{ WAZUH_GITHUB_SETTINGS_FAILED_LEVEL }}">
+    <if_sid>{{ WAZUH_GITHUB_SETTINGS_RULE_ID }}</if_sid>
+    <field name="gs_kind">^error$</field>
+    <description>GitHub settings check $(gs_check) for $(gs_scope) failed, so its drift is unknown: $(gs_reason).</description>
+  </rule>
+</group>
+
+<group name="infinito_deployed_code,">
+  <rule id="{{ WAZUH_DEPLOYED_CODE_UNVERIFIED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_UNVERIFIED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^unverified$</field>
+    <description>Deployed code: commit $(dc_commit) checked out in $(dc_checkout) has no verified signature on GitHub ($(dc_reason)).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_UNMERGED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_UNMERGED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^unmerged$</field>
+    <description>Deployed code: commit $(dc_commit) checked out in $(dc_checkout) is not on origin/$(dc_branch).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_MODIFIED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_MODIFIED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^modified$</field>
+    <description>Deployed code: tracked file $(dc_path) in $(dc_checkout) differs from commit $(dc_commit) (git status $(dc_status)).</description>
+  </rule>
+
+  <rule id="{{ WAZUH_DEPLOYED_CODE_FAILED_RULE_ID }}" level="{{ WAZUH_DEPLOYED_CODE_FAILED_LEVEL }}">
+    <if_sid>{{ WAZUH_DEPLOYED_CODE_RULE_ID }}</if_sid>
+    <field name="dc_kind">^error$</field>
+    <description>Deployed code check $(dc_check) for $(dc_checkout) failed, so its result is unknown: $(dc_reason).</description>
+  </rule>
+</group>
+
+<group name="infinito_journald,">
+  <rule id="{{ WAZUH_JOURNALD_SUPPRESSED_RULE_ID }}" level="{{ WAZUH_JOURNALD_SUPPRESSED_LEVEL }}">
+    <if_sid>{{ WAZUH_JOURNALD_RULE_ID }}</if_sid>
+    <regex>^Suppressed \d+ messages from </regex>
+    <description>journald dropped log lines of a unit that exceeded its rate limit; a flood can hide other lines of that unit.</description>
+  </rule>
+</group>

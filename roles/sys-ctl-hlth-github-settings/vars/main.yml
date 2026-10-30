@@ -1,0 +1,10 @@
+---
+system_service_id: sys-ctl-hlth-github-settings
+
+HLTH_GITHUB_SETTINGS_PROVIDER: "web-svc-github-webhook"
+HLTH_GITHUB_SETTINGS_TOKEN: "{{ lookup('config', HLTH_GITHUB_SETTINGS_PROVIDER, 'secrets.credentials.github_settings_token') }}"
+HLTH_GITHUB_SETTINGS_TAG: "{{ lookup('wazuh_ruleset', scope='host').github_settings.program }}"
+HLTH_GITHUB_SETTINGS_DIR: "{{ system_service_id | get_service_script_path('py') | dirname }}"
+HLTH_GITHUB_SETTINGS_TOKEN_FILE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'token'] | path_join }}"
+HLTH_GITHUB_SETTINGS_API_MODULE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'github_api.py'] | path_join }}"
+HLTH_GITHUB_SETTINGS_EXPECTED_FILE: "{{ [HLTH_GITHUB_SETTINGS_DIR, 'expected.json'] | path_join }}"

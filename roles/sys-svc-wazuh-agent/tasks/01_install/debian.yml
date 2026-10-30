@@ -1,0 +1,33 @@
+---
+- name: "🔑 Fetch and verify the Wazuh signing key"
+  ansible.builtin.include_tasks: signing_key.yml
+  vars:
+    wazuh_agent_key_dest: "{{ WAZUH_AGENT_APT_KEY }}"
+
+- name: "🔧 Configure the Wazuh apt repository"
+  ansible.builtin.copy:
+    dest: "{{ WAZUH_AGENT_APT_SOURCE }}"
+    content: "deb [signed-by={{ WAZUH_AGENT_APT_KEY }}] {{ WAZUH_AGENT_REPO_URL }}/apt/ stable main\n"
+    owner: root
+    group: root
+    mode: "0644"
+  register: wazuh_agent_apt_source
+
+- name: "🔄 Update the apt cache after the Wazuh repository change"
+  ansible.builtin.apt: # nocheck: dynamic-package - apt repository and cache setup, not a package install
+    update_cache: true
+  when: wazuh_agent_apt_source is changed
+  register: wazuh_agent_apt_cache
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
+  until: wazuh_agent_apt_cache is succeeded
+
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }} past the hold"
+  package_install:
+    id: wazuh-agent
+  notify: wazuh-agent-restart
+
+- name: "📌 Hold {{ WAZUH_AGENT_PACKAGE }} against upgrades"
+  ansible.builtin.dpkg_selections:
+    name: "{{ WAZUH_AGENT_PACKAGE }}"
+    selection: hold

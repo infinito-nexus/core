@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — included by sys-svc-wazuh-agent on every host that runs an agent, not through the service loader
+wazuh-agent:
+  lifecycle: alpha

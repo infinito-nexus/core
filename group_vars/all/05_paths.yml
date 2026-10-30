@@ -19,6 +19,8 @@ BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}
 
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
+DEPLOYED_CODE_CHECKOUTS: [] # Git checkouts deployed from on this host; sys-ctl-hlth-deployed-code checks them and the Wazuh agent watches them
+DEPLOYED_CODE_PROOF_CHECKOUT: "" # Dev/CI only: a throwaway checkout the Wazuh CLI test may wipe and rebuild; must also be in DEPLOYED_CODE_CHECKOUTS
 BACKUP_REPOSITORIES:
   - backup-docker-to-local
   - backup-nfs-to-local

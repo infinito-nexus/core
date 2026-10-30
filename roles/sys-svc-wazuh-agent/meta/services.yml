@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — included by sys-stk-backend for roles that opt in to Wazuh and by web-app-wazuh for its own host, not through the service loader
+svc-wazuh-agent:
+  lifecycle: alpha

@@ -19,11 +19,18 @@ through here, including the unprivileged build environment the AUR needs.
 :mod:`utils.packages.plan` decides which module calls that takes; this
 plugin only executes them.
 
+An entry with ``version`` installs exactly that version; the version may be
+a Jinja expression, rendered with this task's variables. See
+:mod:`utils.packages.schema` for the rule that an exact pin overrides the
+role's own hold or exclude for that one install.
+
 Args:
     id: logical package id, or a list of ids, each declared either in the
         calling role's own meta/packages.yml or in the shared root
         meta/packages.yml.
     state: ``present`` (default) or ``absent``.
+    disable_excludes: optional repository id whose excludes the install may
+        lift on the dnf family; ignored by other package managers.
 """
 
 from __future__ import annotations
@@ -36,16 +43,17 @@ from ansible.plugins.action import ActionBase
 
 from utils.packages.calls import (
     GENERIC_PACKAGE,
-    MANAGER_ARGS,
     STATE_PRESENT,
     STATES,
     ModuleCall,
+    manager_args,
 )
 from utils.packages.facts import distribution_and_family, read_fact
 from utils.packages.outcome import aggregate
 from utils.packages.plan import build_plan
 from utils.packages.registry import build_registry, project_root_from_env, resolve
 from utils.packages.schema import ROLE_FILE_META_PACKAGES, PackagesShapeError
+from utils.templating.ansible import _trust_as_template
 
 
 class ActionModule(ActionBase):
@@ -131,7 +139,7 @@ class ActionModule(ActionBase):
         args = {k: v for k, v in call.args.items() if v is not None}
         module = self._module_name(call, facts)
         if call.module == GENERIC_PACKAGE:
-            args.update(MANAGER_ARGS.get(module, {}))
+            args = self._manager_args(module, args, call.pin)
         if not call.become_user:
             return self._execute_module(
                 module_name=module, module_args=args, task_vars=task_vars
@@ -151,6 +159,22 @@ class ActionModule(ActionBase):
             )
         finally:
             become.set_option("become_user", previous)
+
+    def _manager_args(
+        self, pkg_mgr: str, args: dict[str, Any], pin: str | None
+    ) -> dict[str, Any]:
+        version = None
+        if pin is not None:
+            version = str(self._templar.template(_trust_as_template(pin))).strip()
+            if not version:
+                raise AnsibleActionFail(
+                    f"package_install: the version {pin!r} renders empty."
+                )
+        disable_excludes = self._task.args.get("disable_excludes")
+        try:
+            return manager_args(pkg_mgr, args, version, disable_excludes)
+        except ValueError as exc:
+            raise AnsibleActionFail(str(exc)) from exc
 
     def _module_name(self, call: ModuleCall, facts: dict[str, Any]) -> str:
         if call.module != GENERIC_PACKAGE:

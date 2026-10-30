@@ -1,0 +1,26 @@
+---
+# Param: wazuh_alert_filters - the bool filter clauses an alert in WAZUH_ALERTS_INDEX must match
+# Param: wazuh_alert_label - what the awaited alert is, for the task name
+- name: "🔎 Wait for {{ wazuh_alert_label }} in {{ WAZUH_ALERTS_INDEX }}"
+  uri_retry:
+    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/{{ WAZUH_ALERTS_INDEX }}/_search"
+    method: POST
+    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
+    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+    force_basic_auth: true
+    validate_certs: false
+    body_format: json
+    body:
+      query:
+        bool:
+          filter: "{{ wazuh_alert_filters }}"
+    status_code: 200
+    return_content: true
+  register: wazuh_alert_search
+  until: >-
+    wazuh_alert_search.json is defined and
+    wazuh_alert_search.json.hits.total.value > 0
+  retries: "{{ WAZUH_CANARY_WAIT_RETRIES }}"
+  delay: "{{ WAZUH_POLL_DELAY }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

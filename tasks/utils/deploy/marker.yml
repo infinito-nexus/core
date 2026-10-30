@@ -1,0 +1,15 @@
+---
+# Param deploy_marker_phase: "start" or "end"; start also fixes the run id that end repeats.
+- name: "🆔 Fix the deploy run id"
+  ansible.builtin.set_fact:
+    deploy_marker_run_id: "{{ now(utc=true, fmt='%Y%m%dT%H%M%SZ') }}"
+  when: deploy_marker_phase == 'start'
+
+- name: "🚩 Log the deploy {{ deploy_marker_phase }} marker"
+  ansible.builtin.command:
+    argv:
+      - logger
+      - -t
+      - "{{ lookup('wazuh_ruleset', scope='host').deploy.program }}"
+      - "deploy {{ deploy_marker_phase }} run={{ deploy_marker_run_id }}"
+  changed_when: false

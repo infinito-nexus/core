@@ -1,0 +1,31 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 Load docker and proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    webserver_vhost_flavour: "basic"
+    webserver_client_max_body_size: "{{ GITHUB_WEBHOOK_PROXY_MAX_BODY }}"
+
+- name: "📋 Copy the webhook receiver and its payload module"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: "python/{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0444"
+  loop:
+    - { src: receiver.py, dest: "{{ GITHUB_WEBHOOK_RECEIVER_HOST }}" }
+    - { src: github_events.py, dest: "{{ GITHUB_WEBHOOK_EVENTS_HOST }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
+- meta: flush_handlers
+
+- name: "📂 Include the GitHub settings check"
+  include_role:
+    name: sys-ctl-hlth-github-settings
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_ctl_hlth_github_settings is not defined

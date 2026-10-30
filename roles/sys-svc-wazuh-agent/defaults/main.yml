@@ -1,0 +1,25 @@
+---
+# Param WAZUH_AGENT_ENABLED: installs and runs the host agent; false skips the role.
+WAZUH_AGENT_ENABLED: true
+# Param WAZUH_AGENT_DOCKER_LISTENER_ENABLED: runs Wazuh's Docker listener, which reports container lifecycle events.
+WAZUH_AGENT_DOCKER_LISTENER_ENABLED: true
+# Param WAZUH_AGENT_FIM_ENABLED: enables file integrity monitoring (syscheck).
+WAZUH_AGENT_FIM_ENABLED: true
+# Param WAZUH_AGENT_FIM_WHODATA_ENABLED: adds who-data (the user and process behind a change) to real-time FIM.
+WAZUH_AGENT_FIM_WHODATA_ENABLED: false
+# Param WAZUH_AGENT_FIM_AUDITD_ENABLED: installs auditd, Wazuh's who-data fallback where the eBPF provider does not start.
+WAZUH_AGENT_FIM_AUDITD_ENABLED: false
+# Param WAZUH_AGENT_DOCKER_LISTENER_INTERVAL: seconds between two runs of the Docker listener.
+WAZUH_AGENT_DOCKER_LISTENER_INTERVAL: 60
+# Param WAZUH_AGENT_FIM_FREQUENCY: seconds between two full scheduled FIM scans.
+WAZUH_AGENT_FIM_FREQUENCY: 43200
+# Param WAZUH_AGENT_FIM_SCHEDULED_DIRS: directories the scheduled FIM scan hashes.
+WAZUH_AGENT_FIM_SCHEDULED_DIRS: ["/etc", "/usr/bin", "/usr/sbin", "/boot"]
+# Param WAZUH_AGENT_FIM_SCHEDULED_IGNORE: files inside those directories that change in normal operation and are not scanned.
+WAZUH_AGENT_FIM_SCHEDULED_IGNORE: ["/etc/mtab", "/etc/resolv.conf", "/etc/hosts", "/etc/hostname", "/etc/adjtime"]
+# Param WAZUH_AGENT_FIM_DIFF_DIRS: directories whose changes FIM reports with a diff, as {path, restrict} with restrict a regex on file names, empty for all; report_changes keeps a plain copy of each file on the agent, so only files that cannot hold credentials belong here, and nodiff guards the private keys inside them.
+WAZUH_AGENT_FIM_DIFF_DIRS:
+  - { path: "/etc/ssh", restrict: "" }
+  - { path: "/etc/sudoers.d", restrict: "" }
+  - { path: "/root/.ssh", restrict: "authorized_keys$" }
+  - { path: "/home/*/.ssh", restrict: "authorized_keys$" }

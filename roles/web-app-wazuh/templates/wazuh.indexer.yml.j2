@@ -5,12 +5,12 @@ path.data: {{ lookup('volume', application_id, 'indexer_data').target }}
 path.logs: /var/log/wazuh-indexer
 discovery.type: single-node
 compatibility.override_main_response_version: true
-plugins.security.ssl.http.pemcert_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.pem
-plugins.security.ssl.http.pemkey_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.key
-plugins.security.ssl.http.pemtrustedcas_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
-plugins.security.ssl.transport.pemcert_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.pem
-plugins.security.ssl.transport.pemkey_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/wazuh.indexer.key
-plugins.security.ssl.transport.pemtrustedcas_filepath: {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
+plugins.security.ssl.http.pemcert_filepath: {{ WAZUH_INDEXER_CERT_CONTAINER }}
+plugins.security.ssl.http.pemkey_filepath: {{ WAZUH_INDEXER_KEY_CONTAINER }}
+plugins.security.ssl.http.pemtrustedcas_filepath: {{ WAZUH_INDEXER_ROOT_CA_CONTAINER }}
+plugins.security.ssl.transport.pemcert_filepath: {{ WAZUH_INDEXER_CERT_CONTAINER }}
+plugins.security.ssl.transport.pemkey_filepath: {{ WAZUH_INDEXER_KEY_CONTAINER }}
+plugins.security.ssl.transport.pemtrustedcas_filepath: {{ WAZUH_INDEXER_ROOT_CA_CONTAINER }}
 plugins.security.ssl.http.enabled: true
 plugins.security.ssl.transport.enforce_hostname_verification: false
 plugins.security.ssl.transport.resolve_hostname: false

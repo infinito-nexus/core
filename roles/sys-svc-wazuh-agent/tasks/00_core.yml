@@ -1,0 +1,180 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Stop on a distribution without a Wazuh agent install path"
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] in ['Debian', 'RedHat', 'Archlinux']
+    fail_msg: >-
+      The Wazuh agent is installed from the Wazuh package repository on the Debian and RedHat families
+      and built from source on Arch Linux; {{ ansible_facts['os_family'] }} has no install path.
+    quiet: true
+
+- name: "🕐 Read whether the host clock is synchronized"
+  ansible.builtin.command:
+    argv: [timedatectl, show, --property=NTPSynchronized, --value]
+  register: wazuh_agent_clock_sync
+  changed_when: false
+  # Exception: a host still converging after boot gets retries; when they run out, the assert below fails with the reason.
+  ignore_errors: true
+  retries: "{{ WAZUH_AGENT_CLOCK_SYNC_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_CLOCK_SYNC_DELAY }}"
+  until: wazuh_agent_clock_sync.stdout | trim == 'yes'
+
+- name: "🧭 Resolve the clock synchronization state"
+  ansible.builtin.set_fact:
+    wazuh_agent_clock_synchronized: "{{ wazuh_agent_clock_sync.stdout | default('') | trim == 'yes' }}"
+
+- name: "🛑 Require a synchronized host clock"
+  ansible.builtin.assert:
+    that: wazuh_agent_clock_synchronized | bool
+    fail_msg: >-
+      The host clock is not synchronized (timedatectl NTPSynchronized is not 'yes'), so Wazuh event times
+      cannot be trusted. Run one time sync service, systemd-timesyncd or chrony, whichever the distribution
+      uses, and redeploy (policy P4).
+    quiet: true
+
+- name: "🔍 Read the installed agent version"
+  include_tasks: utils/installed_version.yml
+
+- name: "🛑 Refuse an installed agent newer than the manager {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: >-
+      wazuh_agent_installed_version == ''
+      or wazuh_agent_installed_version is version(WAZUH_AGENT_VERSION, '<=')
+    fail_msg: >-
+      The installed {{ WAZUH_AGENT_PACKAGE }} {{ wazuh_agent_installed_version }} is newer than the manager
+      {{ WAZUH_AGENT_VERSION }}; a Wazuh agent must never be newer than its manager. Upgrade the manager first.
+    quiet: true
+
+- name: "🛑 Require pinned source and deps checksums for Wazuh {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: WAZUH_AGENT_VERSION in WAZUH_AGENT_SOURCE_PINS
+    fail_msg: >-
+      No source pin for Wazuh {{ WAZUH_AGENT_VERSION }}: add WAZUH_AGENT_SOURCE_PINS['{{ WAZUH_AGENT_VERSION }}']
+      with the source and deps SHA-256 to roles/sys-svc-wazuh-agent/vars/main.yml; the role README
+      ("Arch Linux source build") shows how to compute both. Nothing has been changed on this host.
+    quiet: true
+  when: ansible_facts['os_family'] == 'Archlinux'
+
+# Exception: wazuh-control checks its daemons with ps -p, but the agent packages do not declare the package that ships ps; without it, wazuh-control start hangs until systemd's start timeout (seen on a minimal CentOS Stream 10).
+- name: "📦 Install ps, which wazuh-control needs to start the agent"
+  package_install:
+    id:
+      - procps
+
+- name: "📦 Install {{ WAZUH_AGENT_PACKAGE }} {{ WAZUH_AGENT_VERSION }}"
+  include_tasks: "01_install/{{ ansible_facts['os_family'] | lower }}.yml"
+
+- name: "🔍 Re-read the installed agent version"
+  include_tasks: utils/installed_version.yml
+
+- name: "🛑 Require the installed agent to equal the manager {{ WAZUH_AGENT_VERSION }}"
+  ansible.builtin.assert:
+    that: wazuh_agent_installed_version == WAZUH_AGENT_VERSION
+    fail_msg: >-
+      The installed {{ WAZUH_AGENT_PACKAGE }} is {{ wazuh_agent_installed_version }}, but the manager is
+      {{ WAZUH_AGENT_VERSION }}; the agent must run the manager's exact version.
+    quiet: true
+
+- name: "📂 Create the agent's systemd drop-in directory"
+  ansible.builtin.file:
+    path: "{{ WAZUH_AGENT_DROPIN_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "🐳 Prepare the Docker listener"
+  include_tasks: 01_docker_listener.yml
+
+- name: "📦 Install auditd as the who-data fallback for kernels without eBPF"
+  package_install:
+    id:
+      - auditd
+  notify: wazuh-agent-restart
+  when:
+    - WAZUH_AGENT_FIM_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
+
+- name: "✅ Ensure auditd is enabled and running"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_AUDITD_SERVICE }}"
+    state: started
+    enabled: true
+  when:
+    - WAZUH_AGENT_FIM_ENABLED | bool
+    - WAZUH_AGENT_FIM_WHODATA_ENABLED | bool
+    - WAZUH_AGENT_FIM_AUDITD_ENABLED | bool
+
+- name: "🔑 Write the pre-registered agent key"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host agent key, every host writes its own)
+    src: client.keys.j2
+    dest: "{{ WAZUH_AGENT_CLIENT_KEYS }}"
+    owner: root
+    group: wazuh
+    mode: "0640"
+  notify: wazuh-agent-restart
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+# Exception: real-time FIM cannot watch a directory that is missing when the agent starts; it would only see it at the next full scan, so the dev proof checkout, which its CLI test builds later, is created first and a new one restarts the agent.
+- name: "📁 Create the deployed code proof checkout before FIM starts"
+  ansible.builtin.file:
+    path: "{{ DEPLOYED_CODE_PROOF_CHECKOUT }}"
+    state: directory
+    mode: "0755"
+  notify: wazuh-agent-restart
+  when: DEPLOYED_CODE_PROOF_CHECKOUT | length > 0
+
+- name: "📄 Render the agent configuration"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host agent config, every host renders its own)
+    src: ossec.conf.j2
+    dest: "{{ WAZUH_AGENT_CONFIG }}"
+    owner: root
+    group: wazuh
+    mode: "0640"
+  notify: wazuh-agent-restart
+
+- name: "🧊 Freeze the log collector while the agent is offline"
+  include_tasks: 02_collector_freeze.yml
+
+- name: "🔄 Apply a changed agent key or configuration"
+  meta: flush_handlers
+
+- name: "✅ Ensure the Wazuh agent is enabled and running"
+  ansible.builtin.systemd:
+    name: "{{ WAZUH_AGENT_SERVICE }}"
+    state: started
+    enabled: true
+
+- name: "⏳ Wait for the Docker listener, which starts one interval after the agent"
+  ansible.builtin.command:
+    argv:
+      - pgrep
+      - -f
+      - "{{ WAZUH_AGENT_DOCKER_LISTENER_SCRIPT }}"
+  register: wazuh_agent_docker_listener_process
+  changed_when: false
+  retries: "{{ ((WAZUH_AGENT_DOCKER_LISTENER_INTERVAL * WAZUH_AGENT_DOCKER_LISTENER_WAIT_INTERVALS) / WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY) | round(0, 'ceil') | int }}"
+  delay: "{{ WAZUH_AGENT_DOCKER_LISTENER_WAIT_DELAY }}"
+  until: wazuh_agent_docker_listener_process.rc == 0
+  when: WAZUH_AGENT_DOCKER_LISTENER_ENABLED | bool
+
+- name: "🔍 Report the FIM who-data state"
+  include_tasks: 03_whodata_state.yml
+  when: WAZUH_AGENT_FIM_ENABLED | bool
+
+- name: "📂 Include dependency 'sys-ctl-hlth-wazuh-agent'"
+  include_role:
+    name: sys-ctl-hlth-wazuh-agent
+  vars:
+    HLTH_WAZUH_AGENT_MANAGER_ROLE: "{{ WAZUH_AGENT_MANAGER_ROLE }}"
+    HLTH_WAZUH_AGENT_SERVICE: "{{ WAZUH_AGENT_SERVICE }}"
+    HLTH_WAZUH_AGENT_RUN_DIR: "{{ WAZUH_AGENT_RUN_DIR }}"
+    HLTH_WAZUH_AGENT_WAIT_FILE: "{{ WAZUH_AGENT_WAIT_FILE }}"
+  when: run_once_sys_ctl_hlth_wazuh_agent is not defined
+
+- name: "📂 Include dependency 'sys-ctl-hlth-deployed-code'"
+  include_role:
+    name: sys-ctl-hlth-deployed-code
+  when: run_once_sys_ctl_hlth_deployed_code is not defined

@@ -1,0 +1,5 @@
+<decoder name="github-webhook-json">
+  <parent>infinito-github-webhook</parent>
+  <prematch>^{"gh_</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

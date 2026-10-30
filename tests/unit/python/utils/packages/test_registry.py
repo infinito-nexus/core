@@ -145,6 +145,45 @@ class TestRegistry(unittest.TestCase):
         with self.assertRaises(PackagesShapeError):
             resolve(self._declaration("micro"), "centos")
 
+    def _versioned(self, entry) -> None:
+        _write_role(self.root, "role-a", {"agent": {"Debian": entry}})
+
+    def test_a_literal_version_is_carried(self):
+        self._versioned({"names": ["agent"], "version": "4.14.6-1"})
+        self.assertEqual(
+            resolve(self._declaration("agent"), "debian").version, "4.14.6-1"
+        )
+
+    def test_a_jinja_version_is_carried_unrendered(self):
+        self._versioned({"names": ["agent"], "version": "{{ AGENT_VERSION }}"})
+        self.assertEqual(
+            resolve(self._declaration("agent"), "debian").version, "{{ AGENT_VERSION }}"
+        )
+
+    def test_an_entry_without_version_has_none(self):
+        self._versioned(["agent"])
+        self.assertIsNone(resolve(self._declaration("agent"), "debian").version)
+
+    def test_an_empty_version_raises(self):
+        self._versioned({"names": ["agent"], "version": " "})
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("agent"), "debian")
+
+    def test_a_non_string_version_raises(self):
+        self._versioned({"names": ["agent"], "version": 4.14})
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("agent"), "debian")
+
+    def test_a_version_for_several_names_raises(self):
+        self._versioned({"names": ["agent", "helper"], "version": "1"})
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("agent"), "debian")
+
+    def test_a_version_outside_the_repo_source_raises(self):
+        self._versioned({"names": ["agent"], "source": SOURCE_AUR, "version": "1"})
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("agent"), "debian")
+
     def test_missing_key_is_a_gap(self):
         _write_role(self.root, "role-a", {"git": {"Debian": ["git"]}})
         self.assertIsNone(resolve(self._declaration("git"), "arch"))

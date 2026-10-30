@@ -11,7 +11,14 @@
   ansible.builtin.file:
     path: "{{ WAZUH_CERTS_DIR_HOST }}"
     state: directory
+    mode: "0500"
+
+- name: "📁 Ensure the custom ruleset directories exist for the manager bind mount"
+  ansible.builtin.file:
+    path: "{{ [ WAZUH_RULESET_DIR_HOST, item ] | path_join }}"
+    state: directory
     mode: "0755"
+  loop: "{{ ['', 'base'] + WAZUH_RULESET_DIRS }}"
 
 - name: "📄 Render node topology for wazuh-certs-generator"
   stack_host_template:
@@ -47,6 +54,14 @@
   loop_control:
     label: "{{ item.src }}"
   notify: compose-up
+
+- name: "🔐 Render the Wazuh enrollment password file"
+  stack_host_template:
+    src: authd.pass.j2
+    dest: "{{ WAZUH_AUTHD_PASS_HOST }}"
+    mode: "0600"
+  notify: compose-up
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📋 Copy static Wazuh indexer roles.yml"
   ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
@@ -102,10 +117,24 @@
   register: wazuh_indexer_ready
   until: wazuh_indexer_ready is succeeded
   retries: 60
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
 
 - name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
   include_tasks: 01_securityadmin.yml
+
+- name: "🪪 Show the Wazuh agents to pre-register (id: name)"
+  ansible.builtin.debug:
+    msg: "{{ WAZUH_AGENTS | map(attribute='id') | zip(WAZUH_AGENTS | map(attribute='name')) | map('join', ': ') | list }}"
+
+- name: "🛂 Pre-register the Wazuh agents"
+  include_tasks:
+    file: 02_agents.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📜 Deploy the custom ruleset of the opted-in roles"
+  include_tasks: 03_ruleset.yml
+  when: IS_STACK_HOST | bool
 
 - name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
   uri_retry:
@@ -122,5 +151,18 @@
     wazuh_indexer_health.json is defined and
     wazuh_indexer_health.json.status in ['green', 'yellow']
   retries: 30
-  delay: 5
+  delay: "{{ WAZUH_POLL_DELAY }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛡️ Load the Wazuh agent of the manager host"
+  include_role:
+    name: sys-svc-wazuh-agent
+
+- name: "🩺 Verify the host agent and the canary end to end"
+  include_tasks: 04_verify.yml
+  when: run_once_sys_svc_wazuh_agent is defined
+
+- name: "🔍 Find whether Pixelfed's tasks run on another node, for the Playwright spec"
+  include_tasks: utils/app_nodes.yml
+  vars:
+    wazuh_app_node_entities: "{{ WAZUH_PIXELFED_ENTITIES }}"

@@ -1,0 +1,89 @@
+- log: INFINITO_WAZUH_CANARY self-test
+  rule: 100110
+  level: 3
+- log: '127.0.0.1 - - [23/Oct/2026:07:00:00 +0000] "GET /INFINITO_WAZUH_CANARY pixelfed-deploy-20261023T070000 HTTP/1.1" 404 5851 "ansible-httpget"'
+  rule: 100111
+  level: 3
+- log: plain self-test event
+  rule: 100100
+  level: 0
+- log: deploy start run=20261018T120000Z
+  rule: 100120
+  level: 3
+  program: infinito-deploy
+- log: deploy end run=20261018T120000Z
+  rule: 100121
+  level: 3
+  program: infinito-deploy
+- log: unrelated deploy line
+  rule: 100101
+  level: 0
+  program: infinito-deploy
+- log: whodata=unavailable reason=realtime-fallback
+  rule: 100130
+  level: 3
+  program: infinito-fim
+- log: whodata=unknown reason=no-syscheckd-start-in-log
+  rule: 100131
+  level: 3
+  program: infinito-fim
+- log: whodata=ebpf reason=healthcheck-passed
+  rule: 100102
+  level: 0
+  program: infinito-fim
+- log: collector frozen pid=4242
+  rule: 100150
+  level: 3
+  program: infinito-wazuh-watch
+- log: collector resumed pid=4242
+  rule: 100151
+  level: 3
+  program: infinito-wazuh-watch
+- log: collector released for stop pid=4242
+  rule: 100104
+  level: 0
+  program: infinito-wazuh-watch
+- log: '{"gs_kind": "drift", "gs_scope": "infinito-nexus/core", "gs_check": "branch_protection", "gs_field": "required_signatures", "gs_expected": "true", "gs_actual": "false"}'
+  rule: 100161
+  level: 10
+  program: infinito-github-settings
+- log: '{"gs_kind": "drift", "gs_scope": "infinito-nexus/core", "gs_check": "pull_request_target", "gs_field": ".github/workflows/call-lint.yml", "gs_expected": "absent", "gs_actual": "present"}'
+  rule: 100162
+  level: 10
+  program: infinito-github-settings
+- log: '{"gs_kind": "error", "gs_scope": "infinito-nexus/core", "gs_check": "collaborators", "gs_reason": "HTTP 403: API rate limit exceeded"}'
+  rule: 100163
+  level: 7
+  program: infinito-github-settings
+- log: '{"gs_kind": "run", "gs_scope": "infinito-nexus", "gs_drift": "0", "gs_errors": "0"}'
+  rule: 100160
+  level: 0
+  program: infinito-github-settings
+- log: '{"dc_kind": "unverified", "dc_checkout": "/opt/infinito", "dc_commit": "1111111111111111111111111111111111111111", "dc_reason": "unsigned"}'
+  rule: 100171
+  level: 10
+  program: infinito-deployed-code
+- log: '{"dc_kind": "unmerged", "dc_checkout": "/opt/infinito", "dc_commit": "2222222222222222222222222222222222222222", "dc_branch": "main"}'
+  rule: 100172
+  level: 12
+  program: infinito-deployed-code
+- log: '{"dc_kind": "modified", "dc_checkout": "/opt/infinito", "dc_commit": "1111111111111111111111111111111111111111", "dc_path": "roles/web-app-wazuh/vars/main.yml", "dc_status": "M"}'
+  rule: 100173
+  level: 10
+  program: infinito-deployed-code
+- log: '{"dc_kind": "error", "dc_checkout": "/opt/infinito", "dc_check": "fetch", "dc_reason": "git fetch failed: Could not resolve host: github.com"}'
+  rule: 100174
+  level: 7
+  program: infinito-deployed-code
+- log: '{"dc_kind": "run", "dc_checkouts": "1", "dc_findings": "0", "dc_errors": "0"}'
+  rule: 100170
+  level: 0
+  program: infinito-deployed-code
+- log: Suppressed 51234 messages from docker.service
+  rule: 100140
+  level: 7
+  program: systemd-journald
+- log: Journal started
+  rule: 100103
+  level: 0
+  program: systemd-journald

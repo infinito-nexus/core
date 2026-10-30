@@ -1,0 +1,53 @@
+---
+- name: "📦 Install the Python venv module"
+  package_install:
+    id:
+      - python3-venv
+
+- name: "🔍 Check that the Docker listener venv runs"
+  ansible.builtin.command:
+    argv:
+      - "{{ WAZUH_AGENT_DOCKER_LISTENER_PYTHON }}"
+      - -c
+      - import docker
+  register: wazuh_agent_docker_listener_venv_check
+  changed_when: false
+  failed_when: false
+
+- name: "🧹 Remove a missing or broken Docker listener venv"
+  ansible.builtin.file:
+    path: "{{ WAZUH_AGENT_DOCKER_LISTENER_VENV }}"
+    state: absent
+  when: wazuh_agent_docker_listener_venv_check.rc != 0
+
+- name: "📦 Create the Docker listener venv with {{ WAZUH_AGENT_DOCKER_LISTENER_PIP }}"
+  ansible.builtin.pip:
+    name: "{{ WAZUH_AGENT_DOCKER_LISTENER_PIP }}"
+    virtualenv: "{{ WAZUH_AGENT_DOCKER_LISTENER_VENV }}"
+    virtualenv_command: "python3 -m venv"
+  register: wazuh_agent_docker_listener_pip_self
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
+  until: wazuh_agent_docker_listener_pip_self is succeeded
+
+- name: "📦 Install the Docker listener's pinned Python packages into its venv"
+  ansible.builtin.pip:
+    name: "{{ WAZUH_AGENT_DOCKER_LISTENER_PIP_PACKAGES }}"
+    virtualenv: "{{ WAZUH_AGENT_DOCKER_LISTENER_VENV }}"
+    virtualenv_command: "python3 -m venv"
+  register: wazuh_agent_docker_listener_pip
+  retries: "{{ WAZUH_AGENT_FETCH_RETRIES }}"
+  delay: "{{ WAZUH_AGENT_FETCH_DELAY }}"
+  until: wazuh_agent_docker_listener_pip is succeeded
+  notify: wazuh-agent-restart
+
+- name: "🔧 Put the Docker listener venv first on the agent's PATH"
+  ansible.builtin.copy:
+    dest: "{{ WAZUH_AGENT_DOCKER_LISTENER_DROPIN }}"
+    content: |
+      [Service]
+      Environment=PATH={{ ([WAZUH_AGENT_DOCKER_LISTENER_VENV, 'bin'] | path_join) }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+    owner: root
+    group: root
+    mode: "0644"
+  notify: wazuh-agent-restart

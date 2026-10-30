@@ -1,0 +1,32 @@
+---
+- name: "⏳ Wait until every pre-registered Wazuh agent is Active"
+  ansible.builtin.shell:
+    cmd: "{{ WAZUH_MANAGER_EXEC }} {{ WAZUH_MANAGER_BIN }}/agent_control -i {{ item.id }}"
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  loop: "{{ WAZUH_AGENTS }}"
+  loop_control:
+    label: "{{ item.id }} {{ item.name }}"
+  register: wazuh_agent_status
+  until: wazuh_agent_status.stdout is search('Status:\\s+Active')
+  retries: "{{ (item.active_window / WAZUH_POLL_DELAY) | round(0, 'ceil') | int }}"
+  delay: "{{ WAZUH_POLL_DELAY }}"
+  changed_when: false
+
+- name: "🏷️ Name this deploy's canary"
+  ansible.builtin.set_fact:
+    wazuh_canary_id: "{{ WAZUH_CANARY_MARKER }} {{ now(utc=true, fmt=WAZUH_RUN_ID_FORMAT) }}"
+
+- name: "🐤 Send the canary through journald"
+  ansible.builtin.command:
+    argv: [logger, -t, "{{ WAZUH_RULESET_SELFTEST.program }}", "{{ wazuh_canary_id }}"]
+  changed_when: false
+
+- name: "🔎 Wait for the canary alert"
+  include_tasks: utils/wait_alert.yml
+  vars:
+    wazuh_alert_label: "the canary alert"
+    wazuh_alert_filters:
+      - term:
+          rule.id: "{{ WAZUH_CANARY_RULE_ID | string }}"
+      - match_phrase:
+          full_log: "{{ wazuh_canary_id }}"

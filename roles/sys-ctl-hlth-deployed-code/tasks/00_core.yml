@@ -1,0 +1,47 @@
+---
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- name: 📦 Install git
+  package_install:
+    id: git
+
+- name: "📁 Create {{ HLTH_DEPLOYED_CODE_DIR }}"
+  file:
+    path: "{{ HLTH_DEPLOYED_CODE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 🔑 Store the read-only GitHub token for the signature check
+  copy:
+    content: "{{ HLTH_DEPLOYED_CODE_TOKEN }}"
+    dest: "{{ HLTH_DEPLOYED_CODE_TOKEN_FILE }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📋 Copy the shared GitHub API client next to the check
+  copy:
+    src: "{{ HLTH_DEPLOYED_CODE_API_MODULE_SRC }}"
+    dest: "{{ HLTH_DEPLOYED_CODE_API_MODULE }}"
+    mode: "0644"
+
+- include_role:
+    name: sys-service
+  vars:
+    system_service_on_calendar: "{{ SYS_SCHEDULE_HEALTH_DEPLOYED_CODE }}"
+    system_service_timer_enabled: true
+    system_service_tpl_exec_start: >-
+      {{ system_service_script_exec }}
+      {{ DEPLOYED_CODE_CHECKOUTS | map('regex_replace', '^', '--checkout ') | join(' ') }}
+      --api-url {{ HLTH_DEPLOYED_CODE_API_URL }}
+      --token-file {{ HLTH_DEPLOYED_CODE_TOKEN_FILE }}
+      --tag {{ HLTH_DEPLOYED_CODE_TAG }}
+      --timeout {{ HLTH_DEPLOYED_CODE_TIMEOUT }}
+    system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+    system_service_force_flush_final: true
+
+- include_tasks: utils/once/flag.yml
