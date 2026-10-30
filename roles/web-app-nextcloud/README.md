@@ -90,7 +90,7 @@ While `services.talk.enabled` is true, the role runs the Talk high-performance b
 | `talk_nats` | NATS message bus | official image `nats`, semver pin |
 | `talk_recording` | recording server | image the role builds from a semver release tag of `nextcloud/nextcloud-talk-recording` |
 
-The role renders the signaling `server.conf`, `janus.jcfg` and the recording `server.conf` from [`templates/`](./templates/), and the version updaters raise every pin. [docs/Administration.md](docs/Administration.md#talk-high-performance-backend) describes how the services connect, how a version update reaches them and how the first deploy replaces `nextcloud/aio-talk`.
+The role renders the signaling `server.conf` from [`signaling.conf.j2`](./templates/signaling.conf.j2), `janus.jcfg` from [`janus.jcfg.j2`](./templates/janus.jcfg.j2) and the recording `server.conf` from [`recording.conf.j2`](./templates/recording.conf.j2), and the version updaters raise every pin. [docs/Administration.md](docs/Administration.md#talk-high-performance-backend) describes how the services connect, how a version update reaches them and how the first deploy replaces `nextcloud/aio-talk`.
 
 ## MCP Server
 
