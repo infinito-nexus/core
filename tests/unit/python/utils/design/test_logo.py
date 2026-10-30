@@ -1,9 +1,11 @@
 import io
 import re
+import tempfile
 import unittest
+from pathlib import Path
 from typing import ClassVar
 
-from PIL import Image
+from PIL import Image, ImageColor, ImageDraw
 
 from utils.design.logo import (
     LAYOUT_LOGO,
@@ -12,6 +14,7 @@ from utils.design.logo import (
     LAYOUT_LOGO_TITLE_DOMAIN,
     LAYOUT_TITLE,
     choose_layout,
+    is_monochrome,
     render_assets,
 )
 
@@ -120,6 +123,99 @@ class TestRenderAssets(unittest.TestCase):
         assets = render_assets(LOGO, False, "git.example.org", *self.COLORS, self.SLOTS)
         self.assertNotIn("wordmark.png", assets)
         self.assertNotIn(b"<text", assets["banner.svg"])
+
+
+def _disc_logo(path: Path, inks: tuple[str, ...]) -> str:
+    big = Image.new("RGBA", (400, 400), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(big)
+    for index, ink in enumerate(inks):
+        inset = 20 + index * 90
+        draw.ellipse((inset, inset, 400 - inset, 400 - inset), fill=ink)
+    big.resize((100, 100), Image.LANCZOS).save(path)
+    return str(path)
+
+
+def _solid_rgbs(image: Image.Image) -> set[tuple[int, int, int]]:
+    raw = image.convert("RGBA").tobytes()
+    return {
+        tuple(raw[index : index + 3])
+        for index in range(0, len(raw), 4)
+        if raw[index + 3] >= 128
+    }
+
+
+def _near(rgbs: set[tuple[int, int, int]], color: str) -> bool:
+    target = ImageColor.getrgb(color)[:3]
+    return all(
+        all(abs(channel - goal) <= 6 for channel, goal in zip(rgb, target, strict=True))
+        for rgb in rgbs
+    )
+
+
+class TestMonochromeLogo(unittest.TestCase):
+    SLOTS: ClassVar[dict] = {
+        "icon": {"width": 128, "height": 128, "text_only": False, "frame": False},
+        "mark": {"width": 128, "height": 128, "text_only": False, "frame": True},
+    }
+    COLORS = TestRenderAssets.COLORS
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._tmp = tempfile.TemporaryDirectory()
+        root = Path(cls._tmp.name)
+        cls.mono = _disc_logo(root / "mono.png", ("#000000",))
+        cls.duo = _disc_logo(root / "duo.png", ("#000000", "#ff8800"))
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls._tmp.cleanup()
+
+    def test_one_ink_on_transparency_is_monochrome(self) -> None:
+        self.assertTrue(is_monochrome(self.mono))
+
+    def test_two_inks_are_not_monochrome(self) -> None:
+        self.assertFalse(is_monochrome(self.duo))
+
+    def test_the_default_logo_is_not_monochrome(self) -> None:
+        self.assertFalse(is_monochrome(LOGO))
+
+    def test_a_monochrome_logo_takes_the_text_color_of_its_slot(self) -> None:
+        assets = render_assets(
+            self.mono, False, "git.example.org", *self.COLORS, self.SLOTS
+        )
+        page = _solid_rgbs(Image.open(io.BytesIO(assets["icon.png"])))
+        frame = _solid_rgbs(Image.open(io.BytesIO(assets["mark.png"])))
+        self.assertTrue(page)
+        self.assertTrue(_near(page, "#001f3f"), page)
+        self.assertTrue(_near(frame, "#fefefe"), frame)
+
+    def test_a_monochrome_page_slot_switches_its_logo_in_dark_mode(self) -> None:
+        assets = render_assets(
+            self.mono, False, "git.example.org", *self.COLORS, self.SLOTS
+        )
+        page = assets["icon.svg"].decode("utf-8")
+        self.assertIn('class="logo-light"', page)
+        self.assertIn('class="logo-dark"', page)
+        self.assertIn(".logo-light{display:none}.logo-dark{display:inline}", page)
+        frame = assets["mark.svg"].decode("utf-8")
+        self.assertEqual(frame.count("<image"), 1)
+        self.assertNotIn("logo-dark", frame)
+
+    def test_a_monochrome_favicon_takes_the_page_text_color(self) -> None:
+        assets = render_assets(
+            self.mono, False, "git.example.org", *self.COLORS, self.SLOTS
+        )
+        icon = Image.open(io.BytesIO(assets["favicon.ico"]))
+        icon.size = (64, 64)
+        self.assertTrue(_near(_solid_rgbs(icon), "#001f3f"))
+
+    def test_a_colored_logo_keeps_its_colors(self) -> None:
+        assets = render_assets(
+            self.duo, False, "git.example.org", *self.COLORS, self.SLOTS
+        )
+        page = _solid_rgbs(Image.open(io.BytesIO(assets["icon.png"])))
+        self.assertFalse(_near(page, "#001f3f"))
+        self.assertEqual(assets["icon.svg"].count(b"<image"), 1)
 
 
 if __name__ == "__main__":
