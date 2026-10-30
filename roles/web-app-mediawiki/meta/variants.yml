@@ -3,10 +3,14 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
 # nocheck: sso-variant-tor — variant 1 exists so peertube, which is clearnet-only,
-# has a round of its own. It carries nothing else; translate moved to
-# variant 2, which keeps the onion, so the MachineTranslation extension is now
-# proven over it. Variant 0 pairs the onion with SSO. Variant 3 carries the README
-# replay alone and keeps it on clearnet, where it ran beside PeerTube before.
+# has a round of its own. It carries nothing else. Translate rides variant 0,
+# whose round index pairs it with web-svc-translate#0, the LibreTranslate round
+# that keeps the onion, so the MachineTranslation extension is deployed and
+# checked over the onion beside SSO; web-svc-translate#1 and #2 drop the onion,
+# so variants 1 and 2 may not carry translate, and variant 3 runs on clearnet.
+# Variant 2 keeps the onion without SSO or any partner. Variant 3 carries the
+# README replay alone and keeps it on clearnet, where it ran beside PeerTube
+# before.
 #
 # nocheck: variant-limit — the README replay beside PeerTube outran the job budget,
 # so the replay takes a fourth round of its own.
@@ -30,8 +34,8 @@
       enabled: true
       shared: true
     translate:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     peertube:
       enabled: false
       shared: false
@@ -120,8 +124,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     translate:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     peertube:
       enabled: false
       shared: false
