@@ -121,7 +121,7 @@ KEYCLOAK_WEB_ORIGINS: >-
       | map('regex_search','^(https?://[^/]+)')
       | select('string')
       | list | unique }}
-KEYCLOAK_POST_LOGOUT_URIS: "+"
+KEYCLOAK_POST_LOGOUT_URIS: "{{ (['+'] + lookup('network_urls', KEYCLOAK_FRONTCHANNEL_LOGOUT_URL ~ '*')) | join('##') }}"
 
 KEYCLOAK_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 KEYCLOAK_LDAP_SHARED: "{{ lookup('config', application_id, 'services.ldap.shared') }}"

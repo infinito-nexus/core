@@ -56,6 +56,22 @@ The effective networks of a role are the node's networks that the role allows, w
 5. Injected snippets ([sys-front-inj-all](../../../roles/sys-front-inj-all/)) and the CSP header ([content_security_policy.conf.j2](../../../roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2)) are rendered per vhost. Clearnet vhosts of a role served on more than one network send `Onion-Location`.
 6. Redirect vhosts redirect inside the network of their source domain.
 
+## Network-Aligned Values 🧭
+
+A value that names an own or peer host MUST point to the network of the vhost that serves it. Pick the form by how the value is consumed:
+
+| Value | Form | How |
+|---|---|---|
+| Allowlist a peer checks (OIDC redirect and post-logout URIs, web origins, Collabora `aliasgroupN`, trusted domains, CSP sources) | Union of every sibling, rendered once | `lookup('network_urls', url)` for a URL, a loop over `lookup('network_siblings', domain)` when each entry needs its own scheme or port |
+| Asset a browser loads (logo, icon, manifest icon, CDN file) | Same-origin path | `lookup('design', ...).relative_urls`, `lookup('cdn', ...).relative_urls`; `/_infinito/cdn/` is served on every vhost |
+| Pointer a browser follows from a snippet rendered per vhost (injected script, proxy config) | Rendered per vhost | `lookup('tls', '<app-id>', 'url.base')` with `domain` in scope, which aligns the term to the vhost's network |
+| Own public URL an application keeps in one server-side setting | Request-derived or one instance per network | Let the application read `X-Forwarded-Host` and `X-Forwarded-Proto`, which every vhost sends; otherwise run one instance per network as [web-svc-logout](../../../roles/web-svc-logout/templates/compose.yml.j2) does with `network_instances` |
+
+- A role MUST NOT write an onion host by hand or rewrite hosts in its own proxy config.
+- The SSO issuer is the one host that stays canonical on every network.
+- Logout: Keycloak holds one front-channel URL per client, the canonical logout conductor. On a vhost outside the canonical network the injected logout patch adds `client_id` and `post_logout_redirect_uri` set to that network's conductor, and Keycloak registers every conductor sibling as post-logout redirect URI next to `+`. An external issuer (`OIDC_OVERRIDE.URL`) keeps the bare logout URL.
+- [test_network_allowlist_sinks.py](../../../tests/lint/ansible/roles/test_network_allowlist_sinks.py) fails when a role template names an allowlist sink without the sibling union. Suppress a single-network peer with `# nocheck: network-allowlist` and a reason.
+
 ## Checks 🩺
 
 - [sys-ctl-hlth-webserver](../../../roles/sys-ctl-hlth-webserver/) probes every vhost with that vhost's scheme.
