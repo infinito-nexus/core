@@ -1,4 +1,4 @@
-# 040 - Wazuh Agent and Container Logs
+# 059 - Wazuh Agent and Container Logs
 
 ## User Story
 
