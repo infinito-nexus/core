@@ -23,6 +23,7 @@ It solves the common challenge of logging a user out from all connected apps wit
 - Status page with live feedback on logout progress for each domain.
 - Built-in support for Docker Compose deployment and integration with the Infinito.Nexus ecosystem.
 - Includes security-conscious headers (CORS, CSP) for smooth cross-domain logout operations.
+- **Network hand-off:** A node serving several networks runs one conductor per network, and each conductor receives the other conductors' origins in `LOGOUT_SIBLINGS`, so a finished sweep hands the browser on to the next network. A single-network node renders it empty, which disables the hand-off.
 
 ## Further Resources
 
