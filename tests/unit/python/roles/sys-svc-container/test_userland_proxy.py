@@ -31,6 +31,7 @@ def _daemon_json(**overrides):
         "DOMAIN_PRIMARY": "infinito.test",
         "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
         "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
+        "NVIDIA_RUNTIME_BINARY": "/usr/bin/nvidia-container-runtime",
         "SANDBOX_RUNTIME": "runsc",
         "SYS_SVC_CONTAINER_DATA_ROOT": "",
         "swarm": {"registry": {"host": "", "port": 5000}},
@@ -40,11 +41,16 @@ def _daemon_json(**overrides):
             "Debian": "iptables"
         },
         "NETWORK_DOCKER_ADDRESS_POOLS": [{"base": "10.208.0.0/12", "size": 24}],
+        "SYS_DOCKER_DAEMONM_MTU": 1400,
         "sys_svc_container_kvm": _shim(False),
         "sys_svc_container_kata_shim": _shim(False),
         "sys_svc_container_runsc_shim": _shim(False),
+        "sys_svc_container_nvidia_shim": _shim(False),
         **overrides,
     }
+    mode = variables["DEPLOYMENT_MODE"]
+    variables["IS_COMPOSE_MODE"] = mode == "compose"
+    variables["IS_SWARM_MODE"] = mode == "swarm"
     return json.loads(env.get_template("daemon.json.j2").render(variables))
 
 
