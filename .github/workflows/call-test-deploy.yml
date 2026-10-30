@@ -75,7 +75,7 @@ on:
         type: string
         default: ""
       disable:
-        description: "Comma-separated provider keys removed from the test inventory; used when the matrix row carries none of its own."
+        description: "Comma-separated provider keys removed from the test inventory, on top of the matrix row's own tokens."
         required: false
         type: string
         default: ""
@@ -144,7 +144,7 @@ on:
         type: string
         default: ""
       disable:
-        description: "🚫 Provider keys removed from the test inventory (comma-separated)"
+        description: "🚫 Provider keys removed from the test inventory on top of the matrix row's own tokens (comma-separated)"
         required: false
         type: string
         default: ""
@@ -374,7 +374,7 @@ jobs:
         shell: bash
         env:
           variant: ${{ matrix.variant }}
-          disable: ${{ matrix.disable || inputs.disable }}
+          disable: ${{ format('{0} {1}', matrix.disable, inputs.disable) }}
           network: ${{ matrix.network }}
           INFINITO_SWARM_VPN: ${{ matrix.vpn }}
           INFINITO_SWARM_MESHES: ${{ inputs.meshes }}
@@ -387,7 +387,7 @@ jobs:
         env:
           apps: ${{ matrix.apps }}
           variant: ${{ matrix.variant }}
-          disable: ${{ matrix.disable || inputs.disable }}
+          disable: ${{ format('{0} {1}', matrix.disable, inputs.disable) }}
           network: ${{ matrix.network }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
         run: ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
