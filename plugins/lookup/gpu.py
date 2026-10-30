@@ -3,7 +3,8 @@
 Two facts have to agree and used to be restated at every call site. The
 declaration lives in ``applications`` under ``services.<service>.gpu``; the
 hardware is ``sys-svc-container``'s stat of ``/dev/nvidia0`` on the target
-host, registered as ``sys_svc_container_nvidia_device``. Asking only the
+host, registered as ``sys_svc_container_nvidia_device`` and skipped where the
+NVIDIA driver is not installed. Asking only the
 declaration selects a ``-cuda`` image on a host that has no device, and that
 tag has no arm64 manifest at all, so the build fails with ``no match for
 platform in manifest``.

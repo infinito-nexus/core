@@ -77,6 +77,21 @@ class TestGpuLookup(unittest.TestCase):
             _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
         )
 
+    def test_a_device_stat_skipped_for_a_missing_driver_is_false(self):
+        """A privileged container sees the host's /dev/nvidia0 without the driver."""
+        lm = _make_lookup(
+            {
+                "sys_svc_container_nvidia_device": {
+                    "changed": False,
+                    "skipped": True,
+                    "false_condition": "sys_svc_container_nvidia_driver.stat.exists",
+                }
+            }
+        )
+        self.assertEqual(
+            _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
+        )
+
     def test_non_mapping_register_is_false(self):
         lm = _make_lookup({"sys_svc_container_nvidia_device": "skipped"})
         self.assertEqual(

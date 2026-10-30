@@ -34,6 +34,7 @@ SYS_SVC_CONTAINER_NESTED_VIRTUALIZATION:
   - lxc
   - container
 
-SYS_SVC_CONTAINER_GPU_QUERY: "nvidia-smi --query-gpu=memory.total,uuid --format=csv,noheader,nounits"
+SYS_SVC_CONTAINER_GPU_DRIVER: /usr/bin/nvidia-smi
+SYS_SVC_CONTAINER_GPU_QUERY: "{{ SYS_SVC_CONTAINER_GPU_DRIVER }} --query-gpu=memory.total,uuid --format=csv,noheader,nounits"
 
 SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME: "{{ lookup('timeout', 3600) | int }}"
