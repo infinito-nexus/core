@@ -4,7 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 exports.register = (shared) => {
   const { test, expect, skipUnlessServiceEnabled, env, penpotLdapLogin, penpotProfile } = shared;
 
-  test("LDAP: biber non-admin RBAC user binds against OpenLDAP", async ({ page }) => {
+  test("biber: non-admin RBAC user LDAP bind against OpenLDAP", async ({ page }) => {
     skipUnlessServiceEnabled("ldap");
     test.setTimeout(resolveTimeout(90_000)); // LDAP bind + first authenticated render
     expect(env.biberEmail).toBeTruthy();

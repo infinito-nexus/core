@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(process.env.APP_BASE_URL);
@@ -37,10 +37,8 @@ async function openHome(page) {
 }
 
 async function signIn(page) {
-  test.skip(
-    process.env.SSO_SERVICE_ENABLED === "true" || process.env.LDAP_SERVICE_ENABLED === "true",
-    "the local administrator exists only without SSO and LDAP",
-  );
+  skipUnlessServiceDisabled("sso");
+  skipUnlessServiceDisabled("ldap");
   await open(page, "/bin/login/XWiki/XWikiLogin", "#j_password");
   await page.locator("#j_username").fill(adminUsername);
   await page.locator("#j_password").fill(adminPassword);

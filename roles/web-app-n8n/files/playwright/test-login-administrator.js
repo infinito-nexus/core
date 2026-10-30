@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("administrator: n8n SSO auto-provisioning lands directly on the workflow editor (V1)", async ({ page }) => {
@@ -24,7 +25,7 @@ exports.register = function (shared) {
   });
 
   test("administrator: n8n local sign-in with owner credentials (V2, no SSO)", async ({ page }) => {
-    test.skip(shared.env.oidcEnabled, "SSO shared service enabled — covered by the V1 test above");
+    skipUnlessServiceDisabled("sso");
     expect(shared.env.adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
     expect(shared.env.n8nOwnerPassword, "N8N_OWNER_PASSWORD must be set").toBeTruthy();
 

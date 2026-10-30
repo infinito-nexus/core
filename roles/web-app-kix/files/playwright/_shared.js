@@ -3,17 +3,17 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  inAppLogout,
   performKeycloakLoginForm,
   requireDotenvValue,
   runBiberFlow,
   runGuestFlow,
   gotoOnion,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const keycloakAdmin = require("./personas/utils/keycloak");
 
 const ssoEnabled    = isServiceEnabled("sso");
-const ldapEnabled   = isServiceEnabled("ldap");
 
 const appBaseUrl      = decodeDotenvQuotedValue(process.env.APP_BASE_URL      || "").replace(/\/$/, "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN  || "");
@@ -33,6 +33,8 @@ const biberUsername    = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_U
 const biberPassword    = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
 const adminUsername    = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
 const adminPassword    = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
+const biberDn          = requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN");
+const userGroupDn      = requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN");
 
 function expectKeycloakAdminEnv() {
   for (const [key, value] of Object.entries({ ...keycloak, kixUserGroupPath, biberUsername, biberPassword })) {
@@ -71,28 +73,6 @@ async function withBiberInGroup(groupPath, fn) {
           groupPath, biberUsername, keycloakAdminOpts(),
         ),
       ).catch((err) => console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`));
-    }
-  }
-}
-
-async function withBiberAttributes(attributes, fn) {
-  let previous = null;
-  try {
-    previous = await withKeycloakAdmin((api) =>
-      keycloakAdmin.keycloakAdminSetUserAttributes(
-        api, keycloak.baseUrl, keycloak.realm, biberUsername, attributes,
-        keycloak.adminUser, keycloak.adminPw, keycloakAdminOpts(),
-      ),
-    );
-    return await fn();
-  } finally {
-    if (previous) {
-      await withKeycloakAdmin((api) =>
-        keycloakAdmin.keycloakAdminSetUserAttributes(
-          api, keycloak.baseUrl, keycloak.realm, biberUsername, previous,
-          keycloak.adminUser, keycloak.adminPw, keycloakAdminOpts(),
-        ),
-      ).catch((err) => console.warn(`Cleanup restore of biber's attributes failed: ${err}`));
     }
   }
 }
@@ -163,6 +143,33 @@ async function runKixLoginLogoutFlow(page, username, password) {
   await runKixLogout(page);
 }
 
+async function runKixDirectoryLogin(page, username, password) {
+  await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await performKixLogin(page, username, password);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(30_000),
+      message: `Expected SPA to leave /auth after the KIX-LDAP login as ${username}`,
+    })
+    .not.toContain("/auth");
+}
+
+async function runKixDirectoryLogout(page) {
+  await inAppLogout(page);
+
+  await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await expect(
+    page.locator('input[type="password"]').first(),
+    "after the in-app logout a protected request must land on the KIX sign-in again",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+async function runKixDirectoryLoginLogoutFlow(page, username, password) {
+  await runKixDirectoryLogin(page, username, password);
+  await runKixDirectoryLogout(page);
+}
+
 async function beforeEach({ page }) {
   expect(appBaseUrl,      "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -174,7 +181,6 @@ async function beforeEach({ page }) {
 module.exports = {
   env: {
     ssoEnabled,
-    ldapEnabled,
     appBaseUrl,
     canonicalDomain,
     oidcIssuerUrl,
@@ -184,17 +190,22 @@ module.exports = {
     biberPassword,
     adminUsername,
     adminPassword,
+    biberDn,
+    userGroupDn,
   },
   performKixLogin,
   signInThroughGate,
   runKixLogin,
   runKixLogout,
   runKixLoginLogoutFlow,
+  runKixDirectoryLogin,
+  runKixDirectoryLogout,
+  runKixDirectoryLoginLogoutFlow,
   expectKeycloakAdminEnv,
   withBiberInGroup,
-  withBiberAttributes,
   beforeEach,
   isServiceEnabled,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   runBiberFlow,
   runGuestFlow,

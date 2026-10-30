@@ -9,7 +9,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 function baseUrl() {
@@ -177,7 +177,9 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL);
     test.skip(!logoUrl, "the logo replacement is disabled for this role");
-    test.skip(shared.env.nextcloudLoginFlavor === "oidc_login", "the sign-in page redirects to the identity provider");
+    if (isServiceEnabled("ldap")) {
+      skipUnlessServiceDisabled("sso");
+    }
     await gotoOnion(page, `${baseUrl()}/login`);
     await assertShownLogo(page, "#header.header-guest .logo", "logo", logoUrl);
   });

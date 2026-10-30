@@ -1,6 +1,6 @@
 const { expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   assertCspResponseHeader,
   decodeDotenvQuotedValue,
@@ -486,8 +486,8 @@ module.exports = {
     biberEmail,
     biberDirectoryFullName,
     canonicalDomain,
-    oidcServiceEnabled,
   },
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   attachDiagnostics,
   assertCspResponseHeader,

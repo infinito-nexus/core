@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
@@ -19,7 +19,6 @@ const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "")
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_SIGN_IN_PAGE = "the oauth2-proxy gate signs every visitor in, so n8n never renders its own sign-in page";
 const SIGN_IN_FORM = "[data-test-id='auth-form']";
 const SUBMIT = "[data-test-id='form-submit-button']";
 const FIELD = `${SIGN_IN_FORM} .n8n-input__wrapper`;
@@ -471,7 +470,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(shared.env.oidcEnabled, NO_SIGN_IN_PAGE);
+    skipUnlessServiceDisabled("sso");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await openSignIn(page);
@@ -628,7 +627,7 @@ exports.register = function (shared) {
   test("design: the sign-in page shows the generated logo and the configured title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
-    test.skip(shared.env.oidcEnabled, NO_SIGN_IN_PAGE);
+    skipUnlessServiceDisabled("sso");
 
     await openSignIn(page);
     if (title) await assertTitled(page, "the sign-in page");

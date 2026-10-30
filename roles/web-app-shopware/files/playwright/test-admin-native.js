@@ -9,13 +9,13 @@ const {
 } = require("./personas");
 const { performKeycloakLogin } = require("./personas/utils/keycloak");
 const { confirmKeycloakLogoutIfPrompted } = require("./personas/utils/logout");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
-const logoutEnabled = (process.env.LOGOUT_SERVICE_ENABLED || "").toLowerCase() === "true";
 const logoutBaseUrl = normalizeBaseUrl(process.env.LOGOUT_URL || "");
 
 async function signIn(page) {
@@ -123,11 +123,9 @@ test("administrator: admin login → catalogue → in-app logout", async ({ page
 test("administrator: the admin session outlives a logout whose sweep never lands", async ({
   page,
 }) => {
+  skipUnlessServiceEnabled("sso");
+  skipUnlessServiceEnabled("logout");
   test.setTimeout(resolveTimeout(180_000));
-  test.skip(
-    !ssoEnabled || !logoutEnabled,
-    "the sweep only exists where Keycloak frames web-svc-logout",
-  );
 
   const conductorOrigin = logoutBaseUrl ? new URL(logoutBaseUrl).origin : "";
   const isConductor = (url) =>

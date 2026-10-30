@@ -1,12 +1,10 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("biber: nextcloud oidc login and logout", async ({ browser }) => {
-    test.skip(
-      !shared.env.nextcloudOidcEnabled,
-      "biber OIDC login requires services.sso.enabled; the LDAP-backed native form covers the OIDC-off variant via `biber: nextcloud ldap login and logout (native form, ldap backing)`.",
-    );
+    skipUnlessServiceEnabled("sso");
 
     const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });
     const biberPage = await biberContext.newPage();

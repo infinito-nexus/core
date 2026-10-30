@@ -1,11 +1,23 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, requireDotenvValue, withLdapAttributes, withLdapGroupMember } = require("./personas");
 
 const roleSuperuser = decodeDotenvQuotedValue(process.env.KIX_ROLE_SUPERUSER || "");
 const roleAgent     = decodeDotenvQuotedValue(process.env.KIX_ROLE_AGENT     || "");
+const contactSync   = JSON.parse(requireDotenvValue(process.env.KIX_LDAP_CONTACT_SYNC_JSON, "KIX_LDAP_CONTACT_SYNC_JSON"));
 
 const SEEDED_ROLE_IDS = { superuser: 1, agent: 5 };
+
+function directoryAttributes(contact) {
+  return Object.fromEntries(
+    Object.entries(contact).map(([field, value]) => {
+      if (!contactSync[field]) {
+        throw new Error(`KIX_LDAP_CONTACT_SYNC_JSON maps no directory attribute to the KIX contact field ${field}`);
+      }
+      return [contactSync[field], value];
+    }),
+  );
+}
 
 async function openRole(page, appBaseUrl, roleId, roleName) {
   await gotoOnion(page, `${appBaseUrl}/roles/${roleId}`, { waitUntil: "domcontentloaded" });
@@ -32,33 +44,30 @@ exports.register = function (shared) {
   });
 
   test("administrator: the KIX role groups map to Superuser and Ticket Agent and the LDAP sync fills every contact field", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("sso");
     shared.skipUnlessServiceEnabled("ldap");
-    test.setTimeout(resolveTimeout(360_000)); // two two-stage KIX sign-ins plus the contact, user and role detail pages
-    shared.expectKeycloakAdminEnv();
-    expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
-    expect(shared.env.adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+    shared.skipUnlessServiceDisabled("sso");
+    test.setTimeout(resolveTimeout(360_000)); // two KIX-LDAP sign-ins plus the contact, user and role detail pages
     expect(roleSuperuser, "KIX_ROLE_SUPERUSER must be set").toBeTruthy();
     expect(roleAgent, "KIX_ROLE_AGENT must be set").toBeTruthy();
 
     const marker = Date.now().toString(36);
     const digits = String(Date.now()).slice(-7);
     const contact = {
-      title: `Helpdesk lead ${marker}`,
-      phoneNumber: `+49 30 ${digits}`,
-      phoneNumberAlt: `+49 170 ${digits}`,
-      street: `Biberweg ${marker}`,
-      postal_code: `P${digits}`,
-      locality: `Biberstadt ${marker}`,
-      country: "IS",
-      description: `Synced from the directory ${marker}`,
+      Title: `Helpdesk lead ${marker}`,
+      Phone: `+49 30 ${digits}`,
+      Mobile: `+49 170 ${digits}`,
+      Street: `Biberweg ${marker}`,
+      Zip: `P${digits}`,
+      City: `Biberstadt ${marker}`,
+      Country: "IS",
+      Comment: `Synced from the directory ${marker}`,
     };
 
-    await shared.withBiberAttributes(contact, () =>
-      shared.withBiberInGroup(shared.env.kixUserGroupPath, async () => {
+    await withLdapAttributes(shared.env.biberDn, directoryAttributes(contact), () =>
+      withLdapGroupMember(shared.env.userGroupDn, shared.env.biberDn, async () => {
         const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });
         try {
-          await shared.runKixLoginLogoutFlow(
+          await shared.runKixDirectoryLoginLogoutFlow(
             await biberContext.newPage(),
             shared.env.biberUsername,
             shared.env.biberPassword,
@@ -70,21 +79,21 @@ exports.register = function (shared) {
         const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
         try {
           const page = await adminContext.newPage();
-          await shared.runKixLogin(page, shared.env.adminUsername, shared.env.adminPassword);
+          await shared.runKixDirectoryLogin(page, shared.env.adminUsername, shared.env.adminPassword);
 
           await gotoOnion(page, `${shared.env.appBaseUrl}/organisations`, { waitUntil: "domcontentloaded" });
-          const streetCell = page.getByText(contact.street).first();
+          const streetCell = page.getByText(contact.Street).first();
           await expect(
             streetCell,
             "the contacts dashboard must list biber's synced street; reading it needs the Superuser role",
           ).toBeVisible({ timeout: resolveTimeout(90_000) });
           await streetCell.click({ timeout: resolveTimeout(30_000) });
-          for (const value of [contact.title, contact.phoneNumber, contact.phoneNumberAlt, contact.street, contact.postal_code, contact.locality]) {
+          for (const value of [contact.Title, contact.Phone, contact.Mobile, contact.Street, contact.Zip, contact.City]) {
             await expect(page.getByText(value).first(), `the contact page must show "${value}" from the directory`).toBeVisible({
               timeout: resolveTimeout(60_000),
             });
           }
-          await expect(page.getByText(contact.country, { exact: true }).first(), "the contact page must show the directory country").toBeVisible();
+          await expect(page.getByText(contact.Country, { exact: true }).first(), "the contact page must show the directory country").toBeVisible();
 
           await openRole(page, shared.env.appBaseUrl, SEEDED_ROLE_IDS.agent, roleAgent);
           const biberAgent = page.getByText(shared.env.biberUsername, { exact: true }).first();
@@ -93,7 +102,7 @@ exports.register = function (shared) {
           });
           await biberAgent.click({ timeout: resolveTimeout(30_000) });
           await expect(
-            page.getByText(contact.description).first(),
+            page.getByText(contact.Comment).first(),
             "biber's user page must show the directory description as the contact comment",
           ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
@@ -107,7 +116,7 @@ exports.register = function (shared) {
             `the user role group must not grant "${roleSuperuser}"`,
           ).toHaveCount(0);
 
-          await shared.runKixLogout(page);
+          await shared.runKixDirectoryLogout(page);
         } finally {
           await adminContext.close().catch(() => {});
         }

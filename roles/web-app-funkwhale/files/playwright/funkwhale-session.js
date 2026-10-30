@@ -3,10 +3,11 @@ const { resolveTimeout } = require("./timeouts");
 
 const { gotoOnion, isAuthChain, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { performKeycloakLoginForm } = require("./personas/utils/keycloak");
+const { isServiceEnabled } = require("./service-gating");
 
 const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
-const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
+const ssoEnabled = isServiceEnabled("sso");
 
 const signInAffordance = (page) => page.getByText(/^\s*(log\s?in|sign\s?in)\s*$/i).first();
 

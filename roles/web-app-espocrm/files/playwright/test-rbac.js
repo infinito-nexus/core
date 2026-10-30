@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   clickOidcLoginLink,
   decodeDotenvQuotedValue,
@@ -176,7 +176,7 @@ test.describe.serial("espocrm RBAC", () => {
 
   test("biber: LDAP sign-in outside every role group is refused", async ({ request }) => {
     skipUnlessServiceEnabled("ldap");
-    test.skip(isServiceEnabled("sso"), "SSO_SERVICE_ENABLED=true: EspoCRM authenticates through OIDC, the LDAP login filter only applies without it");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(120_000)); // directory bind through EspoCRM
 
     const credentials = Buffer.from(`${env.biberUsername}:${env.biberPassword}`).toString("base64");

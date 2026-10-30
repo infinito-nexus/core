@@ -168,7 +168,7 @@ const TIER_CAPABILITIES = {
 test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   test.describe.configure({ mode: "serial" });
 
-  test("rbac: biber starts outside every OpenBao role group", async ({ request }) => {
+  test("biber: starts outside every OpenBao role group", async ({ request }) => {
     skipUnlessServiceEnabled("ldap");
 
     const { policies, token } = await loginAsBiber(request);
@@ -188,7 +188,7 @@ test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   });
 
   for (const role of RBAC_ROLES) {
-    test(`rbac: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
+    test(`biber: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
       page,
       request,
     }) => {

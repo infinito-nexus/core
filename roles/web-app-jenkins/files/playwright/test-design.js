@@ -10,21 +10,18 @@ const {
   tokenValue,
 } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.JENKINS_BASE_URL, "JENKINS_BASE_URL")).replace(/\/$/, "");
 const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
-const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
-const ldapEnabled = process.env.LDAP_SERVICE_ENABLED === "true";
+const ssoEnabled = isServiceEnabled("sso");
 const mastheadUrl = decodeDotenvQuotedValue(process.env.DESIGN_MASTHEAD_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_SIGN_IN_PAGE = "with sso on the oic-auth realm sends /login to Keycloak, so Jenkins never renders its own sign-in page";
-const NO_LOCAL_REALM = "with sso or ldap on, casc.yaml selects the oic or ldap realm and holds no local account";
 const USERNAME = "#j_username";
 const PASSWORD = "#j_password";
 const SUBMIT = "button[name='Submit']";
@@ -305,7 +302,7 @@ test("design: corporate tokens apply in light and dark mode", async ({ page }) =
 
 test("design: the sign-in page takes surface, primary action, frame and text from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, NO_SIGN_IN_PAGE);
+  skipUnlessServiceDisabled("sso");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/login`);
@@ -391,7 +388,8 @@ test("design: the header and the sign-in page show the generated logo and the co
 });
 
 test("administrator: CasC sets the inventory password on the existing local account", async ({ page, browser }) => {
-  test.skip(ssoEnabled || ldapEnabled, NO_LOCAL_REALM);
+  skipUnlessServiceDisabled("sso");
+  skipUnlessServiceDisabled("ldap");
   await signIn(page);
   const scramble = await runGroovy(
     page,

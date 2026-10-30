@@ -52,7 +52,7 @@ test("OIDC: the Keycloak sign-in lands in FusionDirectory through the header log
 
 require("./test-rbac").register();
 
-test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
+test("guest: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const expectedBase = baseUrl.replace(/\/$/, "");
   await gotoOnion(page, `${expectedBase}/`);

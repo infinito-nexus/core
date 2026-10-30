@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 const { clickFiderSsoButton } = require("./_shared");
 
 require("./test-seaweedfs");
@@ -12,8 +12,6 @@ require("./test-design").register();
 test.use({
   ignoreHTTPSErrors: true
 });
-
-const oidcEnabled = isServiceEnabled("sso");
 
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
@@ -36,7 +34,7 @@ test.beforeEach(() => {
 // Scenario I: Fider → SSO login as admin → verify admin UI → logout
 // (dashboard-iframe mechanics covered by web-app-dashboard SPOT)
 test("fider: admin sso login, verify ui, logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Fider
@@ -74,7 +72,7 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
 // This test verifies that the SSO flow works for non-admin users and that they land
 // on the Fider main page (not an admin panel).
 test("fider: biber sso login as regular user, verify access, logout", async ({ browser }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   const expectedOidcAuthUrl  = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
@@ -132,7 +130,7 @@ test("fider: biber sso login as regular user, verify access, logout", async ({ b
 });
 
 test("administrator: Fider lists biber with the name claim and the visitor role", async ({ browser }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(120_000)); // two Keycloak round trips, biber then the administrator
   const biberFullName = decodeDotenvQuotedValue(process.env.BIBER_FULL_NAME);
   expect(biberFullName, "BIBER_FULL_NAME must be set in the Playwright env file").toBeTruthy();

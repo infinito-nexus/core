@@ -2,14 +2,12 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 require("./test-seaweedfs");
 require("./test-design").register();
 test.use({ ignoreHTTPSErrors: true });
 
 const AUTHENTICATED_MARKER = "my-header .logged-in-container, my-header my-notification-dropdown";
-
-const oidcEnabled = isServiceEnabled("sso");
 
 async function peertubeLogout(page, peertubeBaseUrl) {
   await page
@@ -120,7 +118,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 }
 
 test("administrator: peertube OIDC login and logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   await signInViaDashboardOidc(page, adminUsername, adminPassword, "administrator");
 
   await peertubeLogout(page, peertubeBaseUrl);
@@ -160,7 +158,7 @@ test("administrator: root signs in to the local form with the administrator pass
 });
 
 test("biber: peertube OIDC login and logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   await signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
 
   await peertubeLogout(page, peertubeBaseUrl);

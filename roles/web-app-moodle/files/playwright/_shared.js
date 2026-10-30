@@ -26,7 +26,6 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
-  ldapEnabled: isServiceEnabled("ldap"),
 };
 
 /**

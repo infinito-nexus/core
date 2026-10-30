@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   decodeDotenvQuotedValue,
   gotoOnion,
@@ -177,7 +177,7 @@ exports.register = function (shared) {
     test("biber: an initials change written to LDAP reaches the Moodle profile on the next LDAP login", async ({ browser }) => {
       skipUnlessServiceEnabled("ldap");
       skipUnlessServiceEnabled("lam");
-      test.skip(shared.env.ssoEnabled, "SSO_SERVICE_ENABLED=true; Moodle accounts authenticate through auth_oidc, so auth_ldap updates no profile at login");
+      skipUnlessServiceDisabled("sso");
       test.setTimeout(resolveTimeout(300_000));
       expect(lamBaseUrl, "LAM_BASE_URL must be set").toBeTruthy();
       expect(lamLoginPassword, "LDAP_ADMIN_PASSWORD or LAM_PASSWORD must be set").toBeTruthy();

@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
@@ -28,9 +28,9 @@ async function submitCredentials(page, usernameField, username, password) {
 }
 
 exports.register = function (shared) {
-  test("ldap: prosody admits biber with the directory password", async ({ page }) => {
+  test("biber: prosody admits biber with the directory password over LDAP", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.skip(isServiceEnabled("sso"), "with SSO on, Jitsi sits behind the oauth2 gate and prosody does not bind against LDAP");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000));
     const usernameField = await openLoginDialog(shared, page, "e2e-ldap-auth-room");
     await submitCredentials(page, usernameField, biberUsername, biberPassword);
@@ -40,9 +40,9 @@ exports.register = function (shared) {
     ).toBeHidden({ timeout: resolveTimeout(60_000) });
   });
 
-  test("ldap: prosody rejects biber with a wrong password", async ({ page }) => {
+  test("biber: prosody rejects biber with a wrong password over LDAP", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.skip(isServiceEnabled("sso"), "with SSO on, Jitsi sits behind the oauth2 gate and prosody does not bind against LDAP");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000));
     const usernameField = await openLoginDialog(shared, page, "e2e-ldap-reject-room");
     await submitCredentials(page, usernameField, biberUsername, `${biberPassword}-wrong`);

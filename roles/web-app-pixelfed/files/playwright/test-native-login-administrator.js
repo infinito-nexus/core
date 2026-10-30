@@ -13,6 +13,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 exports.register = function (shared) {
   const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
@@ -22,10 +23,7 @@ exports.register = function (shared) {
   const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 
   test("pixelfed native login (administrator email+password)", async ({ page }) => {
-    test.skip(
-      shared.env.oidcEnabled,
-      "Native login is only exercised when OIDC is disabled — when OIDC is on, pixelfed's `/login` redirects to the SSO entry and the OIDC tests own the journey.",
-    );
+    skipUnlessServiceDisabled("sso");
     expect(pixelfedBaseUrl, "PIXELFED_BASE_URL must be set").toBeTruthy();
     expect(adminEmail, "ADMIN_EMAIL must be set in the Playwright env file").toBeTruthy();
     expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();

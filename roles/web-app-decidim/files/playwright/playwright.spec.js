@@ -63,10 +63,10 @@ async function oidcLogin(page, username, password) {
   await page.waitForLoadState("networkidle");
   await dismissCookieBanner(page);
   const ssoButton = page.locator("a[href*='openid_connect']").first();
-  const ssoVisible = await ssoButton.isVisible().catch(() => false);
-  if (!ssoVisible) {
-    return null; // OIDC not configured
-  }
+  await expect(
+    ssoButton,
+    "Expected the Decidim OpenID Connect sign-in button while the sso service is enabled",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   // Submit form manually replicating Rails UJS data-method="post"
   const ssoHref = await ssoButton.getAttribute("href");
   console.log("SSO href:", ssoHref);
@@ -144,8 +144,8 @@ test("admin can log in and out", async ({ page }) => {
 
 // Scenario III: Biber OIDC login and logout
 test("biber can log in via OIDC and log out", async ({ page }) => {
-  const result = await oidcLogin(page, biberUsername, biberPassword);
-  if (result === null) { test.skip(); return; }
+  skipUnlessServiceEnabled("sso");
+  await oidcLogin(page, biberUsername, biberPassword);
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(
     page.locator("#main-bar"),
@@ -158,9 +158,8 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
 
 // Scenario IV: Admin and biber can communicate via conversations
 test("biber can access profile after OIDC login", async ({ page }) => {
-  // Biber logs in via OIDC
-  const result = await oidcLogin(page, biberUsername, biberPassword);
-  if (result === null) { test.skip(); return; }
+  skipUnlessServiceEnabled("sso");
+  await oidcLogin(page, biberUsername, biberPassword);
   await expect(page).not.toHaveURL(/sign_in/);
 
   // Biber accesses their account page

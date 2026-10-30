@@ -65,7 +65,7 @@ exports.register = function (shared) {
     page,
   }) => {
     skipUnlessServiceEnabled("sso");
-    test.skip(!shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED is not true; the gateway runs in token mode");
+    expect(shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED must be true while the sso service is enabled").toBe(true);
     test.setTimeout(resolveTimeout(120_000)); // Keycloak round trip through the OAuth2 proxy plus a gateway handshake
 
     await shared.openGate(page);
@@ -82,7 +82,7 @@ exports.register = function (shared) {
 
   test("administrator: a paired browser reaches the Control UI shell through the proxy identity alone", async ({ page }) => {
     skipUnlessServiceEnabled("sso");
-    test.skip(!shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED is not true; the gateway runs in token mode");
+    expect(shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED must be true while the sso service is enabled").toBe(true);
     test.setTimeout(resolveTimeout(120_000)); // Keycloak round trip through the OAuth2 proxy plus a gateway handshake
 
     test.skip(
@@ -115,7 +115,7 @@ exports.register = function (shared) {
 
   test("biber: the gateway authenticates a member who joined an admitted group after the deploy", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
-    test.skip(!shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED is not true; the gateway runs in token mode");
+    expect(shared.env.trustedProxy, "OPENCLAW_TRUSTED_PROXY_ENABLED must be true while the sso service is enabled").toBe(true);
     test.setTimeout(resolveTimeout(240_000)); // Keycloak group change plus a Keycloak round trip and a gateway handshake
     expect(mcpGroupPath, "RBAC_MCP_GROUP_PATH must be set").toBeTruthy();
     expect(superAdminUsername, "SUPER_ADMIN_USERNAME must be set").toBeTruthy();

@@ -54,14 +54,14 @@ test("baseline: ejabberd HTTP API responds on the canonical domain", async ({ pa
   expect(r.url().includes(canonicalDomain)).toBe(true);
 });
 
-test("LDAP: ejabberd backend points at svc-db-openldap (variant 1)", async ({ page }) => {
+test("guest: ejabberd LDAP backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const r = await gotoOnion(page, `${baseUrl}/admin/`);
   expect(r).toBeTruthy();
   expect(r.status()).toBeLessThan(500);
 });
 
-test("rbac: the ejabberd web admin admits the administrator", async ({ page }) => {
+test("administrator: the ejabberd web admin admits the administrator", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   expect(xmppHost, "XMPP_HOST must be set").toBeTruthy();
   const response = await page.request.get(`${baseUrl}/admin/`, {
@@ -71,7 +71,7 @@ test("rbac: the ejabberd web admin admits the administrator", async ({ page }) =
   expect(response.status(), "acl.admin MUST let the administrator into the web admin").toBe(200);
 });
 
-test("rbac: the ejabberd web admin and API refuse biber without the administrator role", async ({ page }) => {
+test("biber: the ejabberd web admin and API refuse biber without the administrator role", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const webAdmin = await page.request.get(`${baseUrl}/admin/`, {
     headers: basicAuth(biberUsername, biberPassword),
@@ -86,7 +86,7 @@ test("rbac: the ejabberd web admin and API refuse biber without the administrato
   expect([401, 403], "biber MUST NOT call admin API commands").toContain(api.status());
 });
 
-test("profile: biber's vCard is read from the LDAP directory", async ({ page }) => {
+test("administrator: biber's vCard is read from the LDAP directory", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   expect(biberDirectoryFullName, "BIBER_DIRECTORY_FULL_NAME must be set").toBeTruthy();
   expect(await adminGetVcardField(page, "FN"), "vCard FN MUST come from LDAP.USER.ATTRIBUTES.FULLNAME").toBe(

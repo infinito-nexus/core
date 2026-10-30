@@ -6,7 +6,7 @@ const {
   performKeycloakLoginExpectingDenial,
   requireDotenvValue,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const {
   APP,
@@ -74,7 +74,7 @@ exports.register = function () {
   });
 
   test("directory login: an account outside the LAM administrator group cannot sign in", async ({ page }) => {
-    test.skip(isServiceEnabled("sso"), "the oauth2-proxy gate refuses biber before the LAM login form is reached");
+    skipUnlessServiceDisabled("sso");
     await page.context().clearCookies();
     await submitLogin(page, BIBER_USERNAME, BIBER_PASSWORD);
     await expect(page.locator("div.statusError"), "the group filter must refuse a non-member").toBeVisible({

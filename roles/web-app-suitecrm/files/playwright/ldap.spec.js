@@ -5,9 +5,9 @@ const {
   decodeDotenvQuoted,
   gotoOnion,
   normalizeBaseUrl,
-  safeIsEnabled,
 } = require("./personas");
 const { holdsAdministration } = require("./saml-login");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -18,8 +18,8 @@ const adminUsername = decodeDotenvQuoted(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuoted(process.env.ADMIN_PASSWORD);
 
 test.beforeEach(async ({ page }) => {
-  test.skip(safeIsEnabled("sso"), "SSO is enabled — templates/env.j2 selects saml, not ldap");
-  test.skip(!safeIsEnabled("ldap"), "LDAP is disabled — AUTH_TYPE is native here");
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();

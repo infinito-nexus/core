@@ -141,11 +141,10 @@ exports.register = function (shared) {
     );
   });
 
-  test("rbac: network-administrator group grants WordPress super-admin and leaving it revokes it (multisite)", async ({
+  test("biber: network-administrator group grants WordPress super-admin and leaving it revokes it (multisite)", async ({
     browser,
   }) => {
     skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
     test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
     test.setTimeout(resolveTimeout(240_000));
     const groupPath = shared.rbacGroupPath({ network: true });
@@ -161,9 +160,8 @@ exports.register = function (shared) {
     });
   });
 
-  test("rbac: per-site editor group grants WordPress Editor on the primary site (multisite)", async ({ browser }) => {
+  test("biber: per-site editor group grants WordPress Editor on the primary site (multisite)", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
     test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
     test.setTimeout(resolveTimeout(240_000));
     const groupPath = shared.rbacGroupPath({ role: "editor", tenant: primaryTenant(shared) });
@@ -189,11 +187,10 @@ exports.register = function (shared) {
     });
   });
 
-  test("rbac: a child site's editor group grants WordPress Editor on that site and on no other site (multisite)", async ({
+  test("biber: a child site's editor group grants WordPress Editor on that site and on no other site (multisite)", async ({
     browser,
   }) => {
     skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
     test.skip(!shared.env.multisiteEnabled, MULTISITE_SKIP_REASON);
     test.setTimeout(resolveTimeout(240_000));
     const { primary, children } = tenants(shared);

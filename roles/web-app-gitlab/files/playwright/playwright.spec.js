@@ -15,6 +15,7 @@ const {
   waitForEmailInMailbox,
   webmailSsoLogin,
 } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -23,7 +24,6 @@ const webmailBaseUrl = normalizeBaseUrl(decodeDotenvQuotedValue(process.env.WEBM
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
-const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -65,7 +65,7 @@ require("./test-design");
 // sign-in is what creates the account, so the persona logs in once before asking.
 test("gitlab: a password-reset request is delivered to the recipient's mailbox", async ({ page }) => {
   test.skip(!safeIsEnabled("email"), "no mail provider in this deploy");
-  test.skip(!ssoEnabled, "the administrator account is created by the first SSO login");
+  skipUnlessServiceEnabled("sso");
   test.skip(!webmailBaseUrl, "the active mail provider serves no webmail vhost to read from");
   expect(adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();

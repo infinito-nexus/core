@@ -1,21 +1,14 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const {
-  decodeDotenvQuotedValue,
-  keycloakAdminAddUserToGroup,
-  keycloakAdminSetUserAttributes,
-  keycloakRemoveUserFromGroupViaRest,
-  normalizeBaseUrl,
-} = require("./personas");
+const { requireDotenvValue, withLdapAttributes, withLdapGroupMember } = require("./personas");
 
 const rbacEnv = {
-  keycloakBaseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
-  realmName: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || ""),
-  superAdminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME || ""),
-  superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD || ""),
-  biberEmail: decodeDotenvQuotedValue(process.env.BIBER_EMAIL || "").toLowerCase(),
-  biberLastname: decodeDotenvQuotedValue(process.env.BIBER_LASTNAME || ""),
-  managerGroup: decodeDotenvQuotedValue(process.env.RBAC_GROUP_MANAGER || ""),
+  biberEmail: requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL").toLowerCase(),
+  biberLastname: requireDotenvValue(process.env.BIBER_LASTNAME, "BIBER_LASTNAME"),
+  biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+  managerGroupDn: requireDotenvValue(process.env.LDAP_MANAGER_GROUP_DN, "LDAP_MANAGER_GROUP_DN"),
+  phoneAttribute: requireDotenvValue(process.env.LDAP_PHONE_ATTRIBUTE, "LDAP_PHONE_ATTRIBUTE"),
+  mobileAttribute: requireDotenvValue(process.env.LDAP_MOBILE_ATTRIBUTE, "LDAP_MOBILE_ATTRIBUTE"),
 };
 
 const LDAP_LOGIN = "/api/method/frappe.integrations.doctype.ldap_settings.ldap_settings.login";
@@ -45,36 +38,6 @@ async function erpnextUser(request, shared, email) {
 
 function roleNames(user) {
   return (user && user.roles ? user.roles : []).map((row) => row.role);
-}
-
-async function withBiberIn(browser, shared, groupPath, body) {
-  const admin = await browser.newContext({ ignoreHTTPSErrors: true });
-  let joined = false;
-  try {
-    joined = await keycloakAdminAddUserToGroup(
-      admin.request,
-      rbacEnv.keycloakBaseUrl,
-      rbacEnv.realmName,
-      groupPath,
-      shared.env.biberUsername,
-      rbacEnv.superAdminUsername,
-      rbacEnv.superAdminPassword,
-    );
-    await body(admin.request);
-  } finally {
-    if (joined) {
-      await keycloakRemoveUserFromGroupViaRest(
-        admin.request,
-        rbacEnv.keycloakBaseUrl,
-        rbacEnv.realmName,
-        rbacEnv.superAdminUsername,
-        rbacEnv.superAdminPassword,
-        groupPath,
-        shared.env.biberUsername,
-      ).catch((err) => console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`));
-    }
-    await admin.close().catch(() => {});
-  }
 }
 
 exports.register = function (shared) {
@@ -115,21 +78,11 @@ exports.register = function (shared) {
 
     test("biber: LDAP sign-in with the manager group syncs the roles and the directory profile", async ({ browser }) => {
       shared.skipUnlessServiceEnabled("ldap");
-      shared.skipUnlessServiceEnabled("sso");
       test.setTimeout(resolveTimeout(300_000)); // attribute and group writes to the directory, bind, API read and teardown
 
-      await withBiberIn(browser, shared, rbacEnv.managerGroup, async (request) => {
-        let previous = null;
-        try {
-          previous = await keycloakAdminSetUserAttributes(
-            request,
-            rbacEnv.keycloakBaseUrl,
-            rbacEnv.realmName,
-            shared.env.biberUsername,
-            { phoneNumber: "+49 30 1112223", phoneNumberAlt: "+49 170 4445556" },
-            rbacEnv.superAdminUsername,
-            rbacEnv.superAdminPassword,
-          );
+      const profile = { [rbacEnv.phoneAttribute]: "+49 30 1112223", [rbacEnv.mobileAttribute]: "+49 170 4445556" };
+      await withLdapGroupMember(rbacEnv.managerGroupDn, rbacEnv.biberDn, () =>
+        withLdapAttributes(rbacEnv.biberDn, profile, async () => {
           const context = await browser.newContext({ ignoreHTTPSErrors: true });
           try {
             const response = await context.request.post(`${shared.env.erpnextBaseUrl}${LDAP_LOGIN}`, {
@@ -148,23 +101,11 @@ exports.register = function (shared) {
             expect(roleNames(user), "the manager group must grant Sales User").toContain("Sales User");
             expect(roleNames(user), "the manager group must not grant System Manager").not.toContain("System Manager");
             expect(user.last_name, "the directory surname must land in the last name").toBe(rbacEnv.biberLastname);
-            expect(user.phone, "the directory telephoneNumber must land in the phone").toBe("+49 30 1112223");
-            expect(user.mobile_no, "the directory mobile must land in the mobile number").toBe("+49 170 4445556");
+            expect(user.phone, `the directory ${rbacEnv.phoneAttribute} must land in the phone`).toBe("+49 30 1112223");
+            expect(user.mobile_no, `the directory ${rbacEnv.mobileAttribute} must land in the mobile number`).toBe("+49 170 4445556");
           });
-        } finally {
-          if (previous) {
-            await keycloakAdminSetUserAttributes(
-              request,
-              rbacEnv.keycloakBaseUrl,
-              rbacEnv.realmName,
-              shared.env.biberUsername,
-              previous,
-              rbacEnv.superAdminUsername,
-              rbacEnv.superAdminPassword,
-            ).catch((err) => console.warn(`Restoring biber's attributes failed: ${err}`));
-          }
-        }
-      });
+        }),
+      );
     });
   });
 };

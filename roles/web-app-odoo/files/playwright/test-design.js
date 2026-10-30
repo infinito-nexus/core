@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -444,7 +444,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surfaces, text and primary action from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the native form stays hidden behind the provider list when sso is on");
+    skipUnlessServiceDisabled("sso");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await openLogin(page);

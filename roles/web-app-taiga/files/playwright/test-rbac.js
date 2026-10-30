@@ -1,5 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue, withLdapGroupMember } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
+
+const directory = {
+  biberDn: decodeDotenvQuotedValue(process.env.BIBER_LDAP_DN),
+  userGroupDn: decodeDotenvQuotedValue(process.env.LDAP_USER_GROUP_DN),
+};
 
 const KEYCLOAK_LOCALE_ATTRIBUTE = "locale";
 const KEYCLOAK_ZONEINFO_ATTRIBUTE = "zoneinfo";
@@ -8,7 +15,9 @@ const PROFILE_TIMEZONE = "Europe/Berlin";
 
 function skipUnlessOidcRbac(shared) {
   shared.skipUnlessServiceEnabled("sso");
+  // nocheck: playwright-sso-ldap-gate -- SSO_FLAVOR picks the taiga-oidc backend inside the canonical sso gate above; the flavor is no service flag
   test.skip(!shared.env.taigaOidcEnabled, "SSO_FLAVOR is not oidc; the taiga-oidc backend owns the group gate");
+  // nocheck: playwright-sso-ldap-gate -- TAIGA_OIDC_PLUGIN_RBAC is a capability flag of the pinned taiga-oidc ref, no service flag
   test.skip(
     !shared.env.pluginRbac,
     "TAIGA_OIDC_PLUGIN_RBAC=false; the pinned taiga-oidc ref does not gate or map the groups claim yet"
@@ -134,45 +143,38 @@ exports.register = function (shared) {
 
   test("biber: ldap login without a taiga role group is refused", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.skip(
-      shared.env.taigaOauth2Enabled || shared.env.taigaOidcEnabled,
-      "SSO_SERVICE_ENABLED=true; Taiga hides its LDAP form while SSO owns the login"
-    );
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000));
 
     await shared.expectTaigaNativeLoginRefused(page, shared.env.biberUsername, shared.env.biberPassword);
   });
 
   test("biber: ldap backend refuses biber without a role group and admits it with the user group", async ({
-    browser,
     request,
   }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(180_000));
 
     const refused = await shared.taigaLdapLogin(request, shared.env.biberUsername, shared.env.biberPassword);
     expect(refused.status, "The LDAP backend MUST refuse biber without a Taiga role group").not.toBe(200);
     expect(refused.authToken, "A refused LDAP login MUST NOT carry a Taiga auth token").toBeNull();
 
-    await shared.withBiberInGroup(browser, shared.env.userGroupPath, async () => {
+    await withLdapGroupMember(directory.userGroupDn, directory.biberDn, async () => {
       const admitted = await shared.taigaLdapLogin(request, shared.env.biberUsername, shared.env.biberPassword);
-      expect(admitted.status, `The LDAP backend MUST admit biber in ${shared.env.userGroupPath}`).toBe(200);
+      expect(admitted.status, `The LDAP backend MUST admit biber in ${directory.userGroupDn}`).toBe(200);
       expect(admitted.authToken, "An admitted LDAP login MUST carry a Taiga auth token").toBeTruthy();
     });
   });
 
   test("administrator: ldap login of the administrator role member holds taiga superuser and biber in the user group does not", async ({
-    browser,
     request,
   }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(180_000)); // two LDAP logins around one Keycloak group change and its teardown
+    test.setTimeout(resolveTimeout(180_000)); // two LDAP logins around one directory group change and its teardown
 
-    await shared.withBiberInGroup(browser, shared.env.userGroupPath, async () => {
+    await withLdapGroupMember(directory.userGroupDn, directory.biberDn, async () => {
       const biber = await shared.taigaLdapLogin(request, shared.env.biberUsername, shared.env.biberPassword);
-      expect(biber.authToken, `The LDAP backend MUST admit biber in ${shared.env.userGroupPath}`).toBeTruthy();
+      expect(biber.authToken, `The LDAP backend MUST admit biber in ${directory.userGroupDn}`).toBeTruthy();
       const administrator = await shared.taigaLdapLogin(request, shared.env.adminUsername, shared.env.adminPassword);
       expect(administrator.authToken, "The LDAP backend MUST admit the administrator role member").toBeTruthy();
 

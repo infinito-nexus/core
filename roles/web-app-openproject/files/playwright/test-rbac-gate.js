@@ -3,16 +3,19 @@ const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled, skipUnlessServiceDisabled } = require("./service-gating");
 const { skipUnlessAddonEnabled } = require("./addon-gating");
 const {
+  assertUnauthenticatedLanding,
   decodeDotenvQuotedValue,
   gotoOnion,
+  inAppLogout,
   keycloakAdminAddUserToGroup,
   keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
   performKeycloakLoginExpectingDenial,
   performKeycloakLoginForm,
   requireDotenvValue,
+  withLdapGroupMember,
 } = require("./personas");
-const { withAdminSession } = require("./_shared");
+const { openManagementSurface, withAdminSession } = require("./_shared");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -30,6 +33,8 @@ const env = {
   adminUsername: requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"),
   gitlabBotUsername: requireDotenvValue(process.env.GITLAB_BOT_USERNAME, "GITLAB_BOT_USERNAME"),
   userGroupPath: decodeDotenvQuotedValue(process.env.RBAC_USER_GROUP_PATH),
+  biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+  userGroupDn: requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN"),
 };
 
 async function usersCollectionStatus(page) {
@@ -109,7 +114,7 @@ test("rbac: biber without an OpenProject role is denied at the oauth2-proxy gate
   ).toBe(false);
 });
 
-test("rbac: biber in the user group signs in to OpenProject without administrator rights", async ({ browser }) => {
+test("biber: in the user group, signs in to OpenProject over SSO without administrator rights", async ({ browser }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("ldap");
   await withBiberInUserGroup(browser, async () => {
@@ -143,7 +148,7 @@ test("rbac: biber in the user group signs in to OpenProject without administrato
   });
 });
 
-test("rbac: the LDAP login refuses biber without an OpenProject role", async ({ page }) => {
+test("biber: the LDAP login refuses biber without an OpenProject role", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   await page.context().clearCookies();
@@ -164,6 +169,39 @@ test("rbac: the LDAP login refuses biber without an OpenProject role", async ({ 
     String(me.user.login || "").toLowerCase(),
     `a refused LDAP login must not leave an OpenProject session (got ${me.status}: ${me.body.slice(0, 200)})`,
   ).not.toBe(env.biberUsername.toLowerCase());
+});
+
+test("biber: the LDAP login admits biber in the user group without administrator rights", async ({ page }) => {
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
+  test.setTimeout(resolveTimeout(180_000)); // directory group change, LDAP sign-in with on-the-fly registration and sign-out
+  await withLdapGroupMember(env.userGroupDn, env.biberDn, async () => {
+    await page.context().clearCookies();
+    await gotoOnion(page, `${env.baseUrl}/login`);
+    const username = page.locator("#login-form input#username");
+    const password = page.locator("#login-form input#password");
+    await expect(username).toBeEditable({ timeout: resolveTimeout(30_000) });
+    await username.fill(env.biberUsername);
+    await password.fill(env.biberPassword);
+    await page.locator("#login-form [type='submit']").first().click();
+    await expect(
+      page.locator("header.op-app-header"),
+      "the LDAP filter_string must admit a directory user in the user role group",
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
+
+    const me = await currentUser(page);
+    expect(me.status, `the LDAP login must give biber a session, got ${me.status}: ${me.body.slice(0, 300)}`).toBe(200);
+    expect(String(me.user.login || "").toLowerCase()).toBe(env.biberUsername.toLowerCase());
+    expect(me.user.admin, "a user-group member must not hold the OpenProject admin flag").not.toBe(true);
+    expect(
+      await usersCollectionStatus(page),
+      "a user-group member must not reach the administrator-only user collection",
+    ).toBe(403);
+
+    await openManagementSurface(page);
+    await inAppLogout(page);
+    await assertUnauthenticatedLanding(page, env.baseUrl);
+  });
 });
 
 test("rbac: the administrator holds OpenProject administrator rights", async ({ page }) => {

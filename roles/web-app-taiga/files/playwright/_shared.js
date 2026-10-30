@@ -738,7 +738,7 @@ async function logoutFromTaigaNative(page, session) {
 }
 
 module.exports = {
-  env: { taigaOauth2Enabled, taigaOidcEnabled, ...rbacEnv },
+  env: { taigaOidcEnabled, ...rbacEnv },
   skipUnlessServiceEnabled,
   loginToTaiga,
   loginToTaigaAs,

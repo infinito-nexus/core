@@ -3,9 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
-  test("administrator: administrator role member reaches the Friendica admin panel", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    const login = shared.pickLoginPath();
+  async function adminReachesPanel(page, login) {
     await login(page, shared.env.adminUsername, shared.env.adminPassword);
 
     const response = await gotoOnion(page, `${shared.trimmedBaseUrl()}/admin`, { waitUntil: "domcontentloaded" });
@@ -17,11 +15,9 @@ exports.register = function (shared) {
     await expect(page.locator("#adminpage").first()).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     await shared.friendicaLogout(page);
-  });
+  }
 
-  test("biber: Friendica refuses the admin panel to a user outside the administrator role", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    const login = shared.pickLoginPath();
+  async function biberIsRefusedThePanel(page, login) {
     await login(page, shared.env.biberUsername, shared.env.biberPassword);
 
     const response = await gotoOnion(page, `${shared.trimmedBaseUrl()}/admin`, { waitUntil: "domcontentloaded" });
@@ -30,5 +26,29 @@ exports.register = function (shared) {
     await expect(page.locator("#adminpage")).toHaveCount(0);
 
     await shared.friendicaLogout(page);
+  }
+
+  test("administrator: administrator role member reaches the Friendica admin panel", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceDisabled("sso");
+    await adminReachesPanel(page, shared.loginViaFriendicaDirect);
+  });
+
+  test("administrator: administrator role member reaches the Friendica admin panel behind oauth2-proxy and Keycloak", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceEnabled("sso");
+    await adminReachesPanel(page, shared.loginViaOauth2ProxyAndFriendica);
+  });
+
+  test("biber: Friendica refuses the admin panel to a user outside the administrator role", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceDisabled("sso");
+    await biberIsRefusedThePanel(page, shared.loginViaFriendicaDirect);
+  });
+
+  test("biber: Friendica refuses the admin panel to a user outside the administrator role behind oauth2-proxy and Keycloak", async ({ page }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceEnabled("sso");
+    await biberIsRefusedThePanel(page, shared.loginViaOauth2ProxyAndFriendica);
   });
 };

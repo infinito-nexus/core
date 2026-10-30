@@ -1,18 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, keycloakAdminSetUserAttributes, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, requireDotenvValue, withLdapAttributes } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const DIRECTORY_MANAGED_FIELDS = ["phone", "website", "address", "organisation", "role", "biography"];
-const KEYCLOAK_PHONE_ATTRIBUTE = "phoneNumber";
 
 const env = {
-  keycloakBaseUrl: normalizeBaseUrl(decodeDotenvQuotedValue(process.env.KEYCLOAK_BASE_URL) || ""),
-  realmName: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
-  adminRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM),
-  adminClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
-  superAdminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME),
-  superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
+  biberDn: decodeDotenvQuotedValue(process.env.BIBER_LDAP_DN),
+  phoneAttribute: requireDotenvValue(process.env.LDAP_PHONE_ATTRIBUTE, "LDAP_PHONE_ATTRIBUTE"),
   ldapCacheTtlSeconds: Number(decodeDotenvQuotedValue(process.env.NEXTCLOUD_LDAP_CACHE_TTL)),
 };
 
@@ -51,30 +46,15 @@ exports.register = function (shared) {
     }
   });
 
-  test("biber: a phone number changed in Keycloak reaches Nextcloud on the next directory password login", async ({ browser, request }) => {
-    skipUnlessServiceEnabled("sso");
+  test("biber: a phone number changed in the directory reaches Nextcloud on the next directory password login", async ({ request }) => {
     skipUnlessServiceEnabled("ldap");
     expect(env.ldapCacheTtlSeconds, "NEXTCLOUD_LDAP_CACHE_TTL must be a number of seconds").toBeGreaterThan(0);
     const refreshBudgetMs = (env.ldapCacheTtlSeconds + 90) * 1000;
-    test.setTimeout(refreshBudgetMs + resolveTimeout(120_000)); // the LDAP cache TTL of user_ldap plus one Keycloak attribute write and restore
+    test.setTimeout(refreshBudgetMs + resolveTimeout(120_000)); // the LDAP cache TTL of user_ldap plus one directory attribute write and restore
 
     const phone = `+49301${String(Date.now()).slice(-6)}`;
     const basic = Buffer.from(`${shared.env.biberUsername}:${shared.env.biberPassword}`).toString("base64");
-    const adminOpts = { adminRealm: env.adminRealm, adminClientId: env.adminClientId };
-    const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
-    let previous = null;
-    try {
-      previous = await keycloakAdminSetUserAttributes(
-        adminContext.request,
-        env.keycloakBaseUrl,
-        env.realmName,
-        shared.env.biberUsername,
-        { [KEYCLOAK_PHONE_ATTRIBUTE]: phone },
-        env.superAdminUsername,
-        env.superAdminPassword,
-        adminOpts,
-      );
-
+    await withLdapAttributes(env.biberDn, { [env.phoneAttribute]: phone }, async () => {
       await expect
         .poll(
           async () => {
@@ -90,24 +70,10 @@ exports.register = function (shared) {
           {
             timeout: refreshBudgetMs,
             intervals: [5_000],
-            message: "a password login of biber against the directory must copy the changed telephoneNumber onto the Nextcloud profile",
+            message: `a password login of biber against the directory must copy the changed ${env.phoneAttribute} onto the Nextcloud profile`,
           },
         )
         .toBe(phone);
-    } finally {
-      if (previous) {
-        await keycloakAdminSetUserAttributes(
-          adminContext.request,
-          env.keycloakBaseUrl,
-          env.realmName,
-          shared.env.biberUsername,
-          previous,
-          env.superAdminUsername,
-          env.superAdminPassword,
-          adminOpts,
-        ).catch((err) => console.warn(`Restoring biber's phone number failed: ${err}`));
-      }
-      await adminContext.close().catch(() => {});
-    }
+    });
   });
 };

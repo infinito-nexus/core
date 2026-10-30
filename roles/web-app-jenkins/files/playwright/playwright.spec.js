@@ -43,7 +43,7 @@ test("OIDC: oic-auth plugin redirects unauthenticated visitors through Keycloak 
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
-test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1)", async ({ page }) => {
+test("administrator: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   const expectedBase = baseUrl.replace(/\/$/, "");

@@ -58,47 +58,4 @@ async function withBiberInGroup(browser, groupPath, fn) {
   }
 }
 
-/**
- * Set Keycloak attributes on biber for the duration of `fn`, restoring the
- * previous values afterwards.
- *
- * Args:
- *   browser: the Playwright browser, used for an isolated admin context.
- *   attributes: mapping of Keycloak attribute name to the value to set.
- *   fn: async body executed while the attributes hold.
- */
-async function withBiberAttributes(browser, attributes, fn) {
-  const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
-  let previous = null;
-  try {
-    previous = await keycloakAdmin.keycloakAdminSetUserAttributes(
-      adminCtx.request,
-      keycloakEnv.keycloakBaseUrl,
-      keycloakEnv.realmName,
-      keycloakEnv.biberUsername,
-      attributes,
-      keycloakEnv.superAdminUsername,
-      keycloakEnv.superAdminPassword,
-      adminOpts(),
-    );
-    return await fn();
-  } finally {
-    if (previous !== null) {
-      await keycloakAdmin
-        .keycloakAdminSetUserAttributes(
-          adminCtx.request,
-          keycloakEnv.keycloakBaseUrl,
-          keycloakEnv.realmName,
-          keycloakEnv.biberUsername,
-          previous,
-          keycloakEnv.superAdminUsername,
-          keycloakEnv.superAdminPassword,
-          adminOpts(),
-        )
-        .catch((err) => console.warn(`Restoring biber's Keycloak attributes failed: ${err}`));
-    }
-    await adminCtx.close().catch(() => {});
-  }
-}
-
-module.exports = { withBiberAttributes, withBiberInGroup };
+module.exports = { withBiberInGroup };

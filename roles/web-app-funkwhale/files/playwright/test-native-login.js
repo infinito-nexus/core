@@ -9,11 +9,11 @@ const {
   requireDotenvValue,
 } = require("./personas");
 const { performKeycloakLoginForm } = require("./personas/utils/keycloak");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
-const ldapEnabled = (process.env.LDAP_SERVICE_ENABLED || "").toLowerCase() === "true";
-const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
+const ssoEnabled = isServiceEnabled("sso");
 
 const PERSONAS = [
   {
@@ -42,10 +42,7 @@ const backOnApp = (page) => hostOf(page) === canonicalDomain && !isAuthChain(pag
 
 for (const persona of PERSONAS) {
   test(`${persona.label}: native sign-in → authenticated surface → sign-out`, async ({ page }) => {
-    test.skip(
-      !ldapEnabled,
-      "LDAP_SERVICE_ENABLED=false: tasks/main.yml provisions no local Funkwhale account, so no persona can sign in.",
-    );
+    skipUnlessServiceEnabled("ldap");
     test.setTimeout(resolveTimeout(180_000));
 
     expect(persona.username, `${persona.label} username must be set`).toBeTruthy();

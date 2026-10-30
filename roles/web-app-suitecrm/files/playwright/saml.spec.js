@@ -10,6 +10,7 @@ const {
   safeIsEnabled,
 } = require("./personas");
 const { holdsAdministration, rbacGroups, samlLogin, withUserInGroups } = require("./saml-login");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -21,7 +22,7 @@ const adminUsername = decodeDotenvQuoted(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuoted(process.env.ADMIN_PASSWORD);
 
 test.beforeEach(async ({ page }) => {
-  test.skip(!safeIsEnabled("sso"), "SSO is disabled — SuiteCRM does not speak SAML here");
+  skipUnlessServiceEnabled("sso");
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();

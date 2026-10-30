@@ -82,12 +82,9 @@ exports.register = function (shared) {
     }
   });
 
-  test("rbac: the LDAP admin filter signs the administrator group member in as Jellyfin administrator and biber without the flag", async ({ browser }) => {
+  test("administrator: the LDAP admin filter signs the administrator group member in as Jellyfin administrator and biber without the flag", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.skip(
-      shared.env.ssoEnabled === true,
-      "SSO is active: biber is OIDC-bound; the LDAP admin filter runs in the ldap-only variant",
-    );
+    shared.skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000));
     const { env } = shared;
     expect(env.ldapAdminUsername, "LDAP_ADMIN_USERNAME must be set").toBeTruthy();

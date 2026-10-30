@@ -36,4 +36,7 @@ RBAC is not feasible beyond the group gate: Postmarks has no in-app authorisatio
 
 ## Persona contract opt-outs
 
-The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive. `biber` is blocked in every variant — the oauth2-proxy admits only the application's administrator RBAC group and the bridge re-checks `X-Forwarded-Groups`, so `biber` is denied before Postmarks is reached, and with SSO off the only credential left belongs to no user account.
+The persona flags are declared in [templates/playwright.env.j2](./templates/playwright.env.j2). `administrator` is blocked only in the `sso: false` variants: as described above, Postmarks' sole native credential is the single shared `ADMIN_KEY` password form, which is not the Keycloak administrator secret the persona types, so without the trusted-header bridge there is no admin login to drive.
+
+`biber` runs in [files/playwright/test-biber-persona.js](./files/playwright/test-biber-persona.js) while `sso` is enabled and is skipped with `SSO_SERVICE_ENABLED=false`, where the only credential left belongs to no user account.
+The oauth2-proxy admits only the application's administrator RBAC group, so the scenario asserts that `biber` is refused with a 403 at `/oauth2/callback`, stays on that refusal and receives no Postmarks `connect.sid` session.

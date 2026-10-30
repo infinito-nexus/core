@@ -10,14 +10,13 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLogin } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { isSplitRealmOidc, resolveTimeout } = require("./timeouts");
 
 const READY_MS = 10_000;
 const MODES = ["light", "dark"];
 const LIST_CELL = "table.listingTable > tbody > tr td";
 const HEADER_LOGIN = isServiceEnabled("sso");
-const NO_LOGIN_FORM = "the header login signs the oauth2-proxy identity in without a login form";
 
 function env(name) {
   return decodeDotenvQuotedValue(process.env[name] || "");
@@ -36,7 +35,9 @@ async function restMouse(page) {
 }
 
 async function passGate(page) {
-  test.skip(isServiceEnabled("sso") && isSplitRealmOidc(), "split-realm OIDC");
+  if (isSplitRealmOidc()) {
+    skipUnlessServiceDisabled("sso");
+  }
   await gotoOnion(page, `${base()}/index.php`);
   if (isServiceEnabled("sso") && (await page.locator("#kc-form-login").isVisible())) {
     await performKeycloakLogin(page, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"), env("CANONICAL_DOMAIN"));
@@ -45,7 +46,7 @@ async function passGate(page) {
 }
 
 async function openLogin(page) {
-  test.skip(HEADER_LOGIN, NO_LOGIN_FORM);
+  skipUnlessServiceDisabled("sso");
   await passGate(page);
   await ready(page, "#loginform input#username");
 }

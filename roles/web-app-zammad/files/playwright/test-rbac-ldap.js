@@ -5,21 +5,13 @@ const {
   apiGetOnion,
   decodeDotenvQuotedValue,
   gotoOnion,
-  normalizeBaseUrl,
+  requireDotenvValue,
+  withLdapAttributes,
+  withLdapGroupMember,
 } = require("./personas");
-const keycloakAdmin = require("./personas/utils/keycloak");
 
-const keycloak = {
-  baseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
-  realm: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
-  adminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME),
-  adminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
-  opts: {
-    adminRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM),
-    adminClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
-  },
-};
-const agentGroupPath = decodeDotenvQuotedValue(process.env.RBAC_AGENT_GROUP_PATH);
+const biberDn = decodeDotenvQuotedValue(process.env.BIBER_LDAP_DN);
+const agentGroupDn = decodeDotenvQuotedValue(process.env.LDAP_AGENT_GROUP_DN);
 const biberFirstname = decodeDotenvQuotedValue(process.env.BIBER_FIRSTNAME);
 const biberLastname = decodeDotenvQuotedValue(process.env.BIBER_LASTNAME);
 
@@ -138,114 +130,70 @@ exports.register = function (shared) {
     }
   });
 
-  test("biber: Keycloak profile attributes and the agent role group reach Zammad through the LDAP import", async ({ page, browser }) => {
-    shared.skipUnlessServiceEnabled("sso");
+  test("biber: directory profile attributes and the agent role group reach Zammad through the LDAP import", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.setTimeout(resolveTimeout(900_000)); // two LDAP import jobs, each possibly queued behind a scheduler import, plus one OIDC round-trip
+    test.setTimeout(resolveTimeout(900_000)); // two LDAP import jobs, each possibly queued behind a scheduler import, plus one directory sign-in
 
+    const ldapAttributeByField = Object.fromEntries(
+      Object.entries(JSON.parse(requireDotenvValue(process.env.ZAMMAD_LDAP_USER_ATTRIBUTES, "ZAMMAD_LDAP_USER_ATTRIBUTES"))).map(
+        ([attribute, field]) => [field, attribute],
+      ),
+    );
     const suffix = String(Date.now()).slice(-6);
-    const profile = {
-      phoneNumber: `+4930${suffix}`,
-      phoneNumberAlt: `+49170${suffix}`,
+    const expected = {
+      phone: `+4930${suffix}`,
+      mobile: `+49170${suffix}`,
       department: `Helpdesk ${suffix}`,
       street: `Teststrasse ${suffix}`,
-      postal_code: suffix.slice(0, 5),
-      locality: `Berlin ${suffix}`,
+      zip: suffix.slice(0, 5),
+      city: `Berlin ${suffix}`,
       country: "NL",
-      description: `Zammad note ${suffix}`,
     };
-    const expected = {
-      phone: profile.phoneNumber,
-      mobile: profile.phoneNumberAlt,
-      department: profile.department,
-      street: profile.street,
-      zip: profile.postal_code,
-      city: profile.locality,
-      country: profile.country,
-    };
+    const note = `Zammad note ${suffix}`;
+    const attributes = Object.fromEntries(
+      Object.entries({ ...expected, note }).map(([field, value]) => {
+        expect(ldapAttributeByField[field], `ZAMMAD_LDAP_USER_ATTRIBUTES must map a directory attribute onto ${field}`).toBeTruthy();
+        return [ldapAttributeByField[field], value];
+      }),
+    );
 
-    const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
     const api = await zammadApi();
-    let previous = null;
-    let joined = false;
+    let imported = false;
     try {
-      previous = await keycloakAdmin.keycloakAdminSetUserAttributes(
-        adminCtx.request,
-        keycloak.baseUrl,
-        keycloak.realm,
-        shared.env.biberUsername,
-        profile,
-        keycloak.adminUsername,
-        keycloak.adminPassword,
-        keycloak.opts,
-      );
-      joined = await keycloakAdmin.keycloakAdminAddUserToGroup(
-        adminCtx.request,
-        keycloak.baseUrl,
-        keycloak.realm,
-        agentGroupPath,
-        shared.env.biberUsername,
-        keycloak.adminUsername,
-        keycloak.adminPassword,
-        keycloak.opts,
-      );
-
-      await runLdapImport(api);
-      const biberId = await findUserId(api, shared.env.biberUsername);
-      const account = await readUser(api, biberId);
-      expect(
-        Object.fromEntries(Object.keys(expected).map((key) => [key, account[key]])),
-        "the LDAP import must copy telephoneNumber, mobile, ou, street, postalCode, l and c onto the Zammad user",
-      ).toEqual(expected);
-      expect(account.note, "the LDAP import must copy description into the Zammad note").toContain(profile.description);
-      expect(account.roles, `membership in ${agentGroupPath} must map onto the Zammad Agent role`).toEqual(["Agent"]);
-
-      await shared.signInViaZammadOidc(page, shared.env.biberUsername, shared.env.biberPassword, "biber");
-      await gotoOnion(page, `${baseUrl}/#user/profile/${biberId}`, { waitUntil: "domcontentloaded" });
-      await expect(page.locator("body"), "the agent biber must see its phone number on its Zammad profile").toContainText(
-        profile.phoneNumber,
-        { timeout: resolveTimeout(60_000) },
-      );
-      await expect(page.locator("body"), "the agent biber must see its department on its Zammad profile").toContainText(
-        profile.department,
-        { timeout: resolveTimeout(60_000) },
-      );
-      await shared.zammadLogout(page);
-    } finally {
-      const cleanup = async () => {
-        if (previous) {
-          await keycloakAdmin.keycloakAdminSetUserAttributes(
-            adminCtx.request,
-            keycloak.baseUrl,
-            keycloak.realm,
-            shared.env.biberUsername,
-            previous,
-            keycloak.adminUsername,
-            keycloak.adminPassword,
-            keycloak.opts,
-          );
-        }
-        if (joined) {
-          await keycloakAdmin.keycloakRemoveUserFromGroupViaRest(
-            adminCtx.request,
-            keycloak.baseUrl,
-            keycloak.realm,
-            keycloak.adminUsername,
-            keycloak.adminPassword,
-            agentGroupPath,
-            shared.env.biberUsername,
-            keycloak.opts,
-          );
-        }
-        if (previous || joined) {
+      await withLdapGroupMember(agentGroupDn, biberDn, () =>
+        withLdapAttributes(biberDn, attributes, async () => {
+          imported = true;
           await runLdapImport(api);
-        }
-      };
-      await withDeadline(cleanup(), resolveTimeout(420_000), "restoring biber in Keycloak and Zammad").catch((err) =>
-        console.warn(`Cleanup of biber's Zammad profile and agent group failed: ${err}`),
+          const biberId = await findUserId(api, shared.env.biberUsername);
+          const account = await readUser(api, biberId);
+          expect(
+            Object.fromEntries(Object.keys(expected).map((key) => [key, account[key]])),
+            `the LDAP import must copy ${Object.keys(attributes).join(", ")} onto the Zammad user`,
+          ).toEqual(expected);
+          expect(account.note, "the LDAP import must copy the directory description into the Zammad note").toContain(note);
+          expect(account.roles, `membership in ${agentGroupDn} must map onto the Zammad Agent role`).toEqual(["Agent"]);
+
+          const signin = await shared.signInWithZammadPassword(page, shared.env.biberUsername, shared.env.biberPassword);
+          expect(signin.ok(), `biber must sign in to Zammad with its directory password, got ${signin.status()}`).toBe(true);
+          await gotoOnion(page, `${baseUrl}/#user/profile/${biberId}`, { waitUntil: "domcontentloaded" });
+          await expect(page.locator("body"), "the agent biber must see its phone number on its Zammad profile").toContainText(
+            expected.phone,
+            { timeout: resolveTimeout(60_000) },
+          );
+          await expect(page.locator("body"), "the agent biber must see its department on its Zammad profile").toContainText(
+            expected.department,
+            { timeout: resolveTimeout(60_000) },
+          );
+          await shared.zammadLogout(page);
+        }),
       );
+    } finally {
+      if (imported) {
+        await withDeadline(runLdapImport(api), resolveTimeout(420_000), "re-importing biber after the directory restore").catch(
+          (err) => console.warn(`Cleanup of biber's Zammad profile and agent group failed: ${err}`),
+        );
+      }
       await api.dispose().catch(() => {});
-      await adminCtx.close().catch(() => {});
     }
   });
 };

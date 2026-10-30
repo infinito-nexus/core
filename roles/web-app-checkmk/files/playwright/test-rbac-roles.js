@@ -7,8 +7,11 @@ const {
   normalizeBaseUrl,
   performKeycloakLoginExpectingDenial,
   performKeycloakLoginForm,
+  requireDotenvValue,
+  withLdapAttributes,
+  withLdapGroupMember,
 } = require("./personas");
-const { withBiberAttributes, withBiberInGroup } = require("./_rbac");
+const { withBiberInGroup } = require("./_rbac");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -22,14 +25,16 @@ const env = {
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   userGroupPath: decodeDotenvQuotedValue(process.env.RBAC_USER_GROUP_PATH),
   guestGroupPath: decodeDotenvQuotedValue(process.env.RBAC_GUEST_GROUP_PATH),
+  biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+  userGroupDn: requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN"),
+  guestGroupDn: requireDotenvValue(process.env.LDAP_GUEST_GROUP_DN, "LDAP_GUEST_GROUP_DN"),
+  phoneAttribute: requireDotenvValue(process.env.LDAP_PHONE_ATTRIBUTE, "LDAP_PHONE_ATTRIBUTE"),
 };
 
 const ROLE_TIERS = [
-  { groupPath: () => env.guestGroupPath, alias: "Guest user" },
-  { groupPath: () => env.userGroupPath, alias: "Normal monitoring user" },
+  { groupPath: () => env.guestGroupPath, groupDn: () => env.guestGroupDn, alias: "Guest user" },
+  { groupPath: () => env.userGroupPath, groupDn: () => env.userGroupDn, alias: "Normal monitoring user" },
 ];
-
-const PHONE_ATTRIBUTE = "phoneNumber";
 
 /**
  * Sign in through the oauth2-proxy gate and wait for the Checkmk GUI.
@@ -117,7 +122,8 @@ async function syncUntilRowShows(page, username, expected) {
 }
 
 /**
- * Run `fn` with a fresh page logged in as the platform administrator.
+ * Run `fn` with a fresh page signed in as the platform administrator through
+ * the Checkmk LDAP login form.
  *
  * Args:
  *   browser: the Playwright browser, used for an isolated context.
@@ -127,7 +133,7 @@ async function withAdministrator(browser, fn) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
     const page = await ctx.newPage();
-    await loginThroughGate(page, env.adminUsername, env.adminPassword);
+    await loginThroughForm(page, env.adminUsername, env.adminPassword);
     return await fn(page);
   } finally {
     await ctx.close().catch(() => {});
@@ -152,7 +158,25 @@ async function submitLoginForm(page, username, password) {
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) });
 }
 
-test("rbac: the LDAP login form refuses biber without a Checkmk role group", async ({ page }) => {
+/**
+ * Sign in through the Checkmk LDAP login form and wait for the Checkmk GUI.
+ *
+ * Args:
+ *   page: the Playwright page to drive.
+ *   username: the directory login name.
+ *   password: the directory password.
+ */
+async function loginThroughForm(page, username, password) {
+  await submitLoginForm(page, username, password);
+  await expect
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected ${username} to leave the login page` })
+    .not.toContain("login.py");
+  await expect(page.locator("body")).toContainText(/checkmk|dashboard|monitor|overview/i, {
+    timeout: resolveTimeout(60_000),
+  });
+}
+
+test("biber: the LDAP login form refuses biber without a Checkmk role group", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   await submitLoginForm(page, env.biberUsername, env.biberPassword);
@@ -166,7 +190,7 @@ test("rbac: the LDAP login form refuses biber without a Checkmk role group", asy
   ).toBe(false);
 });
 
-test("rbac: the LDAP login form admits the administrator group member", async ({ page }) => {
+test("administrator: the LDAP login form admits the administrator group member", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   await submitLoginForm(page, env.adminUsername, env.adminPassword);
@@ -194,26 +218,41 @@ test("rbac: biber without a Checkmk role group is refused by the oauth2-proxy ga
   ).toBe(false);
 });
 
-test("rbac: the administrator group member holds the Checkmk Administrator role", async ({ browser }) => {
-  skipUnlessServiceEnabled("sso");
+test("administrator: the administrator group member holds the Checkmk Administrator role", async ({ browser }) => {
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(resolveTimeout(420_000)); // gate login, up to three minutes for the first LDAP sync, then the sync polling
+  skipUnlessServiceDisabled("sso");
+  test.setTimeout(resolveTimeout(420_000)); // form login, up to three minutes for the first LDAP sync, then the sync polling
   await withAdministrator(browser, async (page) => {
     await syncUntilRowShows(page, env.adminUsername, "Administrator");
   });
 });
 
 for (const tier of ROLE_TIERS) {
-  test(`rbac: membership in the role group behind "${tier.alias}" admits biber with that Checkmk role`, async ({
+  test(`biber: membership in the role group behind "${tier.alias}" admits biber through the oauth2-proxy gate`, async ({
     browser,
   }) => {
     skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
-    test.setTimeout(resolveTimeout(480_000)); // two gate logins, the LDAP sync job and the user-list polling
+    test.setTimeout(resolveTimeout(180_000)); // Keycloak group change around one oauth2-proxy + Keycloak round-trip
     await withBiberInGroup(browser, tier.groupPath(), async () => {
       const biberCtx = await browser.newContext({ ignoreHTTPSErrors: true });
       try {
         await loginThroughGate(await biberCtx.newPage(), env.biberUsername, env.biberPassword);
+      } finally {
+        await biberCtx.close().catch(() => {});
+      }
+    });
+  });
+
+  test(`biber: membership in the role group behind "${tier.alias}" admits biber with that Checkmk role`, async ({
+    browser,
+  }) => {
+    skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
+    test.setTimeout(resolveTimeout(480_000)); // two form logins, the LDAP sync job and the user-list polling
+    await withLdapGroupMember(tier.groupDn(), env.biberDn, async () => {
+      const biberCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+      try {
+        await loginThroughForm(await biberCtx.newPage(), env.biberUsername, env.biberPassword);
       } finally {
         await biberCtx.close().catch(() => {});
       }
@@ -224,13 +263,13 @@ for (const tier of ROLE_TIERS) {
   });
 }
 
-test("profile: biber's directory phone number reaches the Checkmk pager address", async ({ browser }) => {
-  skipUnlessServiceEnabled("sso");
+test("administrator: biber's directory phone number reaches the Checkmk pager address", async ({ browser }) => {
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(resolveTimeout(480_000)); // Keycloak attribute write-back, the LDAP sync job and the user-list polling
+  skipUnlessServiceDisabled("sso");
+  test.setTimeout(resolveTimeout(480_000)); // directory write, the LDAP sync job and the user-list polling
   const phone = `+49 30 ${Date.now() % 10_000_000}`;
-  await withBiberAttributes(browser, { [PHONE_ATTRIBUTE]: phone }, async () => {
-    await withBiberInGroup(browser, env.guestGroupPath, async () => {
+  await withLdapAttributes(env.biberDn, { [env.phoneAttribute]: phone }, async () => {
+    await withLdapGroupMember(env.guestGroupDn, env.biberDn, async () => {
       await withAdministrator(browser, async (page) => {
         await syncUntilRowShows(page, env.biberUsername, "Guest user");
         await expect

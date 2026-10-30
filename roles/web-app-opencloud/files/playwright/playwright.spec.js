@@ -1,5 +1,6 @@
 require("./test-sso-login");
 require("./test-ldap-display-name");
+require("./test-ldap-login");
 require("./test-rbac-roles");
 require("./test-guest-persona");
 require("./test-biber-persona");

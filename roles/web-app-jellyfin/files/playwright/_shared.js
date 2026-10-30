@@ -9,10 +9,8 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
-const ssoEnabled        = isServiceEnabled("sso");
-const ldapEnabled       = isServiceEnabled("ldap");
 const oidcIssuerUrl     = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const jellyfinBaseUrl   = normalizeBaseUrl(process.env.JELLYFIN_BASE_URL || "");
 const adminUsername     = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -162,8 +160,6 @@ async function beforeEach({ page }) {
 
 module.exports = {
   env: {
-    ssoEnabled,
-    ldapEnabled,
     oidcIssuerUrl,
     jellyfinBaseUrl,
     adminUsername,
@@ -189,5 +185,6 @@ module.exports = {
   sessionIsAdministrator,
   logout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, withLdapGroupMember } = require("./personas");
 const keycloakAdmin = require("./personas/utils/keycloak");
 const { sign } = require("./personas/utils/s3");
 
@@ -22,6 +22,8 @@ const env = {
   keycloakAdminCliClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
+  biberDn: decodeDotenvQuotedValue(process.env.BIBER_LDAP_DN),
+  readonlyGroupDn: decodeDotenvQuotedValue(process.env.LDAP_READONLY_GROUP_DN),
   readwriteGroupPath: decodeDotenvQuotedValue(process.env.RBAC_READWRITE_GROUP_PATH),
   readonlyGroupPath: decodeDotenvQuotedValue(process.env.RBAC_READONLY_GROUP_PATH),
 };
@@ -169,20 +171,16 @@ async function submitConsoleLogin(page, username, password) {
   return (await loginResponse).status();
 }
 
-test("rbac: the LDAP Console login refuses biber without a MinIO role group", async ({ page }) => {
+test("biber: the LDAP Console login refuses biber without a MinIO role group", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const status = await submitConsoleLogin(page, env.biberUsername, env.biberPassword);
   expect(status, "biber's directory groups carry no MinIO policy, so the Console login MUST fail").toBeGreaterThanOrEqual(400);
 });
 
-test("rbac: membership in the readonly group lets biber sign in to the Console through LDAP", async ({
-  page,
-  playwright,
-}) => {
+test("biber: membership in the readonly group lets biber sign in to the Console through LDAP", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
-  skipUnlessServiceEnabled("sso");
-  test.setTimeout(resolveTimeout(120_000)); // Keycloak group write-back to LDAP plus the Console login
-  await withBiberInGroup(playwright, env.readonlyGroupPath, async () => {
+  test.setTimeout(resolveTimeout(120_000)); // directory group write plus the Console login
+  await withLdapGroupMember(env.readonlyGroupDn, env.biberDn, async () => {
     const status = await submitConsoleLogin(page, env.biberUsername, env.biberPassword);
     expect(status, "the readonly policy attached to the LDAP role group MUST admit biber to the Console").toBeLessThan(400);
     await expect(page.locator("body")).toContainText(/object browser|buckets/i, { timeout: resolveTimeout(60_000) });

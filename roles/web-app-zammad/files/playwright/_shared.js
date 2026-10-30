@@ -10,7 +10,7 @@ const {
   performKeycloakLoginForm,
   runGuestFlow,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
 const oidcIssuerUrl  = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -183,6 +183,7 @@ module.exports = {
   signInAsApiBot,
   zammadLogout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   runGuestFlow,
 };

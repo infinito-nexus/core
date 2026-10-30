@@ -155,7 +155,7 @@ exports.register = function () {
       });
     });
 
-    test("profile: country, time zone and phonetic name round-trip through the directory", async ({ browser }) => {
+    test("administrator: biber's country, time zone and phonetic name round-trip through the directory", async ({ browser }) => {
       skipUnlessServiceEnabled("ldap");
       const wanted = { country: "DE", zoneinfo: "Europe/Berlin", namePhoneticGiven: "Hari" };
       const context = await browser.newContext({ ignoreHTTPSErrors: true });

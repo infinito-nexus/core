@@ -2,24 +2,18 @@
 // Scenario: Native admin login (Keycloak not enabled)
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
-
-function decodeDotenvQuotedValue(value) {
-  if (typeof value !== "string" || value.length < 2) return value;
-  if (!(value.startsWith('"') && value.endsWith('"'))) return value;
-  const encoded = value.slice(1, -1);
-  try { return JSON.parse(`"${encoded}"`).replace(/\$\$/g, "$"); }
-  catch { return encoded.replace(/\$\$/g, "$"); }
-}
 
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
 const piholeBaseUrl = decodeDotenvQuotedValue(process.env.PIHOLE_BASE_URL);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 
 test.beforeEach(() => {
-  test.skip(!!oidcIssuerUrl, "SSO is enabled — skipping native login tests");
+  skipUnlessServiceDisabled("sso");
+  expect(oidcIssuerUrl, "OIDC_ISSUER_URL must stay unset while the sso service is disabled").toBeFalsy();
   expect(piholeBaseUrl, "PIHOLE_BASE_URL must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 });

@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL")).replace(/\/$/, "");
@@ -21,7 +21,6 @@ const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_SIGN_IN_PAGE = "with sso on local login is off, so Special:UserLogin hands straight to Keycloak and the wiki serves no sign-in page";
 const SHOWCASE = "Design_showcase";
 const CONTENT = "#mw-content-text .mw-parser-output";
 const HEADER = ".vector-header";
@@ -204,7 +203,7 @@ function signedInViews() {
 }
 
 test("design: the platform administrator signs in with the platform password and holds sysop and bureaucrat", async ({ page: page_ }) => {
-  test.skip(ssoEnabled, NO_SIGN_IN_PAGE);
+  skipUnlessServiceDisabled("sso");
   await signIn(page_);
   expect(await signedInName(page_)).toBe(adminUsername.charAt(0).toUpperCase() + adminUsername.slice(1));
   const groups = await pageConfig(page_, "wgUserGroups");
@@ -277,7 +276,7 @@ test("design: the primary action takes its fill and text from the palette", asyn
 
 test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page: page_ }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, NO_SIGN_IN_PAGE);
+  skipUnlessServiceDisabled("sso");
   for (const mode of MODES) {
     await page_.emulateMedia({ colorScheme: mode });
     await gotoOnion(page_, page("Special:UserLogin"));

@@ -9,7 +9,7 @@ const {
   galleryEnabled,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
@@ -402,7 +402,8 @@ exports.register = function (shared) {
 
   test("design: provisioning: the role provisions the administrator the native sign-in accepts", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso") || isServiceEnabled("ldap"), "the native administrator exists only without sso and ldap");
+    skipUnlessServiceDisabled("sso");
+    skipUnlessServiceDisabled("ldap");
     const response = await apiFetchOnion(page.request, `${base}/api/v1/auths/signin`, {
       method: "POST",
       data: { email: shared.env.adminEmail, password: shared.env.adminPassword },

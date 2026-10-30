@@ -15,7 +15,8 @@ test("addon peertube-plugin-auth-openid-connect: the login page offers the exter
   skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(180_000));
 
-  test.skip(!peertubeBaseUrl || !oidcIssuerUrl, "PEERTUBE_BASE_URL / OIDC_ISSUER_URL are not staged for this role");
+  expect(peertubeBaseUrl, "PEERTUBE_BASE_URL must be set").toBeTruthy();
+  expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set while the sso service is enabled").toBeTruthy();
 
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
   const buttonPatterns = [

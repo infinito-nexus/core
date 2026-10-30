@@ -10,6 +10,8 @@ const {
   keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
   performKeycloakLoginForm,
+  withLdapAttributes,
+  withLdapGroupMember,
 } = require("./personas");
 const { authenticatedContext, baseUrl, clickOdooSsoButton } = require("./_shared");
 
@@ -29,6 +31,12 @@ const env = {
     manager: decodeDotenvQuotedValue(process.env.RBAC_GROUP_MANAGER || ""),
     user: decodeDotenvQuotedValue(process.env.RBAC_GROUP_USER || ""),
     portal: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PORTAL || ""),
+  },
+  directory: {
+    biberDn: decodeDotenvQuotedValue(process.env.BIBER_LDAP_DN),
+    userGroupDn: decodeDotenvQuotedValue(process.env.LDAP_USER_GROUP_DN),
+    phoneAttribute: decodeDotenvQuotedValue(process.env.LDAP_PHONE_ATTRIBUTE),
+    timezoneAttribute: decodeDotenvQuotedValue(process.env.LDAP_TIMEZONE_ATTRIBUTE),
   },
 };
 
@@ -282,47 +290,29 @@ test.describe.serial("odoo RBAC and profile mapping", () => {
     await page.context().clearCookies();
   });
 
-  test("biber: LDAP sign-in with the user group maps the directory mail, phone and time zone", async ({ page, browser }) => {
+  test("biber: LDAP sign-in with the user group maps the directory mail, phone and time zone", async ({ page }) => {
     skipUnlessServiceEnabled("ldap");
-    skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(240_000)); // group join and attribute update written back to the directory, bind and teardown
+    test.setTimeout(resolveTimeout(240_000)); // directory group join and attribute write, bind and teardown
 
-    await withBiberIn(browser, env.groups.user, async (request) => {
-      let previous = null;
-      try {
-        previous = await keycloakAdminSetUserAttributes(
-          request,
-          env.keycloakBaseUrl,
-          env.realmName,
-          env.biberUsername,
-          { phoneNumber: "+49 40 1234567", zoneinfo: "Europe/Vienna" },
-          env.superAdminUsername,
-          env.superAdminPassword,
-        );
-        const body = await ldapAuthenticate(page);
-        expect(body.error, `a user-group member must authenticate through the directory: ${JSON.stringify(body.error)}`).toBeFalsy();
-        const uid = body.result.uid;
-        expect(uid, "the directory sign-in must open an Odoo session").toBeTruthy();
-        expect(await hasGroup(page, uid, "base.group_user"), "the user group must grant Internal User").toBe(true);
-        const user = await ownUser(page, uid, ["email", "phone", "tz"]);
-        expect((user.email || "").toLowerCase(), "the directory mail must land in the Odoo email field").toBe(env.biberEmail.toLowerCase());
-        expect(user.phone, "the directory telephoneNumber must land in the Odoo phone field").toBe("+49 40 1234567");
-        expect(user.tz, "the directory time zone must land in the Odoo time zone").toBe("Europe/Vienna");
-        await page.context().clearCookies();
-      } finally {
-        if (previous) {
-          await keycloakAdminSetUserAttributes(
-            request,
-            env.keycloakBaseUrl,
-            env.realmName,
-            env.biberUsername,
-            previous,
-            env.superAdminUsername,
-            env.superAdminPassword,
-          ).catch((err) => console.warn(`Restoring biber's attributes failed: ${err}`));
-        }
-      }
-    });
+    const { directory } = env;
+    await withLdapGroupMember(directory.userGroupDn, directory.biberDn, () =>
+      withLdapAttributes(
+        directory.biberDn,
+        { [directory.phoneAttribute]: "+49 40 1234567", [directory.timezoneAttribute]: "Europe/Vienna" },
+        async () => {
+          const body = await ldapAuthenticate(page);
+          expect(body.error, `a user-group member must authenticate through the directory: ${JSON.stringify(body.error)}`).toBeFalsy();
+          const uid = body.result.uid;
+          expect(uid, "the directory sign-in must open an Odoo session").toBeTruthy();
+          expect(await hasGroup(page, uid, "base.group_user"), "the user group must grant Internal User").toBe(true);
+          const user = await ownUser(page, uid, ["email", "phone", "tz"]);
+          expect((user.email || "").toLowerCase(), "the directory mail must land in the Odoo email field").toBe(env.biberEmail.toLowerCase());
+          expect(user.phone, `the directory ${directory.phoneAttribute} must land in the Odoo phone field`).toBe("+49 40 1234567");
+          expect(user.tz, "the directory time zone must land in the Odoo time zone").toBe("Europe/Vienna");
+          await page.context().clearCookies();
+        },
+      ),
+    );
   });
 });
 

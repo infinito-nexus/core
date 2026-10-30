@@ -308,6 +308,8 @@ The teardown MUST:
   Specs MUST decode quoted values before building URLs or typing credentials.
   The recurring helpers `decodeDotenvQuotedValue(value)` and `normalizeBaseUrl(value)` live in [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) and are re-exported through `require("./personas")`.
   Specs that need them MUST import from `./personas`; inline copies are forbidden and caught at review.
+- A scenario that proves an LDAP-backed behaviour MUST change directory state through `withLdapGroupMember(groupDn, memberDn, body)` or `withLdapAttributes(dn, attributes, body)` from [`personas/utils/ldap.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/ldap.js), re-exported through `require("./personas")`, not through the Keycloak admin API, so it gates on `ldap` alone and runs in LDAP-only variants.
+  The role's `templates/playwright.env.j2` then renders `LDAP_URL` (`ldap://` plus `DOCKER_REACH_HOST` and the local `svc-db-openldap` port), `LDAP_BIND_DN`, `LDAP_BIND_PASSWORD` (empty while `ldap` is disabled) and, for membership changes, `LDAP_GROUP_MEMBER_ATTRIBUTE`, plus the DNs the spec passes in (`BIBER_LDAP_DN`, `LDAP_<ROLE>_GROUP_DN`).
 - A role whose spec files cannot run in parallel MUST set `PLAYWRIGHT_MAX_WORKERS` in `templates/playwright.env.j2`.
   The central `playwright.config.js` runs the suite on the smaller of that value and the worker count the harness computed.
 

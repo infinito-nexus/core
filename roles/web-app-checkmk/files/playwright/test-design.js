@@ -17,7 +17,7 @@ const {
   normalizeBaseUrl,
   performKeycloakLoginForm,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const LOCAL_ADMIN = "cmkadmin";
@@ -434,7 +434,7 @@ exports.register = function () {
 
   test("design: the local sign-in page carries the palette, the wide logo and the title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the identity provider replaces the local sign-in page");
+    skipUnlessServiceDisabled("sso");
     await gotoOnion(page, `${guiUrl()}/login.py`);
     await page.locator("#input_user").waitFor({ timeout: resolveTimeout(60_000) });
     expect(await servedTheme(page), "a visitor must get the corporate theme").toBe(corporateTheme());
@@ -474,7 +474,7 @@ exports.register = function () {
   test("design: gallery of monitoring and setup views", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-    test.skip(isServiceEnabled("sso"), "the gallery signs in with the local administrator of an SSO-less deployment");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(1_800_000));
     const gui = guiUrl();
 
@@ -528,7 +528,7 @@ exports.register = function () {
   test("design: gallery of the sign-in page", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-    test.skip(isServiceEnabled("sso"), "the identity provider replaces the local sign-in page");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(300_000));
     await captureDesignGallery(page, [
       {

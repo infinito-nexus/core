@@ -1,12 +1,10 @@
 const { test, expect } = require("@playwright/test");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("native: broker bypassed and PDS createSession accepts the deployed administrator (no oauth2)", async ({ page, playwright }) => {
-    test.skip(
-      process.env.SSO_SERVICE_ENABLED === "true",
-      "Native login path only exists when oauth2 is disabled — when oauth2 is on, the broker owns provisioning and the OIDC test covers the journey.",
-    );
+    skipUnlessServiceDisabled("sso");
     const { baseUrl, adminEmail, adminHandle, adminHandleReserved, adminPassword, pdsBaseUrl } = shared.env;
     expect(adminEmail, "ADMIN_EMAIL must be set when oauth2 is disabled").toBeTruthy();
     expect(adminHandle, "ADMIN_HANDLE must be set when oauth2 is disabled").toBeTruthy();

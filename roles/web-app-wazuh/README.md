@@ -69,6 +69,10 @@ With `sso` disabled, these two accounts are the only way to sign in.
 - Only Administrators reach the OpenSearch Dashboards Security app.
 - Every role lands on `/app/home` after login.
 
+## LDAP coverage
+
+No Playwright scenario gates on `ldap`, and [services.yml](./meta/services.yml) exempts the flag from the Playwright service-flag check. The indexer configures LDAP only as `ldap_authz_domain`, which adds `backend_roles` to a user Keycloak or `internal_users.yml` already authenticated, so the stack has no LDAP-bind login to drive: with `sso` on every directory account signs in through Keycloak, which [files/playwright/test-rbac-roles.js](./files/playwright/test-rbac-roles.js) covers, and with `sso` off only the internal `admin` and `kibanaserver` accounts can sign in.
+
 ## Developer Notes
 
 Variant matrix: [variants.yml](./meta/variants.yml). Service flags and image pins: [services.yml](./meta/services.yml). Credentials: [secrets.yml](./meta/secrets.yml). RBAC roles: [rbac.yml](./meta/rbac.yml).

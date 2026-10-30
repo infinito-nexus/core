@@ -1,38 +1,19 @@
 const { test, expect } = require("@playwright/test");
 
-const {
-  gotoOnion,
-  keycloakAdminAddUserToGroup,
-  keycloakRemoveUserFromGroupViaRest,
-  normalizeBaseUrl,
-  requireDotenvValue,
-} = require("./personas");
+const { gotoOnion, requireDotenvValue, withLdapGroupMember } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const ADMIN_PANEL = "ha-config-users ha-data-table";
 const CLEANUP_MS = 60_000;
 
-const keycloakBaseUrl = normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || "");
-
 function directory() {
   return {
     providerName: requireDotenvValue(process.env.LDAP_PROVIDER_NAME, "LDAP_PROVIDER_NAME"),
     biberUsername: requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME"),
     biberPassword: requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD"),
-  };
-}
-
-function keycloak() {
-  return {
-    realm: requireDotenvValue(process.env.KEYCLOAK_REALM_NAME, "KEYCLOAK_REALM_NAME"),
-    userGroupPath: requireDotenvValue(process.env.RBAC_USER_GROUP_PATH, "RBAC_USER_GROUP_PATH"),
-    superAdminUsername: requireDotenvValue(process.env.SUPER_ADMIN_USERNAME, "SUPER_ADMIN_USERNAME"),
-    superAdminPassword: requireDotenvValue(process.env.SUPER_ADMIN_PASSWORD, "SUPER_ADMIN_PASSWORD"),
-    options: {
-      adminRealm: requireDotenvValue(process.env.KEYCLOAK_ADMIN_REALM, "KEYCLOAK_ADMIN_REALM"),
-      adminClientId: requireDotenvValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID, "KEYCLOAK_ADMIN_CLI_CLIENT_ID"),
-    },
+    biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+    userGroupDn: requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN"),
   };
 }
 
@@ -99,49 +80,22 @@ exports.register = function (shared) {
   test("biber: user role group → directory sign-in without administrator rights → logout", async ({
     page,
     browser,
-    request,
   }) => {
     skipUnlessServiceEnabled("ldap");
-    test.skip(!keycloakBaseUrl, "KEYCLOAK_BASE_URL is empty: without web-app-keycloak no group membership can be granted");
     test.setTimeout(resolveTimeout(180_000)); // group join, directory sign-in, logout, group leave and the account removal
     const settings = directory();
-    const realm = keycloak();
-    let joined = false;
     let accountId = null;
 
     try {
-      joined = await keycloakAdminAddUserToGroup(
-        request,
-        keycloakBaseUrl,
-        realm.realm,
-        realm.userGroupPath,
-        settings.biberUsername,
-        realm.superAdminUsername,
-        realm.superAdminPassword,
-        realm.options,
-      );
+      await withLdapGroupMember(settings.userGroupDn, settings.biberDn, async () => {
+        await shared.signInWithProvider(page, settings.providerName, settings.biberUsername, settings.biberPassword);
+        const account = await shared.currentUser(page);
+        accountId = account.id;
+        expect(account.isAdmin, "a member of the user role group must land in system-users").toBe(false);
 
-      await shared.signInWithProvider(page, settings.providerName, settings.biberUsername, settings.biberPassword);
-      const account = await shared.currentUser(page);
-      accountId = account.id;
-      expect(account.isAdmin, "a member of the user role group must land in system-users").toBe(false);
-
-      await shared.signOut(page);
+        await shared.signOut(page);
+      });
     } finally {
-      if (joined) {
-        await cleanup(`biber's membership in ${realm.userGroupPath}`, () =>
-          keycloakRemoveUserFromGroupViaRest(
-            request,
-            keycloakBaseUrl,
-            realm.realm,
-            realm.superAdminUsername,
-            realm.superAdminPassword,
-            realm.userGroupPath,
-            settings.biberUsername,
-            realm.options,
-          ),
-        );
-      }
       if (accountId) {
         await cleanup(`the directory account ${accountId}`, () => shared.removeAccount(browser, accountId));
       }

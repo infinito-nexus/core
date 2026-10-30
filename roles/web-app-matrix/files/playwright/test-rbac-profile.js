@@ -100,9 +100,9 @@ exports.register = function (shared) {
     }
   });
 
-  test("profile: biber's LDAP login takes the display name from the directory full name", async ({ request }) => {
+  test("biber: the LDAP login takes the display name from the directory full name", async ({ request }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    test.skip(shared.env.oidcServiceEnabled, "with SSO on, the OIDC name claim owns biber's display name");
+    shared.skipUnlessServiceDisabled("sso");
     test.skip(
       decodeDotenvQuotedValue(process.env.MATRIX_FLAVOR) !== "ansible",
       "only the ansible flavor wires the Synapse LDAP password provider",

@@ -1,7 +1,15 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
+const {
+  normalizeBaseUrl,
+  decodeDotenvQuotedValue,
+  performKeycloakLoginForm,
+  gotoOnion,
+  requireDotenvValue,
+  withLdapAttributes,
+  withLdapGroupMember,
+} = require("./personas");
 const keycloakAdmin = require("./personas/utils/keycloak");
 
 const env = {
@@ -21,6 +29,25 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || ""),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME || ""),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || ""),
+};
+
+const directory = {
+  biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+  userGroupDn: requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN"),
+  fieldMap: JSON.parse(requireDotenvValue(process.env.SNIPE_IT_LDAP_FIELD_MAP_JSON, "SNIPE_IT_LDAP_FIELD_MAP_JSON")),
+};
+
+const SNIPE_IT_FIELD_BY_SETTING = {
+  ldap_display_name: "display_name",
+  ldap_emp_num: "employee_num",
+  ldap_phone_field: "phone",
+  ldap_mobile: "mobile",
+  ldap_jobtitle: "jobtitle",
+  ldap_address: "address",
+  ldap_city: "city",
+  ldap_state: "state",
+  ldap_zip: "zip",
+  ldap_country: "country",
 };
 
 const adminOpts = () => ({ adminRealm: env.keycloakAdminRealm, adminClientId: env.keycloakAdminCliClientId });
@@ -44,20 +71,39 @@ async function signInThroughGate(page, username, password) {
   await performKeycloakLoginForm(page, username, password);
 }
 
+const snipeItShell = (page) => page.locator(".main-header .navbar");
+const directoryLoginForm = (page) => page.locator('form:has(input[name="password"])');
+
+async function submitDirectoryLoginForm(page, username, password) {
+  const form = directoryLoginForm(page);
+  await form.locator('input[name="username"]').fill(username);
+  await form.locator('input[name="password"]').fill(password);
+  await form.locator('[type="submit"]').first().click({ timeout: resolveTimeout(30_000) });
+}
+
 async function reachSnipeItShell(page, username, password) {
   await signInThroughGate(page, username, password);
-  const shell = page.locator(".main-header .navbar");
-  const directoryForm = page.locator('form:has(input[name="password"])');
+  const shell = snipeItShell(page);
   await expect(
-    shell.or(directoryForm).first(),
+    shell.or(directoryLoginForm(page)).first(),
     `expected ${username} to land on Snipe-IT, either signed in through the header bridge or on its directory login form`,
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
   if (!(await shell.isVisible())) {
-    await directoryForm.locator('input[name="username"]').fill(username);
-    await directoryForm.locator('input[name="password"]').fill(password);
-    await directoryForm.locator('[type="submit"]').first().click({ timeout: resolveTimeout(30_000) });
+    await submitDirectoryLoginForm(page, username, password);
   }
   await expect(shell, `expected ${username} to reach the Snipe-IT authenticated shell`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+}
+
+async function signInWithLoginForm(page, username, password) {
+  await gotoOnion(page, `${env.baseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await expect(
+    directoryLoginForm(page),
+    "without SSO Snipe-IT must serve its own password and directory login form on /login",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await submitDirectoryLoginForm(page, username, password);
+  await expect(snipeItShell(page), `expected ${username} to reach the Snipe-IT authenticated shell`).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
 }
@@ -99,6 +145,16 @@ async function ldapTestLogin(page, username, password) {
     ldaptest_user: username,
     ldaptest_password: password,
   });
+}
+
+async function syncDirectoryAndFindBiber(page) {
+  await gotoOnion(page, `${env.baseUrl}/users/ldap`, { waitUntil: "domcontentloaded" });
+  await page.locator("#sync").click({ timeout: resolveTimeout(30_000) });
+  const biberRow = page.locator("#customFieldsTable tbody tr").filter({ hasText: env.biberUsername }).first();
+  await expect(biberRow, "the LDAP sync must import biber once biber holds the user role group").toBeVisible({
+    timeout: resolveTimeout(120_000),
+  });
+  return biberRow;
 }
 
 async function keycloakGroupMembers(request, groupPath) {
@@ -189,49 +245,21 @@ test("administrator: the deploy-time reconcile leaves superuser and the permissi
   }
 });
 
-test("biber: the user role group admits biber through the LDAP filter and the gate, with every mapped directory field and no admin rights", async ({ browser }) => {
+test("biber: the user role group admits biber through the gate once the LDAP sync imported the directory account, without admin rights", async ({ browser }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(resolveTimeout(360_000)); // three Keycloak sign-ins plus the LDAP sync POST, which rewrites every directory member
+  test.setTimeout(resolveTimeout(300_000)); // two Keycloak sign-ins plus the LDAP sync POST, which rewrites every directory member
   expectEnv();
 
-  const marker = Date.now().toString(36);
-  const digits = String(Date.now()).slice(-7);
-  const profile = {
-    nickname: `Biber ${marker}`,
-    idNumber: `E-${marker}`,
-    phoneNumber: `+49 30 ${digits}`,
-    phoneNumberAlt: `+49 170 ${digits}`,
-    title: `Asset keeper ${marker}`,
-    department: `Inventory ${marker}`,
-    street: `Biberweg ${marker}`,
-    locality: `Biberstadt ${marker}`,
-    region: `Biberland ${marker}`,
-    postal_code: `P${digits}`,
-    country: "IS",
-  };
-  const expectedFields = {
-    display_name: profile.nickname,
-    employee_num: profile.idNumber,
-    phone: profile.phoneNumber,
-    mobile: profile.phoneNumberAlt,
-    jobtitle: profile.title,
-    address: profile.street,
-    city: profile.locality,
-    state: profile.region,
-    zip: profile.postal_code,
-    country: profile.country,
-  };
   const adminRequest = await browser.newContext({ ignoreHTTPSErrors: true });
-  let previousProfile = null;
   let biberJoined = false;
   try {
-    previousProfile = await keycloakAdmin.keycloakAdminSetUserAttributes(
+    biberJoined = await keycloakAdmin.keycloakAdminAddUserToGroup(
       adminRequest.request,
       env.keycloakBaseUrl,
       env.realmName,
+      env.userGroupPath,
       env.biberUsername,
-      profile,
       env.keycloakAdminUsername,
       env.keycloakAdminPassword,
       adminOpts(),
@@ -239,48 +267,7 @@ test("biber: the user role group admits biber through the LDAP filter and the ga
 
     await withContext(browser, async (page) => {
       await reachSnipeItShell(page, env.adminUsername, env.adminPassword);
-
-      const refusedBiber = await ldapTestLogin(page, env.biberUsername, env.biberPassword);
-      expect(refusedBiber.status, "the Snipe-IT LDAP filter must refuse biber while biber holds no role group").toBe(400);
-      expect(String((refusedBiber.json || {}).message)).toMatch(/did not successfully bind/i);
-
-      const refusedAdmin = await ldapTestLogin(page, env.adminUsername, env.adminPassword);
-      expect(refusedAdmin.status, "the Snipe-IT LDAP filter must leave out the bootstrap administrator").toBe(400);
-      expect(String((refusedAdmin.json || {}).message)).toMatch(/did not successfully bind/i);
-
-      biberJoined = await keycloakAdmin.keycloakAdminAddUserToGroup(
-        adminRequest.request,
-        env.keycloakBaseUrl,
-        env.realmName,
-        env.userGroupPath,
-        env.biberUsername,
-        env.keycloakAdminUsername,
-        env.keycloakAdminPassword,
-        adminOpts(),
-      );
-
-      const admittedBiber = await ldapTestLogin(page, env.biberUsername, env.biberPassword);
-      expect(admittedBiber.status, "the Snipe-IT LDAP filter must admit biber once biber holds the user role group").toBe(200);
-
-      await gotoOnion(page, `${env.baseUrl}/users/ldap`, { waitUntil: "domcontentloaded" });
-      await page.locator("#sync").click({ timeout: resolveTimeout(30_000) });
-      const biberRow = page.locator("#customFieldsTable tbody tr").filter({ hasText: env.biberUsername }).first();
-      await expect(biberRow, "the LDAP sync must import biber once biber holds the user role group").toBeVisible({
-        timeout: resolveTimeout(120_000),
-      });
-      await expect(biberRow).toContainText(profile.nickname);
-      await expect(biberRow).toContainText(profile.idNumber);
-
-      const biber = (await snipeItUsers(page)).find((user) => user.username === env.biberUsername);
-      expect(biber, "the LDAP sync must leave a Snipe-IT account for biber").toBeTruthy();
-      for (const [field, value] of Object.entries(expectedFields)) {
-        expect(biber[field], `Snipe-IT field ${field} must carry the directory value`).toBe(value);
-      }
-      expect((biber.department || {}).name, "Snipe-IT must file biber under the directory department").toBe(profile.department);
-
-      await gotoOnion(page, `${env.baseUrl}/users/${biber.id}`, { waitUntil: "domcontentloaded" });
-      await expect(page.locator("body"), "the user page must show the directory phone").toContainText(profile.phoneNumber);
-      await expect(page.locator("body"), "the user page must show the directory job title").toContainText(profile.title);
+      await syncDirectoryAndFindBiber(page);
     });
 
     await withContext(browser, async (page) => {
@@ -305,20 +292,79 @@ test("biber: the user role group admits biber through the LDAP filter and the ga
         )
         .catch((err) => console.warn(`Cleanup removal of biber from ${env.userGroupPath} failed: ${err}`));
     }
-    if (previousProfile) {
-      await keycloakAdmin
-        .keycloakAdminSetUserAttributes(
-          adminRequest.request,
-          env.keycloakBaseUrl,
-          env.realmName,
-          env.biberUsername,
-          previousProfile,
-          env.keycloakAdminUsername,
-          env.keycloakAdminPassword,
-          adminOpts(),
-        )
-        .catch((err) => console.warn(`Cleanup restore of biber's profile failed: ${err}`));
-    }
     await adminRequest.close().catch(() => {});
   }
+});
+
+test("biber: the user role group admits biber through the LDAP filter and the directory login, with every mapped directory field and no admin rights", async ({ browser }) => {
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
+  test.setTimeout(resolveTimeout(360_000)); // two form sign-ins plus the LDAP sync POST, which rewrites every directory member
+  expect(
+    Object.keys(directory.fieldMap).sort(),
+    "SNIPE_IT_LDAP_FIELD_MAP_JSON must map exactly the directory settings this test writes",
+  ).toEqual([...Object.keys(SNIPE_IT_FIELD_BY_SETTING), "ldap_dept"].sort());
+
+  const marker = Date.now().toString(36);
+  const digits = String(Date.now()).slice(-7);
+  const profile = {
+    ldap_display_name: `Biber ${marker}`,
+    ldap_emp_num: `E-${marker}`,
+    ldap_phone_field: `+49 30 ${digits}`,
+    ldap_mobile: `+49 170 ${digits}`,
+    ldap_jobtitle: `Asset keeper ${marker}`,
+    ldap_dept: `Inventory ${marker}`,
+    ldap_address: `Biberweg ${marker}`,
+    ldap_city: `Biberstadt ${marker}`,
+    ldap_state: `Biberland ${marker}`,
+    ldap_zip: `P${digits}`,
+    ldap_country: "IS",
+  };
+  const attributes = Object.fromEntries(
+    Object.entries(profile).map(([setting, value]) => [directory.fieldMap[setting], value]),
+  );
+
+  await withLdapAttributes(directory.biberDn, attributes, () =>
+    withContext(browser, async (page) => {
+      await signInWithLoginForm(page, env.adminUsername, env.adminPassword);
+
+      const refusedBiber = await ldapTestLogin(page, env.biberUsername, env.biberPassword);
+      expect(refusedBiber.status, "the Snipe-IT LDAP filter must refuse biber while biber holds no role group").toBe(400);
+      expect(String((refusedBiber.json || {}).message)).toMatch(/did not successfully bind/i);
+
+      const refusedAdmin = await ldapTestLogin(page, env.adminUsername, env.adminPassword);
+      expect(refusedAdmin.status, "the Snipe-IT LDAP filter must leave out the bootstrap administrator").toBe(400);
+      expect(String((refusedAdmin.json || {}).message)).toMatch(/did not successfully bind/i);
+
+      await withLdapGroupMember(directory.userGroupDn, directory.biberDn, async () => {
+        const admittedBiber = await ldapTestLogin(page, env.biberUsername, env.biberPassword);
+        expect(admittedBiber.status, "the Snipe-IT LDAP filter must admit biber once biber holds the user role group").toBe(200);
+
+        const biberRow = await syncDirectoryAndFindBiber(page);
+        await expect(biberRow).toContainText(profile.ldap_display_name);
+        await expect(biberRow).toContainText(profile.ldap_emp_num);
+
+        const biber = (await snipeItUsers(page)).find((user) => user.username === env.biberUsername);
+        expect(biber, "the LDAP sync must leave a Snipe-IT account for biber").toBeTruthy();
+        for (const [setting, field] of Object.entries(SNIPE_IT_FIELD_BY_SETTING)) {
+          expect(biber[field], `Snipe-IT field ${field} must carry the directory value of ${directory.fieldMap[setting]}`).toBe(
+            profile[setting],
+          );
+        }
+        expect((biber.department || {}).name, "Snipe-IT must file biber under the directory department").toBe(profile.ldap_dept);
+
+        await gotoOnion(page, `${env.baseUrl}/users/${biber.id}`, { waitUntil: "domcontentloaded" });
+        await expect(page.locator("body"), "the user page must show the directory phone").toContainText(profile.ldap_phone_field);
+        await expect(page.locator("body"), "the user page must show the directory job title").toContainText(profile.ldap_jobtitle);
+
+        await withContext(browser, async (biberPage) => {
+          await signInWithLoginForm(biberPage, env.biberUsername, env.biberPassword);
+          expect(
+            await settingsStatus(biberPage),
+            "biber holds only the user role group and must not reach the Snipe-IT settings at /admin",
+          ).not.toBe(200);
+        });
+      });
+    }),
+  );
 });

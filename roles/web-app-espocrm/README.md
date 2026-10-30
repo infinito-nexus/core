@@ -63,3 +63,7 @@ The field names on the provider record are only discoverable by unpacking the pu
 ## Persona contract opt-outs
 
 `biber` holds no EspoCRM role group, and every sign-in path admits only role-group members: with `sso` the role-group OIDC user provider refuses it, with LDAP only `ldapUserLoginFilter` refuses it, and without either no `biber` account exists. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore renders `PERSONA_BIBER_BLOCKED=true`. [`files/playwright/test-rbac.js`](./files/playwright/test-rbac.js) asserts the refusal and adds `biber` to the `user`, `manager` and `administrator` groups in turn to assert the rights each one grants. The `administrator` and `guest` personas run in every variant.
+
+## LDAP coverage
+
+With `ldap` on and `sso` off, [`files/playwright/test-ldap-login.js`](./files/playwright/test-ldap-login.js) signs the platform administrator in through EspoCRM's own form, which binds against the directory, and [`files/playwright/test-rbac.js`](./files/playwright/test-rbac.js) asserts that `ldapUserLoginFilter` refuses `biber`. `test-ldap-login.js` then adds `biber` to the `user` role group in the directory through `withLdapGroupMember` from the shared personas library, signs it in through the same form, asserts a regular EspoCRM user with the `Users` team whose call of the administration route ends on EspoCRM's 403 page, signs it out and removes the membership again.

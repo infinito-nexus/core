@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   appBaseUrl,
   biberUsername,
@@ -54,7 +54,7 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
 });
 
 test("guest: without SSO the Matomo login offers no Keycloak sign-in", async ({ page }) => {
-  test.skip(isServiceEnabled("sso"), "SSO_SERVICE_ENABLED=true; the Keycloak sign-in is asserted by addons/rebeloidc.spec.js");
+  skipUnlessServiceDisabled("sso");
 
   await gotoOnion(page, `${appBaseUrl}/`);
   await expectLoginForm(page, "the anonymous Matomo front page MUST show the login form");

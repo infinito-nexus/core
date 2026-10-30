@@ -4,7 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: the native account signs in with its password and holds Admin and Agent while sso is off", async ({ page }) => {
-    test.skip(shared.env.oidcEnabled, "with sso on the administrator signs in through the identity provider");
+    shared.skipUnlessServiceDisabled("sso");
     expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 

@@ -13,10 +13,8 @@ test("addon taiga-contrib-oidc-auth: the login route resolves to the Keycloak au
   test.setTimeout(resolveTimeout(180_000));
 
   const taigaUrls = shared.getTaigaUrls();
-  test.skip(
-    !taigaUrls.expectedTaigaBaseUrl || !taigaUrls.expectedOidcAuthUrl,
-    "TAIGA_BASE_URL / OIDC_ISSUER_URL are not staged for this role",
-  );
+  expect(taigaUrls.expectedTaigaBaseUrl, "TAIGA_BASE_URL must be set").toBeTruthy();
+  expect(taigaUrls.expectedOidcAuthUrl, "OIDC_ISSUER_URL must be set while the sso service is enabled").toBeTruthy();
 
   await page.context().clearCookies();
   await gotoOnion(page, `${taigaUrls.expectedTaigaBaseUrl}/login`, { waitUntil: "domcontentloaded" });

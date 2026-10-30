@@ -43,6 +43,7 @@ LDAP:
     DOMAIN: "{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}" # Mapping for public or locale access
     PORT: "{{ _ldap_server_port }}"
     URI: "{{ _ldap_protocol }}://{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}:{{ _ldap_server_port }}"
+    HOST_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}" # Host-side URI, local port
     SECURITY: "" # TLS, SSL - Leave empty for none
   NETWORK:
     LOCAL: "{{ _ldap_docker_network_enabled }}" # Uses the application configuration to define if local network should be available or not

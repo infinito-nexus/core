@@ -23,7 +23,7 @@ async function joomlaAdministratorLogout(page) {
     .click({ timeout: resolveTimeout(30_000) });
 }
 
-test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administrator (LDAP variant)", async ({ page }) => {
+test("administrator: Joomla core LDAP plugin authenticates at /administrator (LDAP variant)", async ({ page }) => {
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set in the Playwright env file").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
@@ -65,7 +65,7 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
   await expect(page.locator("input[name='username']")).toBeVisible({ timeout: resolveTimeout(15_000) });
 });
 
-test("LDAP: biber signs in through the core LDAP plugin with the directory uid and mail, then signs out", async ({ page }) => {
+test("biber: signs in through the core LDAP plugin with the directory uid and mail, then signs out", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   test.setTimeout(resolveTimeout(120_000));
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();

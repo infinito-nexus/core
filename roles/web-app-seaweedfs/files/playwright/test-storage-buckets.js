@@ -1,11 +1,12 @@
 const { test } = require("@playwright/test");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
 
   test("storage: a bucket exists for every consumer with the service enabled", async ({ page }) => {
-    test.skip(!env.ssoEnabled, "SSO disabled");
+    skipUnlessServiceEnabled("sso");
     test.skip(env.consumerBuckets.length === 0, "no object-store consumers on this host");
 
     await gotoOnion(page, env.filerUrl, { waitUntil: "domcontentloaded" });

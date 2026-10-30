@@ -21,6 +21,7 @@ The high-level structure:
 | `LDAP.SERVER.DOMAIN` | Hostname or container name to dial |
 | `LDAP.SERVER.PORT` | Port resolved through the ports registry |
 | `LDAP.SERVER.URI` | Full `ldap[s]://host:port` URI |
+| `LDAP.SERVER.HOST_URI` | `ldap://` URI of the local port on `DOCKER_REACH_HOST`, for clients outside the OpenLDAP network such as Playwright |
 | `LDAP.SERVER.SECURITY` | Transport security mode, empty when unused |
 | `LDAP.NETWORK.LOCAL` | True when the consumer shares the OpenLDAP Docker network |
 

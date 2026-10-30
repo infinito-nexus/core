@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const THEME_FILE = "/css/themes/infinito";
@@ -150,7 +150,7 @@ test("design: a content divider uses the border token in both modes", async ({ p
 
 test("design: the role closes the setup wizard after it provisioned the administrator", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(isServiceEnabled("sso"), "the oauth2 proxy gates every path when SSO is on");
+  skipUnlessServiceDisabled("sso");
   const wizard = await apiGetOnion(page.request, `${BASE}/setup/admin`, { maxRedirects: 0 });
   expect(wizard.status(), "a visitor must not be able to create the first administrator").toBe(403);
   const landing = await apiGetOnion(page.request, `${BASE}/`, { maxRedirects: 0 });

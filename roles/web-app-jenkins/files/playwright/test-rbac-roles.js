@@ -205,7 +205,7 @@ test("rbac: biber without a Jenkins role group is refused after OIDC login", asy
   await expectBiberProfileSynced(browser, env.biberFullName);
 });
 
-test("rbac: biber without a Jenkins role group is refused after LDAP login", async ({ browser }) => {
+test("biber: without a Jenkins role group, biber is refused after LDAP login", async ({ browser }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   test.setTimeout(resolveTimeout(120_000)); // biber login plus an administrator login for the profile read
@@ -220,7 +220,7 @@ test("rbac: biber without a Jenkins role group is refused after LDAP login", asy
   await expectBiberProfileSynced(browser, null);
 });
 
-test("rbac: the LDAP realm grants each Jenkins role to its directory group", async ({ browser }) => {
+test("administrator: the LDAP realm grants each Jenkins role to its directory group", async ({ browser }) => {
   skipUnlessServiceEnabled("ldap");
   skipUnlessServiceDisabled("sso");
   await withAdministrator(browser, async (page) => {

@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   decodeDotenvQuotedValue,
   gotoOnion,
@@ -10,6 +10,7 @@ const {
   performKeycloakLoginExpectingDenial,
   performKeycloakLoginForm,
   requireDotenvValue,
+  withLdapGroupMember,
 } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(
@@ -35,6 +36,12 @@ const groups = {
   administrator: decodeDotenvQuotedValue(process.env.RBAC_ADMINISTRATOR_GROUP_PATH || ""),
   userManager: decodeDotenvQuotedValue(process.env.RBAC_USER_MANAGER_GROUP_PATH || ""),
   selfService: decodeDotenvQuotedValue(process.env.RBAC_SELF_SERVICE_GROUP_PATH || ""),
+};
+const directory = {
+  biberDn: requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN"),
+  administrator: requireDotenvValue(process.env.LDAP_ADMINISTRATOR_GROUP_DN, "LDAP_ADMINISTRATOR_GROUP_DN"),
+  userManager: requireDotenvValue(process.env.LDAP_USER_MANAGER_GROUP_DN, "LDAP_USER_MANAGER_GROUP_DN"),
+  selfService: requireDotenvValue(process.env.LDAP_SELF_SERVICE_GROUP_DN, "LDAP_SELF_SERVICE_GROUP_DN"),
 };
 const MENU = {
   users: /^Users$/,
@@ -120,6 +127,81 @@ async function asBiberInGroup(browser, groupPath, body) {
   });
 }
 
+async function signInAsBiberThroughForm(page) {
+  await gotoOnion(page, `${baseUrl}/index.php`, { waitUntil: "domcontentloaded" });
+  const username = page.locator("#loginform input#username");
+  await expect(username, "FusionDirectory must offer its own login form while SSO is disabled").toBeEditable({
+    timeout: resolveTimeout(60_000),
+  });
+  await username.fill(biber.username);
+  await page.locator("#loginform input#password").fill(biber.password);
+  await page.locator('#loginform input[name="login"]').click();
+  await expect
+    .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: "expected the directory login to open main.php" })
+    .toContain(`${baseUrl}/main.php`);
+  await expect(page.locator("div.plugin-window").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+async function asBiberInDirectoryGroup(browser, groupDn, body) {
+  await withLdapGroupMember(groupDn, directory.biberDn, async () => {
+    const ctx = await newContext(browser);
+    try {
+      const page = await ctx.newPage();
+      await signInAsBiberThroughForm(page);
+      await body(page);
+    } finally {
+      await ctx.close().catch(() => {});
+    }
+  });
+}
+
+async function expectAdministratorMenu(page) {
+  for (const label of [MENU.users, MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
+    await expect(menuEntry(page, label), `an administrator group member must see the ${label} menu entry`).not.toHaveCount(0);
+  }
+}
+
+async function expectUserManagerMenu(page) {
+  await expect(menuEntry(page, MENU.users), "a user-manager must reach the user management").not.toHaveCount(0);
+  for (const label of [MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
+    await expect(menuEntry(page, label), `a user-manager must not see the ${label} menu entry`).toHaveCount(0);
+  }
+}
+
+async function expectSelfServiceAccount(page) {
+  for (const label of [MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
+    await expect(menuEntry(page, label), `a self-service member must not see the ${label} menu entry`).toHaveCount(0);
+  }
+  const href = await menuEntry(page, MENU.myAccount).first().getAttribute("href");
+  expect(href, "a self-service member must reach the own account").toBeTruthy();
+  await gotoOnion(page, new URL(href, `${baseUrl}/`).href);
+  await expect(
+    page.locator('input[type="submit"][name="edit"]'),
+    "the self-service ACL role must allow editing the own account",
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+}
+
+const ROLE_GROUPS = [
+  {
+    grant: "the administrator group grants the FusionDirectory admin ACL role",
+    groupPath: () => groups.administrator,
+    groupDn: () => directory.administrator,
+    expectRights: expectAdministratorMenu,
+  },
+  {
+    grant: "the user-manager group manages users without ACL or configuration rights",
+    groupPath: () => groups.userManager,
+    groupDn: () => directory.userManager,
+    expectRights: expectUserManagerMenu,
+  },
+  {
+    grant: "the self-service group edits the own account only",
+    groupPath: () => groups.selfService,
+    groupDn: () => directory.selfService,
+    expectRights: expectSelfServiceAccount,
+  },
+];
+
 async function keepOnlyProxySession(context) {
   const host = new URL(baseUrl).hostname;
   const cookies = await context.cookies();
@@ -141,43 +223,18 @@ exports.register = function () {
     await performKeycloakLoginExpectingDenial(page, biber.username, biber.password, canonicalDomain);
   });
 
-  test("rbac: the administrator group grants the FusionDirectory admin ACL role", async ({ browser }) => {
-    skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
-    await asBiberInGroup(browser, groups.administrator, async (page) => {
-      for (const label of [MENU.users, MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
-        await expect(menuEntry(page, label), `an administrator group member must see the ${label} menu entry`).not.toHaveCount(0);
-      }
+  for (const role of ROLE_GROUPS) {
+    test(`biber: ${role.grant} through the header login`, async ({ browser }) => {
+      skipUnlessServiceEnabled("sso");
+      await asBiberInGroup(browser, role.groupPath(), role.expectRights);
     });
-  });
 
-  test("rbac: the user-manager group manages users without ACL or configuration rights", async ({ browser }) => {
-    skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
-    await asBiberInGroup(browser, groups.userManager, async (page) => {
-      await expect(menuEntry(page, MENU.users), "a user-manager must reach the user management").not.toHaveCount(0);
-      for (const label of [MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
-        await expect(menuEntry(page, label), `a user-manager must not see the ${label} menu entry`).toHaveCount(0);
-      }
+    test(`biber: ${role.grant} through the directory login form`, async ({ browser }) => {
+      skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
+      await asBiberInDirectoryGroup(browser, role.groupDn(), role.expectRights);
     });
-  });
-
-  test("rbac: the self-service group edits the own account only", async ({ browser }) => {
-    skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
-    await asBiberInGroup(browser, groups.selfService, async (page) => {
-      for (const label of [MENU.aclAssignments, MENU.aclRoles, MENU.configuration]) {
-        await expect(menuEntry(page, label), `a self-service member must not see the ${label} menu entry`).toHaveCount(0);
-      }
-      const href = await menuEntry(page, MENU.myAccount).first().getAttribute("href");
-      expect(href, "a self-service member must reach the own account").toBeTruthy();
-      await gotoOnion(page, new URL(href, `${baseUrl}/`).href);
-      await expect(
-        page.locator('input[type="submit"][name="edit"]'),
-        "the self-service ACL role must allow editing the own account",
-      ).toBeVisible({ timeout: resolveTimeout(30_000) });
-    });
-  });
+  }
 
   test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gate", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
@@ -197,9 +254,8 @@ exports.register = function () {
     }
   });
 
-  test("oidc-security: a forged identity header cannot switch the header login identity", async ({ browser }) => {
+  test("biber: a forged identity header cannot switch the header login identity", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
-    skipUnlessServiceEnabled("ldap");
     await asBiberInGroup(browser, groups.selfService, async (page, ctx) => {
       await expect(menuEntry(page, MENU.aclRoles), "biber must start without admin rights").toHaveCount(0);
       await keepOnlyProxySession(ctx);
@@ -218,7 +274,7 @@ exports.register = function () {
   });
 
   test("oidc-security: the header login stays off while SSO is disabled", async ({ browser }) => {
-    test.skip(isServiceEnabled("sso"), "SSO enabled: the forged-header cases above cover the header login");
+    skipUnlessServiceDisabled("sso");
     const ctx = await newContext(browser, forgedHeaders(adminUsername));
     try {
       const page = await ctx.newPage();

@@ -54,7 +54,7 @@ function settingValue(settings, name) {
   return String(found.value);
 }
 
-test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
+test("administrator: discourse-ldap-auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ldap-auth");
   skipUnlessServiceEnabled("ldap");
   test.setTimeout(resolveTimeout(120_000));

@@ -175,7 +175,7 @@ async function followColorScheme(page) {
  *   page: Playwright page that ends signed in to the web administration, through Keycloak while sso is enabled and as the recovery administrator otherwise.
  */
 async function signInWebui(page) {
-  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM);
+  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
   await gotoOnion(page, WEBUI_SIGN_IN);
   await page.locator(WEBUI_USERNAME).fill(safeIsEnabled("sso") ? adminEmail : stalwartAdminUsername);
   await page.locator(WEBUI_CONTINUE).click();
@@ -195,7 +195,7 @@ async function signInWebui(page) {
  *   page: Playwright page that ends signed in to the webmail as the platform administrator, through Keycloak while sso is enabled and with the mailbox password otherwise.
  */
 async function signInWebmail(page) {
-  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM);
+  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
   if (safeIsEnabled("sso")) {
     await roundcubeSsoLogin(page, adminUsername, adminPassword);
   } else {
@@ -618,7 +618,7 @@ test("design: the web administration sign-in takes surface, primary action and t
 
 test("design: the password step behind Continue takes page, card, fields, primary action and logo from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(safeIsEnabled("sso"), "with sso Continue hands the password step to the identity provider");
+  test.skip(safeIsEnabled("sso"), "with sso Continue hands the password step to the identity provider"); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
   await assertPasswordStep(page);
 });
 

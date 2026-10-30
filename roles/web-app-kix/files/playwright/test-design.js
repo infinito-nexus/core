@@ -497,7 +497,7 @@ exports.register = function (shared) {
   test("design: gallery of sign-in, dashboards, forms, details and administration", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-    test.skip(shared.env.ssoEnabled, "the gallery signs in with the local administrator of an SSO-less deployment");
+    shared.skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(2_400_000));
 
     await signIn(page);

@@ -14,7 +14,7 @@ const {
 const { resolveTimeout } = require("./timeouts");
 
 test("administrator: webmail password login reaches the mailbox (no sso)", async ({ page }) => {
-  test.skip(safeIsEnabled("sso"), "Keycloak owns the webmail login while SSO is on; test-mailflow.js covers that journey.");
+  test.skip(safeIsEnabled("sso"), "Keycloak owns the webmail login while SSO is on; test-mailflow.js covers that journey."); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
   expect(webmailBaseUrl, "WEBMAIL_BASE_URL must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 

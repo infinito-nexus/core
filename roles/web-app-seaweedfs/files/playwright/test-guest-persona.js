@@ -1,5 +1,6 @@
 const { test } = require("@playwright/test");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   const { env, isAuthChain, expect } = shared;
@@ -14,7 +15,7 @@ exports.register = function (shared) {
   }
 
   test("guest: redirected to auth, never reaches Filer or Master", async ({ page }) => {
-    test.skip(!env.ssoEnabled, "SSO disabled");
+    skipUnlessServiceEnabled("sso");
     await assertRedirectedToAuth(page, env.filerUrl);
     await page.context().clearCookies();
     await assertRedirectedToAuth(page, env.masterUrl);

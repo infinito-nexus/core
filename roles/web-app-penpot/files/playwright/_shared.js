@@ -6,7 +6,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const zlib = require("zlib");
 const { test, expect } = require("@playwright/test");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const {
   apiFetchOnion,
   decodeDotenvQuotedValue,
@@ -211,6 +211,7 @@ async function penpotNativeLogin(page, email, password) {
 module.exports = {
   test,
   expect,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   isServiceEnabled,
   runAdminFlow,

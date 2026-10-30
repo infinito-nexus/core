@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
-const { skipUnlessServiceEnabled } = require("../service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
 
 // `user_ldap` is the LDAP auth-path plugin (backs the native credential form
@@ -12,14 +12,10 @@ const shared = require("../_shared");
 // rather than reimplementing LDAP mechanics. This is only meaningful in the
 // native+LDAP variant (no Keycloak handoff); the OIDC flavors are covered by
 // the OIDC addon specs, so skip when OIDC owns the login journey.
-test("addon user_ldap: biber authenticates via LDAP-backed native login", async ({ browser }) => {
+test("biber: addon user_ldap authenticates biber via the LDAP-backed native login", async ({ browser }) => {
   skipUnlessAddonEnabled("user_ldap");
   skipUnlessServiceEnabled("ldap");
-
-  test.skip(
-    shared.env.nextcloudOidcEnabled,
-    "user_ldap native-login proof is only meaningful when OIDC is off; the OIDC flavors authenticate biber through Keycloak and are covered by the OIDC addon specs.",
-  );
+  skipUnlessServiceDisabled("sso");
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();

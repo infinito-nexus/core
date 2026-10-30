@@ -59,7 +59,8 @@ function escapeRegExp(value) {
  *   page: Playwright page that ends signed in as the administrator, through Keycloak first when sso is on.
  */
 async function signIn(shared, page) {
-  await shared.pickLoginPath()(page, shared.env.adminUsername, shared.env.adminPassword);
+  const login = shared.isServiceEnabled("sso") ? shared.loginViaOauth2ProxyAndFriendica : shared.loginViaFriendicaDirect;
+  await login(page, shared.env.adminUsername, shared.env.adminPassword);
 }
 
 /**
@@ -258,7 +259,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes frame, surface, primary action and text from the palette", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
-    test.skip(shared.isServiceEnabled("sso"), "oauth2-proxy gates /login; the signed-in tests cover the palette");
+    shared.skipUnlessServiceDisabled("sso");
     await gotoOnion(page, `${base()}/login`);
     await shown(SIGN_IN_SUBMIT)(page);
     for (const mode of MODES) {

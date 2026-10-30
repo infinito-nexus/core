@@ -8,11 +8,10 @@ const RBAC_ROLE_SEQUENCE = ["subscriber", "editor", "administrator"];
 
 exports.register = function (shared) {
   for (const role of RBAC_ROLE_SEQUENCE) {
-    test(`rbac: membership in ${role} group grants WordPress ${role} role`, async ({
+    test(`biber: membership in ${role} group grants WordPress ${role} role`, async ({
       browser,
     }) => {
       skipUnlessServiceEnabled("sso");
-      skipUnlessServiceEnabled("ldap");
       test.skip(
         shared.env.multisiteEnabled,
         "WORDPRESS_MULTISITE_ENABLED=true; Single-Site RBAC scenarios run only when Multisite is disabled"

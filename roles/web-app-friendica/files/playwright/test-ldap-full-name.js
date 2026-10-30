@@ -5,11 +5,10 @@ const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const biberDirectoryFullName = decodeDotenvQuotedValue(process.env.BIBER_DIRECTORY_FULL_NAME || "");
 
 exports.register = function (shared) {
-  test("biber: ldapauth names the Friendica account with the directory full name", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
+  async function assertDirectoryFullName(browser, login) {
     expect(biberDirectoryFullName, "BIBER_DIRECTORY_FULL_NAME must be set").toBeTruthy();
 
-    await shared.provisionBiberAccount(browser);
+    await shared.provisionBiberAccount(browser, login);
 
     const anonContext = await browser.newContext({ ignoreHTTPSErrors: true });
     try {
@@ -25,5 +24,17 @@ exports.register = function (shared) {
     } finally {
       await anonContext.close().catch(() => {});
     }
+  }
+
+  test("biber: ldapauth names the Friendica account with the directory full name", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceDisabled("sso");
+    await assertDirectoryFullName(browser, shared.loginViaFriendicaDirect);
+  });
+
+  test("biber: ldapauth names the Friendica account with the directory full name behind oauth2-proxy and Keycloak", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessServiceEnabled("sso");
+    await assertDirectoryFullName(browser, shared.loginViaOauth2ProxyAndFriendica);
   });
 };
