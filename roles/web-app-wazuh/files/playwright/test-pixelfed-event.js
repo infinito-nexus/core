@@ -14,6 +14,9 @@ const canaryWaitMs = Number(process.env.CANARY_WAIT_MS);
 const canaryPollMs = Number(process.env.CANARY_POLL_MS);
 const pixelfedDecoder = decodeDotenvQuotedValue(process.env.PIXELFED_DECODER);
 const pixelfedProgram = decodeDotenvQuotedValue(process.env.PIXELFED_PROGRAM);
+const pixelfedLogLocal = process.env.PIXELFED_LOG_LOCAL === "true";
+const pixelfedNode = decodeDotenvQuotedValue(process.env.PIXELFED_NODE);
+const remoteAppSkip = decodeDotenvQuotedValue(process.env.REMOTE_APP_SKIP);
 
 async function searchAlerts(page, marker) {
   const response = await page.request.post(
@@ -40,6 +43,7 @@ async function searchAlerts(page, marker) {
 test("administrator: a Pixelfed request shows up as its canary alert in the dashboard", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("pixelfed");
+  test.skip(!pixelfedLogLocal, `pixelfed runs on ${pixelfedNode}; ${remoteAppSkip}`);
   const marker = `pixelfed-pw-${Date.now()}`;
 
   await runAdminFlow(page, {

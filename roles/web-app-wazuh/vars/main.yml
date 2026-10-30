@@ -175,6 +175,9 @@ WAZUH_AGENTS: "{{ [lookup('wazuh_agent')] }}"
 WAZUH_POLL_DELAY: 5
 WAZUH_CANARY_WAIT_RETRIES: 36
 WAZUH_CANARY_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'in', lookup('deployment').running) | list }}"
+# Exception: the agent runs only on the manager's host, so it never reads the journal of a swarm node that runs an opted-in app's task.
+WAZUH_REMOTE_APP_SKIP: "Wazuh agents on other hosts are not supported yet, skipping the canary"
+WAZUH_PIXELFED_ENTITIES: "{{ WAZUH_RULESET_ENTITIES | selectattr('role', 'equalto', 'web-app-pixelfed') | list }}"
 
 WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"

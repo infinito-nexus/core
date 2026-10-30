@@ -3,6 +3,22 @@
   ansible.builtin.set_fact:
     wazuh_app_canary_run: "{{ now(utc=true, fmt=WAZUH_RUN_ID_FORMAT) }}"
 
+- name: "🔍 Find opted-in apps whose tasks run on another node"
+  include_tasks: utils/app_nodes.yml
+  vars:
+    wazuh_app_node_entities: "{{ WAZUH_CANARY_ENTITIES }}"
+
+- name: "⏭️ Skip the canary of apps on another node"
+  ansible.builtin.debug:
+    msg: "{{ item.key }} runs on {{ item.value }}; {{ WAZUH_REMOTE_APP_SKIP }}"
+  loop: "{{ wazuh_app_remote_nodes | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: "🔧 Keep the apps on this node"
+  ansible.builtin.set_fact:
+    wazuh_app_canary_entities: "{{ WAZUH_CANARY_ENTITIES | rejectattr('entity', 'in', wazuh_app_remote_nodes) | list }}"
+
 - name: "🐤 Send the HTTP canary to every opted-in app on its local port"
   uri_retry:
     url: >-
@@ -12,7 +28,7 @@
     follow_redirects: none
     status_code: "{{ range(100, 600) | list }}"
   delegate_to: "{{ groups[item.role][0] }}"
-  loop: "{{ WAZUH_CANARY_ENTITIES }}"
+  loop: "{{ wazuh_app_canary_entities }}"
   loop_control:
     label: "{{ item.entity }}"
   changed_when: false
@@ -28,6 +44,6 @@
           decoder.name: "{{ item.decoder }}"
       - match_phrase:
           full_log: "{{ WAZUH_CANARY_MARKER }} {{ item.entity }}-{{ wazuh_app_canary_run }}"
-  loop: "{{ WAZUH_CANARY_ENTITIES }}"
+  loop: "{{ wazuh_app_canary_entities }}"
   loop_control:
     label: "{{ item.entity }}"

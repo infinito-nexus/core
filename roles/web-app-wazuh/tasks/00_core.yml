@@ -161,3 +161,8 @@
 - name: "🩺 Verify the host agent and the canary end to end"
   include_tasks: 04_verify.yml
   when: run_once_sys_svc_wazuh_agent is defined
+
+- name: "🔍 Find whether Pixelfed's tasks run on another node, for the Playwright spec"
+  include_tasks: utils/app_nodes.yml
+  vars:
+    wazuh_app_node_entities: "{{ WAZUH_PIXELFED_ENTITIES }}"
