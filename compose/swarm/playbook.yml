@@ -92,7 +92,7 @@
       timeout: 30
       register: lab_pacman_cache_script
 
-    - name: layer the node pacman caches before the first install, host cache read-only first and the shared cache second
+    - name: layer the node pacman caches before the first install, host cache read-only first, the node download dir second and the shared cache third
       command:
         argv:
           - /usr/local/bin/pacman-cache.sh
