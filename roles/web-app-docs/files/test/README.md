@@ -73,6 +73,7 @@ flowchart TD
 | 1️⃣ | 🧪 `test.sh` starts on every host of the deploy | returns early unless this host is the stack host, so a swarm deploy replays once |
 | 2️⃣ | 📖 `extract.py` writes `block.sh` | fetches the role's page over `DOCS_TEST_BASE_URL`; an empty block fails the test, and `bash -n` parses it before anything runs it |
 | 🪞 | the GHCR mirror is attached | `mirror.sh` rewrites the block's provision call to write `mirrors.yml` and pass `--mirror`, so the replay pulls every application image from the mirror instead of the upstream registry. Outside CI the two GitHub variables are empty and the block is left exactly as published |
+| 📏 | the stack's disc-space limit is carried over | `disc_space.sh` puts `SIZE_PERCENT_CLEANUP_DISC_SPACE` with the stack host's own value into the block's provision `--vars`, so `sys-ctl-hlth-disc-space` in the target uses the stack host's limit |
 | 3️⃣ | 🚜 `replay.sh` finds the target | `INFINITO_DOMAIN`, `INFINITO_SRC_DIR` and `INFINITO_TARGET_KEY` come from the checkout's `.env`, and the address from `INFINITO_TARGET_KEY.address`, which the last reset wrote for this host: the stack address in a compose round, the lab address in a swarm round. A missing `.env` points at `make dotenv`, a missing `.address` at a reset, and a `DOCS_TEST_DOMAIN` other than `INFINITO_DOMAIN` fails the test |
 | 4️⃣ | 🔒 the target is claimed | `mkdir /var/lib/infinito-target-claim` over SSH, with the host keys the last reset pinned. A target that refuses the key, or one that something already claimed since its last reset, fails the test with a pointer to `make compose-target-reset`; replays therefore run one at a time |
 | 5️⃣ | 🔑 placeholders | `<your-ssh-public-key>` and `<your-ssh-private-key-file>` become the two halves of the target's root key; every other placeholder except `HOST` comes from `test.env` |
@@ -90,6 +91,7 @@ flowchart TD
 | `DOCS_TEST_BASE_URL` | `templates/test.env.j2` | documentation site the block is read from |
 | `DOCS_TEST_ROLE` | `templates/test.env.j2` | role whose page carries the instructions |
 | `DOCS_TEST_STACK_HOST` | `templates/test.env.j2` | `true` on the stack host, the only host that replays |
+| `DOCS_TEST_DISC_SPACE_PERCENT` | `templates/test.env.j2` | the stack host's `SIZE_PERCENT_CLEANUP_DISC_SPACE`, written into the replayed deploy's host vars by `disc_space.sh` |
 | `DOCS_TEST_DOMAIN` | `templates/test.env.j2` | fills `<your-domain>`; must equal `INFINITO_DOMAIN`, the zone the target's resolver answers with the target's address |
 | `DOCS_TEST_DNS` | `templates/test.env.j2` | fills `<your-clearnet-resolver>` |
 | `DOCS_TEST_COUNTRY` | `templates/test.env.j2` | fills `<your-country>` |
@@ -109,4 +111,5 @@ flowchart TD
 | `test.sh` | entry point; extraction, mirror, syntax check |
 | `extract.py` | pulls the Production block off the live documentation site |
 | `mirror.sh` | points the extracted block's provision call at the GHCR image mirror when CI configured one |
+| `disc_space.sh` | hands the extracted block's provision call the stack host's disc-space limit |
 | `replay.sh` | target lookup, claim, placeholder fill, `HOST` fill, guard, local image build, replay, failed-unit report |

@@ -11,6 +11,10 @@ API_BOT_PASSWORD = os.environ["API_BOT_PASSWORD"]
 API_KEY_SECRET = os.environ["API_KEY_SECRET"]
 COUNTRY = os.environ["COUNTRY"]
 CURRENCY = os.environ["CURRENCY"]
+SERVER_SCRIPTS_ENABLED = {"true": True, "false": False}[
+    os.environ["SERVER_SCRIPTS_ENABLED"].lower()
+]
+SCRIPT_MANAGER = "Script Manager"
 
 API_KEY, API_SECRET = (
     API_KEY_SECRET[: len(API_KEY_SECRET) // 2],
@@ -36,8 +40,20 @@ def upsert_api_bot():
     user.flags.ignore_permissions = True
     user.flags.ignore_password_policy = True
     user.save()
-    if not any(r.role == "System Manager" for r in user.roles):
-        user.append("roles", {"role": "System Manager"})
+    align_roles(user)
+
+
+def align_roles(user):
+    granted = ["System Manager", *([SCRIPT_MANAGER] if SERVER_SCRIPTS_ENABLED else [])]
+    revoked = [] if SERVER_SCRIPTS_ENABLED else [SCRIPT_MANAGER]
+    stale = [row for row in user.roles if row.role in revoked]
+    for row in stale:
+        user.roles.remove(row)
+    held = {row.role for row in user.roles}
+    missing = [role for role in granted if role not in held]
+    for role in missing:
+        user.append("roles", {"role": role})
+    if stale or missing:
         user.save()
 
 

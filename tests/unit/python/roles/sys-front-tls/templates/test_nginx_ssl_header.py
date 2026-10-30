@@ -102,5 +102,13 @@ class TestHsts(unittest.TestCase):
         self.assertNotIn("ssl", rendered)
 
 
+class TestCookieFlags(unittest.TestCase):
+    def test_a_plain_http_vhost_strips_secure_from_every_upstream_cookie(self):
+        self.assertIn("\nproxy_cookie_flags ~ nosecure;\n", render("web-app-onion", {}))
+
+    def test_a_tls_vhost_keeps_the_upstream_cookie_flags(self):
+        self.assertNotIn("proxy_cookie_flags", render("web-app-x", {}))
+
+
 if __name__ == "__main__":
     unittest.main()

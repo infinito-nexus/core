@@ -18,4 +18,5 @@ add_header Strict-Transport-Security "{{ (lookup('applications') | security_head
 {% else %}
 listen {{ lookup('tls', domain, 'ports.web') }};
 listen [::]:{{ lookup('tls', domain, 'ports.web') }};
+proxy_cookie_flags ~ nosecure;
 {% endif %}

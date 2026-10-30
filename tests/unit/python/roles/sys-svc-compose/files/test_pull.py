@@ -66,15 +66,17 @@ class TestComposePull(unittest.TestCase):
         self.assertIn("pulling", err)
 
     def test_run_streamed_outlives_a_deadline_while_it_keeps_talking(self) -> None:
-        chatty = "import time\nfor step in range(15):\n    print(step, flush=True)\n    time.sleep(0.2)\n"
+        chatty = "import time\nfor step in range(40):\n    print(step, flush=True)\n    time.sleep(0.1)\n"
 
-        with patch.object(self.m, "RUN_SILENCE_SECONDS", 1.0):
+        with patch.object(self.m, "RUN_SILENCE_SECONDS", 2.0):
             rc, out, _err = self.m.run_streamed(
-                [sys.executable, "-c", chatty], cwd=Path("/"), env=dict(os.environ)
+                [sys.executable, "-I", "-S", "-c", chatty],
+                cwd=Path("/"),
+                env=dict(os.environ),
             )
 
         self.assertEqual(rc, 0)
-        self.assertEqual(out.split()[-1], "14")
+        self.assertEqual(out.split()[-1], "39")
 
     def test_run_streamed_kills_a_command_that_falls_silent(self) -> None:
         with patch.object(self.m, "RUN_SILENCE_SECONDS", 0.5):

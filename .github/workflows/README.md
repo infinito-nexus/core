@@ -316,10 +316,10 @@ failed chunk:
 
 | Value | Behaviour |
 |---|---|
-| `true` | chunk 0 fails → the remaining chunks are skipped |
+| `true` | the `1️⃣ Gate` job waits for chunk 0 and a running `test-workspace`; when either failed it turns red and the remaining chunks are skipped |
 | `false` | every chunk deploys and reports; the run still ends red |
 
-`skipped` counts as passed, so an empty chunk never blocks the chain. After
+`skipped` counts as passed, so an empty chunk or a workspace test the run does not select never blocks the chain. With `chunk_gate: false` the gate is skipped, but chunk 1 still starts only after chunk 0 and `test-workspace` have finished. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
 the other entry points take the defaults, except that a release push on `main`

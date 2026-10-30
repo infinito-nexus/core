@@ -25,6 +25,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -50,6 +51,7 @@ class VolumeRecovery(DirectoryRecovery):
         service_backup: bool = True,
         docker_host: str | None = None,
     ) -> None:
+        host = docker_host.split("://", 1)[-1] if docker_host else None
         docker = ["docker", *(["-H", docker_host] if docker_host else [])]
         mountpoint = subprocess.run(
             [*docker, "volume", "inspect", "--format", "{{.Mountpoint}}", volume],
@@ -65,8 +67,8 @@ class VolumeRecovery(DirectoryRecovery):
         ).stdout.strip()
         if options not in ("", "null", "{}"):
             probe = (
-                ["ssh", docker_host.split("://", 1)[-1], "mountpoint", "-q", mountpoint]
-                if docker_host
+                ["ssh", host, "mountpoint", "-q", mountpoint]
+                if host
                 else ["mountpoint", "-q", mountpoint]
             )
             if subprocess.run(probe, check=False).returncode != 0:
@@ -77,11 +79,18 @@ class VolumeRecovery(DirectoryRecovery):
                     "disk and be shadowed by the real backing store on the next mount. "
                     "Start a container that holds the volume, then retry."
                 )
-        target = (
-            f"{docker_host.split('://', 1)[-1]}:{mountpoint}"
-            if docker_host
-            else mountpoint
+        # Exception: rsync >= 3.5.0 refuses a destination symlink not owned by root, and svc-opt-ssd-hdd's _data is one.
+        resolved = (
+            subprocess.run(
+                ["ssh", host, "realpath", "-e", "--", mountpoint],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            if host
+            else os.path.realpath(mountpoint)
         )
+        target = f"{host}:{resolved}" if host else resolved
         super().__init__(source_dir, target, service_backup=service_backup)
 
 

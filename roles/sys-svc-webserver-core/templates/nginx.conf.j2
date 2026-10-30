@@ -1,7 +1,7 @@
-worker_processes {{ WEBSERVER_WORKER_PROCESSES }};
+worker_processes {{ WEBSERVER_PROXY_WORKER_PROCESSES }};
 events
 {
-  worker_connections {{ WEBSERVER_WORKER_CONNECTIONS }};
+  worker_connections {{ WEBSERVER_PROXY_WORKER_CONNECTIONS }};
 }
 http
 {
