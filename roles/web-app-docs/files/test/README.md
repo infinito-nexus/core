@@ -81,6 +81,7 @@ flowchart TD
 | 1️⃣ | 🧪 `test.sh` starts on the stack host | returns early unless the deployment mode is compose |
 | 2️⃣ | 📖 `extract.py` writes `block.sh` | fetches the role's page over `DOCS_TEST_BASE_URL`; an empty block fails the test, and `bash -n` parses it before anything runs it |
 | 🪞 | the GHCR mirror is attached | `mirror.sh` rewrites the block's provision call to write `mirrors.yml` and pass `--mirror`, so the replay pulls every application image from the mirror instead of the upstream registry. Outside CI the two GitHub variables are empty and the block is left exactly as published |
+| 📏 | the stack's disc-space limit is carried over | `disc_space.sh` puts `SIZE_PERCENT_CLEANUP_DISC_SPACE` with the stack host's own value into the block's provision `--vars`, so `sys-ctl-hlth-disc-space` in the target uses the stack host's limit |
 | 3️⃣ | 🔑 key pair and placeholders | an ed25519 pair per run under `DOCS_TEST_WORK`; every placeholder except `HOST` is substituted |
 | 4️⃣ | 🚜 `machine.sh` brings the target up | `compose up machine`, on the default bridge |
 | 5️⃣ | ⚙️ the target boots | image built from `Dockerfile` + `init.sh`; `MACHINE_BASE_IMAGE` comes from `INFINITO_PARENT_IMAGE` in the checkout's `.env` |
@@ -101,6 +102,7 @@ flowchart TD
 | `DOCS_TEST_BASE_URL` | `templates/test.env.j2` | documentation site the block is read from |
 | `DOCS_TEST_ROLE` | `templates/test.env.j2` | role whose page carries the instructions; names the compose project |
 | `DOCS_TEST_MODE` | `templates/test.env.j2` | deployment mode; the test runs only for compose |
+| `DOCS_TEST_DISC_SPACE_PERCENT` | `templates/test.env.j2` | the stack host's `SIZE_PERCENT_CLEANUP_DISC_SPACE`, written into the replayed deploy's host vars by `disc_space.sh` |
 | `DOCS_TEST_DOMAIN` | `templates/test.env.j2` | fills `<your-domain>`; the zone the resolver answers with the target's bridge address |
 | `DOCS_TEST_DNS` | `templates/test.env.j2` | fills `<your-clearnet-resolver>` |
 | `DOCS_TEST_SRC_DIR` | `templates/test.env.j2` | checkout holding the generated `.env`; mounted into the target at the same path, where a host install replays from it |
@@ -119,6 +121,7 @@ flowchart TD
 | `test.sh` | entry point; extraction, key pair, placeholder fill |
 | `extract.py` | pulls the Production block off the live documentation site |
 | `mirror.sh` | points the extracted block's provision call at the GHCR image mirror when CI configured one |
+| `disc_space.sh` | hands the extracted block's provision call the stack host's disc-space limit |
 | `machine.sh` | target lifecycle, wildcard resolution, `HOST` fill, guard, local image build, replay, failed-unit report, teardown |
 | `compose.yml` | the target service on the default bridge with a named volume at `/var/lib/docker`, and the resolver service in the target's network namespace |
 | `Corefile.tmpl` | the resolver's configuration; `${DOCS_TEST_DOMAIN}`, `${DOCS_TEST_TARGET_IP}` and `${DOCS_TEST_UPSTREAM}` are substituted into `DOCS_TEST_WORK/Corefile` |
