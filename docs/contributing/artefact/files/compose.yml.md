@@ -81,6 +81,8 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR` | Host directory for per-hostname leaf certs. |
 | `INFINITO_CACHE_PACKAGE_FRONTEND_IP` | Static IPv4 address for the frontend on the compose default network. |
 | `INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE` | Bind source for `/opt/package-frontend-ca.crt` inside the runner. Driver-injected. |
+| `INFINITO_CACHE_SHARED_HOST_PATH` | Optional shared package and tool cache folder, bind-mounted read-write at the same path into the runner through `compose/shared-cache.override.yml` when non-empty. See [cache.md](../../environment/cache.md). |
+| `INFINITO_CACHE_HOST_PACMAN_PATH` | Optional pacman cache of an Arch Linux host, bind-mounted read-only at the same path through `compose/pacman.override.yml` when it and the shared folder are non-empty. Empty on every host whose os-release `ID` is not `arch` and on every stack that does not run pacman. |
 
 ### Networking
 

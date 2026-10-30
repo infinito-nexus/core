@@ -1,6 +1,6 @@
 # Local Caches 📦
 
-Three local cache services accelerate re-deploys, reduce upstream traffic, and harden the development workflow against transient upstream outages. They share one compose profile (`cache`) and one override file ([compose/cache.override.yml](../../../compose/cache.override.yml)) and are gated together by [profile.py](../../../cli/administration/deploy/development/profile.py): active on developer machines, inactive on CI runners.
+Three local cache services and one shared cache folder accelerate re-deploys, reduce upstream traffic, and harden the development workflow against transient upstream outages. They share one compose profile (`cache`) and one override file ([compose/cache.override.yml](../../../compose/cache.override.yml)) and are gated together by [profile.py](../../../cli/administration/deploy/development/profile.py): active on developer machines, inactive on CI runners.
 
 ## Services 🧩
 
@@ -43,6 +43,34 @@ Two listener layers:
 
 Cert generation runs in a throw-away alpine container driven by [certs.sh](../../../roles/svc-cache-package/files/shell/certs.sh) before the frontend starts. It issues a leaf for each name in `INFINITO_CACHE_TLS_HOSTS` and holds no hostname of its own.
 
+### Shared Package Cache Folder 🗂️
+
+One host folder, `INFINITO_CACHE_SHARED_HOST_PATH` (default `<DIR_CACHE>/shared`, written by [paths.py](../../../utils/env/handlers/infinito/cache/paths.py)), holds the package and tool caches of every compose slot, swarm lab node and GUI lane on the host. Every consumer mounts it read-write at the same path it has on the host. Both cache variables are optional: an empty or missing value layers no mount, no cache environment and no pacman layering, so a checkout whose `.env` predates them renders and starts as before.
+
+| Subfolder | Tool | How the consumer points at it |
+|---|---|---|
+| `pacman/` | pacman | second `CacheDir` in `/etc/pacman.conf`, written by [pacman.sh](../../../scripts/docker/cache/pacman.sh) |
+| `pip/` | pip | `PIP_CACHE_DIR` |
+| `npm/` | npm | `npm_config_cache` |
+| `ms-playwright/` | Playwright browsers | `PLAYWRIGHT_BROWSERS_PATH` |
+
+The consumers in this repository are wired as follows:
+
+- Compose slots: `compose_file_args` layers [compose/shared-cache.override.yml](../../../compose/shared-cache.override.yml) when the cache stack is active and the variable is set. It mounts the folder and `pacman.sh` into the runner and sets `PIP_CACHE_DIR` and `npm_config_cache`. `make compose-up` then runs `pacman.sh` in the runner.
+- Swarm lab nodes: `01_bootstrap.sh` layers [compose/swarm/shared-cache.override.yml](../../../compose/swarm/shared-cache.override.yml) next to the cache override when the variable is set. It mounts the folder and `pacman.sh` into the manager, both workers, the NFS server and the backup host, and [playbook.yml](../../../compose/swarm/playbook.yml) runs `pacman.sh` on each node that has it.
+- Core Playwright runs take their browsers from the `mcr.microsoft.com/playwright` image, so they leave `ms-playwright/` empty.
+
+pacman on an arch stack reads up to two cache directories. `INFINITO_CACHE_HOST_PACMAN_PATH`, written by [host_pacman_path.py](../../../utils/env/handlers/infinito/cache/host_pacman_path.py), is the first `CacheDir` of the host's `pacman-conf`, and only on a host whose `/etc/os-release` `ID` is exactly `arch` running an arch stack. On Manjaro, EndeavourOS and every other host, and on every stack that does not run pacman, the variable is empty and pacman uses the shared layer alone. When it is set, [compose/pacman.override.yml](../../../compose/pacman.override.yml) and [compose/swarm/pacman.override.yml](../../../compose/swarm/pacman.override.yml) mount it read-only at the same path, layered only together with the shared folder. `pacman.sh` lists it as the first `CacheDir` and `<shared>/pacman/` as the second. pacman finds a package in either directory and downloads a missing one into `<shared>/pacman/`, the first one it can write. The disc-space cleanup runs `pacman -Sc` per writable `CacheDir`, so it never touches the read-only layer.
+
+apt and dnf keep their per-container caches. Their downloads come through the `apt-*` and `yum-*` proxies of the package cache, which store each file once for the whole host.
+
+A GUI lane follows the same contract whenever `INFINITO_CACHE_SHARED_HOST_PATH` is non-empty, and mounts nothing when it is empty:
+
+- Mount `${INFINITO_CACHE_SHARED_HOST_PATH}` read-write at `${INFINITO_CACHE_SHARED_HOST_PATH}`.
+- Set `PIP_CACHE_DIR=${INFINITO_CACHE_SHARED_HOST_PATH}/pip`, `npm_config_cache=${INFINITO_CACHE_SHARED_HOST_PATH}/npm` and `PLAYWRIGHT_BROWSERS_PATH=${INFINITO_CACHE_SHARED_HOST_PATH}/ms-playwright`.
+- On an arch lane with a non-empty `INFINITO_CACHE_HOST_PACMAN_PATH`, mount that directory read-only at the same path and run `scripts/docker/cache/pacman.sh /etc/pacman.conf "${INFINITO_CACHE_SHARED_HOST_PATH}" "${INFINITO_CACHE_HOST_PACMAN_PATH}"` in the lane before its first `pacman` call. Pass an empty third argument without the read-only mount.
+- Read both values from this checkout's `.env` after `make dotenv`.
+
 ## Activation 🎚️
 
 The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.py](../../../cli/administration/deploy/development/profile.py). When active:
@@ -50,7 +78,7 @@ The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.
 - [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
 - The runner's `infinito` service receives:
-  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file
+  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file, plus the shared package cache folder when `INFINITO_CACHE_SHARED_HOST_PATH` is set
   - `extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP
   - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
 - Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py).
@@ -68,6 +96,8 @@ CI signals (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=true`, `CI=true`)
 | `pip install` (Ansible task in runner) | `pip.conf` URL-rewrite | ✓ |
 | `npm install` (Ansible task in runner) | `.npmrc` URL-rewrite | ✓ |
 | `gem`, `composer`, `go`, `curl https://…` (Ansible task in runner) | DNS-hijack + frontend HTTPS + runner CA-trust | ✓ |
+| `pacman -S` (Ansible task in an arch runner or lab node) | read-only host cache + shared `pacman/` folder | ✓ |
+| `pip`/`npm` local caches (runner) | shared `pip/` and `npm/` folders | ✓ |
 | `RUN apt-get install` (inner Dockerfile build, Debian/Ubuntu) | `build.extra_hosts` DNS-hijack + frontend HTTP | ✓ |
 | `RUN apk add` (inner Dockerfile build, Alpine ≤3.17 HTTP) | `build.extra_hosts` DNS-hijack + frontend HTTP | ✓ |
 | `RUN pip/npm/gem/composer/go install` (inner Dockerfile build) | none today | ✗ |
