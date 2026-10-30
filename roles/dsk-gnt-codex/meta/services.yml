@@ -9,6 +9,11 @@ codex:
     host:
       enabled: true
   lifecycle: alpha
+  npm_version: 0.166.0
+  update:
+    key: npm_version
+    type: npm
+    package: "@openai/codex"
   bond: 1
   enabled: true
   shared: true

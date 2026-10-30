@@ -9,6 +9,11 @@ claude:
     host:
       enabled: true
   lifecycle: alpha
+  npm_version: 2.1.314
+  update:
+    key: npm_version
+    type: npm
+    package: "@anthropic-ai/claude-code"
   bond: 1
   enabled: true
   shared: true

@@ -9,6 +9,11 @@ pi:
     host:
       enabled: true
   lifecycle: alpha
+  npm_version: 1.4.0
+  update:
+    key: npm_version
+    type: npm
+    package: "@earendil-works/pi-coding-agent"
   gateway_url: ""
   models: []
   min_storage: "500MB"

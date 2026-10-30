@@ -3,7 +3,7 @@
 
 - name: 📦 install the codex coding agent
   ansible.builtin.command:
-    cmd: npm install -g {{ agnt_codex_package }}
+    cmd: npm install -g {{ agnt_codex_package }}@{{ agnt_codex_version }}
   register: agnt_codex_install
   changed_when: "'added' in agnt_codex_install.stdout or 'changed' in agnt_codex_install.stdout"
 
