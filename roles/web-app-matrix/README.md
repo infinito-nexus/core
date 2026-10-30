@@ -157,7 +157,10 @@ role's `litellm_api_key`, and MDAD creates the `baibot` account itself from
 `matrix_user_creator_users_auto`, so no account provisioning step is needed.
 That account creation runs only under the `ensure-matrix-users-created` tag,
 which `services.matrix.playbook_tags` carries between `setup-all` and `start`;
-drop it and baibot starts without an account to log in to.
+drop it and baibot starts without an account to log in to. `bootstrap.sh`
+stops an installed `matrix-synapse.service` before the playbook, and the
+account creation starts it again on the configuration the playbook has just
+rendered.
 
 `synapse-usage-exporter` turns Synapse's metrics listener on and publishes it on
 the `matrix-mdad` container's own interface. The outer Prometheus joins this
