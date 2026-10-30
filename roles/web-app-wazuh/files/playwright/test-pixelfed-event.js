@@ -43,7 +43,7 @@ async function searchAlerts(page, marker) {
 test("administrator: a Pixelfed request shows up as its canary alert in the dashboard", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("pixelfed");
-  test.skip(!pixelfedLogLocal, `pixelfed runs on ${pixelfedNode}; ${remoteAppSkip}`);
+  test.skip(!pixelfedLogLocal, `pixelfed runs on ${pixelfedNode}; ${remoteAppSkip}, skipping the canary`);
   const marker = `pixelfed-pw-${Date.now()}`;
 
   await runAdminFlow(page, {

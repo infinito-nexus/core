@@ -12,16 +12,20 @@
 #   ALERTS_INDEX              the indexer's alert index pattern
 #   APP_ENTITY, APP_DECODER   an opted-in app's journald tag and parent decoder
 #   APP_URL, APP_HOST         that app's local HTTP port and its Host header
+#   APP_SERVICE               that app's swarm service; empty in compose mode
 #   CANARY_MARKER, CANARY_RULE  the canary text and the self-test canary rule
 #   DEPLOYED_CODE_PROOF, DEPLOYED_CODE_SCRIPT, DEPLOYED_CODE_TAG  see deployed_code.sh
 #   FOREIGN_ENTITY            a role's entity that is not opted in
 #   OPTED_ENTITIES            every opted-in entity, space separated; empty skips the test
 #   INDEXER_URL, INDEXER_USER, INDEXER_PASSWORD  the indexer API
 #   MANAGER_LOGS_VOLUME       the Docker volume holding the manager's logs
+#   REMOTE_APP_SKIP           why an app on another node is skipped
+#   RESOLVE_CONTAINER_ID      the resolve-container-id helper; empty in compose mode
 #   SELFTEST_TAG, SELFTEST_DECODER  the reserved self-test tag and its decoder
 #   RETRIES, SLEEP_SECONDS    polling for an alert
 #   TEST_IMAGE                image of the throwaway log containers
-#   WAZUH_CONTAINERS          the Wazuh containers' names, space separated
+#   WAZUH_CONTAINERS          the Wazuh containers' names, or their service keys with WAZUH_STACK, space separated
+#   WAZUH_STACK               the Wazuh swarm stack; empty in compose mode
 
 set -euo pipefail
 
@@ -35,7 +39,11 @@ fi
 : "${CANARY_MARKER:?}" "${CANARY_RULE:?}" "${FOREIGN_ENTITY:?}" "${OPTED_ENTITIES:?}"
 : "${INDEXER_URL:?}" "${INDEXER_USER:?}" "${INDEXER_PASSWORD:?}" "${MANAGER_LOGS_VOLUME:?}"
 : "${SELFTEST_TAG:?}" "${SELFTEST_DECODER:?}" "${RETRIES:?}" "${SLEEP_SECONDS:?}"
-: "${TEST_IMAGE:?}" "${WAZUH_CONTAINERS:?}"
+: "${TEST_IMAGE:?}" "${WAZUH_CONTAINERS:?}" "${REMOTE_APP_SKIP:?}"
+: "${APP_SERVICE?}" "${RESOLVE_CONTAINER_ID?}" "${WAZUH_STACK?}"
+if [[ -n "${WAZUH_STACK}" ]]; then
+	: "${APP_SERVICE:?}" "${RESOLVE_CONTAINER_ID:?}"
+fi
 
 RUN="$(date -u +%Y%m%dT%H%M%S)-$$"
 LABEL="infinito-wazuh-test=${RUN}"
@@ -60,6 +68,25 @@ pass() {
 emit() {
 	container run --rm --name="wazuh-test-$2-${RUN}" --label="${LABEL}" \
 		--log-driver=journald --log-opt="tag=$1" "${TEST_IMAGE}" echo "$3" >/dev/null
+}
+
+# Exception: swarm names a task container <stack>_<key>.<slot>.<task>, so the ID comes from the running task, not the compose name.
+container_id() {
+	if [[ -z "${WAZUH_STACK}" ]]; then
+		container inspect --type container -f '{{.Id}}' "$1" | cut -c1-12
+	else
+		"${RESOLVE_CONTAINER_ID}" "${WAZUH_STACK}" "$1"
+	fi
+}
+
+# Exception: the agent reads only this node's journal, so an app task on another node never reaches Wazuh.
+remote_nodes() {
+	local self nodes
+	[[ -n "${APP_SERVICE}" ]] || return 0
+	self="$(container info --format '{{.Name}}')"
+	nodes="$(container service ps --filter desired-state=running --format '{{.Node}}' "${APP_SERVICE}")"
+	[[ -n "${self}" && -n "${nodes}" ]] || fail "could not find the node of ${APP_SERVICE}'s running task"
+	awk -v self="${self}" '$0 != self && !seen[$0]++ { out = out (out ? ", " : "") $0 } END { print out }' <<<"${nodes}"
 }
 
 count_lines() {
@@ -130,7 +157,7 @@ check_per_app_switch() {
 	[[ "$(count_lines "${ARCHIVES}" "${text}" "\"program_name\":\"${FOREIGN_ENTITY}\"")" -eq 0 ]] ||
 		fail "J: the excluded tag ${FOREIGN_ENTITY} was forwarded"
 	for name in ${WAZUH_CONTAINERS}; do
-		id="$(container inspect --type container -f '{{.Id}}' "${name}" | cut -c1-12)"
+		id="$(container_id "${name}")"
 		[[ "$(count_lines "${ARCHIVES}" "\"program_name\":\"${id}\"" '"location":"journald"')" -eq 0 ]] ||
 			fail "J: the logs of ${name} were forwarded"
 	done
@@ -140,7 +167,12 @@ check_per_app_switch() {
 check_secrets() {
 	local password="SYNTHPW-${RUN}" bearer="SYNTHBEARER-${RUN}" key="SYNTHKEY-${RUN}"
 	local reset="SYNTHRESET-${RUN}" confirm="SYNTHCONFIRM-${RUN}" referer="SYNTHREF-${RUN}"
-	local secret where barrier_text="${CANARY_MARKER} i-barrier-${RUN}"
+	local secret where barrier_text="${CANARY_MARKER} i-barrier-${RUN}" remote
+	remote="$(remote_nodes)"
+	if [[ -n "${remote}" ]]; then
+		echo "SKIP: I: ${APP_ENTITY} runs on ${remote}; ${REMOTE_APP_SKIP}, skipping I"
+		return 0
+	fi
 	local -a request=(curl -s --connect-timeout 10 --max-time 30 -o /dev/null -H "Host: ${APP_HOST}")
 	"${request[@]}" -d "email=synthetic@example.invalid" -d "password=${password}" "${APP_URL}/login"
 	"${request[@]}" -H "Authorization: Bearer ${bearer}" "${APP_URL}/api/v1/accounts/verify_credentials"

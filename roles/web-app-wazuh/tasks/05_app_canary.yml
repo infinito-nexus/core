@@ -10,7 +10,7 @@
 
 - name: "⏭️ Skip the canary of apps on another node"
   ansible.builtin.debug:
-    msg: "{{ item.key }} runs on {{ item.value }}; {{ WAZUH_REMOTE_APP_SKIP }}"
+    msg: "{{ item.key }} runs on {{ item.value }}; {{ WAZUH_REMOTE_APP_SKIP }}, skipping the canary"
   loop: "{{ wazuh_app_remote_nodes | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
