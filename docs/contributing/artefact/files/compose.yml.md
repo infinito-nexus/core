@@ -67,6 +67,7 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_CACHE_REGISTRY_HOST_PATH` | Host path bind-mounted into `registry-cache` for blob/manifest persistence. |
 | `INFINITO_CACHE_REGISTRY_CA_HOST_PATH` | Host path holding the proxy MITM CA bundle. Mounted writable into `registry-cache`, read-only into `infinito`. |
 | `INFINITO_CACHE_REGISTRY_MAX_SIZE` | Maximum on-disk size. Computed by [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`. |
+| `INFINITO_CACHE_REGISTRY_AUTH` | `AUTH_REGISTRIES` of `registry-cache`. Consumed bare, because empty is valid and pulls anonymously; `auth.docker.io:<user>:<token>` pulls with that Docker Hub account. Set it in `custom.env` as described in [cache.md](../../environment/cache.md). |
 | `INFINITO_CACHE_REGISTRY_PROXY_CONF` | Bind source for the systemd drop-in inside `infinito`. Set by the dev tooling to the real `proxy.conf` under the `cache` profile. Driver-injected; not produced by `make dotenv`. |
 | `INFINITO_CACHE_PACKAGE_HOST_PATH` | Host path bind-mounted at `/nexus-data`. |
 | `INFINITO_CACHE_PACKAGE_HEAP` | JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`. |

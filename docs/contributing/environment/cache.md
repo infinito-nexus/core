@@ -97,6 +97,25 @@ Per-variable defaults and purposes are in [compose.yml.md](../artefact/files/com
 
 `INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` (default `8640` = 6 days) controls how long every Nexus proxy repo holds an upstream response before revalidating. The bootstrap helper applies it as `contentMaxAge`, `metadataMaxAge`, and `negativeCache.timeToLive`. The default is intentionally one day below the 7-day `Valid-Until` window Debian and Ubuntu generate in their apt `Release` files, so Nexus always refreshes the manifest before `apt-get update` would see it expired. Raise it for slow-moving upstreams when staleness is preferable to upstream load; lower it further for fast-moving feeds (`apt-debian-security`, branch-pinned tarballs) when staleness becomes visible.
 
+## Docker Hub Login 🔑
+
+`registry-cache` pulls from Docker Hub anonymously unless `INFINITO_CACHE_REGISTRY_AUTH` holds credentials; with them, its pulls count against your own Docker Hub account. The value reaches the proxy's `AUTH_REGISTRIES` unchanged, and empty keeps the anonymous pulls.
+
+1. In Docker Hub, create a personal access token with the **Repo Public Read-only** permission and nothing more: every container that pulls through the cache pulls with this account.
+2. In the primary checkout, which owns the cache stack (`INFINITO_CACHE_NETWORK` empty), add the token to [custom.env](../customize.md). A worktree that joins that stack ignores its own value.
+
+   ```bash
+   INFINITO_CACHE_REGISTRY_AUTH=auth.docker.io:<user>:<token>
+   ```
+
+   `<user>` is the Docker Hub username, not the email address. The host is `auth.docker.io`, not `registry-1.docker.io`: the proxy adds the credentials to the token requests it forwards to `auth.docker.io`.
+3. Run `make dotenv`, then `make compose-up`. Compose recreates `infinito-registry-cache` because its environment changed; pulls through the cache fail until it is healthy again.
+4. Check the login: `docker logs infinito-registry-cache 2>&1 | grep 'Adding Auth'` prints `Adding Auth for registry 'auth.docker.io' with user '<user>'.`, without the token.
+
+To rotate the token, replace the value in `custom.env` and run `make dotenv` and `make compose-up` again, then revoke the old token in Docker Hub. To return to anonymous pulls, delete the line and run the same two commands.
+
+The token lives in the untracked `custom.env` and `.env`. `docker compose config` and `docker inspect infinito-registry-cache` print it, so keep their output out of issues, chats and logs. An exported `INFINITO_CACHE_REGISTRY_AUTH` in your shell overrides `.env` in every `make` target, so set it only in `custom.env`.
+
 ## Operations 🛠️
 
 | Action | Command |
