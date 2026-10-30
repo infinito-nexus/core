@@ -78,3 +78,21 @@
     CURRENCY: "{{ (erpnext_company_apply.stdout_lines | last | from_json).currency }}"
   register: erpnext_api_bot_apply
   changed_when: false
+
+- name: "📜 align server_script_enabled with services.erpnext.server_scripts"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SERVER_SCRIPTS_ENABLED
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/server_scripts.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SERVER_SCRIPTS_ENABLED: "{{ ERPNEXT_SERVER_SCRIPTS_ENABLED }}"
+  register: erpnext_server_scripts_apply
+  changed_when: (erpnext_server_scripts_apply.stdout_lines | last | from_json).changed
+
+- name: "🔄 Restart Frappe so every worker reads the new server_script_enabled"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+  when: erpnext_server_scripts_apply is changed
