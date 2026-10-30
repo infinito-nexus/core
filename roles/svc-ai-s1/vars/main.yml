@@ -10,9 +10,7 @@ S1_FLAVOR: "{{ lookup('config', application_id, 'services.s1.flavor') }}"
 S1_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
 S1_MODEL_ALIAS: "{{ lookup('config', application_id, 'services.s1.model_alias') }}"
 
-S1_GPU_REQUESTED: "{{ lookup('applications') | resource_filter(application_id, 'gpu', 's1', false) }}"
-S1_NVIDIA_DEVICE: /dev/nvidia0
-S1_NVIDIA_RUNTIME: /usr/bin/nvidia-container-runtime
+S1_GPU: "{{ lookup('gpu', application_id, 's1') }}"
 S1_LAYA_DEVICE: "{{ 'cuda' if S1_GPU | bool else 'cpu' }}"
 
 S1_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"

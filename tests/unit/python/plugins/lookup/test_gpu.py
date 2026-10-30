@@ -24,10 +24,16 @@ APPLICATIONS: ClassVar[dict] = {
 }
 
 PRESENT: ClassVar[dict] = {
-    "sys_svc_container_nvidia_device": {"stat": {"exists": True}}
+    "sys_svc_container_nvidia_device": {"stat": {"exists": True}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": True}},
 }
 ABSENT: ClassVar[dict] = {
-    "sys_svc_container_nvidia_device": {"stat": {"exists": False}}
+    "sys_svc_container_nvidia_device": {"stat": {"exists": False}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": True}},
+}
+DRIVERLESS: ClassVar[dict] = {
+    "sys_svc_container_nvidia_device": {"stat": {"exists": True}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": False}},
 }
 
 
@@ -77,17 +83,9 @@ class TestGpuLookup(unittest.TestCase):
             _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
         )
 
-    def test_a_device_stat_skipped_for_a_missing_driver_is_false(self):
+    def test_a_device_without_its_driver_is_false(self):
         """A privileged container sees the host's /dev/nvidia0 without the driver."""
-        lm = _make_lookup(
-            {
-                "sys_svc_container_nvidia_device": {
-                    "changed": False,
-                    "skipped": True,
-                    "false_condition": "sys_svc_container_nvidia_driver.stat.exists",
-                }
-            }
-        )
+        lm = _make_lookup(DRIVERLESS)
         self.assertEqual(
             _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
         )

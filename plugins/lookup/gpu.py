@@ -2,15 +2,16 @@
 
 Two facts have to agree and used to be restated at every call site. The
 declaration lives in ``applications`` under ``services.<service>.gpu``; the
-hardware is ``sys-svc-container``'s stat of ``/dev/nvidia0`` on the target
-host, registered as ``sys_svc_container_nvidia_device`` and skipped where the
-NVIDIA driver is not installed. Asking only the
+hardware is ``sys-svc-container``'s two stats on the target host: the device
+node ``/dev/nvidia0`` (``sys_svc_container_nvidia_device``) and the driver's
+``nvidia-smi`` (``sys_svc_container_nvidia_driver``). Asking only the
 declaration selects a ``-cuda`` image on a host that has no device, and that
 tag has no arm64 manifest at all, so the build fails with ``no match for
-platform in manifest``.
+platform in manifest``. A privileged container sees the host's device node
+without the driver, so the node alone does not make a GPU host either.
 
-The stat is a target-host fact, so this reads the register out of the play's
-variables rather than inspecting the controller it runs on.
+The stats are target-host facts, so this reads the registers out of the
+play's variables rather than inspecting the controller it runs on.
 """
 
 from __future__ import annotations
@@ -25,22 +26,36 @@ from ansible.plugins.lookup import LookupBase
 from plugins.filter.resource_filter import resource_filter
 
 DEVICE_FACT = "sys_svc_container_nvidia_device"
+DRIVER_FACT = "sys_svc_container_nvidia_driver"
 
 
-def _device_present(variables: dict) -> bool:
-    """Whether the target host registered an NVIDIA device node.
+def _stat_exists(variables: dict, fact: str) -> bool:
+    """Whether a stat register of the target host found its path.
 
     Args:
         variables: the play's variables, carrying the register.
+        fact: name of the register.
 
     Returns:
         False while the register is absent, which is also the answer before
         ``sys-svc-container`` has run.
     """
-    register = variables.get(DEVICE_FACT) or {}
+    register = variables.get(fact) or {}
     if not isinstance(register, dict):
         return False
     return bool((register.get("stat") or {}).get("exists"))
+
+
+def _device_present(variables: dict) -> bool:
+    """Whether the target host carries an NVIDIA device node and its driver.
+
+    Args:
+        variables: the play's variables, carrying both registers.
+
+    Returns:
+        True only when both stats found their path.
+    """
+    return _stat_exists(variables, DEVICE_FACT) and _stat_exists(variables, DRIVER_FACT)
 
 
 class LookupModule(LookupBase):
