@@ -12,7 +12,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.render import _write
+from utils.cache.hosts import host_records
+from utils.cache.render import _write, upstreams_conf
+
+OLLAMA_HOST = "registry.ollama.ai"
+OLLAMA_REPO = "raw-ollama-registry"
 
 
 class TestWrite(unittest.TestCase):
@@ -61,6 +65,27 @@ class TestWrite(unittest.TestCase):
                 ),  # nocheck: cache-read tempdir fixture rewritten in this test
                 "fresh",
             )
+
+
+class TestOllamaRegistry(unittest.TestCase):
+    def test_the_probe_requests_a_path_under_v2(self) -> None:
+        self.assertEqual(
+            host_records()[OLLAMA_HOST]["routes"],
+            [{"path": "/v2/", "repo": OLLAMA_REPO}],
+            f"{OLLAMA_HOST} answers 503 on its bare root, so the package-cache "
+            "probe must request a path under /v2/, which it serves",
+        )
+
+    def test_the_tls_frontend_still_proxies_the_whole_host(self) -> None:
+        block = next(
+            block
+            for block in upstreams_conf().split("server {")
+            if f"server_name {OLLAMA_HOST};" in block
+        )
+
+        self.assertIn("location / {", block)
+        self.assertIn(f"/repository/{OLLAMA_REPO}/;", block)
+        self.assertNotIn("location /v2/", block)
 
 
 if __name__ == "__main__":
