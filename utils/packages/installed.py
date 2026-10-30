@@ -10,7 +10,13 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from utils.packages.calls import GENERIC_PACKAGE, STATE_PRESENT, STATES, ModuleCall
+from utils.packages.calls import (
+    DEB_INSTALL,
+    GENERIC_PACKAGE,
+    STATE_PRESENT,
+    STATES,
+    ModuleCall,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -28,6 +34,8 @@ transaction that only the package manager module can finish."""
 C_LOCALE = ("env", "LC_ALL=C")
 """The not-found messages are translated; only the C locale makes them
 comparable."""
+
+DEB_FIELDS: tuple[str, ...] = ("Package", "Version")
 
 
 def _dpkg_entry(line: str) -> tuple[str, str] | None:
@@ -171,3 +179,113 @@ def _states(
     ):
         return None
     return {**states, **{name: set() for name in missing}}
+
+
+def _succeeded_stdout(result: dict[str, Any]) -> list[str] | None:
+    stdout = result.get("stdout")
+    if result.get("skipped") or result.get("rc") != 0 or not isinstance(stdout, str):
+        return None
+    return stdout.splitlines()
+
+
+def deb_pin_argv(call: ModuleCall) -> list[str] | None:
+    """
+    Args:
+        call: one module call of a package plan.
+
+    Returns:
+        the argv reading :data:`DEB_FIELDS` out of the deb *call* installs, or
+        None unless *call* installs one local deb file and nothing else.
+    """
+    deb = call.args.get("deb")
+    if (
+        call.module != DEB_INSTALL
+        or call.become_user is not None
+        or set(call.args) != {"deb"}
+        or not isinstance(deb, str)
+        or not deb.startswith("/")
+    ):
+        return None
+    return ["dpkg-deb", "--field", deb, *DEB_FIELDS]
+
+
+def deb_pin(result: dict[str, Any]) -> tuple[str, str] | None:
+    """
+    Args:
+        result: the ``ansible.builtin.command`` result of :func:`deb_pin_argv`.
+
+    Returns:
+        ``(package, version)`` from the deb's control file, or None when the
+        answer cannot be read in full.
+    """
+    lines = _succeeded_stdout(result)
+    if lines is None:
+        return None
+    fields = {key: value for key, _, value in (line.partition(": ") for line in lines)}
+    if (
+        len(fields) != len(lines)
+        or set(fields) != set(DEB_FIELDS)
+        or not all(fields.values())
+    ):
+        return None
+    return fields["Package"], fields["Version"]
+
+
+def installed_version_argv(package: str) -> list[str]:
+    """
+    Args:
+        package: the ``Package`` field of the pinned deb.
+
+    Returns:
+        the argv asking dpkg for the installed version and status of *package*.
+    """
+    return [
+        "dpkg-query",
+        "--show",
+        "--showformat=${Version}\t${db:Status-Abbrev}\n",
+        "--",
+        package,
+    ]
+
+
+def installed_version(result: dict[str, Any]) -> str | None:
+    """
+    Args:
+        result: the ``ansible.builtin.command`` result of
+            :func:`installed_version_argv`.
+
+    Returns:
+        the version of the one fully installed instance, or None when the
+        package is missing, half installed, installed for several
+        architectures, or the answer cannot be read.
+    """
+    lines = _succeeded_stdout(result)
+    if lines is None or len(lines) != 1:
+        return None
+    entry = _dpkg_entry(lines[0])
+    if entry is None or not entry[0] or entry[1] != INSTALLED:
+        return None
+    return entry[0]
+
+
+def minimum_argv(installed: str, pinned: str) -> list[str]:
+    """
+    Args:
+        installed: the version dpkg reports installed.
+        pinned: the version in the pinned deb's control file.
+
+    Returns:
+        the argv that exits 0 when *installed* is at or above *pinned*.
+    """
+    return ["dpkg", "--compare-versions", installed, "ge", pinned]
+
+
+def minimum_reached(result: dict[str, Any]) -> bool:
+    """
+    Args:
+        result: the ``ansible.builtin.command`` result of :func:`minimum_argv`.
+
+    Returns:
+        True only when dpkg ran and exited 0.
+    """
+    return not result.get("skipped") and result.get("rc") == 0

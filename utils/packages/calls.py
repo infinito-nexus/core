@@ -19,6 +19,8 @@ GENERIC_PACKAGE = "ansible.builtin.package"
 lives in Ansible's action plugin. The action plugin here executes modules
 directly, so it must swap this marker for the host's `ansible_facts.pkg_mgr`."""
 
+DEB_INSTALL = "ansible.builtin.apt"
+
 
 @dataclass(frozen=True)
 class RetryPolicy:
