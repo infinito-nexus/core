@@ -7,10 +7,10 @@
   set_fact:
     matomo_tracking_code_one_liner: "{{ matomo_tracking_code | to_one_liner }}"
 
-- name: ➕ Append Matomo CSP hash
+- name: "➕ Append Matomo CSP hash for '{{ domain }}'"
   set_fact:
-    webserver_csp_hashes_extra_by_app: >-
-      {{ webserver_csp_hashes_extra_by_app | default({})
-         | add_csp_hash(application_id, 'script-src-elem', matomo_tracking_code_one_liner) }}
+    webserver_csp_hashes_extra_by_vhost: >-
+      {{ webserver_csp_hashes_extra_by_vhost
+         | add_csp_hash(domain, 'script-src-elem', matomo_tracking_code_one_liner) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false

@@ -10,3 +10,5 @@ WEBSERVER_WORKER_PROCESSES: >-
   }}
 
 WEBSERVER_WORKER_CONNECTIONS: "{{ lookup('webserver_resource', 'pids_limit') }}"
+
+webserver_csp_hashes_extra_by_vhost: {}

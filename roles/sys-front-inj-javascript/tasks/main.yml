@@ -20,10 +20,10 @@
   set_fact:
     javascript_code_one_liner: "{{ javascript_code | to_one_liner }}"
 
-- name: "➕ Append Javascript CSP hash for '{{ application_id }}'"
+- name: "➕ Append Javascript CSP hash for '{{ domain }}'"
   set_fact:
-    webserver_csp_hashes_extra_by_app: >-
-      {{ webserver_csp_hashes_extra_by_app | default({})
-         | add_csp_hash(application_id, 'script-src-elem', javascript_code_one_liner) }}
+    webserver_csp_hashes_extra_by_vhost: >-
+      {{ webserver_csp_hashes_extra_by_vhost
+         | add_csp_hash(domain, 'script-src-elem', javascript_code_one_liner) }}
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

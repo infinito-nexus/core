@@ -16,6 +16,7 @@
     inj_top_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('top') }}"
     inj_head_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('head') }}"
     inj_body_features: "{{ SRV_WEB_INJ_COMP_FEATURES_ALL | inj_features('body') }}"
+    webserver_csp_hashes_extra_by_vhost: "{{ webserver_csp_hashes_extra_by_vhost | combine({domain: {}}) }}"
 
 - name: "🟢 Activate logout proxy for '{{ domain }}'"
   include_role:
@@ -32,6 +33,7 @@
 - name: "🟢 Activate Corporate Design for '{{ domain }}'"
   include_role:
     name: sys-front-inj-design
+    tasks_from: inject.yml
   when: inj_enabled.design
 
 - name: "🟢 Activate Matomo Tracking for '{{ domain }}'"
