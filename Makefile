@@ -790,6 +790,11 @@ security-apparmor-teardown:
 		echo "[apparmor] AppArmor module is not loaded — skipping teardown"; \
 	fi
 
+.PHONY: security-runtimes
+# List the PHP runtime of every pinned role image from registry metadata, without pulling, and fail on one below its security floor.
+security-runtimes:
+	@"$${PYTHON}" -m cli.contributing.security.runtimes
+
 .PHONY: setup
 # Run the setup step after generating .dockerignore.
 setup: fix-dockerignore dotenv

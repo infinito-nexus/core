@@ -105,6 +105,7 @@ KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | b
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 KEYCLOAK_LOGOUT_PANEL_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-logout-panel.js"
 KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
+KEYCLOAK_ADMIN_NETWORKS: "{{ lookup('config', application_id, 'services.keycloak.admin.allowed_networks') | kc_admin_networks }}"
 KEYCLOAK_REDIRECT_URIS: "{{ lookup('redirect_uris') }}"
 KEYCLOAK_SAML_APPS: >-
   {{ lookup('applications') | dict2items

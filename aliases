@@ -154,6 +154,7 @@ alias i8se2='m setup'
 alias i8sece='m setup-clean'
 alias i8sepa='m security-apparmor-teardown'
 alias i8sepu='m system-purge'
+alias i8seru='m security-runtimes'
 alias i8source='source scripts/meta/env/load.sh' # load the project .env + venv python into the current shell
 alias i8ta='m autoformat'
 alias i8tare='m autoformat-restage'

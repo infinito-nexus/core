@@ -1,0 +1,5 @@
+---
+- include_tasks: 00_core.yml
+  when:
+    - run_once_sys_ctl_hlth_runtime is not defined
+    - IS_COMPOSE_MODE or 'svc-swarm-node' in group_names

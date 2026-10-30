@@ -71,6 +71,8 @@ keycloak:
   accounts:
     system:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
+  admin:
+    allowed_networks: []
   ports:
     local:
       http: 8032

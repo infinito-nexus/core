@@ -19,6 +19,29 @@ This role deploys Keycloak in a Docker environment, integrating it with a Postgr
 
 For the OIDC variable tree, claim rules, and the policy that app-specific protocol mappers belong in per-client scope files (not in the shared `clients/default.json.j2`), see [oidc.md](../../docs/contributing/design/iam/oidc.md).
 
+## Admin Console Access
+
+`services.keycloak.admin.allowed_networks` limits every path under `/admin`, which carries the admin console and the admin REST API under `/admin/realms`, to the listed source networks. Each entry is an IPv4 or IPv6 address or a CIDR block. The vhost renders one `allow` per entry followed by `deny all`, so any other client gets `403`. The list ships empty, and an empty list leaves `/admin` open. Declare it in the inventory:
+
+```yaml
+applications:
+  web-app-keycloak:
+    services:
+      keycloak:
+        admin:
+          allowed_networks:
+            - 203.0.113.0/24
+            - 2001:db8::/48
+```
+
+The OIDC endpoints under `/realms/` and the static assets under `/resources/` stay public.
+
+The deploy's `kcadm.sh` logins need no entry: every one, including the ones `web-app-opentalk` and `web-app-mattermost` make, runs inside the Keycloak container against `KEYCLOAK_SERVER_INTERNAL_URL`. While the list is set, `/` redirects to the account console of the platform realm instead of to `/admin/`, so the CSP health check and the proxy probe, which request `/` from the host itself, need no entry either. Clients that call `/admin` through the public URL need their source network in the list:
+
+- The OpenTalk controller's user search calls the admin REST API from its container, so the vhost sees the container's Docker network address. `NETWORK_INTERNAL_CIDRS` covers the loopback and private ranges those addresses come from.
+- Onion visitors reach the vhost from the Tor daemon's address.
+- The Playwright suites of several roles read and change realm groups through the admin REST API.
+
 ## Further Resources
 
 - [Keycloak Official Website](https://www.keycloak.org/)

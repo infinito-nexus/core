@@ -23,6 +23,7 @@ SYS_SCHEDULE_HEALTH_DOCKER_VOLUMES: "*-*-* {{ HOURS_SERVER_AWAKE }}:00:00" # Che
 SYS_SCHEDULE_HEALTH_CSP_CRAWLER: "*-*-* {{ HOURS_SERVER_AWAKE }}:00:00" # Check once per hour if all CSP are fullfilled available
 SYS_SCHEDULE_HEALTH_NGINX: "*-*-* {{ HOURS_SERVER_AWAKE }}:00:00" # Check once per hour if all webservices are available
 SYS_SCHEDULE_HEALTH_MSMTP: "*-*-* 00:00:00" # Check once per day SMTP Server
+SYS_SCHEDULE_HEALTH_RUNTIME: "*-*-* 00:00:00" # Check once per day the PHP version and hardening of every running container
 
 SYS_SCHEDULE_CLEANUP_CERTS: "*-*-* 20:00" # Deletes and revokes unused certs once per day
 SYS_SCHEDULE_CLEANUP_BACKUPS: "*-*-* 21:00" # Cleanup backups once per day, MUST be called before disc space cleanup

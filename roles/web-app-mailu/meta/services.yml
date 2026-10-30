@@ -82,7 +82,7 @@ mailu:
   run_after:
     - web-app-matomo
     - web-app-stalwart
-  lifecycle: deprecated
+  lifecycle: eol
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g

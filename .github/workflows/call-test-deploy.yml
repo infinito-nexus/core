@@ -144,7 +144,7 @@ on:
         type: string
         default: ""
       disable:
-        description: "🚫 Provider keys removed on top of the matrix row's tokens (comma-separated)"
+        description: "🚫 Provider keys removed on top of the row's own (comma-separated)"
         required: false
         type: string
         default: ""

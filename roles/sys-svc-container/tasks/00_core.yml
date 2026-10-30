@@ -142,6 +142,7 @@
     list_or_shoot_roles:
       - sys-ctl-cln-docker
       - sys-ctl-hlth-container
+      - sys-ctl-hlth-runtime
       - sys-ctl-hlth-volumes
 
 - include_tasks: utils/once/flag.yml

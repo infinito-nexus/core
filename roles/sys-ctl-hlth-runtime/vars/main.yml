@@ -1,0 +1,9 @@
+---
+system_service_id: sys-ctl-hlth-runtime
+HEALTH_RUNTIME_FLOORS:
+  php:
+    "8.2": "8.2.35"
+    "8.3": "8.3.36"
+    "8.4": "8.4.27"
+    "8.5": "8.5.12"
+HEALTH_RUNTIME_PHP_HARDENED: "{{ lookup('php_hardened_services', group_names=lookup('deployment').deployed) }}"
