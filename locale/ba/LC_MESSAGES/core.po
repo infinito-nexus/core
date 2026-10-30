@@ -2281,6 +2281,10 @@ msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr ""
 
+msgctxt "role:sys-ctl-hlth-runtime:description"
+msgid "Systemd-timed monitor for containers running PHP below its security floor or without the shared PHP hardening"
+msgstr ""
+
 # translated-by: libretranslate
 # Docker yang tidak sehat atau yang telah berhenti dengan kode keluaran tidak
 # nol dan mengirim alert kegagalan
