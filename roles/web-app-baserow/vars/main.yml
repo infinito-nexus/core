@@ -20,7 +20,7 @@ BASEROW_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
 BASEROW_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"
 BASEROW_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
 BASEROW_DATABASE_URL: "postgresql://{{ BASEROW_DATABASE_USER }}:{{ BASEROW_DATABASE_PASSWORD }}@{{ BASEROW_DATABASE_HOST }}:{{ BASEROW_DATABASE_PORT }}/{{ BASEROW_DATABASE_NAME
-  }}"
+  }}?keepalives=1&keepalives_idle=60&keepalives_interval=10&keepalives_count=6&tcp_user_timeout=120000"
 
 BASEROW_REDIS_HOST: "{{ lookup('engine', 'redis', application_id, 'host') }}"
 BASEROW_REDIS_PORT: "{{ lookup('engine', 'redis', application_id, 'port') }}"
