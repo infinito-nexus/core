@@ -16,6 +16,7 @@ from jinja2 import Environment
 from plugins.lookup.gpu import _device_present
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = Path(PROJECT_ROOT) / "roles" / "sys-svc-container"
 CORE = ROLE / "tasks" / "00_core.yml"
@@ -28,7 +29,7 @@ _ENV.filters["bool"] = bool
 
 
 def _role_vars() -> dict:
-    return load_yaml_any(str(ROLE / "vars" / "main.yml"))
+    return load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
 
 
 def _render(value: str, context: dict) -> str:
