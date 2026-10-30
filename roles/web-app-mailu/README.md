@@ -1,7 +1,8 @@
 # Mailu
 
-> **🪦 End of life.** The project no longer maintains or tests this role; use it at
-> your own risk and turn to [upstream Mailu](https://mailu.io) for support. Mailu is
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the
+> default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it
+> at your own risk and take support from [upstream Mailu](https://mailu.io). Mailu is
 > superseded by [`web-app-stalwart`](../web-app-stalwart/), the default email
 > provider. New deployments MUST NOT adopt it and existing ones MUST migrate. Follow
 > [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
