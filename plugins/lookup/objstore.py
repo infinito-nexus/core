@@ -27,7 +27,7 @@ OBJSTORE_DEFAULT_IMAGE = {
     "minio": "quay.io/minio/minio",
 }
 OBJSTORE_DEFAULT_REGION = "us-east-1"
-OBJSTORE_PROXY_PREFIX = "/objstore"
+OBJSTORE_PROXY_PREFIX = "/_infinito/objstore"
 
 
 def _is_enabled(applications: dict[str, Any], consumer_id: str, engine: str) -> bool:
@@ -119,6 +119,7 @@ class LookupModule(LookupBase):
                 "public_bucket": "",
                 "public_endpoint": "",
                 "public_url": "",
+                "relative_url": "",
                 "proxy_required": False,
                 "proxy_prefix": "",
                 "upstream_domain": "",
@@ -260,8 +261,13 @@ class LookupModule(LookupBase):
             )
             return bool(served_on) and all(is_onion_domain(d) for d in served_on)
 
+        relative_url = (
+            f"{OBJSTORE_PROXY_PREFIX}/{bucket}"
+            if public and shared and public_domain
+            else ""
+        )
         proxy_required = bool(
-            public_domain
+            relative_url
             and not is_onion_domain(public_domain)
             and _consumer_is_onion_only()
         )
@@ -302,6 +308,7 @@ class LookupModule(LookupBase):
             "public_bucket": public_bucket,
             "public_endpoint": public_endpoint,
             "public_url": public_url,
+            "relative_url": relative_url,
             "proxy_required": proxy_required,
             "proxy_prefix": OBJSTORE_PROXY_PREFIX,
             "upstream_domain": public_domain,

@@ -23,6 +23,11 @@ The bucket of every consumer not marked `public` carries a bucket policy stateme
 Every deploy of this role converges that statement on all existing consumer buckets, adding it to private buckets and removing it from public ones, and a consumer's provisioning applies it right after creating the bucket.
 Other statements an operator adds to a consumer's bucket policy are kept.
 
+Every vhost of a shared consumer marked `public` also serves its bucket under `/_infinito/objstore/<bucket>/`, and `lookup('objstore', application_id, 'relative_url')` returns that host-relative base for URLs a browser loads.
+The route passes `GET` and `HEAD` for object keys only: it answers `404` for a path ending in `/`, drops the query string and the `Authorization` and `Cookie` headers, and sends the request over the loopback to the `api.seaweedfs.s3.*` vhost.
+Responses carry `X-Content-Type-Options: nosniff` and a `sandbox` Content Security Policy.
+A consumer without `public: true` or in embedded mode gets an empty `relative_url` and no route.
+
 In embedded mode (`shared: false`) a consumer's compose stack receives a storage-only SeaweedFS container without UI or published ports.
 The embedded S3 listener starts without identities and accepts unauthenticated requests until the background `s3.configure` grant at startup registers the consumer identity; from then on it authenticates against that identity.
 Embedded buckets carry no `DenyAnonymousRead` statement because the listener publishes no port, so the container MUST stay confined to the consumer's isolated compose network.
