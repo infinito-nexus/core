@@ -45,6 +45,9 @@ cleanup() {
 	if [ "${RECIPE_WORKDIR_PREEXISTED}" = "0" ]; then
 		rm -rf "${RECIPE_WORKDIR}"
 	fi
+	if [ "${#TRANSIENT_IMAGES[@]}" -gt 0 ]; then
+		container image rm -f "${TRANSIENT_IMAGES[@]}" >/dev/null 2>&1
+	fi
 	return 0
 }
 
@@ -160,6 +163,10 @@ guard_placeholders() {
 	return 0
 }
 
+track_image() {
+	[ -z "$1" ] || container image inspect "$1" >/dev/null 2>&1 || TRANSIENT_IMAGES+=("$1")
+}
+
 replay_image() {
 	sed -nE '/^[[:space:]]*[^[:space:]]+ bash -c /{s#^[[:space:]]*([^[:space:]]+) bash -c .*#\1#p;q}' "${BLOCK}"
 }
@@ -182,6 +189,7 @@ replay_over_ssh() {
 	guard_placeholders
 
 	image="$(replay_image)"
+	track_image "${image}"
 	if [ "${INFINITO_PULL_POLICY}" = "never" ]; then
 		build_replay_image "${image}"
 	fi
@@ -219,6 +227,7 @@ if [ -e "${RECIPE_WORKDIR}" ]; then
 else
 	RECIPE_WORKDIR_PREEXISTED=0
 fi
+TRANSIENT_IMAGES=()
 
 if grep -qE '^docker run ' "${BLOCK}"; then
 	REPLAY=replay_over_ssh
@@ -235,6 +244,7 @@ export MACHINE_BASE_IMAGE
 echo "=== Target: ${MACHINE_BASE_IMAGE} ==="
 sweep_dead_machines
 trap cleanup EXIT
+track_image "$(sed -n 's/^[[:space:]]*image:[[:space:]]*//p' "${STAGE}/compose.yml")"
 machine up -d --build --pull always machine
 await_systemd
 
