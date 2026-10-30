@@ -48,9 +48,9 @@ As a platform operator, I want the complete logs of every deployed Infinito.Nexu
 
 ### Verification
 
-- [ ] A Playwright spec signs in as `administrator`, searches the logs of a deployed application in Grafana and finds a line the test wrote.
-- [ ] A Playwright spec signs in as a member of `auditor`, can read logs and cannot change datasources, dashboards or alert rules.
-- [ ] A Playwright spec asserts that `biber` without a Grafana role group is refused.
+- [x] A Playwright spec signs in as `administrator`, searches the logs of a deployed application in Grafana and finds a line the test wrote.
+- [x] A Playwright spec signs in as a member of `auditor`, can read logs and cannot change datasources, dashboards or alert rules.
+- [x] A Playwright spec asserts that `biber` without a Grafana role group is refused.
 - [ ] Unit tests cover the logging-contract lint, the redaction rules and the retention parameter, and `make test` passes.
 - [ ] The Grafana, Loki and collector roles deploy green in compose and in swarm.
 - [ ] Each new role carries a `README.md` describing what it does and how it is wired.
