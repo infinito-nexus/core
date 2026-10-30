@@ -17,6 +17,7 @@ Jellyfin stores its metadata in internal SQLite under `/config` - it needs **no 
 - **Administrator role from the IdP:** every realm user may sign in; members of the `administrator` RBAC group of `web-app-jellyfin` get the Jellyfin administrator flag. The SSO plugin reads it from the `groups` claim, the LDAP plugin from the `memberOf` entry of the group, and both remove the flag at the next login of a user who left the group.
 - **LDAP profile image:** an account the LDAP plugin creates takes the directory photo (`jpegPhoto`) as its avatar, and [files/python/photo_sync.py](./files/python/photo_sync.py) pushes a changed photo to the existing account as a host hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer.
 - **No external database** - self-contained SQLite under `/config`.
+- **CPU transcoding** - the container gets no GPU device, so Jellyfin transcodes in software on the CPU.
 
 ## Authentication & Admin Model
 
