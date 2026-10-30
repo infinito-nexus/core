@@ -28,7 +28,7 @@ const {
   stalwartAdminUsername,
   stalwartAdminPassword,
 } = require("./env");
-const { roundcubeSsoLogin } = require("./webmail");
+const { roundcubeSettled, roundcubeSsoLogin } = require("./webmail");
 
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const lockupUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_URL || "");
@@ -573,12 +573,13 @@ async function focusStop(page) {
 
 /**
  * Args:
- *   page: Playwright page that shows the webmail; the keyboard walks from the first entry of the task menu through every stop it holds.
+ *   page: Playwright page that shows the webmail; the keyboard walks from the first entry of the task menu through every stop it holds once the webmail settled.
  *   mode: color scheme the failure messages name.
  */
 async function assertFrameFocus(page, mode) {
   const ring = await tokenValue(page, "--design-on-frame", "color");
   const stops = [];
+  await roundcubeSettled(page);
   await page.locator(WEBMAIL_TASK).first().focus();
   await page.keyboard.press("Tab");
   await page.keyboard.press("Shift+Tab");

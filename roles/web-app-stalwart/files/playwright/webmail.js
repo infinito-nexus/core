@@ -64,4 +64,4 @@ async function roundcubeLogout(page) {
   await logout.first().click();
 }
 
-module.exports = { roundcubeSsoLogin, roundcubeLogout, sendMail, waitForEmailInMailbox };
+module.exports = { roundcubeSsoLogin, roundcubeLogout, roundcubeSettled, sendMail, waitForEmailInMailbox };
