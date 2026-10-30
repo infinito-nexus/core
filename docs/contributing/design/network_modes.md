@@ -69,6 +69,7 @@ A value that names an own or peer host MUST point to the network of the vhost th
 
 - A role MUST NOT write an onion host by hand or rewrite hosts in its own proxy config.
 - The SSO issuer is the one host that stays canonical on every network.
+- Every plain-HTTP vhost strips `Secure` from upstream cookies with `proxy_cookie_flags ~ nosecure` ([nginx_ssl_header.j2](../../../roles/sys-front-tls/templates/nginx_ssl_header.j2)). A location that sets its own `proxy_cookie_flags` replaces this rule for that location.
 - Logout: Keycloak holds one front-channel URL per client, the canonical logout conductor. On a vhost outside the canonical network the injected logout patch adds `client_id` and `post_logout_redirect_uri` set to that network's conductor, and Keycloak registers every conductor sibling as post-logout redirect URI next to `+`. An external issuer (`OIDC_OVERRIDE.URL`) keeps the bare logout URL.
 - [test_network_allowlist_sinks.py](../../../tests/lint/ansible/roles/test_network_allowlist_sinks.py) fails when a role template names an allowlist sink without the sibling union. Suppress a single-network peer with `# nocheck: network-allowlist` and a reason.
 
