@@ -41,6 +41,23 @@ def swarm_network(disable: str, *, multi_accepted: bool) -> str:
     Returns:
         The ``network=`` value the roundtrip hands to ``swarm-zombie``.
     """
+    calls = swarm_make_calls(disable, multi_accepted=multi_accepted, keep="true")
+    zombie = next(call for call in calls if " swarm-zombie " in call)
+    return re.search(r"(?:^| )network=(\S*)", zombie).group(1)
+
+
+def swarm_make_calls(disable: str, *, multi_accepted: bool, keep: str) -> list[str]:
+    """Run the roundtrip's swarm step against stubs and return every make call.
+
+    Args:
+        disable: the ``disable`` env the roundtrip runs with.
+        multi_accepted: whether the stubbed validator accepts the role's
+            ``multi`` row.
+        keep: the ``keep`` env the roundtrip runs with.
+
+    Returns:
+        The argument lines the stubbed ``make`` received, in order.
+    """
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "repo"
         script = root / "scripts" / "tests" / "deploy" / "roundtrip.sh"
@@ -69,7 +86,7 @@ def swarm_network(disable: str, *, multi_accepted: bool) -> str:
             STUB_MULTI_RC="0" if multi_accepted else "1",
             apps=APP,
             modes="swarm",
-            keep="true",
+            keep=keep,
             disable=disable,
         )
         done = subprocess.run(
@@ -81,9 +98,7 @@ def swarm_network(disable: str, *, multi_accepted: bool) -> str:
         )
         if done.returncode != 0:
             raise AssertionError(f"roundtrip failed: {done.stderr}")
-        calls = log.read_text().splitlines()  # nocheck: cache-read  stub call log
-    zombie = next(call for call in calls if " swarm-zombie " in call)
-    return re.search(r"(?:^| )network=(\S*)", zombie).group(1)
+        return log.read_text().splitlines()  # nocheck: cache-read  stub call log
 
 
 class TestRoundtripMarker(unittest.TestCase):
@@ -138,6 +153,22 @@ class TestRoundtripSwarmNetwork(unittest.TestCase):
 
     def test_a_key_that_only_starts_with_tor_keeps_multi(self) -> None:
         self.assertEqual(swarm_network("tor-smtp", multi_accepted=True), "multi")
+
+
+class TestRoundtripSwarmRelease(unittest.TestCase):
+    def test_an_empty_keep_reaches_swarm_zombie_which_releases(self) -> None:
+        calls = swarm_make_calls("", multi_accepted=False, keep="")
+        zombie = next(call for call in calls if " swarm-zombie " in call)
+        self.assertRegex(zombie, r"(?:^| )keep=(?: |$)")
+
+    def test_keep_true_reaches_swarm_zombie(self) -> None:
+        calls = swarm_make_calls("", multi_accepted=False, keep="true")
+        zombie = next(call for call in calls if " swarm-zombie " in call)
+        self.assertRegex(zombie, r"(?:^| )keep=true(?: |$)")
+
+    def test_the_roundtrip_runs_no_release_of_its_own(self) -> None:
+        calls = swarm_make_calls("", multi_accepted=False, keep="")
+        self.assertFalse([call for call in calls if " swarm-down " in call], calls)
 
 
 if __name__ == "__main__":

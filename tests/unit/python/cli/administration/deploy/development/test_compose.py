@@ -154,6 +154,8 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_CACHE_SHARED_HOST_PATH": "",
+            "INFINITO_CACHE_HOST_PACMAN_PATH": "",
             "INFINITO_GPU_COUNT": "0",
             "INFINITO_GHCR_MIRROR": "",
         },
@@ -273,6 +275,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "",
             "INFINITO_CACHE_NETWORK": "",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_CACHE_SHARED_HOST_PATH": "/var/cache/infinito/core/cache/shared",
             "INFINITO_GHCR_MIRROR": "",
         },
         clear=False,
@@ -285,6 +288,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._bootstrap_package_cache = MagicMock()
         compose._generate_package_frontend_certs = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
+        compose._layer_pacman_cache_in_runner = MagicMock()
 
         compose.up(run_entry_init=False)
 
@@ -305,6 +309,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._bootstrap_package_cache.assert_called_once()
         compose._generate_package_frontend_certs.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
+        compose._layer_pacman_cache_in_runner.assert_called_once()
 
     @patch.dict(
         os.environ,
@@ -318,6 +323,7 @@ class TestComposeUpRetries(unittest.TestCase):
             "INFINITO_GIT_COMMON_DIR": "/primary/.git",
             "INFINITO_CACHE_NETWORK": "infinito-nexus-core_default",
             "INFINITO_CACHE_STACK": "",
+            "INFINITO_CACHE_SHARED_HOST_PATH": "/var/cache/infinito/core/cache/shared",
         },
         clear=False,
     )
@@ -330,6 +336,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._generate_package_frontend_certs = MagicMock()
         compose._apply_shared_cache = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
+        compose._layer_pacman_cache_in_runner = MagicMock()
 
         compose.up(run_entry_init=False)
 
@@ -340,6 +347,63 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._bootstrap_package_cache.assert_not_called()
         compose._apply_shared_cache.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
+        compose._layer_pacman_cache_in_runner.assert_called_once()
+
+    @patch.dict(
+        os.environ,
+        {
+            "INFINITO_BUILD": "1",
+            "INFINITO_IMAGE": "infinito-debian",
+            "INFINITO_PULL_POLICY": "never",
+            "CI": "",
+            "GITHUB_ACTIONS": "",
+            "INFINITO_RUNNING_ON_GITHUB": "",
+            "INFINITO_GIT_COMMON_DIR": "",
+            "INFINITO_CACHE_NETWORK": "",
+            "INFINITO_CACHE_STACK": "",
+            "INFINITO_CACHE_SHARED_HOST_PATH": "",
+            "INFINITO_GHCR_MIRROR": "",
+        },
+        clear=False,
+    )
+    def test_up_skips_the_pacman_layering_without_a_shared_folder(self) -> None:
+        compose = self._compose()
+        compose._render_coredns_corefile = MagicMock()
+        compose._compose_up_with_retries = MagicMock()
+        compose.wait_for_healthy = MagicMock()
+        compose._bootstrap_package_cache = MagicMock()
+        compose._generate_package_frontend_certs = MagicMock()
+        compose._install_package_frontend_ca_in_runner = MagicMock()
+        compose._layer_pacman_cache_in_runner = MagicMock()
+
+        compose.up(run_entry_init=False)
+
+        compose._install_package_frontend_ca_in_runner.assert_called_once()
+        compose._layer_pacman_cache_in_runner.assert_not_called()
+
+    @patch.dict(
+        os.environ,
+        {
+            "INFINITO_CACHE_SHARED_HOST_PATH": "/var/cache/infinito/core/cache/shared",
+            "INFINITO_CACHE_HOST_PACMAN_PATH": "/var/cache/pacman/pkg",
+        },
+        clear=False,
+    )
+    def test_the_runner_layers_pacman_over_both_caches(self) -> None:
+        compose = self._compose()
+        compose.exec = MagicMock()
+
+        compose._layer_pacman_cache_in_runner()
+
+        compose.exec.assert_called_once_with(
+            [
+                "/usr/local/bin/pacman-cache.sh",
+                "/etc/pacman.conf",
+                "/var/cache/infinito/core/cache/shared",
+                "/var/cache/pacman/pkg",
+            ],
+            live=False,
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

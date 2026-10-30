@@ -1,0 +1,17 @@
+---
+x-shared-cache: &shared_cache
+  volumes:
+    - ${INFINITO_CACHE_SHARED_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_CACHE_SHARED_HOST_PATH}
+    - ../../scripts/docker/cache/pacman.sh:/usr/local/bin/pacman-cache.sh:ro
+
+services:
+  nfs-server:
+    <<: *shared_cache
+  swarm-mgr-01:
+    <<: *shared_cache
+  swarm-wrk-01:
+    <<: *shared_cache
+  swarm-wrk-02:
+    <<: *shared_cache
+  backup-host:
+    <<: *shared_cache

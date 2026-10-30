@@ -21,6 +21,9 @@ CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
 
 INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 
+PACMAN_CACHE_SCRIPT = "/usr/local/bin/pacman-cache.sh"
+PACMAN_CONF = "/etc/pacman.conf"
+
 
 class Compose:
     """Wrapper around `docker compose` for the dev/CI stack."""
@@ -190,6 +193,19 @@ class Compose:
                 "runner manually."
             )
 
+    def _layer_pacman_cache_in_runner(self) -> None:
+        """Point the runner's pacman at the host cache and the shared folder."""
+        print(">>> Layering the pacman caches in the runner")
+        self.exec(
+            [
+                PACMAN_CACHE_SCRIPT,
+                PACMAN_CONF,
+                self.profile.shared_package_cache(),
+                self.profile.host_pacman_cache(),
+            ],
+            live=False,
+        )
+
     def _render_coredns_corefile(self) -> None:
         renderer = CoreDNSCorefileRenderer(repo_root=self.repo_root)
         out = renderer.render(show_preview=True, preview_lines=25)
@@ -250,6 +266,8 @@ class Compose:
             self._apply_shared_cache(env)
         if self.profile.cache_stack_enabled():
             self._install_package_frontend_ca_in_runner()
+            if self.profile.shared_package_cache():
+                self._layer_pacman_cache_in_runner()
 
         if run_entry_init:
             print(">>> Running infinito entry.sh init")

@@ -164,6 +164,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | teardown | `utils/collect/playwright_reports.sh` | pull Playwright reports from the manager into `/tmp/playwright-artifacts/<distro>/<app>` |
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |
+| teardown | `utils/release.sh` | local runs: copy the act job's rescue and Playwright artefacts to the host, then run `utils/clean/teardown.sh` and remove the act outer container unless `keep=true` |
 | helper | `utils/_context.sh` | per-app facts (entity, service, NFS volume, probes) |
 | helper | `utils/unmount/nfs_mounts.sh` | best-effort NFS unmount before node removal |
 | helper | `utils/unmount/host_state.sh` | release the host mount of the shared state so the next cycle cannot inherit it |
@@ -175,5 +176,6 @@ The matrix orchestrator
 per variant round; `routine/00_one.sh` drives the surrounding stages for one
 distro, and the workflow `.github/workflows/call-test-deploy.yml` drives the
 distro loop. Run one app locally with
-`make swarm-zombie app=<id>` (keeps the cluster for inspection) or the
-whole matrix via `make roundtrip`.
+`make swarm-zombie app=<id>` or the whole matrix via `make roundtrip`. Both
+copy the rescue bundle to the host through `utils/release.sh` and then
+release the cluster; `keep=true` keeps it for inspection.

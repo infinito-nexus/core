@@ -29,6 +29,8 @@ _LOCAL_PRIMARY = {
     "INFINITO_GIT_COMMON_DIR": "",
     "INFINITO_CACHE_NETWORK": "",
     "INFINITO_CACHE_STACK": "",
+    "INFINITO_CACHE_SHARED_HOST_PATH": "",
+    "INFINITO_CACHE_HOST_PACMAN_PATH": "",
     "INFINITO_GHCR_MIRROR": "",
     "INFINITO_PUBLISH_PORTS": "",
     "INFINITO_GPU_COUNT": "0",
@@ -39,6 +41,9 @@ _LOCAL_PRIMARY = {
     "INFINITO_TOOLS_TRANSLATE_PORT": "8101",
     "INFINITO_EXTRA_MOUNTS": "",
 }
+
+_SHARED = "/var/cache/infinito/core/cache/shared"
+_HOST_PACMAN = "/var/cache/pacman/pkg"
 
 _WORKTREE = {
     **_LOCAL_PRIMARY,
@@ -131,6 +136,111 @@ class TestComposeFileArgs(unittest.TestCase):
             compose_file_args(),
             ["-f", "compose.yml", "-f", "compose/tools.override.yml"],
         )
+
+    @patch.dict(
+        os.environ,
+        {**_LOCAL_PRIMARY, "INFINITO_CACHE_SHARED_HOST_PATH": _SHARED},
+        clear=False,
+    )
+    def test_a_shared_cache_folder_adds_its_mount(self) -> None:
+        self.assertEqual(
+            compose_file_args(),
+            [
+                "-f",
+                "compose.yml",
+                "-f",
+                "compose/cache.override.yml",
+                "-f",
+                "compose/shared-cache.override.yml",
+                "-f",
+                "compose/tools.override.yml",
+            ],
+        )
+
+    @patch.dict(
+        os.environ,
+        {
+            **_LOCAL_PRIMARY,
+            "INFINITO_CACHE_SHARED_HOST_PATH": _SHARED,
+            "INFINITO_CACHE_HOST_PACMAN_PATH": _HOST_PACMAN,
+        },
+        clear=False,
+    )
+    def test_a_host_pacman_cache_adds_its_read_only_mount(self) -> None:
+        self.assertEqual(
+            compose_file_args(),
+            [
+                "-f",
+                "compose.yml",
+                "-f",
+                "compose/cache.override.yml",
+                "-f",
+                "compose/shared-cache.override.yml",
+                "-f",
+                "compose/pacman.override.yml",
+                "-f",
+                "compose/tools.override.yml",
+            ],
+        )
+
+    @patch.dict(
+        os.environ,
+        {**_LOCAL_PRIMARY, "INFINITO_CACHE_HOST_PACMAN_PATH": _HOST_PACMAN},
+        clear=False,
+    )
+    def test_a_host_pacman_cache_needs_the_shared_folder(self) -> None:
+        self.assertEqual(
+            compose_file_args(),
+            [
+                "-f",
+                "compose.yml",
+                "-f",
+                "compose/cache.override.yml",
+                "-f",
+                "compose/tools.override.yml",
+            ],
+        )
+
+    @patch.dict(
+        os.environ,
+        {
+            **_LOCAL_PRIMARY,
+            "CI": "true",
+            "INFINITO_CACHE_SHARED_HOST_PATH": _SHARED,
+            "INFINITO_CACHE_HOST_PACMAN_PATH": _HOST_PACMAN,
+        },
+        clear=False,
+    )
+    def test_the_cache_folders_stay_out_without_the_cache_stack(self) -> None:
+        self.assertEqual(
+            compose_file_args(),
+            ["-f", "compose.yml", "-f", "compose/tools.override.yml"],
+        )
+
+    def test_an_env_without_the_cache_keys_layers_neither_override(self) -> None:
+        stale = {
+            k: v
+            for k, v in _LOCAL_PRIMARY.items()
+            if k
+            not in (
+                "INFINITO_CACHE_SHARED_HOST_PATH",
+                "INFINITO_CACHE_HOST_PACMAN_PATH",
+            )
+        }
+        with patch.dict(os.environ, stale, clear=False):
+            os.environ.pop("INFINITO_CACHE_SHARED_HOST_PATH", None)
+            os.environ.pop("INFINITO_CACHE_HOST_PACMAN_PATH", None)
+            self.assertEqual(
+                compose_file_args(),
+                [
+                    "-f",
+                    "compose.yml",
+                    "-f",
+                    "compose/cache.override.yml",
+                    "-f",
+                    "compose/tools.override.yml",
+                ],
+            )
 
     @patch.dict(
         os.environ,
