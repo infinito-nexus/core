@@ -7,13 +7,14 @@ import unittest.mock as mock
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 APP = "web-app-wordpress"
 PROVIDER_HOST = "api.seaweedfs.s3.example.com"
 SERVED_ON = ["blog.example.com", "blog." + "a" * 56 + ".onion"]
-SERVICES = load_yaml(str(PROJECT_ROOT / "roles" / APP / "meta" / "services.yml"))
+SERVICES = load_yaml(str(PROJECT_ROOT / "roles" / APP / ROLE_FILE_META_SERVICES))
 
 
 def _objstore() -> dict:
