@@ -311,6 +311,8 @@ test("design: every focus stop in the top bar draws its indicator in the frame t
   await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; }" });
   const onFrame = await tokenValue(page, "--design-on-frame", "color");
   await page.locator(`${TOPBAR} a.brand-logo`).focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
   const stops = [];
   for (let step = 0; step < 12; step += 1) {
     const stop = await page.evaluate(() => {
