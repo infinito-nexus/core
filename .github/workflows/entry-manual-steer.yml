@@ -83,7 +83,7 @@ on:
         default: ""
         type: string
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk"
+        description: "🛑 Stop the chunk chain at its first failed chunk or a failed workspace test"
         required: false
         default: true
         type: boolean
