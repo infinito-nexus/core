@@ -11,6 +11,21 @@
       `.test` domain for local/CI stacks.
     quiet: true
 
+- name: "🛑 Refuse login methods Stalwart's directory cannot honour"
+  ansible.builtin.assert:
+    that:
+      - "STALWART_LOGIN_2FA | bool != STALWART_SSO_ENABLED | bool"
+      - "STALWART_LOGIN_NATIVE | bool or STALWART_SSO_ENABLED | bool"
+    fail_msg: >-
+      Stalwart authenticates through the Internal directory XOR the Keycloak
+      OIDC directory. Its own TOTP second factor exists only under the
+      Internal directory, and without SSO the Internal password is the only
+      sign-in, so services.stalwart.login.method.2fa.enabled must be the
+      opposite of SSO and native must stay on without SSO
+      (sso={{ STALWART_SSO_ENABLED }}, native={{ STALWART_LOGIN_NATIVE }},
+      2fa={{ STALWART_LOGIN_2FA }}).
+    quiet: true
+
 - name: "🛡️ Refuse to replace a Stalwart that serves a store from before 1.0"
   include_tasks: store_guard.yml
   when: IS_STACK_HOST | bool

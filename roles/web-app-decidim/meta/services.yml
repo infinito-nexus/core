@@ -57,6 +57,14 @@ decidim:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-decidim', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-decidim', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-decidim', 'registration') }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests

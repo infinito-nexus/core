@@ -26,6 +26,7 @@ The purpose of tthis role is to simplify the deployment and management of a pers
 - **Seamless IFrame Embedding**: Launch apps directly within the UI or open in new tabs.
 - **YAML-Driven Configuration**: Define all content & structure easily in `config.yaml`.
 - **Fast Access**: Automatic cache management ensures lightning-fast load times.
+- **Login methods**: SSO only. The dashboard keeps no accounts of its own, so its one sign-in entry is the Keycloak `Login` link that `oidc.js` renders while `services.sso.enabled` is true; there is no local form, no registration and no break-glass account to protect, so `meta/services.yml` marks the `sso` key `nocheck: login-methods` instead of declaring a `login.method` block.
 
 ## Further Resources
 

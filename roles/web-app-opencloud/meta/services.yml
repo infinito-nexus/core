@@ -56,6 +56,14 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'native') }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"

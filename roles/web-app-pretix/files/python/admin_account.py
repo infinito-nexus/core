@@ -3,8 +3,10 @@
 """Converge the native Pretix platform administrator and lock the upstream default account.
 
 Environment:
-    ADMIN_EMAIL:    login e-mail of the native administrator; empty while SSO
-                    is on, where pretix-oidc creates the account and grants staff.
+    ADMIN_EMAIL:    login e-mail of the native administrator: the platform
+                    administrator while SSO is off, the break-glass account
+                    while SSO is on, where pretix-oidc creates the platform
+                    administrator's account and grants staff.
     ADMIN_PASSWORD: password the native administrator converges on.
 
 Prints ``PRETIX_RESULT=CHANGED`` or ``PRETIX_RESULT=UNCHANGED``, suffixed with

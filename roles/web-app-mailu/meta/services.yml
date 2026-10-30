@@ -83,6 +83,12 @@ mailu:
     - web-app-matomo
     - web-app-stalwart
   lifecycle: deprecated
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'native') }}"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g
@@ -225,6 +231,12 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - carries the login-method script of templates/javascript.js.j2, whose effect files/playwright/test-login-methods.js asserts
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

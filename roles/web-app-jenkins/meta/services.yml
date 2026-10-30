@@ -66,6 +66,16 @@ jenkins:
   version: 2.580.2-lts
   custom: true
   name: jenkins
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'registration') }}"
   ports:
     local:
       http: 8070

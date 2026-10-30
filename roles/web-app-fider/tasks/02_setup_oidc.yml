@@ -5,6 +5,7 @@
     query_file: "{{ role_path }}/files/sql/configure-oidc-provider.sql"
     named_args:
       display_name: "{{ SOFTWARE_NAME }} SSO"
+      status: "{{ '2' if FIDER_LOGIN_SSO | bool else '1' }}"
       client_id: "{{ OIDC.CLIENT.ID }}"
       client_secret: "{{ OIDC.CLIENT.SECRET }}"
       authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"

@@ -364,6 +364,8 @@ test("rbac: global_admin and domain manager rights follow the administrator and 
   }
 });
 
+require("./test-login-methods").register();
+
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
 // so every role's persona flow stays consistent.

@@ -30,6 +30,9 @@ MINIO_RBAC_POLICIES:
 
 MINIO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+MINIO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.minio.login.method.sso.enabled') | bool }}"
+MINIO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.minio.login.method.ldap.enabled') | bool }}"
+
 MINIO_FRONT_PROXY_MATRIX: >-
   {{
     [

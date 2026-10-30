@@ -12,6 +12,7 @@ require("./test-landing").register(shared);
 require("./test-csp-headers").register(shared);
 require("./test-login-native-administrator").register(shared);
 require("./test-login-administrator").register(shared);
+require("./test-login-methods").register(shared);
 require("./test-rbac").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-design").register(shared);

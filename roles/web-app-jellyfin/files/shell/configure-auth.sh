@@ -224,13 +224,25 @@ JSON
   fi
 fi
 
-if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
+LOGIN_DISCLAIMER=""
+LOGIN_CSS=""
+if [ "${JELLYFIN_SSO_ENABLED}" = "true" ] && [ "${JELLYFIN_LOGIN_SSO_ENABLED}" = "true" ]; then
+  LOGIN_DISCLAIMER='<form action=\"/sso/OID/start/Keycloak\"><button class=\"raised block emby-button button-submit\">Sign in with Keycloak</button></form>'
+  LOGIN_CSS='a.raised.emby-button { padding: 0.9em 1em; color: inherit !important; } .disclaimerContainer { display: block; }'
+fi
+if [ "${JELLYFIN_LOGIN_FORM_ENABLED}" != "true" ]; then
+  LOGIN_CSS="${LOGIN_CSS} #loginPage .manualLoginForm, #loginPage .visualLoginForm, #loginPage .btnManual, #loginPage .btnQuick, #loginPage .btnForgotPassword { display: none !important; }"
+fi
+
+if [ -n "${TOKEN:-}" ] && { [ "${JELLYFIN_SSO_ENABLED}" = "true" ] || [ "${JELLYFIN_LOGIN_FORM_ENABLED}" != "true" ]; }; then
   if ${CURL} -fsS -X POST "${API}/System/Configuration/branding" -H "Content-Type: application/json" \
-      -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" \
-      -d '{"LoginDisclaimer":"<form action=\"/sso/OID/start/Keycloak\"><button class=\"raised block emby-button button-submit\">Sign in with Keycloak</button></form>","CustomCss":"a.raised.emby-button { padding: 0.9em 1em; color: inherit !important; } .disclaimerContainer { display: block; }","SplashscreenEnabled":false}' >/dev/null 2>&1; then
-    log "configured SSO login button via branding"
+      -H "Authorization: MediaBrowser Token=\"${TOKEN}\"" --data @- >/dev/null 2>&1 <<JSON
+{"LoginDisclaimer":"${LOGIN_DISCLAIMER}","CustomCss":"${LOGIN_CSS}","SplashscreenEnabled":false}
+JSON
+  then
+    log "configured the login methods of the sign-in page via branding"
   else
-    log "WARN: failed to set SSO login branding"
+    log "WARN: failed to set the login branding"
   fi
 fi
 

@@ -4,9 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 const { apiGetOnion, assertCspResponseHeader, assertCspMetaParity, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
-  test("guest: login reachable, serves CSP, Semaphore's own form rejects empty credentials, never reaches an authenticated surface", async ({
-    page,
-  }) => {
+  test("guest: login reachable, serves CSP, never reaches an authenticated surface", async ({ page }) => {
     const response = await gotoOnion(page, `${shared.env.semaphoreBaseUrl}${shared.LOGIN_PATH}`);
     expect(response, "Expected Semaphore login response").toBeTruthy();
     expect(response.status(), "Expected Semaphore login status to be < 400").toBeLessThan(400);
@@ -17,6 +15,28 @@ exports.register = function (shared) {
 
     const directives = assertCspResponseHeader(response, "semaphore login");
     await assertCspMetaParity(page, directives, "semaphore login");
+
+    const account = await apiGetOnion(page.request, `${shared.env.semaphoreBaseUrl}/api/user`, {
+      failOnStatusCode: false,
+      timeout: resolveTimeout(30_000),
+    });
+    expect(account.status(), "a guest must hold no Semaphore session").toBe(401);
+
+    await gotoOnion(page, `${shared.env.semaphoreBaseUrl}/users`, { waitUntil: "domcontentloaded" });
+    await expect
+      .poll(() => page.url(), {
+        timeout: resolveTimeout(30_000),
+        message: "guest hitting /users must be forced back to the login page",
+      })
+      .toContain(shared.LOGIN_PATH);
+    await expect(page.locator(".auth .v-card"), "the login page must render its sign-in card").toBeVisible({
+      timeout: resolveTimeout(30_000),
+    });
+  });
+
+  test("guest: Semaphore's own form rejects empty credentials", async ({ page }) => {
+    test.skip(!shared.env.passwordFormShown, "the password form is off while only SSO signs in");
+    await shared.gotoLogin(page);
 
     await page.locator("#auth-username").first().fill("");
     await page.locator("#auth-password").first().fill("");
@@ -31,11 +51,5 @@ exports.register = function (shared) {
       timeout: resolveTimeout(30_000),
     });
     expect(account.status(), "the rejected empty submission must leave the guest without a Semaphore session").toBe(401);
-
-    await gotoOnion(page, `${shared.env.semaphoreBaseUrl}/users`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.locator("#auth-username"),
-      "guest hitting /users must be forced back to the login form",
-    ).toBeVisible({ timeout: resolveTimeout(30_000) });
   });
 };

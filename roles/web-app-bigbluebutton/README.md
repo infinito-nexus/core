@@ -31,6 +31,16 @@ By default, BigBlueButton is deployed with best-practice hardening, modular secr
   - ✅ OpenID Connect (OIDC)
   - 🧩 Custom OAuth2 flows via ENV vars
 
+## Login methods
+
+`services.bigbluebutton.login.method` declares `sso`, `native` and `registration`:
+
+- `sso` renders the `OPENID_CONNECT_*` block of [templates/env.j2](./templates/env.j2). With it Greenlight v3 shows one Sign In button that posts to Keycloak and no Sign Up, and its API refuses every local sign-in except a SuperAdmin's and every local sign-up.
+- `native` is the local email and password sign-in Greenlight offers whenever `OPENID_CONNECT_ISSUER` is unset. Greenlight has no switch of its own for it, so [tasks/04_login_methods.yml](./tasks/04_login_methods.yml) refuses an inventory that sets `native` equal to `sso`.
+- `registration` sets the Greenlight site setting `RegistrationMethod` through [files/ruby/greenlight/registration_method.rb](./files/ruby/greenlight/registration_method.rb): `invite` while it is off, so the Sign Up entry disappears and only invited visitors register, and `open` while it or `sso` is on, because Greenlight also applies `RegistrationMethod` to the first OIDC sign-in and `invite` would refuse every new Keycloak account.
+- Greenlight v3 has no own second factor and no LDAP sign-in.
+- **Break-glass:** the role's administrator is a Greenlight `Administrator`, not a `SuperAdmin`, so with SSO on no form admits it. Reach the instance through the Rails runner of the `greenlight` container (`bundle exec rails runner`), the same channel [files/ruby/greenlight/ensure_admin.rb](./files/ruby/greenlight/ensure_admin.rb) uses.
+
 ## Addons
 
 Role-level extensions are declared in `meta/addons/`, one file per addon:

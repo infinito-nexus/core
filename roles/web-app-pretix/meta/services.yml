@@ -82,6 +82,16 @@ pretix:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'registration') }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -99,6 +109,16 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own native and 2fa login methods, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in and account pages, asserted by test-login-methods.js
+javascript:
+  bond: 1
+  enabled: >-
+    {{ not (lookup('config', 'web-app-pretix', 'services.pretix.login.method.native.enabled') | bool
+    and lookup('config', 'web-app-pretix', 'services.pretix.login.method.2fa.enabled') | bool) }}
+  shared: >-
+    {{ not (lookup('config', 'web-app-pretix', 'services.pretix.login.method.native.enabled') | bool
+    and lookup('config', 'web-app-pretix', 'services.pretix.login.method.2fa.enabled') | bool) }}
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

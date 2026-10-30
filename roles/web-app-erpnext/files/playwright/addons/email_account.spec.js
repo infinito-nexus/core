@@ -12,28 +12,29 @@ const smtpHost = decodeDotenvQuotedValue(process.env.EMAIL_SMTP_HOST || "");
 const ACCOUNTS_ROUTE =
   '/api/resource/Email Account?limit_page_length=0&fields=["name","smtp_server","enable_outgoing"]';
 
-test("addon email_account: ERPNext's outgoing account sends through the deployed Mailu SMTP host", async ({ page }) => {
+test("addon email_account: ERPNext's outgoing account sends through the deployed Mailu SMTP host", async () => {
   skipUnlessAddonEnabled("email_account");
   skipUnlessServiceEnabled("email");
   test.setTimeout(resolveTimeout(240_000));
 
-  const { erpnextBaseUrl, adminNativePassword } = shared.env;
+  const { erpnextBaseUrl } = shared.env;
   expect(erpnextBaseUrl, "ERPNEXT_BASE_URL must be set").toBeTruthy();
   expect(smtpHost, "EMAIL_SMTP_HOST must be set when the email service is on").toBeTruthy();
-  expect(adminNativePassword, "ADMIN_NATIVE_PASSWORD must be set").toBeTruthy();
 
-  await page.context().clearCookies();
-  await shared.signInViaErpnextLocal(page, "Administrator", adminNativePassword, "addon-email-account");
-
-  const response = await page.request.get(`${erpnextBaseUrl}${ACCOUNTS_ROUTE}`, {
-    timeout: resolveTimeout(60_000),
-  });
-  expect(
-    response.status(),
-    "the Email Account resource must answer for the signed-in administrator",
-  ).toBeLessThan(400);
-
-  const accounts = (await response.json()).data || [];
+  const api = await shared.breakGlassApi();
+  let accounts;
+  try {
+    const response = await api.get(`${erpnextBaseUrl}${ACCOUNTS_ROUTE}`, {
+      timeout: resolveTimeout(60_000),
+    });
+    expect(
+      response.status(),
+      "the Email Account resource must answer for the API bot administrator",
+    ).toBeLessThan(400);
+    accounts = (await response.json()).data || [];
+  } finally {
+    await api.dispose().catch(() => {});
+  }
   const outgoing = accounts.filter((account) => Number(account.enable_outgoing) === 1);
 
   expect(

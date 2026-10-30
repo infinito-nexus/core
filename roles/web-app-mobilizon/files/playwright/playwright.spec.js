@@ -95,3 +95,4 @@ test("administrator: app → administrator role → universal logout", async ({ 
 });
 
 require("./test-design");
+require("./test-login-methods");

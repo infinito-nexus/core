@@ -81,6 +81,16 @@ semaphore:
     - web-app-matomo
     - web-app-gitea
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-semaphore', '2fa') }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

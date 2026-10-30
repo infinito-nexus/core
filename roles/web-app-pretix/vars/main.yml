@@ -5,7 +5,12 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 PRETIX_HOSTNAME: "{{ container_hostname }}"
 
-PRETIX_NATIVE_ADMIN_EMAIL: "{{ '' if PRETIX_OIDC_ENABLED | bool else lookup('users', 'platform_administrator').email }}"
+PRETIX_NATIVE_ADMIN: "{{ lookup('users', 'web-app-pretix-breakglass' if PRETIX_OIDC_ENABLED | bool else 'platform_administrator') }}"
+
+PRETIX_LOGIN_SSO: "{{ lookup('config', application_id, 'services.pretix.login.method.sso.enabled') | bool }}"
+PRETIX_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.pretix.login.method.native.enabled') | bool }}"
+PRETIX_LOGIN_2FA: "{{ lookup('config', application_id, 'services.pretix.login.method.2fa.enabled') | bool }}"
+PRETIX_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.pretix.login.method.registration.enabled') | bool }}"
 
 PRETIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 PRETIX_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"

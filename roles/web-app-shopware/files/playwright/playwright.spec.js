@@ -16,6 +16,7 @@ test.use({ ignoreHTTPSErrors: true });
 require("./test-admin-native");
 require("./test-design");
 require("./test-rbac");
+require("./test-login-methods");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");

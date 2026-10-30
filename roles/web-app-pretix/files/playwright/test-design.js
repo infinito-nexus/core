@@ -19,6 +19,7 @@ const adminEmail = requireDotenvValue(process.env.ADMIN_EMAIL, "ADMIN_EMAIL");
 const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
+const nativeEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const logoWideUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_WIDE_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -242,7 +243,7 @@ test("design: the sign-in page takes surface, primary action and text from the p
   skipUnlessServiceEnabled("design");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
-    await gotoOnion(page, `${CONTROL}/login`);
+    await gotoOnion(page, `${CONTROL}/login?backend=native`);
     await shown(SIGN_IN_FORM)(page);
     await assertToken(page, "body", "background-color", "--design-surface-1", `sign-in ${mode}`);
     await assertToken(page, SIGN_IN_FORM, "background-color", "--design-surface-2", `sign-in ${mode}`);
@@ -381,7 +382,7 @@ test("design: gallery of control panel and shop", async ({ page }) => {
         await shown(`${SIGN_IN_FORM} .alert-danger`)(current);
       },
     },
-    view("password-forgot", `${CONTROL}/forgot`, SIGN_IN_FORM),
+    ...(nativeEnabled ? [view("password-forgot", `${CONTROL}/forgot`, SIGN_IN_FORM)] : []),
   ]).catch((error) => failures.push(error.message));
   await signIn(page);
   const order = await seedShowcase(page);

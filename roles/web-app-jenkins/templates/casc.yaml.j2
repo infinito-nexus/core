@@ -23,7 +23,7 @@ jenkins:
       groupsFieldName: "{{ RBAC.GROUP.CLAIM }}"
       logoutFromOpenidProvider: true
       rootURLFromRequest: true
-{% elif JENKINS_LDAP_ENABLED | bool %}
+{% elif JENKINS_LOGIN_LDAP | bool %}
   securityRealm:
     ldap:
       configurations:
@@ -39,10 +39,12 @@ jenkins:
 {% else %}
   securityRealm:
     local:
-      allowsSignup: false
+      allowsSignup: {{ JENKINS_LOGIN_REGISTRATION | bool | lower }}
+{% if JENKINS_LOGIN_NATIVE | bool %}
       users:
         - id: "{{ lookup('users', 'platform_administrator').username }}"
           password: "{{ lookup('users', 'platform_administrator').password }}"
+{% endif %}
 {% endif %}
 
   authorizationStrategy:

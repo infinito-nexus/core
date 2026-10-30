@@ -13,17 +13,12 @@ const rbacEnv = {
 
 const LDAP_LOGIN = "/api/method/frappe.integrations.doctype.ldap_settings.ldap_settings.login";
 
-async function withNativeAdministrator(browser, shared, body) {
-  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+async function withBreakGlassApi(shared, body) {
+  const api = await shared.breakGlassApi();
   try {
-    const login = await context.request.post(`${shared.env.erpnextBaseUrl}/api/method/login`, {
-      form: { usr: "Administrator", pwd: shared.env.adminNativePassword },
-      timeout: resolveTimeout(60_000),
-    });
-    expect(login.status(), "the break-glass Administrator must sign in through /api/method/login").toBe(200);
-    return await body(context.request);
+    return await body(api);
   } finally {
-    await context.close().catch(() => {});
+    await api.dispose().catch(() => {});
   }
 }
 
@@ -44,7 +39,7 @@ exports.register = function (shared) {
   test.describe.serial("erpnext RBAC", () => {
     require("./test-login-biber").register(shared);
 
-    test("administrator: the deploy-time reconcile grants System Manager to the administrator group", async ({ page, browser }) => {
+    test("administrator: the deploy-time reconcile grants System Manager to the administrator group", async ({ page }) => {
       shared.skipUnlessServiceEnabled("sso");
       test.setTimeout(resolveTimeout(180_000)); // OIDC round-trip plus the break-glass API read
 
@@ -54,7 +49,7 @@ exports.register = function (shared) {
       expect(((await logged.json()).message || "").toLowerCase()).toBe(shared.env.adminEmail.toLowerCase());
       await shared.erpnextLogout(page);
 
-      await withNativeAdministrator(browser, shared, async (request) => {
+      await withBreakGlassApi(shared, async (request) => {
         const user = await erpnextUser(request, shared, shared.env.adminEmail);
         expect(roleNames(user), "members of the administrator group must hold System Manager").toContain("System Manager");
       });
@@ -62,6 +57,7 @@ exports.register = function (shared) {
 
     test("biber: LDAP sign-in without an ERPNext role is refused", async ({ browser }) => {
       shared.skipUnlessServiceEnabled("ldap");
+      shared.skipUnlessServiceDisabled("sso");
       test.setTimeout(resolveTimeout(120_000)); // directory bind through Frappe
 
       const context = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -78,6 +74,7 @@ exports.register = function (shared) {
 
     test("biber: LDAP sign-in with the manager group syncs the roles and the directory profile", async ({ browser }) => {
       shared.skipUnlessServiceEnabled("ldap");
+      shared.skipUnlessServiceDisabled("sso");
       test.setTimeout(resolveTimeout(300_000)); // attribute and group writes to the directory, bind, API read and teardown
 
       const profile = { [rbacEnv.phoneAttribute]: "+49 30 1112223", [rbacEnv.mobileAttribute]: "+49 170 4445556" };
@@ -95,7 +92,7 @@ exports.register = function (shared) {
             await context.close().catch(() => {});
           }
 
-          await withNativeAdministrator(browser, shared, async (adminRequest) => {
+          await withBreakGlassApi(shared, async (adminRequest) => {
             const user = await erpnextUser(adminRequest, shared, rbacEnv.biberEmail);
             expect(user, "the LDAP sign-in must create or update biber").toBeTruthy();
             expect(roleNames(user), "the manager group must grant Sales User").toContain("Sales User");

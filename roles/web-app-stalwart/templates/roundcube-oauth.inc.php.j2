@@ -35,7 +35,7 @@ $config['http_client'] = ['proxy' => '{{ STALWART_OIDC_SOCKS_PROXY }}'];
 $config['oauth_auth_parameters'] = [];
 $config['oauth_identity_fields'] = ['email', '{{ OIDC.ATTRIBUTES.USERNAME }}'];
 // Auto-redirect the login form straight to Keycloak (single sign-on).
-$config['oauth_login_redirect'] = true;
+$config['oauth_login_redirect'] = {{ 'false' if STALWART_LOGIN_NATIVE | bool else 'true' }};
 
 // Authenticated XOAUTH2 submission over implicit TLS on :465 (this include loads
 // last, so it wins). smtp_user must be non-empty or Stalwart rejects with

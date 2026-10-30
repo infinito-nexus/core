@@ -81,8 +81,18 @@ nextcloud:
   allow_local_remote_servers:
     enabled: "{{ ((ENVIRONMENT | lower) == 'development') | lower }}"
   default_quota: "1000000000"
-  legacy_login_mask:
-    enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.sso.enabled') | bool) }}"
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-nextcloud', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-nextcloud', 'passkey') }}"
   performance:
     php:
       upload_limit: 5G

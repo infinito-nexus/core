@@ -153,6 +153,7 @@ exports.register = function (shared) {
     request,
   }) => {
     shared.skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000));
 
     const refused = await shared.taigaLdapLogin(request, shared.env.biberUsername, shared.env.biberPassword);
@@ -170,6 +171,7 @@ exports.register = function (shared) {
     request,
   }) => {
     shared.skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(180_000)); // two LDAP logins around one directory group change and its teardown
 
     await withLdapGroupMember(directory.userGroupDn, directory.biberDn, async () => {

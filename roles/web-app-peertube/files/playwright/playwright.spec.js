@@ -142,8 +142,8 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
     .toBe(true);
 });
 
-test("administrator: root signs in to the local form with the administrator password", async ({ page }) => {
-  await gotoOnion(page, `${peertubeBaseUrl}/login`);
+test("administrator: root signs in to the break-glass form at /login?fallback=local with the administrator password", async ({ page }) => {
+  await gotoOnion(page, `${peertubeBaseUrl}/login?fallback=local`);
   const username = page.locator("#username");
   const password = page.locator("#password");
   await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
@@ -209,3 +209,4 @@ const peertubeShared = {
 
 require("./test-rbac").register(peertubeShared);
 require("./test-profile").register(peertubeShared);
+require("./test-login-methods").register(peertubeShared);

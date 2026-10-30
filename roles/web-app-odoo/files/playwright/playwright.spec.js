@@ -6,6 +6,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 const { onionOptions } = require("./_shared");
 
 require("./test-seaweedfs");
+require("./test-login-methods");
 const { env: rbacEnv, withBiberIn } = require("./test-rbac");
 
 test.use({

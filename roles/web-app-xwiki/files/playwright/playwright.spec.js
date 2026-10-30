@@ -18,6 +18,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 require("./test-design").register();
 require("./test-rbac-oidc");
+require("./test-login-methods");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");

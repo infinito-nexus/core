@@ -7,7 +7,6 @@ Setting.set("http_type", ENV.fetch("ZAMMAD_HTTP_TYPE"))
 
 Setting.set("auth_third_party_auto_link_at_inital_login", true)
 
-Setting.set("auth_openid_connect", true)
 Setting.set("auth_openid_connect_credentials", {
   "display_name"                 => ENV.fetch("OIDC_BUTTON_TEXT"),
   "identifier"                   => ENV.fetch("OIDC_CLIENT_ID"),

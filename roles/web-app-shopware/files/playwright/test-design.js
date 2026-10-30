@@ -302,7 +302,7 @@ function galleryViews({ channel, theme, productUrl }) {
         await ready(".register-form")(view);
       },
     },
-    { name: "admin-sign-in", url: `${base}/admin#/login`, prepare: ready(".sw-login__content input[type='password']") },
+    { name: "admin-sign-in", url: `${base}/admin#/login`, prepare: ready(".sw-login__content-headline") },
   ];
 
   const views = [
@@ -674,7 +674,7 @@ test("design: the administration sign-in page sits on the palette", async ({ pag
     "DESIGN_MENU_LOGO_URL must be set, toContain against an empty string passes always"
   ).toBeTruthy();
   await gotoOnion(page, `${base}/admin#/login`);
-  await expect(page.locator(".sw-login__content input[type='password']")).toBeVisible({
+  await expect(page.locator(".sw-login__content-headline")).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
   for (const mode of ["light", "dark"]) {

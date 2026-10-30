@@ -60,6 +60,12 @@ fider:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-fider', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-fider', 'native') }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:

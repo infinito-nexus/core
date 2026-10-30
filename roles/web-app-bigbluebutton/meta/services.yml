@@ -66,6 +66,14 @@ bigbluebutton:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'registration') }}"
   cpus: "4.0"
   mem_reservation: "2g"
   mem_limit: "6g"

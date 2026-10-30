@@ -12,7 +12,7 @@ const {
 const { apiFetchOnion, apiGetOnion, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { adminUsername, appBaseUrl, loginAsAdmin, matomoApiToken } = require("./_shared");
+const { BREAKGLASS_LOGIN_PATH, adminUsername, appBaseUrl, loginAsAdmin, matomoApiToken } = require("./_shared");
 
 const THEME = "InfinitoDesign";
 const MODES = ["light", "dark"];
@@ -38,7 +38,7 @@ function base() {
 }
 
 function loginUrl() {
-  return `${base()}/index.php?module=Login`;
+  return `${base()}${BREAKGLASS_LOGIN_PATH}`;
 }
 
 function homeUrl() {

@@ -1,0 +1,22 @@
+(function () {
+  const enrollment = [
+    'a[href*="/settings/two_factor_authentication"]',
+    'a[href*="/settings/otp_authentication"]',
+    'a[href*="/settings/security_keys"]',
+  ].join(", ");
+
+  function run() {
+    document.documentElement.setAttribute("data-infinito-2fa-enrollment", "hidden");
+    document.querySelectorAll(enrollment).forEach(function (link) {
+      (link.closest("li") || link).style.setProperty("display", "none", "important");
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+})();

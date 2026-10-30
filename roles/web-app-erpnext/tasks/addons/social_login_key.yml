@@ -23,7 +23,7 @@
       container exec -i
       -e SITE_NAME -e PROVIDER_NAME -e BUTTON_TEXT
       -e CLIENT_ID -e CLIENT_SECRET -e ISSUER_URL
-      -e USER_ID_PROPERTY
+      -e USER_ID_PROPERTY -e SOCIAL_LOGIN_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/oidc_settings.py') }}"
@@ -36,6 +36,7 @@
     CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
     ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
     USER_ID_PROPERTY: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    SOCIAL_LOGIN_ENABLED: "{{ ERPNEXT_LOGIN_SSO | string | lower }}"
   register: erpnext_oidc_apply
   changed_when: "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
   timeout: "{{ lookup('timeout', 60) | int }}"

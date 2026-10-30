@@ -23,6 +23,7 @@ LDAP_GROUP_OBJECTCLASS = os.environ["LDAP_GROUP_OBJECTCLASS"]
 LDAP_GROUP_MEMBER_ATTR = os.environ["LDAP_GROUP_MEMBER_ATTR"]
 LDAP_GROUP_PREFIX = os.environ["LDAP_GROUP_PREFIX"]
 ROLE_GRANTS = json.loads(os.environ["ROLE_GRANTS_JSON"])
+LDAP_LOGIN_ENABLED = os.environ["LDAP_LOGIN_ENABLED"] == "true"
 
 
 def role_group_cn(role):
@@ -39,7 +40,7 @@ def search_string():
 
 def upsert_ldap_settings():
     ls = frappe.get_doc("LDAP Settings")
-    ls.enabled = 1
+    ls.enabled = 1 if LDAP_LOGIN_ENABLED else 0
     ls.ldap_server_url = f"ldap://{LDAP_HOST}:{LDAP_PORT}"
     ls.base_dn = LDAP_BIND_DN
     ls.password = LDAP_BIND_PW

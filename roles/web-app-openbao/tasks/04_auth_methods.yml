@@ -11,6 +11,15 @@
       changed_when: "'OPENBAO_CHANGED' in openbao_oidc_enable.stdout"
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
 
+    - name: "👁️ List the OIDC method on the login page while the sso method is on"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c '[ "$(bao read -field=listing_visibility sys/auth/oidc/tune 2>/dev/null)" = {{ OPENBAO_OIDC_LISTING_VISIBILITY }} ] ||
+        { bao auth tune -listing-visibility={{ OPENBAO_OIDC_LISTING_VISIBILITY }} oidc/ && echo OPENBAO_CHANGED; }'
+      register: openbao_oidc_listing
+      changed_when: "'OPENBAO_CHANGED' in openbao_oidc_listing.stdout"
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
     - name: "📇 Point the OIDC method at the Keycloak realm"
       ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec -i {{ OPENBAO_LOCAL_CID | quote }}
@@ -50,7 +59,17 @@
     file: addons/auth-ldap.yml
     apply:
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
-  when: OPENBAO_LDAP_ENABLED | bool
+  when: OPENBAO_LOGIN_LDAP | bool
+
+- name: "🧹 Disable the LDAP method once the ldap login method is off"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao auth list -format=json | grep -q "\"ldap/\"" || exit 0;
+    bao auth disable ldap/ && echo OPENBAO_CHANGED'
+  register: openbao_ldap_disable
+  changed_when: "'OPENBAO_CHANGED' in openbao_ldap_disable.stdout"
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: not (OPENBAO_LOGIN_LDAP | bool)
 
 - name: "🔍 Read the auth mount accessors"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -111,4 +130,4 @@
   vars:
     alias_mount: "ldap/"
     alias_name: "{{ application_id }}-{{ openbao_group.item }}"
-  when: OPENBAO_LDAP_ENABLED | bool
+  when: OPENBAO_LOGIN_LDAP | bool

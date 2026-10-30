@@ -1,6 +1,6 @@
 -- Idempotent UPSERT of the `_keycloak` OAuth provider row in Fider's
 -- `oauth_providers` table. Driven by ON CONFLICT (tenant_id, provider).
--- Args: display_name, client_id, client_secret, authorize_url, token_url, profile_url, json_user_id_path, json_user_name_path, json_user_email_path.
+-- Args: display_name, status (2 lists the provider on the sign-in modal, 1 hides it), client_id, client_secret, authorize_url, token_url, profile_url, json_user_id_path, json_user_name_path, json_user_email_path.
 
 INSERT INTO oauth_providers (
     tenant_id, provider, display_name, status,
@@ -13,7 +13,7 @@ INSERT INTO oauth_providers (
     (SELECT id FROM tenants LIMIT 1),
     '_keycloak',
     %(display_name)s,
-    2,
+    %(status)s::int,
     %(client_id)s,
     %(client_secret)s,
     %(authorize_url)s,

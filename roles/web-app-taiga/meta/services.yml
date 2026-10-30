@@ -70,6 +70,16 @@ taiga:
     - web-app-matomo
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'registration') }}"
 async:
   healthcheck:
     test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]

@@ -120,6 +120,13 @@ ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabl
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
+ZAMMAD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.zammad.login.method.sso.enabled') | bool }}"
+ZAMMAD_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.zammad.login.method.ldap.enabled') | bool }}"
+ZAMMAD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.zammad.login.method.native.enabled') | bool }}"
+ZAMMAD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.zammad.login.method.2fa.enabled') | bool }}"
+ZAMMAD_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.zammad.login.method.registration.enabled') | bool }}"
+ZAMMAD_LOGIN_FORM: "{{ ZAMMAD_LOGIN_NATIVE | bool or ZAMMAD_LOGIN_LDAP | bool }}"
+
 ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"

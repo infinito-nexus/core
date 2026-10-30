@@ -62,6 +62,7 @@ test("administrator: Jenkins LDAP plugin authenticates against svc-db-openldap (
   await expect(page.locator(`a[href$='/user/${adminUsername}']`).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
+require("./test-login-methods");
 require("./test-mcp-guest");
 require("./test-partner-plugins");
 require("./test-rbac-roles");

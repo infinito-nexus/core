@@ -54,7 +54,17 @@ sequenceDiagram
 ```
 
 The internal `admin` and `kibanaserver` service accounts authenticate with HTTP basic auth against `internal_users.yml` and bypass OIDC and LDAP.
-With `sso` disabled, these two accounts are the only way to sign in.
+With `sso` disabled, these two accounts and the platform administrator (`internal_users.yml.j2` adds it only then) sign in at the dashboard's basic-auth form.
+
+## Login methods
+
+Each mode offers exactly one sign-in entry, so [services.yml](./meta/services.yml) marks the `sso` key with `# nocheck: login-methods` (see [Login Methods](../../docs/contributing/design/iam/login.md)) instead of declaring `services.wazuh.login.method`:
+
+- With `sso` on, `opensearch_security.auth.type: "openid"` in [opensearch_dashboards.yml.j2](./templates/opensearch_dashboards.yml.j2) sends every visitor to Keycloak; the dashboard renders no form.
+- With `sso` off, the dashboard keeps its default basic-auth form for the internal accounts.
+- The `ldap` service only adds `backend_roles` (`ldap_authz_domain`) and never verifies a password, so the stack has no LDAP sign-in.
+
+Break-glass access while `sso` is on runs over HTTP basic auth against the indexer's `basic_internal_auth_domain` (order 0, `challenge: false`) with the internal `admin` account, for example `curl -k -u admin:<indexer_admin_password> https://<host>:<services.indexer.ports.local.http>/_plugins/_security/authinfo`; the indexer port is published on `DOCKER_BIND_HOST` only, so this path runs from the host, not from a browser.
 
 ## RBAC
 

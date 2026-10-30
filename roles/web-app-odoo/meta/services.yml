@@ -65,6 +65,22 @@ odoo:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'passkey') }}"
+      odoo_com:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'odoo_com') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'registration') }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
@@ -88,11 +104,20 @@ design:
     logo:
       width: 280
       height: 80
-# nocheck: dynamic-flag
-# nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
+# nocheck: dynamic-flag  gated on the role's own form, passkey and 2fa login methods, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in and preference pages, asserted by test-login-methods.js
 javascript:
-  enabled: false
-  shared: true
+  bond: 1
+  enabled: >-
+    {{ not ((lookup('config', 'web-app-odoo', 'services.odoo.login.method.native.enabled') | bool
+    or lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool)
+    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.passkey.enabled') | bool
+    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.2fa.enabled') | bool) }}
+  shared: >-
+    {{ not ((lookup('config', 'web-app-odoo', 'services.odoo.login.method.native.enabled') | bool
+    or lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled') | bool)
+    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.passkey.enabled') | bool
+    and lookup('config', 'web-app-odoo', 'services.odoo.login.method.2fa.enabled') | bool) }}
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

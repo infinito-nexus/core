@@ -27,6 +27,13 @@ applications:
 - File/paste input for summaries and extraction (model dependent)
 - Suitable for teams: predictable, private, reproducible
 - **Profile Sync:** With SSO, every OIDC login copies the display name and the e-mail address from Keycloak's `name` and `email` claims into the Open WebUI account; an e-mail another account already holds is left unchanged
+- **Login methods:** Each sign-in method follows `services.openwebui.login.method.<method>.enabled` in `meta/services.yml` and is rendered into `templates/env.j2`:
+  - `sso`: the `OAUTH_*` and `OPENID_*` block of the Keycloak client.
+  - `ldap`: `ENABLE_LDAP` and the `LDAP_*` connection.
+  - `native`: `ENABLE_LOGIN_FORM`. With it off, the sign-in page shows only the Keycloak entry; with `ldap` on it shows the LDAP form without the e-mail toggle. `ENABLE_PASSWORD_AUTH` keeps its default `true`, because the LDAP form and the break-glass path sign in through the password endpoints, so the e-mail sign-in stays reachable through `/auth?form=1` and `POST /api/v1/auths/signin`: the form is shared.
+  - `registration`: `ENABLE_SIGNUP`. Keycloak accounts are still created at their first sign-in through `ENABLE_OAUTH_SIGNUP`.
+  - Open WebUI has no second factor and no passkey of its own, so neither is declared.
+- **Break-glass:** With SSO on, the platform administrator is a Keycloak account without a local password. The local administrator sets one from inside the `open-webui` container with [files/python/administrator.py](./files/python/administrator.py) (`OPENWEBUI_ADMIN_EMAIL`, `OPENWEBUI_ADMIN_NAME`, `OPENWEBUI_ADMIN_PASSWORD` in the environment, piped into `python3 -`, as `tasks/utils/admin.yml` does without SSO), then signs in at `/auth?form=1`.
 - With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
 - Retrieval, web search and code execution come from platform services (`svc-ai-tika`, `svc-ai-searxng`, `svc-ai-jupyter`, `svc-db-qdrant`) rather than from a third-party API, each switched on per deployment
 - `services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start

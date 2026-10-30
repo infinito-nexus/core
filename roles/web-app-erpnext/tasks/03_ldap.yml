@@ -7,7 +7,7 @@
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR
       -e LDAP_MAIL_ATTR -e LDAP_FIRSTNAME_ATTR -e LDAP_SURNAME_ATTR -e LDAP_PHONE_ATTR -e LDAP_MOBILE_ATTR
       -e LDAP_MEMBER_OF_ATTR -e LDAP_GROUP_OBJECTCLASS -e LDAP_GROUP_MEMBER_ATTR -e LDAP_GROUP_PREFIX
-      -e ROLE_GRANTS_JSON
+      -e ROLE_GRANTS_JSON -e LDAP_LOGIN_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/ldap_source.py') }}"
@@ -31,6 +31,7 @@
     LDAP_GROUP_MEMBER_ATTR: "{{ ERPNEXT_LDAP_GROUP_MEMBER_ATTRIBUTE }}"
     LDAP_GROUP_PREFIX: "{{ application_id }}-"
     ROLE_GRANTS_JSON: "{{ ERPNEXT_RBAC_ROLE_GRANTS | to_json }}"
+    LDAP_LOGIN_ENABLED: "{{ ERPNEXT_LOGIN_LDAP | string | lower }}"
   register: erpnext_ldap_apply
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

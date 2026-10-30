@@ -88,6 +88,16 @@ peertube:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-peertube', 'registration') }}"
 # nocheck: playwright-service-flag — verified by web-svc-design provider spec
 design:
   bond: 1
@@ -104,6 +114,12 @@ design:
     favicon:
       width: 32
       height: 32
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - carries the login-method script of templates/javascript.js.j2, whose effect files/playwright/test-login-methods.js asserts
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

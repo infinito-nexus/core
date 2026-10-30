@@ -29,6 +29,8 @@ ERPNEXT_BENCH_PYTHON: "{{ ERPNEXT_BENCH_PYTHON_ARGV | map('quote') | join(' ') }
 ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ERPNEXT_API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_USER.password }}"
 ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.api_key_secret') }}"
+ERPNEXT_API_KEY: "{{ ERPNEXT_API_KEY_SECRET[:(ERPNEXT_API_KEY_SECRET | length) // 2] }}"
+ERPNEXT_API_SECRET: "{{ ERPNEXT_API_KEY_SECRET[(ERPNEXT_API_KEY_SECRET | length) // 2:] }}"
 
 ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
 
@@ -41,6 +43,13 @@ ERPNEXT_SERVER_SCRIPTS_ENABLED: "{{ lookup('config', application_id, 'services.e
 ERPNEXT_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')   | bool }}"
 ERPNEXT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ERPNEXT_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+
+ERPNEXT_LOGIN_SSO: "{{ lookup('config', application_id, 'services.erpnext.login.method.sso.enabled') | bool }}"
+ERPNEXT_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.erpnext.login.method.ldap.enabled') | bool }}"
+ERPNEXT_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.erpnext.login.method.native.enabled') | bool }}"
+ERPNEXT_LOGIN_2FA: "{{ lookup('config', application_id, 'services.erpnext.login.method.2fa.enabled') | bool }}"
+ERPNEXT_LOGIN_EMAIL: "{{ lookup('config', application_id, 'services.erpnext.login.method.email.enabled') | bool }}"
+ERPNEXT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.erpnext.login.method.registration.enabled') | bool }}"
 
 ERPNEXT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 ERPNEXT_DESIGN_LOGO_ENABLED: "{{ ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"

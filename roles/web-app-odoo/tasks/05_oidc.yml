@@ -13,6 +13,7 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/update/keycloak-provider.sql"
     named_args:
+      enabled: "{{ ODOO_LOGIN_SSO | bool }}"
       auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
       userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
       client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
@@ -25,6 +26,7 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/insert/keycloak-provider.sql"
     named_args:
+      enabled: "{{ ODOO_LOGIN_SSO | bool }}"
       auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
       userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
       client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
@@ -40,20 +42,13 @@
       key: "auth_oauth.oauth_providers"
       value: "True"
 
-- name: "🟢 Enable OAuth signup (allow user creation on first OAuth login)"
+- name: "🚫 Switch the shipped Odoo.com provider to the odoo_com login method"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/update/odoo-com-provider.sql"
     named_args:
-      key: "auth_signup.invitation_scope"
-      value: "b2c"
-
-- name: "🔑 Allow uninvited OAuth signup on website"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/update/website-uninvited-b2c.sql"
+      enabled: "{{ ODOO_LOGIN_ODOO_COM | bool }}"
 
 - name: "🔎 Check if OAuth template user exists"
   database_query:

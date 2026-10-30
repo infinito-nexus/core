@@ -88,6 +88,18 @@ moodle:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'registration') }}"
 nginx:
   backup:
     stop_required: false

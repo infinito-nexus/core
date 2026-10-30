@@ -11,8 +11,11 @@ JENKINS_CASC_FILE: "{{ [ lookup('container', application_id, 'directories.instan
 
 JENKINS_PLUGIN_ADDONS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | sort(attribute='key') | list }}"
 
-JENKINS_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+JENKINS_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.jenkins.login.method.sso.enabled') | bool }}"
 JENKINS_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+JENKINS_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.jenkins.login.method.ldap.enabled') | bool }}"
+JENKINS_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.jenkins.login.method.native.enabled') | bool }}"
+JENKINS_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.jenkins.login.method.registration.enabled') | bool }}"
 
 JENKINS_LOOPBACK_URL: "http://localhost:{{ lookup('config', application_id, 'services.jenkins.ports.internal.http') }}"
 

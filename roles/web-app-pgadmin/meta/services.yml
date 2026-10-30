@@ -31,6 +31,14 @@ pgadmin:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-pgadmin', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-pgadmin', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-pgadmin', '2fa') }}"
   cpus: "0.2"
   mem_reservation: 128m
   mem_limit: 256m

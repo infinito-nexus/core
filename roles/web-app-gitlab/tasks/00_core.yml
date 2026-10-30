@@ -36,6 +36,9 @@
 - name: "👤 Give the platform administrator GitLab admin rights"
   include_tasks: utils/platform_admin.yml
 
+- name: "🚪 Converge the sign-in methods of GitLab"
+  include_tasks: utils/login_methods.yml
+
 - name: "🛂 Reconcile GitLab administrators and external users with the role groups"
   include_tasks: utils/rbac.yml
 

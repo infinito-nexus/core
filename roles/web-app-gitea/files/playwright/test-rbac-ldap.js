@@ -22,6 +22,14 @@ async function signInAsBiber(request, shared) {
   return JSON.parse(body);
 }
 
+function skipUnlessLdapLogin(shared) {
+  skipUnlessServiceEnabled("ldap");
+  test.skip(
+    !shared.loginMethods.ldap,
+    "LOGIN_METHOD_LDAP_ENABLED=false: LDAP accounts sign in through Keycloak's LDAP federation, not Gitea's LDAP source",
+  );
+}
+
 async function withBiberInGroup(browser, groupDn, body) {
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
@@ -33,7 +41,7 @@ async function withBiberInGroup(browser, groupDn, body) {
 
 exports.register = function (shared) {
   test("biber: without a Gitea role, biber signs in as a regular Gitea user", async ({ browser }) => {
-    skipUnlessServiceEnabled("ldap");
+    skipUnlessLdapLogin(shared);
     const context = await browser.newContext({ ignoreHTTPSErrors: true });
     try {
       const self = await signInAsBiber(context.request, shared);
@@ -46,7 +54,7 @@ exports.register = function (shared) {
   });
 
   test("biber: membership in the administrator group makes biber a Gitea administrator", async ({ browser }) => {
-    skipUnlessServiceEnabled("ldap");
+    skipUnlessLdapLogin(shared);
     await withBiberInGroup(browser, env.administratorGroupDn, async (request) => {
       await expect
         .poll(async () => (await signInAsBiber(request, shared)).is_admin, {
@@ -69,7 +77,7 @@ exports.register = function (shared) {
   });
 
   test("biber: membership in the restricted group makes biber a restricted Gitea user", async ({ browser }) => {
-    skipUnlessServiceEnabled("ldap");
+    skipUnlessLdapLogin(shared);
     await withBiberInGroup(browser, env.restrictedGroupDn, async (request) => {
       await expect
         .poll(async () => (await signInAsBiber(request, shared)).restricted, {

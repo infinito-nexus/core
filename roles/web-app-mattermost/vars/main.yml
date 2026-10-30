@@ -14,7 +14,10 @@ MATTERMOST_BUILD_DIR: "{{ lookup('container', application_id, 'directories.insta
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 MATTERMOST_MMCTL: "{{ lookup('config', application_id, 'services.mattermost.mmctl') }}"
 
-MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.mattermost.login.method.sso.enabled') | bool }}"
+MATTERMOST_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.mattermost.login.method.native.enabled') | bool }}"
+MATTERMOST_LOGIN_2FA: "{{ lookup('config', application_id, 'services.mattermost.login.method.2fa.enabled') | bool }}"
+MATTERMOST_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.mattermost.login.method.registration.enabled') | bool }}"
 
 MATTERMOST_ADDONS_ENABLED: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled', 'true') | list }}"
 

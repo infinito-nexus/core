@@ -48,6 +48,16 @@ espocrm:
   pids_limit: 768
   email:
     from_name: Customer Relationship Management ({{ DOMAIN_PRIMARY }})
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-espocrm', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-espocrm', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-espocrm', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-espocrm', '2fa') }}"
   maintenance_mode: false
   ports:
     internal:

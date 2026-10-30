@@ -7,6 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 test.beforeEach(shared.beforeEach);
 
 require("./test-sso-login").register(shared);
+require("./test-login-methods").register(shared);
 require("./test-biber-dm-administrator").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-mcp-guest").register(shared);

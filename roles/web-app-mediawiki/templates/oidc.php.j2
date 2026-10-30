@@ -16,7 +16,8 @@ if ( file_exists( $pa ) && file_exists( $oidc ) ) {
     wfLoadExtension( 'OpenIDConnect' );
 
     $wgPluggableAuth_EnableAutoLogin = {{ MEDIAWIKI_OIDC_AUTOLOGIN | bool }};
-    $wgPluggableAuth_EnableLocalLogin = {{ MEDIAWIKI_OIDC_LOCALLOGIN | bool }};
+    $wgPluggableAuth_EnableLocalLogin = {{ MEDIAWIKI_LOCAL_PASSWORD_LOGIN | bool }};
+    $wgGroupPermissions['*']['autocreateaccount'] = true;
     $wgPluggableAuth_ButtonLabel = '{{ MEDIAWIKI_OIDC_BUTTON_TEXT }}';
 
     $wgPluggableAuth_Config = [

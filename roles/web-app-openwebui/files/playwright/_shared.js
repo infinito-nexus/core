@@ -28,6 +28,14 @@ const env = {
   ldapRoleDnBase: decodeDotenvQuotedValue(process.env.LDAP_ROLE_DN_BASE),
 };
 
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+
+const signInPageUrl = `${env.openwebuiBaseUrl}/auth${loginMethods.native || loginMethods.ldap ? "" : "?form=1"}`;
+
 function attachDiagnostics(page) {
   const consoleErrors = [];
   const pageErrors = [];
@@ -355,6 +363,8 @@ async function beforeEach({ page }) {
 
 module.exports = {
   env,
+  loginMethods,
+  signInPageUrl,
   attachDiagnostics,
   dismissAllOpenModals,
   openwebuiLogout,

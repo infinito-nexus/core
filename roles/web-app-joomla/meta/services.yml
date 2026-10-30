@@ -60,6 +60,20 @@ joomla:
   upload:
     size_mb: 100
   autocreate_users: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'registration') }}"
   ports:
     local:
       http: 8014

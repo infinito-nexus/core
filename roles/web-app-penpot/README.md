@@ -41,29 +41,16 @@ handoff features.
 
 ## Identity
 
-Login methods are toggled through `PENPOT_FLAGS` and configured by Ansible:
+`services.penpot.login.method.*` in [meta/services.yml](./meta/services.yml) drives the login flags in `PENPOT_FLAGS` ([vars/main.yml](./vars/main.yml)):
 
-- **OIDC** via [`web-app-keycloak`](../web-app-keycloak/) — enabled when the
-  `sso` service is active (`flavor: oidc`, native in-app "OpenID" login). Adds
-  `enable-login-with-oidc`.
-- **LDAP** via [`svc-db-openldap`](../svc-db-openldap/) — enabled when the
-  `ldap` service is active. Adds `enable-login-with-ldap`.
-- **Native** local email/password login is *off* once OIDC is the login path
-  (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS`
-  renders `enable-login-with-password` / `disable-login-with-password` accordingly
-  (no JS injection needed — Penpot disables the password form natively). When
-  native login is on, the role bootstraps a local password for the `administrator`
-  profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` —
-  `create-profile` for a fresh profile, `update-profile` to set the password when
-  a federated login already created it; the bootstrap is skipped under OIDC.
+- **`sso`:** `enable-login-with-oidc` (the in-app "OpenID" entry to [`web-app-keycloak`](../web-app-keycloak/)) together with `enable-oidc-registration`, so a first OIDC login creates its Penpot profile while local self-registration stays closed.
+- **`ldap`:** `enable-login-with-ldap`, the "LDAP" button on the login form that binds against [`svc-db-openldap`](../svc-db-openldap/). Under SSO it is off and LDAP accounts sign in through the Keycloak federation.
+- **`native`:** `enable-login-with-password` or `disable-login-with-password`. Penpot keeps the email and password fields for the LDAP button, but without this flag no local password signs in. When it is on, `tasks/main.yml` bootstraps a local password for the `administrator` profile through the backend PREPL (`create-profile` for a fresh profile, `update-profile` when a federated login already created it).
+- **`registration`:** `enable-registration` or `disable-registration`, the local "Create an account" path. Penpot accepts a local sign-up only while `native` is on as well.
 
-**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also
-derived from the `sso` service flag. Penpot routes first-time OIDC logins through
-the registration path (a disabled flag makes the callback fail with
-`?error=registration-disabled` for not-yet-provisioned users), so registration
-must stay on wherever OIDC is. Native admin is bootstrapped and LDAP
-self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` /
-`disable-registration` accordingly.
+Penpot has no second factor and no passkey, so the role declares neither.
+
+**Break-glass:** Penpot has no instance administrator, only team roles. While SSO is on, the backend PREPL (`enable-prepl-server`) that `tasks/01_administrator.yml` drives manages profiles from the CLI.
 
 ## Storage & scalability
 
@@ -118,8 +105,9 @@ globs every `*.js` under `files/playwright/`):
   skipped when `sso` is enabled (native login is disabled under OIDC).
 - `test-login-oidc-admin.js` — OIDC via Keycloak, administrator.
 - `test-login-oidc-biber.js` — OIDC via Keycloak, `biber` (non-admin RBAC).
-- `test-login-ldap-admin.js` — OpenLDAP bind, administrator.
-- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC).
+- `test-login-ldap-admin.js` — OpenLDAP bind, administrator; runs with `ldap` on and `sso` off.
+- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC); runs with `ldap` on and `sso` off.
+- `test-login-methods.js` — with `sso` on, the login page shows the OpenID entry and only the password, LDAP and registration entries whose `LOGIN_METHOD_*_ENABLED` flag is on.
 - `playwright.spec.js` — orchestrator: TLS baseline, project creation, image
   asset upload, and the `guest`/`biber`/`administrator` personas. The `biber` /
   `administrator` personas are declared blocked via `PERSONA_*_BLOCKED`

@@ -58,6 +58,16 @@ openwebui:
       http: 8080
   proxy:
     service_key: openwebui
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-openwebui', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-openwebui', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-openwebui', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-openwebui', 'registration') }}"
   run_after:
     - web-app-keycloak
     - web-app-matomo

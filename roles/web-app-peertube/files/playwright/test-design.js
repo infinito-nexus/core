@@ -88,7 +88,7 @@ async function rootHeaders(request) {
 
 async function signInRoot(page) {
   await rootHeaders(page.request);
-  await gotoOnion(page, `${baseUrl()}/login`);
+  await gotoOnion(page, `${baseUrl()}/login?fallback=local`);
   const username = page.locator("#username");
   const password = page.locator("#password");
   await expect(username).toBeEditable({ timeout: resolveTimeout(10_000) });
@@ -202,7 +202,7 @@ exports.register = function () {
   test("design: page, primary action, header and text follow the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await api(page.request, `${baseUrl()}/api/v1/config`);
-    await gotoOnion(page, `${baseUrl()}/login`);
+    await gotoOnion(page, `${baseUrl()}/login?fallback=local`);
     const submit = 'input[type="submit"].primary-button';
     await expect(page.locator(submit)).toBeVisible({ timeout: resolveTimeout(10_000) });
     for (const mode of ["light", "dark"]) {
@@ -347,7 +347,7 @@ exports.register = function () {
     const failures = [];
     await captureDesignGallery(page, [
       view("browse-videos", "/videos/browse", "my-video-miniature"),
-      view("login", "/login", "#username"),
+      view("login", "/login?fallback=local", "#username"),
       view("about-instance", "/about/instance/home", "my-about-instance"),
       view("search", `/search?search=${encodeURIComponent("Design")}`, "my-video-miniature"),
       view("video-watch", `/w/${showcase.video.shortUUID}`, ".video-info-name"),

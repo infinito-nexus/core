@@ -1,0 +1,43 @@
+(function () {
+  var hideForm = {{ (not (MAILU_LOGIN_NATIVE | bool)) | to_json }};
+  var hideSso = {{ (not (MAILU_LOGIN_SSO | bool)) | to_json }};
+
+  if (!hideForm && !hideSso) {
+    return;
+  }
+
+  function onLoginPage() {
+    return window.location.pathname.indexOf("/sso/login") === 0;
+  }
+
+  function fallbackRequested() {
+    return new URLSearchParams(window.location.search).get("fallback") === "local";
+  }
+
+  function hide(element) {
+    element.style.setProperty("display", "none", "important");
+  }
+
+  function run() {
+    if (!onLoginPage()) {
+      return;
+    }
+    if (hideForm && !fallbackRequested()) {
+      document.querySelectorAll("form.form[method='post']").forEach(hide);
+    }
+    if (hideSso) {
+      document.querySelectorAll("a[href*='openid-connect/auth']").forEach(hide);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(run).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+})();

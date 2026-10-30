@@ -96,20 +96,6 @@
       field_lock_lastnamephonetic: "locked"
       field_updatelocal_lastnamephonetic: "oneveryloginupdate"
 
-- name: "🟢 Enable the auth_oidc plugin in Moodle's core auth list"
-  shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ MOODLE_CLI_DIR }}/cfg.php --name=auth --set=oidc
-  changed_when: false
-
-- name: "🔀 Point the Moodle login page at the auth_oidc entry point"
-  shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ MOODLE_CLI_DIR }}/cfg.php
-    --name=alternateloginurl
-    --set={{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') | quote }}
-  changed_when: false
-
 - name: "🔧 Set auth = 'oidc' for all users except guest"
   shell: >
     container exec -e MYSQL_PWD {{ MOODLE_DB_CONTAINER_ADDRESS }}

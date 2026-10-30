@@ -23,7 +23,13 @@ MATRIX_BRIDGE_SOURCE_DIR: "{{ [ lookup('container', application_id, 'directories
 MATRIX_BRIDGE_CONFIG_TARGET: "/config/config.yaml"
 MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.registration_shared_secret') }}"
 MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
-MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.matrix.login.method.sso.enabled') | bool }}"
+MATRIX_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.matrix.login.method.native.enabled') | bool }}"
+MATRIX_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.matrix.login.method.registration.enabled') | bool }}"
+MATRIX_ELEMENT_SSO_REDIRECT: "{{ MATRIX_OIDC_ENABLED | bool and not (MATRIX_LOGIN_NATIVE | bool or MATRIX_LDAP_ENABLED | bool) }}"
+MATRIX_ELEMENT_LOGIN_CONFIG: >-
+  {{ {'sso_redirect_options': {'on_welcome_page': MATRIX_ELEMENT_SSO_REDIRECT | bool, 'on_login_page': MATRIX_ELEMENT_SSO_REDIRECT | bool},
+      'setting_defaults': {'UIFeature.registration': MATRIX_LOGIN_REGISTRATION | bool}} }}
 MATRIX_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 MATRIX_OIDC_HOST_IS_ONION: "{{ (MATRIX_OIDC_HOST | network_of) == 'tor' }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
@@ -153,7 +159,7 @@ MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED: "{{ lookup('config', application_id, 'addon
 MATRIX_ADDON_JITSI_ENABLED: "{{ lookup('config', application_id, 'addons.jitsi.enabled') | bool }}"
 MATRIX_ADDON_JITSI_PREFERRED_DOMAIN: "{{ lookup('config', application_id, 'addons.jitsi.config.preferred_domain') }}"
 
-MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.matrix.login.method.ldap.enabled') | bool }}"
 
 MATRIX_CA_INJECTED: "{{ lookup('ca_injected', application_id) | bool }}"
 MATRIX_CA_MOUNT_PATH: "{{ CA_TRUST.cert_container }}"

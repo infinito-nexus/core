@@ -16,7 +16,8 @@
  *   OIDC_REALM             Keycloak realm holding the client
  *   OIDC_CLIENT_ID         Keycloak client id
  *   OIDC_CLIENT_SECRET     Keycloak client secret
- *   RBAC_GROUP_CLAIM       ID token claim that lists the group paths
+ *   OIDC_LOGIN_ENABLED     "true" offers the provider on the admin login page, "false" keeps it for account connects only
+ *   RBAC_GROUP_CLAIM      ID token claim that lists the group paths
  *   RBAC_GROUP_ADMIN       group path whose members become Shopware administrators
  *   RBAC_GROUP_EDITOR      group path whose members get the Editor ACL role
  *   ACL_EDITOR_ROLE_NAME   name of the ACL role granted to the editor group
@@ -136,7 +137,7 @@ $payload = [
     'name' => 'Keycloak',
     'provider' => PROVIDER,
     'active' => true,
-    'login' => true,
+    'login' => env('OIDC_LOGIN_ENABLED') === 'true',
     'connect' => true,
     'storeUserToken' => true,
     'keepUserUpdated' => true,

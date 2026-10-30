@@ -68,7 +68,12 @@
 
 - name: "🔧 Configure LDAP authentication"
   include_tasks: 06_ldap.yml
-  when: ODOO_LDAP_ENABLED | bool
+  when:
+    - ODOO_LDAP_ENABLED | bool
+    - ODOO_LOGIN_LDAP | bool
+
+- name: "🚪 Converge the login methods of {{ application_id }}"
+  include_tasks: 10_login_methods.yml
 
 - name: "♻️ Reload Odoo so the SQL-provisioned config takes effect"
   include_tasks: 08_reload_provisioned_config.yml

@@ -104,6 +104,14 @@ GITEA_MCP_INITIALIZE_PAYLOAD:
       name: infinito-nexus
       version: "1"
 
-GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.shared') | bool }}"
+GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.gitea.login.method.sso.enabled') | bool }}"
 GITEA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 GITEA_IAM_ENABLED: "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | bool ) }}"
+
+GITEA_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.gitea.login.method.ldap.enabled') | bool }}"
+GITEA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.gitea.login.method.native.enabled') | bool }}"
+GITEA_LOGIN_2FA: "{{ lookup('config', application_id, 'services.gitea.login.method.2fa.enabled') | bool }}"
+GITEA_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.gitea.login.method.passkey.enabled') | bool }}"
+GITEA_LOGIN_OPENID2: "{{ lookup('config', application_id, 'services.gitea.login.method.openid2.enabled') | bool }}"
+GITEA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.gitea.login.method.registration.enabled') | bool }}"
+GITEA_LOGIN_FORM: "{{ GITEA_LOGIN_NATIVE | bool or GITEA_LOGIN_LDAP | bool }}"

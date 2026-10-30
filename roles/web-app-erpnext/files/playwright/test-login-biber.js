@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
-  test("biber: ERPNext OIDC login without an RBAC role grants no ERPNext role", async ({ page, browser }) => {
+  test("biber: ERPNext OIDC login without an RBAC role grants no ERPNext role", async ({ page }) => {
     shared.skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(180_000)); // OIDC round-trip plus the break-glass API read
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
@@ -18,14 +18,9 @@ exports.register = function (shared) {
     expect(desk.status(), "a Keycloak user outside every ERPNext role group must not reach the desk").not.toBe(200);
     await shared.erpnextLogout(page);
 
-    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    const api = await shared.breakGlassApi();
     try {
-      const login = await context.request.post(`${shared.env.erpnextBaseUrl}/api/method/login`, {
-        form: { usr: "Administrator", pwd: shared.env.adminNativePassword },
-        timeout: resolveTimeout(60_000),
-      });
-      expect(login.status(), "the break-glass Administrator must sign in through /api/method/login").toBe(200);
-      const response = await context.request.get(
+      const response = await api.get(
         `${shared.env.erpnextBaseUrl}/api/resource/User/${encodeURIComponent(shared.env.biberEmail)}`,
         { timeout: resolveTimeout(60_000) },
       );
@@ -41,7 +36,7 @@ exports.register = function (shared) {
         ).toBe(0);
       }
     } finally {
-      await context.close().catch(() => {});
+      await api.dispose().catch(() => {});
     }
   });
 };

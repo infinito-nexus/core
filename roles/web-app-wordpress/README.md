@@ -38,6 +38,8 @@ This automated Docker Compose deployment streamlines the process by building a c
 - **Read-only IdP fields:** On `profile.php` of an OIDC account these fields are read-only, and saving the profile keeps their stored values.
 - **OIDC role mapping:** Every OIDC login sets the WordPress role from the user's Keycloak role groups; a user without one is a Subscriber.
 - **Multisite RBAC:** Under Multisite, per-site groups set the role on each site, and the network-administrator group grants super-admin and revokes the super-admin rights it granted. The bootstrap administrator keeps its super-admin rights.
+- **Login methods:** `services.wordpress.login.method` declares `sso`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` enables the `daggerhart-openid-connect-generic` addon. With `sso` on, `native` sets the addon's `login_type`: `auto` (the default, `wp-login.php` redirects to Keycloak) while `native` is off, `button` (form plus Keycloak button) while it is on; without `sso` the WordPress form is the only sign-in. `registration` sets `users_can_register`, or the network option `registration` (`user` or `none`) under Multisite, through WP-CLI in [`tasks/07_manager_ops.yml`](./tasks/07_manager_ops.yml). WordPress core has no second factor and the role no `ldap` service, so neither is declared.
+- **Break-glass access:** with SSO on, the addon skips its redirect for a request that posts `wp-submit`, so the local administrator (`WORDPRESS_ADMIN_USERNAME`) signs in with a direct `POST /wp-login.php` carrying `log`, `pwd` and `wp-submit` (e.g. `curl -c jar -d log=<user> -d pwd=<password> -d wp-submit=1 <url>/wp-login.php`); `files/playwright/test-login-methods.js` proves it. WP-CLI inside the container stays available as well.
 
 ## Purpose
 
@@ -63,7 +65,7 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
-| `daggerhart-openid-connect-generic` | `plugin` | enabled with the `sso` service | `sso` → `web-app-keycloak` |
+| `daggerhart-openid-connect-generic` | `plugin` | enabled with the `sso` login method, which follows the `sso` service | `sso` → `web-app-keycloak` |
 | `wp-discourse` | `plugin` | enabled with the `discourse` service | `discourse` → `web-app-discourse` |
 | `activitypub` | `plugin` | enabled in variant 0 (Fediverse federation); off in later variants | none |
 | `infinito-oidc-rbac-mapper` | `mu_plugin` | `required` (always installed, vendored) | `sso` → `web-app-keycloak` |
@@ -94,5 +96,5 @@ The front-page CSP + canonical-domain baseline is ungated and always runs.
 
 ## Persona contract opt-outs
 
-WordPress's canonical surface is the public blog front page. The OIDC round-trip fires on `/wp-login.php`, which the `daggerhart-openid-connect-generic` addon auto-redirects to Keycloak (`login_type: auto`, see [`meta/addons/daggerhart-openid-connect-generic.yml`](./meta/addons/daggerhart-openid-connect-generic.yml)); the shared personas enter at the site root and never visit that path.
+WordPress's canonical surface is the public blog front page. The OIDC round-trip fires on `/wp-login.php`, which the `daggerhart-openid-connect-generic` addon auto-redirects to Keycloak (`login_type: auto` while the `native` login method is off, see [`meta/addons/daggerhart-openid-connect-generic.yml`](./meta/addons/daggerhart-openid-connect-generic.yml)); the shared personas enter at the site root and never visit that path.
 [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The journeys themselves are not dropped: `test-admin-oidc-login.js` drives the admin login, logout and landing assertion, and `test-rbac-roles.js` drives the Keycloak-group-to-WordPress-role mapping over the same entry point.

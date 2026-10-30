@@ -50,6 +50,9 @@
 - name: "🔧 Setup administrator"
   include_tasks: "../02_administrator.yml"
 
+- name: "🚪 Converge the sign-in methods"
+  include_tasks: "../04_login_methods.yml"
+
 - name: "🎨 Setup corporate design"
   include_tasks: "../03_design.yml"
 

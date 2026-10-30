@@ -1,5 +1,6 @@
 require("./test-oidc-login");
 require("./test-oidc-fallback");
+require("./test-login-methods");
 require("./test-rbac-groups");
 require("./test-profile-sync");
 require("./test-sso-logout");

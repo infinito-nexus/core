@@ -56,6 +56,7 @@ test("GitLab returns HTML content under canonical domain", async ({ request }) =
 require("./test-mcp-guest");
 require("./test-integrations").register();
 require("./test-design");
+require("./test-login-methods");
 
 // Outbound mail. `templates/config/smtp_settings.rb.j2` derives ActionMailer's
 // `tls:` from the provider's own declaration, and tls/starttls are mutually

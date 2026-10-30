@@ -16,6 +16,7 @@ require("./test-seaweedfs");
 require("./test-partner-extensions");
 require("./test-rbac-groups");
 require("./test-profile-sync");
+require("./test-login-methods");
 
 test.use({ ignoreHTTPSErrors: true });
 

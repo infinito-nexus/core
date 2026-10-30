@@ -90,6 +90,14 @@ stalwart:
   run_after:
     - web-app-matomo
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', '2fa') }}"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g

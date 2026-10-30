@@ -89,6 +89,20 @@ erpnext:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', '2fa') }}"
+      email:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', 'email') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-erpnext', 'registration') }}"
   cpus: "2.0"
   mem_reservation: 2g
   mem_limit: 4g

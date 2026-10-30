@@ -8,6 +8,7 @@ test.beforeEach(shared.beforeEach);
 
 require("./test-csp").register(shared);
 require("./test-admin-oidc-login").register(shared);
+require("./test-login-methods").register(shared);
 require("./test-rbac-roles").register(shared);
 require("./test-multisite-rbac").register(shared);
 require("./test-profile-sync").register(shared);

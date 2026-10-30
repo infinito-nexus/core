@@ -9,19 +9,30 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  normalizeBaseUrl,
+  performKeycloakLogin,
+  requireDotenvValue,
+} = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
+const canonicalDomain = decodeDotenvQuotedValue(requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN"));
+const adminUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
 const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
 const title = decodeDotenvQuotedValue(requireDotenvValue(process.env.DESIGN_TITLE, "DESIGN_TITLE"));
 const logoEnabled = (process.env.DESIGN_LOGO_ENABLED || "").toLowerCase() === "true";
+const passwordFormEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
 
 const MODES = ["light", "dark"];
 const USERNAME = "[data-testid='username-field']";
 const PASSWORD = "[data-testid='password-field']";
 const SIGN_IN = "[data-testid='sign-in-button']";
+const SSO_ENTRY = "form[action*='/users/auth/openid_connect'] button, a[href*='/users/auth/openid_connect']";
+const SIGN_IN_TITLE = "main h1";
 const TOPBAR = "header.super-topbar";
 const PANEL = ".js-static-panel";
 const CONFIRM = "main .btn-confirm";
@@ -57,12 +68,12 @@ function opened(trigger) {
 
 /**
  * Args:
- *   page: Playwright page that ends signed in as GitLab's root account on the start page; later calls reuse the first session.
+ *   page: Playwright page that ends signed in on the start page, as GitLab's root account through the password form while the native login method is on, else as the platform administrator through Keycloak; later calls reuse the first session.
  */
 async function signIn(page) {
   if (session) {
     await page.context().addCookies(session);
-  } else {
+  } else if (passwordFormEnabled) {
     await gotoOnion(page, `${base}/users/sign_in`);
     await expect(page.locator(USERNAME)).toBeEditable({ timeout: resolveTimeout(10_000) });
     await page.locator(USERNAME).fill(ROOT_USERNAME);
@@ -70,6 +81,15 @@ async function signIn(page) {
     await page.locator(PASSWORD).fill(adminPassword);
     await page.locator(SIGN_IN).click();
     await page.waitForURL((url) => !url.pathname.startsWith("/users/sign_in"), { timeout: resolveTimeout(30_000) });
+    session = await page.context().cookies();
+  } else {
+    await gotoOnion(page, `${base}/users/sign_in`);
+    await page.locator(SSO_ENTRY).first().click({ timeout: resolveTimeout(10_000) });
+    await page.waitForURL(/openid-connect\/auth/, { timeout: resolveTimeout(30_000) });
+    await performKeycloakLogin(page, adminUsername, adminPassword, canonicalDomain);
+    await page.waitForURL((url) => url.hostname === canonicalDomain && !url.pathname.startsWith("/users/"), {
+      timeout: resolveTimeout(30_000),
+    });
     session = await page.context().cookies();
   }
   await gotoOnion(page, `${base}/`);
@@ -259,6 +279,7 @@ test("design: corporate tokens apply in light and dark mode", async ({ page }) =
 
 test("design: the sign-in page takes text, controls and primary action from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.skip(!passwordFormEnabled, "LOGIN_METHOD_NATIVE_ENABLED=false: the sign-in page carries no password form");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/users/sign_in`);
@@ -337,8 +358,8 @@ test("design: every focus stop in the top bar draws its indicator in the frame t
 test("design: GitLab shows the generated logos and the configured title", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await gotoOnion(page, `${base}/users/sign_in`);
-  await shown(SIGN_IN)(page);
-  await expect(page.locator("main h1").first()).toHaveText(title);
+  await shown(SIGN_IN_TITLE)(page);
+  await expect(page.locator(SIGN_IN_TITLE).first()).toHaveText(title);
   test.skip(!logoEnabled, "the logo replacement is disabled for this role");
   const logo = page.locator("img.js-portrait-logo-detection");
   await expect(logo).toHaveAttribute("src", /\/uploads\/-\/system\/appearance\//);
@@ -362,6 +383,7 @@ test("design: GitLab shows the generated logos and the configured title", async 
 
 test("design: root signs in natively and reaches the admin area", async ({ page }) => {
   skipUnlessServiceEnabled("design");
+  test.skip(!passwordFormEnabled, "LOGIN_METHOD_NATIVE_ENABLED=false: root has no web sign-in, its break-glass is the Rails console");
   await signIn(page);
   const response = await gotoOnion(page, `${base}/admin`);
   expect(response.status(), "the admin area answers root").toBe(200);
@@ -411,7 +433,7 @@ test("design: gallery of sign-in, project, issues, merge requests, settings, adm
   await page.context().clearCookies();
   const failures = [];
   await captureDesignGallery(page, [
-    { name: "sign-in", url: `${base}/users/sign_in`, prepare: shown(SIGN_IN) },
+    { name: "sign-in", url: `${base}/users/sign_in`, prepare: shown(SIGN_IN_TITLE) },
     { name: "forgot-password", url: `${base}/users/password/new`, prepare: shown("#user_email") },
   ]).catch((error) => failures.push(error));
   await page.context().addCookies(signedIn);

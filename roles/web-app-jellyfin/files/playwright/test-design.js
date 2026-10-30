@@ -26,6 +26,9 @@ const MODES = ["light", "dark"];
 const PICKED_THEME = "light";
 const BLOCK = /\/\*infinito-design\*\/[\s\S]*?\/\*\/infinito-design\*\//g;
 const ADD_ON_RULE = ".disclaimerContainer";
+const FORM_HIDE_RULE = "#loginPage .manualLoginForm";
+const SIGN_IN_DISCLAIMER = "#loginPage .loginDisclaimer";
+const SIGN_IN_SSO = `${SIGN_IN_DISCLAIMER} .button-submit`;
 const SIGN_IN_NAME = "#loginPage #txtManualName";
 const SIGN_IN_SUBMIT = "#loginPage .manualLoginForm .button-submit";
 const SIGN_IN_SECONDARY = "#loginPage .btnForgotPassword";
@@ -286,10 +289,12 @@ async function pickTheme(page, theme) {
 exports.register = function (shared) {
   const base = shared.env.jellyfinBaseUrl;
   const route = (name, hash) => `${base}/web/?view=${name}#/${hash}`;
-  const signIn = (page) => shared.signInViaLocal(page, shared.env.adminUsername, shared.env.adminNativePassword, "design");
+  const formShown = shared.env.loginFormShown;
+  const signInEntry = formShown ? SIGN_IN_NAME : SIGN_IN_SSO;
+  const signIn = (page) => shared.signInAsLocalAdministrator(page, "design");
   const signInPage = async (page) => {
     await gotoOnion(page, route("sign-in", "login"));
-    await shown(page, SIGN_IN_NAME);
+    await shown(page, signInEntry);
   };
   const view = (name, hash, selector, extra) => ({
     name,
@@ -308,14 +313,17 @@ exports.register = function (shared) {
       await opened(page, target);
     },
   });
-  const visitorViews = () => [
-    view("sign-in", "login", SIGN_IN_NAME),
-    view("sign-in-focus", "login", SIGN_IN_NAME, async (page) => {
-      await page.locator(SIGN_IN_NAME).fill(shared.env.adminUsername);
-      await page.keyboard.press("Tab");
-      await settled(page);
-    }),
-  ];
+  const visitorViews = () =>
+    formShown
+      ? [
+          view("sign-in", "login", SIGN_IN_NAME),
+          view("sign-in-focus", "login", SIGN_IN_NAME, async (page) => {
+            await page.locator(SIGN_IN_NAME).fill(shared.env.adminUsername);
+            await page.keyboard.press("Tab");
+            await settled(page);
+          }),
+        ]
+      : [view("sign-in", "login", SIGN_IN_SSO)];
   const memberViews = () => [
     view("home", "home", HOME_MESSAGE),
     view("navigation", "home", HOME_MESSAGE, async (page) => {
@@ -363,6 +371,11 @@ exports.register = function (shared) {
       await expect(page.locator("html")).toHaveAttribute("data-theme", corporateTheme);
       await expect(page.locator("html")).toHaveAttribute("data-design-palette", "");
       await assertToken(page, "html", "background-color", "--design-surface-1", `sign-in ${mode}`);
+      if (!formShown) {
+        await assertToken(page, SIGN_IN_SSO, "background-color", "--design-primary", `SSO entry ${mode}`);
+        await assertToken(page, SIGN_IN_SSO, "color", "--design-on-primary", `SSO entry ${mode}`);
+        continue;
+      }
       await assertToken(page, SIGN_IN_HEADING, "color", "--design-text", `sign-in ${mode}`);
       await assertToken(page, SIGN_IN_NAME, "background-color", "--design-surface-2", `field ${mode}`);
       await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary", `primary action ${mode}`);
@@ -374,6 +387,11 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await signInPage(page);
+    if (!formShown) {
+      await assertLightAndDark(page, SIGN_IN_DISCLAIMER, "jellyfin sign-in");
+      await assertReadable(page, [SIGN_IN_SSO], "jellyfin sign-in");
+      return;
+    }
     await assertLightAndDark(page, SIGN_IN_HEADING, "jellyfin sign-in");
     await assertReadable(page, [SIGN_IN_HEADING, SIGN_IN_NAME, SIGN_IN_LABEL, SIGN_IN_SUBMIT, SIGN_IN_SECONDARY], "jellyfin sign-in");
   });
@@ -600,9 +618,14 @@ exports.register = function (shared) {
     const blocks = css.match(BLOCK) || [];
     expect(blocks, "the custom CSS of the server must carry exactly one corporate block").toHaveLength(1);
     const foreign = css.replace(BLOCK, "").trim();
-    if (isServiceEnabled("sso")) {
+    const ssoEntry = isServiceEnabled("sso") && shared.env.loginMethodSso;
+    if (ssoEntry) {
       expect(foreign, "the rules of the single sign-on add-on must survive next to the corporate block").toContain(ADD_ON_RULE);
-    } else {
+    }
+    if (!formShown) {
+      expect(foreign, "the rules hiding the disabled sign-in entries must survive next to the corporate block").toContain(FORM_HIDE_RULE);
+    }
+    if (!ssoEntry && formShown) {
       expect(foreign, "nothing but the corporate block belongs into the custom CSS of this deployment").toBe("");
     }
 

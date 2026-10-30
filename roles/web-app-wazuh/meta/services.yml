@@ -3,7 +3,7 @@
 email:
   enabled: false
   shared: false
-sso:
+sso:  # nocheck: login-methods  Reason: each mode offers one entry only; with sso the dashboard runs opensearch_security.auth.type openid, a pure redirect, without it the basicauth form of the internal accounts, and the ldap service is authorization only, so the native default of an LDAP mode would drop the platform administrator
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"

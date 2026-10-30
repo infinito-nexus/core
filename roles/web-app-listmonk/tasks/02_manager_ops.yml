@@ -10,12 +10,21 @@
 - name: 📂 Include database setup routine for Listmonk
   include_tasks: "01_database.yml"
 
+- name: "🛑 Refuse a 2fa login method Listmonk cannot honour"
+  ansible.builtin.assert:
+    that:
+      - "LISTMONK_LOGIN_2FA | bool == LISTMONK_LOGIN_NATIVE | bool"
+    fail_msg: >-
+      Listmonk offers its TOTP second factor exactly to accounts with password_login
+      and has no switch of its own; the administrator is the only such account, so
+      services.listmonk.login.method.2fa.enabled must equal native.
+
 - name: 🔄 Update administrator email and password login in Listmonk (as superuser)
   shell: |
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
     UPDATE users
     SET email = '{{ lookup('users', 'platform_administrator').email }}',
-        password_login = {{ 'false' if lookup('config',application_id, 'services.sso.enabled') else 'true' }}
+        password_login = {{ LISTMONK_LOGIN_NATIVE | bool | string | lower }}
     WHERE username = '{{ LISTMONK_ADMIN_USERNAME }}';
     EOSQL
   args:

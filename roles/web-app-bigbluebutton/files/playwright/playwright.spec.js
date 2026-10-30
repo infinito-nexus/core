@@ -6,6 +6,7 @@ const { assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations,
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-design");
+require("./test-login-methods");
 
 function attachDiagnostics(page) {
   const consoleErrors = [];

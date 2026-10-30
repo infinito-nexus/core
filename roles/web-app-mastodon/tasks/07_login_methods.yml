@@ -1,0 +1,11 @@
+---
+- name: 🚪 Align the registrations mode with the registration login method
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -u root
+    -e MASTODON_REGISTRATIONS_MODE={{ MASTODON_REGISTRATIONS_MODE | quote }}
+    {{ MASTODON_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure_registrations_mode.rb') }}"
+  register: mastodon_registrations_mode
+  changed_when: mastodon_registrations_mode.stdout_lines | last == 'changed'

@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, withLdapGroupMember } = require("./personas");
 const keycloakAdmin = require("./personas/utils/keycloak");
 const { sign } = require("./personas/utils/s3");
@@ -173,12 +173,14 @@ async function submitConsoleLogin(page, username, password) {
 
 test("biber: the LDAP Console login refuses biber without a MinIO role group", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   const status = await submitConsoleLogin(page, env.biberUsername, env.biberPassword);
   expect(status, "biber's directory groups carry no MinIO policy, so the Console login MUST fail").toBeGreaterThanOrEqual(400);
 });
 
 test("biber: membership in the readonly group lets biber sign in to the Console through LDAP", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   test.setTimeout(resolveTimeout(120_000)); // directory group write plus the Console login
   await withLdapGroupMember(env.readonlyGroupDn, env.biberDn, async () => {
     const status = await submitConsoleLogin(page, env.biberUsername, env.biberPassword);

@@ -96,6 +96,9 @@
   include_tasks: 04_oidc.yml
   when: MOODLE_OIDC_ENABLED | bool
 
+- name: "🚪 Converge the Moodle login methods"
+  include_tasks: 08_login_methods.yml
+
 - name: "🔧 Configure auth_ldap (sync-only in variant 0, primary login in variant 1)"
   include_tasks: 05_ldap_sync.yml
   when: MOODLE_LDAP_ENABLED | bool

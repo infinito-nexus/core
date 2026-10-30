@@ -94,8 +94,8 @@ test("administrator: discourse-ldap-auth plugin binds Discourse to the distinct 
 
     expect(
       settingValue(settings, "ldap_auth_enabled").toLowerCase(),
-      "ldap_auth_enabled must be active (LDAP auth plugin installed and turned on)",
-    ).toBe("true");
+      "ldap_auth_enabled must follow login.method.ldap: off under SSO, where LDAP accounts sign in through the Keycloak federation",
+    ).toBe(String(process.env.LOGIN_METHOD_LDAP_ENABLED === "true"));
 
     expect(
       settingValue(settings, "ldap_sync_enabled").toLowerCase(),

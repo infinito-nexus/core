@@ -78,6 +78,9 @@ WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.platform_admi
 WORDPRESS_ADMIN_USER: "{{ lookup('users', 'platform_administrator').username }}"
 WORDPRESS_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
+WORDPRESS_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.wordpress.login.method.native.enabled') | bool }}"
+WORDPRESS_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.wordpress.login.method.registration.enabled') | bool }}"
+
 WORDPRESS_DESIGN: "{{ lookup('design', application_id) }}"
 WORDPRESS_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 WORDPRESS_DESIGN_HOST_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"

@@ -80,6 +80,16 @@ suitecrm:
   pids_limit: 768
   email:
     from_name: Customer Relationship Management (SuiteCRM, {{ DOMAIN_PRIMARY }})
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-suitecrm', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-suitecrm', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-suitecrm', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-suitecrm', '2fa') }}"
   ports:
     local:
       http: 8062
@@ -103,6 +113,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own 2fa login method, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the two-factor view, asserted by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: "{{ not (lookup('config', 'web-app-suitecrm', 'services.suitecrm.login.method.2fa.enabled') | bool) }}"
+  shared: "{{ not (lookup('config', 'web-app-suitecrm', 'services.suitecrm.login.method.2fa.enabled') | bool) }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

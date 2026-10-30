@@ -9,6 +9,12 @@ litellm:
   shared: true # nocheck: dynamic-flag
   provides: litellm_ui
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-litellm', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-litellm', 'native') }}"
 
 # nocheck: playwright-service-flag
 dashboard:

@@ -34,6 +34,7 @@ require("./test-login-oidc-biber").register(shared);
 require("./test-profile-oidc").register(shared);
 require("./test-login-ldap-admin").register(shared);
 require("./test-login-ldap-biber").register(shared);
+require("./test-login-methods").register(shared);
 require("./test-rbac-team").register(shared);
 require("./test-seaweedfs");
 require("./test-design").register(shared);

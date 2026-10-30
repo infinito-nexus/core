@@ -191,6 +191,23 @@
   changed_when: false
   when: ZAMMAD_LDAP_ENABLED
 
+- name: "🚪 apply the login methods of the sign-in page in Zammad (idempotent)"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e LOGIN_SSO -e LOGIN_FORM -e LOGIN_REGISTRATION -e LOGIN_2FA \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/login_methods.rb') }}"
+  environment:
+    LOGIN_SSO: "{{ ZAMMAD_LOGIN_SSO | string | lower }}"
+    LOGIN_FORM: "{{ ZAMMAD_LOGIN_FORM | string | lower }}"
+    LOGIN_REGISTRATION: "{{ ZAMMAD_LOGIN_REGISTRATION | string | lower }}"
+    LOGIN_2FA: "{{ ZAMMAD_LOGIN_2FA | string | lower }}"
+  register: zammad_login_methods_apply
+  changed_when: false
+
 - name: "🤖 Wire Zammad Smart Assist to the platform LLM gateway"
   when: ZAMMAD_LITELLM_ENABLED | bool
   block:

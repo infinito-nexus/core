@@ -28,6 +28,7 @@
       -e OIDC_REALM={{ OIDC.CLIENT.REALM | quote }}
       -e OIDC_CLIENT_ID={{ OIDC.CLIENT.ID | quote }}
       -e OIDC_CLIENT_SECRET
+      -e OIDC_LOGIN_ENABLED={{ SHOPWARE_LOGIN_SSO | bool | string | lower | quote }}
       -e RBAC_GROUP_CLAIM={{ RBAC.GROUP.CLAIM | quote }}
       -e RBAC_GROUP_ADMIN={{ SHOPWARE_OIDC_ADMIN_GROUP | quote }}
       -e RBAC_GROUP_EDITOR={{ SHOPWARE_OIDC_EDITOR_GROUP | quote }}
@@ -41,6 +42,22 @@
       {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Switch the admin password form of {{ SHOPWARE_OIDC_PLUGIN }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e PLUGIN_NAME={{ SHOPWARE_OIDC_PLUGIN | quote }}
+      -e DENY_PASSWORD_LOGIN={{ (not (SHOPWARE_LOGIN_NATIVE | bool)) | string | lower | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      sh
+    stdin: |
+      set -e
+      cd "$SHOPWARE_ROOT"
+      php bin/console system:config:set --json "$PLUGIN_NAME.config.denyPasswordLogin" "$DENY_PASSWORD_LOGIN"
+      php bin/console system:config:set --json "$PLUGIN_NAME.config.enableAutoRedirect" false
+  changed_when: false
 
 - name: "♻️ Clear the cache so the provider is discovered"
   ansible.builtin.shell:

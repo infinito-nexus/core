@@ -124,3 +124,14 @@
     file: addons/rebeloidc.yml
     apply:
       delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔢 Switch {{ MATOMO_TWO_FACTOR_PLUGIN }} ({{ MATOMO_TWO_FACTOR_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/core_plugin_state.sh') | quote }} core_plugin_state
+      {{ MATOMO_TWO_FACTOR_STATE | quote }}
+      {{ MATOMO_TWO_FACTOR_PLUGIN | quote }}
+  register: matomo_two_factor_plugin
+  changed_when: "'CHANGED' in matomo_two_factor_plugin.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"

@@ -63,7 +63,7 @@ async function signInViaLocalLogin(page, base, username, password) {
   await gotoOnion(page, `${base}/login`);
   const name = page.locator("#login-account-name");
   const passwordField = page.locator("#login-account-password");
-  await expect(name, `expected the local login form at ${base}/login (enable_local_logins follows services.sso.enabled)`).toBeEditable({
+  await expect(name, `expected the local login form at ${base}/login (enable_local_logins follows login.method.native and login.method.ldap)`).toBeEditable({
     timeout: resolveTimeout(FORM_MS),
   });
   await name.fill(username);

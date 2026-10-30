@@ -1,0 +1,33 @@
+---
+- name: "🚪 Converge Moodle's auth plugins, login page and self-registration"
+  loop: "{{ MOODLE_CORE_LOGIN_SETTINGS }}"
+  loop_control:
+    loop_var: moodle_login_setting
+    label: "{{ moodle_login_setting.name }}"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --name={{ moodle_login_setting.name | quote }}
+    --set={{ moodle_login_setting.value | quote }}
+  changed_when: false
+
+- name: "🔐 Offer or withdraw Moodle's own multi-factor authentication"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: tool_mfa
+    moodle_plugin_config_settings:
+      enabled: "{{ MOODLE_MFA_ENABLED }}"
+
+- name: "🔐 Offer or withdraw the TOTP factor"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: factor_totp
+    moodle_plugin_config_settings:
+      enabled: "{{ MOODLE_MFA_ENABLED }}"
+
+- name: "🔐 Let accounts without an enrolled factor pass, so MFA is never enforced"
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: factor_nosetup
+    moodle_plugin_config_settings:
+      enabled: "{{ MOODLE_MFA_ENABLED }}"

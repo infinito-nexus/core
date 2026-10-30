@@ -11,7 +11,7 @@ exports.register = function (shared) {
     expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminNativePassword, "ADMIN_NATIVE_PASSWORD must be set").toBeTruthy();
 
-    await shared.signInViaLocal(page, shared.env.adminUsername, shared.env.adminNativePassword, "administrator-native");
+    await shared.signInAsLocalAdministrator(page, "administrator-native");
 
     await expect(page.locator("body")).toContainText(/home|library|media|jellyfin|dashboard/i, { timeout: resolveTimeout(60_000) });
 

@@ -24,6 +24,7 @@ test.beforeEach(async ({ page }) => {
 
 require("./test-design").register();
 require("./test-rbac-roles");
+require("./test-login-methods").register();
 
 test("pgAdmin front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);

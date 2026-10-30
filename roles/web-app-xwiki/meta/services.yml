@@ -21,7 +21,6 @@ logout:
 ldap:
   enabled: false
   shared: false
-  trylocal: true
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
@@ -82,6 +81,16 @@ xwiki:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'registration') }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

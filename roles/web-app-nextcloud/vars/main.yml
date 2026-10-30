@@ -14,6 +14,11 @@ NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+NEXTCLOUD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.nextcloud.login.method.sso.enabled') | bool }}"
+NEXTCLOUD_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.nextcloud.login.method.ldap.enabled') | bool }}"
+NEXTCLOUD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.nextcloud.login.method.native.enabled') | bool }}"
+NEXTCLOUD_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.nextcloud.login.method.passkey.enabled') | bool }}"
+NEXTCLOUD_LOGIN_FORM: "{{ NEXTCLOUD_LOGIN_NATIVE | bool or NEXTCLOUD_LOGIN_LDAP | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 NEXTCLOUD_TOR_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') }}"
 

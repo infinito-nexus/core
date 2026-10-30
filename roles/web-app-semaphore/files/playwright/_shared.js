@@ -14,6 +14,9 @@ const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } 
 const keycloakAdmin = require("./personas/utils/keycloak");
 
 const oidcEnabled         = isServiceEnabled("sso");
+const loginMethodLdap     = process.env.LOGIN_METHOD_LDAP_ENABLED === "true";
+const loginMethodNative   = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const passwordFormShown   = loginMethodLdap || loginMethodNative;
 const oidcIssuerUrl       = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const semaphoreBaseUrl    = normalizeBaseUrl(process.env.SEMAPHORE_BASE_URL || "");
 const adminUsername       = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -98,22 +101,55 @@ async function signInViaLocal(page, username, password, label) {
   await assertAuthenticated(page, label);
 }
 
+/**
+ * Sign the break-glass account in through Semaphore's login API, which keeps
+ * accepting local passwords while SEMAPHORE_PASSWORD_LOGIN_DISABLED hides the
+ * form, and open the app with the session cookie it sets.
+ *
+ * Args:
+ *   page: the Playwright page whose context receives the session cookie.
+ *   username: the break-glass login name.
+ *   password: the break-glass password.
+ *   label: the persona label the assertion messages name.
+ */
+async function signInViaBreakglassApi(page, username, password, label) {
+  const response = await apiFetchOnion(page.request, `${semaphoreBaseUrl}/api/auth/login`, {
+    method: "POST",
+    data: { auth: username, password },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+  expect(response.status(), `${label}: Semaphore's login API must accept the break-glass account`).toBe(204);
+  await gotoOnion(page, `${semaphoreBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await assertAuthenticated(page, label);
+}
+
 async function signInViaLdap(page, username, password, label) {
   await signInViaLocal(page, username, password, label);
+}
+
+/**
+ * Return the locator of the OIDC provider button on the login page.
+ *
+ * Args:
+ *   page: the Playwright page showing the Semaphore login page.
+ */
+function oidcButton(page) {
+  return page
+    .locator("a, button")
+    .filter({ hasText: /sign\s*in\s*with|keycloak|single\s*sign|sso/i })
+    .first();
 }
 
 async function signInViaOidc(page, username, password, label) {
   await gotoLogin(page);
 
-  const oidcButton = page
-    .locator("a, button")
-    .filter({ hasText: /sign\s*in\s*with|keycloak|single\s*sign|sso/i })
-    .first();
+  const button = oidcButton(page);
   await expect(
-    oidcButton,
+    button,
     `${label}: the "Sign in with Keycloak" button must render on the Semaphore login page`,
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
-  await oidcButton.click({ timeout: resolveTimeout(30_000) });
+  await button.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
@@ -489,6 +525,9 @@ async function beforeEach({ page }) {
 module.exports = {
   env: {
     oidcEnabled,
+    loginMethodLdap,
+    loginMethodNative,
+    passwordFormShown,
     oidcIssuerUrl,
     semaphoreBaseUrl,
     adminUsername,
@@ -515,7 +554,9 @@ module.exports = {
   onLoginPage,
   assertAuthenticated,
   currentUser,
+  oidcButton,
   signInViaLocal,
+  signInViaBreakglassApi,
   signInViaLdap,
   signInViaOidc,
   signInPrimary,

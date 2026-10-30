@@ -78,6 +78,14 @@ wordpress:
   mem_limit: 1.5g
   pids_limit: 512
   max_upload_size: 256M
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'registration') }}"
   multisite:
     enabled: false
   ports:

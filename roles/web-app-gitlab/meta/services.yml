@@ -68,6 +68,18 @@ gitlab:
       ssh: false
   proxy:
     service_key: workhorse
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'registration') }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -182,6 +194,12 @@ design:
     logo:
       width: 112
       height: 112
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — role-injected script that hides the sign-in entries of switched-off login methods GitLab has no setting for, covered by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

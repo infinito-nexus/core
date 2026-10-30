@@ -64,6 +64,16 @@ mattermost:
       http: 8065
     internal:
       http: 8065
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mattermost', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mattermost', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-mattermost', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-mattermost', 'registration') }}"
   run_after:
     - web-app-keycloak
     - web-app-stalwart

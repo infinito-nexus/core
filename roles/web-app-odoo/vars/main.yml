@@ -33,6 +33,16 @@ ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+ODOO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.odoo.login.method.sso.enabled') | bool }}"
+ODOO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.odoo.login.method.ldap.enabled') | bool }}"
+ODOO_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.odoo.login.method.native.enabled') | bool }}"
+ODOO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.odoo.login.method.2fa.enabled') | bool }}"
+ODOO_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.odoo.login.method.passkey.enabled') | bool }}"
+ODOO_LOGIN_ODOO_COM: "{{ lookup('config', application_id, 'services.odoo.login.method.odoo_com.enabled') | bool }}"
+ODOO_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.odoo.login.method.registration.enabled') | bool }}"
+ODOO_LOGIN_FORM: "{{ ODOO_LOGIN_NATIVE | bool or ODOO_LOGIN_LDAP | bool }}"
+ODOO_SIGNUP_SCOPE: "{{ 'b2c' if ODOO_LOGIN_REGISTRATION | bool else 'b2b' }}"
 ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 

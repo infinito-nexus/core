@@ -85,3 +85,14 @@
     query_file: "{{ role_path }}/files/sql/activate-tenants.sql"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
+
+- name: "✉️ Fider | Offer the email code sign-in as login.method.native says"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/email-auth.sql"
+    named_args:
+      allowed: "{{ FIDER_LOGIN_NATIVE | bool | string | lower }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_email_auth
+  changed_when: (fider_email_auth.rows[0][0] | int) > 0

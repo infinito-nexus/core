@@ -25,6 +25,16 @@ const biberDirectoryFullName = decodeDotenvQuotedValue(process.env.BIBER_DIRECTO
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 const oidcServiceEnabled = isServiceEnabled("sso");
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+// Element runs its sso_redirect_options only when it boots on exactly #/login or #/welcome, so a query on the fragment opens the page itself: the break-glass entry.
+const elementPages = {
+  login: `${elementBaseUrl}/#/login?sso_redirect=false`,
+  welcome: `${elementBaseUrl}/#/welcome?sso_redirect=false`,
+};
 // Synapse refills rc_login on its own clock, so the onion multiplier must not stretch this wait.
 const RC_LOGIN_COOLDOWN_MS = 45_000;
 
@@ -103,7 +113,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     .locator("button, a, div[role='button']")
     .filter({ hasText: /single\s*sign[- ]*on|continue\s+with\s+(sso|oidc|keycloak|openid)|sign\s+in\s+with\s+(sso|oidc|keycloak|openid)/i })
     .first();
-  await gotoElementApp(page, `${elementBaseUrl}/#/login`, ssoButton.or(ssoTextButton));
+  await gotoElementApp(page, elementPages.login, ssoButton.or(ssoTextButton));
   const candidate = (await ssoButton.isVisible().catch(() => false))
     ? ssoButton
     : ssoTextButton;
@@ -361,7 +371,7 @@ async function signInViaElementPassword(page, username, password, personaLabel) 
   const userField = page
     .locator('input[name="username"], #mx_LoginForm_username, input[name="mxid"], input[data-testid="login_field_mx_id"]')
     .first();
-  await gotoElementApp(page, `${elementBaseUrl}/#/login`, userField);
+  await gotoElementApp(page, elementPages.login, userField);
   await expect(userField, `${personaLabel}: Element password login username field must appear`).toBeVisible({ timeout: resolveTimeout(30_000) });
   await userField.fill(username);
 
@@ -487,6 +497,8 @@ module.exports = {
     biberDirectoryFullName,
     canonicalDomain,
   },
+  elementPages,
+  loginMethods,
   skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   attachDiagnostics,

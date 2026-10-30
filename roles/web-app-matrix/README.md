@@ -22,6 +22,13 @@ The compose flavor is **deprecated**. New deployments should use the ansible fla
 - **Flexible Client Support:** Access Matrix services via modern web clients like Element, plus integrated Element Call and Jitsi video conferencing.
 - **One account per person:** The OIDC provider carries `allow_existing_users: true`, so the Keycloak sign-in binds to the account the role registered natively for the same localpart instead of claiming a free one with a counter appended. Keycloak is the only identity provider of the deployment and both identities are rendered from the same user declaration, which is what makes that binding safe.
 - **Profile sync:** Synapse takes the localpart, display name and email from the `OIDC.ATTRIBUTES` claims. `sso.update_profile_information` re-applies the display name on every SSO login. The email is bound as a 3PID when the account is created. LDAP sign-ins take the display name from `LDAP.USER.ATTRIBUTES.FULLNAME`.
+- **Login methods:** Each sign-in method follows `services.matrix.login.method.<method>.enabled` in `meta/services.yml`, in both flavors:
+  - `sso`: the Keycloak entry of `oidc_providers` (`templates/flavor/compose/synapse/homeserver.yaml.j2`, `matrix_synapse_oidc_*` in `templates/flavor/ansible/vars.yml.j2`).
+  - `ldap`: the Synapse LDAP password provider of the `ansible` flavor (`matrix_synapse_ext_password_provider_ldap_*`); the `compose` flavor has no LDAP path.
+  - `native`: while `sso` is on and both `native` and `ldap` are off, Element's `sso_redirect_options` (`on_welcome_page`, `on_login_page`) hand its welcome and sign-in pages straight to Keycloak, so Element never renders the password form. Synapse keeps password login on its client API, because the platform administrator, the bot accounts and the role-group reconcile sign in with local passwords. The form is shared: local and LDAP accounts sign in through the same Element form, and native off cannot refuse local accounts while LDAP stays on.
+  - `registration`: Synapse `enable_registration` (with an email 3PID required, so it needs the email service) and Element's `UIFeature.registration` setting default, which hides the Create account entry.
+  - Synapse has no second factor of its own, so `2fa` is not declared.
+- **Break-glass:** With SSO on, the platform administrator signs in with the local password through the Synapse client API (`POST /_matrix/client/v3/login`, `m.login.password`), or in Element through `#/login?sso_redirect=false`: Element runs its SSO redirect only when it boots on exactly `#/login` or `#/welcome`.
 - **Server administrators:** [files/python/rbac_sync.py](./files/python/rbac_sync.py) sets the Synapse admin flag from the `web-app-matrix` `administrator` role through the Synapse admin API, as a host hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer. Members are promoted, every other admin is demoted. The platform administrator and the role's bot accounts keep the flag.
 
 ## Flavors
@@ -191,6 +198,7 @@ In addition to the persona and CSP specs:
 - `test-element-call.js` opens the Element home view and verifies a call-widget control surfaces when `services.matrix.conferencing.element_call=true` (skipped otherwise).
 - `test-bridge-roster.js` probes the Synapse `/_matrix/client/v3/profile/{bot}` endpoint for every enabled bridge and fails on 5xx (skipped when no bridge is enabled).
 - `test-rbac-profile.js` checks the admin flag of the administrator and of biber through the Synapse admin API, and checks that an OIDC login of biber overwrites a stale display name and has bound biber's email.
+- `test-login-methods.js` checks with SSO on that Element's `config.json` carries the SSO redirect and the registration default, that `#/login` lands on Keycloak, and that the administrator still signs in through the Synapse password API.
 
 ## Further Resources
 

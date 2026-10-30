@@ -9,6 +9,10 @@ LISTMONK_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password 
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
 LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+LISTMONK_LOGIN_SSO: "{{ lookup('config', application_id, 'services.listmonk.login.method.sso.enabled') | bool }}"
+LISTMONK_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.listmonk.login.method.native.enabled') | bool }}"
+LISTMONK_LOGIN_2FA: "{{ lookup('config', application_id, 'services.listmonk.login.method.2fa.enabled') | bool }}"
+LISTMONK_OIDC_AUTOLOGIN: "{{ LISTMONK_OIDC_ENABLED | bool and LISTMONK_LOGIN_SSO | bool and not LISTMONK_LOGIN_NATIVE | bool }}"
 
 LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
@@ -29,7 +33,7 @@ LISTMONK_SETTINGS:
   - key: "security.oidc"
     value: >-
       {{ {
-         "enabled": True,
+         "enabled": LISTMONK_LOGIN_SSO | bool,
          "client_id": OIDC.CLIENT.ID,
          "provider_url": OIDC.CLIENT.ISSUER_URL,
          "client_secret": OIDC.CLIENT.SECRET,
@@ -38,8 +42,7 @@ LISTMONK_SETTINGS:
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
   - key: "appearance.public.custom_js"
-    value: "{{ lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) | to_json }}"
-    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+    value: "{{ (lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) if LISTMONK_OIDC_AUTOLOGIN | bool else '') | to_json }}"
 
   - key: "security.enable_captcha"
     value: "true"

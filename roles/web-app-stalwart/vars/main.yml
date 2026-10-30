@@ -113,7 +113,10 @@ STALWART_HTTP_SETTINGS:
   clientIpSource: forwarded
   forwardedHops: 1
 
-STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
+STALWART_LOGIN_SSO: "{{ lookup('config', application_id, 'services.stalwart.login.method.sso.enabled') | bool }}"
+STALWART_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.stalwart.login.method.native.enabled') | bool }}"
+STALWART_LOGIN_2FA: "{{ lookup('config', application_id, 'services.stalwart.login.method.2fa.enabled') | bool }}"
+STALWART_SSO_ENABLED: "{{ (lookup('sso', application_id, 'is_enabled') | bool) and (STALWART_LOGIN_SSO | bool) }}"
 
 STALWART_IMPORT_MAILU: "{{ lookup('config', application_id, 'services.stalwart.migration.import_mailu') | bool }}"
 STALWART_MAILBOX_MAP: "{{ lookup('config', application_id, 'services.stalwart.migration.mailbox_map') }}"

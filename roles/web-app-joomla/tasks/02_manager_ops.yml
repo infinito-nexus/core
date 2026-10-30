@@ -37,3 +37,9 @@
     file: 10_ldap.yml
     apply:
       delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🚪 Converge the sign-in methods of {{ application_id }}"
+  include_tasks:
+    file: 11_login_methods.yml
+    apply:
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"

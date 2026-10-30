@@ -16,8 +16,11 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
 - **Native OIDC SSO:**
   Semaphore renders its own "Sign in with Keycloak" button via `SEMAPHORE_OIDC_PROVIDERS`; the Keycloak client is auto-provisioned by `web-app-keycloak`.
 
+- **Login methods:**
+  `services.semaphore.login.method.*` of [meta/services.yml](./meta/services.yml) switches each sign-in method on its own. `sso` renders the Keycloak provider through `SEMAPHORE_OIDC_PROVIDERS`; `ldap` sets `SEMAPHORE_LDAP_ENABLE`; `native` and `ldap` share one form, which `SEMAPHORE_PASSWORD_LOGIN_DISABLED` hides while both are off; `2fa` offers TOTP enrollment through `SEMAPHORE_TOTP_ENABLED`. With SSO on, the sign-in page shows only the Keycloak entry and LDAP accounts sign in through Keycloak's LDAP federation.
+
 - **LDAP login:**
-  When `svc-db-openldap` is present, Semaphore's login form binds against the central OpenLDAP directory (`SEMAPHORE_LDAP_*`). With LDAP enabled the form is LDAP-only; there is no local-password fallback.
+  With the `ldap` method on (SSO off and `svc-db-openldap` present), Semaphore's login form binds against the central OpenLDAP directory (`SEMAPHORE_LDAP_*`). The form is then LDAP-only: Semaphore cannot tell local from LDAP accounts at the form, so no local account signs in, the break-glass account included.
 
 - **LDAP role gate:**
   The LDAP search filter only finds members of the `administrator`, `operator` and `user` role groups (`memberOf` under the roles OU), so a directory account without one of them cannot sign in through the form.
@@ -41,7 +44,7 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
   The hook expires the sessions and API tokens of every external account that belongs to none of the role groups. The break-glass account and the platform administrator are exempt.
 
 - **Break-glass local admin:**
-  `SEMAPHORE_ADMIN*` seeds a local admin from the `web-app-semaphore-breakglass` user in every variant, reachable through the login form only when LDAP is disabled.
+  `SEMAPHORE_ADMIN*` seeds a local admin from the `web-app-semaphore-breakglass` user in every variant. With the `native` method on it signs in through the login form. With SSO on the form is hidden, and the account signs in through the login API, which `SEMAPHORE_PASSWORD_LOGIN_DISABLED` leaves open: `POST /api/auth/login` with `{"auth": "<username>", "password": "<password>"}` sets the session cookie, after which the UI opens signed in. With the `ldap` method on the account cannot sign in.
 
 - **Dedicated runner:**
   Templates never run inside the server container: the server sets `SEMAPHORE_USE_REMOTE_RUNNER=true` and hands every task to the `task-runner` service, which signs in with the runner token the deploy seeds. Its image is the Infinito.Nexus image with the tag of the current deploy (`SOFTWARE_IMAGE_TAG`: `ci-<sha>` in CI, `dev-<sha>` locally, the release version in production, never `latest`) plus the `semaphore` binary of the pinned server image. It mounts no Docker socket, runs as an unprivileged user, and reaches hosts only over SSH with the key held in the key store of the project.

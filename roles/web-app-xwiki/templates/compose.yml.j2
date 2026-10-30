@@ -19,7 +19,7 @@
       XWIKI_CFG_LDAP_BIND_PASS: "{{ XWIKI_LDAP_BIND_PASS }}"
       XWIKI_CFG_LDAP_FIELDS_MAPPING: "{{ XWIKI_LDAP_FIELDS_MAPPING }}"
       XWIKI_CFG_LDAP_GROUP_MAPPING: "XWiki.{{ XWIKI_ADMIN_GROUP_PAGE }}={{ XWIKI_LDAP_ADMIN_GROUP_DN }}"
-      XWIKI_CFG_LDAP_TRYLOCAL: "{{ (XWIKI_LDAP_TRYLOCAL | bool) | ternary(1, 0) }}"
+      XWIKI_CFG_LDAP_TRYLOCAL: "{{ (XWIKI_LOGIN_NATIVE | bool) | ternary(1, 0) }}"
       XWIKI_CFG_LDAP_UID_ATTR: "{{ XWIKI_LDAP_UID_ATTR }}"
       {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

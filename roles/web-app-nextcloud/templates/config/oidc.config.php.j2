@@ -19,7 +19,7 @@ return array (
     'oidc_login_client_secret' => '{{ OIDC.CLIENT.SECRET }}',
 
     // Automatically redirect the login page to the provider
-    'oidc_login_auto_redirect' => true,
+    'oidc_login_auto_redirect' => {{ (NEXTCLOUD_LOGIN_SSO | bool and not (NEXTCLOUD_LOGIN_FORM | bool or NEXTCLOUD_LOGIN_PASSKEY | bool)) | string | lower }},
 
     // Redirect to this page after logging out the user
     'oidc_login_logout_url' => '{{ NEXTCLOUD_URL }}',

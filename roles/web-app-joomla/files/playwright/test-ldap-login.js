@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 const { signInToSite, signOutOfSite } = require("./joomla-session");
 
@@ -29,6 +29,7 @@ test("administrator: Joomla core LDAP plugin authenticates at /administrator (LD
   expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
   await page.context().clearCookies();
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
   await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator/index.php?fallback=local`, { waitUntil: "domcontentloaded" });
@@ -67,6 +68,7 @@ test("administrator: Joomla core LDAP plugin authenticates at /administrator (LD
 
 test("biber: signs in through the core LDAP plugin with the directory uid and mail, then signs out", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   test.setTimeout(resolveTimeout(120_000));
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set in the Playwright env file").toBeTruthy();

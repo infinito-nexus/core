@@ -25,6 +25,12 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own 2fa login method, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the account settings, asserted by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: "{{ not (lookup('config', 'web-app-weblate', 'services.weblate.login.method.2fa.enabled') | bool) }}"
+  shared: "{{ not (lookup('config', 'web-app-weblate', 'services.weblate.login.method.2fa.enabled') | bool) }}"
 # nocheck: playwright-service-flag — scrape target, covered by web-app-prometheus' own spec
 prometheus:
   bond: 1
@@ -70,7 +76,16 @@ weblate:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-  registration_open: false
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-weblate', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-weblate', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-weblate', '2fa') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-weblate', 'registration') }}"
   site_title: Infinito.Nexus Translations
 # nocheck: playwright-service-flag — no browser surface; it runs Django's migrate and the beat scheduler
 beat:

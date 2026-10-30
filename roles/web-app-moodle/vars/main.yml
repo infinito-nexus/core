@@ -72,6 +72,24 @@ MOODLE_CRON_FAILURE_LIMIT: 3
 
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+MOODLE_LOGIN_SSO: "{{ (MOODLE_OIDC_ENABLED | bool) and (lookup('config', application_id, 'services.moodle.login.method.sso.enabled') | bool) }}"
+MOODLE_LOGIN_LDAP: "{{ (MOODLE_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.moodle.login.method.ldap.enabled') | bool) }}"
+MOODLE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.moodle.login.method.native.enabled') | bool }}"
+MOODLE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.moodle.login.method.2fa.enabled') | bool }}"
+MOODLE_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.moodle.login.method.registration.enabled') | bool }}"
+MOODLE_AUTH_PLUGINS: >-
+  {{ (['oidc'] if MOODLE_LOGIN_SSO | bool else [])
+     + (['ldap'] if (MOODLE_LOGIN_LDAP | bool) or ((MOODLE_LDAP_ENABLED | bool) and (MOODLE_LOGIN_SSO | bool)) else [])
+     + (['email'] if MOODLE_LOGIN_REGISTRATION | bool else []) }}
+MOODLE_ALTERNATE_LOGIN_URL: "{{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') if (MOODLE_LOGIN_SSO | bool) and not (MOODLE_LOGIN_NATIVE | bool) else '' }}"
+MOODLE_CORE_LOGIN_SETTINGS:
+  - name: auth
+    value: "{{ MOODLE_AUTH_PLUGINS | join(',') }}"
+  - name: alternateloginurl
+    value: "{{ MOODLE_ALTERNATE_LOGIN_URL }}"
+  - name: registerauth
+    value: "{{ 'email' if MOODLE_LOGIN_REGISTRATION | bool else '' }}"
+MOODLE_MFA_ENABLED: "{{ MOODLE_LOGIN_2FA | bool | ternary(1, 0) }}"
 MOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
 MOODLE_LDAP_ROLE_GROUP_DNS:
   manager: "cn={{ application_id }}-manager,{{ LDAP.DN.OU.ROLES }}"

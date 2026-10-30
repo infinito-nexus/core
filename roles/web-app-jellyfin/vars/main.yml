@@ -23,6 +23,10 @@ JELLYFIN_DESIGN_CSS_PATTERN: "(?s)/\\*infinito-design\\*/.*?/\\*/infinito-design
 JELLYFIN_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 JELLYFIN_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+JELLYFIN_LOGIN_SSO: "{{ lookup('config', application_id, 'services.jellyfin.login.method.sso.enabled') | bool }}"
+JELLYFIN_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.jellyfin.login.method.ldap.enabled') | bool }}"
+JELLYFIN_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.jellyfin.login.method.native.enabled') | bool }}"
+
 JELLYFIN_SSO_PLUGIN_MANIFEST: "{{ lookup('config', application_id, 'addons.sso-authentication.config.manifest') }}"
 JELLYFIN_LDAP_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.ldap-authentication.version') }}"
 JELLYFIN_LDAP_PLUGIN_URL: "{{ lookup('config', application_id, 'addons.ldap-authentication.config.url') }}"

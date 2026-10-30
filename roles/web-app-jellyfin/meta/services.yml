@@ -71,6 +71,14 @@ jellyfin:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'native') }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

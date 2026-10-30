@@ -1,5 +1,5 @@
 ---
-enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.wordpress.login.method.sso.enabled') | bool }}"
 required: false
 mechanism: plugin
 source: upstream
@@ -19,7 +19,7 @@ config:
     endpoint_userinfo: "{{ OIDC.CLIENT.USER_INFO_URL }}"
     endpoint_jwks: "{{ OIDC.CLIENT.CERTS }}"
     endpoint_end_session: "{{ OIDC.CLIENT.LOGOUT_URL }}"
-    login_type: "auto"
+    login_type: "{{ 'button' if (lookup('config', 'web-app-wordpress', 'services.wordpress.login.method.native.enabled') | bool) else 'auto' }}"
     scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
     create_if_does_not_exist: true
     enforce_privacy: false

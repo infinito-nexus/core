@@ -55,6 +55,14 @@ matomo:
   proxy:
     service_key: matomo
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-matomo', '2fa') }}"
 bootstrap:
   replicas: 0
   image: ghcr.io/kevinveenbirkenbach/matomo-bootstrap
@@ -97,6 +105,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag  gated on the role's own native login method, not on group_names
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in page, asserted by test-login-methods.js
+javascript:
+  bond: 1
+  enabled: "{{ not (lookup('config', 'web-app-matomo', 'services.matomo.login.method.native.enabled') | bool) }}"
+  shared: "{{ not (lookup('config', 'web-app-matomo', 'services.matomo.login.method.native.enabled') | bool) }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

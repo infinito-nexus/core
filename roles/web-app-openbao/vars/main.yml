@@ -64,6 +64,7 @@ OPENBAO_OIDC_CLAIM_MAPPINGS:
   - "{{ OIDC.ATTRIBUTES.EMAIL }}={{ OIDC.ATTRIBUTES.EMAIL }}"
   - "{{ OIDC.ATTRIBUTES.NAME }}={{ OIDC.ATTRIBUTES.NAME }}"
 OPENBAO_OIDC_DEFAULT_ROLE: "default"
+OPENBAO_OIDC_LISTING_VISIBILITY: "{{ 'unauth' if OPENBAO_LOGIN_SSO | bool else 'hidden' }}"
 
 OPENBAO_OIDC_REDIRECT_URIS: >-
   {{ lookup('network_urls', OPENBAO_BASE_URL)
@@ -73,13 +74,15 @@ OPENBAO_OIDC_REDIRECT_URIS: >-
 OPENBAO_LDAP_URL: "ldap://{{ LDAP.SERVER.DOMAIN }}:{{ LDAP.SERVER.PORT }}"
 OPENBAO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
 
-OPENBAO_USERPASS_ENABLED: "{{ not (OPENBAO_SSO_ENABLED | bool) and not (OPENBAO_LDAP_ENABLED | bool) }}"
+OPENBAO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.openbao.login.method.sso.enabled') | bool }}"
+OPENBAO_LOGIN_LDAP: "{{ (OPENBAO_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.openbao.login.method.ldap.enabled') | bool) }}"
+OPENBAO_USERPASS_ENABLED: "{{ lookup('config', application_id, 'services.openbao.login.method.native.enabled') | bool }}"
 OPENBAO_USERPASS_MOUNT: "userpass"
 OPENBAO_USERPASS_MARKER: "infinito-nexus-managed"
 OPENBAO_USERPASS_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 OPENBAO_USERPASS_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 OPENBAO_USERPASS_POLICY: "administrator"
-OPENBAO_PASSWORD_AUTH_MOUNT: "{{ 'ldap' if OPENBAO_LDAP_ENABLED | bool else (OPENBAO_USERPASS_MOUNT if OPENBAO_USERPASS_ENABLED | bool else '') }}"
+OPENBAO_PASSWORD_AUTH_MOUNT: "{{ 'ldap' if OPENBAO_LOGIN_LDAP | bool else (OPENBAO_USERPASS_MOUNT if OPENBAO_USERPASS_ENABLED | bool else '') }}"
 
 OPENBAO_RBAC_ROLES:
   - administrator

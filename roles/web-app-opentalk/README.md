@@ -13,6 +13,7 @@ This role deploys the OpenTalk stack using Docker Compose and exposes the web fr
 - **Sovereign Video Conferencing:** Self-host meetings under your own domain without external SaaS dependency.
 - **WebRTC Media via LiveKit:** Real-time audio, video, and screen sharing through a high-performance SFU.
 - **Single Sign-On:** Frontend and controller share one Keycloak client and realm.
+- **Login methods:** SSO only. The frontend is a public-client OIDC single-page app with no form and no local accounts, and the controller and recorder need the OIDC client, so OpenTalk has no other method and no break-glass account; `meta/services.yml` marks the `sso` key `nocheck: login-methods` instead of declaring a `login.method` block.
 - **Federated User Lookup:** Invitee search resolves through the Keycloak admin Web API, so any user federated from OpenLDAP into Keycloak becomes findable inside OpenTalk.
 - **OpenCloud File Integration:** Pick files from OpenCloud in a meeting without re-authenticating when `web-app-opencloud` is deployed alongside.
 - **Meeting Recordings:** The controller starts recordings on a dedicated recorder over its REST API, and the recorder stores MP4 archives in MinIO.

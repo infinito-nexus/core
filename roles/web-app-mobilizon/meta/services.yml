@@ -59,6 +59,14 @@ mobilizon:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mobilizon', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mobilizon', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-mobilizon', 'registration') }}"
 # nocheck: dynamic-flag — seaweedfs intentionally disabled; Mobilizon has no S3 upload backend
 seaweedfs:
   enabled: false

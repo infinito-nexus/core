@@ -48,6 +48,14 @@ minio:
     - web-app-keycloak
     - web-app-matomo
   lifecycle: eol
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-minio', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-minio', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-minio', 'native') }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:

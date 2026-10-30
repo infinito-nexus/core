@@ -14,6 +14,7 @@ CLIENT_ID = os.environ["CLIENT_ID"]
 CLIENT_SECRET = os.environ["CLIENT_SECRET"]
 ISSUER_URL = os.environ["ISSUER_URL"]
 USER_ID_PROPERTY = os.environ["USER_ID_PROPERTY"]
+SOCIAL_LOGIN_ENABLED = os.environ["SOCIAL_LOGIN_ENABLED"] == "true"
 
 TRACKED_FIELDS = (
     "enable_social_login",
@@ -58,7 +59,7 @@ def upsert_social_login_key():
         before_secret = get_decrypted_password(
             "Social Login Key", PROVIDER_NAME, "client_secret", raise_exception=False
         )
-    slk.enable_social_login = 1
+    slk.enable_social_login = 1 if SOCIAL_LOGIN_ENABLED else 0
     slk.sign_ups = "Deny"
     slk.icon = "fa fa-key"
     slk.client_id = CLIENT_ID

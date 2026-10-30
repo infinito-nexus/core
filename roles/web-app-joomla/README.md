@@ -17,22 +17,24 @@ Role-level extensions are declared in `meta/addons/`
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
-| `plg_system_keycloak` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `plg_system_keycloak` | `plugin` | enabled with `services.joomla.login.method.sso`, which is on whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
 
 `plg_system_keycloak` is built imperatively inside the Joomla container and speaks OIDC against Keycloak.
-Its enablement derives directly from the `sso` service flag, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon's `config:` block, which [`templates/env.j2`](./templates/env.j2) renders into the `JOOMLA_OIDC_*` plugin environment.
+Its enablement derives from the `sso` login method, and its OIDC runtime contract (issuer, client id/secret, redirect/end-session URLs, fallback toggle, and RBAC group paths) lives under the addon's `config:` block, which [`templates/env.j2`](./templates/env.j2) renders into the `JOOMLA_OIDC_*` plugin environment.
 
 ## Features
 
 - **Containerized deployment:** Run Joomla through Docker Compose with the role-specific custom image.
 - **Native OIDC SSO:** Authenticate users against Keycloak via the in-role `plg_system_keycloak` plugin, with `?fallback=local` as an env-toggleable emergency hatch.
+- **Login methods:** `services.joomla.login.method` declares `sso`, `ldap`, `native`, `2fa`, `passkey` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` enables `plg_system_keycloak`, which sends every guest to Keycloak. `ldap` enables `plg_authentication_ldap` ([`tasks/10_ldap.yml`](./tasks/10_ldap.yml)). [`tasks/11_login_methods.yml`](./tasks/11_login_methods.yml) runs [`files/php/login_methods.php`](./files/php/login_methods.php) on every deploy, which sets `plg_authentication_joomla` from `native`, `plg_system_webauthn` (the passkey button) from `passkey`, the `totp`, `yubikey`, `webauthn` and `email` plugins of the `multifactorauth` group from `2fa` (offered for enrollment, never enforced), and the com_users `allowUserRegistration` param from `registration`. Shared form: Joomla's authentication plugins apply to every account, so Joomla cannot tell local from directory accounts; `plg_authentication_joomla` therefore stays on while `ldap` is on or the break-glass needs it, and `native` off removes local accounts from the form only when neither applies.
+- **Break-glass access:** with SSO on, `services.sso.oidc.fallback_enabled` keeps `/administrator/index.php?fallback=local` and `index.php?option=com_users&view=login&fallback=local` on the local form for ten minutes, and `plg_authentication_joomla` stays enabled for it; the bootstrap administrator signs in there with its local password ([`test-oidc-fallback.js`](./files/playwright/test-oidc-fallback.js)).
 - **RBAC group mapping:** Map the Keycloak groups of the `administrator`, `manager`, `publisher`, `editor`, `author` and `registered` roles onto Joomla's built-in `Super Users`, `Manager`, `Publisher`, `Editor`, `Author` and `Registered` user groups on every login.
 - **Open access:** Let every realm user sign in; a user without a mapped role group lands in the com_users "New User Registration Group" (`Registered`).
 - **Profile sync:** Overwrite name, email, frontend language (from the `locale` claim, resolved to an installed site language) and time zone (from the `zoneinfo` claim) on every login, so Keycloak stays the source of truth.
 - **Contact sync:** Enable the core `plg_user_profile` and overwrite its phone, street, city, region, postal code, country and website fields from the `phone_number`, `address` and `website` claims on every login; the plugin requests the `phone` and `address` scopes, and the profile form hides the profile fields Keycloak does not feed.
 - **Read-only IdP fields:** Render every field Keycloak overwrites read-only in the com_users profile form of an SSO account, and keep the stored values when a profile save carries others.
 - **SSO logout:** Route a com_users Log out request through Keycloak's end-session endpoint, so signing out of Joomla also ends the Keycloak session; with the `logout` service on, its injected script sends the button to the universal logout first.
-- **LDAP variant:** Configure and enable Joomla's core `plg_authentication_ldap` against `svc-db-openldap` whenever the `ldap` service is enabled (variant 1), binding with the directory administrator, searching users by their login attribute and reading full name and email from the directory; new directory users are created in `Registered`.
+- **LDAP variant:** Configure and enable Joomla's core `plg_authentication_ldap` against `svc-db-openldap` whenever the `ldap` login method is on (the `ldap` service without `sso`, variant 1), binding with the directory administrator, searching users by their login attribute and reading full name and email from the directory; new directory users are created in `Registered`.
 - **External database:** Persist Joomla content in the project's central RDBMS through the standard role-meta wiring.
 - **NGINX reverse proxy:** Front the Joomla container with the project's `sys-stk-front-proxy` for TLS termination and per-domain routing.
 
@@ -48,7 +50,8 @@ The Playwright spec at [`playwright.spec.js`](./files/playwright/playwright.spec
 - `biber` in each of the `administrator`, `manager`, `publisher`, `editor`, `author` and `registered` groups landing in the matching Joomla group, the bootstrap administrator keeping `Super Users` without the `administrator` group, and `biber` without a role group landing in `Registered`, read from Users: Manage ([`test-rbac-groups.js`](./files/playwright/test-rbac-groups.js));
 - the `locale`, `zoneinfo`, phone, address and website Keycloak attributes of `biber` arriving as Joomla language, time zone and `plg_user_profile` fields, every synced field read-only, and a save with a tampered name keeping the Keycloak name ([`test-profile-sync.js`](./files/playwright/test-profile-sync.js));
 - the com_users Log out button ending the Keycloak session, through the issuer's end-session endpoint when `logout` is off and through the universal logout otherwise ([`test-sso-logout.js`](./files/playwright/test-sso-logout.js));
-- the administrator and `biber` signing in through the core LDAP plugin in the LDAP variant ([`test-ldap-login.js`](./files/playwright/test-ldap-login.js)), and `plg_authentication_ldap` staying disabled in Extensions: Plugins while `ldap` is off ([`test-ldap-disabled.js`](./files/playwright/test-ldap-disabled.js)).
+- the administrator and `biber` signing in through the core LDAP plugin in the LDAP variant with SSO off ([`test-ldap-login.js`](./files/playwright/test-ldap-login.js)), and `plg_authentication_ldap` staying disabled in Extensions: Plugins while `ldap` is off ([`test-ldap-disabled.js`](./files/playwright/test-ldap-disabled.js));
+- with SSO on, the site and administrator sign-in sending a guest to Keycloak, and the `?fallback=local` forms showing no passkey or registration entry while those methods are off ([`test-login-methods.js`](./files/playwright/test-login-methods.js)).
 
 SSO scenarios are gated on `sso` and LDAP scenarios on `ldap`, so a deploy without the service reports them as `skipped`, never `failed`.
 

@@ -82,6 +82,14 @@ openbao:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'native') }}"
 # nocheck: playwright-service-flag  build-stage image of the LDAP auth plugin binary, never deployed as a container
 # nocheck: dynamic-flag  build-stage image, not group-gated
 auth-ldap:

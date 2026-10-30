@@ -25,6 +25,8 @@
           JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
           JELLYFIN_SSO_ENABLED: "{{ JELLYFIN_SSO_ENABLED | string | lower }}"
           JELLYFIN_LDAP_ENABLED: "{{ JELLYFIN_LDAP_ENABLED | string | lower }}"
+          JELLYFIN_LOGIN_SSO_ENABLED: "{{ JELLYFIN_LOGIN_SSO | string | lower }}"
+          JELLYFIN_LOGIN_FORM_ENABLED: "{{ (JELLYFIN_LOGIN_NATIVE | bool or JELLYFIN_LOGIN_LDAP | bool) | string | lower }}"
         jellyfin_auth_env_ldap:
           JELLYFIN_LDAP_PLUGIN_VERSION: "{{ JELLYFIN_LDAP_PLUGIN_VERSION }}"
           JELLYFIN_LDAP_PLUGIN_URL: "{{ JELLYFIN_LDAP_PLUGIN_URL }}"

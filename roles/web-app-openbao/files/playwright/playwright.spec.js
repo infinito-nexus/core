@@ -4,6 +4,7 @@ require("./test-biber-persona");
 require("./test-administrator-persona");
 require("./test-oidc-login");
 require("./test-ldap-login");
+require("./test-login-methods");
 require("./test-rbac-denial");
 require("./test-rbac-groups");
 require("./test-seal-status");

@@ -38,6 +38,10 @@ PEERTUBE_MIGRATION_HEALTH_RETRIES: 360
 
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+PEERTUBE_LOGIN_SSO: "{{ lookup('config', application_id, 'services.peertube.login.method.sso.enabled') | bool }}"
+PEERTUBE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.peertube.login.method.native.enabled') | bool }}"
+PEERTUBE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.peertube.login.method.2fa.enabled') | bool }}"
+PEERTUBE_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.peertube.login.method.registration.enabled') | bool }}"
 PEERTUBE_ROLE_IDS:
   administrator: 0
   moderator: 1

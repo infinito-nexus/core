@@ -13,6 +13,8 @@ This role deploys Jenkins on Docker Compose. It builds a custom Jenkins image th
 - **Containerized deployment:** Run Jenkins through Docker Compose with the role-specific custom image.
 - **Native OIDC SSO:** Authenticate users against Keycloak via the `oic-auth` plugin, configured by JCasC at boot.
 - **LDAP variant:** Switch to Jenkins's core `ldap` plugin via the role's matrix-deploy variant 1 against `svc-db-openldap`.
+- **Login methods:** `services.jenkins.login.method` declares `sso`, `ldap`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). Jenkins runs one security realm, so [`templates/casc.yaml.j2`](./templates/casc.yaml.j2) maps them onto it: the `oic` realm while `sso` is on, else the `ldap` realm while `ldap` is on, else the `local` realm, which seeds the platform administrator while `native` is on and sets `allowsSignup` from `registration`. Jenkins core has no second factor, so the role declares no `2fa`.
+- **Break-glass access:** with the `oic` realm, `/login` always hands over to Keycloak and Jenkins renders no local form. The break-glass runs on the host: override `services.jenkins.login.method.sso.enabled: false` in the inventory and redeploy, which renders the `ldap` or `local` realm, or, when no deploy can run, replace the `securityRealm` block of the mounted `casc.yaml` in the role's instance directory with the `local` realm of the platform administrator and restart the container, since JCasC applies the file at startup. The API token [`files/mcp-api-token.groovy`](./files/mcp-api-token.groovy) mints belongs to the MCP credential owner, not to an administrator, so it is no break-glass.
 - **Role-strategy authorisation:** Map the RBAC groups of `meta/rbac.yml` onto the global roles `admin` (`administrator`), `developer` (create, configure, build and delete jobs) and `viewer` (read jobs and builds) through the `role-strategy` plugin. The OIDC realm matches the group paths of the groups claim, the LDAP realm matches the `web-app-jenkins-<role>` group names under the roles OU. A signed-in account without one of these groups is refused.
 - **Profile sync:** Take the full name and email from the OIDC claims on every login, or from the directory's full name and mail attributes in the LDAP variant.
 - **JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code.
@@ -77,13 +79,13 @@ Plugins are declared in `meta/addons/` under the unified addon contract. `templa
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
-| `oic-auth` | `plugin` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
+| `oic-auth` | `plugin` | enabled with the `sso` login method, which is on whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
 | `prometheus` | `plugin` | enabled whenever the `prometheus` service is present (`web-app-prometheus` co-deployed) | `prometheus` → `web-app-prometheus` |
 | `gitea` | `plugin` | enabled whenever the `gitea` service is present (`web-app-gitea` co-deployed) | `gitea` → `web-app-gitea` |
 | `gitlab-plugin` | `plugin` | enabled whenever the `gitlab` service is present (`web-app-gitlab` co-deployed) | `gitlab` → `web-app-gitlab` |
 | `mattermost` | `plugin` | enabled whenever the `mattermost` service is present (`web-app-mattermost` co-deployed) | `mattermost` → `web-app-mattermost` |
 
-`oic-auth` is configured by `templates/casc.yaml.j2`, which selects the `oic` security realm on the same `services.sso.enabled` flag the addon reads. `prometheus` serves `config.metrics_path` from first boot without further configuration. The `gitea`, `gitlab-plugin`, and `mattermost` SCM/notifier connections each need a partner-side API token or incoming webhook, so the role installs the plugin and publishes the partner URL under `config.server_url` while the connection itself is entered by the operator.
+`oic-auth` is configured by `templates/casc.yaml.j2`, which selects the `oic` security realm on the same `services.jenkins.login.method.sso.enabled` flag the addon reads. `prometheus` serves `config.metrics_path` from first boot without further configuration. The `gitea`, `gitlab-plugin`, and `mattermost` SCM/notifier connections each need a partner-side API token or incoming webhook, so the role installs the plugin and publishes the partner URL under `config.server_url` while the connection itself is entered by the operator.
 
 ## Further Resources
 

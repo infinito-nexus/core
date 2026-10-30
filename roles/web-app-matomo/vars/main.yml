@@ -38,8 +38,13 @@ MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes
 MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
 MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
 
+MATOMO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.matomo.login.method.sso.enabled') | bool }}"
+MATOMO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.matomo.login.method.2fa.enabled') | bool }}"
+MATOMO_TWO_FACTOR_PLUGIN: "TwoFactorAuth"
+MATOMO_TWO_FACTOR_STATE: "{{ 'present' if MATOMO_LOGIN_2FA | bool else 'absent' }}"
+
 MATOMO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-MATOMO_OIDC_STATE: "{{ 'present' if MATOMO_OIDC_ENABLED | bool else 'absent' }}"
+MATOMO_OIDC_STATE: "{{ 'present' if MATOMO_OIDC_ENABLED | bool and MATOMO_LOGIN_SSO | bool else 'absent' }}"
 MATOMO_OIDC_PLUGIN: "{{ lookup('config', application_id, 'addons.rebeloidc.config.plugin') }}"
 MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ lookup('config', application_id, 'addons.rebeloidc.config.archive') }}"
 MATOMO_OIDC_PLUGIN_SOURCE: "{{ [MATOMO_RELEASE_DIR, 'plugins', MATOMO_OIDC_PLUGIN] | path_join }}"

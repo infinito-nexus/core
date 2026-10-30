@@ -27,6 +27,8 @@ const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const matomoApiToken = decodeDotenvQuotedValue(process.env.MATOMO_API_TOKEN);
 const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toLowerCase();
+const nativeLoginEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const BREAKGLASS_LOGIN_PATH = "/index.php?module=Login&fallback=local";
 
 const matomoCanonicalDomain = (() => {
   try {
@@ -108,7 +110,7 @@ async function setupMatomoPage(page) {
 }
 
 async function loginAsAdmin(page) {
-  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login`);
+  await gotoOnion(page, `${appBaseUrl}${BREAKGLASS_LOGIN_PATH}`);
 
   const usernameField = page.locator("input#login_form_login, input[name='form_login']").first();
   const passwordField = page.locator("input#login_form_password, input[name='form_password']").first();
@@ -133,14 +135,19 @@ async function loginAsAdmin(page) {
 
 const LOGIN_FIELD = "input#login_form_login, input[name='form_login']";
 
+function oidcButtonSelector() {
+  return `form[action*='module=${matomoOidcPlugin}'] button[type='submit']`;
+}
+
 async function expectLoginForm(page, message) {
-  await expect(page.locator(LOGIN_FIELD).first(), message).toBeVisible({ timeout: resolveTimeout(60_000) });
+  const entry = nativeLoginEnabled ? LOGIN_FIELD : oidcButtonSelector();
+  await expect(page.locator(entry).first(), message).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 async function startOidcLogin(page) {
   expect(matomoOidcPlugin, "MATOMO_OIDC_PLUGIN must be set in the Playwright env file").toBeTruthy();
   await gotoOnion(page, `${appBaseUrl}/`);
-  const button = page.locator(`form[action*='module=${matomoOidcPlugin}'] button[type='submit']`).first();
+  const button = page.locator(oidcButtonSelector()).first();
   await expect(button, `Expected the ${matomoOidcPlugin} sign-in button on the Matomo login page`).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
@@ -175,6 +182,10 @@ module.exports = {
   matomoTrackingScope,
   matomoCanonicalDomain,
   matomoTargetRoles,
+  nativeLoginEnabled,
+  BREAKGLASS_LOGIN_PATH,
+  LOGIN_FIELD,
+  oidcButtonSelector,
   attachDiagnostics,
   hostOf,
   siteNeedleFor,

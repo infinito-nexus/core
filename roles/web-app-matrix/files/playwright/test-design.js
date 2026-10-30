@@ -180,8 +180,8 @@ function visitorViews(shared) {
     await expect(view.locator(selector).first()).toBeVisible(readyWait());
   };
   return [
-    { name: "welcome", url: `${base}/#/welcome`, prepare: auth('.mx_DefaultWelcome a[href="#/login"]') },
-    { name: "login", url: `${base}/#/login`, prepare: auth(".mx_AuthBody") },
+    { name: "welcome", url: shared.elementPages.welcome, prepare: auth('.mx_DefaultWelcome a[href="#/login"]') },
+    { name: "login", url: shared.elementPages.login, prepare: auth(".mx_AuthBody") },
     { name: "register", url: `${base}/#/register`, prepare: auth(".mx_AuthBody") },
     { name: "forgot-password", url: `${base}/#/forgot_password`, prepare: auth(".mx_AuthBody") },
     { name: "synapse-landing", url: `${shared.env.matrixBaseUrl}/_matrix/static/`, prepare: auth("h1") },
@@ -296,7 +296,7 @@ function signedInViews(shared, seeded) {
 exports.register = function (shared) {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await gotoOnion(page, `${shared.env.elementBaseUrl}/#/login`);
+    await gotoOnion(page, shared.elementPages.login);
     await expect(page.locator(".mx_AuthBody")).toBeVisible(bootWait());
     await assertDesignTokens(page, "matrix element");
   });
@@ -315,7 +315,7 @@ exports.register = function (shared) {
       expect(served.headers()["content-type"], "the configured logo is an SVG").toContain("svg");
     }
 
-    await gotoOnion(page, `${base}/#/login`);
+    await gotoOnion(page, shared.elementPages.login);
     const logo = page.locator(".mx_AuthHeaderLogo img");
     await expect(logo).toBeVisible(bootWait());
     if (logoUrl) await expect(logo).toHaveAttribute("src", logoUrl);
@@ -323,7 +323,7 @@ exports.register = function (shared) {
     const box = await logo.boundingBox();
     expect(Math.abs(box.width - box.height), "the sign-in logo box is square like the declared slot").toBeLessThanOrEqual(1);
 
-    await gotoOnion(page, `${base}/#/welcome`);
+    await gotoOnion(page, shared.elementPages.welcome);
     const welcomeLogo = page.locator(".mx_DefaultWelcome_logo img");
     await expect(welcomeLogo).toBeVisible(bootWait());
     if (logoUrl) await expect(welcomeLogo).toHaveAttribute("src", logoUrl);
@@ -332,8 +332,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in pages sit on the frame with readable footer, panel and primary action", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    const base = shared.env.elementBaseUrl;
-    await gotoOnion(page, `${base}/#/welcome`);
+    await gotoOnion(page, shared.elementPages.welcome);
     const signIn = '.mx_DefaultWelcome a[href="#/login"]';
     await expect(page.locator(signIn)).toBeVisible(bootWait());
     for (const mode of MODES) {
@@ -343,7 +342,7 @@ exports.register = function (shared) {
       await assertToken(page, signIn, "color", "--design-on-primary", `matrix ${mode} welcome primary action text`);
     }
 
-    await gotoOnion(page, `${base}/#/login`);
+    await gotoOnion(page, shared.elementPages.login);
     await expect(page.locator(".mx_AuthBody")).toBeVisible(bootWait());
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });

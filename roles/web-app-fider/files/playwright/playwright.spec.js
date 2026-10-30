@@ -8,6 +8,7 @@ const { clickFiderSsoButton } = require("./_shared");
 require("./test-seaweedfs");
 require("./test-mcp-guest").register();
 require("./test-design").register();
+require("./test-login-methods").register();
 
 test.use({
   ignoreHTTPSErrors: true

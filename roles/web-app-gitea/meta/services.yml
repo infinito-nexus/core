@@ -66,6 +66,22 @@ gitea:
       enable_push_create_user: true
       default_private: last
       default_push_create_private: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'passkey') }}"
+      openid2:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'openid2') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'registration') }}"
   ports:
     internal:
       http: 3000

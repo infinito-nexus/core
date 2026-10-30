@@ -77,6 +77,9 @@
 - name: "🌐 XWIKI | Name the canonical origin in the main wiki descriptor"
   include_tasks: 07_wiki_descriptor.yml
 
+- name: "🚪 XWIKI | Grant or deny guest self-registration"
+  include_tasks: 08_registration.yml
+
 - block:
     - name: "📁 Create Final Docker Compose File"
       stack_host_template:
@@ -87,6 +90,6 @@
     - name: 🚀 Deploy Final Config
       include_tasks: utils/flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
-    xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
+    xwiki_oidc_enabled_switch: "{{ XWIKI_LOGIN_SSO | bool }}"
+    xwiki_ldap_enabled_switch: "{{ XWIKI_LOGIN_LDAP | bool }}"
     xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"

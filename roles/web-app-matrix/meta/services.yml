@@ -213,6 +213,16 @@ matrix:
     mautrix_whatsapp: false
   conferencing:
     element_call: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'registration') }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak

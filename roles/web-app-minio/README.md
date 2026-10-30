@@ -18,6 +18,7 @@ Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) 
 - Presigned URLs for secure, time-limited uploads/downloads
 - Ideal for AI stacks: datasets, embeddings, and artifacts
 - **RBAC policies:** One MinIO policy per RBAC group path (`administrator`, `readwrite`, `readonly`). OIDC logins pick them up through the groups claim, and the LDAP variant attaches each policy to its `web-app-minio-<role>` group under the roles OU.
+- **Login methods:** `services.minio.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso`, `ldap` and `native`. `sso` registers Keycloak as the named OpenID IdP ([tasks/01_oidc.yml](./tasks/01_oidc.yml)), which serves the STS `AssumeRoleWithWebIdentity` tier. `ldap` renders the `MINIO_IDENTITY_LDAP_*` settings ([templates/env.j2](./templates/env.j2)) and binds the policies to the LDAP role groups ([tasks/02_ldap.yml](./tasks/02_ldap.yml)), so with SSO on an LDAP account signs in through Keycloak's LDAP federation instead. `native` has no MinIO switch: the root account (`MINIO_ROOT_USER`) always signs in through the Console form, and the Console form is shared between root and LDAP accounts. The pinned Console renders no SSO entry, so the role keeps that form visible in every mode. Break-glass: the root account through the Console form at `/login`, or `mc` with the root credentials.
 
 ## Further Resources
 

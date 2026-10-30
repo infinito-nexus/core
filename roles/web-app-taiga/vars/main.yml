@@ -14,8 +14,11 @@ TAIGA_PLAINTEXT_COOKIE_FLAGS: |-
   proxy_cookie_flags csrftoken nosecure;
 TAIGA_LOCATION_CONFIGURATION: "{{ TAIGA_PLAINTEXT_COOKIE_FLAGS if TAIGA_COOKIE_SECURE | bool and not (lookup('tls', domain, 'enabled') | bool) else '' }}"
 
-TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
+TAIGA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.taiga.login.method.native.enabled') | bool }}"
+TAIGA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.taiga.login.method.registration.enabled') | bool }}"
+TAIGA_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.taiga.login.method.sso.enabled') | bool) }}"
+TAIGA_LDAP_ENABLED: "{{ (lookup('config', application_id, 'services.ldap.enabled') | bool) and (lookup('config', application_id, 'services.taiga.login.method.ldap.enabled') | bool) }}"
+TAIGA_LOGIN_FORM: "{{ TAIGA_LOGIN_NATIVE | bool or TAIGA_LDAP_ENABLED | bool }}"
 TAIGA_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 TAIGA_PLUGINS_ENABLED: "{{ TAIGA_OIDC_ENABLED | bool or TAIGA_LDAP_ENABLED | bool or TAIGA_OBJSTORE_ENABLED | bool }}"
 TAIGA_CONFIG_APPEND_MARKER: "INFINITO_TAIGA_AUTH_CONFIG"

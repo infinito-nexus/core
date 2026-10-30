@@ -64,7 +64,7 @@ litellm:
   enabled: true
   shared: true
 # nocheck: playwright-service-flag, dynamic-flag  the broker authorizes every request against Keycloak group paths and has no LDAP or no-auth path, so a group_names gate would only defer the failure to runtime
-sso:
+sso:  # nocheck: login-methods  Reason: an API service without a sign-in page; it authorizes each request by the caller's Keycloak groups that Open WebUI forwards, so no browser ever picks a login method here
   bond: 1
   enabled: true
   shared: true

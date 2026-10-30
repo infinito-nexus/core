@@ -30,3 +30,4 @@ test("matomo enforces Content-Security-Policy and exposes canonical domain from 
 });
 
 require("./test-design");
+require("./test-login-methods");

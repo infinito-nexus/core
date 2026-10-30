@@ -41,6 +41,8 @@ const SHOWCASE = "Design showcase";
 
 exports.register = function (shared) {
   const base = shared.env.zammadBaseUrl;
+  const passwordForm = shared.env.passwordFormShown;
+  const SIGN_IN_READY = passwordForm ? LOGIN_SUBMIT : `${LOGIN} .auth-providers button.auth-provider`;
   const botAuth = {
     Authorization: `Basic ${Buffer.from(`${shared.env.adminApiUsername}:${shared.env.adminApiPassword}`).toString("base64")}`,
     "Content-Type": "application/json",
@@ -245,7 +247,7 @@ exports.register = function (shared) {
       name,
       url,
       prepare: async (page) => {
-        await page.locator(`${MENU_ITEM}, ${LOGIN_SUBMIT}`).first().waitFor({ timeout: resolveTimeout(10_000) });
+        await page.locator(`${MENU_ITEM}, ${SIGN_IN_READY}`).first().waitFor({ timeout: resolveTimeout(10_000) });
         if (!(await page.locator(MENU_ITEM).first().isVisible())) {
           await signInAsAdministrator(page);
           await gotoOnion(page, url);
@@ -261,9 +263,10 @@ exports.register = function (shared) {
 
   function views(ticketId) {
     const admin = (name, hash) => signedInView(name, hash, `${PAGE_TITLE}:visible`);
+    const formOnly = passwordForm ? [signedOutView("sign-in-focus", "login", LOGIN_SUBMIT, (page) => page.locator(USERNAME).focus())] : [];
     return [
-      signedOutView("sign-in", "login", LOGIN_SUBMIT),
-      signedOutView("sign-in-focus", "login", LOGIN_SUBMIT, (page) => page.locator(USERNAME).focus()),
+      signedOutView("sign-in", "login", SIGN_IN_READY),
+      ...formOnly,
       signedOutView("password-reset", "password_reset", ".reset_password .hero-unit"),
       signedInView("ticket-overview", "ticket/view/all_unassigned", `${CONTENT} .overview-table .page-header:visible`),
       signedInView("ticket-detail", `ticket/zoom/${ticketId}`, `${CONTENT} .ticketZoom`),
@@ -301,7 +304,7 @@ exports.register = function (shared) {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
     await gotoOnion(page, legacyUrl("login", "tokens"));
-    await shown(LOGIN_SUBMIT)(page);
+    await shown(SIGN_IN_READY)(page);
     await assertDesignTokens(page, "zammad");
   });
 
@@ -310,11 +313,12 @@ exports.register = function (shared) {
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, legacyUrl("login", `sign-in-${mode}`));
-      await shown(LOGIN_SUBMIT)(page);
+      await shown(SIGN_IN_READY)(page);
       await expect(page.locator("html"), "a visitor's page follows the browser").toHaveAttribute("data-theme", mode);
       await assertToken(page, LOGIN,"background-color", "--design-frame", `sign-in ${mode}`);
       await assertToken(page, LOGIN_CARD, "background-color", "--design-surface-2", `sign-in ${mode}`);
       await assertToken(page, LOGIN_CARD, "color", "--design-text", `sign-in ${mode}`);
+      if (!passwordForm) continue;
       await assertToken(page, LOGIN_SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
       await assertToken(page, LOGIN_SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
       await assertToken(page, USERNAME, "border-top-color", "--design-border-strong", `sign-in ${mode}`);
@@ -324,9 +328,10 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, LOGIN_CARD, "zammad sign-in");
+    const formTexts = passwordForm ? [LOGIN_SUBMIT, `${LOGIN_CARD} label[for='username']`] : [];
     await assertReadable(
       page,
-      [LOGIN_SUBMIT, `${LOGIN_CARD} label[for='username']`, `${LOGIN} .fullscreen-body > p`, { selector: `${LOGIN} .js-footer p`, optional: true }, ".poweredBy"],
+      [...formTexts, `${LOGIN} .fullscreen-body > p`, { selector: `${LOGIN} .js-footer p`, optional: true }, ".poweredBy"],
       "zammad sign-in",
     );
   });
@@ -412,7 +417,7 @@ exports.register = function (shared) {
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
     test.setTimeout(resolveTimeout(180_000));
     await gotoOnion(page, legacyUrl("login", "branding"));
-    await shown(LOGIN_SUBMIT)(page);
+    await shown(SIGN_IN_READY)(page);
     if (title) {
       await expect.poll(() => page.title(), { message: "the sign-in title must carry the configured title" }).toContain(title);
       await expect(page.locator(LOGIN_LOGO)).toHaveAttribute("alt", title);

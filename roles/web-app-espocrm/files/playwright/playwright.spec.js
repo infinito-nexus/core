@@ -75,3 +75,4 @@ test("administrator: app → universal logout", async ({ page }) => {
 require("./test-seaweedfs");
 require("./test-rbac");
 require("./test-ldap-login");
+require("./test-login-methods");

@@ -1,0 +1,30 @@
+---
+- name: "🛑 Refuse a native login method Greenlight cannot honour"
+  ansible.builtin.assert:
+    that:
+      - "BBB_LOGIN_NATIVE | bool != BBB_LOGIN_SSO | bool"
+    fail_msg: >-
+      Greenlight forbids every local sign-in except a SuperAdmin's while
+      OPENID_CONNECT_ISSUER is set, and has no other sign-in without it, so
+      services.bigbluebutton.login.method.native.enabled must be the opposite
+      of login.method.sso.enabled (native={{ BBB_LOGIN_NATIVE }},
+      sso={{ BBB_LOGIN_SSO }}).
+    quiet: true
+
+- name: "🚪 Converge the Greenlight registration method of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - REGISTRATION_METHOD
+      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
+      - bash
+      - -lc
+      - "bundle exec rails runner -"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/registration_method.rb') }}"
+  environment:
+    REGISTRATION_METHOD: "{{ BBB_REGISTRATION_METHOD }}"
+  register: bbb_registration_method
+  changed_when: "'CHANGED' in bbb_registration_method.stdout"

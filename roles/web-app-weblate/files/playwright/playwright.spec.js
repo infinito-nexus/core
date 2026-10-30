@@ -57,3 +57,4 @@ test("administrator: app → universal logout", async ({ page }) => {
 });
 
 require("./test-rbac").register();
+require("./test-login-methods");

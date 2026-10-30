@@ -86,8 +86,22 @@ discourse:
   mem_reservation: 1g
   mem_limit: 4g
   pids_limit: 1024
-  local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
-    | bool) }}"
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', '2fa') }}"
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'passkey') }}"
+      email:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'email') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'registration') }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

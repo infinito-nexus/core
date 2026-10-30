@@ -5,6 +5,7 @@ const { gotoOnion } = require("./personas");
 exports.register = function (shared) {
   test("administrator: Semaphore LDAP login admits the administrator group member as a Semaphore admin", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
+    test.skip(!shared.env.loginMethodLdap, "Semaphore's own LDAP login is off; LDAP accounts sign in through Keycloak's federation");
     test.setTimeout(resolveTimeout(90_000));
     expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();

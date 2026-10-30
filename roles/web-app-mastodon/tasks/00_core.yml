@@ -53,3 +53,9 @@
         file: 06_design.yml
         apply:
           delegate_to: "{{ MASTODON_HOST_NODE }}"
+
+    - name: "🚪 Include the sign-in methods of '{{ application_id }}'"
+      include_tasks:
+        file: 07_login_methods.yml
+        apply:
+          delegate_to: "{{ MASTODON_HOST_NODE }}"

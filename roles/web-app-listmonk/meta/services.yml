@@ -66,6 +66,14 @@ listmonk:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-listmonk', '2fa') }}"
 # nocheck: playwright-service-flag — object store, no Playwright surface
 minio:
   enabled: false # nocheck: dynamic-flag

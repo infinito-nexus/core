@@ -41,6 +41,17 @@ The purpose of this role is to provide a hands-off, production-ready Odoo ERP de
 - **LDAP Authentication:**
   Enterprise directory integration via OpenLDAP for organizations using traditional directory services.
 
+- **Login methods:** `services.odoo.login.method.*` of [`meta/services.yml`](./meta/services.yml) switches each sign-in method on its own; [`tasks/10_login_methods.yml`](./tasks/10_login_methods.yml) and [`tasks/05_oidc.yml`](./tasks/05_oidc.yml) apply the database switches.
+  - `sso`: the `enabled` flag of the Keycloak `auth.oauth.provider` row ("Login with SSO").
+  - `ldap`: the `res.company.ldap` row of the directory; [`tasks/06_ldap.yml`](./tasks/06_ldap.yml) writes it while the method is on and the deploy deletes it while it is off, so with SSO on LDAP accounts sign in through Keycloak's LDAP federation only.
+  - `native`: the system parameter `auth_signup.reset_password`; Odoo has no setting that hides its password form, so [`templates/javascript.js.j2`](./templates/javascript.js.j2) hides the login and password fields, the "Log in" button and the "Reset Password" link while `native` and `ldap` are both off. Local and LDAP accounts share one form and Odoo tries the local password before the directory, so with `ldap` on and `native` off the form still admits local accounts.
+  - `2fa`: Odoo's TOTP (`auth_totp`) has no switch that withdraws the offer, so the script hides the "Enable two-factor authentication" button of the user preferences while the method is off; enrollment is never enforced.
+  - `passkey`: `auth_passkey` installs itself with `web`, so the script hides the "Use a Passkey" entry and the "Add Passkey" button while the method is off.
+  - `odoo_com`: the `enabled` flag of Odoo's shipped "Odoo.com Accounts" provider (`auth_oauth.provider_openerp`).
+  - `registration`: `auth_signup.invitation_scope` and `website.auth_signup_uninvited`, `b2c` while on and `b2b` while off. Keycloak sign-ins keep provisioning their account while it is off, because `auth_oauth_https` creates the user directly instead of through the signup scope.
+
+- **Break-glass access:** the password form stays served and only hidden, so `/web/login?fallback=local` shows it and the local platform administrator signs in there with its password while SSO is on.
+
 - **Role-Based Sign-In:** Only members of a role group of [`meta/rbac.yml`](./meta/rbac.yml) sign in, through Keycloak (groups claim) and through the directory (`memberOf`) alike: `administrator` grants Settings, `manager` the Sales, Accounting, Inventory and Project administrator rights, `user` the internal user, `portal` the customer portal only (`ODOO_RBAC_ROLE_GROUPS` in [`vars/main.yml`](./vars/main.yml)). Every sign-in replaces these managed groups with the ones the roles grant; the platform administrator is never changed or refused. The addons [`infinito_rbac`](./files/addons/infinito_rbac/__manifest__.py), [`auth_oauth_https`](./files/addons/auth_oauth_https/__manifest__.py) and [`auth_ldap_profile`](./files/addons/auth_ldap_profile/__manifest__.py) under `files/addons/` carry the mapping.
 
 - **Profile Sync:** Every Keycloak sign-in writes name, email, phone (`phone` scope), language and time zone from the claims; every directory sign-in writes them from `cn`, `mail`, `telephoneNumber`, `preferredLanguage` and `infinitoTimezone` (the `LDAP.USER.ATTRIBUTES` names). A language that is not installed or an unknown time zone is left out.

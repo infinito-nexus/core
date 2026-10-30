@@ -31,6 +31,7 @@
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
     -e DECIDIM_ORG_HOST={{ domain | quote }}
     -e DECIDIM_ORG_NAME={{ DECIDIM_ORGANIZATION_NAME | quote }}
+    -e DECIDIM_USERS_REGISTRATION_MODE={{ DECIDIM_USERS_REGISTRATION_MODE | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
@@ -47,6 +48,18 @@
   register: decidim_demo_seed
   changed_when: true
   when: MODE_DEMO | bool
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
+- name: "🚪 Decidim | Converge the local sign-in and sign-up of the organization"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_USERS_REGISTRATION_MODE={{ DECIDIM_USERS_REGISTRATION_MODE | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure/registration_mode.rb') }}"
+  register: decidim_registration_mode_result
+  changed_when: "'Registration mode set to' in decidim_registration_mode_result.stdout"
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
@@ -91,6 +104,7 @@
 - name: "🔧 Decidim | Configure OIDC omniauth settings in organization"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_OIDC_LOGIN_ENABLED={{ DECIDIM_LOGIN_SSO | string | lower | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:

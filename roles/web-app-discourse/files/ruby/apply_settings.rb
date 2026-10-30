@@ -5,6 +5,9 @@ require "json"
 
 SiteSetting.force_https = ENV.fetch("DISCOURSE_FORCE_HTTPS") == "true"
 SiteSetting.enable_local_logins = ENV.fetch("DISCOURSE_LOCAL_LOGINS") == "true"
+SiteSetting.enable_local_logins_via_email = ENV.fetch("DISCOURSE_LOGIN_EMAIL") == "true"
+SiteSetting.enable_passkeys = ENV.fetch("DISCOURSE_LOGIN_PASSKEY") == "true"
+SiteSetting.allow_new_registrations = ENV.fetch("DISCOURSE_ALLOW_NEW_REGISTRATIONS") == "true"
 
 JSON.parse(ENV.fetch("DISCOURSE_LDAP_SITE_SETTINGS")).each do |key, value|
   SiteSetting.public_send("#{key}=", value)
@@ -12,13 +15,12 @@ end
 
 if ENV.fetch("DISCOURSE_OIDC_ENABLED") == "true"
   SiteSetting.openid_connect_verbose_logging = ENV.fetch("DISCOURSE_OIDC_VERBOSE") == "true"
-  SiteSetting.enable_passkeys = false
   SiteSetting.username_change_period = 0
 
   SiteSetting.openid_connect_discovery_document = ENV.fetch("DISCOURSE_OIDC_DISCOVERY_DOCUMENT")
   SiteSetting.openid_connect_client_id = ENV.fetch("DISCOURSE_OIDC_CLIENT_ID")
   SiteSetting.openid_connect_client_secret = ENV.fetch("DISCOURSE_OIDC_CLIENT_SECRET")
-  SiteSetting.openid_connect_enabled = true
+  SiteSetting.openid_connect_enabled = ENV.fetch("DISCOURSE_LOGIN_SSO") == "true"
   SiteSetting.openid_connect_rp_initiated_logout_redirect = ENV.fetch("DISCOURSE_OIDC_LOGOUT_REDIRECT")
   SiteSetting.openid_connect_allow_association_change = false
   SiteSetting.openid_connect_rp_initiated_logout = true

@@ -28,6 +28,23 @@ The login button in the UI will read "SSO with Infinito.Nexus" (renamed via inje
 
 To enable SSO, set `services.sso.enabled: true` (the default) in your inventory and ensure `OIDC.CLIENT.SECRET` is configured.
 
+### Login methods
+
+Each sign-in method follows `services.mattermost.login.method.<method>.enabled` in `meta/services.yml` and is rendered into `templates/env.j2`:
+
+| Method | Switch |
+|---|---|
+| `sso` | `MM_GITLABSETTINGS_*` (the Keycloak entry in the GitLab slot), the Keycloak mappers of `tasks/02_keycloak.yml` and the conversion of the administrator to GitLab auth in `tasks/03_oidc_admin.yml` |
+| `native` | `MM_EMAILSETTINGS_ENABLESIGNINWITHEMAIL` and `MM_EMAILSETTINGS_ENABLESIGNINWITHUSERNAME`; while both are off the sign-in page shows only the Keycloak entry |
+| `2fa` | `MM_SERVICESETTINGS_ENABLEMULTIFACTORAUTHENTICATION`, offered to email accounts and never enforced |
+| `registration` | `MM_EMAILSETTINGS_ENABLESIGNUPWITHEMAIL` and `MM_TEAMSETTINGS_ENABLEOPENSERVER`; Keycloak accounts are still created at their first sign-in |
+
+Team Edition has no LDAP, so `ldap` is not declared.
+
+### Break-glass
+
+With SSO on, the platform administrator is a GitLab-auth account and the password form is off. The local administrator keeps `mmctl --local` inside the `mattermost` container, which talks to the server over its local socket without signing in, for example `mmctl --local user change-password` or `mmctl --local roles system-admin`. The environment overrides of `templates/env.j2` lock the sign-in settings, so bringing the form back takes `services.mattermost.login.method.native.enabled: true` in the inventory and a redeploy.
+
 ## MCP Server
 
 Mattermost exposes a Model Context Protocol server through the prepackaged Agents plugin (`mattermost-ai`), which ships inside the pinned `mattermost/mattermost-team-edition` image.
