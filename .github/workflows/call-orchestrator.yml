@@ -48,7 +48,7 @@ on:
         type: string
         default: "0"
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk. Off: keep deploying the remaining chunks."
+        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. Off: keep deploying the remaining chunks."
         required: false
         type: boolean
         default: true
@@ -212,6 +212,24 @@ jobs:
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
+  test-deploy-chunk-1-gate:
+    name: "1️⃣ Gate"
+    if: ${{ !cancelled() && inputs.chunk_gate && inputs.resume_from_chunk <= 1 }}
+    needs:
+      - test-deploy-chunk-0
+      - test-workspace
+    runs-on: ubuntu-26.04
+    steps:
+      - name: "🛑 Refuse batch 1 after a failed batch 0 or workspace test"
+        if: >-
+          ${{ !contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+              || !contains(fromJSON('["success","skipped"]'), needs.test-workspace.result) }}
+        run: |
+          echo "Batch 0: ${{ needs.test-deploy-chunk-0.result }}, workspace: ${{ needs.test-workspace.result }}" >&2
+          exit 1
+      - name: "✅ Batch 0 and workspace passed"
+        run: echo "Batch 0 and workspace passed."
+
   test-deploy-chunk-1:
     name: "1️⃣ Batch${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}"
     if: >-
@@ -222,7 +240,8 @@ jobs:
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
-              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)) }}
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result == 'success')) }}
     needs:
       - lint
       - test
@@ -230,6 +249,7 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
     uses: ./.github/workflows/call-test-deploy.yml
     with:
       distros: ${{ inputs.distros }}
@@ -259,6 +279,7 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result))) }}
     needs:
       - lint
@@ -267,6 +288,7 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
     uses: ./.github/workflows/call-test-deploy.yml
     with:
@@ -297,6 +319,7 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && needs.test-deploy-chunk-1-gate.result != 'failure'
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-2.result))) }}
     needs:
@@ -306,6 +329,7 @@ jobs:
       - images-mirror-missing
       - validate-selection
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
       - test-deploy-chunk-2
     uses: ./.github/workflows/call-test-deploy.yml
@@ -379,6 +403,7 @@ jobs:
       - test-dns
       - test-install
       - test-deploy-chunk-0
+      - test-deploy-chunk-1-gate
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3
