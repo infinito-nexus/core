@@ -43,6 +43,8 @@ class _ListingFixture:
 
     def git(self, tracked: bytes | Exception, untracked: bytes | Exception):
         def run(args, **_kwargs):
+            if "--deleted" in args:
+                return SimpleNamespace(stdout=b"")
             listing = untracked if "--others" in args else tracked
             if isinstance(listing, Exception):
                 raise listing

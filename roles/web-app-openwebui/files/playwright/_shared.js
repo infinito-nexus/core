@@ -21,6 +21,7 @@ const env = {
   mcpExpectedServers: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_SERVERS),
   mcpExpectedTools: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_TOOLS),
   lamBaseUrl: normalizeBaseUrl(process.env.LAM_BASE_URL || ""),
+  keycloakLdapFederation: decodeDotenvQuotedValue(process.env.KEYCLOAK_LDAP_FEDERATION),
   ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
   ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
   ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),

@@ -24,7 +24,10 @@ static:
   mounts:
     - service: weblate
       target: &app_static_target /app/cache/static
+      mode: &app_static_mode "1777"
     - service: beat
       target: *app_static_target
+      mode: *app_static_mode
     - service: worker
       target: *app_static_target
+      mode: *app_static_mode

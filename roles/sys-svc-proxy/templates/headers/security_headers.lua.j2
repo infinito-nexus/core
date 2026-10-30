@@ -1,0 +1,14 @@
+{% set _security_headers = lookup('applications') | security_headers(application_id, WEBSERVER_SECURITY_HEADERS) %}
+{% if _security_headers.nosniff %}
+    ngx.header["X-Content-Type-Options"] = "nosniff"
+{% endif %}
+{% if _security_headers.referrer_policy %}
+    if not ngx.header["Referrer-Policy"] then
+        ngx.header["Referrer-Policy"] = {{ _security_headers.referrer_policy | to_json }}
+    end
+{% endif %}
+{% if _security_headers.permissions_policy %}
+    if is_html then
+        ngx.header["Permissions-Policy"] = {{ _security_headers.permissions_policy | to_json }}
+    end
+{% endif %}

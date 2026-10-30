@@ -33,13 +33,14 @@ flowchart TD
     grant["csp_filters.py:354<br/>logout grant"]
     wl["csp_filters.py:123<br/>get_csp_whitelist"]
     inj["sys-front-inj-dashboard,<br/>-javascript, -matomo, -logout<br/>add_csp_hash"]
-    gate["csp_filters.py:365<br/>hash gate"]
+    gate["csp_filters.py:366<br/>hash gate"]
     build["csp_filters.py:203<br/>build_csp_header"]
     header["set $csp<br/>nginx vhost"]
 
     decl -->|"1. flags read by"| flags
     flags -->|"2. tokens"| build
     svc -->|"3. read by"| grant
+    decl -->|"3a. unsafe-inline: false<br/>on -elem or -attr vetoes"| grant
     grant -->|"4. adds 'unsafe-inline'<br/>to script-src-elem and -attr"| build
     decl -->|"5. whitelist read by"| wl
     wl -->|"6. tokens"| build
@@ -52,7 +53,7 @@ flowchart TD
     grant -.->|"TRIP-WIRE: absent from the<br/>smart-defaults docstring, which<br/>names logout only for frame-ancestors"| build
 ```
 
-Styles carry `'unsafe-inline'` by default; scripts do not. The logout grant is the only path that puts it into a script directive.
+Styles carry `'unsafe-inline'` by default; scripts do not. The logout grant is the only implicit path that puts it into a script directive. An application keeps it out of `script-src-elem` or `script-src-attr` by setting `unsafe-inline: false` on that directive in its `meta/csp.yml`.
 
 ## Further Reading
 

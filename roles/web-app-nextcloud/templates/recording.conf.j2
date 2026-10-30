@@ -1,0 +1,36 @@
+[logs]
+level = 30
+
+[http]
+listen = 0.0.0.0:{{ NEXTCLOUD_RECORDING_PORT }}
+
+[backend]
+allowall = false
+secret = {{ NEXTCLOUD_RECORDING_SECRET }}
+backends = backend-1
+skipverify = false
+maxmessagesize = 1024
+videowidth = 1920
+videoheight = 1080
+directory = {{ NEXTCLOUD_RECORDING_DIRECTORY }}
+
+[backend-1]
+url = {{ NEXTCLOUD_HPB_BACKEND_URL }}
+secret = {{ NEXTCLOUD_RECORDING_SECRET }}
+skipverify = false
+
+[signaling]
+signalings = signaling-1
+
+[signaling-1]
+url = {{ NEXTCLOUD_HPB_BACKEND_URL }}{{ NEXTCLOUD_HPB_SIGNALING_LOCATION }}
+internalsecret = {{ NEXTCLOUD_HPB_INTERNAL_SECRET }}
+
+[ffmpeg]
+extensionaudio = .ogg
+extensionvideo = .webm
+
+[recording]
+browser = firefox
+driverPath = /usr/bin/geckodriver
+browserPath = /usr/bin/firefox

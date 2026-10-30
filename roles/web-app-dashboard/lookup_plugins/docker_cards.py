@@ -9,7 +9,11 @@ from ansible.plugins.lookup import LookupBase
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.config import get
-from utils.roles.applications.dashboard import DASHBOARD_SERVICE, card_target_key
+from utils.roles.applications.dashboard import (
+    DASHBOARD_SERVICE,
+    card_is_displayed,
+    card_target_key,
+)
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
@@ -27,7 +31,8 @@ class LookupModule(LookupBase):
           - Reads the title from the role's README.md (the first H1 line)
           - Retrieves the description from galaxy_info.description in meta/main.yml
           - Retrieves the icon class from meta/info.yml.logo.class
-          - Retrieves the display flag from meta/info.yml.display
+          - Skips the role when services.dashboard.enabled in applications
+            is false
           - Retrieves the tags from galaxy_info.galaxy_tags
           - Builds the URL from the primary domain, or from the domains.canonical
             key named by services.dashboard.card
@@ -114,7 +119,14 @@ class LookupModule(LookupBase):
                 except Exception as e:
                     raise AnsibleError(f"Error reading '{info_path}': {e}") from e
 
-            if not info_data.get("display", True):
+            dashboard_cfg = get(
+                applications,
+                application_id,
+                f"services.{DASHBOARD_SERVICE}",
+                strict=False,
+                default={},
+            )
+            if not card_is_displayed(application_id, dashboard_cfg):
                 continue
 
             logo = info_data.get("logo") or {}
@@ -132,14 +144,6 @@ class LookupModule(LookupBase):
 
             domain_url = (
                 self._templar.template(domain_url).strip() if domain_url else ""
-            )
-
-            dashboard_cfg = get(
-                applications,
-                application_id,
-                f"services.{DASHBOARD_SERVICE}",
-                strict=False,
-                default={},
             )
 
             url = ""

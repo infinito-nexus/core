@@ -390,7 +390,7 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
                 merged["web-app-foo"]["services"]["foo"]["image"], "override"
             )
 
-    def test_a_changed_tokens_file_rejects_the_carrier(self):
+    def test_a_changed_tokens_file_keeps_the_carrier(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))
             tokens = Path(tmp) / "tokens.yml"
@@ -398,9 +398,10 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
             variables = self._variables()
             variables["FILE_TOKENS"] = str(tokens)
             key = merged_applications_cache_key(variables, roles_dir=roles)
+            carried = {"web-app-foo": {"carried": True}}
             variables[APPLICATIONS_RENDERED_FACT] = {
                 "key": [key[0], list(key[1])],
-                "applications": {"web-app-foo": {"carried": True}},
+                "applications": carried,
             }
             tokens.write_text(
                 "users: {no-reply: {tokens: {web-app-stalwart: minted}}}\n",
@@ -409,7 +410,7 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
             merged = cache_apps.get_merged_applications(
                 variables=variables, roles_dir=roles, templar=None
             )
-            self.assertNotIn("carried", merged["web-app-foo"])
+            self.assertIs(merged, carried)
 
     def _park_from_the_tokens_file(self, tmp: Path, token: str) -> tuple:
         roles = _seed_minimal_roles(tmp)
@@ -441,28 +442,31 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
             )
             self.assertIs(merged, carried)
 
-    def test_the_store_fact_with_other_tokens_than_the_file_rejects_the_carrier(
+    def test_the_store_fact_with_other_tokens_than_the_file_keeps_the_carrier(
         self,
     ):
         with tempfile.TemporaryDirectory() as tmp:
-            roles, variables, _ = self._park_from_the_tokens_file(Path(tmp), "minted")
+            roles, variables, carried = self._park_from_the_tokens_file(
+                Path(tmp), "minted"
+            )
             variables["sys_token_store_users"] = {
                 "no-reply": {"tokens": {"web-app-stalwart": "rotated"}}
             }
             merged = cache_apps.get_merged_applications(
                 variables=variables, roles_dir=roles, templar=None
             )
-            self.assertNotIn("carried", merged["web-app-foo"])
+            self.assertIs(merged, carried)
 
-    def test_a_changed_store_fact_rejects_the_carrier(self):
+    def test_a_changed_store_fact_keeps_the_carrier(self):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))
             variables = self._variables()
             variables["sys_token_store_users"] = {}
             key = merged_applications_cache_key(variables, roles_dir=roles)
+            carried = {"web-app-foo": {"carried": True}}
             variables[APPLICATIONS_RENDERED_FACT] = {
                 "key": [key[0], list(key[1])],
-                "applications": {"web-app-foo": {"carried": True}},
+                "applications": carried,
             }
             variables["sys_token_store_users"] = {
                 "no-reply": {"tokens": {"web-app-stalwart": "minted"}}
@@ -470,7 +474,7 @@ class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
             merged = cache_apps.get_merged_applications(
                 variables=variables, roles_dir=roles, templar=None
             )
-            self.assertNotIn("carried", merged["web-app-foo"])
+            self.assertIs(merged, carried)
 
     def test_malformed_carrier_is_ignored(self):
         with tempfile.TemporaryDirectory() as tmp:

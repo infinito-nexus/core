@@ -6,7 +6,7 @@
       "enabled": true,
       "protocol": "saml",
       "frontchannelLogout": true,
-      "redirectUris": ["{{ [app_url, 'saml/acs'] | path_join }}"],
+      "redirectUris": {{ lookup('network_urls', [app_url, 'saml/acs'] | path_join) | to_json }},
       "defaultClientScopes": [],
       "optionalClientScopes": [],
       "attributes": {

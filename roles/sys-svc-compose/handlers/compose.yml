@@ -33,7 +33,7 @@
 - name: 🔨 Build compose
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build
+    compose build --pull || compose build
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
@@ -129,7 +129,7 @@
 - name: 🔨 Build the services queued for a lone recreate
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build {{ compose_service_up_targets | map('quote') | join(' ') }}
+    compose build --pull {{ compose_service_up_targets | map('quote') | join(' ') }} || compose build {{ compose_service_up_targets | map('quote') | join(' ') }}
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash

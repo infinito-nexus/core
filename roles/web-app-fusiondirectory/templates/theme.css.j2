@@ -224,7 +224,7 @@ html div.nlistFooter {
   border-bottom-color: var(--design-border);
 }
 html ul.treeList ul {
-  background: url({{ FUSIONDIRECTORY_URL }}/images/lists/vline.png) repeat-y;
+  background: url(/images/lists/vline.png) repeat-y;
 }
 html ul.treeList a:hover {
   background-color: var(--design-surface-hover);
@@ -238,7 +238,7 @@ html a.treeListSelected:hover {
   background-color: var(--design-surface-hover);
 }
 html ul.treeList li {
-  background: url({{ FUSIONDIRECTORY_URL }}/images/lists/node.png) no-repeat;
+  background: url(/images/lists/node.png) no-repeat;
 }
 html li.treeListSelected a {
   color: var(--design-link);
@@ -438,7 +438,7 @@ html div.copynotice a {
 }
 {% if design.logo %}
 html img#fd-logo {
-  content: url("{{ design.urls.logo.svg }}");
+  content: url("{{ design.relative_urls.logo.svg }}");
 }
 html div#header-left img#fd-logo {
   height: 44px;

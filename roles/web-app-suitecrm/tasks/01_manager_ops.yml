@@ -6,6 +6,13 @@
   notify:
     - compose-up
 
+- name: "🌐 Render the SITE_URL of the network sibling a request arrives on"
+  stack_host_template:
+    src: "site_url.php.j2"
+    dest: "{{ SUITECRM_SITE_URL_SCRIPT_HOST }}"
+  notify:
+    - compose-up
+
 - name: "📄 Render SuiteCRM LDAP mapping"
   stack_host_template:
     src: "ldap.yaml.j2"

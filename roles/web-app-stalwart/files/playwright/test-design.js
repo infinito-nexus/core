@@ -16,7 +16,7 @@ const {
   performKeycloakLoginForm,
   safeIsEnabled,
 } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { isSplitRealmOidc, resolveTimeout } = require("./timeouts");
 const {
   appBaseUrl,
@@ -28,7 +28,7 @@ const {
   stalwartAdminUsername,
   stalwartAdminPassword,
 } = require("./env");
-const { roundcubeSsoLogin } = require("./webmail");
+const { roundcubeSettled, roundcubeSsoLogin } = require("./webmail");
 
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const lockupUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOCKUP_URL || "");
@@ -36,7 +36,6 @@ const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "")
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const SPLIT_REALM = "clearnet app with an onion OIDC issuer: unreachable from one browser";
 const WEBUI_SIGN_IN = `${appBaseUrl}/account/login`;
 const WEBUI_HOME = `${appBaseUrl}/account/Account/Mailbox`;
 const WEBUI_ACCOUNTS = `${appBaseUrl}/account/Management/x:Account/User`;
@@ -65,6 +64,7 @@ const PASSWORD_STEP_PASSWORD = "#password";
 const PASSWORD_STEP_SUBMIT = "#submit-btn";
 const PASSWORD_STEP_LOGO = "svg.default-logo";
 const PASSWORD_STEP_ALERT = "#alert";
+const CONSENT_ALLOW = /^allow$/i;
 const ROLE_STYLESHEET = "link[rel='stylesheet'][href*='/roles/web-app-stalwart/']";
 const WEBMAIL_SIGN_IN = `${webmailBaseUrl}/?_task=login`;
 const WEBMAIL_INBOX = `${webmailBaseUrl}/?_task=mail&_mbox=INBOX`;
@@ -73,6 +73,7 @@ const WEBMAIL_PASSWORD = "#rcmloginpwd";
 const WEBMAIL_SUBMIT = "#rcmloginsubmit";
 const WEBMAIL_LOGO = "#logo";
 const WEBMAIL_LIST = "#messagelist";
+const WEBMAIL_LIST_PANE = "#layout-list";
 const WEBMAIL_FOLDER = "#mailboxlist li.mailbox";
 const WEBMAIL_FRAME = "#layout-menu";
 const WEBMAIL_TASK = "#taskmenu a";
@@ -175,7 +176,9 @@ async function followColorScheme(page) {
  *   page: Playwright page that ends signed in to the web administration, through Keycloak while sso is enabled and as the recovery administrator otherwise.
  */
 async function signInWebui(page) {
-  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
+  if (isSplitRealmOidc()) {
+    skipUnlessServiceDisabled("sso");
+  }
   await gotoOnion(page, WEBUI_SIGN_IN);
   await page.locator(WEBUI_USERNAME).fill(safeIsEnabled("sso") ? adminEmail : stalwartAdminUsername);
   await page.locator(WEBUI_CONTINUE).click();
@@ -187,6 +190,11 @@ async function signInWebui(page) {
     await page.locator(PASSWORD_STEP_PASSWORD).fill(stalwartAdminPassword);
     await page.locator(PASSWORD_STEP_SUBMIT).click();
   }
+  const allow = page.getByRole("button", { name: CONSENT_ALLOW });
+  await allow.or(page.locator(WEBUI_USER_MENU)).first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
   await expect(page.locator(WEBUI_USER_MENU)).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
@@ -195,7 +203,9 @@ async function signInWebui(page) {
  *   page: Playwright page that ends signed in to the webmail as the platform administrator, through Keycloak while sso is enabled and with the mailbox password otherwise.
  */
 async function signInWebmail(page) {
-  test.skip(safeIsEnabled("sso") && isSplitRealmOidc(), SPLIT_REALM); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
+  if (isSplitRealmOidc()) {
+    skipUnlessServiceDisabled("sso");
+  }
   if (safeIsEnabled("sso")) {
     await roundcubeSsoLogin(page, adminUsername, adminPassword);
   } else {
@@ -204,7 +214,7 @@ async function signInWebmail(page) {
     await page.locator(WEBMAIL_PASSWORD).fill(adminPassword);
     await page.locator(WEBMAIL_SUBMIT).click();
   }
-  await expect(page.locator(WEBMAIL_LIST)).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(page.locator(WEBMAIL_LIST_PANE)).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 /**
@@ -444,7 +454,7 @@ function webuiViews() {
         await shown(WEBUI_ROW)(page);
         await webuiSidebarOpened(page);
         await page.getByRole("button", { name: "Domains", exact: true }).click();
-        await page.getByRole("button", { name: "DKIM Signatures", exact: true }).hover();
+        await page.getByRole("link", { name: "DKIM Signatures", exact: true }).hover();
         await animationsSettled(page);
       },
     },
@@ -563,12 +573,13 @@ async function focusStop(page) {
 
 /**
  * Args:
- *   page: Playwright page that shows the webmail; the keyboard walks from the first entry of the task menu through every stop it holds.
+ *   page: Playwright page that shows the webmail; the keyboard walks from the first entry of the task menu through every stop it holds once the webmail settled.
  *   mode: color scheme the failure messages name.
  */
 async function assertFrameFocus(page, mode) {
   const ring = await tokenValue(page, "--design-on-frame", "color");
   const stops = [];
+  await roundcubeSettled(page);
   await page.locator(WEBMAIL_TASK).first().focus();
   await page.keyboard.press("Tab");
   await page.keyboard.press("Shift+Tab");
@@ -618,7 +629,7 @@ test("design: the web administration sign-in takes surface, primary action and t
 
 test("design: the password step behind Continue takes page, card, fields, primary action and logo from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(safeIsEnabled("sso"), "with sso Continue hands the password step to the identity provider"); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
+  skipUnlessServiceDisabled("sso");
   await assertPasswordStep(page);
 });
 
@@ -626,8 +637,8 @@ test("design: the signed-in web administration takes surfaces and text from the 
   skipUnlessServiceEnabled("design");
   await followColorScheme(page);
   await signInWebui(page);
-  const selected = `${WEBUI_SIDEBAR} button:has-text("Mailboxes")`;
-  const unselected = `${WEBUI_SIDEBAR} button:has-text("Calendars")`;
+  const selected = `${WEBUI_SIDEBAR} a:has-text("Mailboxes")`;
+  const unselected = `${WEBUI_SIDEBAR} a:has-text("Calendars")`;
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, WEBUI_HOME);
@@ -791,7 +802,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await expect(page.locator("html")).toHaveClass(mode === "dark" ? /dark-mode/ : /^(?!.*dark-mode)/);
     await assertToken(page, WEBMAIL_FRAME, "background-color", "--design-frame", `frame ${mode}`);
     await assertToken(page, `${WEBMAIL_TASK}.contacts`, "color", "--design-on-frame", `frame ${mode}`);
@@ -804,7 +815,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
     await page.locator(`${WEBMAIL_TASK}.contacts`).hover();
     await assertToken(page, `${WEBMAIL_TASK}.contacts`, "background-color", "--design-frame-hover", `hovered task ${mode}`);
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await assertFrameFocus(page, mode);
     await gotoOnion(page, `${webmailBaseUrl}/?_task=mail&_action=compose`);
     await shown("#compose-subject")(page);
@@ -822,7 +833,7 @@ test("design: the webmail takes frame, surfaces, primary action and text from th
   }
   await page.emulateMedia({ colorScheme: null });
   await gotoOnion(page, WEBMAIL_INBOX);
-  await shown(WEBMAIL_LIST)(page);
+  await shown(WEBMAIL_LIST_PANE)(page);
   await assertLightAndDark(page, "#layout-list", "webmail");
   await assertReadable(
     page,
@@ -838,7 +849,7 @@ test("design: the empty content frame and the phone task menu of the webmail kee
     await page.emulateMedia({ colorScheme: mode });
     await page.setViewportSize({ width: 1440, height: 900 });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     const surface = await tokenValue(page, "--design-surface-2", "background-color");
     await expect
       .poll(
@@ -853,7 +864,7 @@ test("design: the empty content frame and the phone task menu of the webmail kee
 
     await page.setViewportSize({ width: 390, height: 844 });
     await gotoOnion(page, WEBMAIL_INBOX);
-    await shown(WEBMAIL_LIST)(page);
+    await shown(WEBMAIL_LIST_PANE)(page);
     await webmailTaskMenuOpened(page);
     await assertToken(page, WEBMAIL_FRAME, "background-color", "--design-surface-2", `phone task menu ${mode}`);
     await assertToken(page, `${WEBMAIL_TASK}.compose`, "color", "--design-link", `phone task menu ${mode}`);
@@ -880,7 +891,7 @@ test("design: the dark mode switch of the webmail is respected and mirrored", as
   await assertToken(page, "body", "background-color", "--design-surface-2", "dark mode picked in the webmail");
 
   await gotoOnion(page, page.url());
-  await shown(WEBMAIL_LIST)(page);
+  await shown(WEBMAIL_LIST_PANE)(page);
   await expect(html, "the picked mode must survive a reload").toHaveAttribute("data-design-theme", "dark");
 
   await page.locator(WEBMAIL_THEME).click();

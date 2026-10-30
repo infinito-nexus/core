@@ -74,6 +74,24 @@ Rules:
 - `card:` MUST be a key of the role's `canonical` mapping in `meta/domains.yml`; the card URL is `lookup('canonical_url', <role>, <key>)`.
 - Without `card:` the card targets the primary domain via `lookup('tls', <role>, 'url.base')`.
 
+## Dashboard Card Display 👀
+
+`enabled: false` on a consumer's `dashboard` binding takes the role out of the dashboard: no card, no Apps menu entry, no tile-reachability target and no dashboard origin in its CSP `frame-ancestors`.
+The flag is read from the merged applications, so an inventory MAY set it per host without touching the role:
+
+```yaml
+applications:
+  web-app-gitea:
+    services:
+      dashboard:
+        enabled: false
+```
+
+Rules:
+
+- `enabled:` MUST render to a boolean; any other value fails the card lookup.
+- A `web-app-*` role without a `dashboard` binding still gets a card.
+
 ## Service Discovery 🔍
 
 Service discovery is built from role configs, not from a central registry file.

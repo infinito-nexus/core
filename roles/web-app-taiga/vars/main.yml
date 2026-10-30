@@ -8,7 +8,11 @@ TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
-TAIGA_COOKIE_SECURE: "{{ lookup('tls', application_id, 'enabled') | bool | capitalize }}"
+TAIGA_COOKIE_SECURE: "{{ lookup('tls', lookup('domain', application_id), 'enabled') | bool | capitalize }}"
+TAIGA_PLAINTEXT_COOKIE_FLAGS: |-
+  proxy_cookie_flags sessionid nosecure;
+  proxy_cookie_flags csrftoken nosecure;
+TAIGA_LOCATION_CONFIGURATION: "{{ TAIGA_PLAINTEXT_COOKIE_FLAGS if TAIGA_COOKIE_SECURE | bool and not (lookup('tls', domain, 'enabled') | bool) else '' }}"
 
 TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"

@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
-const { safeIsEnabled, gotoOnion } = require("./personas");
+const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 const {
   appBaseUrl,
   webmailBaseUrl,
@@ -14,7 +15,7 @@ const {
 const { resolveTimeout } = require("./timeouts");
 
 test("administrator: webmail password login reaches the mailbox (no sso)", async ({ page }) => {
-  test.skip(safeIsEnabled("sso"), "Keycloak owns the webmail login while SSO is on; test-mailflow.js covers that journey."); // nocheck: playwright-sso-ldap-gate -- web-app-stalwart is owned by another session, which canonicalises this gate
+  skipUnlessServiceDisabled("sso");
   expect(webmailBaseUrl, "WEBMAIL_BASE_URL must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
@@ -24,10 +25,9 @@ test("administrator: webmail password login reaches the mailbox (no sso)", async
   await page.locator("#rcmloginsubmit").click();
 
   await expect(
-    page.locator("#messagelist"),
+    page.locator("#mailboxlist li.mailbox.inbox"),
     "the webmail must reach the mailbox over its internal IMAP hop instead of reporting a storage connection failure",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await expect(page.locator("#mailboxlist li.mailbox.inbox")).toBeVisible();
 });
 
 // The account is Stalwart's recovery admin (STALWART_ADMIN_USER), not the platform's administrator:

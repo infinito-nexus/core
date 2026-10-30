@@ -90,7 +90,7 @@ Empty tokens are rejected explicitly. `write.yml` hands its token to `write_many
 
 ### `write_many.yml`
 
-Persists several tokens with one store write and at most one re-render of the applications SPOT.
+Persists several tokens with one store write and at most one re-render of the users SPOT.
 
 **Input**
 
@@ -99,7 +99,7 @@ Persists several tokens with one store write and at most one re-render of the ap
 **Effects**
 
 - Merges every entry into the store in list order, so a later entry for the same user and app wins
-- Writes the store file and re-renders the applications SPOT once, and only when the merged store differs from the loaded one
+- Writes the store file and re-renders the users SPOT once, and only when the merged store differs from the loaded one
 
 ---
 

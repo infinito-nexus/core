@@ -127,6 +127,15 @@ class TestStage(_SourceFixture, unittest.TestCase):
         self.assertFalse((target / "__pycache__").exists())
         self.assertIn("(working tree)", origin)
 
+    def test_local_directory_skips_unreadable_agent_harness_state(self):
+        harness = self.repo / ROLE_PATH / ".claude" / ".cc-writes"
+        harness.mkdir(parents=True)
+        harness.chmod(0o000)
+        self.addCleanup(harness.chmod, 0o700)
+        target = self.root / "staged"
+        stage(ROLE, Source(str(self.repo), None, ROLE_PATH), target)
+        self.assertFalse((target / ".claude").exists())
+
     def test_path_that_is_a_file_is_refused(self):
         with self.assertRaisesRegex(CustomRoleError, "source.path is not a directory"):
             stage(ROLE, Source(str(self.repo), "v1.0.0", "README.md"), self.root / "s")

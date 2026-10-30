@@ -18,6 +18,16 @@ The `users` lookup is the ONLY supported runtime entry point for merged user con
 | `lookup('users')` | Full merged mapping keyed by the canonical user key. |
 | `lookup('users', '<canonical_user_key>')` | Merged entry for that user. Raises when missing. |
 | `lookup('users', '<canonical_user_key>', default_value)` | Merged entry, or `default_value` when the entry is missing. |
+| `lookup('users', carrier=True)` | `{"key": [...], "users": {...}}`: the full mapping plus the cache key it is valid under. Reserved for the `applications_carrier` action (see below). |
+
+## Play-Scoped Carrier 🧊
+
+The [applications_carrier](../../../../../../plugins/action/applications_carrier.py) action parks the rendered users next to the applications in the host fact `_INFINITO_USERS_RENDERED`, at every point listed in [applications.md](applications.md), and `clear: true` drops both facts. `get_merged_users` serves the fact to a templated read when its key matches and renders otherwise.
+
+- The key is the applications carrier key plus the token store and `inventory_hostname`: a changed `applications`, `users`, `DOMAIN_PRIMARY`, `SYSTEM_EMAIL_DOMAIN`, `group_names`, token store or host rejects the carrier.
+- The token store enters the key as the SHA-256 of exactly the tokens the users are hydrated from: the controller's tokens file until `sys-token-store` loads, the `sys_token_store_users` fact after. Both sources key alike when they hold the same tokens, so loading an unchanged store keeps the carrier, and a touch keeps the key. The carrier action opens the file before it computes the key, so an NFS client keys on revalidated attributes.
+- A read without a templar (the raw users inside an applications render) never takes the carrier.
+- The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_USERS_RENDERED`; they keep going through `lookup('users')` or `lookup('config', <app>, 'users.<key>...')`.
 
 ## Data Sources 📚
 
@@ -26,7 +36,7 @@ The lookup merges exactly two sources:
 1. **Defaults** discovered from every `roles/*/meta/users.yml` in the repository (file root IS the users map; no `users:` wrapper).
 2. **Overrides** supplied through the normal Ansible variable `users` in inventory, group vars, host vars, or role vars.
 
-No intermediate merged `users` fact exists. No other source is consulted.
+No intermediate merged `users` fact exists besides the carrier above. No other source is consulted.
 
 ## Canonical User Key 🔑
 
@@ -82,6 +92,7 @@ users:
 |---|---|
 | [users.py](../../../../../../plugins/lookup/users.py) | Runtime entry point for the `users` lookup. |
 | `utils/cache/users/` | Shared aggregation helper package that builds and caches defaults, handles reserved users, UID/GID allocation, and uniqueness validation. Placeholder substitution (DOMAIN_PRIMARY / ORGANIZATION / SOFTWARE_NAME) lives in [users/placeholders.py](../../../../../../utils/cache/users/placeholders.py). |
+| [carrier.py](../../../../../../utils/cache/carrier.py) | The play-scoped carrier: fact name, `merged_users_cache_key`, and the reader that serves the carried payload. |
 | [test_users.py](../../../../../../tests/unit/python/plugins/lookup/test_users.py) | Unit tests covering the full-dict, single-entry, override, strict missing, and non-strict missing cases. |
 
 For the related applications pattern see [applications.md](applications.md).

@@ -60,6 +60,6 @@
         sys_token_store_users: "{{ sys_token_store_users_merged }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🧊 Re-render the applications SPOT the new tokens invalidated"
+- name: "🧊 Re-render the users SPOT the new tokens invalidated"
   applications_carrier: {}
   when: sys_token_store_persisted is changed or sys_token_store_mirrored is changed

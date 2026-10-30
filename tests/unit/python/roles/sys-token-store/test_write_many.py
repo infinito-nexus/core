@@ -15,7 +15,7 @@ EMPTY = "🛑 Abort if a token is empty (do not persist empties)"
 PERSIST = "💾 Persist store (idempotent, single-writer via STACK_HOST)"
 MIRROR = "🪞 Mirror the store onto the controller, where every users lookup reads"
 HAND_OVER = "🔄 Hand the written store to the lookups of the rest of the play"
-RERENDER = "🧊 Re-render the applications SPOT the new tokens invalidated"
+RERENDER = "🧊 Re-render the users SPOT the new tokens invalidated"
 
 USERS = {
     "alice": {"tokens": {"web-app-a": "old-a"}, "note": "kept"},

@@ -91,6 +91,7 @@ async function open(page, path, ready) {
         { timeout: resolveTimeout(90_000), message: "the sign-in must return to Jitsi" },
       )
       .toBe(true);
+    await gotoOnion(page, "about:blank");
     await gotoOnion(page, url);
   }
   await shown(page, ready, 60_000);

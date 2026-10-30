@@ -40,9 +40,26 @@
     path: /dev/nvidia0
   register: sys_svc_container_nvidia_device
 
+- name: "🎮 Check whether this host carries the NVIDIA driver"
+  ansible.builtin.stat:
+    path: "{{ SYS_SVC_CONTAINER_GPU_DRIVER }}"
+  register: sys_svc_container_nvidia_driver
+
+- name: "🛑 Refuse a bare host whose NVIDIA GPU has no driver"
+  ansible.builtin.assert:
+    that:
+      - not sys_svc_container_nvidia_device.stat.exists or sys_svc_container_nvidia_driver.stat.exists
+    fail_msg: >-
+      This host shows /dev/nvidia0 but has no {{ SYS_SVC_CONTAINER_GPU_DRIVER }}.
+      Install the NVIDIA driver utilities, or unload the nvidia kernel module to
+      run every service on the CPU.
+  when: not (DOCKER_IN_CONTAINER | bool)
+
 - name: "🎮 Hand this host's GPUs to the containers that asked for one"
   include_tasks: 00_core/gpu.yml
-  when: sys_svc_container_nvidia_device.stat.exists
+  when:
+    - sys_svc_container_nvidia_device.stat.exists
+    - sys_svc_container_nvidia_driver.stat.exists
 
 - name: 📦 Install Docker Python SDK dependencies via pip
   include_role:

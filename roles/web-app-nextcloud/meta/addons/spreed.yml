@@ -22,7 +22,6 @@ config:
       configvalue: >-
         {{
           [
-            NEXTCLOUD_HPB_STUN_ONBOARD_CONFIG     if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED    else none,
             NEXTCLOUD_HPB_STUN_STANDALONE_CONFIG  if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED else none
           ]
           | select
@@ -35,7 +34,6 @@ config:
       configvalue: >-
         {{
           [
-            NEXTCLOUD_HPB_TURN_ONBOARD_CONFIG     if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED    else none,
             NEXTCLOUD_HPB_TURN_STANDALONE_CONFIG  if NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED else none
           ]
           | select
@@ -45,6 +43,9 @@ config:
     - appid: "spreed"
       configkey: "internal_secret"
       configvalue: "{{ NEXTCLOUD_HPB_INTERNAL_SECRET }}"
+    - appid: "spreed"
+      configkey: "call_recording_summary"
+      configvalue: "{{ 'yes' if (lookup('config', 'web-app-nextcloud', 'addons.integration_openai.enabled') | bool) else 'no' }}"
     - appid: "spreed"
       configkey: "recording_servers"
       type: array

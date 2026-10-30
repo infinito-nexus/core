@@ -24,10 +24,16 @@ APPLICATIONS: ClassVar[dict] = {
 }
 
 PRESENT: ClassVar[dict] = {
-    "sys_svc_container_nvidia_device": {"stat": {"exists": True}}
+    "sys_svc_container_nvidia_device": {"stat": {"exists": True}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": True}},
 }
 ABSENT: ClassVar[dict] = {
-    "sys_svc_container_nvidia_device": {"stat": {"exists": False}}
+    "sys_svc_container_nvidia_device": {"stat": {"exists": False}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": True}},
+}
+DRIVERLESS: ClassVar[dict] = {
+    "sys_svc_container_nvidia_device": {"stat": {"exists": True}},
+    "sys_svc_container_nvidia_driver": {"stat": {"exists": False}},
 }
 
 
@@ -73,6 +79,13 @@ class TestGpuLookup(unittest.TestCase):
     def test_missing_register_is_false(self):
         """Before sys-svc-container runs the register is absent, not falsy."""
         lm = _make_lookup({})
+        self.assertEqual(
+            _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
+        )
+
+    def test_a_device_without_its_driver_is_false(self):
+        """A privileged container sees the host's /dev/nvidia0 without the driver."""
+        lm = _make_lookup(DRIVERLESS)
         self.assertEqual(
             _run(lm, ["web-svc-libretranslate", "libretranslate"]), [False]
         )

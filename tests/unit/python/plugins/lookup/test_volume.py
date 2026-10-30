@@ -148,7 +148,12 @@ class TestVolumeLookup(unittest.TestCase):
 
     def test_owner_is_returned_only_when_declared(self):
         canonical = {
-            "token": {"type": "secret", "source": "/x/token", "uid": 64101, "gid": 64102},
+            "token": {
+                "type": "secret",
+                "source": "/x/token",
+                "uid": 64101,
+                "gid": 64102,
+            },
             "plain": {"type": "secret", "source": "/x/plain"},
         }
         token = _run("web-app-semaphore", "token", canonical=canonical)[0]

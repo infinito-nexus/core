@@ -8,7 +8,7 @@
 
 This role deploys Fider as part of the Infinito.Nexus stack using a single Docker Compose container backed by PostgreSQL. It configures SSO via Keycloak automatically on first deploy, optional email notifications via Mailu, and HTTPS via NGINX reverse proxy.
 
-The setup tasks handle the full first-deploy bootstrap automatically:
+The setup tasks handle the full first-deploy bootstrap automatically. Steps 1 to 3 run on every deploy, with or without SSO; step 4 runs only when `services.sso.enabled` is `true`:
 
 1. **Tenant bootstrap:** calls Fider's `POST /_api/tenants` API to create the initial tenant.
 2. **Admin user creation:** inserts the admin user directly into the `users` table, bypassing email verification. Idempotent via `WHERE NOT EXISTS`.

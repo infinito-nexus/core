@@ -57,6 +57,17 @@ Two limits:
 - It caps, it does not reserve. Handing one container every CPU removes the backpressure that keeps it from crowding out a parallel deploy, and nothing stops several services from each claiming `100%`.
 - The resource budget the `ressources` CLI and the variant lint compute parses `cpus` as a plain float, so a service written as a percentage contributes nothing to that total.
 
+## GPU
+
+[00_core.yml](tasks/00_core.yml) stats `/dev/nvidia0` and `SYS_SVC_CONTAINER_GPU_DRIVER` (`/usr/bin/nvidia-smi`). A host counts as a GPU host only when both exist: then [gpu.yml](tasks/00_core/gpu.yml) installs the container toolkit and publishes the devices, and [`lookup('gpu', …)`](../../plugins/lookup/gpu.py) hands them to every service that declares `gpu: true`.
+
+| Device node | Driver | Host | Result |
+| --- | --- | --- | --- |
+| yes | yes | any | GPU host |
+| no | any | any | CPU host |
+| yes | no | container | CPU host: a privileged container, such as a swarm lab node, sees the host's device node without its driver |
+| yes | no | bare | the deploy stops: install the driver utilities, or unload the `nvidia` kernel module to run on the CPU |
+
 ## License
 
 This role is released under the Infinito.Nexus Community License (Non-Commercial) (CNCL).  

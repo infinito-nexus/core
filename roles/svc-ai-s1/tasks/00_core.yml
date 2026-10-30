@@ -23,18 +23,6 @@
   run_once: true
   loop: "{{ query('node_hosts') }}"
 
-- name: "🎮 Look for the GPU and the runtime that hands it to a container"
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  register: s1_gpu_stat
-  loop:
-    - "{{ S1_NVIDIA_DEVICE }}"
-    - "{{ S1_NVIDIA_RUNTIME }}"
-
-- name: "🎮 Decide whether this deploy builds the CUDA image"
-  ansible.builtin.set_fact:
-    S1_GPU: "{{ (S1_GPU_REQUESTED | bool) and (s1_gpu_stat.results | map(attribute='stat.exists') | select | list | length == 2) }}"
-
 - name: "📦 Stage the System One build context"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

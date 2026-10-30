@@ -6,7 +6,7 @@ import unittest
 
 from ansible.errors import AnsibleError
 
-from utils.roles.applications.dashboard import card_target_key
+from utils.roles.applications.dashboard import card_is_displayed, card_target_key
 
 
 class TestCardTargetKey(unittest.TestCase):
@@ -40,6 +40,27 @@ class TestCardTargetKey(unittest.TestCase):
     def test_a_non_string_key_fails_loudly(self):
         with self.assertRaises(AnsibleError):
             card_target_key("web-app-foo", {"card": ["element"]})
+
+
+class TestCardIsDisplayed(unittest.TestCase):
+    def test_a_binding_without_the_key_is_displayed(self):
+        self.assertTrue(card_is_displayed("web-app-foo", {"shared": True}))
+
+    def test_a_missing_binding_is_displayed(self):
+        self.assertTrue(card_is_displayed("web-app-foo", None))
+
+    def test_enabled_false_hides_the_card(self):
+        self.assertFalse(card_is_displayed("web-app-foo", {"enabled": False}))
+
+    def test_enabled_true_shows_the_card(self):
+        self.assertTrue(card_is_displayed("web-app-foo", {"enabled": True}))
+
+    def test_a_rendered_string_flag_is_read_as_a_boolean(self):
+        self.assertFalse(card_is_displayed("web-app-foo", {"enabled": "False"}))
+
+    def test_a_non_boolean_flag_fails_loudly(self):
+        with self.assertRaisesRegex(AnsibleError, "web-app-foo"):
+            card_is_displayed("web-app-foo", {"enabled": "maybe"})
 
 
 if __name__ == "__main__":

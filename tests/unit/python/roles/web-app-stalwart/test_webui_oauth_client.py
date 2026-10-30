@@ -3,9 +3,10 @@
 The WebUI Application always names ``stalwart-webui`` as its client id, so
 Stalwart resolves it against a registered ``x:OAuthClient``. That client's
 redirect URIs must be the WebUI's own ``<origin>/<prefix>/oauth/callback`` for
-every URL prefix, also for a plaintext onion origin, and it must be first-party
-or its tokens cannot reach the management API. A deploy updates the client only
-when it differs from that target.
+every network origin the WebUI is served on and every URL prefix, also for a
+plaintext onion origin, and it must be first-party or its tokens cannot reach
+the management API. A deploy updates the client only when it differs from that
+target.
 """
 
 from __future__ import annotations
@@ -37,12 +38,12 @@ def _render(template: str, **variables):
     return templar.template(_trust_as_template(template))
 
 
-def _client(base_url: str, prefixes: list[str]) -> dict:
+def _client(origins: list[str], prefixes: list[str]) -> dict:
     rendered = _render(
         read_text(JMAP / "webui.json.j2"),
         STALWART_WEBUI_OAUTH_CLIENT_ID=CLIENT_ID,
         STALWART_WEBUI_APP_DESCRIPTION="Stalwart Web Interface",
-        STALWART_WEBUI_BASE_URL=base_url,
+        stalwart_webui_origins=origins,
         stalwart_webui_url_prefixes=prefixes,
     )
     return json.loads(rendered)
@@ -66,43 +67,68 @@ def _updates(live: dict, desired: dict) -> bool:
 
 class TestWebuiClientRedirectUris(unittest.TestCase):
     def test_an_onion_origin_registers_plaintext_callbacks(self):
-        client = _client(ONION, PREFIXES)
+        client = _client([ONION], PREFIXES)
         self.assertEqual(
             sorted(client["redirectUris"]),
             [f"{ONION}/account/oauth/callback", f"{ONION}/admin/oauth/callback"],
         )
 
     def test_a_clearnet_origin_registers_tls_callbacks(self):
-        client = _client(CLEARNET, PREFIXES)
+        client = _client([CLEARNET], PREFIXES)
         self.assertEqual(
             sorted(client["redirectUris"]),
             [f"{CLEARNET}/account/oauth/callback", f"{CLEARNET}/admin/oauth/callback"],
         )
 
+    def test_every_network_sibling_registers_its_callbacks(self):
+        client = _client([CLEARNET, ONION], PREFIXES)
+        self.assertEqual(
+            sorted(client["redirectUris"]),
+            sorted(
+                f"{origin}/{prefix}/oauth/callback"
+                for origin in (CLEARNET, ONION)
+                for prefix in ("account", "admin")
+            ),
+        )
+        self.assertEqual(
+            sorted(client["postLogoutRedirectUris"]),
+            sorted(
+                f"{origin}/{prefix}/login"
+                for origin in (CLEARNET, ONION)
+                for prefix in ("account", "admin")
+            ),
+        )
+
     def test_prefix_slashes_do_not_leak_into_the_uri(self):
-        client = _client(ONION, ["admin/", "//account"])
+        client = _client([ONION], ["admin/", "//account"])
         self.assertEqual(
             sorted(client["redirectUris"]),
             [f"{ONION}/account/oauth/callback", f"{ONION}/admin/oauth/callback"],
         )
 
     def test_logout_returns_to_the_login_page_of_each_prefix(self):
-        client = _client(ONION, PREFIXES)
+        client = _client([ONION], PREFIXES)
         self.assertEqual(
             sorted(client["postLogoutRedirectUris"]),
             [f"{ONION}/account/login", f"{ONION}/admin/login"],
         )
 
     def test_a_single_prefix_still_renders_valid_json(self):
-        client = _client(ONION, ["/account"])
+        client = _client([ONION], ["/account"])
         self.assertEqual(
             client["redirectUris"], {f"{ONION}/account/oauth/callback": True}
+        )
+
+    def test_the_origins_are_the_network_siblings_of_the_canonical_webui_url(self):
+        self.assertEqual(
+            _task("Resolve the WebUI OAuth client")["vars"]["stalwart_webui_origins"],
+            "{{ lookup('network_urls', STALWART_WEBUI_BASE_URL) }}",
         )
 
 
 class TestWebuiClientIsAFirstPartyPublicClient(unittest.TestCase):
     def setUp(self):
-        self.client = _client(ONION, PREFIXES)
+        self.client = _client([ONION], PREFIXES)
 
     def test_it_carries_the_application_client_id(self):
         self.assertEqual(self.client["clientId"], CLIENT_ID)
@@ -122,7 +148,7 @@ class TestWebuiClientIsAFirstPartyPublicClient(unittest.TestCase):
 
 class TestWebuiClientJmapBodies(unittest.TestCase):
     def setUp(self):
-        self.client = _client(ONION, PREFIXES)
+        self.client = _client([ONION], PREFIXES)
 
     def test_create_registers_the_client(self):
         body = json.loads(
@@ -156,7 +182,7 @@ class TestWebuiClientJmapBodies(unittest.TestCase):
 
 class TestWebuiClientIsUpdatedOnlyOnDrift(unittest.TestCase):
     def setUp(self):
-        self.desired = _client(ONION, PREFIXES)
+        self.desired = _client([ONION], PREFIXES)
         self.live = {
             **self.desired,
             "id": "b7",
@@ -173,7 +199,7 @@ class TestWebuiClientIsUpdatedOnlyOnDrift(unittest.TestCase):
     def test_a_client_for_another_origin_is_updated(self):
         live = {
             **self.live,
-            "redirectUris": _client(CLEARNET, PREFIXES)["redirectUris"],
+            "redirectUris": _client([CLEARNET], PREFIXES)["redirectUris"],
         }
         self.assertTrue(_updates(live, self.desired))
 

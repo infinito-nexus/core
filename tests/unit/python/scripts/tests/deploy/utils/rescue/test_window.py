@@ -45,8 +45,10 @@ if [ "${EPOCHS}" = true ]; then
 fi
 echo "kill_epoch=$((deadline + GRACE))"
 mkfifo "${SANDBOX}/armed"
-timeout -k "${GRACE}" 0 bash "${SANDBOX}/stand-in.sh" "$@" &
+set -m
+bash "${SANDBOX}/stand-in.sh" "$@" &
 deploy="$!"
+set +m
 read -r _ <"${SANDBOX}/armed"
 left="$((deadline - $(date +%s)))"
 sleep "$((left > 0 ? left : 0))" &
@@ -54,8 +56,18 @@ clock="$!"
 status=0
 wait -n -p first "${deploy}" "${clock}" || status="$?"
 if [ "${first}" = "${clock}" ]; then
-	kill -ALRM "${deploy}"
-	wait "${deploy}" || status="$?"
+	kill -TERM -- "-${deploy}"
+	sleep "${GRACE}" &
+	grace="$!"
+	wait -n -p first "${deploy}" "${grace}" || true
+	if [ "${first}" = "${grace}" ]; then
+		kill -KILL -- "-${deploy}"
+		wait "${deploy}" || true
+		status=137
+	else
+		kill "${grace}"
+		status=124
+	fi
 else
 	kill "${clock}"
 fi

@@ -12,6 +12,8 @@ const DOMAIN = "example.test";
 const PUBLIC_HOST = "web.bluesky.example.test";
 const ADMIN_PASSWORD = "stub-admin-password";
 const HANDOFF_COOKIE = "bsky_handoff_done";
+const KEY = Buffer.alloc(32, 7);
+const ROTATED_KEY = Buffer.alloc(32, 9);
 
 function startPds() {
   const accounts = new Map();
@@ -84,6 +86,10 @@ function tempStorePath() {
   return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "broker-server-")), "accounts.json");
 }
 
+function encryptionKey(key) {
+  return `base64:${key.toString("base64")}`;
+}
+
 async function spawnBroker(env) {
   const port = await freePort();
   const child = spawn(process.execPath, [SERVER], {
@@ -91,7 +97,6 @@ async function spawnBroker(env) {
       PATH: process.env.PATH,
       BROKER_PORT: String(port),
       PDS_HANDLE_DOMAIN: DOMAIN,
-      BLUESKY_BRIDGE_ENCRYPTION_KEY: `base64:${Buffer.alloc(32, 7).toString("base64")}`,
       SITE_TITLE: "Bluesky",
       OIDC_NAME_CLAIM: "name",
       ...env,
@@ -111,12 +116,13 @@ async function spawnBroker(env) {
   return { child, port };
 }
 
-function startBroker(pdsPort, storePath) {
+function startBroker(pdsPort, storePath, key) {
   return spawnBroker({
     SOCIAL_APP_URL: "http://127.0.0.1:9",
     PDS_URL: "https://api.bluesky.example.test",
     PDS_INTERNAL_URL: `http://127.0.0.1:${pdsPort}`,
     PDS_ADMIN_PASSWORD: ADMIN_PASSWORD,
+    BLUESKY_BRIDGE_ENCRYPTION_KEY: encryptionKey(key),
     BROKER_STORE_PATH: storePath,
   });
 }
@@ -125,6 +131,7 @@ function startProxyBroker(socialAppPort) {
   return spawnBroker({
     SOCIAL_APP_URL: `http://127.0.0.1:${socialAppPort}`,
     PDS_URL: "http://127.0.0.1:9",
+    BLUESKY_BRIDGE_ENCRYPTION_KEY: encryptionKey(KEY),
     BROKER_STORE_PATH: tempStorePath(),
   });
 }
@@ -178,7 +185,7 @@ let broker;
 test.before(async () => {
   pds = await startPds();
   storePath = tempStorePath();
-  broker = await startBroker(pds.port, storePath);
+  broker = await startBroker(pds.port, storePath, KEY);
 });
 
 test.after(async () => {
@@ -275,7 +282,7 @@ test("concurrent first visits create one account", async () => {
 
 test("a broker restart keeps every account", async () => {
   await stopBroker(broker);
-  broker = await startBroker(pds.port, storePath);
+  broker = await startBroker(pds.port, storePath, KEY);
   const before = pds.calls.createAccount;
   for (const [user, email] of [["biber", "biber@example.test"], ["kevinveenbirkenbach", "kevin@example.test"]]) {
     const res = await request(broker, { user, email });
@@ -350,4 +357,19 @@ test("the login broker in front of social-app", async (t) => {
     assert.match(response.body, /Missing X-Forwarded-User/);
     assert.equal(upstream.received.length, before);
   });
+});
+
+test("a rotated encryption key resets the stored password in place and re-encrypts it", async () => {
+  await stopBroker(broker);
+  broker = await startBroker(pds.port, storePath, ROTATED_KEY);
+  const accounts = pds.calls.createAccount;
+  const resets = pds.calls.adminUpdatePassword.length;
+  const res = await request(broker, { user: "mapache", email: "mapache@example.test" });
+  assert.equal(res.status, 200);
+  assert.match(res.body, /BSKY_STORAGE/);
+  assert.equal(pds.calls.createAccount, accounts);
+  assert.deepEqual(pds.calls.adminUpdatePassword.slice(resets), ["did:plc:mapache"]);
+  const again = await request(broker, { user: "mapache", email: "mapache@example.test" });
+  assert.equal(again.status, 200);
+  assert.equal(pds.calls.adminUpdatePassword.length, resets + 1);
 });

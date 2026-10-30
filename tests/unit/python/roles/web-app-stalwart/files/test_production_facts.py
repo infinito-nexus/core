@@ -23,6 +23,15 @@ def _load_module():
 
 _M = _load_module()
 
+_ARGV = [
+    "--mail-host",
+    "mail.example.org",
+    "--mail-domain",
+    "example.org",
+    "--dmarc-rua",
+    "administrator@example.org",
+]
+
 
 def _txt_rdata(*chunks: str) -> bytes:
     out = b""
@@ -188,6 +197,7 @@ def _args(**overrides):
     base = {
         "mail_host": "mail.example.org",
         "mail_domain": "example.org",
+        "dmarc_rua": "administrator@example.org",
         "dkim_selector": "sel1",
         "smtp_port": 25,
         "timeout": 1.0,
@@ -269,17 +279,67 @@ class TestChecks(unittest.TestCase):
             _M.check_spf(_args(), [], self.report)
         self.assertEqual(self.report.failures, 1)
 
-    def test_dmarc_requires_a_policy(self):
-        with self._patch_query(
-            {("_dmarc.example.org", _M.TYPE_TXT): ["v=DMARC1; p=reject"]}
-        ):
-            _M.check_dmarc(_args(), [], self.report)
+    def _check_dmarc_record(self, record, **overrides):
+        with self._patch_query({("_dmarc.example.org", _M.TYPE_TXT): [record]}):
+            _M.check_dmarc(_args(**overrides), [], self.report)
+
+    def test_dmarc_requires_a_policy_and_the_rua_address(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; rua=mailto:administrator@example.org; "
+            "ruf=mailto:administrator@example.org; adkim=s; aspf=s"
+        )
         self.assertEqual(self.report.failures, 0)
 
     def test_dmarc_without_policy_fails(self):
-        with self._patch_query({("_dmarc.example.org", _M.TYPE_TXT): ["v=DMARC1;"]}):
-            _M.check_dmarc(_args(), [], self.report)
+        self._check_dmarc_record("v=DMARC1; rua=mailto:administrator@example.org")
         self.assertEqual(self.report.failures, 1)
+
+    def test_dmarc_subdomain_policy_is_not_a_policy(self):
+        self._check_dmarc_record(
+            "v=DMARC1; sp=reject; rua=mailto:administrator@example.org"
+        )
+        self.assertEqual(self.report.failures, 1)
+
+    def test_dmarc_without_rua_fails(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; ruf=mailto:administrator@example.org"
+        )
+        self.assertEqual(self.report.failures, 1)
+
+    def test_dmarc_rua_to_another_mailbox_fails(self):
+        self._check_dmarc_record("v=DMARC1; p=reject; rua=mailto:admin@example.org")
+        self.assertEqual(self.report.failures, 1)
+
+    def test_dmarc_rua_matches_among_several_uris_with_size_limits(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; "
+            "RUA=mailto:reports@elsewhere.net!10m, mailto:Administrator@Example.org!5m"
+        )
+        self.assertEqual(self.report.failures, 0)
+
+    def test_dmarc_duplicate_rua_invalidates_the_record(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; rua=mailto:reports@elsewhere.net; "
+            "rua=mailto:administrator@example.org"
+        )
+        self.assertEqual(self.report.failures, 1)
+
+    def test_dmarc_tags_differing_only_in_case_are_duplicates(self):
+        with self.assertRaises(ValueError):
+            _M.dmarc_tags("v=DMARC1; p=reject; P=none")
+
+    def test_dmarc_rua_address_is_percent_decoded(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; rua=mailto:dmarc%2Breports@example.org!10m",
+            dmarc_rua="dmarc+reports@example.org",
+        )
+        self.assertEqual(self.report.failures, 0)
+
+    def test_dmarc_rua_header_fields_are_not_part_of_the_address(self):
+        self._check_dmarc_record(
+            "v=DMARC1; p=reject; rua=mailto:administrator@example.org?subject=dmarc"
+        )
+        self.assertEqual(self.report.failures, 0)
 
     def test_dkim_key_must_be_present(self):
         record = "v=DKIM1; k=rsa; p=MIIBIjANBg"
@@ -387,10 +447,17 @@ class TestSmtpBanner(unittest.TestCase):
 class TestMain(unittest.TestCase):
     def test_no_resolver_configured_fails_fast(self):
         with mock.patch.object(_M, "system_resolvers", return_value=[]):
-            rc = _M.main(
-                ["--mail-host", "mail.example.org", "--mail-domain", "example.org"]
-            )
+            rc = _M.main(_ARGV)
         self.assertEqual(rc, 1)
+
+    def test_missing_dmarc_rua_is_a_usage_error(self):
+        with (
+            mock.patch.object(_M, "system_resolvers", return_value=["192.0.2.53"]),
+            mock.patch.object(_M.sys, "stderr"),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            _M.main(_ARGV[:4])
+        self.assertEqual(raised.exception.code, 2)
 
     def test_success_path_returns_zero(self):
         clean = _M.Report()
@@ -398,9 +465,7 @@ class TestMain(unittest.TestCase):
             mock.patch.object(_M, "system_resolvers", return_value=["192.0.2.53"]),
             mock.patch.object(_M, "run_checks", return_value=clean),
         ):
-            rc = _M.main(
-                ["--mail-host", "mail.example.org", "--mail-domain", "example.org"]
-            )
+            rc = _M.main(_ARGV)
         self.assertEqual(rc, 0)
 
     def test_unreachable_resolver_is_a_finding_not_a_traceback(self):
@@ -409,16 +474,7 @@ class TestMain(unittest.TestCase):
             mock.patch.object(_M, "run_checks", side_effect=_M.DnsError("unreachable")),
             mock.patch.object(_M.time, "sleep"),
         ):
-            rc = _M.main(
-                [
-                    "--mail-host",
-                    "mail.example.org",
-                    "--mail-domain",
-                    "example.org",
-                    "--retries",
-                    "2",
-                ]
-            )
+            rc = _M.main([*_ARGV, "--retries", "2"])
         self.assertEqual(rc, 1)
 
     def test_failures_retry_then_report(self):
@@ -429,16 +485,7 @@ class TestMain(unittest.TestCase):
             mock.patch.object(_M, "run_checks", return_value=broken) as runner,
             mock.patch.object(_M.time, "sleep"),
         ):
-            rc = _M.main(
-                [
-                    "--mail-host",
-                    "mail.example.org",
-                    "--mail-domain",
-                    "example.org",
-                    "--retries",
-                    "3",
-                ]
-            )
+            rc = _M.main([*_ARGV, "--retries", "3"])
         self.assertEqual(rc, 1)
         self.assertEqual(runner.call_count, 3)
 
@@ -498,18 +545,7 @@ class TestMetricsFile(unittest.TestCase):
                 mock.patch.object(_M, "run_checks", return_value=broken),
                 mock.patch.object(_M.time, "sleep"),
             ):
-                rc = _M.main(
-                    [
-                        "--mail-host",
-                        "mail.example.org",
-                        "--mail-domain",
-                        "example.org",
-                        "--retries",
-                        "1",
-                        "--metrics-file",
-                        str(target),
-                    ]
-                )
+                rc = _M.main([*_ARGV, "--retries", "1", "--metrics-file", str(target)])
             self.assertEqual(rc, 1)
             self.assertIn(
                 "stalwart_mail_facts_failures",
@@ -525,9 +561,7 @@ class TestMetricsFile(unittest.TestCase):
                 mock.patch.object(_M, "system_resolvers", return_value=["192.0.2.53"]),
                 mock.patch.object(_M, "run_checks", return_value=clean),
             ):
-                rc = _M.main(
-                    ["--mail-host", "mail.example.org", "--mail-domain", "example.org"]
-                )
+                rc = _M.main(_ARGV)
             self.assertEqual(rc, 0)
             self.assertEqual(list(Path(tmp).iterdir()), [])
 

@@ -2,6 +2,7 @@ display_errors = Off
 display_startup_errors = Off
 log_errors = On
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+auto_prepend_file = {{ SUITECRM_SITE_URL_SCRIPT_DOCKER }}
 
 session.save_handler = redis
 session.save_path = ${SUITECRM_SESSION_SAVE_PATH}

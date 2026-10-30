@@ -1,0 +1,5 @@
+---
+enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.context_agent.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream

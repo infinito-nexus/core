@@ -29,6 +29,7 @@ More information about this role is available in these GitHub repositories:
 - **Flexible Deployment:** Easily scale and customize using Docker Compose, with configurable settings for networking, storage, and external services.
 - **OIDC Support:** Optionally integrate with OpenID Connect for centralized authentication across your services.
 - **Administrators and domain managers:** [files/python/rbac_sync.py](./files/python/rbac_sync.py) sets `global_admin` from the `web-app-mailu` `administrator` members and the managers of the mail domain from the `domain-manager` members through the Mailu REST API inside the admin container. Members are promoted, every other global administrator and domain manager is demoted. The platform administrator stays a global administrator. It runs as a host hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer.
+- **DMARC Reports:** The published `_dmarc` record sends aggregate reports (`rua`) to `<username>@<mail domain>` of the user key in `services.mailu.dmarc.rua_user` (`platform_administrator` unless the inventory names another one). That user MUST carry a `mailbox` account or a `forward` to a user that carries one and whose `email` is that mailbox (`<username>@<mail domain>`), otherwise the deploy fails before any record is written.
 
 ## Further Resources
 

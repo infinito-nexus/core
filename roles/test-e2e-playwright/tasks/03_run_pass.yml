@@ -72,7 +72,7 @@
 
 - name: ▶️ Run Playwright with the RBAC sync on its test interval
   block:
-    - name: "🔁 Start the RBAC sync every {{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_INTERVAL }}s while the specs run"
+    - name: "🔁 Start the RBAC sync on its test interval"
       ansible.builtin.command:
         argv:
           - systemd-run

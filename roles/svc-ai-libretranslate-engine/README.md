@@ -61,7 +61,7 @@ hide what the build baked.
 
 ## GPU
 
-With `gpu: true` the role builds the `-cuda` image and, when the host
-exposes `/dev/nvidia0`, asserts after the deploy that CTranslate2 counts at
-least one CUDA device. A host without the device builds the CPU image and
-skips the assertion.
+With `gpu: true` the role builds the `-cuda` image and, when
+`sys-svc-container` counts the host as a GPU host (see its README), asserts
+after the deploy that CTranslate2 counts at least one CUDA device. Any other
+host builds the CPU image and skips the assertion.

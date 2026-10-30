@@ -9,6 +9,7 @@
       {{ [ role_path, 'files/python/production_facts.py' ] | path_join }}
       --mail-host {{ STALWART_PRODUCTION_HOST | quote }}
       --mail-domain {{ STALWART_DOMAIN | quote }}
+      --dmarc-rua {{ STALWART_DMARC_RUA | quote }}
       {{ ('--dkim-selector ' ~ (stalwart_dkim_selector | quote))
          if stalwart_dkim_selector is defined else '' }}
       {{ ('--resolver ' ~ (STALWART_PRODUCTION_RESOLVER | quote))
