@@ -22,14 +22,11 @@
          | nextcloud_plugin_config_pending(nextcloud_app_config.stdout | from_json) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔧 Set the pending plugin configuration (one exec, occ calls on stdin)"
+- name: "🔧 Set the pending plugin configuration (one occ boot, values on stdin)"
   ansible.builtin.shell:
-    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
-    stdin: |
-      set -eu
-      {% for item in nextcloud_plugin_config_pending %}
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set {{ item.appid | quote }} {{ item.configkey | quote }}{{ (' --no-interaction --type=' ~ item.type) if item.type is not none else '' }} --value {{ item.value | quote }} || { echo {{ ('config:app:set failed for ' ~ item.appid ~ '/' ~ item.configkey) | quote }} >&2; exit 1; }
-      {% endfor %}
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: >-
+      <?php $occBatch = '{{ nextcloud_plugin_config_pending | nextcloud_occ_config_set_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php') }}
   when: nextcloud_plugin_config_pending | length > 0
   register: nextcloud_plugin_config_set
   changed_when: nextcloud_plugin_config_set.stdout is search(' set to ')
