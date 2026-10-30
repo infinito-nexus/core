@@ -42,6 +42,7 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag, semaphore-contract  self-provider: this entry is the Semaphore container itself, so enabled stays its container flag and Semaphore never pauses itself
 semaphore:
   # nocheck: single-replica OSS semaphore is single-instance (HA node registry, schedule dedup and orphan cleaner are pro_impl stubs returning nil); every replica also re-runs `semaphore setup` + db.Migrate on start, and the migration loser deletes the winner's ledger row, poisoning the schema permanently
   replicas: 1
@@ -53,6 +54,11 @@ semaphore:
       enabled: true
     swarm:
       enabled: true
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
+  control: false
+  status: started
   cpus: 1.0
   mem_reservation: 256m
   mem_limit: 1g
@@ -73,6 +79,7 @@ semaphore:
     - svc-db-openldap
     - web-app-keycloak
     - web-app-matomo
+    - web-app-gitea
   lifecycle: beta
 
 # nocheck: playwright-service-flag
@@ -91,3 +98,31 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: playwright-service-flag  Gitea only hosts the inventory repository the deploy template clones; Semaphore renders nothing differently with it
+gitea:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitea' in group_names }}"
+  shared: "{{ 'web-app-gitea' in group_names }}"
+
+# nocheck: shared, dynamic-flag  the runner is this role's own container, always on beside Semaphore and never a provider of other roles
+# nocheck: playwright-service-flag, image-healthcheck  the runner opens no port; it polls the server, which records each poll as the runner's touch time
+task-runner:
+  # nocheck: single-replica  the runner signs in with the one runner token the deploy seeds; a second replica would poll under the same identity
+  replicas: 1
+  backup:
+    stop_required: false
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  custom: true
+  name: semaphore-runner
+  min_storage: 6GB
+  cpus: 0.5
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512

@@ -375,6 +375,46 @@ class MainTests(unittest.TestCase):
         self.assertIn("SKIPPED", stdout)
         self.assertEqual(run.runs(), [])
 
+    def test_the_timer_skips_a_hook_whose_application_is_paused(self):
+        with tempfile.TemporaryDirectory() as instance:
+            marker = Path(instance) / ".app-control-state"
+            marker.write_text("stopped\n")
+            workspace = Workspace([hook(paused_marker=str(marker))], LDAP)
+            run = FakeRun({"name=^/weblate$": "c1"})
+            try:
+                code, stdout, _ = self.run_main(
+                    ["--directory", str(workspace.path)],
+                    run,
+                    lambda uri: StubDirectory({}),
+                )
+            finally:
+                workspace.close()
+
+        self.assertEqual(code, 0)
+        self.assertIn("[web-app-weblate] SKIPPED paused by app-control", stdout)
+        self.assertEqual(run.calls, [])
+
+    def test_a_started_application_keeps_its_hook_running(self):
+        with tempfile.TemporaryDirectory() as instance:
+            marker = Path(instance) / ".app-control-state"
+            marker.write_text("started\n")
+            workspace = Workspace([hook(paused_marker=str(marker))], LDAP)
+            run = FakeRun({"name=^/weblate$": "c1"})
+            try:
+                self.run_main(
+                    ["--directory", str(workspace.path)],
+                    run,
+                    lambda uri: StubDirectory({}),
+                )
+            finally:
+                workspace.close()
+
+        self.assertEqual(len(run.runs()), 1)
+
+    def test_a_hook_without_a_marker_is_not_paused(self):
+        self.assertFalse(self.mod.paused(hook()))
+        self.assertFalse(self.mod.paused(hook(paused_marker="")))
+
     def test_one_failing_hook_fails_the_run_but_not_the_others(self):
         other = hook(application_id="web-app-zammad", container={"name": "zammad"})
         workspace = Workspace([hook(), other], LDAP)

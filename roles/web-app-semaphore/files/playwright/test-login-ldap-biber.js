@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { withLdapGroupMember } = require("./personas");
 
 exports.register = function (shared) {
   test("biber: Semaphore LDAP login refuses biber without a Semaphore role group", async ({ page }) => {
@@ -20,9 +21,8 @@ exports.register = function (shared) {
 
   test("biber: membership in the user group admits biber through the Semaphore LDAP login", async ({ browser }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    shared.skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(120_000)); // Keycloak group write-back to LDAP plus the LDAP login
-    await shared.withBiberInGroup(browser, shared.env.userGroupPath, async () => {
+    test.setTimeout(resolveTimeout(120_000)); // directory group write plus the LDAP login
+    await withLdapGroupMember(shared.env.userGroupDn, shared.env.biberDn, async () => {
       const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
       try {
         const page = await ctx.newPage();

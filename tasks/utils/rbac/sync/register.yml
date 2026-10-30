@@ -34,7 +34,7 @@
     {{
       ([{'name': rbac_sync_script_name, 'content': rbac_sync_script}] if (rbac_sync_script | length > 0) else [])
       + rbac_sync_modules
-      + [{'name': 'hook.json', 'content': (rbac_sync_hook | to_nice_json) ~ '\n'}]
+      + [{'name': 'hook.json', 'content': rbac_sync_hook | to_nice_json}]
     }}
   loop_control:
     label: "{{ item.name }}"
@@ -55,6 +55,11 @@
       env: "{{ rbac_sync_env }}"
       members_env: "{{ rbac_sync_members_env }}"
       skip_unchanged: "{{ rbac_sync_skip_unchanged | bool }}"
+      paused_marker: >-
+        {{
+          ([ lookup('container', rbac_sync_application_id, 'directories.instance'), APP_CONTROL_STATE_FILE ] | path_join)
+          if (lookup('config', rbac_sync_application_id, 'services.semaphore.control') | bool) else ''
+        }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "👥 Start the member map of {{ rbac_sync_application_id }}"

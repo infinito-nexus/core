@@ -1,0 +1,7 @@
+---
+openssh-server:
+  Archlinux: [] # nocheck: Arch ships sshd in the openssh package the openssh-client id already installs
+  Debian:
+    - openssh-server
+  RedHat:
+    - openssh-server

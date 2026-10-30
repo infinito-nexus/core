@@ -18,6 +18,7 @@ from utils.roles.mapping import ROLE_FILE_META_MAIN
 CATEGORIES_FILE = Path("meta") / "categories.yml"
 MENU_FILE = Path("roles") / "web-app-dashboard" / "vars" / "menu_categories.yml"
 LOGOUT_FILE = Path("roles") / "web-app-keycloak" / "files" / "logout_i18n.yml"
+PAUSED_FILE = Path("roles") / "sys-svc-app-control" / "files" / "paused_i18n.yml"
 DOCS_TOOLING = Path("roles") / "web-app-docs" / "files" / "python"
 CATEGORY_FIELDS = ("title", "description")
 
@@ -79,6 +80,15 @@ def logout_context(key: str) -> str:
     return f"logout:{key}"
 
 
+def paused_context(key: str) -> str:
+    """Return the ``msgctxt`` of the paused page string ``key``.
+
+    Args:
+        key: key in ``paused_i18n.yml``.
+    """
+    return f"paused:{key}"
+
+
 def _load(path: Path):
     return load_yaml_any(path)
 
@@ -136,6 +146,13 @@ def logout_messages(root: Path) -> list[tuple[str, str]]:
     ]
 
 
+def paused_messages(root: Path) -> list[tuple[str, str]]:
+    return [
+        (paused_context(key), _text(text))
+        for key, text in _load(root / PAUSED_FILE).items()
+    ]
+
+
 def core_messages(root: Path) -> list[tuple[str, str]]:
     """Return every message of the ``core`` domain.
 
@@ -150,6 +167,7 @@ def core_messages(root: Path) -> list[tuple[str, str]]:
         *category_messages(root),
         *menu_messages(root),
         *logout_messages(root),
+        *paused_messages(root),
     ]
 
 

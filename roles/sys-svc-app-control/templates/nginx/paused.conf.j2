@@ -1,0 +1,20 @@
+{# Param application_id: the application whose vhost includes the hook. #}
+{% if lookup('config', application_id, 'services.semaphore.control') | bool %}
+{% set paused_csp = "default-src 'none'; style-src " ~ (lookup('file', lookup('path_absolute', APP_CONTROL_PAUSED_STYLE_FILE)) | csp_hash) ~ "; base-uri 'none'; form-action 'none'" %}
+error_page 599 =503 @app_control_paused;
+if (-f {{ [ lookup('nginx', 'directories.data.paused_apps'), application_id | entity_name ] | path_join }}) {
+  return 599;
+}
+location @app_control_paused {
+  root {{ lookup('nginx', 'directories.data.paused_pages') }};
+  set_by_lua_block $app_control_language {
+    local tag = (ngx.var.http_accept_language or ""):match("^%s*(%a+)")
+    return (tag and #tag == 2) and tag:lower() or "index"
+  }
+  try_files /$app_control_language.html /index.html =503;
+  header_filter_by_lua_block {
+    ngx.header["Content-Security-Policy"] = "{{ paused_csp }}"
+    ngx.header["Cache-Control"] = "no-store"
+  }
+}
+{% endif %}

@@ -22,25 +22,23 @@ One role per deploy, never a list. [guide_role.py](../../../../../plugins/lookup
 
 Reading the block off the page rather than out of the tree is the point: a reader copies from the site, so that is what has to work. Nothing in the repository is consulted at replay time.
 
-## The machine 🐳
+## The target 🎯
 
-Placeholders (`<your-domain>`, `<your-clearnet-resolver>`) are filled from the deployment's own values, and `<your-ssh-public-key>` / `<your-ssh-private-key-file>` from an ed25519 pair generated per run under `DOCS_TEST_WORK`.
+The replay deploys onto the stack's shared `target` service, documented in [compose/target](../../../../../compose/target/README.md): a bare systemd and sshd machine that `make compose-up` resets and every round of a development deploy resets again, compose and swarm rounds alike. Only the stack host replays: the `infinito` container in a compose round, the swarm manager in a swarm round. [replay.sh](../../../../../roles/web-app-docs/files/test/replay.sh) reads the root key's path from the `.env` of that host's checkout and the target's address from the `.address` file the last reset wrote beside the key; a missing `.env` fails the test with a pointer to `make dotenv`.
 
-A block whose own `docker run` starts the published deploy image runs on the stack host and deploys into a throwaway target container, which is what that recipe describes: a managed server reached over SSH. [machine.sh](../../../../../roles/web-app-docs/files/test/machine.sh) brings that target up through [files/test/compose.yml](../../../../../roles/web-app-docs/files/test/compose.yml) under the project `docs-guide-<role>`, and tears it down with `down -v --rmi local`.
+Placeholders (`<your-domain>`, `<your-clearnet-resolver>`, `<your-country>`) are filled from the deployment's own values, and `<your-ssh-public-key>` / `<your-ssh-private-key-file>` from the two halves of the root key the last reset generated at `INFINITO_TARGET_KEY`.
 
-A role without a container stack publishes the other shape, a host install that configures the machine it runs on. That block is replayed inside the target instead of on the stack host, which is why the target mounts the checkout at the stack host's own path. A block of neither shape fails the test, because nothing tells the harness which of the two machines it addresses.
+Before it changes anything the replay claims the target with `mkdir /var/lib/infinito-target-claim` over SSH. One target serves one replay per reset, so replays run one after another; a second one on the same target, or a target that refuses the key, fails the test with a pointer to `make compose-target-reset`.
 
-`HOST` is filled with the target's own bridge address, resolved once the container is up. The target joins the default bridge so the recipe's nested `docker run` can reach it; that bridge has no DNS, so the value must be an address rather than a name. The placeholder guard therefore runs after this fill, not before it.
+A block whose own `docker run` starts the published deploy image runs on the stack host and deploys into the target over SSH, which is what that recipe describes: a managed server. `HOST` is filled with the address from `INFINITO_TARGET_KEY.address`, and the placeholder guard runs after this fill, not before it.
 
-The machine starts from the **distribution base image**, not from an image this project publishes, so the replay also exercises the installation. `MACHINE_BASE_IMAGE` is read as `INFINITO_PARENT_IMAGE` out of the `.env` of the mounted checkout, where the env layer has already composed it from the [meta/distros.yml](../../../../../meta/distros.yml) SPOT and honoured any `custom.env` override. A missing `.env` fails the test with a pointer to `make dotenv`. The one build step of [files/test/Dockerfile](../../../../../roles/web-app-docs/files/test/Dockerfile) runs [init.sh](../../../../../roles/web-app-docs/files/test/init.sh), which returns immediately when the base already carries `/sbin/init`.
+A role without a container stack publishes the other shape, a host install that configures the machine it runs on. That block is piped into `bash -e -s` on the target over SSH, in the checkout the target mounts at `INFINITO_SRC_DIR`. A block that opens with `git clone` is such a host install: those two lines are dropped and the mounted checkout is used instead, so the replay runs against the tree under test. A block of neither shape fails the test, because nothing tells the harness which of the two machines it addresses.
 
-Before a recipe replay the target receives nothing but an ssh server. [sshd.sh](../../../../../roles/web-app-docs/files/test/sshd.sh) installs one, authorizes the run's public key for `root`, and `machine.sh` waits for it to answer. Everything else arrives through the deploy, which is the claim under test.
+The target starts from the **distribution base image** `INFINITO_PARENT_IMAGE`, not from an image this project publishes, so the replay also exercises the installation. It carries no container engine of its own: the replayed deploy installs `docker-ce` and restarts `docker.service`, and a target that already ran the distribution's engine fails that restart with `failed to load listeners: no sockets found via socket activation`. Its `/var/lib/docker` is a volume, so the installed daemon lands on a real filesystem.
 
-The target carries no container engine of its own. The replayed deploy installs `docker-ce` and restarts `docker.service`; a target that already ran the distribution's engine fails that restart with `failed to load listeners: no sockets found via socket activation`, because the running `docker.socket` belongs to the package being replaced. Keeping the target bare removes the collision instead of working around it. Its `/var/lib/docker` is a named volume so the installed daemon lands on a real filesystem rather than stacking `fuse-overlayfs` on `fuse-overlayfs`.
+The target's resolver answers `INFINITO_DOMAIN` and every name under it with the target's own address, so `DOCS_TEST_DOMAIN` has to equal `INFINITO_DOMAIN`; the test fails when it does not.
 
 The deploy reaches `root` over SSH, so a first run needs `PermitRootLogin` to allow it. `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` defaults to `no`; the published recipe passes `prohibit-password` through the `--vars` JSON it already carries.
-
-The block is replayed once systemd reports `running` or `degraded`. A block that opens with `git clone` is a host install: those two lines are dropped and the mounted checkout is used instead, so the replay runs against the tree under test.
 
 ## Reading a failure 🔍
 

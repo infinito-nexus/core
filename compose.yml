@@ -128,6 +128,42 @@ services:
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48081-48083:48081-48083"
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48087:48087"
 
+  target:
+    build:
+      context: compose/target
+      args:
+        INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
+    container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target
+    hostname: target
+    networks:
+      default:
+        ipv4_address: ${INFINITO_TARGET_IP:?Run 'make dotenv' to generate the .env single source of truth}
+    privileged: true
+    cgroup: host
+    pids_limit: 32768
+    tmpfs:
+      - /run
+      - /run/lock
+    restart: "no"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - .:${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
+      - /var/lib/docker
+
+  target-resolver:
+    image: coredns/coredns:1.14.4
+    container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target-resolver
+    command: ["-conf", "/Corefile"]
+    network_mode: "service:target"
+    depends_on:
+      coredns:
+        condition: service_started
+      target:
+        condition: service_started
+    restart: "no"
+    volumes:
+      - ./compose/target/Corefile:/Corefile:ro
+
 volumes:
   docker:
   infinito:

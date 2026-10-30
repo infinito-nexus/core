@@ -198,6 +198,7 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
             sorted(purge_mock.call_args.kwargs["app_ids"]),
             ["web-app-keycloak", "web-app-multi"],
         )
+        self.assertEqual(make_compose_mock.return_value.reset_target.call_count, 2)
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",

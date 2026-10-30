@@ -16,6 +16,7 @@ from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
 from .runner_mirror import env_image
+from .target import reset_stack_target
 
 CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
 
@@ -268,6 +269,11 @@ class Compose:
 
             if r.returncode != 0:
                 raise RuntimeError(f"entry.sh init failed (rc={r.returncode})")
+
+        self.reset_target()
+
+    def reset_target(self) -> None:
+        reset_stack_target(self)
 
     def down(self) -> None:
         """Tear down the stack."""

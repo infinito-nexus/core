@@ -242,7 +242,11 @@ class TestComposeDecommission(unittest.TestCase):
             str(PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml")
         )
         block = _destructor_block()
-        self.assertIs(stage[-1], block)
+        position = next(index for index, task in enumerate(stage) if task is block)
+        self.assertEqual(
+            [task["include_role"]["name"] for task in stage[position + 1 :]],
+            ["sys-svc-app-control", "web-app-semaphore"],
+        )
         self.assertTrue(_includes(block["always"], "02_unlock.yml"))
         self.assertFalse(
             _includes([task for task in stage if task is not block], "02_unlock.yml")

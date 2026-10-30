@@ -9,7 +9,9 @@ from .common import make_compose
 
 
 def add_parser(sub: argparse._SubParsersAction) -> None:
-    p = sub.add_parser("up", help="Start compose stack (coredns + infinito).")
+    p = sub.add_parser(
+        "up", help="Start compose stack (coredns + infinito) and reset the target."
+    )
     p.add_argument(
         "--skip-entry-init",
         action="store_true",

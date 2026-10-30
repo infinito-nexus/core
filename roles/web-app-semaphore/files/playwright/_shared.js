@@ -2,17 +2,18 @@ const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
+  apiFetchOnion,
   decodeDotenvQuotedValue,
   gotoOnion,
   normalizeBaseUrl,
   performKeycloakLoginForm,
   requireDotenvValue,
+  withLdapGroupMember,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const keycloakAdmin = require("./personas/utils/keycloak");
 
 const oidcEnabled         = isServiceEnabled("sso");
-const ldapEnabled         = isServiceEnabled("ldap");
 const oidcIssuerUrl       = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const semaphoreBaseUrl    = normalizeBaseUrl(process.env.SEMAPHORE_BASE_URL || "");
 const adminUsername       = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -30,8 +31,33 @@ const superAdminPassword  = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASS
 const keycloakAdminRealm  = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM);
 const keycloakAdminCliClientId = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID);
 const userGroupPath       = decodeDotenvQuotedValue(process.env.RBAC_USER_GROUP_PATH);
+const biberDn             = requireDotenvValue(process.env.BIBER_LDAP_DN, "BIBER_LDAP_DN");
+const userGroupDn         = requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "LDAP_USER_GROUP_DN");
+const operatorGroupPath   = requireDotenvValue(process.env.RBAC_OPERATOR_GROUP_PATH, "RBAC_OPERATOR_GROUP_PATH");
+const operatorGroupDn     = requireDotenvValue(process.env.LDAP_OPERATOR_GROUP_DN, "LDAP_OPERATOR_GROUP_DN");
+const projectName         = requireDotenvValue(process.env.SEMAPHORE_PROJECT_NAME, "SEMAPHORE_PROJECT_NAME");
+const appControlTargetId  = requireDotenvValue(process.env.APP_CONTROL_TARGET_ID, "APP_CONTROL_TARGET_ID");
+const appControlTargetUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_CONTROL_TARGET_URL, "APP_CONTROL_TARGET_URL"));
+const pausedLanguage      = requireDotenvValue(process.env.APP_CONTROL_PAUSED_LANGUAGE, "APP_CONTROL_PAUSED_LANGUAGE");
+const pausedCatalogue     = JSON.parse(
+  requireDotenvValue(process.env.APP_CONTROL_PAUSED_CATALOGUE_JSON, "APP_CONTROL_PAUSED_CATALOGUE_JSON"),
+);
+
+const ROLE_GROUPS = {
+  operator: { path: operatorGroupPath, dn: operatorGroupDn },
+  user: { path: userGroupPath, dn: userGroupDn },
+};
 
 const LOGIN_PATH = "/auth/login";
+const ACCOUNT_ENTRY = ".NavDrawer .v-navigation-drawer__append .v-list-item:has(.mdi-account)";
+const OPEN_MENU = ".menuable__content__active:has(.v-list-item)";
+const OPEN_DIALOG = ".v-dialog--active";
+const FINISHED_TASK_STATES = new Set(["success", "error", "stopped", "rejected"]);
+const TASK_OUTPUT_TAIL_LINES = 30;
+const TASK_FAILURE_LINE = /fatal:|FAILED!|ERROR!/;
+const TASK_FAILURE_CONTEXT_LINES = 6;
+const RBAC_SYNC_CONVERGENCE_MS = 5 * 60_000;
+const TASK_RUN_MS = 10 * 60_000;
 
 function onLoginPage(page) {
   return page.url().includes(LOGIN_PATH);
@@ -100,37 +126,81 @@ async function signInViaOidc(page, username, password, label) {
   await assertAuthenticated(page, label);
 }
 
-async function openAccountMenu(page) {
-  const trigger = page
-    .locator(
-      'header button:has(.mdi-account), header button:has(.mdi-account-circle), header .v-avatar, button[aria-label*="account" i], header [role="button"]:has(.mdi-account)',
-    )
-    .first();
-  if (await trigger.count()) {
-    await trigger.click().catch(() => {});
-  }
+/**
+ * Open the app's landing page, open the account menu of its navigation drawer
+ * and return the open menu.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries a Semaphore session.
+ *   label: the persona label the assertion messages name.
+ */
+async function openAccountMenu(page, label) {
+  await gotoOnion(page, `${semaphoreBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  const trigger = page.locator(ACCOUNT_ENTRY).first();
+  await expect(trigger, `${label}: the Semaphore navigation drawer must show the account entry`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await trigger.click({ timeout: resolveTimeout(30_000) });
+  const menu = page.locator(OPEN_MENU).first();
+  await expect(menu, `${label}: the account entry must open the account menu`).toBeVisible({
+    timeout: resolveTimeout(30_000),
+  });
+  return menu;
 }
 
-async function logout(page, label = "session") {
-  await openAccountMenu(page);
-  const signOut = page
-    .locator('a, button, .v-list-item, [role="menuitem"]')
+/**
+ * Click the sign-out entry of an open account menu and wait for the login page.
+ *
+ * Args:
+ *   page: the Playwright page that shows the menu.
+ *   menu: the open account menu from `openAccountMenu`.
+ *   label: the persona label the assertion messages name.
+ */
+async function signOutFromMenu(page, menu, label) {
+  const signOut = menu
+    .locator(".v-list-item")
     .filter({ hasText: /sign\s*out|log\s*out|logout|abmelden/i })
+    .or(menu.locator(".v-list-item:has(.mdi-exit-to-app)"))
     .first();
-  if (await signOut.count()) {
-    await signOut.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-  }
-  await page.waitForTimeout(resolveTimeout(1500));
-  if (!onLoginPage(page)) {
-    await page.context().clearCookies();
-    await gotoLogin(page);
-  }
+  await expect(signOut, `${label}: the Semaphore account menu must offer a sign-out entry`).toBeVisible({
+    timeout: resolveTimeout(30_000),
+  });
+  await signOut.click({ timeout: resolveTimeout(30_000) });
   await expect
     .poll(() => page.url(), {
-      timeout: resolveTimeout(30_000),
+      timeout: resolveTimeout(60_000),
       message: `${label}: expected logged-out landing on the Semaphore login page`,
     })
     .toContain(LOGIN_PATH);
+}
+
+/**
+ * Sign out through the account menu of the navigation drawer.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries a Semaphore session.
+ *   label: the persona label the assertion messages name.
+ */
+async function logout(page, label) {
+  await signOutFromMenu(page, await openAccountMenu(page, label), label);
+}
+
+/**
+ * Sign in through the primary login path: Keycloak while SSO is on, the
+ * LDAP form otherwise.
+ *
+ * Args:
+ *   page: the Playwright page to sign in on.
+ *   username: the login name.
+ *   password: the password.
+ *   label: the persona label the assertion messages name.
+ */
+async function signInPrimary(page, username, password, label) {
+  if (oidcEnabled) {
+    await signInViaOidc(page, username, password, label);
+    return;
+  }
+  await signInViaLdap(page, username, password, label);
 }
 
 /**
@@ -211,6 +281,204 @@ async function withBiberInGroup(browser, groupPath, fn) {
   }
 }
 
+/**
+ * Run `fn` while biber is a member of the Semaphore role group `role`.
+ *
+ * Args:
+ *   browser: the Playwright browser, used for an isolated admin context.
+ *   role: a key of ROLE_GROUPS, the role from `meta/rbac.yml`.
+ *   fn: async body executed while the membership holds.
+ */
+async function withBiberInRoleGroup(browser, role, fn) {
+  const group = ROLE_GROUPS[role];
+  if (oidcEnabled) {
+    return withBiberInGroup(browser, group.path, fn);
+  }
+  return withLdapGroupMember(group.dn, biberDn, fn);
+}
+
+/**
+ * Call the Semaphore API with the session of `page` and return the response.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries a Semaphore session.
+ *   method: the HTTP method.
+ *   path: the path below `/api`.
+ *   data: the JSON body, undefined for none.
+ */
+async function apiResponse(page, method, path, data) {
+  return apiFetchOnion(page.request, `${semaphoreBaseUrl}/api${path}`, {
+    method,
+    data,
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+}
+
+/**
+ * Call the Semaphore API with the session of `page`, require a 2xx answer
+ * and return its parsed body, null for an empty one.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries a Semaphore session.
+ *   method: the HTTP method.
+ *   path: the path below `/api`.
+ *   data: the JSON body, undefined for none.
+ */
+async function api(page, method, path, data) {
+  const response = await apiResponse(page, method, path, data);
+  expect(response.ok(), `${method} /api${path} answered ${response.status()}`).toBe(true);
+  const body = await response.text();
+  return body ? JSON.parse(body) : null;
+}
+
+/**
+ * Wait until /api/projects lists the app-control project for the session of
+ * `page`, or until it no longer does, and return the project when listed.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries a Semaphore session.
+ *   listed: whether the project has to be listed.
+ *   label: the persona label the assertion messages name.
+ */
+async function awaitAppControlProject(page, listed, label) {
+  let project;
+  await expect
+    .poll(
+      async () => {
+        project = (await api(page, "GET", "/projects")).find((candidate) => candidate.name === projectName);
+        return project !== undefined;
+      },
+      {
+        timeout: resolveTimeout(RBAC_SYNC_CONVERGENCE_MS),
+        intervals: [15_000],
+        message: `${label}: /api/projects must ${listed ? "" : "no longer "}list the "${projectName}" project once the RBAC sync converged`,
+      },
+    )
+    .toBe(listed);
+  return project;
+}
+
+/**
+ * Return the stop and start templates of `applicationId` in the app-control
+ * project.
+ *
+ * Args:
+ *   page: a Playwright page whose session may read the project.
+ *   projectId: the id of the app-control project.
+ *   applicationId: the application the templates act on.
+ */
+async function appControlTemplates(page, projectId, applicationId) {
+  const templates = await api(page, "GET", `/project/${projectId}/templates`);
+  const named = (name) => {
+    const template = templates.find((candidate) => candidate.name === name);
+    expect(
+      template,
+      `the "${projectName}" project must hold the template "${name}" (holds: ${templates.map((candidate) => candidate.name).join(", ")})`,
+    ).toBeTruthy();
+    return template;
+  };
+  return { stop: named(`stop ${applicationId}`), start: named(`start ${applicationId}`) };
+}
+
+/**
+ * Open `template` from the template list of the project, run it through its
+ * run dialog and return the id of the task Semaphore created.
+ *
+ * Args:
+ *   page: a Playwright page whose session may run the template.
+ *   projectId: the id of the project holding the template.
+ *   template: the template object from the API.
+ *   label: the persona label the assertion messages name.
+ */
+async function runTemplateFromUi(page, projectId, template, label) {
+  await gotoOnion(page, `${semaphoreBaseUrl}/project/${projectId}/templates`, { waitUntil: "domcontentloaded" });
+  const link = page.locator(".v-data-table").getByRole("link", { name: template.name, exact: true });
+  await expect(link, `${label}: the template list must show "${template.name}"`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await link.click({ timeout: resolveTimeout(30_000) });
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(30_000),
+      message: `${label}: "${template.name}" must open its template page`,
+    })
+    .toMatch(new RegExp(`/project/${projectId}/(?:views/\\d+/)?templates/${template.id}(?:[/?#]|$)`));
+  const run = page.locator('[data-testid="template-run"]').first();
+  await expect(run, `${label}: the template page must offer running "${template.name}"`).toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await run.click({ timeout: resolveTimeout(30_000) });
+  const dialog = page.locator(OPEN_DIALOG).first();
+  await expect(dialog, `${label}: running "${template.name}" must open the run dialog`).toBeVisible({
+    timeout: resolveTimeout(30_000),
+  });
+  const created = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname.endsWith(`/api/project/${projectId}/tasks`),
+    { timeout: resolveTimeout(60_000) },
+  );
+  await dialog.locator('[data-testid="editDialog-save"]').click({ timeout: resolveTimeout(30_000) });
+  const response = await created;
+  expect(response.ok(), `${label}: Semaphore must accept the run of "${template.name}" (HTTP ${response.status()})`).toBe(
+    true,
+  );
+  return (await response.json()).id;
+}
+
+/**
+ * Wait until a task finished and require that it succeeded, naming its failure
+ * lines and the tail of its output otherwise.
+ *
+ * Args:
+ *   page: a Playwright page whose session may read the task.
+ *   projectId: the id of the project holding the task.
+ *   taskId: the id of the task.
+ *   runMs: the longest the task may run, before timeout scaling.
+ *   label: the persona label the assertion messages name.
+ */
+async function awaitTaskSuccess(page, projectId, taskId, runMs, label) {
+  let task;
+  await expect
+    .poll(
+      async () => {
+        task = await api(page, "GET", `/project/${projectId}/tasks/${taskId}`);
+        return FINISHED_TASK_STATES.has(task.status);
+      },
+      {
+        timeout: resolveTimeout(runMs),
+        intervals: [5_000],
+        message: `${label}: task ${taskId} must finish`,
+      },
+    )
+    .toBe(true);
+  const lines = (await api(page, "GET", `/project/${projectId}/tasks/${taskId}/output`)).map((line) => line.output);
+  const failureLines = lines
+    .flatMap((line, index) => (TASK_FAILURE_LINE.test(line) ? lines.slice(index, index + TASK_FAILURE_CONTEXT_LINES) : []))
+    .join("\n");
+  const tail = lines.slice(-TASK_OUTPUT_TAIL_LINES).join("\n");
+  expect(
+    task.status,
+    `${label}: task ${taskId} ended ${task.status}; failure lines:\n${failureLines}\noutput tail:\n${tail}`,
+  ).toBe("success");
+}
+
+/**
+ * Stop a task that has not finished, leaving a finished one untouched.
+ *
+ * Args:
+ *   page: a Playwright page whose session may stop the task.
+ *   projectId: the id of the project holding the task.
+ *   taskId: the id of the task.
+ */
+async function stopUnfinishedTask(page, projectId, taskId) {
+  const task = await api(page, "GET", `/project/${projectId}/tasks/${taskId}`);
+  if (!FINISHED_TASK_STATES.has(task.status)) {
+    await api(page, "POST", `/project/${projectId}/tasks/${taskId}/stop`, { force: false });
+  }
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(semaphoreBaseUrl, "SEMAPHORE_BASE_URL must be set").toBeTruthy();
@@ -221,7 +489,6 @@ async function beforeEach({ page }) {
 module.exports = {
   env: {
     oidcEnabled,
-    ldapEnabled,
     oidcIssuerUrl,
     semaphoreBaseUrl,
     adminUsername,
@@ -233,8 +500,17 @@ module.exports = {
     biberEmail,
     canonicalDomain,
     userGroupPath,
+    biberDn,
+    userGroupDn,
+    projectName,
+    appControlTargetId,
+    appControlTargetUrl,
+    pausedLanguage,
+    pausedCatalogue,
   },
   LOGIN_PATH,
+  RBAC_SYNC_CONVERGENCE_MS,
+  TASK_RUN_MS,
   gotoLogin,
   onLoginPage,
   assertAuthenticated,
@@ -242,9 +518,21 @@ module.exports = {
   signInViaLocal,
   signInViaLdap,
   signInViaOidc,
+  signInPrimary,
   submitLdapLogin,
   withBiberInGroup,
+  withBiberInRoleGroup,
+  apiResponse,
+  api,
+  awaitAppControlProject,
+  appControlTemplates,
+  runTemplateFromUi,
+  awaitTaskSuccess,
+  stopUnfinishedTask,
+  openAccountMenu,
+  signOutFromMenu,
   logout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

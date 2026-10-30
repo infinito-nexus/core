@@ -41,3 +41,19 @@
       include_role:
         name: sys-service-terminator
         tasks_from: 02_unlock.yml
+
+- name: "⏯️ Apply the persisted pause state of every application as the last step"
+  include_role:
+    name: sys-svc-app-control
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+
+- name: "🗂️ Sync Semaphore's stop and start templates with the apps app-control holds"
+  include_role:
+    name: web-app-semaphore
+    tasks_from: utils/project.yml
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+    - "'web-app-semaphore' in group_names"

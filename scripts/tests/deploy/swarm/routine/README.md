@@ -14,7 +14,7 @@ flowchart TB
 
     subgraph matrix["Variant matrix - one round per variant of the primary app"]
         purge["Remove the prior round's stacks<br/>(rounds after the first)"]
-        prov["Provision the round's inventory and deploy the app stack"]
+        prov["Provision the round's inventory, reset the shared target<br/>onto the lab, and deploy the app stack"]
         t_pre["⚡ Service-loader preload (MODE_BACKUP):<br/>volume + secrets units instant-start on the manager,<br/>nfs unit on the export host - pre-state snapshot<br/>before the deploy mutates anything"]
         conv["Wait until every stack service converges"]
         reach["Probe the app is reachable in-cluster"]

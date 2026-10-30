@@ -12,8 +12,9 @@ import time
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.storage.constrained import host_storage_constrained
+from utils.tests.swarm.deploy import deploy_backup_host, deploy_round, reset_target
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
-from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
+from utils.tests.swarm.extend_inventory import mesh_enabled
 from utils.tests.swarm.mesh import (
     bootstrap_mesh,
     converge_mesh,
@@ -29,7 +30,6 @@ from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
-_SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
 
 
@@ -134,79 +134,6 @@ def _reset_credentials(
     )
 
 
-def _deploy(
-    *,
-    app_id: str,
-    inv_dir: str,
-    extras_path: str,
-    round_index: int,
-    total: int,
-    update_pass: bool = False,
-) -> int:
-    """Run one deploy of the round.
-
-    Args:
-        update_pass: run it as the async update pass.
-    """
-    env = os.environ.copy()
-    env["APP_ID"] = app_id
-    cmd = [
-        "python3",
-        "-m",
-        "cli.administration.deploy.swarm",
-        f"{inv_dir}/devices.yml",
-        "-p",
-        f"{inv_dir}/.password",
-        "--skip-build",
-        "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
-        "-e",
-        f"@{_SWARM_EXTRAS_VARS}",
-        "-e",
-        f"@{extras_path}",
-        "-e",
-        f"VARIANT_INDEX={json.dumps(round_index)}",
-        "-e",
-        f"PRIMARY_APPS={json.dumps([app_id])}",
-    ]
-    pass_label = (
-        f"matrix-deploy: round {round_index + 1}/{total} "
-        f"variants=[{round_index}] apps=['{app_id}']"
-    )
-    if update_pass:
-        cmd += ["-e", "ASYNC_ENABLED=true"]
-        label = f"update pass (round {round_index + 1}/{total})"
-        print(f"=== {pass_label} PASS 2 (async) ===", flush=True)
-    else:
-        label = f"deploy round {round_index + 1}/{total}"
-        print(f"=== {pass_label} PASS 1 (sync) ===", flush=True)
-    return _run(env=env, cmd=cmd, label=label)
-
-
-def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
-    drop_backup_network_mode(inv_dir)
-    env = os.environ.copy()
-    env["APP_ID"] = app_id
-    cmd = [
-        "python3",
-        "-m",
-        "cli.administration.deploy.dedicated",
-        f"{inv_dir}/backup.yml",
-        "-p",
-        f"{inv_dir}/.password",
-        "--skip-build",
-        "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
-        "-e",
-        f"@{_SWARM_EXTRAS_VARS}",
-        "-e",
-        f"@{extras_path}",
-    ]
-    return _run(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
-
-
 def _converge_and_verify(*, app_id: str) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
@@ -261,7 +188,7 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
 def _backup_phase(
     *, app_id: str, inv_dir: str, deploy_extras: str, drill_extras: str
 ) -> int:
-    rc = _deploy_backup_host(app_id=app_id, inv_dir=inv_dir, extras_path=deploy_extras)
+    rc = deploy_backup_host(app_id=app_id, inv_dir=inv_dir, extras_path=deploy_extras)
     if rc == 0:
         rc = _backup_restore_drill(
             app_id=app_id, inv_dir=inv_dir, extras_path=drill_extras
@@ -467,7 +394,9 @@ def main(argv: list[str] | None = None) -> int:
                 round_variants=round_variants,
             )
         if rc == 0:
-            rc = _deploy(**deploy_args)
+            rc = reset_target()
+        if rc == 0:
+            rc = deploy_round(**deploy_args)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and drills:
@@ -482,7 +411,7 @@ def main(argv: list[str] | None = None) -> int:
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
-            rc = _deploy(**deploy_args, update_pass=True)
+            rc = deploy_round(**deploy_args, update_pass=True)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and round_index == 0:

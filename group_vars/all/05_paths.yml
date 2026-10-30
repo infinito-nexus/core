@@ -16,6 +16,13 @@ BIN_CA_TRUST: "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
 BIN_CA_INJECT: "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
 BIN_CA_PHP_INI: "{{ [ DIR_BIN, 'ca-trust-php.ini' ] | path_join }}"
 BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}"
+BIN_APP_CONTROL: "{{ [ DIR_BIN, 'app-control' ] | path_join }}"
+
+FILE_APP_CONTROL_CONFIG: "{{ [ '/etc', SOFTWARE_DOMAIN, 'app-control.json' ] | path_join }}"
+APP_CONTROL_STATE_FILE: ".app-control-state" # Name of the per-instance marker holding 'started' or 'stopped'; the single source of truth of the pause state
+APP_CONTROL_REGISTRY_FILE: ".app-control.json" # Name of the per-instance record each deploy writes so app-control can pause and resume the application
+APP_CONTROL_PAUSED_STYLE_FILE: "roles/sys-svc-app-control/files/paused.css" # Stylesheet inlined into the paused page; the nginx hook hashes the same file for its CSP
+APP_CONTROL_USER: "app-control" # Host account the Semaphore runner signs in as; its forced command accepts only app-control stop|start
 
 DIR_CACHE: "/var/cache/infinito/core/cache"
 

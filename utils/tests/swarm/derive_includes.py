@@ -42,7 +42,7 @@ from utils.roles.applications.in_group_deps import applications_if_group_and_all
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
 )
-from utils.roles.guide import declares_guide, guide_off
+from utils.roles.applications.variants import primary_only
 from utils.tests.swarm.force_shared_db import db_provider_service_keys, pinned_local_db
 
 _ROLES_DIR = PROJECT_ROOT / "roles"
@@ -83,8 +83,9 @@ def _active_variant_map(override: dict[str, int] | None = None) -> dict[str, int
     }
 
 
-def _guide_only_for(applications: dict[str, Any], primary: str) -> dict[str, Any]:
-    """Switch the guide host off everywhere but a ``primary`` that declares it.
+def _primary_only_for(applications: dict[str, Any], primary: str) -> dict[str, Any]:
+    """Switch every primary-only host off everywhere but a ``primary`` that
+    declares it.
 
     Args:
         applications: the round's application configs.
@@ -95,9 +96,10 @@ def _guide_only_for(applications: dict[str, Any], primary: str) -> dict[str, Any
         services = config.get("services") if isinstance(config, dict) else None
         if not isinstance(services, dict):
             continue
-        if app_id == primary and declares_guide(services):
-            continue
-        result[app_id] = {**config, "services": guide_off(services)}
+        result[app_id] = {
+            **config,
+            "services": primary_only(services, primary=app_id == primary),
+        }
     return result
 
 
@@ -195,7 +197,7 @@ def derive_includes(
     """
     base_applications = get_merged_applications(roles_dir=str(_ROLES_DIR))
     service_registry = build_service_registry_from_applications(base_applications)
-    applications = _guide_only_for(
+    applications = _primary_only_for(
         _force_shared_db_view(
             _applications_for_active_variants(base_applications, variants)
         ),

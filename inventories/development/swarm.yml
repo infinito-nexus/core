@@ -34,3 +34,5 @@ swarm:
     port: 5000
 
 RUNNER_SRC_DIR: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}" # nocheck: swarm-only inventory; evaluated on the CI runner where load.sh exports it, never inside the compose DiD
+DOCS_TEST_SRC_DIR: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}" # nocheck: swarm-only inventory; evaluated on the CI runner where load.sh exports it, never inside the compose DiD
+SEMAPHORE_DEPLOY_FIXTURE_SRC_DIR: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}" # nocheck: swarm-only inventory; evaluated on the CI runner where load.sh exports it, never inside the compose DiD

@@ -1,0 +1,45 @@
+---
+- name: "🏷️ Pin the Semaphore runner to the Infinito.Nexus image of this deploy"
+  ansible.builtin.assert:
+    that:
+      - SOFTWARE_IMAGE | length > 0
+      - SOFTWARE_IMAGE_TAG | length > 0
+      - SOFTWARE_IMAGE_TAG != 'latest'
+    fail_msg: >-
+      The Semaphore runner is built on '{{ SOFTWARE_IMAGE }}:{{ SOFTWARE_IMAGE_TAG }}'. It needs the Infinito.Nexus
+      image and the tag of the current deploy (CI ci-<sha>, local dev-<sha>, production v<version>), never latest.
+    quiet: true
+
+- name: "🏗️ Build the runner base image on the stack host from this checkout"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - "{{ lookup('path_absolute', 'scripts/image/build.sh') }}"
+      - --missing
+      - --tag
+      - "{{ SEMAPHORE_RUNNER_BASE_IMAGE }}"
+    chdir: "{{ lookup('path_absolute') }}"
+  environment:
+    INFINITO_DISTRO: "{{ SOFTWARE_IMAGE | basename }}"
+  register: semaphore_runner_base_build
+  changed_when: "'Image already exists' not in semaphore_runner_base_build.stdout"
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: SOFTWARE_IMAGE_BUILD | bool
+
+- name: "📦 Stage the Semaphore runner build context and its token"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/web-app-semaphore/files/runner/Dockerfile') }}"
+        dest: "{{ [ SEMAPHORE_RUNNER_BUILD_DIR, 'Dockerfile' ] | path_join }}"
+        mode: "0644"
+        notify: []
+      - src: "runner.token.j2"
+        dest: "{{ SEMAPHORE_RUNNER_TOKEN_FILE_HOST }}"
+        owner: "{{ SEMAPHORE_RUNNER_UID }}"
+        group: "{{ SEMAPHORE_RUNNER_GID }}"
+        mode: "0400"
+        notify: []

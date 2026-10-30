@@ -11,14 +11,18 @@ class TestRunDeploy(unittest.TestCase):
     def deploy_cmd(self) -> list[str]:
         compose = mock.Mock()
         compose.exec.return_value = SimpleNamespace(returncode=0)
-        _run_deploy(
-            compose,
-            deploy_ids=["web-app-cst-demo"],
-            debug=False,
-            passthrough=[],
-            inventory_dir="/etc/inventories/dev",
-            container_name="infinito",
-        )
+        with mock.patch(
+            "cli.administration.deploy.development.deploy.run.deploy_image_tag",
+            return_value="dev-0000000",
+        ):
+            _run_deploy(
+                compose,
+                deploy_ids=["web-app-cst-demo"],
+                debug=False,
+                passthrough=[],
+                inventory_dir="/etc/inventories/dev",
+                container_name="infinito",
+            )
         return compose.exec.call_args.args[0]
 
     def test_deploys_the_generated_inventory(self):

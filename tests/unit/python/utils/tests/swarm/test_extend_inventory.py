@@ -5,8 +5,8 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from utils.tests.swarm import deploy as swarm_deploy
 from utils.tests.swarm import extend_inventory as ei
-from utils.tests.swarm import matrix
 
 
 class TestBackupLegGating(unittest.TestCase):
@@ -108,8 +108,8 @@ class TestBackupHostNetworkMode(unittest.TestCase):
                 seen.update(ei.load_yaml_any(str(vars_path)))
                 return 0
 
-            with mock.patch.object(matrix, "_run", side_effect=deploy):
-                matrix._deploy_backup_host(
+            with mock.patch.object(swarm_deploy, "run_step", side_effect=deploy):
+                swarm_deploy.deploy_backup_host(
                     app_id="web-app-meta", inv_dir=td, extras_path="extras.yml"
                 )
 

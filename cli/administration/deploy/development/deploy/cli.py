@@ -191,6 +191,7 @@ def handler(args: argparse.Namespace) -> int:
             f"matrix-deploy: round {round_index + 1}/{len(plan)} "
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
+        compose.reset_target()
         print(f"=== {pass_label} PASS 1 (sync) ===")
         rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:

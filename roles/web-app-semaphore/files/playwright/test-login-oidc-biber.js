@@ -57,11 +57,16 @@ exports.register = function (shared) {
           `a user-group member MUST NOT carry the Semaphore admin flag (account: ${JSON.stringify(account)})`,
         ).toBe(false);
         expect(
-          (account.email || "").toLowerCase(),
+          String(account.email).toLowerCase(),
           `Semaphore MUST take the account email from the OIDC email claim (account: ${JSON.stringify(account)})`,
         ).toBe(shared.env.biberEmail.toLowerCase());
 
-        await shared.logout(page, "biber");
+        const menu = await shared.openAccountMenu(page, "biber");
+        await expect(
+          page.locator('a[href$="/users"]').or(menu.locator(".v-list-item:has(.mdi-account-multiple)")),
+          "biber: the open account menu of a user-group member must offer no user administration",
+        ).toHaveCount(0);
+        await shared.signOutFromMenu(page, menu, "biber");
       } finally {
         await ctx.close().catch(() => {});
       }

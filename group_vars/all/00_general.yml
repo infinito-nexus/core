@@ -6,6 +6,9 @@ SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
 SOFTWARE_REPOSITORY: "https://github.com/infinito-nexus/core.git"
+SOFTWARE_IMAGE: "{{ 'ghcr.io/' ~ (SOFTWARE_REPOSITORY | urlsplit('path') | regex_replace('^/', '') | regex_replace('[.]git$', '') | lower) }}" # Registry path of the published Infinito.Nexus image; the path without a distro serves the default distro
+SOFTWARE_IMAGE_TAG: "v{{ lookup('version') }}" # Tag of the Infinito.Nexus image of this deploy: the release of the checkout that runs it
+SOFTWARE_IMAGE_BUILD: false # Build SOFTWARE_IMAGE:SOFTWARE_IMAGE_TAG on the stack host from this checkout instead of pulling it
 
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
 INVENTOR: "Kevin Veen-Birkenbach" # Author of the software

@@ -6,6 +6,7 @@ This Ansible role configures the OpenSSH daemon (`sshd`) by deploying a template
 
 ## Overview
 
+- Installs the OpenSSH server through the deploy-start package batch and keeps the daemon enabled and running
 - Renders `sshd_config.j2` into `/etc/ssh/sshd_config` with customizable options
 - Sets file ownership (`root:root`) and permissions (`0644`)
 - Automatically reloads and restarts the SSH service via a systemd handler

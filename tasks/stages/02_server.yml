@@ -43,6 +43,15 @@
     name: sys-svc-mcp-reconcile
   when: lookup('roles_with_service', 'mcp', topic='mcp', direction='client') | length > 0
 
+- name: "⏯️ Install app-control and its Semaphore SSH account on the stack host"
+  include_role:
+    name: sys-svc-app-control
+    tasks_from: 00_core.yml
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+    - run_once_sys_svc_app_control is not defined
+
 - name: "⏳ Reap the image pre-pull before the E2E run"
   ansible.builtin.include_role:
     name: sys-svc-container

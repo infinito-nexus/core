@@ -331,8 +331,13 @@ compose-system-purge: compose-entity-purge
 	@bash scripts/tests/deploy/local/purge/web.sh
 	@bash scripts/tests/deploy/local/purge/lib.sh
 
+.PHONY: compose-target-reset
+# Recreate the shared target as a bare systemd and sshd machine and rotate the root key the infinito container holds for it.
+compose-target-reset:
+	@"$${PYTHON}" -m cli.administration.deploy.development target-reset
+
 .PHONY: compose-up
-# Start the development stack.
+# Start the development stack and reset its shared target.
 compose-up: install
 	@"$${PYTHON}" -m cli.administration.deploy.development up
 

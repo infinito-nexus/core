@@ -121,6 +121,30 @@ class TestValidateVolumesMeta(unittest.TestCase):
         )
         self.assertTrue(any("octal string" in v for v in violations))
 
+    def test_owner_only_on_config_secret(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "volume", "uid": 1000, "gid": 1000}},
+            "r",
+        )
+        self.assertTrue(any("'uid' is only valid for" in v for v in violations))
+        self.assertTrue(any("'gid' is only valid for" in v for v in violations))
+
+    def test_owner_must_be_numeric(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "secret", "source": "/a", "uid": "runner"}},
+            "r",
+        )
+        self.assertTrue(any("numeric id" in v for v in violations))
+
+    def test_numeric_owner_on_secret_passes(self) -> None:
+        self.assertEqual(
+            validate_volumes_meta(
+                {"x": {"type": "secret", "source": "/a", "uid": 1000, "gid": 1000}},
+                "r",
+            ),
+            [],
+        )
+
     def test_read_only_only_on_bind_volume(self) -> None:
         violations = validate_volumes_meta(
             {"x": {"type": "config", "source": "/a", "read_only": True}},

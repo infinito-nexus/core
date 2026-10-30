@@ -10,7 +10,7 @@ The top-level `compose.yml` is scoped to **local development and CI testing only
 It MUST NOT be used to deploy or run a live Infinito.Nexus stack.
 Production deployments MUST go through the Ansible roles and their own rendered compose files under `roles/<role>/templates/`.
 
-Within its scope, `compose.yml` MUST stay a thin orchestration surface for the `infinito` runner container and its CoreDNS sidecar.
+Within its scope, `compose.yml` MUST stay a thin orchestration surface for the `infinito` runner container, its CoreDNS sidecar, and the shared `target` machine with its `target-resolver` (see [compose/target](../../../../compose/target/README.md)).
 It MUST NOT host application roles, fixtures, or test harnesses.
 
 ## Structure 📐
@@ -30,6 +30,7 @@ The per-variable default + comment lives next to the key in [default.env](../../
 | Variable | Purpose |
 |---|---|
 | `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds from source. |
+| `INFINITO_PARENT_IMAGE` | Distribution base image both the `infinito` and the `target` builds start from. |
 | `INFINITO_PULL_POLICY` | Compose `pull_policy`, also exported into the `infinito` container. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
 | `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py). |
 | `NIX_CONFIG` | Build-arg forwarded to the Dockerfile for Nix configuration. Pass-through if set in the calling shell. |
@@ -93,6 +94,8 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_SUBNET` | IPAM subnet for the default bridge network. |
 | `INFINITO_IP_RANGE` | IPAM pool for containers that join the default bridge without a static address, such as worktree stacks on the primary's cache network. It is the upper half of `INFINITO_SUBNET`, derived after `custom.env` by [ip_range.py](../../../../utils/env/handlers/infinito/ip_range.py); every static address stays below it. |
 | `INFINITO_GATEWAY` | IPAM gateway for the default bridge network. |
+| `INFINITO_TARGET_IP` | Static IPv4 address of the `target` service, which `target-resolver` binds and answers `INFINITO_DOMAIN` with. Host `.20` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
+| `INFINITO_RUNNER_PREFIX` | Prefix of the `coredns`, `target` and `target-resolver` container names, so each worktree and runner instance gets its own. |
 | `INFINITO_OUTER_NETWORK_MTU` | MTU for the bridge network. Lower when the host network is tunneled. |
 
 ## Adding a Variable ➕

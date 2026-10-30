@@ -217,6 +217,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
+        compose.reset_target = MagicMock()
 
         compose.up(run_entry_init=False)
 
@@ -226,6 +227,7 @@ class TestComposeUpRetries(unittest.TestCase):
             delay_s=30,
         )
         compose.wait_for_healthy.assert_called_once_with()
+        compose.reset_target.assert_called_once_with()
 
     @patch.dict(
         os.environ,
@@ -245,6 +247,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
+        compose.reset_target = MagicMock()
 
         compose.up(run_entry_init=False)
 
@@ -282,6 +285,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
+        compose.reset_target = MagicMock()
         compose._bootstrap_package_cache = MagicMock()
         compose._generate_package_frontend_certs = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
@@ -326,6 +330,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._render_coredns_corefile = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
+        compose.reset_target = MagicMock()
         compose._bootstrap_package_cache = MagicMock()
         compose._generate_package_frontend_certs = MagicMock()
         compose._apply_shared_cache = MagicMock()

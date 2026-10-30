@@ -218,11 +218,67 @@ class TestArgv(TestCase):
         command = ["baudolo", "--only-sql"]
         self.assertEqual(SCRIPT.without_hard_restart(command), command)
 
+    def test_a_paused_project_is_not_hard_restarted(self):
+        with tempfile.TemporaryDirectory() as compose_dir:
+            for project, state in (("mailu", "stopped\n"), ("nextcloud", "started\n")):
+                (Path(compose_dir) / project).mkdir()
+                (Path(compose_dir) / project / ".app-control-state").write_text(state)
+            command = [
+                "baudolo",
+                "--compose-dir",
+                compose_dir,
+                "--hard-restart-projects",
+                "mailu",
+                "nextcloud",
+                "--only-sql",
+            ]
+            kept = SCRIPT.without_paused_projects(command, ".app-control-state")
+        self.assertEqual(
+            kept,
+            [
+                "baudolo",
+                "--compose-dir",
+                compose_dir,
+                "--hard-restart-projects",
+                "nextcloud",
+                "--only-sql",
+            ],
+        )
+
+    def test_the_flag_goes_when_every_project_is_paused(self):
+        with tempfile.TemporaryDirectory() as compose_dir:
+            (Path(compose_dir) / "mailu").mkdir()
+            (Path(compose_dir) / "mailu" / ".app-control-state").write_text("stopped\n")
+            command = [
+                "baudolo",
+                "--compose-dir",
+                compose_dir,
+                "--hard-restart-projects",
+                "mailu",
+            ]
+            kept = SCRIPT.without_paused_projects(command, ".app-control-state")
+        self.assertEqual(kept, ["baudolo", "--compose-dir", compose_dir])
+
+    def test_a_project_without_a_marker_keeps_its_hard_restart(self):
+        with tempfile.TemporaryDirectory() as compose_dir:
+            command = [
+                "baudolo",
+                "--compose-dir",
+                compose_dir,
+                "--hard-restart-projects",
+                "mailu",
+            ]
+            self.assertEqual(
+                SCRIPT.without_paused_projects(command, ".app-control-state"), command
+            )
+
     def test_never_execs_the_command_unchanged(self):
         argv = [
             "baudolo-snapshot",
             "--mode",
             "never",
+            "--state-file",
+            ".app-control-state",
             "--",
             "baudolo",
             "--only-sql",
@@ -239,7 +295,9 @@ class TestArgv(TestCase):
     def test_a_missing_separator_is_a_wiring_error(self):
         with (
             mock.patch.object(
-                SCRIPT.sys, "argv", ["baudolo-snapshot", "--mode", "auto"]
+                SCRIPT.sys,
+                "argv",
+                ["baudolo-snapshot", "--mode", "auto", "--state-file", ".s"],
             ),
             self.assertRaises(SystemExit),
         ):

@@ -14,4 +14,7 @@ require("./test-login-oidc-administrator").register(shared);
 require("./test-login-oidc-biber").register(shared);
 require("./test-login-ldap-biber").register(shared);
 require("./test-login-ldap-administrator").register(shared);
+require("./test-app-control-outsider").register(shared);
+require("./test-app-control-operator").register(shared);
 require("./test-design").register(shared);
+require("./test-foreign-deploy").register(shared);

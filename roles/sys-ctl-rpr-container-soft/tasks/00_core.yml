@@ -11,7 +11,8 @@
     system_service_tpl_exec_start_pre: "{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(' ')  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP| join(' ') }} {{ SYS_SERVICE_REPAIR_CONTAINER_SOFT
       }} --timeout '{{ SYS_TIMEOUT_CONTAINER_RPR_SOFT }}'"
     system_service_tpl_exec_start: >
-      /bin/sh -c '{{ system_service_script_exec }} --manipulation-string "{{ SYS_SERVICE_GROUP_MANIPULATION | join(" ") }}" {{ DIR_COMPOSITIONS }}'
+      /bin/sh -c '{{ system_service_script_exec }} --manipulation-string "{{ SYS_SERVICE_GROUP_MANIPULATION | join(" ") }}" --state-file {{ APP_CONTROL_STATE_FILE
+      }} {{ DIR_COMPOSITIONS }}'
     system_service_force_linear_sync: true
 
 - include_tasks: utils/once/flag.yml

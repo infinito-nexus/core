@@ -102,6 +102,62 @@ class TestGuideEdgeBake(unittest.TestCase):
         )
 
 
+@patch(
+    "cli.administration.deploy.development.inventory.payload.build_service_registry_from_roles_dir",
+    autospec=True,
+    return_value={
+        "docs": {"role": "web-app-docs"},
+        "semaphore": {"role": "web-app-semaphore"},
+    },
+)
+@patch(
+    "cli.administration.deploy.development.inventory.payload.get_variant_overrides_only",
+    autospec=True,
+)
+class TestSemaphoreEdgeBake(unittest.TestCase):
+    OVERRIDES: ClassVar[dict] = {
+        "web-app-chess": [
+            {
+                "services": {
+                    "docs": {"enabled": True},
+                    "semaphore": {"enabled": True},
+                    "tor": {},
+                }
+            }
+        ],
+        "web-app-docs": [{}],
+        "web-app-semaphore": [{}],
+    }
+
+    def test_an_edge_to_an_undeployed_semaphore_is_not_baked(
+        self, get_overrides_mock: MagicMock, _registry: MagicMock
+    ) -> None:
+        get_overrides_mock.return_value = self.OVERRIDES
+        resolved = _resolve_variant_payloads(
+            roles_dir="/roles",
+            include=["web-app-chess", "web-app-docs"],
+            active_variants={},
+        )
+        self.assertEqual(
+            resolved["web-app-chess"],
+            {"services": {"docs": {"enabled": True}, "tor": {}}},
+        )
+
+    def test_the_edge_stays_while_the_round_deploys_semaphore(
+        self, get_overrides_mock: MagicMock, _registry: MagicMock
+    ) -> None:
+        get_overrides_mock.return_value = self.OVERRIDES
+        resolved = _resolve_variant_payloads(
+            roles_dir="/roles",
+            include=["web-app-chess", "web-app-semaphore"],
+            active_variants={},
+        )
+        self.assertEqual(
+            resolved["web-app-chess"],
+            {"services": {"semaphore": {"enabled": True}, "tor": {}}},
+        )
+
+
 class TestBakeOverrides(unittest.TestCase):
     def test_user_supplied_applications_override_wins_over_variant_payload(self):
         baked = _bake_overrides(

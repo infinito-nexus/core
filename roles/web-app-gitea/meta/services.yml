@@ -211,3 +211,10 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: it holds the inventory repository Semaphore deploys from, so a run that paused it would cut off the source of every later run
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

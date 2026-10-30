@@ -98,6 +98,7 @@ All three are used as central defaults for every app role.
 - `playwright.version` in `meta/services.yml` is the single source of truth for the default Playwright version; the central `templates/package.json.j2` pins it via the `image_version` filter.
 - `templates/playwright.env.j2` acts as the stable marker for discovery and as the source of environment configuration.
 - Playwright is executed in Docker for reproducibility and consistent browser dependencies.
+- While the specs of a role with an RBAC hook (`TEST_E2E_PLAYWRIGHT_RBAC_HOOK_DIR`) run, the transient systemd timer `TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT` starts the `sys-ctl-mtn-rbac-sync` service every `TEST_E2E_PLAYWRIGHT_RBAC_SYNC_INTERVAL` seconds; the timer stops when the run ends, whatever its result.
 - In `TLS_MODE=self_signed`, the role requires `CA_TRUST.cert_host`, `CA_TRUST.wrapper_host`, and `CA_TRUST.trust_name` and fails early if cert/wrapper files are missing.
 
 ## How to use

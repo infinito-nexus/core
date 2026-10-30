@@ -1,0 +1,38 @@
+---
+- name: "📂 Include dependency 'sys-svc-sshd'"
+  ansible.builtin.include_role:
+    name: sys-svc-sshd
+  when: run_once_sys_svc_sshd is not defined
+
+- name: "👤 Create '{{ APP_CONTROL_USER }}', the account the Semaphore runner signs in as"
+  ansible.builtin.user:
+    name: "{{ APP_CONTROL_USER }}"
+    system: true
+    shell: /bin/sh
+    home: "{{ APP_CONTROL_HOME }}"
+    create_home: true
+
+- name: "🔐 Let '{{ APP_CONTROL_USER }}' run exactly app-control stop and start as root"
+  stack_host_template:
+    src: sudoers.j2
+    dest: "{{ [ '/etc/sudoers.d', APP_CONTROL_USER ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: "📁 Create the root-owned ssh directory of '{{ APP_CONTROL_USER }}'"
+  ansible.builtin.file:
+    path: "{{ [ APP_CONTROL_HOME, '.ssh' ] | path_join }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "🔑 Pin the runner key of '{{ APP_CONTROL_USER }}' to the app-control command"
+  ansible.builtin.copy:
+    content: "{{ APP_CONTROL_AUTHORIZED_KEY }}\n"
+    dest: "{{ [ APP_CONTROL_HOME, '.ssh', 'authorized_keys' ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0644"

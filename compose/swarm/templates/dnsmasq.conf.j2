@@ -1,5 +1,5 @@
 no-resolv
-server=/{{ lab_mgr }}/{{ lab_wrk1 }}/{{ lab_wrk2 }}/{{ lab_nfs }}/{{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }}
+server=/{{ lab_mgr }}/{{ lab_wrk1 }}/{{ lab_wrk2 }}/{{ lab_nfs }}/target/{{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }}
 {% for resolver in NETWORK_PUBLIC_DNS_RESOLVERS %}
 server={{ resolver }}
 {% endfor %}

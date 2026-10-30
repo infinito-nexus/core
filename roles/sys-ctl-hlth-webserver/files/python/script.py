@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
 Ultra-thin checker: consume a JSON mapping of
-{domain: {"codes": [...], "scheme": "http"|"https", "timeout": seconds}} and
-verify HTTP HEAD responses. All mapping logic is done in the filters
-`web_health_expectations` and `web_health_targets`.
+{domain: {"codes": [...], "scheme": "http"|"https", "timeout": seconds,
+"paused_marker": path}} and verify HTTP HEAD responses. All mapping logic is
+done in the filters `web_health_expectations` and `web_health_targets`; a
+domain whose app-control marker reads ``stopped`` also accepts the 503 of the
+paused page.
 """
 
 import argparse
@@ -16,6 +18,7 @@ from pathlib import Path
 import requests
 
 WORKERS = 16
+PAUSED_STATUS = 503
 
 
 def parse_args(argv=None):
@@ -56,12 +59,29 @@ def _parse_targets(value: str) -> dict[str, dict]:
         timeout = target.get("timeout")
         if not isinstance(timeout, int) or timeout <= 0:
             raise SystemExit(f"--targets entry for {domain} has timeout {timeout!r}")
+        paused_marker = target.get("paused_marker")
+        if not isinstance(paused_marker, str):
+            raise SystemExit(
+                f"--targets entry for {domain} has paused_marker {paused_marker!r}"
+            )
         clean[domain] = {
             "codes": _codes(target.get("codes")),
             "scheme": scheme,
             "timeout": timeout,
+            "paused_marker": paused_marker,
         }
     return clean
+
+
+def _paused(marker: str) -> bool:
+    """Return whether app-control paused the application behind a domain.
+
+    Args:
+        marker: path of its app-control state marker, empty outside app control.
+    """
+    if not marker or not Path(marker).is_file():
+        return False
+    return Path(marker).read_text(encoding="utf-8").strip() == "stopped"
 
 
 def _probe(domain: str, target: dict, verify) -> tuple[str, bool]:
@@ -69,10 +89,12 @@ def _probe(domain: str, target: dict, verify) -> tuple[str, bool]:
 
     Args:
         domain: the host to probe.
-        target: its ``codes``, ``scheme`` and ``timeout``.
+        target: its ``codes``, ``scheme``, ``timeout`` and ``paused_marker``.
         verify: what ``requests`` verifies the certificate against.
     """
     expected = target["codes"]
+    if expected and _paused(target["paused_marker"]):
+        expected = [*expected, PAUSED_STATUS]
     url = f"{target['scheme']}://{domain}"
     try:
         r = requests.head(

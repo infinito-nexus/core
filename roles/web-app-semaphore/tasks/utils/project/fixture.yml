@@ -1,0 +1,96 @@
+---
+- name: "🔑 Name the root key this host holds for the shared target"
+  ansible.builtin.command:
+    argv:
+      - sed
+      - -n
+      - s/^INFINITO_TARGET_KEY=//p
+      - "{{ [SEMAPHORE_DEPLOY_FIXTURE_SRC_DIR, '.env'] | path_join }}"
+  register: semaphore_deploy_fixture_key
+  changed_when: false
+  failed_when: semaphore_deploy_fixture_key.rc != 0 or semaphore_deploy_fixture_key.stdout_lines | length != 1
+
+- name: "📖 Read the address, pinned host keys and root key of the shared target"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_deploy_fixture_key.stdout ~ semaphore_deploy_fixture_suffix }}"
+  loop:
+    - .address
+    - .known_hosts
+    - .pub
+  loop_control:
+    loop_var: semaphore_deploy_fixture_suffix
+  register: semaphore_deploy_fixture_target
+
+- name: "📌 Hold the address, the pinned host keys and the root key of the shared target"
+  ansible.builtin.set_fact:
+    semaphore_deploy_fixture_address: "{{ semaphore_deploy_fixture_target.results[0].content | b64decode | trim }}"
+    semaphore_deploy_fixture_known_hosts: "{{ (semaphore_deploy_fixture_target.results[1].content | b64decode).splitlines() | select | list }}"
+    semaphore_deploy_fixture_holder_key: "{{ semaphore_deploy_fixture_target.results[2].content | b64decode | trim }}"
+
+- name: "🔐 Authorize the Semaphore deploy key for root on the shared target"
+  ansible.builtin.command:
+    argv:
+      - ssh
+      - -i
+      - "{{ semaphore_deploy_fixture_key.stdout }}"
+      - -o
+      - BatchMode yes
+      - -o
+      - StrictHostKeyChecking yes
+      - -o
+      - "UserKnownHostsFile {{ semaphore_deploy_fixture_key.stdout }}.known_hosts"
+      - "root@{{ semaphore_deploy_fixture_address }}"
+      - >-
+        read -r key; if grep -qxF "$key" /root/.ssh/authorized_keys; then echo UNCHANGED;
+        else printf '%s\n' "$key" >>/root/.ssh/authorized_keys && echo CHANGED; fi
+    stdin: "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+  register: semaphore_deploy_fixture_authorize
+  changed_when: "'CHANGED' in semaphore_deploy_fixture_authorize.stdout"
+
+- name: "🔎 Read the fixture marker of the inventory repository"
+  uri_retry:
+    url: >-
+      {{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/raw/{{ SEMAPHORE_DEPLOY_FIXTURE_MARKER
+      }}?ref={{ SEMAPHORE_DEPLOY_REPOSITORY_BRANCH | urlencode }}
+    method: GET
+    url_username: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER }}"
+    url_password: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD }}"
+    force_basic_auth: true
+    return_content: true
+    status_code: [200, 404]
+  register: semaphore_deploy_fixture_marker
+
+- name: "🏗️ Recreate the inventory repository for the current keys and target"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/repository.yml"
+  when: >-
+    semaphore_deploy_fixture_marker.status != 200
+    or (semaphore_deploy_fixture_marker.content | trim) != SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT
+
+- name: "🔎 List the deploy keys of the inventory repository"
+  uri_retry:
+    url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+    method: GET
+    url_username: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER }}"
+    url_password: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200]
+  register: semaphore_deploy_fixture_keys
+
+- name: "🔑 Bind the inventory repository key to the repository, read-only"
+  uri_retry:
+    url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+    method: POST
+    url_username: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_USER }}"
+    url_password: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_PASSWORD }}"
+    force_basic_auth: true
+    body_format: json
+    body:
+      title: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY_NAME }}"
+      key: "{{ SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key }}"
+      read_only: true
+    status_code: [201]
+  changed_when: true
+  when: >-
+    semaphore_deploy_fixture_keys.json
+    | selectattr('key', 'search', (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key).split()[1] | regex_escape)
+    | list | length == 0

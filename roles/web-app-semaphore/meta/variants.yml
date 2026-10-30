@@ -33,6 +33,21 @@
       shared: true
     tor:
       enabled: true
+    gitea:
+      enabled: true
+      shared: true
+    lam: # nocheck: variants-services-match
+      enabled: true
+      shared: true
+    semaphore:
+      deploy:
+        repository:
+          url: >-
+            ssh://git@{{ lookup('domain', 'web-app-gitea') }}:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.public.ssh')
+            }}/{{ lookup('users', 'platform_administrator').username }}/target-inventory.git
+          branch: main
+          key: "{{ lookup('config', 'web-app-semaphore', 'secrets.credentials.deploy_ssh_key') }}"
+        vault_password: "VeryUnsafeTargetInventoryPassword!1"
 
 - services:
     docs:
@@ -69,6 +84,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    gitea:
+      enabled: false
+      shared: false
 
 - services:
     container_backup:
@@ -83,6 +101,9 @@
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    lam:
+      enabled: true
+      shared: true
     ldap:
       enabled: true
       shared: true
@@ -102,3 +123,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    gitea:
+      enabled: false
+      shared: false

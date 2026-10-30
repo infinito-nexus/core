@@ -249,6 +249,21 @@ def run_hook(config, hook_dir, hook, members, required, run, now):
     return "ran"
 
 
+def paused(hook):
+    """Return whether app-control paused the hook's application.
+
+    Args:
+        hook: the parsed hook; ``paused_marker`` is the path of its app-control
+            state marker, empty for an application outside app control and
+            absent from a hook registered before app-control existed.
+    """
+    path = hook.get("paused_marker", "")
+    if not path:
+        return False
+    marker = Path(path)
+    return marker.is_file() and marker.read_text(encoding="utf-8").strip() == "stopped"
+
+
 def load_hooks(hooks_dir, only):
     """Return ``(hook directory, parsed hook)`` pairs, sorted by application id.
 
@@ -308,6 +323,9 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
     failed = []
     try:
         for hook_dir, hook in hooks:
+            if paused(hook):
+                print(f"[{hook['application_id']}] SKIPPED paused by app-control")
+                continue
             members = {
                 role: directory_members(connection, ldap, hook["application_id"], role)
                 for role in hook["roles"]

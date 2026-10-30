@@ -59,6 +59,13 @@ class TestCoreMessages(unittest.TestCase):
                 counter: "{done} of {total} services signed out"
                 """,
             )
+            _write(
+                root,
+                "roles/sys-svc-app-control/files/paused_i18n.yml",
+                """\
+                title: " Service paused "
+                """,
+            )
 
             messages = core_messages(root)
 
@@ -72,6 +79,7 @@ class TestCoreMessages(unittest.TestCase):
                 ("menu:Community:title", "Community"),
                 ("menu:Community:description", "Tools to manage the community"),
                 ("logout:counter", "{done} of {total} services signed out"),
+                ("paused:title", "Service paused"),
             ],
         )
 

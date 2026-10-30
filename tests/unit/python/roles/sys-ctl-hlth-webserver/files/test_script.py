@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import json
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -15,8 +16,13 @@ def load_module_from_path(mod_name: str, path: str):
     return module
 
 
-def _target(codes, scheme="https", timeout=10):
-    return {"codes": codes, "scheme": scheme, "timeout": timeout}
+def _target(codes, scheme="https", timeout=10, paused_marker=""):
+    return {
+        "codes": codes,
+        "scheme": scheme,
+        "timeout": timeout,
+        "paused_marker": paused_marker,
+    }
 
 
 class _Response:
@@ -63,6 +69,53 @@ class TestStandaloneCheckerScript(unittest.TestCase):
                     json.dumps({"a.example.org": {"codes": [200], "scheme": "https"}}),
                 ]
             )
+
+    def test_rejects_missing_paused_marker(self):
+        with self.assertRaises(SystemExit):
+            self.script.main(
+                [
+                    "--targets",
+                    json.dumps(
+                        {
+                            "a.example.org": {
+                                "codes": [200],
+                                "scheme": "https",
+                                "timeout": 10,
+                            }
+                        }
+                    ),
+                ]
+            )
+
+    @patch("requests.head")
+    def test_a_paused_application_may_answer_with_the_paused_page(self, mock_head):
+        mock_head.side_effect = lambda url, **_: _Response(503)
+        with tempfile.TemporaryDirectory() as instance:
+            marker = Path(instance) / ".app-control-state"
+            marker.write_text("stopped\n")
+            exit_code, output = self._run_main(
+                {"paused.example.org": _target([200], paused_marker=str(marker))}
+            )
+        self.assertEqual(exit_code, 0)
+        self.assertIn("paused.example.org: OK", output)
+
+    @patch("requests.head")
+    def test_a_started_application_still_fails_on_503(self, mock_head):
+        mock_head.side_effect = lambda url, **_: _Response(503)
+        with tempfile.TemporaryDirectory() as instance:
+            marker = Path(instance) / ".app-control-state"
+            marker.write_text("started\n")
+            exit_code, output = self._run_main(
+                {"running.example.org": _target([200], paused_marker=str(marker))}
+            )
+        self.assertEqual(exit_code, 1)
+        self.assertIn("running.example.org: ERROR: Expected [200]. Got 503.", output)
+
+    @patch("requests.head")
+    def test_an_application_outside_app_control_fails_on_503(self, mock_head):
+        mock_head.side_effect = lambda url, **_: _Response(503)
+        exit_code, _ = self._run_main({"plain.example.org": _target([200])})
+        self.assertEqual(exit_code, 1)
 
     @patch("requests.head")
     def test_all_ok_returns_zero(self, mock_head):

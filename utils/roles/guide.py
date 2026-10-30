@@ -37,15 +37,6 @@ variant this function picks is the one that then switches the guide on, which
 on the next read makes that variant one service larger than it was."""
 
 
-def without_guide(services: Mapping[str, Any]) -> dict[str, Any]:
-    """``services`` without the guide host's entry.
-
-    Args:
-        services: a role's services map or a variant's services override.
-    """
-    return {key: value for key, value in services.items() if key != GUIDE_SERVICE_KEY}
-
-
 def declares_guide(services: Mapping[str, Any]) -> bool:
     """Whether ``services`` switches the guide host on, as a literal.
 

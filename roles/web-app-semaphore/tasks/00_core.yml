@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🏃 Stage the Semaphore runner for {{ application_id }}"
+  include_tasks: utils/runner.yml
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
@@ -18,6 +21,9 @@
 
     - name: "🔑 Carry the break-glass password into Semaphore on every deploy"
       include_tasks: 02_breakglass.yml
+
+    - name: "🗂️ Provision the project whose templates pause and resume the applications"
+      include_tasks: utils/project.yml
 
 - name: "🛂 Converge the Semaphore accounts with the role groups"
   include_tasks: 03_rbac.yml
