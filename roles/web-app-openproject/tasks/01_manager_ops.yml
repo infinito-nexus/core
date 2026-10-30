@@ -43,7 +43,7 @@
   delay: 10
   until: openproject_seeder_state.rc != 1
   failed_when: openproject_seeder_state.rc != 0
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: ▶️ Migrate the OpenProject database
   include_tasks: 02_migrate.yml

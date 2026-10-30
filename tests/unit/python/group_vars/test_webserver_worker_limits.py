@@ -79,6 +79,7 @@ class TestWebserverWorkerLimits(unittest.TestCase):
         }
         variables.update(
             application_id=_FIRST_LOADER,
+            ansible_facts={"processor_vcpus": 8, "memtotal_mb": 16384},
             RESOURCE_CPUS="0.5",
             RESOURCE_PIDS_LIMIT=512,
             **scope,
