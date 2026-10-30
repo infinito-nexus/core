@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-erpnext/files/python/apply/server_scripts.py"
@@ -26,7 +28,7 @@ class TestServerScripts(unittest.TestCase):
     def _run(self, enabled: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [sys.executable, "-I", "-"],
-            input=SCRIPT.read_text(encoding="utf-8"),
+            input=read_text(str(SCRIPT)),
             cwd=self.sites,
             env={**os.environ, "SERVER_SCRIPTS_ENABLED": enabled},
             capture_output=True,
@@ -35,7 +37,8 @@ class TestServerScripts(unittest.TestCase):
         )
 
     def _stored(self) -> dict:
-        return json.loads(self.config.read_text(encoding="utf-8"))
+        text = self.config.read_text()  # nocheck: cache-read tempdir fixture
+        return json.loads(text)
 
     def test_enables_as_the_integer_one_and_keeps_other_keys(self) -> None:
         self._seed()
@@ -65,12 +68,13 @@ class TestServerScripts(unittest.TestCase):
 
     def test_an_aligned_value_is_left_untouched(self) -> None:
         self._seed(server_script_enabled=1)
-        before = self.config.read_bytes()
+        before = self.config.read_bytes()  # nocheck: cache-read tempdir fixture
 
         result = self._run("true")
 
         self.assertEqual(json.loads(result.stdout), {"changed": False})
-        self.assertEqual(self.config.read_bytes(), before)
+        after = self.config.read_bytes()  # nocheck: cache-read tempdir fixture
+        self.assertEqual(after, before)
 
     def test_accepts_the_capitalised_bool_ansible_renders(self) -> None:
         self._seed(server_script_enabled=0)
