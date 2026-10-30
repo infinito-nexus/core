@@ -133,12 +133,11 @@
   addons: &wordpress_addons_off
     activitypub:
       enabled: false
-  server:
-    domains:
-      canonical:
-        - blog.{{ DOMAIN_PRIMARY }}
-        - biberblog.{{ DOMAIN_PRIMARY }}
-        - biber.blog.{{ DOMAIN_PRIMARY }}
+  domains:
+    canonical:
+      - blog.{{ DOMAIN_PRIMARY }}
+      - biberblog.{{ DOMAIN_PRIMARY }}
+      - biber.blog.{{ DOMAIN_PRIMARY }}
 
 - services:
     docs:

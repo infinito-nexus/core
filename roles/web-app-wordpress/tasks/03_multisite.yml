@@ -8,8 +8,7 @@
 #
 # Idempotent: if the network is already enabled, `wp core multisite-convert`
 # prints an informative message and exits 1 - we ignore that so re-runs
-# stay green. Sites that already exist are detected via `wp site list`
-# before `wp site create` runs.
+# stay green.
 
 - name: "🌐 Multisite: convert Single-Site to Multisite network (subdomain install)"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -26,6 +25,16 @@
     and ('already' not in (wp_ms_convert.stderr | lower))
     and ('multisite' not in (wp_ms_convert.stderr | lower))
 
+- name: "🌅 Multisite: install the sunrise drop-in that resolves each network sibling to its site"
+  ansible.builtin.shell: >
+    container exec -i -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    tee {{ WORDPRESS_SUNRISE_PATH }}
+    > /dev/null
+  args:
+    stdin: "{{ lookup('file', [role_path, 'files/mu-plugins/infinito-network-origins.php'] | path_join) }}"
+  register: wp_ms_sunrise
+  changed_when: wp_ms_sunrise.rc == 0
+
 - name: "🔧 Multisite: patch wp-config.php with PHP-literal constants (--raw)"
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
@@ -38,6 +47,7 @@
     - { key: "SUBDOMAIN_INSTALL", value: "true" }
     - { key: "SITE_ID_CURRENT_SITE", value: "1" }
     - { key: "BLOG_ID_CURRENT_SITE", value: "1" }
+    - { key: "SUNRISE", value: "true" }
   changed_when: true
 
 - name: "🔧 Multisite: patch wp-config.php with PHP-string constants (no --raw)"
@@ -47,33 +57,22 @@
     --type=constant
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   loop:
-    - { key: "DOMAIN_CURRENT_SITE", value: "{{ WORDPRESS_DOMAINS | first }}" }
+    - { key: "DOMAIN_CURRENT_SITE", value: "{{ WORDPRESS_SITE_DOMAINS | first }}" }
     - { key: "PATH_CURRENT_SITE", value: "/" }
   changed_when: true
 
-- name: "🌐 Multisite: list the existing sites in the network"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp site list --field=url --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  register: wp_ms_sites
-  changed_when: false
-
-- name: "🌐 Multisite: create any missing per-canonical-domain site"
+- name: "🌐 Multisite: create every child site on its own canonical domain"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp site create
-    --slug="{{ item }}"
-    --title="{{ item }}"
-    --email="{{ WORDPRESS_ADMIN_EMAIL }}"
-    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  loop: "{{ (WORDPRESS_DOMAINS | default([]))[1:] }}"
-  when:
-    - (WORDPRESS_DOMAINS | default([])) | length > 1
-    - ('https://' ~ item) not in wp_ms_sites.stdout
-    - ('http://' ~ item) not in wp_ms_sites.stdout
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e WP_MS_SITE_URLS -e WP_MS_ADMIN_EMAIL
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/multisite/sites.php') }}"
+  environment:
+    WP_MS_SITE_URLS: "{{ WORDPRESS_SITE_URLS[1:] | join(',') }}"
+    WP_MS_ADMIN_EMAIL: "{{ WORDPRESS_ADMIN_EMAIL }}"
   register: wp_ms_site_create
-  changed_when: wp_ms_site_create.rc == 0
-  failed_when: >
-    wp_ms_site_create.rc != 0
-    and ('already exists' not in (wp_ms_site_create.stderr | default('') | lower))
+  changed_when: "'CHANGED' in wp_ms_site_create.stdout"
+  when: WORDPRESS_SITE_URLS | length > 1
