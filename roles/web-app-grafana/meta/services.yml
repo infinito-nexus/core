@@ -57,14 +57,26 @@ grafana:
     flavor: wget
     path: api/health
     port_key: grafana
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-grafana', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-grafana', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-grafana', 'registration') }}"
   ports:
     internal:
       grafana: 3000
+      grafana_onion: 3000
     local:
       grafana: 3300
+      grafana_onion: 3301
     onion:
       # nocheck: onion-flag  the UI reaches the node onion through the front proxy vhost, so the raw application port stays off it
       grafana: false
+      # nocheck: onion-flag  the onion instance is reached through its onion vhost on the front proxy, never by a raw forward
+      grafana_onion: false
   run_after:
     - web-app-keycloak
     - web-app-prometheus

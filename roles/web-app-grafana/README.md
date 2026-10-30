@@ -6,7 +6,7 @@
 
 ## Overview
 
-Grafana runs as one container with its SQLite database on the node-local volume `grafana_data` (`nfs: false`, `placement: manager`); the entity declares `backup.stop_required: true`, so the backup stops it before copying the database.
+Grafana runs one container per network the role is served on (`network_instances`): `grafana` for the canonical network and `grafana-onion` for the onion sibling. Grafana builds its OAuth callback and its links from the one `root_url` of its process, so each instance gets the root URL, domain, sign-out target and cookie flag of its network as container environment, and `templates/proxy.conf.j2` routes each vhost to the instance of its network. Each instance keeps its SQLite database on its own node-local volume (`grafana_data`, `grafana_data_onion`; `nfs: false`, `placement: manager`); the entity declares `backup.stop_required: true`, so the backup stops them before copying the databases. Both instances evaluate the provisioned alert rule, and the Alertmanager merges the identical alerts.
 
 Everything Grafana shows is provisioned from files and cannot be edited in the UI:
 
@@ -17,8 +17,9 @@ Everything Grafana shows is provisioned from files and cannot be edited in the U
 ## Features
 
 - **Native OIDC:** Grafana signs in through Keycloak with `auth.generic_oauth` and auto-login. The role mapping reads the `RBAC.GROUP.CLAIM` claim: the `administrator` role group maps to the Admin role, the `auditor` role group of `meta/rbac.yml` maps to Viewer, and with `role_attribute_strict` every other account is refused. The RBAC sync grants and revokes both groups like every other role group; Grafana re-evaluates the role at each login.
-- **Break-glass access:** the local account `web-app-grafana-breakglass` (`meta/users.yml`) is the only one that signs in without Keycloak, through `/login?disableAutoLogin=true`. Its password is the `breakglass_password` credential of `meta/secrets.yml`, applied with `grafana cli admin reset-admin-password --password-from-stdin` on every deploy.
-- **Network contract:** the role is served on every network the node runs; the application port carries `ports.onion.grafana: false` and reaches the onion through the vhost only. It declares its CSP in `meta/csp.yml` and its limits and storage in `meta/services.yml`.
+- **Login methods:** `services.grafana.login.method` declares `sso`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` switches the `auth.generic_oauth` block of `templates/env.j2` with auto-login, `native` drives `GF_AUTH_DISABLE_LOGIN_FORM` (the local form is off while `native` is off) and `registration` drives `GF_USERS_ALLOW_SIGN_UP`. Grafana OSS has no second factor of its own, so the role declares no `2fa`, and it has no `ldap` service.
+- **Break-glass access:** the local account `web-app-grafana-breakglass` (`meta/users.yml`) is the only one that signs in without Keycloak. Its password is the `breakglass_password` credential of `meta/secrets.yml`, applied with `grafana cli admin reset-admin-password --password-from-stdin` to every instance on every deploy. With `native` off, `GF_AUTH_DISABLE_LOGIN_FORM=true` removes the form and its server-side handler, so `/login?disableAutoLogin=true` shows the Keycloak entry only; the account then authenticates against the HTTP API with basic auth (`GF_AUTH_BASIC_ENABLED=true`, e.g. `curl -u <account>:<password> <url>/api/user`), which `files/playwright/test-login-methods.js` proves. Overriding `services.grafana.login.method.native.enabled: true` in the inventory brings the form back at `/login?disableAutoLogin=true`.
+- **Network contract:** the role is served on every network the node runs; the application ports carry `ports.onion.grafana: false` and `ports.onion.grafana_onion: false` and reach the onion through the vhost only. It declares its CSP in `meta/csp.yml` and its limits and storage in `meta/services.yml`.
 
 ## Persona contract
 

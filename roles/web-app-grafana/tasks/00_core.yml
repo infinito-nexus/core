@@ -38,27 +38,12 @@
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
 
-- name: "🔐 Align the break-glass administrator once Grafana answers"
+- name: "🔐 Align the break-glass administrator of every network instance"
+  include_tasks: 01_breakglass.yml
   when: IS_STACK_HOST | bool
-  block:
-    - name: "⏳ Wait until Grafana answers /api/health"
-      uri_retry:
-        url: "{{ GRAFANA_LOCAL_URL }}/api/health"
-        method: GET
-        status_code: 200
-      register: grafana_health
-      until: grafana_health is succeeded
-      retries: 60
-      delay: 5
-
-    - name: "🔐 Align the break-glass administrator password"
-      ansible.builtin.shell: >-
-        container exec -i {{ GRAFANA_CONTAINER_ADDRESS }}
-        grafana cli admin reset-admin-password --password-from-stdin
-      args:
-        stdin: "{{ GRAFANA_BREAKGLASS_PASSWORD }}"
-      changed_when: false
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  loop: "{{ GRAFANA_INSTANCES }}"
+  loop_control:
+    loop_var: grafana_instance
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:

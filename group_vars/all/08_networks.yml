@@ -104,6 +104,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     grafana:
       start: 3300
       end: 3300
+    grafana_onion:
+      start: 3301
+      end: 3301
     loki:
       start: 3310
       end: 3310

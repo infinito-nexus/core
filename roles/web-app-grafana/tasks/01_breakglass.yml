@@ -1,0 +1,19 @@
+---
+- name: "⏳ Wait for /api/health of Grafana on '{{ grafana_instance.network }}'"
+  uri_retry:
+    url: "{{ GRAFANA_INSTANCE_LOCAL_URL }}/api/health"
+    method: GET
+    status_code: 200
+  register: grafana_health
+  until: grafana_health is succeeded
+  retries: 60
+  delay: 5
+
+- name: "🔐 Align the break-glass password on '{{ grafana_instance.network }}'"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  the container_address result suffixed with the instance label names the onion instance's container in compose and its service in swarm
+    container exec -i {{ GRAFANA_INSTANCE_CONTAINER_ADDRESS }}
+    grafana cli admin reset-admin-password --password-from-stdin
+  args:
+    stdin: "{{ GRAFANA_BREAKGLASS_PASSWORD }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
