@@ -103,4 +103,4 @@ WORDPRESS_DESIGN_CONFIG:
       focus: "{{ WORDPRESS_DESIGN_PALETTE['--design-on-frame'] }}"
       current: "{{ WORDPRESS_DESIGN_PALETTE['--design-on-frame'] }}"
   tokens:
-    - "{{ [lookup('cdn', 'web-svc-cdn').urls.shared.css, 'default.css'] | url_join }}"
+    - "{{ lookup('cdn', 'web-svc-cdn').relative_urls.shared.css }}/default.css"
