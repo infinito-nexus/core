@@ -6250,11 +6250,11 @@ tg-legacy-loader {
 {% if design.logo is string %}
 
 .navbar .nav-left .logo {
-  background: url("{{ design.urls.logo.svg }}") center / 2.2rem 2.2rem no-repeat;
+  background: url("{{ design.relative_urls.logo.svg }}") center / 2.2rem 2.2rem no-repeat;
 }
 
 .auth .logo-svg {
-  background: url("{{ design.urls['logo-auth'].svg }}") center / 8rem 8rem no-repeat;
+  background: url("{{ design.relative_urls['logo-auth'].svg }}") center / 8rem 8rem no-repeat;
 }
 
 .navbar .nav-left .logo svg,

@@ -7,6 +7,7 @@
     compose_repository_url: "{{ TAIGA_REPOSITORY }}"
     compose_repository_ref: "{{ TAIGA_REF }}"
     compose_repository_pull: true
+    webserver_location_extra_configuration: "{{ TAIGA_LOCATION_CONFIGURATION }}"
 
 - name: "👔 Taiga manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

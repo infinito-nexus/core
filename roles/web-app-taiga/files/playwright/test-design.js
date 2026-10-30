@@ -246,14 +246,14 @@ exports.register = function (shared) {
     await gotoOnion(page, `${base()}/discover`);
     await ready(page, "nav.navbar .nav-left .logo");
     const logo = page.locator("nav.navbar .nav-left .logo").first();
-    expect(await logo.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(LOGO_URL);
+    expect(await logo.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(new URL(LOGO_URL, page.url()).href);
     await expect(page.locator("nav.navbar .nav-left .logo svg").first()).toBeHidden();
     const box = await logo.boundingBox();
     expect(Math.abs(box.width - box.height), "the navbar logo box is square").toBeLessThanOrEqual(2);
     await gotoOnion(page, `${base()}/login`);
     await ready(page, ".auth .logo-svg");
-    expect(await page.locator(".auth .logo-svg").first().evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(LOGO_AUTH_URL);
-    for (const url of [LOGO_URL, LOGO_AUTH_URL]) {
+    expect(await page.locator(".auth .logo-svg").first().evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(new URL(LOGO_AUTH_URL, page.url()).href);
+    for (const url of [LOGO_URL, LOGO_AUTH_URL].map((logoUrl) => new URL(logoUrl, page.url()).href)) {
       const response = await apiGetOnion(request, url, { ignoreHTTPSErrors: true });
       expect(response.status(), `${url} is served`).toBe(200);
       expect(response.headers()["content-type"]).toContain("image/svg+xml");
