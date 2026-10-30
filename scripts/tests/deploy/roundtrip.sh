@@ -7,7 +7,8 @@ set -euo pipefail
 #           (complexity clone == false), most complex first, when unset
 #   modes - mode sequence (default "compose swarm"; append "k8s" here once it exists)
 #   keep  - true keeps each validated swarm cluster instead of releasing it
-#   disable - comma-separated provider keys removed from the test inventory
+#   disable - comma-separated provider keys removed from the test inventory;
+#             the Tor key pins the swarm step to clearnet
 _repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
 
 # shellcheck source=scripts/meta/env/load.sh
@@ -28,6 +29,10 @@ _log_dir="${TMPDIR:-/tmp}" # nocheck: posix TMPDIR convention
 read -ra _apps <<<"${apps//$'\n'/ }"
 read -ra _modes <<<"$modes"
 
+_tor_key="$("${PYTHON}" -c "import sys; sys.path.insert(0, '${_repo_root}'); from utils.github.variant.network import TOR_SERVICE; print(TOR_SERVICE)")"
+_disabled=",${disable:-},"
+_disabled="${_disabled//[[:space:]]/,}"
+
 for app in "${_apps[@]}"; do
 	app_skip="$("${PYTHON}" -c "import sys; sys.path.insert(0, '${_repo_root}'); from utils.roles.meta_lookup import get_role_skip; print(' '.join(get_role_skip('${app}')))")"
 	for mode in "${_modes[@]}"; do
@@ -45,7 +50,9 @@ for app in "${_apps[@]}"; do
 			;;
 		swarm)
 			network=""
-			if "${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
+			if [[ "${_disabled}" == *",${_tor_key},"* ]]; then
+				network="clearnet"
+			elif "${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
 				network="multi"
 			fi
 			echo "==> roundtrip: ${app} [swarm] network=${network:-rotation}"
