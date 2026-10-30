@@ -60,6 +60,17 @@
   delay: 10
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
+- name: "🌐 Answer siteUrl with the network sibling the request arrived on"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }}
+      sh -c 'cat >"$1.new" && if cmp -s "$1.new" "$1"; then rm "$1.new"; else mv "$1.new" "$1" && echo CHANGED; fi'
+      config_override {{ ESPOCRM_CONFIG_OVERRIDE_FILE | quote }}
+    stdin: "{{ lookup('template', 'config-override.php.j2') }}"
+  register: espocrm_config_override
+  changed_when: "'CHANGED' in espocrm_config_override.stdout"
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
 - name: ▶️ Run flag setter as root (fallback)
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

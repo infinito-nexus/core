@@ -36,6 +36,7 @@ Both name surfaces EspoCRM ships itself, so their payload stays with [`templates
 - **Health Checks & Logging:** Monitor service health and logs with built-in checks and journald 📈  
 - **Version Upgrades:** The first start of a new image migrates the data through EspoCRM's `migrate` command, and the deploy waits until the data reports the image version; data written by a newer EspoCRM than the image stops the start.
 - **Currency List:** Before and after each install or migration, the entrypoint adds the default and base currency to `currencyList` when they are missing from it.
+- **Network Siblings:** [`templates/config-override.php.j2`](./templates/config-override.php.j2) becomes `data/config-override.php`, which answers `siteUrl` with the onion sibling's base URL when a request arrives on that host, so the OIDC `redirect_uri` EspoCRM derives from `siteUrl` returns the login to the host it started on. `data/config.php` keeps the canonical URL, so the CLI and the clearnet host read it unchanged.
 - **Modular Role Composition:** Leverages central roles for database and NGINX, ensuring consistency across deployments 🔄  
 
 ## AI Assistance
