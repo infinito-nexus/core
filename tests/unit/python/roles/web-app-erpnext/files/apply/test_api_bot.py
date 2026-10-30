@@ -21,6 +21,7 @@ def _env(**overrides):
         "API_KEY_SECRET": "keykeysecretsecret",
         "COUNTRY": "Germany",
         "CURRENCY": "EUR",
+        "SERVER_SCRIPTS_ENABLED": "False",
         **overrides,
     }
 
@@ -91,6 +92,65 @@ class TestApiBot(unittest.TestCase):
 
         roles = self.frappe.records["User"][BOT_EMAIL]["roles"]
         self.assertEqual([row.role for row in roles], ["System Manager"])
+
+    def _roles(self) -> list[str]:
+        return [row.role for row in self.frappe.records["User"][BOT_EMAIL]["roles"]]
+
+    def _seed_bot(self, *roles: str) -> None:
+        self.frappe.seed(
+            "User",
+            BOT_EMAIL,
+            email=BOT_EMAIL,
+            roles=[SimpleNamespace(role=role) for role in roles],
+        )
+
+    def test_server_scripts_on_grants_a_new_bot_the_script_manager_role(
+        self,
+    ) -> None:
+        self._run(SERVER_SCRIPTS_ENABLED="True")
+
+        self.assertEqual(self._roles(), ["System Manager", "Script Manager"])
+
+    def test_server_scripts_on_grants_an_existing_bot_the_script_manager_role(
+        self,
+    ) -> None:
+        self._seed_bot("System Manager")
+
+        self._run(SERVER_SCRIPTS_ENABLED="true")
+
+        self.assertEqual(self._roles(), ["System Manager", "Script Manager"])
+
+    def test_server_scripts_on_twice_keeps_a_single_script_manager_role(
+        self,
+    ) -> None:
+        self._run(SERVER_SCRIPTS_ENABLED="True")
+        self._run(SERVER_SCRIPTS_ENABLED="True")
+
+        self.assertEqual(self._roles(), ["System Manager", "Script Manager"])
+
+    def test_server_scripts_off_revokes_the_script_manager_role(self) -> None:
+        self._seed_bot("System Manager", "Script Manager", "Accounts User")
+
+        self._run(SERVER_SCRIPTS_ENABLED="False")
+
+        self.assertEqual(self._roles(), ["System Manager", "Accounts User"])
+
+    def test_server_scripts_off_without_the_role_keeps_the_bot_unchanged(
+        self,
+    ) -> None:
+        self._seed_bot("System Manager")
+
+        self._run(SERVER_SCRIPTS_ENABLED="false")
+
+        self.assertEqual(self._roles(), ["System Manager"])
+
+    def test_an_undeclared_server_scripts_value_fails_before_touching_the_site(
+        self,
+    ) -> None:
+        with self.assertRaises(KeyError):
+            self._run(SERVER_SCRIPTS_ENABLED="yes")
+
+        self.assertEqual(self.frappe.calls, [])
 
     def test_missing_currency_fails_before_touching_the_site(self) -> None:
         env = _env()
