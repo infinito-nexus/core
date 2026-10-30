@@ -46,6 +46,8 @@ mailu:
     project_hard_restart: true
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
+  dmarc:
+    rua_user: administrator
   ports:
     local:
       http: 8007

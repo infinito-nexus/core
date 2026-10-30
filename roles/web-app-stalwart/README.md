@@ -224,6 +224,11 @@ account (or the Keycloak SSO token when SSO is enabled).
   per-volume stop/start cycles.
 - **ClamAV runs fail-open with short milter timeouts** so mail keeps flowing
   while clamd warms its signature database instead of blocking the DATA stage.
+- **DMARC aggregate reports go to the mailbox of
+  `services.stalwart.dmarc.rua_user`** (the `administrator` user unless the
+  inventory names another user key). The `_dmarc` record publishes
+  `rua=mailto:<username>@<mail domain>`, and a deploy whose report user carries
+  no `mailbox` account fails before any record is written.
 - **`config.json` is bootstrap-only** (data store selection); all other
   configuration lives in the database and is provisioned over JMAP
   (`templates/jmap/*.json.j2`).
@@ -472,7 +477,7 @@ Set `INFINITO_MAIL_PRODUCTION_HOST` to the server's public FQDN (in CI, a GitHub
 | A / AAAA | the mail host resolves |
 | MX | the zone's only MX is the mail host (the role publishes it `solo`) |
 | SPF | exactly one `v=spf1` record, authorising `mx` or `a:<mailhost>` |
-| DMARC | `_dmarc` publishes a `v=DMARC1` record with a policy |
+| DMARC | `_dmarc` publishes a `v=DMARC1` record with a policy whose `rua` names the deployed aggregate report mailbox |
 | DKIM | the selector this deploy read back publishes a non-empty `v=DKIM1` key |
 | SRV | `_submissions`/465, `_imaps`/993, `_pop3s`/995 point at the mail host |
 | PTR | rDNS does not contradict the mail host (absent → warning; rDNS is provisioned for Hetzner only) |
