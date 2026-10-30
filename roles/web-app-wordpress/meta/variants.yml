@@ -11,7 +11,10 @@
 # nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and peertube,
 # which pin tor.enabled to a literal false, have a round of their own. It
 # carries nothing else, so dropping the onion there costs no coverage; every
-# other round keeps it on.
+# other round keeps it on. Translate rides variant 0, whose round index pairs it
+# with web-svc-translate#0, the LibreTranslate round that keeps the onion, so the
+# freedomtranslate-wp addon is deployed and checked over the onion beside SSO;
+# web-svc-translate#1 and #2 drop the onion, so neither other round may carry it.
 
 # variant 0: canonical Single-Site deploy.
 
@@ -62,8 +65,8 @@
       enabled: true
       shared: true
     translate:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     tor:
       enabled: true
     hermes:
@@ -120,8 +123,8 @@
       enabled: false
       shared: false
     translate:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     tor:
       enabled: true
     hermes:
