@@ -10,6 +10,8 @@ SUITECRM_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password 
 
 SUITECRM_WELL_SOFTWARE_NAME: "{{ SOFTWARE_DOMAIN | replace('.', '-') }}"
 SUITECRM_PHP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'php.ini'] | path_join }}"
+SUITECRM_SITE_URL_SCRIPT_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'site_url.php'] | path_join }}"
+SUITECRM_SITE_URL_SCRIPT_DOCKER: "{{ lookup('volume', application_id, 'site_url_script').target }}"
 
 SUITECRM_BASE_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 SUITECRM_BASE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
@@ -21,6 +23,7 @@ SUITECRM_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, enti
 SUITECRM_SERVICE: "{{ entity_name }}"
 
 SUITECRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+SUITECRM_SIBLING_SITE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.origin'))[1:] }}"
 
 SUITECRM_APP_DIR: /var/www/html
 SUITECRM_SEED_DIR: /usr/src/suitecrm

@@ -67,6 +67,15 @@ Role-level extensions are declared in `meta/addons/`, one file per addon:
   the Tor SOCKS proxy whenever the issuer is an onion, because a `.onion` issuer is
   unresolvable directly. `/auth` stays reachable as the local break-glass login.
 
+- **Network siblings**: SuiteCRM sends Keycloak `SITE_URL/saml/acs` as the assertion
+  consumer, and its kernel fills `SITE_URL` from the canonical `site_url` unless the
+  request already carries one. [`templates/site_url.php.j2`](./templates/site_url.php.j2)
+  runs as PHP's `auto_prepend_file` (see [`templates/php.ini.j2`](./templates/php.ini.j2))
+  and sets `SITE_URL` to the onion sibling's origin when a request arrives on that host,
+  so the assertion returns to the host the login started on. Keycloak lists the assertion
+  consumer of every sibling as a valid redirect URI of the SAML client. Requests on the
+  canonical host and CLI runs keep the canonical `site_url`.
+
 - **Auto-created accounts** reach `User::save()` through SuiteCRM's own `CreateUser`
   while the request is still anonymous. Since 8.10.2 that save answers
   `RuntimeException: Not authorized` and forces `status = Inactive`, so
