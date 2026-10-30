@@ -18,6 +18,7 @@
           on this host, so Talk would hand out no STUN or TURN server and calls behind NAT would carry
           no media. Deploy {{ NEXTCLOUD_HPB_TURN_STANDALONE_ROLE }} or set services.talk.enabled to false.
         quiet: true
+      when: IS_STACK_HOST | bool
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
