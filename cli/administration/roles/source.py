@@ -16,7 +16,7 @@ from utils.roles.custom import CustomRoleError
 if TYPE_CHECKING:
     from .declaration import Source
 
-_COPY_IGNORE = shutil.ignore_patterns(".git", "__pycache__")
+_COPY_IGNORE = shutil.ignore_patterns(".git", ".claude", "__pycache__")
 _DROPPED_ENV = frozenset(
     {
         "GIT_ALTERNATE_OBJECT_DIRECTORIES",
