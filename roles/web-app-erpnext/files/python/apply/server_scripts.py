@@ -29,7 +29,7 @@ def main():
         staged.write_text(
             json.dumps(config, indent=1, sort_keys=True) + "\n", encoding="utf-8"
         )
-        os.replace(staged, CONFIG)
+        staged.replace(CONFIG)
     print(json.dumps({"changed": changed}))
 
 
