@@ -38,7 +38,7 @@ As a platform operator, I want the complete logs of every deployed Infinito.Nexu
 - [ ] `roles/<grafana role>/meta/rbac.yml` declares the `auditor` role group, and the RBAC sync grants and revokes it.
 - [ ] Loki and Prometheus are provisioned datasources, and the central dashboard shows a log view per deployed application.
 - [ ] A Loki ruler rule and a Grafana alert on log content fire on a synthetic error line and notify through the existing alert channels.
-- [ ] The Grafana role follows the multi-network contract of `meta/networks.yml`, declares its CSP, its resource limits and its storage, and the Grafana database declares `backup.stop_required: true`.
+- [x] The Grafana role follows the multi-network contract of `meta/networks.yml`, declares its CSP, its resource limits and its storage, and the Grafana database declares `backup.stop_required: true`.
 
 ### Data protection
 
