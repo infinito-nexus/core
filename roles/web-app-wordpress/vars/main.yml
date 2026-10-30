@@ -17,7 +17,8 @@ WORDPRESS_DISCOURSE_CONTAINER_ADDRESS: "{{ lookup('config', 'web-app-discourse',
 WORDPRESS_DOMAINS: "{{ lookup('domains', application_id) }}"
 WORDPRESS_SITE_DOMAINS: "{{ WORDPRESS_DOMAINS | in_network(WORDPRESS_DOMAINS | first | network_of) }}"
 WORDPRESS_NETWORK_BASE_URLS: >-
-  {% for site_domain in WORDPRESS_SITE_DOMAINS %}{{ lookup('network_urls', lookup('tls', site_domain, 'url.base')) | join(',') }}{{ '' if loop.last else ';' }}{% endfor %}
+  {% for site_domain in WORDPRESS_SITE_DOMAINS %}{{ lookup('network_urls', lookup('tls', site_domain, 'url.base')) | join(',') }}{{ '' if loop.last else ';' }}{%
+  endfor %}
 WORDPRESS_SITE_URLS: "{{ WORDPRESS_NETWORK_BASE_URLS.split(';') | map('split', ',') | map('first') | list }}"
 WORDPRESS_PLUGINS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'plugin') | list }}"
 WORDPRESS_MU_PLUGINS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.mechanism', 'equalto', 'mu_plugin') | list }}"

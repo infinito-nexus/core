@@ -25,7 +25,7 @@
     and ('already' not in (wp_ms_convert.stderr | lower))
     and ('multisite' not in (wp_ms_convert.stderr | lower))
 
-- name: "🌅 Multisite: install the sunrise drop-in that resolves each network sibling to its site"
+- name: "🌅 Multisite: install the sunrise drop-in mapping siblings to sites"
   ansible.builtin.shell: >
     container exec -i -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
     tee {{ WORDPRESS_SUNRISE_PATH }}
