@@ -82,6 +82,7 @@ erpnext:
     service_key: frontend
   company:
     abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
+  server_scripts: false
   run_after:
     - web-app-keycloak
     - web-app-stalwart

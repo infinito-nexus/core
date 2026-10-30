@@ -301,11 +301,24 @@ function sessionFor(entry) {
   return pdsCreateSession({ handle: entry.handle, password: decrypt(entry.appPasswordEnc) });
 }
 
-async function storedSession(kcUsername, entry) {
+function storedPassword(entry) {
   try {
-    return await sessionFor(entry);
-  } catch (err) {
-    if (!pdsMessageIncludes(err, "Invalid identifier or password")) throw err;
+    return decrypt(entry.appPasswordEnc);
+  } catch {
+    return null;
+  }
+}
+
+async function storedSession(kcUsername, entry) {
+  const stored = storedPassword(entry);
+  if (stored === null) {
+    console.log(`[broker] stored app-password of ${logSafe(kcUsername)} does not decrypt with the current key → reset by DID`);
+  } else {
+    try {
+      return await pdsCreateSession({ handle: entry.handle, password: stored });
+    } catch (err) {
+      if (!pdsMessageIncludes(err, "Invalid identifier or password")) throw err;
+    }
   }
   const password = crypto.randomBytes(18).toString("base64url");
   await pdsAdminUpdatePassword(entry.did, password);

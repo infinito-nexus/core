@@ -85,6 +85,26 @@ class TestNextcloudInstallStatus(unittest.TestCase):
         self.assertTrue(status["changed"])
         self.assertTrue(status["runnable"])
 
+    def test_an_install_that_printed_its_enable_is_enabled(self):
+        status = _status(rc=0, stdout="deck 1.18.6 installed\ndeck enabled")
+        self.assertTrue(status["enabled"])
+
+    def test_an_install_without_the_enable_line_is_not_enabled(self):
+        self.assertFalse(_status(rc=0, stdout="deck 1.18.6 installed")["enabled"])
+
+    def test_an_already_installed_plugin_is_not_enabled_by_the_install(self):
+        self.assertFalse(_status(stdout="deck already installed")["enabled"])
+
+    def test_a_failed_install_is_not_enabled_whatever_it_printed(self):
+        status = _status(rc=1, stdout="deck 1.18.6 installed\ndeck enabled")
+        self.assertFalse(status["enabled"])
+
+    def test_an_enable_line_inside_an_error_is_not_enabled(self):
+        status = _status(
+            rc=0, stdout="deck 1.18.6 installed\nError: deck enabled twice"
+        )
+        self.assertFalse(status["enabled"])
+
     def test_a_non_dict_result_is_rejected(self):
         with self.assertRaises(TypeError):
             MODULE.nextcloud_install_status("rc=0")

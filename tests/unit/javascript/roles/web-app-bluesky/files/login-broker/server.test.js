@@ -11,6 +11,8 @@ const SERVER = path.join(PROJECT_ROOT, "roles/web-app-bluesky/files/login-broker
 const DOMAIN = "example.test";
 const PUBLIC_HOST = "web.bluesky.example.test";
 const ADMIN_PASSWORD = "stub-admin-password";
+const KEY = Buffer.alloc(32, 7);
+const ROTATED_KEY = Buffer.alloc(32, 9);
 
 function startPds() {
   const accounts = new Map();
@@ -79,7 +81,7 @@ function freePort() {
   });
 }
 
-async function startBroker(pdsPort, storePath) {
+async function startBroker(pdsPort, storePath, key) {
   const port = await freePort();
   const child = spawn(process.execPath, [SERVER], {
     env: {
@@ -90,7 +92,7 @@ async function startBroker(pdsPort, storePath) {
       PDS_INTERNAL_URL: `http://127.0.0.1:${pdsPort}`,
       PDS_HANDLE_DOMAIN: DOMAIN,
       PDS_ADMIN_PASSWORD: ADMIN_PASSWORD,
-      BLUESKY_BRIDGE_ENCRYPTION_KEY: `base64:${Buffer.alloc(32, 7).toString("base64")}`,
+      BLUESKY_BRIDGE_ENCRYPTION_KEY: `base64:${key.toString("base64")}`,
       BROKER_STORE_PATH: storePath,
       SITE_TITLE: "Bluesky",
     },
@@ -142,7 +144,7 @@ let broker;
 test.before(async () => {
   pds = await startPds();
   storePath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "broker-server-")), "accounts.json");
-  broker = await startBroker(pds.port, storePath);
+  broker = await startBroker(pds.port, storePath, KEY);
 });
 
 test.after(async () => {
@@ -239,7 +241,7 @@ test("concurrent first visits create one account", async () => {
 
 test("a broker restart keeps every account", async () => {
   await stopBroker(broker);
-  broker = await startBroker(pds.port, storePath);
+  broker = await startBroker(pds.port, storePath, KEY);
   const before = pds.calls.createAccount;
   for (const [user, email] of [["biber", "biber@example.test"], ["kevinveenbirkenbach", "kevin@example.test"]]) {
     const res = await request(broker, { user, email });
@@ -264,4 +266,19 @@ test("a password the PDS no longer accepts is reset in place", async () => {
   assert.equal(res.status, 200);
   assert.equal(pds.calls.createAccount, before);
   assert.ok(pds.calls.adminUpdatePassword.includes("did:plc:i8-administrator"));
+});
+
+test("a rotated encryption key resets the stored password in place and re-encrypts it", async () => {
+  await stopBroker(broker);
+  broker = await startBroker(pds.port, storePath, ROTATED_KEY);
+  const accounts = pds.calls.createAccount;
+  const resets = pds.calls.adminUpdatePassword.length;
+  const res = await request(broker, { user: "mapache", email: "mapache@example.test" });
+  assert.equal(res.status, 200);
+  assert.match(res.body, /BSKY_STORAGE/);
+  assert.equal(pds.calls.createAccount, accounts);
+  assert.deepEqual(pds.calls.adminUpdatePassword.slice(resets), ["did:plc:mapache"]);
+  const again = await request(broker, { user: "mapache", email: "mapache@example.test" });
+  assert.equal(again.status, 200);
+  assert.equal(pds.calls.adminUpdatePassword.length, resets + 1);
 });
