@@ -53,6 +53,8 @@
   include_role:
     name: web-app-semaphore
     tasks_from: utils/project.yml
+  vars:
+    application_id: web-app-semaphore
   when:
     - IS_STACK_HOST | bool
     - run_once_sys_svc_compose is defined
