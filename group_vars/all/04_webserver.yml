@@ -11,6 +11,18 @@ WEBSERVER_WORKER_PROCESSES: >-
 
 WEBSERVER_WORKER_CONNECTIONS: "{{ lookup('webserver_resource', 'pids_limit') }}"
 
+# Not WEBSERVER_WORKER_*: their application_id is whichever role loaded the shared proxy first, whose limits then cap every vhost.
+WEBSERVER_PROXY_WORKER_PROCESSES: >-
+  {{
+    [
+      (lookup('applications') | resource_filter('svc-prx-openresty', 'cpus', '', RESOURCE_CPUS)) | float | int,
+      1
+    ] | max
+  }}
+
+WEBSERVER_PROXY_WORKER_CONNECTIONS: >-
+  {{ lookup('applications') | resource_filter('svc-prx-openresty', 'pids_limit', '', RESOURCE_PIDS_LIMIT) | int }}
+
 # Response security headers of every vhost; an app overrides any key under `security_headers` in its meta/server.yml.
 WEBSERVER_SECURITY_HEADERS:
   nosniff: false # X-Content-Type-Options: nosniff

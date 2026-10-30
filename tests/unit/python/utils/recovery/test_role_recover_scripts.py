@@ -69,6 +69,65 @@ class VolumeRecoverTests(unittest.TestCase):
             self.assertEqual(rec.target_dir, mount)
             self.assertFalse(rec.service_backup)
 
+    def test_restores_into_the_target_of_a_symlinked_mountpoint(self):
+        mod = _load("svc-bkp-volume-2-local", "volume_recover")
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            source.mkdir()
+            moved = Path(td) / "hdd" / "myvol"
+            moved.mkdir(parents=True)
+            mount = Path(td) / "volumes" / "myvol" / "_data"
+            mount.parent.mkdir(parents=True)
+            mount.symlink_to(moved)
+            with mock.patch.object(
+                mod.subprocess,
+                "run",
+                side_effect=[
+                    mock.Mock(stdout=f"{mount}\n"),
+                    mock.Mock(stdout="null\n"),
+                ],
+            ):
+                rec = mod.VolumeRecovery(str(source), "myvol", service_backup=False)
+            self.assertEqual(rec.target_dir, moved.resolve())
+            with mock.patch.object(mod.subprocess, "run") as run:
+                rec.restore()
+            self.assertEqual(run.call_args.args[0][-1], f"{moved.resolve()}/")
+
+    def test_resolves_a_remote_mountpoint_on_the_remote_host(self):
+        mod = _load("svc-bkp-volume-2-local", "volume_recover")
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            source.mkdir()
+            with mock.patch.object(
+                mod.subprocess,
+                "run",
+                side_effect=[
+                    mock.Mock(stdout="/var/lib/docker/volumes/x/_data\n"),
+                    mock.Mock(stdout="null\n"),
+                    mock.Mock(stdout="/mnt/hdd/data/docker/volumes/x\n"),
+                ],
+            ) as run:
+                rec = mod.VolumeRecovery(
+                    str(source),
+                    "myvol",
+                    service_backup=False,
+                    docker_host="ssh://root@node-1",
+                )
+            self.assertEqual(
+                run.call_args_list[2].args[0],
+                [
+                    "ssh",
+                    "root@node-1",
+                    "realpath",
+                    "-e",
+                    "--",
+                    "/var/lib/docker/volumes/x/_data",
+                ],
+            )
+            self.assertEqual(
+                str(rec.target_dir), "root@node-1:/mnt/hdd/data/docker/volumes/x"
+            )
+
     def test_refuses_unmounted_backing_store(self):
         mod = _load("svc-bkp-volume-2-local", "volume_recover")
         with tempfile.TemporaryDirectory() as td:
