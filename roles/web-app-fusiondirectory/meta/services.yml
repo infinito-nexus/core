@@ -70,7 +70,7 @@ fusiondirectory:
     - web-app-stalwart
     - web-app-mailu
     - svc-db-openldap
-  lifecycle: beta
+  lifecycle: eol
   min_storage: 379MB
   cpus: "0.5"
   mem_reservation: 256m

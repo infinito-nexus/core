@@ -1,5 +1,9 @@
 # FusionDirectory
 
+> **🪦 End of life.** The project no longer maintains or tests this role; use it at
+> your own risk and turn to [upstream FusionDirectory](https://www.fusiondirectory.org/)
+> for support.
+
 ## Description
 
 [FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend.
