@@ -87,6 +87,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Customizable Webmail and Administration:** Provides a modern web interface for managing emails and administrative tasks with ease.
 - **Flexible Deployment:** Easily scale and customize using Docker Compose, with configurable settings for networking, storage, and external services.
 - **OIDC Support:** Optionally integrate with OpenID Connect for centralized authentication across your services.
+- **DMARC Reports:** The published `_dmarc` record sends aggregate reports (`rua`) to `<username>@<mail domain>` of the user key in `services.mailu.dmarc.rua_user` (`administrator` unless the inventory names another one). That user MUST carry a `mailbox` account or a `forward` to a user that carries one and whose `email` is that mailbox (`<username>@<mail domain>`), otherwise the deploy fails before any record is written.
 
 ## Quick Setup
 

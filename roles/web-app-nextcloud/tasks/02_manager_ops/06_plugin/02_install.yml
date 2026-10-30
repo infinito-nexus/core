@@ -81,4 +81,11 @@
     or (install_result | nextcloud_install_status).unavailable
 
 - include_tasks: 03_enable.yml
-  when: (install_result | nextcloud_install_status).runnable
+  when:
+    - (install_result | nextcloud_install_status).runnable
+    - not (install_result | nextcloud_install_status).enabled
+
+- name: "🧮 Queue {{ plugin_key }} for the batched configuration"
+  ansible.builtin.set_fact:
+    nextcloud_plugin_configure_keys: "{{ nextcloud_plugin_configure_keys + [plugin_key] }}"
+  when: (install_result | nextcloud_install_status).enabled

@@ -64,11 +64,10 @@ broker returns HTTP 401, there is no anonymous fallback by design.
   createSession failure and the user sees an HTML error page on the
   handoff route. Re-trying the visit after PDS recovery completes
   the handoff.
-- **Encrypted attribute decrypt failure:** indicates a key mismatch
-  between the SPI and the broker. The broker rejects the request
-  with HTTP 500 rather than risk silently re-provisioning a fresh
-  PDS account that loses the user's existing posts. Recovery: rotate
-  the key and clear the attribute (manual op for now, key rotation
-  is in the doc 013 Future Hardening section).
+- **Stored app-password does not decrypt:** `BLUESKY_BRIDGE_ENCRYPTION_KEY`
+  changed since the entry in `BROKER_STORE_PATH` was written. The
+  broker resets the password of the stored DID through the PDS admin
+  API (`PDS_ADMIN_PASSWORD`), stores it encrypted with the current key
+  and completes the handoff. Account, handle and posts stay.
 - **social-app upstream error:** the broker forwards the upstream's
   error response.

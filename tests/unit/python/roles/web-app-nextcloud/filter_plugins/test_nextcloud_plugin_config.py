@@ -25,6 +25,7 @@ config_mod = _load_module(
 )
 nextcloud_plugin_config_pending = config_mod.nextcloud_plugin_config_pending
 nextcloud_occ_value = config_mod.nextcloud_occ_value
+nextcloud_occ_config_set_batch = config_mod.nextcloud_occ_config_set_batch
 
 PREVIOUS_VALUE_EXPRESSION = (
     "{{ ( (item.configvalue | to_json) if (item.configvalue is mapping or "
@@ -202,11 +203,56 @@ class TestNextcloudPluginConfigPending(unittest.TestCase):
         self.assertEqual(_keys(pending), [("deck", "k")])
 
 
+class TestNextcloudOccConfigSetBatch(unittest.TestCase):
+    def test_an_untyped_entry_hands_occ_only_the_value(self):
+        self.assertEqual(
+            nextcloud_occ_config_set_batch(
+                [
+                    {
+                        "appid": "deck",
+                        "configkey": "k",
+                        "type": None,
+                        "value": "-1",
+                    }
+                ]
+            ),
+            [
+                {
+                    "argv": ["config:app:set", "deck", "k", "--value", "-1"],
+                    "label": "deck/k",
+                }
+            ],
+        )
+
+    def test_a_typed_entry_sets_its_type_without_a_prompt(self):
+        batch = nextcloud_occ_config_set_batch(
+            [{"appid": "spreed", "configkey": "k", "type": "array", "value": "[]"}]
+        )
+        self.assertEqual(
+            batch[0]["argv"],
+            [
+                "config:app:set",
+                "spreed",
+                "k",
+                "--no-interaction",
+                "--type=array",
+                "--value",
+                "[]",
+            ],
+        )
+
+    def test_no_pending_entry_is_no_call(self):
+        self.assertEqual(nextcloud_occ_config_set_batch([]), [])
+
+
 class TestFilterModule(unittest.TestCase):
     def test_filter_is_registered(self):
         self.assertEqual(
             config_mod.FilterModule().filters(),
-            {"nextcloud_plugin_config_pending": nextcloud_plugin_config_pending},
+            {
+                "nextcloud_plugin_config_pending": nextcloud_plugin_config_pending,
+                "nextcloud_occ_config_set_batch": nextcloud_occ_config_set_batch,
+            },
         )
 
 

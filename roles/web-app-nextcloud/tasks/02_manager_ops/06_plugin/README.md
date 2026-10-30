@@ -48,9 +48,9 @@ Each `tasks/02_manager_ops/06_plugin/<step>.yml` file owns exactly one OCC stage
 
 | File | Stage | OCC command | Continues to next stage when |
 |---|---|---|---|
-| [02_install.yml](./02_install.yml) | install | `occ app:install` | install result is `runnable` (success or already installed) |
+| [02_install.yml](./02_install.yml) | install | `occ app:install` | install result is `runnable` (success or already installed); an install that printed `<app> enabled` queues the plugin for the configure stage directly and skips the enable stage |
 | [03_enable.yml](./03_enable.yml) | enable | `occ app:enable` | enable result is not flagged `incompatible`; the plugin is then queued for the configure stage |
-| [04_configure.yml](./04_configure.yml) | configure | one `occ config:list`, then `occ config:app:set` for the values that differ, plus optional hook | (terminal stage) |
+| [04_configure.yml](./04_configure.yml) | configure | one `occ config:list`, then `config:app:set` for the values that differ in one occ boot, plus optional hook | (terminal stage) |
 
 ## Pinned archives
 
@@ -68,7 +68,7 @@ An addon MAY pin a release through `config.archive`. Before `occ app:install`, [
 
 1. It loads the addon spec of every queued plugin.
 2. It reads `occ config:list` once and keeps an entry only when Nextcloud does not already hold the exact value `occ config:app:set` would store. Entries with a `type`, sensitive values that `config:list` masks, booleans, floats and structured values are always kept.
-3. It writes the kept entries in spec order through one shell; the first failing `config:app:set` stops the shell and names its `appid/configkey` on stderr. The task reports changed only when `occ` answers `set to`.
+3. It writes the kept entries in spec order through one php process: [files/php/utils/occ_batch.php](../../../files/php/utils/occ_batch.php) boots the occ console the way Nextcloud's `console.php` does and runs one `config:app:set` per entry, with the arguments the filter `nextcloud_occ_config_set_batch` builds. The calls arrive as base64 JSON on stdin, in front of the script. The first failing call stops the process and names its `appid/configkey` on stderr. The task reports changed only when `occ` answers `set to`.
 4. It runs the hook of every queued plugin in queue order.
 
 The keep or drop decision lives in the filter `nextcloud_plugin_config_pending` ([filter_plugins/nextcloud_plugin_config.py](../../../filter_plugins/nextcloud_plugin_config.py)).
