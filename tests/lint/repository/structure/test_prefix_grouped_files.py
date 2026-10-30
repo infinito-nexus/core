@@ -29,13 +29,12 @@ the directory to exempt the whole folder.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
 
 from utils.annotations.suppress import is_suppressed_anywhere, is_suppressed_in_head
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -72,16 +71,8 @@ def _flatness_is_forced(directory: PurePosixPath) -> bool:
 _DELIMITERS = re.compile(r"[_-]")
 
 
-def _tracked_files(root: Path) -> list[PurePosixPath]:
-    output = subprocess.check_output(
-        ["git", "-c", "safe.directory=*", "-C", str(root), "ls-files", "-z"],
-        stderr=subprocess.STDOUT,
-    )
-    return [
-        PurePosixPath(rel)
-        for rel in output.decode("utf-8", errors="replace").split("\0")
-        if rel
-    ]
+def _tracked_files() -> list[PurePosixPath]:
+    return [PurePosixPath(rel) for rel in repository_files()]
 
 
 def _dir_opts_out(root: Path, directory: str) -> bool:
@@ -177,7 +168,7 @@ def find_prefix_groups(
 
 class TestPrefixGroupedFiles(unittest.TestCase):
     def test_prefix_groups_belong_in_subfolders(self) -> None:
-        findings = find_prefix_groups(_tracked_files(PROJECT_ROOT))
+        findings = find_prefix_groups(_tracked_files())
 
         if findings:
             lines = []

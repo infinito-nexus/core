@@ -63,7 +63,7 @@ CONTEXT = {
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
     "IAM_USERNAME_MAX_LENGTH": 15,
     "IAM_ACCOUNT_MAX_LENGTH": 20,
-    "IAM_USERNAME_PATTERNS": ["[a-z0-9_]+", "[a-y1-9]+"],
+    "IAM_USERNAME_PATTERNS": ["[a-z0-9_]+", "[a-y0-9]+"],
     "KEYCLOAK_LDAP_USER_OBJECT_CLASSES": "inetOrgPerson, organizationalPerson",
     "KEYCLOAK_LDAP_CMP_NAME": "ldap",
     "KEYCLOAK_LDAP_URL": "ldap://openldap:389",
@@ -138,6 +138,18 @@ def render(saml_apps: list[str], client_apps: list[str] | None = None) -> str:
         DOMAIN_PRIMARY="example.com",
         **CONTEXT,
     )
+
+
+def username_pattern() -> re.Pattern[str]:
+    realm = json.loads(render([]))
+    provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+    profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+    username = next(
+        attribute
+        for attribute in profile["attributes"]
+        if attribute["name"] == "username"
+    )
+    return re.compile(username["validations"]["pattern"]["pattern"])
 
 
 class TestRealmImportJson(unittest.TestCase):
@@ -234,17 +246,26 @@ class TestRealmImportJson(unittest.TestCase):
         )
 
     def test_the_username_pattern_admits_only_what_every_app_accepts(self) -> None:
-        realm = json.loads(render([]))
-        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
-        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
-        username = next(
-            attribute
-            for attribute in profile["attributes"]
-            if attribute["name"] == "username"
-        )
-        pattern = re.compile(username["validations"]["pattern"]["pattern"])
+        pattern = username_pattern()
         self.assertTrue(pattern.match("alice19"))
         for refused in ("root", "al0ce", "alice_x", "zoe", "Alice"):
+            with self.subTest(username=refused):
+                self.assertIsNone(pattern.match(refused))
+
+    def test_the_username_pattern_admits_the_agent_form(self) -> None:
+        pattern = username_pattern()
+        for agent in ("mant0alice", "cnsl0a1b2c3"):
+            with self.subTest(username=agent):
+                self.assertTrue(pattern.match(agent))
+        for refused in (
+            "mant0al0ce",
+            "mant00alice",
+            "man0alice",
+            "0mantalice",
+            "mant0",
+            "mant0Alice",
+            "mant0al_ce",
+        ):
             with self.subTest(username=refused):
                 self.assertIsNone(pattern.match(refused))
 

@@ -53,6 +53,8 @@ A `mount --make-rshared /` runs once in the deploy container before the runner s
 
 **Nested host network.** Synapse, Element, coturn, LiveKit, its JWT service and Heisenbridge run in the host network of the nested Docker daemon, so they address each other over `127.0.0.1`; Heisenbridge's homeserver URL and its appservice URL in the registration are set accordingly. Jitsi keeps MDAD's own `matrix-jitsi` network and publishes its web port to the runner.
 
+**Switching from compose.** Before MDAD runs, [carry_over_compose_data.sh](./files/flavor/ansible/carry_over_compose_data.sh) copies the compose flavor's signing key and media store from the `synapse_data` volume into `matrix_mdad_matrix`, at the paths `vars.yml.j2` pins for MDAD (`matrix_synapse_config_dir_path`, `matrix_synapse_media_store_path`), owned by `MATRIX_SYNAPSE_UID`/`MATRIX_SYNAPSE_GID`. Each item is copied only into an empty target; a key or media MDAD already holds is kept, and the compose volume is left untouched. The task prints one `SKIPPED`, `KEPT` or `COPIED` line per item; the signing key lines name the key ids.
+
 ### `compose` (deprecated)
 
 Set `services.matrix.flavor: compose` to opt in. Tasks live under `tasks/flavor/compose/`, templates under `templates/flavor/compose/`. Existing volumes and credentials are reused, so in-place deploys need no migration.

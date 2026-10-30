@@ -44,8 +44,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     s1:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     litellm:
       router:
         speed:

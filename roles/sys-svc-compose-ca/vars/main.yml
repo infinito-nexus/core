@@ -1,2 +1,7 @@
 ---
-_compose_ca_applicable: "{{ lookup('ca_injected', application_id) }}"
+_compose_ca_applicable: >-
+  {%- set _ca = namespace(needed=lookup('ca_injected', application_id)) -%}
+  {%- for _app in CURRENT_PLAY_APPLICATIONS if not _ca.needed -%}
+  {%- set _ca.needed = lookup('ca_injected', _app) -%}
+  {%- endfor -%}
+  {{ _ca.needed }}

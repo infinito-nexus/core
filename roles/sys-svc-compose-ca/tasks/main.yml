@@ -1,13 +1,16 @@
 ---
-- name: "🔐 Set up CA trust for '{{ application_id }}' once per play"
+- name: "🔐 Set up CA trust once per host"
   when: run_once_sys_svc_compose_ca is not defined
   block:
-    - name: "🚫 CA trust N/A for '{{ application_id }}' (TLS off/not self-signed) — mark done"
+    - name: "🚫 CA trust N/A on this host (no play application needs the self-signed CA)"
       ansible.builtin.debug:
         msg: >-
-          Skipping CA trust assets for '{{ application_id }}': no domain, TLS
-          disabled (e.g. onion), or mode is not self_signed.
+          Skipping CA trust assets on {{ inventory_hostname }}: no application
+          of this play is served over self-signed TLS or declares a ca_client
+          service that calls a self-signed peer.
       when: not (_compose_ca_applicable | bool)
 
     - include_tasks: 00_core.yml
       when: _compose_ca_applicable | bool
+
+    - include_tasks: utils/once/flag.yml

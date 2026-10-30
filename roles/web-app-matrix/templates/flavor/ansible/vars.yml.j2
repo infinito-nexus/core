@@ -2,6 +2,11 @@
 {% set _matrix_onion_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _matrix_is_onion = (_matrix_onion_node and (lookup('domain', application_id) | network_of) == 'tor') %}
 matrix_domain: {{ MATRIX_SERVER_NAME }}
+matrix_server_fqn_matrix: "{{ MATRIX_MDAD_SERVER_FQN }}"
+matrix_base_data_path: "{{ MATRIX_MDAD_DATA_PATH }}"
+matrix_synapse_config_dir_path: "{{ MATRIX_MDAD_SYNAPSE_CONFIG_PATH }}"
+matrix_synapse_storage_path: "{{ MATRIX_MDAD_SYNAPSE_STORAGE_PATH }}"
+matrix_synapse_media_store_path: "{{ MATRIX_MDAD_MEDIA_STORE_PATH }}"
 matrix_admin: "{{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) }}"
 matrix_playbook_ssl_enabled: {{ 'false' if _matrix_is_onion else 'true' }}
 matrix_homeserver_implementation: synapse

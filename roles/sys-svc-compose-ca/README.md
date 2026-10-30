@@ -15,3 +15,4 @@ script) and validates CA cert presence.
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
+- **Once per host:** The first compose stack of a play decides for the whole host. The assets are installed when any application of `CURRENT_PLAY_APPLICATIONS` resolves `lookup('ca_injected', ...)` true; either way the run-once flag is set, so later stacks skip the role.

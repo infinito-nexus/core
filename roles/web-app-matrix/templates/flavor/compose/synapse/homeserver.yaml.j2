@@ -24,13 +24,13 @@ database:
     cp_min: 5
     cp_max: {{ POSTGRES_ALLOWED_AVG_CONNECTIONS }}
 log_config:                     "{{ MATRIX_SYNAPSE_LOG_PATH_CONTAINER }}"
-media_store_path:               "/data/media_store"
+media_store_path:               "{{ MATRIX_SYNAPSE_MEDIA_STORE_PATH }}"
 registration_shared_secret:     "{{ MATRIX_REGISTRATION_SHARED_SECRET }}"
 report_stats:                   true
 enable_metrics:                 {{ lookup('config', application_id, 'services.prometheus.native_metrics.enabled', False) | bool | lower }}
 macaroon_secret_key:            "{{ lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') }}"
 form_secret:                    "{{ lookup('config', application_id, 'secrets.credentials.form_secret') }}"
-signing_key_path:               "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.signing.key"
+signing_key_path:               "{{ MATRIX_SYNAPSE_SIGNING_KEY_PATH }}"
 web_client_location:            "{{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domains', application_id).element }}"
 public_baseurl:                 "{{ MATRIX_SYNAPSE_URL }}"
 trusted_key_servers:

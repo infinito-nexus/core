@@ -1,0 +1,20 @@
+---
+- name: "📦 ansible-flavor: copy compose signing key and media store to MDAD"
+  ansible.builtin.script:
+    cmd: "{{ role_path }}/files/flavor/ansible/carry_over_compose_data.sh"
+  environment:
+    MATRIX_COMPOSE_VOLUME: "{{ MATRIX_SYNAPSE_VOLUME }}"
+    MATRIX_COMPOSE_MOUNT: "{{ MATRIX_SYNAPSE_DATA_PATH }}"
+    MATRIX_COMPOSE_SIGNING_KEY: "{{ MATRIX_SYNAPSE_SIGNING_KEY_PATH }}"
+    MATRIX_COMPOSE_MEDIA_STORE: "{{ MATRIX_SYNAPSE_MEDIA_STORE_PATH }}"
+    MATRIX_MDAD_VOLUME: "{{ lookup('volume', application_id, 'matrix_mdad_matrix').name }}"
+    MATRIX_MDAD_MOUNT: "{{ MATRIX_MDAD_DATA_PATH }}"
+    MATRIX_MDAD_SIGNING_KEY: "{{ MATRIX_MDAD_SIGNING_KEY_PATH }}"
+    MATRIX_MDAD_MEDIA_STORE: "{{ MATRIX_MDAD_MEDIA_STORE_PATH }}"
+    MATRIX_SYNAPSE_UID: "{{ MATRIX_SYNAPSE_UID }}"
+    MATRIX_SYNAPSE_GID: "{{ MATRIX_SYNAPSE_GID }}"
+  become: true
+  register: matrix_compose_carry_over
+  changed_when: "'COPIED' in matrix_compose_carry_over.stdout"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
