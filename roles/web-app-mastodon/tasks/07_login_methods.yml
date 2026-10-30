@@ -6,6 +6,6 @@
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/ensure_registrations_mode.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/ensure/registrations_mode.rb') }}"
   register: mastodon_registrations_mode
   changed_when: mastodon_registrations_mode.stdout_lines | last == 'changed'

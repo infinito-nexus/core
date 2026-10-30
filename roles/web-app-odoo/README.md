@@ -41,7 +41,7 @@ The purpose of this role is to provide a hands-off, production-ready Odoo ERP de
 - **LDAP Authentication:**
   Enterprise directory integration via OpenLDAP for organizations using traditional directory services.
 
-- **Login methods:** `services.odoo.login.method.*` of [`meta/services.yml`](./meta/services.yml) switches each sign-in method on its own; [`tasks/10_login_methods.yml`](./tasks/10_login_methods.yml) and [`tasks/05_oidc.yml`](./tasks/05_oidc.yml) apply the database switches.
+- **Login methods:** `services.odoo.login.method.*` of [`meta/services.yml`](./meta/services.yml) switches each sign-in method on its own; [`tasks/08_login_methods.yml`](./tasks/08_login_methods.yml) and [`tasks/05_oidc.yml`](./tasks/05_oidc.yml) apply the database switches.
   - `sso`: the `enabled` flag of the Keycloak `auth.oauth.provider` row ("Login with SSO").
   - `ldap`: the `res.company.ldap` row of the directory; [`tasks/06_ldap.yml`](./tasks/06_ldap.yml) writes it while the method is on and the deploy deletes it while it is off, so with SSO on LDAP accounts sign in through Keycloak's LDAP federation only.
   - `native`: the system parameter `auth_signup.reset_password`; Odoo has no setting that hides its password form, so [`templates/javascript.js.j2`](./templates/javascript.js.j2) hides the login and password fields, the "Log in" button and the "Reset Password" link while `native` and `ldap` are both off. Local and LDAP accounts share one form and Odoo tries the local password before the directory, so with `ldap` on and `native` off the form still admits local accounts.

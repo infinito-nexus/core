@@ -153,6 +153,12 @@ async function ldapAuthenticate(page) {
   });
 }
 
+function skipUnlessLdapLogin() {
+  skipUnlessServiceEnabled("ldap");
+  // nocheck: playwright-sso-ldap-gate -- gates on the ldap login method, which is off under SSO while the ldap service stays on
+  test.skip(!loginMethods.ldap, "Odoo's own LDAP sign-in is off; LDAP accounts sign in through Keycloak's federation");
+}
+
 test.describe.serial("odoo RBAC and profile mapping", () => {
   test("biber: Keycloak sign-in without an Odoo role is refused", async ({ page }) => {
     skipUnlessServiceEnabled("sso");
@@ -279,8 +285,7 @@ test.describe.serial("odoo RBAC and profile mapping", () => {
   });
 
   test("biber: LDAP sign-in without an Odoo role is refused", async ({ page }) => {
-    skipUnlessServiceEnabled("ldap");
-    test.skip(!loginMethods.ldap, "Odoo's own LDAP sign-in is off; LDAP accounts sign in through Keycloak's federation");
+    skipUnlessLdapLogin();
     test.setTimeout(resolveTimeout(120_000)); // directory bind through Odoo
 
     const body = await ldapAuthenticate(page);
@@ -292,8 +297,7 @@ test.describe.serial("odoo RBAC and profile mapping", () => {
   });
 
   test("biber: LDAP sign-in with the user group maps the directory mail, phone and time zone", async ({ page }) => {
-    skipUnlessServiceEnabled("ldap");
-    test.skip(!loginMethods.ldap, "Odoo's own LDAP sign-in is off; LDAP accounts sign in through Keycloak's federation");
+    skipUnlessLdapLogin();
     test.setTimeout(resolveTimeout(240_000)); // directory group join and attribute write, bind and teardown
 
     const { directory } = env;

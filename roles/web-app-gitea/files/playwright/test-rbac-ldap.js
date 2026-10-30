@@ -24,6 +24,7 @@ async function signInAsBiber(request, shared) {
 
 function skipUnlessLdapLogin(shared) {
   skipUnlessServiceEnabled("ldap");
+  // nocheck: playwright-sso-ldap-gate -- gates on the ldap login method, which is off under SSO while the ldap service stays on
   test.skip(
     !shared.loginMethods.ldap,
     "LOGIN_METHOD_LDAP_ENABLED=false: LDAP accounts sign in through Keycloak's LDAP federation, not Gitea's LDAP source",

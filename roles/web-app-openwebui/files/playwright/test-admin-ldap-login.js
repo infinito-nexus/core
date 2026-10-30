@@ -2,15 +2,10 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { expectNoCspViolations } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("administrator: openwebui LDAP login and logout", async ({ page }) => {
-    skipUnlessServiceEnabled("ldap");
-    test.skip(
-      !shared.loginMethods.ldap,
-      "LOGIN_METHOD_LDAP_ENABLED=false: LDAP accounts sign in through Keycloak's LDAP federation, not Open WebUI's LDAP form",
-    );
+    shared.skipUnlessLdapLogin();
     const diagnostics = shared.attachDiagnostics(page);
 
     await shared.signInViaLdap(

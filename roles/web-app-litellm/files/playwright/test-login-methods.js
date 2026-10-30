@@ -8,6 +8,7 @@ const oidcIssuerUrl = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUE
 exports.register = function (shared) {
   test("login methods: with SSO on the admin UI hands the visitor to Keycloak and offers no password form", async ({ page }) => {
     skipUnlessServiceEnabled("sso");
+    // nocheck: playwright-sso-ldap-gate -- gates on the sso login method, which an inventory can switch off while the sso service stays on
     test.skip(!shared.env.loginMethodSso, "LOGIN_METHOD_SSO_ENABLED=false");
     test.setTimeout(resolveTimeout(90_000));
     await page.context().clearCookies();

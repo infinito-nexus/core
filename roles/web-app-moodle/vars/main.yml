@@ -81,7 +81,8 @@ MOODLE_AUTH_PLUGINS: >-
   {{ (['oidc'] if MOODLE_LOGIN_SSO | bool else [])
      + (['ldap'] if (MOODLE_LOGIN_LDAP | bool) or ((MOODLE_LDAP_ENABLED | bool) and (MOODLE_LOGIN_SSO | bool)) else [])
      + (['email'] if MOODLE_LOGIN_REGISTRATION | bool else []) }}
-MOODLE_ALTERNATE_LOGIN_URL: "{{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') if (MOODLE_LOGIN_SSO | bool) and not (MOODLE_LOGIN_NATIVE | bool) else '' }}"
+MOODLE_ALTERNATE_LOGIN_URL: "{{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') if (MOODLE_LOGIN_SSO | bool) and not (MOODLE_LOGIN_NATIVE
+  | bool) else '' }}"
 MOODLE_CORE_LOGIN_SETTINGS:
   - name: auth
     value: "{{ MOODLE_AUTH_PLUGINS | join(',') }}"

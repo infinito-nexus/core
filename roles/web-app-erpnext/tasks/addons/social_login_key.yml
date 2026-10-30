@@ -6,7 +6,7 @@
       -e SITE_NAME -e LOGIN_RBAC_APP -e LOGIN_RBAC_SETTINGS_JSON
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login_rbac.py') }}"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/rbac.py') }}"
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"

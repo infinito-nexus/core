@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
@@ -515,6 +515,12 @@ async function stopUnfinishedTask(page, projectId, taskId) {
   }
 }
 
+function skipUnlessLdapLogin() {
+  skipUnlessServiceEnabled("ldap");
+  // nocheck: playwright-sso-ldap-gate -- gates on the ldap login method, which is off under SSO while the ldap service stays on
+  test.skip(!loginMethodLdap, "Semaphore's own LDAP login is off; LDAP accounts sign in through Keycloak's federation");
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(semaphoreBaseUrl, "SEMAPHORE_BASE_URL must be set").toBeTruthy();
@@ -574,6 +580,7 @@ module.exports = {
   signOutFromMenu,
   logout,
   beforeEach,
+  skipUnlessLdapLogin,
   skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

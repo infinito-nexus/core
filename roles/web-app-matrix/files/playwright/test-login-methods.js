@@ -6,6 +6,7 @@ exports.register = function (shared) {
   test("login methods: with SSO on Element hands its sign-in entry straight to Keycloak", async ({ page }) => {
     shared.skipUnlessServiceEnabled("sso");
     const { ldap, native, registration } = shared.loginMethods;
+    // nocheck: playwright-sso-ldap-gate -- gates on the login methods that keep Element's password form, inside the sso service gate
     test.skip(native || ldap, "an inventory override keeps the password form on Element's sign-in page");
     const { elementBaseUrl, oidcIssuerUrl } = shared.env;
 

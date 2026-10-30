@@ -4,7 +4,7 @@
 RBAC hook of ``sys-ctl-mtn-rbac-sync`` gives it on its timer, before Frappe
 decides whether it may sign in.
 
-Site config ``infinito_rbac`` (written by ``files/python/apply/login_rbac.py``):
+Site config ``infinito_rbac`` (written by ``files/python/apply/login/rbac.py``):
     groups_claim: userinfo claim with the full paths of the user's groups.
     username_claim: userinfo claim with the username of a new account.
     given_name_claim: userinfo claim with the first name.

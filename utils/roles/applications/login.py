@@ -24,9 +24,7 @@ def default(method: str, sso: bool, ldap: bool) -> bool:
         ValueError: for a method outside ``METHODS``.
     """
     if method not in METHODS:
-        raise ValueError(
-            f"login method {method!r} is not one of {', '.join(METHODS)}"
-        )
+        raise ValueError(f"login method {method!r} is not one of {', '.join(METHODS)}")
     if method == "sso":
         return sso
     if sso or method in EXTRA_METHODS:

@@ -27,6 +27,7 @@ test("login methods: with sso on, Keycloak is OpenCloud's only identity provider
   const builtinIdp =
     enabled(process.env.LOGIN_METHOD_NATIVE_ENABLED, "LOGIN_METHOD_NATIVE_ENABLED") ||
     enabled(process.env.LOGIN_METHOD_LDAP_ENABLED, "LOGIN_METHOD_LDAP_ENABLED");
+  // nocheck: playwright-sso-ldap-gate -- gates on the login methods that keep the built-in identity provider, inside the sso service gate
   test.skip(builtinIdp, "an inventory override keeps the built-in identity provider running");
   await gotoOnion(page, `${base}/signin/v1/identifier`, { waitUntil: "domcontentloaded" });
   await expect(

@@ -38,7 +38,9 @@ class LookupModule(LookupBase):
             [application_id, "services.ldap", None], variables=variables
         )[0]
         ldap = isinstance(ldap_service, dict) and boolean(
-            config.run([application_id, "services.ldap.enabled"], variables=variables)[0]
+            config.run([application_id, "services.ldap.enabled"], variables=variables)[
+                0
+            ]
         )
         try:
             return [login.default(method, sso, ldap)]

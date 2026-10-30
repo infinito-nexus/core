@@ -35,13 +35,15 @@
 - name: "⏳ Wait for Mastodon"
   include_tasks: 03_wait.yml
 
+- name: "🧹 Cleanup Mastodon caches when MODE_CLEANUP is true"
+  include_tasks: 04_cleanup.yml
+  when:
+    - IS_STACK_HOST | bool
+    - MODE_CLEANUP | bool
+
 - name: "🖥️ Mastodon stack-host post-deploy"
   when: IS_STACK_HOST | bool
   block:
-    - name: "🧹 Cleanup Mastodon caches when MODE_CLEANUP is true"
-      include_tasks: 04_cleanup.yml
-      when: MODE_CLEANUP | bool
-
     - name: "📂 Include administrator routines for '{{ application_id }}'"
       include_tasks:
         file: 05_administrator.yml

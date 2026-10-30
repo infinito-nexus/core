@@ -17,7 +17,8 @@
     fail_msg: >-
       Listmonk offers its TOTP second factor exactly to accounts with password_login
       and has no switch of its own; the administrator is the only such account, so
-      services.listmonk.login.method.2fa.enabled must equal native.
+      services.listmonk.login.method.2fa.enabled must equal native
+      (2fa={{ LISTMONK_LOGIN_2FA }}, native={{ LISTMONK_LOGIN_NATIVE }}).
 
 - name: 🔄 Update administrator email and password login in Listmonk (as superuser)
   shell: |

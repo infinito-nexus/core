@@ -22,7 +22,9 @@ def apply_system_settings():
 
 
 def apply_website_settings():
-    frappe.db.set_single_value("Website Settings", "disable_signup", 0 if REGISTRATION else 1)
+    frappe.db.set_single_value(
+        "Website Settings", "disable_signup", 0 if REGISTRATION else 1
+    )
 
 
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")

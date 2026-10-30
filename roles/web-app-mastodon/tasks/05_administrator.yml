@@ -8,7 +8,7 @@
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/ensure_administrator.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/ensure/administrator.rb') }}"
   environment:
     MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   register: mastodon_administrator

@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
@@ -8,6 +8,7 @@ const {
   normalizeBaseUrl,
   performKeycloakLoginForm,
 } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const env = {
   oidcIssuerUrl: normalizeBaseUrl(process.env.OIDC_ISSUER_URL || ""),
@@ -35,6 +36,15 @@ const loginMethods = {
 };
 
 const signInPageUrl = `${env.openwebuiBaseUrl}/auth${loginMethods.native || loginMethods.ldap ? "" : "?form=1"}`;
+
+function skipUnlessLdapLogin() {
+  skipUnlessServiceEnabled("ldap");
+  // nocheck: playwright-sso-ldap-gate -- gates on the ldap login method, which is off under SSO while the ldap service stays on
+  test.skip(
+    !loginMethods.ldap,
+    "LOGIN_METHOD_LDAP_ENABLED=false: LDAP accounts sign in through Keycloak's LDAP federation, not Open WebUI's LDAP form",
+  );
+}
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -373,5 +383,6 @@ module.exports = {
   signInViaNativePassword,
   signInViaLdap,
   expectSignInRequiredAfterLogout,
+  skipUnlessLdapLogin,
   beforeEach,
 };

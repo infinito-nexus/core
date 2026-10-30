@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import unittest
 from collections.abc import Mapping
-from pathlib import Path
 
 from utils.annotations.suppress import has_rule_with_reason
 from utils.cache.files import read_text
@@ -39,7 +38,7 @@ def _normalized(value: object) -> str:
     return " ".join(str(value).split())
 
 
-def _services(role_dir: Path) -> tuple[Mapping, list[str]] | None:
+def _services(role_dir) -> tuple[Mapping, list[str]] | None:
     path = role_dir / ROLE_FILE_META_SERVICES
     if not path.is_file():
         return None
@@ -50,9 +49,7 @@ def _services(role_dir: Path) -> tuple[Mapping, list[str]] | None:
 
 
 def _sso_line(lines: list[str]) -> int | None:
-    return next(
-        (n for n, line in enumerate(lines, 1) if line.startswith("sso:")), None
-    )
+    return next((n for n, line in enumerate(lines, 1) if line.startswith("sso:")), None)
 
 
 def _method_findings(application_id: str, login: object) -> list[str]:
@@ -99,7 +96,10 @@ class TestLoginMethods(unittest.TestCase):
                 continue
             services, lines = loaded
             sso = services.get("sso")
-            if not isinstance(sso, Mapping) or sso.get("flavor") not in _NATIVE_SSO_FLAVORS:
+            if (
+                not isinstance(sso, Mapping)
+                or sso.get("flavor") not in _NATIVE_SSO_FLAVORS
+            ):
                 continue
             entity = services.get(entity_name(role_dir.name))
             if isinstance(entity, Mapping) and "login" in entity:

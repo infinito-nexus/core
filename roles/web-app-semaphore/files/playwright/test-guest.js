@@ -35,6 +35,7 @@ exports.register = function (shared) {
   });
 
   test("guest: Semaphore's own form rejects empty credentials", async ({ page }) => {
+    // nocheck: playwright-sso-ldap-gate -- gates on the password form the native and ldap login methods render, not on a service
     test.skip(!shared.env.passwordFormShown, "the password form is off while only SSO signs in");
     await shared.gotoLogin(page);
 

@@ -20,6 +20,7 @@ exports.register = function (shared) {
   test("login methods: with SSO on Gitea offers only the SSO entry", async ({ page }) => {
     skipUnlessServiceEnabled("sso");
     const { native, ldap, passkey, openid2, registration } = shared.loginMethods;
+    // nocheck: playwright-sso-ldap-gate -- gates on the login methods that keep Gitea's sign-in page, inside the sso service gate
     test.skip(
       native || ldap || passkey || openid2,
       "an inventory override keeps a second sign-in method, so Gitea renders its sign-in page",

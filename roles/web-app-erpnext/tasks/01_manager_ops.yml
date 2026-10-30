@@ -37,7 +37,7 @@
       -e SITE_NAME -e LOGIN_NATIVE -e LOGIN_EMAIL -e LOGIN_2FA -e LOGIN_REGISTRATION
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login_methods.py') }}"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/methods.py') }}"
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"

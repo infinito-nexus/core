@@ -1,9 +1,9 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const fiderBaseUrl = decodeDotenvQuotedValue(process.env.FIDER_BASE_URL || "").replace(/\/$/, "");
+const fiderBaseUrl = requireDotenvValue(process.env.FIDER_BASE_URL, "FIDER_BASE_URL").replace(/\/$/, "");
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
 const biberEmail = decodeDotenvQuotedValue(process.env.BIBER_EMAIL || "");
 const loginMethodNative = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";

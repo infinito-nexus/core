@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import importlib
 import json
 import unittest
 from types import ModuleType
 
 from . import PROJECT_ROOT
-from ._fake_frappe import FakeFrappe, run_script
 
-SCRIPT = PROJECT_ROOT / "roles/web-app-erpnext/files/python/apply/login_rbac.py"
+_fake_frappe = importlib.import_module(
+    "tests.unit.python.roles.web-app-erpnext.files.apply._fake_frappe"
+)
+FakeFrappe = _fake_frappe.FakeFrappe
+run_script = _fake_frappe.run_script
+
+SCRIPT = PROJECT_ROOT / "roles/web-app-erpnext/files/python/apply/login/rbac.py"
 APP = "infinito_rbac"
 SETTINGS = {
     "groups_claim": "groups",

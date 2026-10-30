@@ -16,4 +16,4 @@
   when: IS_STACK_HOST | bool
 
 - name: "👥 Converge the system roles and site administrators on the RBAC groups"
-  include_tasks: 06_rbac.yml
+  include_tasks: 07_rbac.yml

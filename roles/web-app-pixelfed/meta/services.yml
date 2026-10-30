@@ -122,8 +122,10 @@ prometheus:
 # nocheck: playwright-service-flag - runtime DOM patch, proven by files/playwright/test-login-methods.js
 javascript:
   bond: 1
-  enabled: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled') | bool)) }}"
-  shared: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled') | bool)) }}"
+  enabled: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled')
+    | bool)) }}"
+  shared: "{{ not ((lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.native.enabled') | bool) and (lookup('config', 'web-app-pixelfed', 'services.pixelfed.login.method.2fa.enabled')
+    | bool)) }}"
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

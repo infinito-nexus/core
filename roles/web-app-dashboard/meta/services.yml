@@ -1,5 +1,5 @@
 ---
-sso:  # nocheck: login-methods  Reason: the dashboard keeps no accounts; its only sign-in entry is the Keycloak Login link oidc.js renders, and without SSO it has no sign-in at all
+sso: # nocheck: login-methods  Reason: the dashboard keeps no accounts; its only sign-in entry is the Keycloak Login link oidc.js renders, and without SSO it has no sign-in at all
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"

@@ -49,13 +49,12 @@
       container exec -i --user {{ SHOPWARE_USER }}
       -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e PLUGIN_NAME={{ SHOPWARE_OIDC_PLUGIN | quote }}
-      -e DENY_PASSWORD_LOGIN={{ (not (SHOPWARE_LOGIN_NATIVE | bool)) | string | lower | quote }}
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       sh
     stdin: |
       set -e
       cd "$SHOPWARE_ROOT"
-      php bin/console system:config:set --json "$PLUGIN_NAME.config.denyPasswordLogin" "$DENY_PASSWORD_LOGIN"
+      php bin/console system:config:set --json "$PLUGIN_NAME.config.denyPasswordLogin" {{ (not (SHOPWARE_LOGIN_NATIVE | bool)) | string | lower }}
       php bin/console system:config:set --json "$PLUGIN_NAME.config.enableAutoRedirect" false
   changed_when: false
 

@@ -4,8 +4,7 @@ const { withLdapGroupMember } = require("./personas");
 
 exports.register = function (shared) {
   test("biber: Semaphore LDAP login refuses biber without a Semaphore role group", async ({ page }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    test.skip(!shared.env.loginMethodLdap, "Semaphore's own LDAP login is off; LDAP accounts sign in through Keycloak's federation");
+    shared.skipUnlessLdapLogin();
     test.setTimeout(resolveTimeout(60_000));
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
@@ -21,8 +20,7 @@ exports.register = function (shared) {
   });
 
   test("biber: membership in the user group admits biber through the Semaphore LDAP login", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-    test.skip(!shared.env.loginMethodLdap, "Semaphore's own LDAP login is off; LDAP accounts sign in through Keycloak's federation");
+    shared.skipUnlessLdapLogin();
     test.setTimeout(resolveTimeout(120_000)); // directory group write plus the LDAP login
     await withLdapGroupMember(shared.env.userGroupDn, shared.env.biberDn, async () => {
       const ctx = await browser.newContext({ ignoreHTTPSErrors: true });

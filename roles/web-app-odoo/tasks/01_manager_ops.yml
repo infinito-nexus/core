@@ -73,11 +73,11 @@
     - ODOO_LOGIN_LDAP | bool
 
 - name: "🚪 Converge the login methods of {{ application_id }}"
-  include_tasks: 10_login_methods.yml
+  include_tasks: 08_login_methods.yml
 
 - name: "♻️ Reload Odoo so the SQL-provisioned config takes effect"
-  include_tasks: 08_reload_provisioned_config.yml
+  include_tasks: 09_reload_provisioned_config.yml
   when: (ODOO_OIDC_ENABLED | bool) or (ODOO_LDAP_ENABLED | bool) or (ODOO_OBJSTORE_ENABLED | bool)
 
 - name: "🎨 converge corporate design"
-  include_tasks: 09_design.yml
+  include_tasks: 10_design.yml
