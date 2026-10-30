@@ -23,5 +23,8 @@
 - name: "🚿 Recreate the hub so it loads the rewritten auth store"
   ansible.builtin.meta: flush_handlers
 
+- name: "🔍 Resolve the container the recreation started"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/resolve.yml"
+
 - name: "👤 Check the realigned owner password against the restarted hub"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/owner/provision.yml"
