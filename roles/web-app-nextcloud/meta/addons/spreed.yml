@@ -44,6 +44,9 @@ config:
       configkey: "internal_secret"
       configvalue: "{{ NEXTCLOUD_HPB_INTERNAL_SECRET }}"
     - appid: "spreed"
+      configkey: "call_recording_summary"
+      configvalue: "{{ 'yes' if (lookup('config', 'web-app-nextcloud', 'addons.integration_openai.enabled') | bool) else 'no' }}"
+    - appid: "spreed"
       configkey: "recording_servers"
       type: array
       configvalue: >-
