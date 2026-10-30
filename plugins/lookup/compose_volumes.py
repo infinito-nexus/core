@@ -220,6 +220,9 @@ def compose_volumes(
 
         if vtype == "volume":
             if semantic_name in volumes:
+                injected = volumes[semantic_name]
+                if "nfs" in entry and isinstance(injected, dict):
+                    injected.setdefault("nfs", entry["nfs"])
                 continue
             spec: dict[str, Any] = {}
             docker_name = entry.get("name")
