@@ -1,0 +1,34 @@
+:root {
+  --bg: #0F1013;
+  --bg2: #17191E;
+  --ink: #F4F1EA;
+  --ink2: #B8B3A8;
+  --ink3: #7C786F;
+  --accent: #F2C14E;
+  --accent2: #4D9DE0;
+  --hair: rgba(244, 241, 234, 0.12);
+  --sans: -apple-system, "SF Pro Display", system-ui, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+#stage { position: relative; overflow: hidden; background: repeating-conic-gradient(#2A2C31 0 25%, #222428 0 50%) 0 0 / 40px 40px; contain: strict; }
+
+.full { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.abs { position: absolute; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.mask { clip-path: inset(-.4em 0); }
+.t { display: inline-block; white-space: nowrap; line-height: 1.2; vertical-align: top; }
+.kicker { font-size: 26px; font-weight: 600; letter-spacing: 0.14em; color: var(--ink3); }
+.pill { background: rgba(12, 13, 16, 0.72); border-radius: 18px; padding: 14px 26px; }

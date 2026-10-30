@@ -1,0 +1,44 @@
+:root {
+  --bg: #0A0D1A;
+  --bg2: #10152B;
+  --ink: #EFEFEF;
+  --ink2: #A9B0C8;
+  --ink3: #69708C;
+  --accent: #142CAD;
+  --accent2: #4F6BFF;
+  --hair: rgba(239, 239, 239, 0.12);
+  --sans: "Inter", "DejaVu Sans", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+#stage { position: relative; overflow: hidden; background: var(--bg); contain: strict; }
+
+.full { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.abs { position: absolute; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.mask { clip-path: inset(-.4em 0); }
+.t { display: inline-block; white-space: nowrap; line-height: 1.2; vertical-align: top; }
+.shot { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+.h1 { font-size: 132px; font-weight: 800; letter-spacing: -0.045em; }
+.h1 .t { line-height: 1.3; }
+.kicker { font-family: var(--mono); font-size: 26px; font-weight: 600; letter-spacing: 0.14em; color: var(--accent2); }
+.mono { font-family: var(--mono); font-weight: 600; letter-spacing: -0.01em; }
+.term { border: 2px solid var(--hair); border-radius: 18px; background: #070915; overflow: hidden; }
+.term .bar { height: 52px; display: flex; align-items: center; padding-left: 22px; gap: 10px; border-bottom: 2px solid var(--hair); background: var(--bg2); }
+.term .bar i { width: 14px; height: 14px; border-radius: 50%; background: var(--ink3); display: inline-block; }
+.row-line { height: 34px; line-height: 34px; font-size: 21px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile { width: 360px; height: 360px; border: 2px solid var(--hair); border-radius: 28px; background: var(--bg2); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.chip { width: 250px; height: 180px; border: 2px solid var(--hair); border-radius: 20px; padding: 26px 22px; display: flex; flex-direction: column; align-items: flex-start; }
+.kicker { font-size: 30px; }
