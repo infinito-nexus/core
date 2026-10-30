@@ -108,6 +108,11 @@ Verified on the PR 414 worktree; build on these.
 - [ ] An application that renders network-bound URLs into one config (the dashboard) runs one instance per network, each with the config and CDN scripts of its network.
 - [ ] The CSP header is built per vhost domain and lists only sources of that vhost's network plus the single SSO issuer.
 - [ ] Redirect vhosts (aliases, `www`, node-onion apex) redirect inside the source's network, so source and target share one scheme.
+- [ ] Templates rendered once per role (environment files, branding, web app manifests, Collabora configuration) resolve every own or peer host URL for the network of the vhost that serves them, either rendered once per network sibling and served by that sibling's vhost or as same-origin paths, and no role carries a hand-written onion host or its own host rewrite.
+- [ ] A lint reports every role template rendered outside a vhost loop that resolves an own or peer host URL without that mechanism, and it fails on a negative control.
+- [ ] A web app manifest served on an onion vhost names only icons on that vhost's network, and the onion pass of `web-app-mini-qr` passes.
+- [ ] A cookie set on an http onion vhost carries no `Secure` flag, and the login of `web-app-n8n` passes on an onion pick.
+- [ ] Collabora accepts the WOPI host of every Nextcloud network sibling and may be embedded by it, and `addons/richdocuments.spec.js` opens a document on an onion pick of `web-app-nextcloud` variant 0.
 
 ### SSO
 
@@ -117,6 +122,8 @@ Verified on the PR 414 worktree; build on these.
 - [ ] A `multi` SSO app completes an OIDC login on its clearnet vhost (Playwright).
 - [ ] Keycloak redirect URIs and web origins include both siblings of every SSO consumer, each with its own scheme.
 - [ ] An oauth2-proxy-gated role runs one proxy instance per network it is served on, so a login started on either sibling returns to that sibling and sets its session cookie there.
+- [ ] Keycloak registers every network sibling of an OIDC client as post-logout redirect URI, and an OIDC login started on the onion sibling of `web-app-joomla` returns to that onion sibling.
+- [ ] A logout started on any network ends the role's session on every network sibling: after logging out on the onion sibling of `web-app-nextcloud` variant 0, `/login` on the onion host asks for credentials again and `test-login-biber-oidc.js` passes on an onion pick.
 
 ### Checks
 
@@ -137,6 +144,8 @@ Verified on the PR 414 worktree; build on these.
 - [ ] Every role with a Tor bond either passes a `multi` row or sets `reachability.single_mode: true` or restricts `reachability.modes`, each with a written reason that a lint enforces.
 - [ ] web-app-matrix expresses its former `exclusive: true` as `reachability.single_mode: true`.
 - [ ] web-app-wazuh contains no network-specific code (no onion variable, no second front-proxy include, no forked vhost template) and passes a `multi` row including the onion leak pass.
+- [ ] `network-leak.spec.js` passes on an onion pick of `web-app-mobilizon`, with its design and CDN assets loaded from the onion network or the same origin.
+- [ ] No role whose onion pass fails on clearnet-rendered configuration is fixed by `networks.reachability.handover`, a clearnet-only spec marker or a skipped assertion.
 - [ ] The "dual-family providers" item in `TODO.md` is removed.
 
 ### Quality
