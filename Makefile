@@ -313,6 +313,20 @@ design-gallery:
 	@: $${app:?app=<application_id> required, e.g. app=web-app-gitea}
 	@app='$(app)' pw='$(pw)' views='$(views)' before='$(before)' bash scripts/tests/design/gallery.sh
 
+.PHONY: design-logos
+# Render every app's branding assets (slots and favicon, day and night) from one logo and base color into an HTML preview, without a deploy.
+# Usage: make design-logos domain=<primary domain> out=<dir> [logo=<path>] [base='<hex>'] [roles=<role>[,<role>...]]
+# Example: make design-logos domain=veen.world out=/tmp/design-logos logo=../computer-inventory/files/galaxyserver/web-svc-design/logo.png base='#8DB33A'
+# Param domain: primary domain the role domains are rendered with
+# Param out: directory the assets and index.html are written to
+# Param logo: logo file; web-svc-design's logo when empty
+# Param base: hex base color; web-svc-design's base when empty
+# Param roles: comma-separated application ids; every role with a design entry when empty
+design-logos:
+	@: $${domain:?domain=<primary domain> required, e.g. domain=veen.world}
+	@: $${out:?out=<dir> required, e.g. out=/tmp/design-logos}
+	@"$${PYTHON}" -m cli.build.logos --domain '$(domain)' --out '$(out)' --logo '$(logo)' --base '$(base)' --roles '$(roles)'
+
 .PHONY: design-palette
 # Run the design assertions of a deployed app with another base color and restore the base of the inventory afterwards, also on failure.
 # Usage: make design-palette app=<application_id> base='<hex>' sync=<design|role> [variant=<idx>]
