@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
@@ -644,6 +648,10 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "Educação"
 
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -824,6 +832,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Configuração de nível de host ligando as shells de login Bash e Zsh a um perfil . compartilhado para carregamento de ambiente consistente"
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -833,6 +845,10 @@ msgstr "Provisão a nível do anfitrião para expor o projecto pyproject.toml ve
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Papel de host-level que fornece uma raiz RSA 4096-bit par de chaves SSH para acesso administrativo automatizado seguro"
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
@@ -988,6 +1004,14 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "Mecanismo de bloqueio para a fixação de tarefas de manutenção até a parada dos serviços críticos, com repetição configurável e tempo limite"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -1097,6 +1121,10 @@ msgstr "Configuração da rede (DNS, vamos criptografar HTTP, WireGuard, etc.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Buraco DNS para bloquear anúncios e rastreadores em todos os dispositivos, com DHCP e um painel de administração web"
+
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1315,6 +1343,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Agente SSH de usuário-serviço de sistema persistente para desktops Wayland, com a configuração .ssh sincronizada de Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
@@ -1412,6 +1444,10 @@ msgstr "Extraia caches para pacotes upstreams - repositórios proxy e o frontend
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "Gerenciador de pacotes Python CLI para clonar vários repositórios de códigos e automatizar operações Git comuns"
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
@@ -1773,6 +1809,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "Optimização de Serviço"
 
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
@@ -1999,6 +2039,14 @@ msgstr "Editor de texto baseado em terminal com atalhos de teclas modernos e rea
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Função de teste-harness executando scripts de teste CLI de ponta a ponta para funções que declaram um modelo de ambiente de teste"
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
 
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."

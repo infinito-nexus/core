@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # cüvlərləri yaradılış və təsil etmək üçün Let's Encrypt SSL/TLS
 # certifikətinin otorizasyonu və yenilənməsində使用现代英语：ACME 客户端用于通过 Webroot 或
 # DNS-01 挑战颁发和续签 Let's Encrypt SSL/TLS 证书的自动化。
@@ -657,6 +661,10 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr ""
 
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -838,6 +846,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Хост-уровнь тақ bids Bash жана Zsh кабылыс қосуларын бөлүмдө жазууға тақ байланысты жеке .profile-ге жетишиň consistent environmen тягырышына"
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # için /etc/environment üzerinden duyuruluyor
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -846,6 +858,10 @@ msgstr ""
 # pariruščišče ščuniti za ščanu automatičesku administrativeske pristope
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr ""
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
 msgstr ""
 
 # translated-by: ollama
@@ -1003,6 +1019,14 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "Ключначаччо хууга хувилбaryн талын халыкгын учуруу үчүн, кэчкөрүүнөнөн түзөтө, өнөрчүүнөнөн чаруу салым коогөтүү салым коогоо негиздөө жаасыз булак бар"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -1110,6 +1134,10 @@ msgstr "Хайланшууд ( DNS, Let's Encrypt HTTP, WireGuard, эсэх )"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Джинс санал DNS блокер для забору адверстейс и трекерш савакал Device-ларда, с DHCP жана веб-админ джэшшида"
+
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
+msgstr ""
 
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -1328,6 +1356,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Persistent systemd user-service SSH-agent для Wayland-дэкас, с конфигом .ssh сөйлөт из Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
@@ -1425,6 +1457,10 @@ msgstr ""
 # kod-repositorijäriga och automatizs fläm vanamöttiga Git ämmer
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr ""
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
 msgstr ""
 
 # translated-by: ollama
@@ -1792,6 +1828,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "Освіттар Оптімізацыя"
 
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
+
 # säilytyskomponentti—ohjaavat automaattiset datavinkkien säätäminen, ulkoiset
 # säilytykset, välinpitävyysservisiöitä ja säilytysasennukset tietokantojen,
 # tiedostojen ja kohteiden kauttaan.
@@ -2018,6 +2058,14 @@ msgstr "Конпуктчук текст-еҙнен күрделер менен �
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Тест-хаус роль жакто руннан end-to-end CLI тест скриптар для роллар жакто тест энvironмент тэмплейт ооноо"
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "logout:pace"

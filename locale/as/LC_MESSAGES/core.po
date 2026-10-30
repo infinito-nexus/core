@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # translated-by: libretranslate
 # sēmenačiai ir išliekties ir aukštijės klientas webroot eiliuva ar DNS-01
 # eiliuva lygymnautais
@@ -743,6 +747,10 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr ""
 
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
 # translated-by: libretranslate
 # sólarbáðum, sólarbæðinu sólarbóðum afsamblílagi stjórninu
 msgctxt "role:svc-ai-robot:description"
@@ -951,6 +959,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr ""
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # translated-by: libretranslate
 # pyproject.toml versiunum síðurvísindi á /etc/environment
 msgctxt "role:sys-version:description"
@@ -961,6 +973,10 @@ msgstr ""
 # 4096-bit SSH karlarfjöldi, austrarmiðamótugalíkað ferð af sýnað feri
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr ""
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1143,6 +1159,14 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr ""
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: libretranslate
 # outbound mail delivery via localhost when no central mail stack runs
 msgctxt "role:sys-svc-mail-smtp:description"
@@ -1265,6 +1289,10 @@ msgstr ""
 # bokkheimi, meegi DHCP og web admin bokhjemi
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr ""
+
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
 msgstr ""
 
 msgctxt "role:sys-front-inj-logout:description"
@@ -1516,6 +1544,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr ""
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 # translated-by: libretranslate
 # sílislaugarleiðsetlingu/leiðsetkjufélög, ísigleiðandi
 msgctxt "role:web-svc-xmpp:description"
@@ -1628,6 +1660,10 @@ msgstr ""
 # repositórium og alþýðar múltfúru Git afnæmingum
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr ""
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
 msgstr ""
 
 # translated-by: libretranslate
@@ -2057,6 +2093,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr ""
 
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
+
 # translated-by: libretranslate
 # handavaður automatizmeðlaut databæði, flókabækur, bækurframleiðingar og
 # bækurframleiðinguður um bækur í bækubæði, flóki og bókar.
@@ -2309,6 +2349,14 @@ msgstr ""
 # fyrir rôlar sem prófaði á tœst nýjast fleystið tilbúuða
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
+msgstr ""
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
 msgstr ""
 
 # translated-by: libretranslate

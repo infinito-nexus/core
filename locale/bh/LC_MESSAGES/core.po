@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
@@ -649,6 +653,10 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "ईश्वरीय"
 
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -829,6 +837,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "खोज-पद्धति-परिचालन बाश और जश लगन शेयर लॉगिंग के लिए सामान्य परिवर्तन लोड करने के लिए"
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -838,6 +850,10 @@ msgstr "Host-डेटा प्रोग्रामिंग फ़ॉक्�
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Host-ढालीली-रोल-प्रोग्रामिंग रूथलिंग RSA 4096-बिट सीएस वैई क्योंय सुरक्षित अतिरिक्त आदेशवाद संचार के लिए"
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
@@ -992,6 +1008,14 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "ढांढांवण्यं लक्लिंग महन्युष गतिशील सेवोंपर्यंत अमारण खरोप खर्चन सामाज्यांशी नियम"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -1101,6 +1125,10 @@ msgstr "नेटवर्क डिस्केज (डीएनस, लेट�
 # DASHBOARDAN
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr ""
+
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
 msgstr ""
 
 msgctxt "role:sys-front-inj-logout:description"
@@ -1320,6 +1348,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Persistent systemd user-service SSH agent वायलंड डिस्कासेट्रॉन से .ssh सेटिंग को स्केल्ड किया गया है, Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
@@ -1419,6 +1451,10 @@ msgstr ""
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "Py CLI पакळ्य योजना प्रकार से कई कोड रेस्ट्रेज़ो को युक्त करने और सामान्य Git कार्यो को सामान्यता में संक्रमण करने के लिए"
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
@@ -1778,6 +1814,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "सेवा ओप्टिमिसेशन"
 
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
@@ -2005,6 +2045,14 @@ msgstr ""
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Test-harness उपयोगी चयनित कॉमन इन्साइडर टेस्ट स्क्रिप्ट्स के लिए उपयोग करती है जो एक कॉमन इन्साइडर टेम्पलेट का वर्णन करती है"
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "logout:pace"

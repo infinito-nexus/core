@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
@@ -650,6 +654,10 @@ msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "교육과정"
 
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
@@ -833,6 +841,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Bash 및 Zsh 로그인 쉘을 연결하는 호스트 레벨 구성은 일관된 환경 로딩을 위해 공유합니다."
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -842,6 +854,10 @@ msgstr "프로젝트의 폭발을 위한 호스트 레벨 프로비저닝 pyproj
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "호스트 레벨 역할 프로비저닝 루트 RSA 4096안전한 자동화된 관리 접근을 위한 -bit SSH 열쇠 쌍"
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
@@ -997,6 +1013,14 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "configurable retry 및 timeout을 사용하여 중요한 서비스 중지까지 유지 보수 작업을 수행하기위한 잠금 메커니즘"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -1107,6 +1131,10 @@ msgstr "네트워크 설정 (DNS, HTTP, WireGuard 등을 암호화합시다.)"
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP 및 웹 관리자 대쉬보드와 함께 모든 장치에서 광고 및 추적기를 차단하기위한 Network-wide DNS Sinkhole"
+
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
@@ -1326,6 +1354,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Persistent는 Wayland 데스크톱 용 사용자 서비스 SSH 에이전트, .ssh config 동기화 Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
@@ -1425,6 +1457,10 @@ msgstr "패키지 업스트림을위한 풀 트랙 캐시 - 프록시 저장소 
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "여러 코드 저장소를 복제하는 Python CLI 패키지 관리자 및 일반적인 Git 작업을 자동화"
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
@@ -1789,6 +1825,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "서비스 Optimation"
 
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
+
 # translated-by: libretranslate
 # 및 데이터베이스, 파일 및 컨테이너 전역의 백업 오케스트라.
 msgctxt "category:svc.bkp:description"
@@ -2025,6 +2065,14 @@ msgstr "Pacman 기반 워크스테이션을 위한 현대 keybinding 및 syntax 
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Test-harness role running end-to-end CLI test scripts for role that 선언 테스트 환경 템플릿"
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
 
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
