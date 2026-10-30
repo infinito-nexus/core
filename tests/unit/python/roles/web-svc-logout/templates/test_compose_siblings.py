@@ -4,7 +4,6 @@ import importlib.util
 import unittest
 from unittest import mock
 
-import yaml
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader, lookup_loader
 from ansible.plugins.lookup import LookupBase
@@ -15,6 +14,7 @@ from plugins.filter.cookie_scope import domain_strings
 from plugins.filter.network_of import in_network
 from plugins.lookup.tls import LookupModule as TlsLookup
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 from utils.networks.instances import labelled, network_instances
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
 
@@ -117,7 +117,7 @@ def render(conductor: list[str], shop: list[str]) -> dict:
             LOGOUT_CONTAINER="logout",
             DOCKER_BIND_HOST="127.0.0.1",
         )
-    return yaml.safe_load(rendered)["services"]
+    return load_yaml_str(rendered)["services"]
 
 
 def siblings(services: dict) -> dict[str, str]:
