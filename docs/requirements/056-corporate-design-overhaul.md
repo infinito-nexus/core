@@ -1,4 +1,4 @@
-# 037 - Corporate Design Overhaul
+# 056 - Corporate Design Overhaul
 
 ## User Story
 
@@ -102,7 +102,7 @@ Two base commits changed many roles after their last run: `6c2de017f8` split ven
 - [x] web-app-opencloud
 - [x] web-app-openproject
 - [x] web-app-opentalk
-- [ ] web-app-openwebui: logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
+- web-app-openwebui: excluded from the logo and title replacement by its licence. Logo and title stay Open WebUI's own because clause 4 of its license allows replacing the branding only up to 50 users, with written permission or under an enterprise license (operator decision, see `roles/web-app-openwebui/TODO.md`).
 - [x] web-app-peertube
 - [x] web-app-penpot
 - [x] web-app-pgadmin

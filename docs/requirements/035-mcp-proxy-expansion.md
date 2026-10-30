@@ -10,8 +10,8 @@ As a platform administrator of Infinito.Nexus, I want every role with an `applic
 
 ## Scope
 
-This requirement extends [025 - MCP Role Integration](025-mcp-role-integration.md).
-Requirement 025 defines the initial MCP metadata and the first Open WebUI integration; this requirement drives the exhaustive role audit, the proxy and workflow-adapter contract, client reconciliation, and the conditions under which the remaining roles may be integrated.
+This requirement extends [050 - MCP Role Integration](050-mcp-role-integration.md).
+Requirement 050 defines the initial MCP metadata and the first Open WebUI integration; this requirement drives the exhaustive role audit, the proxy and workflow-adapter contract, client reconciliation, and the conditions under which the remaining roles may be integrated.
 
 What lives where:
 
@@ -165,7 +165,7 @@ Sidecars and adapters MUST use an immutable version and digest, documented prove
 
 ## Implementation Order
 
-1. Correct requirement 025's stale claims and add the exhaustive audit/lint status mechanism.
+1. Correct requirement 050's stale claims and add the exhaustive audit/lint status mechanism.
 2. Remove the hard-coded administrator credential path, add provider-consumer authorization, add client capability filtering, and implement post-application reconciliation.
 3. Make Open WebUI revocation and restart behavior correct before expanding its provider set.
 4. Implement Flowise 3.1.4's Streamable HTTP registry and one deterministic read-only flow without disabling unrestricted SSRF protection.

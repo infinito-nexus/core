@@ -158,9 +158,9 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 ### Deferred to a follow-up requirement (NOT in scope here)
 
-- [ ] ActivityPub → AT Protocol direction (blocked on Open Question 3: AT write identity).
-- [ ] Bidirectional sync with loop prevention.
-- [ ] RSVP mirroring across protocols (Mobilizon participation ↔ `community.lexicon.calendar.rsvp`).
+- ActivityPub → AT Protocol direction (blocked on Open Question 3: AT write identity). Deferred to a follow-up requirement.
+- Bidirectional sync with loop prevention. Deferred to a follow-up requirement.
+- RSVP mirroring across protocols (Mobilizon participation ↔ `community.lexicon.calendar.rsvp`). Deferred to a follow-up requirement.
 
 ## Cross-linking
 

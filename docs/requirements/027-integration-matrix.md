@@ -55,10 +55,18 @@ surveyed. A MediaWiki survey, for example, surfaced `DiscourseSsoConsumer`, `Pee
 `MachineTranslation` (libretranslate), `Extension:AWS` (minio) and an LLM editor (openwebui) —
 five integrations that no list had carried before someone looked.
 
+## Skipped Integrations
+
+A deliberately skipped integration is recorded as a disabled `meta/addons/<id>.yml` entry with a `skipped:` reason, which a lint checks.
+
 ## Acceptance Criteria
 
-- [ ] Every `web-app-*` role has had its upstream plugin ecosystem surveyed once, and each
-      integration found is either declared under `meta/addons/` or recorded as deliberately
-      skipped with a reason.
-- [ ] A reader can answer "does role A integrate role B" from the repository alone, without
+- [ ] Every `web-app-*` role, not only the integration hubs, has had its upstream plugin ecosystem surveyed once, so the open and paid layers are exhaustive rather than hub-biased. Each survey records, per partner role, the real upstream plugin or its documented absence with a source URL, the MediaWiki survey being the template for depth, and each integration found is either declared under `meta/addons/` or recorded as skipped per [Skipped Integrations](#skipped-integrations).
+- [x] A reader can answer "does role A integrate role B" from the repository alone, without
       consulting a generated page.
+- [ ] Every open edge is wired: the row role declares an addon in its `meta/addons/` that integrates the column role, with `mechanism` set appropriately and, when the column role is an in-repo role, a `bridges:` entry resolving to the row role's `meta/services.yml` service for that target.
+- [ ] Each wired integration addon is either `required: false` and disabled by default, or `required: true` with an `enabled` gated on the bridged partner's `services.<target>.enabled` flag, so an integration never activates when its partner role is not deployed.
+- [ ] Paid edges are opt-in: they are declared in `meta/addons/` but remain disabled, and the role README documents the required commercial tier; they are not enabled by default and do not block this requirement.
+- [ ] Where an edge links to an already-wired plugin (e.g. Nextcloud↔Collabora/BBB, WordPress↔Discourse), the migration reconciles the existing wiring with the declaration instead of duplicating it.
+- [ ] Each newly wired integration with a user-facing surface ships a Playwright spec (per Confirmed Decision 11 of [026](026-unified-addon-syntax.md)) proving the two roles are actually connected when both are deployed.
+- [ ] SSO-to-`keycloak` edges already satisfied centrally by the `sso` service (requirement 021) are marked as such and are not re-implemented as duplicate per-role OIDC addons.

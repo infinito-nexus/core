@@ -1,4 +1,4 @@
-# 039 - svc-net-wireguard: Test Full Meshes on the Role's Own CI Row
+# 058 - svc-net-wireguard: Test Full Meshes on the Role's Own CI Row
 
 ## User Story
 

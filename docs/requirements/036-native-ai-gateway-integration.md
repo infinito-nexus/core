@@ -81,5 +81,5 @@ The gateway is therefore pinned on **variant 2** for every consumer that ships t
 
 ## See Also
 
-- [031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)
-- [025 - MCP Role Integration](025-mcp-role-integration.md)
+- [052 - LLM Gateway Model Backends](052-llm-gateway-model-backends.md)
+- [050 - MCP Role Integration](050-mcp-role-integration.md)

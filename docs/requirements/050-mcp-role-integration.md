@@ -1,4 +1,4 @@
-# 025 - MCP Role Integration
+# 050 - MCP Role Integration
 
 > **Revalidation required:** [ADR 0003 - One MCP surface per provider, and a disposition for every role](../architecture/decisions/0003-mcp-surface-per-provider.md) holds the exhaustive per-role audit and the standing contract, and supersedes this document where this document assumes an empty baseline, treats metadata as enforcement, or marks client provisioning and end-to-end authorization complete. The remaining work is tracked in [035 - MCP Proxy Expansion and Application Interconnection](035-mcp-proxy-expansion.md). Checked items below describe the original implementation slice and MUST NOT be read as proof that the stricter identity, revocation, transport, restart, proxy, and real-tool-call criteria in requirement 035 are complete.
 
@@ -180,7 +180,7 @@ The audit is the role tree itself: every fact about a role's MCP surface lives i
 - [x] Every role with an `application_id` has an explicit audit disposition as required by requirement 035. Absence of an `mcp` block is not accepted as evidence that the role was reviewed.
 - [x] A role whose upstream path exists but is unreachable here declares the precise blocker instead of being silently absent, and MUST NOT also declare a served surface. Each `blocked` role carries a row naming its reason token and the concrete obstacle, drawn from the per-role guidance the requirement already held. A lint enforced the three halves of that (a blocked role without a row, a token outside the documented vocabulary, and a blocked role shipping an enabled surface) by parsing the audit; it was removed together with the other two document-parsing lints, so the rows are now held by review rather than by a test.
 - [x] A test asserts that every role declaring a served surface gates it on the role's MCP-enabled flag, so switching MCP off removes the endpoint rather than leaving it reachable.
-- [ ] A grep for `mcp` before implementation is recorded in the implementing PR to show the baseline was empty.
+- A grep for `mcp` before implementation is recorded in the implementing PR to show the baseline was empty. Obsolete: the baseline was never empty (18 role-local `mcp:` blocks, see [Background](#background)); the per-role audit of [ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md) replaces it.
 
 ### Shared contract
 
@@ -260,7 +260,7 @@ What still blocks it is the transport. `server.py` speaks streamable HTTP upstre
 
 - [x] Every integrated role README documents the MCP endpoint, auth model, default state, exposed tool categories, and how to disable MCP.
 - [x] The role service design docs link to the MCP contract and explain why stdio MCP is not enabled in deployed web roles by default.
-- [ ] This requirement file is cross-linked from the implementing PR.
+- [x] This requirement file is cross-linked from the implementing PR. Implementing PR: [#454](https://github.com/infinito-nexus/core/pull/454), which links this file under its former name `025-mcp-role-integration.md`.
 
 ## Validation Apps
 

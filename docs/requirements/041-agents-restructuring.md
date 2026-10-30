@@ -28,13 +28,13 @@ In scope:
 - Agents running from a throwaway instance on a developer's machine against a remote live instance.
 - Management from Open WebUI, and from Flowise and n8n where feasible.
 - The tooling gaps the running agents reported.
-- Cleanup of the AI roles and of requirements 025 to 040.
+- Cleanup of the AI roles and of requirements 025 to 040 and 050 to 058.
 - A localhost inventory bundle for the whole agent infrastructure, a local setup workflow and a SaaS integration workflow, both runnable through act, and an iteration plan for autonomous implementation.
 - Account naming that fits every application's username rules, and a catalog of employee profiles users start from Open WebUI, n8n and Flowise.
 
 Out of scope:
 
-- The hardware criteria of [034](034-svc-ai-robot.md) and the LM Studio x86 criterion of [031](031-llm-gateway-model-backends.md); they stay blocked on hardware.
+- The hardware criteria of [034](034-svc-ai-robot.md) and the LM Studio x86 criterion of [052](052-llm-gateway-model-backends.md); they stay blocked on hardware.
 - Renaming role prefixes; `svc-ai-*`, `web-*` and `dsk-gnt-*` stay.
 
 ## Superseded Criteria
@@ -54,7 +54,7 @@ Where an earlier requirement contradicts this one, this one wins. The earlier fi
 | [035](035-mcp-proxy-expansion.md) | Hermes/OpenClaw gate admits only `administrator` and `mcp` groups | The agent firewall decides access per agent |
 | [036](036-native-ai-gateway-integration.md), [040](040-translation-gateway.md) | Peer presence via `'<role>' in group_names` | Peer presence via a services lookup |
 | [038](038-system-one-model-router.md) | `router_strategy` derives from `services.jeff.enabled` | It derives from `services.s1.enabled` |
-| [025](025-mcp-role-integration.md) | MCP facts live in `meta/services.yml` | MCP facts live in `meta/mcp.yml` |
+| [050](050-mcp-role-integration.md) | MCP facts live in `meta/services.yml` | MCP facts live in `meta/mcp.yml` |
 | All of `docs/requirements/` | Requirements are Markdown files in the repository | Requirements are OpenProject work packages |
 
 ## Design
@@ -1738,18 +1738,18 @@ flowchart TD
 
 ### Layout
 
-- [ ] `agents/roles/{maintainer,designer,tuner,implementer,robot,reviewer,planner,coordinator,operator,tester,translator,documenter,release,security,hacker,counsel,support}/` each contain `AGENTS.md`, `SOUL.md` and `agent.yml`.
-- [ ] `agents/SOUL.md` holds the content of `docs/agents/meta/` and every shared principle listed under Role files, and every role `SOUL.md` links to it.
-- [ ] Every role's `AGENTS.md` and `SOUL.md` contain every rule listed for it under Role files.
-- [ ] `agents/skills/` holds every former `skills/i8-*` skill and one skill per former `docs/agents/files/*` page; `skills/` no longer exists.
-- [ ] `make install-skills` installs the repository skills from `agents/skills/`.
+- [x] `agents/roles/{maintainer,designer,tuner,implementer,robot,reviewer,planner,coordinator,operator,tester,translator,documenter,release,security,hacker,counsel,support}/` each contain `AGENTS.md`, `SOUL.md` and `agent.yml`.
+- [x] `agents/SOUL.md` holds the content of `docs/agents/meta/` and every shared principle listed under Role files, and every role `SOUL.md` links to it.
+- [x] Every role's `AGENTS.md` and `SOUL.md` contain every rule listed for it under Role files.
+- [x] `agents/skills/` holds every former `skills/i8-*` skill and one skill per former `docs/agents/files/*` page; `skills/` no longer exists.
+- [x] `make install-skills` installs the repository skills from `agents/skills/`.
 - [ ] `docs/agents/` no longer exists, and no file in the repository links to it.
-- [ ] The root `AGENTS.md` links to `agents/` and keeps the permission, sandbox and push rules for interactive sessions.
-- [ ] The root `AGENTS.md` support section names the Bitcoin address and PayPal to `kevin@veen.world`, tells agents to mention them to their human operator once per session, and forbids agents to send payments or use payment tools.
-- [ ] A lint fails when the Bitcoin address in the root `AGENTS.md` differs from the one in the repository `README.md`.
-- [ ] A lint test fails when an `agent.yml` misses a field or names an unknown runtime, lifecycle, trigger or firewall role.
-- [ ] Every role lists at least one skill in `agent.yml` `skills`, and a lint fails on a skill that does not exist in `agents/skills/`.
-- [ ] Every skill in `agents/skills/` declares its frontmatter `routines` (possibly empty for a pure rule skill), and a lint fails on a routine that does not exist in `agents/routines/`.
+- [x] The root `AGENTS.md` links to `agents/` and keeps the permission, sandbox and push rules for interactive sessions.
+- [x] The root `AGENTS.md` support section names the Bitcoin address and PayPal to `kevin@veen.world`, tells agents to mention them to their human operator once per session, and forbids agents to send payments or use payment tools.
+- [x] A lint fails when the Bitcoin address in the root `AGENTS.md` differs from the one in the repository `README.md`.
+- [x] A lint test fails when an `agent.yml` misses a field or names an unknown runtime, lifecycle, trigger or firewall role.
+- [x] Every role lists at least one skill in `agent.yml` `skills`, and a lint fails on a skill that does not exist in `agents/skills/`.
+- [x] Every skill in `agents/skills/` declares its frontmatter `routines` (possibly empty for a pure rule skill), and a lint fails on a routine that does not exist in `agents/routines/`.
 - [ ] Every role's `SOUL.md` opens with an `## Objective` section of one sentence, and a lint fails otherwise.
 - [ ] A lint fails when a routine calls a skill or a skill calls a role.
 - [ ] Every role's scheduled starts live in its `cron.yml`, a role may list several entries, and the orchestrator runs each entry at its schedule (fixture clock).
@@ -1758,18 +1758,18 @@ flowchart TD
 
 ### Routines
 
-- [ ] Every former `docs/agents/action/*` page exists in the form the mapping table names: a LangGraph routine under `agents/routines/`, a skill under `agents/skills/`, or a section of `agents/README.md`.
-- [ ] The maintainer, designer and implementer routines implement the graphs drawn under Routines, and `python -m agents.routines show <routine>` prints a Mermaid graph with the same nodes and edges.
+- [x] Every former `docs/agents/action/*` page exists in the form the mapping table names: a LangGraph routine under `agents/routines/`, a skill under `agents/skills/`, or a section of `agents/README.md`.
+- [x] The maintainer, designer and implementer routines implement the graphs drawn under Routines, and `python -m agents.routines show <routine>` prints a Mermaid graph with the same nodes and edges.
 - [ ] `python -m agents.routines run <routine>` executes a routine end to end with a stub model node in a unit test.
-- [ ] Every `agents/skills/i8-*` skill that routed to a `docs/agents/action/*` page routes to the matching routine.
+- [x] Every `agents/skills/i8-*` skill that routed to a `docs/agents/action/*` page routes to the matching routine.
 - [ ] Every shared deterministic tool node exists and has a unit test on a recorded log fixture.
 - [ ] A routine node that is not designated as a model node never calls the gateway (unit test).
 - [ ] For each failure class of the maintainer routine, a fixture log routes the routine to the listed branch.
 - [ ] The negative control node turns a guarded spec red and back to green on a fixture role.
-- [ ] The merge check reports a `# nocheck:` marker, a task and a `when:` clause removed by a fixture merge.
-- [ ] The number check rejects a pull request text with a number that does not occur in the run's evidence.
+- [x] The merge check reports a `# nocheck:` marker, a task and a `when:` clause removed by a fixture merge.
+- [x] The number check rejects a pull request text with a number that does not occur in the run's evidence.
 - [ ] The CI evidence node finds the change line in a job log, and follows the next run when the first was cancelled by a later merge.
-- [ ] No routine reads a raw Playwright report, and no tool node prints a raw task block, argv or environment (lint test).
+- [x] No routine reads a raw Playwright report, and no tool node prints a raw task block, argv or environment (lint test).
 - [ ] A second run of a routine keeps the first run's output, and both survive a host reboot.
 - [ ] A failed log write aborts the routine and leaves no orphaned child process.
 - [ ] An operator override of a routine policy is accepted, recorded in the run and shown in its result.
@@ -1814,7 +1814,7 @@ flowchart TD
 - [ ] The quality gate reports a lint failure in a new untracked file.
 - [ ] npm installs succeed inside the sandbox.
 - [ ] The slot picker refuses a slot whose subnet a leftover network still holds.
-- [ ] `make worktree-up` hands out only slots whose derived subnets, the swarm lab subnet included, are valid.
+- [x] `make worktree-up` hands out only slots whose derived subnets, the swarm lab subnet included, are valid.
 - [ ] `agents/skills/` holds a rule for writing escapes in code (`\U0000XXXX` or `\N{NAME}`, never `\uXXXX` through the Edit or Write tool), and a lint flags private-use or surrogate characters in source files.
 - [ ] A routine fetch succeeds when a fork tag is clobbered.
 
@@ -1890,7 +1890,7 @@ flowchart TD
 
 ### Agent firewall
 
-- [ ] `agents/firewall/` defines RBAC roles with `allow`, `ask` and `deny` rules in the documented syntax, and a lint test rejects a rule that does not parse.
+- [x] `agents/firewall/` defines RBAC roles with `allow`, `ask` and `deny` rules in the documented syntax, and a lint test rejects a rule that does not parse.
 - [ ] A unit test proves `deny` beats `ask` beats `allow` and that an unmatched request is denied.
 - [ ] A rule target with `${VAR}` expands from the deploy variables, and the `make i18n-translate` lane address is granted that way.
 - [ ] A denied egress request is reported with its target within 10 seconds.
@@ -1959,14 +1959,14 @@ flowchart TD
 
 ### Account naming
 
-- [ ] `IAM_ACCOUNT_MAX_LENGTH` equals the smallest username limit declared by any agent-reachable role, and a lint fails when such a role declares a smaller one or none.
-- [ ] Every role code is four characters of `[a-z1-9]` and unique; a lint fails otherwise.
+- [x] `IAM_ACCOUNT_MAX_LENGTH` equals the smallest username limit declared by any agent-reachable role, and a lint fails when such a role declares a smaller one or none.
+- [x] Every role code is four characters of `[a-z1-9]` and unique; a lint fails otherwise.
 - [ ] Agent account names match `<role code>0<suffix>` within `IAM_ACCOUNT_MAX_LENGTH`, and instance ids match `[a-z1-9]{1,15}` (lint).
-- [ ] Keycloak and OpenLDAP accept human names of `[a-z1-9]{3,15}` and agent names of the documented form.
-- [ ] A lint refuses any identity account in `lookup('users')` whose name contains `0`, a character outside `[a-z1-9]`, or more than 15 characters; a reserved account with no `identity` account is exempt; every identity user in the repository passes it.
+- [x] Keycloak and OpenLDAP accept human names of `[a-z1-9]{3,15}` and agent names of the documented form.
+- [x] A lint refuses any identity account in `lookup('users')` whose name contains `0`, a character outside `[a-z1-9]`, or more than 15 characters; a reserved account with no `identity` account is exempt; every identity user in the repository passes it.
 - [ ] An account of the agent form without a provisioner record is disabled and reported by the deploy and by the reaper (fixture account created through the admin console).
 - [ ] An agent account of the longest form is accepted by every agent-reachable application (one scenario per application), and no agent gets a Bluesky account.
-- [ ] A human of the longest form still gets a Bluesky handle with the `kc-` prefix.
+- A human of the longest form still gets a Bluesky handle with the `kc-` prefix. Superseded by the handle rules of the `web-app-bluesky` login broker (`files/login-broker/`): a short username keeps its name as the handle, a reserved one gets the `i8-` prefix, a username over 18 characters picks its handle in a form, and a legacy `kc-` account is reported.
 
 ### Profile catalog
 
@@ -2014,7 +2014,7 @@ flowchart TD
 - [ ] translator: a language whose catalog fails verification (empty or fuzzy entry, `msgfmt --check` error, changed placeholder or protected span, lost glossary term) gets no pull request and is reported (one fixture per failure kind).
 - [ ] translator: a language whose sampled chat-judge level falls below its last accepted level gets no pull request, and a judge reply without a level aborts that language's verification.
 - [ ] translator: the language set equals `domain_languages()` for each domain, only languages with changed catalogs get a pull request, and a language without a docs catalog gets it created in its first pull request.
-- [ ] translator: no translator code reads an engine from `meta/languages.yml` (grep), and engine capability changes go through the engine's own `serves` declaration.
+- [x] translator: no translator code reads an engine from `meta/languages.yml` (grep), and engine capability changes go through the engine's own `serves` declaration.
 - [ ] translator: an algorithm pull request carries the benchmark table per language, and a change that lowers any language's score is discarded (fixture).
 - [ ] translator: the evaluation set of each language is built from human-reviewed Weblate strings and is not used as translation input.
 - [ ] documenter: a merged pull request that changes a role's variables produces a README pull request that matches them, with the docs build green.
@@ -2059,22 +2059,22 @@ flowchart TD
 - [ ] `web-app-openwebui` enables tika, searxng and jupyter, and Playwright specs cover a RAG upload, a web search and a code execution.
 - [ ] The `web-app-openwebui` description no longer names Ollama as its backend.
 - [ ] `svc-ai-robot` reads its persona from `agents/roles/robot/`.
-- [ ] A grep over the AI roles finds no `in group_names` peer-presence test.
+- [ ] A grep over the `tasks/`, `templates/` and `vars/` of the AI roles finds no `in group_names` peer-presence test; the service flags in `meta/services.yml` keep theirs.
 - [ ] `web-svc-translate` reads its router strategy without a code-level fallback value.
 
 ### Requirement hygiene
 
 - [ ] Every superseded criterion listed above carries a pointer to this file in its earlier requirement.
-- [ ] [038](038-system-one-model-router.md) names `services.s1`, not `services.jeff`, and names `weighted` as the LLM gateway fallback; [040](040-translation-gateway.md) names `preference` as the translation gateway fallback.
-- [ ] [025](025-mcp-role-integration.md) and [035](035-mcp-proxy-expansion.md) agree on one disposition per application, matching its `meta/mcp.yml`.
+- [x] [038](038-system-one-model-router.md) names `services.s1`, not `services.jeff`, and names `weighted` as the LLM gateway fallback; [040](040-translation-gateway.md) names `preference` as the translation gateway fallback.
+- [ ] [050](050-mcp-role-integration.md) and [035](035-mcp-proxy-expansion.md) agree on one disposition per application, matching its `meta/mcp.yml`.
 - [ ] [035](035-mcp-proxy-expansion.md) names `dsk-*` roles, has no stray fragment, and lists the AI roles added since it was written.
-- [ ] [037-gettext](037-gettext-catalogs-libretranslate.md) no longer calls the catalog server "038 - web-svc-api".
+- [x] [054-gettext](054-gettext-catalogs-libretranslate.md) no longer calls the catalog server "038 - web-svc-api".
 
 ### Lint tests
 
 - [ ] Every lint of the catalog (L01 to L34) exists under `tests/lint/agents/` and runs in `make test-lint`.
 - [ ] Every lint of the catalog runs alone through the lint target for one role or one file.
-- [ ] Every lint of the catalog has a fixture that turns it red, and the red run is recorded in its test.
+- [x] Every lint of the catalog has a fixture that turns it red, and the red run is recorded in its test.
 - [ ] The repository as delivered passes every lint of the catalog.
 - [ ] `agents/criteria.yml` names a catalog lint id for every lint-proven criterion, and a criterion pointing to a missing lint id fails L22.
 
@@ -2095,7 +2095,7 @@ flowchart TD
 - [ ] Fork, push and pull request scenarios pass against the local `web-app-gitea`.
 - [ ] Claude Code scenarios pass against the local model behind the gateway's Anthropic-protocol endpoint.
 - [ ] Without GitHub or Anthropic credentials in the inventory, their scenarios report `skipped`.
-- [ ] The run prints the result table, and a single failed scenario makes the run fail.
+- [x] The run prints the result table, and a single failed scenario makes the run fail.
 - [ ] The CI runs the same workflow file as `make agents-verify`.
 - [ ] `make agents-verify mode=swarm` refuses to start on a worktree slot above 10 and names the fix.
 - [ ] The Ollama images are preseeded and no deploy step waits on the registry cache for them.

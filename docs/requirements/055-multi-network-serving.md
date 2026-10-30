@@ -1,4 +1,4 @@
-# 037 - Multi-Network Serving
+# 055 - Multi-Network Serving
 
 ## User Story
 
@@ -83,66 +83,66 @@ Verified on the PR 414 worktree; build on these.
 
 ### Configuration and model
 
-- [ ] `meta/networks.yml` accepts `reachability.modes` with values from `clearnet` and `tor`, treats an empty list or a missing key as every network, and a lint rejects any other value including `multi`.
-- [ ] `meta/networks.yml` accepts `reachability.single_mode` as a boolean, and a role with `single_mode: true` is served on `tor` when the node runs Tor and on `clearnet` otherwise.
-- [ ] `NETWORK_MODE` accepts `clearnet`, `tor` and `multi`, defaults to `multi` when `svc-net-tor` is deployed and to `clearnet` otherwise.
+- [x] `meta/networks.yml` accepts `reachability.modes` with values from `clearnet` and `tor`, treats an empty list or a missing key as every network, and a lint rejects any other value including `multi`.
+- [x] `meta/networks.yml` accepts `reachability.single_mode` as a boolean, and a role with `single_mode: true` is served on `tor` when the node runs Tor and on `clearnet` otherwise.
+- [x] `NETWORK_MODE` accepts `clearnet`, `tor` and `multi`, defaults to `multi` when `svc-net-tor` is deployed and to `clearnet` otherwise.
 - [ ] The effective networks of a role follow Decisions 3 and 4, covered by unit tests for every combination of node mode, `modes` and `single_mode` including the explicit failure.
-- [ ] No `meta/services.yml` contains `exclusive` or `primary` under `tor`, and a lint rejects them.
+- [x] No `meta/services.yml` contains `exclusive` or `primary` under `tor`, and a lint rejects them.
 - [ ] Network properties (sibling derivation, TLS policy, scheme, browser proxy) are read from the registry, and no `.onion` suffix check remains outside it in plugins, utils, filters and role scripts.
-- [ ] The registry reserves `handshake` without implementing it, and the design page documents the steps to add a network.
+- [x] The registry reserves `handshake` without implementing it, and the design page documents the steps to add a network.
 
 ### Domains and vhosts
 
-- [ ] In `multi` mode every canonical domain of a role has exactly one onion sibling in `lookup('domains')`, clearnet first.
-- [ ] `sys-stk-front-proxy` renders one vhost per network sibling of the domain it receives, and no vhost is rendered twice.
+- [x] In `multi` mode every canonical domain of a role has exactly one onion sibling in `lookup('domains')`, clearnet first.
+- [x] `sys-stk-front-proxy` renders one vhost per network sibling of the domain it receives, and no vhost is rendered twice.
 - [ ] Roles that register explicit domains (bluesky, matrix, minio, seaweedfs, mastodon, peertube, wordpress, joomla) serve every network sibling without network-specific code in the role.
-- [ ] TLS is decided by the vhost domain in `sys-stk-front-proxy`, `sys-front-tls` and `nginx_ssl_header.j2` without a `default()` fallback: onion vhosts listen on port 80 in plain HTTP, clearnet vhosts follow `TLS_MODE`.
-- [ ] Clearnet vhosts of `multi` apps send `Onion-Location: http://<onion sibling>$request_uri`, and no other vhost sends it.
-- [ ] The shared location template forwards `X-Forwarded-Host`, and the svc-net-tor README describes the `X-Forwarded-Proto` value that is actually sent.
+- [x] TLS is decided by the vhost domain in `sys-stk-front-proxy`, `sys-front-tls` and `nginx_ssl_header.j2` without a `default()` fallback: onion vhosts listen on port 80 in plain HTTP, clearnet vhosts follow `TLS_MODE`.
+- [x] Clearnet vhosts of `multi` apps send `Onion-Location: http://<onion sibling>$request_uri`, and no other vhost sends it. A role with `networks.reachability.handover: true` ([network_modes.md](../contributing/design/network_modes.md)) is the accepted alternative: its siblings outside the canonical network answer `302` to the canonical URL and none of its vhosts sends `Onion-Location`.
+- [x] The shared location template forwards `X-Forwarded-Host`, and the svc-net-tor README describes the `X-Forwarded-Proto` value that is actually sent.
 
 ### Per-vhost network alignment
 
-- [ ] Every cross-app URL rendered for a vhost (CDN, CSS, Matomo, logout, dashboard iframe origin, simpleicons, mirror) uses the provider domain of that vhost's network, in both directions.
-- [ ] Injected snippets and their CSP hashes are rendered per vhost, so the clearnet and the onion vhost of one app serve their own correct snippets.
+- [x] Every cross-app URL rendered for a vhost (CDN, CSS, Matomo, logout, dashboard iframe origin, simpleicons, mirror) uses the provider domain of that vhost's network, in both directions.
+- [x] Injected snippets and their CSP hashes are rendered per vhost, so the clearnet and the onion vhost of one app serve their own correct snippets.
 - [ ] The CDN-only runtime rewrite in `body_filter.lua.j2` is removed.
-- [ ] An application that renders network-bound URLs into one config (the dashboard) runs one instance per network, each with the config and CDN scripts of its network.
+- [x] An application that renders network-bound URLs into one config (the dashboard) runs one instance per network, each with the config and CDN scripts of its network.
 - [ ] The CSP header is built per vhost domain and lists only sources of that vhost's network plus the single SSO issuer.
-- [ ] Redirect vhosts (aliases, `www`, node-onion apex) redirect inside the source's network, so source and target share one scheme.
+- [x] Redirect vhosts (aliases, `www`, node-onion apex) redirect inside the source's network, so source and target share one scheme.
 
 ### SSO
 
-- [ ] In `multi` mode Keycloak's onion vhost answers every browser path with a 302 to the same path on the single issuer `https://auth.<clearnet>`, keeps its health locations, and the issuer sends no `Onion-Location`.
-- [ ] The issuer's `frame-ancestors` admits the pages of every network the node serves, so an onion app can embed the issuer's session iframes.
-- [ ] In `tor` mode Keycloak keeps its onion issuer, and in `clearnet` mode its clearnet issuer.
+- [x] In `multi` mode Keycloak's onion vhost answers every browser path with a 302 to the same path on the single issuer `https://auth.<clearnet>`, keeps its health locations, and the issuer sends no `Onion-Location`.
+- [x] The issuer's `frame-ancestors` admits the pages of every network the node serves, so an onion app can embed the issuer's session iframes.
+- [x] In `tor` mode Keycloak keeps its onion issuer, and in `clearnet` mode its clearnet issuer.
 - [ ] A `multi` SSO app completes an OIDC login on its clearnet vhost (Playwright).
-- [ ] Keycloak redirect URIs and web origins include both siblings of every SSO consumer, each with its own scheme.
-- [ ] An oauth2-proxy-gated role runs one proxy instance per network it is served on, so a login started on either sibling returns to that sibling and sets its session cookie there.
+- [x] Keycloak redirect URIs and web origins include both siblings of every SSO consumer, each with its own scheme.
+- [x] An oauth2-proxy-gated role runs one proxy instance per network it is served on, so a login started on either sibling returns to that sibling and sets its session cookie there.
 
 ### Checks
 
-- [ ] `sys-ctl-hlth-webserver` probes every vhost of every effective network with that vhost's scheme, and no global protocol flag remains.
-- [ ] `sys-ctl-hlth-csp` crawls the http and the https vhosts in one run.
+- [x] `sys-ctl-hlth-webserver` probes every vhost of every effective network with that vhost's scheme, and no global protocol flag remains.
+- [x] `sys-ctl-hlth-csp` crawls the http and the https vhosts in one run.
 
 ### CI
 
-- [ ] The CI network axis offers `clearnet` 🌐, `tor` 🧅 and `multi` 🌈 (glyphs in `utils/symbol_glossary.py`), selected by one input that replaces `INFINITO_TOR`.
-- [ ] A matrix row only takes node modes its role can be served in, and a `single_mode` role never takes a `multi` row.
-- [ ] On `multi` rows Playwright runs the full role suite once, on the clearnet or the onion URL picked at random, and keeps that pick for the flake retry.
-- [ ] On `multi` rows the run includes the guest persona and a shared cross-network leak spec.
-- [ ] The leak spec fails when a page requests a host of another network or loads blocked mixed content, proven by a negative control that reproduces the Wazuh mixed-content regression of fork run 35925283225.
-- [ ] `tor` rows keep running the full role suite on the onion URL.
+- [x] The CI network axis offers `clearnet` 🌐, `tor` 🧅 and `multi` 🌈 (glyphs in `utils/symbol_glossary.py`), selected by one input that replaces `INFINITO_TOR`.
+- [x] A matrix row only takes node modes its role can be served in, and a `single_mode` role never takes a `multi` row.
+- [x] On `multi` rows Playwright runs the full role suite once, on the clearnet or the onion URL picked at random, and keeps that pick for the flake retry. A role with `networks.reachability.handover: true` is the accepted alternative: it is tested on its canonical URL only.
+- [x] On `multi` rows the run includes the guest persona and a shared cross-network leak spec.
+- [x] The leak spec fails when a page requests a host of another network or loads blocked mixed content, proven by a negative control that reproduces the Wazuh mixed-content regression of fork run 35925283225.
+- [x] `tor` rows keep running the full role suite on the onion URL.
 
 ### Roles
 
-- [ ] Every role with a Tor bond either passes a `multi` row or sets `reachability.single_mode: true` or restricts `reachability.modes`, each with a written reason that a lint enforces.
-- [ ] web-app-matrix expresses its former `exclusive: true` as `reachability.single_mode: true`.
+- [ ] Every role with a Tor bond either passes a `multi` row or sets `reachability.single_mode: true`, sets `reachability.handover: true` or restricts `reachability.modes`, each with a written reason that a lint enforces.
+- [x] web-app-matrix expresses its former `exclusive: true` as `reachability.single_mode: true`.
 - [ ] web-app-wazuh contains no network-specific code (no onion variable, no second front-proxy include, no forked vhost template) and passes a `multi` row including the onion leak pass.
-- [ ] The "dual-family providers" item in `TODO.md` is removed.
+- [x] The "dual-family providers" item in `TODO.md` is removed.
 
 ### Quality
 
-- [ ] Unit tests cover the registry, sibling derivation, mode resolution, bidirectional alignment and per-vhost TLS.
-- [ ] A design page under `docs/contributing/design/` documents the network modes, `meta/networks.yml` and the registry.
+- [x] Unit tests cover the registry, sibling derivation, mode resolution, bidirectional alignment and per-vhost TLS.
+- [x] A design page under `docs/contributing/design/` documents the network modes, `meta/networks.yml` and the registry.
 - [ ] `make quality-high` is green.
 
 ## Out of Scope

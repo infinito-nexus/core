@@ -1,4 +1,4 @@
-# 037 - Gettext Catalogs with LibreTranslate Autotranslation
+# 054 - Gettext Catalogs with LibreTranslate Autotranslation
 
 ## User Story
 
@@ -7,8 +7,8 @@ As a maintainer of Infinito.Nexus, I want every user-facing string that core shi
 ## Scope
 
 This requirement covers the catalogs, their extraction, their machine translation and their validation.
-Serving the catalogs is [038 - web-svc-api](README.md#archive); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md).
-The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green.
+Serving the catalogs is the [`web-svc-api`](../../roles/web-svc-api/) role; consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md).
+The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after this requirement, `web-svc-api` and 039 are green.
 
 ## Findings That Constrain the Design
 
@@ -22,21 +22,21 @@ The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) k
 
 ## Design
 
-- `meta/languages.yml` lists the 184 ISO 639-1 languages with English name, native name and text direction. It is the single source for every language list in core.
+- `meta/languages.yml` lists the 183 ISO 639-1 languages with English name, native name and text direction. It is the single source for every language list in core.
 - Catalogs use the standard layout `locale/<code>/LC_MESSAGES/<domain>.po`, without committed `.pot` templates.
 - Domain `core` exists for every language except the source language `en`. Every message carries a `msgctxt` naming its source: `role:<role>:description`, `category:<dotted path>:title|description`, `menu:<key>:title|description`, `logout:<key>`.
-- Domain `docs` exists for the 47 languages LibreTranslate supports. Its messages come from the Sphinx `gettext` builder run over the same generated sources the documentation build uses, compacted into the single domain `docs`.
+- Domain `docs` exists for all 182 non-English languages of `meta/languages.yml`. Its messages come from the Sphinx `gettext` builder run over the same generated sources the documentation build uses, compacted into the single domain `docs`.
 - Machine translations carry the translator comment `libretranslate`. A human translation never carries it and is never overwritten.
 
 ## Acceptance Criteria
 
-- [x] `meta/languages.yml` lists exactly the 184 ISO 639-1 languages, each with English name, native name and direction `ltr` or `rtl`.
-- [x] `make i18n-extract` writes `locale/<code>/LC_MESSAGES/core.po` for all 183 non-English languages, holding every role description, category title and description, dashboard menu label and logout panel string under the `msgctxt` of its source.
+- [x] `meta/languages.yml` lists exactly the 183 ISO 639-1 languages, each with English name, native name and direction `ltr` or `rtl`.
+- [x] `make i18n-extract` writes `locale/<code>/LC_MESSAGES/core.po` for all 182 non-English languages, holding every role description, category title and description, dashboard menu label and logout panel string under the `msgctxt` of its source.
 - [x] `make i18n-extract` writes `locale/<code>/LC_MESSAGES/docs.po` for every language LibreTranslate supports, holding the messages of the Sphinx `gettext` build of the documentation.
 - [x] Running `make i18n-extract` twice in a row leaves the working tree unchanged.
 - [x] After a source string changes, `make i18n-extract` keeps the previous translation as a fuzzy entry, and after a source string is removed its entry is gone.
-- [x] `make i18n-translate domain=core` starts a LibreTranslate container with the image and version of `roles/web-svc-libretranslate/meta/services.yml`, and no container of it remains after the target ends, on success and on failure.
-- [ ] After `make i18n-translate domain=core`, no `msgstr` is empty or fuzzy in `core.po` of any language LibreTranslate supports, and every `core.po` of the other languages is left untouched.
+- [x] `make i18n-translate domain=core` translates through the [040](040-translation-gateway.md) translation gateway and deploys the gateway bundle when no gateway answers or when `redeploy=true` is set.
+- [ ] After `make i18n-translate domain=core`, no `msgstr` is empty or fuzzy in the `core.po` of any language the translation gateway serves.
 - [x] Every machine translation written by `make i18n-translate` carries the translator comment `libretranslate`, and an entry with a human translation is byte-identical before and after the run.
 - [x] A machine translation that drops or alters a `{name}`, `%(name)s` or `%s` placeholder, an inline literal or a URL of its source is discarded, left empty and reported, never written.
 - [x] `make i18n-translate domain=<domain> languages=<codes>` translates only the listed languages.

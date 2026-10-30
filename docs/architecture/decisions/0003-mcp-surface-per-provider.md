@@ -2,7 +2,7 @@
 
 **Status:** accepted
 
-Supersedes the design half of requirement 025, which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
+Supersedes the design half of requirement 050, which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
 
 > **Work:** TODO — the acceptance criteria and the order of implementation live in [035 - MCP Proxy Expansion and Application Interconnection](../../requirements/035-mcp-proxy-expansion.md).
 > This record holds the decision, the forces behind it, the standing contract and the per-role audit; that document holds what is still to be built and which artifact proves each criterion.
@@ -12,7 +12,7 @@ Supersedes the design half of requirement 025, which assumed an empty baseline, 
 
 An MCP client turns an application's API into tools a model may call. The cheap way to build that is one process holding administrator credentials for every application and translating an OpenAPI document into tools on demand. That process is a single credential store, a single network position reaching every application, and a tool surface that grows with every upstream release nobody reviewed.
 
-Requirement 025 established the first metadata and the Open WebUI integration. Reading the code against it showed the gap between what was declared and what ran:
+Requirement 050 established the first metadata and the Open WebUI integration. Reading the code against it showed the gap between what was declared and what ran:
 
 - [`plugins/lookup/mcp_servers.py`](../../../plugins/lookup/mcp_servers.py) read every provider token from `users.administrator.tokens` and copied that deployment credential to every selected client. `auth_subject` was returned as metadata and selected nothing.
 - [`plugins/filter/mcp/authorization.py`](../../../plugins/filter/mcp/authorization.py) rendered `oidc` as a stored bearer. It acquired, refreshed, exchanged and revoked nothing, so a rendered deployment bearer was user delegation in name only.

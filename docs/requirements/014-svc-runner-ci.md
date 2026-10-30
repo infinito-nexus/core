@@ -34,7 +34,7 @@ Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexu
 
 - [x] A unit-level test covers the CLI parameter parsing (required vs. optional parameters, the output-stream-file default, and the `roles` normalisation).
 - [x] The role's `README.md` documents the runner's purpose, the CLI entry point, and how to invoke it end-to-end.
-- [ ] This requirement is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md).
+- [ ] This requirement is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md). Implementing PR: [#231](https://github.com/infinito-nexus/core/pull/231); its description does not link this file yet.
 
 ## Procedure
 

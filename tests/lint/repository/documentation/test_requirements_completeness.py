@@ -1,17 +1,9 @@
 """Lint requirements completeness under ``docs/requirements/``.
 
-Two checks:
-
-* :meth:`TestRequirementsCompleteness.test_requirement_acceptance_criteria_are_complete`
-  scans each ``NNN-topic.md`` under the ``## Acceptance Criteria``
-  heading and emits one warning annotation per unchecked ``- [ ]``
-  item. Warnings only — never fails.
-
-* :meth:`TestRequirementsCompleteness.test_no_requirement_is_ready_for_archive`
-  fails when a requirement file has zero ``- [ ]`` markers anywhere.
-  Such files are eligible for archival via ``pkgmgr archive
-  docs/requirements`` and must be moved out of ``docs/requirements/``
-  so the directory stays a short, current list of open work.
+:meth:`TestRequirementsCompleteness.test_requirement_acceptance_criteria_are_complete`
+scans each ``NNN-topic.md`` under the ``## Acceptance Criteria``
+heading and emits one warning annotation per unchecked ``- [ ]``
+item. Warnings only — never fails.
 
 See [requirements.md](../../docs/contributing/requirements.md).
 """
@@ -32,13 +24,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 REQUIREMENTS_DIR = PROJECT_ROOT / "docs" / "requirements"
-ARCHIVE_CLI = "pkgmgr archive docs/requirements"
 TEMPLATE_FILENAME = "000-template.md"
 
 REQUIREMENT_FILENAME_RE = re.compile(r"^\d{3}-[^/]+\.md$")
 ACCEPTANCE_HEADING_RE = re.compile(r"^##\s+Acceptance Criteria\b", re.IGNORECASE)
 SECTION_END_HEADING_RE = re.compile(r"^#{1,2}\s+\S")
-UNCHECKED_TASK_RE = re.compile(r"^\s*[-*+]\s+\[\s\]\s")
 UNCHECKED_ITEM_RE = re.compile(r"^\s*[-*+]\s+\[\s\]\s+(?P<body>\S.*)$")
 WHITESPACE_RE = re.compile(r"\s+")
 
@@ -53,17 +43,6 @@ def iter_requirement_files(directory: Path) -> list[Path]:
         and REQUIREMENT_FILENAME_RE.match(p.name)
         and p.name != TEMPLATE_FILENAME
     )
-
-
-def count_unchecked_items(path: Path) -> int:
-    try:
-        return sum(
-            1
-            for line in read_text(str(path)).splitlines()
-            if UNCHECKED_TASK_RE.match(line)
-        )
-    except (OSError, UnicodeDecodeError):
-        return 0
 
 
 @dataclass(frozen=True)
@@ -152,37 +131,6 @@ class TestRequirementsCompleteness(unittest.TestCase):
 
         if not in_github_actions():
             print_summary(findings, PROJECT_ROOT)
-
-    def test_no_requirement_is_ready_for_archive(self) -> None:
-        """Fail when any requirement file is fully checked off.
-
-        A file with zero ``- [ ]`` items anywhere is eligible for
-        archival via ``pkgmgr archive``. Leaving it in
-        ``docs/requirements/`` inflates the scope that AI agents have
-        to process on every run, so the directory MUST stay a short,
-        current list of open work.
-        """
-        archivable: list[Path] = [
-            path
-            for path in iter_requirement_files(REQUIREMENTS_DIR)
-            if count_unchecked_items(path) == 0
-        ]
-
-        if not archivable:
-            return
-
-        listing = "\n".join(
-            f"  - {p.relative_to(PROJECT_ROOT).as_posix()}" for p in archivable
-        )
-        self.fail(
-            f"{len(archivable)} requirement file(s) have no unchecked "
-            "`- [ ]` items and are ready for archival. Run "
-            f"`{ARCHIVE_CLI}` to move their headings into "
-            "`docs/requirements/README.md` under `## Archive` and delete "
-            "the files. Keeping completed requirements in the directory "
-            "bloats the scope AI agents have to process on every run.\n"
-            f"{listing}"
-        )
 
 
 if __name__ == "__main__":

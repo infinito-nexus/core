@@ -19,7 +19,7 @@ As a platform operator, I want members of the `operator` role group to pause and
 ## Acceptance Criteria
 
 - [ ] Every invokable role's `meta/services.yml` declares `semaphore` with `enabled`, `shared`, `control` and `status`, where `enabled` and `shared` are `"{{ 'web-app-semaphore' in group_names }}"`, `control` is a literal boolean and `status` is `started` or `stopped`.
-- [ ] `web-app-semaphore`, `web-app-keycloak`, `svc-db-postgres`, `svc-db-openldap`, `svc-prx-openresty` and `web-app-gitea` declare `semaphore` with `enabled: false`, `control: false` and `status: started`, each carrying a `# nocheck:` reason.
+- [ ] `web-app-keycloak`, `svc-db-postgres`, `svc-db-openldap`, `svc-prx-openresty` and `web-app-gitea` declare `semaphore` with `enabled: false`, `control: false` and `status: started`, each carrying a `# nocheck:` reason. In `web-app-semaphore` the `semaphore` entry is the Semaphore container itself: `enabled` stays the container flag, and the entry adds `shared`, `control: false` and `status: started`, carrying a `# nocheck:` reason.
 - [ ] A lint fails for an invokable role whose `meta/services.yml` lacks the `semaphore` entry, whose `control` is not a literal boolean, or whose `status` is neither `started` nor `stopped`, unless the entry carries a `# nocheck:` reason, and it is observed failing on a role with the entry removed and on a role with `status: paused`.
 - [ ] A deploy that creates an application with `status: stopped` leaves it paused (no running instance, the paused page on its vhosts), and one with `status: started` leaves it running.
 - [ ] A redeploy of an application keeps the state Semaphore last set for it; `status` decides only the state the application is created in.

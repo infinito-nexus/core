@@ -1,4 +1,4 @@
-# 028 - Semaphore UI Role with OIDC SSO + LDAP
+# 051 - Semaphore UI Role with OIDC SSO + LDAP
 
 ## User Story
 
@@ -59,7 +59,8 @@ roles/web-app-semaphore/
 ├── meta/
 │   ├── main.yml
 │   ├── info.yml
-│   ├── server.yml
+│   ├── domains.yml
+│   ├── csp.yml
 │   ├── services.yml
 │   ├── secrets.yml
 │   ├── users.yml
@@ -68,7 +69,7 @@ roles/web-app-semaphore/
 │   └── volumes.yml
 ├── tasks/
 │   ├── main.yml
-│   └── 01_core.yml
+│   └── 00_core.yml
 ├── templates/
 │   ├── compose.yml.j2
 │   ├── env.j2
@@ -113,7 +114,7 @@ semaphore:
 
 ### `meta/variants.yml` (three variants, mirroring openproject)
 
-V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` only.
+V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `false` except `docs`; V3 = `ldap` only. `tor` stays enabled in every variant (`nocheck: variants-coverage` in `meta/services.yml`).
 
 ## Acceptance Criteria
 
@@ -127,7 +128,7 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 
 - [ ] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
 - [x] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
-- [ ] `meta/info.yml`, `server.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
+- [ ] `meta/info.yml`, `domains.yml`, `csp.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
 
 ### Database (Decision #3 — central PostgreSQL)
 
@@ -149,17 +150,17 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 ### LDAP (V3 + V1 dual)
 
 - [x] When `svc-db-openldap` is in `group_names`, `SEMAPHORE_LDAP_ENABLE=true` plus `SEMAPHORE_LDAP_SERVER` (host:port), `SEMAPHORE_LDAP_BIND_DN` / `_BIND_PASSWORD`, `SEMAPHORE_LDAP_SEARCH_DN` / `_SEARCH_FILTER`, and the `SEMAPHORE_LDAP_MAPPING_*` attributes are rendered from the central LDAP vars (env names per the v2.x config schema).
-- [ ] An LDAP-bind login for `biber` succeeds and lands on an authenticated surface (covered by a dedicated Playwright scenario gated on `ldap`).
+- [ ] An LDAP-bind login for `biber` succeeds and lands on an authenticated surface once `biber` is a member of the role's `user` group; the LDAP search filter admits only members of the `user` or `administrator` group (covered by a dedicated Playwright scenario gated on `ldap`).
 - [ ] When both OIDC and LDAP are enabled (V1), OIDC is the primary button and LDAP login still works; the deploy is clean.
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines exactly three variants: V1 sso+ldap, V2 all-false, V3 ldap-only.
+- [ ] `meta/variants.yml` defines exactly three variants: V1 every service on, V2 every service off except `docs`, V3 `ldap` only, each with `tor` on.
 - [ ] All three variants deploy cleanly on a fresh box (full matrix gate, all PLAY RECAPs `failed=0`).
 
 ### Playwright (per [playwright.spec.js contract](../contributing/artefact/files/role/playwright.specs.js.md))
 
-- [ ] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; empty-credentials submission is rejected by the IdP.
+- [ ] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; an empty-credentials submission on Semaphore's own login form is rejected by that form.
 - [ ] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`.
 - [x] `files/playwright/test-login-ldap-biber.js`: LDAP login path, gated on `skipUnlessServiceEnabled('ldap')`.
 - [x] `files/playwright/test-login-native-administrator.js`: break-glass local admin login, gated to **ldap-disabled** (Semaphore forces LDAP-only form auth when ldap is enabled); the skip carries a reason naming `LDAP_SERVICE_ENABLED`.
@@ -174,7 +175,7 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 ### Documentation
 
 - [ ] `roles/web-app-semaphore/README.md` documents image + bump policy, the chosen DB backend, OIDC + LDAP wiring, the variant matrix, the admin-bootstrap path, and the runner topology.
-- [ ] This requirement file is cross-linked from the implementing PR (per [requirements.md#cross-linking](../contributing/requirements.md#cross-linking)).
+- [x] This requirement file is cross-linked from the implementing PR (per [requirements.md#cross-linking](../contributing/requirements.md#cross-linking)). Implementing PR: [#356](https://github.com/infinito-nexus/core/pull/356), which links this file under its former name `028-web-app-semaphore.md`.
 
 ## Validation Apps
 
@@ -221,6 +222,3 @@ Execute autonomously; open a clarification only when a decision is genuinely amb
 - Native-OIDC flavor precedent: [024 ERPNext](024-web-app-erpnext.md)
 - Requirements format: [docs/contributing/requirements.md](../contributing/requirements.md)
 - Playwright contract: [playwright.specs.js.md](../contributing/artefact/files/role/playwright.specs.js.md)
-</content>
-
-</invoke>

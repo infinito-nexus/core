@@ -1,4 +1,4 @@
-# 031 - LLM Gateway and Model Backends (LiteLLM)
+# 052 - LLM Gateway and Model Backends (LiteLLM)
 
 ## User Story
 
@@ -10,7 +10,7 @@ AI consumers in this repository each wire their own model provider today: [`web-
 
 A single OpenAI-compatible **LLM gateway** ([LiteLLM Proxy](https://docs.litellm.ai/docs/simple_proxy)) fronts every backend: local `svc-ai-ollama`, a new `svc-ai-lmstudio`, OpenRouter, and any other provider LiteLLM supports. Consumers speak only the gateway `/v1` with a model alias; provider selection and routing are gateway config. This requirement promotes the existing Flowise-local LiteLLM pattern to a shared `svc-ai-litellm` role and makes it the one place backends are declared.
 
-This is the **model plane**. The tool plane (MCP) is separate ([025](025-mcp-role-integration.md)); the agent fleet that consumes this gateway is [032](032-agent-employees-firecracker.md).
+This is the **model plane**. The tool plane (MCP) is separate ([050](050-mcp-role-integration.md)); the agent fleet that consumes this gateway is [032](032-agent-employees-firecracker.md).
 
 ## Confirmed Decisions
 
@@ -30,7 +30,7 @@ Every consumer speaks only the gateway `/v1`; the gateway is the single place ba
 
 | Component | Role | Interactive? |
 |---|---|---|
-| [`web-app-openwebui`](../../roles/web-app-openwebui/) | Human chat UI to models (and MCP client per [025](025-mcp-role-integration.md)) | Human, on demand |
+| [`web-app-openwebui`](../../roles/web-app-openwebui/) | Human chat UI to models (and MCP client per [050](050-mcp-role-integration.md)) | Human, on demand |
 | [`web-app-flowise`](../../roles/web-app-flowise/) | No-code builder for LLM apps / agent flows | Human, on demand |
 | `web-app-hermes`, `web-app-openclaw` ([032](032-agent-employees-firecracker.md)) | Autonomous agent employees | Autonomous |
 | `svc-ai-litellm` | One OpenAI-compatible `/v1`, routes to any backend (headless, internal-only) | — |
@@ -105,5 +105,5 @@ Re-routing an alias is a one-line edit to `roles/svc-ai-litellm/templates/config
 ## See Also
 
 - Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-- MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)
+- MCP tool plane: [050-mcp-role-integration.md](050-mcp-role-integration.md)
 - Local model backend: [svc-ai-ollama](../../roles/svc-ai-ollama/)
