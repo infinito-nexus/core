@@ -6,3 +6,45 @@ runtime:
       categories: [web]
     swarm:
       categories: [web]
+  targets: [host, container]
+  engines: [trivy, grype, osv, syft]
+  severity: [CRITICAL, HIGH]
+  fixed_only: true
+  workers: 2
+  db_update: true
+  cache_dir: "/var/cache/{{ SOFTWARE_DOMAIN }}/vulnerability"
+  database_dir: "/var/cache/{{ SOFTWARE_DOMAIN }}/vulnerability/db"
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+trivy:
+  image: ghcr.io/aquasecurity/trivy
+  version: "0.76.1"
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+grype:
+  image: ghcr.io/anchore/grype
+  version: v0.121.0
+# nocheck: image-healthcheck  scanner run as a one-shot, no long-running process
+osv:
+  image: ghcr.io/google/osv-scanner
+  version: v2.7.0
+  ecosystems:
+    - AlmaLinux
+    - Alpine
+    - Debian
+    - Go
+    - Hackage
+    - Hex
+    - Maven
+    - NuGet
+    - Packagist
+    - Pub
+    - PyPI
+    - Red Hat
+    - Rocky Linux
+    - RubyGems
+    - Ubuntu
+    - crates.io
+    - npm
+# nocheck: image-healthcheck  SBOM builder run as a one-shot, no long-running process
+syft:
+  image: ghcr.io/anchore/syft
+  version: v1.55.0

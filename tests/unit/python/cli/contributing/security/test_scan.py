@@ -1,0 +1,177 @@
+from __future__ import annotations
+
+import datetime as dt
+import json
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import TestCase, main, mock
+
+import cli.contributing.security.scan.__main__ as scan_main
+from utils.docker.image.discovery import ImageRef
+from utils.security.pipeline import pipeline
+
+P = pipeline()
+
+
+def _ref(role, service, name="library/php", version="8.4.26-cli"):
+    return ImageRef(
+        role=role,
+        service=service,
+        name=name,
+        version=version,
+        source=f"docker.io/{name}:{version}",
+        registry="docker.io",
+    )
+
+
+class TestResolveDigests(TestCase):
+    def _resolve(self, refs, digests):
+        with mock.patch.object(
+            scan_main,
+            "mirror_image",
+            side_effect=lambda image: f"ghcr.io/o/r/mirror/{image}",
+        ):
+            return scan_main.resolve_digests(
+                refs, lambda image, tag: digests.get(f"{image}:{tag}"), 2
+            )
+
+    def test_role_services_pinning_one_digest_share_a_target(self):
+        refs = [_ref("web-app-a", "a"), _ref("web-app-b", "b")]
+        grouped, sources, errors = self._resolve(
+            refs, {"ghcr.io/o/r/mirror/docker.io/library/php:8.4.26-cli": "sha256:abc"}
+        )
+        self.assertEqual(
+            (list(grouped), [len(v) for v in grouped.values()], errors),
+            (["sha256:abc"], [2], []),
+        )
+        self.assertEqual(
+            sources["sha256:abc"], "ghcr.io/o/r/mirror/docker.io/library/php"
+        )
+
+    def test_an_image_the_mirror_does_not_serve_is_an_error(self):
+        _grouped, _sources, errors = self._resolve([_ref("web-app-a", "a")], {})
+        self.assertIn("the mirror served no digest", errors[0])
+
+    def test_an_unresolvable_mirror_aborts(self):
+        with (
+            mock.patch.object(scan_main, "mirror_image", return_value=None),
+            self.assertRaises(SystemExit),
+        ):
+            scan_main.resolve_digests(
+                [_ref("web-app-a", "a")], lambda image, tag: None, 1
+            )
+
+
+class TestTargets(TestCase):
+    def test_every_owning_role_service_is_an_owner(self):
+        target = scan_main.targets_of(
+            P, {"sha256:abc": [_ref("web-app-b", "b"), _ref("web-app-a", "a")]}
+        )[0]
+        self.assertEqual(target.owners, (("web-app-a", "a"), ("web-app-b", "b")))
+        self.assertEqual(target.key, "abc")
+
+
+class TestSteps(TestCase):
+    def setUp(self):
+        self.layout = P.Layout(
+            runtime=("docker", "run"),
+            databases=Path("/c/db"),
+            sbom=Path("/c/sbom"),
+            work=Path("/c/run"),
+            excludes=(),
+        )
+        self.target = P.Target(
+            "abc",
+            "container",
+            "sha256:abc",
+            "docker.io/library/php:8.4.26-cli",
+            (("r", "s"),),
+        )
+
+    def test_syft_reads_the_mirror_by_digest_without_a_daemon(self):
+        step = scan_main.sbom_step(
+            P, self.layout, self.target, "ghcr.io/o/r/mirror/docker.io/library/php"
+        )
+        self.assertIn(
+            "registry:ghcr.io/o/r/mirror/docker.io/library/php@sha256:abc", step.argv
+        )
+        self.assertNotIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
+
+    def test_trivy_reads_the_sbom_tree(self):
+        step = scan_main.trivy_step(P, self.layout, self.target)
+        self.assertEqual(step.argv[step.argv.index("sbom") :][-1], "/sbom/abc.cdx.json")
+
+
+class TestReport(TestCase):
+    def test_only_unsuppressed_verdicts_are_reported(self):
+        target = P.Target(
+            "abc",
+            "container",
+            "sha256:abc",
+            "docker.io/library/php:8.4.26-cli",
+            (("r", "s"),),
+        )
+        finding = P.Finding(
+            "grype",
+            "abc",
+            "php-cli",
+            "8.4.26",
+            "8.4.27",
+            ("CVE-2026-109618",),
+            "CRITICAL",
+        )
+        verdicts = [
+            P.Verdict(finding, target, ("r", "s"), None, False),
+            P.Verdict(
+                finding,
+                target,
+                ("r", "t"),
+                P.Suppression("CVE-2026-109618", dt.date(2026, 12, 31)),
+                True,
+            ),
+        ]
+        rows = scan_main.report_rows(
+            verdicts, {"sha256:abc": "ghcr.io/o/r/mirror/docker.io/library/php"}
+        )
+        self.assertEqual(
+            [(row["role"], row["service"], row["id"]) for row in rows],
+            [("r", "s", "CVE-2026-109618")],
+        )
+
+
+class TestScanTree(TestCase):
+    def test_a_cached_sbom_is_not_rebuilt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("db", "sbom", "run"):
+                (root / name).mkdir()
+            layout = P.Layout(
+                runtime=("docker", "run"),
+                databases=root / "db",
+                sbom=root / "sbom",
+                work=root / "run",
+                excludes=(),
+            )
+            target = P.Target("abc", "container", "sha256:abc", "img", (("r", "s"),))
+            (root / "sbom" / "abc.syft.json").write_text("{}", encoding="utf-8")
+            (root / "sbom" / "abc.cdx.json").write_text(
+                json.dumps({"components": []}), encoding="utf-8"
+            )
+            calls = []
+
+            def runner(argv):
+                calls.append(list(argv))
+                return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+            config = scan_main.scan_config(P, 1)
+            scan_main.scan_tree(
+                P, [target], {"sha256:abc": "m"}, config, layout, runner
+            )
+        self.assertFalse(
+            any(any(arg.startswith("registry:") for arg in call) for call in calls)
+        )
+
+
+if __name__ == "__main__":
+    main()

@@ -278,5 +278,40 @@ class TestFetchManifest(unittest.TestCase):
             self.assertEqual(registry.fetch_manifest("img", "1"), {"layers": []})
 
 
+_PLATFORMS = (
+    {"digest": "sha256:arm", "platform": {"os": "linux", "architecture": "arm64"}},
+    {"digest": "sha256:amd", "platform": {"os": "linux", "architecture": "amd64"}},
+)
+
+
+class TestPlatformDigest(unittest.TestCase):
+    def _digest(self, manifest, head):
+        with (
+            mock.patch.object(registry, "fetch_manifest", return_value=manifest),
+            mock.patch.object(registry, "_request", return_value=head),
+        ):
+            return registry.platform_digest(
+                "ghcr.io/o/r", "1", os_name="linux", architecture="amd64"
+            )
+
+    def test_an_index_resolves_to_the_platform_manifest(self) -> None:
+        self.assertEqual(
+            self._digest({"manifests": list(_PLATFORMS)}, None), "sha256:amd"
+        )
+
+    def test_a_single_manifest_answers_with_its_content_digest(self) -> None:
+        headers = Message()
+        headers["Docker-Content-Digest"] = "sha256:single"
+        self.assertEqual(
+            self._digest({"layers": []}, (200, headers, None)), "sha256:single"
+        )
+
+    def test_an_unreachable_registry_is_indeterminate(self) -> None:
+        self.assertIsNone(self._digest(None, None))
+
+    def test_an_index_without_the_platform_is_indeterminate(self) -> None:
+        self.assertIsNone(self._digest({"manifests": list(_PLATFORMS[:1])}, None))
+
+
 if __name__ == "__main__":
     unittest.main()

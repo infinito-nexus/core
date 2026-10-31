@@ -340,6 +340,44 @@ def config_blob(
     return _fetch_blob(image, config_digest)
 
 
+def _content_digest(image: str, reference: str) -> str | None:
+    resolved = _resolve(image)
+    if resolved is None:
+        return None
+    host, repo = resolved
+    url = f"https://{host}/v2/{quote(repo, safe='/')}/manifests/{quote(reference, safe='')}"
+    result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
+    if result is None or result[0] != 200:
+        return None
+    digest = result[1].get("Docker-Content-Digest")
+    return digest if isinstance(digest, str) and digest else None
+
+
+def platform_digest(
+    image: str, reference: str, *, os_name: str, architecture: str
+) -> str | None:
+    """Return the digest of the ``os_name``/``architecture`` manifest.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+        os_name: platform a multi-arch index is resolved to.
+        architecture: platform a multi-arch index is resolved to.
+
+    Returns:
+        The platform manifest's digest, or ``None`` on any indeterminate
+        outcome (see :func:`fetch_manifest`) and on an index without a
+        matching platform.
+    """
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        return _platform_digest(manifests, os_name, architecture)
+    return _content_digest(image, reference)
+
+
 def _healthcheck_at(
     image: str, reference: str, os_name: str, architecture: str
 ) -> dict | None:
