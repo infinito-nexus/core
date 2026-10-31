@@ -889,6 +889,7 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Param arch: architecture the cluster deploys on, amd64 | arm64 (default: the host's own).
 # Param network: optional node network mode pinned on the row (clearnet | tor | multi); empty keeps the run's rotation.
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
+# Param INFINITO_INVENTORY_EXTRA_VARS: optional environment JSON object laid over every round's inventory vars, `applications` merged per app; must not contain ';'.
 # Note: With keep=true use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true]'; exit 2; }
@@ -905,6 +906,7 @@ swarm-zombie: install-act
 	 INFINITO_CACHE_HOST_PACMAN_PATH=$${INFINITO_CACHE_HOST_PACMAN_PATH:-}; \
 	 INFINITO_APP_DISCOVERY_RUNNER=host; \
 	 INFINITO_DEPLOY_MODE=swarm; \
+	 INFINITO_INVENTORY_EXTRA_VARS=$${INFINITO_INVENTORY_EXTRA_VARS:-}; \
 	 disable=$(disable); \
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \

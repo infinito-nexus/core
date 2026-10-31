@@ -14,6 +14,7 @@ from utils import PROJECT_ROOT
 from utils.storage.constrained import host_storage_constrained
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
+from utils.tests.swarm.extra_vars import with_extra_vars
 from utils.tests.swarm.mesh import (
     bootstrap_mesh,
     converge_mesh,
@@ -414,16 +415,17 @@ def main(argv: list[str] | None = None) -> int:
         applications = backup_applications_overrides(providers)
         if meshed:
             applications = merge_with_defaults(applications, layout_applications())
-        vars_payload = _bake_overrides(
-            base_overrides={
-                "applications": applications,
-                "users": {
-                    name: {"authorized_keys": [key]} for name, key in pubkeys.items()
-                },
-                "STORAGE_CONSTRAINED": host_storage_constrained(
-                    [app_id], round_variants, local_vantage="/"
-                ),
+        base_overrides = {
+            "applications": applications,
+            "users": {
+                name: {"authorized_keys": [key]} for name, key in pubkeys.items()
             },
+            "STORAGE_CONSTRAINED": host_storage_constrained(
+                [app_id], round_variants, local_vantage="/"
+            ),
+        }
+        vars_payload = _bake_overrides(
+            base_overrides=with_extra_vars(base_overrides),
             variant_payloads=variant_payloads,
         )
         extras_path = f"{inv_root}/swarm-nfs-extras.yml"
