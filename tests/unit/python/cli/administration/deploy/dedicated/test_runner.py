@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import io
 import json
 import subprocess
+import tempfile
 import unittest
 import unittest.mock
+from pathlib import Path
 from typing import Any
 
 from cli.administration.deploy.dedicated import runner
@@ -11,8 +14,18 @@ from cli.administration.inventory.provision.services_disabler import (
     ServicesDisabledConflictError,
 )
 
+_ANSIBLE_PLAYBOOK = "/venv/bin/ansible-playbook"
+
 
 class TestRunAnsiblePlaybook(unittest.TestCase):
+    def setUp(self) -> None:
+        patcher = unittest.mock.patch(
+            "cli.administration.deploy.dedicated.runner.deploy_ansible_playbook",
+            return_value=_ANSIBLE_PLAYBOOK,
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _fake_run_side_effect(
         self,
         calls_store: list[tuple[list[str], dict[str, Any]]],
@@ -30,7 +43,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
             calls_store.append((norm_cmd, dict(kwargs)))
 
-            if norm_cmd and norm_cmd[0] == "ansible-playbook":
+            if norm_cmd and norm_cmd[0] == _ANSIBLE_PLAYBOOK:
                 return subprocess.CompletedProcess(
                     norm_cmd,
                     ansible_rc,
@@ -119,7 +132,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertGreaterEqual(len(calls), 1)
         last_cmd, last_kw = calls[-1]
-        self.assertEqual(last_cmd[0], "ansible-playbook")
+        self.assertEqual(last_cmd[0], _ANSIBLE_PLAYBOOK)
         self.assertEqual(last_kw.get("cwd"), repo_root)
 
         self.assertIn("-i", last_cmd)
@@ -202,7 +215,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             )
 
         last_cmd, _last_kw = calls[-1]
-        self.assertEqual(last_cmd[0], "ansible-playbook")
+        self.assertEqual(last_cmd[0], _ANSIBLE_PLAYBOOK)
 
         self.assertGreaterEqual(len(last_cmd), len(passthrough))
         self.assertEqual(last_cmd[-len(passthrough) :], passthrough)
@@ -255,8 +268,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertTrue(
             any(
-                call_cmd and call_cmd[0] == "ansible-playbook"
-                for call_cmd, _kw in calls
+                call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _kw in calls
             ),
             "ansible-playbook should have been invoked once in the error path",
         )
@@ -306,8 +318,84 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertEqual(ctx.exception.code, 1)
         self.assertFalse(
-            any(call_cmd and call_cmd[0] == "ansible-playbook" for call_cmd, _ in calls)
+            any(call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _ in calls)
         )
+
+
+class TestDeployAnsiblePlaybook(unittest.TestCase):
+    def _checkout(self, deploy: list[str], with_playbook: bool) -> tuple[str, Path]:
+        tmp = tempfile.TemporaryDirectory(prefix="deploy-extra-")
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        entries = ", ".join(json.dumps(requirement) for requirement in deploy)
+        (root / "pyproject.toml").write_text(
+            f"[project.optional-dependencies]\ndeploy = [{entries}]\n",
+            encoding="utf-8",
+        )
+        bindir = root / "venv" / "bin"
+        bindir.mkdir(parents=True)
+        if with_playbook:
+            (bindir / "ansible-playbook").write_text("", encoding="utf-8")
+        return str(root), bindir
+
+    def _resolve(self, repo_root: str, bindir: Path) -> str:
+        with unittest.mock.patch.object(
+            runner.sys, "executable", str(bindir / "python")
+        ):
+            return runner.deploy_ansible_playbook(repo_root)
+
+    def test_returns_the_playbook_beside_an_interpreter_with_the_deploy_extra(self):
+        repo_root, bindir = self._checkout(
+            ["PyYAML>=6", "ruamel.yaml", "humanfriendly"], with_playbook=True
+        )
+        self.assertEqual(
+            self._resolve(repo_root, bindir), str(bindir / "ansible-playbook")
+        )
+
+    def test_exits_naming_a_deploy_distribution_the_interpreter_lacks(self):
+        absent = "no-such-deploy-dist @ https://example.invalid/x.zip"
+        repo_root, bindir = self._checkout(["PyYAML", absent], with_playbook=True)
+        stderr = io.StringIO()
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._resolve(repo_root, bindir)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn(absent, stderr.getvalue())
+        self.assertNotIn("PyYAML", stderr.getvalue())
+
+    def test_exits_when_no_ansible_playbook_sits_beside_the_interpreter(self):
+        repo_root, bindir = self._checkout(["PyYAML"], with_playbook=False)
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._resolve(repo_root, bindir)
+        self.assertEqual(ctx.exception.code, 1)
+
+    @unittest.mock.patch("subprocess.run")
+    def test_missing_deploy_distribution_stops_the_run_before_any_phase(self, mock_run):
+        repo_root, bindir = self._checkout(
+            ["no-such-deploy-dist>=1"], with_playbook=True
+        )
+        with (
+            unittest.mock.patch.object(
+                runner.sys, "executable", str(bindir / "python")
+            ),
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            runner.run_ansible_playbook(
+                repo_root=repo_root,
+                playbook_path=f"{repo_root}/playbook.yml",
+                inventory_validator_path=f"{repo_root}/validate/__main__.py",
+                inventory=f"{repo_root}/devices.yml",
+                modes={"MODE_ASSERT": True},
+                skip_build=False,
+            )
+        self.assertEqual(ctx.exception.code, 1)
+        mock_run.assert_not_called()
 
 
 if __name__ == "__main__":
