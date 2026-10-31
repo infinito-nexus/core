@@ -29,7 +29,8 @@ class Library(Sites, Queue, Builder):
 
     Args:
         repository: git URL of the documented repository.
-        data_dir: shared volume holding mirror, queue, states, scratch and sites.
+        data_dir: shared volume holding mirror, queue, states, opens, scratch
+            and sites.
         jobs: parallel Sphinx processes per build.
         package_dir: the ``infinito_docs`` package directory.
         snapshot_dir: the deployed working tree, built as version ``deployed``.
@@ -47,6 +48,7 @@ class Library(Sites, Queue, Builder):
         self.translations = data / "translations"
         self.queue = data / "queue"
         self.states = data / "states"
+        self.opened = data / "opened"
         self.scratch = data / "work"
         self.prepared = data / "prepared"
         self.lock_file = data / "builder.lock"
@@ -191,6 +193,25 @@ class Library(Sites, Queue, Builder):
     def _save_state(self, version, **state):
         self.states.mkdir(parents=True, exist_ok=True)
         write_json(self.states / f"{version}.json", state)
+
+    def mark_opened(self, version):
+        """Stamp ``version`` as opened now, the order the builder prunes tags in.
+
+        Every request below the version calls this, so the directory is only
+        created when the first stamp misses it.
+
+        Args:
+            version: a listed version; ``latest`` and ``deployed`` are never
+                pruned, so they stay unmarked.
+        """
+        if version in (LATEST, DEPLOYED):
+            return
+        mark = self.opened / version
+        try:
+            mark.touch()
+        except FileNotFoundError:
+            self.opened.mkdir(parents=True, exist_ok=True)
+            mark.touch()
 
     def status(self):
         head, tags = self.refs()

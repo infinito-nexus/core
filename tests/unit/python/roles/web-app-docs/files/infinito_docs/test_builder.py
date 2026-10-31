@@ -326,6 +326,28 @@ class TestPrepared(LibraryFixture, unittest.TestCase):
         self.assertTrue(copied.is_file())
         self.assertNotEqual(copied.stat().st_ino, source.stat().st_ino)
 
+    def test_publishing_a_tag_drops_only_that_tags_older_trees(self) -> None:
+        stale = self.library.prepared / f"v1.2.3.{'0' * 16}"
+        siblings = [
+            self.library.prepared / f"{version}.{'1' * 16}"
+            for version in ("v1.2.4", "v1.20.0", "latest", "deployed")
+        ]
+        for tree in (stale, *siblings):
+            tree.mkdir(parents=True)
+            (tree / "VERSION").write_text(tree.name, encoding="utf-8")
+        work = self.library.scratch / "v1.2.3"
+        work.mkdir(parents=True)
+        (work / "VERSION").write_text("fresh", encoding="utf-8")
+        target = self.library._prepared_dir("v1.2.3", "v1.2.3")
+
+        self.library._publish_prepared(work, target)
+
+        self.assertEqual(
+            sorted(tree.name for tree in self.library.prepared.iterdir()),
+            sorted([target.name, *(tree.name for tree in siblings)]),
+            "only the older tree of the published tag may be dropped",
+        )
+
 
 class TestDispatch(LibraryFixture, unittest.TestCase):
     """What a free slot is allowed to claim."""
