@@ -6,7 +6,7 @@ from pathlib import Path
 
 from utils.cache.api import declared_api
 
-from .loaders import load_yaml_file
+from .loaders import merged_variables
 
 
 def legacy_api_keys(declared: set[str]) -> dict[str, str]:
@@ -34,15 +34,6 @@ def _cloudflare_token(data: dict) -> str:
     return str(token or "").strip()
 
 
-def _merged(paths: list[Path]) -> dict:
-    merged: dict = {}
-    for path in paths:
-        data = load_yaml_file(path)
-        if isinstance(data, dict):
-            merged.update(data)
-    return merged
-
-
 def validate_api_keys(inv_dir) -> list[str]:
     """Report hosts that select Cloudflare DNS without a Cloudflare token.
 
@@ -54,7 +45,7 @@ def validate_api_keys(inv_dir) -> list[str]:
         without ``API.cloudflare.api_token``.
     """
     root = Path(inv_dir)
-    group_all = _merged(
+    group_all = merged_variables(
         sorted(root.glob("group_vars/all.yml"))
         + sorted(root.glob("group_vars/all/*.yml"))
     )
@@ -66,7 +57,7 @@ def validate_api_keys(inv_dir) -> list[str]:
     ]
     errs: list[str] = []
     for path, files in hosts or [(root / "group_vars", [])]:
-        effective = {**group_all, **_merged(files)}
+        effective = {**group_all, **merged_variables(files)}
         if effective.get("DNS_PROVIDER") == "cloudflare" and not _cloudflare_token(
             effective
         ):

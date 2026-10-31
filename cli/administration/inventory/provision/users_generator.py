@@ -10,6 +10,7 @@ that are already generated there.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.users import get_user_defaults
@@ -133,6 +134,16 @@ def required_user_policies(
     return dict(sorted(required.items()))
 
 
+def has_pinned_password(user: Any) -> bool:
+    """Return whether an inventory user entry states a password of its own.
+
+    Args:
+        user: one value of an inventory's ``users`` mapping; a vaulted
+            password counts by its ciphertext, it is never decrypted.
+    """
+    return isinstance(user, Mapping) and bool(user.get("password"))
+
+
 def generate_user_passwords(
     roles_dir: Path,
     application_ids: list[str],
@@ -160,7 +171,7 @@ def generate_user_passwords(
     generated = 0
     for username, policy in policies.items():
         user_doc = ensure_map(users_doc, username)
-        if user_doc.get("password"):
+        if has_pinned_password(user_doc):
             continue
         user_doc["password"] = vault_value(
             vault_password_file,

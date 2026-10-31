@@ -22,6 +22,9 @@ from cli.administration.inventory.validate.loaders import (  # noqa: E402
     load_inventory_files,
     load_yaml_file,
 )
+from cli.administration.inventory.validate.pinned_passwords import (  # noqa: E402
+    validate_pinned_passwords,
+)
 from cli.administration.inventory.validate.users import compare_user_keys  # noqa: E402
 from cli.administration.inventory.validate.variables import (  # noqa: E402
     read_variables,
@@ -80,6 +83,7 @@ def main() -> None:
         validate_inventory_variables(args.inventory_dir, known, legacy_api_keys(known))
     )
     app_errs.extend(validate_api_keys(args.inventory_dir))
+    app_errs.extend(validate_pinned_passwords(args.inventory_dir, args.roles_dir))
 
     if app_errs or user_errs:
         if app_errs:
