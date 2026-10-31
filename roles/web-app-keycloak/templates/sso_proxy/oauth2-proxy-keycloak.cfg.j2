@@ -3,6 +3,7 @@ cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'secr
 {% set _network_domains = _domain_list | in_network(sso_proxy_network) %}
 {% set _network_primary = _network_domains | first %}
 cookie_secure           =   "{{ lookup('tls', _network_primary, 'enabled') | string | lower }}"
+cookie_refresh          =   "{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.cookie_refresh') }}"
 {% set _cookie_domains = lookup('sso_cookie_domains', sso_proxy_application_id) %}
 {% if _cookie_domains %}
 cookie_domains          =   {{ _cookie_domains | to_json }}

@@ -94,6 +94,7 @@ sso_proxy:
   min_storage: 220MB
   configuration_file: oauth2-proxy-keycloak.cfg
   alpha_configuration_file: oauth2-proxy-keycloak-alpha.yml
+  cookie_refresh: 1m
   ports:
     internal:
       http: 4180
