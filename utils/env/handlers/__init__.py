@@ -16,6 +16,7 @@ from . import (
     passthrough,
 )
 from .infinito import (
+    build,
     container,
     distros,
     domain,
@@ -114,6 +115,7 @@ ORDERED_HANDLERS = [
     inventory,
     gha_passthrough,
     pull_policy,
+    build,
     docker_embedded_dns,
     docker_volume,
     github_repository_owner,
