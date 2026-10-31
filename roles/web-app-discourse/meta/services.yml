@@ -88,6 +88,8 @@ discourse:
   pids_limit: 1024
   local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
     | bool) }}"
+  site_settings:
+    max_post_length: 100000
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
