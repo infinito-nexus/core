@@ -12,6 +12,10 @@ data:
 cache:
   type: volume
   name: weblate_cache
+  nfs:
+    uid: "1000"
+    gid: "0"
+    mode: "0770"
   mounts:
     - service: weblate
       target: &app_cache_target /app/cache

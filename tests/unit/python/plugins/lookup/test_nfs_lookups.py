@@ -105,5 +105,52 @@ class TestNfsConfigBackedLookups(unittest.TestCase):
         self.assertEqual(result, [expected])
 
 
+class TestNfsTmpfsMountpointsLookup(unittest.TestCase):
+    def test_only_nfs_backed_volumes_yield_octal_string_modes(self):
+        vars_ = {"application_id": "web-app-demo"}
+        applications = {
+            "web-app-demo": {
+                "volumes": {
+                    "cache": {
+                        "type": "volume",
+                        "name": "demo_cache",
+                        "mounts": [{"service": "app", "target": "/app/cache"}],
+                    },
+                    "local": {
+                        "type": "volume",
+                        "mounts": [{"service": "app", "target": "/app/local"}],
+                    },
+                    "static": {
+                        "type": "tmpfs",
+                        "mounts": [
+                            {
+                                "service": "app",
+                                "target": "/app/cache/static",
+                                "mode": "1777",
+                            }
+                        ],
+                    },
+                    "scratch": {
+                        "type": "tmpfs",
+                        "mounts": [{"service": "app", "target": "/app/local/tmp"}],
+                    },
+                }
+            }
+        }
+        compose_volumes = {
+            "cache": {
+                "name": "demo_cache",
+                "driver": "local",
+                "driver_opts": {"type": "none", "o": "bind"},
+            },
+            "local": {},
+        }
+        m, lm = _load("nfs_tmpfs_mountpoints", vars_)
+        with mock.patch.object(m, "lookup_loader") as loader:
+            loader.get.return_value = mock.MagicMock(run=lambda *a, **k: [applications])
+            result = lm.run([], variables=vars_, volumes=compose_volumes)
+        self.assertEqual(result, [[{"path": "demo_cache/static", "mode": "01777"}]])
+
+
 if __name__ == "__main__":
     unittest.main()

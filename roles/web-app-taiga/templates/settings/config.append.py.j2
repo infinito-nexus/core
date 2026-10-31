@@ -4,6 +4,18 @@
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
+STATIC_URL = f"{FORCE_SCRIPT_NAME}/static/"
+
+
+# A mail client resolves no same-origin path, so static() in the Jinja e-mail templates stays canonical and absolute.
+def _canonical_static(path):
+    from django.templatetags.static import static
+
+    return f"{TAIGA_SITES_SCHEME}://{TAIGA_SITES_DOMAIN}{static(path)}"
+
+
+next(engine for engine in TEMPLATES if engine["BACKEND"] == "django_jinja.backend.Jinja2")["OPTIONS"].setdefault("globals", {})["static"] = _canonical_static
+
 {% if lookup('objstore', application_id, 'enabled') | bool %}
 DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
 THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE

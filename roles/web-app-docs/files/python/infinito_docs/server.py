@@ -132,7 +132,11 @@ class DocsHandler(SimpleHTTPRequestHandler):
                 self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
                 return
             self.library.request(version)
-            if wanted := rest.partition("/")[0]:
+            wanted = rest.partition("/")[0]
+            if wanted and self.library.untranslated(version, wanted):
+                self.send_error(HTTPStatus.NOT_FOUND)
+                return
+            if wanted:
                 self.library.request(version, wanted)
             body = BUILDING.format(version=html.escape(version))
             self._page(HTTPStatus.ACCEPTED, f"Building {version}", body, head)

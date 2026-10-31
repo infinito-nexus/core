@@ -51,6 +51,38 @@ The token follows the `role#variant` form used by the priority slots. `#reciproc
 
 The marker is a comment, so it never reaches the merged services map or `host_vars`. It applies only to the variant entry it stands in; the same role's other variants are unaffected. A primary app keeps the index the sweep assigned it and no pin overrides it.
 
+A pin is in force only while the role carrying it is part of the round's include and runs the variant the marker stands in. A pin in a role the round does not deploy changes nothing. The round starts every role on its clamped index and recomputes the include and the pins in force until the assignment no longer changes; pins that never settle raise `VariantPinError`. [test_variant_pin_fixed_point.py](../../../../../tests/integration/roles/meta/variants/test_variant_pin_fixed_point.py) settles every round the matrix plans (each role as the only primary, in each of its variants) and fails when a round raises `VariantPinError`, or when a pin in force stands above a service entry the carrier runs with `enabled: false` in that round. Place a pin only above an entry the variant keeps enabled: the guide host `docs` stays on for the primary app alone, so a pin above `docs` fails the guard in any round that pulls the role in as a dependency running that variant.
+
+### How A Round Settles Its Pins 🔁
+
+`resolve_round` in [variants.py](../../../../../utils/roles/applications/variants.py) runs this loop for every round; the planner, `affected` and the budget lint read its result:
+
+```mermaid
+flowchart TD
+    start["Every role on its clamped index"] --> include["Resolve the round's include from the current assignment"]
+    include --> pins["Collect the pins of the roles in the include, at their current index"]
+    pins --> assign["New assignment: clamped indices, overridden by the collected pins"]
+    assign --> same{"Assignment unchanged?"}
+    same -->|yes| settled["Settled: the round deploys this include with these variants"]
+    same -->|no| seen{"Assignment seen before?"}
+    seen -->|yes| error["VariantPinError"]
+    seen -->|no| include
+```
+
+A pin of a role outside the include does not count, and neither does a pin above an entry the carrier runs switched off:
+
+```mermaid
+flowchart LR
+    subgraph round["Round of the primary app"]
+        primary["Primary app, keeps its index"]
+        partner["Partner role"]
+        carrier["Carrier role in the include"]
+    end
+    outside["Carrier role outside the include"]
+    carrier -->|pin above an enabled entry: in force| partner
+    outside -.->|pin: not in force| partner
+```
+
 Two roles pinning the same partner to different variants in one round raises `VariantPinConflictError` before an inventory is written. An index that no longer points at the reciprocating variant is caught by [test_variant_pins.py](../../../../../tests/integration/roles/meta/variants/test_variant_pins.py); `#reciprocal` needs exactly one candidate variant on the partner or it raises.
 
 ## Credentials Interaction 🔐

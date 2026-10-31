@@ -1,4 +1,5 @@
 worker_processes {{ WEBSERVER_PROXY_WORKER_PROCESSES }};
+worker_rlimit_nofile {{ WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE }};
 events
 {
   worker_connections {{ WEBSERVER_PROXY_WORKER_CONNECTIONS }};

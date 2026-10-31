@@ -38,3 +38,14 @@
         - item.0.value is mapping
         - item.0.value.driver_opts is defined
         - application_id not in lookup('roles_with_placement', 'manager')
+
+    - name: "📁 Pre-create tmpfs mountpoints inside the NFS volumes of '{{ application_id }}'"
+      ansible.builtin.file:
+        path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.path }}"
+        state: directory
+        mode: "{{ item.mode }}"
+      delegate_to: "{{ groups['svc-storage-nfs-server'][0] }}"
+      run_once: true
+      loop: "{{ lookup('nfs_tmpfs_mountpoints', volumes=(lookup('compose_volumes') | from_yaml).volumes) }}"
+      loop_control:
+        label: "{{ item.path }} {{ item.mode }}"

@@ -5,7 +5,10 @@
 # nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and jitsi, both
 # clearnet-only, have a round of their own. It carries nothing else; the mastodon,
 # matrix and mattermost couplings moved to variant 1, which keeps the onion, and
-# variant 0 pairs the onion with SSO.
+# variant 0 pairs the onion with SSO. Translate rides variant 0, whose round index
+# pairs it with web-svc-translate#0, the LibreTranslate round that keeps the onion,
+# so the discourse-translator addon is deployed and checked over the onion beside SSO;
+# web-svc-translate#1 and #2 drop the onion, so neither other round may carry it.
 
 - services:
     docs:
@@ -44,8 +47,8 @@
       enabled: true
       shared: true
     translate:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     tor:
       enabled: true
     bigbluebutton:
@@ -98,8 +101,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     translate:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     tor:
       enabled: true
     bigbluebutton:

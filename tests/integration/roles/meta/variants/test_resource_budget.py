@@ -4,11 +4,13 @@ the host memory budget.
 For every role and every entry in its ``meta/variants.yml``, the deduplicated
 footprint (the role's own containers plus the shared dependencies it pulls in,
 each service counted once via the shared-service logic) is summed and checked
-against the budget below. Every role that ships variants is evaluated at the
-same round index, falling back to variant 0 when it has fewer, because that is
-the combination a matrix round actually deploys: a dependency sized for the
-production model tier is not what the round runs. ``meta/services.yml`` only
-supplies the roles that declare no variant at all.
+against the budget below. Every role that ships variants runs the variant
+:func:`utils.roles.applications.variants.active_variants_for_round` assigns it
+for that round: the round index, falling back to variant 0 when it has fewer,
+unless a ``# variant-pin:`` of a role the round includes forces a different
+one. That is the combination a matrix round actually deploys: a dependency
+sized for the production model tier is not what the round runs.
+``meta/services.yml`` only supplies the roles that declare no variant at all.
 
 - ``mem_reservation`` total ≤ 32 GB
 - ``mem_limit`` total ≤ 64 GB
@@ -32,12 +34,16 @@ CLI), so this guard and the CLI never drift."""
 
 from __future__ import annotations
 
+import textwrap
 import unittest
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from humanfriendly import format_size, parse_size
 
+from cli.meta.roles.applications.resolution.combined import repo_paths
 from utils.annotations.suppress import suppressed_line_numbers
 from utils.cache.applications import get_variants
 from utils.cache.files import read_text
@@ -49,18 +55,24 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
-from utils.roles.mapping import ROLE_FILE_META_VARIANTS
+from utils.roles.applications.variant_pins import RECIPROCAL
+from utils.roles.applications.variants import active_variants_for_round
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 MAX_MEM_RESERVATION = parse_size("32GB")
 MAX_MEM_LIMIT = parse_size("64GB")
 
 MEM_LIMIT_RULE = "mem-limit-budget"
+
+PIN_SUBJECT = "web-app-budget-subject"
+PIN_PARTNER = "web-app-budget-partner"
 
 
 @dataclass(frozen=True)
@@ -147,11 +159,14 @@ def _measure(root: Path) -> list[BudgetMeasurement]:
     for role, variant_list in sorted(variants.items()):
         for index, variant_config in enumerate(variant_list):
             scoped = dict(applications)
-            for dep_role, dep_variants in variants.items():
-                if not dep_variants:
-                    continue
-                dep_index = index if index < len(dep_variants) else 0
-                scoped[dep_role] = dep_variants[dep_index] or {}
+            active = active_variants_for_round(
+                roles_dir=str(roles_dir),
+                round_index=index,
+                primary_app_variants={role: index},
+                variants_per_app=variants,
+            )
+            for dep_role, dep_index in active.items():
+                scoped[dep_role] = variants[dep_role][dep_index] or {}
             scoped[role] = variant_config or {}
             rows: list = []
             collect_role_resources(
@@ -199,6 +214,59 @@ def _finding_line(finding: BudgetMeasurement) -> str:
     )
 
 
+def _write_pinned_partner_tree(root: Path, pin: str) -> None:
+    """Write a roles tree whose subject round 1 exceeds the reservation cap
+    only when the partner runs its heavy variant 0 instead of the round index.
+
+    Args:
+        root: directory the ``roles/`` tree is written under.
+        pin: the line above the subject's partner entry in its variant 1,
+            ``""`` for none.
+    """
+    files = {
+        f"{PIN_SUBJECT}/{ROLE_FILE_VARS_MAIN}": f"application_id: {PIN_SUBJECT}\n",
+        f"{PIN_SUBJECT}/{ROLE_FILE_META_SERVICES}": textwrap.dedent("""\
+            budget-subject:
+              image: subject
+              mem_reservation: 20GB
+              mem_limit: 24GB
+            budget-partner:
+              enabled: false
+              shared: true
+            """),
+        f"{PIN_SUBJECT}/{ROLE_FILE_META_VARIANTS}": textwrap.dedent(f"""\
+            - {{}}
+            - services:
+                {pin}
+                budget-partner:
+                  enabled: true
+            """),
+        f"{PIN_PARTNER}/{ROLE_FILE_VARS_MAIN}": f"application_id: {PIN_PARTNER}\n",
+        f"{PIN_PARTNER}/{ROLE_FILE_META_SERVICES}": textwrap.dedent(f"""\
+            budget-partner:
+              image: partner
+              shared: true
+              mem_reservation: 1GB
+              mem_limit: 2GB
+            budget-subject:
+              enabled: "{{{{ '{PIN_SUBJECT}' in group_names }}}}"
+            """),
+        f"{PIN_PARTNER}/{ROLE_FILE_META_VARIANTS}": textwrap.dedent("""\
+            - services:
+                budget-partner:
+                  mem_reservation: 20GB
+                  mem_limit: 24GB
+                budget-subject:
+                  enabled: true
+            - {}
+            """),
+    }
+    for relative, body in files.items():
+        path = root / "roles" / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(body)
+
+
 class TestVariantResourceBudget(unittest.TestCase):
     def test_no_variant_exceeds_the_memory_budget(self) -> None:
         findings = _collect_findings(PROJECT_ROOT)
@@ -233,6 +301,37 @@ class TestVariantResourceBudget(unittest.TestCase):
                 "buy anything. Delete each one from its meta/variants.yml so the "
                 "cap guards the variant again:\n" + "\n".join(stale)
             )
+
+
+class TestPinnedPartnerBudget(unittest.TestCase):
+    def _tree(self, pin: str) -> Path:
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+        _write_pinned_partner_tree(root, pin)
+        resolver_root = patch.object(repo_paths, "PROJECT_ROOT", root)
+        resolver_root.start()
+        self.addCleanup(resolver_root.stop)
+        return root
+
+    def test_a_pin_moving_a_partner_over_the_cap_is_reported(self) -> None:
+        for target in ("0", RECIPROCAL):
+            with self.subTest(target=target):
+                root = self._tree(f"# variant-pin: {PIN_PARTNER}#{target}")
+                self.assertEqual(
+                    [
+                        (f.role, f.variant, f.mem_reservation)
+                        for f in _collect_findings(root)
+                    ],
+                    [(PIN_SUBJECT, 1, parse_size("40GB"))],
+                )
+
+    def test_without_the_pin_the_round_index_composition_fits(self) -> None:
+        measured = {(m.role, m.variant): m for m in _measure(self._tree(""))}
+        self.assertEqual(measured[(PIN_SUBJECT, 1)].mem_reservation, parse_size("21GB"))
+        self.assertFalse(
+            [m for m in measured.values() if m.over_reservation or m.over_limit]
+        )
 
 
 if __name__ == "__main__":

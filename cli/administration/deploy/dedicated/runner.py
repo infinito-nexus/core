@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import datetime as dt
+import importlib.metadata
 import json
 import os
+import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -14,8 +17,54 @@ from cli.administration.inventory.provision.services_disabler import (
 )
 from cli.meta.roles.services.called import verify as verify_required_system_services
 from cli.meta.runtime import detect_runtime
+from utils.cache.files import read_text
 
 from .proc import run, run_make
+
+_REQUIREMENT_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+
+
+def deploy_ansible_playbook(repo_root: str) -> str:
+    """
+    Return the ansible-playbook of the running interpreter once that
+    interpreter carries every distribution of the `deploy` extra.
+
+    Args:
+      repo_root: checkout whose pyproject.toml declares the `deploy` extra
+    Returns:
+      absolute path of the ansible-playbook next to sys.executable
+    Exits:
+      1 when a `deploy` distribution or that ansible-playbook is missing
+    """
+    pyproject = tomllib.loads(read_text(str(Path(repo_root) / "pyproject.toml")))
+    missing: list[str] = []
+    for requirement in pyproject["project"]["optional-dependencies"]["deploy"]:
+        name = _REQUIREMENT_NAME.match(requirement)
+        try:
+            importlib.metadata.distribution(name.group(0))
+        except importlib.metadata.PackageNotFoundError:
+            missing.append(requirement)
+
+    ansible_playbook = Path(sys.executable).parent / "ansible-playbook"
+    if missing:
+        quoted = " ".join(f"'{requirement}'" for requirement in missing)
+        print(
+            f"\n[ERROR] The deploy interpreter {sys.executable} lacks "
+            f"{', '.join(missing)} from the `deploy` extra of "
+            f"{repo_root}/pyproject.toml.\n"
+            f"        Install them with: {sys.executable} -m pip install {quoted}\n"
+            "        or launch the CLI from the venv `make install` provisions.\n",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not ansible_playbook.is_file():
+        print(
+            f"\n[ERROR] No ansible-playbook at {ansible_playbook} beside the "
+            f"deploy interpreter {sys.executable}.\n",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return str(ansible_playbook)
 
 
 def run_ansible_playbook(
@@ -36,6 +85,8 @@ def run_ansible_playbook(
     """Run ansible-playbook with the given parameters and execution modes."""
     start_time = dt.datetime.now(tz=dt.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n", flush=True)
+
+    ansible_playbook = deploy_ansible_playbook(repo_root)
 
     sys.dont_write_bytecode = True
     os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
@@ -75,7 +126,7 @@ def run_ansible_playbook(
             )
             sys.exit(1)
 
-    cmd: list[str] = ["ansible-playbook", "-i", inventory, playbook_path]
+    cmd: list[str] = [ansible_playbook, "-i", inventory, playbook_path]
 
     if limit:
         cmd.extend(["-l", limit])

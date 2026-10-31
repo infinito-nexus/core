@@ -35,6 +35,7 @@ openresty:
   custom: true
   lifecycle: beta
   pids_limit: 256
+  worker_connections: 4096
 
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:

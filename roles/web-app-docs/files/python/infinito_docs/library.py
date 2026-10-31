@@ -15,6 +15,7 @@ from .builder import (
     Builder,
     write_json,
 )
+from .catalogs import catalog_translates, known_languages
 from .sites import Sites
 
 REFS_TTL_SECONDS = 10
@@ -53,6 +54,8 @@ class Library(Sites, Queue, Builder):
         self.package_dir = Path(package_dir)
         self.snapshot = Path(snapshot_dir)
         self._snapshot_ref = ""
+        self._snapshot_translates: dict[str, bool] = {}
+        self._snapshot_lock = threading.Lock()
         self._tooling_ref = ""
         self._refs = ("", [])
         self._refs_read = 0.0
@@ -255,6 +258,32 @@ class Library(Sites, Queue, Builder):
         if version != DEPLOYED:
             return False
         return (self.snapshot / "locale" / code / "LC_MESSAGES" / "docs.po").is_file()
+
+    def untranslated(self, version, code):
+        """Whether ``code`` is a language ``version`` will never publish a site in.
+
+        Args:
+            version: ``latest``, ``deployed`` or a release tag.
+            code: first path segment below the version.
+
+        Returns:
+            For the deployed snapshot, already before its first build, ``True``
+            when ``meta/languages.yml`` lists the code, its ``docs`` catalog
+            translates nothing and no translated site of it is on disk: the
+            rule the build writes into the language index, read from the same
+            files. ``False`` for every other version, whose sources are not on
+            disk until a build checks them out.
+        """
+        if version != DEPLOYED or self.translation_servable(version, code):
+            return False
+        if code not in known_languages(self.snapshot):
+            return False
+        with self._snapshot_lock:
+            if code not in self._snapshot_translates:
+                self._snapshot_translates[code] = catalog_translates(
+                    self.snapshot, code
+                )
+            return not self._snapshot_translates[code]
 
     def _refresh_stale_sites(self):
         """Queue every already-served version whose site no longer matches its ref.

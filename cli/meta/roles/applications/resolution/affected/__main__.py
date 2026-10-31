@@ -44,11 +44,11 @@ from cli.meta.roles.applications.resolution.combined.role_introspection import (
     load_run_after,
 )
 from utils.cache.applications import get_variants
-from utils.roles.applications.variants import services_overrides_for_round
+from utils.roles.applications.variants import resolve_round
 from utils.roles.display import VARIANT_SEPARATOR
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Mapping
     from pathlib import Path
 
 EXIT_NON_MODELLABLE_SEED = 2
@@ -131,34 +131,42 @@ def affected_roles(changed: Iterable[str]) -> list[str]:
     return sorted(affected)
 
 
-def _round_resolvers(roles_path: Path, rounds: int) -> list[CombinedResolver]:
-    """One resolver per deploy round, each walking that round's
-    variant-merged services maps.
+def _round_resolver(
+    roles_path: Path, role: str, index: int, variants: Mapping[str, list]
+) -> CombinedResolver:
+    """The resolver of the round that deploys *role* in variant *index*.
 
-    The maps are built by the same helper
-    (:func:`utils.roles.applications.variants.services_overrides_for_round`)
-    the matrix planner feeds its rounds from, so the topology this reads is
-    the topology round ``i`` deploys -- including every pulled-in role's own
-    variant, which is what carries the narrowing across generations.
-    ``run_after`` is not followed, for the reason the planner does not follow
-    it either: an ordering hint would re-add a provider the variant switched
-    off.
+    The round is the one the matrix planner deploys for that variant
+    (:func:`utils.roles.applications.variants.resolve_round` with *role* as
+    its only primary), so the topology this reads carries every variant pin
+    in force there and every pulled-in role's own variant, which is what
+    carries the narrowing across generations. ``run_after`` is not followed,
+    for the reason the planner does not follow it either: an ordering hint
+    would re-add a provider the variant switched off.
+
+    Args:
+        roles_path: the roles tree.
+        role: the round's primary app.
+        index: the variant *role* runs in.
+        variants: parsed variants per role.
     """
-    return [
-        CombinedResolver(
-            services_overrides=services_overrides_for_round(
-                roles_dir=str(roles_path),
-                round_index=index,
-                primary_app_variants={},
-            ),
-            follow_run_after=False,
-        )
-        for index in range(rounds)
-    ]
+    return CombinedResolver(
+        services_overrides=resolve_round(
+            roles_dir=str(roles_path),
+            round_index=index,
+            primary_app_variants={role: index},
+            variants_per_app=variants,
+        ).services_overrides,
+        follow_run_after=False,
+    )
 
 
 def _pinned(
-    role: str, seeds: set[str], resolvers: Sequence[CombinedResolver], count: int
+    role: str,
+    seeds: set[str],
+    count: int,
+    roles_path: Path,
+    variants: Mapping[str, list],
 ) -> str:
     """*role*, narrowed to the variants whose own closure reaches a seed.
 
@@ -172,7 +180,9 @@ def _pinned(
         hits = [
             index
             for index in range(count)
-            if seeds.intersection(resolvers[index].resolve(role))
+            if seeds.intersection(
+                _round_resolver(roles_path, role, index, variants).resolve(role)
+            )
         ]
     except CombinedResolutionError:
         return role
@@ -189,16 +199,12 @@ def affected_selection(changed: Iterable[str]) -> list[str]:
     """
     seeds: set[str] = {r.strip() for r in changed if r and r.strip()}
     affected = affected_roles(changed)
-    variants = get_variants(roles_dir=str(roles_dir()))
+    variants = get_variants(roles_dir=str(roles_dir()), readonly=True)
     counts = {role: len(variants.get(role) or ()) for role in affected}
-    rounds = max(counts.values(), default=0)
-    if rounds < 2:
-        return affected
-    resolvers = _round_resolvers(roles_dir(), rounds)
     return [
         role
         if role in seeds or counts[role] < 2
-        else _pinned(role, seeds, resolvers, counts[role])
+        else _pinned(role, seeds, counts[role], roles_dir(), variants)
         for role in affected
     ]
 

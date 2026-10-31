@@ -22,18 +22,12 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         autospec=True,
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.planner.get_variants",
         autospec=True,
     )
     def test_single_variant_apps_share_one_unsuffixed_folder(
         self,
         get_variants_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         get_variants_mock.return_value = {
@@ -64,18 +58,12 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         autospec=True,
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.planner.get_variants",
         autospec=True,
     )
     def test_two_variant_primary_drives_two_suffixed_folders(
         self,
         get_variants_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         get_variants_mock.return_value = {
@@ -116,18 +104,12 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         autospec=True,
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.planner.get_variants",
         autospec=True,
     )
     def test_round_count_driven_by_primary_max_variants(
         self,
         get_variants_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         get_variants_mock.return_value = {
@@ -176,18 +158,12 @@ class TestPlanDevInventoryMatrix(unittest.TestCase):
         autospec=True,
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.planner.get_variants",
         autospec=True,
     )
     def test_purge_set_is_union_when_variants_differ(
         self,
         get_variants_mock: MagicMock,
-        _overrides_mock: MagicMock,
         resolve_include_mock: MagicMock,
     ) -> None:
         get_variants_mock.return_value = {
@@ -267,18 +243,12 @@ class TestPlanBakesPinnedVariant(unittest.TestCase):
         return_value=("web-app-bar", "web-app-foo"),
     )
     @patch(
-        "cli.administration.deploy.development.inventory.legacy_resolver._build_services_overrides_for_round",
-        autospec=True,
-        return_value={},
-    )
-    @patch(
         "cli.administration.deploy.development.inventory.planner.get_variants",
         autospec=True,
     )
     def test_round_variants_carry_the_pinned_index(
         self,
         get_variants_mock: MagicMock,
-        _overrides_mock: MagicMock,
         _include_mock: MagicMock,
         _pins_mock: MagicMock,
     ) -> None:

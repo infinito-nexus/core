@@ -1,10 +1,24 @@
+from ansible.errors import AnsibleFilterError
 from ansible.module_utils.parsing.convert_bool import boolean
 
 from plugins.filter.ldap.full_name import ldap_full_name
 
+_ENTRY_FIELDS = ("username", "firstname", "lastname", "uid", "gid")
+
 
 def _user_dn(key, id_attribute, users_dn):
     return f"{id_attribute}={key},{users_dn}"
+
+
+def _require_entry_fields(users):
+    for key, user in users.items():
+        missing = [field for field in _ENTRY_FIELDS if field not in user]
+        if missing:
+            raise AnsibleFilterError(
+                f"user '{key}' lacks {', '.join(missing)}. A user key that no "
+                "role's meta/users.yml declares gets none of these derived, so its "
+                "inventory entry must carry the full record or be removed."
+            )
 
 
 def openldap_user_entries(users, id_attribute, users_dn, structural):
@@ -15,7 +29,11 @@ def openldap_user_entries(users, id_attribute, users_dn, structural):
         id_attribute: RDN attribute of a user entry.
         users_dn: DN of the users OU.
         structural: structural object classes of a user entry.
+
+    Raises:
+        AnsibleFilterError: a record lacks a field the entry is built from.
     """
+    _require_entry_fields(users)
     return [
         {
             "dn": _user_dn(key, id_attribute, users_dn),
