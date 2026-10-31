@@ -91,8 +91,9 @@ platform_administrator:
 ```
 
 - `forward` is `''` unless declared, which forwards nothing.
-- The named user MUST exist and MUST carry a `mailbox` account. The lookup raises otherwise, and also for a forward to the user itself or a chain of forwards that loops. Role defaults and inventory overrides are checked alike.
-- [Stalwart](../../../../../../roles/web-app-stalwart/README.md#aliases-and-forwards) honours the forward of every user it provisions an account for: the account keeps the mail and the named user's `email` receives a copy. A user without a Stalwart account gets no forward from Stalwart.
+- The named user MUST exist. The lookup raises for an unknown user, for a named user whose entry is no mapping, for a forward to the user itself and for a chain of forwards that loops. Role defaults and inventory overrides are checked alike; a `forward` that is still a Jinja expression is left to the mail provider, which reads it rendered.
+- The lookup does not require a `mailbox` account on the named user, because it cannot tell whether the host runs a mail provider. The mail provider requires it.
+- [Stalwart](../../../../../../roles/web-app-stalwart/README.md#aliases-and-forwards) honours the forward of every user it provisions an account for: the account keeps the mail and the named user's `email` receives a copy. Its deploy fails when the named user carries no `mailbox` account. A user without a Stalwart account gets no forward from Stalwart.
 
 ## What Not To Do 🚫
 

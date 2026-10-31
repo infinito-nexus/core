@@ -64,12 +64,20 @@ class TestStalwartUserForwards(unittest.TestCase):
             "platform_administrator": {
                 "username": "platformadmin",
                 "email": "platformadmin@example.org",
+                "accounts": ["mailbox", "identity"],
                 "forward": forwards.get("platform_administrator", ""),
             },
             "administrator": {
                 "username": "administrator",
                 "email": "Administrator@example.org",
+                "accounts": ["host", "mailbox", "identity"],
                 "forward": forwards.get("administrator", ""),
+            },
+            "submitter": {
+                "username": "submitter",
+                "email": "submitter@example.org",
+                "accounts": ["identity"],
+                "forward": forwards.get("submitter", ""),
             },
         }
 
@@ -119,9 +127,20 @@ class TestStalwartUserForwards(unittest.TestCase):
             ["carol@example.org", "platformadmin@example.org"],
         )
 
-    def test_forward_to_a_user_without_stalwart_account_is_rejected(self):
+    def test_forward_to_an_unknown_user_is_rejected(self):
         users = self._users(platform_administrator="breakglass")
-        with self.assertRaisesRegex(AnsibleFilterError, "has no Stalwart account"):
+        with self.assertRaisesRegex(AnsibleFilterError, "breakglass, which is unknown"):
+            self.user_forwards([], users, "example.org")
+
+    def test_forward_to_a_user_without_mailbox_is_rejected(self):
+        users = self._users(platform_administrator="submitter")
+        with self.assertRaisesRegex(AnsibleFilterError, "carries no mailbox account"):
+            self.user_forwards([], users, "example.org")
+
+    def test_forward_to_a_user_with_unlisted_accounts_is_rejected(self):
+        users = self._users(platform_administrator="administrator")
+        users["administrator"]["accounts"] = "mailbox"
+        with self.assertRaisesRegex(AnsibleFilterError, "carries no mailbox account"):
             self.user_forwards([], users, "example.org")
 
     def test_forward_onto_the_own_account_is_rejected(self):
