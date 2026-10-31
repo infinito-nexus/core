@@ -265,6 +265,100 @@ class TestLibrary(LibraryFixture):
         self.assertIsNone(self.library.resolve("latest", "../ref"))
         self.assertIsNone(self.library.resolve("latest", "/etc/passwd"))
 
+    def test_a_ref_read_that_times_out_reads_as_no_mirror(self) -> None:
+        timeout = subprocess.TimeoutExpired(["git", "rev-parse", "HEAD"], 1)
+        with patch.object(self.library, "_git", side_effect=timeout):
+            self.assertEqual(self.library.refs(), ("", []))
+
+
+def write_killed_clone(killed: Path, url: str) -> None:
+    """Lay out what ``git clone --mirror`` leaves when killed mid-transfer.
+
+    Args:
+        killed: the clone's target directory.
+        url: the repository the clone was fetching.
+    """
+    (killed / "refs").mkdir(parents=True)
+    (killed / "objects" / "pack").mkdir(parents=True)
+    (killed / "objects" / "pack" / "tmp_pack_x").write_bytes(b"partial")
+    (killed / "HEAD").write_text("ref: refs/heads/.invalid\n", encoding="utf-8")
+    (killed / "config").write_text(
+        "[core]\n\trepositoryformatversion = 0\n\tbare = true\n"
+        f'[remote "origin"]\n\turl = {url}\n'
+        "\tfetch = +refs/*:refs/*\n\tmirror = true\n",
+        encoding="utf-8",
+    )
+
+
+def timed_out_clone(attempts: list, unresolved_head: bool = False):
+    """Return a ``subprocess.run`` whose first ``git clone`` dies at its timeout.
+
+    Args:
+        attempts: receives the argv of every clone attempt.
+        unresolved_head: also fail every ``rev-parse --verify HEAD``.
+    """
+    real_run = subprocess.run
+
+    def run(argv, *args, **kwargs):
+        if unresolved_head and argv[-3:] == ["rev-parse", "--verify", "HEAD"]:
+            raise subprocess.CalledProcessError(128, argv)
+        if argv[:2] != ["git", "clone"]:
+            return real_run(argv, *args, **kwargs)
+        attempts.append(argv)
+        if len(attempts) > 1:
+            return real_run(argv, *args, **kwargs)
+        write_killed_clone(Path(argv[-1]), argv[-2])
+        raise subprocess.TimeoutExpired(argv, library.GIT_TIMEOUT_SECONDS)
+
+    return run
+
+
+class TestClone(LibraryFixture):
+    def test_a_clone_killed_at_its_timeout_is_cloned_again(self) -> None:
+        shelf = library.Library(
+            str(self.repo), self.data / "fresh", 1, self.package, self.data / "none"
+        )
+        attempts: list = []
+        with patch.object(subprocess, "run", timed_out_clone(attempts)):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                shelf.fetch()
+            self.assertEqual(shelf.refs(), ("", []))
+
+            shelf.fetch()
+
+        self.assertEqual(len(attempts), 2, "a HEAD that never resolves must re-clone")
+        self.assertEqual(shelf.refs()[0], _git(self.repo, "rev-parse", "HEAD"))
+        self.assertEqual(shelf.versions(), ["latest", "v1.2.0", "v1.0.0"])
+
+    def test_a_mirror_wedged_by_an_earlier_killed_clone_is_replaced(self) -> None:
+        shelf = library.Library(
+            str(self.repo), self.data / "fresh", 1, self.package, self.data / "none"
+        )
+        write_killed_clone(shelf.mirror, str(self.repo))
+
+        shelf.fetch()
+
+        self.assertEqual(shelf.refs()[0], _git(self.repo, "rev-parse", "HEAD"))
+        self.assertFalse(shelf.mirror.with_name("repo.git.partial").exists())
+
+    def test_a_healthy_mirror_survives_a_re_clone_that_times_out(self) -> None:
+        shelf = library.Library(
+            str(self.repo), self.data / "fresh", 1, self.package, self.data / "none"
+        )
+        shelf.fetch()
+        attempts: list = []
+        with patch.object(
+            subprocess, "run", timed_out_clone(attempts, unresolved_head=True)
+        ):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                shelf.fetch()
+
+        self.assertEqual(len(attempts), 1)
+        self.assertEqual(
+            _git(shelf.mirror, "rev-parse", "HEAD"),
+            _git(self.repo, "rev-parse", "HEAD"),
+        )
+
 
 class TestBeforeTheFirstFetch(unittest.TestCase):
     def test_latest_is_offered_as_fetching_and_nothing_is_queued(self) -> None:
