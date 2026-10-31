@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from typing import Self
 
-from .._stand_ins import (
+from ._stand_ins import (
     CALLBACK,
     CLEARNET,
     MIDDLEWARE_MODULE,

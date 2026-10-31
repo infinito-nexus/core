@@ -7,7 +7,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES
 
-from ._stand_ins import (
+from .weblate_network._stand_ins import (
     MIDDLEWARE_MODULE_PATH,
     STRATEGY_MODULE_PATH,
     UPSTREAM_MIDDLEWARE,
