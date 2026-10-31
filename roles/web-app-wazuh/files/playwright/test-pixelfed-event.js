@@ -40,6 +40,23 @@ async function searchAlerts(page, marker) {
   return (await response.json()).hits.hits;
 }
 
+async function ensureAlertsIndexPattern(page) {
+  const headers = { "osd-xsrf": "true", "content-type": "application/json" };
+  const found = await page.request.get(
+    `${shared.env.appBaseUrl}/api/saved_objects/_find?type=index-pattern&fields=title&per_page=1000`,
+    { headers },
+  );
+  expect(found.status(), "saved objects find answered").toBe(200);
+  const existing = (await found.json()).saved_objects.find((o) => o.attributes.title === alertsIndex);
+  if (existing) return existing.id;
+  const created = await page.request.post(
+    `${shared.env.appBaseUrl}/api/saved_objects/index-pattern/${encodeURIComponent(alertsIndex)}`,
+    { headers, data: { attributes: { title: alertsIndex, timeFieldName: "timestamp" } } },
+  );
+  expect(created.status(), "index pattern created").toBe(200);
+  return (await created.json()).id;
+}
+
 test("administrator: a Pixelfed request shows up as its canary alert in the dashboard", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("pixelfed");
@@ -63,10 +80,11 @@ test("administrator: a Pixelfed request shows up as its canary alert in the dash
       expect(hits[0]._source.decoder.name).toBe(pixelfedDecoder);
       expect(hits[0]._source.predecoder.program_name).toBe(pixelfedProgram);
 
+      const indexPatternId = await ensureAlertsIndexPattern(p);
       const kuery = `rule.id:${httpCanaryRuleId} and full_log:"${marker}"`;
       await gotoOnion(
         p,
-        `${shared.env.appBaseUrl}/app/data-explorer/discover#?_q=(query:(language:kuery,query:'${encodeURIComponent(kuery)}'))&_g=(time:(from:now-1h,to:now))`,
+        `${shared.env.appBaseUrl}/app/data-explorer/discover#?_a=(metadata:(indexPattern:'${encodeURIComponent(indexPatternId)}',view:discover))&_q=(query:(language:kuery,query:'${encodeURIComponent(kuery)}'))&_g=(time:(from:now-1h,to:now))`,
         { waitUntil: "domcontentloaded" },
       );
       await expect(p.locator("body")).toContainText(marker, { timeout: resolveTimeout(60_000) });
