@@ -8,10 +8,12 @@ import unittest
 from pathlib import Path
 from typing import Self
 
-from .stand_ins import (
+from .._stand_ins import (
     CALLBACK,
     CLEARNET,
+    MIDDLEWARE_MODULE,
     MIDDLEWARE_MODULE_PATH,
+    NETWORK_PACKAGE,
     ONION,
     SITE_URL,
     STRATEGY_MODULE_PATH,
@@ -93,8 +95,9 @@ class StandInPackages:
         self.strategy = strategy
         self.names = (
             *LAYOUT_MODULES,
+            NETWORK_PACKAGE,
             strategy.rpartition(".")[0],
-            MIDDLEWARE_MODULE_PATH.stem,
+            MIDDLEWARE_MODULE,
         )
 
     def __enter__(self) -> Self:
@@ -104,8 +107,10 @@ class StandInPackages:
             path = root / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text.format(strategy=self.strategy), encoding="utf-8")
-        shutil.copy(self.strategy_source, root / self.strategy_source.name)
-        shutil.copy(MIDDLEWARE_MODULE_PATH, root / MIDDLEWARE_MODULE_PATH.name)
+        package = root / NETWORK_PACKAGE
+        package.mkdir()
+        shutil.copy(self.strategy_source, package / self.strategy_source.name)
+        shutil.copy(MIDDLEWARE_MODULE_PATH, package / MIDDLEWARE_MODULE_PATH.name)
         self._saved_path = list(sys.path)
         self._saved_modules = {name: sys.modules.pop(name, None) for name in self.names}
         sys.path.insert(0, str(root))
@@ -140,7 +145,7 @@ class TestStrategyImportsAtAppReady(unittest.TestCase):
     def test_the_middleware_loads_once_apps_are_ready(self) -> None:
         with StandInPackages(STRATEGY_MODULE_PATH, configured_strategy()):
             importlib.import_module("social_django.utils")
-            module = importlib.import_module(MIDDLEWARE_MODULE_PATH.stem)
+            module = importlib.import_module(MIDDLEWARE_MODULE)
             upstream = importlib.import_module("weblate.middleware")
             self.assertTrue(
                 issubclass(module.NetworkProxyMiddleware, upstream.ProxyMiddleware)

@@ -52,7 +52,7 @@ network_strategy:
   mode: "0444"
   mounts:
     - service: weblate
-      target: &app_infinito_network_strategy_target /app/infinito/weblate_network_strategy.py
+      target: &app_infinito_network_strategy_target /app/infinito/weblate_network/strategy.py
     - service: beat
       target: *app_infinito_network_strategy_target
     - service: worker
@@ -63,7 +63,7 @@ network_middleware:
   mode: "0444"
   mounts:
     - service: weblate
-      target: &app_infinito_network_middleware_target /app/infinito/weblate_network_middleware.py
+      target: &app_infinito_network_middleware_target /app/infinito/weblate_network/middleware.py
     - service: beat
       target: *app_infinito_network_middleware_target
     - service: worker

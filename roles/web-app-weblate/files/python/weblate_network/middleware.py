@@ -7,7 +7,7 @@ request instead.
 """
 
 from weblate.middleware import ProxyMiddleware
-from weblate_network_strategy import SCHEME_HOST_ATTRIBUTE, request_origin
+from weblate_network.strategy import SCHEME_HOST_ATTRIBUTE, request_origin
 
 
 class NetworkProxyMiddleware(ProxyMiddleware):

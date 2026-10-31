@@ -16,11 +16,11 @@
         dest: "{{ WEBLATE_SETTINGS_OVERRIDE_HOST }}"
         mode: "0644"
         notify: ["compose-up"]
-      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network_strategy.py') }}"
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network/strategy.py') }}"
         dest: "{{ WEBLATE_NETWORK_STRATEGY_HOST }}"
         mode: "0644"
         notify: ["compose-up"]
-      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network_middleware.py') }}"
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network/middleware.py') }}"
         dest: "{{ WEBLATE_NETWORK_MIDDLEWARE_HOST }}"
         mode: "0644"
         notify: ["compose-up"]

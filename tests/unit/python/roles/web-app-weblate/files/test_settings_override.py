@@ -7,7 +7,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES
 
-from .stand_ins import (
+from ._stand_ins import (
     MIDDLEWARE_MODULE_PATH,
     STRATEGY_MODULE_PATH,
     UPSTREAM_MIDDLEWARE,
@@ -34,7 +34,7 @@ class TestSettingsOverride(unittest.TestCase):
         replacement = middleware[UPSTREAM_MIDDLEWARE.index(UPSTREAM_PROXY)]
         self.assertNotIn(UPSTREAM_PROXY, middleware)
         self.assertEqual(
-            replacement, "weblate_network_middleware.NetworkProxyMiddleware"
+            replacement, "weblate_network.middleware.NetworkProxyMiddleware"
         )
         self.assertEqual(
             [entry for entry in middleware if entry != replacement],
@@ -44,7 +44,7 @@ class TestSettingsOverride(unittest.TestCase):
     def test_social_auth_builds_urls_from_the_request(self) -> None:
         self.assertEqual(
             self.settings["SOCIAL_AUTH_STRATEGY"],
-            "weblate_network_strategy.NetworkStrategy",
+            "weblate_network.strategy.NetworkStrategy",
         )
         self.assertIs(
             self.settings["SOCIAL_AUTH_REDIRECT_IS_HTTPS"],
@@ -84,10 +84,10 @@ class TestSettingsOverride(unittest.TestCase):
                 self.assertEqual(len(mounted), 1)
                 target = mounted.pop()
                 self.assertEqual(target.name, source.name)
-                self.assertEqual(
-                    str(target.parent), self.settings["_infinito_origin_dir"]
-                )
-                self.assertEqual(dotted.rsplit(".", 1)[0], target.stem)
+                module = target.relative_to(
+                    self.settings["_infinito_origin_dir"]
+                ).with_suffix("")
+                self.assertEqual(".".join(module.parts), dotted.rsplit(".", 1)[0])
 
     def test_a_renamed_upstream_middleware_fails_loudly(self) -> None:
         settings = upstream_settings()

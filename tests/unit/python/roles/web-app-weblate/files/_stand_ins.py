@@ -14,8 +14,11 @@ if TYPE_CHECKING:
 
 PYTHON_DIR = PROJECT_ROOT / "roles/web-app-weblate/files/python"
 OVERRIDE_PATH = PYTHON_DIR / "settings_override.py"
-STRATEGY_MODULE_PATH = PYTHON_DIR / "weblate_network_strategy.py"
-MIDDLEWARE_MODULE_PATH = PYTHON_DIR / "weblate_network_middleware.py"
+NETWORK_PACKAGE = "weblate_network"
+STRATEGY_MODULE_PATH = PYTHON_DIR / NETWORK_PACKAGE / "strategy.py"
+MIDDLEWARE_MODULE_PATH = PYTHON_DIR / NETWORK_PACKAGE / "middleware.py"
+STRATEGY_MODULE = f"{NETWORK_PACKAGE}.strategy"
+MIDDLEWARE_MODULE = f"{NETWORK_PACKAGE}.middleware"
 CLEARNET = "web.translate.example.com"
 ONION = "web.translate." + "a" * 56 + ".onion"
 SITE_URL = f"https://{CLEARNET}"
@@ -160,21 +163,22 @@ def load_shipped() -> dict[str, ModuleType]:
     strategy.WeblateStrategy = UpstreamStrategy
     middleware = ModuleType("weblate.middleware")
     middleware.ProxyMiddleware = UpstreamProxyMiddleware
+    package = ModuleType(NETWORK_PACKAGE)
+    package.__path__ = [str(STRATEGY_MODULE_PATH.parent)]
     stubs = {
         "weblate": ModuleType("weblate"),
         "weblate.accounts": ModuleType("weblate.accounts"),
         "weblate.accounts.strategy": strategy,
         "weblate.middleware": middleware,
+        NETWORK_PACKAGE: package,
     }
-    names = [*stubs, STRATEGY_MODULE_PATH.stem, MIDDLEWARE_MODULE_PATH.stem]
+    names = [*stubs, STRATEGY_MODULE, MIDDLEWARE_MODULE]
     saved = {name: sys.modules.get(name) for name in names}
     sys.modules.update(stubs)
     try:
         return {
-            "strategy": _exec_module(STRATEGY_MODULE_PATH.stem, STRATEGY_MODULE_PATH),
-            "middleware": _exec_module(
-                MIDDLEWARE_MODULE_PATH.stem, MIDDLEWARE_MODULE_PATH
-            ),
+            "strategy": _exec_module(STRATEGY_MODULE, STRATEGY_MODULE_PATH),
+            "middleware": _exec_module(MIDDLEWARE_MODULE, MIDDLEWARE_MODULE_PATH),
         }
     finally:
         for name, original in saved.items():

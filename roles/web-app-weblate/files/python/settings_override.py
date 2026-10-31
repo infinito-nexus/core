@@ -15,24 +15,24 @@ _infinito_upstream_strategy = "weblate.accounts.strategy.WeblateStrategy"
 if _infinito_upstream_proxy not in MIDDLEWARE:  # noqa: F821
     raise RuntimeError(
         f"{_infinito_upstream_proxy} is no longer in MIDDLEWARE; re-check "
-        "weblate_network_middleware against this Weblate release"
+        "weblate_network.middleware against this Weblate release"
     )
 if _infinito_upstream_strategy != SOCIAL_AUTH_STRATEGY:  # noqa: F821
     raise RuntimeError(
         f"SOCIAL_AUTH_STRATEGY is no longer {_infinito_upstream_strategy}; "
-        "re-check weblate_network_strategy against this Weblate release"
+        "re-check weblate_network.strategy against this Weblate release"
     )
 
 if _infinito_origin_dir not in sys.path:
     sys.path.append(_infinito_origin_dir)
 
 MIDDLEWARE = [
-    "weblate_network_middleware.NetworkProxyMiddleware"
+    "weblate_network.middleware.NetworkProxyMiddleware"
     if entry == _infinito_upstream_proxy
     else entry
     for entry in MIDDLEWARE  # noqa: F821
 ]
-SOCIAL_AUTH_STRATEGY = "weblate_network_strategy.NetworkStrategy"
+SOCIAL_AUTH_STRATEGY = "weblate_network.strategy.NetworkStrategy"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 SECURE_SSL_REDIRECT = False
 LANGUAGE_COOKIE_SAMESITE = "Lax"
