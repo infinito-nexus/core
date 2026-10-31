@@ -10,6 +10,7 @@ from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
+# upstream: https://github.com/trifectatechfoundation/sudo-rs/issues/1299
 _WHOLE_ENV = re.compile(r"\bsudo\s+(?:-\w+\s+)*(?:-\w*E\w*|--preserve-env)(?=\s|$)")
 
 

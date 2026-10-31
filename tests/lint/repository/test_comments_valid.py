@@ -6,7 +6,9 @@ A comment is VALID only when it is one of:
 * a **doc comment** directly above a class / function / method / rule,
 * a **tool directive** (`noqa`, `nocheck`, `variant-pin`, `type: ignore`,
   `shellcheck`, `rubocop:`, `stylelint-disable`, `pragma`, language
-  annotations, ...),
+  annotations, ...), including an ``upstream:`` directive whose body opens
+  with that keyword (``utils.upstream.directive``; its URL is checked by
+  ``test_upstream_directives.py``),
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice) whose text starts with
   one of the exception markers (`Exception`, ...),
@@ -62,6 +64,7 @@ from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text, repository_files, untracked_files
+from utils.upstream.directive import opens_directive
 
 from . import PROJECT_ROOT
 
@@ -442,7 +445,7 @@ def find_invalid_comments(path: Path):
         for lineno, body, _end, _full in block:
             if not body:
                 continue
-            if _DIRECTIVE_RE.search(body) or block_marker:
+            if _DIRECTIVE_RE.search(body) or opens_directive(body) or block_marker:
                 continue
             if lineno <= header_end or block_def:
                 continue

@@ -69,4 +69,5 @@ For test-type-specific requirements, framework, and creation procedures see:
 - [Unit Tests](testing/unit.md)
 - [Integration Tests](testing/integration.md)
 - [External Tests](testing/external.md)
+- [Upstream References](testing/upstream.md)
 - [Playwright Tests](testing/playwright.md)
