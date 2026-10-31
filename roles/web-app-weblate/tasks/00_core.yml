@@ -5,7 +5,28 @@
   include_role:
     name: sys-stk-full
   vars:
-    compose_handlers_flush: true
+    compose_handlers_flush: false
+
+- name: "🐍 Stage the settings override that serves Weblate on every network sibling"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/settings_override.py') }}"
+        dest: "{{ WEBLATE_SETTINGS_OVERRIDE_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network_strategy.py') }}"
+        dest: "{{ WEBLATE_NETWORK_STRATEGY_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network_middleware.py') }}"
+        dest: "{{ WEBLATE_NETWORK_MIDDLEWARE_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
+
+- name: "🚿 Flush handlers so Weblate starts with the settings override mounted"
+  meta: flush_handlers
 
 - name: "🔑 Hand the gateway the token it reads the memory with"
   ansible.builtin.include_tasks: utils/token.yml
