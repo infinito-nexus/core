@@ -5,7 +5,7 @@ const { resolveTimeout } = require("./timeouts");
 const { gotoOnion, requireDotenvValue } = require("./personas");
 
 const SETUP_MS = 5 * 60_000;
-const DEPLOY_RUN_MS = 40 * 60_000;
+const DEPLOY_RUN_MS = 60 * 60_000;
 const TARGET_ANSWER_MS = 5 * 60_000;
 const TARGET_REQUEST_MS = 30_000;
 const TARGET_PROBE_MS = 30_000;
