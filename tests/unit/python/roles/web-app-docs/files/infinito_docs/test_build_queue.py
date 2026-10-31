@@ -238,20 +238,17 @@ class TestBuilderLoop(QueueFixture, unittest.TestCase):
         attempts: list = []
         sleeps: list = []
 
-        class Stop(Exception):
-            pass
-
         def sleep(seconds):
             sleeps.append(seconds)
             if len(sleeps) > 1:
-                raise Stop
+                raise StopBuilderError
 
         clock = SimpleNamespace(monotonic=time.monotonic, sleep=sleep)
         with (
             patch.object(subprocess, "run", timed_out_clone(attempts)),
             patch.object(build_queue, "time", clock),
             redirect_stderr(io.StringIO()) as stderr,
-            self.assertRaises(Stop),
+            self.assertRaises(StopBuilderError),
         ):
             shelf.run_builder(0)
 

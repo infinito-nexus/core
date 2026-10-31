@@ -347,11 +347,13 @@ class TestClone(LibraryFixture):
         )
         shelf.fetch()
         attempts: list = []
-        with patch.object(
-            subprocess, "run", timed_out_clone(attempts, unresolved_head=True)
+        with (
+            patch.object(
+                subprocess, "run", timed_out_clone(attempts, unresolved_head=True)
+            ),
+            self.assertRaises(subprocess.TimeoutExpired),
         ):
-            with self.assertRaises(subprocess.TimeoutExpired):
-                shelf.fetch()
+            shelf.fetch()
 
         self.assertEqual(len(attempts), 1)
         self.assertEqual(
