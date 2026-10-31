@@ -50,6 +50,19 @@ gitea:
   provides: gitea
   image: gitea/gitea
   version: 28.2.0
+  custom: true
+  builder_image: golang
+  builder_version: 1.27.3-alpine
+  source_url: &gitea_source_url "https://dl.gitea.com/gitea/{version}/gitea-src-{version}.tar.gz"
+  source_sha256: b8ad80f8a79ea42fa5cf52bdc3d5fd3457bb6abd6bd57cfcfab6a5ad4f31c3dc
+  update:
+    - type: registry_tags
+      image: gitea/gitea
+      checksum_key: source_sha256
+      checksum_url: *gitea_source_url
+    - key: builder_version
+      type: registry_tags
+      image: golang
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:

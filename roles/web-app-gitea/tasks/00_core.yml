@@ -14,6 +14,15 @@
   vars:
     compose_handlers_flush: false
 
+- name: "🩹 Stage the Gitea source patch into the build context of {{ application_id }}"
+  stack_host_copy:
+    src: "patch/{{ GITEA_PATCH_FILE }}"
+    dest: "{{ GITEA_PATCH_HOST_ABS }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
 - name: "🎨 Stage the corporate design overrides of {{ application_id }}"
   include_tasks: utils/design.yml
   when: GITEA_DESIGN_ENABLED | bool
