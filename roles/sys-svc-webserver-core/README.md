@@ -40,6 +40,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **General logs**: `journalctl -f -u NGINX`
 - **Filter by host**: `journalctl -u NGINX -f | grep "{{ inventory_hostname }}"`
 - **Enable detailed format**: set `MODE_DEBUG: true` and reload NGINX.
+- **Redacted request path**: both access log formats write the path without query string, Referer or basic-auth user. Path segments after a password-reset, e-mail confirmation, e-mail login or account activation route (e.g. `/password/reset/`, `/confirm-email/`) are written as `[redacted]`; extend the `$infinito_access_log_path` map in [nginx.conf.j2](./templates/nginx.conf.j2) for further token routes.
 
 ## Credits
 
