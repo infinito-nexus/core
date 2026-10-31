@@ -130,7 +130,7 @@
       register: magento_remote_storage
       changed_when: "'updated' in magento_remote_storage.stdout"
 
-- name: "🔐 Align Magento's two-factor authentication with its flag before nginx routes requests to PHP"
+- name: "🔐 Align Magento's two-factor modules before nginx routes to PHP"
   include_tasks: 02_two_factor.yml
 
 - name: "🔄 Reload nginx so it picks up Magento's vhost (compose)"
