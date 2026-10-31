@@ -15,11 +15,12 @@ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
 TEST_E2E_PLAYWRIGHT_APPS: >-
   {{
-    playbook_dir
-    | discover_playwright_roles(
-        only_roles=test_e2e_playwright_only_roles,
-        skip_roles=test_e2e_playwright_skip_roles
-      )
+    lookup('playwright_order',
+      playbook_dir
+      | discover_playwright_roles(
+          only_roles=test_e2e_playwright_only_roles,
+          skip_roles=test_e2e_playwright_skip_roles
+        ))
   }}
 
 TEST_E2E_PLAYWRIGHT_SHARED_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_shared"

@@ -6,7 +6,8 @@ Terms: application_id and a dotted key path. A missing file, missing key,
 or non-mapping intermediate returns the ``default`` kwarg (``None`` when
 not given). ``meta/tests.yml`` carries per-role test-harness settings
 (e.g. the CLI e2e timeout for roles whose test legitimately outlasts the
-uniform default).
+uniform default). A string value carrying Jinja is rendered with
+``application_id`` bound to the queried role, whoever asks.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_TESTS
 
@@ -50,4 +52,10 @@ class LookupModule(LookupBase):
             if not isinstance(node, dict) or key not in node:
                 return [default]
             node = node[key]
+        if isinstance(node, str) and "{{" in node:
+            node = _render_with_templar(
+                node,
+                templar=getattr(self, "_templar", None),
+                variables={"application_id": application_id},
+            )
         return [node]

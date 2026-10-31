@@ -64,6 +64,25 @@ For the file-level contract, use [Contributing `playwright.env.j2`](../../docs/a
 - `roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy; pins `@playwright/test` from `meta/services.yml.playwright.version`)
 - `roles/test-e2e-playwright/files/playwright.config.js` (copied as-is)
 
+## Per-role settings
+
+A tested role declares its Playwright settings under `playwright:` in its own `meta/tests.yml`, read through `lookup('role_tests', application_id, 'playwright.<key>')`. A Jinja value renders with `application_id` bound to the declaring role.
+
+| Key | Purpose |
+|---|---|
+| `timeout` | Seconds for the role's pass, for specs that legitimately outlast `test_e2e_playwright_run_timeout` |
+| `run_after` | Role names whose passes run before this role's pass. Names outside the round constrain nothing; a name that is no role, the role itself, or a cycle fails the run. |
+
+Passes run the `provides: sso` role first, then in deploy order. `lookup('playwright_order', ...)` then moves a role with `run_after` behind the roles it names and leaves every other role in place.
+
+A role whose specs wait on a long background build names every invokable role except itself, so its pass runs last and the earlier passes overlap the build:
+
+```yaml
+playwright:
+  timeout: 9000
+  run_after: "{{ lookup('deployment').all | difference([application_id]) }}"
+```
+
 ## Included files
 
 This role ships central Playwright defaults:
