@@ -130,6 +130,9 @@
       register: magento_remote_storage
       changed_when: "'updated' in magento_remote_storage.stdout"
 
+- name: "🔐 Align Magento's two-factor authentication with its flag before nginx routes requests to PHP"
+  include_tasks: 02_two_factor.yml
+
 - name: "🔄 Reload nginx so it picks up Magento's vhost (compose)"
   ansible.builtin.shell: >-
     container exec {{ MAGENTO_NGINX_CONTAINER_ADDRESS }} nginx -s reload
@@ -137,7 +140,7 @@
   changed_when: magento_nginx_restart_compose.rc == 0
   when:
     - IS_COMPOSE_MODE
-    - magento_nginx_conf is changed or magento_install is changed
+    - magento_nginx_conf is changed or magento_install is changed or magento_two_factor is changed
 
 - name: "🔄 Restart nginx so it picks up Magento's vhost (swarm)"
   ansible.builtin.command: >-
@@ -148,4 +151,4 @@
   timeout: "{{ lookup('timeout', 600) | int }}"
   when:
     - IS_SWARM_MODE
-    - magento_nginx_conf is changed or magento_install is changed
+    - magento_nginx_conf is changed or magento_install is changed or magento_two_factor is changed
