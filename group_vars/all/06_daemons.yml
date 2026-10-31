@@ -21,7 +21,8 @@ SYS_SERVICE_REPAIR_CONTAINER_HARD: "{{ lookup('unit_name', 'sys-ctl-rpr-containe
 SYS_SERVICE_ON_FAILURE_COMPOSE: "{{ lookup('unit_name','sys-ctl-alm-compose@', suffix=False ) }}%n.service"
 
 # Renders only inside a task whose vars define list_or_shoot_roles; read anywhere else during preload it raises "'list_or_shoot_roles' is undefined".
-SERVICE_LOADER_ROUTE_PENDING: "{{ not (service_loader_preloading | default(false) | bool) or (list_or_shoot_roles | difference(service_loader_post_run | default([])) | length > 0) }}"
+SERVICE_LOADER_ROUTE_PENDING: "{{ not (service_loader_preloading | default(false) | bool) or (list_or_shoot_roles | difference(service_loader_post_run | default([]))
+  | length > 0) }}"
 
 SYS_SERVICE_GROUP_BACKUPS: >
   {{ (('sys-ctl-bkp-' | get_category_entries) + ('svc-bkp-' | get_category_entries))
