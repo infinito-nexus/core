@@ -8,8 +8,9 @@ from pathlib import Path
 from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
+sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python/rbac"))
 
-import rbac_reconcile as m
+import reconcile as m
 
 LDAP = "ldap-1"
 

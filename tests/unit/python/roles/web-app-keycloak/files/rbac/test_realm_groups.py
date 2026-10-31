@@ -11,8 +11,9 @@ from collections import Counter
 from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
+sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python/rbac"))
 
-import rbac_realm_groups as m
+import realm_groups as m
 
 
 class FakeKeycloak:

@@ -11,7 +11,7 @@
     apply:
       delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   vars:
-    rest_script: rbac_realm_groups.py
+    rest_script: rbac/realm_groups.py
     rest_script_env: {}
     rest_script_stdin: >-
       {{
