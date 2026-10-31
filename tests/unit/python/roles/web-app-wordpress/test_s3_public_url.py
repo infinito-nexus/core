@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import unittest
 import unittest.mock as mock
 
@@ -79,6 +80,7 @@ def _render_env(objstore: dict) -> dict[str, str]:
     env.globals["lookup"] = lookup
     env.filters["bool"] = bool
     env.filters["dotenv_quote"] = lambda value: value
+    env.filters["to_json"] = json.dumps
     env.filters["urlsplit"] = lambda _url, _part: "sso.example.com"
     env.filters["network_of"] = lambda _host: "clearnet"
     rendered = env.get_template(f"roles/{APP}/templates/env.j2").render(
@@ -87,7 +89,22 @@ def _render_env(objstore: dict) -> dict[str, str]:
         WORDPRESS_MCP_SERVICE_KEY="wordpress",
         WORDPRESS_NETWORK_BASE_URLS="",
         MODE_DEBUG=False,
-        OIDC={"CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"}},
+        OIDC={
+            "CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"},
+            "ATTRIBUTES": dict.fromkeys(
+                (
+                    "EMAIL",
+                    "NAME",
+                    "GIVEN_NAME",
+                    "FAMILY_NAME",
+                    "WEBSITE",
+                    "LOCALE",
+                ),
+                "claim",
+            ),
+        },
+        RBAC={"GROUP": {"CLAIM": "groups"}},
+        WORDPRESS_RBAC_GROUP_MAP={},
     )
     return dict(
         line.split("=", 1)

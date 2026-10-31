@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import ClassVar
+from unittest.mock import patch
 
 from utils.roles.applications.services.registry import (
     resolve_service_dependency_roles_from_config,
@@ -113,6 +114,14 @@ class TestSemaphoreRoundComposition(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls._tmp.cleanup()
+
+    def setUp(self) -> None:
+        self.enterContext(
+            patch(
+                "cli.administration.deploy.development.inventory.legacy_resolver._resolve_round_include",
+                side_effect=lambda primary_apps, services_overrides: primary_apps,
+            )
+        )
 
     @staticmethod
     def _write(roles: Path, role: str, name: str, body: str) -> None:

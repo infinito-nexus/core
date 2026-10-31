@@ -380,6 +380,7 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._generate_package_frontend_certs = MagicMock()
         compose._install_package_frontend_ca_in_runner = MagicMock()
         compose._layer_pacman_cache_in_runner = MagicMock()
+        compose.reset_target = MagicMock()
 
         compose.up(run_entry_init=False)
 
