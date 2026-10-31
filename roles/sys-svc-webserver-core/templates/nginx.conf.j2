@@ -27,10 +27,13 @@ http
   server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
 {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+  map $uri $infinito_access_log_path {
+    "~*^(?P<infinito_access_log_token_route>[^?]*?/(?:password/reset|password-reset|reset-password|confirm-email|lostpassword/reset/form|email-login|activate-account)/)" "${infinito_access_log_token_route}[redacted]";
+    "~^(?P<infinito_access_log_plain_path>[^?]*)" "${infinito_access_log_plain_path}";
+  }
 {% if MODE_DEBUG | bool %}
   log_format debug '$host - $remote_addr [$time_local] '
-                  '"$request" $status $body_bytes_sent '
-                  '"Referer: $http_referer" '
+                  '"$request_method $infinito_access_log_path $server_protocol" $status $body_bytes_sent '
                   '"User-Agent: $http_user_agent" '
                   '"ReqTime: $request_time" "UpstreamTime: $upstream_response_time" '
                   '"ReqLength: $request_length" "BytesSent: $bytes_sent" '
@@ -38,6 +41,11 @@ http
                   '"X-Forwarded-For: $http_x_forwarded_for" '
                   '"Scheme: $scheme" "Protocol: $server_protocol" "ServerName: $server_name"';
   access_log  /dev/stdout  debug;
+{% else %}
+  log_format redacted '$remote_addr - - [$time_local] '
+                     '"$request_method $infinito_access_log_path $server_protocol" $status $body_bytes_sent '
+                     '"-" "$http_user_agent"';
+  access_log  /dev/stdout  redacted;
 {% endif %}
   error_log  /dev/stderr  info;
   sendfile on;
