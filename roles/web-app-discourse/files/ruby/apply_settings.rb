@@ -6,7 +6,7 @@ require "json"
 SiteSetting.force_https = ENV.fetch("DISCOURSE_FORCE_HTTPS") == "true"
 SiteSetting.enable_local_logins = ENV.fetch("DISCOURSE_LOCAL_LOGINS") == "true"
 
-JSON.parse(ENV.fetch("DISCOURSE_LDAP_SITE_SETTINGS")).each do |key, value|
+JSON.parse(ENV.fetch("DISCOURSE_SITE_SETTINGS")).each do |key, value|
   SiteSetting.public_send("#{key}=", value)
 end
 
