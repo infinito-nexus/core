@@ -16,12 +16,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.cache.applications import get_variants
-from utils.roles.applications.variants import active_variants_for_round
-
-from . import legacy_resolver
+from utils.roles.applications.variants import resolve_round
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from utils.roles.applications.variants import ResolvedRound
 
     from .spec import PlanEntry
 
@@ -72,7 +72,7 @@ def plan_dev_inventory_matrix(
         raise ValueError("plan_dev_inventory_matrix: primary_apps must not be empty")
 
     pins = dict(pinned_variants or {})
-    variants_per_app = get_variants(roles_dir=roles_dir)
+    variants_per_app = get_variants(roles_dir=roles_dir, readonly=True)
     primary_variant_counts = {
         app_id: max(1, len(variants_per_app.get(app_id) or [{}]))
         for app_id in primary_apps
@@ -87,7 +87,7 @@ def plan_dev_inventory_matrix(
     )
     base = str(base_inventory_dir).rstrip("/")
 
-    per_variant_includes: list[tuple[str, ...]] = []
+    resolved_rounds: list[ResolvedRound] = []
     primary_round_variants_per_round: list[dict[str, int]] = []
     for round_index in range(total_rounds):
         primary_round_variants = {
@@ -97,44 +97,31 @@ def plan_dev_inventory_matrix(
             for app_id, count in primary_variant_counts.items()
         }
         primary_round_variants_per_round.append(primary_round_variants)
-
-        services_overrides = legacy_resolver._build_services_overrides_for_round(
-            roles_dir=roles_dir,
-            round_index=round_index,
-            primary_app_variants=primary_round_variants,
-        )
-        per_variant_includes.append(
-            legacy_resolver._resolve_round_include(
-                primary_apps=primary_apps,
-                services_overrides=services_overrides,
+        resolved_rounds.append(
+            resolve_round(
+                roles_dir=roles_dir,
+                round_index=round_index,
+                primary_app_variants=primary_round_variants,
+                variants_per_app=variants_per_app,
             )
         )
 
     seen_union: set[str] = set()
     union_apps: list[str] = []
-    for variant_include in per_variant_includes:
-        for dep in variant_include:
+    for resolved in resolved_rounds:
+        for dep in resolved.include:
             if dep not in seen_union:
                 seen_union.add(dep)
                 union_apps.append(dep)
     purge_set: tuple[str, ...] = tuple(union_apps)
 
     plan: list[PlanEntry] = []
-    for round_index in range(total_rounds):
-        primary_round_variants = primary_round_variants_per_round[round_index]
-        round_include = per_variant_includes[round_index]
-
+    for round_index, resolved in enumerate(resolved_rounds):
         round_variants = {
-            **active_variants_for_round(
-                roles_dir=roles_dir,
-                round_index=round_index,
-                primary_app_variants=primary_round_variants,
-                variants_per_app=variants_per_app,
-            ),
-            **primary_round_variants,
+            **resolved.active_index,
+            **primary_round_variants_per_round[round_index],
         }
-
         inv_dir = f"{base}-{round_index}" if total_rounds > 1 else base
-        plan.append((round_index, inv_dir, round_variants, round_include, purge_set))
+        plan.append((round_index, inv_dir, round_variants, resolved.include, purge_set))
 
     return plan

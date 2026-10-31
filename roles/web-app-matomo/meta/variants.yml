@@ -34,7 +34,6 @@
     tor:
       enabled: true
 - services:
-    # variant-pin: web-app-docs#reciprocal
     docs:
       enabled: true
       shared: true
