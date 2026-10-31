@@ -10,3 +10,4 @@
     list_or_shoot_roles:
       - sys-ctl-hlth-webserver
       - sys-ctl-hlth-csp
+  when: SYS_SERVICE_LOADER_ROUTE_PENDING | bool
