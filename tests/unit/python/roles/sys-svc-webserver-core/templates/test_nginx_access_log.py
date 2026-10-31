@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import unittest
+from urllib.parse import unquote
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
@@ -68,6 +69,20 @@ def log_formats(rendered: str) -> dict[str, str]:
     }
 
 
+def nginx_variable(name: str, request_uri: str) -> str:
+    """Return the value nginx gives a request variable for this request.
+
+    Args:
+        name: the variable name without ``$``, ``uri`` or ``request_uri``.
+        request_uri: the request URI as the client sent it.
+    """
+    if name == "request_uri":
+        return request_uri
+    if name == "uri":
+        return re.sub(r"/{2,}", "/", unquote(request_uri.split("?", 1)[0]))
+    raise AssertionError(f"no nginx semantics modelled for ${name}")
+
+
 def logged_path(rendered: str, request_uri: str) -> str:
     """Return the path the access log writes, resolved as nginx's map does.
 
@@ -76,19 +91,20 @@ def logged_path(rendered: str, request_uri: str) -> str:
         request_uri: the request URI as the client sent it.
     """
     block = re.search(
-        r"map \$request_uri \$infinito_access_log_path \{(.*?)\n\s*\}",
+        r"map \$(\w+) \$infinito_access_log_path \{(.*?)\n\s*\}",
         rendered,
         re.DOTALL,
     )
     if block is None:
         raise AssertionError("nginx.conf declares no map for $infinito_access_log_path")
+    subject = nginx_variable(block.group(1), request_uri)
     for source, value in re.findall(
-        r'^\s*"([^"]+)"\s+"([^"]*)";', block.group(1), re.MULTILINE
+        r'^\s*"([^"]+)"\s+"([^"]*)";', block.group(2), re.MULTILINE
     ):
         caseless = source.startswith("~*")
         match = re.search(
             source[2:] if caseless else source[1:],
-            request_uri,
+            subject,
             re.IGNORECASE if caseless else 0,
         )
         if match:
@@ -167,6 +183,9 @@ class TestLoggedPath(unittest.TestCase):
             ("/session/email-login/s3cr3t", "/session/email-login/[redacted]"),
             ("/u/activate-account/s3cr3t", "/u/activate-account/[redacted]"),
             ("/Password/Reset/s3cr3t", "/Password/Reset/[redacted]"),
+            ("/%70assword/reset/s3cr3t", "/password/reset/[redacted]"),
+            ("/password%2Freset/s3cr3t?token=s3cr3t", "/password/reset/[redacted]"),
+            ("//password//reset/s3cr3t", "/password/reset/[redacted]"),
         ):
             with self.subTest(request_uri=request_uri):
                 logged = logged_path(self.rendered, request_uri)

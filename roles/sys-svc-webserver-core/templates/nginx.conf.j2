@@ -27,7 +27,7 @@ http
   server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
 {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
-  map $request_uri $infinito_access_log_path {
+  map $uri $infinito_access_log_path {
     "~*^(?P<infinito_access_log_token_route>[^?]*?/(?:password/reset|password-reset|reset-password|confirm-email|lostpassword/reset/form|email-login|activate-account)/)" "${infinito_access_log_token_route}[redacted]";
     "~^(?P<infinito_access_log_plain_path>[^?]*)" "${infinito_access_log_plain_path}";
   }
