@@ -1020,6 +1020,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Izrakstīties visur"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Izrakstīties šajā ierīcē"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1883,10 +1891,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Koplietošanas relāciju datubāzes serveris lietojumprogrammām, kam nepieciešama centrālā SQL krātuve, palaists Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Parakstīts visur."
+msgstr "Izrakstījāties visur."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Izrakstījāties šajā ierīcē."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Izrakstījāties šajā ierīcē. Citās ierīcēs jūs, iespējams, joprojām esat pierakstījies."
 
 # pakalpojumi.
 # Sigālēt, uzākst {failed} no {total} pārējgaiden. ---  ### User:  ### Signed

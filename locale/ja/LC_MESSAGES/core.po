@@ -1010,6 +1010,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "すべての場所からログアウト"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "このデバイスでログアウト"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1879,9 +1887,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "中央 SQL ストレージを必要とするアプリケーション用の共有リレーショナルデータベースサーバー、Docker で実行"
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "すべてのサービスからログアウトしました。"
+msgstr "すべての場所からログアウトしました。"
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "このデバイスでログアウトしました。"
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "このデバイスでログアウトしました。他のデバイスではまだログインしたままの可能性があります。"
 
 #, python-brace-format
 msgctxt "logout:partial"

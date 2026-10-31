@@ -994,6 +994,16 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+# translated-by: unnamed
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Bɔ yɔrɔ bɛɛ la"
+
+# translated-by: unnamed
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Bɔ nin minɛn in kan"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1847,10 +1857,20 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Server huberan huberan untuk aplikasi yang memerlukan penyimpanan SQL yang pusat, dijalankan dalam Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+# translated-by: unnamed
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Keluar sepenuhnya di mana-mana."
+msgstr "I bɔra yɔrɔ bɛɛ la."
+
+# translated-by: unnamed
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "I bɔra nin minɛn in kan."
+
+# translated-by: unnamed
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "I bɔra nin minɛn in kan. Minɛn wɛrɛw bɛ se ka to a kɔnɔ hali bi."
 
 # translated-by: libretranslate
 #, python-brace-format

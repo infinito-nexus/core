@@ -1011,6 +1011,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Logga ut överallt"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Logga ut på den här enheten"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1872,10 +1880,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Delad relationsdatabasserver för applikationer som behöver central SQL-lagring, kör i Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Signerad överallt."
+msgstr "Utloggad överallt."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Utloggad på den här enheten."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Utloggad på den här enheten. Andra enheter kan fortfarande vara inloggade."
 
 # translated-by: libretranslate
 #, python-brace-format

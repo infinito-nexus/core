@@ -823,6 +823,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "எல்லா இடங்களிலிருந்தும் வெளியேறு"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "இந்தச் சாதனத்தில் வெளியேறு"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1515,9 +1523,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr ""
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "அனைத்து சேவைகளிலிருந்தும் வெளியேறியது."
+msgstr "எல்லா இடங்களிலிருந்தும் வெளியேறியது."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "இந்தச் சாதனத்தில் வெளியேறியது."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "இந்தச் சாதனத்தில் வெளியேறியது. பிற சாதனங்களில் இன்னும் உள்நுழைந்திருக்கலாம்."
 
 #, python-brace-format
 msgctxt "logout:partial"

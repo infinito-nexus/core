@@ -1013,6 +1013,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Pechar a sesión en todas partes"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Pechar a sesión neste dispositivo"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1873,10 +1881,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Servidor de base de datos relacional compartido para aplicacións que necesitan almacenamento SQL central, executado en Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Firmado en todas partes."
+msgstr "Sesión pechada en todas partes."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Sesión pechada neste dispositivo."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Sesión pechada neste dispositivo. É posible que outros dispositivos sigan coa sesión iniciada."
 
 # translated-by: libretranslate
 #, python-brace-format

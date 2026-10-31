@@ -1012,6 +1012,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "हर जगह से लॉग आउट करीं"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "एह डिवाइस पर लॉग आउट करीं"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1866,10 +1874,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "निर्बाध बनूय."
+msgstr "हर जगह से लॉग आउट हो गइल।"
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "एह डिवाइस पर लॉग आउट हो गइल।"
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "एह डिवाइस पर लॉग आउट हो गइल। दोसर डिवाइस पर अबहियों लॉग इन रह सकेला।"
 
 # translated-by: libretranslate
 #, python-brace-format

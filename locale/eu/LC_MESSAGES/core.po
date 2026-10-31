@@ -1011,6 +1011,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Amaitu saioa leku guztietan"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Amaitu saioa gailu honetan"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1871,10 +1879,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Datu-base partekatuen zerbitzari partekatua SQL biltegi zentrala behar duten aplikazioetarako, Docker-en exekutatua"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Edonon sinatua."
+msgstr "Saioa amaitu da leku guztietan."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Saioa amaitu da gailu honetan."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Saioa amaitu da gailu honetan. Baliteke beste gailu batzuetan saioa oraindik irekita egotea."
 
 # translated-by: libretranslate
 #, python-brace-format

@@ -1017,6 +1017,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "모든 곳에서 로그아웃"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "이 기기에서 로그아웃"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1880,9 +1888,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Application needing central SQL storage, Docker에서 실행되는 관련 데이터베이스 서버"
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "모든 서비스에서 로그아웃했습니다."
+msgstr "모든 곳에서 로그아웃했습니다."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "이 기기에서 로그아웃했습니다."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "이 기기에서 로그아웃했습니다. 다른 기기는 아직 로그인되어 있을 수 있습니다."
 
 #, python-brace-format
 msgctxt "logout:partial"

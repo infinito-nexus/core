@@ -1007,6 +1007,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Meld oral af"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Meld af op hierdie toestel"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1862,10 +1870,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Gemeenskaplike verbindlike database server vir applicasies wat 'n centrale SQL-opslag nodig het, gestuur in Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Afgedaaid ekwelyelo."
+msgstr "Oral afgemeld."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Op hierdie toestel afgemeld."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Op hierdie toestel afgemeld. Ander toestelle is dalk nog aangemeld."
 
 # translated-by: libretranslate
 #, python-brace-format

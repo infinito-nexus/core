@@ -1024,6 +1024,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Logáil amach i ngach áit"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Logáil amach ar an ngléas seo"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1884,10 +1892,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "freastalaí bunachar sonraí comhroinnte le haghaidh iarratas ag teastáil stóráil SQL lárnach, reáchtáil i Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Sínithe amach i ngach áit."
+msgstr "Logáilte amach i ngach áit."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Logáilte amach ar an ngléas seo."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Logáilte amach ar an ngléas seo. D'fhéadfadh gléasanna eile a bheith logáilte isteach fós."
 
 # translated-by: libretranslate
 #, python-brace-format

@@ -1010,6 +1010,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Đăng xuất ở mọi nơi"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Đăng xuất trên thiết bị này"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1868,9 +1876,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Máy phục vụ cơ sở dữ liệu quan hệ chia sẻ cho ứng dụng cần lưu trữ ở trung tâm MIME, chạy trong Docker"
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Đã đăng xuất khỏi mọi dịch vụ."
+msgstr "Đã đăng xuất ở mọi nơi."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Đã đăng xuất trên thiết bị này."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Đã đăng xuất trên thiết bị này. Các thiết bị khác có thể vẫn đang đăng nhập."
 
 #, python-brace-format
 msgctxt "logout:partial"

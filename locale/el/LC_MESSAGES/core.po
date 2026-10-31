@@ -1016,6 +1016,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Αποσύνδεση από παντού"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Αποσύνδεση σε αυτή τη συσκευή"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1878,10 +1886,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Κοινόχρηστος σχετικός εξυπηρετητής βάσεων δεδομένων για εφαρμογές που χρειάζονται κεντρική αποθήκευση SQL, τρέχει στο Docker"
 
-# translated-by: libretranslate
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Υπέγραψε παντού."
+msgstr "Αποσυνδεθήκατε από παντού."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Αποσυνδεθήκατε σε αυτή τη συσκευή."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Αποσυνδεθήκατε σε αυτή τη συσκευή. Άλλες συσκευές ενδέχεται να είναι ακόμη συνδεδεμένες."
 
 # translated-by: libretranslate
 #, python-brace-format

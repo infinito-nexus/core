@@ -1048,6 +1048,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "تسجيل الخروج من كل مكان"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "تسجيل الخروج على هذا الجهاز"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1939,9 +1947,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "قاعدة بيانات مشتركة ذات صلة بالتطبيقات التي تحتاج إلى التخزين المركزي لشبكة SQL، يجري تشغيلها في دوكر"
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "تم تسجيل الخروج من جميع الخدمات."
+msgstr "تم تسجيل الخروج من كل مكان."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "تم تسجيل الخروج على هذا الجهاز."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "تم تسجيل الخروج على هذا الجهاز. قد تظل أجهزة أخرى مسجّلة الدخول."
 
 #, python-brace-format
 msgctxt "logout:partial"

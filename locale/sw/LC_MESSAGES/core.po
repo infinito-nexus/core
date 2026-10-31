@@ -1023,6 +1023,14 @@ msgctxt "role:web-app-grafana:description"
 msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
 msgstr ""
 
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Toka kila mahali"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Toka kwenye kifaa hiki"
+
 msgctxt "role:web-svc-loki:description"
 msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
 msgstr ""
@@ -1883,9 +1891,17 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Seva ya database ya uhusiano wa pamoja kwa programu zinazohitajika kuhifadhi katikati ya SQL, kukimbia katika Docker"
 
-msgctxt "logout:all_done"
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Umeondoka kwenye huduma zote."
+msgstr "Umetoka kila mahali."
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Umetoka kwenye kifaa hiki."
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Umetoka kwenye kifaa hiki. Vifaa vingine huenda bado vimeingia."
 
 #, python-brace-format
 msgctxt "logout:partial"
