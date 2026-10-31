@@ -1,0 +1,44 @@
+worker_processes 1;
+error_log /dev/stderr warn;
+
+events {
+    worker_connections 1024;
+}
+
+stream {
+    log_format relay '$remote_addr sni=$ssl_preread_server_name upstream=$upstream_addr status=$status';
+    access_log /dev/stdout relay;
+    map_hash_bucket_size 128;
+
+    upstream shared_proxy {
+        server {{ OPENPOST_RELAY_UPSTREAM_HOST }}:{{ OPENPOST_RELAY_UPSTREAM_PORT }};
+    }
+
+    upstream shared_proxy_http {
+        server {{ OPENPOST_RELAY_UPSTREAM_HOST }}:{{ OPENPOST_RELAY_UPSTREAM_HTTP_PORT }};
+    }
+
+    upstream refused {
+        server 127.0.0.1:9;
+    }
+
+    map $ssl_preread_server_name $relay_upstream {
+{% for domain in OPENPOST_RELAY_DOMAINS %}
+        {{ domain }} shared_proxy;
+{% endfor %}
+        default refused;
+    }
+
+    server {
+        listen {{ lookup('config', application_id, 'services.relay.ports.internal.https') }};
+        ssl_preread on;
+        proxy_pass $relay_upstream;
+        proxy_connect_timeout 5s;
+    }
+
+    server {
+        listen {{ lookup('config', application_id, 'services.relay.ports.internal.http') }};
+        proxy_pass shared_proxy_http;
+        proxy_connect_timeout 5s;
+    }
+}

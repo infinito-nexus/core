@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Docker build context of the fake provider sidecar; the Dockerfile copies the importable provider package as one tree, so its modules cannot be split by language.

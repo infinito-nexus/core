@@ -1,0 +1,217 @@
+---
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+email:
+  bond: 1
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag - DB engine, covered by the role's CLI test
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
+  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  public: true
+mastodon:
+  bond: 1
+  enabled: "{{ 'web-app-mastodon' in group_names }}"
+  shared: "{{ 'web-app-mastodon' in group_names }}"
+# nocheck: playwright-service-flag - publishing target reached through the relay, covered by the role's CLI test
+pixelfed:
+  bond: 0.5
+  enabled: "{{ 'web-app-pixelfed' in group_names }}"
+  shared: "{{ 'web-app-pixelfed' in group_names }}"
+# nocheck: playwright-service-flag - publishing target reached through the relay, covered by the role's CLI test
+peertube:
+  bond: 0.5
+  enabled: "{{ 'web-app-peertube' in group_names }}"
+  shared: "{{ 'web-app-peertube' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
+openpost:
+  # nocheck: single-replica  one `all` process schedules and publishes; split web and worker scaling is out of scope
+  replicas: 1
+  healthcheck:
+    flavor: wget
+    path: api/v1/health
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: ghcr.io/getopenpost/openpost
+  version: "v7.22.9"
+  update:
+    type: registry_tags
+    image: ghcr.io/getopenpost/openpost
+    match: "v"
+  name: openpost
+  cpus: 1.0
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  min_storage: 600MB
+  backup:
+    no_stop_required: true
+  ports:
+    internal:
+      http: 8080
+    local:
+      http: 8100
+  run_after:
+    - svc-db-postgres
+    - web-app-keycloak
+    - web-app-seaweedfs
+    - web-app-stalwart
+    - web-app-mailu
+    - web-app-mastodon
+    - web-app-pixelfed
+    - web-app-peertube
+  lifecycle: alpha
+# nocheck: playwright-service-flag  egress sidecar, covered by the role's CLI test
+# nocheck: dynamic-flag  the relay is part of this role and runs whenever OpenPost runs; no other role's presence decides it
+relay:
+  enabled: true
+  shared: false
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: nginx
+  version: 1.31.7-alpine
+  name: openpost-relay
+  cpus: "0.2"
+  mem_reservation: 16m
+  mem_limit: 64m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 80
+      https: 443
+# nocheck: playwright-service-flag  CI provider simulator, covered by the role's CLI test
+# nocheck: dynamic-flag  a test fixture switched on by one variant only; no other role's presence decides it
+simulator:
+  enabled: false
+  shared: false
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: wiremock/wiremock
+  version: "3.13.2"
+  name: openpost-simulator
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    internal:
+      http: 8080
+      https: 443
+  hosts:
+    - api.twitter.com
+    - upload.twitter.com
+    - graph.facebook.com
+    - rupload.facebook.com
+    - graph.instagram.com
+    - oauth2.googleapis.com
+    - www.googleapis.com
+    - open.tiktokapis.com
+  providers:
+    - x
+    - meta
+    - youtube
+    - tiktok
+    - linkedin
+
+# nocheck: dynamic-flag  a sidecar of this role, provided by no other role; it runs exactly while the simulator does
+provider:
+  enabled: "{{ lookup('config', 'web-app-openpost', 'services.simulator.enabled') | bool }}"
+  custom: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: python
+  version: 3.13.7-slim
+  name: openpost-provider
+  uid: 10002
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 8080
+      https: 443
+    local:
+      http: 8101
+  hosts:
+    - www.linkedin.com
+    - api.linkedin.com
+
+# nocheck: dynamic-flag  a sidecar of this role, provided by no other role; it runs exactly while routes are configured
+crossposter:
+  enabled: "{{ (lookup('config', 'web-app-openpost', 'services.crossposter.routes') | length) > 0 }}"
+  custom: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: python
+  version: 3.13.7-slim
+  name: openpost-crossposter
+  uid: 10001
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 64
+  poll_interval_seconds: 60
+  opt_out_tag: nocrosspost
+  retry:
+    max_attempts: 8
+    base_seconds: 30
+    cap_seconds: 3600
+  notify:
+    recipients: []
+  routes: []
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

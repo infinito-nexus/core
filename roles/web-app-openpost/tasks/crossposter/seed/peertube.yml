@@ -1,0 +1,40 @@
+---
+- name: "🪪 Read the local OAuth client of each PeerTube source"
+  uri_retry:
+    url: "{{ item.source.base_url }}/api/v1/oauth-clients/local"
+    status_code: 200
+  loop: "{{ openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'peertube') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: openpost_crossposter_peertube_clients
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔑 Log the administrator into each PeerTube source"
+  uri_retry:
+    url: "{{ item.item.source.base_url }}/api/v1/users/token"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      client_id: "{{ item.json.client_id }}"
+      client_secret: "{{ item.json.client_secret }}"
+      grant_type: password
+      username: "{{ OPENPOST_SEED_PEERTUBE_USERNAME }}"
+      password: "{{ lookup('users', 'administrator').password }}"
+    status_code: 200
+  loop: "{{ openpost_crossposter_peertube_clients.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  register: openpost_crossposter_peertube_minted
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧾 Keep the minted PeerTube tokens"
+  ansible.builtin.set_fact:
+    openpost_crossposter_sources: >-
+      {%- set _minted = dict(openpost_crossposter_sources) -%}
+      {%- for _result in openpost_crossposter_peertube_minted.results -%}
+      {%- set _ = _minted.update({_result.item.item.name: _result.json.access_token}) -%}
+      {%- endfor -%}
+      {{ _minted }}

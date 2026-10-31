@@ -1,0 +1,78 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧭 Remember the public view of this deploy for the CLI probe"
+  ansible.builtin.set_fact:
+    openpost_public_view:
+      proxy_address: "{{ hostvars[STACK_HOST].ansible_facts.default_ipv4.address if DEPLOYMENT_MODE == 'swarm' else '' }}"
+      public_url: "{{ OPENPOST_URL }}"
+      api_headers: "{{ OPENPOST_API_HEADERS }}"
+      s3_public_url: "{{ lookup('objstore', application_id, 'public_url') | regex_replace('/?$', '/') if OPENPOST_OBJSTORE_ENABLED | bool else '' }}"
+      mail_host: "{{ lookup('email', application_id).host if OPENPOST_EMAIL_ENABLED | bool else '' }}"
+      smtp_enabled: "{{ OPENPOST_SMTP_ENABLED | bool }}"
+      relay_targets: >-
+        {%- set _targets = {} -%}
+        {%- for _key, _role in OPENPOST_RELAY_SIBLINGS.items() if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
+        {%- set _ = _targets.update({_key: lookup('domain', _role)}) -%}
+        {%- endfor -%}
+        {{ _targets }}
+      routes: >-
+        {%- set _routes = [] -%}
+        {%- for _route in OPENPOST_CROSSPOSTER_ROUTES -%}
+        {%- set _ = _routes.append({'name': _route.name, 'platform': _route.source.platform, 'base_url': _route.source.base_url, 'account': _route.source.account, 'mode': _route.mode, 'tags': _route.filters.tags, 'social_set': _route.targets.social_set | default('', true)}) -%}
+        {%- endfor -%}
+        {{ _routes }}
+
+- name: "🔗 Pin OpenPost apps on the sibling Mastodon and Pixelfed instances"
+  include_tasks: 01_fediverse_apps.yml
+
+- name: "🧪 Prepare the provider simulator"
+  include_tasks:
+    file: 02_simulator.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+  when: OPENPOST_SIMULATOR_ENABLED | bool
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+    webserver_extra_configuration: >-
+      {{ lookup('file', lookup('path_absolute', 'roles/web-app-openpost/files/nginx/deny-password-registration.conf'))
+         if OPENPOST_OIDC_ENABLED | bool else '' }}
+
+- name: "📄 Render the egress relay config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "relay.conf.j2"
+        dest: "{{ OPENPOST_RELAY_CONF_HOST }}"
+        mode: "0644"
+
+- name: "📮 Stage and render the crossposter"
+  include_tasks: crossposter/render.yml
+  when: OPENPOST_CROSSPOSTER_ENABLED | bool
+
+- name: "🎭 Stage and render the fake provider"
+  include_tasks: provider/render.yml
+  when: OPENPOST_PROVIDER_ENABLED | bool
+
+- name: "🚿 flush handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🔑 Bootstrap the break-glass instance admin"
+  include_tasks: 03_breakglass.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🔑 Provision the crossposter API token"
+  include_tasks: crossposter/provision.yml
+  when:
+    - OPENPOST_CROSSPOSTER_ENABLED | bool
+    - IS_STACK_HOST | bool
+
+- name: "✅ Apply and validate the crossposter"
+  include_tasks: crossposter/apply.yml
+  when: OPENPOST_CROSSPOSTER_ENABLED | bool

@@ -1,0 +1,45 @@
+---
+- name: "🔍 Resolve the Mastodon container that mints the CI source tokens"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: mastodon
+    resolve_service_name: "{{ lookup('container_service', 'web-app-mastodon', 'mastodon') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    resolve_output_prefix: OPENPOST_SEED_MASTODON
+    resolve_compose_cid: "{{ lookup('container_address', 'web-app-mastodon', 'mastodon') }}"
+
+- name: "🔑 Mint a Mastodon token for each CI route"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -e
+      - "CROSSPOSTER_ACCOUNT={{ item.source.account }}"
+      - "{{ OPENPOST_SEED_MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver  OPENPOST_SEED_MASTODON_LOCAL_CID resolved at delegate_to runtime
+      - bin/rails
+      - runner
+      - |
+        account = Account.find_local!(ENV.fetch("CROSSPOSTER_ACCOUNT"))
+        application = Doorkeeper::Application.find_or_create_by!(name: "Crossposter CI") do |created|
+          created.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+          created.scopes = "read write"
+        end
+        token = Doorkeeper::AccessToken.create!(application: application, resource_owner_id: account.user.id, scopes: "read write")
+        puts "CROSSPOSTER_TOKEN=#{token.plaintext_token}"
+  loop: "{{ openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'mastodon') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: openpost_crossposter_mastodon_minted
+  changed_when: true
+  delegate_to: "{{ OPENPOST_SEED_MASTODON_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Keep the minted Mastodon tokens"
+  ansible.builtin.set_fact:
+    openpost_crossposter_sources: >-
+      {%- set _minted = dict(openpost_crossposter_sources) -%}
+      {%- for _result in openpost_crossposter_mastodon_minted.results -%}
+      {%- set _line = _result.stdout_lines | select('match', 'CROSSPOSTER_TOKEN=') | first -%}
+      {%- set _ = _minted.update({_result.item.name: _line | replace('CROSSPOSTER_TOKEN=', '') | trim}) -%}
+      {%- endfor -%}
+      {{ _minted }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

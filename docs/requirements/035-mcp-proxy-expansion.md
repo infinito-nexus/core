@@ -444,11 +444,11 @@ The section titles below are the classification vocabulary itself, and each role
 
 `svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-nextcloud`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
 
-### blocked (11)
+### blocked (12)
 
 An upstream path exists or is claimed, and something concrete stops it here. Each row names what, using the reason vocabulary above, so "blocked" never reads as "nobody looked".
 
-`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-penpot`, `web-app-shopware`.
+`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-openpost`, `web-app-penpot`, `web-app-shopware`.
 
 | role | reason | blocker |
 | --- | --- | --- |
@@ -461,6 +461,7 @@ An upstream path exists or is claimed, and something concrete stops it here. Eac
 | `web-app-erpnext` | `version_unverified` | The Frappe MCP component is experimental and unverified against the pinned Frappe v16. |
 | `web-app-matomo` | `unreviewed_third_party` | The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source. |
 | `web-app-odoo` | `unreviewed_third_party` | Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope. |
+| `web-app-openpost` | `version_unverified` | The pinned v7.22.9 serves a native `/mcp` endpoint, but its tool list, client registration and publishing side effects on external networks are not audited against that release. |
 | `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
 | `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
 

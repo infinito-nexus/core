@@ -1,0 +1,42 @@
+---
+- name: "📄 Render the crossposter files from the current state"
+  ansible.builtin.include_tasks: crossposter/render.yml
+
+- name: "📁 Re-render the compose file with the crossposter"
+  stack_host_template:
+    src: compose.yml.j2
+    dest: "{{ lookup('container', application_id, 'files.compose') }}"
+    mode: "0640"
+    force: true
+  notify: compose-up
+
+- name: "🚿 Flush handlers so the crossposter runs the current configuration"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Resolve the crossposter container"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: crossposter
+    resolve_output_prefix: OPENPOST_CROSSPOSTER
+    resolve_compose_cid: "{{ OPENPOST_CROSSPOSTER_ADDRESS }}"
+
+- name: "✅ Validate the crossposter routes against OpenPost"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ OPENPOST_CROSSPOSTER_LOCAL_CID }}" # nocheck: container-exec-resolver  OPENPOST_CROSSPOSTER_LOCAL_CID resolved at delegate_to runtime
+      - python
+      - -m
+      - crossposter
+      - validate
+      - --config
+      - "{{ OPENPOST_CROSSPOSTER_CONFIG_TARGET }}"
+  register: openpost_crossposter_validation
+  changed_when: false
+  retries: 12
+  delay: 5
+  until: openpost_crossposter_validation.rc in [0, 2]
+  failed_when: openpost_crossposter_validation.rc != 0
+  delegate_to: "{{ OPENPOST_CROSSPOSTER_HOST_NODE }}"
+  run_once: true

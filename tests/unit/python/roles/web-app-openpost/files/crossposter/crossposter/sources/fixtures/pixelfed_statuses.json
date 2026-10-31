@@ -1,0 +1,47 @@
+[
+  {
+    "id": "802",
+    "uri": "https://picture.example/p/press/802",
+    "url": "https://picture.example/p/press/802",
+    "created_at": "2026-10-22T09:05:00.000000Z",
+    "content": "",
+    "spoiler_text": "",
+    "visibility": "public",
+    "in_reply_to_id": null,
+    "reblog": {
+      "id": "700",
+      "uri": "https://picture.example/p/alice/700",
+      "url": "https://picture.example/p/alice/700",
+      "content": "<p>Original</p>",
+      "visibility": "public",
+      "media_attachments": [],
+      "tags": []
+    },
+    "application": {"name": "web", "website": null},
+    "media_attachments": [],
+    "tags": []
+  },
+  {
+    "id": "801",
+    "uri": "https://picture.example/p/press/801",
+    "url": "https://picture.example/p/press/801",
+    "created_at": "2026-10-22T09:00:00.000000Z",
+    "content": "<p>Harbour <a href=\"https://picture.example/discover/tags/sunset\" class=\"mention hashtag\" rel=\"tag\">#sunset</a></p>",
+    "spoiler_text": "",
+    "visibility": "public",
+    "in_reply_to_id": null,
+    "reblog": null,
+    "application": {"name": "web", "website": null},
+    "media_attachments": [
+      {
+        "id": "9001",
+        "type": "image",
+        "url": "https://picture.example/storage/m/_v2/801/harbour.jpg",
+        "preview_url": "https://picture.example/storage/m/_v2/801/harbour_thumb.jpg",
+        "description": "Sunset over the harbour",
+        "meta": {"focus": {"x": 0, "y": 0}}
+      }
+    ],
+    "tags": [{"name": "sunset", "url": "https://picture.example/discover/tags/sunset"}]
+  }
+]

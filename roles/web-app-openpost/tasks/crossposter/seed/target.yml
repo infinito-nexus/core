@@ -1,0 +1,15 @@
+---
+- name: "🔎 List the accounts connected in the organisation workspace"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/accounts?workspace_id={{ openpost_crossposter_target_workspace }}"
+    headers: "{{ openpost_breakglass_headers }}"
+    status_code: 200
+  register: openpost_crossposter_connected
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔗 Connect the CI Mastodon account as a crossposting target"
+  ansible.builtin.include_tasks: crossposter/seed/connect.yml
+  when: openpost_crossposter_connected.json | selectattr('platform', 'equalto', 'mastodon') | list | length == 0
+  vars:
+    openpost_crossposter_mastodon_route: "{{ OPENPOST_CROSSPOSTER_ROUTES | selectattr('source.platform', 'equalto', 'mastodon') | first }}"

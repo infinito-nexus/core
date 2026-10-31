@@ -69,6 +69,41 @@ class TestContainerNetworksLookup(unittest.TestCase):
         self.assertEqual(kwargs["application_id"], "web-app-baserow")
         self.assertEqual(kwargs["deployment_mode"], "compose")
 
+    def test_forwards_caller_aliases(self):
+        vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
+        lm = _make_lookup(vars_)
+
+        with (
+            mock.patch(
+                "utils.networks.lookup_context.build_service_registry_from_applications",
+                return_value={},
+            ),
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
+            mock.patch(
+                "plugins.lookup.container_networks.render_container_networks",
+                return_value="RENDERED",
+            ) as render_mock,
+        ):
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
+            lm.run([], variables=vars_, aliases=["a.example.com"])
+
+        self.assertEqual(render_mock.call_args.kwargs["aliases"], ["a.example.com"])
+
+    def test_rejects_aliases_that_are_not_a_list_of_strings(self):
+        vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
+        lm = _make_lookup(vars_)
+
+        with (
+            mock.patch(
+                "utils.networks.lookup_context.build_service_registry_from_applications",
+                return_value={},
+            ),
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
+        ):
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
+            with self.assertRaises(AnsibleError):
+                lm.run([], variables=vars_, aliases="a.example.com")
+
     def test_falls_back_to_compose_when_deployment_mode_unset(self):
         vars_ = {"application_id": "web-app-x"}
         lm = _make_lookup(vars_)

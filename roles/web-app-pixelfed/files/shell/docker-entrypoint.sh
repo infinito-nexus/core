@@ -8,6 +8,11 @@ fi
 cp -R storage.skel/* storage/
 chown -R www-data:www-data storage/ bootstrap/
 
+if [ ! -L public/storage ]; then
+  ln -s "${PWD}/storage/app/public" public/storage
+  chown -h www-data:www-data public/storage
+fi
+
 php /wait-for-db.php
 
 if [ -n "${CA_TRUST_CERT:-}" ] && [ -r "${CA_TRUST_CERT}" ]; then

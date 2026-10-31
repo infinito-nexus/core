@@ -1,0 +1,8 @@
+---
+administrator: {}
+web-app-openpost-breakglass:
+  username: openpost-breakglass
+  password:
+    algorithm: alphanumeric
+  accounts: []
+  description: OpenPost local break-glass instance admin; not provisioned to IAM, its mail goes to a plus-address of the administrator mailbox

@@ -1,0 +1,73 @@
+---
+- name: "📖 Read the OpenPost apps already registered on the sibling Fediverse instances"
+  ansible.builtin.slurp:
+    src: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
+  register: openpost_fediverse_apps_raw
+  failed_when: false
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Keep the registered apps"
+  ansible.builtin.set_fact:
+    openpost_fediverse_apps: >-
+      {{ (openpost_fediverse_apps_raw.content | b64decode | from_json)
+         if openpost_fediverse_apps_raw.content is defined else {} }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📝 Register an OpenPost app on each sibling instance that has none yet"
+  uri_retry:
+    url: "{{ item.url }}/api/v1/apps"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      client_name: OpenPost
+      redirect_uris: "urn:ietf:wg:oauth:2.0:oob"
+      scopes: "read write"
+      website: "{{ OPENPOST_URL }}"
+    validate_certs: true
+    status_code: 200
+  loop: "{{ OPENPOST_PINNED_INSTANCES | rejectattr('url', 'in', openpost_fediverse_apps.keys() | list) | list }}"
+  loop_control:
+    label: "{{ item.url }}"
+  register: openpost_fediverse_registrations
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Add the apps registered in this run"
+  ansible.builtin.set_fact:
+    openpost_fediverse_apps: "{{ openpost_fediverse_apps | combine(openpost_fediverse_new_apps) }}"
+  vars:
+    openpost_fediverse_new_apps: >-
+      {%- set _apps = {} -%}
+      {%- for _result in openpost_fediverse_registrations.results -%}
+      {%- set _ = _apps.update({_result.item.url: {'client_id': _result.json.client_id, 'client_secret': _result.json.client_secret}}) -%}
+      {%- endfor -%}
+      {{ _apps }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👤 Give OpenPost's Pixelfed app an owner"
+  ansible.builtin.include_tasks: fediverse/pixelfed_owner.yml
+  when: OPENPOST_PINNED_PIXELFED | length > 0
+  run_once: true
+
+- name: "📁 Ensure the directory for the registered apps exists"
+  ansible.builtin.file:
+    path: "{{ OPENPOST_FEDIVERSE_APPS_HOST | dirname }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: openpost_fediverse_registrations.results | length > 0
+
+- name: "💾 Persist the registered apps"
+  ansible.builtin.copy:
+    dest: "{{ OPENPOST_FEDIVERSE_APPS_HOST }}"
+    content: "{{ openpost_fediverse_apps | to_nice_json }}"
+    mode: "0600"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: openpost_fediverse_registrations.results | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

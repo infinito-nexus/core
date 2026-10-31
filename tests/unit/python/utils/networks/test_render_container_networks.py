@@ -169,6 +169,55 @@ class TestRenderContainerNetworks(unittest.TestCase):
         )
         self.assertEqual(rendered, "\nnetworks:\n  default:")
 
+    def test_caller_aliases_land_on_the_default_network(self):
+        rendered = render_container_networks(
+            application_id="web-app-plain",
+            deployment_mode="compose",
+            registry={},
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+            aliases=["microblog.example.com", "video.example.com"],
+        )
+        self.assertEqual(
+            rendered,
+            "\nnetworks:\n  default:\n    aliases:\n"
+            "      - microblog.example.com\n      - video.example.com",
+        )
+
+    def test_caller_aliases_follow_beacon_aliases_without_duplicates(self):
+        registry = {
+            "openresty": {
+                "role": "svc-prx-openresty",
+                "entity_name": "openresty",
+                "overlay": {"modes": ["swarm"], "topology": "default_net"},
+            },
+            "sso": {
+                "role": "web-app-keycloak",
+                "entity_name": "keycloak",
+                "provides": "sso",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "proxy_resolvable": True,
+                    "aliases": ["auth.example.com"],
+                },
+            },
+        }
+        rendered = render_container_networks(
+            application_id="svc-prx-openresty",
+            deployment_mode="swarm",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+            aliases=["auth.example.com", "extra.example.com"],
+        )
+        self.assertEqual(rendered.count("- auth.example.com"), 1)
+        self.assertLess(
+            rendered.index("- auth.example.com"),
+            rendered.index("- extra.example.com"),
+        )
+
 
 class TestRenderEncryption(unittest.TestCase):
     def test_swarm_encrypted_false_emits_lowercase_quoted_literal(self):

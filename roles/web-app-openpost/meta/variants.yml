@@ -1,0 +1,220 @@
+---
+# nocheck: clearnet-variant-tor  PeerTube is a publishing target OpenPost reaches server-side through its relay; the onion round never advertises it
+# nocheck: sso-variant-tor  variant 0 runs clearnet only: OpenPost reaches an onion Keycloak only through Tor's SOCKS port, which svc-net-tor opens to the internal ranges and not to the role subnet 192.88.99.0/24
+- services:
+    container_backup:
+      enabled: true
+    crossposter:
+      poll_interval_seconds: 15
+      retry:
+        max_attempts: 3
+        base_seconds: 5
+        cap_seconds: 30
+      notify:
+        recipients:
+          - "{{ lookup('users', 'administrator').email }}"
+      routes:
+        - name: ci-review
+          source:
+            platform: mastodon
+            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.base') | regex_replace('/+$', '') }}"
+            account: "{{ lookup('users', 'administrator').username }}"
+            token: ""
+          filters:
+            visibility: [public]
+            exclude_replies: true
+            exclude_reblogs: true
+            tags: [crossposterreview]
+            media: any
+          targets:
+            social_set: Crossposter review
+          mode: review
+          attribution:
+            default: "{text}\n\n{source_url}"
+            x: "{text}"
+        - name: ci-auto
+          source:
+            platform: mastodon
+            base_url: "{{ lookup('tls', 'web-app-mastodon', 'url.base') | regex_replace('/+$', '') }}"
+            account: "{{ lookup('users', 'administrator').username }}"
+            token: ""
+          filters:
+            visibility: [public]
+            exclude_replies: true
+            exclude_reblogs: true
+            tags: [crossposterauto]
+            media: any
+          targets:
+            social_set: Crossposter auto
+          mode: auto
+          attribution:
+            default: "{text}\n\n{source_url}"
+            x: "{text}"
+    css:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    mastodon:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    peertube:
+      enabled: false
+      shared: false
+    pixelfed:
+      enabled: false
+      shared: false
+    postgres:
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
+    simulator:
+      enabled: true # nocheck: variants-static-override  CI provider simulator the first two rounds switch on
+    sso:
+      enabled: true
+      shared: true
+    tor:
+      enabled: false
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    crossposter:
+      poll_interval_seconds: 15
+      retry:
+        max_attempts: 3
+        base_seconds: 5
+        cap_seconds: 30
+      routes:
+        - name: ci-pixelfed
+          source:
+            platform: pixelfed
+            base_url: "{{ lookup('tls', 'web-app-pixelfed', 'url.base') | regex_replace('/+$', '') }}"
+            account: "{{ lookup('users', 'administrator').username }}"
+            token: ""
+          filters:
+            visibility: [public]
+            exclude_replies: true
+            exclude_reblogs: true
+            tags: [crossposterpixelfed]
+            media: required
+          targets:
+            social_set: Crossposter pixelfed
+          mode: auto
+          attribution:
+            default: "{text}\n\n{source_url}"
+            x: "{text}"
+        - name: ci-peertube
+          source:
+            platform: peertube
+            base_url: "{{ lookup('tls', 'web-app-peertube', 'url.base') | regex_replace('/+$', '') }}"
+            account: root_channel
+            token: ""
+          filters:
+            visibility: [public]
+            exclude_replies: true
+            exclude_reblogs: true
+            tags: [crossposterpeertube]
+            media: required
+          targets:
+            social_set: Crossposter peertube
+          mode: auto
+          attribution:
+            default: "{text}\n\n{source_url}"
+            x: "{text}"
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: true
+      shared: true
+    pixelfed:
+      enabled: true
+      shared: true
+    postgres:
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
+    simulator:
+      enabled: true # nocheck: variants-static-override  CI provider simulator the crossposter's Pixelfed and PeerTube routes deliver to
+    sso:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    mastodon:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
+    pixelfed:
+      enabled: false
+      shared: false
+    postgres:
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    seaweedfs:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true

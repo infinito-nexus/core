@@ -1,0 +1,48 @@
+---
+- name: "🔎 Check whether the crossposter was provisioned before"
+  ansible.builtin.stat:
+    path: "{{ OPENPOST_CROSSPOSTER_STATE_FILE }}"
+  register: openpost_crossposter_state_file
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "📖 Read the crossposter state"
+  ansible.builtin.slurp:
+    src: "{{ OPENPOST_CROSSPOSTER_STATE_FILE }}"
+  register: openpost_crossposter_state_raw
+  when: openpost_crossposter_state_file.stat.exists
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧭 Remember the provisioned workspace, API token and CI source tokens"
+  ansible.builtin.set_fact:
+    openpost_crossposter_workspace: "{{ openpost_crossposter_state.workspace | default('') }}"
+    openpost_crossposter_token: "{{ openpost_crossposter_state.token | default('') }}"
+    openpost_crossposter_sources: "{{ openpost_crossposter_state.sources | default({}) }}"
+  vars:
+    openpost_crossposter_state: "{{ (openpost_crossposter_state_raw.content | b64decode | from_json) if openpost_crossposter_state_file.stat.exists else {} }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📦 Stage the crossposter build context"
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/crossposter/"
+    dest: "{{ OPENPOST_CROSSPOSTER_BUILD_CONTEXT }}/"
+    mode: preserve
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📄 Render the crossposter configuration and secrets"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "crossposter.json.j2"
+        dest: "{{ OPENPOST_CROSSPOSTER_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "crossposter-secrets.json.j2"
+        dest: "{{ OPENPOST_CROSSPOSTER_SECRETS_HOST }}"
+        mode: "0400"
+        owner: "{{ OPENPOST_CROSSPOSTER_UID }}"
+        group: "{{ OPENPOST_CROSSPOSTER_UID }}"
