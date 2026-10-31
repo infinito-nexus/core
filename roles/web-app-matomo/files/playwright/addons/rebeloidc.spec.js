@@ -14,6 +14,9 @@ const {
   expectLoginForm,
   startOidcLogin,
   matomoApi,
+  nativeLoginEnabled,
+  LOGIN_FIELD,
+  oidcButtonSelector,
 } = require("../_shared");
 
 const ADMIN_MENU = "#secondNavBar.Menu--admin";
@@ -79,7 +82,8 @@ test("administrator: the RBAC administrator signs in through Keycloak as Matomo 
 
   await page.locator(LOGOUT_LINK).first().click();
   const confirm = page.locator(KEYCLOAK_LOGOUT_CONFIRM);
-  await expect(confirm.or(page.locator("input[name='form_login']")).first()).toBeVisible({
+  const loginEntry = page.locator(nativeLoginEnabled ? LOGIN_FIELD : oidcButtonSelector());
+  await expect(confirm.or(loginEntry).first()).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
   if (await confirm.isVisible()) {
