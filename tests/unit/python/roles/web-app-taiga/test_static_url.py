@@ -38,7 +38,7 @@ def settle(subpath: str = "", jinja_backend: str = JINJA) -> dict:
     )
     environment.filters["bool"] = bool
     rendered = environment.from_string(read_text(str(TEMPLATE))).render(
-        TAIGA_CONFIG_APPEND_MARKER="INFINITO_TAIGA_AUTH_CONFIG",
+        TAIGA_CONFIG_APPEND_MARKER="taiga-config-append",
         TAIGA_OIDC_ENABLED=False,
         TAIGA_LDAP_ENABLED=False,
         application_id="web-app-taiga",
