@@ -3,7 +3,7 @@
 
 - name: 📦 install the claude coding agent
   ansible.builtin.command:
-    cmd: npm install -g --allow-scripts={{ agnt_claude_package }} {{ agnt_claude_package }}
+    cmd: npm install -g --allow-scripts={{ agnt_claude_package }} {{ agnt_claude_package }}@{{ agnt_claude_version }}
   register: agnt_claude_install
   changed_when: "'added' in agnt_claude_install.stdout or 'changed' in agnt_claude_install.stdout"
 

@@ -169,6 +169,14 @@
     tally();
   }
 
+  function webUrl(value) {
+    try {
+      const url = new URL(value);
+      if (url.protocol === "http:" || url.protocol === "https:") { return url.href; }
+    } catch {}
+    return "";
+  }
+
   function handle(report) {
     if (report.type === "start") {
       clearTimeout(startTimer);
@@ -191,6 +199,12 @@
       } else {
         say(s.all_done, s.may_close, OK);
       }
+    } else if (report.type === "handoff") {
+      const target = webUrl(report.url);
+      if (!target) { return; }
+      finished = true;
+      unhold();
+      window.location.replace(target);
     }
   }
 

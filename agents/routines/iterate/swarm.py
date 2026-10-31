@@ -11,7 +11,7 @@ from agents.routines.contract import build as _build
 STEPS = [
     Step(
         "deploy",
-        "make swarm-zombie app=<app> builds the DinD cluster and leaves it up",
+        "make swarm-zombie app=<app> keep=true builds the DinD cluster and leaves it up; without keep=true it copies the rescue bundle and Playwright artefacts to the host and releases the cluster",
         nxt="inspect",
     ),
     Step(

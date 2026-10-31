@@ -45,7 +45,7 @@
           - list
       register: blender_mcp_claude_list
       changed_when: false
-      failed_when: false
+      failed_when: blender_mcp_claude_list.rc != 0
 
     - name: 🤖 Register the Blender MCP server with Claude
       ansible.builtin.command:
@@ -59,7 +59,7 @@
           - "{{ blender_mcp_command }}"
       register: blender_mcp_claude_add
       changed_when: blender_mcp_claude_add.rc == 0
-      when: blender_mcp_server_name not in (blender_mcp_claude_list.stdout | default(''))
+      when: blender_mcp_server_name not in blender_mcp_claude_list.stdout
 
 - name: 🧰 Wire the Blender MCP server into the editor
   when: blender_mcp_code_enabled | bool

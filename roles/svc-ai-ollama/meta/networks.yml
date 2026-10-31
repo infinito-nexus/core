@@ -9,7 +9,9 @@ cache:
   repos:
     raw-ollama-registry:
       flavor: raw
-      upstream: https://registry.ollama.ai/ # nocheck: url the bare root answers 404; the manifest and blob paths under /v2/ resolve
+      upstream: https://registry.ollama.ai/ # nocheck: url the bare root answers 503; the manifest and blob paths under /v2/ resolve
   hosts:
     registry.ollama.ai:
       repo: raw-ollama-registry
+      paths:
+        /v2/: raw-ollama-registry

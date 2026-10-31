@@ -141,5 +141,24 @@ class TestProbeSource(_Isolated, unittest.TestCase):
         self.assertEqual(source, "none")
 
 
+class TestConfigBlob(_Isolated, unittest.TestCase):
+    def test_the_whole_blob_comes_back_with_its_history(self) -> None:
+        blob = {
+            "config": {"Env": ["PHP_VERSION=8.4.27"]},
+            "history": [{"created_by": "x"}],
+        }
+        with (
+            self.serve(INDEX, blob),
+            mock.patch.object(
+                registry, "fetch_manifest", side_effect=[INDEX, MANIFEST]
+            ),
+        ):
+            self.assertEqual(registry.config_blob("php", "8.4", "linux", "amd64"), blob)
+
+    def test_an_index_without_the_platform_is_indeterminate(self) -> None:
+        with self.serve(INDEX, {"config": {}}):
+            self.assertIsNone(registry.config_blob("php", "8.4", "linux", "riscv64"))
+
+
 if __name__ == "__main__":
     unittest.main()

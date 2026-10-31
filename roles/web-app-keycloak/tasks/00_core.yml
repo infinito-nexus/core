@@ -30,6 +30,7 @@
     compose_handlers_flush: true
     webserver_extra_configuration: >-
       {{ lookup('template', 'nginx/helper_iframes.conf.j2')
+         ~ (lookup('template', 'nginx/admin_allowlist.conf.j2') if KEYCLOAK_ADMIN_NETWORKS | length > 0 else '')
          ~ (lookup('template', 'nginx/logout_panel.conf.j2') if KEYCLOAK_LOGOUT_PANEL_ENABLED | bool else '') }}
 
 - name: "👔 Keycloak manager-side operations (file deploys + container exec)"

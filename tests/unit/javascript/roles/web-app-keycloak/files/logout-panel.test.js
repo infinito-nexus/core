@@ -16,6 +16,7 @@ const LOCALE = path.join(PROJECT_ROOT, "locale");
 const LANGUAGES = path.join(PROJECT_ROOT, "meta/languages.yml");
 const ORIGIN = "https://logout.example.test";
 const DOMAINS = ["https://shop.example.test", "https://cloud.example.test"];
+const SIBLING = `http://logout.${"a".repeat(56)}.onion/?handoff=`;
 
 function readEnglish() {
   const out = {};
@@ -126,11 +127,12 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
   const body = element();
   const listeners = {};
   const timers = {};
+  const visited = [];
   let next = 0;
 
   global.window = {
     __INFINITO_LOGOUT__: { origin: ORIGIN, i18n: readCatalogue() },
-    location: { pathname, hostname },
+    location: { pathname, hostname, replace: (url) => visited.push(url) },
     addEventListener(type, fn) {
       listeners[type] = listeners[type] || [];
       if (!listeners[type].includes(fn)) listeners[type].push(fn);
@@ -169,9 +171,13 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
     (listeners.message || []).forEach((fn) =>
       fn({ origin: ORIGIN, data: { source: "universal-logout", ...payload } }),
     );
+  const send = (origin, data) =>
+    (listeners.message || []).forEach((fn) => fn({ origin, data }));
   const panel = () => body.children[0];
   return {
     post,
+    send,
+    visited,
     panel,
     status: () => panel().children[0].textContent,
     hint: () => panel().children[1].textContent,
@@ -260,4 +266,45 @@ test("a sweep that stalls says so instead of spinning forever", () => {
 test("the panel stays off every other Keycloak page", () => {
   const page = mount({ path: "/realms/x/account" });
   assert.equal(page.armed(), 0);
+});
+
+test("a hand-off moves the whole page to the next network's conductor", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  page.post({ type: "host", host: DOMAINS[0], ok: true });
+  page.post({ type: "host", host: DOMAINS[1], ok: true });
+  page.post({ type: "done", total: 2, failed: 0 });
+  page.post({ type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, [SIBLING]);
+});
+
+test("a hand-off is not held back by the unload guard", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  assert.equal(page.armed(), 1);
+
+  page.post({ type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, [SIBLING]);
+  assert.equal(page.armed(), 0, "a guard left armed would stop the navigation with a leave-page prompt");
+});
+
+test("only the conductor can hand the page off", () => {
+  const page = mount();
+  page.send("https://evil.test", { source: "universal-logout", type: "handoff", url: SIBLING });
+  page.send(ORIGIN, { type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, []);
+});
+
+test("a hand-off to anything but an absolute http(s) URL is ignored", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  for (const url of ["javascript:alert(1)", "data:text/html,x", "/realms/x", "", undefined]) {
+    page.post({ type: "handoff", url });
+  }
+
+  assert.deepEqual(page.visited, []);
+  assert.equal(page.armed(), 1, "a refused hand-off leaves the sweep guarded");
 });

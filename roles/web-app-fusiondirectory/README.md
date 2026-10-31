@@ -1,5 +1,10 @@
 # FusionDirectory
 
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the
+> default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it
+> at your own risk and take support from
+> [upstream FusionDirectory](https://www.fusiondirectory.org/).
+
 ## Description
 
 [FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend.

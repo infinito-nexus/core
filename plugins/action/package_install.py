@@ -45,7 +45,16 @@ from utils.packages.calls import (
     ModuleCall,
 )
 from utils.packages.facts import distribution_and_family, read_fact
-from utils.packages.installed import query_argv, state_holds
+from utils.packages.installed import (
+    deb_pin,
+    deb_pin_argv,
+    installed_version,
+    installed_version_argv,
+    minimum_argv,
+    minimum_reached,
+    query_argv,
+    state_holds,
+)
 from utils.packages.outcome import aggregate
 from utils.packages.plan import build_plan, merge_plans
 from utils.packages.registry import build_registry, project_root_from_env, resolve
@@ -122,6 +131,9 @@ class ActionModule(ActionBase):
                 "msg": f"{', '.join(call.args['name'])} already {call.args['state']}",
                 "module": call.module,
             }
+        reached = self._pin_reached(call, task_vars)
+        if reached is not None:
+            return {"changed": False, "msg": reached, "module": call.module}
         if call.retry is None:
             return self._tagged(call, task_vars, facts)
         result: dict[str, Any] = {}
@@ -140,15 +152,36 @@ class ActionModule(ActionBase):
         argv = query_argv(call, pkg_mgr)
         if argv is None:
             return False
+        return state_holds(call, pkg_mgr, self._query(argv, task_vars))
+
+    def _pin_reached(self, call: ModuleCall, task_vars: dict[str, Any]) -> str | None:
+        argv = deb_pin_argv(call)
+        if argv is None:
+            return None
+        pin = deb_pin(self._query(argv, task_vars))
+        if pin is None:
+            return None
+        package, pinned = pin
+        installed = installed_version(
+            self._query(installed_version_argv(package), task_vars)
+        )
+        if installed is None:
+            return None
+        if not minimum_reached(self._query(minimum_argv(installed, pinned), task_vars)):
+            return None
+        return (
+            f"{package} {installed} already installed, at or above the pinned {pinned}"
+        )
+
+    def _query(self, argv: list[str], task_vars: dict[str, Any]) -> dict[str, Any]:
         try:
-            result = self._execute_module(
+            return self._execute_module(
                 module_name="ansible.builtin.command",
                 module_args={"argv": argv, "expand_argument_vars": False},
                 task_vars=task_vars,
             )
         except AnsibleError:
-            return False
-        return state_holds(call, pkg_mgr, result)
+            return {}
 
     def _tagged(
         self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]

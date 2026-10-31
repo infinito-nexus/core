@@ -1,8 +1,10 @@
 # Mailu
 
-> **⚠️ Deprecated.** Mailu is superseded by [`web-app-stalwart`](../web-app-stalwart/),
-> the default email provider. The role keeps working until it is removed, but new
-> deployments MUST NOT adopt it and existing ones MUST migrate. Follow
+> **End of life.** Infinito.Nexus neither maintains nor tests this role, and the
+> default `INFINITO_LIFECYCLES` envelope keeps it out of every CI round. Deploy it
+> at your own risk and take support from [upstream Mailu](https://mailu.io). Mailu is
+> superseded by [`web-app-stalwart`](../web-app-stalwart/), the default email
+> provider. New deployments MUST NOT adopt it and existing ones MUST migrate. Follow
 > [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
 > the mailboxes over. Until then, set `MAIL_PROVIDER: web-app-mailu` to keep routing
 > the mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu.

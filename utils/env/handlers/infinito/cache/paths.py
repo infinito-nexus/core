@@ -3,10 +3,11 @@
 Every one of them sits below the cache base the paths SPOT defines
 (``group_vars/all/05_paths.yml`` ``DIR_CACHE``), so the base is written once
 and each service names only the leg below it. ``make clean-cache`` removes
-three of these entries, not the base.
+four of these entries, not the base.
 
 Keys set here: the Nexus blobstore, the frontend's CA directory and file, its
-TLS certificates, and the registry mirror's data and CA.
+TLS certificates, the registry mirror's data and CA, and the shared package and
+tool cache folder.
 """
 
 from __future__ import annotations
@@ -49,6 +50,11 @@ ENTRIES: tuple[tuple[str, tuple[str, ...], str], ...] = (
         "INFINITO_CACHE_REGISTRY_HOST_PATH",
         ("registry", "mirror"),
         "Host directory backing the registry-cache image mirror.",
+    ),
+    (
+        "INFINITO_CACHE_SHARED_HOST_PATH",
+        ("shared",),
+        "Host directory every compose slot, swarm lab node and GUI lane mounts at the same path for package and tool caches.",
     ),
 )
 

@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 from utils.packages.calls import (
     AUR_FETCH,
+    DEB_INSTALL,
     EXTERNAL_FETCH,
     STATE_PRESENT,
     ModuleCall,
@@ -124,7 +125,7 @@ def download_calls(names: list[str], download: dict[str, Any]) -> list[ModuleCal
 
     if artefact.suffix == ".deb":
         prerequisites = [package_call([DEB_CONTROL_TOOL], STATE_PRESENT)]
-        install = ModuleCall("ansible.builtin.apt", {"deb": dest})
+        install = ModuleCall(DEB_INSTALL, {"deb": dest})
     elif artefact.suffix == ".rpm":
         prerequisites = []
         install = ModuleCall(

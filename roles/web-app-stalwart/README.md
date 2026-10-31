@@ -8,7 +8,7 @@ service speaks **SMTP, Submission, IMAP, POP3, JMAP, ManageSieve, CalDAV,
 CardDAV and WebDAV**, with a **built-in spam filter**, **DKIM/DMARC** signing
 and a **WebAdmin + REST management API**.
 
-This role replaces the deprecated [`web-app-mailu`](../web-app-mailu/) role.
+This role replaces the end-of-life [`web-app-mailu`](../web-app-mailu/) role.
 Applications send mail through the same provider-agnostic abstraction
 (`lookup('email')` / [`sys-svc-mail`](../sys-svc-mail/)) — no consumer changes
 are needed beyond the provider repoint.

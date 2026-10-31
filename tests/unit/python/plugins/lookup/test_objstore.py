@@ -107,6 +107,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["public_bucket"], "")
         self.assertEqual(out["public_endpoint"], "")
         self.assertEqual(out["public_url"], "")
+        self.assertEqual(out["relative_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
         self.assertEqual(self._run(["web-app-foo", "url"], applications)[0], "")
@@ -143,6 +144,11 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["public_bucket"], "api.seaweedfs.s3.example.com/foo")
         self.assertEqual(out["public_endpoint"], "https://api.seaweedfs.s3.example.com")
         self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
+        self.assertEqual(
+            out["relative_url"],
+            "",
+            "a bucket without anonymous read gets no same-origin route",
+        )
 
         self.assertEqual(
             self._run(["web-app-foo", "url"], applications)[0],
@@ -308,25 +314,32 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
     def setUpClass(cls):
         cls.mod = _load_module("plugins/lookup/objstore.py", "lookup_objstore")
 
-    APPLICATIONS: ClassVar[dict] = {
-        "web-app-foo": {
-            "services": {"seaweedfs": {"enabled": True, "shared": True}},
-            "secrets": {"credentials": {"objstore_secret_key": "sk"}},
-        },
-        "web-svc-seaweedfs": {
-            "services": {"seaweedfs": {"name": "seaweedfs-central"}},
-            "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}},
-        },
-    }
+    PUBLIC_SHARED: ClassVar[dict] = {"enabled": True, "shared": True, "public": True}
 
-    def _resolve(self, *, consumer_domains, consumer_web="http"):
+    def _applications(self, consumer_seaweedfs: dict) -> dict:
+        return {
+            "web-app-foo": {
+                "services": {"seaweedfs": consumer_seaweedfs},
+                "secrets": {"credentials": {"objstore_secret_key": "sk"}},
+            },
+            "web-svc-seaweedfs": {
+                "services": {"seaweedfs": {"name": "seaweedfs-central"}},
+                "domains": {"canonical": {"api": "api.seaweedfs.s3.example.com"}},
+            },
+        }
+
+    def _resolve(
+        self, *, consumer_domains, consumer_web="http", consumer_seaweedfs=None
+    ):
         vars_ = {"DIR_COMPOSITIONS": "/opt/compose/", "TLS_ENABLED": True}
         lm = self.mod.LookupModule()
         lm._templar = _DummyTemplar(vars_)
         lm._loader = mock.MagicMock()
 
         payloads = {
-            "applications": self.APPLICATIONS,
+            "applications": self._applications(
+                self.PUBLIC_SHARED if consumer_seaweedfs is None else consumer_seaweedfs
+            ),
             "domains": {"web-app-foo": consumer_domains},
             "tls": {
                 "domain": consumer_domains[0],
@@ -358,10 +371,10 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
         out = self._resolve(consumer_domains=["foo.abcdefghij.onion"])
 
         self.assertTrue(out["proxy_required"])
-        self.assertEqual(out["proxy_prefix"], "/objstore")
+        self.assertEqual(out["proxy_prefix"], "/_infinito/objstore")
         self.assertEqual(
             out["public_url"],
-            "http://foo.abcdefghij.onion/objstore/foo",
+            "http://foo.abcdefghij.onion/_infinito/objstore/foo",
             "the browser must dial the page's own origin, never the provider's "
             "clearnet host it cannot resolve through Tor",
         )
@@ -407,6 +420,53 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
 
         self.assertFalse(out["proxy_required"])
         self.assertEqual(out["public_domain"], "api.seaweedfs.s3.example.com")
+
+    def test_a_consumer_on_both_families_gets_a_same_origin_relative_url(self):
+        out = self._resolve(
+            consumer_domains=["foo.example.com", "foo.abcdefghij.onion"],
+        )
+
+        self.assertEqual(
+            out["relative_url"],
+            "/_infinito/objstore/foo",
+            "one server-side setting serves the clearnet and the onion vhost, so "
+            "only a host-relative path stays inside the network of the page",
+        )
+        self.assertTrue(out["relative_url"].startswith("/"))
+        self.assertFalse(out["relative_url"].startswith("//"))
+        self.assertNotIn("api.seaweedfs.s3.example.com", out["relative_url"])
+
+    def test_a_clearnet_consumer_gets_the_same_relative_url(self):
+        out = self._resolve(consumer_domains=["foo.example.com"], consumer_web="https")
+
+        self.assertEqual(out["relative_url"], "/_infinito/objstore/foo")
+
+    def test_a_private_bucket_gets_no_same_origin_route(self):
+        out = self._resolve(
+            consumer_domains=["foo.abcdefghij.onion"],
+            consumer_seaweedfs={"enabled": True, "shared": True, "public": False},
+        )
+
+        self.assertEqual(
+            out["relative_url"],
+            "",
+            "the route only fronts buckets with anonymous read",
+        )
+        self.assertFalse(out["proxy_required"])
+        self.assertEqual(out["public_url"], "https://api.seaweedfs.s3.example.com/foo")
+
+    def test_an_embedded_store_gets_no_same_origin_route(self):
+        out = self._resolve(
+            consumer_domains=["foo.example.com", "foo.abcdefghij.onion"],
+            consumer_seaweedfs={"enabled": True, "shared": False, "public": True},
+        )
+
+        self.assertEqual(
+            out["relative_url"],
+            "",
+            "the route loops back to the central provider's vhost, which holds "
+            "no bucket of an embedded store",
+        )
 
 
 if __name__ == "__main__":

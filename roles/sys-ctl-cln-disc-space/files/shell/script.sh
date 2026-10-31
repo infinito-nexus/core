@@ -89,8 +89,11 @@ if [ "$force_freeing" = true ]; then
   fi
 
   if command -v pacman >/dev/null 2>&1 ; then
-    echo "cleaning pacman cache" &&
-    yes | pacman -Sc || exit 7
+    echo "cleaning pacman cache"
+    for pacman_cache_dir in $(pacman-conf CacheDir); do
+      [ -w "${pacman_cache_dir}" ] || continue
+      yes | pacman -Sc --cachedir "${pacman_cache_dir}" || exit 7
+    done
   fi
 
   echo "cleanup finished."

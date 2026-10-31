@@ -21,7 +21,7 @@ STEPS = [
     ),
     Step(
         "triage",
-        "Read roundtrip-<app>-<mode>.log for the cause; a blocked mode stops the sweep",
+        "Read roundtrip-<app>-<mode>.log and, for swarm, the rescue bundle on the host (the cluster is already released) for the cause; a blocked mode stops the sweep",
         "model",
         nxt="fix",
     ),

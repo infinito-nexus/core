@@ -34,6 +34,10 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/cache.override.yml"]
         if profile.shared_cache_network():
             out += ["-f", "compose/cache.shared.override.yml"]
+        if profile.shared_package_cache():
+            out += ["-f", "compose/shared-cache.override.yml"]
+            if profile.host_pacman_cache():
+                out += ["-f", "compose/pacman.override.yml"]
     if profile.gpu_reservable():
         out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":

@@ -1,7 +1,7 @@
 ---
 - name: 📦 install the pi coding agent
   ansible.builtin.command:
-    cmd: npm install -g --ignore-scripts {{ agnt_pi_package }}
+    cmd: npm install -g --ignore-scripts {{ agnt_pi_package }}@{{ agnt_pi_version }}
   register: agnt_pi_install
   changed_when: "'added' in agnt_pi_install.stdout or 'changed' in agnt_pi_install.stdout"
 

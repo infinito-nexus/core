@@ -2,6 +2,7 @@ import re
 import unittest
 
 from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
+from utils.packages.installed import deb_pin_argv
 from utils.packages.plan import build_plan, merge_plans
 from utils.packages.schema import (
     SOURCE_AUR,
@@ -248,7 +249,24 @@ class TestDownloadSource(unittest.TestCase):
         self.assertEqual(
             fetch.args["dest"], f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb"
         )
-        self.assertEqual(install.args["deb"], fetch.args["dest"])
+        self.assertEqual(install.args, {"deb": fetch.args["dest"]})
+
+    def test_the_deb_install_is_the_call_the_minimum_check_reads(self):
+        plan = build_plan(
+            PackageSpec(("editor",), source=SOURCE_DOWNLOAD, download=_DEB),
+            STATE_PRESENT,
+        )
+        install = _only(plan, "ansible.builtin.apt")
+        self.assertEqual(
+            deb_pin_argv(install),
+            [
+                "dpkg-deb",
+                "--field",
+                f"{DOWNLOAD_CACHE_DIR}/editor_1.2.3_amd64.deb",
+                "Package",
+                "Version",
+            ],
+        )
 
     def test_the_rpm_is_installed_from_the_fetched_path(self):
         plan = build_plan(

@@ -1,13 +1,25 @@
 import unittest
 
 from utils.packages.calls import (
+    DEB_INSTALL,
     GENERIC_PACKAGE,
     STATE_ABSENT,
     STATE_PRESENT,
     ModuleCall,
     package_call,
 )
-from utils.packages.installed import query_argv, state_holds
+from utils.packages.installed import (
+    deb_pin,
+    deb_pin_argv,
+    installed_version,
+    installed_version_argv,
+    minimum_argv,
+    minimum_reached,
+    query_argv,
+    state_holds,
+)
+
+DEB = "/var/cache/infinito/packages/cursor_3.27.6_amd64.deb"
 
 
 def _holds(pkg_mgr, names, state, rc, stdout="", stderr="", **extra):
@@ -201,6 +213,100 @@ class TestDoubtRunsTheModule(unittest.TestCase):
     def test_a_result_without_output_proves_nothing(self):
         call = package_call(["git"], STATE_ABSENT)
         self.assertFalse(state_holds(call, "apt", {"failed": True, "msg": "boom"}))
+
+
+class TestDebPinArgv(unittest.TestCase):
+    def test_a_local_deb_install_reads_its_control_fields(self):
+        argv = deb_pin_argv(ModuleCall(DEB_INSTALL, {"deb": DEB}))
+        self.assertEqual(argv, ["dpkg-deb", "--field", DEB, "Package", "Version"])
+
+    def test_a_deb_install_with_further_arguments_is_not_read(self):
+        call = ModuleCall(DEB_INSTALL, {"deb": DEB, "allow_downgrade": True})
+        self.assertIsNone(deb_pin_argv(call))
+
+    def test_a_relative_deb_path_is_not_read(self):
+        self.assertIsNone(deb_pin_argv(ModuleCall(DEB_INSTALL, {"deb": "-x.deb"})))
+
+    def test_other_modules_are_not_read(self):
+        call = ModuleCall("ansible.builtin.dnf", {"deb": DEB})
+        self.assertIsNone(deb_pin_argv(call))
+        self.assertIsNone(deb_pin_argv(package_call(["cursor"], STATE_PRESENT)))
+
+
+class TestDebPin(unittest.TestCase):
+    def _pin(self, stdout, rc=0):
+        return deb_pin({"rc": rc, "stdout": stdout, "stderr": ""})
+
+    def test_package_and_version_are_read_with_epoch_and_revision(self):
+        self.assertEqual(
+            self._pin("Package: cursor\nVersion: 1:3.27.6-1792578269\n"),
+            ("cursor", "1:3.27.6-1792578269"),
+        )
+
+    def test_a_missing_field_proves_nothing(self):
+        self.assertIsNone(self._pin("Package: cursor\n"))
+        self.assertIsNone(self._pin("Package: cursor\nVersion: \n"))
+
+    def test_a_foreign_line_proves_nothing(self):
+        self.assertIsNone(self._pin("Package: cursor\nVersion: 3.27.6\nnoise\n"))
+
+    def test_a_failing_read_proves_nothing(self):
+        self.assertIsNone(self._pin("Package: cursor\nVersion: 3.27.6\n", rc=2))
+        self.assertIsNone(deb_pin({}))
+
+
+class TestInstalledVersion(unittest.TestCase):
+    def _installed(self, stdout, rc=0, **extra):
+        return installed_version({"rc": rc, "stdout": stdout, "stderr": "", **extra})
+
+    def test_dpkg_query_reports_version_then_status_of_the_one_package(self):
+        argv = installed_version_argv("cursor")
+        self.assertEqual(argv[:2], ["dpkg-query", "--show"])
+        self.assertEqual(argv[2], "--showformat=${Version}\t${db:Status-Abbrev}\n")
+        self.assertEqual(argv[-2:], ["--", "cursor"])
+
+    def test_a_fully_installed_package_reports_its_version(self):
+        self.assertEqual(
+            self._installed("3.27.22-1793067078\tii \n"), "3.27.22-1793067078"
+        )
+        self.assertEqual(
+            self._installed("3.27.22-1793067078\thi "), "3.27.22-1793067078"
+        )
+
+    def test_a_missing_package_has_no_version(self):
+        self.assertIsNone(self._installed("", rc=1))
+
+    def test_a_package_not_fully_installed_has_no_version(self):
+        for stdout in ("3.27.6\trc ", "3.27.6\tiU ", "3.27.6\tiiR", "\tii "):
+            with self.subTest(stdout=stdout):
+                self.assertIsNone(self._installed(stdout))
+
+    def test_several_architectures_have_no_single_version(self):
+        self.assertIsNone(self._installed("3.27.6\tii \n3.27.6\tii \n"))
+
+    def test_a_check_mode_skip_has_no_version(self):
+        self.assertIsNone(self._installed("3.27.6\tii ", skipped=True))
+
+
+class TestMinimum(unittest.TestCase):
+    def test_dpkg_compares_installed_against_the_pin(self):
+        self.assertEqual(
+            minimum_argv("3.27.22-1793067078", "3.27.6-1792578269"),
+            [
+                "dpkg",
+                "--compare-versions",
+                "3.27.22-1793067078",
+                "ge",
+                "3.27.6-1792578269",
+            ],
+        )
+
+    def test_only_exit_zero_reaches_the_minimum(self):
+        self.assertTrue(minimum_reached({"rc": 0}))
+        self.assertFalse(minimum_reached({"rc": 1, "failed": True}))
+        self.assertFalse(minimum_reached({"rc": 2, "failed": True}))
+        self.assertFalse(minimum_reached({"rc": 0, "skipped": True}))
+        self.assertFalse(minimum_reached({}))
 
 
 if __name__ == "__main__":

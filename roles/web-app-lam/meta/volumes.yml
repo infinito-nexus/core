@@ -23,3 +23,5 @@ php_hardening:
   mounts:
     - service: lam
       target: /etc/php/8.4/apache2/conf.d/zz-infinito-hardening.ini
+    - service: lam
+      target: /etc/php/8.4/cli/conf.d/zz-infinito-hardening.ini

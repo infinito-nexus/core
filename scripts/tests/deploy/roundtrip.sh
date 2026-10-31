@@ -6,7 +6,8 @@ set -euo pipefail
 #   apps  - space-separated role ids; defaults to one role per dna cluster
 #           (complexity clone == false), most complex first, when unset
 #   modes - mode sequence (default "compose swarm"; append "k8s" here once it exists)
-#   keep  - true keeps each validated swarm cluster instead of releasing it
+#   keep  - true keeps each swarm cluster, green or failed; empty or false lets
+#           swarm-zombie release it once the rescue bundle is on the host
 #   disable - comma-separated provider keys removed from the test inventory;
 #             the Tor key pins the swarm step to clearnet
 _repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -23,6 +24,7 @@ fi
 	exit 2
 }
 
+: "${keep?keep is required: true keeps each swarm cluster, empty or false releases it}"
 modes="${modes:-compose swarm}"
 _log_dir="${TMPDIR:-/tmp}" # nocheck: posix TMPDIR convention
 
@@ -58,13 +60,12 @@ for app in "${_apps[@]}"; do
 			echo "==> roundtrip: ${app} [swarm] network=${network:-rotation}"
 			ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest \
 				make -C "$_repo_root" swarm-zombie app="$app" network="$network" \
-				disable="${disable:-}" 2>&1 | tee "$log"
+				disable="${disable:-}" keep="${keep}" 2>&1 | tee "$log"
 			marker="==> swarm drill complete: app=${app}"
 			grep -qF "${marker}" "$log" || {
 				echo "roundtrip: ${app} [swarm] FAILED: swarm-zombie exited 0 but the drill never completed for ${app} (marker '${marker}' absent from ${log})" >&2
 				exit 1
 			}
-			[ "${keep:-false}" = true ] || make -C "$_repo_root" swarm-down name="$app"
 			;;
 		*)
 			echo "roundtrip: unknown mode '${mode}' (expected: compose | swarm)" >&2
