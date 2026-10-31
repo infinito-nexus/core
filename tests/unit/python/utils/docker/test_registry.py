@@ -94,6 +94,46 @@ class TestManifestExists(_IsolatedProbeCache):
         self.assertEqual(url, "https://quay.io/v2/keycloak/keycloak/manifests/26.6.3")
 
 
+class TestManifestDigest(unittest.TestCase):
+    def test_returns_the_content_digest_of_a_head_request(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request,
+            "urlopen",
+            return_value=_Resp(
+                status=200, headers={"Docker-Content-Digest": "sha256:abc"}
+            ),
+        ) as opened:
+            digest = registry.manifest_digest("roundcube/roundcubemail", "1.7.5-apache")
+        self.assertEqual(digest, "sha256:abc")
+        request = opened.call_args.args[0]
+        self.assertEqual(request.get_method(), "HEAD")
+        self.assertIn(
+            "application/vnd.oci.image.index.v1+json", request.headers["Accept"]
+        )
+        self.assertEqual(
+            request.full_url,
+            "https://registry-1.docker.io/v2/roundcube/roundcubemail/manifests/1.7.5-apache",
+        )
+
+    def test_missing_tag_has_no_digest(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request, "urlopen", side_effect=_http_error(404)
+        ):
+            self.assertIsNone(registry.manifest_digest("postgres", "999"))
+
+    def test_rate_limit_has_no_digest(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request, "urlopen", side_effect=_http_error(429)
+        ):
+            self.assertIsNone(registry.manifest_digest("postgres", "16"))
+
+    def test_answer_without_digest_header_has_no_digest(self) -> None:
+        with mock.patch.object(
+            registry.urllib.request, "urlopen", return_value=_Resp(status=200)
+        ):
+            self.assertIsNone(registry.manifest_digest("postgres", "16"))
+
+
 class TestFetchRegistryTags(unittest.TestCase):
     def test_anonymous_tags(self) -> None:
         with mock.patch.object(

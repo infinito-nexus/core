@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
 from cli.contributing.mirror.model import ImageRef
 from cli.contributing.mirror.providers import GHCRProvider
@@ -58,6 +59,52 @@ class TestGHCRProviderImageBase(unittest.TestCase):
         provider = GHCRProvider("ACME", "MyRepo")
         self.assertEqual(provider.namespace, "acme")
         self.assertEqual(provider.repository, "myrepo")
+
+
+class TestGHCRProviderIsStale(unittest.TestCase):
+    UPSTREAM = "docker.io/roundcube/roundcubemail"
+    MIRROR = "ghcr.io/acme/myrepo/mirror/docker.io/roundcube/roundcubemail"
+
+    def setUp(self) -> None:
+        self.image = ImageRef(
+            role="web-app-stalwart",
+            service="webmail",
+            name="roundcube/roundcubemail",
+            version="1.7.5-apache",
+            source="docker.io/roundcube/roundcubemail:1.7.5-apache",
+            registry="docker.io",
+        )
+        self.provider = GHCRProvider("acme", "myrepo")
+
+    def _is_stale(self, digests: dict) -> bool:
+        def fake(image: str, reference: str) -> str | None:
+            self.assertEqual(reference, "1.7.5-apache")
+            return digests[image]
+
+        with patch(
+            "cli.contributing.mirror.providers.manifest_digest", side_effect=fake
+        ):
+            return self.provider.is_stale(self.image)
+
+    def test_upstream_repushed_tag_makes_the_copy_stale(self) -> None:
+        self.assertTrue(
+            self._is_stale({self.UPSTREAM: "sha256:new", self.MIRROR: "sha256:old"})
+        )
+
+    def test_matching_digests_are_current(self) -> None:
+        self.assertFalse(
+            self._is_stale({self.UPSTREAM: "sha256:same", self.MIRROR: "sha256:same"})
+        )
+
+    def test_indeterminate_upstream_counts_as_current(self) -> None:
+        self.assertFalse(
+            self._is_stale({self.UPSTREAM: None, self.MIRROR: "sha256:old"})
+        )
+
+    def test_indeterminate_mirror_counts_as_current(self) -> None:
+        self.assertFalse(
+            self._is_stale({self.UPSTREAM: "sha256:new", self.MIRROR: None})
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

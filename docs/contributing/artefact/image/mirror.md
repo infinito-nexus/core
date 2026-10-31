@@ -55,7 +55,7 @@ This file is consumed by the inventory creator to substitute mirror URLs into ho
 
 ### Sync 🔄
 
-`cli/contributing/mirror/sync/__main__.py` copies each image from the upstream source to the GHCR mirror destination using `skopeo copy`. Supports `--only-missing` to skip already-mirrored images and `--images-per-hour` for throttling.
+`cli/contributing/mirror/sync/__main__.py` copies each image from the upstream source to the GHCR mirror destination using `skopeo copy`. Supports `--only-missing` to skip already-mirrored images and `--images-per-hour` for throttling. Under `--only-missing` an existing tag is still re-copied when its manifest digest differs from the upstream tag's, read with HEAD requests on both registries; a failed re-copy keeps the existing copy and does not fail the sync.
 
 ### Wait Script ⏳
 
