@@ -8,20 +8,20 @@ As a user who is signed in through one browser on the clearnet and the onion net
 
 ### Trust boundary
 
-- [ ] No Keycloak client that this requirement adds or changes has `serviceAccountsEnabled: true`, and no service-account user of the realm gains a `realm-management` role through this requirement.
+- [x] No Keycloak client that this requirement adds or changes has `serviceAccountsEnabled: true`, and no service-account user of the realm gains a `realm-management` role through this requirement.
 - [ ] `web-svc-logout` owns no Keycloak client, its env file holds no Keycloak client secret, it serves no route it did not serve before this change, and it sends no request to Keycloak.
-- [ ] The final state holds no `/everywhere` route, no `LOGOUT_EVERYWHERE_*` key, no `web-svc-logout` client in the realm render and no update routine that maps `realm-management` roles to a service account.
-- [ ] The realm keeps the values of `eventsEnabled`, `enabledEventTypes`, `eventsExpiration`, `adminEventsEnabled`, `adminEventsDetailsEnabled` and `eventsListeners` it had before this change.
+- [x] The final state holds no `/everywhere` route, no `LOGOUT_EVERYWHERE_*` key, no `web-svc-logout` client in the realm render and no update routine that maps `realm-management` roles to a service account.
+- [x] The realm keeps the values of `eventsEnabled`, `enabledEventTypes`, `eventsExpiration`, `adminEventsEnabled`, `adminEventsDetailsEnabled` and `eventsListeners` it had before this change.
 - [ ] No choice, nor any later replacement, uses a Keycloak service account, a `realm-management` role, the Keycloak admin REST API, stored realm events or a Keycloak extension (SPI provider); "Log out everywhere" uses only the user's own access token and the `manage-account` role of the `account` client.
 - [ ] A logout sends no browser request without a user click that it did not send before this change, and the CSP of every vhost is byte-identical to its render before this change.
 - [ ] Every back-channel endpoint this requirement wires answers a logout token with a bad signature, a foreign `iss`, a wrong `aud` or a missing `events` claim with a 4xx status and ends no session.
-- [ ] The "Log out everywhere" link carries no token, session id, user id or query parameter; it carries only the fragment marker defined below.
+- [x] The "Log out everywhere" link carries no token, session id, user id or query parameter; it carries only the fragment marker defined below.
 
 ### Front-channel sweep per network
 
-- [ ] The shared OIDC client keeps `frontchannelLogout: true`, the conductor as `frontchannel.logout.url` and `frontchannel.logout.session.required: "true"`, as rendered by `roles/web-app-keycloak/templates/import/clients/default.json.j2`.
+- [x] The shared OIDC client keeps `frontchannelLogout: true`, the conductor as `frontchannel.logout.url` and `frontchannel.logout.session.required: "true"`, as rendered by `roles/web-app-keycloak/templates/import/clients/default.json.j2`.
 - [ ] Each conductor still clears the cookies of every domain of its own network, as it does before this change.
-- [ ] The shared OIDC client carries no `backchannel.logout.url`.
+- [x] The shared OIDC client carries no `backchannel.logout.url`.
 
 ### Back-channel logout per app
 
@@ -75,7 +75,7 @@ The operator decided that the user gets two explicit choices at logout, "Log out
 - [ ] Its access token carries the `account` audience through the audience resolve mapper of the `roles` scope (`roles/web-app-keycloak/templates/import/realm.json.j2:1154-1194`), `manage-account` through `default-roles-<realm>` (`realm.json.j2:59-74`) and the dashboard origin in `allowed-origins` through the client-level `oidc-allowed-origins-mapper` of the dashboard's own client, fed by that client's own `webOrigins`. Keycloak's Account REST API checks that audience and answers CORS from that `allowed-origins` claim.
 - [ ] On the `#logout-everywhere` marker or the menu click, the dashboard sends, with that token only, `GET /realms/<realm>/account/applications`, then `DELETE /realms/<realm>/account/applications/<clientId>/consent` for every entry with `offlineAccess: true`, which revokes that client's offline token, then `DELETE /realms/<realm>/account/sessions`, the call the Account Console's "Sign out all devices" makes, which ends every other online session of the user.
 - [ ] It then calls `keycloak.logout()`, which runs "Log out on this device" for this browser, conductor sweep included.
-- [ ] The realm keeps `manage-account` of the `account` client in `default-roles-<realm>` and keeps the `account` client, both rendered by `roles/web-app-keycloak/templates/import/realm.json.j2`.
+- [x] The realm keeps `manage-account` of the `account` client in `default-roles-<realm>` and keeps the `account` client, both rendered by `roles/web-app-keycloak/templates/import/realm.json.j2`.
 - [ ] After "Log out everywhere" on device A, the next OIDC authentication on device B asks for credentials, no offline token of the user still refreshes, B's sessions of every app with its own back-channel client end at their next request, and B's oauth2-proxy sessions end within one `cookie_refresh` interval.
 - [ ] Rejected: the Account Console route `/realms/<realm>/account/account-security/device-activity` as the place of the action, because its "Sign out all devices" ends online sessions only, is hidden while one session exists and skips the logout when its `DELETE` fails (`signOutAll` in Keycloak's `DeviceActivity.tsx` has no error handling), and changing that needs a custom account theme build.
 
@@ -99,13 +99,13 @@ The operator decided that the user gets two explicit choices at logout, "Log out
 
 ### Tests
 
-- [ ] A unit test renders every `templates/keycloak/clients.json.j2` and asserts per back-channel client `frontchannelLogout: false`, `serviceAccountsEnabled: false`, a `backchannel.logout.url` on the app's canonical origin and redirect URIs for every network sibling; a negative control with a `backchannel.logout.url` on the shared client fails it.
-- [ ] A unit test renders `roles/web-app-keycloak/templates/import/realm.json.j2` against an inventory fixture that holds only the credentials present before this change, asserts that the render succeeds and asserts that no service-account user holds a `realm-management` role.
-- [ ] A unit test renders the oauth2-proxy config, asserts that `cookie_refresh` equals the configured value and asserts that the render fails when the key is absent.
-- [ ] A unit test renders both Synapse flavors and asserts the Synapse client id and `backchannel_logout_enabled: true` in each.
+- [x] A unit test renders every `templates/keycloak/clients.json.j2` and asserts per back-channel client `frontchannelLogout: false`, `serviceAccountsEnabled: false`, a `backchannel.logout.url` on the app's canonical origin and redirect URIs for every network sibling; a negative control with a `backchannel.logout.url` on the shared client fails it.
+- [x] A unit test renders `roles/web-app-keycloak/templates/import/realm.json.j2` against an inventory fixture that holds only the credentials present before this change, asserts that the render succeeds and asserts that no service-account user holds a `realm-management` role.
+- [x] A unit test renders the oauth2-proxy config, asserts that `cookie_refresh` equals the configured value and asserts that the render fails when the key is absent.
+- [x] A unit test renders both Synapse flavors and asserts the Synapse client id and `backchannel_logout_enabled: true` in each.
 - [ ] Network case of the Playwright spec of `web-svc-logout`: in one browser context, biber signs in to a back-channel app and to an oauth2-proxy app on the clearnet origin and on the onion origin of the same node, logs out on the clearnet origin, and the spec asserts that the back-channel app's next onion request asks for a login and that the oauth2-proxy app's onion request does so after one `cookie_refresh` interval.
 - [ ] The network case also passes with `javaScriptEnabled: false` for the logout step.
-- [ ] A unit test loads `roles/web-app-keycloak/files/logout_i18n.yml` through the `i18n_catalogue` lookup and asserts that both choice labels, the everywhere success message and the partial-logout message have a non-empty translation in every language block.
+- [x] A unit test loads `roles/web-app-keycloak/files/logout_i18n.yml` through the `i18n_catalogue` lookup and asserts that both choice labels, the everywhere success message and the partial-logout message have a non-empty translation in every language block.
 - [ ] Choice case of the same spec: on the Keycloak logout confirmation page and in the dashboard "Account" menu, both choices are visible with `javaScriptEnabled: true` and on the confirmation page also with `javaScriptEnabled: false`.
 - [ ] Device case "on this device": biber signs in on two browser contexts A and B, A signed in on the clearnet and the onion origin; after "Log out on this device" in A, both networks of A ask for a login and B is still signed in to Keycloak and to its back-channel app.
 - [ ] Device case "everywhere": after "Log out everywhere" in A, both networks of A ask for a login, B's next OIDC authentication asks for credentials, B's back-channel app session ended and `GET /realms/<realm>/account/applications` with a fresh token of biber lists no entry with `offlineAccess: true`.
