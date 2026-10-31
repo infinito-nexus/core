@@ -1,10 +1,14 @@
-"""Converge the ERPNext roles and accounts on the deployment's role groups.
+"""Converge the ERPNext roles and accounts the directory owns on its role groups.
 
 Environment:
     SITE_NAME: the Frappe site.
     ROLE_GRANTS_JSON: JSON ``{role: [ERPNext role, ...]}`` of every declared role.
     ROLE_MEMBERS_JSON: JSON ``{role: [{username, email, name}]}`` of every declared role.
     PROTECTED_USERS_JSON: JSON list of user names the run never demotes or disables.
+    SSO_PROVIDER_NAME: the Social Login Key whose ``User Social Login`` row a Keycloak
+        sign-in writes; that row marks an account directory-owned.
+    DIRECTORY_PROVIDER_NAME: provider of the ``User Social Login`` row the run writes on
+        every member, because an LDAP sign-in leaves no mark on its account.
 
 Output:
     One ``CHANGED <user> <change>`` line per change, else ``UNCHANGED``.
@@ -70,16 +74,35 @@ def set_enabled(user, enabled):
     user.save()
 
 
-def reconcile(grants, members, protected):
-    """Converge every account and return one line per change.
+def link(user, provider, username):
+    """Save the ``User Social Login`` row that marks an account directory-owned.
+
+    Args:
+        user: the ``User`` document.
+        provider: the row's provider.
+        username: the member's username, the row's user ID.
+    """
+    user.append(
+        "social_logins",
+        {"provider": provider, "userid": username, "username": username},
+    )
+    user.flags.ignore_permissions = True
+    user.save()
+
+
+def reconcile(grants, members, protected, sso_provider, directory_provider):
+    """Converge every directory-owned account and return one line per change.
 
     Args:
         grants: ``{role: [ERPNext role, ...]}``.
         members: ``{role: [members]}``.
         protected: lower-cased user names the run never demotes or disables.
+        sso_provider: the provider of the row a Keycloak sign-in writes.
+        directory_provider: the provider of the row this run writes.
     """
     lines = []
     managed = {erpnext_role for roles in grants.values() for erpnext_role in roles}
+    providers = {sso_provider, directory_provider}
     wanted = wanted_roles(grants, members)
 
     for email, entry in sorted(wanted.items()):
@@ -91,6 +114,10 @@ def reconcile(grants, members, protected):
         if not user.enabled:
             set_enabled(user, 1)
             lines.append(f"CHANGED {email} enabled")
+        linked = {row.provider for row in user.get("social_logins")} & providers
+        if email not in protected and not linked:
+            link(user, directory_provider, entry["username"])
+            lines.append(f"CHANGED {email} linked {directory_provider}")
         current = {row.role for row in user.get("roles")}
         missing = entry["roles"] - current
         surplus = set() if email in protected else (current & managed) - entry["roles"]
@@ -101,24 +128,24 @@ def reconcile(grants, members, protected):
             user.remove_roles(*sorted(surplus))
             lines.extend(f"CHANGED {email} revoked {role}" for role in sorted(surplus))
 
-    enabled = set(frappe.get_all("User", filters={"enabled": 1}, pluck="name"))
-    holders = set(
+    owned = set(
         frappe.get_all(
-            "Has Role",
-            filters={"role": ["in", sorted(managed)], "parenttype": "User"},
+            "User Social Login",
+            filters={"provider": ["in", sorted(providers)], "parenttype": "User"},
             pluck="parent",
         )
     )
-    for name in sorted(enabled | holders):
+    for name in sorted(owned):
         lowered = name.lower()
         if lowered in protected or lowered in wanted:
             continue
         user = frappe.get_doc("User", name)
-        surplus = {row.role for row in user.get("roles")} & managed
+        current = {row.role for row in user.get("roles")}
+        surplus = current & managed
         if surplus:
             user.remove_roles(*sorted(surplus))
             lines.extend(f"CHANGED {name} revoked {role}" for role in sorted(surplus))
-        if user.enabled:
+        if user.enabled and not current - managed:
             set_enabled(user, 0)
             lines.append(f"CHANGED {name} disabled")
     return lines
@@ -134,11 +161,13 @@ def main(environ):
     grants = json.loads(environ["ROLE_GRANTS_JSON"])
     members = json.loads(environ["ROLE_MEMBERS_JSON"])
     protected = {name.lower() for name in json.loads(environ["PROTECTED_USERS_JSON"])}
+    sso_provider = environ["SSO_PROVIDER_NAME"]
+    directory_provider = environ["DIRECTORY_PROVIDER_NAME"]
 
     frappe.init(site=site, sites_path=SITES_PATH)
     frappe.connect()
     try:
-        lines = reconcile(grants, members, protected)
+        lines = reconcile(grants, members, protected, sso_provider, directory_provider)
         frappe.db.commit()
     finally:
         frappe.destroy()

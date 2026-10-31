@@ -19,5 +19,7 @@
       SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
       ROLE_GRANTS_JSON: "{{ ERPNEXT_RBAC_ROLE_GRANTS | to_json }}"
       PROTECTED_USERS_JSON: "{{ ERPNEXT_RBAC_PROTECTED_USERS | to_json }}"
+      SSO_PROVIDER_NAME: "{{ ERPNEXT_SSO_PROVIDER_NAME }}"
+      DIRECTORY_PROVIDER_NAME: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
     rbac_sync_members_env:
       - { name: ROLE_MEMBERS_JSON, role: "*", field: "" }

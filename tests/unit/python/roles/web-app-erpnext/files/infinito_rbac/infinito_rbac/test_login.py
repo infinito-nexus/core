@@ -172,6 +172,38 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(self._user("biber@infinito.example")["enabled"], 0)
         self.assertNotIn("first_name", self._user("biber@infinito.example"))
 
+    def test_keeps_an_outsider_enabled_while_it_holds_an_unmanaged_role(self) -> None:
+        self.frappe.seed(
+            "biber@infinito.example",
+            email="biber@infinito.example",
+            enabled=1,
+            roles=_roles("Sales User", "Security Check Approver"),
+        )
+
+        lines = self._converge(_info("biber@infinito.example", OTHER_GROUP))
+
+        self.assertEqual(lines, ["CHANGED biber@infinito.example revoked Sales User"])
+        self.assertEqual(self._user("biber@infinito.example")["enabled"], 1)
+        self.assertEqual(
+            self._role_names("biber@infinito.example"), ["Security Check Approver"]
+        )
+
+    def test_changes_no_account_but_the_one_that_signs_in(self) -> None:
+        self.frappe.seed(
+            "biber@infinito.example",
+            email="biber@infinito.example",
+            enabled=1,
+            roles=_roles("Sales User"),
+        )
+
+        self._converge(_info("alice@infinito.example", ADMIN_GROUP))
+
+        self.assertEqual(
+            {name for name, _ in self.frappe.saves}, {"alice@infinito.example"}
+        )
+        self.assertEqual(self._user("biber@infinito.example")["enabled"], 1)
+        self.assertEqual(self._role_names("biber@infinito.example"), ["Sales User"])
+
     def test_strips_managed_roles_from_a_disabled_outsider_without_touching_its_state(
         self,
     ) -> None:

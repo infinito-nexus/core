@@ -20,10 +20,11 @@ from unittest.mock import patch
 
 TODAY = dt.date(2026, 10, 22)
 COUNTRY_CURRENCIES = {"Germany": "EUR", "United States": "USD"}
-CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles",)}
+CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles", "social_logins")}
 NAME_FIELDS = {
     "Company": "company_name",
     "Fiscal Year": "year",
+    "Role": "role_name",
     "Territory": "territory_name",
     "UOM": "uom_name",
     "User": "email",
@@ -217,6 +218,12 @@ class FakeFrappe:
                 {"parent": name, "parenttype": "User", "role": row.role}
                 for name, user in self.db._table("User").items()
                 for row in user.get("roles", [])
+            ]
+        if doctype == "User Social Login":
+            return [
+                {"parent": name, "parenttype": "User", "provider": row.provider}
+                for name, user in self.db._table("User").items()
+                for row in user.get("social_logins", [])
             ]
         return list(self.db._table(doctype).values())
 

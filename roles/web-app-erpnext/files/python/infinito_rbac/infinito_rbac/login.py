@@ -130,7 +130,7 @@ def converge(info, settings):
         user.remove_roles(*sorted(surplus))
         lines.extend(f"CHANGED {email} revoked {role}" for role in sorted(surplus))
 
-    if not held and user.enabled:
+    if not held and user.enabled and not current - managed:
         set_enabled(user, 0)
         lines.append(f"CHANGED {email} disabled")
     return lines
