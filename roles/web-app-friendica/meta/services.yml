@@ -72,6 +72,8 @@ sso:
         - /attach/
         - /static/
         - /view/
+        - /images/
+        - /addon/smiley_pack/icons/
         - /robots.txt
         - /opensearch
         - /friendica
