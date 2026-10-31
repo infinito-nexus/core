@@ -80,7 +80,7 @@ A role whose specs wait on a long background build names every invokable role ex
 ```yaml
 playwright:
   timeout: 9000
-  run_after: "{{ lookup('deployment').all | difference([application_id]) }}"
+  run_after: "{{ lookup('deployment').all | difference(['web-app-docs']) }}"
 ```
 
 ## Included files

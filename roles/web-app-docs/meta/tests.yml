@@ -4,4 +4,4 @@ cli:
   timeout: 9000
 playwright:
   timeout: 9000
-  run_after: "{{ lookup('deployment').all | difference([application_id]) }}"
+  run_after: "{{ lookup('deployment').all | difference(['web-app-docs']) }}"
