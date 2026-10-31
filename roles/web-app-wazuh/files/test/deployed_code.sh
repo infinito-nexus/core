@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 #
-# Deployed code check proof, dev and CI only: rebuilds the throwaway checkout DEPLOYED_CODE_PROOF from a local
+# Deployed code check proof, dev and CI only: resets the throwaway checkout DEPLOYED_CODE_PROOF in place to a local
 # origin that pretends to be a GitHub repository, runs the deployed check against a local GitHub API stub, and waits
 # for each finding as an alert: a clean, verified commit on main raises nothing; a modified tracked file raises its
 # rule and a FIM alert; a commit not on main, an unverified commit and a failing API each raise their own rule.
@@ -104,12 +104,16 @@ g -C "${WORK}/src" commit --quiet -am "feature only"
 FEATURE_SHA="$(g -C "${WORK}/src" rev-parse HEAD)"
 g -C "${WORK}/src" push --quiet "${ORIGIN}" main feature
 
-mkdir -p "${DEPLOYED_CODE_PROOF}"
-find "${DEPLOYED_CODE_PROOF}" -mindepth 1 -delete
-g clone --quiet "${ORIGIN}" "${DEPLOYED_CODE_PROOF}"
-g -C "${DEPLOYED_CODE_PROOF}" config remote.origin.url "${PROOF_URL}"
+# Exception: real-time FIM watches the root that existed when the agent started, so it is reset in place, never re-created.
+[[ -d "${DEPLOYED_CODE_PROOF}" ]] || fail "${DEPLOYED_CODE_PROOF} is missing; the agent role creates it before FIM starts"
+if [[ ! -d "${DEPLOYED_CODE_PROOF}/.git" ]]; then
+	g init --quiet --initial-branch=main "${DEPLOYED_CODE_PROOF}"
+	g -C "${DEPLOYED_CODE_PROOF}" remote add origin "${PROOF_URL}"
+fi
 g -C "${DEPLOYED_CODE_PROOF}" config "url.file://${ORIGIN}.insteadOf" "${PROOF_URL}"
-g -C "${DEPLOYED_CODE_PROOF}" fetch --quiet origin feature
+g -C "${DEPLOYED_CODE_PROOF}" fetch --quiet --force --prune origin '+refs/heads/*:refs/remotes/origin/*'
+g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --force --detach origin/main
+g -C "${DEPLOYED_CODE_PROOF}" clean --quiet -ffdx
 
 python3 -c "${STUB_CODE}" "${WORK}/port" "${UNVERIFIED_SHA}" &
 echo $! >"${WORK}/stub.pid"
@@ -121,6 +125,35 @@ done
 STUB="http://127.0.0.1:$(cat "${WORK}/port")"
 printf 'stub-token' >"${WORK}/token"
 
+# Exception: syscheckd hashes a file when it handles the inotify event, not when the event fires; restoring the file
+# before that loses the alert, so the tampered state stays until FIM reports exactly that content.
+wait_fim() {
+	local path="${DEPLOYED_CODE_PROOF}/${FILE}"
+	python3 - "${ALERTS}" "${path}" "$(sha256sum "${path}" | cut -d' ' -f1)" "$((RETRIES * SLEEP_SECONDS))" <<'PY' ||
+import json
+import sys
+import time
+
+alerts, path, sha, timeout = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+deadline = time.time() + timeout
+while time.time() <= deadline:
+    with open(alerts, encoding="utf-8", errors="replace") as lines:
+        for line in lines:
+            if path not in line:
+                continue
+            try:
+                syscheck = json.loads(line).get("syscheck", {})
+            except ValueError:
+                continue
+            if syscheck.get("path") == path and syscheck.get("event") == "modified" and syscheck.get("sha256_after") == sha:
+                sys.exit(0)
+    time.sleep(5)
+sys.exit(1)
+PY
+		fail "no FIM alert for the modified ${path}"
+	pass "FIM reported the modified ${path}"
+}
+
 check() {
 	local name="$1" commit="$2" api="$3"
 	g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --detach "${commit}"
@@ -130,6 +163,7 @@ check() {
 	python3 "${DEPLOYED_CODE_SCRIPT}" --checkout="${DEPLOYED_CODE_PROOF}" --api-url="${api}" --token-file="${WORK}/token" \
 		--tag="${DEPLOYED_CODE_TAG}" --timeout=30 >"${WORK}/${name}.out" || fail "the deployed code check exited non-zero for ${name}"
 	if [[ "${name}" == "modified" ]]; then
+		wait_fim
 		g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet -- "${FILE}"
 	fi
 }
@@ -141,14 +175,14 @@ check unverified "${UNVERIFIED_SHA}" "${STUB}"
 check failed "${VERIFIED_SHA}" "${STUB}/fail"
 g -C "${DEPLOYED_CODE_PROOF}" checkout --quiet --detach "${VERIFIED_SHA}"
 
-python3 - "${WORK}" "${ALERTS}" "${DEPLOYED_CODE_PROOF}" "${FILE}" "$((RETRIES * SLEEP_SECONDS))" \
+python3 - "${WORK}" "${ALERTS}" "${DEPLOYED_CODE_PROOF}" "$((RETRIES * SLEEP_SECONDS))" \
 	"${VERIFIED_SHA}" "${FEATURE_SHA}" "${UNVERIFIED_SHA}" <<'PY' || fail "deployed code check"
 import json
 import os
 import sys
 import time
 
-work, alerts, proof, name, timeout, verified, feature, unverified = sys.argv[1:9]
+work, alerts, proof, timeout, verified, feature, unverified = sys.argv[1:8]
 timeout = int(timeout)
 expected = {
     "clean": [],
@@ -168,11 +202,10 @@ for case, kinds in expected.items():
         sys.exit(f"failed: {findings}")
     print(f"PASS: deployed code check {case}: {[kind for kind, _commit, _rule in kinds] or 'no finding'}")
     wanted += [(rule, event) for (kind, _commit, rule), event in zip(kinds, findings)]
-fim_path = f"{proof}/{name}"
 
 
 def scan():
-    found, fim, stray = [], False, []
+    found, stray = [], []
     with open(alerts, encoding="utf-8", errors="replace") as lines:
         for line in lines:
             if proof not in line:
@@ -181,8 +214,6 @@ def scan():
                 alert = json.loads(line)
             except ValueError:
                 continue
-            if alert.get("syscheck", {}).get("path") == fim_path and alert.get("syscheck", {}).get("event") == "modified":
-                fim = True
             full_log = alert.get("full_log", "")
             if "{" not in full_log:
                 continue
@@ -193,25 +224,22 @@ def scan():
             found.append((alert["rule"]["id"], event))
             if event.get("dc_commit") == verified and event.get("dc_kind") not in ("modified", "error"):
                 stray.append(event)
-    return found, fim, stray
+    return found, stray
 
 
 deadline = time.time() + timeout
 while True:
-    found, fim, stray = scan()
+    found, stray = scan()
     missing = [item for item in wanted if item not in found]
-    if (not missing and fim) or time.time() > deadline:
+    if not missing or time.time() > deadline:
         break
     time.sleep(5)
 if stray:
     sys.exit(f"the clean, verified commit raised alerts: {stray}")
 if missing:
     sys.exit(f"no alert for: {missing}")
-if not fim:
-    sys.exit(f"no FIM alert for the modified {fim_path}")
 for rule, event in wanted:
     print(f"PASS: rule {rule} for {event['dc_kind']} {event['dc_commit'][:12]}")
-print(f"PASS: FIM reported the modified {fim_path}")
 PY
 
 pass "deployed code check"
