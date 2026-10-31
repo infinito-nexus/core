@@ -1,10 +1,24 @@
 ---
+- name: "🔍 Read which Magento modules are enabled"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
+    {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+    bin/magento module:status --enabled
+  register: magento_enabled_modules
+  changed_when: false
+
 - name: "🔐 Enable or disable Magento's two-factor modules"
   ansible.builtin.shell:
     cmd: >-
       container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
       {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
       bin/magento module:{{ MAGENTO_TWO_FACTOR_ENABLED | ternary('enable', 'disable') }}
-      {{ MAGENTO_TWO_FACTOR_MODULES | join(' ') }}
+      {{ magento_two_factor_misaligned | join(' ') }}
+  vars:
+    magento_two_factor_misaligned: >-
+      {{ MAGENTO_TWO_FACTOR_MODULES | reject('in', magento_enabled_modules.stdout_lines) | list
+         if MAGENTO_TWO_FACTOR_ENABLED | bool
+         else MAGENTO_TWO_FACTOR_MODULES | select('in', magento_enabled_modules.stdout_lines) | list }}
   register: magento_two_factor
   changed_when: "'No modules were changed' not in magento_two_factor.stdout"
+  when: magento_two_factor_misaligned | length > 0
