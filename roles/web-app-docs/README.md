@@ -8,10 +8,10 @@ This role publishes the Infinito.Nexus documentation for the latest commit and f
 
 One `python:<version>-slim` container runs the service in `files/python/infinito_docs/`:
 
-1. It keeps a git mirror of `services.docs.source_repository` in the `docs_sites` volume and fetches it every `services.docs.fetch_interval` seconds, or later when a build is still running.
+1. It keeps a git mirror of `services.docs.source_repository` in the `docs_sites` volume and fetches it every `services.docs.fetch_interval` seconds. The deployed snapshot, built from the image, starts before the first fetch; every other version waits for that fetch.
 2. `latest` is the last commit of the default branch. It is built at start and rebuilt whenever a fetch finds a new commit; the previous build stays online until the new one replaces it.
 3. A release tag (`vX.Y.Z`) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once.
-4. Up to `services.docs.build.parallel` builds run at once, each with `services.docs.build.jobs` parallel Sphinx processes. `jobs` defaults to half the host's CPUs, `parallel` to the same number capped at 2. A free slot claims a translated site only once its version is current, so a version and its first language run in sequence.
+4. Up to two builds run at once, each with several parallel Sphinx processes. Both numbers follow the container's memory limit: every build reserves `services.docs.build.sphinx_overhead_mb` plus `services.docs.build.sphinx_process_mb` per Sphinx process, a second build starts only when two processes fit for each, and a build never runs more processes than half the host's CPUs. A free slot claims a translated site only once its version is current, so a version and its first language run in sequence.
 5. Every replica serves from the shared `docs_sites` volume. The replica holding `builder.lock` in that volume fetches and builds; the queue (`queue/`) and the build states (`states/`) are files beside the sites, so a new lock holder resumes the queue when the builder dies. Cross-node locking relies on NFSv4, the default of `svc-storage-nfs-client`.
 
 | Path | Content |
@@ -37,8 +37,9 @@ Override these keys of `services.docs` in the inventory:
 |---|---|
 | `source_repository` | Repository to document, e.g. a fork |
 | `fetch_interval` | Seconds between two fetches of new commits and tags |
-| `build.jobs` | Parallel Sphinx processes per build; defaults to half the host's CPUs, raise `cpus` and `mem_limit` with it |
-| `build.parallel` | Builds running at once; defaults to half the host's CPUs capped at 2, and each one costs another scratch tree on disk |
+| `build.sphinx_process_mb` | Memory reserved per parallel Sphinx process |
+| `build.sphinx_overhead_mb` | Memory reserved per build besides its Sphinx processes; each parallel build also costs another scratch tree on disk |
+| `mem_limit` | Container memory limit; raise it to run more Sphinx processes and builds at once |
 | `cpus` | Container CPU cap; also takes a percentage of the host, e.g. `50%`, see [sys-svc-container](../sys-svc-container/README.md#resource-limits) |
 
 ```yaml
@@ -47,11 +48,8 @@ applications:
     services:
       docs:
         source_repository: https://git.example.com/your-org/core.git
-        build:
-          jobs: 4
-          parallel: 2
         cpus: "4"
-        mem_limit: 8g
+        mem_limit: 16g
 ```
 
 Delete `sites/<version>` inside the `docs_sites` volume to rebuild a version on its next visit.

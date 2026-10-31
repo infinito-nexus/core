@@ -9,11 +9,14 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import threading
 import unittest
+from unittest.mock import patch
 
-from .test_library import LibraryFixture
+from .test_library import LibraryFixture, library
 
 BACKGROUND = "background"
+CLONE_WAIT_SECONDS = 30
 
 HOLDER = """\
 import fcntl
@@ -161,6 +164,63 @@ class TestBuilderLock(QueueFixture, unittest.TestCase):
     def test_the_holder_keeps_it_across_calls(self) -> None:
         self.assertTrue(self.library.acquire_builder())
         self.assertTrue(self.library.acquire_builder())
+
+
+class StopBuilderError(Exception):
+    pass
+
+
+class TestFirstFetch(QueueFixture, unittest.TestCase):
+    def _snapshot_replica(self, data):
+        snapshot = self.data / "snapshot"
+        snapshot.mkdir(parents=True, exist_ok=True)
+        (snapshot / "VERSION").write_text("working tree", encoding="utf-8")
+        return library.Library(str(self.repo), data, 1, self.package, snapshot)
+
+    def test_the_deployed_snapshot_builds_while_the_first_clone_runs(self) -> None:
+        shelf = self._snapshot_replica(self.data / "first-start")
+        built = threading.Event()
+        finish = shelf._ready
+        waited = []
+
+        def ready(marker):
+            finish(marker)
+            if marker == "deployed":
+                built.set()
+
+        def clone():
+            waited.append(built.wait(timeout=CLONE_WAIT_SECONDS))
+            raise StopBuilderError
+
+        with (
+            patch.object(shelf, "_ready", ready),
+            patch.object(shelf, "fetch", clone),
+            self.assertRaises(StopBuilderError),
+        ):
+            shelf.run_builder(interval=900)
+
+        self.assertEqual(
+            waited, [True], "the deployed build waited for the clone of the mirror"
+        )
+        self.assertEqual(shelf.built_ref("deployed"), shelf.snapshot_ref())
+
+    def test_a_version_from_the_mirror_waits_for_the_first_fetch(self) -> None:
+        shelf = self._snapshot_replica(self.data)
+        self.assertTrue(shelf.is_queued("latest"))
+        claimed = []
+
+        def fetch():
+            claimed.append(set(shelf._in_flight))
+            raise StopBuilderError
+
+        with (
+            patch.object(shelf, "fetch", fetch),
+            self.assertRaises(StopBuilderError),
+        ):
+            shelf.run_builder(interval=900)
+
+        self.assertNotIn("latest", claimed[0])
+        self.assertTrue(shelf.is_queued("latest"))
 
 
 if __name__ == "__main__":

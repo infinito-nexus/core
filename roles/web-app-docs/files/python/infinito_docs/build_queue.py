@@ -139,6 +139,21 @@ class Queue:
                     return marker
                 skip.add(marker)
 
+    def _claim(self, marker):
+        """Claim ``marker`` for a slot when it waits and no slot holds it yet.
+
+        Args:
+            marker: queue file name, ``version`` or ``version:code``.
+
+        Returns:
+            ``True`` when the caller owns the build of ``marker`` now.
+        """
+        with self._lock:
+            if marker in self._in_flight or not self.is_queued(marker):
+                return False
+            self._in_flight.add(marker)
+            return True
+
     def acquire_builder(self):
         """Try to become the builder of all replicas without blocking.
 
@@ -187,10 +202,12 @@ class Queue:
         """
         while not self.acquire_builder():
             time.sleep(POLL_SECONDS)
-        if self.snapshot.is_dir():
-            self.request(DEPLOYED)
         next_fetch = 0.0
         with ThreadPoolExecutor(max_workers=max(1, int(parallel))) as pool:
+            if self.snapshot.is_dir():
+                self.request(DEPLOYED)
+                if self._claim(DEPLOYED):
+                    pool.submit(self._build_marker, DEPLOYED)
             while True:
                 if time.monotonic() >= next_fetch:
                     try:
