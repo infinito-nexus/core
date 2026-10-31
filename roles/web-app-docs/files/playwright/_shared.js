@@ -43,7 +43,7 @@ async function pollStatus(request, url, expected, message, timeout) {
   );
   try {
     await expect
-      .poll(() => statusOf(request, url), { message, timeout: budget, intervals: [30_000] })
+      .poll(() => statusOf(request, url), { message, timeout: budget, intervals: [5_000] })
       .toBe(expected);
   } catch (failure) {
     if (!lastTransportError) throw failure;
