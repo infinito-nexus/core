@@ -23,7 +23,6 @@
 
 - name: "📌 MASTODON | Apply overrides"
   include_tasks: 01_overrides.yml
-  when: MASTODON_HTTP_ONLY_ENABLED | bool
 
 - name: 🚿 Flush handlers to start the Mastodon stack
   meta: flush_handlers
