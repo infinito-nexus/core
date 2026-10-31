@@ -64,6 +64,45 @@ def stalwart_forwards(forwards: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return normalised
 
 
+def stalwart_user_forwards(
+    forwards: list[dict[str, Any]], users: dict[str, dict[str, Any]], domain: str
+) -> list[dict[str, Any]]:
+    """Add the forward every Stalwart account's user declares.
+
+    Args:
+        forwards: output of ``stalwart_forwards``.
+        users: the users Stalwart provisions an account for, keyed by user key;
+            a non-empty ``forward`` names the user whose ``email`` receives a
+            copy of the mail to ``<username>@<domain>``.
+        domain: the mail domain the accounts live in.
+
+    Returns:
+        ``forwards`` with each user's destination joined to the forward of its
+        account, normalised by ``stalwart_forwards``.
+
+    Raises:
+        AnsibleFilterError: a forward to a user Stalwart holds no account for,
+            or any entry ``stalwart_forwards`` refuses.
+    """
+    merged = {forward["address"]: list(forward["destinations"]) for forward in forwards}
+    for key, user in sorted(users.items()):
+        target = user["forward"]
+        if not target:
+            continue
+        if target not in users:
+            raise AnsibleFilterError(
+                f"stalwart forwards: user {key} forwards to {target}, which has no Stalwart account"
+            )
+        address = f"{user['username']}@{domain}".lower()
+        merged.setdefault(address, []).append(users[target]["email"])
+    return stalwart_forwards(
+        [
+            {"address": address, "destinations": destinations}
+            for address, destinations in merged.items()
+        ]
+    )
+
+
 def stalwart_forward_include(
     scripts: list[dict[str, Any]], own_name: str, own_content: str
 ) -> str:
@@ -109,6 +148,7 @@ class FilterModule:
     def filters(self):
         return {
             "stalwart_forwards": stalwart_forwards,
+            "stalwart_user_forwards": stalwart_user_forwards,
             "stalwart_forward_include": stalwart_forward_include,
             "stalwart_forward_script": stalwart_forward_script,
         }

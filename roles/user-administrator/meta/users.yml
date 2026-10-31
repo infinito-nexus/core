@@ -8,6 +8,7 @@ platform_administrator:
     - administrator
   authorized_keys: []
   accounts: [mailbox, identity]
+  forward: administrator
 
 administrator:
   description: System Administrator for {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}

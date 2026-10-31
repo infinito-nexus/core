@@ -79,6 +79,21 @@ users:
 - Overrides merge recursively on top of role-local defaults.
 - Overrides MUST NOT be written back into `roles/*/meta/users.yml`; that file is for defaults only.
 
+## Forwards 📨
+
+A user MAY name another canonical user key in `forward`, so mail to the user also reaches the named user:
+
+```yaml
+# roles/user-administrator/meta/users.yml
+platform_administrator:
+  accounts: [mailbox, identity]
+  forward: administrator
+```
+
+- `forward` is `''` unless declared, which forwards nothing.
+- The named user MUST exist and MUST carry a `mailbox` account. The lookup raises otherwise, and also for a forward to the user itself or a chain of forwards that loops. Role defaults and inventory overrides are checked alike.
+- [Stalwart](../../../../../../roles/web-app-stalwart/README.md#aliases-and-forwards) honours the forward of every user it provisions an account for: the account keeps the mail and the named user's `email` receives a copy. A user without a Stalwart account gets no forward from Stalwart.
+
 ## What Not To Do 🚫
 
 - You MUST NOT create `group_vars/all/04_users.yml` or any similar generated users dictionary.
@@ -91,7 +106,7 @@ users:
 | File | Purpose |
 |---|---|
 | [users.py](../../../../../../plugins/lookup/users.py) | Runtime entry point for the `users` lookup. |
-| `utils/cache/users/` | Shared aggregation helper package that builds and caches defaults, handles reserved users, UID/GID allocation, and uniqueness validation. Placeholder substitution (DOMAIN_PRIMARY / ORGANIZATION / SOFTWARE_NAME) lives in [users/placeholders.py](../../../../../../utils/cache/users/placeholders.py). |
+| `utils/cache/users/` | Shared aggregation helper package that builds and caches defaults, handles reserved users, UID/GID allocation, uniqueness validation, and the validation of every `forward`. Placeholder substitution (DOMAIN_PRIMARY / ORGANIZATION / SOFTWARE_NAME) lives in [users/placeholders.py](../../../../../../utils/cache/users/placeholders.py). |
 | [carrier.py](../../../../../../utils/cache/carrier.py) | The play-scoped carrier: fact name, `merged_users_cache_key`, and the reader that serves the carried payload. |
 | [test_users.py](../../../../../../tests/unit/python/plugins/lookup/test_users.py) | Unit tests covering the full-dict, single-entry, override, strict missing, and non-strict missing cases. |
 

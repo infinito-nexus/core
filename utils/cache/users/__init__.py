@@ -74,6 +74,48 @@ def _apply_account_defaults(users: dict[str, Any]) -> dict[str, Any]:
     return users
 
 
+def _validate_forwards(users: Mapping[str, Any]) -> None:
+    """Refuse a ``forward`` that leads to no mailbox.
+
+    Args:
+        users: users keyed by canonical key; ``forward`` names the key of the
+            user that receives the mail sent to this user, '' for none.
+
+    Raises:
+        TypeError: a forward that is no string.
+        ValueError: a forward to an unknown user or a user without a
+            ``mailbox`` account, or a chain of forwards that returns to a user
+            it already passed.
+    """
+    for key, user in users.items():
+        if not isinstance(user, Mapping):
+            continue
+        chain = [key]
+        target = user["forward"]
+        while target:
+            if not isinstance(target, str):
+                raise TypeError(
+                    f"User '{chain[-1]}' declares forward={target!r}; a user key is required"
+                )
+            if target in chain:
+                raise ValueError(
+                    f"Forward loop: {' -> '.join([*chain, target])} in merged users"
+                )
+            if target not in users:
+                raise ValueError(
+                    f"User '{chain[-1]}' forwards to unknown user '{target}'"
+                )
+            receiver = users[target]
+            accounts = receiver["accounts"]
+            if not isinstance(accounts, (list, tuple)) or "mailbox" not in accounts:
+                raise ValueError(
+                    f"User '{chain[-1]}' forwards to '{target}', which carries no "
+                    f"mailbox account"
+                )
+            chain.append(target)
+            target = receiver["forward"]
+
+
 def _compute_reserved_usernames(roles_dir: Path) -> list[str]:
     reserved: set[str] = set()
     for role_dir in roles_dir.iterdir():
@@ -208,6 +250,7 @@ def _build_users(
         seen_usernames.add(username)
         seen_emails.add(email)
 
+    _validate_forwards(users)
     return users
 
 
@@ -445,6 +488,7 @@ def get_merged_users(
     overrides = _resolve_override_mapping(variables, "users", templar=templar)
 
     merged = _apply_account_defaults(_merge_users(defaults, overrides))
+    _validate_forwards(merged)
     hydrated = _hydrate_users_tokens(
         merged,
         dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
