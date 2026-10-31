@@ -560,6 +560,40 @@ class TestDistroAndFilesystemAxes(unittest.TestCase):
         )
 
 
+class TestEngineAxis(unittest.TestCase):
+    def _entries(self, count: int, sweep: int, **kwargs) -> list[dict[str, str]]:
+        names = [f"web-app-engine{index}" for index in range(count)]
+        return _assign(
+            [_row(name, 0, ("compose",)) for name in names],
+            sweep=sweep,
+            tor_mode="auto",
+            variants_per_app={name: [{"services": {}}] for name in names},
+            **kwargs,
+        )
+
+    def test_every_row_draws_a_scanner(self) -> None:
+        entries = self._entries(40, 0)
+        self.assertEqual({e["engine"] for e in entries}, set(pools.ENGINES))
+
+    def test_the_sweep_moves_a_row_on_to_the_next_engine(self) -> None:
+        picks = {
+            self._entries(1, sweep)[0]["engine"] for sweep in range(len(pools.ENGINES))
+        }
+        self.assertEqual(picks, set(pools.ENGINES))
+
+    def test_the_engine_never_moves_in_lockstep_with_the_distro(self) -> None:
+        entries = self._entries(60, 0, distros=("arch", "debian", "ubuntu"))
+        self.assertEqual(len({(e["distro"], e["engine"]) for e in entries}), 9)
+
+    def test_the_label_carries_the_engine_glyph(self) -> None:
+        entry = self._entries(1, 0)[0]
+        self.assertIn(to_emoji(entry["engine"]), entry["label"])
+
+    def test_the_engine_is_read_back_from_the_label(self) -> None:
+        entry = self._entries(1, 0)[0]
+        self.assertEqual(axes.parse_label(entry["label"]).engine, entry["engine"])
+
+
 class TestSortKey(unittest.TestCase):
     def _entries(self) -> list[dict[str, str]]:
         rows = [

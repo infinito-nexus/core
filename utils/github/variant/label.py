@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
-from utils.github.variant.pools import DISTROS, FILESYSTEMS
+from utils.github.variant.pools import DISTROS, ENGINES, FILESYSTEMS
 from utils.roles.display import VARIANT_SEPARATOR
 from utils.symbol_glossary import to_emoji, to_word
 
@@ -36,6 +36,7 @@ LABEL_RE = re.compile(
     r"(?:" + re.escape(to_emoji("direct")) + r")?️?"
     r"(?P<distro>" + _alternation(DISTROS) + r")?️?"
     r"(?P<filesystem>" + _alternation(FILESYSTEMS) + r")?️?"
+    r"(?P<engine>" + _alternation(ENGINES) + r")?️?"
     r"[" + re.escape(_AXIS_GLYPHS) + r"️\s]*"
     r"(?P<name>.+?)"
     r"(?:" + re.escape(VARIANT_SEPARATOR) + r"(?P<variant>[0-9,]+))?"
@@ -57,6 +58,7 @@ class Label(NamedTuple):
     distro: str = ""
     filesystem: str = ""
     vpn: bool = False
+    engine: str = ""
 
 
 def parse_label(name: str) -> Label | None:
@@ -91,4 +93,5 @@ def parse_label(name: str) -> Label | None:
         to_word(match.group("distro") or ""),
         to_word(match.group("filesystem") or ""),
         match.group("vpn") is not None,
+        to_word(match.group("engine") or ""),
     )

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import subprocess
 import time
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from .coredns import CoreDNSCorefileRenderer
 from .env import compose_file_args
@@ -12,10 +13,21 @@ from .proc import run_streaming
 from .profile import Profile
 from .runner_mirror import env_image
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
+
+
+def prepare_vulnerability_db(path: Path) -> None:
+    """Create the shared vulnerability database directory as the calling user.
+
+    Docker would create a missing bind source as root, and a deploy could then
+    not refresh the databases in it. A directory this user may not create is
+    left to Docker: only a deploy writes it, and that deploy fails loudly.
+
+    Args:
+        path: ``INFINITO_VULNERABILITY_DB_HOST_PATH``.
+    """
+    with contextlib.suppress(PermissionError):
+        path.mkdir(parents=True, exist_ok=True)
 
 
 class Compose:
@@ -177,12 +189,16 @@ class Compose:
             f"size={out.stat().st_size if out.exists() else 'n/a'}"
         )
 
+    def _prepare_vulnerability_db(self, env: dict[str, str]) -> None:
+        prepare_vulnerability_db(Path(env["INFINITO_VULNERABILITY_DB_HOST_PATH"]))
+
     def up(self, *, run_entry_init: bool = True) -> None:
         print(">>> Rendering CoreDNS Corefile from template")
         self._render_coredns_corefile()
 
         print(">>> Starting compose stack (coredns + infinito)")
         env = self._base_env()
+        self._prepare_vulnerability_db(env)
         keys = [
             "INFINITO_BUILD",
             "INFINITO_DISTRO",

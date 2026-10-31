@@ -139,6 +139,7 @@ jobs:
             -e INFINITO_CACHE_PACKAGE_HOST_PATH \
             -e INFINITO_GHCR_MIRROR \
             -e INFINITO_GHCR_MIRROR_PREFIX \
+            -e INFINITO_VULNERABILITY_DB_HOST_PATH="${HOST_WORKDIR}/build/vulnerability-db" \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
             -v "/mnt/docker:/var/lib/docker" \

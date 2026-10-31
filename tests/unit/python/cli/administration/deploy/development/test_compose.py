@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import os
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cli.administration.deploy.development.compose import Compose
+from cli.administration.deploy.development.compose import (
+    Compose,
+    prepare_vulnerability_db,
+)
 
 
 class TestComposeUpRetries(unittest.TestCase):
@@ -209,6 +213,7 @@ class TestComposeUpRetries(unittest.TestCase):
     def test_up_builds_when_build_flag_is_enabled(self) -> None:
         compose = self._compose()
         compose._render_coredns_corefile = MagicMock()
+        compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
 
@@ -237,6 +242,7 @@ class TestComposeUpRetries(unittest.TestCase):
     def test_up_skips_build_when_build_flag_is_disabled(self) -> None:
         compose = self._compose()
         compose._render_coredns_corefile = MagicMock()
+        compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
 
@@ -274,6 +280,7 @@ class TestComposeUpRetries(unittest.TestCase):
     def test_up_includes_cache_services_when_local(self) -> None:
         compose = self._compose()
         compose._render_coredns_corefile = MagicMock()
+        compose._prepare_vulnerability_db = MagicMock()
         compose._compose_up_with_retries = MagicMock()
         compose.wait_for_healthy = MagicMock()
         compose._bootstrap_package_cache = MagicMock()
@@ -299,6 +306,30 @@ class TestComposeUpRetries(unittest.TestCase):
         compose._bootstrap_package_cache.assert_called_once()
         compose._generate_package_frontend_certs.assert_called_once()
         compose._install_package_frontend_ca_in_runner.assert_called_once()
+
+
+class TestPrepareVulnerabilityDb(unittest.TestCase):
+    def test_the_shared_directory_is_created_as_the_calling_user(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "cache" / "vulnerability-db"
+            prepare_vulnerability_db(path)
+            self.assertTrue(path.is_dir())
+
+    def test_a_directory_the_user_may_not_create_is_left_to_docker(self) -> None:
+        path = MagicMock()
+        path.mkdir.side_effect = PermissionError("read-only")
+        prepare_vulnerability_db(path)
+        path.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+    def test_up_prepares_the_configured_directory(self) -> None:
+        compose = Compose(repo_root=Path("/tmp/infinito-nexus"), distro="arch")
+        with patch(
+            "cli.administration.deploy.development.compose.prepare_vulnerability_db"
+        ) as prepare:
+            compose._prepare_vulnerability_db(
+                {"INFINITO_VULNERABILITY_DB_HOST_PATH": "/srv/db"}
+            )
+        prepare.assert_called_once_with(Path("/srv/db"))
 
 
 if __name__ == "__main__":  # pragma: no cover
