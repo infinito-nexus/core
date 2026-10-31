@@ -20,8 +20,9 @@ WEBSERVER_PROXY_WORKER_PROCESSES: >-
     ] | max
   }}
 
-WEBSERVER_PROXY_WORKER_CONNECTIONS: >-
-  {{ lookup('applications') | resource_filter('svc-prx-openresty', 'pids_limit', '', RESOURCE_PIDS_LIMIT) | int }}
+WEBSERVER_PROXY_WORKER_CONNECTIONS: "{{ lookup('config', 'svc-prx-openresty', 'services.openresty.worker_connections') | int }}"
+
+WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE: "{{ (WEBSERVER_PROXY_WORKER_CONNECTIONS | int) * 2 }}"
 
 # Response security headers of every vhost; an app overrides any key under `security_headers` in its meta/server.yml.
 WEBSERVER_SECURITY_HEADERS:
