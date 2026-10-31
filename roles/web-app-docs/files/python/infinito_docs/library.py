@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import threading
 import time
@@ -93,7 +94,7 @@ class Library(Sites, Queue, Builder):
                     ),
                     reverse=True,
                 )
-            except subprocess.CalledProcessError:
+            except subprocess.SubprocessError:
                 head, tags = "", []
         with self._lock:
             self._refs, self._refs_read = (head, tags), time.monotonic()
@@ -220,9 +221,11 @@ class Library(Sites, Queue, Builder):
         return report
 
     def fetch(self):
-        if (self.mirror / "HEAD").is_file():
-            self._git("remote", "update", "--prune")
-        else:
+        try:
+            self._git("rev-parse", "--verify", "HEAD")
+        except subprocess.CalledProcessError:
+            partial = self.mirror.with_name(f"{self.mirror.name}.partial")
+            shutil.rmtree(partial, ignore_errors=True)
             subprocess.run(
                 [
                     "git",
@@ -230,12 +233,16 @@ class Library(Sites, Queue, Builder):
                     "--mirror",
                     "--quiet",
                     self.repository,
-                    str(self.mirror),
+                    str(partial),
                 ],
                 check=True,
                 capture_output=True,
                 timeout=GIT_TIMEOUT_SECONDS,
             )
+            shutil.rmtree(self.mirror, ignore_errors=True)
+            partial.replace(self.mirror)
+        else:
+            self._git("remote", "update", "--prune")
         self._forget_refs()
         self.request(LATEST, background=True)
         self._refresh_stale_sites()

@@ -6,12 +6,20 @@ through :class:`Library`, on the fixture its sibling module owns.
 
 from __future__ import annotations
 
+import importlib
+import io
 import json
 import subprocess
 import sys
+import time
 import unittest
+from contextlib import redirect_stderr
+from types import SimpleNamespace
+from unittest.mock import patch
 
-from .test_library import LibraryFixture
+from .test_library import LibraryFixture, library, timed_out_clone
+
+build_queue = importlib.import_module("infinito_docs.build_queue")
 
 BACKGROUND = "background"
 
@@ -161,6 +169,37 @@ class TestBuilderLock(QueueFixture, unittest.TestCase):
     def test_the_holder_keeps_it_across_calls(self) -> None:
         self.assertTrue(self.library.acquire_builder())
         self.assertTrue(self.library.acquire_builder())
+
+
+class TestBuilderLoop(QueueFixture, unittest.TestCase):
+    def test_the_builder_outlives_a_fetch_that_times_out(self) -> None:
+        shelf = library.Library(
+            str(self.repo), self.data / "fresh", 1, self.package, self.data / "none"
+        )
+        attempts: list = []
+        sleeps: list = []
+
+        class Stop(Exception):
+            pass
+
+        def sleep(seconds):
+            sleeps.append(seconds)
+            if len(sleeps) > 1:
+                raise Stop
+
+        clock = SimpleNamespace(monotonic=time.monotonic, sleep=sleep)
+        with (
+            patch.object(subprocess, "run", timed_out_clone(attempts)),
+            patch.object(build_queue, "time", clock),
+            redirect_stderr(io.StringIO()) as stderr,
+            self.assertRaises(Stop),
+        ):
+            shelf.run_builder(0)
+
+        self.assertEqual(len(attempts), 2, "the next interval must fetch again")
+        self.assertIn(f"fetch of {self.repo} failed", stderr.getvalue())
+        self.assertIn("timed out after", stderr.getvalue())
+        self.assertTrue(shelf.servable("latest"), "the builder stopped building")
 
 
 if __name__ == "__main__":

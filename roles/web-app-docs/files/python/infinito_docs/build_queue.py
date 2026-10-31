@@ -195,7 +195,7 @@ class Queue:
                 if time.monotonic() >= next_fetch:
                     try:
                         self.fetch()
-                    except (OSError, subprocess.CalledProcessError) as exc:
+                    except (OSError, subprocess.SubprocessError) as exc:
                         print(
                             f"fetch of {self.repository} failed: {exc}", file=sys.stderr
                         )
