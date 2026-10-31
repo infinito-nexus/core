@@ -310,15 +310,15 @@ def check_failures(token: str, workspace: str, route: dict, source: str) -> set[
     )
     urls = [str(rejected.get("url")), str(exhausted.get("url"))]
     budget = POLL_SECONDS * 6 + RETRY_SECONDS
-    found = wait(
+    found, mailbox = wait(
         lambda: reports_naming(urls),
-        lambda found: len(found) == len(urls),
+        lambda result: len(result[0]) == len(urls),
         budget,
     )
     check(
         "a provider rejection and an exhausted retry budget reach the administrator by mail",
         len(found) == len(urls),
-        found,
+        f"{found} of {urls}; {mailbox}",
     )
     if CROSSPOSTER:
         states = {
