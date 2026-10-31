@@ -72,7 +72,7 @@ shopware:
   pids_limit: 1024
 php:
   image: ghcr.io/shopware/docker-base
-  version: "8.3"
+  version: "8.3.36-caddy"
   min_storage: 295MB
   cpus: "0.5"
   mem_reservation: 256m
