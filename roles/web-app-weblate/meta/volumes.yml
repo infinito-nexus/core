@@ -35,3 +35,36 @@ static:
     - service: worker
       target: *app_static_target
       mode: *app_static_mode
+settings_override:
+  type: config
+  source: "{{ [lookup('container', 'web-app-weblate', 'directories.instance'), 'settings_override.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: weblate
+      target: &app_data_settings_override_target /app/data/settings-override.py
+    - service: beat
+      target: *app_data_settings_override_target
+    - service: worker
+      target: *app_data_settings_override_target
+network_strategy:
+  type: config
+  source: "{{ [lookup('container', 'web-app-weblate', 'directories.instance'), 'weblate_network_strategy.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: weblate
+      target: &app_infinito_network_strategy_target /app/infinito/weblate_network_strategy.py
+    - service: beat
+      target: *app_infinito_network_strategy_target
+    - service: worker
+      target: *app_infinito_network_strategy_target
+network_middleware:
+  type: config
+  source: "{{ [lookup('container', 'web-app-weblate', 'directories.instance'), 'weblate_network_middleware.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: weblate
+      target: &app_infinito_network_middleware_target /app/infinito/weblate_network_middleware.py
+    - service: beat
+      target: *app_infinito_network_middleware_target
+    - service: worker
+      target: *app_infinito_network_middleware_target

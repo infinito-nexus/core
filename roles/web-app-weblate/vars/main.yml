@@ -10,6 +10,9 @@ WEBLATE_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enab
 WEBLATE_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"
 WEBLATE_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.weblate.registration_open') | bool }}"
 WEBLATE_SITE_TITLE: "{{ lookup('config', application_id, 'services.weblate.site_title') }}"
+WEBLATE_SETTINGS_OVERRIDE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'settings_override.py'] | path_join }}"
+WEBLATE_NETWORK_STRATEGY_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'weblate_network_strategy.py'] | path_join }}"
+WEBLATE_NETWORK_MIDDLEWARE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'weblate_network_middleware.py'] | path_join }}"
 
 WEBLATE_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 
