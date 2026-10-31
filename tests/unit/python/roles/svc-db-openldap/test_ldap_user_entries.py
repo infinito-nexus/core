@@ -2,6 +2,8 @@ import importlib.util
 import unittest
 from pathlib import Path
 
+from ansible.errors import AnsibleFilterError
+
 PLUGIN = (
     Path(__file__).parent
     / "../../../../../roles/svc-db-openldap/filter_plugins/ldap_user_entries.py"
@@ -64,6 +66,32 @@ class TestLdapUserEntries(unittest.TestCase):
             },
         )
         self.assertEqual(entries[1]["attributes"]["cn"], "Bob B.")
+
+    def test_an_undeclared_user_with_only_a_password_is_named_with_its_gaps(self):
+        users = {
+            **USERS,
+            "sld": {
+                "password": "s3cret-value",
+                "email": "sld@example.org",
+                "accounts": ["identity"],
+                "forward": "",
+            },
+        }
+        with self.assertRaises(AnsibleFilterError) as ctx:
+            self.m.openldap_user_entries(users, "uid", "ou=users,dc=x", STRUCTURAL)
+        message = str(ctx.exception)
+        self.assertIn(
+            "user 'sld' lacks username, firstname, lastname, uid, gid", message
+        )
+        self.assertNotIn("'alice'", message)
+        self.assertNotIn("s3cret-value", message)
+
+    def test_a_present_but_empty_field_still_builds_the_entry(self):
+        users = {"carol": {**USERS["alice"], "username": "carol", "lastname": ""}}
+        entries = self.m.openldap_user_entries(
+            users, "uid", "ou=users,dc=x", STRUCTURAL
+        )
+        self.assertEqual(entries[0]["attributes"]["sn"], "")
 
     def test_mail_entries_keep_classes_and_mail(self):
         entries = self.m.openldap_user_mail_entries(
