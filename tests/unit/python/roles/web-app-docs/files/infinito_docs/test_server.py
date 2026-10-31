@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from . import PROJECT_ROOT
+from .test_library import LibraryFixture
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
 if _TOOLING not in sys.path:
@@ -147,6 +148,93 @@ class TestServer(unittest.TestCase):
 
     def test_head_sends_no_body(self) -> None:
         self.assertEqual(self._request("/latest/", "HEAD"), (200, None, ""))
+
+
+CATALOG = """\
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\\n"
+
+%smsgid "Hello"
+msgstr "%s"
+"""
+
+CATALOGS = {
+    "de": CATALOG % ("", "Hallo"),
+    "fr": CATALOG % ("", ""),
+    "it": CATALOG % ("#, fuzzy\n", "Ciao"),
+    "aa": None,
+}
+
+
+class TestDeployedLanguages(LibraryFixture):
+    def setUp(self) -> None:
+        super().setUp()
+        snapshot = self.data / "snapshot"
+        (snapshot / "meta").mkdir(parents=True)
+        (snapshot / "VERSION").write_text("working tree", encoding="utf-8")
+        (snapshot / "meta" / "languages.yml").write_text(
+            "".join(f"{code}:\n  native: {code}\n" for code in CATALOGS),
+            encoding="utf-8",
+        )
+        for code, body in CATALOGS.items():
+            if body is None:
+                continue
+            catalog = snapshot / "locale" / code / "LC_MESSAGES" / "docs.po"
+            catalog.parent.mkdir(parents=True)
+            catalog.write_text(body, encoding="utf-8")
+        self.shelf = library.Library(
+            str(self.repo), self.data, 1, self.package, snapshot
+        )
+        self.httpd = ThreadingHTTPServer(
+            ("127.0.0.1", 0), partial(server.DocsHandler, library=self.shelf)
+        )
+        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+        self.addCleanup(self.httpd.server_close)
+        self.addCleanup(self.httpd.shutdown)
+
+    def _statuses(self, segments):
+        statuses = {}
+        for segment in segments:
+            connection = HTTPConnection(
+                "127.0.0.1", self.httpd.server_address[1], timeout=5
+            )
+            connection.request("GET", f"/deployed/{segment}/")
+            response = connection.getresponse()
+            response.read()
+            connection.close()
+            statuses[segment] = response.status
+        return statuses
+
+    def test_the_snapshot_answers_every_language_as_its_build_will(self) -> None:
+        segments = [*CATALOGS, "xx", "docs"]
+
+        before = self._statuses(segments)
+        self.shelf.build("deployed")
+        self.assertTrue(self.shelf.servable("deployed"))
+        self.assertFalse(self.shelf.outdated("deployed"))
+        after = self._statuses(segments)
+
+        self.assertEqual(
+            before,
+            {"de": 202, "fr": 404, "it": 404, "aa": 404, "xx": 202, "docs": 202},
+        )
+        self.assertEqual(
+            {code for code, status in before.items() if status == 404},
+            {code for code, status in after.items() if status == 404},
+        )
+        self.assertEqual(after["de"], 202)
+        self.assertTrue((self.shelf.queue / "deployed:de").exists())
+        self.assertFalse((self.shelf.queue / "deployed:fr").exists())
+
+    def test_a_translated_site_already_on_disk_is_never_answered_404(self) -> None:
+        stale = self.shelf.translations / "deployed" / "fr" / "html" / "index.html"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("fr", encoding="utf-8")
+
+        self.assertEqual(self._statuses(["fr"]), {"fr": 202})
+        self.shelf.build("deployed")
+        self.assertEqual(self._statuses(["fr"]), {"fr": 200})
 
 
 if __name__ == "__main__":
