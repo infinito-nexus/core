@@ -44,22 +44,27 @@
 - name: 📜 TLS | Ensure the certificates of the redirect sources
   when: redirect_sources | selectattr('enabled') | list | length > 0
   block:
-    - name: 🔎 TLS | Check which certificate directories of the redirect sources exist
+    - name: 🔎 TLS | Check which certificate base directories of the redirect sources exist
       ansible.builtin.stat:
-        path: "{{ redirect_cert_dir }}"
-      loop: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('dirname') | unique }}"
+        path: "{{ redirect_cert_base }}"
+        follow: true
+      loop: >-
+        {{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten
+           | map('dirname') | map('dirname') | unique }}
       loop_control:
-        loop_var: redirect_cert_dir
-      register: redirect_cert_dirs
+        loop_var: redirect_cert_base
+      register: redirect_cert_bases
 
     - name: 🔎 TLS | Find the certificates of the redirect sources
       ansible.builtin.find:
         paths: >-
-          {{ redirect_cert_dirs.results | selectattr('stat.exists') | selectattr('stat.isdir')
-             | map(attribute='redirect_cert_dir') | list }}
+          {{ redirect_cert_bases.results | selectattr('stat.exists') | selectattr('stat.isdir')
+             | map(attribute='redirect_cert_base') | list }}
         patterns: "{{ redirect_sources | selectattr('enabled') | map(attribute='certs') | flatten | map('basename') | unique }}"
         file_type: any
         follow: true
+        recurse: true
+        depth: 2
       register: redirect_certs_found
 
     - name: 📌 TLS | Apply the tls layer for redirect sources without a certificate
