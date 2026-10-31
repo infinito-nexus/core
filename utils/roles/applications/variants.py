@@ -283,8 +283,6 @@ def round_under(
         The round under ``active_index``, and ``{role: index}`` for every
         non-primary role a pin in force moves.
     """
-    # Imported per call: legacy_resolver imports this module, and tests patch
-    # the include resolver on it.
     from cli.administration.deploy.development.inventory import legacy_resolver
 
     overrides = _overrides_for_assignment(
