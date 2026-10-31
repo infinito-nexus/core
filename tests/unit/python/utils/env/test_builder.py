@@ -224,7 +224,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
             patch("utils.env.handlers.infinito.inventory.run_helper", return_value=""),
         ):
             static = {
-                "INFINITO_BUILD": "0",
+                "INFINITO_BUILD": "1",
                 "INFINITO_DISTRO": "debian",
                 "INFINITO_PULL_POLICY": "never",
                 "INFINITO_DOCKER_VOLUME": "docker",
@@ -232,6 +232,7 @@ class TestBuildEnvOrchestration(unittest.TestCase):
                 "INFINITO_IMAGE_TAG": "latest",
             }
             eb = build_env(static, repo_root=Path("/repo"))
+        self.assertEqual(eb.values["INFINITO_BUILD"], "0")
         self.assertEqual(eb.values["INFINITO_PULL_POLICY"], "always")
         self.assertEqual(eb.values["INFINITO_DOCKER_VOLUME"], "/mnt/docker")
         self.assertEqual(eb.values["GITHUB_REPOSITORY_OWNER"], "owner")
