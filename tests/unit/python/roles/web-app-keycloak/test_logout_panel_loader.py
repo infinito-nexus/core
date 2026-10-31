@@ -40,6 +40,7 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 CATALOGUE = ROLE / "files" / "logout_i18n.yml"
 NGINX = ROLE / "templates" / "nginx" / "logout_panel.conf.j2"
 ORIGIN = "https://logout.example.test"
+EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 LOGOUT_PATH = "/realms/x/protocol/openid-connect/logout"
 BUDGET_BYTES = 2048
 
@@ -54,8 +55,10 @@ def _render_panel() -> str:
 
     def resolve(match: re.Match) -> str:
         expression = match.group(0)
-        if "logout_i18n" in expression:
+        if "KEYCLOAK_LOGOUT_I18N" in expression:
             return catalogue
+        if "KEYCLOAK_LOGOUT_EVERYWHERE_URL" in expression:
+            return json.dumps(EVERYWHERE)
         if "javascript/logout-panel.js" in expression:
             return read_text(str(PANEL))
         if "'tls'" in expression:

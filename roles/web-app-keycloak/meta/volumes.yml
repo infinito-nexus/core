@@ -16,6 +16,15 @@ theme_login_properties:
       target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/theme.properties"
       when: &keycloak_design_when "{{ lookup('config', 'web-app-keycloak', 'services.design.enabled') | bool }}"
 
+theme_login_logout_confirm:
+  type: config
+  source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'logout-confirm.ftl'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: keycloak
+      target: "/opt/keycloak/themes/{{ lookup('config', 'web-app-keycloak', 'services.keycloak.design.theme') }}/login/logout-confirm.ftl"
+      when: *keycloak_design_when
+
 theme_login_style:
   type: config
   source: "{{ [lookup('container', 'web-app-keycloak', 'directories.volumes'), 'theme', 'theme.css'] | path_join }}"

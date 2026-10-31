@@ -373,5 +373,152 @@ class TestRealmImportJson(unittest.TestCase):
         self.assertEqual(names, {CONTEXT["OIDC"]["ATTRIBUTES"]["USERNAME"]})
 
 
+CLIENT_APPS = sorted(
+    path.parts[-4]
+    for path in PROJECT_ROOT.glob("roles/*/templates/keycloak/clients.json.j2")
+)
+REALM_MANAGEMENT = "realm-management"
+EVENT_SETTINGS = {
+    "eventsEnabled": False,
+    "eventsListeners": ["jboss-logging"],
+    "enabledEventTypes": [],
+    "adminEventsEnabled": False,
+    "adminEventsDetailsEnabled": False,
+}
+
+
+ALLOWED_ORIGINS_MAPPER = "oidc-allowed-origins-mapper"
+
+
+def puts_allowed_origins_into_access_tokens(entity: dict) -> bool:
+    """Whether a client or client scope writes allowed-origins into the access token.
+
+    Args:
+        entity: a client or client scope representation.
+    """
+    return any(
+        mapper["protocolMapper"] == ALLOWED_ORIGINS_MAPPER
+        and mapper["config"].get("access.token.claim") == "true"
+        for mapper in entity.get("protocolMappers", [])
+    )
+
+
+def realm_managing_service_accounts(realm: dict) -> list[str]:
+    """Return the service-account users of ``realm`` that hold a realm-management role.
+
+    Args:
+        realm: the parsed realm render.
+    """
+    return [
+        user["username"]
+        for user in realm["users"]
+        if "serviceAccountClientId" in user
+        and user.get("clientRoles", {}).get(REALM_MANAGEMENT)
+    ]
+
+
+class TestLogoutTrustBoundary(unittest.TestCase):
+    def setUp(self) -> None:
+        self.realm = json.loads(render([], client_apps=CLIENT_APPS))
+
+    def test_the_realm_renders_on_the_credentials_it_already_had(self) -> None:
+        secrets = {
+            client["secret"]
+            for client in self.realm["clients"]
+            if client.get("protocol") == "openid-connect" and "secret" in client
+        }
+        self.assertEqual(secrets, {CONTEXT["OIDC"]["CLIENT"]["SECRET"]})
+
+    def test_no_service_account_user_holds_a_realm_management_role(self) -> None:
+        self.assertTrue(
+            [u for u in self.realm["users"] if "serviceAccountClientId" in u],
+            "the shared client's service account is part of the render",
+        )
+        self.assertEqual(realm_managing_service_accounts(self.realm), [])
+
+    def test_a_realm_management_grant_to_a_service_account_is_caught(self) -> None:
+        user = next(u for u in self.realm["users"] if "serviceAccountClientId" in u)
+        user["clientRoles"] = {REALM_MANAGEMENT: ["manage-users"]}
+        self.assertEqual(
+            realm_managing_service_accounts(self.realm), [user["username"]]
+        )
+
+    def _shared_client(self) -> dict:
+        return next(
+            c
+            for c in self.realm["clients"]
+            if c["clientId"] == CONTEXT["KEYCLOAK_CLIENT_ID"]
+        )
+
+    def _web_origins_scope(self) -> dict:
+        return next(s for s in self.realm["clientScopes"] if s["name"] == "web-origins")
+
+    def test_the_shared_client_carries_no_mapper_of_its_own(self) -> None:
+        self.assertNotIn("protocolMappers", self._shared_client())
+
+    def test_the_shared_client_keeps_allowed_origins_out_of_its_tokens(self) -> None:
+        self.assertFalse(puts_allowed_origins_into_access_tokens(self._shared_client()))
+
+    def test_an_allowed_origins_mapper_on_the_shared_client_is_caught(self) -> None:
+        client = self._shared_client()
+        client["protocolMappers"] = [
+            {
+                "protocolMapper": ALLOWED_ORIGINS_MAPPER,
+                "config": {"access.token.claim": "true"},
+            }
+        ]
+        self.assertTrue(puts_allowed_origins_into_access_tokens(client))
+
+    def test_the_web_origins_scope_keeps_allowed_origins_out_of_access_tokens(
+        self,
+    ) -> None:
+        self.assertFalse(
+            puts_allowed_origins_into_access_tokens(self._web_origins_scope())
+        )
+
+    def test_allowed_origins_in_the_web_origins_scope_is_caught(self) -> None:
+        scope = self._web_origins_scope()
+        for mapper in scope["protocolMappers"]:
+            mapper["config"]["access.token.claim"] = "true"
+        self.assertTrue(puts_allowed_origins_into_access_tokens(scope))
+
+    def test_only_the_dashboard_client_puts_allowed_origins_into_access_tokens(
+        self,
+    ) -> None:
+        self.assertEqual(
+            [
+                c["clientId"]
+                for c in self.realm["clients"]
+                if puts_allowed_origins_into_access_tokens(c)
+            ],
+            ["dashboard"],
+            "the fake config lookup answers the last segment of the client path",
+        )
+
+    def test_no_logout_client_joins_the_realm(self) -> None:
+        self.assertNotIn("web-svc-logout", CLIENT_APPS)
+        client_ids = {client["clientId"] for client in self.realm["clients"]}
+        self.assertFalse({cid for cid in client_ids if "logout" in cid})
+
+    def test_the_realm_keeps_its_event_settings(self) -> None:
+        self.assertEqual(
+            {key: self.realm[key] for key in EVENT_SETTINGS}, EVENT_SETTINGS
+        )
+        self.assertNotIn("eventsExpiration", self.realm)
+
+    def test_the_account_api_stays_open_to_the_users_own_token(self) -> None:
+        default_roles = next(
+            role
+            for role in self.realm["roles"]["realm"]
+            if role["name"] == f"default-roles-{CONTEXT['KEYCLOAK_REALM']}"
+        )
+        self.assertIn(
+            "manage-account", default_roles["composites"]["client"]["account"]
+        )
+        self.assertIn(
+            "account", {client["clientId"] for client in self.realm["clients"]}
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

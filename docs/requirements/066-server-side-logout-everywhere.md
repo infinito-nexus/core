@@ -71,8 +71,8 @@ The operator decided that the user gets two explicit choices at logout, "Log out
 
 #### "Log out everywhere"
 
-- [ ] The token holder is the existing keycloak-js instance of `roles/web-app-dashboard/templates/javascript/oidc.js.j2:155-173`: it runs `check-sso` with the shared client and keeps the user's access token fresh. The action runs while the user's session is still valid; when `check-sso` finds no session, the dashboard starts `keycloak.login()` and runs the action after the return.
-- [ ] Its access token carries the `account` audience through the audience resolve mapper of the `roles` scope (`roles/web-app-keycloak/templates/import/realm.json.j2:1154-1194`), `manage-account` through `default-roles-<realm>` (`realm.json.j2:59-74`) and the dashboard origin in `allowed-origins` through the `web-origins` scope (`realm.json.j2:1101-1103`, fed by `KEYCLOAK_WEB_ORIGINS` in `roles/web-app-keycloak/vars/main.yml:119`). Keycloak's Account REST API checks that audience and answers CORS from that `allowed-origins` claim.
+- [ ] The token holder is the keycloak-js instance of `roles/web-app-dashboard/templates/javascript/oidc.js.j2`: it runs `check-sso` with the dashboard's own public client, declared under `services.sso.oidc.clients` in `roles/web-app-dashboard/meta/services.yml` and rendered by `roles/web-app-dashboard/templates/keycloak/clients.json.j2`, and keeps the user's access token fresh. The action runs while the user's session is still valid; when `check-sso` finds no session, the dashboard starts `keycloak.login()` and runs the action after the return.
+- [ ] Its access token carries the `account` audience through the audience resolve mapper of the `roles` scope (`roles/web-app-keycloak/templates/import/realm.json.j2:1154-1194`), `manage-account` through `default-roles-<realm>` (`realm.json.j2:59-74`) and the dashboard origin in `allowed-origins` through the client-level `oidc-allowed-origins-mapper` of the dashboard's own client, fed by that client's own `webOrigins`. Keycloak's Account REST API checks that audience and answers CORS from that `allowed-origins` claim.
 - [ ] On the `#logout-everywhere` marker or the menu click, the dashboard sends, with that token only, `GET /realms/<realm>/account/applications`, then `DELETE /realms/<realm>/account/applications/<clientId>/consent` for every entry with `offlineAccess: true`, which revokes that client's offline token, then `DELETE /realms/<realm>/account/sessions`, the call the Account Console's "Sign out all devices" makes, which ends every other online session of the user.
 - [ ] It then calls `keycloak.logout()`, which runs "Log out on this device" for this browser, conductor sweep included.
 - [ ] The realm keeps `manage-account` of the `account` client in `default-roles-<realm>` and keeps the `account` client, both rendered by `roles/web-app-keycloak/templates/import/realm.json.j2`.
@@ -115,7 +115,7 @@ The operator decided that the user gets two explicit choices at logout, "Log out
 
 ### Rollout
 
-- [ ] Each app switches to its own client in its own change with its own Playwright proof, and removing its `services.sso.oidc.clients` entry returns it to the shared client.
+- [ ] Each app switches to its own client in its own change with its own Playwright proof. Switching an app back to the shared client is an explicit change of its client id in its `meta/services.yml`, and a missing `services.sso.oidc.clients` entry fails the render loudly; no lookup falls back to the shared client silently.
 - [ ] On an existing realm, the update routine `roles/web-app-keycloak/tasks/update/01_settings.yml`, fed by `KEYCLOAK_SETTINGS_CLIENT_IDS`, creates and converges each per-app client without a realm re-import.
 - [ ] This requirement needs no universal-logout release, and the image pin in `roles/web-svc-logout/meta/services.yml` keeps the version it had before this change.
 - [ ] The unit tests, the lint suite and ruff pass on every change of this rollout.

@@ -82,7 +82,7 @@ oidc_providers:
 {% if MATRIX_OIDC_HOST_IS_ONION | bool %}
     skip_verification: true
 {% endif %}
-    client_id:      "{{ OIDC.CLIENT.ID }}"
+    client_id:      "{{ MATRIX_OIDC_CLIENT_ID }}"
     client_secret:  "{{ OIDC.CLIENT.SECRET }}"
     scopes: ["openid", "profile", "email"]
     allow_existing_users: true

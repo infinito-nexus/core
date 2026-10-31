@@ -20,6 +20,11 @@ through here, from two sources that are both optional:
    because that breaks under swarm for the reason below.
 3. ``extra_hosts=``, whatever the call site needs on top: a peer's overlay VIP,
    or a partner service reachable only on the host.
+4. ``onion_peers=``, the same pin as the SSO one in the other direction: URLs
+   or hosts the container itself calls server to server. Keycloak delivers
+   back-channel logout tokens to an application's own origin, which on an onion
+   deployment is a ``.onion`` name its container cannot resolve, so each onion
+   peer is pinned to the proxy that serves its vhost. Clearnet peers pass.
 
 Entries are ``"name:address"`` strings and are deduplicated in first-seen
 order. With nothing to emit the lookup returns an empty string.
@@ -54,6 +59,7 @@ Usage in any service template::
     {{ lookup('container_extra_hosts',
               extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_extra_hosts', application_id='web-app-nextcloud') | indent(4) }}
+    {{ lookup('container_extra_hosts', onion_peers=KEYCLOAK_BACKCHANNEL_LOGOUT_URLS) | indent(4) }}
 
 Usage from a non-compose call site::
 
@@ -66,6 +72,7 @@ Usage from a non-compose call site::
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlsplit
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.parsing.convert_bool import boolean as _to_bool
@@ -92,6 +99,8 @@ class LookupModule(LookupBase):
         Keyword Args:
           application_id: role whose pins to resolve; defaults to the play var.
           extra_hosts:    additional `name:address` entries from the caller.
+          onion_peers:    URLs or hosts the container calls; each onion one is
+                          pinned to the proxy like the SSO provider.
           host_alias:     also pin `host.docker.internal` to the gateway.
           docker_flags:   emit `--add-host=` flags for a `docker run` command
                           line instead of a compose `extra_hosts:` block.
@@ -116,7 +125,11 @@ class LookupModule(LookupBase):
                 "pass application_id= explicitly"
             )
 
-        entries = self._sso_pins(application_id) + self._mail_pins(application_id)
+        entries = (
+            self._sso_pins(application_id)
+            + self._mail_pins(application_id)
+            + self._onion_peer_pins(kwargs.get("onion_peers"))
+        )
         if _to_bool(self._render(kwargs.get("host_alias", False)), strict=False):
             entries.append(
                 f"{DOCKER_INTERNAL_HOST}:{self._gateway_address(DOCKER_INTERNAL_HOST)}"
@@ -186,6 +199,26 @@ class LookupModule(LookupBase):
             f"{DOCKER_INTERNAL_HOST}:{HOST_GATEWAY}",
             f"{mail_host}:{self._gateway_address(mail_host)}",
         ]
+
+    def _onion_peer_pins(self, onion_peers: Any) -> list[str]:
+        """The pins of the onion peers the container calls itself.
+
+        Args:
+            onion_peers: one URL or host, a list of them, or None. A clearnet
+                peer is left to DNS, so the result is empty off onion.
+        """
+        if not onion_peers:
+            return []
+        if isinstance(onion_peers, str):
+            onion_peers = [onion_peers]
+
+        pins: list[str] = []
+        for peer in onion_peers:
+            text = str(self._render(peer) or "").strip()
+            host = urlsplit(text).hostname if "://" in text else text
+            if host and is_network(host, TOR):
+                pins.append(f"{host}:{self._gateway_address(host)}")
+        return pins
 
     def _caller_entries(self, extra_hosts: Any) -> list[str]:
         """Normalise the ``extra_hosts=`` argument to a list of mappings.

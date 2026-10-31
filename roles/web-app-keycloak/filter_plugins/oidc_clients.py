@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from typing import Any
 
+BACKCHANNEL_LOGOUT_URL = "backchannel.logout.url"
+
 
 def _declared(app: Any) -> dict[str, Any]:
     if not isinstance(app, dict):
@@ -71,9 +73,32 @@ def kc_declared_client_ids(applications: Any, app_ids: Any = None) -> list[str]:
     return sorted(found)
 
 
+def kc_backchannel_logout_urls(clients: Any) -> list[str]:
+    """Every back-channel logout URL the given clients carry, sorted and deduped.
+
+    Args:
+        clients: Keycloak client representations, as the realm dictionary lists them.
+
+    Returns:
+        Sorted unique URLs. Empty when no client receives logout tokens.
+    """
+    if not isinstance(clients, list):
+        return []
+    found: set[str] = set()
+    for client in clients:
+        attributes = client.get("attributes") if isinstance(client, dict) else None
+        if not isinstance(attributes, dict):
+            continue
+        url = attributes.get(BACKCHANNEL_LOGOUT_URL)
+        if isinstance(url, str) and url.strip():
+            found.add(url.strip())
+    return sorted(found)
+
+
 class FilterModule:
     def filters(self):
         return {
+            "kc_backchannel_logout_urls": kc_backchannel_logout_urls,
             "kc_declared_client_apps": kc_declared_client_apps,
             "kc_declared_client_ids": kc_declared_client_ids,
         }

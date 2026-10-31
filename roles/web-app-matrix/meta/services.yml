@@ -10,6 +10,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      synapse: matrix-synapse
+    backchannel_logout_path: /_synapse/client/oidc/backchannel_logout
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"

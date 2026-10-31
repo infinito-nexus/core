@@ -7,6 +7,7 @@ from plugins.lookup.container_extra_hosts import LookupModule
 
 ONION = "auth." + "b" * 56 + ".onion"
 MAIL_ONION = "mail." + "c" * 56 + ".onion"
+PEER_ONION = "matrix." + "d" * 56 + ".onion"
 
 
 class TestContainerExtraHostsLookup(unittest.TestCase):
@@ -279,6 +280,45 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
 
     def test_entries_only_is_empty_without_sso(self):
         self.assertEqual(self._run_entries(_sso_enabled=False), [])
+
+    def _run_peers(self, onion_peers, **overrides):
+        variables = {
+            "application_id": "web-app-keycloak",
+            "_sso_enabled": False,
+            "DEPLOYMENT_MODE": "compose",
+            **overrides,
+        }
+        return self.lookup.run(
+            None, variables=variables, onion_peers=onion_peers, entries_only=True
+        )
+
+    def test_an_onion_backchannel_peer_is_pinned_to_the_proxy(self):
+        url = f"http://{PEER_ONION}/_synapse/client/oidc/backchannel_logout"
+        self.assertEqual(self._run_peers([url]), [f"{PEER_ONION}:host-gateway"])
+
+    def test_swarm_pins_an_onion_peer_to_the_node_address(self):
+        self.assertEqual(
+            self._run_peers(
+                [f"http://{PEER_ONION}/x"],
+                DEPLOYMENT_MODE="swarm",
+                ansible_facts={"default_ipv4": {"address": "10.0.0.7"}},
+            ),
+            [f"{PEER_ONION}:10.0.0.7"],
+        )
+
+    def test_a_clearnet_peer_is_left_to_dns(self):
+        self.assertEqual(
+            self._run_peers(
+                ["https://matrix.example.com/_synapse/x", "matrix.example.com"]
+            ),
+            [],
+        )
+
+    def test_a_bare_onion_host_is_accepted_as_a_peer(self):
+        self.assertEqual(self._run_peers(PEER_ONION), [f"{PEER_ONION}:host-gateway"])
+
+    def test_no_peers_add_nothing(self):
+        self.assertEqual(self._run_peers([]), [])
 
 
 if __name__ == "__main__":

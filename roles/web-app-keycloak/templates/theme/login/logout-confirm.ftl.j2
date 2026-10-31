@@ -1,0 +1,47 @@
+<#import "template.ftl" as layout>
+<#assign infinitoChoices = {
+{% for code, entry in KEYCLOAK_LOGOUT_I18N.items() %}
+  {{ code | to_json }}: {{ {'choice_device': entry.choice_device, 'choice_everywhere': entry.choice_everywhere} | to_json(ensure_ascii=False) }}{{ '' if loop.last else ',' }}
+{% endfor %}
+}>
+<#assign infinitoTag = ((locale.currentLanguageTag)!"en")?lower_case>
+<#assign infinitoChoice = (infinitoChoices[infinitoTag])!((infinitoChoices[infinitoTag?keep_before("-")])!infinitoChoices["en"])>
+<@layout.registrationLayout; section>
+    <#if section = "header">
+        ${msg("logoutConfirmTitle")}
+    <#elseif section = "form">
+        <div id="kc-logout-confirm" class="content-area">
+            <p class="instruction">${msg("logoutConfirmHeader")}</p>
+
+            <form class="form-actions" action="${url.logoutConfirmAction}" onsubmit="confirmLogout.disabled = true; return true;" method="POST">
+                <input type="hidden" name="session_code" value="${logoutConfirm.code}">
+                <div class="${properties.kcFormGroupClass!}">
+                    <div id="kc-form-buttons" class="${properties.kcFormGroupClass!}">
+                        <input tabindex="4"
+                               class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
+                               name="confirmLogout" id="kc-logout" type="submit" value="${infinitoChoice.choice_device}"/>
+                    </div>
+                </div>
+            </form>
+{% if KEYCLOAK_LOGOUT_EVERYWHERE_URL %}
+
+            <div class="${properties.kcFormGroupClass!}">
+                <a tabindex="5" id="kc-logout-everywhere"
+                   class="${properties.kcButtonClass!} ${properties.kcButtonSecondaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
+                   href="{{ KEYCLOAK_LOGOUT_EVERYWHERE_URL }}">${infinitoChoice.choice_everywhere}</a>
+            </div>
+{% endif %}
+
+            <div id="kc-info-message">
+                <#if logoutConfirm.skipLink>
+                <#else>
+                    <#if (client.baseUrl)?has_content>
+                        <p><a href="${client.baseUrl}">${kcSanitize(msg("backToApplication"))?no_esc}</a></p>
+                    </#if>
+                </#if>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+    </#if>
+</@layout.registrationLayout>

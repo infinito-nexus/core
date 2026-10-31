@@ -122,6 +122,14 @@ KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | b
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
 KEYCLOAK_LOGOUT_PANEL_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-logout-panel.js"
 KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
+KEYCLOAK_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
+KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED: >-
+  {{ (lookup('config', application_id, 'services.dashboard.enabled') | bool)
+     and (lookup('config', 'web-app-dashboard', 'services.sso.enabled') | bool) }}
+KEYCLOAK_LOGOUT_EVERYWHERE_URL: >-
+  {{ (lookup('landing_url', 'web-app-dashboard') ~ lookup('config', 'web-app-dashboard', 'services.sso.oidc.logout_everywhere'))
+     if (KEYCLOAK_LOGOUT_EVERYWHERE_ENABLED | bool) else '' }}
+KEYCLOAK_BACKCHANNEL_LOGOUT_URLS: "{{ KEYCLOAK_DICTIONARY_REALM.clients | kc_backchannel_logout_urls }}"
 KEYCLOAK_ADMIN_NETWORKS: "{{ lookup('config', application_id, 'services.keycloak.admin.allowed_networks') | kc_admin_networks }}"
 KEYCLOAK_REDIRECT_URIS: "{{ lookup('redirect_uris') }}"
 KEYCLOAK_SAML_APPS: >-

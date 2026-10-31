@@ -4,6 +4,10 @@ sso: # nocheck: login-methods  Reason: the dashboard keeps no accounts; its only
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      dashboard: dashboard
+    logout_everywhere: "#logout-everywhere"
 asset:
   bond: 1
   enabled: "{{ 'web-svc-asset' in group_names }}"

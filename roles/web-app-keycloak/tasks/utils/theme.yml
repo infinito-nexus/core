@@ -38,6 +38,7 @@
         mode: "0644"
       loop:
         - { src: "login/theme.properties", dest: "login.properties" }
+        - { src: "login/logout-confirm.ftl", dest: "logout-confirm.ftl" }
         - { src: "account/theme.properties", dest: "account.properties" }
         - { src: "admin/theme.properties", dest: "admin.properties" }
         - { src: "theme.css", dest: "theme.css" }

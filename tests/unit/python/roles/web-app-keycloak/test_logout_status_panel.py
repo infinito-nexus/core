@@ -53,6 +53,7 @@ VARS = ROLE / ROLE_FILE_VARS_MAIN
 FRAMED_URL_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
 PANEL_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.origin')"
 ORIGIN = "https://logout.example.test"
+EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 DOMAINS = ("https://shop.example.test", "https://cloud.example.test")
 
 DRIVER = textwrap.dedent(
@@ -225,7 +226,7 @@ DRIVER = textwrap.dedent(
       h.post({ type: "host", host: domains[0], ok: true });
       h.post({ type: "host", host: domains[1], ok: true });
       h.post({ type: "done", total: 2, failed: 0 });
-      assert.match(h.status(), /Signed out everywhere/);
+      assert.match(h.status(), /Signed out on this device/);
       assert.match(h.hint(), /You can close this page now/, "answers the only question there is");
       assert.strictEqual(h.counter(), "2 of 2 services signed out");
       assert.strictEqual(h.armed(), 0);
@@ -240,7 +241,7 @@ DRIVER = textwrap.dedent(
       h.fire(SWEEP);
       assert.strictEqual(h.armed(), 0, "guard fails open when done never arrives");
       assert.match(h.status(), /Could not confirm every sign-out/, "a stall must state an outcome");
-      assert.doesNotMatch(h.status(), /Signed out everywhere/, "and must not claim success");
+      assert.doesNotMatch(h.status(), /Signed out on this device/, "and must not claim success");
       assert.match(h.rowState(1), /not confirmed/, "the pending row says so");
       assert.strictEqual(h.rowLink(1).href, domains[1] + "/logout?manual=1");
       assert.match(h.rowState(0), /signed out/, "a confirmed row is left alone");
@@ -304,8 +305,8 @@ DRIVER = textwrap.dedent(
 def _collapsed_panel() -> str:
     """Render the template the way sys-front-inj-javascript serves it.
 
-    :return: the one-lined script with both lookups resolved - the logout
-        origin and the real translation catalogue
+    :return: the one-lined script with every value resolved - the logout
+        origin, the everywhere link and the real translation catalogue
     """
     catalogue = json.dumps(
         keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)),
@@ -313,7 +314,8 @@ def _collapsed_panel() -> str:
     )
     prelude = (
         "window.__INFINITO_LOGOUT__ = {"
-        f"origin: {json.dumps(ORIGIN)}, i18n: {catalogue}"
+        f"origin: {json.dumps(ORIGIN)}, everywhere: {json.dumps(EVERYWHERE)}, "
+        f"i18n: {catalogue}"
         "};"
     )
     return to_one_liner(prelude + "\n" + read_text(str(PANEL)))

@@ -15,6 +15,9 @@ const { resolveTimeout } = require("./timeouts");
 test.use({ ignoreHTTPSErrors: true });
 
 require("./test-design").register();
+require("./test-logout-choices").register();
+require("./test-logout-device").register();
+require("./test-logout-backchannel").register();
 
 const appBaseUrl = decodeDotenvQuotedValue(process.env.APP_BASE_URL);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);

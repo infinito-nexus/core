@@ -44,6 +44,10 @@ DASHBOARD_KEYCLOAK_LOGIN_URL: >-
      ~ '&redirect_uri=' ~ (DASHBOARD_APP_BASE_URL | urlencode) }}
 DASHBOARD_KEYCLOAK_IFRAME_ENABLED: "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
 DASHBOARD_OIDC_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.enabled') }}"
+DASHBOARD_OIDC_CLIENT_ID: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.oidc.clients.dashboard') }}"
+DASHBOARD_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
+DASHBOARD_LOGOUT_EVERYWHERE_MARKER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.oidc.logout_everywhere') }}"
+DASHBOARD_LOGOUT_EVERYWHERE_CLASS: "infinito-logout-everywhere"
 
 DASHBOARD_CONTAINER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
 

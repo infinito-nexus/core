@@ -51,7 +51,7 @@ function element(tagName, attributes = {}, text = "") {
   return el;
 }
 
-function patch(elements) {
+function patch(elements, logoutUrl = LOGOUT_URL) {
   const sandbox = {
     console: { debug() {} },
     location: { href: "" },
@@ -67,9 +67,11 @@ function patch(elements) {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(SOURCE, "utf8"), sandbox);
-  sandbox.initLogoutPatch(LOGOUT_URL, false);
+  sandbox.initLogoutPatch(logoutUrl, false);
   return sandbox;
 }
+
+const KEYCLOAK_LOGOUT_URL = "https://auth.example.org/realms/example.org/protocol/openid-connect/logout";
 
 test("an anchor whose text reads 'Log out' is redirected", () => {
   const link = element("A", { href: "/account/exit" }, "Log out");
@@ -90,6 +92,27 @@ test("a click on a patched element is intercepted, not followed", () => {
 
   assert.equal(prevented, true);
   assert.equal(sandbox.window.location.href, LOGOUT_URL);
+});
+
+test("the dashboard's Log out on this device stays on the Keycloak confirmation page", () => {
+  const item = element("A", { href: KEYCLOAK_LOGOUT_URL, target: "_top" }, "Log out on this device");
+  const sandbox = patch([item], KEYCLOAK_LOGOUT_URL);
+
+  assert.equal(item.getAttribute("href"), KEYCLOAK_LOGOUT_URL);
+  item.listeners[0].handler({ preventDefault() {} });
+  assert.equal(sandbox.window.location.href, KEYCLOAK_LOGOUT_URL);
+  assert.doesNotMatch(sandbox.window.location.href, /id_token_hint/);
+});
+
+test("on another network the item reaches the confirmation page through that network's conductor", () => {
+  const aligned = `${KEYCLOAK_LOGOUT_URL}?client_id=example.org&post_logout_redirect_uri=http%3A%2F%2Flogout.onion%2F`;
+  const item = element("A", { href: KEYCLOAK_LOGOUT_URL, target: "_top" }, "Log out on this device");
+  const sandbox = patch([item], aligned);
+
+  item.listeners[0].handler({ preventDefault() {} });
+  const landed = new URL(sandbox.window.location.href);
+  assert.equal(`${landed.origin}${landed.pathname}`, KEYCLOAK_LOGOUT_URL);
+  assert.equal(landed.searchParams.has("id_token_hint"), false, "without a hint Keycloak asks for confirmation");
 });
 
 test("an href pointing at /logout is NOT enough to match", () => {

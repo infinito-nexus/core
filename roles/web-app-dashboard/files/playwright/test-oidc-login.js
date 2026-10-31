@@ -45,7 +45,7 @@ async function getHeaderAuthControls(page) {
   const headerNav = await getHeaderNavigation(page);
   const loginTrigger = headerNav.locator("a, button").filter({ hasText: /login/i }).first();
   const accountTrigger = headerNav.getByRole("button", { name: /account/i }).first();
-  const accountMenu = headerNav.locator(".dropdown-menu").filter({ hasText: /logout/i }).first();
+  const accountMenu = headerNav.locator(".dropdown-menu").filter({ hasText: /log\s*out/i }).first();
 
   return { loginTrigger, accountTrigger, accountMenu };
 }
@@ -149,9 +149,8 @@ async function openDropdownMenu(trigger, menu, label) {
 async function findAccountLogoutItem(accountMenu) {
   return waitForFirstVisible(
     [
-      accountMenu.getByRole("link", { name: /logout/i }),
-      accountMenu.locator("a[href*='logout'], a[href*='signout'], a[href*='sign-out']"),
-      accountMenu.locator("a, button, [role='link']").filter({ hasText: /logout/i }),
+      accountMenu.getByRole("link", { name: /log\s*out on this device/i }),
+      accountMenu.locator("a, button, [role='link']").filter({ hasText: /log\s*out on this device/i }),
     ],
     resolveTimeout(10_000),
     "Timed out waiting for the Account logout entry"
@@ -225,7 +224,7 @@ exports.register = function (shared) {
 
     const logoutEntry = await findAccountLogoutItem(loggedInControls.accountMenu);
     await expect(logoutEntry).toBeVisible({ timeout: resolveTimeout(10_000) });
-    await expect(logoutEntry).toContainText(/logout/i);
+    await expect(logoutEntry).toContainText(/log\s*out on this device/i);
     await logoutEntry.click({ timeout: resolveTimeout(30_000) });
 
     await expect

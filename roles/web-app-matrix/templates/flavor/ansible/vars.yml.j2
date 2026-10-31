@@ -119,7 +119,7 @@ matrix_synapse_oidc_providers:
 {% if _matrix_is_onion %}
     skip_verification: true
 {% endif %}
-    client_id: "{{ OIDC.CLIENT.ID }}"
+    client_id: "{{ MATRIX_OIDC_CLIENT_ID }}"
     client_secret: "{{ OIDC.CLIENT.SECRET }}"
     scopes:
       - openid
@@ -131,6 +131,7 @@ matrix_synapse_oidc_providers:
         localpart_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.USERNAME }}{% raw %} }}{% endraw %}"
         display_name_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.NAME }}{% raw %} }}{% endraw %}"
         email_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.EMAIL }}{% raw %} }}{% endraw %}"
+    backchannel_logout_enabled: true
 {% endif %}
 
 matrix_synapse_enable_registration: {{ MATRIX_LOGIN_REGISTRATION | string | lower }}
