@@ -8,7 +8,10 @@
     deploy:
       {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
 {% set _constraints = [] %}
-{% if application_id in lookup('roles_with_placement', 'manager') %}
+{% set _placement = ((lookup('applications') | resource_filter(application_id, 'placement', service_name | default(''), '')) or '') | trim %}
+{% if _placement %}
+{% set _ = _constraints.append('node.role == ' ~ _placement) %}
+{% elif application_id in lookup('roles_with_placement', 'manager') %}
 {% set _ = _constraints.append('node.role == manager') %}
 {% endif %}
 {% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}
@@ -40,7 +43,7 @@
         condition: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) | swarm_restart_condition }}
       resources:
         limits:
-          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
+          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS, host_cpus=RESOURCE_HOST_CPUS) | string }}"
           memory: {{ lookup('applications') | resource_filter(application_id, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
           pids: {{ lookup('applications') | resource_filter(application_id, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
 {% if RUNTIME != 'github' %}

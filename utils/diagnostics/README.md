@@ -7,6 +7,13 @@ Docker-in-Docker boundary, so one call collects evidence from the
 outermost runner down to the innermost application container. It always
 exits 1.
 
+An optional `RESCUE_DEADLINE` epoch caps every command on every level; once it
+has passed, each remaining capture is written as a
+`[skipped: past RESCUE_DEADLINE]` placeholder. The compose trap in
+[dedicated.sh](../../scripts/tests/deploy/ci/dedicated.sh) sets it through
+[rescue/window.sh](../../scripts/tests/deploy/utils/rescue/window.sh) only when
+the distro budget's SIGTERM has already arrived.
+
 ```mermaid
 flowchart TB
     subgraph entry["🩺 One workflow call on failure()"]

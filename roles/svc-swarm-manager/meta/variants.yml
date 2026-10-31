@@ -1,9 +1,15 @@
 ---
 - services:
+    docs:
+      enabled: false
+      shared: false
     node:
       enabled: true
       shared: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     node:
       enabled: false
       shared: false

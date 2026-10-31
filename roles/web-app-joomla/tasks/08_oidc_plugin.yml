@@ -1,4 +1,14 @@
 ---
+- name: "🚧 Require a Joomla core that provides extension:enable"
+  ansible.builtin.assert:
+    that:
+      - JOOMLA_CORE_FILES is version(JOOMLA_CLI_EXTENSION_ENABLE_SINCE, '>=')
+    fail_msg: >-
+      plg_system_keycloak is enabled through `cli/joomla.php extension:enable`, which Joomla
+      ships from {{ JOOMLA_CLI_EXTENSION_ENABLE_SINCE }}; the core is at {{ JOOMLA_CORE_FILES }}.
+      Pin a Joomla image of {{ JOOMLA_CLI_EXTENSION_ENABLE_SINCE }} or later, or switch SSO off.
+    quiet: true
+
 - name: "📌 Define OIDC plugin paths"
   ansible.builtin.set_fact:
     JOOMLA_OIDC_PLUGIN_HOST_DIR: "{{ role_path }}/files/joomla-oidc-plugin"

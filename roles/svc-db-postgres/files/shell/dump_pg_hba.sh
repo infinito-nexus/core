@@ -8,10 +8,12 @@
 #
 # Required environment:
 #   POSTGRES_CONTAINER_ADDRESS   exec address of the postgres container
-#   PGPASSWORD                   postgres superuser password
+# stdin:
+#   the postgres superuser password on its first line, exported as PGPASSWORD
 set -u
 
 : "${POSTGRES_CONTAINER_ADDRESS:?POSTGRES_CONTAINER_ADDRESS not set}"
+IFS= read -r PGPASSWORD
 : "${PGPASSWORD:?PGPASSWORD not set}"
 export PGPASSWORD
 
@@ -28,7 +30,7 @@ runtime() {
 }
 
 {
-	hba="$(runtime exec --env "PGPASSWORD=${PGPASSWORD}" "${POSTGRES_CONTAINER_ADDRESS}" \
+	hba="$(runtime exec --env PGPASSWORD "${POSTGRES_CONTAINER_ADDRESS}" \
 		psql -U postgres -d postgres -Atc 'SHOW hba_file;' 2>/dev/null || true)"
 	if [ -n "${hba}" ]; then
 		echo "hba_file=${hba}"

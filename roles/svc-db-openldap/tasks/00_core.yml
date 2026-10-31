@@ -2,11 +2,9 @@
 - include_tasks: utils/once/flag.yml
 
 - name: "📁 Create LDIF dirs {{ OPENLDAP_LDIF_PATH_HOST }} before swarm bind-mount"
-  file:
-    path: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ item }}"
-    state: directory
+  directory_batch:
+    paths: "{{ [OPENLDAP_LDIF_PATH_HOST] | product(OPENLDAP_LDIF_TYPES) | map('join') | list }}"
     mode: "0755"
-  loop: "{{ OPENLDAP_LDIF_TYPES }}"
 
 - name: 🎬 Initialize docker
   include_tasks: 01_docker.yml
@@ -15,6 +13,8 @@
   stack_host_template:
     src: "nginx.stream.conf.j2"
     dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
+  vars:
+    domain: "{{ lookup('domain', application_id) }}"
   notify: restart-openresty
   when: OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 
@@ -31,12 +31,14 @@
     delay: 5
     timeout: "{{ lookup('timeout', 120) | int }}"
     state: started
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: 🔎 Check if current RootDN/RootPW already work
   ansible.builtin.shell: >
-    container exec {{ OPENLDAP_CONTAINER_ADDRESS }}
-    ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "{{ OPENLDAP_BIND_PW }}"
+    container exec -e OPENLDAP_BIND_PW {{ OPENLDAP_CONTAINER_ADDRESS }}
+    sh -c 'exec ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "$OPENLDAP_BIND_PW"'
+  environment:
+    OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
   register: openldap_bind_check
   delegate_to: "{{ STACK_HOST }}"
   run_once: true

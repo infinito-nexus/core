@@ -24,6 +24,7 @@ def role_filters() -> dict:
 
 
 APP_URL = "https://suite.crm.example.com"
+ONION_URL = "http://suite.crm." + "a" * 56 + ".onion"
 
 CONTEXT = {
     "KEYCLOAK_REALM": "example.com",
@@ -41,6 +42,7 @@ CONTEXT = {
     "KEYCLOAK_LDAP_ENABLED": True,
     "KEYCLOAK_MOODLE_ENABLED": True,
     "KEYCLOAK_RESERVED_USERNAMES_REGEX": "^(root|admin)$",
+    "IAM_USERNAME_MAX_LENGTH": 20,
     "KEYCLOAK_LDAP_USER_OBJECT_CLASSES": "inetOrgPerson, organizationalPerson",
     "KEYCLOAK_LDAP_CMP_NAME": "ldap",
     "KEYCLOAK_LDAP_URL": "ldap://openldap:389",
@@ -93,10 +95,41 @@ def fake_lookup(name, *_args, **_kwargs):
         return {"enabled": False}
     if name == "config":
         return str(_args[-1]).rsplit(".", 1)[-1]
+    if name == "network_urls":
+        return [_args[0]]
     return APP_URL
 
 
-def render(saml_apps: list[str], client_apps: list[str] | None = None) -> str:
+def onion_sibling(url: str) -> list[str]:
+    """
+    Args:
+        url: the URL lookup('network_urls') is asked for.
+
+    Returns:
+        The URL on clearnet and on the onion sibling of the SAML app's host.
+    """
+    if not url.startswith(APP_URL):
+        return [url]
+    return [url, ONION_URL + url.removeprefix(APP_URL)]
+
+
+def render(
+    saml_apps: list[str],
+    client_apps: list[str] | None = None,
+    network_urls=None,
+) -> str:
+    """
+    Args:
+        saml_apps: KEYCLOAK_SAML_APPS.
+        client_apps: KEYCLOAK_DECLARED_CLIENT_APPS.
+        network_urls: answer of lookup('network_urls', url); None serves one network.
+    """
+
+    def lookup(name, *args, **kwargs):
+        if name == "network_urls" and network_urls is not None:
+            return network_urls(*args)
+        return fake_lookup(name, *args, **kwargs)
+
     env = Environment(
         loader=FileSystemLoader([str(IMPORT_DIR), str(PROJECT_ROOT)]),
         trim_blocks=True,
@@ -114,7 +147,7 @@ def render(saml_apps: list[str], client_apps: list[str] | None = None) -> str:
     return env.get_template("realm.json.j2").render(
         KEYCLOAK_SAML_APPS=saml_apps,
         KEYCLOAK_DECLARED_CLIENT_APPS=client_apps or [],
-        lookup=fake_lookup,
+        lookup=lookup,
         application_id="web-app-keycloak",
         DOMAIN_PRIMARY="example.com",
         **CONTEXT,
@@ -150,12 +183,44 @@ class TestRealmImportJson(unittest.TestCase):
         declared = {attribute["name"] for attribute in profile["attributes"]}
         self.assertIn("uidNumber", declared)
 
+    def test_the_username_length_follows_the_platform_limit(self) -> None:
+        """Registration must refuse what the tightest consumer refuses, so the
+        profile carries IAM_USERNAME_MAX_LENGTH rather than Keycloak's own 255."""
+        realm = json.loads(render([]))
+        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+        username = next(
+            attribute
+            for attribute in profile["attributes"]
+            if attribute["name"] == "username"
+        )
+        self.assertEqual(
+            username["validations"]["length"]["max"],
+            CONTEXT["IAM_USERNAME_MAX_LENGTH"],
+        )
+
     def test_realm_is_valid_json_with_one_saml_app(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
         clients = {c["clientId"]: c for c in realm["clients"]}
         client = clients[path_join([APP_URL, "saml/metadata"])]
         self.assertEqual(client["protocol"], "saml")
         self.assertEqual(client["redirectUris"], [path_join([APP_URL, "saml/acs"])])
+
+    def test_saml_client_accepts_the_assertion_consumer_of_every_network_sibling(
+        self,
+    ) -> None:
+        realm = json.loads(render(["web-app-suitecrm"], network_urls=onion_sibling))
+        client = next(c for c in realm["clients"] if c.get("protocol") == "saml")
+        self.assertEqual(
+            client["redirectUris"],
+            [path_join([APP_URL, "saml/acs"]), path_join([ONION_URL, "saml/acs"])],
+            "Keycloak checks the AssertionConsumerServiceURL of the request against "
+            "redirectUris, so an onion login names an ACS it must list",
+        )
+        self.assertEqual(
+            client["attributes"]["saml_assertion_consumer_url_post"],
+            path_join([APP_URL, "saml/acs"]),
+        )
 
     def test_realm_is_valid_json_with_several_saml_apps(self) -> None:
         realm = json.loads(render(["web-app-suitecrm", "web-app-other"]))

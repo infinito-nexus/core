@@ -10,6 +10,7 @@ test.beforeEach(shared.beforeEach);
 
 require("./test-baseline").register(shared);
 require("./test-csp-headers").register(shared);
+require("./test-design").register(shared);
 require("./test-login-administrator").register(shared);
 require("./test-login-biber").register(shared);
 require("./test-guest-persona").register(shared);

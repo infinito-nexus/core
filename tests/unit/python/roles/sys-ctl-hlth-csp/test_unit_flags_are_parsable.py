@@ -14,9 +14,14 @@ SCRIPT = ROLE / "files" / "python" / "script.py"
 _FLAG = re.compile(r"'\s*(--[a-z][a-z0-9-]*)")
 _VALUE = {
     "--nginx-config-dir": "/nonexistent",
+    "--proxy-suffix": ".onion",
     "--image": "img",
     "--tor-proxy": "socks5://127.0.0.1:9050",
+    "--tor-proxy-bypass": ".example.org",
+    "--tor-confine-allow": "auth.example.org",
     "--onion-timeout": "1000",
+    "--clearnet-timeout": "1000",
+    "--concurrency": "4",
 }
 _LIST_VALUE = {
     "--ignore-network-blocks-from": "a.test",
@@ -35,12 +40,18 @@ def _invoke(flag: str) -> subprocess.CompletedProcess:
         str(SCRIPT),
         "--nginx-config-dir",
         "/nonexistent",
+        "--proxy-suffix",
+        ".onion",
         "--image",
         "img",
     ]
     if flag in _LIST_VALUE:
         argv.extend([flag, _LIST_VALUE[flag]])
-    elif flag in _VALUE and flag not in ("--nginx-config-dir", "--image"):
+    elif flag in _VALUE and flag not in (
+        "--nginx-config-dir",
+        "--proxy-suffix",
+        "--image",
+    ):
         argv.extend([flag, _VALUE[flag]])
     elif flag not in _VALUE:
         argv.append(flag)
@@ -53,6 +64,7 @@ class TestUnitFlagsAreParsable(unittest.TestCase):
 
         self.assertIn("--accept-status", found)
         self.assertIn("--onion-timeout", found)
+        self.assertIn("--concurrency", found)
 
     def test_every_flag_the_unit_passes_is_accepted_by_the_script(self):
         for flag in sorted(_flags_the_unit_passes()):

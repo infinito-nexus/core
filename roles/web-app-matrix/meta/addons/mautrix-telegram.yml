@@ -9,6 +9,8 @@ update:
   upstream_id: mautrix-telegram
 config:
   bridge_name: "telegram"
+  upstream_flags:
+    - matrix_bridge_mautrix_telegram_enabled
   appservice_port: 29317
   database_username: "mautrix_telegram_bridge"
   database_name: "mautrix_telegram_bridge"

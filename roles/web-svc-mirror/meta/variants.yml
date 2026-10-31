@@ -6,12 +6,18 @@
 # matrix exercises the in-group_names branch of web-svc-mirror.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     prometheus:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     prometheus:
       enabled: false
       shared: false

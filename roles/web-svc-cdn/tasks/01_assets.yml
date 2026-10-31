@@ -13,6 +13,7 @@
     depth: 3
   register: cdn_asset_locks
   delegate_to: localhost
+  become: false
   run_once: true
 
 - name: "📁 Ensure the CDN volume directory exists before anything is staged into it"

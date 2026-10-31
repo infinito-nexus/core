@@ -4,4 +4,4 @@ system_service_id: "{{ application_id }}"
 
 BKP_NFS_2_LOCAL_SOURCE: "{{ lookup('nfs_export_base') }}"
 BKP_NFS_2_LOCAL_REPO_NAME: backup-nfs-to-local
-BKP_NFS_2_LOCAL_EXCLUDE: "{{ [lookup('nfs_state_path') | basename, DIR_BACKUPS | basename] | path_join }}"
+BKP_NFS_2_LOCAL_EXCLUDES: "{{ [[lookup('nfs_state_path') | basename, DIR_BACKUPS | basename] | path_join] + lookup('backup_nfs_excludes') }}"

@@ -1,9 +1,13 @@
 const { test, expect } = require("@playwright/test");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const {
+  gotoOnion,
+  normalizeBaseUrl,
+  requireDotenvValue,
+} = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
 const baseUrl = normalizeBaseUrl(process.env.OPENBAO_BASE_URL || "");
-const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 
 test.use({ ignoreHTTPSErrors: true });
 

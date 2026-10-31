@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Docker build context. upgrade/Dockerfile does ``COPY upgrade.sh`` with a bare name relative to this directory.

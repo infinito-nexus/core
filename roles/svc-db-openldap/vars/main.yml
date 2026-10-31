@@ -1,6 +1,6 @@
 ---
 application_id: "svc-db-openldap"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
 OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
@@ -20,6 +20,8 @@ OPENLDAP_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name
 OPENLDAP_SERVICE: "{{ entity_name }}"
 OPENLDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
+OPENLDAP_LDAPSM_COMMAND: |-
+  {{ ansible_python_interpreter }} -c 'import sys; from ldapsm.__main__ import main; sys.argv = ["ldapsm", *sys.argv[1:], "-W", sys.stdin.readline().rstrip("\n")]; sys.exit(main())'
 
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"

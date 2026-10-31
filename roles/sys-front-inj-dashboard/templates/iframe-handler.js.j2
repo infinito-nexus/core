@@ -1,7 +1,7 @@
 (function (global) {
   /**
    * Initializes the iframe sync & external link forcing logic.
-   * @param {string} primary_domain
+   * @param {string} primary_domain - DOMAIN_PRIMARY in the network of the vhost
    * @param {string} current_domain
    * @param {string} allowedOrigin - Parent origin for postMessage
    */
@@ -18,9 +18,7 @@
     }
 
     function isInternalHost(hostname) {
-      if (hostname.endsWith(primary_domain) || hostname.endsWith(current_domain)) return true;
-      var onion = current_domain.match(/[a-z2-7]{56}\.onion$/);
-      return !!(onion && hostname.endsWith(onion[0]));
+      return hostname.endsWith(primary_domain) || hostname.endsWith(current_domain);
     }
 
     function forceExternalLinks() {

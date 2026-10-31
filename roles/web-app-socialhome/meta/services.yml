@@ -1,5 +1,7 @@
 ---
 socialhome:
+  backup:
+    stop_required: true
   healthcheck:
     flavor: http_status
     path: healthz
@@ -12,6 +14,7 @@ socialhome:
       enabled: true
   # nocheck: default-placement-manager  embedded sqlite in a node-local volume; no clustered storage
   placement: manager
+  name: socialhome
   image: ghcr.io/social-home-io/socialhome
   version: "2026.10.31"
   ports:
@@ -31,6 +34,19 @@ coturn:
   bond: 1
   enabled: "{{ 'web-svc-coturn' in group_names }}"
   shared: "{{ 'web-svc-coturn' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ service_provider.platform.titel }}"
+  slots:
+    sidebar:
+      width: 192
+      height: 36
+    login:
+      width: 288
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -62,3 +78,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

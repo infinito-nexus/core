@@ -71,7 +71,12 @@ test("minio console serves canonical domain over HTTPS", async ({ page }) => {
     `Expected canonical domain "${canonicalDomain}" (from applications lookup) to back the MinIO Console URL`
   ).toBe(true);
 
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page
+      .locator("input[name='accessKey'], input[name='username'], input#accessKey, input#username")
+      .first(),
+    "Expected the MinIO Console login form, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentity", async ({ request }) => {

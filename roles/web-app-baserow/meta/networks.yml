@@ -7,3 +7,5 @@ overlay:
   topology: shared_net
   consumer:
     kind: mcp_client
+reachability:
+  handover: true # nocheck: network-reachability  Baserow's web frontend calls its one PUBLIC_BACKEND_URL and marks its session cookie Secure from its one public URL, so an onion session cannot hold

@@ -6,6 +6,13 @@
   notify:
     - compose-up
 
+- name: "🌐 Render the SITE_URL of the network sibling a request arrives on"
+  stack_host_template:
+    src: "site_url.php.j2"
+    dest: "{{ SUITECRM_SITE_URL_SCRIPT_HOST }}"
+  notify:
+    - compose-up
+
 - name: "📄 Render SuiteCRM LDAP mapping"
   stack_host_template:
     src: "ldap.yaml.j2"
@@ -49,6 +56,23 @@
   until: suitecrm_health.stdout.strip() == "healthy"
   retries: 300
   delay: 5
+
+- name: "🔑 Realign the SuiteCRM administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ SUITECRM_WEB_USER }}
+      -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD
+      {{ SUITECRM_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+  environment:
+    SUITECRM_REALIGN_USERNAME: "{{ SUITECRM_ADMIN_USERNAME }}"
+    SUITECRM_REALIGN_PASSWORD: "{{ SUITECRM_ADMIN_PASSWORD }}"
+  register: suitecrm_admin_password_realign
+  changed_when: suitecrm_admin_password_realign.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    suitecrm_admin_password_realign.rc != 0
+    or suitecrm_admin_password_realign.stdout is search('\[FAIL\]')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔎 List SuiteCRM log paths the web user cannot write"
   shell: >

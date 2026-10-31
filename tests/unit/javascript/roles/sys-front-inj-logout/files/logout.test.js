@@ -132,6 +132,15 @@ test("an element already handled is not bound a second time", () => {
   assert.equal(link.listeners.length, 1);
 });
 
+test("a role-injected logout control keeps its own target and click handler", () => {
+  const button = element("A", { "data-injected-logout": "true", href: "/oauth2/sign_out?rd=x", "aria-label": "Logout" });
+  patch([button]);
+
+  assert.equal(button.getAttribute("href"), "/oauth2/sign_out?rd=x");
+  assert.equal(button.dataset._logoutHandled, undefined);
+  assert.equal(button.listeners.length, 0);
+});
+
 test("a text block over 1000 characters is ignored as a match source", () => {
   const link = element("A", {}, `${"x".repeat(1000)} log out`);
   patch([link]);

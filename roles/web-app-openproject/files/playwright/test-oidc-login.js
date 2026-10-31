@@ -28,7 +28,10 @@ test("OIDC: oauth2-proxy + trusted-header bridge establish a real OpenProject se
   await expect
     .poll(() => page.url(), { timeout: resolveTimeout(90_000), message: `expected redirect back to ${expectedBase}` })
     .toContain(expectedBase);
-  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(
+    page.locator("header.op-app-header"),
+    "Expected the OpenProject application header, not a gateway error page",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const meResponse = await page.request.get(`${expectedBase}/api/v3/users/me`, {
     headers: { Accept: "application/hal+json" },

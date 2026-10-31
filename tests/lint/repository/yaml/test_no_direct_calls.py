@@ -19,7 +19,7 @@ Allowed
 =======
 * ``utils/cache/yaml.py``: IS the cache, MUST call ``yaml.safe_load`` /
   ``yaml.safe_dump`` directly.
-* ``tasks/utils/migrate_meta_layout.py``: migration script that
+* ``tasks/utils/migrate_meta_layout/``: migration package that
   operates pre-migration on raw on-disk YAML; predates the cache by
   design.
 * Tests that legitimately need raw YAML access (e.g. writing synthetic

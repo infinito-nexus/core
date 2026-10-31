@@ -1,0 +1,32 @@
+---
+- name: "📥 XWIKI | Read the generated navbar lockup"
+  ansible.builtin.slurp:
+    src: "{{ [XWIKI_DESIGN_DIR, XWIKI_DESIGN_LOGO_FILE] | path_join }}"
+  register: _xwiki_design_logo
+
+- name: "🔎 XWIKI | Read the logo attachment of the theme page"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
+    method: GET
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [200, 404]
+    return_content: true
+  register: _xwiki_design_logo_attachment
+  changed_when: false
+
+- name: "🖼️ XWIKI | Attach the navbar lockup to the theme page"
+  uri_retry:
+    url: "{{ [XWIKI_REST_THEME_PAGE, 'attachments', XWIKI_DESIGN_LOGO_FILE] | url_join }}"
+    method: PUT
+    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
+    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+    force_basic_auth: true
+    status_code: [201, 202]
+    headers: "{{ xwiki_rest_headers_write | combine({'Content-Type': 'image/svg+xml'}) }}"
+    body: "{{ _xwiki_design_logo.content | b64decode }}"
+  when: >-
+    _xwiki_design_logo_attachment.status == 404
+    or _xwiki_design_logo_attachment.content != (_xwiki_design_logo.content | b64decode)
+  changed_when: true

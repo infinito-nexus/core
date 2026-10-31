@@ -8,10 +8,10 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 MINIO_PROVIDER_ROLE = "web-app-minio"
-MINIO_SERVICE_KEY = get_entity_name(MINIO_PROVIDER_ROLE)
+MINIO_SERVICE_KEY = entity_name(MINIO_PROVIDER_ROLE)
 
 
 class LookupModule(LookupBase):
@@ -61,7 +61,7 @@ class LookupModule(LookupBase):
         ).run([], variables=vars_)[0]
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
 
-        consumer_entity = get_entity_name(consumer_id)
+        consumer_entity = entity_name(consumer_id)
 
         enabled = bool(
             get(
@@ -97,7 +97,7 @@ class LookupModule(LookupBase):
 
         host = central_name if central_enabled else MINIO_SERVICE_KEY
         network = (
-            get_entity_name(MINIO_PROVIDER_ROLE) if central_enabled else consumer_entity
+            entity_name(MINIO_PROVIDER_ROLE) if central_enabled else consumer_entity
         )
         container = (
             central_name

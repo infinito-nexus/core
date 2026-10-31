@@ -1,4 +1,4 @@
-# Stalwart Mail Server
+# Stalwart
 
 ## Description
 
@@ -61,91 +61,15 @@ flowchart LR
     WORLD <-- "public mail ports<br/>(only when active MAIL_PROVIDER)" --> STALWART
 ```
 
-## Cosmos
-
-The diagram places Stalwart Mail Server in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_svc_net_tor_smtp["svc-net-tor-smtp 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-    end
-    subgraph role [web-app-stalwart 🐳🐝]
-        svc_sso["sso"]
-        svc_logout["logout"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_container_backup["container_backup"]
-        svc_stalwart["stalwart"]
-        svc_postgres["postgres"]
-        svc_webmail["webmail"]
-        svc_clamav["clamav"]
-        svc_css["css"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_tor_smtp["tor-smtp"]
-    end
-    subgraph dependents [Dependents]
-        dpt_sys_ctl_alm_email["sys-ctl-alm-email 💻"]
-        dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
-        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
-        dpt_web_app_bluesky["web-app-bluesky 🐳🐝"]
-        dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
-        dpt_web_app_bridgy_fed["web-app-bridgy-fed 🐳🐝"]
-        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
-        dpt_web_app_confluence["web-app-confluence 🐳🐝"]
-        dpt_web_app_decidim["web-app-decidim 🐳🐝"]
-        dpt_web_app_discourse["web-app-discourse 🐳🐝"]
-        dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
-        dpt_more["..."]
-    end
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_postgres -. "0..1" .-> svc_postgres
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_svc_net_tor -. "0..1" .-> svc_tor_smtp
-    dep_svc_net_tor_smtp -. "0..1" .-> svc_tor_smtp
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_stalwart -- "1:1" --> dpt_more
-    svc_stalwart -- "1:1" --> dpt_sys_ctl_alm_email
-    svc_stalwart -. "0..1" .-> dpt_web_app_akaunting
-    svc_stalwart -. "0..1" .-> dpt_web_app_baserow
-    svc_stalwart -. "0..1" .-> dpt_web_app_bigbluebutton
-    svc_stalwart -. "0..1" .-> dpt_web_app_bluesky
-    svc_stalwart -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_stalwart -- "0..0" --> dpt_web_app_bridgy_fed
-    svc_stalwart -. "0..1" .-> dpt_web_app_checkmk
-    svc_stalwart -- "0..0" --> dpt_web_app_confluence
-    svc_stalwart -. "0..1" .-> dpt_web_app_decidim
-    svc_stalwart -. "0..1" .-> dpt_web_app_discourse
-    svc_stalwart -. "0..1" .-> dpt_web_app_erpnext
-    linkStyle 18,20 stroke:red;
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## SSO (Keycloak / OpenID Connect)
 
 When `web-app-keycloak` is present the role joins the shared Keycloak client and
 delegates **interactive** authentication to Keycloak:
 
 - **WebAdmin + IMAP/SMTP/JMAP** authenticate against an **OIDC directory**
-  (`tasks/06_oidc.yml`): Stalwart validates Keycloak-issued tokens, matching the
-  `preferred_username` claim to the provisioned account.
+  (`tasks/06_oidc.yml`): Stalwart validates Keycloak-issued tokens and resolves
+  the `preferred_username` claim to the account `<preferred_username>@<mail domain>`
+  (a claim that already holds an `@` is taken as is), creating it on first login.
 - **Roundcube** logs users in over OAuth2 and talks to Stalwart with **XOAUTH2**
   (`templates/roundcube-oauth.inc.php.j2`).
 - The OIDC directory skips the audience check and gives Keycloak tokens without
@@ -159,8 +83,9 @@ chaining or fallback. Enabling SSO therefore **disables the account password**
 for every account, including the machine `no-reply` account. App passwords are
 checked before the directory and keep working, so with SSO enabled the role:
 
-1. Creates one app password per bot account, acting for that account as the
-   recovery admin (`tasks/04_manage_user/app_password.yml`), and
+1. Creates one app password per bot account as the recovery admin, which
+   addresses each bot account through its JMAP `accountId`
+   (`tasks/04_manage_user/app_password.yml`), and
 2. Stores it in the token store, where
    [`plugins/lookup/email.py`](../../plugins/lookup/email.py) reads the SMTP
    password of the `no-reply` client.
@@ -188,11 +113,11 @@ Where the WebUI sends a login depends on the account:
 | Account in a domain bound to the Keycloak OIDC directory | Keycloak | Keycloak client from `templates/keycloak/clients.json.j2` |
 | Recovery admin (`STALWART_ADMIN_USER`), and every account while SSO is off | Stalwart | OAuth client the role registers in Stalwart (`tasks/02_webadmin.yml`) |
 
-The role registers that Stalwart client over JMAP (`templates/jmap/oauth_client/`) as a public first-party client, with one redirect URI `<origin>/<prefix>/oauth/callback` and one post-logout URI `<origin>/<prefix>/login` per URL prefix of the WebUI Application.
-`<origin>` is the role's canonical WebUI URL (`STALWART_WEBUI_BASE_URL`), so a Tor deployment registers its `http://` onion origin.
+The role registers that Stalwart client over JMAP (`templates/jmap/oauth_client/`) as a public first-party client, with one redirect URI `<origin>/<prefix>/oauth/callback` and one post-logout URI `<origin>/<prefix>/login` per origin and URL prefix of the WebUI Application.
+The origins are the role's canonical WebUI URL (`STALWART_WEBUI_BASE_URL`) in every network the node serves it on (`lookup('network_urls')`), so a Tor deployment registers its `http://` onion origin next to the clearnet one.
 Every deploy compares the registered client with that target and updates it when they differ.
-A deployment that serves the WebUI on a further origin MUST add that origin's URIs to [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
-Stalwart's login page asks for consent before the password form for every registered client, so a native WebUI login shows an **Allow** step.
+An origin that is no network sibling of the canonical WebUI URL MUST be added in [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
+Stalwart's login page asks for consent for the client after the password form, so a native WebUI login shows an **Allow** step.
 
 ## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
 
@@ -222,7 +147,7 @@ account (or the Keycloak SSO token when SSO is enabled).
 - **ClamAV runs fail-open with short milter timeouts** so mail keeps flowing
   while clamd warms its signature database instead of blocking the DATA stage.
 - **DMARC aggregate reports go to the mailbox of
-  `services.stalwart.dmarc.rua_user`** (the `administrator` user unless the
+  `services.stalwart.dmarc.rua_user`** (the `platform_administrator` user unless the
   inventory names another user key). The `_dmarc` record publishes
   `rua=mailto:<username>@<mail domain>`, and a deploy whose report user carries
   no `mailbox` account fails before any record is written.
@@ -231,10 +156,25 @@ account (or the Keycloak SSO token when SSO is enabled).
   (`templates/jmap/*.json.j2`).
 - **Only authenticated sessions relay, with or without SSO.** Under SSO a bot
   authenticates with an app password.
+- **Accounts, app passwords and forwards are provisioned in batches.** Each
+  phase (create, password update, app password list, mint, retire, drop,
+  forward script list, read, upload, activate) is one JMAP request for all
+  accounts. A phase on the bots' app passwords or the forward scripts carries
+  one method call per account, addressed through its `accountId` by the
+  recovery admin, at most `STALWART_JMAP_MAX_METHOD_CALLS` (Stalwart's default
+  `maxMethodCalls`) per request, and a refusal names the account it hit.
 - **Address bans expire after `services.stalwart.ban_period_seconds`** (one
   hour by default). Without a period Stalwart keeps a ban forever, and the
   reverse proxy, the published ports, Tor and the swarm ingress hand many
   clients one address.
+- **The role network's gateway is never banned** (`STALWART_ALLOWED_IPS`,
+  an `x:AllowedIp` entry): every container that reaches the published ports
+  through the host arrives from that address.
+- **HTTP clients are rate-limited and banned by their own address.** The
+  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  `Forwarded: for=$remote_addr` on every location and replaces any
+  client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`:
+  `clientIpSource: forwarded` with one trusted hop, `forwardedHops: 1`).
 - **Bans and failed logins also go to the container output**
   (`STALWART_BAN_TRACER`, `tasks/tracing.yml`), next to the daily log file in
   the data volume.
@@ -250,45 +190,6 @@ account (or the Keycloak SSO token when SSO is enabled).
 - Roundcube webmail
 - PostgreSQL backing store
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Stalwart Mail Server onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-stalwart full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Stalwart Mail Server to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-stalwart
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
-
 ## Migration from Mailu
 
 The provider cutover is an inventory change; mailbox data moves with it when the migration switch is on.
@@ -297,12 +198,82 @@ The provider cutover is an inventory change; mailbox data moves with it when the
 
 1. Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart.
 2. Remove `MAIL_PROVIDER` from the inventory (Stalwart is the default).
-3. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role then reads Mailu's Dovecot Maildir volume and imports every inventory account's messages via IMAP APPEND, preserving folders, flags and internal dates. Re-runs are idempotent (Message-ID dedup), so the switch may stay on across deploys; turn it off once Mailu is retired.
-   The import authenticates per account with the inventory password, so it MUST run while `services.sso.enabled` is false. An OIDC directory replaces password login outright (see [`tasks/06_oidc.yml`](tasks/06_oidc.yml)), and every IMAP login then fails with `AUTHENTICATIONFAILED`. Migrate first, enable SSO afterwards.
-4. Accounts and aliases are provisioned from the inventory by this role; mailboxes created only inside Mailu's admin UI MUST be added to the inventory first. Sieve filters and CalDAV/CardDAV data are out of scope.
+3. Declare the [aliases](#aliases-and-forwards) the Mailu instance had, and a `mailbox_map` entry for every Mailu mailbox that belongs in another Stalwart account (see below).
+4. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role reads every `<address>/` directory in Mailu's Dovecot Maildir volume, whether or not the address is an inventory user, and per mailbox:
+   - skips it and reports the address when Stalwart does not serve its domain; no domain is created,
+   - creates the Stalwart account when it is missing, named after the local part in the mailbox's domain, which is the account the OIDC directory resolves for that `preferred_username` once SSO is on,
+   - appends its messages over IMAPS in parallel sessions, `migration.workers` of them or by default one fewer than the host's vCPUs, at most 8, logged in as the recovery administrator acting for the account (`<address>%<admin>`), so no per-mailbox password is needed and the import works with or without `services.sso.enabled`; a session Stalwart refuses only lowers the parallelism,
+   - keeps folders, flags, Dovecot keywords and internal dates; Mailu's `Sent`, `Trash`, `Junk`/`Spam` and `Drafts` land in the folders Stalwart marks with the matching special use,
+   - imports the active Sieve script and activates it.
+
+   A host without Mailu's maildir volume gets a note that there is nothing to import. Otherwise the deploy starts the import as the transient unit `stalwart-mailu-import` and moves on; a deploy that finds the unit still running leaves it alone. Follow it with `journalctl -fu stalwart-mailu-import`: it logs `[PROGRESS]` every 1000 messages of a folder, one `[MAILBOX] <mailbox> -> <account>: found=<n> imported=<n> skipped=<n> failed=<n> sieve=<state>` line per mailbox, one line per folder below it, `[SKIP]` for every mailbox outside the served domains, a closing `[SUMMARY]` and `[DONE] rc=<n>`. When the unit stops, it removes the staged credentials. An import that ends with `[DONE] rc=0` leaves the marker `.mailu-import.done` in the Stalwart instance directory, and no later deploy starts the import again while it exists; delete the marker to import again. A failed import leaves no marker, so the next deploy repeats it, and the repeat imports nothing twice: a message is skipped when its Message-ID, or without one its Date/From/To/Subject, is already in the target folder, and a Sieve script with unchanged content is left alone. Turn the switch off once Mailu is retired.
 5. Non-Cloudflare DNS: publish the new DKIM TXT record reported by the deploy; MX and A records keep their hostname.
 
-The cutover is covered end to end by [`files/test/test.sh`](files/test/test.sh), which runs as this role's CLI test whenever `web-app-mailu` is co-deployed — matrix **variant 1**, the round where SSO is off, because the import authenticates with per-account passwords. The whole scenario runs inside the deployed host and needs nothing from the environment around it: it stores mail in both directions in the legacy Mailu, confirms it landed in the maildir volume, runs [`files/python/migrate_from_mailu.py`](files/python/migrate_from_mailu.py) — the same script and argv a real cutover uses — and then asserts over IMAP that the stored mail survived and that live mail still flows. No redeploy is involved; the cutover is a docker-level data move.
+A `mailbox_map` entry merges a Mailu mailbox into another account instead of creating its own:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        migration:
+          import_mailu: true
+          mailbox_map:
+            - source: alice@example.org
+              target: alice.smith@example.org
+```
+
+The source's folders merge into the target's folders under the same Message-ID dedup, and its active Sieve script is imported as `<source local part>-<script name>` and activated after the target's own. Declare the source address as an alias of the target so its mail keeps arriving. A target outside the served domains fails the import before anything is written, and a mailbox whose address is an alias but not mapped is reported as failed.
+
+Not migrated: CalDAV/CardDAV data, Mailu's own forward and autoreply settings (declare forwards in the inventory) and Mailu's fetchmail jobs. Stalwart v0.16 has no fetcher for external IMAP or POP3 accounts; replace such a job with forwarding at the external provider.
+
+The cutover is covered end to end by [`files/test/test.sh`](files/test/test.sh), which runs as this role's CLI test whenever `web-app-mailu` is co-deployed in compose. The whole scenario runs inside the deployed host and needs nothing from the environment around it: it stores mail in both directions in the legacy Mailu, seeds a mailbox that is no inventory user (with a subfolder, flags, a fixed internal date and an active Sieve script), a mailbox in a domain Stalwart does not serve and, in matrix **variant 1**, a mapped mailbox, runs [`files/python/migrate_from_mailu.py`](files/python/migrate_from_mailu.py) with the argv a real cutover uses, and asserts over IMAP and JMAP that everything arrived where it belongs, that the Sieve script files new mail, that the foreign domain was not created and that a second run imports nothing. No redeploy is involved; the cutover is a docker-level data move.
+
+## Aliases and Forwards
+
+Aliases and per-account forwards are declared under `services.stalwart` and provisioned on every deploy, in compose and in swarm:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        aliases:
+          - address: "@example.org"
+            destinations: [alice.smith@example.org]
+          - address: team@example.org
+            destinations: [alice.smith@example.org, bob@example.net]
+        forwards:
+          - address: carol@example.org
+            destinations: [carol@example.net]
+```
+
+- The address `@<domain>` is that domain's catch-all. It takes exactly one destination, which becomes the domain's catch-all address.
+- Every other alias becomes a Stalwart mailing list described as `Infinito.Nexus alias`. The role creates, updates and removes only lists with that description; lists created in WebAdmin stay untouched, and declaring an address such a list already holds fails the deploy.
+- Destinations may lie outside the served domains; Stalwart relays those copies.
+- Alias domains must be served by Stalwart.
+- A forward keeps the message in the account and sends a copy to every destination. The role writes the Sieve script `infinito-forward` (`redirect :copy`) into the account and activates it; a user script that was active is chained through `include`, so personal filters keep working. Removing a forward from the inventory leaves the script in place; delete `infinito-forward` in the account's filter settings to stop it. The role raises the user-script limits `maxRedirects` and `maxOutMessages` to the widest forward.
+
+[`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward and waits until each destination inside the mail domain holds its copy. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
+
+### Alias domains
+
+A legacy domain that only receives mail is declared under `services.stalwart.alias_domains`; `<local>@<source>` is then delivered to `<local>@<target>`:
+
+```yaml
+applications:
+  web-app-stalwart:
+    services:
+      stalwart:
+        alias_domains:
+          - source: legacy.example
+            target: example.org
+```
+
+- The deploy sets the `rewrite` expression of Stalwart's RCPT stage to one `matches()` rule per alias domain and reads it back.
+- With Cloudflare as `DNS_PROVIDER`, the deploy points the MX record of every source at the mail hostname.
+- The source is not served by Stalwart and gets no DKIM key; it receives mail but sends none.
+- Removing every alias domain leaves the last rewrite in Stalwart; set the RCPT stage's rewrite back to `false` in WebAdmin.
 
 ## Upgrading from 0.16
 
@@ -319,6 +290,22 @@ A deploy without the marker reads the store:
 | Dedicated PostgreSQL | the volume `stalwart_database` does not exist | read inside the dedicated database container; when that container is not running, the deploy stops and names the database service to start |
 
 Migrate the store with [`stalwart-migrate`](https://github.com/stalwartlabs/stalwart-migrate) into a new database and swap it in under the role's database name. That name is fixed to `stalwart` ([`plugins/lookup/database.py`](../../plugins/lookup/database.py) derives it from the entity name), so the migration targets a second database that later takes over the name.
+
+A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The phases also run by hand, as root:
+
+| Phase | Steps below |
+|---|---|
+| `upgrade` | 1: pulls the floating tag of the source series the `stalwart_migrate` image names in its `--help` banner (`v0.16`, the last 0.16 release) and recreates Stalwart on it when the running image differs (compose: `compose -f compose.upgrade.yml up -d`, swarm: `service update --image`) |
+| `check` | 1: the running Stalwart must be that exact image and the role's `version` must belong to the banner's target series; plus the guard's own conditions: 0.16 store, no swap yet, no marker |
+| `backup` | 2, the database dump only |
+| `target` | 3 |
+| `prepare` | 5, interactive on a terminal; without one it accepts the recommended answer of every question `stalwart-migrate` marks as not answered in `migrate-v016/state/answers.toml` |
+| `sync` | 5, repeatable while 0.16 serves |
+| `final` | 6 and 7 |
+| `status` | the progress `stalwart-migrate status` reports |
+| `all` | `upgrade` to `final` in order |
+
+Then deploy again (step 8). The steps by hand:
 
 1. Make sure the server runs Stalwart `v0.16.27`; `stalwart-migrate` reads no other release. Upgrade an older 0.16 server with the previous revision of this role first.
 2. Back up the database `stalwart` (for example `pg_dump -Fc -d stalwart -f stalwart-v016.dump`) and the role's volumes.
@@ -381,18 +368,13 @@ Set `INFINITO_MAIL_PRODUCTION_HOST` to the server's public FQDN (in CI, a GitHub
 
 The same variable points [`sys-ctl-mtn-cert-deploy`](../sys-ctl-mtn-cert-deploy/)'s remote check at `:465` and `:993`, so the live TLS chain and its remaining validity are verified alongside. A misconfigured production server therefore fails the deploy instead of surfacing as an outage.
 
-## Further Reading
+## Further Resources
 
 - [Stalwart documentation](https://stalw.art/docs)
 - [`sys-svc-mail`](../sys-svc-mail/) — how applications send mail
 - [`plugins/lookup/email.py`](../../plugins/lookup/email.py) — the email abstraction
+- [Corporate design review: screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/FzjQ2ZyfFbvctv2YaPTgLK)
 
 > **Note:** Stalwart's JMAP object schema is version-sensitive. Pin
 > `services.stalwart.version`; the provisioning payloads in `tasks/` were
 > validated against that release's `GET /api/schema`.
-
-## Credits
-
-Implemented by **[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

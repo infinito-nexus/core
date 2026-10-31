@@ -10,7 +10,8 @@
 # Usage:
 #   debug_superadmin.sh \
 #       STATUS REDIRECTED URL WWW_AUTHENTICATE CONTENT_TYPE CONTENT_HEAD \
-#       XWIKI_CONTAINER ANSIBLE_PASSWORD
+#       XWIKI_CONTAINER < password
+#   stdin: the inventory's superadmin password.
 set -euo pipefail
 
 STATUS="$1"
@@ -20,7 +21,8 @@ WWW_AUTHENTICATE="$4"
 CONTENT_TYPE="$5"
 CONTENT_HEAD="$6"
 XWIKI_CONTAINER="$7"
-ANSIBLE_PASSWORD="$8"
+ANSIBLE_PASSWORD="$(cat)"
+: "${ANSIBLE_PASSWORD:?the superadmin password must arrive on stdin}"
 
 echo "=== superadmin check ==="
 echo "status=$STATUS"

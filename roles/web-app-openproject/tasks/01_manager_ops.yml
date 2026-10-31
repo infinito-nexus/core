@@ -26,6 +26,10 @@
     state: directory
     mode: "0755"
 
+- name: "⬆️ Step an older schema through the majors before the pinned one"
+  include_tasks: upgrade/main.yml
+  when: IS_COMPOSE_MODE
+
 - name: 🚿 flush docker service
   meta: flush_handlers
 
@@ -39,14 +43,18 @@
   delay: 10
   until: openproject_seeder_state.rc != 1
   failed_when: openproject_seeder_state.rc != 0
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
-- name: 🚀 Deploy Settings
-  include_tasks: 02_settings.yml
+- name: ▶️ Migrate the OpenProject database
+  include_tasks: 02_migrate.yml
 
 - name: 🔧 Setup LDAP
   include_tasks: 03_ldap.yml
   when: OPENPROJECT_LDAP_ENABLED | bool
 
-- name: 📁 Create OpenProject Administrator
+- name: 🔧 Apply settings and the OpenProject administrator
   include_tasks: 04_admin.yml
+
+- name: "🧩 Provision the OpenProject addons"
+  include_tasks: 05_addons.yml
+  when: OPENPROJECT_ADDONS_ENABLED | length > 0

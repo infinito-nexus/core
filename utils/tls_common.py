@@ -3,16 +3,19 @@
 
 from __future__ import annotations
 
+import threading
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 
 from utils.domains.application_domain_index import resolve_app_id_for_domain
+from utils.networks.reachability import TOR, is_network, network, network_of
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 AVAILABLE_FLAVORS = {"letsencrypt", "self_signed"}
+REDIRECT_SERVING_APP = "web-opt-rdr-domains"
 
 
 def as_str(value: Any) -> str:
@@ -60,8 +63,10 @@ def want_get(data: Any, dotted: str) -> Any:
 
 def iter_domains(value: Any) -> Iterable[str]:
     """
-    Flatten domains from the *global* domains mapping entry.
+    Flatten domains from the global domains mapping entry.
+
     Supports:
+
       - str
       - list[str]
       - dict[str, str]   (only one level, legacy behavior)
@@ -181,44 +186,71 @@ def collect_domains_global(domains: dict) -> list[str]:
     return uniq_preserve(all_items)
 
 
+def redirect_targets(variables: dict) -> dict[str, str]:
+    """
+    Returns {source: target} from CURRENT_PLAY_REDIRECT_DOMAINS, both normalized;
+    empty until the constructor has set the fact.
+    """
+    mappings = variables.get("CURRENT_PLAY_REDIRECT_DOMAINS") or []
+    return {norm_domain(m["source"]): norm_domain(m["target"]) for m in mappings}
+
+
+def is_domain_term(term: str, forced_mode: str, *, err_prefix: str) -> bool:
+    """Tell whether a lookup term names a domain rather than an application id.
+
+    Args:
+        term: The lookup term.
+        forced_mode: "auto" (a dot makes it a domain), "domain" or "app".
+        err_prefix: Prefix of the error raised for an unknown mode.
+
+    Returns:
+        True when the term is a domain.
+    """
+    forced = as_str(forced_mode).lower()
+    if forced not in {"auto", "domain", "app"}:
+        raise AnsibleError(f"{err_prefix}: mode must be one of: auto, domain, app")
+    if forced == "auto":
+        return "." in as_str(term)
+    return forced == "domain"
+
+
 def resolve_term(
     term: str,
     *,
     domains: dict,
     applications: dict | None = None,
+    redirects: dict[str, str] | None = None,
     forced_mode: str,
     err_prefix: str,
+    _following: bool = False,
 ) -> tuple[str, str]:
     """
     Returns (app_id, primary_domain) where primary_domain is normalized lower-case.
 
     term can be:
+
       - application_id
       - domain (canonical or alias)
 
     forced_mode: "auto" | "domain" | "app"
 
-    Behavior:
-      1) If term is a domain and exists in *global* domains mapping -> primary_domain = that term (normalized).
+    Behavior::
+
+      1) If term is a domain and exists in the global domains mapping -> primary_domain = that term (normalized).
       2) If term is a domain and only exists in applications[*].domains -> map to app_id,
          and primary_domain = canonical primary from global domains mapping (first entry).
+      3) If term is a domain found in neither but is a source in redirects (see
+         redirect_targets), such as an AUTO_BUILD_ALIASES alias -> resolve its target,
+         following a chain of redirects; a source is used once, so a cycle fails.
+      4) If that chain ends on a domain this host does not serve, such as a redirect
+         to another host, and REDIRECT_SERVING_APP is in domains -> map the source to
+         REDIRECT_SERVING_APP, with the source itself as primary_domain.
     """
     t = as_str(term)
     if not t:
         raise AnsibleError(f"{err_prefix}: term is empty")
 
-    forced = as_str(forced_mode).lower()
-    if forced not in {"auto", "domain", "app"}:
-        raise AnsibleError(f"{err_prefix}: mode must be one of: auto, domain, app")
-
-    if forced == "domain":
-        is_domain = True
-    elif forced == "app":
-        is_domain = False
-    else:
-        is_domain = "." in t
-
-    if is_domain:
+    if is_domain_term(t, forced_mode, err_prefix=err_prefix):
         try:
             app_id_legacy = resolve_app_id_from_domain(
                 domains, t, err_prefix=err_prefix
@@ -244,6 +276,26 @@ def resolve_term(
             except AnsibleError:
                 pass
             app_id = resolve_app_id_for_domain(apps, bare)
+        target = (redirects or {}).get(norm_domain(t))
+        if not app_id and target and target != norm_domain(t):
+            try:
+                return resolve_term(
+                    target,
+                    domains=domains,
+                    applications=applications,
+                    redirects={
+                        source: dest
+                        for source, dest in (redirects or {}).items()
+                        if source != norm_domain(t)
+                    },
+                    forced_mode="domain",
+                    err_prefix=err_prefix,
+                    _following=True,
+                )
+            except AnsibleError:
+                if _following or REDIRECT_SERVING_APP not in domains:
+                    raise
+                return REDIRECT_SERVING_APP, norm_domain(t)
         if not app_id:
             raise AnsibleError(
                 f"{err_prefix}: domain '{t}' not found (domains/applications)"
@@ -262,17 +314,60 @@ def resolve_term(
 
 
 def is_onion_domain(domain: Any) -> bool:
-    """True if the domain is a Tor v3 ``.onion`` address."""
-    return norm_domain(domain).endswith(".onion")
+    """True if the domain belongs to the Tor network."""
+    return is_network(domain, TOR)
 
 
 def resolve_enabled(
     app: dict, enabled_default: bool, *, primary_domain: str = ""
 ) -> bool:
-    if is_onion_domain(primary_domain):
+    if not network(network_of(primary_domain)).tls:
         return False
     override = get_path(app, "server.tls.enabled", None)
     return enabled_default if override is None else bool(override)
+
+
+def issuer_applications() -> tuple[str, ...]:
+    """Applications that publish one URL to every consumer: the SSO provider,
+    whose issuer every client pins."""
+    from utils import PROJECT_ROOT
+    from utils.roles.applications.services.registry import (
+        build_service_registry_from_roles_dir,
+    )
+
+    entry = build_service_registry_from_roles_dir(PROJECT_ROOT / "roles").get("sso")
+    role = (entry or {}).get("role")
+    return (role,) if role else ()
+
+
+_VHOST_GUARD = threading.local()
+
+
+def _vhost_domain(variables: dict | None, templar: Any) -> str:
+    raw = (variables or {}).get("domain")
+    if not isinstance(raw, str) or not raw.strip():
+        return ""
+    if "{{" in raw or "{%" in raw:
+        if templar is None or getattr(_VHOST_GUARD, "active", False):
+            return ""
+        _VHOST_GUARD.active = True
+        try:
+            raw = templar.template(raw)
+        finally:
+            _VHOST_GUARD.active = False
+    return norm_domain(raw)
+
+
+def _consumer_network(
+    domains: dict, consumer_id: str, variables: dict | None, templar: Any
+) -> str | None:
+    consumer_domains = [norm_domain(d) for d in iter_domains(domains.get(consumer_id))]
+    if not consumer_domains:
+        return None
+    vhost = _vhost_domain(variables, templar)
+    if vhost in consumer_domains:
+        return network_of(vhost)
+    return network_of(consumer_domains[0])
 
 
 def align_domain_to_consumer(
@@ -284,26 +379,33 @@ def align_domain_to_consumer(
     variables: dict | None = None,
     templar: Any = None,
 ) -> str:
-    """Family-align a cross-app reference: when a clearnet-primary consumer
-    resolves an onion-primary target, return the target's first clearnet
-    domain from the merged map; keep ``primary_domain`` whenever the consumer
-    is unknown/onion, the target is clearnet, or no clearnet sibling exists.
+    """Return the target's domain in the network its consumer is served on.
+
+    Args:
+        domains: the host's merged domain map.
+        app_id: the target application.
+        primary_domain: the target's canonical domain.
+        consumer: consuming application; empty reads ``variables['application_id']``.
+        variables: lookup scope; its ``domain`` names the vhost being rendered.
+        templar: renders templated ``application_id`` and ``domain`` values.
+
+    Returns:
+        The target's first domain in the consumer's network, which is the
+        network of the vhost being rendered when that vhost belongs to the
+        consumer, else the network of the consumer's primary domain.
+        ``primary_domain`` when the target is the SSO provider, the consumer
+        is unknown, or the target has no domain in that network.
     """
-    if not is_onion_domain(primary_domain):
+    if app_id in issuer_applications():
         return primary_domain
     raw = consumer or (variables or {}).get("application_id", "")
     if templar is not None and isinstance(raw, str) and raw:
         raw = templar.template(raw)
-    consumer_id = as_str(raw)
-    if not consumer_id or consumer_id == app_id or consumer_id not in domains:
-        return primary_domain
-    consumer_primary = resolve_primary_domain_from_app(
-        domains, consumer_id, err_prefix="tls_common"
-    )
-    if is_onion_domain(consumer_primary):
+    wanted = _consumer_network(domains, as_str(raw), variables, templar)
+    if wanted is None or network_of(primary_domain) == wanted:
         return primary_domain
     for candidate in iter_domains(domains.get(app_id)):
-        if not is_onion_domain(candidate):
+        if network_of(candidate) == wanted:
             return candidate
     return primary_domain
 

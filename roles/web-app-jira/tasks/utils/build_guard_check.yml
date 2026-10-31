@@ -1,0 +1,60 @@
+---
+- name: "🔍 Read the build number Jira recorded in its database"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e PGPASSWORD
+      {{ lookup('database', application_id, 'address') }}
+      psql -X -v ON_ERROR_STOP=1 -tA
+      -U {{ lookup('database', application_id, 'username') | quote }}
+      -d {{ lookup('database', application_id, 'name') | quote }}
+      -f -
+    stdin: "{{ lookup('file', 'sql/data_build.sql') }}"
+    executable: /bin/bash
+  environment:
+    PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
+  register: jira_data_build
+  changed_when: false
+  failed_when: >-
+    jira_data_build.rc != 0
+    and 'relation "propertyentry" does not exist' not in jira_data_build.stderr
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📁 Ensure the Jira build guard directory exists"
+  ansible.builtin.file:
+    path: "{{ JIRA_GUARD_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Stage the Jira build guard"
+  ansible.builtin.copy:
+    src: python/build_guard.py
+    dest: "{{ [JIRA_GUARD_DIR, 'build_guard.py'] | path_join }}"
+    mode: "0644"
+
+- name: "🛡️ Compare the data build number with the pinned image"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --mount
+      - "type=bind,src={{ JIRA_GUARD_DIR }},dst={{ JIRA_GUARD_MOUNT }},readonly"
+      - --entrypoint
+      - python3
+      - "{{ JIRA_IMAGE }}:{{ JIRA_VERSION }}"
+      - "{{ [JIRA_GUARD_MOUNT, 'build_guard.py'] | path_join }}"
+      - "{{ jira_data_build.stdout | trim }}"
+      - "{{ JIRA_INSTALL_DIR }}"
+      - "{{ lookup('database', application_id, 'name') }}"
+      - "{{ JIRA_IMAGE }}:{{ JIRA_VERSION }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: jira_build_guard
+  changed_when: false
+  failed_when: jira_build_guard.rc not in [0, JIRA_GUARD_DOWNGRADE_RC]
+
+- name: "⛔ Refuse to start Jira {{ JIRA_VERSION }} on newer data"
+  ansible.builtin.fail:
+    msg: "{{ jira_build_guard.stdout }}"
+  when: jira_build_guard.rc == JIRA_GUARD_DOWNGRADE_RC

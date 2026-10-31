@@ -37,7 +37,7 @@ demo:
 
         with (
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -60,7 +60,7 @@ demo:
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -83,7 +83,7 @@ demo: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -99,7 +99,7 @@ demo: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-does-not-exist"],
@@ -120,7 +120,7 @@ demo: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -143,7 +143,7 @@ other: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -166,7 +166,7 @@ not_demo: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -184,7 +184,7 @@ not_demo: {}
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -208,7 +208,7 @@ demo:
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value="demo"),
+            patch.object(rrv, "entity_name", return_value="demo"),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],
@@ -243,7 +243,7 @@ demo:
         with (
             redirect_stdout(err),
             patch.object(rrv, "_roles_root", return_value=self.roles_root),
-            patch.object(rrv, "get_entity_name", return_value=""),
+            patch.object(rrv, "entity_name", return_value=""),
         ):
             kept = rrv.filter_roles_by_min_storage(
                 role_names=["web-app-demo"],

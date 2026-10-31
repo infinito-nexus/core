@@ -1,0 +1,79 @@
+---
+- name: ⬇️ Get all client scopes
+  shell: "{{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --format json"
+  register: all_scopes
+  changed_when: false
+
+- name: 📤 Extract RBAC scope id
+  set_fact:
+    scope_id_rbac: >-
+      {{ (
+          all_scopes.stdout | kcadm_json
+          | selectattr('name','equalto', KEYCLOAK_RBAC_GROUP_CLAIM)
+          | list | first | default({})
+        ).id | default('') }}
+
+- name: ⬇️ Get all clients (avoid --query and jq; tolerate noisy stdout)
+  shell: "{{ KEYCLOAK_EXEC_KCADM }} get clients -r {{ KEYCLOAK_REALM }} --format json"
+  register: all_clients
+  changed_when: false
+
+- name: 📤 Extract application client id
+  set_fact:
+    app_client_id: >-
+      {{ (
+          all_clients.stdout | kcadm_json
+          | selectattr('clientId','equalto', KEYCLOAK_CLIENT_ID)
+          | list | first | default({})
+        ).id | default('') }}
+
+- name: ✅ Sanity check IDs
+  assert:
+    that:
+      - scope_id_rbac | length > 0
+      - app_client_id is match('^[0-9a-f-]+$')
+    fail_msg: "Could not determine client or scope ID."
+  when: MODE_ASSERT_LOCAL | bool
+
+- name: ⬇️ Get current optional client scopes
+  shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get
+    clients/{{ app_client_id }}/optional-client-scopes
+    -r {{ KEYCLOAK_REALM }} --format json
+  register: opt_scopes
+  changed_when: false
+
+- name: ⬇️ Get current default client scopes
+  shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get
+    clients/{{ app_client_id }}/default-client-scopes
+    -r {{ KEYCLOAK_REALM }} --format json
+  register: def_scopes
+  changed_when: false
+
+- name: 🤔 Decide where RBAC scope is currently assigned
+  set_fact:
+    has_rbac_optional: >-
+      {{ (opt_scopes.stdout | kcadm_json
+          | selectattr('id','equalto', scope_id_rbac) | list | length) > 0 }}
+    has_rbac_default: >-
+      {{ (def_scopes.stdout | kcadm_json
+          | selectattr('id','equalto', scope_id_rbac) | list | length) > 0 }}
+
+- name: 🗑️ Remove RBAC scope from optional client scopes (if present)
+  when: has_rbac_optional
+  shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} delete
+    clients/{{ app_client_id }}/optional-client-scopes/{{ scope_id_rbac }}
+    -r {{ KEYCLOAK_REALM }}
+  register: remove_opt
+  changed_when: true
+  failed_when: remove_opt.rc != 0
+
+- name: ✅ Ensure RBAC scope assigned as default (only if missing)
+  when: not has_rbac_default
+  shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} update
+    clients/{{ app_client_id }}/default-client-scopes/{{ scope_id_rbac }}
+    -r {{ KEYCLOAK_REALM }}
+  changed_when: true

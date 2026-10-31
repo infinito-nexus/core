@@ -1,5 +1,4 @@
 ---
-# nocheck: dockerfile-custom
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -44,6 +43,8 @@ sso:
 # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 web:
   enabled: true
+  domains:
+    - web
   healthcheck:
     flavor: tcp
   ports:
@@ -61,6 +62,8 @@ web:
 # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 view:
   enabled: false
+  domains:
+    - view
   repository: https://github.com/bluesky-social/social-app.git
   ref: "1.137.0"
   ports:
@@ -74,6 +77,8 @@ view:
   mem_limit: 256m
   pids_limit: 256
 pds:
+  backup:
+    stop_required: true
   image: ghcr.io/bluesky-social/pds
   version: 0.4.66
   min_storage: 290MB
@@ -82,9 +87,12 @@ pds:
   mem_limit: 2g
   pids_limit: 1024
 broker:
+  backup:
+    stop_required: false
   name: bluesky-broker
   image: node
   version: 26-alpine
+  custom: bluesky_broker
   ports:
     local:
       http: 8076
@@ -101,11 +109,19 @@ sso-proxy:
   mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 512
-# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    symbol:
+      width: 92
+      height: 82
+    logotype:
+      width: 161
+      height: 43
+      text_only: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -137,6 +153,7 @@ bluesky:
   ports:
     local:
       sso: 16497
+      sso_onion: 16522
   run_after:
     - web-app-matomo
     - web-app-keycloak
@@ -161,3 +178,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

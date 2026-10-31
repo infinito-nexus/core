@@ -1,0 +1,104 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: WEBLATE
+    resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
+
+- name: "👤 Let the platform administrator own the superuser Weblate bootstrapped"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell can reach its user table
+    cmd: >
+      container exec -i
+      -e WEBLATE_ADMIN_BOOTSTRAP_USERNAME -e WEBLATE_ADMIN_USERNAME -e WEBLATE_OIDC_ENABLED
+      {{ WEBLATE_LOCAL_CID | quote }}
+      weblate shell
+    stdin: "{{ lookup('file', 'python/adopt_admin.py') }}"
+  environment:
+    WEBLATE_ADMIN_BOOTSTRAP_USERNAME: "{{ WEBLATE_ADMIN_BOOTSTRAP_USERNAME }}"
+    WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
+    WEBLATE_OIDC_ENABLED: "{{ WEBLATE_OIDC_ENABLED | bool | lower }}"
+  register: weblate_admin_adopt
+  retries: 30
+  delay: 10
+  until: weblate_admin_adopt.rc == 0
+  changed_when: "'ADOPTED=1' in weblate_admin_adopt.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ WEBLATE_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Read the API token Weblate issued to its administrator"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  the token lives in Weblate's own database and only its management shell prints it
+    cmd: >
+      container exec -i
+      -e WEBLATE_ADMIN_USERNAME
+      {{ WEBLATE_LOCAL_CID | quote }}
+      weblate shell
+    stdin: "{{ lookup('file', 'python/read_api_token.py') }}"
+  environment:
+    WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
+  register: weblate_api_token
+  retries: 30
+  delay: 10
+  until: weblate_api_token.rc == 0 and ((weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('')) | length) >=
+    WEBLATE_TOKEN_MIN_LENGTH
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ WEBLATE_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Keep the token the shell printed last, not the banner above it"
+  ansible.builtin.set_fact:
+    WEBLATE_ISSUED_TOKEN: "{{ weblate_api_token.stdout_lines | map('trim') | select() | list | last | default('') }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a Weblate that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - (WEBLATE_ISSUED_TOKEN | length) >= WEBLATE_TOKEN_MIN_LENGTH
+    fail_msg: >-
+      Weblate printed no API token for '{{ WEBLATE_ADMIN_USERNAME }}', so the
+      translation gateway would read the translation memory with an empty
+      bearer and every reviewed string would be ignored.
+
+- name: "💾 Persist the token so the translation gateway can read the memory"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: platform_administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ WEBLATE_ISSUED_TOKEN }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧊 Freeze the translate gate before the reconcile re-binds application_id"
+  ansible.builtin.set_fact:
+    weblate_translate_enabled: "{{ WEBLATE_TRANSLATE_ENABLED }}"
+
+- name: "🔍 Look for a deployed translation gateway to reconcile"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', 'web-svc-translate', 'directories.instance') }}"
+  register: weblate_translate_instance
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "♻️ Re-render the translation gateway against the stored token"
+  when:
+    - weblate_translate_enabled | bool
+    - weblate_translate_instance.stat.exists
+  block:
+    - name: "🛑 Refuse a store the gateway's own lookup cannot read back"
+      ansible.builtin.assert:
+        that:
+          - (lookup('users', 'platform_administrator', {}).get('tokens', {}).get(application_id, '') | length) >= WEBLATE_TOKEN_MIN_LENGTH
+        fail_msg: >-
+          The token store does not hand '{{ application_id }}' back to the users
+          lookup, so the gateway would be rendered with an empty bearer and every
+          reviewed string would be overwritten by a machine engine.
+
+    - name: "♻️ Reconcile 'web-svc-translate' now the token exists"
+      ansible.builtin.include_role:
+        name: web-svc-translate
+        tasks_from: utils/reconcile.yml
+      vars:
+        application_id: web-svc-translate

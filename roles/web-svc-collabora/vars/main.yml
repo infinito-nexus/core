@@ -1,11 +1,14 @@
 ---
 application_id: web-svc-collabora
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.collabora.ports.local.http') }}"
 
 COLLABORA_CONTAINER: "{{ lookup('config', application_id, 'services.collabora.name') }}"
-COLLABORA_WOPI_HOST: "{{ lookup('tls', lookup('domain', 'web-app-nextcloud'), 'protocols.web') }}://{{ lookup('domain', 'web-app-nextcloud') }}:{{ lookup('tls', lookup('domain',
-  'web-app-nextcloud'), 'ports.web') }}"
+COLLABORA_WOPI_HOSTS: >-
+  {% for wopi_domain in lookup('network_siblings', lookup('domain', 'web-app-nextcloud')) %}
+  {{- lookup('tls', wopi_domain, 'protocols.web') }}://{{ wopi_domain }}:{{ lookup('tls', wopi_domain, 'ports.web') }}
+  {{- '' if loop.last else ',' }}
+  {%- endfor %}
 COLLABORA_DISCOVERY_PATH: "/hosting/discovery"

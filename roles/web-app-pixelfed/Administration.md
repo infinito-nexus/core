@@ -105,7 +105,7 @@ DELETE from media where deleted_at >= "2023-07-28 14:39:05";
 Run these commands to remove the imported files and trigger the cleanup job:
 
 ```bash
-compose exec -u "www-data" application rm -rv "/var/www/storage/app/imports/1"
+compose exec -u "www-data" application rm -rv "/var/www/html/storage/app/imports/1"
 compose exec -u "www-data" application php artisan schedule:run
 ```
 

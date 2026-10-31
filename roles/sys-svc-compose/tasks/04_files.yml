@@ -42,6 +42,19 @@
       skip: true
   register: env_template
 
+- name: "📁 Create (optional) per-service env files for '{{ application_id }}'"
+  stack_host_template:
+    src: "{{ item }}"
+    dest: "{{ lookup('container', application_id, 'directories.env') }}{{ item | basename | regex_replace('\\.j2$', '.env') }}"
+    mode: "0640"
+    force: true
+  notify:
+    - compose-up
+    - compose-build
+  loop: "{{ query('fileglob', (application_id | abs_role_path_by_application_id) ~ '/templates/env/*.j2') }}"
+  loop_control:
+    label: "{{ item | basename }}"
+
 - name: "📁 Create (optional) compose override for '{{ application_id }}'"
   stack_host_template:
     src: "{{ item }}"
@@ -68,6 +81,24 @@
       skip: true
   register: docker_compose_template
   notify: compose-up
+
+- name: "🔨 Refresh the build inputs of '{{ application_id }}'"
+  when: docker_compose_template is changed
+  block:
+    - name: "🔎 Read the rendered compose file of '{{ application_id }}'"
+      ansible.builtin.slurp:
+        src: "{{ lookup('container', application_id, 'files.compose') }}"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      register: docker_compose_rendered
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔨 Record build inputs of '{{ application_id }}' to rebuild only on change"
+      stack_host_copy:
+        content: "{{ docker_compose_rendered.content | b64decode | docker_build_digest }}"
+        dest: "{{ [lookup('container', application_id, 'directories.instance'), '.build-inputs'] | path_join }}"
+        mode: "0640"
+      notify: compose-build
 
 - name: "📌 Mark compose up pending for '{{ application_id }}' until it succeeds"
   stack_host_copy:

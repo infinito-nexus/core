@@ -2,6 +2,8 @@
 # Wait for an onion service to answer over the Tor SOCKS proxy. If it never
 # comes up within the first attempt budget, recreate the Tor container once
 # (fresh guards/circuits + descriptor republish) and retry the budget again.
+# Any status below 500 counts and redirects are not followed: an SSO-gated
+# vhost redirects to the clearnet issuer, which Tor cannot reach.
 #
 # Args:
 #   $1 socks     -- Tor SOCKS host:port
@@ -20,10 +22,10 @@ tor_dir="${5:?tor compose dir required}"
 url="http://${domain}/"
 
 probe() {
-  local i
+  local i code
   for ((i = 1; i <= attempts; i++)); do
-    if curl --silent --show-error --location --max-time 120 --socks5-hostname "${socks}" \
-        -o /dev/null "${url}"; then
+    if code="$(curl --silent --show-error --max-time 120 --socks5-hostname "${socks}" \
+        -o /dev/null -w '%{http_code}' "${url}")" && [ "${code}" -lt 500 ]; then
       return 0
     fi
     sleep "${delay}"

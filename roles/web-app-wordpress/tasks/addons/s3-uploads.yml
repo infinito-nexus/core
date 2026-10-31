@@ -1,0 +1,22 @@
+---
+- name: "🛑 Require the object-store secret before S3-Uploads owns the media library"
+  ansible.builtin.assert:
+    that:
+      - lookup('objstore', application_id, 'secret_key') | length > 0
+    fail_msg: >-
+      {{ application_id }} enables seaweedfs but carries no
+      secrets.credentials.objstore_secret_key, which the inventory seeds only
+      while it is (re)generated. Without it the mu-plugin refuses to define the
+      S3 constants and WordPress keeps every upload on the container's own
+      disk. Regenerate the inventory so the credential exists.
+
+- name: "📦 Unpack the image-staged S3-Uploads release into {{ WORDPRESS_S3_UPLOADS_DIR }}"
+  ansible.builtin.shell: >
+    container exec -u root {{ WORDPRESS_CONTAINER_ADDRESS }} sh -lc
+    'set -e;
+     rm -rf {{ WORDPRESS_S3_UPLOADS_DIR }};
+     mkdir -p {{ WORDPRESS_S3_UPLOADS_DIR }};
+     cp -a {{ WORDPRESS_S3_UPLOADS_SRC }}/. {{ WORDPRESS_S3_UPLOADS_DIR }}/;
+     chown -R {{ WORDPRESS_USER }}:{{ WORDPRESS_USER }} {{ WORDPRESS_S3_UPLOADS_DIR }}'
+  changed_when: true
+  when: IS_STACK_HOST | bool

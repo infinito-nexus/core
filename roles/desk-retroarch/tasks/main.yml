@@ -1,4 +1,0 @@
----
-- name: 📦 Install RetroArch and assets
-  package_install:
-    id: retroarch

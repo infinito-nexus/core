@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-bookwyrm"
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
@@ -9,6 +9,15 @@ BOOKWYRM_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.bookw
 BOOKWYRM_ALLOW_INVITE_REQUESTS: "{{ lookup('config', application_id, 'services.bookwyrm.allow_invite_request') | string | lower }}"
 
 BOOKWYRM_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
+
+BOOKWYRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+BOOKWYRM_DESIGN_LOGO_ENABLED: "{{ BOOKWYRM_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+BOOKWYRM_DESIGN_IMAGES:
+  logo_small: "logo-small.png"
+  logo: "apple-touch-icon.png"
+  favicon: "favicon.ico"
+BOOKWYRM_THEME_NAME: "Corporate Design"
+BOOKWYRM_THEME_PATH: "css/themes/infinito.scss"
 
 BOOKWYRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BOOKWYRM_HOSTNAME: "{{ lookup('domain', application_id) }}"

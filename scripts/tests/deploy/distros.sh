@@ -12,6 +12,10 @@ set -euo pipefail
 #   INFINITO_CI_DISTRO_BUDGET_SECONDS   wall-clock budget for the whole run
 #   GITHUB_STEP_SUMMARY                 optional; the markdown table is appended there
 #
+# Exports:
+#   INFINITO_CI_DISTRO_DEADLINE_EPOCH   epoch the running distro gets the budget SIGTERM at
+#   INFINITO_CI_DISTRO_KILL_EPOCH       epoch the SIGKILL follows at, KILL_GRACE_SECONDS later
+#
 # Exports per iteration:
 #   INFINITO_DISTRO                     the distro under test
 
@@ -26,6 +30,7 @@ source "scripts/meta/env/load.sh"
 : "${INFINITO_CI_DISTRO_BUDGET_SECONDS:?INFINITO_CI_DISTRO_BUDGET_SECONDS is required (declared in default.env)}"
 
 BUDGET_HEADROOM_PERCENT=15
+KILL_GRACE_SECONDS=60
 
 if (($# == 0)); then
 	echo "[ERROR] a per-distro command is required" >&2
@@ -44,6 +49,7 @@ echo "=== Distro execution order: ${distro_arr[*]} ==="
 global_start="$(date +%s)"
 deadline="$((global_start + INFINITO_CI_DISTRO_BUDGET_SECONDS))"
 export INFINITO_CI_DISTRO_DEADLINE_EPOCH="${deadline}"
+export INFINITO_CI_DISTRO_KILL_EPOCH="$((deadline + KILL_GRACE_SECONDS))"
 echo "=== Global time budget: ${INFINITO_CI_DISTRO_BUDGET_SECONDS}s (deadline epoch=${deadline}) ==="
 
 max_seen=0
@@ -129,7 +135,7 @@ for i in "${!distro_arr[@]}"; do
 	distro_start="$(date +%s)"
 
 	set +e
-	timeout -k 60 "${remaining}s" "$@"
+	timeout -k "${KILL_GRACE_SECONDS}" "${remaining}s" "$@"
 	rc=$?
 	set -e
 

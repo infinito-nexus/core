@@ -24,3 +24,9 @@ nfs-2-local:
   mem_reservation: "256m"
   mem_limit: "512m"
   pids_limit: 256
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

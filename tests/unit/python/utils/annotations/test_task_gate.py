@@ -44,7 +44,7 @@ class TestTaskBlockBounds(unittest.TestCase):
                 compose stop x
               args:
                 chdir: /opt/compose/x
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
             """
         )
         chdir_idx = _line_index(lines, "chdir:")
@@ -98,7 +98,7 @@ class TestTaskBlockBounds(unittest.TestCase):
                     compose stop x
                   args:
                     chdir: /opt/compose/x
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
             """
         )
         chdir_idx = _line_index(lines, "chdir:")
@@ -111,10 +111,10 @@ class TestTaskBlockBounds(unittest.TestCase):
         lines = _lines(
             """
             - include_tasks: setup.yml
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
 
             - import_tasks: run.yml
-              when: DEPLOYMENT_MODE == 'compose'
+              when: IS_COMPOSE_MODE
             """
         )
         include_idx = _line_index(lines, "include_tasks:")
@@ -131,7 +131,7 @@ class TestTaskBlockBounds(unittest.TestCase):
               block:
                 - name: Inner
                   ansible.builtin.shell: echo hi
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
             """
         )
         outer_idx = _line_index(lines, "- name: Outer")
@@ -148,7 +148,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
               args:
                 chdir: /opt/compose/x
                 executable: /bin/bash
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
             """
         )
         chdir_idx = _line_index(lines, "chdir:")
@@ -158,7 +158,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
         lines = _lines(
             """
             - name: Stop the stack
-              when: DEPLOYMENT_MODE == 'compose'
+              when: IS_COMPOSE_MODE
               ansible.builtin.shell: |
                 compose stop x
               args:
@@ -173,7 +173,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
             """
             - name: Task
               shell: compose stop x
-              when: DEPLOYMENT_MODE != "swarm"
+              when: not IS_SWARM_MODE
             """
         )
         idx = _line_index(lines, "compose stop x")
@@ -211,7 +211,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
               shell: compose stop x
               args:
                 chdir: /opt/compose/x
-              when: DEPLOYMENT_MODE == 'swarm'
+              when: IS_SWARM_MODE
             """
         )
         chdir_idx = _line_index(lines, "chdir:")
@@ -222,7 +222,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
             """
             - name: Gated task
               shell: compose stop x
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
 
             - name: Ungated task
               shell: compose stop y
@@ -240,7 +240,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
               shell: compose stop x
               args:
                 chdir: /opt/compose/x
-              when: DEPLOYMENT_MODE != 'swarm' and (enable_x | bool)
+              when: not IS_SWARM_MODE and (enable_x | bool)
             """
         )
         chdir_idx = _line_index(lines, "chdir:")
@@ -261,7 +261,7 @@ class TestIsTaskComposeOnlyGated(unittest.TestCase):
             """
             ---
             - name: Some task
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
               shell: compose stop x
             """
         )
@@ -287,7 +287,7 @@ class TestKnownLimitations(unittest.TestCase):
             - name: Task
               shell: compose stop x
               when: >
-                DEPLOYMENT_MODE != 'swarm'
+                not IS_SWARM_MODE
             """
         )
         idx = _line_index(lines, "compose stop x")
@@ -299,7 +299,7 @@ class TestKnownLimitations(unittest.TestCase):
             - name: Task
               shell: compose stop x
               when:
-                - DEPLOYMENT_MODE != 'swarm'
+                - not IS_SWARM_MODE
                 - enable_x | bool
             """
         )
@@ -345,7 +345,7 @@ class TestRecursiveParentWalk(unittest.TestCase):
             """
             - name: Compose-only task
               shell: compose stop x
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
             """
         )
         idx = _line_index(lines, "compose stop x")
@@ -355,7 +355,7 @@ class TestRecursiveParentWalk(unittest.TestCase):
         lines = _lines(
             """
             - name: Compose-only group
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
               block:
                 - name: Inner
                   shell: compose stop x
@@ -368,7 +368,7 @@ class TestRecursiveParentWalk(unittest.TestCase):
         lines = _lines(
             """
             - name: Outermost (compose-only)
-              when: DEPLOYMENT_MODE != 'swarm'
+              when: not IS_SWARM_MODE
               block:
                 - name: Middle group
                   block:
@@ -405,7 +405,7 @@ class TestRecursiveParentWalk(unittest.TestCase):
             """
             - name: Compose-only task
               shell: compose stop x
-              when: DEPLOYMENT_MODE == 'compose'
+              when: IS_COMPOSE_MODE
             """
         )
         idx = _line_index(lines, "compose stop x")
@@ -422,7 +422,7 @@ class TestIsFileComposeOnlyByHeader(unittest.TestCase):
         lines = _lines(
             """
             ---
-            # include-gated: when: DEPLOYMENT_MODE != "swarm"
+            # include-gated: when: not IS_SWARM_MODE
             - name: Task
               shell: compose stop x
             """
@@ -441,7 +441,7 @@ class TestIsFileComposeOnlyByHeader(unittest.TestCase):
             # line 7
             # line 8
             # line 9
-            # include-gated: when: DEPLOYMENT_MODE != "swarm"
+            # include-gated: when: not IS_SWARM_MODE
             - name: Task
               shell: compose stop x
             """

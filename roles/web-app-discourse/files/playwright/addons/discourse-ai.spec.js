@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceEnabled } = require("../service-gating");
 const {
   normalizeBaseUrl,
   decodeDotenvQuotedValue,
@@ -59,6 +60,7 @@ function settingValue(settings, name) {
 
 test("discourse-ai: the Discourse AI model routes prompts through the in-cluster gateway and answers one", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ai");
+  skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(180_000));
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();

@@ -1,0 +1,17 @@
+---
+blender:
+  shared: true
+
+pipx:
+  Archlinux:
+    - python-pipx
+  Debian:
+    - pipx
+  RedHat:
+    - pipx
+  batch: false
+  centos:
+    names:
+      - pipx
+    repo:
+      bootstrap_package: epel-release

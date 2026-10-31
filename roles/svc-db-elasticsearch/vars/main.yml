@@ -1,6 +1,6 @@
 ---
 application_id: svc-db-elasticsearch
-entity_name: "{{ application_id | get_entity_name }}"
+entity_name: "{{ application_id | entity_name }}"
 
 database_type: "{{ entity_name }}"
 
@@ -14,4 +14,6 @@ ELASTICSEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, entity_na
 ELASTICSEARCH_RETRIES: 5
 ELASTICSEARCH_DELAY: 2
 ELASTICSEARCH_API_BASE: "http://{{ ELASTICSEARCH_LOCAL_HOST }}:{{ ELASTICSEARCH_INTERNAL_PORT }}"
-ELASTICSEARCH_EXEC_SHELL: "container exec -e ELASTIC_PW={{ ELASTICSEARCH_PASSWORD | quote }} {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"
+ELASTICSEARCH_AUTH_FROM_STDIN: "IFS= read -r ELASTIC_PW && export ELASTIC_PW &&"
+ELASTICSEARCH_EXEC_SHELL: "{{ ELASTICSEARCH_AUTH_FROM_STDIN }} container exec -e ELASTIC_PW {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"
+ELASTICSEARCH_EXEC_SHELL_STDIN: "{{ ELASTICSEARCH_AUTH_FROM_STDIN }} container exec -i -e ELASTIC_PW {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"

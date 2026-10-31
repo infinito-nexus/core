@@ -21,10 +21,10 @@ def _value_generator_cls() -> type[object]:
     if not utils_path.is_dir():
         raise RuntimeError(f"utils directory not found at: {utils_path}")
 
-    if str(utils_path) not in sys.path:
-        sys.path.insert(0, str(utils_path))
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
 
-    from manager.value_generator import ValueGenerator
+    from utils.manager.value_generator import ValueGenerator
 
     return ValueGenerator
 

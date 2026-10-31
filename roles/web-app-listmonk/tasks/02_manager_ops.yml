@@ -10,24 +10,13 @@
 - name: 📂 Include database setup routine for Listmonk
   include_tasks: "01_database.yml"
 
-- name: 🔨 Build OIDC settings JSON
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  set_fact:
-    oidc_settings_json: >-
-      {{ {
-         "enabled":       True,
-         "client_id":     OIDC.CLIENT.ID,
-         "provider_url":  OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET
-      } | to_json }}
-
 - name: 🔄 Update administrator email and password login in Listmonk (as superuser)
   shell: |
     {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
     UPDATE users
-    SET email = '{{ lookup('users', 'administrator').email }}',
+    SET email = '{{ lookup('users', 'platform_administrator').email }}',
         password_login = {{ 'false' if lookup('config',application_id, 'services.sso.enabled') else 'true' }}
-    WHERE username = 'administrator';
+    WHERE username = '{{ LISTMONK_ADMIN_USERNAME }}';
     EOSQL
   args:
     executable: /bin/bash
@@ -36,39 +25,28 @@
   ansible.builtin.shell:
     cmd: >-
       {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
-      -v pw={{ lookup('config', application_id, 'secrets.credentials.administrator_password') | quote }}
+      -v login={{ LISTMONK_ADMIN_USERNAME | quote }}
     stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
+  environment:
+    LISTMONK_REALIGN_PASSWORD: "{{ LISTMONK_ADMIN_PASSWORD }}"
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: "'UPDATE 1' in listmonk_admin_password.stdout"
+  changed_when: listmonk_admin_password.stdout is search('\[CHANGED\]')
+  failed_when: >-
+    listmonk_admin_password.rc != 0
+    or listmonk_admin_password.stdout is search('\[FAIL\]')
 
-- name: 📌 Apply all Listmonk settings
-  shell: |
-    {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 << 'EOSQL'
-    UPDATE settings
-    SET value = '{{ item.value }}'::jsonb
-    WHERE key = '{{ item.key }}';
-    EOSQL
-  args:
-    executable: /bin/bash
-  loop: "{{ LISTMONK_SETTINGS }}"
-  loop_control:
-    label: "{{ item.key }}"
-  when: (item.condition | default(true)) | bool
+- name: 📌 Apply every Listmonk setting that differs, in one psql run
+  ansible.builtin.shell:
+    cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"
+    stdin: "{{ lookup('template', 'sql/apply_settings.sql.j2') }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: listmonk_settings
-  changed_when: true
+  changed_when: "'UPDATE 0' not in listmonk_settings.stdout"
   notify: container-recreate
-  # rationale: async; settings apply overlapped, reaped below before the role ends
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
-- name: "⏳ Reap the Listmonk settings jobs"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ listmonk_settings.results | default([listmonk_settings]) }}"
-    async_reap_label: "Listmonk settings"
-    async_reap_tolerate: []
+- name: "🎨 Carry the corporate design in the Listmonk settings"
+  ansible.builtin.include_tasks: 03_design.yml
 
 - name: "🚿 Recreate Listmonk so the settings above are loaded"
   ansible.builtin.meta: flush_handlers

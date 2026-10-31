@@ -20,7 +20,7 @@
 #SyncIntervalSec=5m
 #RateLimitIntervalSec=30s
 #RateLimitBurst=10000
-#SystemMaxUse=
+SystemMaxUse={{ ((sys_svc_journalctl_filesystem.stdout_lines | last | int) * (SYS_SVC_JOURNALCTL_SYSTEM_MAX_USE_PERCENT | float) / 100) | int }}M
 #SystemKeepFree=
 #SystemMaxFileSize=
 #SystemMaxFiles=100

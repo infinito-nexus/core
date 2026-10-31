@@ -29,7 +29,7 @@ exports.register = function (shared) {
     expect(shared.env.n8nOwnerPassword, "N8N_OWNER_PASSWORD must be set").toBeTruthy();
 
     // No oauth2-proxy edge in V2: n8n presents its native login form
-    // directly, and only the owner account (tasks/02_bootstrap.yml) exists.
+    // directly, and only the owner account (tasks/01_bootstrap.yml) exists.
     await gotoOnion(page, `${shared.env.n8nBaseUrl}/`);
 
     await shared.performN8nLoginForm(page, shared.env.adminEmail, shared.env.n8nOwnerPassword);

@@ -21,6 +21,7 @@ const env = {
   mcpExpectedServers: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_SERVERS),
   mcpExpectedTools: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_TOOLS),
   lamBaseUrl: normalizeBaseUrl(process.env.LAM_BASE_URL || ""),
+  keycloakLdapFederation: decodeDotenvQuotedValue(process.env.KEYCLOAK_LDAP_FEDERATION),
   ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
   ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
   ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),
@@ -213,6 +214,7 @@ async function signInViaNativePassword(page, email, password, personaLabel) {
     passwordField,
     `${personaLabel}: native sign-in password field must be visible`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
 
   await emailField.fill(email);
   await passwordField.fill(password);
@@ -249,6 +251,7 @@ async function signInViaLdap(page, username, password, personaLabel) {
     passwordField,
     `${personaLabel}: LDAP password field must be visible on the auth page`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(passwordField).toBeEditable({ timeout: resolveTimeout(30_000) });
 
   await usernameField.fill(username);
   await passwordField.fill(password);

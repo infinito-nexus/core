@@ -3,7 +3,9 @@ SYS_SVC_DOCKER_DIR: "/etc/docker/"
 SYS_SVC_DOCKER_DAEMON: "{{ [SYS_SVC_DOCKER_DIR, 'daemon.json' ] | path_join }}"
 
 SYS_SVC_DOCKER_AUTOMTU_TARGETS: >-
-  {{ ['registry-1.docker.io', 'github.com'] + NETWORK_PUBLIC_DNS_RESOLVERS }}
+  {{ ['github.com'] + NETWORK_PUBLIC_DNS_RESOLVERS }}
+SYS_SVC_DOCKER_AUTOMTU_MTU_CEILING: 1500
+SYS_SVC_DOCKER_AUTOMTU_ICMP_HEADER_BYTES: 28
 
 SYS_SVC_CONTAINER_DOCKER_REPO_DISTRO_BY_DISTRIBUTION:
   Debian: debian
@@ -24,3 +26,15 @@ SYS_SVC_CONTAINER_DPKG_ARCH_BY_ANSIBLE_ARCH:
 
 SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY:
   Archlinux: nftables
+
+SYS_SVC_CONTAINER_NESTED_VIRTUALIZATION:
+  - docker
+  - containerd
+  - podman
+  - lxc
+  - container
+
+SYS_SVC_CONTAINER_GPU_DRIVER: /usr/bin/nvidia-smi
+SYS_SVC_CONTAINER_GPU_QUERY: "{{ SYS_SVC_CONTAINER_GPU_DRIVER }} --query-gpu=memory.total,uuid --format=csv,noheader,nounits"
+
+SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME: "{{ lookup('timeout', 3600) | int }}"

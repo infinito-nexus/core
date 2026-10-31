@@ -1,0 +1,56 @@
+---
+- name: "🔑 Sign in to {{ application_id }} for the corporate design"
+  uri_retry:
+    url: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
+    method: POST
+    headers:
+      X-Emby-Authorization: "{{ JELLYFIN_API_CLIENT }}"
+    body_format: json
+    body:
+      Username: "{{ JELLYFIN_ADMIN_USERNAME }}"
+      Pw: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+  register: jellyfin_design_session
+  until: jellyfin_design_session.status == 200
+  retries: 60
+  delay: 5
+
+- name: "📖 Read the branding of {{ application_id }}"
+  uri_retry:
+    url: "{{ JELLYFIN_API }}/System/Configuration/branding"
+    headers:
+      Authorization: "{{ jellyfin_design_authorization }}"
+  register: jellyfin_design_branding
+
+- name: "🎨 Apply the corporate custom CSS of {{ application_id }}"
+  uri_retry:
+    url: "{{ JELLYFIN_API }}/System/Configuration/branding"
+    method: POST
+    headers:
+      Authorization: "{{ jellyfin_design_authorization }}"
+    body_format: json
+    body: "{{ jellyfin_design_branding.json | combine({'CustomCss': jellyfin_design_css}) }}"
+    status_code: [200, 204]
+  when: jellyfin_design_css_current != jellyfin_design_css
+  changed_when: true
+
+- name: "🏷️ Name the {{ application_id }} server after the corporate title"
+  when: jellyfin_design_title is string
+  block:
+    - name: "📖 Read the server configuration of {{ application_id }}"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration"
+        headers:
+          Authorization: "{{ jellyfin_design_authorization }}"
+      register: jellyfin_design_system
+
+    - name: "🏷️ Write the corporate title into the server configuration"
+      uri_retry:
+        url: "{{ JELLYFIN_API }}/System/Configuration"
+        method: POST
+        headers:
+          Authorization: "{{ jellyfin_design_authorization }}"
+        body_format: json
+        body: "{{ jellyfin_design_system.json | combine({'ServerName': jellyfin_design_title}) }}"
+        status_code: [200, 204]
+      when: jellyfin_design_system.json.get('ServerName') != jellyfin_design_title
+      changed_when: true

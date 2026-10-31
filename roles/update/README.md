@@ -54,52 +54,13 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are
   no-ops.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Package update onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=update full_cycle=false
-```
-
-### Production
-
-Install Package update directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=update
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
-
 ## Developer Notes
 
 To extend support for a new distribution, add the distribution name to the
 lookup dict in [main.yml](./tasks/main.yml). When the new distribution shares
 a package manager with an existing entry, point it at that entry's task file.
 When it brings a new package manager, add a new family file under
-[tasks/](./tasks/) and keep [meta/main.yml](./meta/main.yml) `platforms` in
+`tasks/` and keep [meta/main.yml](./meta/main.yml) `platforms` in
 sync.
 
 ## Further Resources
@@ -110,9 +71,3 @@ sync.
 - [community.general.pacman](https://docs.ansible.com/ansible/latest/collections/community/general/pacman_module.html)
 - [ansible.builtin.apt](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html)
 - [ansible.builtin.dnf](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

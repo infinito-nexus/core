@@ -47,7 +47,7 @@ MAILU_OIDC_ENABLE_USER_CREATION: "{{ lookup('config', application_id, 'services.
 MAILU_EXTRA_HOSTS: "{{ query('mailu_extra_hosts') }}"
 MAILU_USERS: "{{ lookup('mailu_users') }}"
 MAILU_DOCKER_FLAVOR: "{{ 'ghcr.io/heviat' if MAILU_OIDC_ENABLED | bool else 'ghcr.io/mailu' }}"
-MAILU_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+MAILU_DMARC_RUF: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 MAILU_DMARC_RUA_USER: "{{ lookup('config', application_id, 'services.mailu.dmarc.rua_user') }}"
 MAILU_DMARC_RUA_LOCALPART: "{{ lookup('users', MAILU_DMARC_RUA_USER).username }}"
 MAILU_DMARC_RUA: "{{ MAILU_DMARC_RUA_LOCALPART }}@{{ MAILU_DOMAIN }}"

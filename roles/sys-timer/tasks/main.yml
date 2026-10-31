@@ -9,7 +9,7 @@
 
 - name: "🚀 deploy timer"
   systemd:
-    daemon_reload: true
+    daemon_reload: "{{ dummy_timer is changed }}"
     name: "{{ sys_timer_file }}"
     state: stopped
     enabled: false

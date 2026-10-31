@@ -26,8 +26,9 @@ from utils.cache.base import (
     _resolve_override_mapping,
     _resolve_roles_dir,
     _stable_variables_signature,
-    _tokens_file_signature,
 )
+from utils.cache.carrier import _carried_users, merged_users_cache_key
+from utils.cache.users import store as _store
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
 )
@@ -61,9 +62,11 @@ def _derive_accounts(roles: Any) -> list[str]:
 
 
 def _apply_account_defaults(users: dict[str, Any]) -> dict[str, Any]:
-    for user in users.values():
+    for key, user in users.items():
         if not isinstance(user, dict):
             continue
+        if "email" not in user:
+            user["email"] = f"{user.get('username', key)}@{{{{ DOMAIN_PRIMARY }}}}"
         if user.get("accounts") is None:
             user["accounts"] = _derive_accounts(user.get("roles", []))
         if "forward" not in user:
@@ -221,6 +224,22 @@ def _load_store_users(file_tokens: str | os.PathLike[str] | None) -> dict[str, A
     return users if isinstance(users, dict) else {}
 
 
+def _store_signature(variables: Mapping[str, Any] | None, tokens_file: Path) -> tuple:
+    """Return the cache-key part of the store the users are hydrated from.
+
+    Args:
+        variables: the play's variable scope.
+        tokens_file: the controller's tokens file, used when no snapshot exists.
+
+    Returns:
+        ``(STORE_FACT, digest)``, equal for the tokens file and the
+        ``sys_token_store_users`` fact when both hold the same tokens.
+    """
+    snapshot = _store.snapshot(variables)
+    store = snapshot if snapshot is not None else _load_store_users(tokens_file)
+    return (_store.STORE_FACT, _store.tokens_digest(store))
+
+
 def _resolve_tokens_file(variables: Mapping[str, Any] | None) -> Path:
     candidates: list[Path] = []
 
@@ -308,11 +327,22 @@ def _hydrate_users_tokens(
     return out
 
 
-def _materialize_builtin_user_aliases(
+def _materialize_domain_label_reservations(
     users: Mapping[str, Any] | None,
     variables: Mapping[str, Any] | None,
     templar: Any = None,
 ) -> dict[str, Any]:
+    """Reserve one username per label of the deployment's primary domain.
+
+    Args:
+        users: the users resolved so far.
+        variables: play variables; ``DOMAIN_PRIMARY`` wins over
+            ``SYSTEM_EMAIL_DOMAIN``.
+        templar: optional templar used to render a templated candidate.
+
+    Returns:
+        A copy of ``users`` with one ``domain_label_<n>`` entry per label.
+    """
     from utils.templating.ansible import _templar_render_best_effort
 
     def _normalize_domain_candidate(value: Any) -> str:
@@ -328,49 +358,25 @@ def _materialize_builtin_user_aliases(
             text = parsed.hostname or text
         return text.split("/", 1)[0].split(":", 1)[0].strip()
 
-    def _to_primary_domain(value: Any) -> str:
-        text = _normalize_domain_candidate(value)
-        if not text:
-            return ""
-        labels = [label for label in text.split(".") if label]
-        if len(labels) >= 2:
-            return ".".join(labels[-2:])
-        return text
-
     out: dict[str, Any] = copy.deepcopy(dict(users or {}))
     variables = variables or {}
 
     primary_domain = ""
-    for candidate_key, extractor in (
-        ("DOMAIN_PRIMARY", _normalize_domain_candidate),
-        ("SYSTEM_EMAIL_DOMAIN", _normalize_domain_candidate),
-        ("KEYCLOAK_DOMAIN", _to_primary_domain),
-        ("domain", _to_primary_domain),
-    ):
-        primary_domain = extractor(variables.get(candidate_key))
+    for candidate_key in ("DOMAIN_PRIMARY", "SYSTEM_EMAIL_DOMAIN"):
+        primary_domain = _normalize_domain_candidate(variables.get(candidate_key))
         if primary_domain:
             break
-    if not primary_domain:
-        return out
 
-    labels = [label for label in primary_domain.split(".") if label]
-    alias_values = {
-        "sld": labels[0] if labels else primary_domain,
-        "tld": (labels[1] if len(labels) > 1 else (primary_domain + "_tld ")),
-    }
-
-    for alias_key, alias_value in alias_values.items():
-        raw_user = out.get(alias_key)
-        if not isinstance(raw_user, Mapping):
-            continue
-
-        raw_username = str(raw_user.get("username", ""))
-        if "DOMAIN_PRIMARY.split" not in raw_username:
-            continue
-
-        updated_user = copy.deepcopy(dict(raw_user))
-        updated_user["username"] = alias_value
-        out[alias_key] = updated_user
+    for index, label in enumerate(
+        label for label in primary_domain.split(".") if label
+    ):
+        out[f"domain_label_{index}"] = {
+            "description": (
+                f"Auto generated account reserving the domain label '{label}'"
+            ),
+            "username": label,
+            "accounts": [],
+        }
 
     return out
 
@@ -415,15 +421,25 @@ def get_merged_users(
 
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     tokens_file = _resolve_tokens_file(variables)
+    snapshot = _store.snapshot(variables)
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
-        _tokens_file_signature(tokens_file),
+        _store_signature(variables, tokens_file),
         templar is not None,
     )
     cached = _MERGED_USERS_CACHE.get(cache_key)
     if cached is not None:
         return cached
+
+    if templar is not None and source_variables:
+        carried = _carried_users(
+            source_variables,
+            merged_users_cache_key(source_variables, roles_dir=resolved_roles_dir),
+        )
+        if carried is not None:
+            _MERGED_USERS_CACHE[cache_key] = carried
+            return carried
 
     defaults = get_user_defaults(roles_dir=roles_dir)
     overrides = _resolve_override_mapping(variables, "users", templar=templar)
@@ -431,7 +447,7 @@ def get_merged_users(
     merged = _apply_account_defaults(_merge_users(defaults, overrides))
     hydrated = _hydrate_users_tokens(
         merged,
-        _load_store_users(tokens_file),
+        dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
     )
 
     if getattr(_RENDER_GUARD, "users", False):
@@ -439,7 +455,7 @@ def get_merged_users(
 
     _RENDER_GUARD.users = True
     try:
-        materialized = _materialize_builtin_user_aliases(
+        materialized = _materialize_domain_label_reservations(
             hydrated,
             variables,
             templar=templar,
@@ -466,3 +482,4 @@ def get_merged_users(
 def _reset() -> None:
     _USERS_DEFAULTS_CACHE.clear()
     _MERGED_USERS_CACHE.clear()
+    _store._reset()

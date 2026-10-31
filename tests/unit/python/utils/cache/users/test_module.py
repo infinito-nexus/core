@@ -4,7 +4,7 @@ Pins the public API (`get_user_defaults`, `get_merged_users`) plus the
 internal helpers that only this module owns: `_load_user_defs`,
 `_build_users`, `_compute_reserved_usernames`, `_load_store_users`,
 `_resolve_tokens_file`, `_hydrate_users_tokens`, `_merge_users`,
-`_materialize_builtin_user_aliases`. Module name is `test_users_module`
+`_materialize_domain_label_reservations`. Module name is `test_users_module`
 to disambiguate from the existing `tests/unit/python/plugins/lookup/test_users.py`
 which targets the lookup plugin.
 """
@@ -14,14 +14,20 @@ from __future__ import annotations
 import tempfile
 import textwrap
 import unittest
+import unittest.mock as mock
 from collections import OrderedDict
 from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
+from utils.cache.carrier import USERS_RENDERED_FACT, merged_users_cache_key
+from utils.cache.users import store as cache_users_store
 from utils.cache.yaml import dump_yaml_str
+from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+DOMAIN = default_domain_primary()
 
 
 def _write(path: Path, content: str) -> None:
@@ -225,9 +231,16 @@ class TestMergeUsers(unittest.TestCase):
             {
                 "invuser": {"username": "invuser"},
                 "invbot": {"username": "invbot", "roles": ["bot"]},
-                "pinned": {"username": "pinned", "accounts": [], "forward": "x"},
+                "pinned": {
+                    "username": "pinned",
+                    "accounts": [],
+                    "forward": "x",
+                    "email": "pinned@example.org",
+                },
             }
         )
+        self.assertEqual(merged["invuser"]["email"], "invuser@{{ DOMAIN_PRIMARY }}")
+        self.assertEqual(merged["pinned"]["email"], "pinned@example.org")
         self.assertEqual(merged["invuser"]["accounts"], ["identity"])
         self.assertEqual(merged["invuser"]["forward"], "")
         self.assertEqual(merged["invbot"]["accounts"], ["mailbox", "identity"])
@@ -299,21 +312,22 @@ class TestLoadStoreUsers(unittest.TestCase):
 class TestMaterializeBuiltinUserAliases(unittest.TestCase):
     def test_no_primary_domain_returns_users_unchanged(self):
         users = {"alice": {"username": "alice"}}
-        out = cache_users._materialize_builtin_user_aliases(
+        out = cache_users._materialize_domain_label_reservations(
             users, variables={}, templar=None
         )
         self.assertEqual(out, users)
 
-    def test_sld_alias_username_resolved_from_domain_primary(self):
-        users = {
-            "sld": {"username": "{{ DOMAIN_PRIMARY.split('.') | first }}"},
-        }
-        out = cache_users._materialize_builtin_user_aliases(
-            users,
-            variables={"DOMAIN_PRIMARY": "infinito.test"},
+    def test_every_domain_label_becomes_a_reserved_username(self):
+        out = cache_users._materialize_domain_label_reservations(
+            {},
+            variables={"DOMAIN_PRIMARY": DOMAIN},
             templar=None,
         )
-        self.assertEqual(out["sld"]["username"], "infinito")
+        self.assertEqual(
+            [out[key]["username"] for key in sorted(out)],
+            DOMAIN.split("."),
+        )
+        self.assertTrue(all(out[key]["accounts"] == [] for key in out))
 
 
 class TestGetUserDefaults(unittest.TestCase):
@@ -361,6 +375,326 @@ class TestGetMergedUsersWithOverrides(unittest.TestCase):
                 templar=None,
             )
             self.assertEqual(merged["foo"]["username"], "override-user")
+
+
+class TestGetMergedUsersTokenSource(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def _merged(self, roles: Path, tokens_file: Path, **extra) -> dict:
+        return cache_users.get_merged_users(
+            variables={"FILE_TOKENS": str(tokens_file), **extra},
+            roles_dir=roles,
+            templar=None,
+        )
+
+    def _seed(self, tmp: Path) -> tuple[Path, Path]:
+        roles = _seed_minimal_user_role(tmp, "web-app-foo")
+        tokens_file = tmp / "tokens.yml"
+        tokens_file.write_text(
+            dump_yaml_str({"users": {"foo": {"tokens": {"web-app-foo": "from-file"}}}}),
+            encoding="utf-8",
+        )
+        return roles, tokens_file
+
+    def test_the_store_fact_of_the_play_wins_over_the_controller_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            merged = self._merged(
+                roles,
+                tokens_file,
+                sys_token_store_users={
+                    "foo": {"tokens": {"web-app-foo": "from-stack-host"}}
+                },
+            )
+            self.assertEqual(merged["foo"]["tokens"]["web-app-foo"], "from-stack-host")
+
+    def test_without_the_fact_the_controller_file_is_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            merged = self._merged(roles, tokens_file)
+            self.assertEqual(merged["foo"]["tokens"]["web-app-foo"], "from-file")
+
+    def test_a_written_token_reaches_the_next_lookup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, tokens_file = self._seed(Path(tmp))
+            before = self._merged(roles, tokens_file, sys_token_store_users={})
+            after = self._merged(
+                roles,
+                tokens_file,
+                sys_token_store_users={"foo": {"tokens": {"web-app-foo": "minted"}}},
+            )
+            self.assertNotIn("web-app-foo", before["foo"].get("tokens", {}))
+            self.assertEqual(after["foo"]["tokens"]["web-app-foo"], "minted")
+
+
+class _Templar:
+    def __init__(self) -> None:
+        self.available_variables: dict = {}
+
+    def template(self, value, fail_on_undefined=False):
+        return value
+
+
+class TestGetMergedUsersCarrierFact(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _variables(host: str = "h1") -> dict:
+        return {
+            "inventory_hostname": host,
+            "users": {"foo": {"email": "foo@example.org"}},
+            cache_users_store.STORE_FACT: {
+                "foo": {"tokens": {"web-app-foo": "minted"}}
+            },
+        }
+
+    @staticmethod
+    def _park(roles: Path, variables: dict, payload: dict) -> dict:
+        key = merged_users_cache_key(variables, roles_dir=roles)
+        variables[USERS_RENDERED_FACT] = {
+            "key": [key[0], list(key[1])],
+            "users": payload,
+        }
+        return payload
+
+    @staticmethod
+    def _merged(roles: Path, variables: dict, templar=None) -> tuple:
+        with mock.patch.object(
+            cache_users,
+            "_render_with_templar",
+            side_effect=lambda value, **_: {"rendered": value},
+        ) as render:
+            merged = cache_users.get_merged_users(
+                variables=variables,
+                roles_dir=roles,
+                templar=_Templar() if templar is None else templar,
+            )
+        return merged, render.call_count
+
+    def test_matching_key_serves_the_carried_payload_without_rendering(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            carried = self._park(roles, variables, {"foo": {"carried": True}})
+            merged, renders = self._merged(roles, variables)
+            self.assertIs(merged, carried)
+            self.assertEqual(renders, 0)
+
+    def test_the_carried_payload_answers_the_rest_of_the_process(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            carried = self._park(roles, variables, {"foo": {"carried": True}})
+            self._merged(roles, variables)
+            del variables[USERS_RENDERED_FACT]
+            merged, renders = self._merged(roles, variables)
+            self.assertIs(merged, carried)
+            self.assertEqual(renders, 0)
+
+    def test_stale_key_falls_back_to_a_fresh_render(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            key = merged_users_cache_key(variables, roles_dir=roles)
+            variables[USERS_RENDERED_FACT] = {
+                "key": [key[0], ["stale"] * len(key[1])],
+                "users": {"foo": {"carried": True}},
+            }
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertEqual(merged["rendered"]["foo"]["email"], "foo@example.org")
+
+    def test_another_hosts_carrier_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables("h1")
+            self._park(roles, variables, {"foo": {"carried": True}})
+            variables["inventory_hostname"] = "h2"
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertNotIn("carried", merged["rendered"]["foo"])
+
+    def test_a_rotated_store_token_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            self._park(roles, variables, {"foo": {"carried": True}})
+            variables[cache_users_store.STORE_FACT] = {
+                "foo": {"tokens": {"web-app-foo": "rotated"}}
+            }
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertEqual(
+                merged["rendered"]["foo"]["tokens"]["web-app-foo"], "rotated"
+            )
+
+    def _park_from_the_tokens_file(self, tmp: Path, token: str) -> tuple:
+        roles = _seed_minimal_user_role(tmp)
+        tokens = tmp / "tokens.yml"
+        tokens.write_text(
+            f"users: {{foo: {{tokens: {{web-app-foo: {token}}}}}}}\n",
+            encoding="utf-8",
+        )
+        variables = self._variables()
+        del variables[cache_users_store.STORE_FACT]
+        variables["FILE_TOKENS"] = str(tokens)
+        carried = self._park(roles, variables, {"foo": {"carried": True}})
+        return roles, variables, tokens, carried
+
+    def test_a_changed_tokens_file_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, variables, tokens, _ = self._park_from_the_tokens_file(
+                Path(tmp), "minted"
+            )
+            tokens.write_text(
+                "users: {foo: {tokens: {web-app-foo: rotated-token}}}\n",
+                encoding="utf-8",
+            )
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertEqual(
+                merged["rendered"]["foo"]["tokens"]["web-app-foo"], "rotated-token"
+            )
+
+    def test_the_store_fact_with_the_file_tokens_keeps_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles, variables, _, carried = self._park_from_the_tokens_file(
+                Path(tmp), "minted"
+            )
+            variables[cache_users_store.STORE_FACT] = {
+                "foo": {"tokens": {"web-app-foo": "minted"}}
+            }
+            merged, renders = self._merged(roles, variables)
+            self.assertIs(merged, carried)
+            self.assertEqual(renders, 0)
+
+    def test_a_rotated_inventory_password_rejects_the_carrier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            variables["users"]["foo"]["password"] = "before"
+            self._park(roles, variables, {"foo": {"carried": True}})
+            variables["users"] = {"foo": {"password": "after"}}
+            merged, renders = self._merged(roles, variables)
+            self.assertEqual(renders, 1)
+            self.assertEqual(merged["rendered"]["foo"]["password"], "after")
+
+    def test_without_a_templar_the_carrier_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            self._park(roles, variables, {"foo": {"carried": True}})
+            merged = cache_users.get_merged_users(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("carried", merged["foo"])
+            self.assertEqual(merged["foo"]["email"], "foo@example.org")
+
+    def test_malformed_carrier_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            key = merged_users_cache_key(self._variables(), roles_dir=roles)
+            for carrier in (
+                "not-a-mapping",
+                {"key": "x", "users": {}},
+                {"key": [key[0], list(key[1])], "users": "not-a-mapping"},
+                {},
+            ):
+                with self.subTest(carrier=carrier):
+                    _reset_cache_for_tests()
+                    variables = self._variables()
+                    variables[USERS_RENDERED_FACT] = carrier
+                    merged, renders = self._merged(roles, variables)
+                    self.assertEqual(renders, 1)
+                    self.assertEqual(
+                        merged["rendered"]["foo"]["email"], "foo@example.org"
+                    )
+
+
+class TestStoreSignature(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _signature(store: dict) -> tuple:
+        with tempfile.TemporaryDirectory() as tmp:
+            return cache_users._store_signature(
+                {cache_users_store.STORE_FACT: store}, Path(tmp) / "tokens.yml"
+            )
+
+    @staticmethod
+    def _hydrated(store: dict) -> str:
+        users = {"foo": {"tokens": {"web-app-foo": ""}}}
+        return repr(cache_users._hydrate_users_tokens(users, store))
+
+    def test_the_tokens_file_signs_like_the_store_fact_with_the_same_tokens(self):
+        store = {"foo": {"tokens": {"web-app-foo": "minted"}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            tokens_file = Path(tmp) / "tokens.yml"
+            tokens_file.write_text(dump_yaml_str({"users": store}), encoding="utf-8")
+            self.assertEqual(
+                cache_users._store_signature({}, tokens_file),
+                cache_users._store_signature(
+                    {cache_users_store.STORE_FACT: store}, tokens_file
+                ),
+            )
+
+    def test_a_missing_tokens_file_signs_like_an_empty_store_fact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            absent = Path(tmp) / "tokens.yml"
+            self.assertEqual(
+                cache_users._store_signature({}, absent),
+                cache_users._store_signature(
+                    {cache_users_store.STORE_FACT: {}}, absent
+                ),
+            )
+
+    def test_fields_and_padding_the_hydration_ignores_keep_the_signature(self):
+        plain = {"foo": {"tokens": {"web-app-foo": "minted"}}}
+        for variant in (
+            {"foo": {"tokens": {"web-app-foo": " minted "}}},
+            {"foo": {"tokens": {"web-app-foo": "minted"}, "note": "unread"}},
+            {"foo": {"tokens": {"web-app-foo": "minted", "web-app-bar": None}}},
+            {"foo": {"tokens": {"web-app-foo": "minted"}}, "bar": "not-a-mapping"},
+        ):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._hydrated(variant), self._hydrated(plain))
+                self.assertEqual(self._signature(variant), self._signature(plain))
+
+    def test_the_store_order_enters_the_signature_because_the_hydration_keeps_it(
+        self,
+    ):
+        first = {"bar": {"tokens": {"x": "1"}}, "baz": {"tokens": {"y": "2"}}}
+        swapped = {"baz": {"tokens": {"y": "2"}}, "bar": {"tokens": {"x": "1"}}}
+        self.assertNotEqual(self._hydrated(first), self._hydrated(swapped))
+        self.assertNotEqual(self._signature(first), self._signature(swapped))
+
+    def test_an_equal_signature_means_an_equal_hydration(self):
+        stores = [
+            {"foo": {"tokens": {"web-app-foo": "minted"}}},
+            {"foo": {"tokens": {"web-app-foo": " minted "}}},
+            {"foo": {"tokens": {"web-app-foo": "rotated"}}},
+            {"foo": {"tokens": {"web-app-foo": None}}},
+            {"foo": {"tokens": {"web-app-foo": ""}}},
+            {"foo": {"tokens": {}}},
+            {"foo": {"tokens": "not-a-mapping"}},
+            {"foo": {}},
+            {"foo": "not-a-mapping"},
+            {},
+            {"bar": {"tokens": {"x": "1"}}},
+            {"bar": {"tokens": {"x": 1}}},
+            {"bar": {"tokens": {}}},
+            {1: {"tokens": {"x": "1"}}},
+            {"1": {"tokens": {"x": "1"}}},
+        ]
+        for first in stores:
+            for second in stores:
+                if self._signature(first) != self._signature(second):
+                    continue
+                with self.subTest(first=first, second=second):
+                    self.assertEqual(self._hydrated(first), self._hydrated(second))
 
 
 if __name__ == "__main__":

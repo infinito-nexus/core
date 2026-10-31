@@ -41,6 +41,8 @@ from pathlib import Path
 from plugins.filter.text_filters import to_one_liner
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
+from utils.i18n.extract import logout_context
+from utils.i18n.keyed import keyed_catalogue
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
@@ -48,7 +50,8 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 ASSEMBLY = ROLE / "templates" / "logout-panel.js.j2"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
-FRAMED_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+FRAMED_URL_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
+PANEL_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.origin')"
 ORIGIN = "https://logout.example.test"
 DOMAINS = ("https://shop.example.test", "https://cloud.example.test")
 
@@ -304,7 +307,10 @@ def _collapsed_panel() -> str:
     :return: the one-lined script with both lookups resolved - the logout
         origin and the real translation catalogue
     """
-    catalogue = json.dumps(load_yaml(CATALOGUE_FILE), ensure_ascii=False)
+    catalogue = json.dumps(
+        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)),
+        ensure_ascii=False,
+    )
     prelude = (
         "window.__INFINITO_LOGOUT__ = {"
         f"origin: {json.dumps(ORIGIN)}, i18n: {catalogue}"
@@ -356,15 +362,16 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
             declaration, f"KEYCLOAK_FRONTCHANNEL_LOGOUT_URL missing from {VARS}"
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            FRAMED_URL_LOOKUP,
             declaration,
             "the front-channel logout URL decides which origin ends up framed",
         )
         self.assertIn(
-            FRAMED_ORIGIN_LOOKUP,
+            PANEL_ORIGIN_LOOKUP,
             read_text(str(ASSEMBLY)),
-            "the panel discards messages from any other origin, so its constant and"
-            " the framed URL must come from one expression or the panel goes silent",
+            "the panel discards messages from any other origin, so its constant must"
+            " be the origin of the same tls resolution that builds the framed URL,"
+            " or the panel goes silent",
         )
 
 

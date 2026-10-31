@@ -10,13 +10,18 @@
     name: sys-sudo
   when: run_once_sys_sudo is not defined
 
+- name: "🔎 Check whether {{ USER_ADMINISTRATOR_NAME }} already holds an SSH key"
+  ansible.builtin.stat:
+    path: "{{ DIR_HOME_ADMINISTRATOR }}.ssh/id_rsa"
+  register: user_administrator_ssh_key
+
 - name: "📁 create {{ USER_ADMINISTRATOR_NAME }}"
   user:
     name: "{{ USER_ADMINISTRATOR_NAME }}"
     update_password: on_create
     password: "{{ lookup('users', USER_ADMINISTRATOR_NAME).password | password_hash('sha512') }}"
     create_home: true
-    generate_ssh_key: true
+    generate_ssh_key: "{{ not user_administrator_ssh_key.stat.exists }}"
     ssh_key_type: rsa
     ssh_key_bits: 8192
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -41,6 +46,6 @@
   include_role:
     name: user
   vars:
-    user_key: "{{ USER_ADMINISTRATOR_NAME }}"
+    user_key: "{{ IAM_HOST_ADMIN_USER_KEY }}"
 
 - include_tasks: utils/once/flag.yml

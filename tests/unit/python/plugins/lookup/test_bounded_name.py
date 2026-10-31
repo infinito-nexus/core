@@ -28,7 +28,7 @@ class TestBoundedNameLookup(unittest.TestCase):
                 side_effect=lambda domains, app: domains[app],
             ),
             patch(
-                "plugins.lookup.bounded_name.get_entity_name",
+                "plugins.lookup.bounded_name.entity_name",
                 side_effect=lambda app: app.rsplit("-", 1)[-1],
             ),
         ]

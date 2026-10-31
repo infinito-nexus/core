@@ -1,0 +1,64 @@
+---
+# include-gated: when: STALWART_FORWARDS | length > 0
+- name: "📖 Read the Sieve limits of user scripts and the accounts the forwards belong to"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:SieveUserInterpreter/get', {'ids': ['singleton']}, 'c0'],
+                          ['x:Domain/get', {'ids': none}, 'c1'],
+                          ['x:Account/get', {'ids': none}, 'c2']]} | to_json }}
+
+- name: "🔍 Check Sieve limits against the widest forward, resolve forwarders"
+  ansible.builtin.set_fact:
+    stalwart_sieve_limits:
+      maxRedirects: "{{ [stalwart_jmap.methodResponses[0][1].list[0].maxRedirects | int, stalwart_forward_width | int] | max }}"
+      maxOutMessages: "{{ [stalwart_jmap.methodResponses[0][1].list[0].maxOutMessages | int, stalwart_forward_width | int] | max }}"
+    stalwart_sieve_limits_live:
+      maxRedirects: "{{ stalwart_jmap.methodResponses[0][1].list[0].maxRedirects | int }}"
+      maxOutMessages: "{{ stalwart_jmap.methodResponses[0][1].list[0].maxOutMessages | int }}"
+    stalwart_forward_account_ids: >-
+      {%- set domains = dict(stalwart_jmap.methodResponses[1][1].list | map(attribute='id')
+                             | zip(stalwart_jmap.methodResponses[1][1].list | map(attribute='name'))) -%}
+      {%- set ids = {} -%}
+      {%- for account in stalwart_jmap.methodResponses[2][1].list if account.domainId in domains -%}
+      {%-   set _ = ids.update({(account.name ~ '@' ~ domains[account.domainId]) | lower: account.id}) -%}
+      {%- endfor -%}
+      {{ ids }}
+  vars:
+    stalwart_forward_width: "{{ STALWART_FORWARDS | map(attribute='destinations') | map('length') | max }}"
+
+- name: "✅ Ensure every forwarding address is a Stalwart account"
+  ansible.builtin.assert:
+    that: stalwart_forward_missing | length == 0
+    fail_msg: "Forwards are declared for addresses without a Stalwart account: {{ stalwart_forward_missing }}"
+    quiet: true
+  vars:
+    stalwart_forward_missing: "{{ STALWART_FORWARDS | map(attribute='address') | reject('in', stalwart_forward_account_ids) | list }}"
+
+- name: "🔧 Raise the Sieve redirect limits to the widest forward"
+  when: stalwart_sieve_limits != stalwart_sieve_limits_live
+  block:
+    - name: "🔧 Allow one redirect per forward destination"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:SieveUserInterpreter/set', {'update': {'singleton': {
+                'maxRedirects': stalwart_sieve_limits.maxRedirects | int,
+                'maxOutMessages': stalwart_sieve_limits.maxOutMessages | int
+              }}}, 'c0']]} | to_json }}
+
+    - name: "🔄 Reload Stalwart's settings"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:Action/set', {'create': {'a': {'@type': 'ReloadSettings'}}}, 'c0']]} | to_json }}
+
+- name: "📨 Keep the forward script of every forwarding account in place"
+  include_tasks: 16_forwards/apply.yml
+  loop: "{{ STALWART_FORWARDS | batch(STALWART_JMAP_MAX_METHOD_CALLS) | list }}"
+  loop_control:
+    loop_var: stalwart_forward_chunk
+    label: "{{ stalwart_forward_chunk | map(attribute='address') | join(', ') }}"

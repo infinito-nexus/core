@@ -1,6 +1,10 @@
+{% set logout_target = OIDC.CLIENT.LOGOUT_URL %}
+{% if (OIDC_OVERRIDE is not defined or OIDC_OVERRIDE.URL is not defined) and (domain | network_of) != (lookup('domain', application_id) | network_of) %}
+{% set logout_target = logout_target ~ '?' ~ ({'client_id': OIDC.CLIENT.ID, 'post_logout_redirect_uri': lookup('tls', 'web-svc-logout', 'url.base')} | urlencode) %}
+{% endif %}
 document.addEventListener('DOMContentLoaded', function() {
     initLogoutPatch(
-        '{{ OIDC.CLIENT.LOGOUT_URL }}',
+        '{{ logout_target }}',
         {{ MODE_DEBUG | lower }}
     );
 });

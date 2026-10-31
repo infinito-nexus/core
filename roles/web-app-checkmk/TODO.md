@@ -1,0 +1,3 @@
+# TODO
+
+- The navigation menus (Monitor, Customize, Setup, Help, User) and every other control Checkmk wires through an inline `onclick` attribute stay inert behind the front proxy: a click on `#popup_trigger_mega_menu_setup > a` leaves `#popup_menu_setup` at `visibility: hidden`, and the browser console reports `Executing inline event handler violates the following Content Security Policy directive 'script-src-attr 'self''`. `meta/csp.yml` grants `unsafe-inline` for `script-src` and `script-src-elem` but not for `script-src-attr`. Options: add the `script-src-attr` `unsafe-inline` flag to `meta/csp.yml`, or serve Checkmk with a CSP that hashes its inline handlers.

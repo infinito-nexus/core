@@ -44,11 +44,18 @@ joomla:
       enabled: true
   image: joomla
   version: 6.2.0-php8.3-apache
+  upgrade:
+    bridges:
+      - version: 5.4.9
+        sha256: 7840541ae606bd460d4bf3647c977699af279c229f708756c78a2dcc06cfc8cf
+        plugins:
+          behaviour/compat: false
+          behaviour/compat6: true
   custom: true
   name: joomla
   min_storage: 478MB
   backup:
-    no_stop_required: true
+    stop_required: false
   upload:
     size_mb: 100
   autocreate_users: true
@@ -67,11 +74,23 @@ joomla:
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "{{ SOFTWARE_NAME }} Joomla - CMS"
+  slots:
+    site-brand:
+      width: 280
+      height: 48
+      frame: true
+    admin-brand:
+      width: 260
+      height: 44
+      frame: true
+    admin-login:
+      width: 300
+      height: 70
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -89,3 +108,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

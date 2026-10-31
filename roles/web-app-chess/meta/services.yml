@@ -35,7 +35,7 @@ chess:
   name: web-app-chess
   min_storage: 633MB
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: 0.5
   mem_reservation: 256m
   mem_limit: 512m
@@ -48,10 +48,14 @@ chess:
   proxy:
     service_key: chess
   lifecycle: beta
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    favicon:
+      width: 64
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -69,3 +73,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

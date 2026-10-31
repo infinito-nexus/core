@@ -22,9 +22,11 @@
       The consumer must declare services.typesense.password (shared: true).
 
 - name: "🔍 TYPESENSE | Probe /health with admin key (inside container)"
-  ansible.builtin.shell: >
-    {{ TYPESENSE_EXEC_SHELL }}
-    'exec 3<>/dev/tcp/127.0.0.1/8108; printf "GET /health HTTP/1.0\r\nX-TYPESENSE-API-KEY: {{ TYPESENSE_API_KEY }}\r\n\r\n" >&3; grep -q "200 OK" <&3'
+  ansible.builtin.shell:
+    cmd: >
+      {{ TYPESENSE_EXEC_SHELL_STDIN }}
+      'IFS= read -r K; exec 3<>/dev/tcp/127.0.0.1/8108; printf "GET /health HTTP/1.0\r\nX-TYPESENSE-API-KEY: %s\r\n\r\n" "$K" >&3; grep -q "200 OK" <&3'
+    stdin: "{{ TYPESENSE_API_KEY }}"
   register: ts_admin_ready
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false
@@ -36,11 +38,11 @@
   ansible.builtin.shell:
     cmd: >
       {{ TYPESENSE_EXEC_SHELL_STDIN }}
-      'B=$(cat); exec 3<>/dev/tcp/127.0.0.1/8108;
-      printf "POST /keys HTTP/1.0\r\nX-TYPESENSE-API-KEY: {{ TYPESENSE_API_KEY }}\r\nContent-Type: application/json\r\nContent-Length: {{ TYPESENSE_KEY_BODY | length
-      }}\r\n\r\n%s" "$B" >&3;
+      'IFS= read -r K; B=$(cat); exec 3<>/dev/tcp/127.0.0.1/8108;
+      printf "POST /keys HTTP/1.0\r\nX-TYPESENSE-API-KEY: %s\r\nContent-Type: application/json\r\nContent-Length: {{ TYPESENSE_KEY_BODY | length
+      }}\r\n\r\n%s" "$K" "$B" >&3;
       head -n1 <&3 | cut -d" " -f2'
-    stdin: "{{ TYPESENSE_KEY_BODY }}"
+    stdin: "{{ TYPESENSE_API_KEY }}\n{{ TYPESENSE_KEY_BODY }}"
   vars:
     TYPESENSE_KEY_BODY: "{{ {'value': typesense_consumer_key, 'description': 'scoped key for ' ~ database_consumer_id, 'actions': ['*'], 'collections': [typesense_consumer_prefix
       ~ '_*']} | to_json }}"

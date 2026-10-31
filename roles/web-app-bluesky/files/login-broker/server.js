@@ -1,4 +1,3 @@
-// nocheck: mirrored-unit-test - a standalone Express server whose module body binds a port and reads the container environment at import
 /*
  * Bluesky login-broker.
  *
@@ -49,6 +48,16 @@ const http = require("node:http");
 const https = require("node:https");
 const crypto = require("node:crypto");
 const { URL } = require("node:url");
+const {
+  PDS_HANDLE_LABEL_MAX,
+  PDS_HANDLE_LABEL_MIN,
+  RESERVED_PREFIX,
+  chosenLabelError,
+  deriveLabel,
+  fitsPds,
+  prefixedLabel
+} = require("./handle");
+const { openStore } = require("./store");
 
 // --- Configuration --------------------------------------------------
 
@@ -72,7 +81,10 @@ const CONFIG = {
   // nocheck: env-default  the broker owns its own cookie, no role renders it
   handoffCookieMaxAgeSec: parseInt(process.env.HANDOFF_COOKIE_MAX_AGE || "3300", 10),
   insecureTls: (process.env.INSECURE_TLS || "").toLowerCase() === "true",
-  logoutPath: "/sso/logout"
+  siteTitle: requireEnv("SITE_TITLE"),
+  storePath: requireEnv("BROKER_STORE_PATH"),
+  logoutPath: "/sso/logout",
+  chooseHandlePath: "/sso/handle"
 };
 
 function requireEnv(name) {
@@ -163,18 +175,6 @@ function fetchJson(method, urlString, opts = {}) {
 
 // --- PDS client -----------------------------------------------------
 
-function sanitiseHandle(username) {
-  if (!username) return "kc-user";
-  const lower = username.toLowerCase().slice(0, 256);
-  const mapped = lower.replace(/[^a-z0-9-]+/g, "-").replace(/^-+/, "").replace(/-+$/, "");
-  // PDS reserves common service handles ("administrator", "admin", "api",
-  // "support", "www", "bsky", "atproto", etc.) and rejects createAccount
-  // with `HandleNotAvailable: Reserved handle`. Always prefix with `kc-`
-  // so Keycloak-derived handles cannot collide with that reserved list,
-  // independent of which usernames the realm carries.
-  return `kc-${mapped || "user"}`;
-}
-
 async function pdsCreateAccount({ handle, email, password }) {
   const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.server.createAccount`;
   const body = { handle, email, password };
@@ -195,7 +195,10 @@ async function pdsCreateSession({ handle, password }) {
   const url = `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.server.createSession`;
   const res = await fetchJson("POST", url, { body: { identifier: handle, password } });
   if (res.status < 200 || res.status >= 300) {
-    throw new Error(`PDS createSession failed: status=${res.status} body=${res.raw}`);
+    const err = new Error(`PDS createSession failed: status=${res.status} body=${res.raw}`);
+    err.pdsStatus = res.status;
+    err.pdsBody = res.body;
+    throw err;
   }
   return res.body;
 }
@@ -232,61 +235,118 @@ async function pdsAdminUpdatePassword(did, newPassword) {
 
 // --- High-level orchestration --------------------------------------
 
-// Per-user PDS app-password / DID / handle cache, keyed by Keycloak
-// username. In-memory, AES-256-GCM-encrypted at rest.
-//
-// We deliberately do NOT write the encrypted blob into Keycloak user
-// attributes (the previous design): on a realm with LDAP federation
-// in WRITABLE mode the bluesky_* attribute write triggers an LDAP
-// schema-violating sync push and leaves the federated user in a
-// partially-synced state, which then breaks subsequent direct OIDC
-// logins for that user (every other realm-OIDC test in the matrix
-// would regress as a side-effect of running the broker once). The
-// broker is a single-instance sidecar so an in-memory map is enough;
-// on broker restart the user re-creates a PDS app-password on first
-// SSO visit. The previous app-password remains valid in PDS until
-// rotated explicitly — acceptable for this auto-provision flow.
-const sessionCache = new Map();
+const store = openStore(CONFIG.storePath);
 
-async function ensurePdsSession({ kcUsername, kcEmail }) {
-  const fullHandle = `${sanitiseHandle(kcUsername)}.${CONFIG.pdsHandleDomain}`;
-  const cached = sessionCache.get(kcUsername);
-  let appPasswordEnc = cached ? cached.appPasswordEnc : null;
-  let did = cached ? cached.did : null;
-  if (!appPasswordEnc) {
-    const synthesised = crypto.randomBytes(18).toString("base64url");
-    try {
-      const created = await pdsCreateAccount({
-        handle: fullHandle,
-        email: kcEmail || `${kcUsername}@bridge.local`,
-        password: synthesised
-      });
-      did = created.did || did;
-    } catch (err) {
-      // Recover from `Handle already taken` — happens when the broker's
-      // in-memory cache has been lost (container restart, cross-variant
-      // deploy that shares the PDS data volume) but the PDS still has
-      // the account from a previous broker session. Use the PDS admin
-      // API to reset the password to a fresh value we control, so the
-      // subsequent createSession works again.
-      const isHandleTaken =
-        err.pdsBody && err.pdsBody.error === "InvalidRequest" &&
-        typeof err.pdsBody.message === "string" &&
-        err.pdsBody.message.includes("Handle already taken");
-      if (!isHandleTaken) throw err;
-      did = await pdsResolveHandle(fullHandle);
-      await pdsAdminUpdatePassword(did, synthesised);
-    }
-    appPasswordEnc = encrypt(synthesised);
-    sessionCache.set(kcUsername, { appPasswordEnc, did, handle: fullHandle });
+class HandleChoiceRequired extends Error {}
+
+function pdsMessageIncludes(err, text) {
+  return Boolean(
+    err.pdsBody && typeof err.pdsBody.message === "string" && err.pdsBody.message.includes(text)
+  );
+}
+
+function accountEmail(kcUsername, kcEmail) {
+  return kcEmail || `${kcUsername}@bridge.local`;
+}
+
+async function createAccountWithLabel({ label, kcUsername, kcEmail, password, recoverTaken }) {
+  const handle = `${label}.${CONFIG.pdsHandleDomain}`;
+  try {
+    const created = await pdsCreateAccount({ handle, email: accountEmail(kcUsername, kcEmail), password });
+    return { handle, did: created.did };
+  } catch (err) {
+    if (!recoverTaken || !pdsMessageIncludes(err, "Handle already taken")) throw err;
+    const owner = store.ownerOf(handle);
+    if (owner && owner !== kcUsername) throw err;
+    const did = await pdsResolveHandle(handle);
+    await pdsAdminUpdatePassword(did, password);
+    return { handle, did };
   }
-  const password = decrypt(appPasswordEnc);
-  const session = await pdsCreateSession({ handle: fullHandle, password });
+}
+
+async function provisionAccount({ kcUsername, kcEmail, chosenLabel }) {
+  const password = crypto.randomBytes(18).toString("base64url");
+  const request = { kcUsername, kcEmail, password };
+  let account;
+  if (chosenLabel) {
+    account = await createAccountWithLabel(Object.assign({ label: chosenLabel, recoverTaken: false }, request));
+  } else {
+    const label = deriveLabel(kcUsername);
+    if (!fitsPds(label)) throw new HandleChoiceRequired();
+    try {
+      account = await createAccountWithLabel(Object.assign({ label, recoverTaken: true }, request));
+    } catch (err) {
+      if (!pdsMessageIncludes(err, "Reserved handle")) throw err;
+      const reservedLabel = prefixedLabel(label);
+      if (!fitsPds(reservedLabel)) throw new HandleChoiceRequired();
+      account = await createAccountWithLabel(Object.assign({ label: reservedLabel, recoverTaken: true }, request));
+    }
+  }
+  const entry = { handle: account.handle, did: account.did, appPasswordEnc: encrypt(password) };
+  store.set(kcUsername, entry);
+  return entry;
+}
+
+const provisioning = new Map();
+
+function provisionOnce(request) {
+  const pending = provisioning.get(request.kcUsername);
+  if (pending) return pending;
+  const run = provisionAccount(request).finally(() => provisioning.delete(request.kcUsername));
+  provisioning.set(request.kcUsername, run);
+  return run;
+}
+
+function sessionFor(entry) {
+  return pdsCreateSession({ handle: entry.handle, password: decrypt(entry.appPasswordEnc) });
+}
+
+function storedPassword(entry) {
+  try {
+    return decrypt(entry.appPasswordEnc);
+  } catch {
+    return null;
+  }
+}
+
+async function storedSession(kcUsername, entry) {
+  const stored = storedPassword(entry);
+  if (stored === null) {
+    console.log(`[broker] stored app-password of ${logSafe(kcUsername)} does not decrypt with the current key → reset by DID`);
+  } else {
+    try {
+      return await pdsCreateSession({ handle: entry.handle, password: stored });
+    } catch (err) {
+      if (!pdsMessageIncludes(err, "Invalid identifier or password")) throw err;
+    }
+  }
+  const password = crypto.randomBytes(18).toString("base64url");
+  await pdsAdminUpdatePassword(entry.did, password);
+  const repaired = Object.assign({}, entry, { appPasswordEnc: encrypt(password) });
+  try {
+    const session = await sessionFor(repaired);
+    store.set(kcUsername, repaired);
+    return session;
+  } catch (err) {
+    if (!pdsMessageIncludes(err, "Invalid identifier or password")) throw err;
+    store.delete(kcUsername);
+    return null;
+  }
+}
+
+async function ensurePdsSession({ kcUsername, kcEmail, chosenLabel }) {
+  const stored = store.get(kcUsername);
+  let session = stored ? await storedSession(kcUsername, stored) : null;
+  let entry = stored;
+  if (!session) {
+    entry = await provisionOnce({ kcUsername, kcEmail, chosenLabel });
+    session = await sessionFor(entry);
+  }
   return {
     service: CONFIG.pdsUrl,
-    did: session.did || did,
-    handle: session.handle || fullHandle,
-    email: kcEmail || `${kcUsername}@bridge.local`,
+    did: session.did || entry.did,
+    handle: session.handle || entry.handle,
+    email: accountEmail(kcUsername, kcEmail),
     emailConfirmed: true,
     accessJwt: session.accessJwt,
     refreshJwt: session.refreshJwt
@@ -371,12 +431,12 @@ function renderHandoff(session, redirectTo) {
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Bluesky SSO handoff</title>
+<title>${escapeHtml(CONFIG.siteTitle)} SSO handoff</title>
 <meta name="referrer" content="no-referrer" />
-<style>body{font-family:sans-serif;background:#001a33;color:#eef;margin:0;padding:2em;text-align:center}</style>
+<style>body{font-family:sans-serif;background:var(--design-surface-1);color:var(--design-text);margin:0;padding:2em;text-align:center}</style>
 </head>
 <body>
-<p id="status">Signing you in to Bluesky…</p>
+<p id="status">Signing you in to ${escapeHtml(CONFIG.siteTitle)}…</p>
 <script>
 (function(){
   try {
@@ -392,6 +452,59 @@ function renderHandoff(session, redirectTo) {
 <noscript>This SSO handoff requires JavaScript.</noscript>
 </body>
 </html>`;
+}
+
+function renderHandleForm({ error, value }) {
+  const errorHtml = error ? `<p class="error">${escapeHtml(error)}</p>` : "";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Choose your Bluesky handle</title>
+<meta name="referrer" content="no-referrer" />
+<style>body{font-family:sans-serif;background:#001a33;color:#eef;margin:0;padding:2em;text-align:center}input,button{font-size:1em;padding:.4em}.error{color:#f99}</style>
+</head>
+<body>
+<h1>Choose your Bluesky handle</h1>
+<p>Your username is longer than the ${PDS_HANDLE_LABEL_MAX} characters a Bluesky handle allows.</p>
+<p>Pick ${PDS_HANDLE_LABEL_MIN} to ${PDS_HANDLE_LABEL_MAX} lowercase letters, digits and hyphens. The handle must contain a hyphen (-) and must not contain "${RESERVED_PREFIX}".</p>
+${errorHtml}
+<form method="post" action="${CONFIG.chooseHandlePath}">
+<input name="handle" value="${escapeHtml(value)}" required minlength="${PDS_HANDLE_LABEL_MIN}" maxlength="${PDS_HANDLE_LABEL_MAX}" pattern="[a-z0-9-]+" autocomplete="off" autofocus />
+<span>.${escapeHtml(CONFIG.pdsHandleDomain)}</span>
+<button type="submit">Create account</button>
+</form>
+</body>
+</html>`;
+}
+
+function readBody(req, limitBytes) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limitBytes) {
+        reject(new Error("request body too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    req.on("error", reject);
+  });
+}
+
+function isSameOrigin(req) {
+  const origin = req.headers["origin"];
+  const host = (req.headers["x-forwarded-host"] || req.headers["host"] || "").toString().split(",")[0].trim();
+  if (!origin || !host) return false;
+  try {
+    return new URL(origin).hostname === new URL(`http://${host}`).hostname;
+  } catch {
+    return false;
+  }
 }
 
 function endHtml(res, status, html) {
@@ -467,17 +580,53 @@ const server = http.createServer(async (req, res) => {
     const kcEmail = (req.headers["x-forwarded-email"] || "").toString();
     if (!kcUsername) {
       console.log(`[broker:${reqId}] missing X-Forwarded-User → 401 (${Date.now() - reqStart}ms)`);
-      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>Bluesky login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
+      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
       return;
     }
 
-    const session = await ensurePdsSession({ kcUsername, kcEmail });
+    if (path === CONFIG.chooseHandlePath && req.method === "POST") {
+      if (!isSameOrigin(req)) {
+        endText(res, 403, "Cross-origin handle submission refused.");
+        return;
+      }
+      const chosenLabel = (new URLSearchParams(await readBody(req, 1024)).get("handle") || "").trim();
+      const error = chosenLabelError(chosenLabel);
+      if (error) {
+        endHtml(res, 400, renderHandleForm({ error, value: chosenLabel }));
+        return;
+      }
+      let chosenSession;
+      try {
+        chosenSession = await ensurePdsSession({ kcUsername, kcEmail, chosenLabel });
+      } catch (err) {
+        if (!pdsMessageIncludes(err, "Handle already taken")) throw err;
+        endHtml(res, 409, renderHandleForm({ error: "This handle is already taken.", value: chosenLabel }));
+        return;
+      }
+      console.log(`[broker:${reqId}] chosen handle ${logSafe(chosenSession.handle)} ready (${Date.now() - reqStart}ms)`);
+      endHtml(res, 200, renderHandoff(chosenSession, "/"));
+      return;
+    }
+
+    let session;
+    try {
+      session = await ensurePdsSession({ kcUsername, kcEmail });
+    } catch (err) {
+      if (!(err instanceof HandleChoiceRequired)) throw err;
+      console.log(`[broker:${reqId}] username too long for a handle → handle form (${Date.now() - reqStart}ms)`);
+      endHtml(res, 200, renderHandleForm({ error: null, value: "" }));
+      return;
+    }
     console.log(`[broker:${reqId}] PDS session ready did=${logSafe(session.did)} handle=${logSafe(session.handle)} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);
     const html = renderHandoff(session, requestUrl.pathname + (requestUrl.search || ""));
     endHtml(res, 200, html);
     console.log(`[broker:${reqId}] handoff HTML sent (${Date.now() - reqStart}ms)`);
   } catch (err) {
     console.error(`[broker:${reqId}] error:`, err.stack || err.message);
+    if (pdsMessageIncludes(err, "Email already taken")) {
+      endText(res, 409, "Another Bluesky account on this server already uses your e-mail address, most likely a legacy kc- account. Ask an administrator to delete it.");
+      return;
+    }
     endText(res, 500, `Broker error: ${escapeHtml(err.message)}`);
   }
 });

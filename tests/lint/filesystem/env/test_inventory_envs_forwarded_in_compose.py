@@ -1,11 +1,16 @@
-"""Every `lookup('env', 'INFINITO_*')` in the dev inventories MUST be forwarded
-into the DiD via compose.yml's `infinito` service `environment:` block.
+"""Every `lookup('env', 'INFINITO_*')` Ansible evaluates MUST be forwarded into
+the DiD via compose.yml's `infinito` service `environment:` block.
 
 For compose deploys Ansible runs inside the `infinito` container; a key the
 inventory references but compose.yml does not forward resolves to EMPTY in the
 container (silent path divergence: the DIR_VAR_LIB / mailu no-reply-token bug).
 Mark a genuinely host-only key (swarm path, never read in the DiD) with a
-same-line `# nocheck: <reason>` in the inventory.
+same-line `# nocheck: <reason>` at the lookup.
+
+A role's `vars/` and `defaults/` are scanned for the same reason: the
+generated `.env` reaches the host shell, not the container Ansible runs in,
+so a role reading a generated key resolves it to EMPTY exactly as an
+inventory would.
 """
 
 from __future__ import annotations
@@ -27,8 +32,10 @@ _SERVICE = "infinito"
 
 def _inventory_env_keys() -> dict[str, str]:
     found: dict[str, str] = {}
-    inv_dir = PROJECT_ROOT / "inventories" / "development"
-    for path in sorted(inv_dir.glob("*.yml")):
+    scanned = sorted((PROJECT_ROOT / "inventories" / "development").glob("*.yml"))
+    scanned += sorted(PROJECT_ROOT.glob("roles/*/vars/*.yml"))
+    scanned += sorted(PROJECT_ROOT.glob("roles/*/defaults/*.yml"))
+    for path in scanned:
         rel = path.relative_to(PROJECT_ROOT).as_posix()
         for index, line in enumerate(read_text(str(path)).splitlines(), start=1):
             if _NOCHECK_RE.search(line):

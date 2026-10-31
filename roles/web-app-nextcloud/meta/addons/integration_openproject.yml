@@ -6,7 +6,11 @@ source: upstream
 bridges:
   - openproject
 config:
+  rotate_oauth_client: false
   plugin_configuration:
     - appid: "integration_openproject"
       configkey: "openproject_instance_url"
-      configvalue: "{{ lookup('tls', 'web-app-openproject', 'url.base') }}"
+      configvalue: "{{ NEXTCLOUD_OPENPROJECT_URL }}"
+    - appid: "integration_openproject"
+      configkey: "fresh_project_folder_setup"
+      configvalue: "0"

@@ -46,23 +46,26 @@ async function ssoLoginAndAssertUsername(page, username, password) {
 
   const onIssuer = async () => issuerPattern.test(page.url());
   if (!(await onIssuer())) {
-    // Either click the Login control on the OpenCloud SPA or wait for the
-    // SPA to redirect to Keycloak. Try both in parallel and finish on
-    // whichever happens first.
     const loginCta = page.locator(
       'button:has-text("Login"), button:has-text("Sign in"), button:has-text("Log in"), [data-test-id="login-button"], a[href*="oidc"]'
     );
+    const reachedIssuer = page
+      .waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) })
+      .then(() => true)
+      .catch(() => false);
+    const ctaReady = loginCta
+      .first()
+      .waitFor({ state: "visible", timeout: resolveTimeout(60_000) })
+      .then(() => true)
+      .catch(() => false);
     try {
-      await Promise.race([
-        page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
-        (async () => {
-          await loginCta.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
-          await Promise.all([
-            page.waitForURL(issuerPattern, { timeout: resolveTimeout(60_000) }),
-            loginCta.first().click({ timeout: resolveTimeout(30_000) }),
-          ]);
-        })(),
-      ]);
+      await Promise.race([reachedIssuer, ctaReady]);
+      if (!(await onIssuer()) && (await ctaReady)) {
+        await loginCta.first().click({ timeout: resolveTimeout(30_000) });
+      }
+      if (!(await reachedIssuer)) {
+        throw new Error("the SPA neither redirected to Keycloak nor offered a Login control that did");
+      }
     } catch (err) {
       const summary = [
         `URL when stuck: ${page.url()}`,
@@ -77,14 +80,30 @@ async function ssoLoginAndAssertUsername(page, username, password) {
     }
   }
 
-  await page.locator('input[name="username"], #username').fill(username);
-  await page.locator('input[name="password"], #password').fill(password);
+  const usernameField = page.locator('input[name="username"], #username');
+  const passwordField = page.locator('input[name="password"], #password');
+  await usernameField.fill(username);
+  await passwordField.fill(password);
+
+  await expect
+    .poll(
+      async () =>
+        (await usernameField.inputValue()) === username &&
+        (await passwordField.inputValue()) === password,
+      {
+        timeout: resolveTimeout(10_000),
+        message: "Expected the Keycloak login form to still carry both credentials at submit time",
+      },
+    )
+    .toBe(true);
+
   const leftKeycloak = page
     .waitForURL((url) => !issuerPattern.test(url.toString()), { timeout: resolveTimeout(60_000) })
     .catch(() => {});
   await page
-    .locator('input[name="password"], #password')
-    .press("Enter", { timeout: resolveTimeout(5_000) })
+    .locator('#kc-login, input[type="submit"], button[type="submit"]')
+    .first()
+    .click({ timeout: resolveTimeout(30_000) })
     .catch(() => {});
   await leftKeycloak;
 

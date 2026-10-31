@@ -1,14 +1,16 @@
 ---
 - name: 📂 Include dependencies
   include_role:
-    name: "{{ item }}"
+    name: "{{ sys_ctl_mtn_cert_renew_dependency }}"
   loop:
     - sys-svc-certbot
     - sys-svc-webserver-core
     - sys-ctl-alm-compose
+  loop_control:
+    loop_var: sys_ctl_mtn_cert_renew_dependency
 
 - name: 📦 install certbot
-  package_install:
+  package_install: # nocheck: package-install only hosts with Let's Encrypt certificates run this role
     id: certbot-nginx
 
 - include_role:

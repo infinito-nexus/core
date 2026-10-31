@@ -125,6 +125,26 @@ class DummyTlsResolveLookup:
         return [base_url]
 
 
+class DummyCanonicalUrlLookup:
+    """
+    Deterministic canonical_url stub.
+    Emulates: lookup('canonical_url', app_id, key) -> 'http(s)://<domains[app_id][key]>'
+    """
+
+    def run(self, terms, variables=None, **kwargs):
+        variables = variables or {}
+        app_id, key = terms
+        app_domains = variables.get("domains", {}).get(app_id)
+        if not isinstance(app_domains, dict) or key not in app_domains:
+            raise AnsibleError(
+                f"dummy canonical_url: '{app_id}' has no canonical '{key}'"
+            )
+        scheme = (
+            "https" if _ansible_bool(variables.get("TLS_ENABLED", True)) else "http"
+        )
+        return [f"{scheme}://{app_domains[key]}"]
+
+
 class TestDockerCardsLookup(unittest.TestCase):
     def setUp(self):
         self.test_roles_dir = tempfile.mkdtemp(prefix="test_roles_")
@@ -174,6 +194,8 @@ logo:
                 return _VarsLookup("domains")
             if name == "tls":
                 return DummyTlsResolveLookup(templar)
+            if name == "canonical_url":
+                return DummyCanonicalUrlLookup()
             raise AnsibleError(f"Unexpected lookup requested: {name}")
 
         docker_cards_module.lookup_loader.get = _patched_get
@@ -303,6 +325,127 @@ logo:
         result = self._run_lookup(lookup_module, fake_variables)
 
         self.assertEqual(result[0][0]["url"], "http://myportfolio.com")
+
+    def _card_target_variables(self, dashboard):
+        fake_variables = self._base_fake_variables()
+        fake_variables["domains"] = {
+            "portfolio": {
+                "www": "myportfolio.com",
+                "client": "client.myportfolio.com",
+            }
+        }
+        fake_variables["applications"]["portfolio"]["services"]["dashboard"] = dashboard
+        return fake_variables
+
+    def test_card_url_targets_the_card_key(self):
+        fake_variables = self._card_target_variables(
+            {"enabled": True, "card": "client"}
+        )
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(result[0][0]["url"], "https://client.myportfolio.com")
+
+    def test_card_url_without_card_key_targets_the_primary_domain(self):
+        fake_variables = self._card_target_variables({"enabled": True})
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(result[0][0]["url"], "https://myportfolio.com")
+
+    def test_unknown_card_key_fails_loudly(self):
+        fake_variables = self._card_target_variables({"enabled": True, "card": "nope"})
+
+        with self.assertRaisesRegex(AnsibleError, "nope"):
+            self._run_lookup(LookupModule(), fake_variables)
+
+    def _add_role(self, role_name, application_id, info_yaml):
+        role_dir = Path(self.test_roles_dir) / role_name
+        (role_dir / "meta").mkdir(parents=True)
+        (role_dir / "vars").mkdir(parents=True)
+        (role_dir / ROLE_FILE_VARS_MAIN).write_text(
+            f"application_id: {application_id}\n", encoding="utf-8"
+        )
+        (role_dir / "README.md").write_text(f"# {role_name}\n", encoding="utf-8")
+        (role_dir / ROLE_FILE_META_MAIN).write_text(
+            'galaxy_info:\n  description: "Second role."\n', encoding="utf-8"
+        )
+        (role_dir / ROLE_FILE_META_INFO).write_text(info_yaml, encoding="utf-8")
+
+    def _two_role_variables(self):
+        self._add_role("web-app-other", "other", "logo:\n  class: fa-solid fa-cube\n")
+        fake_variables = self._base_fake_variables()
+        fake_variables["domains"]["other"] = "other.example.com"
+        fake_variables["applications"]["other"] = {
+            "services": {"dashboard": {"enabled": True}}
+        }
+        fake_variables["group_names"] = ["portfolio", "other"]
+        return fake_variables
+
+    def test_enabled_false_skips_the_card(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"]["dashboard"][
+            "enabled"
+        ] = False
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(result, [[]])
+
+    def test_a_role_without_a_dashboard_binding_shows_the_card(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"] = {}
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
+
+    def test_enabled_true_shows_the_card(self):
+        fake_variables = self._base_fake_variables()
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
+
+    def test_enabled_false_hides_only_its_own_card(self):
+        fake_variables = self._two_role_variables()
+        fake_variables["applications"]["other"]["services"]["dashboard"]["enabled"] = (
+            False
+        )
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
+
+    def test_both_cards_render_when_both_are_enabled(self):
+        fake_variables = self._two_role_variables()
+
+        result = self._run_lookup(LookupModule(), fake_variables)
+
+        self.assertEqual(
+            [c["title"] for c in result[0]],
+            ["Portfolio Application", "web-app-other"],
+        )
+
+    def test_info_display_false_no_longer_hides_the_card(self):
+        meta_info_path = Path(self.role_dir) / ROLE_FILE_META_INFO
+        meta_info_path.write_text(
+            "logo:\n  class: fa-solid fa-briefcase\ndisplay: false\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_lookup(LookupModule(), self._base_fake_variables())
+
+        self.assertEqual([c["title"] for c in result[0]], ["Portfolio Application"])
+
+    def test_non_boolean_enabled_fails_loudly(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"]["dashboard"][
+            "enabled"
+        ] = "maybe"
+
+        with self.assertRaisesRegex(AnsibleError, "portfolio"):
+            self._run_lookup(LookupModule(), fake_variables)
 
 
 if __name__ == "__main__":

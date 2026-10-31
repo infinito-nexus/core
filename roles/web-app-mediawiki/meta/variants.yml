@@ -1,84 +1,134 @@
 ---
 # Matrix-deploy variant overrides for web-app-mediawiki.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
-
-# variant pinning every dynamic services.yml flag to true so the
-# matrix exercises the in-group_names branch of web-app-mediawiki.
-- services:
-    container_backup:
-      enabled: true
-    css:
-      enabled: true
-      shared: true
-    dashboard:
-      enabled: true
-      shared: true
-    email:
-      enabled: true
-      shared: true
-    logout:
-      enabled: true
-      shared: true
-    mariadb:
-      shared: true
-    matomo:
-      enabled: true
-      shared: true
-    litellm:
-      enabled: true
-    sso:
-      enabled: true
-      shared: true
-    prometheus:
-      enabled: true
-      shared: true
-    tor:
-      enabled: true
-- services:
-    container_backup:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mariadb:
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    litellm:
-      enabled: false
-    sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    tor:
-      enabled: true
+#
+# nocheck: sso-variant-tor — variant 1 exists so peertube, which is clearnet-only,
+# has a round of its own. It carries nothing else. Translate rides variant 0,
+# whose round index pairs it with web-svc-translate#0, the LibreTranslate round
+# that keeps the onion, so the MachineTranslation extension is deployed and
+# checked over the onion beside SSO; web-svc-translate#1 and #2 drop the onion,
+# so variants 1 and 2 may not carry translate, and variant 3 runs on clearnet.
+# Variant 2 keeps the onion without SSO or any partner. Variant 3 carries the
+# README replay alone and keeps it on clearnet, where it ran beside PeerTube
+# before.
+#
+# nocheck: variant-limit — the README replay beside PeerTube outran the job budget,
+# so the replay takes a fourth round of its own.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: true
+    design:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    discourse:
+      enabled: true
+      shared: true
+    email:
+      enabled: true
+      shared: true
+    translate:
+      enabled: true
+      shared: true
+    peertube:
+      enabled: false
+      shared: false
+    logout:
+      enabled: true
+      shared: true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: true
+    sso:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    seaweedfs:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+- services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false
     email:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: true
+      shared: true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
+    tor:
+      enabled: false
+
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -88,12 +138,63 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
-      enabled: true
+      enabled: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
     tor:
       enabled: true
+
+- services:
+    docs:
+      enabled: true
+      shared: true
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    translate:
+      enabled: false
+      shared: false
+    peertube:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
+    # nocheck: variant-tor-collateral docs rides the smallest round of each role because the README replay is the costliest partner in the matrix; the guide serves over the onion in both web-app-docs variants, which is where that is proven
+    tor: # nocheck: variant-tor-off the README replay installs the role onto the clearnet DOMAIN_PRIMARY through the clearnet resolver (web-app-docs templates/test.env.j2), so this round has no onion surface to prove
+      enabled: false

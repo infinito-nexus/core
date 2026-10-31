@@ -42,6 +42,7 @@
          | selectattr('clientId', 'equalto', STALWART_WEBUI_OAUTH_CLIENT_ID)
          | list }}
   vars:
+    stalwart_webui_origins: "{{ lookup('network_urls', STALWART_WEBUI_BASE_URL) }}"
     stalwart_webui_url_prefixes: "{{ stalwart_webui_apps[0].urlPrefix | list }}"
 
 - name: "📁 Register the WebUI OAuth client"

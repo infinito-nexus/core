@@ -1,0 +1,20 @@
+---
+# jitsi-2.1.0.tar.gz ships plugin-linux-arm64 but its plugin.json server.executables
+# map lists only amd64, and mattermost resolves the backend through that map alone.
+enabled: "{{ lookup('config', 'web-app-mattermost', 'services.jitsi.enabled') | bool }}"
+architectures:
+  - amd64
+required: false
+mechanism: plugin
+source: upstream
+version: "v2.1.0"
+bridges:
+  - jitsi
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: mattermost-community/mattermost-plugin-jitsi
+config:
+  plugin_id: jitsi
+  archive: https://github.com/mattermost-community/mattermost-plugin-jitsi/releases/download/v2.1.0/jitsi-2.1.0.tar.gz
+  partner_url: "{{ lookup('tls', 'web-app-jitsi', 'url.base') }}"

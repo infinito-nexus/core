@@ -1,0 +1,59 @@
+---
+- name: 📖 Read persisted integration_openproject OpenProject OAuth client id
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject openproject_client_id
+  register: nextcloud_op_client_id_current
+  changed_when: false
+  failed_when: nextcloud_op_client_id_current.rc not in [0, 1]
+
+- name: 📖 Read persisted integration_openproject Nextcloud OAuth client id
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject nc_oauth_client_id
+  register: nextcloud_op_nc_client_current
+  changed_when: false
+  failed_when: nextcloud_op_nc_client_current.rc not in [0, 1]
+
+- name: 📖 Read persisted integration_openproject OpenProject OAuth client secret
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_openproject openproject_client_secret
+  register: nextcloud_op_client_secret_current
+  changed_when: false
+  failed_when: nextcloud_op_client_secret_current.rc not in [0, 1]
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🧮 Read and digest the coupling state OpenProject holds
+  when: IS_STACK_HOST | bool
+  block:
+    - name: 🔍 Read the Nextcloud storage and its OAuth pair OpenProject holds
+      database_query:
+        config: "{{ lookup('database', 'web-app-openproject') }}"
+        query_file: "{{ [role_path, 'files/sql/addons/openproject/coupling.sql'] | path_join }}"
+        named_args:
+          host: "{{ lookup('tls', application_id, 'url.origin') }}"
+          name: "{{ nextcloud_op_storage_name }}"
+        expect_rows: true
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      register: nextcloud_op_coupling
+      until: nextcloud_op_coupling is succeeded
+      retries: 6
+      delay: 5
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: 🧮 Digest the provisioning sources, inputs and coupling state
+      set_fact:
+        nextcloud_op_digest: >-
+          {{ {
+               'sources': query('file', *NEXTCLOUD_OPENPROJECT_PROVISION_SOURCES) | map('hash', 'sha256') | list,
+               'nextcloud_url': NEXTCLOUD_URL,
+               'openproject_url': NEXTCLOUD_OPENPROJECT_URL,
+               'storage_name': nextcloud_op_storage_name,
+               'client_name': NEXTCLOUD_OPENPROJECT_CLIENT_NAME,
+               'work_directory': NEXTCLOUD_DOCKER_WORK_DIRECTORY,
+               'openproject_client_id': nextcloud_op_client_id_current.stdout | trim,
+               'nc_oauth_client_id': nextcloud_op_nc_client_current.stdout | trim,
+               'openproject_client_secret': nextcloud_op_client_secret_current.stdout | trim | hash('sha256'),
+               'openproject': nextcloud_op_coupling.rows
+             } | to_json(sort_keys=true) | hash('sha256') }}
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -2,8 +2,8 @@
 # Mapping logic for baudolo CLI arguments
 #
 # - BKP_VOLUME_2_LOCAL_DB_ROUTINE:       Service names where backup.database_routine is set (for --database-containers)
-# - BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: Exact deployed image refs where backup.no_stop_required is set (for --images-no-stop-required)
-# - BKP_VOLUME_2_LOCAL_DISABLED:         Exact deployed image refs where backup.disabled is set (for --images-no-backup-required)
+# - BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: Exact deployed image refs where backup.stop_required is false (for --images-no-stop-required)
+# - BKP_VOLUME_2_LOCAL_DISABLED:         Exact deployed image refs where backup.disabled is true (for --images-no-backup-required)
 # - BKP_VOLUME_2_LOCAL_HARD_RESTART:     Compose project (entity) names where backup.project_hard_restart is set (for --hard-restart-projects)
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN:     Launcher that appends --snapshot/--snapshot-subject per run when the mode allows it
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE:    services.volume-2-local.snapshot_mode normalised; YAML reads a bare off/no/false as a boolean
@@ -51,10 +51,10 @@ BKP_VOLUME_2_LOCAL_DB_ROUTINE: >-
   {{ lookup('backup_database_containers') }}
 
 BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: >-
-  {{ lookup('backup_image', 'no_stop_required') }}
+  {{ lookup('backup_image', 'stop_required', false) }}
 
 BKP_VOLUME_2_LOCAL_DISABLED: >-
-  {{ lookup('backup_image', 'disabled') }}
+  {{ lookup('backup_image', 'disabled', true) }}
 
 BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED: >-
   {{ lookup('backup_volume') }}
@@ -83,7 +83,7 @@ BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED_CLI: >-
   {%- endif %}
 
 BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI: >-
-  {% if DEPLOYMENT_MODE == 'compose' and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
+  {% if IS_COMPOSE_MODE and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
     --hard-restart-projects {{ BKP_VOLUME_2_LOCAL_HARD_RESTART | join(' ') }}
   {%- endif %}
 

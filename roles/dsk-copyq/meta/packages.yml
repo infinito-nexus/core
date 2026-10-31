@@ -1,0 +1,14 @@
+---
+copyq:
+  Archlinux:
+    - copyq
+  Debian:
+    - copyq
+  RedHat:
+    - copyq
+  centos:
+    source: flatpak
+    names:
+      - com.github.hluk.copyq
+    flatpak:
+      command: copyq

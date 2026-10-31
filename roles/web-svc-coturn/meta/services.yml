@@ -1,5 +1,7 @@
 ---
 coturn:
+  backup:
+    stop_required: false
   modes:
     compose:
       enabled: true
@@ -12,6 +14,7 @@ coturn:
   version: 4.18.0
   min_storage: 246MB
   user_auth_enabled: false
+  total_quota: 2000
   cpus: 1.0
   mem_reservation: 512m
   mem_limit: 1g
@@ -42,6 +45,11 @@ redis:
     disabled: true
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: TURN/STUN relay; its only HTTP is a gateway answering a plain-text OK (templates/compose.yml.j2)
+design:
+  enabled: false
+  shared: false
 # nocheck: variants-coverage — the tor conjunct is the clearnet-variant-tor invariant below, so no variant may pin the true polarity on an onion node
 # nocheck: bond-baseline — same reason: variant 0 must not pin the scrape consumer on
 prometheus:
@@ -58,3 +66,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -1,0 +1,27 @@
+:root {
+  --color-background: var(--design-surface-1);
+  --color-foreground: var(--design-text);
+  --color-muted: var(--design-surface-3);
+  --color-muted-foreground: var(--design-text-muted);
+  --color-accent: var(--design-surface-hover);
+  --color-accent-foreground: var(--design-text);
+  --color-primary: var(--design-primary);
+  --color-border: var(--design-border);
+  --color-input: var(--design-border-strong);
+  --color-ring: var(--design-link);
+  --color-gray-200: var(--design-border);
+  --color-neutral-800: var(--design-border);
+  --color-slate-700: var(--design-surface-active);
+}
+#content a:not(.toc-backref, .headerlink, .toctree-wrapper a, .contents a) {
+  color: var(--design-link);
+}
+#left-sidebar a.current {
+  background-color: var(--design-surface-active);
+}
+.tooltipped-n::before {
+  border-top-color: var(--design-surface-3);
+}
+img.toggler {
+  filter: invert(var(--design-invert));
+}

@@ -14,19 +14,6 @@ It installs or removes unit files, configures runtime behavior, and ensures serv
 - Provides the shared `files/debug.sh` SPOT for reusable service-failure diagnostics.
 - Exposes `tasks/utils/debug.yml` as the canonical Ansible wrapper around that script.
 
-## Cosmos
-
-The diagram places sys-service in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-service 💻]
-        svc_service["service"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Unit Cleanup:** Automated removal of old service units.
@@ -42,9 +29,3 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - [systemd - Service Units](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
 - [systemd - Timer Units](https://www.freedesktop.org/software/systemd/man/systemd.timer.html)
 - [systemctl](https://www.freedesktop.org/software/systemd/man/systemctl.html)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

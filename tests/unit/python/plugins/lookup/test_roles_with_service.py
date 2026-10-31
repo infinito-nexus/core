@@ -12,7 +12,26 @@ from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
+from utils.networks.reachability import network_of
+
 from . import PROJECT_ROOT
+
+ONION = "abcdefghijklmnopqrstuvwxyz234567abcdefghijklmnopqrstuvw.onion"
+NETWORK_APPLICATIONS = {
+    role: {
+        "services": {"design": {"enabled": True, "shared": True}},
+        "domains": {"canonical": [f"{name}.example.com"]},
+    }
+    for role, name in (
+        ("web-app-keycloak", "auth"),
+        ("web-app-moodle", "academy"),
+        ("web-app-nextcloud", "cloud"),
+    )
+}
+ONION_URL_HOSTS = {
+    "web-app-moodle": f"academy.{ONION}",
+    "web-app-nextcloud": f"cloud.{ONION}",
+}
 
 
 def _load_module(rel_path: str, name: str):
@@ -43,24 +62,71 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         lm._loader = mock.MagicMock()
         return lm
 
-    def _run(self, terms, applications: dict, vars_: dict | None = None, **kwargs):
-        """Run the lookup with the ``applications`` and ``tls`` sub-lookups
-        patched to stay hermetic. The stubbed tls resolves
-        ``[role_id, "url.base"]`` to a deterministic URL so the lookup
-        can finish building each result entry without the real domain
-        machinery."""
+    def _run(
+        self,
+        terms,
+        applications: dict,
+        vars_: dict | None = None,
+        url_host: str | None = None,
+        url_hosts: dict | None = None,
+        handover: frozenset = frozenset(),
+        **kwargs,
+    ):
+        """Run the lookup with the ``applications``, ``tls``,
+        ``canonical_url`` and ``network_handover`` sub-lookups patched to stay
+        hermetic; any other sub-lookup raises ``KeyError``. The stubbed tls
+        answers ``[role_id, "url.base"]`` and the stubbed canonical_url
+        ``[role_id, key]`` with the role's own configured domain, which is what
+        a clearnet deployment resolves; pass ``url_host`` (every role) or
+        ``url_hosts`` (per role) to model a deployment whose URL host differs,
+        such as an onion one. A role in ``handover`` hands every sibling outside
+        its canonical network over."""
         lookup = self._make_lookup(vars_ or {})
+        resolve = self.mod._resolve_canonical_domain
 
         class _StubTls:
             def run(self, terms_, variables=None, **kwargs):
-                return [f"https://{terms_[0]}.example.com"]
+                role = str(terms_[0])
+                host = (
+                    (url_hosts or {}).get(role)
+                    or url_host
+                    or resolve(role, applications.get(role, {}))
+                )
+                return [f"https://{host or role + '.example.com'}"]
+
+        class _StubHandover:
+            def run(self, terms_, variables=None, **kwargs):
+                role, domain = str(terms_[0]), str(terms_[1])
+                canonical = resolve(role, applications.get(role, {}))
+                return [
+                    role in handover and network_of(domain) != network_of(canonical)
+                ]
+
+        named = self.mod._resolve_named_canonical_domain
+
+        class _StubCanonicalUrl:
+            def run(self, terms_, variables=None, **kwargs):
+                role, key = str(terms_[0]), str(terms_[1])
+                host = (
+                    (url_hosts or {}).get(role)
+                    or url_host
+                    or named(role, applications.get(role, {}), key)
+                )
+                return [f"https://{host}"]
 
         class _StubApplications:
             def run(self, terms_, variables=None, **kwargs):
                 return [applications]
 
+        stubs = {
+            "applications": _StubApplications(),
+            "tls": _StubTls(),
+            "canonical_url": _StubCanonicalUrl(),
+            "network_handover": _StubHandover(),
+        }
+
         def _dispatch(name, **_kwargs):
-            return _StubApplications() if name == "applications" else _StubTls()
+            return stubs[name]
 
         with patch.object(self.mod.lookup_loader, "get", side_effect=_dispatch):
             return lookup.run(terms, variables=vars_ or {}, **kwargs)
@@ -94,11 +160,30 @@ class RolesWithServiceLookupTests(unittest.TestCase):
                     {
                         "id": "web-app-foo",
                         "canonical_domain": "foo.example.com",
-                        "canonical_url": "https://web-app-foo.example.com",
+                        "canonical_url": "https://foo.example.com",
                         "iframe": True,
                     }
                 ]
             ],
+        )
+
+    def test_canonical_domain_follows_an_onion_url(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "dashboard": {"enabled": True, "shared": True},
+                },
+                "domains": {"canonical": ["foo.example.com"]},
+            },
+        }
+
+        result = self._run(["dashboard"], applications, url_host="foo.abcd1234.onion")
+
+        self.assertEqual(
+            result[0][0]["canonical_domain"],
+            "foo.abcd1234.onion",
+            "a consumer matching this against a rendered href would miss every "
+            "tile on an onion host if it stayed clearnet",
         )
 
     def test_iframe_defaults_to_enabled_when_unset(self):
@@ -245,6 +330,29 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         }
         self.assertEqual(self._run(["dashboard"], applications), [[]])
 
+    def test_include_headless_keeps_a_role_without_canonical_domain(self):
+        applications = {
+            "svc-ai-foo": {
+                "services": {
+                    "litellm": {"enabled": True, "shared": True},
+                },
+                "domains": {},
+            },
+        }
+        self.assertEqual(
+            self._run(["litellm"], applications, include_headless=True),
+            [
+                [
+                    {
+                        "id": "svc-ai-foo",
+                        "canonical_domain": "",
+                        "canonical_url": "",
+                        "iframe": True,
+                    }
+                ]
+            ],
+        )
+
     def test_canonical_as_string_is_accepted(self):
         applications = {
             "web-app-foo": {
@@ -262,7 +370,7 @@ class RolesWithServiceLookupTests(unittest.TestCase):
                     {
                         "id": "web-app-foo",
                         "canonical_domain": "foo.example.com",
-                        "canonical_url": "https://web-app-foo.example.com",
+                        "canonical_url": "https://foo.example.com",
                         "iframe": True,
                     }
                 ]
@@ -556,6 +664,94 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         entry = self._run(["mcp"], applications)[0][0]
         self.assertEqual(
             sorted(entry), ["canonical_domain", "canonical_url", "id", "iframe"]
+        )
+
+    def _network_ids(self, url_hosts: dict, **kwargs) -> list[str]:
+        result = self._run(
+            ["design"],
+            NETWORK_APPLICATIONS,
+            url_hosts=url_hosts,
+            handover=frozenset({"web-app-moodle"}),
+            **kwargs,
+        )[0]
+        return [r["id"] for r in result]
+
+    def test_network_keeps_only_roles_whose_page_renders_there(self):
+        self.assertEqual(
+            self._network_ids(ONION_URL_HOSTS, network="tor"),
+            ["web-app-nextcloud"],
+            "the issuer keeps its clearnet URL and the handover sibling only "
+            "redirects to clearnet, so neither renders its page on tor",
+        )
+
+    def test_the_canonical_network_keeps_the_issuer_and_the_handover_role(self):
+        self.assertEqual(
+            self._network_ids({}, network="clearnet"),
+            ["web-app-keycloak", "web-app-moodle", "web-app-nextcloud"],
+        )
+
+    def test_without_network_kwarg_no_role_is_dropped(self):
+        self.assertEqual(
+            self._network_ids(ONION_URL_HOSTS),
+            ["web-app-keycloak", "web-app-moodle", "web-app-nextcloud"],
+        )
+
+    def test_an_unknown_network_fails_loudly(self):
+        with self.assertRaises(AnsibleError):
+            self._network_ids({}, network="onion")
+
+    def _card_target_role(self, service: str, **block_extra) -> dict:
+        block = {"enabled": True, "shared": True}
+        block.update(block_extra)
+        return {
+            "web-app-chat": {
+                "services": {service: block},
+                "domains": {
+                    "canonical": {
+                        "synapse": "matrix.example.com",
+                        "element": "element.example.com",
+                    }
+                },
+            },
+        }
+
+    def test_dashboard_card_key_targets_that_domain(self):
+        applications = self._card_target_role("dashboard", card="element")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("element.example.com", "https://element.example.com"),
+        )
+
+    def test_dashboard_card_domain_follows_the_onion_url(self):
+        applications = self._card_target_role("dashboard", card="element")
+        entry = self._run(
+            ["dashboard"], applications, url_hosts={"web-app-chat": f"element.{ONION}"}
+        )[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            (f"element.{ONION}", f"https://element.{ONION}"),
+        )
+
+    def test_dashboard_without_card_key_targets_the_primary_domain(self):
+        applications = self._card_target_role("dashboard")
+        entry = self._run(["dashboard"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://matrix.example.com"),
+        )
+
+    def test_dashboard_unknown_card_key_fails_loudly(self):
+        applications = self._card_target_role("dashboard", card="nope")
+        with self.assertRaisesRegex(AnsibleError, "nope"):
+            self._run(["dashboard"], applications)
+
+    def test_other_services_ignore_a_card_key(self):
+        applications = self._card_target_role("prometheus", card="element")
+        entry = self._run(["prometheus"], applications)[0][0]
+        self.assertEqual(
+            (entry["canonical_domain"], entry["canonical_url"]),
+            ("matrix.example.com", "https://matrix.example.com"),
         )
 
 

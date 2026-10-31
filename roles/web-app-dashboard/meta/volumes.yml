@@ -5,4 +5,12 @@ config:
   mode: "0444"
   mounts:
     - service: dashboard
-      target: /app/config.yaml
+      target: &dashboard_config_target /app/config.yaml
+config_onion:
+  type: config
+  source: "{{ [lookup('container', 'web-app-dashboard', 'directories.volumes'), 'config-onion.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: dashboard-onion
+      target: *dashboard_config_target
+      when: "{{ lookup('domains')['web-app-dashboard'] | network_instances | map(attribute='label') | select('equalto', 'onion') | list | length > 0 }}"

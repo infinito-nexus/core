@@ -1,4 +1,1 @@
 ---
-- name: 📦 Install Intel media driver package(s)
-  package_install:
-    id: intel-media-driver

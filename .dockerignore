@@ -14,6 +14,7 @@ venv
 *tree.json
 roles/list.json
 roles/importer_result.json
+roles/web-app-cst-*
 *.pyc
 *.egg-info
 build/*
@@ -38,6 +39,18 @@ inventories/production/
 .git
 compose/coredns/Corefile
 compose/Corefile
+
+# Rendered by `make dotenv` from the cache: declarations in
+# roles/*/meta/networks.yml. Tracking any of these would put a second,
+# drifting spelling of a cached host, suite or upstream into the repository.
+compose/package-cache-frontend/upstreams.conf
+compose.cache-consumer.yml
+compose/package-cache/pip.conf
+compose/package-cache/npmrc
+compose/package-cache/apt/*.list
+
+inventories/development/tools.rendered.yml
+inventories/development/tools.address
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
 .ansible

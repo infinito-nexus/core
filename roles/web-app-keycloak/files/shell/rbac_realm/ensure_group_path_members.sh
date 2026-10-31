@@ -16,6 +16,8 @@ set -o pipefail
 : "${KC_REALM:?KC_REALM is required}"
 : "${GROUP_PATH:?GROUP_PATH is required}"
 
+exec </dev/null
+
 kc() { container exec -i "$KC_CONTAINER" /opt/keycloak/bin/kcadm.sh "$@"; }
 
 _uuid_re='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
@@ -62,7 +64,7 @@ for username in ${MEMBERS:-}; do
 		--fields id --format csv --noquotes 2>/dev/null)"
 	uid="$(printf '%s\n' "$raw" | grep -Eio "$_uuid_re" | head -n1 | tr -d '\r')"
 	if [ -z "$uid" ]; then
-		echo "[keycloak][rbac] member '$username' not found in realm (expected: seeded by 08_users_realm before this runs)" >&2
+		echo "[keycloak][rbac] member '$username' not found in realm (expected: seeded by update/06_users/realm.yml before this runs)" >&2
 		exit 1
 	fi
 	if ! kc update "users/$uid/groups/$leaf_id" -r "$KC_REALM" \

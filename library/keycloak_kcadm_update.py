@@ -122,18 +122,19 @@ result:
 """
 
 
-def _shell(cmd, check, lock_retries=CONFIG_LOCK_MAX_RETRIES):
+def _shell(cmd, check, lock_retries=CONFIG_LOCK_MAX_RETRIES, stdin=None):
     rc = subprocess.run(  # noqa: S602 - host-trusted argv; kcadm wrapper needs shell pipes/&&
         cmd,
         shell=True,
         check=check,
         capture_output=True,
+        input=stdin.encode("utf-8") if stdin is not None else None,
     )
     stdout = rc.stdout.decode("utf-8", errors="replace").strip()
     stderr = rc.stderr.decode("utf-8", errors="replace").strip()
     if rc.returncode != 0 and lock_retries and CONFIG_LOCK_RE.search(stderr):
         time.sleep(CONFIG_LOCK_RETRY_DELAY)
-        return _shell(cmd, check, lock_retries - 1)
+        return _shell(cmd, check, lock_retries - 1, stdin)
     return rc.returncode, stdout, stderr
 
 
@@ -150,7 +151,7 @@ def _resolve_live_cid(module):
     return (out or "").strip()
 
 
-def run_kcadm(module, cmd, ignore_rc=False):
+def run_kcadm(module, cmd, ignore_rc=False, stdin=None):
     """Run a shell command for kcadm.
 
     In swarm the keycloak service runs multiple replicas that swarm may
@@ -165,7 +166,7 @@ def run_kcadm(module, cmd, ignore_rc=False):
     attempt_cmd = cmd
 
     for attempt in range(DEAD_CID_MAX_RETRIES + 1):
-        rc, stdout, stderr = _shell(attempt_cmd, check=False)
+        rc, stdout, stderr = _shell(attempt_cmd, check=False, stdin=stdin)
 
         retryable = (
             rc != 0
@@ -293,30 +294,19 @@ def get_current_object(module, object_kind, api, object_id, realm, kcadm_exec):
 
 
 def send_update(module, object_kind, api, object_id, realm, kcadm_exec, payload):
-    payload_json = json.dumps(payload)
     if object_kind == "realm":
-        cmd = (
-            f"cat <<'JSON' | {kcadm_exec} update {api}/{object_id} -f -\n"
-            f"{payload_json}\nJSON"
-        )
+        cmd = f"{kcadm_exec} update {api}/{object_id} -f -"
     else:
-        cmd = (
-            f"cat <<'JSON' | {kcadm_exec} update {api}/{object_id} -r {realm} -f -\n"
-            f"{payload_json}\nJSON"
-        )
-    return run_kcadm(module, cmd, ignore_rc=True)
+        cmd = f"{kcadm_exec} update {api}/{object_id} -r {realm} -f -"
+    return run_kcadm(module, cmd, ignore_rc=True, stdin=json.dumps(payload))
 
 
 def send_create(module, object_kind, api, realm, kcadm_exec, payload):
-    payload_json = json.dumps(payload)
     if object_kind == "realm":
-        cmd = f"cat <<'JSON' | {kcadm_exec} create {api} -f -\n{payload_json}\nJSON"
+        cmd = f"{kcadm_exec} create {api} -f -"
     else:
-        cmd = (
-            f"cat <<'JSON' | {kcadm_exec} create {api} -r {realm} -f -\n"
-            f"{payload_json}\nJSON"
-        )
-    return run_kcadm(module, cmd, ignore_rc=True)
+        cmd = f"{kcadm_exec} create {api} -r {realm} -f -"
+    return run_kcadm(module, cmd, ignore_rc=True, stdin=json.dumps(payload))
 
 
 def run_module():

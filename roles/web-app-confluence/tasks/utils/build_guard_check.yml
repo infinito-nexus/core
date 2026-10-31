@@ -1,0 +1,41 @@
+---
+- name: "📁 Ensure the Confluence build guard directory exists"
+  ansible.builtin.file:
+    path: "{{ CONFLUENCE_GUARD_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Stage the Confluence build guard"
+  ansible.builtin.copy:
+    src: python/build_guard.py
+    dest: "{{ [CONFLUENCE_GUARD_DIR, 'build_guard.py'] | path_join }}"
+    mode: "0644"
+
+- name: "🛡️ Compare the home build number with the pinned image"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --mount
+      - "type=volume,src={{ CONFLUENCE_VOLUME }},dst={{ CONFLUENCE_HOME }},readonly"
+      - --mount
+      - "type=bind,src={{ CONFLUENCE_GUARD_DIR }},dst={{ CONFLUENCE_GUARD_MOUNT }},readonly"
+      - --entrypoint
+      - python3
+      - "{{ CONFLUENCE_IMAGE }}:{{ CONFLUENCE_VERSION }}"
+      - "{{ [CONFLUENCE_GUARD_MOUNT, 'build_guard.py'] | path_join }}"
+      - "{{ CONFLUENCE_HOME }}"
+      - "{{ CONFLUENCE_INSTALL_DIR }}"
+      - "{{ CONFLUENCE_VOLUME }}"
+      - "{{ CONFLUENCE_IMAGE }}:{{ CONFLUENCE_VERSION }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: confluence_build_guard
+  changed_when: false
+  failed_when: confluence_build_guard.rc not in [0, CONFLUENCE_GUARD_DOWNGRADE_RC]
+
+- name: "⛔ Refuse to start Confluence {{ CONFLUENCE_VERSION }} on a newer home"
+  ansible.builtin.fail:
+    msg: "{{ confluence_build_guard.stdout }}"
+  when: confluence_build_guard.rc == CONFLUENCE_GUARD_DOWNGRADE_RC

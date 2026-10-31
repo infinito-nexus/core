@@ -2,3 +2,4 @@
 # nocheck: required-by-coverage — TODO: declare proper required_by
 svc-journalctl:
   lifecycle: beta
+  system_max_use_percent: 2

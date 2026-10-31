@@ -15,3 +15,13 @@ mcp_servers:{{ ' {}' if renderable | length == 0 else '' }}
 {% set callable_tools = server.tools | reject('in', server.mutating | default([])) | list %}
       include: {{ callable_tools | to_json }}
 {% endfor %}
+{% if HERMES_WEBUI_ENABLED | bool %}
+dashboard:
+{% if HERMES_DESIGN_THEME_ENABLED | bool %}
+  theme: {{ HERMES_DESIGN_THEME }}
+{% endif %}
+  trusted_proxies:
+{% for cidr in NETWORK_TRUSTED_PROXY_CIDRS %}
+    - "{{ cidr }}"
+{% endfor %}
+{% endif %}

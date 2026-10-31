@@ -22,84 +22,79 @@
   failed_when: false
 
 - name: "🔧 Set Moodle OIDC configuration via CLI"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  loop:
-    - { name: "idptype", value: 3 }
-    - { name: "clientauthmethod", value: 1 }
-    - { name: "clientid", value: "{{ OIDC.CLIENT.ID }}" }
-    - { name: "clientsecret", value: "{{ OIDC.CLIENT.SECRET }}" }
-    - { name: "opname", value: "{{ OIDC.BUTTON_TEXT }}" }
-    - { name: "oidcscope", value: "{{ MOODLE_OIDC_SCOPES }}" }
-    - { name: "authendpoint", value: "{{ OIDC.CLIENT.AUTHORIZE_URL }}" }
-    - { name: "tokenendpoint", value: "{{ OIDC.CLIENT.TOKEN_URL }}" }
-    - { name: "bindingusernameclaim", value: "{{ OIDC.ATTRIBUTES.USERNAME }}" }
-    - { name: "single_sign_off", value: 1 }
-    - { name: "logouturi", value: "{{ OIDC.CLIENT.LOGOUT_URL }}" }
-    - { name: "icon", value: "moodle:t/lock" }
-    - { name: "field_map_firstname", value: "given_name" }
-    - { name: "field_lock_firstname", value: "locked" }
-    - { name: "field_updatelocal_firstname", value: "oneveryloginupdate" }
-    - { name: "field_map_lastname", value: "family_name" }
-    - { name: "field_lock_lastname", value: "locked" }
-    - { name: "field_updatelocal_lastname", value: "oneveryloginupdate" }
-    - { name: "field_map_middlename", value: "middle_name" }
-    - { name: "field_lock_middlename", value: "locked" }
-    - { name: "field_updatelocal_middlename", value: "oneveryloginupdate" }
-    - { name: "field_map_alternatename", value: "nickname" }
-    - { name: "field_lock_alternatename", value: "locked" }
-    - { name: "field_updatelocal_alternatename", value: "oneveryloginupdate" }
-    - { name: "field_map_email", value: "email" }
-    - { name: "field_lock_email", value: "locked" }
-    - { name: "field_updatelocal_email", value: "oneveryloginupdate" }
-    - { name: "field_map_phone1", value: "phone_number" }
-    - { name: "field_lock_phone1", value: "locked" }
-    - { name: "field_updatelocal_phone1", value: "oneveryloginupdate" }
-    - { name: "field_map_phone2", value: "phone_number_alt" }
-    - { name: "field_lock_phone2", value: "locked" }
-    - { name: "field_updatelocal_phone2", value: "oneveryloginupdate" }
-    - { name: "field_map_address", value: "address" }
-    - { name: "field_lock_address", value: "locked" }
-    - { name: "field_updatelocal_address", value: "oneveryloginupdate" }
-    - { name: "field_map_city", value: "locality" }
-    - { name: "field_lock_city", value: "locked" }
-    - { name: "field_updatelocal_city", value: "oneveryloginupdate" }
-    - { name: "field_map_country", value: "country" }
-    - { name: "field_lock_country", value: "locked" }
-    - { name: "field_updatelocal_country", value: "oneveryloginupdate" }
-    - { name: "field_map_institution", value: "institution" }
-    - { name: "field_lock_institution", value: "locked" }
-    - { name: "field_updatelocal_institution", value: "oneveryloginupdate" }
-    - { name: "field_map_department", value: "department" }
-    - { name: "field_lock_department", value: "locked" }
-    - { name: "field_updatelocal_department", value: "oneveryloginupdate" }
-    - { name: "field_map_description", value: "description" }
-    - { name: "field_lock_description", value: "locked" }
-    - { name: "field_updatelocal_description", value: "oneveryloginupdate" }
-    - { name: "field_map_idnumber", value: "id_number" }
-    - { name: "field_lock_idnumber", value: "locked" }
-    - { name: "field_updatelocal_idnumber", value: "oneveryloginupdate" }
-    - { name: "field_map_url", value: "website" }
-    - { name: "field_lock_url", value: "locked" }
-    - { name: "field_updatelocal_url", value: "oneveryloginupdate" }
-    - { name: "field_map_lang", value: "locale" }
-    - { name: "field_lock_lang", value: "locked" }
-    - { name: "field_updatelocal_lang", value: "oneveryloginupdate" }
-    - { name: "field_map_timezone", value: "zoneinfo" }
-    - { name: "field_lock_timezone", value: "locked" }
-    - { name: "field_updatelocal_timezone", value: "oneveryloginupdate" }
-    - { name: "field_map_firstnamephonetic", value: "name_phonetic_given" }
-    - { name: "field_lock_firstnamephonetic", value: "locked" }
-    - { name: "field_updatelocal_firstnamephonetic", value: "oneveryloginupdate" }
-    - { name: "field_map_lastnamephonetic", value: "name_phonetic_family" }
-    - { name: "field_lock_lastnamephonetic", value: "locked" }
-    - { name: "field_updatelocal_lastnamephonetic", value: "oneveryloginupdate" }
-  loop_control:
-    label: "{{ item.name }}"
-  shell: >
-    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
-    php {{ MOODLE_CLI_DIR }}/cfg.php --component=auth_oidc
-    --name={{ item.name }} --set="{{ item.value }}"
-  changed_when: false
+  include_tasks: utils/plugin_config.yml
+  vars:
+    moodle_plugin_config_component: auth_oidc
+    moodle_plugin_config_settings:
+      idptype: 3
+      clientauthmethod: 1
+      clientid: "{{ OIDC.CLIENT.ID }}"
+      clientsecret: "{{ OIDC.CLIENT.SECRET }}"
+      opname: "{{ OIDC.BUTTON_TEXT }}"
+      oidcscope: "{{ MOODLE_OIDC_SCOPES }}"
+      authendpoint: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+      tokenendpoint: "{{ OIDC.CLIENT.TOKEN_URL }}"
+      bindingusernameclaim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+      single_sign_off: 1
+      logouturi: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+      icon: "moodle:t/lock"
+      field_map_firstname: "given_name"
+      field_lock_firstname: "locked"
+      field_updatelocal_firstname: "oneveryloginupdate"
+      field_map_lastname: "family_name"
+      field_lock_lastname: "locked"
+      field_updatelocal_lastname: "oneveryloginupdate"
+      field_map_middlename: "middle_name"
+      field_lock_middlename: "locked"
+      field_updatelocal_middlename: "oneveryloginupdate"
+      field_map_alternatename: "nickname"
+      field_lock_alternatename: "locked"
+      field_updatelocal_alternatename: "oneveryloginupdate"
+      field_map_email: "email"
+      field_lock_email: "locked"
+      field_updatelocal_email: "oneveryloginupdate"
+      field_map_phone1: "phone_number"
+      field_lock_phone1: "locked"
+      field_updatelocal_phone1: "oneveryloginupdate"
+      field_map_phone2: "phone_number_alt"
+      field_lock_phone2: "locked"
+      field_updatelocal_phone2: "oneveryloginupdate"
+      field_map_address: "address"
+      field_lock_address: "locked"
+      field_updatelocal_address: "oneveryloginupdate"
+      field_map_city: "locality"
+      field_lock_city: "locked"
+      field_updatelocal_city: "oneveryloginupdate"
+      field_map_country: "country"
+      field_lock_country: "locked"
+      field_updatelocal_country: "oneveryloginupdate"
+      field_map_institution: "institution"
+      field_lock_institution: "locked"
+      field_updatelocal_institution: "oneveryloginupdate"
+      field_map_department: "department"
+      field_lock_department: "locked"
+      field_updatelocal_department: "oneveryloginupdate"
+      field_map_description: "description"
+      field_lock_description: "locked"
+      field_updatelocal_description: "oneveryloginupdate"
+      field_map_idnumber: "id_number"
+      field_lock_idnumber: "locked"
+      field_updatelocal_idnumber: "oneveryloginupdate"
+      field_map_url: "website"
+      field_lock_url: "locked"
+      field_updatelocal_url: "oneveryloginupdate"
+      field_map_lang: "locale"
+      field_lock_lang: "locked"
+      field_updatelocal_lang: "oneveryloginupdate"
+      field_map_timezone: "zoneinfo"
+      field_lock_timezone: "locked"
+      field_updatelocal_timezone: "oneveryloginupdate"
+      field_map_firstnamephonetic: "name_phonetic_given"
+      field_lock_firstnamephonetic: "locked"
+      field_updatelocal_firstnamephonetic: "oneveryloginupdate"
+      field_map_lastnamephonetic: "name_phonetic_family"
+      field_lock_lastnamephonetic: "locked"
+      field_updatelocal_lastnamephonetic: "oneveryloginupdate"
 
 - name: "🟢 Enable the auth_oidc plugin in Moodle's core auth list"
   shell: >
@@ -117,11 +112,12 @@
 
 - name: "🔧 Set auth = 'oidc' for all users except guest"
   shell: >
-    container exec {{ MOODLE_DB_CONTAINER_ADDRESS }}
+    container exec -e MYSQL_PWD {{ MOODLE_DB_CONTAINER_ADDRESS }}
     mariadb -u {{ lookup('database', application_id, 'username') }}
-    -p{{ lookup('database', application_id, 'password') | quote }}
     -e "UPDATE {{ lookup('database', application_id, 'name') }}.mdl_user SET auth = 'oidc' WHERE username != 'guest';"
   args:
     executable: /bin/bash
+  environment:
+    MYSQL_PWD: "{{ lookup('database', application_id, 'password') }}"
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

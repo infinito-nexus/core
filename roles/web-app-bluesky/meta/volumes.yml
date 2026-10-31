@@ -5,6 +5,16 @@ pds_data:
     - service: pds
       target: /opt/pds
 
+broker_data:
+  type: volume
+  nfs:
+    uid: "1000"
+    gid: "1000"
+    mode: "0700"
+  mounts:
+    - service: broker
+      target: /data
+
 pdsadmin:
   type: bind
   source: "{{ [lookup('container', 'web-app-bluesky', 'directories.volumes'), 'pdsadmin', 'pdsadmin'] | path_join }}"

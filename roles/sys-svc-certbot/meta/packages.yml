@@ -6,6 +6,7 @@ certbot:
     - certbot
   RedHat:
     - certbot
+  batch: false
   centos:
     names:
       - certbot

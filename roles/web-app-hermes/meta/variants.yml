@@ -3,6 +3,9 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     sso:
@@ -16,7 +19,7 @@
     matomo:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     prometheus:
@@ -24,6 +27,8 @@
       shared: true
     tor:
       enabled: true
+    webui:
+      enabled: true # nocheck: variants-static-override the web UI is off by default and this variant is the one round that exercises it
 - services:
     container_backup:
       enabled: false
@@ -39,7 +44,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     prometheus:
@@ -47,7 +52,12 @@
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     tor:
       enabled: true
+    webui:
+      enabled: false # nocheck: variants-static-override variant pins a literal off-switch
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
@@ -62,7 +72,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
-    css:
+    design:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     prometheus:
@@ -70,3 +80,5 @@
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     tor:
       enabled: true
+    webui:
+      enabled: false # nocheck: variants-static-override variant pins a literal off-switch

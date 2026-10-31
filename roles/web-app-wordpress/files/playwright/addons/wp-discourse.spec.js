@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { gotoOnion } = require("../personas");
+const { gotoOnion, requireDotenvValue } = require("../personas");
 const shared = require("../_shared");
 
 test("addon wp-discourse: WordPress bridge is provisioned for and reaches the partner Discourse", async ({ browser }) => {
@@ -12,6 +12,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
 
   const wpHost = new URL(shared.env.wpBaseUrl).host;
   const discourseHost = new URL(shared.env.discourseBaseUrl).host;
+  const discoursePartnerHost = requireDotenvValue(process.env.DISCOURSE_PARTNER_HOST, "DISCOURSE_PARTNER_HOST");
   expect(
     discourseHost,
     "the partner Discourse host must be distinct from the WordPress host"
@@ -29,7 +30,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
     );
 
     await gotoOnion(page,
-      `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection`,
+      `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=wp_discourse_options&tab=connection_options`,
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 
@@ -63,7 +64,7 @@ test("addon wp-discourse: WordPress bridge is provisioned for and reaches the pa
     expect(
       configuredHost,
       "the provisioned Discourse connect URL must point at the partner Discourse host, not the WordPress host"
-    ).toBe(discourseHost);
+    ).toBe(discoursePartnerHost);
     expect(configuredHost).not.toBe(wpHost);
 
     const sessionResp = await shared.discourseApiRequest(

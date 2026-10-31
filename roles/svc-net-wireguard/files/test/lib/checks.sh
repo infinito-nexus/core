@@ -32,6 +32,15 @@ expect_reach() {
 	check "${from} pulls ${BULK_BYTES} bytes from ${to} over ${mesh} intact" carries_bulk "${from}" "${to}" "${target}"
 }
 
+expect_roaming() {
+	local hub="$1" roamer="$2" mesh="$3" port="$4"
+	check "${hub} listens on ${mesh} port ${port}" conf_has "${hub}" "${mesh}" "^ListenPort = ${port}$"
+	check "${hub} dials no spoke on ${mesh}" not conf_has "${hub}" "${mesh}" '^Endpoint'
+	check "${roamer} dials ${hub} on ${mesh}" conf_has "${roamer}" "${mesh}" "^Endpoint = ${hub}:${port}$"
+	check "${roamer} keeps its path to ${hub} open" conf_has "${roamer}" "${mesh}" '^PersistentKeepalive = 25$'
+	check "${roamer} does not listen on ${mesh}" not conf_has "${roamer}" "${mesh}" '^ListenPort'
+}
+
 expect_isolated() {
 	local from="$1" to="$2" mesh="$3" via="$4" target
 	target="$(address "${to}" "${mesh}")"

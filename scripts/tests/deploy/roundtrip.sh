@@ -6,8 +6,10 @@ set -euo pipefail
 #   apps  - space-separated role ids; defaults to one role per dna cluster
 #           (complexity clone == false), most complex first, when unset
 #   modes - mode sequence (default "compose swarm"; append "k8s" here once it exists)
-#   keep  - true keeps each validated swarm cluster instead of releasing it
-#   disable - comma-separated provider keys removed from the test inventory
+#   keep  - true keeps each swarm cluster, green or failed; empty or false lets
+#           swarm-zombie release it once the rescue bundle is on the host
+#   disable - comma-separated provider keys removed from the test inventory;
+#             the Tor key pins the swarm step to clearnet
 _repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
 
 # shellcheck source=scripts/meta/env/load.sh
@@ -22,11 +24,16 @@ fi
 	exit 2
 }
 
+: "${keep?keep is required: true keeps each swarm cluster, empty or false releases it}"
 modes="${modes:-compose swarm}"
 _log_dir="${TMPDIR:-/tmp}" # nocheck: posix TMPDIR convention
 
 read -ra _apps <<<"${apps//$'\n'/ }"
 read -ra _modes <<<"$modes"
+
+_tor_key="$("${PYTHON}" -c "import sys; sys.path.insert(0, '${_repo_root}'); from utils.github.variant.network import TOR_SERVICE; print(TOR_SERVICE)")"
+_disabled=",${disable:-},"
+_disabled="${_disabled//[[:space:]]/,}"
 
 for app in "${_apps[@]}"; do
 	app_skip="$("${PYTHON}" -c "import sys; sys.path.insert(0, '${_repo_root}'); from utils.roles.meta_lookup import get_role_skip; print(' '.join(get_role_skip('${app}')))")"
@@ -44,15 +51,21 @@ for app in "${_apps[@]}"; do
 				disable="${disable:-}" 2>&1 | tee "$log"
 			;;
 		swarm)
+			network=""
+			if [[ "${_disabled}" == *",${_tor_key},"* ]]; then
+				network="clearnet"
+			elif "${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist "${app}#0@swarm+multi" >/dev/null 2>&1; then
+				network="multi"
+			fi
+			echo "==> roundtrip: ${app} [swarm] network=${network:-rotation}"
 			ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest \
-				make -C "$_repo_root" swarm-zombie app="$app" \
-				disable="${disable:-}" 2>&1 | tee "$log"
+				make -C "$_repo_root" swarm-zombie app="$app" network="$network" \
+				disable="${disable:-}" keep="${keep}" 2>&1 | tee "$log"
 			marker="==> swarm drill complete: app=${app}"
 			grep -qF "${marker}" "$log" || {
 				echo "roundtrip: ${app} [swarm] FAILED: swarm-zombie exited 0 but the drill never completed for ${app} (marker '${marker}' absent from ${log})" >&2
 				exit 1
 			}
-			[ "${keep:-false}" = true ] || make -C "$_repo_root" swarm-down name="$app"
 			;;
 		*)
 			echo "roundtrip: unknown mode '${mode}' (expected: compose | swarm)" >&2

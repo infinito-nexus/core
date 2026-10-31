@@ -1,12 +1,18 @@
 const { expect } = require("@playwright/test");
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
+  performKeycloakLogin,
+  readEnv,
   runAdminFlow,
   runGuestFlow,
 } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
+const { resolveTimeout } = require("./timeouts");
+
+const USER_MENU = ".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']";
 
 const env = {
   moodleBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL),
@@ -14,11 +20,68 @@ const env = {
   oidcClientId: decodeDotenvQuotedValue(process.env.OIDC_CLIENT_ID || ""),
   adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
+  adminNativePassword: decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || ""),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
   ldapEnabled: isServiceEnabled("ldap"),
 };
+
+/**
+ * Open an authenticated site-administrator session.
+ *
+ * @param {import('@playwright/test').Page} page browser page to authenticate
+ */
+async function loginAsSiteAdmin(page) {
+  if (env.ssoEnabled) {
+    await gotoOnion(page, `${env.moodleBaseUrl}/auth/oidc/?source=loginpage`, {
+      waitUntil: "domcontentloaded",
+      timeout: resolveTimeout(60_000),
+    });
+    await performKeycloakLogin(
+      page,
+      env.adminUsername,
+      env.adminPassword,
+      readEnv("CANONICAL_DOMAIN"),
+    );
+  } else {
+    expect(
+      env.adminNativePassword,
+      "ADMIN_NATIVE_PASSWORD must be rendered from the administrator user; with the sso service off it is the only secret that authenticates the Moodle site administrator",
+    ).toBeTruthy();
+
+    await gotoOnion(page, `${env.moodleBaseUrl}/login/index.php`, {
+      waitUntil: "domcontentloaded",
+      timeout: resolveTimeout(60_000),
+    });
+    await page
+      .locator("input[name='username'], input#username")
+      .first()
+      .fill(env.adminUsername);
+
+    const passwordInput = page
+      .locator(
+        ".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password, input[name='password']",
+      )
+      .first();
+    await expect(
+      passwordInput,
+      "the native Moodle login form must expose a password field; its absence means the login page no longer serves the manual auth form",
+    ).toBeAttached({ timeout: resolveTimeout(30_000) });
+    await expect(async () => {
+      await passwordInput.fill(env.adminNativePassword);
+      await expect(passwordInput).toHaveValue(env.adminNativePassword);
+    }).toPass({ timeout: resolveTimeout(30_000) });
+
+    await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
+    await page.waitForLoadState("load");
+  }
+
+  await expect(
+    page.locator(USER_MENU).first(),
+    "the site administrator must reach an authenticated session; a failure here means the auth chain the deploy configured does not admit the administrator account",
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
 
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -113,6 +176,7 @@ const setMiddleNameViaAccountRest = async ({
 module.exports = {
   env,
   beforeEach,
+  loginAsSiteAdmin,
   runAdminFlow,
   runGuestFlow,
   setMiddleNameViaAccountRest,

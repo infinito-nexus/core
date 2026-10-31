@@ -4,14 +4,21 @@ import os
 import shlex
 from pathlib import Path
 
-CONTAINER_REPO_ROOT = Path(os.environ["INFINITO_SRC_DIR"])
-
 
 def _require_env(name: str) -> str:
     val = os.environ.get(name)
     if val is None or not str(val).strip():
         raise RuntimeError(f"Required environment variable is missing or empty: {name}")
     return str(val).strip()
+
+
+def container_repo_root() -> Path:
+    """Return the repository root inside the deploy container.
+
+    Returns:
+        The path ``INFINITO_SRC_DIR`` names.
+    """
+    return Path(_require_env("INFINITO_SRC_DIR"))
 
 
 def should_use_mirrors() -> bool:
@@ -52,7 +59,7 @@ def generate_ci_mirrors_file(compose, *, inventory_dir: str) -> str:
         raise RuntimeError("INFINITO_GHCR_MIRROR_PREFIX must not be empty")
 
     mirrors_path = f"{inv_root}/mirrors.yml"
-    repo_root = str(CONTAINER_REPO_ROOT)
+    repo_root = str(container_repo_root())
 
     cmd = [
         "bash",

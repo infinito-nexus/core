@@ -52,8 +52,10 @@
 - name: "📁 Pre-create native-metrics docker networks (idempotent)"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
   vars:
-    network_role_id: "{{ item }}"
+    network_role_id: "{{ metrics_app }}"
   loop: "{{ lookup('native_metrics_apps') }}"
+  loop_control:
+    loop_var: metrics_app
 
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
@@ -69,7 +71,7 @@
   stack_host_template:
     src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
     dest: "{{ [ lookup('nginx','directories.configuration.global'), 'prometheus.conf' ] | path_join }}"
-  notify: restart-openresty
+  notify: reload-openresty
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"

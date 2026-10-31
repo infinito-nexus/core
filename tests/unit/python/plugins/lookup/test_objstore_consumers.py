@@ -81,15 +81,15 @@ class ObjstoreConsumersLookupTests(unittest.TestCase):
 
     def test_multi_domain_consumer_is_counted(self):
         result = self._run(
-            ["web-app-matrix", "web-app-seaweedfs"],
+            ["web-app-matrix", "web-svc-seaweedfs"],
             {"web-app-matrix": _binding()},
         )
         self.assertEqual(result, [["web-app-matrix"]])
 
     def test_provider_is_not_its_own_consumer(self):
         result = self._run(
-            ["web-app-seaweedfs"],
-            {"web-app-seaweedfs": _binding()},
+            ["web-svc-seaweedfs"],
+            {"web-svc-seaweedfs": _binding()},
         )
         self.assertEqual(result, [[]])
 

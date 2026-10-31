@@ -22,3 +22,8 @@ nfs-client:
   pids_limit: 128
   run_after:
     - svc-storage-nfs-server
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

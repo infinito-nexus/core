@@ -24,3 +24,4 @@ require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-seaweedfs");
+require("./test-design").register(shared);

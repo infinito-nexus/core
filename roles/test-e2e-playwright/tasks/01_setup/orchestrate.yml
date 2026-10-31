@@ -14,25 +14,35 @@
 - name: 🧰 Prepare shared @playwright/test install
   ansible.builtin.include_tasks: 01_setup.yml
 
+- name: 🎲 Start the run without a network pick
+  ansible.builtin.set_fact:
+    _playwright_network_picks: {}
+
 - name: ▶️ Run Playwright for each detected role
   ansible.builtin.include_tasks: 02_run_one.yml
+  vars:
+    application_id: "{{ playwright_role_id }}"
   loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
   loop_control:
-    loop_var: application_id # nocheck: loop-var-shadow  the item IS the role id, so 02_run_one reads the same value the tested role's own vars declare
-    label: "{{ application_id }}"
+    loop_var: playwright_role_id
+    label: "{{ playwright_role_id }}"
 
 - name: 🔁 Stash first-pass failures for one flake retry
   ansible.builtin.set_fact:
-    _playwright_retry_roles: "{{ _playwright_failures }}"
-    _playwright_failures: []
+    _playwright_retry_roles: "{{ _playwright_failures | difference(_budget_timeouts) }}"
+    _playwright_failures: "{{ _playwright_failures | intersect(_budget_timeouts) }}"
+  vars:
+    _budget_timeouts: "{{ _playwright_budget_timeouts | default([]) }}"
   when: (_playwright_failures | default([])) | length > 0
 
 - name: 🔁 Retry failed roles once on rotated Tor circuits
   ansible.builtin.include_tasks: 02_run_one.yml
+  vars:
+    application_id: "{{ playwright_role_id }}"
   loop: "{{ _playwright_retry_roles | default([]) }}"
   loop_control:
-    loop_var: application_id # nocheck: loop-var-shadow  same loop body, same identity between item and role id
-    label: "{{ application_id }} (retry)"
+    loop_var: playwright_role_id
+    label: "{{ playwright_role_id }} (retry)"
 
 - name: 🛑 Fail if there were Playwright failures
   ansible.builtin.fail:

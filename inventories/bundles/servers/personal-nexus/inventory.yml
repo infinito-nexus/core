@@ -16,9 +16,6 @@ all:
     web-app-nextcloud:
       hosts:
         server:
-    web-app-minio:
-      hosts:
-        server:
     web-app-keycloak:
       hosts:
         server:

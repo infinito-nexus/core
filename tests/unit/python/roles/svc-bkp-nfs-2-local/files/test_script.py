@@ -6,6 +6,7 @@ into older generations."""
 
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,9 @@ from . import PROJECT_ROOT
 
 SCRIPT = (
     PROJECT_ROOT / "roles" / "svc-bkp-nfs-2-local" / "files" / "shell" / "script.sh"
+)
+RECOVER = (
+    PROJECT_ROOT / "roles" / "svc-bkp-nfs-2-local" / "files" / "python" / "recover.py"
 )
 REPO_NAME = "backup-nfs-to-local"
 
@@ -30,7 +34,7 @@ class NfsBackupScriptTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def _run(self, source=None, generation=None, exclude=None):
+    def _run(self, source=None, generation=None, excludes=()):
         env = os.environ.copy()
         if generation is not None:
             env["BKP_NFS_2_LOCAL_GENERATION"] = generation
@@ -40,9 +44,8 @@ class NfsBackupScriptTests(unittest.TestCase):
             str(source or self.source),
             str(self.backups),
             REPO_NAME,
+            *excludes,
         ]
-        if exclude is not None:
-            cmd.append(exclude)
         return subprocess.run(
             cmd,
             capture_output=True,
@@ -132,12 +135,12 @@ class NfsBackupScriptTests(unittest.TestCase):
         (decoy / "decoy.txt").write_text("decoy")
         (self.source / "infinito-state" / "state.txt").write_text("state")
 
-        exclude = "infinito-state/backup"
+        excludes = ["infinito-state/backup"]
         self.assertEqual(
-            self._run(generation="20240101000000", exclude=exclude).returncode, 0
+            self._run(generation="20240101000000", excludes=excludes).returncode, 0
         )
         self.assertEqual(
-            self._run(generation="20240101000001", exclude=exclude).returncode, 0
+            self._run(generation="20240101000001", excludes=excludes).returncode, 0
         )
 
         for generation in self._generations():
@@ -147,6 +150,73 @@ class NfsBackupScriptTests(unittest.TestCase):
             self.assertTrue(
                 (files / "app" / "infinito-state" / "backup" / "decoy.txt").is_file()
             )
+
+    def test_every_excluded_volume_dir_stays_out_of_the_snapshot(self):
+        state = self.source / "infinito-state"
+        for name in ("backup", "docs_sites", "nextcloud_whiteboard_tmp"):
+            (state / name).mkdir(parents=True)
+            (state / name / "blob").write_text(name)
+        (state / "nextcloud_data").mkdir()
+        (state / "nextcloud_data" / "user.txt").write_text("user")
+
+        result = self._run(
+            excludes=[
+                "infinito-state/backup",
+                "infinito-state/docs_sites",
+                "infinito-state/nextcloud_whiteboard_tmp",
+            ]
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        files = self._generations()[0] / "files" / "infinito-state"
+        self.assertEqual(sorted(p.name for p in files.iterdir()), ["nextcloud_data"])
+        self.assertTrue((files / "nextcloud_data" / "user.txt").is_file())
+
+    def test_restoring_a_generation_spares_excluded_volumes_and_the_backup_root(self):
+        state = self.source / "infinito-state"
+        self.backups = state / "backup"
+        self.backups.mkdir(parents=True)
+        db_file = state / "app_data" / "db"
+        site_file = state / "docs_sites" / "site"
+        db_file.parent.mkdir()
+        site_file.parent.mkdir()
+        db_file.write_text("v1")
+        site_file.write_text("regenerable")
+        excludes = ["infinito-state/backup", "infinito-state/docs_sites"]
+        for generation in ("20240101000000", "20240101000001"):
+            result = self._run(generation=generation, excludes=excludes)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        first, second = (g / "files" / "infinito-state" for g in self._generations())
+        self.assertEqual(sorted(p.name for p in second.iterdir()), ["app_data"])
+        self.assertEqual(
+            (first / "app_data" / "db").stat().st_ino,
+            (second / "app_data" / "db").stat().st_ino,
+        )
+
+        db_file.write_text("corrupted")
+        (state / "app_data" / "stale").write_text("stale")
+        site_file.write_text("rebuilt")
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(RECOVER),
+                str(second.parent),
+                str(self.source),
+                "--no-safety-backup",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        db = db_file.read_text()  # nocheck: cache-read tempdir fixture
+        site = site_file.read_text()  # nocheck: cache-read tempdir fixture
+        self.assertEqual(db, "v1")
+        self.assertEqual(site, "rebuilt")
+        self.assertFalse((state / "app_data" / "stale").exists())
+        self.assertTrue((first / "app_data" / "db").is_file())
+        self.assertTrue((second / "app_data" / "db").is_file())
 
     def test_deleted_file_vanishes_only_from_new_generation(self):
         (self.source / "keep.txt").write_text("keep")

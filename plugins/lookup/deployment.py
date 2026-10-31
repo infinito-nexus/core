@@ -25,6 +25,16 @@ def _coerce_to_list(raw: Any) -> list[str]:
     return [str(item) for item in raw]
 
 
+def running_apps(vars_: dict[str, Any]) -> list[str]:
+    """Return the apps the operator asked for, the round's groups otherwise.
+
+    Args:
+        vars_: the task variables the lookup was called with.
+    """
+    whitelist = _coerce_to_list(vars_.get("APPLICATIONS_WHITELIST"))
+    return whitelist or _coerce_to_list(vars_.get("group_names"))
+
+
 class LookupModule(LookupBase):
     def run(
         self,
@@ -48,8 +58,9 @@ class LookupModule(LookupBase):
         if cached is not None:
             return [cached]
 
-        running = whitelist or groups
-        deployed = list(running) if runtime in _EPHEMERAL_RUNTIMES else list(groups)
+        running = running_apps(vars_)
+        ephemeral = runtime in _EPHEMERAL_RUNTIMES
+        deployed = list(running) if ephemeral else list(groups)
         result = {
             "whitelist": whitelist,
             "running": list(running),
@@ -57,6 +68,7 @@ class LookupModule(LookupBase):
             "inventory": inventory,
             "deployed": deployed,
             "runtime": runtime,
+            "ephemeral": ephemeral,
             "all": list(list_invokable_app_ids()),
         }
         _STATUS_CACHE[key] = result

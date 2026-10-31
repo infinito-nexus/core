@@ -4,10 +4,12 @@ enabled: true
 required: false
 mechanism: plugin
 source: upstream
+bridges:
+  - mastodon
 update:
   monitored: true
   catalog: discourse-meta
   upstream_id: discourse-activity-pub
 config:
   repository: https://github.com/discourse/discourse-activity-pub.git
-  ref: main
+  ref: d89d1b0131bbce4dc4102b1409f797be39b41961

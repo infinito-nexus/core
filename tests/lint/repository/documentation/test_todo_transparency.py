@@ -9,13 +9,12 @@ readable.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
 
 from utils.annotations.message import in_github_actions, warning
-from utils.cache.files import iter_project_files, read_text
+from utils.cache.files import iter_project_files, read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -79,12 +78,7 @@ class TodoFinding:
 
 def tracked_files(root: Path) -> list[Path]:
     try:
-        out = subprocess.check_output(
-            ["git", "-C", str(root), "ls-files", "-z"],
-            stderr=subprocess.STDOUT,
-        )
-        rel_paths = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
-        return [root / rel for rel in rel_paths]
+        return [root / rel for rel in repository_files(untracked=True)]
     except Exception:
         return [Path(p) for p in iter_project_files()]
 

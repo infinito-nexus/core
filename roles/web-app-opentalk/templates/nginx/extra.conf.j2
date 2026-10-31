@@ -1,45 +1,33 @@
-# Routes additional OpenTalk endpoints alongside the web frontend.
-# The default location (handled by the front proxy) forwards to the
-# frontend container at {{ OPENTALK_FRONTEND_HTTP_PORT }}; the controller
-# REST API and LiveKit signalling need explicit upstream rules.
-
+{% set opentalk_controller_backend = lookup('proxy_pass', application_id, 'controller', 'http', tail='plain', local_port=OPENTALK_CTRL_HTTP_PORT, internal_port=OPENTALK_CTRL_INTERNAL_PORT) %}
+{% set opentalk_livekit_backend = lookup('proxy_pass', application_id, 'livekit', 'http', tail='/$opentalk_livekit_path$is_args$args', local_port=OPENTALK_LIVEKIT_HTTP_PORT, internal_port=OPENTALK_LIVEKIT_HTTP_PORT) %}
 location /v1/ {
-    proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+    {{ opentalk_controller_backend }}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
     proxy_buffering off;
     proxy_request_buffering off;
     client_max_body_size 0;
 }
 
-location /signaling {
-    proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+location /v1/signaling/ {
+    {{ opentalk_controller_backend }}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
     proxy_read_timeout 86400;
     proxy_buffering off;
 }
 
-location /livekit {
-    proxy_pass http://127.0.0.1:{{ OPENTALK_LIVEKIT_HTTP_PORT }};
+location ~ ^/livekit/(?<opentalk_livekit_path>.*)$ {
+    {{ opentalk_livekit_backend }}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
     proxy_read_timeout 86400;
     proxy_buffering off;
 }

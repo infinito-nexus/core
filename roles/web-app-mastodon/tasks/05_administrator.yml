@@ -1,43 +1,16 @@
 ---
-- name: 🧹 Unblock the administrator username
+- name: 👑 Ensure the administrator exists, unblocked, approved and on its password
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i -u root
-    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username | quote }}
+    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username | quote }}
+    -e MASTODON_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
+    -e MASTODON_ADMIN_PASSWORD
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/unblock_admin_username.rb') }}"
-  register: mastodon_unblock
-  changed_when: "'Unblocked 0 ' not in mastodon_unblock.stdout"
-- name: 📁 Create admin account via tootctl
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c
-    "bin/tootctl accounts create {{ lookup('users', 'administrator').username }}
-    --email {{ lookup('users', 'administrator').email }}
-    --confirmed --role Owner"
-  register: tootctl_create
-  changed_when: tootctl_create.rc == 0
-  failed_when: false
+    stdin: "{{ lookup('file', 'ruby/ensure_administrator.rb') }}"
+  environment:
+    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+  register: mastodon_administrator
+  changed_when: mastodon_administrator.stdout_lines | last == 'changed'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-- name: 🛑 Refuse a tootctl error other than the account already existing
-  ansible.builtin.assert:
-    that:
-      - tootctl_create.rc == 0 or 'taken' in tootctl_create.stdout | lower or 'taken' in tootctl_create.stderr | lower
-    fail_msg: >-
-      bin/tootctl accounts create exited {{ tootctl_create.rc }} for the administrator
-      account without reporting the name as taken: {{ tootctl_create.stderr }}
-- name: 👍 Approve the administrator account in Mastodon
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
-  register: tootctl_approve
-  changed_when: false
-  # rationale: async; approvals run overlapped, reaped below before the login spec
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-
-- name: "⏳ Reap the Mastodon admin approval"
-  ansible.builtin.include_tasks: utils/async/reap.yml
-  vars:
-    async_reap_jobs: "{{ tootctl_approve.results | default([tootctl_approve]) }}"
-    async_reap_label: "Mastodon administrator approval"
-    async_reap_tolerate: []

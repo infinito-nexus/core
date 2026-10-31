@@ -6,6 +6,11 @@ deploy-coverage verifier (cli.meta.roles.services.called) can enforce the
 requirement per deploy mode. A flat block is ambiguous across modes and is
 rejected; each present mode block must carry `categories` and/or `roles`.
 
+`runtimes:` may sit beside the mode blocks as a list of RUNTIME values. It
+narrows the requirement to those runtimes, which is orthogonal to the deploy
+mode: a role the playbook only includes in a test runtime must not be demanded
+of a production deploy.
+
 Mirror to both modes to preserve the previous (mode-agnostic) behavior; declare
 a single mode only when the role genuinely applies to that mode (e.g.
 sys-ctl-rpr-container-* repair compose compositions and are compose-only).
@@ -22,6 +27,7 @@ from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 _MODE_KEYS = {"compose", "swarm"}
+_SCOPE_KEYS = _MODE_KEYS | {"runtimes"}
 _SPEC_KEYS = {"categories", "roles"}
 
 
@@ -43,13 +49,23 @@ class TestRequiredByModeKeys(unittest.TestCase):
                 if not isinstance(rb, dict):
                     continue
                 keys = set(rb.keys())
-                if not keys or not keys <= _MODE_KEYS:
+                if not (keys & _MODE_KEYS) or not keys <= _SCOPE_KEYS:
                     offenders.append(
                         f"{rel} [{entity}]: required_by keys {sorted(keys)} "
-                        "(expected only 'compose' and/or 'swarm')"
+                        "(expected 'compose' and/or 'swarm', optionally 'runtimes')"
                     )
                     continue
-                for mode in sorted(keys):
+                runtimes = rb.get("runtimes")
+                if "runtimes" in keys and not (
+                    isinstance(runtimes, list)
+                    and runtimes
+                    and all(isinstance(r, str) for r in runtimes)
+                ):
+                    offenders.append(
+                        f"{rel} [{entity}].required_by.runtimes: expected a "
+                        "non-empty list of RUNTIME names"
+                    )
+                for mode in sorted(keys & _MODE_KEYS):
                     sub = rb[mode]
                     if not isinstance(sub, dict) or not (set(sub) & _SPEC_KEYS):
                         offenders.append(
@@ -68,7 +84,9 @@ class TestRequiredByModeKeys(unittest.TestCase):
             "    compose: {categories: [web]}\n"
             "    swarm: {categories: [web]}\n"
             "Mirror to both modes to keep the previous behavior; use a single "
-            "mode only when the role genuinely applies to that mode."
+            "mode only when the role genuinely applies to that mode. Add "
+            "`runtimes: [dev, act, github]` beside them to narrow the "
+            "requirement to those RUNTIME values."
         )
 
 

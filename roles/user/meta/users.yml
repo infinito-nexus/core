@@ -1,12 +1,4 @@
 ---
-sld:
-  description: Auto Generated Account to reserve the SLD
-  username: "{{ DOMAIN_PRIMARY.split('.')[0] }}"
-  accounts: []
-tld:
-  description: Auto Generated Account to reserve the TLD
-  username: "{{ DOMAIN_PRIMARY.split('.')[1] if (DOMAIN_PRIMARY is defined and (DOMAIN_PRIMARY.split('.') | length) > 1) else (DOMAIN_PRIMARY ~ '_tld ') }}"
-  accounts: []
 root:
   username: root
   uid: 0

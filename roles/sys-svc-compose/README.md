@@ -10,19 +10,6 @@ Refer to the [Docker Compose documentation](https://docs.docker.com/compose/) an
 
 This role creates a flexible directory layout for managing Docker Compose projects across environments. It ensures directories are initialized, optionally reset, and kept clean using internal flags like `MODE_RESET` or `MODE_CLEANUP`.
 
-## Cosmos
-
-The diagram places Docker Compose in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-svc-compose 💻]
-        svc_svc_compose["svc-compose"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Purpose
 
 To offer a centralized, extensible system for managing containerized applications using Docker Compose within the Infinito.Nexus architecture. The role allows easy integration of services, secrets, configurations, and custom behaviors per application.
@@ -31,12 +18,7 @@ To offer a centralized, extensible system for managing containerized application
 
 - **Dynamic Directory Structure:** Creates per-application instance folders for Compose setups.
 - **Reset Logic:** Cleans previous Compose project files and data when `MODE_RESET` is enabled.
-- **Handlers for Runtime Control:** Automatically builds, sets up, or restarts containers based on handlers. Notify `compose up` when rendered files or the service spec changed; notify `container recreate` when only in-container or in-database state changed and the process must reload it — the latter force-recreates in compose mode and forces a task recreation in swarm mode, where `docker stack deploy` alone would leave the running task untouched.
+- **Handlers for Runtime Control:** Automatically builds, sets up, or restarts containers based on handlers. Notify `compose up` when rendered files or the service spec changed; notify `container recreate` when only in-container or in-database state changed and the process must reload it — the latter force-recreates in compose mode and forces a task recreation in swarm mode, where `docker stack deploy` alone would leave the running task untouched. To rebuild and recreate single services while the rest of the stack keeps running, set `compose_service_up_targets` to their service keys and notify `compose-service-up`; it acts in compose mode only and recreates a service only when its image or configuration changed.
+- **Decommission:** As the last step of a compose deploy without `--id` and with `MODE_CLEANUP`, every compose instance directly below `DIR_COMPOSITIONS` that no active role owns is stopped with `compose down --remove-orphans` and then deleted. Its named volumes stay; bind-mounted data inside the directory, such as `volumes/`, goes with it. A role counts as active when any host of the inventory carries it, when it is in the `CURRENT_PLAY_APPLICATIONS` dependency closure, or when the play prepared its instance. Only a directory named after a known role and carrying the full instance layout (`compose.yml`, `.env/`, `config/`, `services/`, `volumes/`) counts as an instance. An instance that a container outside its compose project is named after, such as a launcher-managed container, stays too. Every directory left alone is listed in the deploy output. The deploy fails before deleting anything when a container still carries the stopped project's name or working directory.
 - **Template-ready Service Files:** Predefined service base and health check templates.
 - **Integration Support:** Compatible with `sys-svc-proxy` and other Infinito.Nexus service roles.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

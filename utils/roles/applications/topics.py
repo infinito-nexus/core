@@ -2,7 +2,7 @@
 
 A round deploys a provider once, so the role that pulls it in is the only
 place that can say how lean it has to be. A variant entry may therefore carry
-any application config topic under the service it depends on:
+any application config topic under the service it depends on::
 
     services:
       openwebui:

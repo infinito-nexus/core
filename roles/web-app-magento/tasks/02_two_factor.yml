@@ -1,0 +1,10 @@
+---
+- name: "🔐 Enable or disable Magento's two-factor modules"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
+      {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+      bin/magento module:{{ MAGENTO_TWO_FACTOR_ENABLED | ternary('enable', 'disable') }}
+      {{ MAGENTO_TWO_FACTOR_MODULES | join(' ') }}
+  register: magento_two_factor
+  changed_when: "'No modules were changed' not in magento_two_factor.stdout"

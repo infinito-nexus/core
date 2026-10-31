@@ -1,0 +1,36 @@
+---
+- name: "🧹 Start the logo payload of {{ application_id }} empty"
+  ansible.builtin.set_fact:
+    discourse_design_upload_payload: {}
+
+- name: "🖼️ Collect the corporate logo set of {{ application_id }}"
+  ansible.builtin.include_tasks: stack_host/03_design/01_assets.yml
+  when: DISCOURSE_DESIGN_LOGO_ENABLED | bool
+
+- name: "🎨 Apply palettes, theme component, title and logos of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('file', 'ruby/design.rb') }}"
+    expand_argument_vars: false
+    stdin: >-
+      {{ {
+        'enabled': DISCOURSE_DESIGN_ENABLED | bool,
+        'mark': DISCOURSE_DESIGN_MARK,
+        'light_name': DISCOURSE_DESIGN_SCHEME_LIGHT,
+        'dark_name': DISCOURSE_DESIGN_SCHEME_DARK,
+        'component_name': DISCOURSE_DESIGN_COMPONENT,
+        'light': DISCOURSE_DESIGN_COLORS_LIGHT,
+        'dark': DISCOURSE_DESIGN_COLORS_DARK,
+        'scss': DISCOURSE_DESIGN_SCSS,
+        'title': DISCOURSE_DESIGN_TITLE,
+        'uploads': discourse_design_upload_payload,
+        'upload_settings': DISCOURSE_DESIGN_UPLOADS.keys() | list
+      } | to_json }}
+  register: discourse_design_apply
+  changed_when: "'design_changed=true' in discourse_design_apply.stdout_lines"

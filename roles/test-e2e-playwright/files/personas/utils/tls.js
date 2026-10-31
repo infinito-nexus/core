@@ -30,4 +30,19 @@ function expectHstsWhenTls(headers, baseUrl, label) {
   }
 }
 
-module.exports = { isTlsBaseUrl, expectHstsWhenTls };
+/**
+ * Headers of the first response a navigation received, before any redirect.
+ *
+ * @param {import("@playwright/test").Response} response final navigation response
+ * @returns {Promise<Record<string, string>>} headers the app's own vhost sent
+ */
+async function ownResponseHeaders(response) {
+  let request = response.request();
+  while (request.redirectedFrom()) {
+    request = request.redirectedFrom();
+  }
+  const own = await request.response();
+  return (own || response).headers();
+}
+
+module.exports = { isTlsBaseUrl, expectHstsWhenTls, ownResponseHeaders };

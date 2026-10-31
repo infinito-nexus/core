@@ -18,16 +18,21 @@
 - block:
     - name: "🐛 DEBUG | superadmin check + pw hash compare (condensed)"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      script: >-
-        shell/debug_superadmin.sh
-        "{{ _super_check_ext.status }}"
-        "{{ _super_check_ext.redirected | default('n/a') }}"
-        "{{ _super_check_ext.url | default('n/a') }}"
-        "{{ _super_check_ext.www_authenticate | default(_super_check_ext.headers['www-authenticate'] | default('n/a')) }}"
-        "{{ _super_check_ext.content_type | default(_super_check_ext.headers['content-type'] | default('n/a')) }}"
-        "{{ (_super_check_ext.content | default(''))[:600] | replace('\n','\\n') }}"
-        "{{ XWIKI_CONTAINER }}"
-        "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - "{{ lookup('file', 'shell/debug_superadmin.sh') }}"
+          - debug_superadmin.sh
+          - "{{ _super_check_ext.status }}"
+          - "{{ _super_check_ext.redirected | default('n/a') }}"
+          - "{{ _super_check_ext.url | default('n/a') }}"
+          - "{{ _super_check_ext.www_authenticate | default(_super_check_ext.headers['www-authenticate'] | default('n/a')) }}"
+          - "{{ _super_check_ext.content_type | default(_super_check_ext.headers['content-type'] | default('n/a')) }}"
+          - "{{ (_super_check_ext.content | default(''))[:600] | replace('\n','\\n') }}"
+          - "{{ XWIKI_CONTAINER }}"
+        stdin: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
+        expand_argument_vars: false
       register: _dbg_superadmin
       changed_when: false
       failed_when: false
@@ -56,8 +61,21 @@
 - name: 📂 Load setup procedures for extensions
   include_tasks: 04_extensions.yml
 
+- name: "🫙 XWIKI | Move the blob store to the bucket now the extension exists"
+  include_tasks: utils/flush_config.yml
+  vars:
+    xwiki_oidc_enabled_switch: false
+    xwiki_ldap_enabled_switch: false
+    xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"
+
 - name: "✅ XWIKI | Ensure Main.WebHome exists"
   include_tasks: 05_main_webhome.yml
+
+- name: "🎨 XWIKI | Reconcile the corporate color theme"
+  include_tasks: 06_design.yml
+
+- name: "🌐 XWIKI | Name the canonical origin in the main wiki descriptor"
+  include_tasks: 07_wiki_descriptor.yml
 
 - block:
     - name: "📁 Create Final Docker Compose File"
@@ -71,3 +89,4 @@
   vars:
     xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
     xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
+    xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"

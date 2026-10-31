@@ -16,6 +16,7 @@ from utils.install.primitives import (
     log,
 )
 
+# nocheck: environ-get-default  contributor tooling, never deployed: no inventory or image declares SHFMT_INSTALL_DIR, it only lets a workstation without write access to /usr/local/bin redirect the binary
 _DEFAULT_INSTALL_DIR = os.environ.get("SHFMT_INSTALL_DIR", "/usr/local/bin")
 
 

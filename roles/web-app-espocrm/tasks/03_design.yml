@@ -1,0 +1,44 @@
+---
+- name: "🧭 Resolve the EspoCRM container that carries the design"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: ESPOCRM
+    resolve_compose_cid: "{{ ESPOCRM_CONTAINER }}"
+
+- name: "🖼️ Stage the corporate logo set of {{ application_id }}"
+  when: ESPOCRM_DESIGN_ENABLED | bool
+  block:
+    - name: "📁 Ensure the design directory of {{ application_id }} exists"
+      ansible.builtin.file:
+        path: "{{ ESPOCRM_DESIGN_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "🖼️ Render the corporate logo set of {{ application_id }}"
+      ansible.builtin.include_role:
+        name: sys-front-inj-design
+        tasks_from: assets.yml
+      vars:
+        design_assets_dest: "{{ ESPOCRM_DESIGN_DIR }}"
+
+    - name: "📖 Read the corporate logo set of {{ application_id }}"
+      ansible.builtin.slurp:
+        src: "{{ [ESPOCRM_DESIGN_DIR, item] | path_join }}"
+      loop: "{{ ESPOCRM_DESIGN_ASSETS if design_branding.logo is string else [] }}"
+      register: espocrm_design_assets
+
+- name: "🎨 Sync the corporate theme of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/design_sync.sh') | quote }} design_sync
+      {{ ('present' if ESPOCRM_DESIGN_ENABLED | bool else 'absent') | quote }}
+      {{ ESPOCRM_DESIGN_THEME | quote }}
+      {{ ESPOCRM_DESIGN_TITLE | quote }}
+      {{ ESPOCRM_DESIGN_MODULE_PATH | quote }}
+      {{ ESPOCRM_DESIGN_ASSETS_PATH | quote }}
+    stdin: "{{ lookup('template', 'theme_payload.j2') if ESPOCRM_DESIGN_ENABLED | bool else '' }}"
+  register: espocrm_design_sync
+  changed_when: "'CHANGED' in espocrm_design_sync.stdout"
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"

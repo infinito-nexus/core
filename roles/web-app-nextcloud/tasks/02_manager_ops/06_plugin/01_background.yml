@@ -1,0 +1,35 @@
+---
+- name: "📦 Install {{ plugin_key }} nextcloud plugin in the background"
+  ansible.builtin.shell: |
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:delete settings appstore-fetcher-lastFailure >/dev/null 2>&1 || true
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:install {{ plugin_key | quote }}
+  args:
+    executable: /bin/bash
+  register: nextcloud_plugin_background_job
+  changed_when: false
+  # rationale: async; the gate below holds every later occ call until this install has applied its schema, and 06_plugin.yml joins the job before 02_install.yml enables and configures the plugin
+  async: "{{ NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME }}"
+  poll: 0
+
+- name: "🧮 Queue {{ plugin_key }} for the join after the install loop"
+  ansible.builtin.set_fact:
+    nextcloud_plugin_background_jobs: >-
+      {{ nextcloud_plugin_background_jobs
+         + [{'key': plugin_key, 'jid': nextcloud_plugin_background_job.ansible_job_id}] }}
+
+- name: "⏳ Hold the other installs until {{ plugin_key }} has applied its schema"
+  ansible.builtin.shell:
+    cmd: |
+      cat {{ nextcloud_plugin_background_job.results_file | quote }}
+      echo
+      {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }} {{ plugin_key | quote }}
+    stdin: "{{ lookup('file', 'php/utils/migration_state.php') }}"
+    executable: /bin/bash
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 60) | int }}"
+  register: nextcloud_plugin_background_gate
+  until: (nextcloud_plugin_background_gate | nextcloud_background_gate) != 'wait'
+  retries: "{{ ((NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME | int) / 2) | round(0, 'ceil') | int }}"
+  delay: 2
+  changed_when: false
+  failed_when: (nextcloud_plugin_background_gate | nextcloud_background_gate) != 'open'

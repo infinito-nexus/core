@@ -1,0 +1,34 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'web-svc-seaweedfs'
+      - objstore_consumer_id != 'web-svc-seaweedfs'
+
+- name: "🔧 Provision the SeaweedFS bucket on the stack host"
+  when: IS_STACK_HOST | bool
+  vars:
+    _seaweedfs_bucket_listed: "{{ lookup('objstore', objstore_consumer_id, 'bucket') in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names) }}"
+  block:
+    - name: "📋 List SeaweedFS buckets"
+      include_tasks: utils/bucket/list.yml
+
+    - name: "📁 Create the SeaweedFS bucket for '{{ objstore_consumer_id }}'"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        echo 's3.bucket.create -name {{ lookup('objstore', objstore_consumer_id, 'bucket') }}' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+      args:
+        executable: /bin/bash
+      register: _seaweedfs_create
+      changed_when: true
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_create is succeeded
+      when: not _seaweedfs_bucket_listed
+
+    - name: "🔐 Converge the bucket policy of '{{ objstore_consumer_id }}'"
+      include_tasks: utils/bucket/policy.yml
+      vars:
+        seaweedfs_bucket_policy_consumer: "{{ objstore_consumer_id }}"
+      when: _seaweedfs_bucket_listed or _seaweedfs_create is changed

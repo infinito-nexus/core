@@ -10,7 +10,15 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.merge.mapping import merge_mapping
 from utils.domains.list import render_domain_value
-from utils.roles.entity.name import get_entity_name
+from utils.networks.reachability import (
+    CLEARNET,
+    NODE_MODES,
+    TOR,
+    network_of,
+    resolve_node_mode,
+    tor_serves_host,
+)
+from utils.roles.entity.name import entity_name
 
 
 def _per_app_redirect_mappings(
@@ -52,11 +60,11 @@ def _per_app_redirect_mappings(
         return values
 
     def _default_domain(app_id: str) -> str:
-        return f"{get_entity_name(app_id)}.{primary_domain}"
+        return f"{entity_name(app_id)}.{primary_domain}"
 
     canonical_map: dict[str, list[str]] = {}
     for app_id, cfg in apps.items():
-        domains_cfg = (cfg or {}).get("server", {}).get("domains", {}) or {}
+        domains_cfg = (cfg or {}).get("domains") or {}
         if "canonical" in domains_cfg:
             entry = render_domain_value(
                 domains_cfg["canonical"],
@@ -77,7 +85,7 @@ def _per_app_redirect_mappings(
 
     alias_map: dict[str, list[str]] = {}
     for app_id, cfg in apps.items():
-        domains_cfg = (cfg or {}).get("server", {}).get("domains", {})
+        domains_cfg = (cfg or {}).get("domains", {})
         if domains_cfg is None:
             alias_map[app_id] = []
             continue
@@ -117,27 +125,36 @@ def _per_app_redirect_mappings(
 class LookupModule(LookupBase):
     """Return CURRENT_PLAY_REDIRECT_DOMAINS as a list of {source,target} dicts.
 
+    A user-supplied mapping may be a wildcard ``*.<zone>`` and may carry
+    ``keep_path: false`` to drop the request URI from its 301.
+
     Merges, in order:
-      1. user-supplied ``redirect_domain_mappings`` (if any)
+      1. ``services.rdr-domains.redirects`` of ``web-opt-rdr-domains``, set per
+         inventory under ``applications``
       2. ``{DOMAIN_PRIMARY -> DOMAIN_HOMEPAGE}`` (skipped when equal);
          non-empty result triggers ``sys-stk-front-base`` to auto-load
          ``web-opt-rdr-domains`` so openresty has an SNI match for
          DOMAIN_PRIMARY even when no app claims it. On onion nodes
-         (``svc-net-tor`` in ``group_names`` with a provisioned
+         (``svc-net-tor`` serving the host with a provisioned
          ``services.tor.node``) the bare node-onion apex is scheduled as an
          additional source targeting the same ``DOMAIN_HOMEPAGE`` when that
-         is an onion host; a clearnet ``DOMAIN_HOMEPAGE`` (no dashboard
-         deployed) gets no onion apex entry, so an onion vhost never
-         redirects to clearnet. Both entries require ``web-opt-rdr-domains`` in
-         ``lookup('deployment').deployed`` so isolated CI variants do not
-         schedule a redirect whose target is not served.
+         is an onion host or has an onion sibling this node serves, which
+         the redirect template sends the apex to; a homepage without one
+         gets no onion apex entry, so an onion vhost never redirects to
+         clearnet. On an onion node the onion-apex entry requires
+         ``web-opt-rdr-domains`` in ``lookup('deployment').deployed`` so
+         isolated CI variants do not schedule a redirect whose target is not
+         served; the clearnet entry needs it only when the node's
+         ``NETWORK_MODE`` does not serve clearnet.
       3. per-app alias-to-canonical mappings from
          ``lookup('applications_current_play')``, gated by ``AUTO_BUILD_ALIASES``.
 
     Steps 1-2 win over conflicting step-3 entries.
     """
 
-    def _run_lookup(self, name: str, variables: dict[str, Any] | None) -> Any:
+    def _run_lookup(
+        self, name: str, variables: dict[str, Any] | None, *terms: str
+    ) -> Any:
         plugin = lookup_loader.get(
             name,
             loader=getattr(self, "_loader", None),
@@ -145,14 +162,14 @@ class LookupModule(LookupBase):
         )
         if plugin is None:
             return None
-        result = plugin.run([], variables=variables)
+        result = plugin.run(list(terms), variables=variables)
         return result[0] if result else None
 
     def _node_onion(self, vars_: Mapping[str, Any]) -> str:
-        """Return the node onion address when this host is an onion node
-        (``svc-net-tor`` in ``group_names`` with a provisioned
-        ``services.tor.node`` in the ``applications`` override), else ``""``."""
-        if "svc-net-tor" not in (vars_.get("group_names") or []):
+        """Return the node onion address when ``svc-net-tor`` serves this host
+        (:func:`utils.networks.reachability.tor_serves_host`) with a provisioned
+        ``services.tor.node`` in the ``applications`` override, else ``""``."""
+        if not tor_serves_host(vars_):
             return ""
         apps = vars_.get("applications")
         svc_tor = apps.get("svc-net-tor") if isinstance(apps, Mapping) else None
@@ -162,6 +179,40 @@ class LookupModule(LookupBase):
         tor = services.get("tor") if isinstance(services, Mapping) else None
         node = tor.get("node") if isinstance(tor, Mapping) else None
         return self._resolve_str(node).strip()
+
+    def _serves_clearnet(self, vars_: Mapping[str, Any]) -> bool:
+        """Whether the node's resolved ``NETWORK_MODE`` includes clearnet.
+
+        Args:
+            vars_: host variables carrying ``NETWORK_MODE``, ``group_names``
+                and ``groups``.
+        """
+        try:
+            mode = resolve_node_mode(
+                self._resolve_str(vars_.get("NETWORK_MODE")),
+                tor_provided=tor_serves_host(vars_),
+            )
+        except ValueError as exc:
+            raise AnsibleError(f"current_play_redirect_domains: {exc}") from exc
+        return CLEARNET in NODE_MODES[mode]
+
+    def _reachable_on_onion(self, domain: str, vars_: Mapping[str, Any]) -> bool:
+        """Whether ``domain`` is an onion host or has an onion sibling this
+        node serves.
+
+        Args:
+            domain: the redirect target.
+            vars_: host variables the ``network_siblings`` lookup reads.
+        """
+        if network_of(domain) == TOR:
+            return True
+        plugin = lookup_loader.get(
+            "network_siblings",
+            loader=getattr(self, "_loader", None),
+            templar=getattr(self, "_templar", None),
+        )
+        siblings = plugin.run([domain], variables=dict(vars_))[0] if plugin else None
+        return any(network_of(sibling) == TOR for sibling in siblings or [])
 
     def _resolve_str(self, value: Any) -> str:
         """Template a possibly Jinja-tagged inventory value through
@@ -187,11 +238,25 @@ class LookupModule(LookupBase):
         domain_homepage = self._resolve_str(vars_.get("DOMAIN_HOMEPAGE"))
         auto_build_aliases = bool(vars_.get("AUTO_BUILD_ALIASES", False))
 
-        user_mappings = vars_.get("redirect_domain_mappings") or []
+        user_mappings = self._run_lookup(
+            "config", vars_, "web-opt-rdr-domains", "services.rdr-domains.redirects"
+        )
         if not isinstance(user_mappings, list):
             user_mappings = []
 
-        merged = merge_mapping([], list(user_mappings), "source")
+        merged = merge_mapping(
+            [],
+            [
+                {
+                    **mapping,
+                    "source": self._resolve_str(mapping.get("source")),
+                    "target": self._resolve_str(mapping.get("target")),
+                }
+                for mapping in user_mappings
+                if isinstance(mapping, Mapping)
+            ],
+            "source",
+        )
 
         if domain_primary and domain_homepage:
             node_onion = self._node_onion(vars_)
@@ -204,21 +269,23 @@ class LookupModule(LookupBase):
                     else []
                 )
                 allowed = "web-opt-rdr-domains" in deployed
-            if allowed:
-                primary_redirects = []
-                if domain_primary != domain_homepage:
-                    primary_redirects.append(
-                        {"source": domain_primary, "target": domain_homepage}
-                    )
-                if (
-                    node_onion
-                    and node_onion != domain_homepage
-                    and domain_homepage.endswith(".onion")
-                ):
-                    primary_redirects.append(
-                        {"source": node_onion, "target": domain_homepage}
-                    )
-                merged = merge_mapping(merged, primary_redirects, "source")
+            primary_redirects = []
+            if domain_primary != domain_homepage and (
+                allowed or self._serves_clearnet(vars_)
+            ):
+                primary_redirects.append(
+                    {"source": domain_primary, "target": domain_homepage}
+                )
+            if (
+                allowed
+                and node_onion
+                and node_onion != domain_homepage
+                and self._reachable_on_onion(domain_homepage, vars_)
+            ):
+                primary_redirects.append(
+                    {"source": node_onion, "target": domain_homepage}
+                )
+            merged = merge_mapping(merged, primary_redirects, "source")
 
         current_play_apps = self._run_lookup("applications_current_play", vars_)
         if isinstance(current_play_apps, Mapping):

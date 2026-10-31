@@ -11,10 +11,11 @@ ollama:
   enabled: true
   shared: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: ollama/ollama
   version: 0.40.13
   name: ollama
+  gpu: true
   min_storage: 3473MB
   cpus: "4.0"
   mem_reservation: 6g
@@ -33,3 +34,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

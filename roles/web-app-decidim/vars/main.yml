@@ -17,7 +17,19 @@ DECIDIM_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 DECIDIM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
 DECIDIM_OIDC_USER_INFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 
-DECIDIM_ORGANIZATION_NAME: "{{ defaults_service_provider.platform.titel }}"
+DECIDIM_ORGANIZATION_NAME: "{{ lookup('design', application_id).label }}"
+
+DECIDIM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+DECIDIM_DESIGN_LOGO_ENABLED: "{{ DECIDIM_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
+DECIDIM_DESIGN_TITLE: "{{ lookup('design', application_id).title if DECIDIM_DESIGN_ENABLED | bool and lookup('design', application_id).title is string else '' }}"
+DECIDIM_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
+DECIDIM_DESIGN_COLORS:
+  primary: "{{ DECIDIM_DESIGN_PALETTE['--design-primary'] }}"
+  secondary: "{{ DECIDIM_DESIGN_PALETTE['--design-link'] }}"
+  tertiary: "{{ DECIDIM_DESIGN_PALETTE['--design-info'] }}"
+DECIDIM_DESIGN_ASSETS:
+  logo: "logo.png"
+  favicon: "icon.png"
 
 DECIDIM_PATCH_SCRIPT_FILE: "patch.py"
 DECIDIM_PATCH_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_SCRIPT_FILE ] | path_join }}"

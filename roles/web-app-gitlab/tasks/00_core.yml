@@ -30,6 +30,18 @@
 - name: "⏳ Wait for GitLab services"
   include_tasks: 02_wait.yml
 
+- name: "🔑 Realign the native root account with the declared password"
+  include_tasks: utils/root_password.yml
+
+- name: "👤 Give the platform administrator GitLab admin rights"
+  include_tasks: utils/platform_admin.yml
+
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: GITLAB_MCP_ENABLED | bool
+
+- name: "🔎 Wait for the GitLab services the MCP flush recreated"
+  include_tasks: 02_wait.yml
+
+- name: "🎨 Converge the GitLab appearance"
+  include_tasks: 03_design.yml

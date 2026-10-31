@@ -32,6 +32,8 @@ def _run_tasks(*, sso: bool, stack_host: bool, mode: str, tenants: int) -> list:
         "FIDER_MCP_ENABLED": False,
         "IS_STACK_HOST": stack_host,
         "DEPLOYMENT_MODE": mode,
+        "IS_COMPOSE_MODE": mode == "compose",
+        "IS_SWARM_MODE": mode == "swarm",
         "fider_tenant_count": {"rows": [[tenants]]},
     }
     executed: list = []

@@ -3,11 +3,13 @@ from __future__ import annotations
 import contextlib
 import os
 from typing import Any
+from urllib.parse import urlsplit
 
 from ansible.plugins.lookup import LookupBase
 from ansible.template import trust_as_template
 
 from utils.env.runtime import mem_available_mb, mem_total_mb
+from utils.networks.reachability import TOR, network_of
 
 _PER_WORKER_GB = 1.5
 _RAM_FRACTION = 0.5
@@ -123,7 +125,7 @@ class LookupModule(LookupBase):
                     "{{ lookup('tls', " + repr(str(application_id)) + ", 'url.base') }}"
                 )
             )
-            return ".onion" in str(base)
+            return network_of(urlsplit(str(base)).hostname or "") == TOR
         return False
 
     def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):

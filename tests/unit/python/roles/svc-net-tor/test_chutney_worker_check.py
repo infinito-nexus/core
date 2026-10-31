@@ -7,6 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from utils.networks.reachability import TOR, network
+
 from . import PROJECT_ROOT
 
 TEST_SH = PROJECT_ROOT / "roles" / "svc-net-tor" / "files" / "test" / "test.sh"
@@ -47,6 +49,7 @@ def _run(
                 "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
                 "NODES_DIR": str(nodes),
                 "TOR_SOCKS": "127.0.0.1:9050",
+                "ONION_SUFFIX": network(TOR).suffix,
                 "NGINX_SERVERS_DIR": str(root),
                 "RETRIES": "1",
                 "SLEEP_SECONDS": "0",

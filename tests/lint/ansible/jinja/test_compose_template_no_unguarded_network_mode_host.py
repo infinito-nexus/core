@@ -1,5 +1,5 @@
 """Flag ``network_mode: host`` in ``compose.yml.j2`` templates when the
-line is NOT inside a ``{% if DEPLOYMENT_MODE == 'compose' %}`` (or
+line is NOT inside a ``{% if IS_COMPOSE_MODE %}`` (or
 equivalent compose-only) Jinja gate.
 
 ``docker stack deploy`` has had inconsistent / incomplete support for
@@ -31,14 +31,8 @@ _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")
 _ENDIF = re.compile(r"\{%\s*endif\s*%\}")
-_COMPOSE_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
-)
-_SWARM_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*==\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*!=\s*['\"]compose['\"]"
-)
+_COMPOSE_ONLY_GATE = re.compile(r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE")
+_SWARM_ONLY_GATE = re.compile(r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE")
 
 
 def _frame_is_compose_only(expr: str, in_else: bool) -> bool:
@@ -95,7 +89,7 @@ class TestComposeTemplateNoUnguardedNetworkModeHost(unittest.TestCase):
                 "versions; the swarm-correct pattern is per-port host "
                 "binding.\n\n"
                 "Fix: split by mode. Example for an 80/443 frontend:\n\n"
-                "    {% if DEPLOYMENT_MODE == 'swarm' %}\n"
+                "    {% if IS_SWARM_MODE %}\n"
                 "        ports:\n"
                 "          - target: 80\n"
                 "            published: 80\n"

@@ -1,5 +1,8 @@
 ---
 - services:
+    docs:
+      enabled: true
+      shared: true
     nfs-server:
       enabled: true
       shared: true

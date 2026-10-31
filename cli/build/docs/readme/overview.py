@@ -1,6 +1,7 @@
 """Generate the invokable-role overview table in the repository README.
 
-Usage:
+Usage::
+
   python -m cli.build.docs.readme.overview [--check] [--readme PATH] [--roles-dir DIR]
 
 The table lives in its own ``## Roles Overview 🧩`` section directly above
@@ -9,9 +10,11 @@ run; every other section stays untouched. Rows are the invokable roles,
 sorted ascending by the Entity column.
 
 Rows are the invokable roles inside the tested lifecycle envelope, sorted
-ascending by name.
+ascending by name. Custom roles (``web-app-cst-*``) are left out: Git ignores
+them, so the tracked README never names one.
 
-Columns:
+Columns::
+
   Name             Role README H1 title, linked to the role directory.
   Status           Role lifecycle stage.
   Description      ``galaxy_info.description`` from meta/main.yml.
@@ -32,7 +35,8 @@ from pathlib import Path
 from cli.meta.roles.applications.complexity.model import compute_complexity_rows
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.custom import is_custom
+from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
@@ -76,7 +80,7 @@ def _role_title(roles_dir: Path, role: str) -> str:
         for line in read_text(str(readme)).splitlines():
             if line.startswith("# "):
                 return line[2:].strip()
-    entity = get_entity_name(role) or role
+    entity = entity_name(role) or role
     return entity.replace("-", " ").title()
 
 
@@ -109,7 +113,9 @@ def build_table(roles_dir: Path) -> str:
     roles = sorted(
         p.name
         for p in roles_dir.iterdir()
-        if p.is_dir() and _is_role_invokable(p.name, invokable_paths)
+        if p.is_dir()
+        and not is_custom(p.name)
+        and _is_role_invokable(p.name, invokable_paths)
     )
     complexity = {row.name: row for row in compute_complexity_rows(roles_dir)}
     roles = [
@@ -208,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{readme_path.name}: overview up to date")
         return 0
     if args.check:
-        print(f"{readme_path.name}: overview outdated, run make readme-index")
+        print(f"{readme_path.name}: overview outdated")
         return 1
     readme_path.write_text(updated, encoding="utf-8")
     print(f"{readme_path.name}: overview updated")

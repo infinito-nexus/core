@@ -1,0 +1,6 @@
+{% set design = lookup('design', application_id) %}
+{{ {
+  'logo': design.logo is string,
+  'title': design.title if design.title is string else none,
+  'urls': design.urls if design.logo is string else {},
+} | to_json }}

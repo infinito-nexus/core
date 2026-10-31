@@ -33,10 +33,14 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    brand:
+      width: 240
+      height: 72
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch (injected logout), no probe-able surface flag
 javascript:
@@ -49,6 +53,9 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag  self-provider
 checkmk:
+  # nocheck: architecture-pin  Reason: checkmk ships the Raw edition as an appliance image only, and every 2.4 and 2.5 tag of checkmk/check-mk-raw answers with a single linux/amd64 manifest, so there is nothing to pin to and nothing to build from
+  architectures:
+    - amd64
   enabled: true
   shared: true
   bond: 1
@@ -73,7 +80,7 @@ checkmk:
   image: checkmk/check-mk-raw
   version: "2.4.0p39"
   backup:
-    no_stop_required: true
+    stop_required: false
   name: checkmk
   ports:
     internal:
@@ -82,6 +89,7 @@ checkmk:
     local:
       http: 8087
       sso: 16509
+      sso_onion: 16524
       agent: 8500
     onion:
       # nocheck: onion-flag  the monitoring server dials its agents, so nothing connects inward here, and the agent speaks no authentication of its own
@@ -142,3 +150,8 @@ flowise:
   enabled: false
   shared: false
   mcp_consumer: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

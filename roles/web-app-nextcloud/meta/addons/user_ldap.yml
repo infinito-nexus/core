@@ -50,6 +50,9 @@ config:
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_connection_timeout"
       configvalue: 15
     - appid: "user_ldap"
+      configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_attributes_for_user_search"
+      configvalue: "{{ LDAP.USER.ATTRIBUTES.ID }}\n{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+    - appid: "user_ldap"
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_display_name"
       configvalue: "cn"
     - appid: "user_ldap"

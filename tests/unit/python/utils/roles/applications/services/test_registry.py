@@ -7,6 +7,7 @@ from pathlib import Path
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.services.registry import (
+    GATED_LOOKUPS,
     GROUP_GATED_CONSTANTS,
     ServiceRegistryError,
     build_service_registry_from_applications,
@@ -356,6 +357,19 @@ class TestExplicitTruth(unittest.TestCase):
         for constant in GROUP_GATED_CONSTANTS:
             with self.subTest(constant=constant):
                 self.assertTrue(is_explicit_truth("{{ " + constant + " }}"))
+
+    def test_every_registered_lookup_resolves(self):
+        for token in GATED_LOOKUPS:
+            with self.subTest(token=token):
+                self.assertTrue(is_explicit_truth("{{ " + token + ", 'clearnet') }}"))
+
+    def test_every_registered_lookup_has_a_plugin(self):
+        for token in GATED_LOOKUPS:
+            name = token.split("'")[1]
+            with self.subTest(lookup=name):
+                self.assertTrue(
+                    (PROJECT_ROOT / "plugins" / "lookup" / f"{name}.py").is_file()
+                )
 
     def test_an_unregistered_jinja_expression_does_not_resolve(self):
         self.assertFalse(

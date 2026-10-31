@@ -6,15 +6,20 @@
 # matrix exercises the in-group_names branch of web-app-dashboard.
 
 - services:
+    docs:
+      enabled: false
+      shared: false
     asset:
       enabled: true
       shared: true
     logout:
       enabled: true
       shared: true
+    # variant-pin: web-app-matomo#reciprocal
     matomo:
       enabled: true
       shared: true
+    # variant-pin: web-app-keycloak#reciprocal
     sso:
       enabled: true
       shared: true
@@ -24,12 +29,15 @@
     simpleicons:
       enabled: true
       shared: true
-    css:
+    design:
       enabled: true
       shared: true
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     asset:
       enabled: false
       shared: false
@@ -48,7 +56,7 @@
     simpleicons:
       enabled: false
       shared: false
-    css:
+    design:
       enabled: false
       shared: false
     tor:

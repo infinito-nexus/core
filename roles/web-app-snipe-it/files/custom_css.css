@@ -1,0 +1,50 @@
+html[data-theme] {
+  --color-bg: var(--design-surface-1);
+  --color-fg: var(--design-text);
+  --header-color: var(--design-text);
+  --box-bg: var(--design-surface-2);
+  --table-stripe-bg: var(--design-surface-2);
+  --table-stripe-bg-alt: var(--design-surface-3);
+  --input-group-bg: var(--design-surface-3);
+  --input-group-fg: var(--design-text);
+  --callout-bg-color: var(--design-surface-3);
+  --callout-left-border: var(--design-border-strong);
+  --main-footer-bg-color: var(--design-surface-2);
+  --main-footer-text-color: var(--design-text-muted);
+  --main-footer-top-border-color: var(--design-border);
+  --text-help: var(--design-text-muted);
+  --text-legend-help: var(--design-text-muted);
+  --text-danger: var(--design-danger);
+  --text-info: var(--design-info);
+  --text-success: var(--design-success);
+  --text-warning: var(--design-warning);
+  --link-hover: var(--design-link);
+  --table-border-row-color: var(--design-border);
+  --table-border-row-top: 1px solid var(--design-border);
+  --table-border-row: 1px solid var(--design-border);
+  --box-header-bottom-border-color: var(--design-border);
+  --box-header-bottom-border: 1px solid var(--design-border);
+  --box-header-top-border-color: var(--design-border);
+  --box-header-top-border: 3px solid var(--design-border);
+  --tab-bottom-border: 1px solid var(--design-border);
+  --default-label-link-bg: var(--design-surface-1);
+  --default-label-link-border: 1px solid var(--design-border);
+  --input-border-color: var(--design-border-strong);
+  --search-highlight: var(--design-warning-subtle);
+  --main-theme-color: var(--design-frame);
+  --main-theme-hover: var(--design-frame-hover);
+  --btn-theme-base: var(--design-frame);
+  --btn-theme-border: var(--design-frame-active);
+  --btn-theme-hover: var(--design-frame-hover);
+  --sidenav-hover-color-bg: var(--design-frame-active);
+  --sidenav-text-hover-color: var(--design-on-frame);
+  --sidenav-text-nohover-color: var(--design-on-frame);
+}
+html[data-theme] .fc {
+  --fc-border-color: var(--design-border);
+  --fc-page-bg-color: var(--design-surface-2);
+  --fc-neutral-bg-color: var(--design-surface-3);
+  --fc-neutral-text-color: var(--design-text);
+  --fc-list-event-hover-bg-color: var(--design-surface-hover);
+  --fc-today-bg-color: var(--design-surface-active);
+}

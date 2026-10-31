@@ -1,0 +1,40 @@
+---
+- name: "🔍 PEERTUBE | Find the marks of the logos the role uploaded"
+  ansible.builtin.find:
+    paths: "{{ PEERTUBE_DESIGN_DIR }}"
+    patterns: "*.mark"
+  register: peertube_design_mark_files
+
+- name: "📥 PEERTUBE | Read the marks of the logos the role uploaded"
+  ansible.builtin.slurp:
+    src: "{{ [PEERTUBE_DESIGN_DIR, item.type ~ '.mark'] | path_join }}"
+  loop: "{{ PEERTUBE_DESIGN_LOGOS }}"
+  loop_control:
+    label: "{{ item.type }}"
+  when: ([PEERTUBE_DESIGN_DIR, item.type ~ '.mark'] | path_join) in (peertube_design_mark_files.files | map(attribute='path'))
+  register: peertube_design_marks
+
+- name: "🗑️ PEERTUBE | Delete the logos that are still the ones the role uploaded"
+  uri_retry:
+    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config/instance-logo/{{ item.0.type }}"
+    method: DELETE
+    headers:
+      Host: "{{ PEERTUBE_HOSTNAME }}"
+      Authorization: "Bearer {{ peertube_design_token.json.access_token }}"
+    status_code: [204]
+  vars:
+    _served: "{{ peertube_design_config.json.instance.logo | selectattr('type', 'equalto', item.0.type) | first }}"
+  loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_marks.results) | list }}"
+  loop_control:
+    label: "{{ item.0.type }}"
+  when:
+    - item.1 is not skipped
+    - not _served.isFallback
+    - (item.1.content | b64decode).split()[0] == (_served.fileUrl | urlsplit('path'))
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 PEERTUBE | Remove the rendered logos and their marks"
+  ansible.builtin.file:
+    path: "{{ PEERTUBE_DESIGN_DIR }}"
+    state: absent

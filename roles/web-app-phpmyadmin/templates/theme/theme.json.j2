@@ -1,0 +1,7 @@
+{% set version = lookup('config', application_id, 'services.phpmyadmin.version') | string %}
+{
+    "name": {{ lookup('design', application_id).label | to_json }},
+    "version": {{ version | to_json }},
+    "description": {{ ('Corporate design on top of ' ~ PHPMYADMIN_THEME_BASE) | to_json }},
+    "supports": {{ [(version.split('.')[:2]) | join('.')] | to_json }}
+}

@@ -23,6 +23,8 @@ from . import PROJECT_ROOT
 
 SWARM = {
     "DEPLOYMENT_MODE": "swarm",
+    "IS_COMPOSE_MODE": False,
+    "IS_SWARM_MODE": True,
     "application_id": "web-app-x",
     "groups": {"web-app-x": ["mgr-01", "wrk-01", "wrk-02"]},
 }

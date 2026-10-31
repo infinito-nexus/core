@@ -2,6 +2,7 @@
 uploads:
   type: volume
   name: decidim_uploads
+  backup: false
   mounts:
     - service: decidim
       target: /app/public/uploads
@@ -9,6 +10,7 @@ uploads:
 logs:
   type: volume
   name: decidim_logs
+  backup: false
   mounts:
     - service: decidim
       target: /app/log

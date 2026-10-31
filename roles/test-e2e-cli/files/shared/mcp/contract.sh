@@ -18,13 +18,14 @@ set -euo pipefail
 : "${MCP_READ_ARGUMENTS:?}"
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export MCP_PATH_KEY MCP_AUTH_HEADER
 
 container run --rm -i \
     --network "${MCP_TEST_NETWORK}" \
     -e "MCP_URL=${MCP_URL}" \
     -e "MCP_TRANSPORT=${MCP_TRANSPORT}" \
-    -e "MCP_PATH_KEY=${MCP_PATH_KEY}" \
-    -e "MCP_AUTH_HEADER=${MCP_AUTH_HEADER}" \
+    -e MCP_PATH_KEY \
+    -e MCP_AUTH_HEADER \
     -e "MCP_EXPECTED_TOOLS=${MCP_EXPECTED_TOOLS}" \
     -e "MCP_UPSTREAM_SERVES=${MCP_UPSTREAM_SERVES}" \
     -e "MCP_READ_TOOL=${MCP_READ_TOOL}" \

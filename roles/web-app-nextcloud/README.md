@@ -8,124 +8,6 @@ Elevate your collaboration with Nextcloud, a vibrant self-hosted cloud solution 
 
 This role provisions a complete Nextcloud deployment using Docker Compose. It automates the setup of the Nextcloud application along with its underlying MariaDB database and configures the system for secure public access via an NGINX reverse proxy. The deployment includes automated configuration merging into `config.php`, health check routines, and integrated support for backup and recovery operations.
 
-## Cosmos
-
-The diagram places Nextcloud in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
-        dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
-        dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dep_svc_db_redis["svc-db-redis 🐳🐝"]
-        dep_svc_net_tor["svc-net-tor 🐳🐝"]
-        dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
-        dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_discourse["web-app-discourse 🐳🐝"]
-        dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
-        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_mastodon["web-app-mastodon 🐳🐝"]
-        dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_matrix["web-app-matrix 🐳🐝"]
-        dep_web_app_mattermost["web-app-mattermost 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_openproject["web-app-openproject 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
-        dep_web_app_peertube["web-app-peertube 🐳🐝"]
-        dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
-        dep_web_app_stalwart["web-app-stalwart 🐳🐝"]
-        dep_web_app_xwiki["web-app-xwiki 🐳🐝"]
-        dep_web_app_zammad["web-app-zammad 🐳🐝"]
-        dep_web_svc_collabora["web-svc-collabora 🐳🐝"]
-        dep_web_svc_coturn["web-svc-coturn 🐳🐝"]
-        dep_web_svc_css["web-svc-css 💻"]
-        dep_web_svc_logout["web-svc-logout 🐳🐝"]
-        dep_web_svc_onlyoffice["web-svc-onlyoffice 🐳🐝"]
-    end
-    subgraph role [web-app-nextcloud 🐳🐝]
-        svc_sso["sso"]
-        svc_coturn["coturn"]
-        svc_logout["logout"]
-        svc_ldap["ldap"]
-        svc_dashboard["dashboard"]
-        svc_matomo["matomo"]
-        svc_email["email"]
-        svc_redis["redis"]
-        svc_mariadb["mariadb"]
-        svc_nextcloud["nextcloud"]
-        svc_proxy["proxy"]
-        svc_context_agent["context_agent"]
-        svc_contextagentmcp["contextagentmcp"]
-        svc_cron["cron"]
-        svc_talk["talk"]
-        svc_whiteboard["whiteboard"]
-        svc_onlyoffice["onlyoffice"]
-        svc_collabora["collabora"]
-        svc_bigbluebutton["bigbluebutton"]
-        svc_xwiki["xwiki"]
-        svc_minio["minio ❌"]
-        svc_seaweedfs["seaweedfs"]
-        svc_talk_recording["talk_recording"]
-        svc_css["css"]
-        svc_hcaptcha["hcaptcha"]
-        svc_prometheus["prometheus"]
-        svc_tor["tor"]
-        svc_openproject["openproject"]
-        svc_gitlab["gitlab"]
-        svc_discourse["discourse"]
-        svc_mattermost["mattermost"]
-        svc_matrix["matrix"]
-        svc_zammad["zammad"]
-        svc_openwebui["openwebui"]
-        svc_litellm["litellm"]
-        svc_mastodon["mastodon"]
-        svc_peertube["peertube"]
-        svc_moodle["moodle ❌"]
-        svc_suitecrm["suitecrm ❌"]
-        svc_container_backup["container_backup"]
-        svc_hermes["hermes"]
-        svc_openclaw["openclaw"]
-        svc_flowise["flowise ❌"]
-    end
-    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
-    dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_db_openldap -. "0..1" .-> svc_ldap
-    dep_svc_db_redis -. "0..1" .-> svc_redis
-    dep_svc_net_tor -. "0..1" .-> svc_tor
-    dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
-    dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_discourse -. "0..1" .-> svc_discourse
-    dep_web_app_gitlab -. "0..1" .-> svc_gitlab
-    dep_web_app_hermes -. "0..1" .-> svc_hermes
-    dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mastodon -. "0..1" .-> svc_mastodon
-    dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_matrix -. "0..1" .-> svc_matrix
-    dep_web_app_mattermost -. "0..1" .-> svc_mattermost
-    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
-    dep_web_app_openproject -. "0..1" .-> svc_openproject
-    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
-    dep_web_app_peertube -. "0..1" .-> svc_peertube
-    dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
-    dep_web_app_stalwart -. "0..1" .-> svc_email
-    dep_web_app_xwiki -. "0..1" .-> svc_xwiki
-    dep_web_app_zammad -. "0..1" .-> svc_zammad
-    dep_web_svc_collabora -. "0..1" .-> svc_collabora
-    dep_web_svc_coturn -. "0..1" .-> svc_coturn
-    dep_web_svc_coturn -. "0..1" .-> svc_talk
-    dep_web_svc_css -. "0..1" .-> svc_css
-    dep_web_svc_logout -. "0..1" .-> svc_logout
-    dep_web_svc_onlyoffice -. "0..1" .-> svc_onlyoffice
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Fully Dockerized Deployment:** Simplifies installation using Docker Compose for the Nextcloud application and its MariaDB backend.
@@ -135,48 +17,9 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Integrated Backup & Recovery:** Provides built-in support for backup and restoration operations to safeguard your data.
 - **Extensible Plugin Framework:** Easily manage and configure hundreds of Nextcloud plugins using the OCC command line tool.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Nextcloud onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=web-app-nextcloud full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Nextcloud to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=web-app-nextcloud
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
-
 ## Addons
 
-The config-bearing Nextcloud apps are declared in [`meta/addons/`](./meta/addons/) under the unified addon contract (requirement 026).
+The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026).
 Each declaration carries its full `occ config:app:set` payload under `config:`.
 The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml).
 
@@ -190,8 +33,64 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 | `spreed` | `plugin` | enabled with the `talk` service | `talk`, `coturn` |
 | `whiteboard` | `plugin` | `required` (always installed) | none (self-hosted backend) |
 | `xwiki` | `plugin` | enabled with the `xwiki` partner | `xwiki` → `web-app-xwiki` |
+| `app_api` | `plugin` | enabled while `services.context_agent.enabled` is true (it follows `mcp.enabled` unless the inventory sets it), disabled otherwise | none |
+| `logreader` | `plugin` | disabled, `log_type` is `errorlog` | none |
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
+
+## Networks
+
+On a node that serves Nextcloud on several networks, Nextcloud builds every absolute URL from the request: the host comes from the forwarded `Host`, the scheme from `X-Forwarded-Proto`, which the internal nginx passes to PHP as `HTTPS`. `trusted_domains` lists every network sibling, and `overwrite.cli.url` stays on the canonical clearnet URL for CLI jobs and mail links.
+
+The Talk signaling server accepts the backend URL of every sibling with the same secret. Talk calls work on the clearnet sibling only.
+
+## Major Upgrades
+
+Every deploy reads `$OC_Version` from `version.php` in the `nextcloud_data` volume and compares its major with the pinned `services.nextcloud.version`, which MUST start with the major number (`34-fpm-alpine`, `32.0.3-fpm-alpine`).
+
+| Data | Behaviour |
+|------|-----------|
+| No volume or no `version.php` | Fresh install through the image entrypoint |
+| Pinned major | Regular deploy, minor updates run in the entrypoint and `occ upgrade` |
+| Older major | One upgrade step per major up to the pinned one, then the regular deploy |
+| Newer major | The deploy stops, Nextcloud cannot downgrade |
+
+[`tasks/utils/major_upgrade.yml`](./tasks/utils/major_upgrade.yml) runs the steps before the compose handlers start the pinned image:
+
+1. It stops every running container that mounts `nextcloud_data`.
+2. Per major it renders [`templates/major_upgrade.yml.j2`](./templates/major_upgrade.yml.j2) as `compose.upgrade.yml`, which swaps the image of the `nextcloud` service for the official `nextcloud:<major><suffix>` image. The suffix comes from the pinned tag, the last step uses the pinned tag itself.
+3. `compose run` starts that image with the service's env file, volumes, networks and dependencies and `NEXTCLOUD_UPDATE=1`, so the upstream entrypoint syncs the code and runs `occ upgrade`.
+4. Maintenance mode is switched off, `occ status` MUST report the step's major with no pending database upgrade, and every app `occ upgrade` disabled that is still disabled after the step is reported.
+
+After the compose handlers ran, [`tasks/02_manager_ops/03_upgrade.yml`](./tasks/02_manager_ops/03_upgrade.yml) asserts that `occ status` reports the pinned major.
+
+The steps run in compose mode only. A swarm deploy that finds an older major stops with the planned steps; pin one major above the installed one per deploy there.
+
+### Post-Upgrade Pass
+
+[`tasks/02_manager_ops/03_upgrade.yml`](./tasks/02_manager_ops/03_upgrade.yml) includes [`03_upgrade/01_post_upgrade.yml`](./tasks/02_manager_ops/03_upgrade/01_post_upgrade.yml), the appstore app update and `occ maintenance:repair --include-expensive`, only while the version `occ status` reports after `occ upgrade` differs from the one `version.php` declared before the deploy or from `files/mimetype_version`, the server version the expensive repair last ran for.
+A fresh install, every upgrade path and a deploy that stopped before the repair run the pass, a redeploy of an unchanged version skips it.
+
+A redeploy of an unchanged version includes [`03_upgrade/02_cached_updates.yml`](./tasks/02_manager_ops/03_upgrade/02_cached_updates.yml) instead, which updates apps without querying the appstore:
+
+1. `occ app:list --enabled --output=json` reads the installed app versions.
+2. `occ config:list updatenotification --output=json` reads the newest release per app that the daily `updatenotification` background job found.
+3. `occ app:update <id>` runs for every enabled app whose stored release is newer than the installed one, never for an app pinned through `archive`.
+
+An app the background job has not checked yet is not updated until its next run.
+
+## Talk
+
+While `services.talk.enabled` is true, the role runs the Talk high-performance backend and the recording server as four services:
+
+| Service | Component | Source |
+|---------|-----------|--------|
+| `talk_signaling` | signaling server | upstream image `strukturag/nextcloud-spreed-signaling`, semver pin |
+| `talk` | Janus media server | image the role builds from a semver tag of `meetecho/janus-gateway` |
+| `talk_nats` | NATS message bus | official image `nats`, semver pin |
+| `talk_recording` | recording server | image the role builds from a semver release tag of `nextcloud/nextcloud-talk-recording` |
+
+The role renders the signaling `server.conf` from [`signaling.conf.j2`](./templates/signaling.conf.j2), `janus.jcfg` from [`janus.jcfg.j2`](./templates/janus.jcfg.j2) and the recording `server.conf` from [`recording.conf.j2`](./templates/recording.conf.j2), and the version updaters raise every pin. [docs/Administration.md](docs/Administration.md#talk-high-performance-backend) describes how the services connect, how a version update reaches them and how the first deploy replaces `nextcloud/aio-talk`.
 
 ## MCP Server
 
@@ -258,7 +157,7 @@ Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `w
 
 ### How to disable
 
-Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, and no app password is minted.
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, no app password is minted, and the `app_api` app is disabled.
 
 ## Documentation
 
@@ -272,13 +171,8 @@ A detailed documentation for the use and administration of Nextcloud on Infinito
 - [LDAP Integration Guide](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
 - [OIDC Login Plugin (pulsejet)](https://github.com/pulsejet/nextcloud-oidc-login)
 - [Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)
+- [Corporate design review: before/after screenshots in light, dark, desktop and mobile](https://claude.ai/artifact/EgeKuEAytigC2ZCz3k5hDu)
 
 ## Persona contract opt-outs
 
-The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under [files/playwright](./files/playwright/) — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under `files/playwright/` — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks.

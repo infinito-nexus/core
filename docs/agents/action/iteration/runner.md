@@ -18,7 +18,7 @@ Key facts an agent must hold before acting:
 - `RUNNER_GITHUB_OWNER` and `RUNNER_GITHUB_REPO` resolve from `GITHUB_REPOSITORY_OWNER` / `GITHUB_REPOSITORY` env vars when set (CI context), falling back to `meta/services.yml` for production deploys.
 - `GH_TOKEN` must be available on the Ansible control node (`delegate_to: localhost`) for the `gh api` registration call to succeed. In CI this is forwarded into the DinD container by `cli/administration/deploy/development/deploy/run.py`.
 - The systemd services installed by `svc.sh` require a host with a real init system. Registration, service install, and service start are skipped when `DOCKER_IN_CONTAINER=true`; the role can be fully deployed in DinD (binary extraction and `.env` file work). The nested `deploy-fresh-purged-apps` call in `test.sh` is also skipped when `DOCKER_IN_CONTAINER=true` — in DinD, `make up` does not start the package-cache proxy (`cache_stack_enabled()` returns false in CI), so apt inside the fresh container cannot resolve the proxy hostname and package installs fail. Structural checks (binary + `.env`) are sufficient proof of a correct deploy in DinD; the full end-to-end deploy only runs on a real host.
-- `runner_count` defaults to `ansible_processor_vcpus // runner_cpus` (auto-scaled to hardware). Override explicitly when debugging a specific count.
+- `RUNNER_COUNT` defaults to `RESOURCE_HOST_CPUS // RUNNER_CPUS` (auto-scaled to hardware). Override explicitly when debugging a specific count.
 
 ## The loop
 

@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ruamel.yaml.comments import CommentedMap
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 from cli.administration.inventory.provision.ruamel_io import (
     as_commented_map,
@@ -68,6 +68,24 @@ class TestDumpDocument(unittest.TestCase):
 
             self.assertTrue(path.exists())
             self.assertEqual(1, load_document(path)["a"])
+
+    def test_long_scalars_and_flow_sequences_stay_on_one_line(self):
+        key = "ssh-rsa " + "A" * 700 + " someone@host"
+        destinations = CommentedSeq(f"user{index}@example.org" for index in range(12))
+        destinations.fa.set_flow_style()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "host.yml"
+            document = CommentedMap()
+            document["authorized_keys"] = [key]
+            document["destinations"] = destinations
+
+            dump_document(path, document)
+
+            text = path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+            lines = text.splitlines()
+            self.assertEqual(3, len(lines))
+            self.assertEqual(f"- {key}", lines[1])
+            self.assertEqual(key, load_document(path)["authorized_keys"][0])
 
 
 class TestEnsureMap(unittest.TestCase):

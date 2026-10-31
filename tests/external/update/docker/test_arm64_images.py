@@ -38,7 +38,7 @@ import unittest
 
 from utils.annotations.message import warning
 from utils.docker.image.discovery import iter_role_images
-from utils.docker.registry import fetch_manifest
+from utils.docker.registry import manifest_platforms
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import resolve_max_fetch_workers
 
@@ -66,21 +66,12 @@ def _pull_image(ref) -> str:
 def _publishes_arm64(image: str, version: str) -> bool | None:
     """Return whether ``image:version`` offers a linux/arm64 manifest.
 
-    ``None`` when the registry answer does not settle it: an unreachable
-    registry, or a single-platform manifest whose architecture lives in a
-    config blob this check does not fetch.
+    ``None`` when the registry answer does not settle it.
     """
-    manifest = fetch_manifest(image, version)
-    if manifest is None:
+    platforms = manifest_platforms(image, version)
+    if platforms is None:
         return None
-    entries = manifest.get("manifests")
-    if not isinstance(entries, list):
-        return None
-    for entry in entries:
-        platform = (entry or {}).get("platform") or {}
-        if platform.get("os") == LINUX and platform.get("architecture") == ARM64:
-            return True
-    return False
+    return f"{LINUX}/{ARM64}" in platforms
 
 
 class TestArm64Images(unittest.TestCase):
@@ -152,8 +143,7 @@ class TestArm64Images(unittest.TestCase):
             elif status is None:
                 warning(
                     f"{ref.role}/{ref.service}: {image} arm64 availability could "
-                    f"not be verified (network / auth / rate-limit / "
-                    f"single-platform manifest)",
+                    f"not be verified (network / auth / rate-limit)",
                     title="🔍 Unverified arm64 image",
                     file=f"roles/{ref.role}/{ROLE_FILE_META_SERVICES}",
                 )

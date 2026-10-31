@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 _FORWARDED_ENV_KEYS = (
+    "APP_ID",
+    "guide_host",
     "GH_TOKEN",
     "GITHUB_TOKEN",
     "GITHUB_REPOSITORY_OWNER",
@@ -51,6 +53,7 @@ def _run_deploy(
         "--assert",
         "true",
         "--diff",
+        "--skip-pull",
         "--id",
         *deploy_ids,
     ]

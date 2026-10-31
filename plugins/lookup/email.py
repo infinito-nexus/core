@@ -1,6 +1,7 @@
 # nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -11,9 +12,11 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
-from utils.roles.entity.name import get_entity_name
+from utils.networks.reachability import network, network_of
+from utils.roles.entity.name import entity_name
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
@@ -86,6 +89,19 @@ def _render(
         if value == prev:
             break
     return value
+
+
+def _provider_carrier(variables: dict[str, Any], host: str) -> Mapping[str, Any] | None:
+    hostvars = variables.get("hostvars")
+    raw_get = getattr(hostvars, "raw_get", None)
+    try:
+        host_vars = raw_get(host) if callable(raw_get) else hostvars[host]
+    except (KeyError, TypeError):
+        return None
+    if not isinstance(host_vars, Mapping):
+        return None
+    carrier = host_vars.get(APPLICATIONS_RENDERED_FACT)
+    return carrier if isinstance(carrier, Mapping) else None
 
 
 class LookupModule(LookupBase):
@@ -161,7 +177,9 @@ class LookupModule(LookupBase):
             if not external:
                 return False
             mail_host = str(resolved.get("host") or "").lower()
-            if mail_host.endswith(".onion") or self._provider_onion_primary(variables):
+            if not network(network_of(mail_host)).tls or self._provider_onion_primary(
+                variables
+            ):
                 return False
             return _as_bool(variables.get("TLS_ENABLED"))
         if short_key == "port":
@@ -273,7 +291,7 @@ class LookupModule(LookupBase):
         either being named here.
         """
         services = self._provider_services(variables)
-        entity = get_entity_name(self._mail_provider(variables))
+        entity = entity_name(self._mail_provider(variables))
         entry = services.get(entity) or {}
         if not isinstance(entry, dict):
             return {}
@@ -291,11 +309,11 @@ class LookupModule(LookupBase):
     def _provider_onion_primary(self, variables: dict[str, Any]) -> bool:
         """True when the provider's own host serves it onion-first.
 
-        Resolved from the provider host's ``group_names`` rather than this
-        host's: in swarm only the manager is in ``svc-net-tor``, and the
-        provider's ``tor.enabled`` renders against ``group_names``, so a
-        worker would otherwise see the clearnet name the provider never
-        serves a certificate for.
+        Resolved from the provider host's ``group_names`` and ``NETWORK_MODE``
+        rather than this host's: in swarm only the manager is in
+        ``svc-net-tor``, and the provider's ``tor.enabled`` renders against
+        ``group_names``, so a worker would otherwise see the clearnet name the
+        provider never serves a certificate for.
         """
         groups = variables.get("groups") or {}
         provider = self._mail_provider(variables)
@@ -308,11 +326,18 @@ class LookupModule(LookupBase):
             g for g in ("svc-net-tor", provider) if g not in own_groups
         ]
         try:
-            provider_groups = variables["hostvars"][provider_hosts[0]]["group_names"]
+            provider_vars = variables["hostvars"][provider_hosts[0]]
+            provider_groups = provider_vars["group_names"]
         except (KeyError, TypeError):
+            provider_vars = {}
             provider_groups = fallback
         provider_view = dict(variables)
         provider_view["group_names"] = list(provider_groups or fallback)
+        if provider_vars.get("NETWORK_MODE"):
+            provider_view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
+        carrier = _provider_carrier(variables, provider_hosts[0])
+        if carrier is not None:
+            provider_view[APPLICATIONS_RENDERED_FACT] = carrier
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
@@ -325,7 +350,7 @@ class LookupModule(LookupBase):
             domain = get_domain(domains, provider)
         except Exception:
             return False
-        return str(domain or "").lower().endswith(".onion")
+        return not network(network_of(domain)).tls
 
     def _lookup_mail_provider_domain(self, variables: dict[str, Any]) -> Any:
         domain_lookup = DomainLookup()

@@ -12,35 +12,83 @@ const CATALOGUE = path.join(
   PROJECT_ROOT,
   "roles/web-app-keycloak/files/logout_i18n.yml",
 );
+const LOCALE = path.join(PROJECT_ROOT, "locale");
+const LANGUAGES = path.join(PROJECT_ROOT, "meta/languages.yml");
 const ORIGIN = "https://logout.example.test";
 const DOMAINS = ["https://shop.example.test", "https://cloud.example.test"];
+const SIBLING = `http://logout.${"a".repeat(56)}.onion/?handoff=`;
 
-/**
- * Read the catalogue without a YAML dependency.
- *
- * The file is generated, flat and two levels deep, so a line reader is enough
- * and keeps this suite free of a parser it would otherwise need for one file.
- */
-function readCatalogue() {
+function readEnglish() {
   const out = {};
-  let current = null;
   for (const line of fs.readFileSync(CATALOGUE, "utf8").split("\n")) {
-    const top = line.match(/^([a-z]{2}):\s*$/);
+    const entry = line.match(/^([a-z_]+):\s*(".*")$/);
+    if (entry) {
+      out[entry[1]] = JSON.parse(entry[2]);
+    }
+  }
+  return out;
+}
+
+function readDirections() {
+  const out = {};
+  let code = null;
+  for (const line of fs.readFileSync(LANGUAGES, "utf8").split("\n")) {
+    const top = line.match(/^"?([a-z]{2})"?:\s*$/);
     if (top) {
-      current = {};
-      out[top[1]] = current;
+      code = top[1];
+    }
+    const direction = line.match(/^ {2}direction: (ltr|rtl)$/);
+    if (direction && code) {
+      out[code] = direction[1];
+    }
+  }
+  return out;
+}
+
+function readPo(file) {
+  const entries = [];
+  let current = null;
+  let field = null;
+  let fuzzy = false;
+  for (const line of fs.readFileSync(file, "utf8").split("\n")) {
+    if (line.startsWith("#,")) {
+      fuzzy = line.includes("fuzzy");
       continue;
     }
-    const entry = line.match(/^ {2}([a-z_]+):\s*(.*)$/);
-    if (entry && current) {
-      let value = entry[2].trim();
-      if (
-        (value.startsWith("'") && value.endsWith("'")) ||
-        (value.startsWith('"') && value.endsWith('"'))
-      ) {
-        value = value.slice(1, -1).replace(/''/g, "'");
+    const start = line.match(/^(msgctxt|msgid|msgstr) (".*")$/);
+    if (start) {
+      if (start[1] === "msgctxt" || (start[1] === "msgid" && (!current || "msgstr" in current))) {
+        current = { fuzzy };
+        entries.push(current);
+        fuzzy = false;
       }
-      current[entry[1]] = value;
+      field = start[1];
+      current[field] = JSON.parse(start[2]);
+    } else if (line.startsWith('"') && current && field) {
+      current[field] += JSON.parse(line);
+    }
+  }
+  return entries;
+}
+
+function readCatalogue() {
+  const english = readEnglish();
+  const directions = readDirections();
+  const out = { en: { ...english, dir: directions.en } };
+  for (const code of fs.readdirSync(LOCALE).sort()) {
+    const file = path.join(LOCALE, code, "LC_MESSAGES", "core.po");
+    if (!fs.existsSync(file)) {
+      continue;
+    }
+    const found = {};
+    for (const entry of readPo(file)) {
+      const key = (entry.msgctxt || "").replace(/^logout:/, "");
+      if (entry.msgctxt === `logout:${key}` && entry.msgid === english[key] && entry.msgstr && !entry.fuzzy) {
+        found[key] = entry.msgstr;
+      }
+    }
+    if (Object.keys(found).length > 0) {
+      out[code] = { ...english, ...found, dir: directions[code] };
     }
   }
   return out;
@@ -79,11 +127,12 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
   const body = element();
   const listeners = {};
   const timers = {};
+  const visited = [];
   let next = 0;
 
   global.window = {
     __INFINITO_LOGOUT__: { origin: ORIGIN, i18n: readCatalogue() },
-    location: { pathname, hostname },
+    location: { pathname, hostname, replace: (url) => visited.push(url) },
     addEventListener(type, fn) {
       listeners[type] = listeners[type] || [];
       if (!listeners[type].includes(fn)) listeners[type].push(fn);
@@ -122,9 +171,13 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
     (listeners.message || []).forEach((fn) =>
       fn({ origin: ORIGIN, data: { source: "universal-logout", ...payload } }),
     );
+  const send = (origin, data) =>
+    (listeners.message || []).forEach((fn) => fn({ origin, data }));
   const panel = () => body.children[0];
   return {
     post,
+    send,
+    visited,
     panel,
     status: () => panel().children[0].textContent,
     hint: () => panel().children[1].textContent,
@@ -138,7 +191,7 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
 
 test("the catalogue reader sees every language", () => {
   const catalogue = readCatalogue();
-  assert.equal(Object.keys(catalogue).length, 30);
+  assert.ok(Object.keys(catalogue).length >= 30);
   assert.equal(catalogue.de.dir, "ltr");
   assert.equal(catalogue.ar.dir, "rtl");
 });
@@ -213,4 +266,45 @@ test("a sweep that stalls says so instead of spinning forever", () => {
 test("the panel stays off every other Keycloak page", () => {
   const page = mount({ path: "/realms/x/account" });
   assert.equal(page.armed(), 0);
+});
+
+test("a hand-off moves the whole page to the next network's conductor", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  page.post({ type: "host", host: DOMAINS[0], ok: true });
+  page.post({ type: "host", host: DOMAINS[1], ok: true });
+  page.post({ type: "done", total: 2, failed: 0 });
+  page.post({ type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, [SIBLING]);
+});
+
+test("a hand-off is not held back by the unload guard", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  assert.equal(page.armed(), 1);
+
+  page.post({ type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, [SIBLING]);
+  assert.equal(page.armed(), 0, "a guard left armed would stop the navigation with a leave-page prompt");
+});
+
+test("only the conductor can hand the page off", () => {
+  const page = mount();
+  page.send("https://evil.test", { source: "universal-logout", type: "handoff", url: SIBLING });
+  page.send(ORIGIN, { type: "handoff", url: SIBLING });
+
+  assert.deepEqual(page.visited, []);
+});
+
+test("a hand-off to anything but an absolute http(s) URL is ignored", () => {
+  const page = mount();
+  page.post({ type: "start", domains: DOMAINS });
+  for (const url of ["javascript:alert(1)", "data:text/html,x", "/realms/x", "", undefined]) {
+    page.post({ type: "handoff", url });
+  }
+
+  assert.deepEqual(page.visited, []);
+  assert.equal(page.armed(), 1, "a refused hand-off leaves the sweep guarded");
 });

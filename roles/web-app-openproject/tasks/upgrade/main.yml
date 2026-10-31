@@ -1,0 +1,28 @@
+# include-gated: when: IS_COMPOSE_MODE
+---
+- name: "🔍 OpenProject | Find the running database engine"
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - -q
+      - --filter
+      - "name=^{{ lookup('database', application_id, 'container') }}$"
+      - --filter
+      - status=running
+  register: openproject_upgrade_engine
+  changed_when: false
+
+- name: "🗄️ OpenProject | Read the schema of the running engine"
+  when: openproject_upgrade_engine.stdout | trim | length > 0
+  block:
+    - name: "🔍 OpenProject | Check for a migrated schema"
+      ansible.builtin.shell: >-
+        {{ OPENPROJECT_DATABASE_PSQL }}
+        -c "SELECT to_regclass('public.schema_migrations') IS NOT NULL"
+      register: openproject_upgrade_migrated
+      changed_when: false
+
+    - name: "⬆️ OpenProject | Step the migrated schema"
+      ansible.builtin.include_tasks: steps.yml
+      when: openproject_upgrade_migrated.stdout | trim == 't'

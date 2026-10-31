@@ -5,12 +5,18 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-socialhome.
 - services:
+    docs:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     coturn:
       enabled: true
       shared: true
     dashboard:
+      enabled: true
+      shared: true
+    design:
       enabled: true
       shared: true
     logout:
@@ -22,6 +28,9 @@
     tor:
       enabled: true
 - services:
+    docs:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -29,6 +38,9 @@
       enabled: false
       shared: false
     dashboard:
+      enabled: false
+      shared: false
+    design:
       enabled: false
       shared: false
     logout:

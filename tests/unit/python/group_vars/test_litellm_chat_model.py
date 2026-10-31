@@ -1,3 +1,4 @@
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -47,14 +48,27 @@ class TestLitellmChatModel(unittest.TestCase):
         cls.env.filters["bool"] = _ansible_bool
         cls.source = load_yaml(_AI_VARS)
 
-    def _render(self, name, *, roles, api_key, preload_models=(), lmstudio_models=()):
+    def _render(
+        self,
+        name,
+        *,
+        roles,
+        api_key,
+        preload_models=(),
+        lmstudio_models=(),
+        remote_aliases=None,
+    ):
         return (
             self.env.from_string(self.source[name])
             .render(
                 LITELLM_BACKEND_ROLES=list(roles),
                 LITELLM_OLLAMA_BACKEND=str("svc-ai-ollama" in roles),
                 LITELLM_LMSTUDIO_BACKEND=str("svc-ai-lmstudio" in roles),
-                AI_REMOTE_ALIASES=(["openrouter/auto"] if api_key else []),
+                AI_REMOTE_ALIASES=(
+                    list(remote_aliases)
+                    if remote_aliases is not None
+                    else (["openrouter/auto"] if api_key else [])
+                ),
                 lookup=_stub_lookup(
                     [{"alias": alias, "name": alias} for alias in preload_models],
                     [
@@ -81,6 +95,43 @@ class TestLitellmChatModel(unittest.TestCase):
         model, served = self._both(roles=["web-app-mattermost"], api_key="sk-test")
         self.assertEqual(model, "openrouter/auto")
         self.assertEqual(served, "True")
+
+    def test_a_declared_mock_answers_when_no_backend_preloaded_anything(self):
+        model = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-ollama"],
+            api_key="",
+            preload_models=[],
+            remote_aliases=["mock/deterministic"],
+        )
+        self.assertEqual(
+            model,
+            "mock/deterministic",
+            "a CI round that deploys the backend without preloading must fall to the mock",
+        )
+
+    def test_a_preloaded_model_wins_over_the_mock(self):
+        model = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-ollama"],
+            api_key="",
+            preload_models=["qwen2.5:0.5b"],
+            remote_aliases=["mock/deterministic"],
+        )
+        self.assertEqual(
+            model,
+            "qwen2.5:0.5b",
+            "the round that loads a real model must prove that model, not the mock",
+        )
+
+    def test_without_a_mock_the_chain_is_unchanged(self):
+        self.assertEqual(
+            self._render(
+                "LITELLM_CHAT_MODEL", roles=["web-app-mattermost"], api_key="sk-test"
+            ),
+            "openrouter/auto",
+            "production declares no mock, so it must resolve exactly as before",
+        )
 
     def test_lmstudio_wins_over_the_openrouter_fallback(self):
         model, served = self._both(
@@ -147,6 +198,91 @@ class TestLitellmChatModel(unittest.TestCase):
                     lmstudio_models=lmstudio,
                 )
                 self.assertEqual(bool(model), served == "True")
+
+
+class TestAiRemoteAliases(unittest.TestCase):
+    models: ClassVar[list]
+    template: ClassVar[str]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.models = [
+            {"alias": "openrouter/auto", "provider": "openrouter"},
+            {"alias": "openrouter/ternary-bonsai-2-27b", "provider": "openrouter"},
+            {"alias": "openai/gpt-4o-mini", "provider": "openai"},
+        ]
+        cls.template = load_yaml(_AI_VARS)["AI_REMOTE_ALIASES"]
+
+    def _render(self, enabled):
+        models = self.models
+
+        def lookup(kind, *terms):
+            if kind == "config":
+                self.assertEqual(
+                    terms, ("svc-ai-litellm", "services.litellm.remote_models")
+                )
+                return models
+            if kind == "api_enabled":
+                return terms[0] in enabled
+            raise AssertionError(f"unexpected lookup({kind!r}, {terms!r})")
+
+        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
+        return ast.literal_eval(
+            env.from_string(self.template).render(
+                lookup=lookup, AI_MOCK_PROVIDER="mock"
+            )
+        )
+
+    def test_every_model_of_an_enabled_provider_is_listed(self):
+        self.assertEqual(
+            self._render({"openrouter"}),
+            ["openrouter/auto", "openrouter/ternary-bonsai-2-27b"],
+        )
+
+    def test_no_enabled_provider_lists_nothing(self):
+        self.assertEqual(self._render(set()), [])
+
+
+class TestAiAgentModel(unittest.TestCase):
+    """Every agent the broker starts asks the gateway for this alias, and
+    roles/svc-ai-agent-broker/tasks/00_core.yml stops the deploy when it is
+    empty. A deployment that carries neither a mock nor a backend nor a
+    provider key resolves to '', so the two sources are pinned together.
+    """
+
+    template: ClassVar[str]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.template = load_yaml(_AI_VARS)["AI_AGENT_MODEL"]
+
+    def _render(self, *, mock_aliases, chat_model):
+        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a bare alias, not markup
+        return env.from_string(self.template).render(
+            AI_MOCK_ALIASES=list(mock_aliases), LITELLM_CHAT_MODEL=chat_model
+        )
+
+    def test_a_declared_mock_is_preferred_over_the_served_model(self):
+        self.assertEqual(
+            self._render(
+                mock_aliases=["mock/deterministic"], chat_model="qwen2.5:0.5b"
+            ),
+            "mock/deterministic",
+        )
+
+    def test_without_a_mock_the_served_model_answers(self):
+        self.assertEqual(
+            self._render(mock_aliases=[], chat_model="qwen2.5:0.5b"), "qwen2.5:0.5b"
+        )
+
+    def test_neither_a_mock_nor_a_served_model_names_nothing(self):
+        self.assertEqual(
+            self._render(mock_aliases=[], chat_model=""),
+            "",
+            "a broker deployed without a backend role and without a provider "
+            "key has no model to start its agents on, which 00_core.yml turns "
+            "into a stopped deploy rather than agents that all answer 400",
+        )
 
 
 if __name__ == "__main__":

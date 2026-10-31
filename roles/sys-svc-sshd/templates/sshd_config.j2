@@ -1,5 +1,5 @@
 LogLevel {{ 'DEBUG3' if MODE_DEBUG | bool else 'INFO' }}
-PermitRootLogin no
+PermitRootLogin {{ SYS_SVC_SSHD_PERMIT_ROOT_LOGIN }}
 PubkeyAuthentication yes
 AuthorizedKeysFile	.ssh/authorized_keys
 PasswordAuthentication {{ (SYS_SVC_SSHD_PASSWORD_AUTHENTICATION | bool) | ternary('yes', 'no') }}

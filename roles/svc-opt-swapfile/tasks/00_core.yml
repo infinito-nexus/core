@@ -7,11 +7,30 @@
     package_name: "git+{{ SWAPFILE_REPO }}@{{ SWAPFILE_REF }}"
     global_install: true
 
+- name: 🔎 Read the active swap files
+  command:
+    argv:
+      - swapon
+      - --show=NAME,TYPE,SIZE
+      - --bytes
+      - --noheadings
+      - --raw
+  register: swapfile_active
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: ✅ Keep the active swapfile that already meets the requested size
+  debug:
+    msg: >-
+      An active swapfile of {{ SWAPFILE_ACTIVE_MATCH | first }} bytes is within
+      {{ SWAPFILE_TOLERANCE_PERCENT }}% of the requested {{ SWAPFILE_SIZE }},
+      so swap-forge does not run and cannot swapoff it.
+  when: SWAPFILE_ACTIVE_MATCH | length > 0
+
 - name: ▶️ Execute create swapfile script
   shell: "{{ SWAPFILE_PKG }} '{{ SWAPFILE_SIZE }}'"
   become: true
-  # rationale: async; no register and no notify, and nothing in the repo reads swap state
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  when: SWAPFILE_ACTIVE_MATCH | length == 0
 
 - include_tasks: utils/once/flag.yml

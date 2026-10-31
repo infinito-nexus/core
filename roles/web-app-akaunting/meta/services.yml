@@ -35,7 +35,9 @@ sso:
 ldap:
   enabled: false
   shared: false
+# nocheck: playwright-service-flag  an eol role stores its own primary off, so no AKAUNTING_SERVICE_ENABLED line exists
 akaunting:
+  enabled: false
   healthcheck:
     flavor: tcp
   modes:
@@ -44,7 +46,7 @@ akaunting:
     swarm:
       enabled: true
   backup:
-    no_stop_required: true
+    stop_required: false
   image: docker.io/akaunting/akaunting
   version: 3.1.21
   repository: https://github.com/akaunting/docker.git
@@ -53,12 +55,13 @@ akaunting:
   min_storage: 527MB
   company:
     name: Akaunting on {{ DOMAIN_PRIMARY | upper }}
-    email: "{{ lookup('users', 'administrator').email }}"
-  setup_admin_email: "{{ lookup('users', 'administrator').email }}"
+    email: "{{ lookup('users', 'platform_administrator').email }}"
+  setup_admin_email: "{{ lookup('users', 'platform_administrator').email }}"
   ports:
     local:
       http: 8025
       sso: 16499
+      sso_onion: 16520
     internal:
       http: 80
   run_after:
@@ -80,13 +83,20 @@ redis:
   shared: "{{ 'svc-db-redis' in group_names }}"
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 64
+      height: 64
+    document:
+      width: 128
+      height: 128
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -104,3 +114,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

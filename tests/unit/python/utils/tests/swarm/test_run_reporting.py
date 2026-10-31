@@ -3,7 +3,7 @@ import io
 import unittest
 import unittest.mock as mock
 
-from utils.tests.swarm import run
+from utils.tests.swarm import matrix, run
 
 
 class TestRunReporting(unittest.TestCase):
@@ -15,27 +15,37 @@ class TestRunReporting(unittest.TestCase):
     with nothing but the 30-second sampler in between.
     """
 
-    def _run_capturing(self, rc: int) -> tuple[int, str]:
+    _RUNNERS = ((matrix, "_run"), (run, "run_step"))
+
+    def _run_capturing(self, module, name: str, rc: int) -> tuple[int, str]:
         buffer = io.StringIO()
         with (
-            mock.patch.object(run, "run_watched", return_value=rc) as watched,
+            mock.patch.object(module, "run_watched", return_value=rc) as watched,
             contextlib.redirect_stdout(buffer),
         ):
-            returned = run.run_step(["true"], env={"A": "b"}, label="demo phase")
+            returned = getattr(module, name)(
+                ["true"], env={"A": "b"}, label="demo phase"
+            )
         watched.assert_called_once_with(["true"], env={"A": "b"})
         return returned, buffer.getvalue()
 
     def test_the_exit_code_passes_through(self) -> None:
-        returned, _ = self._run_capturing(7)
-        self.assertEqual(returned, 7)
+        for module, name in self._RUNNERS:
+            with self.subTest(runner=f"{module.__name__}.{name}"):
+                returned, _ = self._run_capturing(module, name, 7)
+                self.assertEqual(returned, 7)
 
     def test_the_phase_announces_its_start(self) -> None:
-        _, output = self._run_capturing(0)
-        self.assertIn("=== swarm-matrix: demo phase ===", output)
+        for module, name in self._RUNNERS:
+            with self.subTest(runner=f"{module.__name__}.{name}"):
+                _, output = self._run_capturing(module, name, 0)
+                self.assertIn("=== swarm-matrix: demo phase ===", output)
 
     def test_the_phase_reports_its_duration_and_outcome(self) -> None:
-        _, output = self._run_capturing(124)
-        self.assertRegex(output, r"demo phase took \d+s \(rc=124\)")
+        for module, name in self._RUNNERS:
+            with self.subTest(runner=f"{module.__name__}.{name}"):
+                _, output = self._run_capturing(module, name, 124)
+                self.assertRegex(output, r"demo phase took \d+s \(rc=124\)")
 
 
 if __name__ == "__main__":

@@ -32,11 +32,18 @@ sso:
     allowed_groups:
       - "roles/web-app-kix/administrator"
       - "roles/web-app-kix/user"
-# nocheck: playwright-service-flag - verified by web-svc-css provider spec
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  bootstrap: true
+  slots:
+    logo:
+      width: 180
+      height: 90
+    favicon:
+      width: 64
+      height: 64
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -55,9 +62,13 @@ postgres:
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 redis:
   bond: 1
+  name: kix-redis
   enabled: true
   shared: false
 kix:
+  # nocheck: architecture-pin  Reason: docker-registry.kixdesk.com serves proxy, backend and frontend as single manifest.v2+json images whose config declares amd64, and the public sources carry no build recipe to reach arm64 with: kix-on-premise ships a compose file and no Dockerfile, and kix-backend and kix-frontend publish neither tags nor releases, so a source build could not be pinned to the version the registry serves
+  architectures:
+    - amd64
   modes:
     compose:
       enabled: true
@@ -74,6 +85,7 @@ kix:
     local:
       http: 8083
       sso: 16500
+      sso_onion: 16532
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -88,6 +100,8 @@ proxy:
   mem_limit: 512m
   pids_limit: 512
 backend:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
   name: kix-backend
@@ -102,6 +116,8 @@ backend:
   mem_limit: 4g
   pids_limit: 1024
 frontend:
+  backup:
+    stop_required: true
   # nocheck: single-replica
   replicas: 1
   name: kix-frontend
@@ -128,3 +144,8 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

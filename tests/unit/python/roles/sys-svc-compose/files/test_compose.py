@@ -111,14 +111,54 @@ class TestInfinitoComposeWrapper(unittest.TestCase):
             env = {
                 "INFINITO_CACHE_PACKAGE_FRONTEND_IP": "172.30.0.4",
                 "INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE": str(ca),
+                "INFINITO_CACHE_HOSTS": "first.example.org,plain.example.net",
+                "INFINITO_CACHE_HTTP_HOSTS": "plain.example.net",
             }
             with patch.dict(os.environ, env, clear=False):
                 out = s.generate_cache_override(proj, base)
                 self.assertIsNotNone(out)
-                self.assertIn("deb.debian.org:172.30.0.4", read_text(str(out)))
+                rendered = read_text(str(out))
+                self.assertIn("plain.example.net:172.30.0.4", rendered)
+                self.assertNotIn(
+                    "first.example.org",
+                    rendered,
+                    "a build that does not install the frontend CA must not have a "
+                    "TLS host hijacked onto the self-signed frontend",
+                )
+            with (
+                patch.dict(os.environ, {**env, "INFINITO_CACHE_HOSTS": ""}),
+                self.assertRaises(SystemExit),
+            ):
+                s.generate_cache_override(proj, base)
             ca.unlink()
             with patch.dict(os.environ, env, clear=False):
                 self.assertIsNone(s.generate_cache_override(proj, base))
+
+    def test_a_build_that_trusts_the_ca_also_gets_the_tls_hosts(self):
+        s = self.script
+        with tempfile.TemporaryDirectory() as td:
+            proj = Path(td)
+            (proj / "Dockerfile").write_text(
+                "FROM alpine\nRUN /usr/local/bin/package-frontend-ca.sh\n",
+                encoding="utf-8",
+            )
+            base = proj / "compose.yml"
+            base.write_text(
+                f"services:\n  app:\n    build:\n      context: {proj}\n",
+                encoding="utf-8",
+            )
+            ca = proj / "ca.crt"
+            ca.write_text("CERT", encoding="utf-8")
+            env = {
+                "INFINITO_CACHE_PACKAGE_FRONTEND_IP": "172.30.0.4",
+                "INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE": str(ca),
+                "INFINITO_CACHE_HOSTS": "first.example.org,plain.example.net",
+                "INFINITO_CACHE_HTTP_HOSTS": "plain.example.net",
+            }
+            with patch.dict(os.environ, env, clear=False):
+                rendered = read_text(str(s.generate_cache_override(proj, base)))
+            self.assertIn("first.example.org:172.30.0.4", rendered)
+            self.assertIn("plain.example.net:172.30.0.4", rendered)
 
     def test_build_cmd_contains_env_and_files(self):
         s = self.script

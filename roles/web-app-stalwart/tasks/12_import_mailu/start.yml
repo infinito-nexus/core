@@ -1,0 +1,63 @@
+---
+# include-gated: when: STALWART_IMPORT_MAILU and 'web-app-mailu' in group_names
+#                and STALWART_ACTIVE_PROVIDER and IS_COMPOSE_MODE
+# Param: stalwart_mailu_maildir - registered result whose stdout is the maildir volume mountpoint.
+- name: "📥 Start the Mailu import as a background unit"
+  ansible.builtin.command:
+    argv:
+      - systemd-run
+      - --unit
+      - "{{ STALWART_IMPORT_UNIT }}"
+      - --collect
+      - --property
+      - "ExecStopPost=/usr/bin/rm -rf {{ STALWART_IMPORT_DIR }}"
+      - python3
+      - -u
+      - "{{ [ STALWART_IMPORT_DIR, STALWART_IMPORT_SCRIPTS[0] ] | path_join }}"
+      - --maildir-root
+      - "{{ stalwart_mailu_maildir.stdout | trim }}"
+      - --imap-host
+      - "{{ STALWART_IMPORT_IMAPS_HOST }}"
+      - --imap-port
+      - "{{ STALWART_IMPORT_IMAPS_PORT }}"
+      - --imap-insecure
+      - --jmap-url
+      - "{{ STALWART_IMPORT_JMAP_URL }}"
+      - --admin-file
+      - "{{ STALWART_IMPORT_ADMIN_FILE }}"
+      - --mailbox-map
+      - "{{ STALWART_MAILBOX_MAP | to_json }}"
+      - --workers
+      - "{{ STALWART_IMPORT_WORKERS }}"
+      - --done-file
+      - "{{ STALWART_IMPORT_DONE_FILE }}"
+  register: stalwart_import_start
+  changed_when: true
+
+- name: "🔍 Read the state of the import unit systemd-run started"
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - show
+      - --property
+      - ActiveState
+      - --value
+      - "{{ STALWART_IMPORT_UNIT }}"
+  register: stalwart_import_started
+  changed_when: false
+
+- name: "🔍 Verify an import unit that is not running already finished"
+  when: stalwart_import_started.stdout not in ['active', 'activating']
+  block:
+    - name: "🔍 Check whether an import that already ended left its marker"
+      ansible.builtin.stat:
+        path: "{{ STALWART_IMPORT_DONE_FILE }}"
+      register: stalwart_import_finished
+
+    - name: "🛑 Fail when systemd runs no import unit"
+      ansible.builtin.fail:
+        msg: >-
+          systemd-run answered '{{ (stalwart_import_start.stderr ~ ' ' ~ stalwart_import_start.stdout) | trim }}', but {{ STALWART_IMPORT_UNIT }}
+          is '{{ stalwart_import_started.stdout }}' and left no {{ STALWART_IMPORT_DONE_FILE }};
+          read journalctl -u {{ STALWART_IMPORT_UNIT }}.
+      when: not stalwart_import_finished.stat.exists

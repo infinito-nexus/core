@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.roles.meta_lookup import get_role_run_after
 from utils.roles.validation.invokable import types_from_group_names
@@ -37,12 +37,16 @@ this kind MUST be listed here or the roles referencing it silently drop their
 provider from the static closure.
 """
 
+GATED_LOOKUPS: tuple[str, ...] = ("lookup('network_served'",)
+"""Lookup calls whose answer depends on the node shape, so a flag built on
+one is dynamic even without an ``in group_names`` test."""
+
 
 def is_explicit_truth(value: Any) -> bool:
     """A services.<key> flag (``enabled`` / ``shared``) MAY be true if it
     is the literal Python ``True``, any string containing the substring
     ``in group_names``, or a string referencing a `GROUP_GATED_CONSTANTS`
-    entry. Negated and compound predicates
+    or `GATED_LOOKUPS` entry. Negated and compound predicates
     (``"{{ 'X' not in group_names }}"``) match on purpose: they are true
     on some node shape, and the static closure is the co-deploy superset.
     Mirrors the substring test at
@@ -61,7 +65,7 @@ def is_explicit_truth(value: Any) -> bool:
     if not isinstance(value, str):
         return False
     return "in group_names" in value or any(
-        constant in value for constant in GROUP_GATED_CONSTANTS
+        token in value for token in (*GROUP_GATED_CONSTANTS, *GATED_LOOKUPS)
     )
 
 
@@ -127,16 +131,16 @@ def discover_role_services(
     config: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
     services = _as_mapping(config.get("services"))
-    entity_name = get_entity_name(role_name)
-    primary_entry = _as_mapping(services.get(entity_name))
+    entity = entity_name(role_name)
+    primary_entry = _as_mapping(services.get(entity))
     alias_entries = {
         key: _as_mapping(entry)
         for key, entry in services.items()
         if isinstance(entry, dict)
-        and _normalized_name(_as_mapping(entry).get("canonical")) == entity_name
+        and _normalized_name(_as_mapping(entry).get("canonical")) == entity
     }
     provides = _normalized_name(primary_entry.get("provides"))
-    if provides == entity_name:
+    if provides == entity:
         provides = ""
 
     is_provider = bool(primary_entry) and (
@@ -147,7 +151,7 @@ def discover_role_services(
     if not is_provider:
         return {}
 
-    primary_id = provides or entity_name
+    primary_id = provides or entity
     raw_covers = primary_entry.get("covers")
     covers: list[str] = (
         [_normalized_name(item) for item in raw_covers if isinstance(item, str)]
@@ -157,8 +161,8 @@ def discover_role_services(
     covers = [c for c in covers if c]
     base_entry = {
         "role": role_name,
-        "entity_name": entity_name,
-        "source_key": entity_name,
+        "entity_name": entity,
+        "source_key": entity,
         "deploy_type": detect_deploy_type(role_name),
         "bucket": detect_service_bucket(role_name),
         "service_type": detect_service_channel(role_name),

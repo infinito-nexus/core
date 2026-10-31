@@ -15,6 +15,27 @@ Repository secrets MUST be set under **Settings → Secrets and variables → Ac
 | `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes `openrouter/auto`. | Never. |
 | `DOCKERHUB_USERNAME` | [cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml) | Authenticates the mirror job against Docker Hub, which raises the anonymous pull-rate limit the mirror would otherwise hit. | Never. Both workflows declare the secret `required: false` and gate the login step on both values being non-empty. |
 | `DOCKERHUB_TOKEN` | [cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml) | The access token paired with `DOCKERHUB_USERNAME`. | Never, and only together with the username. |
+| `CI_SYNC_MAIN_TOKEN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Fine-grained token the `🔄 Sync main` job pushes the source repository's `main` with. | In every repository whose `CI_SYNC_MAIN_SOURCE_REPOSITORY` names another repository, which a fork does by default. |
+
+## `CI_SYNC_MAIN_TOKEN` 🔄
+
+### How to create the token 🛠️
+
+1. Open **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token** on the account that owns the fork.
+2. Set **Resource owner** to that account and **Repository access** to **Only select repositories**, selecting the fork alone.
+3. Grant these repository permissions and nothing else:
+   - `Contents`: **Read and write** (force-push of `main`).
+   - `Workflows`: **Read and write** (the pushed `main` carries `.github/workflows/**`).
+   - `Metadata`: **Read** (default, cannot be removed).
+4. Choose an expiration date and note it; an expired token fails the job like a missing one.
+5. In the fork, add it under **Settings → Secrets and variables → Actions → Secrets → New repository secret** as `CI_SYNC_MAIN_TOKEN`.
+
+### Failure mode when the secret is missing 💥
+
+| Repository | Behaviour |
+|---|---|
+| `infinito-nexus/core`, or a repository with the sync disabled through `CI_SYNC_MAIN_SOURCE_REPOSITORY` | The job prints that the sync is skipped and succeeds. The secret is not read. |
+| Any other repository | [main_from_repository.sh](../../../../../scripts/github/sync/main_from_repository.sh) fails before any fetch or push and names the secret. The run is marked failed; the other jobs of the run are unaffected. |
 
 ## `API_OPENAI_KEY`, `API_ANTHROPIC_KEY`, `API_OPENROUTER_KEY` 🤖
 

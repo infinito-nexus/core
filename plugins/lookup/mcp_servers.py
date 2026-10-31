@@ -28,11 +28,12 @@ per-tool filter can express, and a surface that withholds every tool it serves
 as mutating has nothing left to offer. Advertising either as a configured
 server would leave an agent wired to a provider it can never call.
 
-Providers are narrowed to ``application_closure(deployment.whitelist)``, the same
-set ``sys-service-loader`` preloads from. Inventory membership, ``group_names``
-and the raw whitelist all admit roles the run never deploys, and a client then
-carries an endpoint nothing is serving. In compose the closure covers everything
-present, so only swarm makes the difference visible.
+On an ephemeral runtime (``deployment.ephemeral``) providers are narrowed to
+``application_closure(deployment.whitelist)``, the same set ``sys-service-loader``
+preloads from: there inventory membership, ``group_names`` and the raw whitelist
+all admit roles the run never deploys, and a client would carry an endpoint
+nothing is serving. A persistent host keeps serving every provider an earlier run
+deployed, so a partial run there narrows nothing and the client keeps them.
 
 ``credential_missing`` is the one authorized rejection that does not abort,
 because a provider deploying later in the same play has not written its secret
@@ -128,7 +129,7 @@ def build_mcp_discovery(
     servers: Sequence[Mapping[str, Any]] | None,
     consumer_id: str,
     consumer: Mapping[str, Any],
-    credentials: Mapping[str, tuple[str, str]],
+    credentials: Mapping[str, tuple[str, str, str]],
 ) -> dict[str, list[dict[str, Any]]]:
     """Return the selected and rejected MCP servers for one client role.
 
@@ -137,7 +138,7 @@ def build_mcp_discovery(
         consumer_id: ``application_id`` of the client doing the discovery.
         consumer: the client's own ``mcp`` block, carrying
             ``supported_transports`` and ``supported_auths``.
-        credentials: resolved ``(token, owner)`` per provider role id.
+        credentials: resolved ``(token, owner, login)`` per provider role id.
     """
     supported_transports = set(consumer.get("supported_transports") or [])
     supported_auths = set(consumer.get("supported_auths") or [])
@@ -183,7 +184,7 @@ def build_mcp_discovery(
             )
             continue
 
-        token, owner = credentials.get(server_id, ("", ""))
+        token, owner, login = credentials.get(server_id, ("", "", ""))
         if not token:
             reject(
                 server_id,
@@ -232,6 +233,7 @@ def build_mcp_discovery(
                 "auth": auth,
                 "auth_subject": server.get("auth_subject"),
                 "owner": owner,
+                "login": login,
                 "tools": tools,
                 "mutating": mutating,
                 "transport": transport.replace("_", "-"),
@@ -290,15 +292,17 @@ def resolve_consumer_id(vars_: Mapping[str, Any], templar: Any) -> str:
 
 class LookupModule(LookupBase):
     def _deploy_closure(self, templar: Any, vars_: dict[str, Any]) -> set[str]:
-        """Roles this run deploys, or an empty set when that cannot be resolved."""
+        """Roles an ephemeral run deploys; empty on a persistent host or when unresolvable."""
         try:
-            whitelist = lookup_loader.get(
+            deployment = lookup_loader.get(
                 "deployment", loader=self._loader, templar=templar
-            ).run([], variables=vars_)[0]["whitelist"]
+            ).run([], variables=vars_)[0]
+            if not deployment["ephemeral"]:
+                return set()
             return set(
                 lookup_loader.get(
                     "application_closure", loader=self._loader, templar=templar
-                ).run([whitelist], variables=vars_)[0]
+                ).run([deployment["whitelist"]], variables=vars_)[0]
             )
         except (AnsibleError, KeyError, IndexError, TypeError):
             return set()
@@ -337,7 +341,7 @@ class LookupModule(LookupBase):
 
         consumer = (applications.get(consumer_id) or {}).get("mcp") or {}
 
-        credentials: dict[str, tuple[str, str]] = {}
+        credentials: dict[str, tuple[str, str, str]] = {}
         for server in servers:
             server_id = str(server.get("id") or "")
             role_credentials = role_credentials_of(applications, server_id)

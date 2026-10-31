@@ -1,0 +1,111 @@
+---
+# Param: stalwart_forward_chunk - up to STALWART_JMAP_MAX_METHOD_CALLS STALWART_FORWARDS entries; each method call addresses one account through its accountId and is named by its address.
+# Param: stalwart_forward_account_ids - JMAP account id per forwarding address.
+- name: "📖 List the Sieve scripts of the forwarding accounts"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {%- set calls = [] -%}
+      {%- for forward in stalwart_forward_chunk -%}
+      {%-   set _ = calls.append(['SieveScript/get',
+              {'accountId': stalwart_forward_account_ids[forward.address], 'ids': none}, forward.address]) -%}
+      {%- endfor -%}
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:sieve'], 'methodCalls': calls} | to_json }}
+
+- name: "🔍 Find the forward script of every forwarding account"
+  ansible.builtin.set_fact:
+    stalwart_forward_states: >-
+      {%- set listed = {} -%}
+      {%- for method, result, call in stalwart_jmap.methodResponses -%}
+      {%-   set _ = listed.update({call: result.list}) -%}
+      {%- endfor -%}
+      {%- set states = [] -%}
+      {%- for forward in stalwart_forward_chunk -%}
+      {%-   set own = listed[forward.address] | selectattr('name', 'equalto', STALWART_FORWARD_SCRIPT_NAME) | list -%}
+      {%-   set _ = states.append(forward | combine({
+              'account': stalwart_forward_account_ids[forward.address],
+              'scripts': listed[forward.address],
+              'own': (own | first) if own else none})) -%}
+      {%- endfor -%}
+      {{ states }}
+
+- name: "📖 Read the forward scripts the accounts already hold"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {%- set calls = [] -%}
+      {%- for forward in stalwart_forward_states if forward.own -%}
+      {%-   set _ = calls.append(['Blob/get', {'accountId': forward.account, 'ids': [forward.own.blobId],
+              'properties': ['data:asText']}, forward.address]) -%}
+      {%- endfor -%}
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:blob'], 'methodCalls': calls} | to_json }}
+  when: stalwart_forward_states | selectattr('own') | list | length > 0
+
+- name: "🔍 Render the forward script of every forwarding account"
+  ansible.builtin.set_fact:
+    stalwart_forward_plan: >-
+      {%- set texts = {} -%}
+      {%- for method, result, call in stalwart_jmap.methodResponses if method == 'Blob/get' and result.list -%}
+      {%-   set _ = texts.update({call: result.list[0]['data:asText']}) -%}
+      {%- endfor -%}
+      {%- set plan = [] -%}
+      {%- for forward in stalwart_forward_states -%}
+      {%-   set current = texts[forward.address] if forward.address in texts else '' -%}
+      {%-   set desired = forward.destinations | stalwart_forward_script(
+              forward.scripts | stalwart_forward_include(STALWART_FORWARD_SCRIPT_NAME, current)) -%}
+      {%-   set _ = plan.append({
+              'address': forward.address,
+              'account': forward.account,
+              'n': loop.index0,
+              'own': forward.own.id if forward.own else '',
+              'unread': forward.own is not none and forward.address not in texts,
+              'write': desired != current,
+              'activate': desired == current and forward.own is not none and not (forward.own.isActive | bool),
+              'script': desired}) -%}
+      {%- endfor -%}
+      {{ plan }}
+
+- name: "✅ Ensure Stalwart returned the forward script of every account that holds one"
+  ansible.builtin.assert:
+    that: stalwart_forward_unread | length == 0
+    fail_msg: "Stalwart returned no forward script for {{ stalwart_forward_unread }}"
+    quiet: true
+  vars:
+    stalwart_forward_unread: "{{ stalwart_forward_plan | selectattr('unread') | map(attribute='address') | list }}"
+
+- name: "📤 Upload the changed forward scripts"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {%- set calls = [] -%}
+      {%- for step in stalwart_forward_plan if step.write -%}
+      {%-   set _ = calls.append(['Blob/upload', {'accountId': step.account,
+              'create': {'b' ~ step.n: {'data': [{'data:asText': step.script}]}}}, step.address]) -%}
+      {%- endfor -%}
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:blob'], 'methodCalls': calls} | to_json }}
+  when: stalwart_forward_plan | selectattr('write') | list | length > 0
+
+- name: "📁 Point the forward scripts at their uploads and activate them"
+  include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
+  vars:
+    stalwart_jmap_body: >-
+      {%- set uploaded = {} -%}
+      {%- for method, result, call in stalwart_jmap.methodResponses if method == 'Blob/upload' -%}
+      {%-   set _ = uploaded.update({call: result.created}) -%}
+      {%- endfor -%}
+      {%- set calls = [] -%}
+      {%- for step in stalwart_forward_plan if step.write or step.activate -%}
+      {%-   if not step.write -%}
+      {%-     set arguments = {'onSuccessActivateScript': step.own} -%}
+      {%-   elif step.own -%}
+      {%-     set arguments = {'update': {step.own: {'blobId': uploaded[step.address]['b' ~ step.n].id}},
+                               'onSuccessActivateScript': step.own} -%}
+      {%-   else -%}
+      {%-     set arguments = {'create': {'f' ~ step.n: {'name': STALWART_FORWARD_SCRIPT_NAME,
+                                                          'blobId': uploaded[step.address]['b' ~ step.n].id}},
+                               'onSuccessActivateScript': '#f' ~ step.n} -%}
+      {%-   endif -%}
+      {%-   set _ = calls.append(['SieveScript/set', {'accountId': step.account} | combine(arguments), step.address]) -%}
+      {%- endfor -%}
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:ietf:params:jmap:sieve'], 'methodCalls': calls} | to_json }}
+  when: stalwart_forward_plan | selectattr('write') | list | length > 0 or stalwart_forward_plan | selectattr('activate') | list | length > 0

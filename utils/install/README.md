@@ -18,7 +18,7 @@ Modules at this level are channel-agnostic primitives; per-tool policy lives one
 | `node.py` | Node.js runtime that is still supported upstream: the distro package, or the newest LTS from nodejs.org (signature- and checksum-verified) when the distro line has reached its end of life. |
 | `github_release.py` | Latest-tag resolver and asset downloader for GitHub releases. |
 | `system_pkg.py` | Per-manager dispatch for `pacman` / `apt-get` / `dnf` / `yum` / `brew`. |
-| `lint/` | One module per tool, each exposing `ensure()`. See [lint README](lint/README.md). |
+| [`lint/`](lint/) | One module per tool, each exposing `ensure()`. See [lint README](lint/README.md). |
 
 The CLI entry point lives at [__main__.py](lint/__main__.py), invoked from [lint.sh](../../scripts/install/lint.sh) as `python3 -m utils.install.lint`.
 The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `make install-lint` host vs container based on `INFINITO_LINT_RUNNER`.
@@ -27,8 +27,8 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 
 - Module names MUST stay lowercase snake_case.
 - Channel-agnostic helpers MUST live directly under `utils/install/`.
-- Per-tool policy (one tool per file) MUST live under `lint/` (see [lint README](lint/README.md)).
-- Test files live in [tests/unit/python/utils/install/](../../tests/unit/python/utils/install/) and mirror the module name with a `test_` prefix.
+- Per-tool policy (one tool per file) MUST live under [`lint/`](lint/) (see [lint README](lint/README.md)).
+- Test files live in `tests/unit/python/utils/install/` and mirror the module name with a `test_` prefix.
 
 ## Import Rules
 
@@ -36,4 +36,4 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 - `pip.py`, `npm.py`, `github_release.py`, and `system_pkg.py` MAY import from `primitives.py`.
 - `npm.py` MAY import from `system_pkg.py` and `node.py` to bootstrap npm itself; no other cross-imports between these four are allowed.
 - `node.py` MAY import from `primitives.py` and `system_pkg.py`.
-- Per-tool modules under `lint/` MUST NOT import each other (see [lint README](lint/README.md)).
+- Per-tool modules under [`lint/`](lint/) MUST NOT import each other (see [lint README](lint/README.md)).

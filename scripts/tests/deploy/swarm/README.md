@@ -44,7 +44,7 @@ flowchart TB
             s1["1️⃣ seed markers into the live NFS volume<br/>and the manager secrets"]:::drill
             s2["2️⃣ trigger backup units<br/>volume + secrets @ manager, nfs-2-local @ NFS server"]:::drill
             s3["3️⃣ locate the generation holding the marker<br/>3️⃣b assert the volume repo is fresh + non-empty<br/>(its NFS-backed volumes are excluded by design)"]:::drill
-            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper"]:::drill
+            s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper,<br/>then drop the nfs server's generation"]:::drill
             s5["5️⃣ space gate: pulled tree + watchdog floor,<br/>du breakdown on failure; then LUKS loop 'USB'<br/>via the local-2-device unit"]:::drill
             s6["6️⃣ full disaster: stack rm"]:::drill
             s7["7️⃣ wipe the pulled tree, recover device → local root<br/>(luksOpen; the device holds the only copy left)"]:::drill
@@ -137,7 +137,7 @@ through the provisioner's host_vars merge.
 
 ## Scripts
 
-The sequenced flow lives in `routine/`, the naming SPOT in `utils/topology/`,
+The sequenced flow lives in [`routine/`](routine/), the naming SPOT in `utils/topology/`,
 shared helpers in `utils/`, and
 the cluster declaration (image, containers, network, DNS play) in
 `compose/swarm/` + `compose/swarm/compose.yml`.
@@ -154,16 +154,17 @@ the cluster declaration (image, containers, network, DNS play) in
 | deploy | `routine/02_provision_inventory.sh` | provision the per-round inventory |
 | deploy | `routine/03_wait_converge.sh` | wait for every stack service to converge |
 | deploy | `routine/04_verify_reachable.sh` | probe the app is reachable in-cluster |
-| deploy | `routine/backup/base.sh` (+ per-host routines in `routine/backup/`) | backup+restore DR drill between rounds |
+| deploy | `routine/backup/base.sh` (+ per-host routines in [`routine/backup/`](routine/backup/)) | backup+restore DR drill between rounds |
 | deploy | `utils/clean/purge_stacks.sh` | remove prior-round stacks between rounds |
 | chaos | `routine/05_seed_content.sh` | seed a marker on the NFS volume |
 | chaos | `routine/06_drain_worker.sh` | drain the app's worker + force reschedule |
 | chaos | `routine/07_assert_state.sh` | assert the marker + reachability survived |
 | teardown | `utils/collect/diagnostics.sh` | write stack/service diagnostics on failure, one file per topic under the rescue dir |
-| teardown | `../utils/rescue_index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
+| teardown | `../utils/rescue/index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
 | teardown | `utils/collect/playwright_reports.sh` | pull Playwright reports from the manager into `/tmp/playwright-artifacts/<distro>/<app>` |
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |
+| teardown | `utils/release.sh` | local runs: copy the act job's rescue and Playwright artefacts to the host, then run `utils/clean/teardown.sh` and remove the act outer container unless `keep=true` |
 | helper | `utils/_context.sh` | per-app facts (entity, service, NFS volume, probes) |
 | helper | `utils/unmount/nfs_mounts.sh` | best-effort NFS unmount before node removal |
 | helper | `utils/unmount/host_state.sh` | release the host mount of the shared state so the next cycle cannot inherit it |
@@ -175,5 +176,6 @@ The matrix orchestrator
 per variant round; `routine/00_one.sh` drives the surrounding stages for one
 distro, and the workflow `.github/workflows/call-test-deploy.yml` drives the
 distro loop. Run one app locally with
-`make swarm-zombie app=<id>` (keeps the cluster for inspection) or the
-whole matrix via `make roundtrip`.
+`make swarm-zombie app=<id>` or the whole matrix via `make roundtrip`. Both
+copy the rescue bundle to the host through `utils/release.sh` and then
+release the cluster; `keep=true` keeps it for inspection.

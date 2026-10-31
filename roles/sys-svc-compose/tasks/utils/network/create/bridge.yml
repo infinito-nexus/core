@@ -1,0 +1,37 @@
+---
+- name: "🔍 Probe existing bridge network for '{{ network_role_id }}' (compose)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - ls
+      - --filter
+      - "name={{ network_role_id | entity_name }}"
+      - --format
+      - "{{ '{{json .}}' }}"
+  register: sys_svc_compose_bridge_probe
+  changed_when: false
+
+- name: "🛑 Fail on network driver drift for '{{ network_role_id }}' (compose)"
+  ansible.builtin.fail:
+    msg: >-
+      Network '{{ network_role_id | entity_name }}' exists with driver
+      '{{ lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) }}' but 'bridge' is required.
+      Remove the stale network or revert the networks.local.force_bridge change.
+  when: lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) not in ['', 'bridge']
+
+- name: "✅ Ensure docker bridge network for '{{ network_role_id }}' exists (compose)"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - create
+      - --subnet
+      - "{{ lookup('config', network_role_id, 'networks.local.subnet') }}"
+      - --label
+      - "com.docker.compose.network={{ lookup('shared_network_key', network_role_id) }}"
+      - --label
+      - "com.docker.compose.project={{ network_role_id | entity_name }}"
+      - "{{ network_role_id | entity_name }}"
+  when: lookup('network_driver', sys_svc_compose_bridge_probe, network_role_id) == ''
+  changed_when: true

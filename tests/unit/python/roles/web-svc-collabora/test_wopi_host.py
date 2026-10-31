@@ -20,7 +20,18 @@ NEXTCLOUD_ONION = "next.cloud." + "a" * 56 + ".onion"
 COLLABORA_ONION = "collabora." + "a" * 56 + ".onion"
 
 
-def wopi_host(domains: dict[str, list[str]]) -> str:
+SINGLE_HOST_EXPRESSION = (
+    "{{ lookup('tls', lookup('domain', 'web-app-nextcloud'), 'protocols.web') }}://"
+    "{{ lookup('domain', 'web-app-nextcloud') }}:"
+    "{{ lookup('tls', lookup('domain', 'web-app-nextcloud'), 'ports.web') }}"
+)
+
+
+def wopi_host(
+    domains: dict[str, list[str]],
+    siblings: dict[str, list[str]] | None = None,
+    expression: str | None = None,
+) -> str:
     variables = {
         "domains": domains,
         "applications": {},
@@ -41,9 +52,12 @@ def wopi_host(domains: dict[str, list[str]]) -> str:
             return domains[terms[0]][0]
         if name == "tls":
             return tls.run(list(terms), variables=variables)[0]
+        if name == "network_siblings":
+            return (siblings or {}).get(terms[0], [terms[0]])
         raise AssertionError(f"the expression calls an unexpected lookup: {name!r}")
 
-    expression = load_yaml_str(read_text(str(VARS)))["COLLABORA_WOPI_HOST"]
+    if expression is None:
+        expression = load_yaml_str(read_text(str(VARS)))["COLLABORA_WOPI_HOSTS"]
     env = Environment(
         undefined=StrictUndefined,
         autoescape=select_autoescape(default_for_string=False),
@@ -85,6 +99,18 @@ class TestWopiHost(unittest.TestCase):
                 }
             ),
             "https://next.cloud.example:443",
+        )
+
+    def test_every_network_sibling_of_nextcloud_is_an_alias(self):
+        domains = {
+            "web-app-nextcloud": ["next.cloud.example", NEXTCLOUD_ONION],
+            "web-svc-collabora": ["collabora.example", COLLABORA_ONION],
+        }
+        siblings = {"next.cloud.example": ["next.cloud.example", NEXTCLOUD_ONION]}
+        expected = f"https://next.cloud.example:443,http://{NEXTCLOUD_ONION}:80"
+        self.assertEqual(wopi_host(domains, siblings), expected)
+        self.assertNotEqual(
+            wopi_host(domains, siblings, SINGLE_HOST_EXPRESSION), expected
         )
 
 

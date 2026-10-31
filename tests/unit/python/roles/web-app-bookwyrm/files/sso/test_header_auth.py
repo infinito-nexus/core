@@ -6,10 +6,13 @@ import unittest
 from types import ModuleType, SimpleNamespace
 from unittest.mock import MagicMock
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 MODULE_PATH = PROJECT_ROOT / "roles/web-app-bookwyrm/files/sso/header_auth.py"
-DOMAIN = "book.infinito.test"
+DOMAIN_PRIMARY = default_domain_primary()
+DOMAIN = f"book.{DOMAIN_PRIMARY}"
 
 
 class _FakeMiddlewareBase:

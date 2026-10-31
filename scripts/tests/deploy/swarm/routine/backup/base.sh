@@ -50,7 +50,7 @@ DEV_TARGET="$(python3 -c "import sys, yaml; print(yaml.safe_load(open(sys.argv[1
 DEV_DEST="${DEV_MOUNT}${DEV_TARGET}"
 
 if [ "${DRILL_PROBE:-false}" = "true" ]; then
-	if [ -n "${PRIMARY_NFS_VOLUME}" ]; then
+	if [ -n "${BACKUP_NFS_VOLUME}" ]; then
 		echo "DRILL=yes"
 	else
 		echo "DRILL=no"
@@ -58,8 +58,8 @@ if [ "${DRILL_PROBE:-false}" = "true" ]; then
 	exit 0
 fi
 
-if [ -z "${PRIMARY_NFS_VOLUME}" ]; then
-	echo "SKIP drill: ${APP_ID} declares no NFS-flagged volume — nothing to prove a restore against"
+if [ -z "${BACKUP_NFS_VOLUME}" ]; then
+	echo "SKIP drill: ${APP_ID} declares no backed-up NFS-flagged volume — nothing to prove a restore against"
 	exit 0
 fi
 if ! docker inspect "${BACKUP_NODE}" >/dev/null 2>&1; then
@@ -71,10 +71,10 @@ if [ ! -f "${BACKUP_KEY_PATH}" ]; then
 	exit 1
 fi
 
-NFS_VOL_DIR="${NFS_STATE_PATH}/${PRIMARY_NFS_VOLUME}"
+NFS_VOL_DIR="${NFS_STATE_PATH}/${BACKUP_NFS_VOLUME}"
 MGR_MID="$(docker exec "${MGR}" sha256sum /etc/machine-id | cut -c1-64)"
 NFS_MID="$(docker exec "${NFS_SERVER}" sha256sum /etc/machine-id | cut -c1-64)"
-echo "==> DR drill for ${APP_ID} (volume '${PRIMARY_NFS_VOLUME}')"
+echo "==> DR drill for ${APP_ID} (volume '${BACKUP_NFS_VOLUME}')"
 
 TRIGGER_UNITS="${NODE_SRC}/scripts/tests/deploy/swarm/utils/trigger_units.sh"
 UNIT_DUMPS="${INFINITO_RESCUE_DIAGNOSTICS_DIR:?INFINITO_RESCUE_DIAGNOSTICS_DIR is not set - source scripts/meta/env/load.sh first}"
@@ -117,11 +117,11 @@ fi
 
 echo "==> [3/9] locate the backup generation holding the marker"
 SRC_HOST=""
-MARKER_PATH="$(docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}/${NFS_MID}/${NFS_REPO}" -type f -name "${DR_MARKER}" -path "*/files/*/${PRIMARY_NFS_VOLUME}/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
+MARKER_PATH="$(docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}/${NFS_MID}/${NFS_REPO}" -type f -name "${DR_MARKER}" -path "*/files/*/${BACKUP_NFS_VOLUME}/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
 if [ -n "${MARKER_PATH}" ]; then
 	SRC_HOST="${NFS_SERVER}"
 else
-	MARKER_PATH="$(docker exec "${MGR}" find "${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}" -type f -name "${DR_MARKER}" -path "*/${PRIMARY_NFS_VOLUME}/files/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
+	MARKER_PATH="$(docker exec "${MGR}" find "${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}" -type f -name "${DR_MARKER}" -path "*/${BACKUP_NFS_VOLUME}/files/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
 	if [ -n "${MARKER_PATH}" ]; then
 		SRC_HOST="${MGR}"
 	fi
@@ -137,7 +137,7 @@ SRC_REL="$(dirname "${MARKER_REL}")"
 echo "    marker captured on ${SRC_HOST} at ${MARKER_REL}"
 VOL_MARKER_REL=""
 if [ "${SRC_HOST}" != "${MGR}" ]; then
-	_vol_marker="$(docker exec "${MGR}" find "${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}" -type f -name "${DR_MARKER}" -path "*/${PRIMARY_NFS_VOLUME}/files/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
+	_vol_marker="$(docker exec "${MGR}" find "${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}" -type f -name "${DR_MARKER}" -path "*/${BACKUP_NFS_VOLUME}/files/${DR_MARKER}" 2>/dev/null | sort | tail -1 || true)"
 	[ -n "${_vol_marker}" ] && VOL_MARKER_REL="${_vol_marker#"${DIR_BACKUPS}"/}"
 fi
 
@@ -169,6 +169,8 @@ if ! docker exec "${BACKUP_NODE}" test -f "${DIR_BACKUPS}/${SRC_REL}/${DR_MARKER
 	exit 1
 fi
 echo "    marker present on backup host after pull"
+docker exec "${NFS_SERVER}" rm -rf "${DIR_BACKUPS:?}/${NFS_MID:?}/${NFS_REPO:?}"
+echo "    dropped ${NFS_REPO} on ${NFS_SERVER}: ${BACKUP_NODE} holds the pulled copy"
 
 echo "==> [5/9] plug the LUKS 'USB' and sync via the deployed local-2-device unit"
 PULLED_MB="$(docker exec "${BACKUP_NODE}" du -sm "${DIR_BACKUPS}" | awk '{print $1}')"
@@ -205,8 +207,8 @@ fi
 NEEDED_MB=$((PULLED_MB + DISK_FLOOR_MB))
 if [ "${FREE_MB}" -lt "${NEEDED_MB}" ]; then
 	echo "FAILURE: the sync holds the ${PULLED_MB}M pulled tree and its device copy at once (the restore root repeats that peak later), so ${NEEDED_MB}M must be free to stay above the ${DISK_FLOOR_MB}M watchdog floor; ${FREE_MB}M free on ${BACKUP_NODE}:${DIR_BACKUPS}"
-	echo "    what fills the pulled tree (MB per machine/repo):"
-	docker exec "${BACKUP_NODE}" sh -c "du -sm ${DIR_BACKUPS}/*/* 2>/dev/null | sort -rn" ||
+	echo "    what fills the pulled tree (MB, the largest directories down to four levels below it):"
+	docker exec "${BACKUP_NODE}" sh -c "du -m -d 4 ${DIR_BACKUPS} 2>/dev/null | sort -rn | head -n 25" ||
 		echo "    (du breakdown unavailable)"
 	drill_device_teardown
 	exit 1
@@ -285,7 +287,7 @@ for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
 done
 for _i in $(seq 1 24); do
 	if docker exec "${MGR}" sh -c \
-		"touch '${DIR_VAR_LIB}/${PRIMARY_NFS_VOLUME}/.dr-coherence-probe' && rm -f '${DIR_VAR_LIB}/${PRIMARY_NFS_VOLUME}/.dr-coherence-probe'" 2>/dev/null; then
+		"touch '${DIR_VAR_LIB}/${BACKUP_NFS_VOLUME}/.dr-coherence-probe' && rm -f '${DIR_VAR_LIB}/${BACKUP_NFS_VOLUME}/.dr-coherence-probe'" 2>/dev/null; then
 		break
 	fi
 	if [ "${_i}" -eq 24 ]; then
@@ -317,12 +319,12 @@ if [ -n "${VOL_MARKER_REL}" ]; then
 		docker exec "${MGR}" rm -rf "${DR_VOL_STAGE:?}"
 	fi
 else
-	VOL_PATH="$(docker exec "${MGR}" docker volume inspect --format '{{if .Options}}{{.Options.device}}{{end}}' "${PRIMARY_NFS_VOLUME}" 2>/dev/null || true)"
+	VOL_PATH="$(docker exec "${MGR}" docker volume inspect --format '{{if .Options}}{{.Options.device}}{{end}}' "${BACKUP_NFS_VOLUME}" 2>/dev/null || true)"
 	if [ -z "${VOL_PATH}" ]; then
-		echo "    volume recover skipped: ${MGR} exposes no backing store for '${PRIMARY_NFS_VOLUME}' - the volume object is node-local and lives wherever the task ran, and the [8/9] export restore already carried its data"
+		echo "    volume recover skipped: ${MGR} exposes no backing store for '${BACKUP_NFS_VOLUME}' - the volume object is node-local and lives wherever the task ran, and the [8/9] export restore already carried its data"
 	else
 		echo "    volume repo holds no marker by design; proving the volume recover CLI against the bound backing store instead"
-		VOL_MOUNTPOINT="$(docker exec "${MGR}" docker volume inspect --format '{{.Mountpoint}}' "${PRIMARY_NFS_VOLUME}")"
+		VOL_MOUNTPOINT="$(docker exec "${MGR}" docker volume inspect --format '{{.Mountpoint}}' "${BACKUP_NFS_VOLUME}")"
 		docker exec "${NFS_SERVER}" rm -f "${NFS_VOL_DIR}/${DR_MARKER}"
 		DR_VOL_STAGE="/var/tmp/dr-volume-restore"
 		docker exec "${MGR}" bash -c "rm -rf '${DR_VOL_STAGE}'; mkdir -p '${DR_VOL_STAGE}'"
@@ -337,14 +339,14 @@ else
 			echo "WARNING: the bind mount at ${VOL_MOUNTPOINT} refused the umount and stays behind"
 		docker exec "${MGR}" rm -rf "${DR_VOL_STAGE:?}"
 		if [ "${_vol_rc}" -ne 0 ]; then
-			echo "FAILURE: the volume recover CLI exited ${_vol_rc} restoring '${PRIMARY_NFS_VOLUME}' through its bound backing store"
+			echo "FAILURE: the volume recover CLI exited ${_vol_rc} restoring '${BACKUP_NFS_VOLUME}' through its bound backing store"
 			exit 1
 		fi
 		if ! docker exec "${NFS_SERVER}" test -f "${NFS_VOL_DIR}/${DR_MARKER}"; then
 			echo "FAILURE: the volume recover CLI reported success but the marker did not reach the export on ${NFS_SERVER} (expected ${NFS_VOL_DIR}/${DR_MARKER})"
 			exit 1
 		fi
-		echo "    volume '${PRIMARY_NFS_VOLUME}' recovered through its bound backing store; marker verified server-side"
+		echo "    volume '${BACKUP_NFS_VOLUME}' recovered through its bound backing store; marker verified server-side"
 	fi
 fi
 

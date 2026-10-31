@@ -9,3 +9,4 @@ MODE_CLEANUP: true # Cleanup unused files and configurations
 MODE_ASSERT: "{{ MODE_DEBUG  | bool }}" # Executes validation tasks during the run.
 MODE_ASSERT_LOCAL: "{{ (MODE_ASSERT | bool) and (IS_STACK_HOST | bool) }}" # MODE_ASSERT, but only on the host that owns the asserted state (preload flags, openresty config, ...).
 MODE_BACKUP: true # Executes the Backup before the deployment
+MODE_DEMO: false # Seeds the upstream demo data of roles that ship it on every deploy, replacing their data and adding demo accounts with known passwords; never enable on production servers

@@ -17,7 +17,7 @@ from utils.networks.render import (
     render_compose_networks,
     render_container_networks,
 )
-from utils.roles.entity.name import get_entity_name
+from utils.roles.entity.name import entity_name
 
 
 def _registry():
@@ -123,7 +123,7 @@ def _compose(application_id, deployment_mode, **lookup_kwargs):
         application_id=application_id,
         deployment_mode=deployment_mode,
         registry=_registry(),
-        get_entity_name=get_entity_name,
+        entity_name=entity_name,
         lookup_config=config,
         lookup_database=db,
     )
@@ -135,7 +135,7 @@ def _container(application_id, deployment_mode, **lookup_kwargs):
         application_id=application_id,
         deployment_mode=deployment_mode,
         registry=_registry(),
-        get_entity_name=get_entity_name,
+        entity_name=entity_name,
         lookup_config=config,
         lookup_database=db,
     )

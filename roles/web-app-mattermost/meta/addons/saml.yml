@@ -1,0 +1,11 @@
+---
+enabled: false
+required: false
+mechanism: addon
+source: bundled
+bridges:
+  - sso
+config:
+  plugin_id: saml
+  licence_tier: enterprise
+  partner_url: "{{ lookup('tls', 'web-app-keycloak', 'url.base') }}"

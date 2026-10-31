@@ -1,1 +1,15 @@
 ---
+- name: "⏱️ Set the deadline for the Collabora check"
+  set_fact:
+    nextcloud_richdocuments_check_deadline: "{{ now(utc=true).timestamp() + (lookup('timeout', 300) | int) }}"
+
+- name: "🔎 Activate the Collabora connector and cache its capabilities"
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} richdocuments:activate-config
+  register: nextcloud_richdocuments_check
+  until: >-
+    nextcloud_richdocuments_check.rc == 0
+    or now(utc=true).timestamp() > nextcloud_richdocuments_check_deadline | float
+  retries: 30
+  delay: 10
+  changed_when: false

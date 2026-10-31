@@ -124,7 +124,7 @@ def render(networks, deployment_mode: str = "compose") -> str:
         if isinstance(value, bool)
         else str(value).strip().lower() in {"true", "1", "yes", "on"}
     )
-    env.filters["get_entity_name"] = lambda value: value.rsplit("-", 1)[-1]
+    env.filters["entity_name"] = lambda value: value.rsplit("-", 1)[-1]
     return env.get_template(TEMPLATE).render(
         application_id="web-app-keycloak",
         lookup=stub_lookup(networks, deployment_mode),

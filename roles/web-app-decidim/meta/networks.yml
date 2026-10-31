@@ -2,3 +2,5 @@
 meshes: []
 local:
   subnet: 192.168.8.0/24
+reachability:
+  handover: true # nocheck: network-reachability  Decidim binds its organization to one host and Rails admits only that RAILS_HOSTS entry, so the onion host is answered with 403 Blocked hosts

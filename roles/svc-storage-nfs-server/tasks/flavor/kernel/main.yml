@@ -1,12 +1,12 @@
 ---
 - name: "📦 Install the kernel NFS server"
-  package_install:
+  package_install: # nocheck: package-install only the kernel NFS flavor includes this file
     id:
       - nfs-client
       - nfs-kernel-server
 
 - name: "📦 Install the SELinux python binding (seboolean module + selinux fact)"
-  package_install:
+  package_install: # nocheck: package-install only the kernel NFS flavor includes this file
     id: selinux-python-binding
 
 - name: "📊 Re-gather the SELinux fact now the binding is present"

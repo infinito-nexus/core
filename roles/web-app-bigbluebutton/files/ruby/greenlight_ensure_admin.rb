@@ -2,16 +2,10 @@
 # nocheck: mirrored-unit-test - runs in `rails runner` against Greenlight's User and
 # Role models; the constants only exist once the app has booted
 
-require "base64"
-
 new_name            = ENV.fetch("NEW_NAME")
 new_email           = ENV.fetch("NEW_EMAIL").downcase
 default_admin_email = ENV.fetch("DEFAULT_ADMIN_EMAIL", "admin@example.com").downcase
-new_pw_b64          = ENV.fetch("NEW_PASSWORD_B64")
-
-new_pw = Base64.decode64(new_pw_b64)
-new_pw = new_pw.force_encoding("UTF-8")
-new_pw = new_pw.encode("UTF-8", invalid: :replace, undef: :replace, replace: "?")
+new_pw              = ENV.fetch("NEW_PASSWORD")
 
 def blankish?(v)
   v.nil? || (v.respond_to?(:empty?) && v.empty?)
@@ -51,8 +45,8 @@ if user
     changed = true
   end
 
-  changed ||= ensure_attr!(user, :provider, "greenlight")
-  changed ||= ensure_attr!(user, :language, "en")
+  changed = ensure_attr!(user, :provider, "greenlight") || changed
+  changed = ensure_attr!(user, :language, "en") || changed
 
   if user.respond_to?(:role=) && user.respond_to?(:role_id)
     if user.role_id != admin_role.id
@@ -61,9 +55,21 @@ if user
     end
   end
 
-  user.password = new_pw
-  user.password_confirmation = new_pw if user.respond_to?(:password_confirmation=)
-  changed = true
+  unless user.verified?
+    user.verified = true
+    changed = true
+  end
+
+  unless user.active?
+    user.status = :active
+    changed = true
+  end
+
+  unless user.authenticate(new_pw)
+    user.password = new_pw
+    user.password_confirmation = new_pw if user.respond_to?(:password_confirmation=)
+    changed = true
+  end
 else
   attrs = {
     email: new_email,
@@ -71,6 +77,8 @@ else
     provider: "greenlight",
     language: "en",
     role: admin_role,
+    verified: true,
+    status: :active,
   }
   attrs[:name] = new_name if User.new.respond_to?(:name=)
 
@@ -78,6 +86,6 @@ else
   changed = true
 end
 
-user.save!
+user.save! if changed
 
 puts(changed ? "CHANGED id=#{user.id} email=#{user.email}" : "NOOP id=#{user.id} email=#{user.email}")

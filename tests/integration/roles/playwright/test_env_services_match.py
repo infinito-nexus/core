@@ -11,6 +11,11 @@ key. Bare config stubs (entries with only ``image:`` / ``version:`` /
 ``ports:`` / etc. and no ``enabled:`` key) are out of scope — they
 are not gateable shared-service deps in the documented sense.
 
+The guide key is out of scope too. A role declaring it states that the
+documentation build replays its README, not that the role serves a
+surface of its own; no spec gates on it, and a flag per consuming role
+would register something ``isServiceEnabled`` is never asked about.
+
 Why
 ---
 
@@ -58,6 +63,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.guide import GUIDE_SERVICE_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -144,6 +150,8 @@ class TestPlaywrightEnvServicesMatch(unittest.TestCase):
                 if not isinstance(entry, dict):
                     continue
                 if "enabled" not in entry:
+                    continue
+                if service_key == GUIDE_SERVICE_KEY:
                     continue
                 if service_key in exempt:
                     continue

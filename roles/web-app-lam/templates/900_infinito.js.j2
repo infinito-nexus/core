@@ -1,0 +1,23 @@
+{% set design = lookup('design', application_id) %}
+{% if design.title is string %}
+(function () {
+  var title = {{ design.title | to_json }};
+  var product = /^LDAP Account Manager( Pro)?/;
+  var current = document.title.trim();
+  document.title = product.test(current) ? current.replace(product, title) : [title, current].filter(Boolean).join(" - ");
+  function header() {
+    var spans = document.querySelectorAll("div.lam-header-left > a > span");
+    for (var index = 0; index < spans.length; index += 1) {
+      var text = spans[index].textContent.trim();
+      if (product.test(text)) {
+        spans[index].textContent = text.replace(product, title);
+      }
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", header);
+  } else {
+    header();
+  }
+})();
+{% endif %}

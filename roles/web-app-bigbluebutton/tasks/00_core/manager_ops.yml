@@ -25,10 +25,11 @@
     BBB_COMPOSE_FILE_ORIGINE: "{{ [compose_repository_path, 'docker-compose.yml'] | path_join }}"
     BBB_COMPOSE_FILE_FINAL: "{{ [lookup('container', application_id, 'directories.instance'), 'compose.yml'] | path_join }}"
 
-- name: ✏️ Write compose.override.yml for BigBlueButton
+- name: "🎨 Render the meeting client settings of '{{ application_id }}'"
   stack_host_template:
-    src: compose.override.yml.j2
-    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'compose.override.yml'] | path_join }}"
+    src: bbb-html5.yml.j2
+    dest: "{{ BBB_HTML5_SETTINGS_HOST }}"
+    mode: "0444"
   notify: compose-up
 
 - name: 📁 Create symbolic link from .env file to target location
@@ -48,6 +49,9 @@
 
 - name: "🔧 Setup administrator"
   include_tasks: "../02_administrator.yml"
+
+- name: "🎨 Setup corporate design"
+  include_tasks: "../03_design.yml"
 
 - name: "🔧 Pin search_path on immutable_lower_unaccent in every database"
   ansible.builtin.shell: # nocheck: compose_mode_force role

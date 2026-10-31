@@ -7,11 +7,18 @@
   changed_when: false
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
+- name: "🔑 Matomo install | Realign the superuser of an existing install"
+  include_tasks:
+    file: utils/converge_superuser.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+  when: (matomo_install_state.stdout | trim) == 'installed'
+
 - name: "🥾 Bootstrap Matomo (Initialisation and setting of API token if not defined)"
   include_tasks: 04_bootstrap.yml
   when: >
     ((matomo_install_state.stdout | trim) != 'installed') or
-    ((lookup('users', 'administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
+    ((lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
 
 - name: "🩹 Patch database credentials for {{ application_id }}"
   include_tasks:
@@ -28,7 +35,7 @@
   meta: flush_handlers
 
 - name: "🐝 Matomo install | Swarm: restart matomo so patched config is re-read"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   block:
     - name: "🐝 Matomo install | Swarm: force-restart matomo service"
       ansible.builtin.command: >-
@@ -55,8 +62,34 @@
 - name: "🔐 Matomo install | Make config writable by web user (entrypoint re-owns it root)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec --user root {{ MATOMO_LOCAL_CID | quote }}
-    chown www-data:www-data {{ MATOMO_CONFIG }}
+    chown {{ MATOMO_RUNTIME_OWNER }} {{ MATOMO_CONFIG }}
   changed_when: true
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "⏫ Matomo upgrade | Install the image's release into the data volume"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user root {{ MATOMO_LOCAL_CID | quote }}
+      sh -s -- {{ MATOMO_RELEASE_DIR | quote }} {{ MATOMO_HTML_DIR | quote }} {{ MATOMO_RUNTIME_OWNER | quote }}
+    stdin: "{{ lookup('file', 'shell/upgrade_code.sh') }}"
+  register: matomo_code_upgrade
+  changed_when: matomo_code_upgrade.stdout is match('upgraded ')
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "⏫ Matomo upgrade | Apply the database updates the installed code needs"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user {{ MATOMO_RUNTIME_OWNER | quote }} {{ MATOMO_LOCAL_CID | quote }}
+    php {{ MATOMO_CONSOLE | quote }} core:update --yes --no-ansi
+  register: matomo_core_update
+  changed_when: "'Everything is already up to date' not in matomo_core_update.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔐 Matomo upgrade | Recreate the web server security files"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    container exec --user {{ MATOMO_RUNTIME_OWNER | quote }} {{ MATOMO_LOCAL_CID | quote }}
+    php {{ MATOMO_CONSOLE | quote }} core:create-security-files --no-ansi
+  changed_when: true
+  when: matomo_code_upgrade is changed
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
 - name: "🔧 Config '{{ application_id }}' via API"
@@ -66,5 +99,22 @@
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
 
+- name: "🧹 Matomo | Drop the site list cache of every host before re-injecting"
+  ansible.builtin.set_fact:
+    matomo_site_cache:
+      scope: ""
+      sites:
+  delegate_to: "{{ matomo_cache_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: matomo_cache_host
+
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml
+  when:
+    - matomo_token_value is defined
+    - matomo_token_value | length > 0
+
+- name: "🎨 Apply the corporate design of {{ application_id }}"
+  include_tasks: 09_design.yml

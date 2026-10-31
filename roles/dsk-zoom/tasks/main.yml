@@ -1,0 +1,4 @@
+---
+- block:
+    - include_tasks: utils/once/flag.yml
+  when: run_once_dsk_zoom is not defined

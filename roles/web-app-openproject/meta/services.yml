@@ -33,8 +33,8 @@ minio:
 # nocheck: playwright-service-flag — object store, no Playwright surface
 seaweedfs:
   bond: 1
-  enabled: "{{ 'web-app-seaweedfs' in group_names }}"
-  shared: "{{ 'web-app-seaweedfs' in group_names }}"
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
 web:
   name: openproject-web
   healthcheck:
@@ -47,7 +47,7 @@ web:
   version: "17"
   custom: true
   backup:
-    no_stop_required: true
+    stop_required: false
   cpus: "3.0"
   mem_reservation: 3g
   mem_limit: 6g
@@ -80,13 +80,14 @@ worker:
   min_storage: 5GB
 proxy:
   name: openproject-proxy
-  custom: true
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
   min_storage: 1GB
 cache:
+  # nocheck: single-replica  memcached does not replicate, and OpenProject keeps the session here: a second replica answers requests that carry a session it never stored, so the API returns 401 on every hop the login did not land on
+  replicas: 1
   name: openproject-cache
   cpus: "0.3"
   mem_reservation: 512m
@@ -107,11 +108,19 @@ sso:
         - /users/me
         - /api/
         - /oauth/token
-# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
-css:
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  slots:
+    logo:
+      width: 260
+      height: 94
+      frame: true
+    icon:
+      width: 66
+      height: 66
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -138,9 +147,12 @@ openproject:
     filters:
       administrators: false
       users: false
+  admin:
+    force: false
   ports:
     local:
       sso: 16483
+      sso_onion: 16537
       http: 8023
     internal:
       http: 80
@@ -155,9 +167,24 @@ openproject:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+# nocheck: playwright-service-flag: bridged gitlab partner, covered by partner role spec
+gitlab:
+  bond: 0.5
+  enabled: "{{ 'web-app-gitlab' in group_names }}"
+  shared: "{{ 'web-app-gitlab' in group_names }}"
+# nocheck: playwright-service-flag: bridged nextcloud partner, covered by partner role spec
+nextcloud:
+  bond: 0.5
+  enabled: "{{ 'web-app-nextcloud' in group_names }}"
+  shared: "{{ 'web-app-nextcloud' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

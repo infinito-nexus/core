@@ -11,6 +11,9 @@ The role box lists EVERY service the role declares. Around it:
                 above: another role names this one, or declares a service keyed
                 by this role's ``provides`` name (e.g. web-app-keycloak
                 ``provides: sso`` and every role with an ``sso`` service).
+                An in-tree role never lists a custom role (``web-app-cst-*``)
+                here: Git ignores custom roles, so a tracked README never
+                names one.
 
 ``provides`` matching runs in both directions, so a provider (e.g. openldap
 ``provides: ldap``) is picked up even when the consuming flag uses a
@@ -44,12 +47,12 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     is_explicit_truth,
 )
+from utils.roles.custom import is_custom
 from utils.roles.deploy import role_deploy_modes
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES
 from utils.symbol_glossary import to_emoji
 
 _GROUP_DEP_RE = re.compile(r"'([a-z0-9][a-z0-9-]*)'\s+in\s+group_names")
-_DEPENDENTS_CAP = 12
 _OFF_STROKE = "red"
 _MERMAID_RESERVED = {
     "call",
@@ -241,7 +244,7 @@ def _service_stopped(entry: dict) -> bool:
 
 
 def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
-    """Return a mermaid ``flowchart`` source (no ``` fences) for the role."""
+    """Return a mermaid ``flowchart`` source (no code fences) for the role."""
     role_dir = Path(role_dir)
     meta = _roles_meta(str(role_dir.parent))
     services = meta.get(role_name)
@@ -299,7 +302,7 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
     dpt_kind: dict[str, str] = {}
     gear_dependents: set[str] = set()
     for other, other_services in meta.items():
-        if other == role_name:
+        if other == role_name or (is_custom(other) and not is_custom(role_name)):
             continue
         kind = _consumption_kind(other_services, role_name, my_provides, my_primary_key)
         if role_name in ansible_deps.get(other, set()):
@@ -310,8 +313,6 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
 
     markers = _mode_markers(str(role_dir.parent))
     dependents = sorted(dpt_kind)
-    shown = dependents[:_DEPENDENTS_CAP]
-    overflow = len(dependents) - len(shown)
 
     gear = to_emoji("role_dependency")
 
@@ -340,10 +341,8 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
         lines.extend(
             f'        dpt_{_node_id(r)}["{_role_label(r, markers)}'
             f'{f" {gear}" if r in gear_dependents else ""}"]'
-            for r in shown
+            for r in dependents
         )
-        if overflow:
-            lines.append('        dpt_more["..."]')
         lines.append("    end")
 
     gear_edge_list = [
@@ -357,13 +356,9 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
     )
     dpt_edge_list = [
         (f"svc_{_node_id(s)}", f"dpt_{_node_id(o)}", dpt_kind[o])
-        for o in shown
+        for o in dependents
         for s in anchor
     ]
-    if overflow:
-        dpt_edge_list.extend(
-            (f"svc_{_node_id(s)}", "dpt_more", "fixed") for s in anchor
-        )
     dpt_pairs = _merge_edges(dpt_edge_list)
     emitted: list[str] = []
     for pairs in (dep_pairs, dpt_pairs):

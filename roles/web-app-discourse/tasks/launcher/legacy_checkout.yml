@@ -1,0 +1,16 @@
+---
+- name: "🗑️ Remove the URL-named launcher checkout"
+  ansible.builtin.file:
+    path: "{{ [ DISCOURSE_SERVICES_DIR, DISCOURSE_REPOSITORY_LEGACY_RELPATH ] | path_join }}"
+    state: absent
+
+- name: "🗑️ Prune the emptied parents of the URL-named checkout"
+  ansible.builtin.command:
+    argv:
+      - rmdir
+      - --ignore-fail-on-non-empty
+      - --parents
+      - "{{ DISCOURSE_REPOSITORY_LEGACY_RELPATH | dirname }}"
+    chdir: "{{ DISCOURSE_SERVICES_DIR }}"
+    removes: "{{ [ DISCOURSE_SERVICES_DIR, DISCOURSE_REPOSITORY_LEGACY_RELPATH | dirname ] | path_join }}"
+  when: DISCOURSE_REPOSITORY_LEGACY_RELPATH is search('/')

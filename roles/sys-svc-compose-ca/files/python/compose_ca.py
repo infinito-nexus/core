@@ -211,8 +211,9 @@ def escape_compose_vars(argv: list[str]) -> list[str]:
     Compose escaping rule:
       - $$ => literal $ (no interpolation)
 
-    Therefore: replace every "$" with "$$" in exec-form argv strings that we write into
-    compose override YAML (entrypoint/command).
+    Therefore: replace every "$" with "$$" in the image's exec-form argv before it is
+    written into compose override YAML; a service's own argv comes from `compose config`,
+    which already prints a literal "$" as "$$".
     """
     return [s.replace("$", "$$") for s in argv]
 
@@ -526,6 +527,7 @@ def _load_services_via_config(
 
 def _cache_frontend_ca_host() -> str:
     """Runner-internal path to the package-cache frontend CA, or '' when the cache is inactive."""
+    # nocheck: environ-get-default  nothing in the repo writes CA_TRUST_CERT_EXTRA_HOST; the path mirrors CA_SRC in roles/svc-cache-package/files/shell/ca.sh, and this file is copied to the target as a stdlib-only script, so it cannot import that constant
     path = os.environ.get(
         "CA_TRUST_CERT_EXTRA_HOST", "/opt/package-frontend-ca.crt"
     ).strip()
@@ -581,7 +583,7 @@ def render_override(
 
     IMPORTANT:
       Docker Compose interpolates $VARS in YAML strings on the host.
-      We escape any $ in the command argv with $$ so container-side expansion works.
+      We escape any $ in the image's argv with $$ so container-side expansion works.
     """
     out_services: dict[str, Any] = {}
     extra_ca_host = _cache_frontend_ca_host()
@@ -677,8 +679,8 @@ def render_override(
             img_ep = normalize_entrypoint(raw_ep)
             img_cmd = normalize_cmd(raw_cmd)
 
-        final_ep = svc_ep or img_ep
-        final_cmd = svc_cmd or img_cmd
+        final_ep = svc_ep or escape_compose_vars(img_ep)
+        final_cmd = svc_cmd or escape_compose_vars(img_cmd)
 
         if _is_shell_form(final_ep):
             final_cmd = [_shell_payload(final_cmd)]
@@ -687,7 +689,7 @@ def render_override(
 
         if has_sh and effective_cmd:
             override_svc["entrypoint"] = [wrapper_container]
-            override_svc["command"] = escape_compose_vars(effective_cmd)
+            override_svc["command"] = effective_cmd
 
         out_services[name] = override_svc
 

@@ -1,0 +1,10 @@
+nav.metro-nav .navbar-brand img,
+nav.navbar-laravel .navbar-brand img,
+#content > nav.navbar.fixed-top .navbar-brand img,
+.page-wrapper a > img[src*="pixelfed-icon-white"] {
+  content: var(--design-url-logo-svg);
+}
+
+.sidenav .navbar-brand .navbar-brand-img {
+  content: var(--design-url-brand-svg);
+}

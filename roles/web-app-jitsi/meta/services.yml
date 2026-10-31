@@ -33,11 +33,15 @@ email:
   bond: 1
   enabled: "{{ MAIL_PROVIDER in group_names }}"
   shared: "{{ MAIL_PROVIDER in group_names }}"
-# nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
-css:
+design:
   bond: 1
-  enabled: "{{ 'web-svc-css' in group_names }}"
-  shared: "{{ 'web-svc-css' in group_names }}"
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Jitsi"
+  slots:
+    logo:
+      width: 142
+      height: 64
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:
@@ -46,6 +50,9 @@ javascript:
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 jitsi:
+  bond: 1
+  enabled: true
+  shared: true
   healthcheck:
     flavor: tcp
   modes:
@@ -53,9 +60,6 @@ jitsi:
       enabled: true
     swarm:
       enabled: true
-  bond: 1
-  enabled: true
-  shared: true
   image: jitsi/web
   version: "stable-11031"
   min_storage: 315MB
@@ -65,6 +69,7 @@ jitsi:
     local:
       http: 8084
       sso: 16505
+      sso_onion: 16531
     public:
       media: 10000
     internal:
@@ -126,3 +131,8 @@ jvb:
 tor:
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

@@ -17,18 +17,19 @@ jenkins:
       serverConfiguration:
         wellKnown:
           wellKnownOpenIDConfigurationUrl: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
-      userNameField: "preferred_username"
+      userNameField: "{{ OIDC.ATTRIBUTES.USERNAME }}"
       groupsFieldName: "groups"
       logoutFromOpenidProvider: true
+      rootURLFromRequest: true
 {% elif JENKINS_LDAP_ENABLED | bool %}
   securityRealm:
     ldap:
       configurations:
         - server: "ldap://{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
           rootDN: "{{ LDAP.DN.ROOT }}"
-          userSearchBase: "{{ LDAP.DN.OU.USERS }}"
+          userSearchBase: "{{ LDAP.OU.USERS }}"
           userSearch: "uid={0}"
-          groupSearchBase: "{{ LDAP.DN.OU.GROUPS }}"
+          groupSearchBase: "{{ LDAP.OU.GROUPS }}"
           managerDN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
           managerPasswordSecret: "{{ LDAP.BIND_CREDENTIAL }}"
 {% else %}
@@ -36,8 +37,8 @@ jenkins:
     local:
       allowsSignup: false
       users:
-        - id: "{{ lookup('users', 'administrator').username }}"
-          password: "{{ lookup('users', 'administrator').password }}"
+        - id: "{{ lookup('users', 'platform_administrator').username }}"
+          password: "{{ lookup('users', 'platform_administrator').password }}"
 {% endif %}
 
   authorizationStrategy:
@@ -49,8 +50,8 @@ jenkins:
             permissions:
               - "Overall/Administer"
             entries:
-              - user: "{{ lookup('users', 'administrator').username }}"
+              - user: "{{ lookup('users', 'platform_administrator').username }}"
               - group: "authenticated"
 unclassified:
   location:
-    url: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}/"
+    url: "{{ lookup('tls', application_id, 'url.base') }}"

@@ -10,12 +10,11 @@ Enterprises, research teams, and regulated organizations that need AI capabiliti
 
 ## Included Components
 
-- web-app-minio
 - web-svc-libretranslate
 - web-app-keycloak
 - svc-prx-openresty
 
 ## Architecture Overview
 
-The stack provides on-prem data storage, a local AI-adjacent service, centralized identity,
-and secure exposure through a reverse proxy. This bundle is a skeleton activation map.
+The stack provides a local AI-adjacent service, centralized identity, and secure exposure
+through a reverse proxy. This bundle is a skeleton activation map.

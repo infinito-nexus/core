@@ -18,9 +18,9 @@ types:
 
   nfs:
     role: svc-bkp-nfs-2-local
-    restores: "snapshot -> live NFS export subtree"
-    source: "<files-dir>[:/export-subtree] | [user@]host:/path"
-    default_target: /srv/nfs/infinito-state
+    restores: "snapshot -> live NFS export base (<generation>/files mirrors the export base)"
+    source: "<files-dir> | <files-dir>/<subtree>:<export-base>/<subtree> | [user@]host:/path"
+    default_target: /srv/nfs
     remote_source: true
 
   volume:

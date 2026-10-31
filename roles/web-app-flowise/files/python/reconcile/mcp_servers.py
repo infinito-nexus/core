@@ -62,6 +62,33 @@ START_NODE = "startAgentflow_0"
 TOOL_NODE = "toolAgentflow_0"
 TOOL_COMPONENT = "customMcpServerTool"
 
+REFUSED_RC = 3
+REFUSED_STATUSES = (401, 403)
+
+
+class Refused(SystemExit):
+    """Exit with REFUSED_RC for a refusal that no retry can change."""
+
+    def __init__(self, message):
+        super().__init__(REFUSED_RC)
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+def fail(message, status):
+    """Stop the run, with REFUSED_RC when Flowise refused the call itself.
+
+    Args:
+        message: the reason, printed to stderr.
+        status: the HTTP status of the call that failed.
+    """
+    if status in REFUSED_STATUSES:
+        print(message, file=sys.stderr)
+        raise Refused(message)
+    sys.exit(message)
+
 
 def call(path, method="GET", payload=None):
     """Return ``(status, body)`` of one Flowise API call.
@@ -96,7 +123,7 @@ def registry_entries():
     """
     status, body = call(REGISTRY)
     if status != 200:
-        sys.exit(f"FAILED listing custom MCP servers: {status} {body}")
+        fail(f"FAILED listing custom MCP servers: {status} {body}", status)
     if isinstance(body, dict):
         return body.get("data") or []
     return body if isinstance(body, list) else []
@@ -128,24 +155,24 @@ def upsert(entries, server):
     if not matches:
         status, body = call(REGISTRY, method="POST", payload=payload)
         if status not in (200, 201):
-            sys.exit(f"FAILED creating {name}: {status} {body}")
+            fail(f"FAILED creating {name}: {status} {body}", status)
         return body["id"], True
 
     entry_id = matches[0]["id"]
     status, body = call(f"{REGISTRY}/{entry_id}", method="PUT", payload=payload)
     if status != 200:
-        sys.exit(f"FAILED updating {name}: {status} {body}")
+        fail(f"FAILED updating {name}: {status} {body}", status)
     return entry_id, matches[0].get("serverUrl") != server["url"]
 
 
 def authorize(entry_id, server):
     status, body = call(f"{REGISTRY}/{entry_id}/authorize", method="POST")
     if status != 200:
-        sys.exit(f"FAILED authorizing {server['id']}: {status} {body}")
+        fail(f"FAILED authorizing {server['id']}: {status} {body}", status)
 
     status, tools = call(f"{REGISTRY}/{entry_id}/tools")
     if status != 200:
-        sys.exit(f"FAILED listing tools of {server['id']}: {status} {tools}")
+        fail(f"FAILED listing tools of {server['id']}: {status} {tools}", status)
 
     found = sorted(str(tool.get("name")) for tool in tools or [] if tool.get("name"))
     expected = sorted(server.get("tools") or [])
@@ -174,7 +201,7 @@ def prune(entries, keep_ids):
             continue
         status, body = call(f"{REGISTRY}/{entry['id']}", method="DELETE")
         if status not in (200, 204):
-            sys.exit(f"FAILED deleting stale {name}: {status} {body}")
+            fail(f"FAILED deleting stale {name}: {status} {body}", status)
         removed += 1
     return removed
 
@@ -293,7 +320,7 @@ def upsert_fixture(server_id, entry_id, tool, args):
     name = fixture_name(server_id)
     status, body = call(CHATFLOWS)
     if status != 200:
-        sys.exit(f"FAILED listing chatflows: {status} {body}")
+        fail(f"FAILED listing chatflows: {status} {body}", status)
 
     matches = [flow for flow in body or [] if flow.get("name") == name]
     if len(matches) > 1:
@@ -310,14 +337,14 @@ def upsert_fixture(server_id, entry_id, tool, args):
     if not matches:
         status, body = call(CHATFLOWS, method="POST", payload=payload)
         if status not in (200, 201):
-            sys.exit(f"FAILED creating fixture {name}: {status} {body}")
+            fail(f"FAILED creating fixture {name}: {status} {body}", status)
         return str((body or {}).get("id")), True
 
     status, body = call(
         f"{CHATFLOWS}/{matches[0]['id']}", method="PUT", payload=payload
     )
     if status != 200:
-        sys.exit(f"FAILED updating fixture {name}: {status} {body}")
+        fail(f"FAILED updating fixture {name}: {status} {body}", status)
     return str(matches[0]["id"]), matches[0].get("flowData") != payload["flowData"]
 
 
@@ -332,7 +359,7 @@ def prune_fixtures(keep_id):
     """
     status, body = call(CHATFLOWS)
     if status != 200:
-        sys.exit(f"FAILED listing chatflows: {status} {body}")
+        fail(f"FAILED listing chatflows: {status} {body}", status)
 
     prefix = f"{OWNERSHIP_PREFIX}fixture:"
     removed = 0
@@ -342,7 +369,7 @@ def prune_fixtures(keep_id):
             continue
         status, detail = call(f"{CHATFLOWS}/{flow['id']}", method="DELETE")
         if status not in (200, 204):
-            sys.exit(f"FAILED deleting stale {name}: {status} {detail}")
+            fail(f"FAILED deleting stale {name}: {status} {detail}", status)
         removed += 1
     return removed
 
@@ -370,7 +397,7 @@ def assert_denied(url):
     if status == 400 and "not allowed by policy" in str(body):
         return
     if status not in (200, 201):
-        sys.exit(f"FAILED creating the deny-list probe: {status} {body}")
+        fail(f"FAILED creating the deny-list probe: {status} {body}", status)
 
     entry_id = body["id"]
     status, body = call(f"{REGISTRY}/{entry_id}/authorize", method="POST")
@@ -400,7 +427,7 @@ def execute_fixture(chatflow_id, server_id, tool):
         payload={"question": f"call {tool}", "streaming": False},
     )
     if status != 200:
-        sys.exit(f"FAILED calling {tool} on {server_id}: {status} {body}")
+        fail(f"FAILED calling {tool} on {server_id}: {status} {body}", status)
     if isinstance(body, dict) and body.get("error"):
         sys.exit(f"FAILED calling {tool} on {server_id}: {body['error']}")
 

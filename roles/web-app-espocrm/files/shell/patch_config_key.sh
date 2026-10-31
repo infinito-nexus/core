@@ -2,7 +2,7 @@
 #
 # Idempotently set a single PHP config key inside the EspoCRM container.
 # Runs INSIDE the espocrm container (piped via `container exec -i ... sh < this-file`).
-# Required env, supplied via `container exec -e KEY=VALUE`:
+# Required env, supplied by the calling task via `container exec -e KEY`:
 #   CONFIG_KEY    PHP array key to update (host / dbname / user / password / ...)
 #   CONFIG_VALUE  desired value (raw, may contain `/`, `&`, or `|`)
 #   CONFIG_FILE   absolute path to config-internal.php

@@ -7,6 +7,7 @@ from utils.packages.registry import (
     build_registry,
     iter_inventory_package_lists,
     load_declarations,
+    load_references,
     resolve,
 )
 from utils.packages.schema import (
@@ -165,6 +166,95 @@ class TestRegistry(unittest.TestCase):
         with self.assertRaises(PackagesShapeError):
             resolve(self._declaration("git"), "debian")
 
+    def test_download_without_a_checksum_raises(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {"url": "https://vendor.example/editor.deb"},
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            resolve(self._declaration("editor"), "debian")
+        self.assertIn("checksum", str(ctx.exception))
+
+    def test_download_rejects_a_weak_digest(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "https://vendor.example/editor.deb",
+                            "checksum": "md5:" + "a" * 32,
+                        },
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("editor"), "debian")
+
+    def test_download_rejects_a_plaintext_url(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "http://vendor.example/editor.deb",
+                            "checksum": "sha256:" + "a" * 64,
+                        },
+                    }
+                }
+            },
+        )
+        with self.assertRaises(PackagesShapeError) as ctx:
+            resolve(self._declaration("editor"), "debian")
+        self.assertIn("https", str(ctx.exception))
+
+    def test_download_source_without_its_block_raises(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {"editor": {"Debian": {"names": ["editor"], "source": "download"}}},
+        )
+        with self.assertRaises(PackagesShapeError):
+            resolve(self._declaration("editor"), "debian")
+
+    def test_a_pinned_download_resolves(self):
+        _write_role(
+            self.root,
+            "role-a",
+            {
+                "editor": {
+                    "Debian": {
+                        "names": ["editor"],
+                        "source": "download",
+                        "download": {
+                            "url": "https://vendor.example/editor.deb",
+                            "checksum": "sha256:" + "a" * 64,
+                        },
+                    }
+                }
+            },
+        )
+        spec = resolve(self._declaration("editor"), "debian")
+        self.assertEqual(spec.source, "download")
+        self.assertEqual(spec.download["url"], "https://vendor.example/editor.deb")
+
     def test_unknown_distro_raises_without_family(self):
         _write_role(self.root, "role-a", {"git": {"Debian": ["git"]}})
         with self.assertRaises(PackagesShapeError):
@@ -222,6 +312,40 @@ class TestRegistry(unittest.TestCase):
         )
         with self.assertRaises(PackagesShapeError):
             list(iter_inventory_package_lists(self.root))
+
+    def test_an_unflagged_id_is_batched(self):
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"]}})
+        self.assertTrue(self._declaration("git").batch)
+
+    def test_batch_false_keeps_the_id_out_of_the_batch(self):
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}})
+        self.assertFalse(self._declaration("git").batch)
+
+    def test_the_batch_flag_is_no_distro_key(self):
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}})
+        self.assertIsNone(resolve(self._declaration("git"), "arch"))
+
+    def test_non_boolean_batch_raises(self):
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"], "batch": "no"}})
+        with self.assertRaises(PackagesShapeError):
+            load_declarations(self.root)
+
+    def test_a_shared_reference_is_no_declaration(self):
+        _write_shared(self.root, {"git": {"Debian": ["git"]}})
+        _write_role(self.root, "role-a", {"git": {"shared": True}})
+        declaration = self._declaration("git")
+        self.assertTrue(declaration.shared)
+
+    def test_shared_references_are_collected_per_role(self):
+        _write_shared(self.root, {"git": {"Debian": ["git"]}})
+        _write_role(self.root, "role-a", {"git": {"shared": True}})
+        _write_role(self.root, "role-b", {"curl": {"Debian": ["curl"]}})
+        self.assertEqual(load_references(self.root), {"role-a": {"git"}})
+
+    def test_shared_flag_in_the_root_file_is_no_reference(self):
+        _write_shared(self.root, {"git": {"shared": True}})
+        self.assertEqual(load_references(self.root), {})
+        self.assertIn("git", build_registry(self.root))
 
     def test_default_matrix_covers_five_distros(self):
         self.assertEqual(
