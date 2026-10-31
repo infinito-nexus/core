@@ -23,6 +23,10 @@
     network_mode: "host"
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    ulimits:
+      nofile:
+        soft: {{ WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE }}
+        hard: {{ WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE }}
     command: ["openresty", "-g", "daemon off;"]
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
