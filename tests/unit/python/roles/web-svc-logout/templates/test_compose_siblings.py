@@ -120,30 +120,29 @@ def render(conductor: list[str], shop: list[str]) -> dict:
     return load_yaml_str(rendered)["services"]
 
 
-def siblings(services: dict) -> dict[str, str]:
-    return {
-        name: service["environment"]["LOGOUT_SIBLINGS"]
+def handing_off(services: dict) -> list[str]:
+    return sorted(
+        name
         for name, service in services.items()
-    }
+        if "LOGOUT_SIBLINGS" in service["environment"]
+    )
 
 
 class TestSingleNetwork(unittest.TestCase):
     def test_a_clearnet_conductor_hands_off_nowhere(self) -> None:
-        self.assertEqual(siblings(render([CLEAR], [SHOP])), {"logout": ""})
+        self.assertEqual(handing_off(render([CLEAR], [SHOP])), [])
 
     def test_a_tor_only_conductor_hands_off_nowhere(self) -> None:
-        self.assertEqual(siblings(render([ONION], [SHOP_ONION])), {"logout": ""})
+        self.assertEqual(handing_off(render([ONION], [SHOP_ONION])), [])
 
 
 class TestClearnetAndTor(unittest.TestCase):
     def setUp(self) -> None:
         self.services = render([CLEAR, ONION], [SHOP, SHOP_ONION])
 
-    def test_each_conductor_lists_exactly_the_other(self) -> None:
-        self.assertEqual(
-            siblings(self.services),
-            {"logout": f"http://{ONION}", "logout-onion": f"https://{CLEAR}"},
-        )
+    def test_no_conductor_is_sent_to_a_conductor_its_network_csp_blocks(self) -> None:
+        self.assertEqual(sorted(self.services), ["logout", "logout-onion"])
+        self.assertEqual(handing_off(self.services), [])
 
     def test_each_conductor_still_sweeps_only_its_own_network(self) -> None:
         self.assertEqual(

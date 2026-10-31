@@ -419,6 +419,29 @@ def manifest_platforms_probed(
     return None, "none"
 
 
+def manifest_digest(image: str, reference: str) -> str | None:
+    """Return the ``Docker-Content-Digest`` the registry serves for a reference.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+
+    Returns:
+        The digest of the index or manifest behind ``image:reference``, read
+        with HEAD because Docker Hub counts every manifest GET against its pull
+        allowance. ``None`` for a missing tag and on any indeterminate outcome.
+    """
+    resolved = _resolve(image)
+    if resolved is None:
+        return None
+    host, repo = resolved
+    url = f"https://{host}/v2/{quote(repo, safe='/')}/manifests/{quote(reference, safe='')}"
+    result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
+    if result is None or result[0] != 200:
+        return None
+    return result[1].get("Docker-Content-Digest") or None
+
+
 def manifest_exists(image: str, reference: str) -> bool | None:
     """Whether ``image:reference`` resolves to a manifest.
 

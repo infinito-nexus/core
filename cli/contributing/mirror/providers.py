@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from utils.docker.mirror import mirror_image_base
+from utils.docker.registry import manifest_digest
 
 if TYPE_CHECKING:
     import argparse
@@ -69,6 +70,24 @@ class GHCRProvider(RegistryProvider):
             text=True,
         )
         return r.returncode == 0
+
+    def is_stale(self, image: ImageRef) -> bool:
+        """Return True if the mirrored tag no longer matches its upstream tag.
+
+        Args:
+            image: the upstream image whose mirror copy is compared.
+
+        Returns:
+            ``True`` only when both registries answer with a digest and the
+            digests differ, i.e. upstream re-pushed the tag after it was
+            mirrored. An unanswered side counts as current, so an upstream
+            outage or a tag deleted upstream never forces a copy.
+        """
+        upstream = manifest_digest(f"{image.registry}/{image.name}", image.version)
+        if upstream is None:
+            return False
+        mirrored = manifest_digest(self.image_base(image), image.version)
+        return mirrored is not None and mirrored != upstream
 
     def _run_copy(self, *, src: str, dest: str, extra: list[str] | None = None) -> None:
         cmd = [
