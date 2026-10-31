@@ -26,6 +26,23 @@ def load_yaml_file(path):
         return None
 
 
+def merged_variables(paths: list[Path]) -> dict:
+    """Merge the top-level keys of variable files, a later file replacing an earlier key.
+
+    Args:
+      paths: the files in ascending precedence.
+
+    Returns:
+      every top-level key with the value of the last file that sets it.
+    """
+    merged: dict = {}
+    for path in paths:
+        data = load_yaml_file(path)
+        if isinstance(data, dict):
+            merged.update(data)
+    return merged
+
+
 def inventory_files(inv_dir) -> list[Path]:
     """Return the YAML files of an inventory directory that may set ``applications``.
 

@@ -19,6 +19,7 @@ from cli.administration.inventory.provision.passwords import (
 )
 from cli.administration.inventory.provision.users_generator import (
     generate_user_passwords,
+    has_pinned_password,
     required_user_policies,
 )
 from cli.administration.inventory.validate.users import compare_user_keys
@@ -179,6 +180,17 @@ class TestRequiredUserPolicies(unittest.TestCase):
 
             with self.assertRaises(SystemExit):
                 required_user_policies(roles_dir, ["web-app-a"])
+
+
+class TestHasPinnedPassword(unittest.TestCase):
+    def test_a_vaulted_password_is_a_pin(self):
+        node = _yaml().load(VAULTED.format(name="password"))
+        self.assertTrue(has_pinned_password(node))
+
+    def test_a_missing_or_empty_password_is_no_pin(self):
+        for user in ({}, {"password": ""}, {"password": None}, None, "x"):
+            with self.subTest(user=user):
+                self.assertFalse(has_pinned_password(user))
 
 
 class TestGenerateUserPasswords(unittest.TestCase):

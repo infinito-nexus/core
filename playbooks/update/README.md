@@ -31,7 +31,7 @@ The host needs no Python, because both collectors run as plain shell scripts.
 
 | Area | ❌ | ⚠️ |
 |---|---|---|
-| inventory | The validator rejects a key, a role is end of life | A group names no application role, a role is deprecated, a credential of `meta/secrets.yml` has no value |
+| inventory | The validator rejects a key or finds a user the host's roles need without a pinned password, a role is end of life | A group names no application role, a role is deprecated, a credential of `meta/secrets.yml` has no value |
 | volumes | A declared volume is missing while one that differs only in `-`/`_` or in its last `_` part exists | A declared volume is missing, a database volume lies on the mass storage, a volume belongs to no deployed role |
 | data | `PG_VERSION`, `mysql_upgrade_info` or Nextcloud's `version.php` is newer than the pinned image | It is older, with the number of major steps |
 | images | A container runs a newer image than the code pins | It runs an older one, with the skipped majors |

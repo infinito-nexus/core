@@ -65,7 +65,12 @@ def _inventory(report, applications, group_names, deployed, schemas, rc, output)
         tail = "; ".join(line.strip() for line in output if line.strip())[-400:]
         report.add(FAIL, "inventory", "schema", f"validator exited {rc}: {tail}")
     else:
-        report.add(OK, "inventory", "schema", "every key matches the role defaults")
+        report.add(
+            OK,
+            "inventory",
+            "schema",
+            "every key matches the role defaults and every required user has a pinned password",
+        )
     for group in sorted(group_names):
         if group not in applications:
             report.add(
