@@ -125,9 +125,12 @@ class DocsHandler(SimpleHTTPRequestHandler):
         version, slash, rest = path.lstrip("/").partition("/")
         if version not in self.library.versions():
             self.send_error(HTTPStatus.NOT_FOUND)
-        elif not slash:
+            return
+        if not slash:
             self._redirect(f"/{version}/")
-        elif not self.library.servable(version) or self.library.outdated(version):
+            return
+        self.library.mark_opened(version)
+        if not self.library.servable(version) or self.library.outdated(version):
             if self.library.failed(version):
                 self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
                 return

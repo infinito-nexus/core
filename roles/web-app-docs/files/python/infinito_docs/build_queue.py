@@ -9,15 +9,19 @@ visitor has asked for.
 from __future__ import annotations
 
 import fcntl
+import os
+import shutil
 import subprocess
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from infinito_docs.builder import DEPLOYED, QUEUE_SEPARATOR
+from infinito_docs.builder import DEPLOYED, LATEST, QUEUE_SEPARATOR
 
 POLL_SECONDS = 2
 BACKGROUND_LANE = "background"
+KEPT_TAGS = 3
 
 
 class Queue:
@@ -172,8 +176,74 @@ class Queue:
         self._lock_handle = handle
         return True
 
+    def _tags_on_disk(self):
+        """Return every release tag that has a site, translation or prepared tree."""
+        names = set()
+        for parent in (self.sites, self.translations):
+            if parent.is_dir():
+                names.update(entry.name for entry in parent.iterdir())
+        if self.prepared.is_dir():
+            names.update(
+                entry.name.rpartition(".")[0] for entry in self.prepared.iterdir()
+            )
+        names -= {LATEST, DEPLOYED}
+        return {name for name in names if name and not name.startswith(".")}
+
+    def _opened_at(self, tag):
+        """Return when a visitor last opened ``tag``, 0 when nobody has.
+
+        Args:
+            tag: release tag.
+        """
+        mark = self.opened / tag
+        return mark.stat().st_mtime if mark.is_file() else 0.0
+
+    def _prune_tags(self):
+        """Drop every release tag on disk beyond the ``KEPT_TAGS`` opened last.
+
+        The trees move out under the lock ``next_free`` claims with, so no slot
+        starts cloning a prepared tree that is on its way out, and are deleted
+        after it. A tag stays while one of its markers builds or its own marker
+        is queued. A queued language alone keeps nothing: every finished tag
+        queues its preloaded languages, so it would keep every tag a crawler
+        opens, and no slot claims a language of a tag whose site is gone.
+        """
+        trash = self.scratch / f".pruned.{os.getpid()}.{threading.get_ident()}"
+        with self._lock:
+            ranked = sorted(self._tags_on_disk(), key=self._opened_at, reverse=True)
+            building = {
+                marker.partition(QUEUE_SEPARATOR)[0] for marker in self._in_flight
+            }
+            for tag in ranked[KEPT_TAGS:]:
+                if tag not in building and not self.is_queued(tag):
+                    self._discard_tag(tag, trash)
+        shutil.rmtree(trash, ignore_errors=True)
+
+    def _discard_tag(self, tag, trash):
+        """Move the trees of ``tag`` into ``trash``, drop its states and languages.
+
+        Args:
+            tag: release tag to drop.
+            trash: directory on the same volume, deleted by the caller.
+        """
+        trash.mkdir(parents=True, exist_ok=True)
+        trees = (
+            self.sites / tag,
+            self.translations / tag,
+            *self.prepared.glob(f"{tag}.*"),
+        )
+        for tree in trees:
+            if tree.exists():
+                tree.rename(trash / f"{tree.parent.name}.{tree.name}")
+        (self.states / f"{tag}.json").unlink(missing_ok=True)
+        for state in self.states.glob(f"{tag}{QUEUE_SEPARATOR}*.json"):
+            state.unlink(missing_ok=True)
+        for lane in (self.queue, self.queue / BACKGROUND_LANE):
+            for language in lane.glob(f"{tag}{QUEUE_SEPARATOR}*"):
+                language.unlink(missing_ok=True)
+
     def _build_marker(self, marker):
-        """Build what ``marker`` names, then release its slot.
+        """Build what ``marker`` names, prune the tags, then release its slot.
 
         Args:
             marker: queue file name, ``version`` or ``version:code``.
@@ -184,6 +254,7 @@ class Queue:
                 self.build_language(version, code)
             else:
                 self.build(version)
+            self._prune_tags()
         except Exception as exc:
             print(f"build {marker} crashed: {exc!r}", file=sys.stderr, flush=True)
             self._dequeue(marker)
@@ -194,6 +265,10 @@ class Queue:
     def run_builder(self, interval, parallel=1):
         """Serve the queue until the process ends.
 
+        Only the lock holder writes the scratch, so what a killed holder left
+        there, a build or a pruned tag halfway deleted, would stay forever
+        unless the next holder clears it before its first build.
+
         Args:
             interval: seconds between fetches of the mirror.
             parallel: builds to run at once. A translated site waits for its
@@ -202,6 +277,7 @@ class Queue:
         """
         while not self.acquire_builder():
             time.sleep(POLL_SECONDS)
+        shutil.rmtree(self.scratch, ignore_errors=True)
         next_fetch = 0.0
         with ThreadPoolExecutor(max_workers=max(1, int(parallel))) as pool:
             if self.snapshot.is_dir():

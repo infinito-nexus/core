@@ -10,9 +10,10 @@ One `python:<version>-slim` container runs the service in `files/python/infinito
 
 1. It keeps a git mirror of `services.docs.source_repository` in the `docs_sites` volume and fetches it every `services.docs.fetch_interval` seconds. The deployed snapshot, built from the image, starts before the first fetch; every other version waits for that fetch.
 2. `latest` is the last commit of the default branch. It is built at start and rebuilt whenever a fetch finds a new commit; the previous build stays online until the new one replaces it.
-3. A release tag (`vX.Y.Z`) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so each tag is built only once.
+3. A release tag (`vX.Y.Z`) is built the first time someone opens it. The browser shows a progress bar and reloads once the build is done. Tags never change, so a tag is built again only after the cap in point 6 dropped it.
 4. Up to two builds run at once, each with several parallel Sphinx processes. Both numbers follow the container's memory limit: every build reserves `services.docs.build.sphinx_overhead_mb` plus `services.docs.build.sphinx_process_mb` per Sphinx process, a second build starts only when two processes fit for each, and a build never runs more processes than half the host's CPUs. A free slot claims a translated site only once its version is current, so a version and its first language run in sequence.
-5. Every replica serves from the shared `docs_sites` volume. The replica holding `builder.lock` in that volume fetches and builds; the queue (`queue/`) and the build states (`states/`) are files beside the sites, so a new lock holder resumes the queue when the builder dies. Cross-node locking relies on NFSv4, the default of `svc-storage-nfs-client`.
+5. Every replica serves from the shared `docs_sites` volume. The replica holding `builder.lock` in that volume fetches and builds; the queue (`queue/`), the build states (`states/`) and the open stamps (`opened/`) are files beside the sites, so a new lock holder resumes the queue when the builder dies. Cross-node locking relies on NFSv4, the default of `svc-storage-nfs-client`.
+6. Only the three release tags opened last stay on disk, besides `latest` and `deployed`. Every request below `/<tag>/` stamps `opened/<tag>`. After each build the builder drops every further tag, the one opened longest ago first, with its site, its translated sites, its prepared trees (`prepared/`), its build states and its queued languages. A tag stays while one of its builds runs or the tag itself is queued. The count is `KEPT_TAGS` in [build_queue.py](./files/python/infinito_docs/build_queue.py).
 
 | Path | Content |
 |---|---|
@@ -52,7 +53,7 @@ applications:
         mem_limit: 16g
 ```
 
-Delete `sites/<version>` inside the `docs_sites` volume to rebuild a version on its next visit.
+A dropped tag is built again the next time someone opens it. To rebuild a version that is still on disk, delete `sites/<version>` inside the `docs_sites` volume; its next visit builds it again from `prepared/<version>.*`, so delete that tree too to regenerate its sources.
 
 ## Further Resources
 
