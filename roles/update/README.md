@@ -49,6 +49,11 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   Debian, Ubuntu, Fedora, CentOS) without duplicated task code.
 - **Loud on unsupported hosts:** Fails with a clear message instead of
   silently skipping when the host runs an unmapped distribution.
+- **Reboot guard on Arch:** After the upgrade, `arch.yml` fails with
+  "Reboot required" when the running kernel loads modules and
+  `/usr/lib/modules` holds a `modules.dep` for other kernels but not for it,
+  before any later role restarts Docker. Containers (`DOCKER_IN_CONTAINER`)
+  skip the check.
 - **Once-per-play idempotency:** Wraps the dispatch in
   `when: run_once_update is not defined` and writes the flag via
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are

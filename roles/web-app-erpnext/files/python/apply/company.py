@@ -34,6 +34,33 @@ FIXTURES = (
         "All Territories",
         {"territory_name": "All Territories", "is_group": 1},
     ),
+    (
+        "Item Group",
+        "All Item Groups",
+        {
+            "item_group_name": "All Item Groups",
+            "is_group": 1,
+            "parent_item_group": "",
+        },
+    ),
+    (
+        "Customer Group",
+        "All Customer Groups",
+        {
+            "customer_group_name": "All Customer Groups",
+            "is_group": 1,
+            "parent_customer_group": "",
+        },
+    ),
+    (
+        "Supplier Group",
+        "All Supplier Groups",
+        {
+            "supplier_group_name": "All Supplier Groups",
+            "is_group": 1,
+            "parent_supplier_group": "",
+        },
+    ),
     ("UOM", "Unit", {"uom_name": "Unit"}),
     ("Opportunity Type", "Sales", {"__newname": "Sales"}),
 )

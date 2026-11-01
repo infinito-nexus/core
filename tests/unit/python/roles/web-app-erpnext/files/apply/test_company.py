@@ -80,6 +80,21 @@ class TestCompany(unittest.TestCase):
         self.assertIn("Unit", records["UOM"])
         self.assertIn("Sales", records["Opportunity Type"])
 
+    def test_creates_the_tree_roots_the_skipped_setup_wizard_would(self) -> None:
+        self._run()
+
+        records = self.frappe.records
+        self.assertEqual(records["Item Group"]["All Item Groups"]["is_group"], 1)
+        self.assertEqual(
+            records["Item Group"]["All Item Groups"]["parent_item_group"], ""
+        )
+        self.assertEqual(
+            records["Customer Group"]["All Customer Groups"]["is_group"], 1
+        )
+        self.assertEqual(
+            records["Supplier Group"]["All Supplier Groups"]["is_group"], 1
+        )
+
     def test_creates_a_fiscal_year_covering_today(self) -> None:
         self._run()
 

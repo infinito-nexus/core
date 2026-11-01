@@ -19,7 +19,7 @@ from utils.tls_common import iter_domains
 class LookupModule(LookupBase):
     """
     Usage:
-      {{ lookup('browser_proxy_bypass', network_name, *extra_hosts) }}
+      ``{{ lookup('browser_proxy_bypass', network_name, *extra_hosts) }}``
 
     Returns the hosts a browser probing a page of ``network_name`` on this node
     reaches directly instead of through that network's proxy: the domains of
