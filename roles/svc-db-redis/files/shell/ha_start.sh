@@ -48,7 +48,7 @@ master=$(
   for sentinel in ${REDIS_HA_SENTINELS?}; do
     timeout 3 redis-cli -h "$sentinel" -p "$sentinel_port" --raw \
       SENTINEL get-master-addr-by-name "$REDIS_HA_MASTER_NAME" 2>/dev/null |
-      head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }' || true # nocheck: shell-or-true -- an unreachable Sentinel just casts no vote
+      head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }'
   done | grep -E '^[A-Za-z0-9_-]+$' | sort | uniq -c | sort -rn | awk 'NR == 1 { print $2 }'
 )
 

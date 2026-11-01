@@ -10,33 +10,11 @@
     _local: "{{ OPENLDAP_DB.instances | selectattr('legacy') | first }}"
   register: openldap_ha_writer_wait
   changed_when: false
-  failed_when: false
   retries: 60
   delay: 3
   until: openldap_ha_writer_wait.rc == 0
   delegate_to: "{{ _local.host }}"
   run_once: true
-
-- name: "🔍 Elector log tail of each OpenLDAP instance"
-  ansible.builtin.shell: |
-    container logs --tail 200 "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})" 2>&1 | grep -iE 'elector|lease|etcd|writer|error|traceback' | tail -n 15
-  args:
-    executable: /bin/bash
-  register: openldap_ha_elector_logs
-  changed_when: false
-  failed_when: false
-  delegate_to: "{{ item.host }}"
-  run_once: true
-  loop: "{{ OPENLDAP_DB.instances }}"
-  loop_control:
-    label: "{{ item.service }}"
-  when: openldap_ha_writer_wait.rc != 0
-
-- name: "🛑 No single OpenLDAP writer"
-  ansible.builtin.fail:
-    msg: "{{ openldap_ha_writer_wait.stdout | trim }} {{ openldap_ha_elector_logs.results | map(attribute='stdout') | list }}"
-  run_once: true
-  when: openldap_ha_writer_wait.rc != 0
 
 - name: "🔍 Resolve the current OpenLDAP writer"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"

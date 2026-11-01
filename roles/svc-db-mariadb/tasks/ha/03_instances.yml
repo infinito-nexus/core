@@ -73,32 +73,8 @@
   retries: 60
   delay: 3
   changed_when: false
-  failed_when: false
   delegate_to: "{{ _mariadb_ha_bootstrap.host }}"
   when: _mariadb_ha_ready | length > 0
-
-- name: "🔍 MariaDB HA | Elector log tail of each instance"
-  ansible.builtin.shell: |
-    container logs --tail 300 "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})" 2>&1 | grep -E 'INFO|WARNING|ERROR|Traceback' | tail -n 12
-  args:
-    executable: /bin/bash
-  register: _mariadb_ha_elector_logs
-  changed_when: false
-  failed_when: false
-  delegate_to: "{{ item.host }}"
-  loop: "{{ MARIADB_INSTANCES.instances }}"
-  loop_control:
-    label: "{{ item.service }}"
-  when:
-    - _mariadb_ha_ready | length > 0
-    - _mariadb_ha_writer_wait.rc != 0
-
-- name: "🛑 MariaDB HA | No single writer"
-  ansible.builtin.fail:
-    msg: "{{ _mariadb_ha_writer_wait.stdout | trim }} {{ _mariadb_ha_elector_logs.results | map(attribute='stdout') | list }}"
-  when:
-    - _mariadb_ha_ready | length > 0
-    - _mariadb_ha_writer_wait.rc != 0
 
 - name: "🔍 MariaDB HA | Resolve the writer"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"

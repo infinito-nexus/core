@@ -39,7 +39,7 @@ peer_master() {
   for peer in ${SENTINEL_PEERS?}; do
     timeout 3 redis-cli -h "$peer" -p "$port" --raw \
       SENTINEL get-master-addr-by-name "$name" 2>/dev/null |
-      head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }' || true # nocheck: shell-or-true -- an unreachable peer just casts no vote
+      head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }'
   done | grep -E '^[A-Za-z0-9_-]+$' | sort | uniq -c | sort -rn | awk -v instances="$instances" '
     index(instances, " " $2 " ") { print $2; exit }'
 }

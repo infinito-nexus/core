@@ -39,14 +39,20 @@ fi
 # Retries: swarm rejects a node update with "update out of sequence" when the
 # node object changed between the CLI's read and its write.
 set_availability() {
-	local _try
+	local _try _err
 	for _try in 1 2 3 4 5; do
-		if docker exec "${MGR}" docker node update --availability "$1" "$2"; then
+		if _err="$(docker exec "${MGR}" docker node update --availability "$1" "$2" 2>&1)"; then
 			return 0
 		fi
-		sleep 2
+		case "${_err}" in
+		*"update out of sequence"*) sleep 2 ;;
+		*)
+			echo "FAILURE: could not set ${2} to ${1}: ${_err}"
+			exit 1
+			;;
+		esac
 	done
-	echo "FAILURE: could not set ${2} to ${1} after ${_try} tries"
+	echo "FAILURE: could not set ${2} to ${1} after ${_try} tries: ${_err}"
 	exit 1
 }
 
