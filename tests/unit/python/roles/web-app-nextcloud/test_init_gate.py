@@ -17,7 +17,7 @@ UPSTREAM_EXEC = "exec /entrypoint.sh"
 HANDED_OVER = "upstream entrypoint reached"
 INIT_LOCK = "nextcloud-init-sync.lock"
 COPIED = ("version.php", "occ", "config/config.php")
-STUB_SU = "#!/bin/sh\nprintf '%s\\n' \"$GATE_STATUS\"\n"
+STUB_SU = '#!/bin/sh\nprintf \'%s\\n\' "$GATE_STATUS"\nexit "$GATE_RC"\n'
 INSTALLED = "  - installed: true\n  - maintenance: false\n  - needsDbUpgrade: false"
 NOT_INSTALLED = (
     "  - installed: false\n  - maintenance: false\n  - needsDbUpgrade: false"
@@ -34,6 +34,7 @@ def _run_gate(
     task_slot: str | None,
     files: tuple[str, ...],
     status: str,
+    occ_rc: int,
     hold_init_lock: bool,
 ) -> subprocess.CompletedProcess:
     """Run the gate as slot 1 against a fake app dir.
@@ -42,6 +43,7 @@ def _run_gate(
         task_slot: value of TASK_SLOT, or None to leave it unset as compose does.
         files: paths relative to the app dir that exist before the gate runs.
         status: what `occ status` prints through the stubbed `su`.
+        occ_rc: the exit code `occ status` returns through the stubbed `su`.
         hold_init_lock: hold the upstream init lock while the gate runs, as an
             entrypoint that is still copying or installing does.
     """
@@ -69,6 +71,7 @@ def _run_gate(
             "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
             "NEXTCLOUD_INIT_GATE_USER": "www-data",
             "GATE_STATUS": status,
+            "GATE_RC": str(occ_rc),
         }
         if task_slot is not None:
             env["TASK_SLOT"] = task_slot
@@ -93,6 +96,7 @@ class TestInitGateSlotOne(unittest.TestCase):
                     task_slot=task_slot,
                     files=COPIED,
                     status=NOT_INSTALLED,
+                    occ_rc=0,
                     hold_init_lock=False,
                 )
                 self.assertEqual(result.returncode, 1, result.stdout)
@@ -104,6 +108,7 @@ class TestInitGateSlotOne(unittest.TestCase):
             task_slot="1",
             files=("version.php", "occ"),
             status=NOT_INSTALLED,
+            occ_rc=0,
             hold_init_lock=False,
         )
         self.assertEqual(result.returncode, 1, result.stdout)
@@ -111,29 +116,68 @@ class TestInitGateSlotOne(unittest.TestCase):
 
     def test_leaves_a_running_install_to_the_upstream_lock(self):
         result = _run_gate(
-            task_slot="1", files=COPIED, status=NOT_INSTALLED, hold_init_lock=True
+            task_slot="1",
+            files=COPIED,
+            status=NOT_INSTALLED,
+            occ_rc=0,
+            hold_init_lock=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(HANDED_OVER, result.stdout)
 
     def test_hands_an_installed_volume_to_upstream(self):
         result = _run_gate(
-            task_slot="1", files=COPIED, status=INSTALLED, hold_init_lock=False
+            task_slot="1",
+            files=COPIED,
+            status=INSTALLED,
+            occ_rc=0,
+            hold_init_lock=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(HANDED_OVER, result.stdout)
 
     def test_hands_a_fresh_volume_to_upstream_for_the_install(self):
         result = _run_gate(
-            task_slot=None, files=(), status=NOT_INSTALLED, hold_init_lock=False
+            task_slot=None,
+            files=(),
+            status=NOT_INSTALLED,
+            occ_rc=0,
+            hold_init_lock=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(HANDED_OVER, result.stdout)
 
     def test_hands_over_when_occ_status_answers_nothing(self):
-        result = _run_gate(task_slot="1", files=COPIED, status="", hold_init_lock=False)
+        result = _run_gate(
+            task_slot="1", files=COPIED, status="", occ_rc=0, hold_init_lock=False
+        )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(HANDED_OVER, result.stdout)
+
+    def test_hands_over_when_occ_status_fails_like_an_unready_nextcloud(self):
+        for occ_rc in (1, 124, 255):
+            with self.subTest(occ_rc=occ_rc):
+                result = _run_gate(
+                    task_slot="1",
+                    files=COPIED,
+                    status=NOT_INSTALLED,
+                    occ_rc=occ_rc,
+                    hold_init_lock=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(HANDED_OVER, result.stdout)
+
+    def test_stops_when_occ_status_fails_in_a_way_no_nextcloud_state_explains(self):
+        result = _run_gate(
+            task_slot="1",
+            files=COPIED,
+            status="",
+            occ_rc=127,
+            hold_init_lock=False,
+        )
+        self.assertEqual(result.returncode, 127, result.stdout)
+        self.assertNotIn(HANDED_OVER, result.stdout)
+        self.assertIn("occ status exited 127", result.stderr)
 
 
 if __name__ == "__main__":
