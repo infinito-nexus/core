@@ -62,7 +62,7 @@ def _run_deploy(
 
     if extra_ansible_vars:
         for key, value in extra_ansible_vars.items():
-            cmd.extend(["-e", f"{key}={json.dumps(value)}"])
+            cmd.extend(["-e", f"{key}={json.dumps(value, separators=(',', ':'))}"])
 
     if passthrough:
         cmd.extend(passthrough)
