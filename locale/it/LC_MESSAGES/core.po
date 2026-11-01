@@ -1046,6 +1046,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "ruoli di manutenzione per certificati, upkeep di sistema e compiti operativi ricorrenti."
 
+msgctxt "profile_lock:locked"
+msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
+msgstr "Gestito dal tuo account centrale. Modificalo lì, perché il prossimo accesso sovrascrive le modifiche apportate qui."
+
 # translated-by: libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"

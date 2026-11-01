@@ -1050,6 +1050,10 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
 
+msgctxt "profile_lock:locked"
+msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
+msgstr ""
+
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 # translated-by: ollama
 msgctxt "role:svc-swarm-manager:description"
