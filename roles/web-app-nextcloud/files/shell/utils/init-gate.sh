@@ -10,7 +10,18 @@ INIT_LOCK="$APP_DIR/nextcloud-init-sync.lock"
 app_user="${NEXTCLOUD_INIT_GATE_USER:?NEXTCLOUD_INIT_GATE_USER env missing}"
 
 occ_status() {
-  timeout 120 su "$app_user" -s /bin/sh -c "php $OCC status" 2>/dev/null || true
+  if status="$(timeout 120 su "$app_user" -s /bin/sh -c "php $OCC status" 2>/dev/null)"; then
+    return 0
+  else
+    rc=$?
+  fi
+  case "$rc" in
+    1|124|255) status='' ;;
+    *)
+      echo "Task slot ${slot}: occ status exited ${rc}, which no Nextcloud state explains; check su, timeout and php in the image." >&2
+      exit "$rc"
+      ;;
+  esac
 }
 
 init_lock_free() {
@@ -26,7 +37,7 @@ if [ "$slot" -ne 1 ]; then
   while true; do
     status=''
     if init_lock_free && [ -f "$CONFIG_PHP" ] && [ -f "$OCC" ]; then
-      status="$(occ_status)"
+      occ_status
     fi
 
     ready=1
@@ -42,7 +53,8 @@ if [ "$slot" -ne 1 ]; then
     sleep 10
   done
 elif [ -f "$VERSION_PHP" ] && [ -f "$OCC" ] && init_lock_free; then
-  case "$(occ_status)" in
+  occ_status
+  case "$status" in
     *"- installed: false"*)
       echo "Task slot ${slot}: $VERSION_PHP exists but Nextcloud reports installed: false. An earlier installation attempt failed after copying the source tree, and the upstream entrypoint never retries it. Read that attempt's error in the earlier container's log, then drop the Nextcloud database and empty the volume before redeploying." >&2
       exit 1
