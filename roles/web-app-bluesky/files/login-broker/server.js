@@ -49,14 +49,17 @@ const https = require("node:https");
 const crypto = require("node:crypto");
 const { URL } = require("node:url");
 const {
+  CHOSEN_LABEL_PATTERN,
   PDS_HANDLE_LABEL_MAX,
   PDS_HANDLE_LABEL_MIN,
   RESERVED_PREFIX,
   chosenLabelError,
   deriveLabel,
   fitsPds,
-  prefixedLabel
+  prefixedLabel,
+  suggestLabel
 } = require("./handle");
+const { t } = require("./messages");
 const { openStore } = require("./store");
 
 // --- Configuration --------------------------------------------------
@@ -84,7 +87,8 @@ const CONFIG = {
   siteTitle: requireEnv("SITE_TITLE"),
   storePath: requireEnv("BROKER_STORE_PATH"),
   logoutPath: "/sso/logout",
-  chooseHandlePath: "/sso/handle"
+  chooseHandlePath: "/sso/handle",
+  handleTokenTtlSec: 3600
 };
 
 function requireEnv(name) {
@@ -129,6 +133,26 @@ function decrypt(b64) {
   const decipher = crypto.createDecipheriv("aes-256-gcm", CONFIG.encryptionKey, nonce);
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(ct), decipher.final()]).toString("utf8");
+}
+
+const handleTokenKey = crypto.createHmac("sha256", CONFIG.encryptionKey).update("handle-form-token").digest();
+
+function handleTokenMac(kcUsername, issuedAt) {
+  return crypto.createHmac("sha256", handleTokenKey).update(`${kcUsername}\n${issuedAt}`).digest("base64url");
+}
+
+function issueHandleToken(kcUsername) {
+  const issuedAt = Math.floor(Date.now() / 1000);
+  return `${issuedAt}.${handleTokenMac(kcUsername, issuedAt)}`;
+}
+
+function handleTokenValid(token, kcUsername) {
+  const match = /^(\d{1,12})\.([A-Za-z0-9_-]+)$/.exec(String(token || ""));
+  if (!match) return false;
+  if (Math.abs(Math.floor(Date.now() / 1000) - Number(match[1])) > CONFIG.handleTokenTtlSec) return false;
+  const expected = Buffer.from(handleTokenMac(kcUsername, match[1]));
+  const given = Buffer.from(match[2]);
+  return given.length === expected.length && crypto.timingSafeEqual(given, expected);
 }
 
 // --- HTTP helpers ---------------------------------------------------
@@ -454,26 +478,66 @@ function renderHandoff(session, redirectTo) {
 </html>`;
 }
 
-function renderHandleForm({ error, value }) {
-  const errorHtml = error ? `<p class="error">${escapeHtml(error)}</p>` : "";
+const HANDLE_FORM_CSS = `*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:var(--design-space-4);background:var(--design-surface-1);color:var(--design-text);font-family:var(--design-font);line-height:1.5}
+.card{width:100%;max-width:28rem;padding:var(--design-space-6);background:var(--design-surface-2);border:1px solid var(--design-border);border-radius:var(--design-radius-lg);box-shadow:var(--design-shadow-2)}
+h1{margin:0 0 var(--design-space-3);font-size:1.5rem;line-height:1.25}
+p{margin:0 0 var(--design-space-4)}
+.muted{color:var(--design-text-muted);font-size:.875rem}
+label{display:block;margin-bottom:var(--design-space-2);font-weight:600}
+input{display:block;width:100%;margin-bottom:var(--design-space-2);padding:var(--design-space-2) var(--design-space-3);font:inherit}
+input[aria-invalid="true"]{border-color:var(--design-danger)}
+output{display:block;font-weight:600;overflow-wrap:anywhere;color:var(--design-text)}
+output.invalid{color:var(--design-text-muted)}
+.error{padding:var(--design-space-3);border:1px solid var(--design-danger-border);border-radius:var(--design-radius);background:var(--design-danger-subtle);color:var(--design-danger)}
+button{width:100%;padding:var(--design-space-3);font:inherit;font-weight:600;background:var(--design-primary);color:var(--design-on-primary);border:1px solid var(--design-primary);border-radius:var(--design-radius);cursor:pointer}
+button:hover{background:var(--design-primary-hover)}
+button:active{background:var(--design-primary-active)}
+@media (max-width:30rem){body{padding:var(--design-space-2)}.card{padding:var(--design-space-4)}}`;
+
+const HANDLE_FORM_SCRIPT = `(function(){
+  var input = document.getElementById("handle");
+  var preview = document.getElementById("handle-preview");
+  function update(){
+    preview.textContent = "@" + input.value + preview.dataset.suffix;
+    preview.classList.toggle("invalid", !input.validity.valid);
+  }
+  input.addEventListener("input", update);
+  update();
+})();`;
+
+function renderHandleForm({ kcUsername, error, value }) {
+  const site = CONFIG.siteTitle;
+  const suffix = `.${CONFIG.pdsHandleDomain}`;
+  const hint = t("handle_hint", { min: PDS_HANDLE_LABEL_MIN, max: PDS_HANDLE_LABEL_MAX, prefix: RESERVED_PREFIX });
+  const errorHtml = error ? `<p id="handle-error" class="error" role="alert">${escapeHtml(error)}</p>` : "";
+  const describedBy = error ? "handle-hint handle-preview handle-error" : "handle-hint handle-preview";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Choose your Bluesky handle</title>
-<meta name="referrer" content="no-referrer" />
-<style>body{font-family:sans-serif;background:#001a33;color:#eef;margin:0;padding:2em;text-align:center}input,button{font-size:1em;padding:.4em}.error{color:#f99}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="referrer" content="same-origin" />
+<title>${escapeHtml(t("handle_title", { site }))}</title>
+<style>${HANDLE_FORM_CSS}</style>
 </head>
 <body>
-<h1>Choose your Bluesky handle</h1>
-<p>Your username is longer than the ${PDS_HANDLE_LABEL_MAX} characters a Bluesky handle allows.</p>
-<p>Pick ${PDS_HANDLE_LABEL_MIN} to ${PDS_HANDLE_LABEL_MAX} lowercase letters, digits and hyphens. The handle must contain a hyphen (-) and must not contain "${RESERVED_PREFIX}".</p>
+<main class="card">
+<h1>${escapeHtml(t("handle_title", { site }))}</h1>
+<p>${escapeHtml(t("handle_intro", { site, max: PDS_HANDLE_LABEL_MAX }))}</p>
 ${errorHtml}
 <form method="post" action="${CONFIG.chooseHandlePath}">
-<input name="handle" value="${escapeHtml(value)}" required minlength="${PDS_HANDLE_LABEL_MIN}" maxlength="${PDS_HANDLE_LABEL_MAX}" pattern="[a-z0-9-]+" autocomplete="off" autofocus />
-<span>.${escapeHtml(CONFIG.pdsHandleDomain)}</span>
-<button type="submit">Create account</button>
+<input type="hidden" name="token" value="${escapeHtml(issueHandleToken(kcUsername))}" />
+<label for="handle">${escapeHtml(t("handle_label"))}</label>
+<input id="handle" name="handle" type="text" value="${escapeHtml(value)}" required minlength="${PDS_HANDLE_LABEL_MIN}" maxlength="${PDS_HANDLE_LABEL_MAX}" pattern="${escapeHtml(CHOSEN_LABEL_PATTERN)}" title="${escapeHtml(hint)}" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="${describedBy}"${error ? ' aria-invalid="true"' : ""} autofocus />
+<p id="handle-hint" class="muted">${escapeHtml(hint)}</p>
+<p class="muted">${escapeHtml(t("handle_preview"))}
+<output id="handle-preview" for="handle" data-suffix="${escapeHtml(suffix)}">@${escapeHtml(value)}${escapeHtml(suffix)}</output></p>
+<button type="submit">${escapeHtml(t("handle_submit"))}</button>
 </form>
+</main>
+<script>${HANDLE_FORM_SCRIPT}</script>
 </body>
 </html>`;
 }
@@ -496,14 +560,15 @@ function readBody(req, limitBytes) {
   });
 }
 
-function isSameOrigin(req) {
+function foreignOrigin(req) {
   const origin = req.headers["origin"];
+  // Origin: null comes from a no-referrer page or a sandboxed frame and names no host; the token decides then.
+  if (!origin || origin === "null") return false;
   const host = (req.headers["x-forwarded-host"] || req.headers["host"] || "").toString().split(",")[0].trim();
-  if (!origin || !host) return false;
   try {
-    return new URL(origin).hostname === new URL(`http://${host}`).hostname;
+    return new URL(origin).hostname !== new URL(`http://${host}`).hostname;
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -585,14 +650,20 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (path === CONFIG.chooseHandlePath && req.method === "POST") {
-      if (!isSameOrigin(req)) {
-        endText(res, 403, "Cross-origin handle submission refused.");
+      if (foreignOrigin(req)) {
+        endText(res, 403, t("handle_refused"));
         return;
       }
-      const chosenLabel = (new URLSearchParams(await readBody(req, 1024)).get("handle") || "").trim();
+      const form = new URLSearchParams(await readBody(req, 1024));
+      const chosenLabel = (form.get("handle") || "").trim();
+      if (!handleTokenValid(form.get("token"), kcUsername)) {
+        console.log(`[broker:${reqId}] handle form token missing, foreign or expired → 403 (${Date.now() - reqStart}ms)`);
+        endHtml(res, 403, renderHandleForm({ kcUsername, error: t("handle_expired"), value: chosenLabel }));
+        return;
+      }
       const error = chosenLabelError(chosenLabel);
       if (error) {
-        endHtml(res, 400, renderHandleForm({ error, value: chosenLabel }));
+        endHtml(res, 400, renderHandleForm({ kcUsername, error, value: chosenLabel }));
         return;
       }
       let chosenSession;
@@ -600,7 +671,7 @@ const server = http.createServer(async (req, res) => {
         chosenSession = await ensurePdsSession({ kcUsername, kcEmail, chosenLabel });
       } catch (err) {
         if (!pdsMessageIncludes(err, "Handle already taken")) throw err;
-        endHtml(res, 409, renderHandleForm({ error: "This handle is already taken.", value: chosenLabel }));
+        endHtml(res, 409, renderHandleForm({ kcUsername, error: t("handle_taken"), value: chosenLabel }));
         return;
       }
       console.log(`[broker:${reqId}] chosen handle ${logSafe(chosenSession.handle)} ready (${Date.now() - reqStart}ms)`);
@@ -614,7 +685,7 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       if (!(err instanceof HandleChoiceRequired)) throw err;
       console.log(`[broker:${reqId}] username too long for a handle → handle form (${Date.now() - reqStart}ms)`);
-      endHtml(res, 200, renderHandleForm({ error: null, value: "" }));
+      endHtml(res, 200, renderHandleForm({ kcUsername, error: null, value: suggestLabel(kcUsername, kcEmail.split("@")[0]) }));
       return;
     }
     console.log(`[broker:${reqId}] PDS session ready did=${logSafe(session.did)} handle=${logSafe(session.handle)} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);

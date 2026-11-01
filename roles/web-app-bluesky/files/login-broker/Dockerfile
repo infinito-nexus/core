@@ -10,7 +10,7 @@ RUN apk add --no-cache ca-certificates && update-ca-certificates
 
 WORKDIR /app
 
-COPY package.json server.js handle.js store.js ./
+COPY package.json server.js handle.js messages.js store.js ./
 
 RUN mkdir -p /data && chown node:node /data
 
