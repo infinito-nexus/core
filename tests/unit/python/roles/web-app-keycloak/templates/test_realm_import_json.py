@@ -199,6 +199,24 @@ class TestRealmImportJson(unittest.TestCase):
             CONTEXT["IAM_USERNAME_MAX_LENGTH"],
         )
 
+    def test_only_an_admin_may_change_an_email_address(self) -> None:
+        realm = json.loads(render([]))
+        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+        email = next(
+            attribute
+            for attribute in profile["attributes"]
+            if attribute["name"] == "email"
+        )
+        self.assertEqual(
+            email["permissions"]["edit"],
+            ["admin"],
+            "applications resolve their account by this address and the realm does "
+            "not verify a change, so a self-service edit takes over whichever account "
+            "the typed address names",
+        )
+        self.assertEqual(email["permissions"]["view"], ["admin", "user"])
+
     def test_realm_is_valid_json_with_one_saml_app(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
         clients = {c["clientId"]: c for c in realm["clients"]}
