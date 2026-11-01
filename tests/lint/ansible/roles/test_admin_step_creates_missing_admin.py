@@ -21,8 +21,9 @@ from __future__ import annotations
 
 import re
 import unittest
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
@@ -50,10 +51,11 @@ _ABSENT_ACCOUNT = re.compile(
 
 
 def _role_scripts(role: str):
-    for tree in ("files", "tasks"):
-        for path in sorted((_ROLES_DIR / role / tree).rglob("*")):
-            if path.is_file() and "playwright" not in path.parts:
-                yield path
+    trees = tuple(_ROLES_DIR / role / tree for tree in ("files", "tasks"))
+    for raw in sorted(iter_project_files()):
+        path = Path(raw)
+        if any(tree in path.parents for tree in trees) and "playwright" not in path.parts:
+            yield path
 
 
 class TestAdminStepCreatesMissingAdmin(unittest.TestCase):
