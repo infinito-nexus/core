@@ -26,34 +26,5 @@
     update_cache: true
     upgrade: true
 
-- name: "🛑 update (pacman) | require a reboot when the running kernel has no modules on disk"
-  when: not (DOCKER_IN_CONTAINER | bool)
-  vars:
-    update_module_trees: "{{ update_module_indexes.files | map(attribute='path') | map('dirname') | map('basename') | sort }}"
-  block:
-    - name: "🔍 update (pacman) | check whether the running kernel loads modules at all"
-      ansible.builtin.stat:
-        path: /proc/modules
-      register: update_proc_modules
-
-    - name: "🔍 update (pacman) | list the kernels with an installed module index"
-      ansible.builtin.find:
-        paths: /usr/lib/modules
-        patterns: modules.dep
-        recurse: true
-        depth: 2
-        follow: true
-      register: update_module_indexes
-
-    - name: "🛑 update (pacman) | fail before any service restart needs a module of the running kernel"
-      ansible.builtin.assert:
-        that: >-
-          not update_proc_modules.stat.exists
-          or update_module_trees | length == 0
-          or ansible_facts['kernel'] in update_module_trees
-        fail_msg: >-
-          Reboot required: the running kernel {{ ansible_facts['kernel'] }} has no module index in
-          /usr/lib/modules; only {{ update_module_trees | join(', ') }} have one.
-          No kernel module can load, so restarting Docker would fail to create its iptables chains
-          and leave every container down. Reboot into the installed kernel, then deploy again.
-        quiet: true
+- name: "🛑 update (pacman) | reboot when the running kernel has no modules on disk"
+  ansible.builtin.include_tasks: arch/reboot.yml

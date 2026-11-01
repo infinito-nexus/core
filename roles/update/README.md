@@ -49,11 +49,31 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   Debian, Ubuntu, Fedora, CentOS) without duplicated task code.
 - **Loud on unsupported hosts:** Fails with a clear message instead of
   silently skipping when the host runs an unmapped distribution.
-- **Reboot guard on Arch:** After the upgrade, `arch.yml` fails with
-  "Reboot required" when the running kernel loads modules and
-  `/usr/lib/modules` holds a `modules.dep` for other kernels but not for it,
-  before any later role restarts Docker. Containers (`DOCKER_IN_CONTAINER`)
-  skip the check.
+- **Reboot guard on Arch:** After the upgrade, `arch.yml` checks whether the
+  running kernel loads modules and `/usr/lib/modules` holds a `modules.dep`
+  for other kernels but not for it, before any later role restarts Docker.
+  When it does not, the role reboots the host one at a time
+  (`throttle: 1`), waits until `systemctl is-system-running` reports
+  `running` or `degraded`, re-reads the booted kernel, checks again and fails
+  when the booted kernel still has no `modules.dep`. It fails with
+  "Reboot required" instead of rebooting when
+  `services.update.reboot.enabled` is `false`, in check mode, when
+  `svc-net-wireguard` brought its mesh up with `wg-quick` in the same play,
+  and when the host shares its boot id with the Ansible controller (local
+  connection, SSH to itself, or a controller container on the host).
+  Containers (`DOCKER_IN_CONTAINER`) skip the check.
+- **Reboot switch:** `services.update.reboot.enabled` defaults to `true`.
+  Set it in the `applications` block of each host's `host_vars`; a
+  `group_vars` value is replaced by any `host_vars` `applications` block:
+
+  ```yaml
+  applications:
+    update:
+      services:
+        update:
+          reboot:
+            enabled: false
+  ```
 - **Once-per-play idempotency:** Wraps the dispatch in
   `when: run_once_update is not defined` and writes the flag via
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are
