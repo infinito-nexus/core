@@ -848,7 +848,7 @@ def run_argv(
         mounts += ["-v", f"/:{HOST_ROOT}:ro"]
     if target is not None and target.kind == "container":
         mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
-    environment = {**ENGINE_ENV[engine], **extra_env}
+    environment = {"TMPDIR": WORK, **ENGINE_ENV[engine], **extra_env}
     return (*layout.runtime, "--rm", *mounts, *_env(environment), image, *args)
 
 

@@ -1049,6 +1049,19 @@ class TestCommands(TestCase):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config())
         self.assertIn("/:/host:ro", step.argv)
 
+    def test_every_engine_writes_its_temp_files_to_the_work_mount(self):
+        for engine in ("trivy", "grype", "osv", "syft"):
+            with self.subTest(engine=engine):
+                argv = SCRIPT.run_argv(
+                    self.layout, engine, f"{engine}:1", [], target=None, extra_env={}
+                )
+                self.assertIn("TMPDIR=/work", argv)
+                self.assertIn("/var/cache/v/run:/work", argv)
+
+    def test_the_grype_database_update_writes_its_listing_to_the_work_mount(self):
+        (step,) = SCRIPT.db_steps("grype", self.layout, "grype:1")
+        self.assertIn("TMPDIR=/work", step.argv)
+
     def test_a_container_scan_reads_the_docker_socket_read_only(self):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config())
         self.assertIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
