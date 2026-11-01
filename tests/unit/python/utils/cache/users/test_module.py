@@ -2,7 +2,7 @@
 
 Pins the public API (`get_user_defaults`, `get_merged_users`) plus the
 internal helpers that only this module owns: `_load_user_defs`,
-`_build_users`, `_compute_reserved_usernames`, `_load_store_users`,
+`_build_users`, `_validate_forwards`, `_compute_reserved_usernames`, `_load_store_users`,
 `_resolve_tokens_file`, `_hydrate_users_tokens`, `_merge_users`,
 `_materialize_domain_label_reservations`. Module name is `test_users_module`
 to disambiguate from the existing `tests/unit/python/plugins/lookup/test_users.py`
@@ -201,7 +201,7 @@ class TestBuildUsers(unittest.TestCase):
                 ("plain", {}),
                 ("botuser", {"roles": ["bot"]}),
                 ("adminuser", {"roles": ["administrator"]}),
-                ("pinned", {"accounts": ["host"], "forward": "plain"}),
+                ("pinned", {"accounts": ["host"], "forward": "adminuser"}),
                 ("empty", {"accounts": []}),
             ]
         )
@@ -214,7 +214,74 @@ class TestBuildUsers(unittest.TestCase):
         self.assertEqual(users["pinned"]["accounts"], ["host"])
         self.assertEqual(users["empty"]["accounts"], [])
         self.assertEqual(users["plain"]["forward"], "")
-        self.assertEqual(users["pinned"]["forward"], "plain")
+        self.assertEqual(users["pinned"]["forward"], "adminuser")
+
+    def test_forward_to_an_unknown_user_raises(self):
+        defs = OrderedDict([("pinned", {"accounts": [], "forward": "nobody"})])
+        with self.assertRaisesRegex(ValueError, "'pinned' forwards to unknown user"):
+            cache_users._build_users(
+                defs, primary_domain="x.example", start_id=1001, become_pwd="pw"
+            )
+
+
+class TestValidateForwards(unittest.TestCase):
+    @staticmethod
+    def _user(forward="", accounts=("mailbox",)):
+        return {"forward": forward, "accounts": list(accounts)}
+
+    def test_users_without_forward_pass(self):
+        cache_users._validate_forwards({"a": self._user(), "b": self._user()})
+
+    def test_forward_to_a_known_user_passes(self):
+        cache_users._validate_forwards(
+            {"a": self._user("b", accounts=()), "b": self._user()}
+        )
+
+    def test_chain_of_forwards_passes(self):
+        cache_users._validate_forwards(
+            {"a": self._user("b", accounts=()), "b": self._user("c"), "c": self._user()}
+        )
+
+    def test_forward_to_a_user_without_mailbox_passes(self):
+        cache_users._validate_forwards(
+            {"a": self._user("b"), "b": self._user(accounts=("host", "identity"))}
+        )
+
+    def test_forward_to_unknown_user_raises(self):
+        with self.assertRaisesRegex(ValueError, "'a' forwards to unknown user 'x'"):
+            cache_users._validate_forwards({"a": self._user("x")})
+
+    def test_unrendered_forward_is_left_to_the_consumer(self):
+        cache_users._validate_forwards({"a": self._user("{{ 'nobody' }}")})
+
+    def test_unrendered_statement_forward_is_left_to_the_consumer(self):
+        cache_users._validate_forwards({"a": self._user("{% if x %}nobody{% endif %}")})
+
+    def test_unrendered_forward_ends_the_chain(self):
+        cache_users._validate_forwards(
+            {"a": self._user("b"), "b": self._user("{{ 'a' }}")}
+        )
+
+    def test_forward_to_a_non_mapping_entry_raises_a_clear_error(self):
+        with self.assertRaisesRegex(
+            TypeError, "'a' forwards to 'b', whose entry is None"
+        ):
+            cache_users._validate_forwards({"a": self._user("b"), "b": None})
+
+    def test_forward_to_itself_raises(self):
+        with self.assertRaisesRegex(ValueError, "Forward loop: a -> a"):
+            cache_users._validate_forwards({"a": self._user("a")})
+
+    def test_forward_cycle_raises(self):
+        with self.assertRaisesRegex(ValueError, "Forward loop: a -> b -> a"):
+            cache_users._validate_forwards({"a": self._user("b"), "b": self._user("a")})
+
+    def test_non_string_forward_raises(self):
+        with self.assertRaisesRegex(TypeError, "a user key is required"):
+            cache_users._validate_forwards({"a": self._user(["b"]), "b": self._user()})
+
+    def test_non_mapping_user_is_skipped(self):
+        cache_users._validate_forwards({"a": None, "b": self._user()})
 
 
 class TestMergeUsers(unittest.TestCase):
@@ -375,6 +442,68 @@ class TestGetMergedUsersWithOverrides(unittest.TestCase):
                 templar=None,
             )
             self.assertEqual(merged["foo"]["username"], "override-user")
+
+    def test_runtime_forward_to_an_unknown_user_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+            with self.assertRaisesRegex(ValueError, "'foo' forwards to unknown user"):
+                cache_users.get_merged_users(
+                    variables={"users": {"foo": {"forward": "nobody"}}},
+                    roles_dir=roles,
+                    templar=None,
+                )
+
+    def test_runtime_forward_to_an_inventory_mailbox_is_kept(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+            merged = cache_users.get_merged_users(
+                variables={
+                    "users": {
+                        "foo": {"forward": "inbox"},
+                        "inbox": {"accounts": ["mailbox"]},
+                    }
+                },
+                roles_dir=roles,
+                templar=None,
+            )
+            self.assertEqual(merged["foo"]["forward"], "inbox")
+
+    def test_runtime_target_without_mailbox_keeps_the_lookup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+            merged = cache_users.get_merged_users(
+                variables={
+                    "users": {
+                        "foo": {"forward": "workstation"},
+                        "workstation": {"accounts": ["host", "identity"]},
+                    }
+                },
+                roles_dir=roles,
+                templar=None,
+            )
+            self.assertEqual(merged["workstation"]["accounts"], ["host", "identity"])
+
+    def test_runtime_templated_forward_is_not_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+            merged = cache_users.get_merged_users(
+                variables={"users": {"foo": {"forward": "{{ 'inbox' }}"}}},
+                roles_dir=roles,
+                templar=None,
+            )
+            self.assertEqual(merged["foo"]["forward"], "{{ 'inbox' }}")
+
+    def test_runtime_null_target_raises_a_clear_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+            with self.assertRaisesRegex(
+                TypeError, "'foo' forwards to 'inbox', whose entry"
+            ):
+                cache_users.get_merged_users(
+                    variables={"users": {"foo": {"forward": "inbox"}, "inbox": None}},
+                    roles_dir=roles,
+                    templar=None,
+                )
 
 
 class TestGetMergedUsersTokenSource(unittest.TestCase):

@@ -54,6 +54,102 @@ class TestStalwartForwards(unittest.TestCase):
             )
 
 
+class TestStalwartUserForwards(unittest.TestCase):
+    def setUp(self):
+        self.user_forwards = _load().stalwart_user_forwards
+
+    @staticmethod
+    def _users(**forwards):
+        return {
+            "platform_administrator": {
+                "username": "platformadmin",
+                "email": "platformadmin@example.org",
+                "accounts": ["mailbox", "identity"],
+                "forward": forwards.get("platform_administrator", ""),
+            },
+            "administrator": {
+                "username": "administrator",
+                "email": "Administrator@example.org",
+                "accounts": ["host", "mailbox", "identity"],
+                "forward": forwards.get("administrator", ""),
+            },
+            "submitter": {
+                "username": "submitter",
+                "email": "submitter@example.org",
+                "accounts": ["identity"],
+                "forward": forwards.get("submitter", ""),
+            },
+        }
+
+    def test_users_without_forward_add_nothing(self):
+        self.assertEqual(self.user_forwards([], self._users(), "example.org"), [])
+
+    def test_forward_copies_the_account_mail_to_the_target_email(self):
+        users = self._users(platform_administrator="administrator")
+        self.assertEqual(
+            self.user_forwards([], users, "Example.org"),
+            [
+                {
+                    "address": "platformadmin@example.org",
+                    "destinations": ["administrator@example.org"],
+                }
+            ],
+        )
+
+    def test_forward_address_is_the_account_not_the_email(self):
+        users = self._users(platform_administrator="administrator")
+        users["platform_administrator"]["email"] = "ops@elsewhere.example"
+        self.assertEqual(
+            self.user_forwards([], users, "mail.example")[0]["address"],
+            "platformadmin@mail.example",
+        )
+
+    def test_declared_forward_of_the_same_account_is_joined(self):
+        declared = [
+            {"address": "platformadmin@example.org", "destinations": ["ops@x.org"]}
+        ]
+        users = self._users(platform_administrator="administrator")
+        self.assertEqual(
+            self.user_forwards(declared, users, "example.org"),
+            [
+                {
+                    "address": "platformadmin@example.org",
+                    "destinations": ["administrator@example.org", "ops@x.org"],
+                }
+            ],
+        )
+
+    def test_declared_forwards_come_first(self):
+        declared = [{"address": "carol@example.org", "destinations": ["c@x.org"]}]
+        users = self._users(platform_administrator="administrator")
+        self.assertEqual(
+            [f["address"] for f in self.user_forwards(declared, users, "example.org")],
+            ["carol@example.org", "platformadmin@example.org"],
+        )
+
+    def test_forward_to_an_unknown_user_is_rejected(self):
+        users = self._users(platform_administrator="breakglass")
+        with self.assertRaisesRegex(AnsibleFilterError, "breakglass, which is unknown"):
+            self.user_forwards([], users, "example.org")
+
+    def test_forward_to_a_user_without_mailbox_is_rejected(self):
+        users = self._users(platform_administrator="submitter")
+        with self.assertRaisesRegex(AnsibleFilterError, "carries no mailbox account"):
+            self.user_forwards([], users, "example.org")
+
+    def test_forward_to_a_user_with_unlisted_accounts_is_rejected(self):
+        users = self._users(platform_administrator="administrator")
+        users["administrator"]["accounts"] = "mailbox"
+        with self.assertRaisesRegex(AnsibleFilterError, "carries no mailbox account"):
+            self.user_forwards([], users, "example.org")
+
+    def test_forward_onto_the_own_account_is_rejected(self):
+        users = self._users(platform_administrator="administrator")
+        users["administrator"]["email"] = "platformadmin@example.org"
+        with self.assertRaises(AnsibleFilterError):
+            self.user_forwards([], users, "example.org")
+
+
 class TestForwardInclude(unittest.TestCase):
     def setUp(self):
         self.include = _load().stalwart_forward_include
