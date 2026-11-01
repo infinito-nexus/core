@@ -20,7 +20,8 @@ ROW = {
     "installed": "8.4.26",
     "fixed": "8.4.27",
 }
-TITLE = "🛡️ CVE-2026-109618 in docker.io/roundcube/roundcubemail:1.7.5-apache"
+TITLE = "🛡️ docker.io/roundcube/roundcubemail:1.7.5-apache"
+OTHER_IMAGE = "docker.io/library/nginx:1.31.8-alpine"
 
 
 class FakeGh:
@@ -51,10 +52,32 @@ class TestSync(TestCase):
         )
         self.assertEqual(gh.verbs(), [["issue", "create"]])
 
-    def test_a_known_finding_updates_its_issue(self):
-        gh = FakeGh([{"number": 7, "title": TITLE}])
+    def test_a_changed_image_gets_a_comment_and_an_updated_body(self):
+        gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
         issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
-        self.assertEqual(gh.calls[-1][:3], ["issue", "edit", "7"])
+        self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
+        comment = gh.calls[-2]
+        self.assertIn("Still unresolved:", comment[comment.index("--body") + 1])
+        self.assertIn(ROW["id"], comment[comment.index("--body") + 1])
+
+    def test_an_unchanged_image_leaves_its_issue_alone(self):
+        current = issues_main.body([ROW])
+        gh = FakeGh([{"number": 7, "title": TITLE, "body": current + "\r\n"}])
+        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        self.assertEqual((gh.verbs(), actions), ([], [f"unchanged #7 {TITLE}"]))
+
+    def test_a_second_open_issue_of_one_image_closes_as_duplicate(self):
+        current = issues_main.body([ROW])
+        gh = FakeGh(
+            [
+                {"number": 9, "title": TITLE, "body": current},
+                {"number": 7, "title": TITLE, "body": current},
+            ]
+        )
+        actions = issues_main.sync({"findings": [ROW], "errors": []}, "o/r", gh)
+        self.assertEqual(gh.verbs(), [["issue", "close"]])
+        self.assertEqual(gh.calls[-1][2], "9")
+        self.assertIn(f"unchanged #7 {TITLE}", actions)
 
     def test_a_fixed_finding_closes_its_issue(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
@@ -69,11 +92,25 @@ class TestSync(TestCase):
         self.assertEqual(gh.verbs(), [])
 
     def test_a_failed_issue_call_is_reported_and_the_others_still_run(self):
-        other = {**ROW, "id": "CVE-2026-109619"}
+        other = {**ROW, "image": OTHER_IMAGE}
         gh = FakeGh([{"number": 7, "title": TITLE}], hang=[("issue", "edit")])
         actions = issues_main.sync({"findings": [ROW, other], "errors": []}, "o/r", gh)
-        self.assertTrue(actions[0].startswith(f"failed updated #7 {TITLE}"))
-        self.assertEqual(gh.verbs(), [["issue", "create"]])
+        failed = [action for action in actions if action.startswith("failed ")]
+        self.assertEqual(len(failed), 1)
+        self.assertTrue(failed[0].startswith(f"failed updated #7 {TITLE}"))
+        self.assertEqual(gh.verbs(), [["issue", "create"], ["issue", "comment"]])
+
+    def test_every_cve_of_one_image_shares_one_issue(self):
+        gh = FakeGh([])
+        actions = issues_main.sync(
+            {
+                "findings": [ROW, {**ROW, "id": "CVE-2026-109619"}],
+                "errors": [],
+            },
+            "o/r",
+            gh,
+        )
+        self.assertEqual(actions, [f"opened {TITLE}"])
 
     def test_the_issue_is_labelled(self):
         gh = FakeGh([])
@@ -83,16 +120,25 @@ class TestSync(TestCase):
 
 
 class TestBody(TestCase):
+    def _table(self, text):
+        return [line for line in text.splitlines() if line.startswith("| CVE-")]
+
     def test_every_engine_gets_a_row(self):
         text = issues_main.body([ROW, {**ROW, "engine": "trivy"}])
-        self.assertEqual(
-            sum(
-                1
-                for line in text.splitlines()
-                if line.startswith(("| grype", "| trivy"))
-            ),
-            2,
-        )
+        self.assertEqual(len(self._table(text)), 2)
+
+    def test_critical_rows_come_first(self):
+        high = {**ROW, "id": "CVE-2026-000001", "severity": "HIGH"}
+        table = self._table(issues_main.body([high, ROW]))
+        self.assertIn("| CRITICAL |", table[0])
+
+    def test_a_large_image_stays_under_the_body_limit(self):
+        rows = [{**ROW, "id": f"CVE-2026-{index:06d}"} for index in range(2000)]
+        text = issues_main.body(rows)
+        self.assertLessEqual(len(text), issues_main.BODY_LIMIT)
+        hidden = 2000 - len(self._table(text))
+        self.assertGreater(hidden, 0)
+        self.assertIn(f"{hidden} more row(s)", text)
 
 
 if __name__ == "__main__":
