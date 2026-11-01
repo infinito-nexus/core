@@ -8,7 +8,8 @@ FROM ${GITEA_BUILDER_IMAGE}:${GITEA_BUILDER_VERSION} AS build
 ARG GITEA_VERSION
 ARG GITEA_SOURCE_URL
 ARG GITEA_SOURCE_SHA256
-ARG GITEA_PATCH_FILE
+ARG GITEA_PATCH_DIR
+ARG GITEA_PATCH_FILES
 ARG GITEA_BUILD_TAGS
 
 RUN apk add --no-cache build-base git
@@ -19,8 +20,8 @@ ADD --checksum=sha256:${GITEA_SOURCE_SHA256} ${GITEA_SOURCE_URL} /tmp/gitea-src.
 RUN tar --strip-components=1 -xzf /tmp/gitea-src.tar.gz \
   && rm /tmp/gitea-src.tar.gz
 
-COPY ${GITEA_PATCH_FILE} /tmp/${GITEA_PATCH_FILE}
-RUN git apply /tmp/${GITEA_PATCH_FILE}
+COPY ${GITEA_PATCH_DIR}/ /tmp/patch/
+RUN printf '/tmp/patch/%s\n' ${GITEA_PATCH_FILES} | xargs git apply
 
 RUN make GITEA_VERSION="${GITEA_VERSION}" TAGS="${GITEA_BUILD_TAGS}" backend
 

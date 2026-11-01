@@ -54,10 +54,12 @@ synthesised app-password.
 
 ## Forwarded identity
 
-The upstream `oauth2-proxy` MUST set `X-Forwarded-User` (or
-`X-Forwarded-Preferred-Username`) and `X-Forwarded-Email` on every
-request that reaches the broker. Without `X-Forwarded-User`, the
-broker returns HTTP 401, there is no anonymous fallback by design.
+The upstream `oauth2-proxy` MUST set `X-Forwarded-Preferred-Username`
+and `X-Forwarded-Email` on every request that reaches the broker. The
+broker keys every account on `X-Forwarded-Preferred-Username` alone and
+never reads `X-Forwarded-User`, which carries the e-mail address.
+Without `X-Forwarded-Preferred-Username`, the broker returns HTTP 401,
+there is no anonymous fallback by design.
 
 On every handoff the broker reads `OIDC_NAME_CLAIM` from `X-Forwarded-Access-Token` and writes it as `displayName` into the user's `app.bsky.actor.profile` record, keeping the other fields of the record. The broker removes `X-Forwarded-Access-Token` from every request it proxies to social-app.
 

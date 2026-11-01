@@ -13,6 +13,14 @@ already-authenticated user inject a different identity. ``X-Forwarded-Name``
 and ``X-Forwarded-Locale`` carry the ID token's name and locale because
 ``meta/services.yml`` lists them in ``sso.oauth2.claim_headers``.
 
+An account is found only by the Keycloak username in
+``X-Forwarded-Preferred-Username``, through its ``SsoSubject`` row
+(``baserow.infinito_sso_subject``); a request without that header is refused.
+Baserow's own username is the email, so no account is ever found by address. A
+login whose username has no ``SsoSubject`` creates a new account and its row,
+unless the forwarded email already belongs to an account, which is refused;
+the deploy binds existing accounts (``files/python/bind_sso_subjects.py``).
+
 Every login aligns ``is_staff``/``is_superuser`` with membership of
 ``PROXY_HEADER_SSO_ADMIN_GROUP``, except for the account whose email is
 ``PROXY_HEADER_SSO_BOOTSTRAP_ADMIN_EMAIL``, and writes the forwarded name and a
@@ -31,6 +39,7 @@ from baserow.core.models import (
 )
 from baserow.core.user.handler import UserHandler
 from baserow.core.user.utils import normalize_email_address
+from baserow.infinito_sso_subject.models import SsoSubject
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
@@ -45,10 +54,7 @@ from rest_framework.views import APIView
 
 TRUE_VALUES = {"true", "1", "yes", "on"}
 
-USERNAME_HEADERS = (
-    "HTTP_X_FORWARDED_PREFERRED_USERNAME",
-    "HTTP_X_FORWARDED_USER",
-)
+USERNAME_HEADERS = ("HTTP_X_FORWARDED_PREFERRED_USERNAME",)
 EMAIL_HEADERS = ("HTTP_X_FORWARDED_EMAIL",)
 NAME_HEADERS = ("HTTP_X_FORWARDED_NAME",)
 LOCALE_HEADERS = ("HTTP_X_FORWARDED_LOCALE",)
@@ -154,7 +160,7 @@ def _identity_from_request(request):
 
     username = _first_header(request.META, USERNAME_HEADERS)
     header_email = _first_header(request.META, EMAIL_HEADERS)
-    if not username and not header_email:
+    if not username:
         raise PermissionDenied("Missing trusted SSO identity header.")
 
     email = _email_from_identity(username, header_email)
@@ -217,12 +223,18 @@ def _ensure_workspace(user, name):
 def _get_or_create_user(identity):
     email = identity["email"]
     username = identity["username"]
-    user_query = Q(email__iexact=email) | Q(username__iexact=email)
-    if username:
-        user_query |= Q(username__iexact=username)
-
-    user = User.objects.select_for_update().filter(user_query).order_by("id").first()
+    subject = (
+        SsoSubject.objects.select_for_update()
+        .select_related("user")
+        .filter(username=username)
+        .first()
+    )
+    user = subject.user if subject else None
     if user is None:
+        if User.objects.filter(Q(email__iexact=email) | Q(username__iexact=email)).exists():
+            raise PermissionDenied(
+                "Your email address belongs to another Baserow account."
+            )
         user = UserHandler().force_create_user(
             email=email,
             name=identity["name"],
@@ -232,6 +244,7 @@ def _get_or_create_user(identity):
         )
         user.set_unusable_password()
         user.save(update_fields=["password"])
+        SsoSubject.objects.create(user=user, username=username)
 
     user_updates = []
     if not user.is_active:

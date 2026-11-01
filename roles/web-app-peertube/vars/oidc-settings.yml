@@ -8,5 +8,6 @@ oidc_settings:
   display-name-property: "{{ OIDC.ATTRIBUTES.NAME }}"
   language-property: "{{ OIDC.ATTRIBUTES.LOCALE }}"
   mail-property: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+  external-id-property: "sub"
   auth-display-name: "{{ OIDC.BUTTON_TEXT }}"
   signature-algorithm: "RS256"

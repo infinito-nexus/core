@@ -23,6 +23,8 @@ if ENV.fetch("DISCOURSE_OIDC_ENABLED") == "true"
   SiteSetting.openid_connect_enabled = ENV.fetch("DISCOURSE_LOGIN_SSO") == "true"
   SiteSetting.openid_connect_rp_initiated_logout_redirect = ENV.fetch("DISCOURSE_OIDC_LOGOUT_REDIRECT")
   SiteSetting.openid_connect_allow_association_change = false
+  SiteSetting.openid_connect_match_by_email = true
+  SiteSetting.openid_connect_email_verified_claim_fallback = false
   SiteSetting.openid_connect_rp_initiated_logout = true
   SiteSetting.openid_connect_groups_claim = ENV.fetch("DISCOURSE_OIDC_GROUPS_CLAIM")
 

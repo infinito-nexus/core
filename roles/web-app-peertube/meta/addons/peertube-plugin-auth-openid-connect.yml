@@ -3,5 +3,9 @@ enabled: "{{ lookup('config', 'web-app-peertube', 'services.sso.enabled') | bool
 required: false
 mechanism: plugin
 source: upstream
+version: "2.1.1"
+update:
+  type: npm
+  package: peertube-plugin-auth-openid-connect
 bridges:
   - sso

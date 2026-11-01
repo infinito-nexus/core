@@ -354,9 +354,19 @@ test("the login broker in front of social-app", async (t) => {
     });
 
     assert.equal(response.status, 401);
-    assert.match(response.body, /Missing X-Forwarded-User/);
+    assert.match(response.body, /Missing X-Forwarded-Preferred-Username/);
     assert.equal(upstream.received.length, before);
   });
+});
+
+test("an X-Forwarded-User without the preferred username is refused and provisions nothing", async () => {
+  const before = pds.calls.createAccount;
+  const res = await request(broker, {
+    headers: { "X-Forwarded-User": "administrator@example.test", "X-Forwarded-Email": "administrator@example.test" },
+  });
+  assert.equal(res.status, 401);
+  assert.match(res.body, /Missing X-Forwarded-Preferred-Username/);
+  assert.equal(pds.calls.createAccount, before);
 });
 
 test("a rotated encryption key resets the stored password in place and re-encrypts it", async () => {

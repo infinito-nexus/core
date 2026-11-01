@@ -10,7 +10,8 @@
         GITEA_VERSION: "{{ GITEA_VERSION }}"
         GITEA_SOURCE_URL: "{{ GITEA_SOURCE_URL }}"
         GITEA_SOURCE_SHA256: "{{ GITEA_SOURCE_SHA256 }}"
-        GITEA_PATCH_FILE: "{{ GITEA_PATCH_FILE }}"
+        GITEA_PATCH_DIR: "{{ GITEA_PATCH_DIR }}"
+        GITEA_PATCH_FILES: "{{ GITEA_PATCH_FILES | join(' ') }}"
         GITEA_BUILD_TAGS: "{{ GITEA_BUILD_TAGS }}"
         GITEA_BINARY: "{{ GITEA_BINARY }}"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

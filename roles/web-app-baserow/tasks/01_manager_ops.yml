@@ -87,3 +87,46 @@
   until: baserow_bootstrap_admin_result.rc == 0
   delegate_to: "{{ BASEROW_HOST_NODE }}"
   run_once: true
+
+- name: "🔗 Bind the existing Baserow accounts to their Keycloak username"
+  when: BASEROW_SSO_PROXY_GATED | bool
+  block:
+    - name: "🔑 Read the Keycloak directory users"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        keycloak_directory_usernames: []
+
+    - name: "🔗 Store the SSO subject of every account whose verified email matches its Keycloak user"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - -e
+          - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
+          - -e
+          - "BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}"
+          - -e
+          - "BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL }}"
+          - -e
+          - BASEROW_SSO_DIRECTORY_USERS
+          - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver  BASEROW_LOCAL_CID resolved at delegate_to runtime
+          - "{{ BASEROW_PYTHON }}"
+          - "{{ BASEROW_MANAGE_PY }}"
+          - shell
+          - -c
+          - "{{ lookup('file', role_path ~ '/files/python/bind_sso_subjects.py') }}"
+      environment:
+        BASEROW_SSO_DIRECTORY_USERS: "{{ keycloak_directory_users | to_json }}"
+      register: baserow_sso_subjects
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: "'BIND_STATE=changed' in baserow_sso_subjects.stdout"
+      delegate_to: "{{ BASEROW_HOST_NODE }}"
+      run_once: true
+
+    - name: "📋 Report the accounts left unbound"
+      ansible.builtin.debug:
+        msg: "{{ baserow_sso_subjects.stdout_lines | select('match', '^skipped ') | list }}"
+      when: baserow_sso_subjects.stdout_lines | select('match', '^skipped ') | list | length > 0

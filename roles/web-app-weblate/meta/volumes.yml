@@ -23,6 +23,20 @@ cache:
       target: *app_cache_target
     - service: worker
       target: *app_cache_target
+settings-override:
+  type: config
+  source: "{{ [lookup('container', 'web-app-weblate', 'directories.config'), 'settings-override.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: weblate
+      target: &app_settings_override_target /app/data/settings-override.py
+      when: &weblate_sso_enabled "{{ lookup('config', 'web-app-weblate', 'services.weblate.login.method.sso.enabled') | bool }}"
+    - service: beat
+      target: *app_settings_override_target
+      when: *weblate_sso_enabled
+    - service: worker
+      target: *app_settings_override_target
+      when: *weblate_sso_enabled
 static:
   type: tmpfs
   mounts:

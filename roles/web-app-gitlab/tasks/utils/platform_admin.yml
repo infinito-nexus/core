@@ -20,6 +20,8 @@
       - GITLAB_ADMIN_NAME
       - -e
       - GITLAB_ADMIN_PASSWORD
+      - -e
+      - GITLAB_ADMIN_SSO_UID
       - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
       - "{{ GITLAB_RAILS_BIN }}"
       - runner
@@ -30,6 +32,7 @@
     GITLAB_ADMIN_EMAIL: "{{ GITLAB_ADMIN_EMAIL }}"
     GITLAB_ADMIN_NAME: "{{ GITLAB_ADMIN_NAME }}"
     GITLAB_ADMIN_PASSWORD: "{{ GITLAB_ADMIN_PASSWORD }}"
+    GITLAB_ADMIN_SSO_UID: "{{ GITLAB_ADMIN_USERNAME if (GITLAB_OIDC_ENABLED | bool and GITLAB_LOGIN_SSO | bool) else '' }}"
   register: gitlab_platform_admin
   changed_when: gitlab_platform_admin.stdout is search('\[CHANGED\]')
   failed_when: >-

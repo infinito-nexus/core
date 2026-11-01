@@ -97,28 +97,14 @@ class TestFirstHeader(unittest.TestCase):
         self.mod = _load_module(_fake_user_model(existing=None))
 
     def test_returns_first_present_candidate(self):
-        meta = {
-            "HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice",
-            "HTTP_X_FORWARDED_USER": "bob",
-        }
+        meta = {"HTTP_X_FORWARDED_EMAIL": "alice@example.org"}
         self.assertEqual(
-            self.mod._first_header(meta, self.mod.CANDIDATE_USERNAME_HEADERS), "alice"
+            self.mod._first_header(meta, self.mod.CANDIDATE_EMAIL_HEADERS),
+            "alice@example.org",
         )
 
     def test_returns_none_when_absent(self):
-        self.assertIsNone(
-            self.mod._first_header({}, self.mod.CANDIDATE_USERNAME_HEADERS)
-        )
-
-    def test_ignores_proxy_uncontrolled_headers(self):
-        meta = {
-            "HTTP_X_AUTH_REQUEST_USER": "attacker",
-            "HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME": "attacker",
-            "HTTP_REMOTE_USER": "attacker",
-        }
-        self.assertIsNone(
-            self.mod._first_header(meta, self.mod.CANDIDATE_USERNAME_HEADERS)
-        )
+        self.assertIsNone(self.mod._first_header({}, self.mod.CANDIDATE_EMAIL_HEADERS))
 
 
 class TestProxyHeaderMiddleware(unittest.TestCase):
@@ -126,10 +112,28 @@ class TestProxyHeaderMiddleware(unittest.TestCase):
         self.mod = _load_module(_fake_user_model(existing=None))
         self.mw = self.mod.ProxyHeaderMiddleware(lambda request: request)
 
-    def test_copies_candidate_into_canonical_header(self):
-        request = SimpleNamespace(META={"HTTP_X_FORWARDED_USER": "alice"})
+    def test_the_identity_header_is_the_preferred_username(self):
+        self.assertEqual(
+            self.mod.CANONICAL_HEADER, "HTTP_X_FORWARDED_PREFERRED_USERNAME"
+        )
+
+    def test_forwarded_user_never_becomes_the_identity(self):
+        request = SimpleNamespace(
+            META={"HTTP_X_FORWARDED_USER": "administrator@attacker.example"}
+        )
         self.mw.process_request(request)
-        self.assertEqual(request.META[self.mod.CANONICAL_HEADER], "alice")
+        self.assertNotIn(self.mod.CANONICAL_HEADER, request.META)
+
+    def test_proxy_uncontrolled_headers_never_become_the_identity(self):
+        request = SimpleNamespace(
+            META={
+                "HTTP_X_AUTH_REQUEST_USER": "attacker",
+                "HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME": "attacker",
+                "HTTP_REMOTE_USER": "attacker",
+            }
+        )
+        self.mw.process_request(request)
+        self.assertNotIn(self.mod.CANONICAL_HEADER, request.META)
 
     def test_keeps_existing_canonical_header(self):
         request = SimpleNamespace(

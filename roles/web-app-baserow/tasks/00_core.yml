@@ -22,6 +22,7 @@
     - { src: "Dockerfile", dest: "Dockerfile" }
     - { src: "sso/infinito_sso.py", dest: "infinito_sso.py" }
     - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
+    - { src: "sso/infinito_sso_subject/", dest: "infinito_sso_subject/" }
   notify:
     - compose-build
     - compose-up

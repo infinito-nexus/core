@@ -37,6 +37,7 @@ PEERTUBE_MIGRATION_SCRIPTS_DIR: "dist/scripts/migrations"
 PEERTUBE_MIGRATION_HEALTH_RETRIES: 360
 
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
+PEERTUBE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.' ~ PEERTUBE_OIDC_PLUGIN ~ '.version') }}"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PEERTUBE_LOGIN_SSO: "{{ lookup('config', application_id, 'services.peertube.login.method.sso.enabled') | bool }}"
 PEERTUBE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.peertube.login.method.native.enabled') | bool }}"

@@ -14,11 +14,12 @@
   vars:
     compose_handlers_flush: false
 
-- name: "🩹 Stage the Gitea source patch into the build context of {{ application_id }}"
+- name: "🩹 Stage the Gitea source patches into the build context of {{ application_id }}"
   stack_host_copy:
-    src: "patch/{{ GITEA_PATCH_FILE }}"
-    dest: "{{ GITEA_PATCH_HOST_ABS }}"
+    src: "patch/{{ item }}"
+    dest: "{{ GITEA_PATCH_DIR_HOST_ABS }}/"
     mode: "0644"
+  loop: "{{ GITEA_PATCH_FILES }}"
   notify:
     - compose-build
     - compose-up

@@ -12,7 +12,7 @@
  *       ▼
  *     oauth2-proxy ── (Keycloak OIDC) ──► Keycloak realm
  *       │
- *       │  forward + X-Forwarded-User / X-Forwarded-Email
+ *       │  forward + X-Forwarded-Preferred-Username / X-Forwarded-Email
  *       ▼
  *     login-broker (this process)
  *       │
@@ -595,7 +595,7 @@ function proxyToSocialApp(req, res) {
 const server = http.createServer(async (req, res) => {
   const reqId = Math.random().toString(36).slice(2, 8);
   const reqStart = Date.now();
-  console.log(`[broker:${reqId}] ${logSafe(req.method)} ${logSafe(req.url)} from=${logSafe(req.headers["x-forwarded-for"] || "?")} fwd-user=${logSafe(req.headers["x-forwarded-user"] || req.headers["x-forwarded-preferred-username"] || "-")}`);
+  console.log(`[broker:${reqId}] ${logSafe(req.method)} ${logSafe(req.url)} from=${logSafe(req.headers["x-forwarded-for"] || "?")} fwd-user=${logSafe(req.headers["x-forwarded-preferred-username"] || "-")}`);
   try {
     const requestUrl = new URL(req.url, "http://internal");
     const path = requestUrl.pathname;
@@ -625,11 +625,11 @@ const server = http.createServer(async (req, res) => {
     // Need a fresh handoff. The OIDC identity comes from oauth2-proxy
     // forwarded headers — without them the broker cannot proceed and
     // the request is rejected.
-    const kcUsername = (req.headers["x-forwarded-preferred-username"] || req.headers["x-forwarded-user"] || "").toString();
+    const kcUsername = (req.headers["x-forwarded-preferred-username"] || "").toString();
     const kcEmail = (req.headers["x-forwarded-email"] || "").toString();
     if (!kcUsername) {
-      console.log(`[broker:${reqId}] missing X-Forwarded-User → 401 (${Date.now() - reqStart}ms)`);
-      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
+      console.log(`[broker:${reqId}] missing X-Forwarded-Preferred-Username → 401 (${Date.now() - reqStart}ms)`);
+      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-Preferred-Username from oauth2-proxy. Refusing handoff.</p></body></html>`);
       return;
     }
 

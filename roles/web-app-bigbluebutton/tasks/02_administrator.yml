@@ -13,6 +13,25 @@
   delay: 5
   changed_when: false
 
+- name: "🔎 Look up the Keycloak id Greenlight links the administrator's SSO login by"
+  ansible.builtin.include_role:
+    name: web-app-keycloak
+    tasks_from: utils/directory_users.yml
+  vars:
+    application_id: web-app-keycloak
+    keycloak_directory_usernames:
+      - "{{ lookup('users', 'platform_administrator').username }}"
+  when: BBB_LOGIN_SSO | bool
+
+- name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
+  ansible.builtin.assert:
+    that:
+      - keycloak_directory_users | length == 1
+    fail_msg: >-
+      Keycloak holds no user '{{ lookup('users', 'platform_administrator').username }}',
+      so Greenlight could not link the administrator's SSO login to its account.
+  when: BBB_LOGIN_SSO | bool
+
 - name: "✅ Ensure Greenlight admin (verified, idempotent)"
   ansible.builtin.command:
     argv:
@@ -25,6 +44,8 @@
       - NEW_EMAIL
       - -e
       - NEW_PASSWORD
+      - -e
+      - NEW_EXTERNAL_ID
       - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
       - bash
       - -lc
@@ -34,6 +55,7 @@
     NEW_NAME: "{{ lookup('users', 'platform_administrator').username | upper }}"
     NEW_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
     NEW_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+    NEW_EXTERNAL_ID: "{{ (keycloak_directory_users | first).id if (BBB_LOGIN_SSO | bool) else '' }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0

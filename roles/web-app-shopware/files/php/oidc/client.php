@@ -29,6 +29,7 @@ declare(strict_types=1);
 const PROVIDER = 'open_id_connect';
 const ROLE_ACTION = 'heptacomAdminOpenAuthRoleAssignment';
 const ID_TOKEN_CONDITION = 'heptacomAdminOpenAuthIdToken';
+const EMAIL_VERIFIED_CLAIM = 'email_verified';
 
 function env(string $key): string
 {
@@ -93,11 +94,16 @@ function upsert(string $entity, string $id, array $payload, string $token): void
     echo "created {$entity}/{$id}\n";
 }
 
-function groupMembershipExpression(string $claim, string $groupPath): string
+function verifiedMembershipExpression(string $claim, string $groupPath): string
 {
     $literal = "'" . str_replace(['\\', "'"], ['\\\\', "\\'"], $groupPath) . "'";
 
-    return sprintf('contains(%s, %s)', json_encode($claim, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES), $literal);
+    return sprintf(
+        '%s == `true` && contains(%s, %s)',
+        json_encode(EMAIL_VERIFIED_CLAIM, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
+        json_encode($claim, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
+        $literal
+    );
 }
 
 function stableId(string $seed): string
@@ -205,7 +211,7 @@ foreach ($rules as $ruleId => $rule) {
         'conditions' => [[
             'id' => stableId("client-rule-condition:{$ruleId}"),
             'type' => ID_TOKEN_CONDITION,
-            'value' => ['jmesPathExpression' => groupMembershipExpression($claim, $rule['group'])],
+            'value' => ['jmesPathExpression' => verifiedMembershipExpression($claim, $rule['group'])],
             'position' => 0,
         ]],
     ], $token);

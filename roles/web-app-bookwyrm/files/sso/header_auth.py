@@ -38,11 +38,6 @@ from django.contrib.auth.middleware import PersistentRemoteUserMiddleware
 
 CANONICAL_HEADER = "HTTP_X_FORWARDED_PREFERRED_USERNAME"
 
-CANDIDATE_USERNAME_HEADERS = (
-    "HTTP_X_FORWARDED_PREFERRED_USERNAME",
-    "HTTP_X_FORWARDED_USER",
-)
-
 CANDIDATE_EMAIL_HEADERS = ("HTTP_X_FORWARDED_EMAIL",)
 
 GROUPS_HEADER = "HTTP_X_FORWARDED_GROUPS"
@@ -198,10 +193,6 @@ class ProxyHeaderMiddleware(PersistentRemoteUserMiddleware):
     header = CANONICAL_HEADER
 
     def process_request(self, request):
-        if not request.META.get(self.header):
-            value = _first_header(request.META, CANDIDATE_USERNAME_HEADERS)
-            if value:
-                request.META[self.header] = value
         result = super().process_request(request)
         if request.META.get(self.header):
             sync_identity(request)

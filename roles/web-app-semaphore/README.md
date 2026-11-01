@@ -26,7 +26,7 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
   The LDAP search filter only finds members of the `administrator`, `operator` and `user` role groups (`memberOf` under the roles OU), so a directory account without one of them cannot sign in through the form.
 
 - **OIDC role gate:**
-  The provider's `email_claim` is a Go template rendered from `templates/oidc/email_claim.j2`. It yields the email only when the groups claim holds the `administrator`, `operator` or `user` role group, so Semaphore refuses the Keycloak sign-in of every other realm account with a missing email claim and returns it to the login page.
+  The provider's `email_claim` is a Go template rendered from `templates/oidc/email_claim.j2`. It yields the email only when the groups claim holds the `administrator`, `operator` or `user` role group and the `email_verified` claim is true, so Semaphore refuses the Keycloak sign-in of every other realm account, and of an account with an unverified address, with a missing email claim and returns it to the login page. Semaphore links a Keycloak sign-in to its account by that email.
 
 - **Role group sync:**
   With SSO or LDAP, [files/sql/rbac/reconcile.sql](./files/sql/rbac/reconcile.sql) runs through `psql` in the database container as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer, so a group change reaches Semaphore within one timer interval. The same run creates every member of the `administrator` and `operator` role groups that has an e-mail and no account yet as an external Semaphore account, admin only for `administrator`, so a member added between deploys has its account within one timer interval.

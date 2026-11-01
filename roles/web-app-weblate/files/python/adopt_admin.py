@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - imports weblate.auth.models at module level and runs
-# inside `weblate shell`; the models are not importable outside the Weblate image
 """Give the superuser Weblate bootstrapped the platform administrator's name.
 
 Upstream's entrypoint calls ``createadmin`` without ``--username``, so the
@@ -16,17 +14,28 @@ creating a second superuser would leave that token behind.
 The password is only dropped while SSO is on. Without SSO it is the only way
 in, and ``playwright.env.j2`` hands it to the native-login round.
 
+With SSO on, the account is linked to the administrator's Keycloak subject
+through a ``UserSocialAuth`` row, because the deploy removes
+``associate_by_email`` from the pipeline and ``social_user`` then finds an
+existing account only by provider and ``sub``.
+
 Fed to ``weblate shell`` on stdin. Every value arrives in the environment and
 none has a default: a missing one is a deploy bug and must stop the run.
 """
 
 import os
 
+from social_django.models import UserSocialAuth
 from weblate.auth.models import User
 
 bootstrap = os.environ["WEBLATE_ADMIN_BOOTSTRAP_USERNAME"]
 target = os.environ["WEBLATE_ADMIN_USERNAME"]
 sso_enabled = os.environ["WEBLATE_OIDC_ENABLED"] == "true"
+backend = os.environ["WEBLATE_OIDC_BACKEND"]
+subject = os.environ["WEBLATE_ADMIN_OIDC_UID"]
+
+if sso_enabled and not subject:
+    raise SystemExit("WEBLATE_ADMIN_OIDC_UID is empty while SSO is on")
 
 changed = False
 
@@ -43,5 +52,15 @@ if sso_enabled and admin.has_usable_password():
     admin.set_unusable_password()
     admin.save(update_fields=["password"])
     changed = True
+
+if sso_enabled:
+    link = UserSocialAuth.objects.filter(provider=backend, uid=subject).first()
+    if link is None:
+        UserSocialAuth.objects.create(user=admin, provider=backend, uid=subject)
+        changed = True
+    elif link.user_id != admin.pk:
+        link.user = admin
+        link.save(update_fields=["user"])
+        changed = True
 
 print("ADOPTED=1" if changed else "ADOPTED=0")

@@ -45,8 +45,11 @@ GITEA_SOURCE_URL: "{{ lookup('config', application_id, 'services.gitea.source_ur
 GITEA_SOURCE_SHA256: "{{ lookup('config', application_id, 'services.gitea.source_sha256') }}"
 GITEA_BUILD_TAGS: "bindata timetzdata"
 GITEA_BINARY: "/app/gitea/gitea"
-GITEA_PATCH_FILE: "oauth2-redirect-uri-public-url.patch"
-GITEA_PATCH_HOST_ABS: "{{ [lookup('container', application_id, 'directories.instance'), GITEA_PATCH_FILE] | path_join }}"
+GITEA_PATCH_DIR: "patch"
+GITEA_PATCH_FILES:
+  - "oauth2-redirect-uri-public-url.patch"
+  - "oauth2-account-linking-by-name.patch"
+GITEA_PATCH_DIR_HOST_ABS: "{{ [lookup('container', application_id, 'directories.instance'), GITEA_PATCH_DIR] | path_join }}"
 
 GITEA_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 GITEA_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
