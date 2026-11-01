@@ -4,7 +4,7 @@ update_pull_images:
     Args:
         applications: ``lookup('applications')`` of the host.
         deployed: ``lookup('application_closure', group_names)``, the roles a
-            deploy of the host runs.
+        deploy of the host runs.
 
     Returns:
         ``{"pull": [...], "built": [...]}``: ``pull`` holds the sorted pull
