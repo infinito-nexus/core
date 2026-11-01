@@ -4,7 +4,11 @@ from unittest.mock import patch
 from ansible.errors import AnsibleActionFail
 
 from plugins.action.applications_carrier import ActionModule
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, USERS_RENDERED_FACT
+from utils.cache.carrier import (
+    APPLICATIONS_RENDERED_FACT,
+    PROVIDER_VIEW_RENDERED_FACT,
+    USERS_RENDERED_FACT,
+)
 
 
 class _FakeTask:
@@ -241,7 +245,11 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
 
         self.assertEqual(
             result["ansible_facts"],
-            {APPLICATIONS_RENDERED_FACT: None, USERS_RENDERED_FACT: None},
+            {
+                APPLICATIONS_RENDERED_FACT: None,
+                USERS_RENDERED_FACT: None,
+                PROVIDER_VIEW_RENDERED_FACT: None,
+            },
         )
         self.assertFalse(result["changed"])
         self.assertEqual(applications.calls, [])
@@ -269,6 +277,52 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         self.assertIs(result["ansible_facts"][USERS_RENDERED_FACT], users.carrier)
         self.assertEqual(len(applications.calls), 1)
         self.assertEqual(len(users.calls), 1)
+
+    def _run_with_view_carrier(self, args, view_carrier):
+        _applications, _users, loader = _lookups()
+        action = _make_action(_FakeTask(args=args))
+        task_vars = {"applications": {}, "inventory_hostname": "wrk"}
+        with (
+            patch(
+                "plugins.action.applications_carrier.ActionBase.run",
+                autospec=True,
+                return_value={},
+            ),
+            patch(
+                "plugins.action.applications_carrier.lookup_loader.get",
+                side_effect=loader.get,
+            ),
+            patch(
+                "plugins.action.applications_carrier.provider_view_carrier",
+                return_value=view_carrier,
+            ) as probe,
+        ):
+            result = action.run(task_vars=task_vars)
+        return result, probe, action, task_vars
+
+    def test_provider_view_parks_the_provider_view_carrier(self):
+        view_carrier = {"key": ["roles", []], "applications": {}, "view": ["mgr", ""]}
+
+        result, probe, action, task_vars = self._run_with_view_carrier(
+            {"provider_view": True}, view_carrier
+        )
+
+        probe.assert_called_once_with(task_vars, templar=action._templar)
+        self.assertIs(
+            result["ansible_facts"][PROVIDER_VIEW_RENDERED_FACT], view_carrier
+        )
+
+    def test_a_provider_view_carrier_that_still_matches_stays_in_place(self):
+        result, probe, _, _ = self._run_with_view_carrier({"provider_view": True}, None)
+
+        probe.assert_called_once()
+        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, result["ansible_facts"])
+
+    def test_without_provider_view_the_view_is_not_rendered(self):
+        result, probe, _, _ = self._run_with_view_carrier({}, {"key": []})
+
+        probe.assert_not_called()
+        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, result["ansible_facts"])
 
 
 if __name__ == "__main__":

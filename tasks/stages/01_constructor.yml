@@ -112,7 +112,8 @@
   when: run_once_sys_token_store is not defined
 
 - name: 🧊 Render the applications SPOT once and carry it into every task's worker
-  applications_carrier: {}
+  applications_carrier:
+    provider_view: true
 
 - name: "📥 Pre-pull the images of this deploy in the background"
   ansible.builtin.include_role:

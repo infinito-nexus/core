@@ -41,9 +41,10 @@ The constructor stage renders once through the [applications_carrier](../../../.
 - The token store is not part of the key: a store write keeps the applications carrier and re-renders only the users carrier (see [users.md](users.md)).
 - The action masks its own result: the fact is the whole rendered tree with every application's credentials, so it never reaches a log regardless of `MASK_CREDENTIALS_IN_LOGS`.
 - User records inside the payload are the token store's state at render time, which can predate every store write of the play. Readers of tokens MUST go through `lookup('users', ...)` or `lookup('config', <app>, 'users.<key>...')`, both of which key the users on the current token store. Application config MUST NOT derive a value from a token.
-- The action parks the users carrier `_INFINITO_USERS_RENDERED` at the same points, after the applications render; `clear: true` drops both. See [users.md](users.md).
-- The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_APPLICATIONS_RENDERED`; they keep going through `lookup('applications')`, which is what makes the carrier transparent.
-- The carrier is the only materialised merged view a play MAY hold. The rule against a top-level `applications` fact above is unchanged.
+- The action parks the users carrier `_INFINITO_USERS_RENDERED` at the same points, after the applications render; `clear: true` drops every carrier fact. See [users.md](users.md).
+- With `provider_view: true` (the stage-wide park only), a host that is not the onion-serving mail provider host also parks `_INFINITO_PROVIDER_VIEW_RENDERED`: the applications tree of its own variables under the provider host's `group_names` and `NETWORK_MODE`, keyed like the applications carrier plus `[provider host, NETWORK_MODE]`. It is kept while the parked one or the provider host's own carrier still matches.
+- The carriers are private to the lookups. Consumers MUST NOT read `_INFINITO_APPLICATIONS_RENDERED`; they keep going through `lookup('applications')`, which is what makes the carrier transparent. Only `lookup('email')` reads the provider host's `_INFINITO_APPLICATIONS_RENDERED` and its own `_INFINITO_PROVIDER_VIEW_RENDERED`, and only to hand the matching one to `lookup('domains')`.
+- These carriers are the only materialised merged views a play MAY hold. The rule against a top-level `applications` fact above is unchanged.
 
 ## Adding an Application Entry ➕
 

@@ -12,7 +12,13 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
+from utils.cache.carrier import (
+    APPLICATIONS_RENDERED_FACT,
+    PROVIDER_VIEW_RENDERED_FACT,
+    _carried_applications,
+    _carried_provider_view,
+    merged_applications_cache_key,
+)
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
 from utils.networks.reachability import network, network_of
@@ -91,7 +97,9 @@ def _render(
     return value
 
 
-def _provider_carrier(variables: dict[str, Any], host: str) -> Mapping[str, Any] | None:
+def _provider_carrier(
+    variables: Mapping[str, Any], host: str
+) -> Mapping[str, Any] | None:
     hostvars = variables.get("hostvars")
     raw_get = getattr(hostvars, "raw_get", None)
     try:
@@ -102,6 +110,125 @@ def _provider_carrier(variables: dict[str, Any], host: str) -> Mapping[str, Any]
         return None
     carrier = host_vars.get(APPLICATIONS_RENDERED_FACT)
     return carrier if isinstance(carrier, Mapping) else None
+
+
+def active_mail_provider(variables: Mapping[str, Any]) -> str:
+    """The mail provider role this deploy relays through.
+
+    Args:
+        variables: Ansible variables of the current host.
+    """
+    value = variables.get("MAIL_PROVIDER")
+    configured = str(value).strip() if value else DEFAULT_MAIL_PROVIDER
+    return resolve_active_provider(
+        configured,
+        deployed_roles(variables.get("groups")),
+        Path.cwd() / "roles",
+    )
+
+
+def provider_view(
+    variables: Mapping[str, Any], provider: str
+) -> tuple[str, dict[str, Any]] | None:
+    """This host's variables as the onion-serving provider host sees its groups.
+
+    Args:
+        variables: Ansible variables of the current host.
+        provider: the active mail provider role.
+
+    Returns:
+        ``(provider host, view)``, or ``None`` when no host of *provider*
+        is in ``svc-net-tor``.
+    """
+    groups = variables.get("groups") or {}
+    tor_hosts = set(groups.get("svc-net-tor") or [])
+    provider_hosts = [h for h in groups.get(provider) or [] if h in tor_hosts]
+    if not provider_hosts:
+        return None
+    own_groups = list(variables.get("group_names") or [])
+    fallback = own_groups + [
+        g for g in ("svc-net-tor", provider) if g not in own_groups
+    ]
+    try:
+        provider_vars = variables["hostvars"][provider_hosts[0]]
+        provider_groups = provider_vars["group_names"]
+    except (KeyError, TypeError):
+        provider_vars = {}
+        provider_groups = fallback
+    view = dict(variables)
+    view["group_names"] = list(provider_groups or fallback)
+    if provider_vars.get("NETWORK_MODE"):
+        view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
+    return provider_hosts[0], view
+
+
+def _view_id(host: str, view: Mapping[str, Any]) -> list[str]:
+    return [str(host), str(view.get("NETWORK_MODE") or "")]
+
+
+def _view_carrier(
+    variables: Mapping[str, Any],
+    host: str,
+    view: Mapping[str, Any],
+    roles_dir: str | None,
+) -> Mapping[str, Any] | None:
+    key = merged_applications_cache_key(view, roles_dir=roles_dir)
+    if _carried_provider_view(variables, key) is not None and list(
+        variables[PROVIDER_VIEW_RENDERED_FACT].get("view") or []
+    ) == _view_id(host, view):
+        return variables[PROVIDER_VIEW_RENDERED_FACT]
+    provider = _provider_carrier(variables, host)
+    if (
+        provider is not None
+        and _carried_applications({APPLICATIONS_RENDERED_FACT: provider}, key)
+        is not None
+    ):
+        return provider
+    return None
+
+
+def provider_view_carrier(
+    variables: Mapping[str, Any],
+    *,
+    templar: Any,
+    roles_dir: str | None = None,
+) -> dict[str, Any] | None:
+    """Render the applications payload of `provider_view` for a host that does
+    not run the provider.
+
+    Args:
+        variables: Ansible variables of the current host.
+        templar: templar the view renders with; its available variables are
+            the view for the duration of the render.
+        roles_dir: roles tree to build from; the repository's when ``None``.
+
+    Returns:
+        ``{"key", "applications", "view"}`` to park in
+        `PROVIDER_VIEW_RENDERED_FACT`, or ``None`` when this host is the
+        provider host `provider_view` picks, no provider host serves onion,
+        or the parked payload or the provider host's own carrier still
+        matches the view.
+    """
+    resolved = provider_view(variables, active_mail_provider(variables))
+    if resolved is None:
+        return None
+    host, view = resolved
+    if host == variables.get("inventory_hostname"):
+        return None
+    view.pop("application_id", None)
+    if _view_carrier(variables, host, view, roles_dir) is not None:
+        return None
+    applications = ApplicationsLookup()
+    applications._templar = templar
+    previous = templar.available_variables
+    templar.available_variables = view
+    try:
+        carrier = applications.run(
+            [], variables=view, roles_dir=roles_dir, carrier=True
+        )[0]
+    finally:
+        templar.available_variables = previous
+    return {**carrier, "view": _view_id(host, view)}
 
 
 class LookupModule(LookupBase):
@@ -273,13 +400,7 @@ class LookupModule(LookupBase):
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
     def _mail_provider(self, variables: dict[str, Any]) -> str:
-        value = variables.get("MAIL_PROVIDER")
-        configured = str(value).strip() if value else DEFAULT_MAIL_PROVIDER
-        return resolve_active_provider(
-            configured,
-            deployed_roles(variables.get("groups")),
-            Path.cwd() / "roles",
-        )
+        return active_mail_provider(variables)
 
     def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
         """The active provider's ``services`` block, or ``{}`` when it cannot be
@@ -335,38 +456,23 @@ class LookupModule(LookupBase):
         ``group_names``, so a worker would otherwise see the clearnet name the
         provider never serves a certificate for.
         """
-        groups = variables.get("groups") or {}
         provider = self._mail_provider(variables)
-        tor_hosts = set(groups.get("svc-net-tor") or [])
-        provider_hosts = [h for h in groups.get(provider) or [] if h in tor_hosts]
-        if not provider_hosts:
+        resolved = provider_view(variables, provider)
+        if resolved is None:
             return False
-        own_groups = list(variables.get("group_names") or [])
-        fallback = own_groups + [
-            g for g in ("svc-net-tor", provider) if g not in own_groups
-        ]
-        try:
-            provider_vars = variables["hostvars"][provider_hosts[0]]
-            provider_groups = provider_vars["group_names"]
-        except (KeyError, TypeError):
-            provider_vars = {}
-            provider_groups = fallback
-        provider_view = dict(variables)
-        provider_view["group_names"] = list(provider_groups or fallback)
-        if provider_vars.get("NETWORK_MODE"):
-            provider_view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
-        carrier = _provider_carrier(variables, provider_hosts[0])
-        if carrier is not None:
-            provider_view[APPLICATIONS_RENDERED_FACT] = carrier
+        host, view = resolved
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
+        carrier = _view_carrier(variables, host, view, forwarded.get("roles_dir"))
+        if carrier is not None:
+            view[APPLICATIONS_RENDERED_FACT] = carrier
         try:
             domains = lookup_loader.get(
                 "domains",
                 loader=getattr(self, "_loader", None),
                 templar=getattr(self, "_templar", None),
-            ).run([], variables=provider_view, **forwarded)[0]
+            ).run([], variables=view, **forwarded)[0]
             domain = get_domain(domains, provider)
         except Exception:
             return False
