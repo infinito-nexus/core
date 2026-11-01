@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Param $1: upgrade | check | backup | target | prepare | sync | final | status | all, the steps of "Upgrading from 0.16" in roles/web-app-stalwart/README.md.
+# Param $1: upgrade | check | backup | target | prepare | sync | final | status | report | all, the steps of "Upgrading from 0.16" in roles/web-app-stalwart/README.md.
 # Param migrate.env: the values the deploy rendered next to this script.
 set -euo pipefail
 umask 077
@@ -194,9 +194,12 @@ phase_sync() {
 phase_final() {
   phase_check
   stop_stalwart
-  if ! migrate run --final --yes --source "${SOURCE_MOUNT}/config.json" --target "${TARGET_MOUNT}/config.json" --state "$STATE_MOUNT"; then
+  if ! migrate run --final --yes --verify-full --source "${SOURCE_MOUNT}/config.json" --target "${TARGET_MOUNT}/config.json" --state "$STATE_MOUNT"; then
     start_stalwart
-    die "the final run failed and nothing was swapped; Stalwart 0.16 serves again, see ${STATE_DIR}/final-report.txt"
+    if ! phase_report >&2; then
+      echo "migrate: stalwart-migrate report could not list the rows of ${STATE_DIR}" >&2
+    fi
+    die "the final run failed and nothing was swapped; Stalwart 0.16 serves again; the error and verify rows above come from '$0 report', and ${STATE_DIR}/final-report.txt is only written by a final run that passes"
   fi
   psql_admin postgres "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname IN ('${DB}', '${DB_V1}') AND pid <> pg_backend_pid()" > /dev/null
   psql_admin postgres "ALTER DATABASE \"${DB}\" RENAME TO \"${DB_V016}\""
@@ -211,6 +214,11 @@ phase_final() {
 
 phase_status() {
   migrate status --state "$STATE_MOUNT"
+}
+
+phase_report() {
+  migrate report --state "$STATE_MOUNT" --severity error
+  migrate report --state "$STATE_MOUNT" --severity verify
 }
 
 phase_all() {
@@ -232,15 +240,15 @@ hold_lock() {
 }
 
 case "${1:-}" in
-  status)
-    phase_status
+  status | report)
+    "phase_$1"
     ;;
   upgrade | check | backup | target | prepare | sync | final | all)
     hold_lock "$1"
     "phase_$1"
     ;;
   *)
-    echo "usage: $0 upgrade|check|backup|target|prepare|sync|final|status|all" >&2
+    echo "usage: $0 upgrade|check|backup|target|prepare|sync|final|status|report|all" >&2
     exit 2
     ;;
 esac

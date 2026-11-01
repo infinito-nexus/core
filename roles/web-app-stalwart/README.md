@@ -291,7 +291,7 @@ A deploy without the marker reads the store:
 
 Migrate the store with [`stalwart-migrate`](https://github.com/stalwartlabs/stalwart-migrate) into a new database and swap it in under the role's database name. That name is fixed to `stalwart` ([`plugins/lookup/database.py`](../../plugins/lookup/database.py) derives it from the entity name), so the migration targets a second database that later takes over the name.
 
-A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The deploy runs the script as an async job and polls it every `STALWART_MIGRATE_ASYNC_POLL` seconds, so a dropped SSH connection does not end the deploy; after `STALWART_MIGRATE_ASYNC_TIME` seconds (6 h, scaled by `TIMEOUT_FACTOR`) Ansible kills the script and fails the deploy, while a `stalwart-migrate` container it started keeps running and Stalwart stays stopped when the kill hits `final`. Every phase but `status` takes `migrate-v016/migrate.lock` and stops at once while another run holds it or a `stalwart-migrate` container still runs. The phases also run by hand, as root:
+A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The deploy runs the script as an async job and polls it every `STALWART_MIGRATE_ASYNC_POLL` seconds, so a dropped SSH connection does not end the deploy; after `STALWART_MIGRATE_ASYNC_TIME` seconds (6 h, scaled by `TIMEOUT_FACTOR`) Ansible kills the script and fails the deploy, while a `stalwart-migrate` container it started keeps running and Stalwart stays stopped when the kill hits `final`. Every phase but `status` and `report` takes `migrate-v016/migrate.lock` and stops at once while another run holds it or a `stalwart-migrate` container still runs. The phases also run by hand, as root:
 
 | Phase | Steps below |
 |---|---|
@@ -301,8 +301,9 @@ A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/st
 | `target` | 3 |
 | `prepare` | 5, interactive on a terminal; without one it accepts the recommended answer of every question `stalwart-migrate` marks as not answered in `migrate-v016/state/answers.toml` |
 | `sync` | 5, repeatable while 0.16 serves |
-| `final` | 6 and 7 |
+| `final` | 6 and 7, with `--verify-full`, so every account is verified before the swap |
 | `status` | the progress `stalwart-migrate status` reports |
+| `report` | the `error` and `verify` rows of `stalwart-migrate report`; `final` prints them itself when it fails |
 | `all` | `upgrade` to `final` in order |
 
 Then deploy again (step 8). The steps by hand:
@@ -323,13 +324,13 @@ Then deploy again (step 8). The steps by hand:
      -v <volumes-dir>/etc:/etc/stalwart:ro \
      -v <target-dir>:/etc/stalwart-v1 \
      -v <state-dir>:/var/lib/stalwart-migrate \
-     stalwartlabs/stalwart-migrate:1.0.0 prepare \
+     stalwartlabs/stalwart-migrate:1.0.4 prepare \
        --source /etc/stalwart/config.json \
        --state /var/lib/stalwart-migrate
    ```
 
    Then run the same container with `run --source /etc/stalwart/config.json --target /etc/stalwart-v1/config.json --state /var/lib/stalwart-migrate`. `run` copies only what changed since the previous run and may be repeated.
-6. Stop the Stalwart server (`docker stop stalwart` in compose, `docker service scale <stack>_stalwart=0` in swarm) and run the same container with `run --final` and the same options. It verifies the copy and writes `final-report.txt` into the state directory.
+6. Stop the Stalwart server (`docker stop stalwart` in compose, `docker service scale <stack>_stalwart=0` in swarm) and run the same container with `run --final` and the same options. It verifies the copy and, only when the verification passes, writes `final-report.txt` into the state directory. A failed verification writes no such file and leaves the run unmarked: list its rows with `report --state /var/lib/stalwart-migrate --severity verify` (or `migrate.sh report`), start Stalwart 0.16 again and see [A failed final run](#a-failed-final-run).
 7. Swap the databases, as a PostgreSQL superuser connected to the `postgres` database:
 
    ```sql
@@ -339,6 +340,14 @@ Then deploy again (step 8). The steps by hand:
 
 8. Deploy this role. The store guard finds the migrated 1.x store under the role's database name and lets Stalwart 1.x start on it.
 9. Keep `stalwart_v016`, the dump and the state directory until 1.x is verified. `stalwart-migrate rollback` reads the state directory to copy the 1.x store back into a new 0.16 store.
+
+### A failed final run
+
+A failed `final` swaps nothing: Stalwart 0.16 serves the database `stalwart` again, and `stalwart_v1` and `migrate-v016/state` hold the unfinished copy. `stalwart-migrate rollback` does not apply, it copies a 1.x store back into a new 0.16 store. Every deploy of this role runs `all` again while the store is 0.16, so keep the role out of deploys until the rows are understood.
+
+1. Read the rows that `final` printed above its error in the deploy log, or run `migrate.sh report`. Each row names the run, the account id, the object type and id, and the kind of difference.
+2. `stalwart-migrate` 1.0.0 to 1.0.3 report differences where none exist: email `keywords` holding a `\` system flag, contact card `vcard` with extra vCard 3.0 `N` or `ADR` components, and certificate or IP ban settings that the 1.x start inside the tool refreshes or expires. These releases also skip accounts that have no change counter. When the rows are only of these kinds and the state was written by such a release, start over with the pinned release: as a PostgreSQL superuser run `DROP DATABASE stalwart_v1;`, move `migrate-v016/state` aside and deploy again.
+3. Any other row, such as an object missing in the target, `blob`, `script`, a quota, changelog or counter row, or `account is not up to date`, is a real difference. Keep 0.16 serving, fix its cause, then run `final` again with the same state.
 
 ### Restore and redeploy
 
