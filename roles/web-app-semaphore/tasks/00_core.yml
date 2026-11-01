@@ -12,6 +12,13 @@
     webserver_location_extra_configuration: "{{ SEMAPHORE_LOCATION_CONFIGURATION }}"
     webserver_extra_configuration: "{{ SEMAPHORE_OIDC_LOGIN_LOCATION }}"
 
+- name: "🧹 Remove the runner images of {{ application_id }} this deploy replaced"
+  include_tasks:
+    file: utils/runner/prune.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
 - name: "🧑‍💼 Run the Semaphore account operations on the stack host"
   when: IS_STACK_HOST | bool
   block:

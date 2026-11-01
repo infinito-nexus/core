@@ -16,6 +16,7 @@ INVENTOR: "Kevin Veen-Birkenbach" # Author of the software
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
+CONTAINER_PRUNE_KEEP_LABEL: "nexus.infinito.prune=keep" # Image label the storage-constrained prune never removes, for locally built FROM-only base images
 
 MASK_CREDENTIALS_IN_LOGS: true
 

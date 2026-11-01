@@ -9,6 +9,9 @@ ARG SEMAPHORE_RUNNER_UID
 ARG SEMAPHORE_RUNNER_GID
 ARG SEMAPHORE_RUNNER_REPOSITORY
 ARG SEMAPHORE_RUNNER_TMP
+ARG SEMAPHORE_RUNNER_DOCKERFILE_DIGEST
+ARG SEMAPHORE_RUNNER_REPOSITORY_DIGEST
+ARG SEMAPHORE_RUNNER_INPUTS_DIGEST
 
 COPY --from=semaphore /usr/local/bin/semaphore /usr/local/bin/semaphore
 
@@ -27,6 +30,9 @@ RUN groupadd --gid "${SEMAPHORE_RUNNER_GID}" "${SEMAPHORE_RUNNER_USER}" \
 # nocheck: healthcheck-timing-override  NONE drops the systemd probe of the Infinito.Nexus base image; the runner runs no systemd and opens no port
 HEALTHCHECK NONE
 STOPSIGNAL SIGTERM
+LABEL nexus.infinito.semaphore.runner.dockerfile="${SEMAPHORE_RUNNER_DOCKERFILE_DIGEST}" \
+      nexus.infinito.semaphore.runner.repository="${SEMAPHORE_RUNNER_REPOSITORY_DIGEST}" \
+      nexus.infinito.semaphore.runner.inputs="${SEMAPHORE_RUNNER_INPUTS_DIGEST}"
 USER ${SEMAPHORE_RUNNER_UID}:${SEMAPHORE_RUNNER_GID}
 WORKDIR /home/${SEMAPHORE_RUNNER_USER}
 

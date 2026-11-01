@@ -19,13 +19,9 @@
       context: {{ SEMAPHORE_RUNNER_BUILD_DIR }}
       dockerfile: Dockerfile
       args:
-        SEMAPHORE_SERVER_IMAGE: "{{ SEMAPHORE_SERVER_IMAGE }}"
-        SEMAPHORE_RUNNER_BASE_IMAGE: "{{ SEMAPHORE_RUNNER_BASE_IMAGE }}"
-        SEMAPHORE_RUNNER_USER: "{{ SEMAPHORE_RUNNER_USER }}"
-        SEMAPHORE_RUNNER_UID: "{{ SEMAPHORE_RUNNER_UID }}"
-        SEMAPHORE_RUNNER_GID: "{{ SEMAPHORE_RUNNER_GID }}"
-        SEMAPHORE_RUNNER_REPOSITORY: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
-        SEMAPHORE_RUNNER_TMP: "{{ SEMAPHORE_RUNNER_TMP }}"
+        {% for build_arg, build_value in SEMAPHORE_RUNNER_BUILD_ARGS | dictsort %}
+        {{ build_arg }}: "{{ build_value }}"
+        {% endfor %}
     {{ lookup('compose_only', 'container_name', SEMAPHORE_RUNNER_NAME) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

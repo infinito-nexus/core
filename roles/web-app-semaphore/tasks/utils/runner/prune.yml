@@ -1,0 +1,21 @@
+---
+- name: "🔎 List the runner and base image tags the stack host holds"
+  ansible.builtin.command:
+    argv: "{{ ['container', 'image', 'ls', '--format', SEMAPHORE_RUNNER_LIST_FORMAT] + SEMAPHORE_RUNNER_PRUNE_FILTERS }}"
+  register: semaphore_runner_images
+  changed_when: false
+
+- name: "🧹 Untag every runner and base image but the pair this deploy runs"
+  ansible.builtin.command:
+    argv:
+      - container
+      - image
+      - rm
+      - --force
+      - "{{ semaphore_runner_pruned_image }}"
+  loop: "{{ SEMAPHORE_RUNNER_PRUNED_IMAGES }}"
+  loop_control:
+    loop_var: semaphore_runner_pruned_image
+  register: semaphore_runner_prune
+  changed_when: semaphore_runner_prune.stdout is search('(Untagged|Deleted):')
+  failed_when: semaphore_runner_prune.rc != 0 and 'No such image' not in semaphore_runner_prune.stderr

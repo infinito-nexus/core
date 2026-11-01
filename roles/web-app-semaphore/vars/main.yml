@@ -111,11 +111,50 @@ SEMAPHORE_RUNNER_TOKEN_FILE_HOST: "{{ [ lookup('container', application_id, 'dir
 SEMAPHORE_RUNNER_UID: "{{ lookup('volume', application_id, 'semaphore_runner_token').uid }}"
 SEMAPHORE_RUNNER_GID: "{{ lookup('volume', application_id, 'semaphore_runner_token').gid }}"
 SEMAPHORE_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
-SEMAPHORE_RUNNER_IMAGE_TAG: "{{ SOFTWARE_IMAGE_TAG }}"
-SEMAPHORE_RUNNER_BASE_IMAGE: "{{ SOFTWARE_IMAGE }}:{{ SEMAPHORE_RUNNER_IMAGE_TAG }}"
+SEMAPHORE_RUNNER_DOCKERFILE: "{{ lookup('path_absolute', 'roles/web-app-semaphore/files/runner/Dockerfile') }}"
+SEMAPHORE_RUNNER_SCRIPTS: "{{ query('fileglob', lookup('path_absolute', 'roles/web-app-semaphore/files/shell/repository/*')) | sort }}"
 SEMAPHORE_RUNNER_SERVER_URL: "http://{{ SEMAPHORE_SERVICE }}:{{ container_port }}"
 SEMAPHORE_RUNNER_TMP: "/tmp/semaphore"
 SEMAPHORE_RUNNER_REPOSITORY: "/opt/app-control"
+SEMAPHORE_RUNNER_BASE_ARG: "SEMAPHORE_RUNNER_BASE_IMAGE"
+SEMAPHORE_RUNNER_INPUTS_ARG: "SEMAPHORE_RUNNER_INPUTS_DIGEST"
+SEMAPHORE_RUNNER_INPUTS_LABEL: "nexus.infinito.semaphore.runner.inputs"
+SEMAPHORE_RUNNER_INPUTS:
+  SEMAPHORE_SERVER_IMAGE: "{{ SEMAPHORE_SERVER_IMAGE }}"
+  SEMAPHORE_RUNNER_DOCKERFILE_DIGEST: "{{ lookup('file', SEMAPHORE_RUNNER_DOCKERFILE) | hash('sha256') }}"
+  SEMAPHORE_RUNNER_REPOSITORY_DIGEST: >-
+    {{ SEMAPHORE_RUNNER_SCRIPTS | map('basename') | zip(query('file', *SEMAPHORE_RUNNER_SCRIPTS)) | list | to_json | hash('sha256') }}
+  SEMAPHORE_RUNNER_USER: "{{ SEMAPHORE_RUNNER_USER }}"
+  SEMAPHORE_RUNNER_UID: "{{ SEMAPHORE_RUNNER_UID }}"
+  SEMAPHORE_RUNNER_GID: "{{ SEMAPHORE_RUNNER_GID }}"
+  SEMAPHORE_RUNNER_REPOSITORY: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
+  SEMAPHORE_RUNNER_TMP: "{{ SEMAPHORE_RUNNER_TMP }}"
+SEMAPHORE_RUNNER_INPUTS_DIGEST: "{{ SEMAPHORE_RUNNER_INPUTS | semaphore_runner_digest }}"
+SEMAPHORE_RUNNER_INPUTS_FORMAT: >-
+  {{ '{{ json (index .Config.Labels "' ~ SEMAPHORE_RUNNER_INPUTS_LABEL ~ '") }}' }}
+SEMAPHORE_RUNNER_OWN_ROUND: "{{ application_id in lookup('deployment').primary }}"
+# A compose file rendered before the runner existed has no task-runner service, which reads as no runner deployed.
+SEMAPHORE_RUNNER_DEPLOYED: >-
+  {{ {} if semaphore_runner_compose is skipped
+     else (semaphore_runner_compose.content | b64decode | from_yaml).services.get(SEMAPHORE_RUNNER_SERVICE, {}) }}
+SEMAPHORE_RUNNER_HELD: "{{ semaphore_runner_held is not skipped and semaphore_runner_held.rc == 0 }}"
+SEMAPHORE_RUNNER_BASE_IMAGE: >-
+  {{ SEMAPHORE_RUNNER_INPUTS_DIGEST | semaphore_runner_base(
+       SOFTWARE_IMAGE ~ ':' ~ SOFTWARE_IMAGE_TAG,
+       SEMAPHORE_RUNNER_DEPLOYED.build.args[SEMAPHORE_RUNNER_BASE_ARG] if SEMAPHORE_RUNNER_HELD | bool else '',
+       semaphore_runner_held.stdout_lines | first | from_json if SEMAPHORE_RUNNER_HELD | bool else '',
+       SEMAPHORE_RUNNER_OWN_ROUND | bool) }}
+SEMAPHORE_RUNNER_IMAGE_TAG: "{{ SEMAPHORE_RUNNER_BASE_IMAGE | regex_replace('^.*:', '') }}"
+SEMAPHORE_RUNNER_IMAGE: "{{ lookup('image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_RUNNER_IMAGE_TAG) }}"
+SEMAPHORE_RUNNER_BUILD_ARGS: >-
+  {{ SEMAPHORE_RUNNER_INPUTS
+     | combine({SEMAPHORE_RUNNER_BASE_ARG: SEMAPHORE_RUNNER_BASE_IMAGE, SEMAPHORE_RUNNER_INPUTS_ARG: SEMAPHORE_RUNNER_INPUTS_DIGEST}) }}
+SEMAPHORE_RUNNER_LIST_FORMAT: "{{ '{{.Repository}}:{{.Tag}}' }}"
+SEMAPHORE_RUNNER_PRUNE_FILTERS: >-
+  {{ ([SEMAPHORE_RUNNER_IMAGE | regex_replace(':[^:/]+$', '')] + ([SOFTWARE_IMAGE] if SOFTWARE_IMAGE_BUILD | bool else []))
+     | map('regex_replace', '^', '--filter=reference=') | list }}
+SEMAPHORE_RUNNER_PRUNED_IMAGES: >-
+  {{ semaphore_runner_images.stdout_lines | reject('in', [SEMAPHORE_RUNNER_IMAGE, SEMAPHORE_RUNNER_BASE_IMAGE]) | list }}
 
 SEMAPHORE_APP_CONTROL_NAME: "{{ APP_CONTROL_USER }}"
 SEMAPHORE_APP_CONTROL_PLAYBOOK: "app-control.sh"

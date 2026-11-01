@@ -39,6 +39,7 @@ const userGroupDn         = requireDotenvValue(process.env.LDAP_USER_GROUP_DN, "
 const operatorGroupPath   = requireDotenvValue(process.env.RBAC_OPERATOR_GROUP_PATH, "RBAC_OPERATOR_GROUP_PATH");
 const operatorGroupDn     = requireDotenvValue(process.env.LDAP_OPERATOR_GROUP_DN, "LDAP_OPERATOR_GROUP_DN");
 const projectName         = requireDotenvValue(process.env.SEMAPHORE_PROJECT_NAME, "SEMAPHORE_PROJECT_NAME");
+const runnerImageTag      = requireDotenvValue(process.env.SEMAPHORE_RUNNER_IMAGE_TAG, "SEMAPHORE_RUNNER_IMAGE_TAG");
 const appControlTargetId  = requireDotenvValue(process.env.APP_CONTROL_TARGET_ID, "APP_CONTROL_TARGET_ID");
 const appControlTargetUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_CONTROL_TARGET_URL, "APP_CONTROL_TARGET_URL"));
 const pausedLanguage      = requireDotenvValue(process.env.APP_CONTROL_PAUSED_LANGUAGE, "APP_CONTROL_PAUSED_LANGUAGE");
@@ -428,6 +429,7 @@ async function appControlTemplates(page, projectId, applicationId) {
  *   label: the persona label the assertion messages name.
  */
 async function runTemplateFromUi(page, projectId, template, label) {
+  console.log(`${label}: running "${template.name}" in the runner image tagged ${runnerImageTag}`);
   await gotoOnion(page, `${semaphoreBaseUrl}/project/${projectId}/templates`, { waitUntil: "domcontentloaded" });
   const link = page.locator(".v-data-table").getByRole("link", { name: template.name, exact: true });
   await expect(link, `${label}: the template list must show "${template.name}"`).toBeVisible({
