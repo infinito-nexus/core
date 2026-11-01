@@ -27,12 +27,12 @@ from . import PROJECT_ROOT
 
 MARKER = re.compile(rf"^\s*#\s*nocheck:\s*{RULE}\b(?P<reason>.*)$", re.IGNORECASE)
 BLOCK = re.compile(r"^(?P<indent>\s*)suppressions:\s*$")
-ENTRY = re.compile(r"^(?P<indent>\s*)-\s+id:")
+ENTRY = re.compile(r"^(?P<indent>\s*)-\s+\S")
 REASON_SEPARATORS = " \t-:"
 
 
 def _entry_lines(lines: list[str]) -> list[int]:
-    """Return the index of every ``- id:`` line inside a ``suppressions:`` block."""
+    """Return the index of every list item inside a ``suppressions:`` block."""
     found = []
     block_indent = None
     for index, line in enumerate(lines):
@@ -154,6 +154,15 @@ class TestCheckerCases(unittest.TestCase):
     def test_a_past_until_fails(self) -> None:
         text = VALID.replace("2026-12-31", "2026-10-30")
         self.assertIn("expired on 2026-10-30", self._problems(text)[0])
+
+    def test_an_unmarked_entry_that_starts_with_until_fails(self) -> None:
+        text = VALID.replace(
+            "      # nocheck: cve the module is not built into the image\n"
+            "      - id: CVE-2026-1234\n"
+            "        until: 2026-12-31\n",
+            "      - until: 2026-12-31\n        id: CVE-2026-1234\n",
+        )
+        self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
 
     def test_a_marker_for_another_rule_does_not_count(self) -> None:
         text = VALID.replace("nocheck: cve", "nocheck: url")

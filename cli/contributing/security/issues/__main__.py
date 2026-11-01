@@ -15,6 +15,8 @@ LABEL = "vulnerability"
 LABEL_COLOR = "B60205"
 LABEL_DESCRIPTION = "A pinned image carries a CVE at the scan threshold"
 ISSUE_LIMIT = "1000"
+GH_TIMEOUT_SECONDS = 120
+GH_FAILURES = (subprocess.CalledProcessError, subprocess.TimeoutExpired)
 COLUMNS = ("engine", "role", "service", "package", "installed", "fixed", "severity")
 
 
@@ -68,9 +70,10 @@ def sync(
         gh: runs ``gh`` with the given arguments and returns its stdout.
 
     Returns:
-        What was done, one line per issue. An issue is only closed when the
-        scan reported no error, so an image that failed to scan keeps its
-        issues open.
+        What was done, one line per issue; a ``failed`` line for an issue
+        whose ``gh`` call failed, while the other issues still run. An issue
+        is only closed when the scan reported no error, so an image that
+        failed to scan keeps its issues open.
     """
     gh(
         [
@@ -111,56 +114,62 @@ def sync(
     groups = grouped(report["findings"])
     for name, rows in sorted(groups.items()):
         if name in existing:
-            gh(
-                [
-                    "issue",
-                    "edit",
-                    str(existing[name]),
-                    "--repo",
-                    repo,
-                    "--body",
-                    body(rows),
-                ]
-            )
-            actions.append(f"updated #{existing[name]} {name}")
+            args = [
+                "issue",
+                "edit",
+                str(existing[name]),
+                "--repo",
+                repo,
+                "--body",
+                body(rows),
+            ]
+            actions.append(attempt(gh, args, f"updated #{existing[name]} {name}"))
         else:
-            gh(
-                [
-                    "issue",
-                    "create",
-                    "--repo",
-                    repo,
-                    "--title",
-                    name,
-                    "--label",
-                    LABEL,
-                    "--body",
-                    body(rows),
-                ]
-            )
-            actions.append(f"opened {name}")
+            args = [
+                "issue",
+                "create",
+                "--repo",
+                repo,
+                "--title",
+                name,
+                "--label",
+                LABEL,
+                "--body",
+                body(rows),
+            ]
+            actions.append(attempt(gh, args, f"opened {name}"))
     if report["errors"]:
         return actions
     for name, number in sorted(existing.items()):
         if name not in groups:
-            gh(
-                [
-                    "issue",
-                    "close",
-                    str(number),
-                    "--repo",
-                    repo,
-                    "--comment",
-                    "No engine reports it at the threshold any more.",
-                ]
-            )
-            actions.append(f"closed #{number} {name}")
+            args = [
+                "issue",
+                "close",
+                str(number),
+                "--repo",
+                repo,
+                "--comment",
+                "No engine reports it at the threshold any more.",
+            ]
+            actions.append(attempt(gh, args, f"closed #{number} {name}"))
     return actions
+
+
+def attempt(gh: Callable[[Sequence[str]], str], args: Sequence[str], done: str) -> str:
+    try:
+        gh(args)
+    except GH_FAILURES as exc:
+        return f"failed {done}: {exc}"
+    return done
 
 
 def run_gh(args: Sequence[str]) -> str:
     return subprocess.run(
-        ["gh", *args], capture_output=True, text=True, check=True
+        ["gh", *args],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=GH_TIMEOUT_SECONDS,
     ).stdout
 
 
@@ -172,9 +181,10 @@ def main(argv=None) -> int:
     parser.add_argument("--repo", required=True, help="owner/name")
     args = parser.parse_args(argv)
     report = json.loads(read_text(args.report))
-    for line in sync(report, args.repo, run_gh):
+    lines = sync(report, args.repo, run_gh)
+    for line in lines:
         print(line)
-    return 0
+    return 1 if any(line.startswith("failed ") for line in lines) else 0
 
 
 if __name__ == "__main__":

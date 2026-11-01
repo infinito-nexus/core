@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from unittest import TestCase, main
 
 import cli.contributing.security.issues.__main__ as issues_main
@@ -63,6 +64,19 @@ class TestSync(TestCase):
             {"findings": [], "errors": ["x: the mirror served no digest"]}, "o/r", gh
         )
         self.assertEqual(gh.verbs(), [])
+
+    def test_a_failed_issue_call_is_reported_and_the_others_still_run(self):
+        class HangingEdit(FakeGh):
+            def __call__(self, args):
+                if args[:2] == ["issue", "edit"]:
+                    raise subprocess.TimeoutExpired(["gh", *args], 120)
+                return super().__call__(args)
+
+        other = {**ROW, "id": "CVE-2026-109619"}
+        gh = HangingEdit([{"number": 7, "title": TITLE}])
+        actions = issues_main.sync({"findings": [ROW, other], "errors": []}, "o/r", gh)
+        self.assertTrue(actions[0].startswith(f"failed updated #7 {TITLE}"))
+        self.assertEqual(gh.verbs(), [["issue", "create"]])
 
     def test_the_issue_is_labelled(self):
         gh = FakeGh([])

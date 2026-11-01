@@ -77,7 +77,14 @@ def fetch_databases(
     if "osv" in engines:
         for zip_file in osv_zips(p, root):
             zip_file.parent.mkdir(parents=True, exist_ok=True)
-            fetch(osv_url(zip_file.parent.name), zip_file)
+            partial = zip_file.with_name(f"{zip_file.name}.part")
+            try:
+                fetch(osv_url(zip_file.parent.name), partial)
+            except OSError as exc:
+                partial.unlink(missing_ok=True)
+                errors.append(f"osv {zip_file.parent.name}: {exc}")
+                continue
+            partial.replace(zip_file)
     for engine in engines:
         errors += p.missing_databases(engine, root)
     return errors

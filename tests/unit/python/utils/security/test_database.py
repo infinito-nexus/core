@@ -72,6 +72,16 @@ class TestFetchDatabases(_Root):
         errors, _calls, _downloads = self._fetch(["trivy"], 0)
         self.assertTrue(any("provided database" in error for error in errors))
 
+    def test_an_interrupted_osv_download_leaves_no_zip_and_is_reported(self):
+        def fetch(url, destination):
+            destination.write_bytes(b"trunc")
+            raise TimeoutError("timed out")
+
+        errors = database.fetch_databases(P, self.root, ["osv"], None, fetch)
+        ubuntu = self.root / "osv" / "osv-scalibr" / "Ubuntu"
+        self.assertIn("osv Ubuntu: timed out", errors)
+        self.assertEqual(list(ubuntu.iterdir()), [])
+
 
 class TestStale(_Root):
     def test_a_missing_database_is_stale(self):
