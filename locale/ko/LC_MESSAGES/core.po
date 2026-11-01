@@ -1827,6 +1827,10 @@ msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "셀프 호스팅, 실시간 방문자 추적 및 사이트 통계에 대한 개인 정보 보호 우선 웹 분석 플랫폼"
 
+msgctxt "role:web-svc-access-request:description"
+msgid "Self-service requests for application roles that administrators grant with their own Keycloak rights"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
