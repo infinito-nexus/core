@@ -61,7 +61,8 @@ group; outside swarm mode a host the mesh CLI gave no mesh is skipped.
 - Forwarding enabled only on the hub, which is the only member with peers in
   every plane.
 - A hard gate that fails the deploy before swarm initialises when an awaited
-  peer never handshakes or the path will not carry a full-size payload. A spoke
+  peer has no handshake from the last 180 seconds, WireGuard's session
+  lifetime, or the path will not carry a full-size payload. A spoke
   awaits its hub, a full-mesh member every peer, a named hub every spoke that
   does not roam, and the swarm manager none.
 

@@ -9,6 +9,7 @@ MESHES_KEY = "meshes"
 INTERFACES_KEY = "interfaces"
 HUB_KEY = "hub"
 ROAMING_KEY = "roaming"
+REJECT_AFTER_TIME = 180
 
 
 def _networks(applications: Any, role: str) -> Mapping[str, Any]:
@@ -163,19 +164,28 @@ def awaited_keys(
     return awaited
 
 
-def handshaken(latest_handshakes: str, public_keys: Iterable[str]) -> bool:
-    """Whether every key in ``public_keys`` has completed a handshake.
+def handshaken(state: str, public_keys: Iterable[str]) -> bool:
+    """Whether every key in ``public_keys`` holds a session WireGuard still accepts.
 
     Args:
-        latest_handshakes: the output of ``wg show <mesh> latest-handshakes``.
-        public_keys: the peers that must have handshaked.
+        state: the host's ``date +%s`` on the first line, then the output of
+            ``wg show <mesh> latest-handshakes`` from the same shell call.
+        public_keys: the peers whose last handshake must lie within
+            ``REJECT_AFTER_TIME`` seconds of that epoch.
     """
+    lines = state.splitlines()
+    if not lines or not lines[0].strip().isdecimal():
+        return False
+    now = int(lines[0])
     stamps: dict[str, int] = {}
-    for line in latest_handshakes.splitlines():
+    for line in lines[1:]:
         fields = line.split()
-        if len(fields) == 2 and fields[1].isdigit():
+        if len(fields) == 2 and fields[1].isdecimal():
             stamps[fields[0]] = int(fields[1])
-    return all(key in stamps and stamps[key] > 0 for key in public_keys)
+    return all(
+        stamps.get(key, 0) > 0 and abs(now - stamps[key]) <= REJECT_AFTER_TIME
+        for key in public_keys
+    )
 
 
 def primary_address(applications: Any, host: str) -> str:

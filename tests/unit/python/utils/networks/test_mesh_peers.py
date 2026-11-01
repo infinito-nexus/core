@@ -1,6 +1,7 @@
 import unittest
 
 from utils.networks.mesh import (
+    REJECT_AFTER_TIME,
     awaited_keys,
     awaited_peers,
     dialled_peers,
@@ -112,7 +113,8 @@ class TestAwaitedKeys(unittest.TestCase):
 
 
 class TestHandshaken(unittest.TestCase):
-    STATE = "key-wrk\t1760000000\nkey-nfs\t0\nkey-mgr\t1760000005\n"
+    NOW = 1760000100
+    STATE = f"{NOW}\nkey-wrk\t1760000000\nkey-nfs\t0\nkey-mgr\t1760000005\n"
 
     def test_keys_that_handshaked_pass(self):
         self.assertTrue(handshaken(self.STATE, ["key-wrk", "key-mgr"]))
@@ -128,3 +130,21 @@ class TestHandshaken(unittest.TestCase):
 
     def test_an_interface_without_output_fails(self):
         self.assertFalse(handshaken("", ["key-mgr"]))
+
+    def test_a_handshake_as_old_as_the_session_lifetime_passes(self):
+        stamp = self.NOW - REJECT_AFTER_TIME
+        self.assertTrue(handshaken(f"{self.NOW}\nkey-mgr\t{stamp}", ["key-mgr"]))
+
+    def test_a_handshake_older_than_the_session_lifetime_fails(self):
+        stamp = self.NOW - REJECT_AFTER_TIME - 1
+        self.assertFalse(handshaken(f"{self.NOW}\nkey-mgr\t{stamp}", ["key-mgr"]))
+
+    def test_a_handshake_left_from_an_hour_ago_fails(self):
+        self.assertFalse(handshaken("1793545708\nkey-mgr\t1793542108", ["key-mgr"]))
+
+    def test_a_handshake_stamped_ahead_of_a_stepped_back_clock_fails(self):
+        stamp = self.NOW + REJECT_AFTER_TIME + 1
+        self.assertFalse(handshaken(f"{self.NOW}\nkey-mgr\t{stamp}", ["key-mgr"]))
+
+    def test_a_state_without_the_host_epoch_fails(self):
+        self.assertFalse(handshaken("key-mgr\t1760000005", ["key-mgr"]))
