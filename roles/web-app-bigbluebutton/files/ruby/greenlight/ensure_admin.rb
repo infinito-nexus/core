@@ -88,7 +88,6 @@ else
 end
 
 unless new_external_id.empty?
-  # Greenlight signs in the first user holding the subject, so a duplicate the email fallback once linked must let go of it
   User.where(external_id: new_external_id, provider: user.provider).where.not(id: user.id).find_each do |other|
     other.update!(external_id: nil)
     changed = true

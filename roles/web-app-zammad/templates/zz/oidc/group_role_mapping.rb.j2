@@ -65,10 +65,6 @@ Rails.application.config.after_initialize do
       end
     end
 
-    # auth_third_party_auto_link_at_inital_login is off so no login links by email;
-    # a directory account (source "Ldap::<id>", login = the LDAP uid Keycloak federates
-    # as preferred_username) is linked by that login instead, or create_from_hash!
-    # collides with its email and the first SSO login of every LDAP user fails.
     define_method(:_zammad_oidc_directory_user) do |auth_hash|
       return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
 

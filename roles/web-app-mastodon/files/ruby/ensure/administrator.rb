@@ -39,9 +39,6 @@ unless user.approved?
   changed = true
 end
 
-# ALLOW_UNSAFE_AUTH_PROVIDER_REATTACH=false makes find_for_omniauth link only by
-# Identity(provider, uid); without this row the administrator's first SSO login
-# creates a second account "<username>_1" instead of reaching this one.
 unless sso_uid.empty?
   identity = Identity.find_or_initialize_by(provider: "openid_connect", uid: sso_uid)
   unless identity.user_id == user.id
