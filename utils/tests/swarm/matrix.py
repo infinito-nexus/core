@@ -169,7 +169,7 @@ def _deploy(
         "-e",
         f"VARIANT_INDEX={json.dumps(round_index)}",
         "-e",
-        f"PRIMARY_APPS={json.dumps([app_id])}",
+        f"PRIMARY_APPS={json.dumps([app_id], separators=(',', ':'))}",
     ]
     pass_label = (
         f"matrix-deploy: round {round_index + 1}/{total} "
