@@ -1,0 +1,79 @@
+---
+- name: ⏸️ Wait before applying the hung or transiently failed records again
+  ansible.builtin.wait_for:
+    timeout: "{{ cloudflare_retry_delay | int }}"
+  when: cloudflare_attempt | int > 1
+
+- name: 📌 Apply A/AAAA
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    zone: "{{ item.zone }}"
+    type: "{{ item.type }}"
+    name: "{{ item.name }}"
+    content: "{{ item.content }}"
+    proxied: "{{ item.proxied | default(false) }}"
+    ttl: "{{ item.ttl | default(1) }}"
+    state: "{{ item.state | default('present') }}"
+    solo: "{{ item.solo | default(false) }}"
+    timeout: "{{ cloudflare_request_timeout | int }}"
+  loop: "{{ _cf_pending | selectattr('type','in',['A','AAAA']) | list }}"
+  loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.content }}" }
+  ignore_errors: true
+  # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
+  async: "{{ cloudflare_attempt_timeout | int }}"
+  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_a
+  changed_when: false
+
+- name: 📌 Apply CNAME/MX/TXT
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    zone: "{{ item.zone }}"
+    type: "{{ item.type }}"
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    ttl: "{{ item.ttl | default(1) }}"
+    priority: "{{ (item.type == 'MX') | ternary(item.priority | default(10), omit) }}"
+    state: "{{ item.state | default('present') }}"
+    solo: "{{ item.solo | default(false) }}"
+    timeout: "{{ cloudflare_request_timeout | int }}"
+  loop: "{{ _cf_pending | selectattr('type','in',['CNAME','MX','TXT']) | list }}"
+  loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.value }}" }
+  ignore_errors: true
+  # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
+  async: "{{ cloudflare_attempt_timeout | int }}"
+  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_cname
+  changed_when: false
+
+- name: 📌 Apply SRV
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    zone: "{{ item.zone }}"
+    type: SRV
+    service: "{{ item.service }}"
+    proto: "{{ item.proto }}"
+    name: "{{ item.name }}"
+    priority: "{{ item.priority }}"
+    weight: "{{ item.weight }}"
+    port: "{{ item.port }}"
+    value: "{{ item.value }}"
+    ttl: "{{ item.ttl | default(1) }}"
+    state: "{{ item.state | default('present') }}"
+    solo: "{{ item.solo | default(false) }}"
+    timeout: "{{ cloudflare_request_timeout | int }}"
+  loop: "{{ _cf_pending | selectattr('type','equalto','SRV') | list }}"
+  loop_control: { label: "SRV {{ item.service }}.{{ item.proto }} {{ item.name }} -> {{ item.value }}:{{ item.port }}" }
+  ignore_errors: true
+  # rationale: async; judge.yml reaps and judges the jobs of every SRV record that opted out of best effort
+  async: "{{ cloudflare_attempt_timeout | int }}"
+  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_srv
+  changed_when: false
+
+- name: 🕒 Stamp the deadline by which every job of this attempt has finished or been killed
+  ansible.builtin.set_fact:
+    _cf_collect_deadline: "{{ now(utc=true).timestamp() + (cloudflare_attempt_timeout | int) + 10 }}"
