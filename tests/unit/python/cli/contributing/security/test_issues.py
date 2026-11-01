@@ -24,11 +24,14 @@ TITLE = "🛡️ CVE-2026-109618 in docker.io/roundcube/roundcubemail:1.7.5-apac
 
 
 class FakeGh:
-    def __init__(self, open_issues):
+    def __init__(self, open_issues, hang=()):
         self.open_issues = open_issues
+        self.hang = [list(verb) for verb in hang]
         self.calls = []
 
     def __call__(self, args):
+        if list(args[:2]) in self.hang:
+            raise subprocess.TimeoutExpired(["gh", *args], 120)
         self.calls.append(list(args))
         if args[:2] == ["issue", "list"]:
             return json.dumps(self.open_issues)
@@ -66,14 +69,8 @@ class TestSync(TestCase):
         self.assertEqual(gh.verbs(), [])
 
     def test_a_failed_issue_call_is_reported_and_the_others_still_run(self):
-        class HangingEdit(FakeGh):
-            def __call__(self, args):
-                if args[:2] == ["issue", "edit"]:
-                    raise subprocess.TimeoutExpired(["gh", *args], 120)
-                return super().__call__(args)
-
         other = {**ROW, "id": "CVE-2026-109619"}
-        gh = HangingEdit([{"number": 7, "title": TITLE}])
+        gh = FakeGh([{"number": 7, "title": TITLE}], hang=[("issue", "edit")])
         actions = issues_main.sync({"findings": [ROW, other], "errors": []}, "o/r", gh)
         self.assertTrue(actions[0].startswith(f"failed updated #7 {TITLE}"))
         self.assertEqual(gh.verbs(), [["issue", "create"]])
