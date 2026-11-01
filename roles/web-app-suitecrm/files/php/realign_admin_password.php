@@ -10,16 +10,10 @@
  * hash without a leading `$` is the pre-bcrypt column `checkPasswordMD5()` still compares
  * literally.
  *
- * SuiteCRM 8 has no console command to add a user either, and this script does not boot the
- * legacy bean layer, so a missing administrator is written as the rows `User::save()` and
- * `EmailAddress::addAddress()` produce: one `users` row, the `email_addresses` row of its
- * address (reused when another record already carries it) and the `email_addr_bean_rel` link.
- *
  * Every exception or error thrown inside main()'s try block (env, connection, queries) is
  * caught and reduced to its message: PHP's uncaught-exception trace carries the call
  * arguments unless `zend.exception_ignore_args` is on, and the official PHP images activate
- * no php.ini, so an uncaught throw would put the DSN credentials on stderr. A parse error or
- * a fatal raised outside that block still ends the run with php's own message and exit 255.
+ * no php.ini, so an uncaught throw would put the DSN credentials on stderr.
  *
  * Env of the container, from templates/env.j2:
  *   SUITECRM_DB_HOST, SUITECRM_DB_PORT, SUITECRM_DB_NAME, SUITECRM_DB_USER,
@@ -31,11 +25,6 @@
  *   SUITECRM_REALIGN_EMAIL     primary email a created administrator gets
  *
  * Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
- *
- * php reads the script from stdin, so no path tells a direct run from a test's require:
- * main() runs only when debug_backtrace() finds no including frame. For the same reason
- * the CLI defines no STDOUT/STDERR constants (php_cli.c registers them only for a script
- * file), so output goes through php://stdout and php://stderr.
  */
 
 declare(strict_types=1);
