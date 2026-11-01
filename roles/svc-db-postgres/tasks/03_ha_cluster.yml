@@ -9,16 +9,31 @@
   delegate_to: "{{ item.host }}"
   changed_when: false
   failed_when: false
+  ignore_unreachable: true
+  retries: 12
+  delay: 5
+  until: postgres_dcs_members.rc is defined and postgres_dcs_members.rc == 0
   loop: "{{ lookup('db_instances', application_id).instances }}"
   loop_control:
     label: "{{ item.service }}"
 
+- name: "📋 POSTGRES | Collect the member lists that answered"
+  ansible.builtin.set_fact:
+    postgres_dcs_answers: >-
+      {{ postgres_dcs_members.results | selectattr('rc', 'defined') | selectattr('rc', 'equalto', 0)
+         | map(attribute='stdout') | list }}
+
+- name: "✅ POSTGRES | Ensure at least one member answered from the coordination store"
+  ansible.builtin.assert:
+    that: postgres_dcs_answers | length > 0
+    fail_msg: >-
+      No Patroni member could list the coordination store, so its state is unknown and no member is restarted:
+      {{ postgres_dcs_members.results | map(attribute='stderr', default='unreachable') | list }}
+    quiet: true
+
 - name: "🔄 POSTGRES | Restart members that lost the rebuilt coordination store"
   ansible.builtin.include_tasks: utils/dcs_rejoin.yml
-  when: >-
-    postgres_dcs_members.results
-    | selectattr('rc', 'equalto', 0)
-    | map(attribute='stdout') | map('from_json') | select | list | length == 0
+  when: postgres_dcs_answers | map('from_json') | select | list | length == 0
 
 - name: "🔍 POSTGRES | Resolve the Patroni primary"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
