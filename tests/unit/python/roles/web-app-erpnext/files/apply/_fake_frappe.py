@@ -23,8 +23,11 @@ COUNTRY_CURRENCIES = {"Germany": "EUR", "United States": "USD"}
 CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles",)}
 NAME_FIELDS = {
     "Company": "company_name",
+    "Customer Group": "customer_group_name",
     "Fiscal Year": "year",
+    "Item Group": "item_group_name",
     "Role": "role_name",
+    "Supplier Group": "supplier_group_name",
     "Territory": "territory_name",
     "UOM": "uom_name",
     "User": "email",
