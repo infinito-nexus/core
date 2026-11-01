@@ -2,6 +2,9 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
+// frio renders /admin from view/theme/frio/templates/admin/summary.tpl, whose panel is #adminpage-summary; #adminpage exists only in the base theme's summary.tpl.
+const ADMIN_SUMMARY = "#adminpage-summary";
+
 exports.register = function (shared) {
   async function adminReachesPanel(page, login) {
     await login(page, shared.env.adminUsername, shared.env.adminPassword);
@@ -12,7 +15,7 @@ exports.register = function (shared) {
       response.status(),
       "An administrator role member MUST be listed in config.admin_email and reach /admin",
     ).toBeLessThan(400);
-    await expect(page.locator("#adminpage").first()).toBeVisible({ timeout: resolveTimeout(30_000) });
+    await expect(page.locator(ADMIN_SUMMARY).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
 
     await shared.friendicaLogout(page);
   }
@@ -23,7 +26,7 @@ exports.register = function (shared) {
     const response = await gotoOnion(page, `${shared.trimmedBaseUrl()}/admin`, { waitUntil: "domcontentloaded" });
     expect(response, "Expected a response for /admin").toBeTruthy();
     expect(response.status(), "biber MUST NOT be a Friendica site administrator").toBe(403);
-    await expect(page.locator("#adminpage")).toHaveCount(0);
+    await expect(page.locator(ADMIN_SUMMARY)).toHaveCount(0);
 
     await shared.friendicaLogout(page);
   }
