@@ -26,7 +26,9 @@ class TestPipeline(TestCase):
         runtime = pipeline.role_services()["runtime"]
         keys = ("targets", "engines", "severity", "fixed_only", "workers", "db_update")
         config = pipeline.pipeline().scan_config({key: runtime[key] for key in keys})
-        self.assertEqual(config.severity, frozenset({"CRITICAL", "HIGH"}))
+        self.assertLessEqual(
+            set(config.severity.values()), set(pipeline.pipeline().ACTIONS)
+        )
 
 
 if __name__ == "__main__":

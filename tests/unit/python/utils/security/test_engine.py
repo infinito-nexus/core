@@ -32,7 +32,7 @@ class TestEnginesFor(TestCase):
                     {
                         "targets": ["host", "container"],
                         "engines": engine.engines_for(name),
-                        "severity": ["CRITICAL", "HIGH"],
+                        "severity": {"CRITICAL": "fail", "HIGH": "warn"},
                         "fixed_only": True,
                         "workers": 2,
                         "db_update": False,

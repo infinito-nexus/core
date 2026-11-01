@@ -352,11 +352,15 @@ CYCLONEDX = {
 }
 
 
+SEVERITY = {"CRITICAL": "fail", "HIGH": "warn"}
+STRICT = {"CRITICAL": "fail", "HIGH": "fail"}
+
+
 def _config(**overrides):
     raw = {
         "targets": ["host", "container"],
         "engines": ["trivy", "grype", "osv", "syft"],
-        "severity": ["CRITICAL", "HIGH"],
+        "severity": SEVERITY,
         "fixed_only": True,
         "workers": 2,
         "db_update": True,
@@ -439,20 +443,20 @@ class TestNegativeControl(TestCase):
             ]
         )
         self.assertEqual(len(findings), 3)
-        failures, _infos = SCRIPT.evaluate(
+        failures, warnings, _infos = SCRIPT.evaluate(
             findings,
             {"host": SCRIPT.host_target("node")},
             _config(),
             _suppressions(),
             TODAY,
         )
-        self.assertEqual(failures, [])
+        self.assertEqual((failures, warnings), ([], []))
 
     def test_a_fixable_critical_fails(self):
         findings = [
             f for f in SCRIPT.parse_trivy(TRIVY_HOST, "host") if f.package == "minimist"
         ]
-        failures, _infos = SCRIPT.evaluate(
+        failures, _warnings, _infos = SCRIPT.evaluate(
             findings,
             {"host": SCRIPT.host_target("node")},
             _config(),
@@ -487,8 +491,7 @@ class TestSourceBuiltRuntime(TestCase):
         sbom = {**SYFT_PHP_IMAGE, "artifacts": SYFT_PHP_IMAGE["artifacts"][:1]}
         self.assertIsNone(SCRIPT.runtime_sbom(sbom))
 
-    def test_source_built_php_8_4_26_fails_at_the_default_threshold(self):
-        findings = SCRIPT.parse_grype(GRYPE_PHP_RUNTIME, "img")
+    def _php_runtime(self):
         target = SCRIPT.Target(
             "img",
             "container",
@@ -496,12 +499,24 @@ class TestSourceBuiltRuntime(TestCase):
             "roundcube:1.7.5-apache",
             (("roundcube", "roundcube"),),
         )
-        failures, _infos = SCRIPT.evaluate(
-            findings, {"img": target}, _config(), _suppressions(), TODAY
+        return SCRIPT.evaluate(
+            SCRIPT.parse_grype(GRYPE_PHP_RUNTIME, "img"),
+            {"img": target},
+            _config(),
+            _suppressions(),
+            TODAY,
         )
-        self.assertEqual(len(failures), 2)
+
+    def test_source_built_php_8_4_26_fails_on_its_critical(self):
+        failures, _warnings, _infos = self._php_runtime()
+        self.assertEqual(len(failures), 1)
         self.assertIn("CVE-2026-109618 CRITICAL php-cli 8.4.26", failures[0])
         self.assertIn("8.4.27", failures[0])
+
+    def test_source_built_php_8_4_26_warns_on_its_high(self):
+        _failures, warnings, _infos = self._php_runtime()
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("CVE-2026-109619 HIGH php-cli 8.4.26", warnings[0])
 
     def test_trivy_and_osv_without_grype_still_run_the_runtime_pass(self):
         for engine in ("trivy", "osv"):
@@ -547,12 +562,34 @@ class TestScanConfig(TestCase):
         raw = {
             "targets": ["host"],
             "engines": ["grype"],
-            "severity": ["HIGH"],
+            "severity": {"HIGH": "fail"},
             "fixed_only": True,
             "workers": 1,
         }
         with self.assertRaisesRegex(SCRIPT.ConfigError, "db_update"):
             SCRIPT.scan_config(raw)
+
+    def test_the_severity_mapping_is_kept_in_severity_order(self):
+        config = _config(severity={"HIGH": "warn", "CRITICAL": "fail"})
+        self.assertEqual(
+            list(config.severity.items()), [("CRITICAL", "fail"), ("HIGH", "warn")]
+        )
+
+    def test_the_retired_list_form_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "list form"):
+            _config(severity=["CRITICAL", "HIGH"])
+
+    def test_an_unknown_action_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "HIGH: ignore"):
+            _config(severity={"CRITICAL": "fail", "HIGH": "ignore"})
+
+    def test_an_unknown_severity_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "unknown severity: SEVERE"):
+            _config(severity={"SEVERE": "fail"})
+
+    def test_an_empty_mapping_is_rejected(self):
+        with self.assertRaisesRegex(SCRIPT.ConfigError, "non-empty mapping"):
+            _config(severity={})
 
     def test_a_string_bool_is_rejected(self):
         with self.assertRaisesRegex(SCRIPT.ConfigError, "fixed_only"):
@@ -668,23 +705,53 @@ class TestOsvSbom(TestCase):
 
 
 class TestThreshold(TestCase):
-    def test_a_fixable_high_fails(self):
-        self.assertTrue(SCRIPT.failing(_finding(), _config()))
+    def test_a_fixable_critical_maps_to_fail(self):
+        self.assertEqual(
+            SCRIPT.threshold(_finding(severity="CRITICAL"), _config()), "fail"
+        )
 
-    def test_an_unfixed_critical_passes_while_fixed_only(self):
-        self.assertFalse(
-            SCRIPT.failing(_finding(severity="CRITICAL", fixed=""), _config())
+    def test_a_fixable_high_maps_to_warn(self):
+        self.assertEqual(SCRIPT.threshold(_finding(), _config()), "warn")
+
+    def test_an_unfixed_critical_is_below_the_threshold_while_fixed_only(self):
+        self.assertIsNone(
+            SCRIPT.threshold(_finding(severity="CRITICAL", fixed=""), _config())
         )
 
     def test_an_unfixed_critical_fails_without_fixed_only(self):
-        self.assertTrue(
-            SCRIPT.failing(
+        self.assertEqual(
+            SCRIPT.threshold(
                 _finding(severity="CRITICAL", fixed=""), _config(fixed_only=False)
-            )
+            ),
+            "fail",
         )
 
-    def test_a_fixable_medium_passes(self):
-        self.assertFalse(SCRIPT.failing(_finding(severity="MEDIUM"), _config()))
+    def test_an_unmapped_severity_is_below_the_threshold(self):
+        self.assertIsNone(SCRIPT.threshold(_finding(severity="MEDIUM"), _config()))
+
+
+class TestVerdict(TestCase):
+    def _verdict(self, suppressed, action):
+        return SCRIPT.Verdict(
+            _finding(),
+            SCRIPT.host_target("node"),
+            (None, None),
+            _rule() if suppressed else None,
+            suppressed,
+            action,
+        )
+
+    def test_an_unsuppressed_verdict_is_its_action(self):
+        self.assertEqual(
+            [self._verdict(False, action).verdict for action in SCRIPT.ACTIONS],
+            ["fail", "warn"],
+        )
+
+    def test_a_suppressed_verdict_is_suppressed_whatever_its_action(self):
+        self.assertEqual(
+            {self._verdict(True, action).verdict for action in SCRIPT.ACTIONS},
+            {"suppressed"},
+        )
 
 
 class TestSuppressions(TestCase):
@@ -697,35 +764,35 @@ class TestSuppressions(TestCase):
         return SCRIPT.evaluate(
             [finding or _finding(target=target.key)],
             {target.key: target},
-            _config(),
+            _config(severity=STRICT),
             suppressions,
             TODAY,
         )
 
     def test_a_suppression_of_the_owning_role_silences_its_container(self):
         target = self._container_target((("checkmk", "checkmk"),))
-        failures, infos = self._evaluate(
+        failures, _warnings, infos = self._evaluate(
             target, _suppressions({"checkmk": {"checkmk": (_rule(),)}})
         )
         self.assertEqual((failures, len(infos)), ([], 1))
 
     def test_a_suppression_of_another_role_does_not_apply(self):
         target = self._container_target((("checkmk", "checkmk"),))
-        failures, _infos = self._evaluate(
+        failures, _warnings, _infos = self._evaluate(
             target, _suppressions({"nextcloud": {"checkmk": (_rule(),)}})
         )
         self.assertEqual(len(failures), 1)
 
     def test_a_suppression_of_another_service_of_the_role_does_not_apply(self):
         target = self._container_target((("checkmk", "checkmk"),))
-        failures, _infos = self._evaluate(
+        failures, _warnings, _infos = self._evaluate(
             target, _suppressions({"checkmk": {"checkmkmcp": (_rule(),)}})
         )
         self.assertEqual(len(failures), 1)
 
     def test_a_shared_image_fails_for_the_owner_without_suppression(self):
         target = self._container_target((("checkmk", "checkmk"), ("other", "app")))
-        failures, _infos = self._evaluate(
+        failures, _warnings, _infos = self._evaluate(
             target, _suppressions({"checkmk": {"checkmk": (_rule(),)}})
         )
         self.assertEqual(
@@ -737,7 +804,7 @@ class TestSuppressions(TestCase):
 
     def test_an_expired_suppression_fails_and_says_so(self):
         target = self._container_target((("checkmk", "checkmk"),))
-        failures, infos = self._evaluate(
+        failures, _warnings, infos = self._evaluate(
             target,
             _suppressions(
                 {"checkmk": {"checkmk": (_rule(until=TODAY - dt.timedelta(days=1)),)}}
@@ -749,7 +816,7 @@ class TestSuppressions(TestCase):
     def test_a_suppression_matches_an_alias(self):
         target = self._container_target((("checkmk", "checkmk"),))
         finding = _finding(target="img", ids=("CVE-2026-0002", "GHSA-aaaa-bbbb-cccc"))
-        failures, _infos = self._evaluate(
+        failures, _warnings, _infos = self._evaluate(
             target,
             _suppressions({"checkmk": {"checkmk": (_rule("CVE-2026-0002"),)}}),
             finding,
@@ -759,10 +826,10 @@ class TestSuppressions(TestCase):
     def test_a_host_suppression_covers_only_its_engine(self):
         target = SCRIPT.host_target("node")
         suppressions = _suppressions(host={"grype": (_rule(),)})
-        failures, _infos = SCRIPT.evaluate(
+        failures, _warnings, _infos = SCRIPT.evaluate(
             [_finding(engine="trivy"), _finding(engine="grype")],
             {"host": target},
-            _config(),
+            _config(severity=STRICT),
             suppressions,
             TODAY,
         )
@@ -772,7 +839,7 @@ class TestSuppressions(TestCase):
 
     def test_an_unmanaged_container_cannot_be_suppressed(self):
         target = self._container_target(((None, None),))
-        failures, _infos = self._evaluate(target, _suppressions())
+        failures, _warnings, _infos = self._evaluate(target, _suppressions())
         self.assertIn("unmanaged container", failures[0])
 
     def test_suppressions_from_json(self):
@@ -1278,52 +1345,463 @@ class TestRunningContainers(TestCase):
         )
 
 
-MAIN_ARGS = (
-    "--hardened",
-    "{}",
-    "--images",
-    "{}",
-    "--suppressions",
-    json.dumps({"containers": {}, "host": {}}),
-    "--cache-dir",
-    "/nonexistent",
-    "--database-dir",
-    "/nonexistent/db",
-    "--host-excludes",
-    "[]",
+RUN = SCRIPT.Run(
+    id="run-1",
+    started=dt.datetime(2026, 10, 31, 0, 0, 5, tzinfo=dt.UTC),
+    host="node",
+    environment="production",
+)
+NEXTCLOUD = SCRIPT.Target(
+    "abc",
+    "container",
+    "sha256:abc",
+    "nextcloud:31",
+    (("nextcloud", "nextcloud"), ("nextcloud", "cron")),
 )
 
 
+def _verdict(target, owner, *, action, rule=None, **fields):
+    return SCRIPT.Verdict(
+        _finding(target=target.key, **fields),
+        target,
+        owner,
+        rule,
+        rule is not None,
+        action,
+    )
+
+
+def _outcome(verdicts, *, errors=(), failed=False, targets=()):
+    return SCRIPT.Outcome(
+        run=RUN,
+        targets=tuple(targets),
+        records=tuple(SCRIPT.record(verdict, RUN) for verdict in verdicts),
+        errors=tuple(errors),
+        engines=("grype", "syft"),
+        failed=failed,
+        finished=1793404805.5,
+    )
+
+
+class TestRecord(TestCase):
+    def test_a_container_record_names_owner_image_and_suppression(self):
+        verdict = _verdict(
+            NEXTCLOUD,
+            ("nextcloud", "nextcloud"),
+            action="warn",
+            rule=_rule(until=dt.date(2026, 12, 31)),
+            engine="osv",
+        )
+        self.assertEqual(
+            SCRIPT.record(verdict, RUN),
+            {
+                "run_id": "run-1",
+                "timestamp": "2026-10-31T00:00:05Z",
+                "host": "node",
+                "environment": "production",
+                "target": "nextcloud/nextcloud",
+                "kind": "container",
+                "image": "nextcloud:31@sha256:abc",
+                "scanner": "osv",
+                "id": "CVE-2026-0001",
+                "severity": "HIGH",
+                "package": "openssl",
+                "installed_version": "1.0",
+                "fixed_version": "1.1",
+                "suppressed": True,
+                "suppressed_until": "2026-12-31",
+                "verdict": "suppressed",
+            },
+        )
+
+    def test_a_host_record_names_the_host_as_target_and_image(self):
+        record = SCRIPT.record(
+            _verdict(SCRIPT.host_target("node"), (None, None), action="fail"), RUN
+        )
+        self.assertEqual(
+            (record["target"], record["image"], record["kind"]),
+            ("node", "node", "host"),
+        )
+
+    def test_an_unsuppressed_record_carries_its_action_and_no_until(self):
+        record = SCRIPT.record(
+            _verdict(SCRIPT.host_target("node"), (None, None), action="fail"), RUN
+        )
+        self.assertEqual(
+            (record["verdict"], record["suppressed"], record["suppressed_until"]),
+            ("fail", False, None),
+        )
+
+    def test_a_finding_without_a_fix_has_no_fixed_version(self):
+        record = SCRIPT.record(
+            _verdict(SCRIPT.host_target("node"), (None, None), action="fail", fixed=""),
+            RUN,
+        )
+        self.assertIsNone(record["fixed_version"])
+
+
+class TestJournalEvents(TestCase):
+    def test_each_owner_of_a_shared_image_gets_its_own_line(self):
+        outcome = _outcome(
+            [_verdict(NEXTCLOUD, ("nextcloud", "nextcloud"), action="fail")],
+            targets=[NEXTCLOUD],
+        )
+        self.assertEqual(
+            [
+                (event["target"], event["counts"], event["verdict"])
+                for event in outcome.target_events()
+            ],
+            [
+                ("nextcloud/cron", {"fail": 0, "warn": 0, "suppressed": 0}, "ok"),
+                (
+                    "nextcloud/nextcloud",
+                    {"fail": 1, "warn": 0, "suppressed": 0},
+                    "fail",
+                ),
+            ],
+        )
+
+    def test_a_target_with_warnings_only_is_warn(self):
+        host = SCRIPT.host_target("node")
+        outcome = _outcome(
+            [
+                _verdict(host, (None, None), action="warn"),
+                _verdict(host, (None, None), action="fail", rule=_rule()),
+            ],
+            targets=[host],
+        )
+        self.assertEqual(
+            outcome.target_events()[0]["counts"],
+            {"fail": 0, "warn": 1, "suppressed": 1},
+        )
+        self.assertEqual(outcome.target_events()[0]["verdict"], "warn")
+
+    def test_an_engine_error_fails_the_summary_without_findings(self):
+        summary = _outcome(
+            [], errors=["grype database: exited 1"], failed=True
+        ).summary_event()
+        self.assertEqual(
+            summary,
+            {
+                "event": "hlth_runtime.summary",
+                "run_id": "run-1",
+                "counts": {"fail": 0, "warn": 0, "suppressed": 0},
+                "errors": 1,
+                "verdict": "fail",
+            },
+        )
+
+
+class TestMetrics(TestCase):
+    def _lines(self, outcome):
+        return outcome.metrics().splitlines()
+
+    def test_one_series_counts_the_findings_of_one_label_set(self):
+        host = SCRIPT.host_target("node")
+        lines = self._lines(
+            _outcome(
+                [
+                    _verdict(host, (None, None), action="fail", severity="CRITICAL"),
+                    _verdict(
+                        host,
+                        (None, None),
+                        action="fail",
+                        severity="CRITICAL",
+                        ids=("CVE-2026-0002",),
+                    ),
+                ]
+            )
+        )
+        self.assertIn(
+            'infinito_hlth_runtime_findings{target="node",kind="host",image="node",'
+            'severity="CRITICAL",scanner="trivy",verdict="fail"} 2',
+            lines,
+        )
+
+    def test_no_series_names_the_vulnerability(self):
+        text = _outcome(
+            [_verdict(NEXTCLOUD, ("nextcloud", "nextcloud"), action="warn")]
+        ).metrics()
+        labels = re.findall(r"(\w+)=\"", text.split("_findings{", 1)[1].split("}")[0])
+        self.assertEqual((tuple(labels), "CVE-" in text), (SCRIPT.METRIC_LABELS, False))
+
+    def test_every_metric_declares_help_and_gauge_type(self):
+        lines = self._lines(_outcome([]))
+        for name in (
+            "findings",
+            "last_run_timestamp_seconds",
+            "last_run_success",
+            "scanner_errors",
+        ):
+            with self.subTest(metric=name):
+                metric = f"infinito_hlth_runtime_{name}"
+                self.assertTrue(
+                    any(line.startswith(f"# HELP {metric} ") for line in lines)
+                )
+                self.assertIn(f"# TYPE {metric} gauge", lines)
+
+    def test_the_last_run_carries_its_time_and_success(self):
+        lines = self._lines(_outcome([], failed=True))
+        self.assertIn(
+            "infinito_hlth_runtime_last_run_timestamp_seconds 1793404805", lines
+        )
+        self.assertIn("infinito_hlth_runtime_last_run_success 0", lines)
+
+    def test_scanner_errors_are_counted_per_engine_with_clean_engines_at_zero(self):
+        lines = self._lines(
+            _outcome(
+                [],
+                errors=[
+                    "grype database: exited 1",
+                    "grype: provided database /db/grype/6/vulnerability.db is missing",
+                    "osv export app:1: exited 1",
+                ],
+            )
+        )
+        self.assertEqual(
+            [
+                line
+                for line in lines
+                if line.startswith("infinito_hlth_runtime_scanner")
+            ],
+            [
+                'infinito_hlth_runtime_scanner_errors{scanner="grype"} 2',
+                'infinito_hlth_runtime_scanner_errors{scanner="osv"} 1',
+                'infinito_hlth_runtime_scanner_errors{scanner="syft"} 0',
+            ],
+        )
+
+    def test_label_values_are_escaped(self):
+        target = SCRIPT.Target(
+            "abc", "container", "sha256:abc", 'odd"\\name\n', ((None, None),)
+        )
+        text = _outcome([_verdict(target, (None, None), action="warn")]).metrics()
+        self.assertIn('image="odd\\"\\\\name\\n@sha256:abc"', text)
+
+
+class TestWriteAtomic(TestCase):
+    def test_the_file_is_replaced_without_a_leftover_temp_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "infinito_hlth_runtime.prom"
+            SCRIPT.write_atomic(path, "old\n")
+            SCRIPT.write_atomic(path, "new\n")
+            text = path.read_text()  # nocheck: cache-read tempdir file rewritten
+            self.assertEqual(
+                ([p.name for p in Path(tmp).iterdir()], text),
+                (["infinito_hlth_runtime.prom"], "new\n"),
+            )
+
+
+NO_SUPPRESSIONS = {"containers": {}, "host": {}}
+MAIN_SCAN = {
+    "targets": ["host"],
+    "engines": ["grype"],
+    "severity": SEVERITY,
+    "fixed_only": True,
+    "workers": 1,
+    "db_update": True,
+}
+CRITICAL_FINDING = _finding(engine="grype", severity="CRITICAL")
+HIGH_FINDING = _finding(engine="grype", ids=("CVE-2026-0002",))
+
+
 class TestMain(TestCase):
-    def _main(self, scan, side_effect):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        for name in ("cache", "report", "log", "metrics"):
+            (self.root / name).mkdir()
+        self.metrics = self.root / "metrics" / "infinito_hlth_runtime.prom"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _args(self, scan, suppressions, metrics):
+        return [
+            "--scan",
+            json.dumps(scan),
+            "--hardened",
+            "{}",
+            "--images",
+            "{}",
+            "--suppressions",
+            json.dumps(suppressions),
+            "--cache-dir",
+            str(self.root / "cache"),
+            "--database-dir",
+            str(self.root / "cache" / "db"),
+            "--host-excludes",
+            "[]",
+            "--environment",
+            "production",
+            "--report-dir",
+            str(self.root / "report"),
+            "--log-dir",
+            str(self.root / "log"),
+            *metrics,
+        ]
+
+    def _early(self, scan, side_effect):
         with (
             mock.patch.object(SCRIPT.subprocess, "run", side_effect=side_effect),
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
-            code = SCRIPT.main(["--scan", json.dumps(scan), *MAIN_ARGS])
+            code = SCRIPT.main(self._args(scan, NO_SUPPRESSIONS, []))
         return code, out.getvalue()
 
+    def _main(self, findings, *, errors=(), suppressions=NO_SUPPRESSIONS, metrics=None):
+        flags = ["--metrics-file", str(self.metrics)] if metrics is None else metrics
+        with (
+            mock.patch.object(SCRIPT, "running_containers", return_value=[]),
+            mock.patch.object(SCRIPT, "check", return_value=([], [])),
+            mock.patch.object(SCRIPT, "docker_root", return_value="/var/lib/docker"),
+            mock.patch.object(
+                SCRIPT, "scan", return_value=(list(findings), list(errors))
+            ),
+            mock.patch.object(SCRIPT.socket, "gethostname", return_value="node"),
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            code = SCRIPT.main(self._args(MAIN_SCAN, suppressions, flags))
+        return code, out.getvalue()
+
+    def _report(self):
+        path = self.root / "report" / "report.json"
+        text = path.read_text()  # nocheck: cache-read tempdir report of main()
+        return json.loads(text)
+
     def test_an_invalid_scan_config_fails_with_one_line(self):
-        code, output = self._main(
+        code, output = self._early(
             {"targets": ["host"]}, AssertionError("no engine call expected")
         )
         self.assertEqual((code, len(output.splitlines())), (1, 1))
         self.assertIn("scan config lacks", output)
 
     def test_a_hung_container_listing_fails_with_one_line(self):
-        scan = {
-            "targets": ["host"],
-            "engines": ["grype"],
-            "severity": ["HIGH"],
-            "fixed_only": True,
-            "workers": 1,
-            "db_update": True,
-        }
-        code, output = self._main(
-            scan, subprocess.TimeoutExpired(cmd=["container", "ps"], timeout=60)
+        code, output = self._early(
+            MAIN_SCAN, subprocess.TimeoutExpired(cmd=["container", "ps"], timeout=60)
         )
         self.assertEqual((code, len(output.splitlines())), (1, 1))
         self.assertIn("timed out after 60 seconds", output)
+
+    def test_a_finding_mapped_to_fail_fails_the_run(self):
+        code, output = self._main([CRITICAL_FINDING])
+        self.assertEqual(code, 1)
+        self.assertIn(
+            "❌ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1)",
+            output,
+        )
+
+    def test_a_finding_mapped_to_warn_passes_with_a_warning(self):
+        code, output = self._main([HIGH_FINDING])
+        self.assertEqual((code, "❌" in output), (0, False))
+        self.assertIn(
+            "⚠️ grype host node: CVE-2026-0002 HIGH openssl 1.0 (fixed in 1.1)", output
+        )
+
+    def test_a_suppressed_finding_is_info_and_passes(self):
+        suppressions = {
+            "containers": {},
+            "host": {"grype": [{"id": "CVE-2026-0001", "until": "2099-12-31"}]},
+        }
+        code, output = self._main([CRITICAL_FINDING], suppressions=suppressions)
+        self.assertEqual(code, 0)
+        self.assertIn(
+            "ℹ️ grype host node: CVE-2026-0001 CRITICAL openssl 1.0 (fixed in 1.1) "
+            "suppressed until 2099-12-31",
+            output,
+        )
+
+    def test_an_engine_error_still_fails_the_check(self):
+        code, output = self._main([], errors=["grype database: exited 1"])
+        self.assertEqual(code, 1)
+        self.assertIn("❌ grype database: exited 1", output)
+
+    def test_the_journal_has_one_json_line_per_target(self):
+        _code, output = self._main([CRITICAL_FINDING, HIGH_FINDING])
+        events = [json.loads(line) for line in output.splitlines() if line[:1] == "{"]
+        target = events[0]
+        self.assertEqual(
+            (len(events), target["event"], target["target"], target["kind"]),
+            (2, "hlth_runtime.target", "node", "host"),
+        )
+        self.assertEqual(
+            (target["counts"], target["verdict"]),
+            ({"fail": 1, "warn": 1, "suppressed": 0}, "fail"),
+        )
+
+    def test_the_journal_ends_with_the_summary(self):
+        _code, output = self._main([HIGH_FINDING])
+        summary = json.loads(output.splitlines()[-1])
+        self.assertEqual(
+            {key: summary[key] for key in ("event", "counts", "errors", "verdict")},
+            {
+                "event": "hlth_runtime.summary",
+                "counts": {"fail": 0, "warn": 1, "suppressed": 0},
+                "errors": 0,
+                "verdict": "warn",
+            },
+        )
+
+    def test_the_report_holds_the_summary_and_the_records(self):
+        self._main(
+            [CRITICAL_FINDING, HIGH_FINDING], errors=["grype database: exited 1"]
+        )
+        report = self._report()
+        self.assertEqual(
+            (
+                report["host"],
+                report["environment"],
+                report["verdict"],
+                report["counts"],
+                report["errors"],
+                [(item["id"], item["verdict"]) for item in report["findings"]],
+            ),
+            (
+                "node",
+                "production",
+                "fail",
+                {"fail": 1, "warn": 1, "suppressed": 0},
+                ["grype database: exited 1"],
+                [("CVE-2026-0001", "fail"), ("CVE-2026-0002", "warn")],
+            ),
+        )
+
+    def test_the_report_holds_the_last_run_only(self):
+        self._main([CRITICAL_FINDING])
+        self._main([])
+        self.assertEqual(
+            (self._report()["findings"], self._report()["verdict"]), ([], "ok")
+        )
+
+    def test_findings_are_appended_across_runs(self):
+        self._main([CRITICAL_FINDING])
+        self._main([HIGH_FINDING])
+        path = self.root / "log" / "findings.jsonl"
+        text = path.read_text()  # nocheck: cache-read tempdir log of two runs
+        records = [json.loads(line) for line in text.splitlines()]
+        self.assertEqual(
+            [item["id"] for item in records], ["CVE-2026-0001", "CVE-2026-0002"]
+        )
+        self.assertNotEqual(records[0]["run_id"], records[1]["run_id"])
+
+    def test_the_metrics_file_is_written_when_asked(self):
+        self._main([CRITICAL_FINDING])
+        text = self.metrics.read_text()  # nocheck: cache-read tempdir metrics of main()
+        self.assertIn(
+            'infinito_hlth_runtime_findings{target="node",kind="host",image="node",'
+            'severity="CRITICAL",scanner="grype",verdict="fail"} 1',
+            text.splitlines(),
+        )
+
+    def test_no_metrics_file_is_written_without_the_flag(self):
+        self._main([CRITICAL_FINDING], metrics=[])
+        written = list(self.root.rglob("*.prom"))  # nocheck: project-walk tempdir
+        self.assertEqual(written, [])
+
+    def test_no_metrics_file_is_written_for_an_empty_flag(self):
+        self._main([CRITICAL_FINDING], metrics=["--metrics-file", ""])
+        written = list(self.root.rglob("*.prom"))  # nocheck: project-walk tempdir
+        self.assertEqual(written, [])
 
 
 if __name__ == "__main__":

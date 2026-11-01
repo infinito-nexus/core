@@ -103,41 +103,58 @@ class TestSteps(TestCase):
         self.assertEqual(step.argv[step.argv.index("sbom") :][-1], "/sbom/abc.cdx.json")
 
 
+MIRROR_SOURCES = {"sha256:abc": "ghcr.io/o/r/mirror/docker.io/library/php"}
+
+
 class TestReport(TestCase):
-    def test_only_unsuppressed_verdicts_are_reported(self):
-        target = P.Target(
-            "abc",
-            "container",
-            "sha256:abc",
-            "docker.io/library/php:8.4.26-cli",
-            (("r", "s"),),
-        )
-        finding = P.Finding(
+    target = P.Target(
+        "abc",
+        "container",
+        "sha256:abc",
+        "docker.io/library/php:8.4.26-cli",
+        (("r", "s"),),
+    )
+
+    def _finding(self, severity):
+        return P.Finding(
             "grype",
             "abc",
             "php-cli",
             "8.4.26",
             "8.4.27",
             ("CVE-2026-109618",),
-            "CRITICAL",
+            severity,
         )
+
+    def test_only_unsuppressed_verdicts_are_reported(self):
+        finding = self._finding("CRITICAL")
         verdicts = [
-            P.Verdict(finding, target, ("r", "s"), None, False),
+            P.Verdict(finding, self.target, ("r", "s"), None, False, "fail"),
             P.Verdict(
                 finding,
-                target,
+                self.target,
                 ("r", "t"),
                 P.Suppression("CVE-2026-109618", dt.date(2026, 12, 31)),
                 True,
+                "fail",
             ),
         ]
-        rows = scan_main.report_rows(
-            verdicts, {"sha256:abc": "ghcr.io/o/r/mirror/docker.io/library/php"}
-        )
+        rows = scan_main.report_rows(verdicts, MIRROR_SOURCES)
         self.assertEqual(
             [(row["role"], row["service"], row["id"]) for row in rows],
             [("r", "s", "CVE-2026-109618")],
         )
+
+    def test_a_finding_the_role_only_warns_on_still_fails_the_mirror_scan(self):
+        verdict = P.Verdict(
+            self._finding("HIGH"), self.target, ("r", "s"), None, False, "warn"
+        )
+        rows = scan_main.report_rows([verdict], MIRROR_SOURCES)
+        self.assertEqual([row["severity"] for row in rows], ["HIGH"])
+
+    def test_the_role_mapping_is_a_valid_mirror_scan_config(self):
+        config = scan_main.scan_config(P, 1)
+        self.assertLessEqual(set(config.severity.values()), set(P.ACTIONS))
 
 
 class TestScanTree(TestCase):

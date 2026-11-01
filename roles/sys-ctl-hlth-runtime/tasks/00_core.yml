@@ -16,6 +16,34 @@
     state: directory
     mode: "0700"
 
+- name: 📁 Create the report and findings log directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - "{{ DIR_HEALTH_RUNTIME_REPORT }}"
+    - "{{ DIR_HEALTH_RUNTIME_LOG }}"
+
+- name: 📁 Create the node-exporter textfile directory
+  ansible.builtin.file:
+    path: "{{ DIR_METRICS_TEXTFILE }}"
+    state: directory
+    mode: "0755"
+  when: HEALTH_RUNTIME_METRICS_ENABLED | bool
+
+- name: 📦 install logrotate
+  package_install:
+    id: logrotate
+
+- name: 🔁 Rotate the findings log weekly
+  ansible.builtin.template: # nocheck: stack-host-template (per-node logrotate drop-in, every node scans itself)
+    src: logrotate.j2
+    dest: "{{ HEALTH_RUNTIME_LOGROTATE_FILE }}"
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: ⬇️ Pull the vulnerability engine images (with retries)
   ansible.builtin.command:
     argv:
@@ -44,6 +72,10 @@
       --cache-dir '{{ HEALTH_RUNTIME_CACHE_DIR }}'
       --database-dir '{{ HEALTH_RUNTIME_DATABASE_DIR }}'
       --host-excludes '{{ HEALTH_RUNTIME_HOST_EXCLUDES | to_json }}'
+      --environment '{{ ENVIRONMENT }}'
+      --report-dir '{{ DIR_HEALTH_RUNTIME_REPORT }}'
+      --log-dir '{{ DIR_HEALTH_RUNTIME_LOG }}'
+      {{ ("--metrics-file '" ~ HEALTH_RUNTIME_METRICS_FILE ~ "'") if HEALTH_RUNTIME_METRICS_ENABLED | bool else '' }}
     system_service_force_flush_final: true
     system_service_run_once: true
 

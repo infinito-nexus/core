@@ -8,7 +8,9 @@ runtime:
       categories: [web]
   targets: [host, container]
   engines: [trivy, grype, osv, syft]
-  severity: [CRITICAL, HIGH]
+  severity:
+    CRITICAL: fail
+    HIGH: warn
   fixed_only: true
   workers: 2
   db_update: true

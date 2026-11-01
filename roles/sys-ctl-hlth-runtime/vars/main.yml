@@ -17,6 +17,9 @@ HEALTH_RUNTIME_IMAGES:
   syft: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.syft.image') }}:{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.syft.version') }}"
 HEALTH_RUNTIME_CACHE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.cache_dir') }}"
 HEALTH_RUNTIME_DATABASE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.database_dir') }}"
+HEALTH_RUNTIME_METRICS_ENABLED: "{{ 'web-app-prometheus' in lookup('deployment').deployed }}"
+HEALTH_RUNTIME_METRICS_FILE: "{{ [ DIR_METRICS_TEXTFILE, 'infinito_hlth_runtime.prom' ] | path_join }}"
+HEALTH_RUNTIME_LOGROTATE_FILE: "{{ [ '/etc/logrotate.d', system_service_id ] | path_join }}"
 HEALTH_RUNTIME_HOST_EXCLUDES:
   - /proc
   - /sys

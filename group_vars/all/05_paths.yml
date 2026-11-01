@@ -28,6 +28,10 @@ FILE_TOKENS: "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
 FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
 
 DIR_METRICS_TEXTFILE: "{{ [DIR_VAR_LIB, 'metrics'] | path_join }}"
+DIR_HEALTH_RUNTIME_REPORT: "{{ [DIR_VAR_LIB, 'hlth-runtime'] | path_join }}"
+
+DIR_LOG: "/var/log/infinito"
+DIR_HEALTH_RUNTIME_LOG: "{{ [DIR_LOG, 'hlth-runtime'] | path_join }}"
 
 DIR_PHP_HARDENING: "/etc/{{ SOFTWARE_DOMAIN }}/php"
 PHP_HARDENING_INI_DIGEST: "{{ (lookup('file', lookup('path_absolute', 'roles/sys-svc-compose-php/files/hardening.ini')) | hash('sha1'))[:8] }}"

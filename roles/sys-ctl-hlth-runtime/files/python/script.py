@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import socket
@@ -13,6 +14,8 @@ import sys
 import tempfile
 import time
 import urllib.parse
+import uuid
+from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -36,6 +39,14 @@ RUNTIME_ENGINE = "grype"
 RUNTIME_ARTIFACT_TYPE = "binary"
 TARGET_KINDS = ("host", "container")
 SEVERITIES = ("CRITICAL", "HIGH", "MEDIUM", "LOW", "NEGLIGIBLE", "NONE", "UNKNOWN")
+ACTIONS = ("fail", "warn")
+SUPPRESSED = "suppressed"
+VERDICTS = (*ACTIONS, SUPPRESSED)
+CLEAN = "ok"
+METRIC = "infinito_hlth_runtime"
+METRIC_LABELS = ("target", "kind", "image", "severity", "scanner", "verdict")
+FINDINGS_LOG = "findings.jsonl"
+REPORT = "report.json"
 CVE_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$")
 OSV_DB_LAYOUT = "osv-scalibr"
 OSV_MISSING_DB = re.compile(r"could not load db for (.+?) ecosystem")
@@ -88,8 +99,9 @@ class ScanConfig:
     Args:
         targets: subset of :data:`TARGET_KINDS`.
         engines: subset of :data:`ENGINES` holding at least one scanner.
-        severity: severities that fail the scan.
-        fixed_only: fail only on findings with a fixed version.
+        severity: ``{severity: action}`` with each action in :data:`ACTIONS`;
+            a severity it does not name is below the threshold.
+        fixed_only: report only findings with a fixed version.
         workers: parallel engine runs.
         db_update: download and refresh the databases; ``False`` reads
             databases that were provided and fails when one is missing.
@@ -97,7 +109,7 @@ class ScanConfig:
 
     targets: tuple[str, ...]
     engines: tuple[str, ...]
-    severity: frozenset[str]
+    severity: Mapping[str, str]
     fixed_only: bool
     workers: int
     db_update: bool
@@ -196,7 +208,7 @@ class Step:
     """One engine run.
 
     Args:
-        label: what the run is, for error lines.
+        label: what the run is, for error lines; its first word is the engine.
         argv: the command.
         accept: exit codes that mean success.
     """
@@ -204,6 +216,26 @@ class Step:
     label: str
     argv: tuple[str, ...]
     accept: frozenset[int]
+
+
+@dataclass(frozen=True)
+class Run:
+    """One run of the check, as every output names it.
+
+    Args:
+        id: unique id of the run.
+        started: when the run started, timezone-aware UTC.
+        host: the node's host name.
+        environment: the deployment environment, e.g. ``production``.
+    """
+
+    id: str
+    started: dt.datetime
+    host: str
+    environment: str
+
+    def timestamp(self) -> str:
+        return self.started.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def parse_args(argv=None):
@@ -238,6 +270,19 @@ def parse_args(argv=None):
         "--host-excludes",
         required=True,
         help="JSON: absolute host paths the host scan skips",
+    )
+    parser.add_argument(
+        "--environment", required=True, help="Deployment environment of the node"
+    )
+    parser.add_argument(
+        "--report-dir", required=True, help=f"Directory of {REPORT}, the last run"
+    )
+    parser.add_argument(
+        "--log-dir", required=True, help=f"Directory of {FINDINGS_LOG}, every run"
+    )
+    parser.add_argument(
+        "--metrics-file",
+        help="Prometheus textfile to write; omitted or empty writes none",
     )
     return parser.parse_args(argv)
 
@@ -396,6 +441,43 @@ def check(
     return failures, infos
 
 
+def severity_actions(raw) -> dict[str, str]:
+    """Validate the mapping of severity to action.
+
+    Args:
+        raw: ``{severity: action}``, e.g. ``{CRITICAL: fail, HIGH: warn}``.
+
+    Returns:
+        The mapping in :data:`SEVERITIES` order.
+
+    Raises:
+        ConfigError: *raw* is the retired list form, empty, names an unknown
+            severity or maps one to anything but an entry of :data:`ACTIONS`.
+    """
+    if isinstance(raw, list):
+        raise ConfigError(
+            "severity must map each severity to fail or warn, e.g. "
+            "{CRITICAL: fail, HIGH: warn}; the list form is no longer accepted"
+        )
+    if not isinstance(raw, Mapping) or not raw:
+        raise ConfigError(
+            "severity must be a non-empty mapping of severity to fail or warn"
+        )
+    unknown = sorted(str(key) for key in raw if key not in SEVERITIES)
+    if unknown:
+        raise ConfigError(
+            f"unknown severity: {', '.join(unknown)}; expected {', '.join(SEVERITIES)}"
+        )
+    invalid = sorted(
+        f"{key}: {value}" for key, value in raw.items() if value not in ACTIONS
+    )
+    if invalid:
+        raise ConfigError(
+            f"severity actions must be {' or '.join(ACTIONS)}; got {', '.join(invalid)}"
+        )
+    return {severity: raw[severity] for severity in SEVERITIES if severity in raw}
+
+
 def scan_config(raw: Mapping) -> ScanConfig:
     """Validate the scan configuration.
 
@@ -413,7 +495,6 @@ def scan_config(raw: Mapping) -> ScanConfig:
     for key, known in (
         ("targets", TARGET_KINDS),
         ("engines", ENGINES),
-        ("severity", SEVERITIES),
     ):
         values = raw[key]
         if not isinstance(values, list) or not values:
@@ -432,7 +513,7 @@ def scan_config(raw: Mapping) -> ScanConfig:
     config = ScanConfig(
         targets=tuple(kind for kind in TARGET_KINDS if kind in raw["targets"]),
         engines=tuple(engine for engine in ENGINES if engine in raw["engines"]),
-        severity=frozenset(raw["severity"]),
+        severity=severity_actions(raw["severity"]),
         fixed_only=raw["fixed_only"],
         workers=workers,
         db_update=raw["db_update"],
@@ -635,11 +716,15 @@ def runtime_sbom(syft: Mapping) -> dict | None:
     return reduced
 
 
-def failing(finding: Finding, config: ScanConfig) -> bool:
-    """Whether a finding reaches the configured threshold."""
-    if finding.severity not in config.severity:
-        return False
-    return bool(finding.fixed) or not config.fixed_only
+def threshold(finding: Finding, config: ScanConfig) -> str | None:
+    """Map a finding to the action its severity carries.
+
+    Returns:
+        An entry of :data:`ACTIONS`, ``None`` below the threshold.
+    """
+    if config.fixed_only and not finding.fixed:
+        return None
+    return config.severity.get(finding.severity)
 
 
 def matching(rules: Sequence[Suppression], finding: Finding) -> Suppression | None:
@@ -666,6 +751,8 @@ class Verdict:
             for the host and for unmanaged containers.
         rule: the suppression that names it, ``None`` when none does.
         suppressed: whether that suppression is still in force.
+        action: what the finding's severity maps to, an entry of
+            :data:`ACTIONS`.
     """
 
     finding: Finding
@@ -673,6 +760,11 @@ class Verdict:
     owner: tuple[str | None, str | None]
     rule: Suppression | None
     suppressed: bool
+    action: str
+
+    @property
+    def verdict(self) -> str:
+        return SUPPRESSED if self.suppressed else self.action
 
     def where(self) -> str:
         scope = self.target.label
@@ -704,22 +796,17 @@ def verdicts(
         set(findings),
         key=lambda f: (f.target, f.engine, f.package, f.id, f.installed),
     ):
-        if not failing(finding, config):
+        action = threshold(finding, config)
+        if action is None:
             continue
         target = targets[finding.target]
-        if target.kind == "host":
-            scopes = [((None, None), suppressions.host.get(finding.engine, ()))]
-        else:
-            scopes = [
-                (
-                    owner,
-                    suppressions.containers.get(owner[0], {}).get(owner[1], ())
-                    if owner[0] is not None
-                    else (),
-                )
-                for owner in sorted(set(target.owners), key=str)
-            ]
-        for owner, rules in scopes:
+        for owner in owners_of(target):
+            if target.kind == "host":
+                rules = suppressions.host.get(finding.engine, ())
+            elif owner[0] is None:
+                rules = ()
+            else:
+                rules = suppressions.containers.get(owner[0], {}).get(owner[1], ())
             rule = matching(rules, finding)
             judged.append(
                 Verdict(
@@ -728,22 +815,32 @@ def verdicts(
                     owner,
                     rule,
                     rule is not None and rule.until >= today,
+                    action,
                 )
             )
     return judged
 
 
-def evaluate(
-    findings: Iterable[Finding],
-    targets: Mapping[str, Target],
-    config: ScanConfig,
-    suppressions: Suppressions,
-    today: dt.date,
-) -> tuple[list[str], list[str]]:
-    """Return :func:`verdicts` as ``(failures, infos)`` printable lines."""
+def owners_of(target: Target) -> list[tuple[str | None, str | None]]:
+    """Return the distinct owners a target's findings are judged for."""
+    if target.kind == "host":
+        return [(None, None)]
+    return sorted(set(target.owners), key=str)
+
+
+def report_lines(
+    judged: Iterable[Verdict],
+) -> tuple[list[str], list[str], list[str]]:
+    """Return verdicts as printable lines.
+
+    Returns:
+        ``(failures, warnings, infos)``: unsuppressed verdicts whose action is
+        ``fail``, those whose action is ``warn``, and suppressions.
+    """
     failures: list[str] = []
+    warnings: list[str] = []
     infos: list[str] = []
-    for verdict in verdicts(findings, targets, config, suppressions, today):
+    for verdict in judged:
         line = f"{verdict.where()}: {verdict.detail()}"
         if verdict.suppressed:
             infos.append(f"{line} suppressed until {verdict.rule.until}")
@@ -752,8 +849,220 @@ def evaluate(
             infos.append(
                 f"{verdict.where()}: suppression of {verdict.rule.id} expired on {verdict.rule.until}"
             )
-        failures.append(line)
-    return failures, infos
+        (failures if verdict.action == "fail" else warnings).append(line)
+    return failures, warnings, infos
+
+
+def evaluate(
+    findings: Iterable[Finding],
+    targets: Mapping[str, Target],
+    config: ScanConfig,
+    suppressions: Suppressions,
+    today: dt.date,
+) -> tuple[list[str], list[str], list[str]]:
+    """Return :func:`verdicts` as :func:`report_lines`."""
+    return report_lines(verdicts(findings, targets, config, suppressions, today))
+
+
+def scope(target: Target, owner: tuple[str | None, str | None]) -> tuple[str, str]:
+    """Name one owner of a target for the outputs.
+
+    Returns:
+        ``(target, image)``: the owner and ``<image name>@<image id>`` for a
+        container, the host name twice for the host.
+    """
+    if target.kind == "host":
+        return target.label, target.label
+    return _owner_label(owner), f"{target.label}@{target.ref}"
+
+
+def record(verdict: Verdict, run: Run) -> dict:
+    """Return one judged finding as the record every output carries."""
+    finding = verdict.finding
+    target, image = scope(verdict.target, verdict.owner)
+    return {
+        "run_id": run.id,
+        "timestamp": run.timestamp(),
+        "host": run.host,
+        "environment": run.environment,
+        "target": target,
+        "kind": verdict.target.kind,
+        "image": image,
+        "scanner": finding.engine,
+        "id": finding.id,
+        "severity": finding.severity,
+        "package": finding.package,
+        "installed_version": finding.installed,
+        "fixed_version": finding.fixed or None,
+        "suppressed": verdict.suppressed,
+        "suppressed_until": (
+            verdict.rule.until.isoformat() if verdict.suppressed else None
+        ),
+        "verdict": verdict.verdict,
+    }
+
+
+def tally(verdicts_of: Iterable[str]) -> dict[str, int]:
+    """Return the count of each entry of :data:`VERDICTS`."""
+    counts = dict.fromkeys(VERDICTS, 0)
+    for verdict in verdicts_of:
+        counts[verdict] += 1
+    return counts
+
+
+def worst(counts: Mapping[str, int]) -> str:
+    """Return ``fail`` or ``warn`` while one is counted, else :data:`CLEAN`."""
+    return next((action for action in ACTIONS if counts[action]), CLEAN)
+
+
+def error_engine(line: str) -> str:
+    """Return the engine an error line starts with."""
+    return line.split(" ", 1)[0].removesuffix(":")
+
+
+@dataclass(frozen=True)
+class Outcome:
+    """Everything one run reports.
+
+    Args:
+        run: the run.
+        targets: the scanned targets.
+        records: :func:`record` of every verdict.
+        errors: engine runs that did not deliver.
+        engines: the configured engines.
+        failed: whether the run fails.
+        finished: when the scan finished, Unix seconds.
+    """
+
+    run: Run
+    targets: tuple[Target, ...]
+    records: tuple[dict, ...]
+    errors: tuple[str, ...]
+    engines: tuple[str, ...]
+    failed: bool
+    finished: float
+
+    def target_events(self) -> list[dict]:
+        events = []
+        for target in self.targets:
+            for owner in owners_of(target):
+                name, image = scope(target, owner)
+                counts = tally(
+                    item["verdict"]
+                    for item in self.records
+                    if (item["target"], item["kind"], item["image"])
+                    == (name, target.kind, image)
+                )
+                events.append(
+                    {
+                        "event": "hlth_runtime.target",
+                        "run_id": self.run.id,
+                        "target": name,
+                        "kind": target.kind,
+                        "image": image,
+                        "counts": counts,
+                        "verdict": worst(counts),
+                    }
+                )
+        return events
+
+    def summary_event(self) -> dict:
+        counts = tally(item["verdict"] for item in self.records)
+        return {
+            "event": "hlth_runtime.summary",
+            "run_id": self.run.id,
+            "counts": counts,
+            "errors": len(self.errors),
+            "verdict": "fail" if self.failed else worst(counts),
+        }
+
+    def report(self) -> dict:
+        summary = self.summary_event()
+        return {
+            "run_id": self.run.id,
+            "timestamp": self.run.timestamp(),
+            "host": self.run.host,
+            "environment": self.run.environment,
+            "verdict": summary["verdict"],
+            "counts": summary["counts"],
+            "errors": list(self.errors),
+            "targets": [
+                {
+                    key: value
+                    for key, value in event.items()
+                    if key not in ("event", "run_id")
+                }
+                for event in self.target_events()
+            ],
+            "findings": list(self.records),
+        }
+
+    def metrics(self) -> str:
+        lines = [
+            f"# HELP {METRIC}_findings Judged vulnerability findings of the last run.",
+            f"# TYPE {METRIC}_findings gauge",
+        ]
+        series = Counter(
+            tuple(item[label] for label in METRIC_LABELS) for item in self.records
+        )
+        for values, count in sorted(series.items()):
+            labels = ",".join(
+                f'{label}="{_label_value(value)}"'
+                for label, value in zip(METRIC_LABELS, values, strict=True)
+            )
+            lines.append(f"{METRIC}_findings{{{labels}}} {count}")
+        lines += [
+            f"# HELP {METRIC}_last_run_timestamp_seconds When the last run finished.",
+            f"# TYPE {METRIC}_last_run_timestamp_seconds gauge",
+            f"{METRIC}_last_run_timestamp_seconds {int(self.finished)}",
+            f"# HELP {METRIC}_last_run_success 1 when the last run did not fail, else 0.",
+            f"# TYPE {METRIC}_last_run_success gauge",
+            f"{METRIC}_last_run_success {0 if self.failed else 1}",
+            f"# HELP {METRIC}_scanner_errors Engine runs of the last run that did not deliver.",
+            f"# TYPE {METRIC}_scanner_errors gauge",
+        ]
+        errors = Counter(error_engine(line) for line in self.errors)
+        for engine in sorted({*self.engines, *errors}):
+            lines.append(
+                f'{METRIC}_scanner_errors{{scanner="{_label_value(engine)}"}} {errors[engine]}'
+            )
+        return "\n".join(lines) + "\n"
+
+
+def _label_value(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
+
+
+def write_atomic(path: Path, text: str) -> None:
+    staged = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        staged.write_text(text, encoding="utf-8")
+        staged.replace(path)
+    finally:
+        staged.unlink(missing_ok=True)
+
+
+def publish(
+    outcome: Outcome, report_dir: Path, log_dir: Path, metrics_file: str | None
+) -> list[dict]:
+    """Write the outputs of one run.
+
+    Args:
+        outcome: the run's results.
+        report_dir: where :data:`REPORT` is replaced.
+        log_dir: where :data:`FINDINGS_LOG` grows by one line per record.
+        metrics_file: the Prometheus textfile; ``None`` or empty writes none.
+
+    Returns:
+        The journal events, one per target and the summary last.
+    """
+    write_atomic(report_dir / REPORT, json.dumps(outcome.report(), indent=2) + "\n")
+    if outcome.records:
+        with (log_dir / FINDINGS_LOG).open("a", encoding="utf-8") as handle:
+            handle.write("".join(json.dumps(item) + "\n" for item in outcome.records))
+    if metrics_file:
+        write_atomic(Path(metrics_file), outcome.metrics())
+    return [*outcome.target_events(), outcome.summary_event()]
 
 
 def container_targets(containers: Iterable[Container]) -> list[Target]:
@@ -1003,7 +1312,7 @@ def osv_image_steps(
     archive = layout.work / "osv-image.tar"
     return [
         Step(
-            f"export {target.label}",
+            f"osv export {target.label}",
             (layout.runtime[0], "save", "--output", str(archive), target.ref),
             SUCCESS,
         ),
@@ -1168,7 +1477,7 @@ def scan(
 
     Returns:
         ``(findings, errors)``; an error is an engine run that did not
-        deliver, which fails the scan like a finding.
+        deliver, which fails the scan.
     """
     databases = prepare_databases(config, images, layout, runner)
     errors = _flat(databases.values())
@@ -1281,12 +1590,19 @@ def vulnerability_check(
     databases: Path,
     excludes: Sequence[str],
     runner: Runner,
-) -> tuple[list[str], list[str]]:
+    run: Run,
+) -> tuple[list[Target], list[Verdict], list[str]]:
+    """Scan the running containers and the host.
+
+    Returns:
+        ``(targets, verdicts, errors)``: what was scanned, every finding at
+        the threshold judged per owner, and the engine runs that failed.
+    """
     targets: list[Target] = []
     if "container" in config.targets:
         targets += container_targets(containers)
     if "host" in config.targets:
-        targets.append(host_target(socket.gethostname()))
+        targets.append(host_target(run.host))
     sbom = cache / "sbom"
     sbom.mkdir(parents=True, exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="run-", dir=cache))
@@ -1306,18 +1622,24 @@ def vulnerability_check(
         )
     finally:
         shutil.rmtree(work)
-    failures, infos = evaluate(
+    judged = verdicts(
         findings,
         {target.key: target for target in targets},
         config,
         suppressions,
-        dt.datetime.now(tz=dt.UTC).date(),
+        run.started.date(),
     )
-    return errors + failures, infos
+    return targets, judged, errors
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
+    run = Run(
+        id=str(uuid.uuid4()),
+        started=dt.datetime.now(tz=dt.UTC),
+        host=socket.gethostname(),
+        environment=args.environment,
+    )
     hardened = json.loads(args.hardened)
     try:
         config = scan_config(json.loads(args.scan))
@@ -1330,7 +1652,7 @@ def main(argv=None) -> int:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
     failures, infos = check(containers, hardened, probe_php)
-    found, noted = vulnerability_check(
+    targets, judged, errors = vulnerability_check(
         containers,
         config,
         json.loads(args.images),
@@ -1339,18 +1661,42 @@ def main(argv=None) -> int:
         Path(args.database_dir),
         json.loads(args.host_excludes),
         default_runner,
+        run,
     )
+    found, warned, noted = report_lines(judged)
     for line in infos + noted:
         print(f"ℹ️ {line}")
-    for line in failures + found:
+    for line in warned:
+        print(f"⚠️ {line}")
+    failed = failures + found + errors
+    for line in failed:
         print(f"❌ {line}")
-    if failures or found:
-        print(f"🚨 {len(failures) + len(found)} runtime finding(s).")
-        return 1
-    print(
-        "✅ PHP is hardened where declared and no engine reports a vulnerability at the threshold."
+    if failed:
+        print(f"🚨 {len(failed)} runtime failure(s).")
+    elif warned:
+        print(
+            f"⚠️ {len(warned)} vulnerability finding(s) mapped to warn; "
+            "the daily mirror scan tracks them as issues."
+        )
+    else:
+        print(
+            "✅ PHP is hardened where declared and no engine reports a vulnerability at the threshold."
+        )
+    outcome = Outcome(
+        run=run,
+        targets=tuple(targets),
+        records=tuple(record(verdict, run) for verdict in judged),
+        errors=tuple(errors),
+        engines=config.engines,
+        failed=bool(failed),
+        finished=time.time(),
     )
-    return 0
+    events = publish(
+        outcome, Path(args.report_dir), Path(args.log_dir), args.metrics_file
+    )
+    for event in events:
+        print(json.dumps(event))
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
