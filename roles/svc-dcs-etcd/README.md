@@ -92,11 +92,11 @@ docker run --rm -it \
   Users, roles and passwords are reconciled on every deploy with `etcdctl` run through `container exec` on the first member's host.
 - **Credentials:** declared in `meta/secrets.yml` `credentials:` and delivered as `type: secret` entries in `meta/volumes.yml`, mounted under `/run/secrets/etcd/`.
 - **Network:** etcd sits on its own encrypted overlay, which only the database stacks join. No port is published.
-- **Container hardening:** read-only root filesystem, no Docker socket, every capability dropped (`cap_drop: [ALL]`; root-owned files stay readable to their root owner without `CAP_DAC_OVERRIDE`). Exception: the official image is distroless and runs as root, because the Swarm-created data volume is root-owned and the image has no shell to change its ownership before dropping privileges.
+- **Container hardening:** read-only root filesystem, no Docker socket, every capability dropped (`cap_drop: [ALL]`) and a non-root user. The role builds a thin image on the official distroless one with `USER ${ETCD_UID}` (the uid of the `tls_key` secret in `meta/volumes.yml`, 65532), and the service sets the same `user:`. The build copies the data directory owned by that uid, so the Swarm-created data volume inherits its ownership and the image needs no shell to change it.
 
 ## Image
 
-The image is the etcd project's official release image, `gcr.io/etcd-development/etcd`, pinned to an exact 3.6.x patch. The release process publishes to it first; `quay.io/coreos/etcd` is a mirror of the same build.
+The role builds its image on the etcd project's official release image, `gcr.io/etcd-development/etcd`, pinned to an exact 3.6.x patch. The release process publishes to it first; `quay.io/coreos/etcd` is a mirror of the same build.
 
 ## Sizing
 
@@ -104,7 +104,7 @@ Each member declares `cpus: 0.5`, `mem_reservation: 256m`, `mem_limit: 512m`. Th
 
 ## Upgrades
 
-An image bump rolls one member at a time: before the stack deploy, `sys-svc-compose` moves each member to the new image and waits until it is converged and healthy before the next, so quorum holds throughout. A bump merges only when the failover suite is green.
+A change to a member's image, command, environment, resources, placement, secrets, configs or bind mounts rolls one member at a time: before the stack deploy, `sys-svc-compose` compares each member's rendered spec with the running one, moves each changed member to its rendered spec and waits until it is converged and healthy before the next, so quorum holds throughout. A bump merges only when the failover suite is green.
 
 The members run without a container healthcheck (`test: ["NONE"]`). Swarm routes a service name only to healthy tasks, and etcd answers no client request, `endpoint status` included, before it has joined a quorum, so any probe keeps every member of a fresh cluster unreachable to its peers and the cluster never forms. Quorum is checked by the role instead: it waits until `auth status` answers before it touches users and roles.
 

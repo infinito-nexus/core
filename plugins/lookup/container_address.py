@@ -22,10 +22,12 @@ Because the lookup emits ``$(...)`` shell syntax, callers MUST use the
 ``container exec`` invocation. A companion lint rule enforces this.
 
 The helper script `BIN_RESOLVE_CONTAINER_ID` is deployed by
-sys-svc-compose during the constructor stage. It refuses to run on
-non-manager nodes (exit 64) and reports clear errors when the service
-has no running task (exit 65), the task is not yet bound to a
-container (exit 66) or no service of that name exists (exit 67).
+sys-svc-compose during the constructor stage. It prints the container
+of a running task on the local node on any node; without one it asks
+the Swarm manager API and exits 64 on a non-manager node, 65 when the
+service list fails or the service has no running task, 66 when the task
+is not yet bound to a container and 67 when no service of that name
+exists.
 
 Examples:
 

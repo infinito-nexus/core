@@ -28,6 +28,17 @@ An `swarm-zombie` run rebuilds a full DinD cluster over tens of minutes, so you 
 - For failures the cluster cannot show (app discovery, render-time lookups, multi-node placement), you MUST say so instead of faking an in-cluster check.
 - When it helps isolate a swarm-only failure from a shared one, you MAY bring up the compose deploy of the same role in parallel (see [Compose Loop](compose.md)) purely for comparison and inspection.
 
+## HA database lab
+
+The HA form of the central database engines needs its own lab: 3 managers and 1 spare worker plus the backup host, from [ha.override.yml](../../../../compose/swarm/ha.override.yml) when `INFINITO_SWARM_DB_TOPOLOGY` is `ha`.
+`swarm-zombie` always builds the standalone lab (1 manager, 2 workers); the HA lab comes from the deploy matrix rows whose `db_topology` is `ha` and from the failover suite of [utils/failover](../../../../utils/failover/).
+
+- `make act-swarm-data engine=<postgres|mariadb|redis|openldap>` runs the failover CI job for one engine through Act and keeps its lab up as cluster `data-<engine>`.
+- `part=<in-place|rebuild>` picks the suite part (default `in-place`); `only="<scenario> ..."` runs only the named scenarios.
+- `make act-swarm-data-rerun engine=<engine>` reruns scenarios on the kept lab without bring-up or deploys, so you MUST prefer it over a new `act-swarm-data` run once the lab is up.
+- `make test-swarm-data engine=<engine>` runs the suite on the host without Act; `keep=true` keeps the lab.
+- Inspect the lab with `make swarm-exec` / `make swarm-shell name=data-<engine>`, then release it with `make swarm-down name=data-<engine>`.
+
 ## Recovery & gotchas
 
 ### NFS server flavor

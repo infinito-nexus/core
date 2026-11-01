@@ -162,7 +162,7 @@ Constraints:
 ### Runbooks
 
 - **Migrate from standalone:** add the hosts to the group and re-run. The deploy checks the live schemas, stops the standalone slapd, starts the original host's instance on the legacy volume as the first provider, puts HAProxy under the old name and lets the new instances clone themselves through a syncrepl refresh. This is a short planned write outage, not zero-downtime.
-- **Rolling change:** an image change is rolled by the deploy: before the stack deploy, `sys-svc-compose` moves the other instances to the new image one at a time, each converged and healthy before the next, then the writer last; its SIGTERM turns it read-only and releases the lease, and a peer takes over. A `cn=config` change rolls through the stack deploy.
+- **Rolling change:** a change to an instance's image, command, environment, resources, placement, secrets, configs or bind mounts is rolled by the deploy, a `cn=config` change included, because it ships as a new versioned Swarm config: before the stack deploy, `sys-svc-compose` compares each instance's rendered spec with the running one and moves the other changed instances to their rendered spec one at a time, each converged and healthy before the next, then the writer last; its SIGTERM turns it read-only and releases the lease, and a peer takes over.
 - **Replace a node:** forget the dead node, list the replacement host in the group and re-run; its empty instance clones itself before its elector competes.
 - **Back to standalone:** not supported in place; go through backup and restore.
 

@@ -238,9 +238,10 @@ reproduces by re-running the same sweep:
 
 The db topology axis is off by default because the HA lab (3 managers, 1 worker, 1 backup host) needs more runner resources than the 1+2 lab.
 Enable it with the `db_topology` dispatch input of `call-test-deploy.yml` or the `INFINITO_CI_DB_TOPOLOGY` repository variable.
-While it is off, the matrix is byte-identical to a run without the axis.
+While it is off, the rows, rotations and labels are those of a run without the axis, and every entry still carries `db_topology` (empty) and `kill_primary` (`false`), because the deploy workflow reads both keys.
 While it is on, every swarm row carries `db_topology` (exported to the deploy as `INFINITO_SWARM_DB_TOPOLOGY`) and its glyph (`🔱` HA, `☝️` standalone) after the filesystem glyph.
 Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary-node probe.
+An HA row is never meshed, whatever the vpn axis picks: the WireGuard mesh hangs off one `svc-swarm-manager` hub, and the HA lab runs three managers.
 On `sweep // 4` the axis never moves in lockstep with mode or tor, so a row walks all eight mode/tor/topology combinations over eight sweeps.
 
 The HA database stack has its own gate, `call-test-swarm-data.yml`, which injects real faults (primary container kill, node crash, node hang, node partition) into each engine's HA form and checks the write gap and acknowledged-write loss against the failover budget.

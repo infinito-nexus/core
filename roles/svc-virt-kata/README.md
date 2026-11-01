@@ -32,7 +32,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it.
 - **Runtime probing:** The container role checks every host for `/dev/kvm`, for the Kata shim binary and for docker-in-docker, and publishes the resulting choice between `kata` and `runsc` as `SANDBOX_RUNTIME`.
 - **Daemon registration:** Only runtimes whose binary is present are written to the daemon configuration, on a bare host and inside docker-in-docker alike. A daemon pointed at an absent runtime path refuses to start, so this role installs first and re-renders the configuration afterwards.
-- **Swarm default runtime:** `docker stack deploy` drops the per-service `runtime:` key, so a swarm worker carries the sandbox as its daemon-wide `default-runtime` instead. The stack host keeps the shared kernel for the platform's own services.
+- **Swarm default runtime:** `docker stack deploy` drops the per-service `runtime:` key, so a swarm worker carries the sandbox as its daemon-wide `default-runtime` instead. The swarm managers keep the shared kernel for the platform's own services.
 - **Node labelling:** In swarm mode the node is labelled `kata-capable=true`, and sandboxed services are constrained to that label. A deploy without a single such node is refused rather than left pending.
 - **Runtime pinning:** In compose mode Hermes Agent and OpenClaw pin `SANDBOX_RUNTIME` on their service directly.
 

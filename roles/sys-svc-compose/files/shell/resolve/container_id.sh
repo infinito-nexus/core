@@ -15,7 +15,7 @@
 # Exit codes:
 #   0   success -- prints the 12-char container ID to stdout
 #   64  caller did not pass both args, or no local task and host is not a Swarm manager
-#   65  service exists but has no running task
+#   65  the service list failed, or the service has no running task
 #   66  task exists but its container is not yet bound (transient)
 #   67  the manager answered and no service of that name exists
 set -eu

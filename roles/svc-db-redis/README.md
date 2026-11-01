@@ -20,7 +20,7 @@ Applications share the `default` user; there are no per-application users.
 
 ## High Availability (alpha)
 
-The HA form is `lifecycle: alpha`. It renders when the `svc-db-redis` group lists three or more Swarm nodes:
+The HA form is alpha; the role's `lifecycle: beta` in `meta/services.yml` rates the standalone form. It renders when the `svc-db-redis` group lists three or more Swarm nodes:
 
 - One Redis instance per host (`redis-<host-id>`, pinned to that host, volume `redis_data_<host-id>`; the original host keeps `redis_data`).
 - One Sentinel per instance host (`redis-sentinel-<host-id>`, same `redis` image, port 26379, `0.1` CPU / `32m` / `64m`), with its own small volume for its rewritable `sentinel.conf`. Settings: quorum 2, `down-after-milliseconds 5000`, `failover-timeout 10000`, `parallel-syncs 1`, `resolve-hostnames yes`, `announce-hostnames yes`. Every instance and Sentinel announces its service name.
@@ -28,7 +28,7 @@ The HA form is `lifecycle: alpha`. It renders when the `svc-db-redis` group list
 
 Configuration has two owners:
 
-- `infinito.conf`, rendered by Ansible on every run and delivered as a Swarm secret: the `default`, `sentinel` and `haproxy-check` ACL users, `masterauth`, `maxmemory` (80 % of `mem_limit`, `allkeys-lru`), RDB and AOF, `min-replicas-to-write 1` and `min-replicas-max-lag 10`.
+- `infinito.conf`, rendered by Ansible on every run and delivered as a Swarm secret: the `default`, `sentinel` and `haproxy-check` ACL users, `masterauth`, `maxmemory` (60 % of `mem_limit`, against 80 % in the standalone form, `allkeys-lru`), RDB and AOF, `min-replicas-to-write 1` and `min-replicas-max-lag 10`.
 - `/data/redis.conf`, seeded only when absent with an `include` of the file above. Sentinel's `replicaof` rewrites persist there. On every start the wrapper drops any line the include owns, so `CONFIG REWRITE` cannot freeze an old password or limit into it.
 
 The start-up wrapper (`files/shell/ha_start.sh`) asks the Sentinels for the current master and takes the majority answer. If another instance is master, it starts as that instance's replica; if no Sentinel answers, it keeps the role in its configuration file. A fresh non-bootstrap instance is seeded as a replica of the bootstrap instance (the original host).
@@ -50,7 +50,7 @@ Writes also stop while no replica is connected. Redis is not backed up, in eithe
 ### Runbooks
 
 - **Migrating from standalone:** add the hosts to the `svc-db-redis` group and re-run. The original host's instance starts in HA form on the legacy `redis_data` volume with its data in place, its configuration seeded from today's flags, and the other instances resync from it. Expect a short write outage.
-- **Rolling upgrade:** an image change is rolled by the deploy: before the stack deploy, `sys-svc-compose` moves the Sentinels, then the replicas, to the new image one at a time (each converged and healthy before the next), runs `SENTINEL FAILOVER redis`, waits until `SENTINEL get-master-addr-by-name redis` names another instance, then moves the old master. For other restart-requiring changes follow the same order by hand, with `REDISCLI_AUTH` set to the Sentinel password.
+- **Rolling upgrade:** a change to an instance's or Sentinel's image, command, environment, resources, placement, secrets, configs or bind mounts is rolled by the deploy: before the stack deploy, `sys-svc-compose` compares each rendered spec with the running one and moves the changed Sentinels, then the changed replicas, to their rendered spec one at a time (each converged and healthy before the next), runs `SENTINEL FAILOVER redis`, waits until `SENTINEL get-master-addr-by-name redis` names another instance, then moves the old master. For a restart-requiring change to another part of the spec follow the same order by hand, with `REDISCLI_AUTH` set to the Sentinel password.
 - **Losing a host:** the remaining Sentinels promote a replica within about 11 s. Replace the host by listing a new one in the group and re-running; it starts empty and does a full resync. Run `SENTINEL RESET redis` on every Sentinel after forgetting a node.
 - **Who is master:** `REDISCLI_AUTH=<sentinel password> redis-cli -h redis-sentinel-<host-id> -p 26379 SENTINEL get-master-addr-by-name redis`.
 

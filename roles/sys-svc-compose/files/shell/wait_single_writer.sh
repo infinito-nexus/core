@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Param: BIN_RESOLVE_CONTAINER_ID (env) - path of the resolve-container-id helper
 # Param: $1     - swarm stack name
-# Param: $2     - service key of the local OpenLDAP instance
+# Param: $2     - service key of the local MariaDB or OpenLDAP instance that runs the probe
 # Param: $3...  - writer URLs of every elector; exits 0 when exactly one answers
 set -euo pipefail
 stack="${1:?stack name required}"

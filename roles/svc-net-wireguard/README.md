@@ -13,7 +13,9 @@ This role puts WireGuard under a swarm deployment so that swarm control,
 overlay and storage traffic never crosses an untunnelled network. It configures
 the hub-and-spoke meshes the deployment declares, any number of them, with the
 swarm manager as the hub of each. The manager forwards between them, which is
-how a worker reaches an NFS export it is not a member of.
+how a worker reaches an NFS export it is not a member of. The hub is one
+`svc-swarm-manager` host, so the CI deploy matrix never meshes a row whose
+database topology is `ha`: the HA lab runs three managers.
 
 Without a swarm manager, as in a Compose deployment spread over several hosts,
 every declared mesh is a full mesh instead. Each member knows the key of every
