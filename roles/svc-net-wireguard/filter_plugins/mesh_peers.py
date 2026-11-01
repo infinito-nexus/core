@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from utils.networks.mesh import awaited_keys, dialled_peers, handshaken, listens
+from utils.networks.mesh import (
+    awaited_keys,
+    dialled_peers,
+    handshaken,
+    listens,
+    underlay,
+)
 
 
 class FilterModule:
@@ -10,4 +16,5 @@ class FilterModule:
             "mesh_dialled_peers": dialled_peers,
             "mesh_handshaken": handshaken,
             "mesh_listens": listens,
+            "mesh_underlay": underlay,
         }

@@ -20,3 +20,31 @@
   register: wireguard_synced
   changed_when: wireguard_synced.rc == 0
   when: wireguard_present.rc == 0
+
+- name: "🔍 Read the link MTU of the live '{{ mesh_name }}'"
+  ansible.builtin.command:
+    argv:
+      - ip
+      - -j
+      - link
+      - show
+      - dev
+      - "{{ mesh_name }}"
+  register: wireguard_link
+  changed_when: false
+  when: wireguard_present.rc == 0
+
+- name: "📏 Apply the tunnel MTU to the live '{{ mesh_name }}'"
+  ansible.builtin.command:
+    argv:
+      - ip
+      - link
+      - set
+      - dev
+      - "{{ mesh_name }}"
+      - mtu
+      - "{{ wireguard_mtu | int }}"
+  changed_when: true
+  when:
+    - wireguard_present.rc == 0
+    - (wireguard_link.stdout | from_json | first).mtu | int != wireguard_mtu | int

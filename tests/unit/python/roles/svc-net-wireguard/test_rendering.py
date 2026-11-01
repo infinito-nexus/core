@@ -70,6 +70,13 @@ FULL_MEMBER = {
 }
 
 
+UNDERLAY = {
+    "vpn.example.org": "192.0.2.1",
+    "host-2": "192.0.2.12",
+    "host-3": "192.0.2.13",
+}
+
+
 def _filters() -> dict:
     spec = importlib.util.spec_from_file_location(
         "mesh_peers_plugin", ROLE / "filter_plugins" / "mesh_peers.py"
@@ -98,7 +105,10 @@ def render_interface(mesh: dict) -> str:
     )
     env.filters.update(_filters())
     return env.get_template("wg.conf.j2").render(
-        mesh=mesh, WIREGUARD_PRIVATE_KEY="private-key-stub", wireguard_mtu=1360
+        mesh=mesh,
+        WIREGUARD_PRIVATE_KEY="private-key-stub",
+        wireguard_mtu=1360,
+        wireguard_underlay=UNDERLAY,
     )
 
 
@@ -138,8 +148,8 @@ class TestTheRoamingSpoke(unittest.TestCase):
     def test_it_does_not_listen(self):
         self.assertNotIn("ListenPort", self.rendered)
 
-    def test_it_dials_the_hub_on_the_mesh_port(self):
-        self.assertIn("Endpoint = vpn.example.org:51871", self.rendered)
+    def test_it_dials_the_hub_at_its_resolved_ipv4_address(self):
+        self.assertIn("Endpoint = 192.0.2.1:51871", self.rendered)
 
     def test_it_keeps_the_path_open_from_behind_nat(self):
         self.assertIn("PersistentKeepalive = 25", self.rendered)
@@ -157,8 +167,8 @@ class TestTheFullMeshMember(unittest.TestCase):
 
     def test_it_dials_every_peer(self):
         peers = _peer_blocks(self.rendered)
-        self.assertIn("Endpoint = host-2:51900", peers["k2"])
-        self.assertIn("Endpoint = host-3:51900", peers["k3"])
+        self.assertIn("Endpoint = 192.0.2.12:51900", peers["k2"])
+        self.assertIn("Endpoint = 192.0.2.13:51900", peers["k3"])
 
 
 class TestTheGateWiring(unittest.TestCase):

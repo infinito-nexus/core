@@ -28,6 +28,10 @@ conf_has() {
 	on "$1" grep -q -E "$3" "/etc/wireguard/$2.conf"
 }
 
+underlay_ipv4() {
+	on "$1" getent ahostsv4 "$2" | awk 'NR == 1 { print $1 }'
+}
+
 pings() {
 	on "$1" ping -c "${PING_COUNT}" -W 2 "$2" >/dev/null 2>&1
 }

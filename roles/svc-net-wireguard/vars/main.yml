@@ -32,9 +32,11 @@ WIREGUARD_DIALLED_PEERS: >-
 
 WIREGUARD_EXPECTED_PEERS: "{{ WIREGUARD_DIALLED_PEERS | map(attribute='address') | list }}"
 
+WIREGUARD_DIALLED_ENDPOINTS: "{{ WIREGUARD_DIALLED_PEERS | map(attribute='endpoint') | unique | list }}"
+
 WIREGUARD_HEADER_BYTES: 60
 WIREGUARD_VXLAN_HEADER_BYTES: 50
 
 WIREGUARD_PMTU_TARGETS: >-
-  {{ (WIREGUARD_DIALLED_PEERS | map(attribute='endpoint') | list)
+  {{ (wireguard_underlay.values() | list)
      | default(NETWORK_PUBLIC_DNS_RESOLVERS, true) }}

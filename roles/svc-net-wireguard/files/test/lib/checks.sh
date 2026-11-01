@@ -33,10 +33,11 @@ expect_reach() {
 }
 
 expect_roaming() {
-	local hub="$1" roamer="$2" mesh="$3" port="$4"
+	local hub="$1" roamer="$2" mesh="$3" port="$4" hub_ipv4
+	hub_ipv4="$(underlay_ipv4 "${roamer}" "${hub}")"
 	check "${hub} listens on ${mesh} port ${port}" conf_has "${hub}" "${mesh}" "^ListenPort = ${port}$"
 	check "${hub} dials no spoke on ${mesh}" not conf_has "${hub}" "${mesh}" '^Endpoint'
-	check "${roamer} dials ${hub} on ${mesh}" conf_has "${roamer}" "${mesh}" "^Endpoint = ${hub}:${port}$"
+	check "${roamer} dials ${hub} at its IPv4 address ${hub_ipv4} on ${mesh}" conf_has "${roamer}" "${mesh}" "^Endpoint = ${hub_ipv4//./\\.}:${port}$"
 	check "${roamer} keeps its path to ${hub} open" conf_has "${roamer}" "${mesh}" '^PersistentKeepalive = 25$'
 	check "${roamer} does not listen on ${mesh}" not conf_has "${roamer}" "${mesh}" '^ListenPort'
 }

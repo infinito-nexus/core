@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 from collections.abc import Iterable, Mapping
 from typing import Any
 
@@ -126,6 +127,28 @@ def dialled_peers(interface: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     if is_full(interface):
         return peers
     return [peer for peer in peers if peer.get("is_hub")]
+
+
+def underlay(lookups: Iterable[Mapping[str, Any]]) -> dict[str, str]:
+    """Endpoint name to the IPv4 address the dialling host resolved it to.
+
+    Args:
+        lookups: one result per dialled endpoint, each holding the
+            ``endpoint`` it looked up and the ``stdout`` of
+            ``getent ahostsv4 <endpoint>`` on the dialling host; a name whose
+            first answer is no IPv4 address is left out.
+    """
+    resolved: dict[str, str] = {}
+    for lookup in lookups:
+        fields = str(lookup["stdout"]).split()
+        if not fields:
+            continue
+        try:
+            address = ipaddress.IPv4Address(fields[0])
+        except ValueError:
+            continue
+        resolved[str(lookup["endpoint"])] = str(address)
+    return resolved
 
 
 def awaited_peers(

@@ -8,6 +8,7 @@ from utils.networks.mesh import (
     handshaken,
     is_full,
     listens,
+    underlay,
 )
 
 HUB_PEER = {
@@ -110,6 +111,58 @@ class TestAwaitedKeys(unittest.TestCase):
     def test_a_hub_of_only_roaming_spokes_awaits_nobody(self):
         lonely = {"name": "wg0", "is_hub": True, "peers": [ROAMING_PEER]}
         self.assertEqual({}, awaited_keys({"wg0": lonely}, swarm_manager=False))
+
+
+class TestUnderlay(unittest.TestCase):
+    DUAL_STACK = (
+        "178.63.190.220  STREAM veen.world\n"
+        "178.63.190.220  DGRAM  \n"
+        "178.63.190.220  RAW    \n"
+    )
+
+    def test_a_dual_stack_name_dials_its_ipv4_address(self):
+        self.assertEqual(
+            {"veen.world": "178.63.190.220"},
+            underlay([{"endpoint": "veen.world", "stdout": self.DUAL_STACK}]),
+        )
+
+    def test_the_first_of_several_a_records_wins(self):
+        state = "192.0.2.1       STREAM hub\n192.0.2.1       DGRAM  \n192.0.2.2       STREAM \n"
+        self.assertEqual(
+            {"hub": "192.0.2.1"}, underlay([{"endpoint": "hub", "stdout": state}])
+        )
+
+    def test_an_ipv4_literal_dials_itself(self):
+        state = "192.0.2.10      STREAM 192.0.2.10\n"
+        self.assertEqual(
+            {"192.0.2.10": "192.0.2.10"},
+            underlay([{"endpoint": "192.0.2.10", "stdout": state}]),
+        )
+
+    def test_a_name_without_an_ipv4_answer_is_left_out(self):
+        self.assertEqual({}, underlay([{"endpoint": "v6only.example", "stdout": ""}]))
+
+    def test_an_unparsable_answer_is_left_out(self):
+        state = "<invalid>       STREAM hub\n"
+        self.assertEqual({}, underlay([{"endpoint": "hub", "stdout": state}]))
+
+    def test_an_ipv6_answer_never_becomes_an_endpoint(self):
+        state = "2a01:4f8:2201:4695::2 STREAM veen.world\n"
+        self.assertEqual({}, underlay([{"endpoint": "veen.world", "stdout": state}]))
+
+    def test_every_endpoint_maps_to_its_own_address(self):
+        self.assertEqual(
+            {"mgr": "192.0.2.1", "nfs": "192.0.2.3"},
+            underlay(
+                [
+                    {"endpoint": "mgr", "stdout": "192.0.2.1 STREAM mgr\n"},
+                    {"endpoint": "nfs", "stdout": "192.0.2.3 STREAM nfs\n"},
+                ]
+            ),
+        )
+
+    def test_no_dialled_endpoint_resolves_to_nothing(self):
+        self.assertEqual({}, underlay([]))
 
 
 class TestHandshaken(unittest.TestCase):

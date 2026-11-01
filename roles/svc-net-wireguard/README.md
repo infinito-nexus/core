@@ -151,7 +151,18 @@ python3 -m cli.administration.inventory.mesh \
   `networks.interfaces: [{name: wg0, host: <host>, address: <address>}]`.
 - A host deployed with its own vault password takes
   `--host-vault-password-file <host>=<file>`, so its private key opens there.
-- A mesh is IPv4 only.
+- A mesh is IPv4 only, on the underlay as inside the tunnel. Each deploy
+  resolves every endpoint a host dials with `getent ahostsv4` on that host,
+  writes the first IPv4 address into `Endpoint`, measures the path MTU against
+  that address and subtracts the 60-byte IPv4 tunnel header. On an interface
+  that is already up, the deploy sets that MTU on the live link as well. An
+  endpoint name with both an A and an AAAA record therefore always dials over
+  IPv4. A name without an A record, an unreachable resolver, an IPv6 literal
+  endpoint or a host whose only IPv4 address is `127.0.0.1` fails the deploy
+  before the interface is rendered; pass the peer's IPv4 address as
+  `--endpoint` instead. A host with an IPv4 address but no IPv4 route to the
+  peer fails at the handshake gate. When the hub's address changes, redeploy
+  every spoke.
 
 Inspect a live interface on any member:
 
