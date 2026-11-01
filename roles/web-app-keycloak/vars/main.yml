@@ -14,7 +14,8 @@ KEYCLOAK_SERVER_INTERNAL_URL: "http://127.0.0.1:8080"
 KEYCLOAK_RBAC_GROUP_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
 KEYCLOAK_RBAC_GROUP_NAME: "{{ RBAC.GROUP.NAME }}"
 KEYCLOAK_RBAC_ALL_APP_IDS: "{{ lookup('deployment').groups | rbac_app_ids }}"
-KEYCLOAK_RBAC_RUN_APP_IDS: "{{ lookup('deployment').running | rbac_app_ids }}"
+# deployment.running omits this role when APPLICATIONS_WHITELIST names only other apps, yet 09_console_rbac resolves its role groups on every run.
+KEYCLOAK_RBAC_RUN_APP_IDS: "{{ (lookup('deployment').running + [application_id]) | rbac_app_ids }}"
 
 KEYCLOAK_RBAC_WORKERS: "{{ [RESOURCE_HOST_CPUS | int // 2, 1] | max }}"
 KEYCLOAK_RBAC_GROUP_LOGIC_DIGEST: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/filter_plugins/build_ldap_role_entries.py')) | hash('sha256')
