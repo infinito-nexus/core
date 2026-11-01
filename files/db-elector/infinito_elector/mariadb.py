@@ -52,7 +52,7 @@ class MariaDBRole(Role):
         socket: the local server socket.
         local_user: SQL user authenticated by ``unix_socket`` for the local
             server, so a rotated password never locks the elector out of its
-            own instance; ``None`` uses the option file locally too.
+            own instance.
         peer_address: maps a host id to the address its instance listens on.
         replication_user: user replicas connect as.
         replication_password: that user's password, or a callable that reads
@@ -81,7 +81,7 @@ class MariaDBRole(Role):
         defaults_file: str,
         socket: str,
         peer_address: Callable[[str], str],
-        local_user: str | None = None,
+        local_user: str,
         replication_user: str,
         replication_password: str | Callable[[], str],
         run: Callable[[Sequence[str], str | None], str] = run_command,
@@ -128,15 +128,13 @@ class MariaDBRole(Role):
         ]
 
     def _local(self) -> list[str]:
-        if self._local_user:
-            return [
-                "--no-defaults",
-                "--user",
-                self._local_user,
-                "--socket",
-                self._socket,
-            ]
-        return [f"--defaults-extra-file={self._defaults}", "--socket", self._socket]
+        return [
+            "--no-defaults",
+            "--user",
+            self._local_user,
+            "--socket",
+            self._socket,
+        ]
 
     def _slave_status(self, host: str | None = None) -> dict[str, str]:
         target = self._remote(host) if host else self._local()

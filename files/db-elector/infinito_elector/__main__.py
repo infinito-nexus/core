@@ -34,6 +34,7 @@ ENGINE_OPTIONS = {
     "mariadb": (
         "mariadb_defaults_file",
         "mariadb_socket",
+        "mariadb_local_user",
         "replication_user",
         "replication_password_file",
     ),

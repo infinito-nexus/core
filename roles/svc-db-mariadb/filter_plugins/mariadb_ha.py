@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -80,9 +81,28 @@ def mariadb_identifier(value) -> str:
     return str(value).replace("`", "``")
 
 
+def mariadb_host_masks(subnets: Iterable[str]) -> list[str]:
+    """Return each subnet as a MariaDB account host in netmask notation.
+
+    Args:
+        subnets: CIDR networks, e.g. ``192.168.231.32/27``.
+
+    Returns:
+        one ``address/netmask`` entry per distinct subnet, in input order.
+    """
+    masks: list[str] = []
+    for subnet in subnets:
+        network = ipaddress.ip_network(str(subnet), strict=False)
+        mask = f"{network.network_address}/{network.netmask}"
+        if mask not in masks:
+            masks.append(mask)
+    return masks
+
+
 class FilterModule:
     def filters(self):
         return {
+            "mariadb_host_masks": mariadb_host_masks,
             "mariadb_server_ids": mariadb_server_ids,
             "mariadb_sql_literal": mariadb_sql_literal,
             "mariadb_sql_body": mariadb_sql_body,

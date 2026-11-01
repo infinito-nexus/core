@@ -146,7 +146,9 @@ How it works:
 
 Networks: the application-facing `mariadb` overlay is joined only by HAProxy. The instances, HAProxy and the elector's `/writer` live on the stack-scoped, encrypted `internal` overlay (`meta/networks.yml` `internal.subnet`); the instances also join the etcd overlay. No port is published. HAProxy runs the official image as its non-root user with a read-only root filesystem, no stats page and a local admin socket.
 
-Exceptions to the hardening baseline: the HA entrypoint of the MariaDB container runs as root, as the stock entrypoint does, because it locks and re-owns the data directory and must stop mariadbd when the elector exits. It starts the elector, the seed receiver and `mariadb-backup` as `mysql` through `gosu`, and the secrets the elector reads (mode `0400`) are owned by uid and gid 999 (`mysql`) in `meta/volumes.yml`. The MariaDB root filesystem stays writable, as in the standalone form. The replication and elector SQL users are still created as `@'%'`; the internal overlay, not the grant, bounds where they connect from.
+Exceptions to the hardening baseline: the HA entrypoint of the MariaDB container runs as root, as the stock entrypoint does, because it locks and re-owns the data directory and must stop mariadbd when the elector exits. It starts the elector, the seed receiver and `mariadb-backup` as `mysql` through `gosu`, and the secrets the elector reads (mode `0400`) are owned by uid and gid 999 (`mysql`) in `meta/volumes.yml`. The MariaDB root filesystem stays writable, as in the standalone form.
+
+The replication and elector SQL users exist only for the internal overlay's subnet and the etcd overlay's subnet, because a peer's service name resolves on both. The elector's network user holds only `SLAVE MONITOR`, which ranking peers by GTID position needs; every write the elector makes goes through the local `mysql` user over the socket.
 
 Sizing: one instance reserves 2 GiB (limit 4 GiB), the elector included. The per-node arithmetic for all engines is in the `svc-db-postgres` README: ≈ 8 GiB reserved per node before applications, 16 GiB minimum.
 

@@ -24,6 +24,7 @@ COMMON = {
 MARIADB = {
     "ELECTOR_MARIADB_DEFAULTS_FILE": "/etc/elector.cnf",
     "ELECTOR_MARIADB_SOCKET": "/run/mysqld/mysqld.sock",
+    "ELECTOR_MARIADB_LOCAL_USER": "mysql",
     "ELECTOR_REPLICATION_USER": "replication",
     "ELECTOR_REPLICATION_PASSWORD_FILE": "/run/secrets/repl",
 }

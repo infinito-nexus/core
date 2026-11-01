@@ -74,5 +74,19 @@ class TestSqlEscaping(unittest.TestCase):
         self.assertEqual(mariadb_ha.mariadb_identifier("a`b"), "a``b")
 
 
+class TestHostMasks(unittest.TestCase):
+    def test_cidr_becomes_netmask_notation(self):
+        self.assertEqual(
+            mariadb_ha.mariadb_host_masks(["192.168.231.32/27", "192.168.230.0/24"]),
+            ["192.168.231.32/255.255.255.224", "192.168.230.0/255.255.255.0"],
+        )
+
+    def test_host_bits_are_cleared_and_duplicates_dropped(self):
+        self.assertEqual(
+            mariadb_ha.mariadb_host_masks(["10.0.0.5/16", "10.0.0.0/16"]),
+            ["10.0.0.0/255.255.0.0"],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -41,6 +41,7 @@ def _role(answers, replication_password="s'cret") -> tuple[MariaDBRole, FakeServ
         defaults_file="/run/secrets/elector.cnf",
         socket="/run/mysqld/mysqld.sock",
         peer_address=lambda host: f"mariadb-{host}",
+        local_user="mysql",
         replication_user="repl",
         replication_password=replication_password,
         run=run,
@@ -260,7 +261,7 @@ class TestTransitions(unittest.TestCase):
         role.follow("m2")
         self.assertNotIn(self.RESET_SLAVE_POS, [s for _, s in run.calls])
 
-    def test_local_calls_use_socket_auth_when_a_local_user_is_set(self) -> None:
+    def test_local_calls_use_socket_auth(self) -> None:
         seen: list[list[str]] = []
 
         def run(argv, stdin):
