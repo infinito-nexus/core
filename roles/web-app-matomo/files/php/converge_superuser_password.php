@@ -26,11 +26,6 @@ use Throwable;
  *   MATOMO_SUPERUSER_EMAIL    email a created superuser gets
  *
  * Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
- *
- * php reads the script from stdin, so no path tells a direct run from a test's require:
- * main() runs only when debug_backtrace() finds no including frame. For the same reason
- * the CLI defines no STDOUT/STDERR constants (php_cli.c registers them only for a script
- * file), so output goes through php://stdout and php://stderr.
  */
 interface Users
 {

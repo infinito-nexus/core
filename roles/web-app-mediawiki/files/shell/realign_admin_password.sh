@@ -9,10 +9,6 @@
 #   MEDIAWIKI_LOCAL_LOGIN     "true" while a local password provider is loaded
 #   MEDIAWIKI_ADMIN_STATE_SQL files/sql/admin_state.sql; %(name)s and %(email)s become hex literals
 #
-# A missing account is created only while local login is on; SSO-only, createAndPromote would
-# fail on the password step, so SSO's first login creates it, named after Keycloak's
-# preferred_username.
-#
 # Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
 set -eu
 

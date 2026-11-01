@@ -3,8 +3,7 @@
  * Ensure the WordPress administrator exists and accepts the declared password.
  *
  * `wp core install` writes the password once and skips an installed site, so a
- * rotated secret never reaches the account, and an administrator added to the
- * inventory later never reaches the site, without this.
+ * rotated secret never reaches the account without this.
  *
  * Env (from the container):
  *   WP_REALIGN_LOGIN     user_login of the administrator account
@@ -12,10 +11,6 @@
  *   WP_REALIGN_EMAIL     user_email a created administrator gets
  *
  * Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
- *
- * Errors go through php://stderr, not the STDERR constant: php's CLI defines that constant
- * only when it runs a script file, and this script is fed on stdin (`wp` is the script file
- * today, but piping it into a bare `php` would turn every [FAIL] into an undefined constant).
  */
 $login = getenv('WP_REALIGN_LOGIN');
 $password = getenv('WP_REALIGN_PASSWORD');
