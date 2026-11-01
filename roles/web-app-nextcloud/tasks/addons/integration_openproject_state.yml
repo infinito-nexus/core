@@ -47,6 +47,7 @@
           {{ {
                'sources': query('file', *NEXTCLOUD_OPENPROJECT_PROVISION_SOURCES) | map('hash', 'sha256') | list,
                'nextcloud_url': NEXTCLOUD_URL,
+               'nextcloud_base_urls': NEXTCLOUD_NETWORK_BASE_URLS,
                'openproject_url': NEXTCLOUD_OPENPROJECT_URL,
                'storage_name': nextcloud_op_storage_name,
                'client_name': NEXTCLOUD_OPENPROJECT_CLIENT_NAME,

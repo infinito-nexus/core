@@ -100,6 +100,10 @@ one is stored when the role runs outside the service loader. A deploy that
 stops before the flush leaves it to the next deploy. Relaying stays limited to
 authenticated sessions in both modes (`STALWART_RELAY_RULE`).
 
+With SSO enabled the role creates every account without a password credential
+and sends no password update, so an account that already exists keeps the
+credentials it holds.
+
 With SSO disabled the role uses the Internal directory and the bot's derived
 account password.
 
@@ -262,9 +266,10 @@ applications:
 - Every other alias becomes a Stalwart mailing list described as `Infinito.Nexus alias`. The role creates, updates and removes only lists with that description; lists created in WebAdmin stay untouched, and declaring an address such a list already holds fails the deploy.
 - Destinations may lie outside the served domains; Stalwart relays those copies.
 - Alias domains must be served by Stalwart.
-- A forward keeps the message in the account and sends a copy to every destination. The role writes the Sieve script `infinito-forward` (`redirect :copy`) into the account and activates it; a user script that was active is chained through `include`, so personal filters keep working. Removing a forward from the inventory leaves the script in place; delete `infinito-forward` in the account's filter settings to stop it. The role raises the user-script limits `maxRedirects` and `maxOutMessages` to the widest forward.
+- A forward keeps the message in the account and sends a copy to every destination. The role writes the Sieve script `infinito-forward` (`redirect :copy`) into the account and activates it; a user script that was active is chained through `include`, so personal filters keep working. Removing a forward from the inventory leaves the script in place; delete `infinito-forward` in the account's filter settings to stop it. The role raises the user-script limits `maxRedirects` and `maxOutMessages` to the widest forward and reloads the settings; under SSO the restart of [`tasks/11_oidc_restart.yml`](tasks/11_oidc_restart.yml) applies them instead, because a reload opens the OIDC issuer and Keycloak deploys after Stalwart.
+- Every user the role provisions an account for forwards the same way when its `forward` in the [users](../../docs/contributing/artefact/files/plugins/lookup/users.md) names another user: the account `<username>@<mail domain>` keeps its mail and the `email` of the named user receives a copy. The named user MUST carry a `mailbox` account, otherwise the deploy fails. A forward declared under `services.stalwart.forwards` for the same account adds its destinations. The platform administrator forwards to the administrator, so the system mail addressed to `platformadmin` reaches the administrator's mailbox.
 
-[`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward and waits until each destination inside the mail domain holds its copy. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
+[`files/test/test.sh`](files/test/test.sh) sends through every declared alias, catch-all and forward, and waits until each destination inside the mail domain holds its copy. The forwards, those of the users included, are sent through only in the rounds that deploy Stalwart as a primary app. A transport error while sending or polling counts as not yet, within the same poll budget. An alias destination outside it counts once Stalwart queued the copy or the bounce naming it and the subject reaches the sender, which proves Stalwart expanded the alias and attempted the delivery. A forward destination outside it counts once the account's active Sieve script redirects a copy to it, because Stalwart sends no bounce for a message a Sieve script generated. Matrix **variant 1** declares one of each.
 
 ### Alias domains
 
@@ -301,7 +306,7 @@ A deploy without the marker reads the store:
 
 Migrate the store with [`stalwart-migrate`](https://github.com/stalwartlabs/stalwart-migrate) into a new database and swap it in under the role's database name. That name is fixed to `stalwart` ([`plugins/lookup/database.py`](../../plugins/lookup/database.py) derives it from the entity name), so the migration targets a second database that later takes over the name.
 
-A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The phases also run by hand, as root:
+A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/store_guard/migrate.yml`](tasks/store_guard/migrate.yml)): it stages `migrate-v016/migrate.sh` in the role's instance directory (`STALWART_MIGRATE_SCRIPT`, a copy of [`files/shell/migrate_v016.sh`](files/shell/migrate_v016.sh)), the values it reads in `migrate.env` ([`templates/migrate.env.j2`](templates/migrate.env.j2)) and the target configuration, runs the phases below from `upgrade` to `final`, reads the store layout again and deploys Stalwart 1.x on the migrated store. Mail is down from the stop in `final` until the deploy starts 1.x. A failing phase stops the deploy with the 0.16 store and server back in place. The deploy runs the script as an async job and polls it every `STALWART_MIGRATE_ASYNC_POLL` seconds, so a dropped SSH connection does not end the deploy; after `STALWART_MIGRATE_ASYNC_TIME` seconds (6 h, scaled by `TIMEOUT_FACTOR`) Ansible kills the script and fails the deploy, while a `stalwart-migrate` container it started keeps running and Stalwart stays stopped when the kill hits `final`. Every phase but `status` and `report` takes `migrate-v016/migrate.lock` and stops at once while another run holds it or a `stalwart-migrate` container still runs. The phases also run by hand, as root:
 
 | Phase | Steps below |
 |---|---|
@@ -311,8 +316,9 @@ A deploy whose store guard finds a 0.16 store migrates it on its own ([`tasks/st
 | `target` | 3 |
 | `prepare` | 5, interactive on a terminal; without one it accepts the recommended answer of every question `stalwart-migrate` marks as not answered in `migrate-v016/state/answers.toml` |
 | `sync` | 5, repeatable while 0.16 serves |
-| `final` | 6 and 7 |
+| `final` | 6 and 7, with `--verify-full`, so every account is verified before the swap |
 | `status` | the progress `stalwart-migrate status` reports |
+| `report` | the `error` and `verify` rows of `stalwart-migrate report`; `final` prints them itself when it fails |
 | `all` | `upgrade` to `final` in order |
 
 Then deploy again (step 8). The steps by hand:
@@ -333,13 +339,13 @@ Then deploy again (step 8). The steps by hand:
      -v <volumes-dir>/etc:/etc/stalwart:ro \
      -v <target-dir>:/etc/stalwart-v1 \
      -v <state-dir>:/var/lib/stalwart-migrate \
-     stalwartlabs/stalwart-migrate:1.0.0 prepare \
+     stalwartlabs/stalwart-migrate:1.0.4 prepare \
        --source /etc/stalwart/config.json \
        --state /var/lib/stalwart-migrate
    ```
 
    Then run the same container with `run --source /etc/stalwart/config.json --target /etc/stalwart-v1/config.json --state /var/lib/stalwart-migrate`. `run` copies only what changed since the previous run and may be repeated.
-6. Stop the Stalwart server (`docker stop stalwart` in compose, `docker service scale <stack>_stalwart=0` in swarm) and run the same container with `run --final` and the same options. It verifies the copy and writes `final-report.txt` into the state directory.
+6. Stop the Stalwart server (`docker stop stalwart` in compose, `docker service scale <stack>_stalwart=0` in swarm) and run the same container with `run --final` and the same options. It verifies the copy and, only when the verification passes, writes `final-report.txt` into the state directory. A failed verification writes no such file and leaves the run unmarked: list its rows with `report --state /var/lib/stalwart-migrate --severity verify` (or `migrate.sh report`), start Stalwart 0.16 again and see [A failed final run](#a-failed-final-run).
 7. Swap the databases, as a PostgreSQL superuser connected to the `postgres` database:
 
    ```sql
@@ -349,6 +355,14 @@ Then deploy again (step 8). The steps by hand:
 
 8. Deploy this role. The store guard finds the migrated 1.x store under the role's database name and lets Stalwart 1.x start on it.
 9. Keep `stalwart_v016`, the dump and the state directory until 1.x is verified. `stalwart-migrate rollback` reads the state directory to copy the 1.x store back into a new 0.16 store.
+
+### A failed final run
+
+A failed `final` swaps nothing: Stalwart 0.16 serves the database `stalwart` again, and `stalwart_v1` and `migrate-v016/state` hold the unfinished copy. `stalwart-migrate rollback` does not apply, it copies a 1.x store back into a new 0.16 store. Every deploy of this role runs `all` again while the store is 0.16, so keep the role out of deploys until the rows are understood.
+
+1. Read the rows that `final` printed above its error in the deploy log, or run `migrate.sh report`. Each row names the run, the account id, the object type and id, and the kind of difference.
+2. `stalwart-migrate` 1.0.0 to 1.0.3 report differences where none exist: email `keywords` holding a `\` system flag, contact card `vcard` with extra vCard 3.0 `N` or `ADR` components, and certificate or IP ban settings that the 1.x start inside the tool refreshes or expires. These releases also skip accounts that have no change counter. When the rows are only of these kinds and the state was written by such a release, start over with the pinned release: as a PostgreSQL superuser run `DROP DATABASE stalwart_v1;`, move `migrate-v016/state` aside and deploy again.
+3. Any other row, such as an object missing in the target, `blob`, `script`, a quota, changelog or counter row, or `account is not up to date`, is a real difference. Keep 0.16 serving, fix its cause, then run `final` again with the same state.
 
 ### Restore and redeploy
 

@@ -65,6 +65,21 @@ def verify(kc: Keycloak, username: str, address: str) -> str:
     return "updated"
 
 
+def load_addresses(raw: str) -> dict[str, str]:
+    """Return the username to address map, refusing anything else.
+
+    Args:
+        raw: the JSON text of ``EMAILS``; an address may be empty.
+    """
+    addresses = json.loads(raw)
+    if not isinstance(addresses, dict) or not all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in addresses.items()
+    ):
+        raise ValueError("EMAILS must map every username to an address string")
+    return addresses
+
+
 def main() -> int:
     env = os.environ
     try:
@@ -73,7 +88,7 @@ def main() -> int:
             env["KC_REALM"],
             *container_credentials(Path("/proc") / env["KC_PID"] / "environ"),
         )
-        addresses = json.loads(env["EMAILS"])
+        addresses = load_addresses(env["EMAILS"])
     except (OSError, KeyError, ValueError) as error:
         print(f"setup-failed {error}")
         return 1

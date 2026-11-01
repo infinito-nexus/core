@@ -20,6 +20,14 @@ force_ssl_override:
       target: *opt_mastodon_config_initializers_zzz_disable_force_ssl_rb_target
       when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
 
+api_session_skip:
+  type: config
+  source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', 'api_session_skip.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mastodon
+      target: /opt/mastodon/config/initializers/api_session_skip.rb
+
 oidc_http_discovery:
   type: config
   source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', '00_oidc_http_discovery.rb'] | path_join }}"

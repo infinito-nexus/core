@@ -5,6 +5,13 @@
     state: directory
     mode: "0755"
 
+- name: "📦 MASTODON | Install API session-skip override initializer"
+  ansible.builtin.copy:
+    src: "ruby/api_session_skip.rb"
+    dest: "{{ MASTODON_API_SESSION_SKIP_FILE }}"
+    mode: "0644"
+  notify: compose-up
+
 - name: "📦 MASTODON | Install HTTP-only override initializers"
   when: MASTODON_HTTP_ONLY_ENABLED | bool
   block:

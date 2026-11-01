@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import threading
 import time
@@ -28,7 +29,8 @@ class Library(Sites, Queue, Builder):
 
     Args:
         repository: git URL of the documented repository.
-        data_dir: shared volume holding mirror, queue, states, scratch and sites.
+        data_dir: shared volume holding mirror, queue, states, opens, scratch
+            and sites.
         jobs: parallel Sphinx processes per build.
         package_dir: the ``infinito_docs`` package directory.
         snapshot_dir: the deployed working tree, built as version ``deployed``.
@@ -46,6 +48,7 @@ class Library(Sites, Queue, Builder):
         self.translations = data / "translations"
         self.queue = data / "queue"
         self.states = data / "states"
+        self.opened = data / "opened"
         self.scratch = data / "work"
         self.prepared = data / "prepared"
         self.lock_file = data / "builder.lock"
@@ -93,7 +96,7 @@ class Library(Sites, Queue, Builder):
                     ),
                     reverse=True,
                 )
-            except subprocess.CalledProcessError:
+            except subprocess.SubprocessError:
                 head, tags = "", []
         with self._lock:
             self._refs, self._refs_read = (head, tags), time.monotonic()
@@ -191,6 +194,25 @@ class Library(Sites, Queue, Builder):
         self.states.mkdir(parents=True, exist_ok=True)
         write_json(self.states / f"{version}.json", state)
 
+    def mark_opened(self, version):
+        """Stamp ``version`` as opened now, the order the builder prunes tags in.
+
+        Every request below the version calls this, so the directory is only
+        created when the first stamp misses it.
+
+        Args:
+            version: a listed version; ``latest`` and ``deployed`` are never
+                pruned, so they stay unmarked.
+        """
+        if version in (LATEST, DEPLOYED):
+            return
+        mark = self.opened / version
+        try:
+            mark.touch()
+        except FileNotFoundError:
+            self.opened.mkdir(parents=True, exist_ok=True)
+            mark.touch()
+
     def status(self):
         head, tags = self.refs()
         report = []
@@ -220,9 +242,11 @@ class Library(Sites, Queue, Builder):
         return report
 
     def fetch(self):
-        if (self.mirror / "HEAD").is_file():
-            self._git("remote", "update", "--prune")
-        else:
+        try:
+            self._git("rev-parse", "--verify", "HEAD")
+        except subprocess.CalledProcessError:
+            partial = self.mirror.with_name(f"{self.mirror.name}.partial")
+            shutil.rmtree(partial, ignore_errors=True)
             subprocess.run(
                 [
                     "git",
@@ -230,12 +254,16 @@ class Library(Sites, Queue, Builder):
                     "--mirror",
                     "--quiet",
                     self.repository,
-                    str(self.mirror),
+                    str(partial),
                 ],
                 check=True,
                 capture_output=True,
                 timeout=GIT_TIMEOUT_SECONDS,
             )
+            shutil.rmtree(self.mirror, ignore_errors=True)
+            partial.replace(self.mirror)
+        else:
+            self._git("remote", "update", "--prune")
         self._forget_refs()
         self.request(LATEST, background=True)
         self._refresh_stale_sites()

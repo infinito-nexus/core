@@ -7,15 +7,25 @@
   vars:
     compose_handlers_flush: false
 
-- name: "📋 Stage the override that stops Weblate linking SSO logins by e-mail"
-  stack_host_copy:
-    src: python/settings_override.py
-    dest: "{{ WEBLATE_SETTINGS_OVERRIDE_FILE }}"
-    mode: "0644"
-  notify: compose-up
-  when: WEBLATE_OIDC_ENABLED | bool
+- name: "🐍 Stage the settings override for network siblings and SSO subject links"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/settings_override.py') }}"
+        dest: "{{ WEBLATE_SETTINGS_OVERRIDE_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network/strategy.py') }}"
+        dest: "{{ WEBLATE_NETWORK_STRATEGY_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_network/middleware.py') }}"
+        dest: "{{ WEBLATE_NETWORK_MIDDLEWARE_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
 
-- name: "🚿 flush handlers for '{{ application_id }}'"
+- name: "🚿 Flush handlers so Weblate starts with the settings override mounted"
   meta: flush_handlers
 
 - name: "🔑 Hand the gateway the token it reads the memory with"

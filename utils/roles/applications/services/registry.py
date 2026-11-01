@@ -28,7 +28,7 @@ def _normalized_name(value: Any) -> str:
     return value.strip()
 
 
-GROUP_GATED_CONSTANTS: tuple[str, ...] = ("LITELLM_USABLE",)
+GROUP_GATED_CONSTANTS: tuple[str, ...] = ("LITELLM_USABLE", "OFFICE_SUITE")
 """Group_vars constants whose own definition carries an ``in group_names``
 gate, so a flag referencing one is dynamic even though its own text is not.
 

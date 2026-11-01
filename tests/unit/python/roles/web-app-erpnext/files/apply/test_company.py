@@ -80,6 +80,61 @@ class TestCompany(unittest.TestCase):
         self.assertIn("Unit", records["UOM"])
         self.assertIn("Sales", records["Opportunity Type"])
 
+    def test_creates_the_tree_roots_the_skipped_setup_wizard_would(self) -> None:
+        self._run()
+
+        records = self.frappe.records
+        self.assertEqual(records["Item Group"]["All Item Groups"]["is_group"], 1)
+        self.assertEqual(
+            records["Item Group"]["All Item Groups"]["parent_item_group"], ""
+        )
+        self.assertEqual(
+            records["Customer Group"]["All Customer Groups"]["is_group"], 1
+        )
+        self.assertEqual(
+            records["Supplier Group"]["All Supplier Groups"]["is_group"], 1
+        )
+
+    def test_creates_the_standard_price_lists_in_the_company_currency(self) -> None:
+        result = self._run()
+
+        price_lists = self.frappe.records["Price List"]
+        selling = price_lists["Standard Selling"]
+        buying = price_lists["Standard Buying"]
+        self.assertEqual((selling["selling"], selling["buying"]), (1, 0))
+        self.assertEqual((buying["selling"], buying["buying"]), (0, 1))
+        for price_list in (selling, buying):
+            self.assertEqual(price_list["enabled"], 1)
+            self.assertEqual(price_list["currency"], "EUR")
+        self.assertIn("Price List: Standard Selling", result["created"])
+        self.assertIn("Price List: Standard Buying", result["created"])
+
+    def test_existing_company_gets_price_lists_in_its_own_currency(self) -> None:
+        _seed_company(self.frappe, COMPANY, "XY", default_cash_account="Cash - XY")
+
+        self._run()
+
+        for price_list in self.frappe.records["Price List"].values():
+            self.assertEqual(price_list["currency"], "USD")
+
+    def test_keeps_an_existing_price_list(self) -> None:
+        self.frappe.seed(
+            "Price List",
+            "Standard Selling",
+            price_list_name="Standard Selling",
+            enabled=0,
+            selling=1,
+            buying=0,
+            currency="CHF",
+        )
+
+        result = self._run()
+
+        self.assertEqual(
+            self.frappe.records["Price List"]["Standard Selling"]["currency"], "CHF"
+        )
+        self.assertNotIn("Price List: Standard Selling", result["created"])
+
     def test_creates_a_fiscal_year_covering_today(self) -> None:
         self._run()
 

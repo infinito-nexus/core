@@ -10,7 +10,6 @@ from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-weblate"
 OVERRIDE_TARGET = "/app/data/settings-override.py"
-SSO_FLAG = "{{ lookup('config', 'web-app-weblate', 'services.weblate.login.method.sso.enabled') | bool }}"
 
 
 class WeblateSubjectLinkTests(unittest.TestCase):
@@ -21,18 +20,18 @@ class WeblateSubjectLinkTests(unittest.TestCase):
         self.vars = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
 
     def test_every_service_reads_the_override_where_upstream_looks_for_it(self):
-        override = self.volumes["settings-override"]
+        override = self.volumes["settings_override"]
         self.assertEqual(override["type"], "config")
         self.assertTrue(
-            override["source"].endswith("'settings-override.py'] | path_join }}")
+            override["source"].endswith("'settings_override.py'] | path_join }}")
         )
         self.assertEqual(
             {
-                (mount["service"], mount["target"], mount["when"])
+                (mount["service"], mount["target"], mount.get("when"))
                 for mount in override["mounts"]
             },
             {
-                (service, OVERRIDE_TARGET, SSO_FLAG)
+                (service, OVERRIDE_TARGET, None)
                 for service in ("weblate", "beat", "worker")
             },
         )
@@ -44,7 +43,14 @@ class WeblateSubjectLinkTests(unittest.TestCase):
             if task.get("include_role", {}).get("name") == "sys-stk-full"
         )
         self.assertIs(self.core[stack]["vars"]["compose_handlers_flush"], False)
-        stage = next(i for i, task in enumerate(self.core) if "stack_host_copy" in task)
+        stage = next(
+            i
+            for i, task in enumerate(self.core)
+            if any(
+                template["src"].endswith("files/python/settings_override.py') }}")
+                for template in task.get("vars", {}).get("role_templates", [])
+            )
+        )
         flush = next(
             i
             for i, task in enumerate(self.core)
@@ -52,13 +58,14 @@ class WeblateSubjectLinkTests(unittest.TestCase):
         )
         self.assertLess(stack, stage)
         self.assertLess(stage, flush)
-        copy = self.core[stage]
-        self.assertEqual(copy["stack_host_copy"]["src"], "python/settings_override.py")
-        self.assertEqual(
-            copy["stack_host_copy"]["dest"], "{{ WEBLATE_SETTINGS_OVERRIDE_FILE }}"
+        override = next(
+            template
+            for template in self.core[stage]["vars"]["role_templates"]
+            if template["src"].endswith("files/python/settings_override.py') }}")
         )
-        self.assertEqual(copy["notify"], "compose-up")
-        self.assertEqual(copy["when"], "WEBLATE_OIDC_ENABLED | bool")
+        self.assertEqual(override["dest"], "{{ WEBLATE_SETTINGS_OVERRIDE_HOST }}")
+        self.assertEqual(override["notify"], ["compose-up"])
+        self.assertNotIn("when", self.core[stage])
 
     def test_the_admin_subject_comes_from_the_keycloak_directory_helper(self):
         gate = next(

@@ -50,12 +50,13 @@ class FakeKeycloak:
 
 
 class TestVerify(unittest.TestCase):
-    def test_an_unverified_user_is_updated_and_keeps_its_other_fields(self):
+    def test_an_unverified_user_holding_its_inventory_address_is_updated(self):
         kc = FakeKeycloak()
-        user_id = kc.add_user("biber", False, email="biber@example.org")
+        user_id = kc.add_user("biber", False, email="biber@example.org", firstName="B")
         self.assertEqual(m.verify(kc, "biber", "biber@example.org"), "updated")
         self.assertIs(kc.users[user_id]["emailVerified"], True)
         self.assertEqual(kc.users[user_id]["email"], "biber@example.org")
+        self.assertEqual(kc.users[user_id]["firstName"], "B")
 
     def test_the_inventory_address_matches_case_insensitively(self):
         kc = FakeKeycloak()
@@ -82,7 +83,25 @@ class TestVerify(unittest.TestCase):
         self.assertEqual(m.verify(kc, "biber", ""), "none")
         self.assertEqual(kc.puts, [])
 
-    def test_a_verified_user_is_left_alone(self):
+    def test_a_user_holding_another_address_is_never_marked_verified(self):
+        kc = FakeKeycloak()
+        user_id = kc.add_user("biber", False, email="erpnext-api-bot@example.org")
+        self.assertEqual(m.verify(kc, "biber", "biber@example.org"), "foreign")
+        self.assertIs(kc.users[user_id]["emailVerified"], False)
+        self.assertEqual(kc.puts, [])
+
+    def test_a_user_without_an_address_is_never_marked_verified(self):
+        kc = FakeKeycloak()
+        kc.add_user("biber", False)
+        self.assertEqual(m.verify(kc, "biber", "biber@example.org"), "foreign")
+        self.assertEqual(kc.puts, [])
+
+    def test_the_addresses_compare_case_insensitively(self):
+        kc = FakeKeycloak()
+        kc.add_user("biber", False, email="biber@example.org")
+        self.assertEqual(m.verify(kc, "biber", "Biber@Example.org"), "updated")
+
+    def test_a_verified_user_holding_its_inventory_address_is_left_alone(self):
         kc = FakeKeycloak()
         kc.add_user("biber", True, email="biber@example.org")
         self.assertEqual(m.verify(kc, "biber", "biber@example.org"), "unchanged")
@@ -138,6 +157,8 @@ class TestMain(unittest.TestCase):
             },
         )
         self.assertEqual(code, 0)
+        self.assertIn("foreign mapache", lines)
+        self.assertIn("none castor", lines)
         self.assertEqual(
             lines[-1],
             "summary updated=1 unchanged=1 none=1 missing=1 foreign=1 failed=0",
@@ -169,6 +190,29 @@ class TestMain(unittest.TestCase):
             code = m.main()
         self.assertEqual(code, 1)
         self.assertTrue(out.getvalue().startswith("setup-failed"))
+
+    def test_emails_that_are_no_username_to_address_object_fail_before_any_call(
+        self,
+    ):
+        kc = FakeKeycloak()
+        kc.add_user("biber", False, email="biber@example.org")
+        out = io.StringIO()
+        env = {
+            "KC_URL": "http://kc",
+            "KC_PID": "1",
+            "KC_REALM": "r",
+            "EMAILS": json.dumps(["biber"]),
+        }
+        with (
+            mock.patch.dict(os.environ, env),
+            mock.patch.object(m, "Keycloak", lambda *args: kc),
+            mock.patch.object(m, "container_credentials", lambda path: ("a", "p")),
+            contextlib.redirect_stdout(out),
+        ):
+            code = m.main()
+        self.assertEqual(code, 1)
+        self.assertTrue(out.getvalue().startswith("setup-failed"))
+        self.assertEqual(kc.puts, [])
 
 
 if __name__ == "__main__":

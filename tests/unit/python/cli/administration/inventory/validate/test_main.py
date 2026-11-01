@@ -144,6 +144,29 @@ class TestValidateInventory(unittest.TestCase):
         result = self.run_script(expected_code=1)
         self.assertIn("Missing default for app1: services.extra_setting", result.stdout)
 
+    def test_a_host_without_a_pinned_password_fails(self):
+        (self.inventory_dir / "devices.yml").write_text(
+            dump_yaml_str({"all": {"children": {"app1": {"hosts": {"echo": {}}}}}}),
+            encoding="utf-8",
+        )
+
+        result = self.run_script(expected_code=1)
+        self.assertIn("- echo: no pinned password for users.alice;", result.stdout)
+
+    def test_a_host_with_every_password_pinned_passes(self):
+        (self.inventory_dir / "devices.yml").write_text(
+            dump_yaml_str({"all": {"children": {"app1": {"hosts": {"echo": {}}}}}}),
+            encoding="utf-8",
+        )
+        (self.inventory_dir / "host_vars").mkdir()
+        (self.inventory_dir / "host_vars" / "echo.yml").write_text(
+            dump_yaml_str({"users": {"alice": {"password": "secret"}}}),
+            encoding="utf-8",
+        )
+
+        result = self.run_script(expected_code=0)
+        self.assertIn("Inventory directory is valid against defaults", result.stdout)
+
     def test_variants_only_key_is_accepted(self):
         """Regression for web-opt-rdr-www failure on run 26428083128:
         variants.yml declares service-keys absent from meta/services.yml,

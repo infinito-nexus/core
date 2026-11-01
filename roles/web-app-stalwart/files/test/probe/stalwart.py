@@ -16,7 +16,8 @@ Args:
         run's copy for it or the bounce naming it and the subject reaches the
         sender. A forward destination outside MAIL_DOMAIN counts once the
         account's active Sieve script redirects a copy to it: Stalwart sends no
-        bounce for a message a Sieve script generated.
+        bounce for a message a Sieve script generated. A transport error while
+        sending or polling counts as not yet, within the same poll budget.
 
 Environment: STALWART_ADMIN_USER, STALWART_ADMIN_PASSWORD, STALWART_JMAP_URL,
 MAIL_DOMAIN and, for routing, ADMIN_EMAIL, STALWART_ALIASES_JSON, STALWART_FORWARDS_JSON.
@@ -63,6 +64,7 @@ MONTHS = (
     "Nov",
     "Dec",
 )
+TRANSIENT_ERRORS = (OSError, imaplib.IMAP4.error, smtplib.SMTPException)
 _FLAGS = re.compile(rb"FLAGS \(([^)]*)\)")
 _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
@@ -72,6 +74,10 @@ def env(name: str) -> str:
     if not value:
         raise SystemExit(f"missing {name}")
     return value
+
+
+def describe(error: BaseException) -> str:
+    return f"{type(error).__name__}: {error}"
 
 
 def domain_of(address: str) -> str:
@@ -207,8 +213,18 @@ def send(sender: str, recipient: str, subject: str) -> None:
     mail["Date"] = email.utils.formatdate()
     mail["Message-ID"] = email.utils.make_msgid(domain=domain_of(sender))
     mail.set_content(f"routing probe {subject}")
-    with smtplib.SMTP(HOST, SMTP_PORT, timeout=TIMEOUT) as smtp:
-        smtp.send_message(mail, from_addr=sender, to_addrs=[recipient])
+    for attempt in range(1, POLL_ATTEMPTS + 1):
+        try:
+            with smtplib.SMTP(HOST, SMTP_PORT, timeout=TIMEOUT) as smtp:
+                smtp.send_message(mail, from_addr=sender, to_addrs=[recipient])
+            break
+        except TRANSIENT_ERRORS as error:
+            if attempt == POLL_ATTEMPTS:
+                raise
+            print(
+                f"retry: {subject} -> {recipient}: {describe(error)}", file=sys.stderr
+            )
+            time.sleep(POLL_DELAY)
     print(f"sent: {subject} -> {recipient}")
 
 
@@ -258,12 +274,17 @@ def queued(destination: str, since: float) -> bool:
 
 
 def wait_for(description: str, probe) -> bool:
+    last_error = ""
     for _ in range(POLL_ATTEMPTS):
-        if probe():
-            print(f"ok: {description}")
-            return True
+        try:
+            if probe():
+                print(f"ok: {description}")
+                return True
+        except TRANSIENT_ERRORS as error:
+            last_error = describe(error)
         time.sleep(POLL_DELAY)
-    print(f"FAIL: {description}", file=sys.stderr)
+    suffix = f" (last error: {last_error})" if last_error else ""
+    print(f"FAIL: {description}{suffix}", file=sys.stderr)
     return False
 
 

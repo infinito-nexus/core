@@ -102,6 +102,8 @@ discourse:
         enabled: "{{ lookup('login_method', 'web-app-discourse', 'email') }}"
       registration:
         enabled: "{{ lookup('login_method', 'web-app-discourse', 'registration') }}"
+  site_settings:
+    max_post_length: 150000
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

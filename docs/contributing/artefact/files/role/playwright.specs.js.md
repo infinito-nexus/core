@@ -284,6 +284,8 @@ Use `test.setTimeout(<ms>)` at the top of the test body (after the gates) and do
 
 The chosen budget MUST be visible in a comment on the same line as `test.setTimeout`, naming the slowest sub-step it covers, so future readers can adjust it without re-deriving.
 
+A role whose spec waits on a long background build of its app SHOULD set `playwright.run_after` in its `meta/tests.yml` to every invokable role except itself, so its pass runs after every other role's pass (see [Per-role settings](../../../../../roles/test-e2e-playwright/README.md#per-role-settings)).
+
 ### Cleanup and teardown 🧹
 
 Scenarios that create persistent state (WordPress posts, Discourse topics, Keycloak group memberships, file uploads, …) MUST clean up in a `try { ... } finally { ... }` block.

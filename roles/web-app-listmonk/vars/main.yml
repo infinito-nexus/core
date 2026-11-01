@@ -5,6 +5,7 @@ container_port: "{{ lookup('config', application_id, 'services.listmonk.ports.in
 
 LISTMONK_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 LISTMONK_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+LISTMONK_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"

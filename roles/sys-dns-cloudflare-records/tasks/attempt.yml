@@ -1,0 +1,15 @@
+---
+- name: "🔁 Cloudflare records, attempt {{ cloudflare_attempt }}"
+  when: _cf_pending | length > 0
+  block:
+    - name: 📌 Apply the pending Cloudflare records
+      ansible.builtin.include_tasks:
+        file: apply.yml
+
+    - name: ⚖️ Judge the outcome of every pending Cloudflare record
+      ansible.builtin.include_tasks:
+        file: judge.yml
+      vars:
+        _cf_judged: >-
+          {{ _cf_a.results + _cf_cname.results
+             + (_cf_srv.results | selectattr('item.ignore_errors', 'defined') | rejectattr('item.ignore_errors') | list) }}

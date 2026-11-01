@@ -15,7 +15,6 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 from utils.cache import base as _base
 from utils.cache.base import (
@@ -33,11 +32,15 @@ from utils.cache.users.email_policy import apply_email_policy as _apply_email_po
 from utils.cache.users.email_policy import (
     drop_mail_domain_secondaries as _drop_mail_domain_secondaries,
 )
+from utils.cache.users.forwards import validate_forwards as _validate_forwards
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
 )
 from utils.cache.users.placeholders import (
     substitute_scalar_placeholders as _substitute_scalar_placeholders,
+)
+from utils.cache.users.reservations import (
+    materialize_domain_label_reservations as _materialize_domain_label_reservations,
 )
 from utils.cache.yaml import load_yaml as _load_yaml_cached
 from utils.mail.policy import POLICY_MAILBOX, resolve_policy
@@ -213,6 +216,7 @@ def _build_users(
         seen_usernames.add(username)
         seen_emails.add(email)
 
+    _validate_forwards(users)
     return users
 
 
@@ -332,60 +336,6 @@ def _hydrate_users_tokens(
     return out
 
 
-def _materialize_domain_label_reservations(
-    users: Mapping[str, Any] | None,
-    variables: Mapping[str, Any] | None,
-    templar: Any = None,
-) -> dict[str, Any]:
-    """Reserve one username per label of the deployment's primary domain.
-
-    Args:
-        users: the users resolved so far.
-        variables: play variables; ``DOMAIN_PRIMARY`` wins over
-            ``SYSTEM_EMAIL_DOMAIN``.
-        templar: optional templar used to render a templated candidate.
-
-    Returns:
-        A copy of ``users`` with one ``domain_label_<n>`` entry per label.
-    """
-    from utils.templating.ansible import _templar_render_best_effort
-
-    def _normalize_domain_candidate(value: Any) -> str:
-        text = str(value or "").strip()
-        if not text:
-            return ""
-        if ("{{" in text or "{%" in text) and variables:
-            text = str(
-                _templar_render_best_effort(templar, text, dict(variables))
-            ).strip()
-        if "://" in text:
-            parsed = urlparse(text)
-            text = parsed.hostname or text
-        return text.split("/", 1)[0].split(":", 1)[0].strip()
-
-    out: dict[str, Any] = copy.deepcopy(dict(users or {}))
-    variables = variables or {}
-
-    primary_domain = ""
-    for candidate_key in ("DOMAIN_PRIMARY", "SYSTEM_EMAIL_DOMAIN"):
-        primary_domain = _normalize_domain_candidate(variables.get(candidate_key))
-        if primary_domain:
-            break
-
-    for index, label in enumerate(
-        label for label in primary_domain.split(".") if label
-    ):
-        out[f"domain_label_{index}"] = {
-            "description": (
-                f"Auto generated account reserving the domain label '{label}'"
-            ),
-            "username": label,
-            "accounts": [],
-        }
-
-    return out
-
-
 def get_user_defaults(
     *, roles_dir: str | os.PathLike[str] | None = None
 ) -> dict[str, Any]:
@@ -457,6 +407,7 @@ def get_merged_users(
         _apply_account_defaults(_merge_users(defaults, overrides)),
         policy == POLICY_MAILBOX,
     )
+    _validate_forwards(merged)
     hydrated = _hydrate_users_tokens(
         merged,
         dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),

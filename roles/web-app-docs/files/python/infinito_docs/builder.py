@@ -263,7 +263,7 @@ class Builder:
         self._seal(staging)
         shutil.rmtree(target, ignore_errors=True)
         staging.replace(target)
-        for stale in self.prepared.glob(f"{target.name.split('.')[0]}.*"):
+        for stale in self.prepared.glob(f"{target.name.rpartition('.')[0]}.*"):
             if stale != target:
                 shutil.rmtree(stale, ignore_errors=True)
 

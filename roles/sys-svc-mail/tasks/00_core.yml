@@ -27,7 +27,7 @@
     name: sys-svc-mail-smtp
   when:
     - run_once_sys_svc_mail_smtp is not defined
-    - not (lookup('email').external | bool)
+    - not (lookup('email', key='external') | bool)
 
 - name: 🔧 Setup msmtp client
   include_role:

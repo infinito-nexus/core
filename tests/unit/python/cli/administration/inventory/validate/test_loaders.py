@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from cli.administration.inventory.validate.loaders import (
     load_inventory_files,
     load_yaml_file,
+    merged_variables,
 )
 from utils.cache.yaml import dump_yaml
 
@@ -106,6 +107,23 @@ class TestLoadYamlFile(LoadersTestBase, unittest.TestCase):
         path.write_text("key: : : invalid\n", encoding="utf-8")
         data = load_yaml_file(path)
         self.assertIsNone(data)
+
+
+class TestMergedVariables(LoadersTestBase, unittest.TestCase):
+    def test_a_later_file_replaces_a_top_level_key_whole(self):
+        first = self.tmp_path / "first.yml"
+        second = self.tmp_path / "second.yml"
+        dump_yaml(str(first), {"users": {"alice": {}}, "TLS_ENABLED": True})
+        dump_yaml(str(second), {"users": {"bob": {}}})
+        self.assertEqual(
+            merged_variables([first, second]),
+            {"users": {"bob": {}}, "TLS_ENABLED": True},
+        )
+
+    def test_a_file_without_a_mapping_contributes_nothing(self):
+        path = self.tmp_path / "list.yml"
+        dump_yaml(str(path), ["a", "b"])
+        self.assertEqual(merged_variables([path]), {})
 
 
 class TestLoadInventoryFiles(LoadersTestBase, unittest.TestCase):

@@ -49,7 +49,7 @@
     apply:
       delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   vars:
-    rest_script: rbac_reconcile.py
+    rest_script: rbac/reconcile.py
     rest_script_env:
       LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
       RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"

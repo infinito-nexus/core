@@ -1,9 +1,8 @@
 # nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
-from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -19,8 +18,12 @@ from utils.mail.provider import (
     active_provider,
     provider_deployed,
 )
+from utils.mail.provider_view import provider_view, view_carrier, view_id
 from utils.networks.reachability import network, network_of
 from utils.roles.entity.name import entity_name
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
@@ -92,17 +95,57 @@ def _render(
     return value
 
 
-def _provider_carrier(variables: dict[str, Any], host: str) -> Mapping[str, Any] | None:
-    hostvars = variables.get("hostvars")
-    raw_get = getattr(hostvars, "raw_get", None)
+def active_mail_provider(variables: Mapping[str, Any]) -> str:
+    """The mail provider role this deploy relays through.
+
+    Args:
+        variables: Ansible variables of the current host.
+    """
+    return active_provider(variables, DEFAULT_MAIL_PROVIDER, Path.cwd() / "roles")
+
+
+def provider_view_carrier(
+    variables: Mapping[str, Any],
+    *,
+    templar: Any,
+    roles_dir: str | None = None,
+) -> dict[str, Any] | None:
+    """Render the applications payload of `provider_view` for a host that does
+    not run the provider.
+
+    Args:
+        variables: Ansible variables of the current host.
+        templar: templar the view renders with; its available variables are
+            the view for the duration of the render.
+        roles_dir: roles tree to build from; the repository's when ``None``.
+
+    Returns:
+        ``{"key", "applications", "view"}`` to park in
+        `PROVIDER_VIEW_RENDERED_FACT`, or ``None`` when this host is the
+        provider host `provider_view` picks, no provider host serves onion,
+        or the parked payload or the provider host's own carrier still
+        matches the view.
+    """
+    resolved = provider_view(variables, active_mail_provider(variables))
+    if resolved is None:
+        return None
+    host, view = resolved
+    if host == variables.get("inventory_hostname"):
+        return None
+    view.pop("application_id", None)
+    if view_carrier(variables, host, view, roles_dir) is not None:
+        return None
+    applications = ApplicationsLookup()
+    applications._templar = templar
+    previous = templar.available_variables
+    templar.available_variables = view
     try:
-        host_vars = raw_get(host) if callable(raw_get) else hostvars[host]
-    except (KeyError, TypeError):
-        return None
-    if not isinstance(host_vars, Mapping):
-        return None
-    carrier = host_vars.get(APPLICATIONS_RENDERED_FACT)
-    return carrier if isinstance(carrier, Mapping) else None
+        carrier = applications.run(
+            [], variables=view, roles_dir=roles_dir, carrier=True
+        )[0]
+    finally:
+        templar.available_variables = previous
+    return {**carrier, "view": view_id(host, view)}
 
 
 class LookupModule(LookupBase):
@@ -112,6 +155,18 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
+        """Resolve the system mail settings.
+
+        Args:
+            terms: empty, or one application_id whose ``services.email``
+                overrides are merged in.
+            variables: Ansible variables of the current host.
+            key: optional entry of RESOLUTION_ORDER; returns only that value,
+                resolving its predecessors but none of the later keys.
+
+        Returns:
+            One-element list: the settings mapping, or the value of ``key``.
+        """
         terms = terms or []
         if len(terms) > 1:
             raise AnsibleError(
@@ -119,6 +174,12 @@ class LookupModule(LookupBase):
             )
 
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
+        requested = kwargs.pop("key", None)
+        if requested is not None and requested not in RESOLUTION_ORDER:
+            raise AnsibleError(
+                f"email: unknown key {requested!r}, expected one of "
+                f"{', '.join(RESOLUTION_ORDER)}"
+            )
         self._kwargs = kwargs
 
         templar = getattr(self, "_templar", None)
@@ -134,16 +195,18 @@ class LookupModule(LookupBase):
                 )
             else:
                 resolved[short_key] = _render(raw, templar, variables)
+            if short_key == requested:
+                break
 
         if len(terms) == 0:
-            return [resolved]
+            return [resolved if requested is None else resolved[requested]]
 
         application_id = str(terms[0]).strip()
         overrides = self._app_email_overrides(application_id, variables)
         merged = dict(resolved)
         for key, value in overrides.items():
             merged[str(key).lower()] = _render(value, templar, variables)
-        return [merged]
+        return [merged if requested is None else merged[requested]]
 
     def _compute(
         self,
@@ -255,7 +318,7 @@ class LookupModule(LookupBase):
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
     def _mail_provider(self, variables: dict[str, Any]) -> str:
-        return active_provider(variables, DEFAULT_MAIL_PROVIDER, Path.cwd() / "roles")
+        return active_mail_provider(variables)
 
     def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
         """The active provider's ``services`` block, or ``{}`` when it cannot be
@@ -311,38 +374,23 @@ class LookupModule(LookupBase):
         ``group_names``, so a worker would otherwise see the clearnet name the
         provider never serves a certificate for.
         """
-        groups = variables.get("groups") or {}
         provider = self._mail_provider(variables)
-        tor_hosts = set(groups.get("svc-net-tor") or [])
-        provider_hosts = [h for h in groups.get(provider) or [] if h in tor_hosts]
-        if not provider_hosts:
+        resolved = provider_view(variables, provider)
+        if resolved is None:
             return False
-        own_groups = list(variables.get("group_names") or [])
-        fallback = own_groups + [
-            g for g in ("svc-net-tor", provider) if g not in own_groups
-        ]
-        try:
-            provider_vars = variables["hostvars"][provider_hosts[0]]
-            provider_groups = provider_vars["group_names"]
-        except (KeyError, TypeError):
-            provider_vars = {}
-            provider_groups = fallback
-        provider_view = dict(variables)
-        provider_view["group_names"] = list(provider_groups or fallback)
-        if provider_vars.get("NETWORK_MODE"):
-            provider_view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
-        carrier = _provider_carrier(variables, provider_hosts[0])
-        if carrier is not None:
-            provider_view[APPLICATIONS_RENDERED_FACT] = carrier
+        host, view = resolved
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
+        carrier = view_carrier(variables, host, view, forwarded.get("roles_dir"))
+        if carrier is not None:
+            view[APPLICATIONS_RENDERED_FACT] = carrier
         try:
             domains = lookup_loader.get(
                 "domains",
                 loader=getattr(self, "_loader", None),
                 templar=getattr(self, "_templar", None),
-            ).run([], variables=provider_view, **forwarded)[0]
+            ).run([], variables=view, **forwarded)[0]
             domain = get_domain(domains, provider)
         except Exception:
             return False

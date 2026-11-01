@@ -27,12 +27,15 @@
     stalwart_jmap_body: >-
       {%- set create = {} -%}
       {%- for account in stalwart_accounts -%}
-      {%-   set _ = create.update({'u' ~ loop.index0: {
+      {%-   set user = {
               '@type': 'User',
               'name': account.name,
               'domainId': stalwart_domain_id,
-              'description': account.description,
-              'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}}) -%}
+              'description': account.description} -%}
+      {%-   if not (STALWART_SSO_ENABLED | bool) -%}
+      {%-     set _ = user.update({'credentials': {'0': {'@type': 'Password', 'secret': account.secret}}}) -%}
+      {%-   endif -%}
+      {%-   set _ = create.update({'u' ~ loop.index0: user}) -%}
       {%- endfor -%}
       {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
           'methodCalls': [['x:Account/set', {'create': create}, 'c0'],
@@ -75,16 +78,16 @@
     stalwart_account_refused: >-
       {%- set refused = {} -%}
       {%- for account in stalwart_accounts -%}
-      {%-   set external = STALWART_SSO_ENABLED | bool and account.refusal.get('type') == 'forbidden' -%}
-      {%-   if (not account.id and (account.bot or not external))
-              or (account.refusal and not (account.existing or external)) -%}
+      {%-   if not account.id or (account.refusal and not account.existing) -%}
       {%-     set _ = refused.update({account.address: account.refusal}) -%}
       {%-   endif -%}
       {%- endfor -%}
       {{ refused }}
 
 - name: "🔄 Update the password of every pre-existing account"
-  when: stalwart_accounts | selectattr('existing') | list | length > 0
+  when:
+    - not (STALWART_SSO_ENABLED | bool)
+    - stalwart_accounts | selectattr('existing') | list | length > 0
   block:
     - name: "🔄 Send the passwords of the pre-existing accounts"
       include_tasks: jmap_call.yml

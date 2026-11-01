@@ -7,7 +7,7 @@
     system_service_timer_enabled: true
     system_service_tpl_environment:
       - "MAIL_RECIPIENT={{ lookup('mail_recipient') }}"
-      - "MAIL_TIMEOUT={{ lookup('email').timeout }}"
+      - "MAIL_TIMEOUT={{ lookup('email', key='timeout') }}"
 
     system_service_force_flush_instant: "{{ MODE_DEBUG | bool }}"
     system_service_force_flush_final: false

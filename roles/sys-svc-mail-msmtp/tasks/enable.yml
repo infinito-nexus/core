@@ -22,7 +22,7 @@
 - name: "🔴 Disable SMTP to avoid port conflicts"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
 
-- when: lookup('email').external | bool
+- when: lookup('email', key='external') | bool
   block:
     - name: 📦 Install msmtp-mta when Mailu is used and package exists on distro
       package_install: # nocheck: package-install only inside the Mailu block and only where the distro ships msmtp-mta

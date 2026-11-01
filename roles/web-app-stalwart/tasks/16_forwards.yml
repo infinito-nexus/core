@@ -31,7 +31,9 @@
 - name: "✅ Ensure every forwarding address is a Stalwart account"
   ansible.builtin.assert:
     that: stalwart_forward_missing | length == 0
-    fail_msg: "Forwards are declared for addresses without a Stalwart account: {{ stalwart_forward_missing }}"
+    fail_msg: >-
+      Forwards are declared for addresses without a Stalwart account: {{ stalwart_forward_missing | join(', ') }}.
+      A forward comes from services.stalwart.forwards or from a user's `forward` in the users catalogue.
     quiet: true
   vars:
     stalwart_forward_missing: "{{ STALWART_FORWARDS | map(attribute='address') | reject('in', stalwart_forward_account_ids) | list }}"
@@ -51,6 +53,7 @@
 
     - name: "🔄 Reload Stalwart's settings"
       include_tasks: jmap_call.yml
+      when: not (STALWART_SSO_ENABLED | bool)
       vars:
         stalwart_jmap_body: >-
           {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],

@@ -11,4 +11,5 @@ COLLABORA_WOPI_HOSTS: >-
   {{- lookup('tls', wopi_domain, 'protocols.web') }}://{{ wopi_domain }}:{{ lookup('tls', wopi_domain, 'ports.web') }}
   {{- '' if loop.last else ',' }}
   {%- endfor %}
+COLLABORA_FRAME_ANCESTORS: "{{ lookup('network_urls', lookup('tls', lookup('domain', 'web-app-nextcloud'), 'url.origin')) }}"
 COLLABORA_DISCOVERY_PATH: "/hosting/discovery"

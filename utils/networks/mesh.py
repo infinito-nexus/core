@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 from collections.abc import Iterable, Mapping
 from typing import Any
 
@@ -9,6 +10,7 @@ MESHES_KEY = "meshes"
 INTERFACES_KEY = "interfaces"
 HUB_KEY = "hub"
 ROAMING_KEY = "roaming"
+REJECT_AFTER_TIME = 180
 
 
 def _networks(applications: Any, role: str) -> Mapping[str, Any]:
@@ -127,6 +129,28 @@ def dialled_peers(interface: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     return [peer for peer in peers if peer.get("is_hub")]
 
 
+def underlay(lookups: Iterable[Mapping[str, Any]]) -> dict[str, str]:
+    """Endpoint name to the IPv4 address the dialling host resolved it to.
+
+    Args:
+        lookups: one result per dialled endpoint, each holding the
+            ``endpoint`` it looked up and the ``stdout`` of
+            ``getent ahostsv4 <endpoint>`` on the dialling host; a name whose
+            first answer is no IPv4 address is left out.
+    """
+    resolved: dict[str, str] = {}
+    for lookup in lookups:
+        fields = str(lookup["stdout"]).split()
+        if not fields:
+            continue
+        try:
+            address = ipaddress.IPv4Address(fields[0])
+        except ValueError:
+            continue
+        resolved[str(lookup["endpoint"])] = str(address)
+    return resolved
+
+
 def awaited_peers(
     interface: Mapping[str, Any], swarm_manager: bool
 ) -> list[Mapping[str, Any]]:
@@ -163,19 +187,28 @@ def awaited_keys(
     return awaited
 
 
-def handshaken(latest_handshakes: str, public_keys: Iterable[str]) -> bool:
-    """Whether every key in ``public_keys`` has completed a handshake.
+def handshaken(state: str, public_keys: Iterable[str]) -> bool:
+    """Whether every key in ``public_keys`` holds a session WireGuard still accepts.
 
     Args:
-        latest_handshakes: the output of ``wg show <mesh> latest-handshakes``.
-        public_keys: the peers that must have handshaked.
+        state: the host's ``date +%s`` on the first line, then the output of
+            ``wg show <mesh> latest-handshakes`` from the same shell call.
+        public_keys: the peers whose last handshake must lie within
+            ``REJECT_AFTER_TIME`` seconds of that epoch.
     """
+    lines = state.splitlines()
+    if not lines or not lines[0].strip().isdecimal():
+        return False
+    now = int(lines[0])
     stamps: dict[str, int] = {}
-    for line in latest_handshakes.splitlines():
+    for line in lines[1:]:
         fields = line.split()
-        if len(fields) == 2 and fields[1].isdigit():
+        if len(fields) == 2 and fields[1].isdecimal():
             stamps[fields[0]] = int(fields[1])
-    return all(key in stamps and stamps[key] > 0 for key in public_keys)
+    return all(
+        stamps.get(key, 0) > 0 and abs(now - stamps[key]) <= REJECT_AFTER_TIME
+        for key in public_keys
+    )
 
 
 def primary_address(applications: Any, host: str) -> str:

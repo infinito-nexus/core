@@ -139,6 +139,8 @@ def _suppressed_inline_flags(file_path: Path) -> set[tuple[str, str]]:
 
 
 _MAIL_PROVIDER_INDIRECTION = "MAIL_PROVIDER in group_names"
+_OFFICE_SUITE_KEYS = ("collabora", "onlyoffice")
+_OFFICE_SUITE_INDIRECTION = "OFFICE_SUITE =="
 
 
 def _references_role_in_group_names(value, role_name: str) -> bool:
@@ -207,6 +209,12 @@ class TestServicesDynamicFlags(unittest.TestCase):
                         service_key == "email"
                         and isinstance(value, str)
                         and _MAIL_PROVIDER_INDIRECTION in value
+                    ):
+                        continue
+                    if (
+                        service_key in _OFFICE_SUITE_KEYS
+                        and isinstance(value, str)
+                        and _OFFICE_SUITE_INDIRECTION in value
                     ):
                         continue
                     if expected_role and not _references_role_in_group_names(

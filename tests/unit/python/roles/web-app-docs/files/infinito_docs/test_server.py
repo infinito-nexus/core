@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import sys
 import threading
 import unittest
@@ -129,6 +130,23 @@ class TestServer(unittest.TestCase):
         self.assertIn('data-build="v1.0.0"', body)
         self.assertIn("<progress", body)
         self.assertTrue((self.library.queue / "v1.0.0").exists())
+
+    def test_opening_a_tag_or_its_translation_stamps_the_tag_and_only_it(self) -> None:
+        mark = self.library.opened / "v1.0.0"
+
+        self._request("/v1.0.0/")
+        self.assertTrue(mark.is_file(), "an opened tag must leave its stamp")
+        os.utime(mark, (1000, 1000))
+        self._request("/v1.0.0/de/")
+        self._request("/latest/")
+        self._request("/v9.9.9/")
+
+        self.assertGreater(
+            mark.stat().st_mtime, 1000, "a translation must restamp its tag"
+        )
+        self.assertEqual(
+            [stamp.name for stamp in self.library.opened.iterdir()], ["v1.0.0"]
+        )
 
     def test_api_reports_every_version(self) -> None:
         status, _, body = self._request("/api/versions")

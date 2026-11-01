@@ -9,7 +9,7 @@ SiteSetting.enable_local_logins_via_email = ENV.fetch("DISCOURSE_LOGIN_EMAIL") =
 SiteSetting.enable_passkeys = ENV.fetch("DISCOURSE_LOGIN_PASSKEY") == "true"
 SiteSetting.allow_new_registrations = ENV.fetch("DISCOURSE_ALLOW_NEW_REGISTRATIONS") == "true"
 
-JSON.parse(ENV.fetch("DISCOURSE_LDAP_SITE_SETTINGS")).each do |key, value|
+JSON.parse(ENV.fetch("DISCOURSE_SITE_SETTINGS")).each do |key, value|
   SiteSetting.public_send("#{key}=", value)
 end
 

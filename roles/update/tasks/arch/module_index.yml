@@ -1,0 +1,14 @@
+---
+- name: "🔍 update (pacman) | check whether the running kernel loads modules at all"
+  ansible.builtin.stat:
+    path: /proc/modules
+  register: update_proc_modules
+
+- name: "🔍 update (pacman) | list the kernels with an installed module index"
+  ansible.builtin.find:
+    paths: /usr/lib/modules
+    patterns: modules.dep
+    recurse: true
+    depth: 2
+    follow: true
+  register: update_module_indexes

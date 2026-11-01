@@ -8,6 +8,9 @@
       - bash
       - "{{ STALWART_MIGRATE_SCRIPT }}"
       - all
+  # rationale: async; poll waits for the job to end, so the layout read below sees the finished migration
+  async: "{{ STALWART_MIGRATE_ASYNC_TIME }}"
+  poll: "{{ STALWART_MIGRATE_ASYNC_POLL }}"
   register: stalwart_store_migration
   changed_when: true
 

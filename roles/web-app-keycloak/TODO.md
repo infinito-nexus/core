@@ -14,10 +14,6 @@
 - A mailbox realm cannot return to `external`; `kc_email_policy_change` refuses it. Build the reverse switch only when an operator needs it.
 - The Playwright criterion "a change of the changeable address stays pending until the confirmation link is followed" still needs a spec, developed against a live stack. It needs no mailbox for the pending half: the `UPDATE_EMAIL` form, then the account API showing the old address. It must remove the pending change afterwards, because Keycloak re-adds `UPDATE_EMAIL` at every login while a pending address exists, which would stop every later biber login of every suite.
 
-## Merge with the store-i18n email hotfix
-
-- `fix/iam/email-takeover-hotfix` makes the user profile `email` admin-only, has `email_verified.py` stamp only the inventory address passed in `EMAILS_JSON`, and rejects an empty address. When `feature/store-i18n` merges into this line, take this line's `files/python/email_verified.py`, `tasks/update/06_users/email_verified.yml` and the SMTP-dependent `email` edit permission in `templates/import/components/org.keycloak.userprofile.UserProfileProvider.json.j2`. Keep the hotfix's tests, adapted to the `EMAILS` variable, and expect the `none` outcome where they expect an empty address to fail.
-
 ## Req 019 rollout: deploy gate
 
 - During the autonomous req 019 rollout, `make compose-deploy mode=reinstall apps=web-app-keycloak full_cycle=true` failed with two unrelated assertions:

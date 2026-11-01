@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from types import SimpleNamespace
 from unittest import mock
@@ -44,6 +45,17 @@ class TestRunDeploy(unittest.TestCase):
         self.assertEqual(
             deployment.primary_apps(parsed), ["web-app-gitea", "web-app-lam"]
         )
+
+    def test_a_list_extra_var_survives_ansible_key_value_parsing(self):
+        apps = ["web-app-gitea", "web-app-lam"]
+        cmd = self.deploy_cmd({"PRIMARY_APPS": apps, "VARIANT_INDEX": 0})
+        extra_vars = [cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-e"]
+        parsed = {}
+        for extra_var in extra_vars:
+            parsed.update(parse_kv(extra_var))
+        self.assertNotIn("_raw_params", parsed)
+        self.assertEqual(apps, json.loads(parsed["PRIMARY_APPS"]))
+        self.assertEqual(0, json.loads(parsed["VARIANT_INDEX"]))
 
     def test_deploys_the_generated_inventory(self):
         cmd = self.deploy_cmd()

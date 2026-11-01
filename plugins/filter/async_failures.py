@@ -18,6 +18,7 @@ phrasing and does not have to know which key carries it.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 _UNFINISHED = "job did not finish"
@@ -105,8 +106,62 @@ def async_failures(results: Any, tolerate: Any) -> list[str]:
     return out
 
 
+def _original(result: dict) -> Any:
+    """The loop value a result belongs to, reaped or polled in place.
+
+    Args:
+        result: one reaped ``async_status`` result, or one result of a looped
+            task that polled its own job.
+    """
+    fired = result.get("item")
+    if isinstance(fired, dict) and "ansible_loop_var" in fired:
+        return fired.get(fired["ansible_loop_var"])
+    return fired
+
+
+def async_retry_split(
+    results: Any, tolerate: Any, transient: Any
+) -> dict[str, list[dict]]:
+    """Sort failed jobs into those worth another attempt and those to stop for.
+
+    A job that never finished always counts as transient: a hung request, or a
+    job that died before its module ran and left its job file at "started".
+    Any other failure is transient only when what it said matches ``transient``.
+
+    Args:
+        results: reaped ``async_status`` results, or the results of a looped
+            task that polled its own jobs.
+        tolerate: substrings that mark an answer as an accepted no-op.
+        transient: regular expressions on what a failed job said that mark the
+            failure as worth retrying.
+
+    Returns:
+        ``{"retry": [...], "failed": [...]}``, each entry
+        ``{"item": <loop value>, "error": <what the job said>}``.
+    """
+    tolerated = [str(t) for t in (tolerate or [])]
+    patterns = [re.compile(str(p)) for p in (transient or [])]
+    split: dict[str, list[dict]] = {"retry": [], "failed": []}
+    for result in results or []:
+        if not isinstance(result, dict) or not _is_failure(result):
+            continue
+        said = _said(result)
+        if said and any(phrase in said for phrase in tolerated):
+            continue
+        unreadable = _SUPPRESSED in result
+        unfinished = not unreadable and int(result.get("finished") or 0) != 1
+        retry = unfinished or any(p.search(said) for p in patterns)
+        if not said:
+            said = _UNREACHABLE if unreadable else _UNFINISHED
+        split["retry" if retry else "failed"].append(
+            {"item": _original(result), "error": said}
+        )
+    return split
+
+
 class FilterModule:
     def filters(self) -> dict[str, Any]:
         return {
             "async_failures": async_failures,
+            "async_retry_split": async_retry_split,
         }

@@ -57,6 +57,8 @@ STALWART_MIGRATE_TARGET_CONFIG: "{{ [ STALWART_MIGRATE_DIR, 'target', 'config.js
 STALWART_MIGRATE_IMAGE: "{{ lookup('image', application_id, 'stalwart_migrate') }}"
 STALWART_MIGRATE_TARGET_DATABASE: "{{ lookup('database', application_id, 'name') }}_v1"
 STALWART_MIGRATE_RETIRED_DATABASE: "{{ lookup('database', application_id, 'name') }}_v016"
+STALWART_MIGRATE_ASYNC_TIME: "{{ lookup('timeout', 21600) | int }}"
+STALWART_MIGRATE_ASYNC_POLL: 60
 
 STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
 STALWART_CLAMAV_HOST: "clamav"
@@ -136,7 +138,9 @@ STALWART_IMPORT_WORKERS: "{{ lookup('config', application_id, 'services.stalwart
 
 STALWART_ALIASES: "{{ lookup('config', application_id, 'services.stalwart.aliases') | stalwart_aliases }}"
 STALWART_ALIAS_DESCRIPTION: "Infinito.Nexus alias"
-STALWART_FORWARDS: "{{ lookup('config', application_id, 'services.stalwart.forwards') | stalwart_forwards }}"
+STALWART_FORWARDS: >-
+  {{ lookup('config', application_id, 'services.stalwart.forwards') | stalwart_forwards
+     | stalwart_user_forwards(STALWART_USERS, STALWART_DOMAIN) }}
 STALWART_FORWARD_SCRIPT_NAME: "infinito-forward"
 STALWART_ALIAS_DOMAINS: "{{ lookup('config', application_id, 'services.stalwart.alias_domains') }}"
 STALWART_RCPT_REWRITE: "{{ STALWART_ALIAS_DOMAINS | stalwart_rcpt_rewrite }}"

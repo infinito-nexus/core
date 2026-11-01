@@ -1,11 +1,13 @@
 # nocheck: mirrored-unit-test - runs in the OpenProject console against
 # Storages::NextcloudStorage; the model only exists once OpenProject has booted
 # Param PROVISION_INPUT: defined ahead of this script on the same stdin, with the keys
-# nextcloud_host, storage_name, nc_op_client_secret, rotate_op_secret,
+# nextcloud_host, nextcloud_base_urls (Nextcloud's base URL on every network it is
+# served on, canonical first), storage_name, nc_op_client_secret, rotate_op_secret,
 # nc_oauth_client_id and nc_oauth_client_secret.
 require "json"
 
 host = PROVISION_INPUT.fetch("nextcloud_host").sub(%r{/+\z}, "")
+base_urls = PROVISION_INPUT.fetch("nextcloud_base_urls").map { |url| url.sub(%r{/+\z}, "") }
 name = PROVISION_INPUT.fetch("storage_name")
 nc_client_id = PROVISION_INPUT.fetch("nc_oauth_client_id").to_s.strip
 nc_client_secret = PROVISION_INPUT.fetch("nc_oauth_client_secret").to_s.strip
@@ -44,10 +46,12 @@ if application && nc_client_id.empty? && nc_op_client_secret.empty?
   application = nil
 end
 
-redirect_uri = [
-  File.join(host, "apps/integration_openproject/oauth-redirect"),
-  File.join(host, "index.php/apps/integration_openproject/oauth-redirect")
-].join("\n")
+redirect_uri = base_urls.flat_map do |base_url|
+  [
+    File.join(base_url, "apps/integration_openproject/oauth-redirect"),
+    File.join(base_url, "index.php/apps/integration_openproject/oauth-redirect")
+  ]
+end.join("\n")
 
 if application.nil?
   result = ::OAuth::Applications::CreateService
