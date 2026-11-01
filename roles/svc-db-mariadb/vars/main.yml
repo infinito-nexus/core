@@ -31,7 +31,7 @@ MARIADB_ELECTOR_USER: elector
 MARIADB_ELECTOR_LOCAL_USER: mysql
 MARIADB_HA_PEER_HOSTS: >-
   {{ [ lookup('config', application_id, 'networks.internal.subnet'),
-       lookup('config', 'svc-dcs-etcd', 'networks.internal.subnet') ] | mariadb_host_masks }}
+       lookup('config', 'svc-dcs-etcd', 'networks.local.subnet') ] | mariadb_host_masks }}
 MARIADB_ELECTOR_PWD: "{{ lookup('config', application_id, 'secrets.credentials.elector_password') }}"
 MARIADB_ELECTOR_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
 MARIADB_ELECTOR_ETCD_PWD: "{{ lookup('config', 'svc-dcs-etcd', 'secrets.credentials.ETCD_MARIADB_ELECTOR_PASSWORD') }}"
