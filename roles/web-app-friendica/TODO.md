@@ -60,3 +60,7 @@ SSO with auto-account-creation, which collapses the chain to a single
 ## Open self-registration
 
 - `/register` serves the sign-up form to every visitor because the installer writes `'register_policy' => \Friendica\Module\Register::OPEN` into `config/local.config.php:27` (`bin/console config config register_policy` reports `2`), while upstream's own default in `static/settings.config.php:27` is `CLOSED`; options: set `config.register_policy` to `CLOSED` (or `APPROVE`) from the role through `bin/console config` or a mounted `config/*.config.php`, or make it an inventory switch.
+
+## Flaky native administrator login
+
+- `files/playwright/test-native-login-administrator.js:19` failed its first attempt in the B1 compose round of 2026-11-01 on the 60 s wait for `/network` after the sign-in (`files/playwright/_shared.js:90`) and passed on retry (log `/tmp/compose-deploy-iam-15.log:312348`); options: wait for the session cookie and the post-login redirect response instead of the `/network` render, or raise the cause in Friendica's post-login page load first.
