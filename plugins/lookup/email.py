@@ -111,6 +111,18 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
+        """Resolve the system mail settings.
+
+        Args:
+            terms: empty, or one application_id whose ``services.email``
+                overrides are merged in.
+            variables: Ansible variables of the current host.
+            key: optional entry of RESOLUTION_ORDER; returns only that value,
+                resolving its predecessors but none of the later keys.
+
+        Returns:
+            One-element list: the settings mapping, or the value of ``key``.
+        """
         terms = terms or []
         if len(terms) > 1:
             raise AnsibleError(
@@ -118,6 +130,12 @@ class LookupModule(LookupBase):
             )
 
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
+        requested = kwargs.pop("key", None)
+        if requested is not None and requested not in RESOLUTION_ORDER:
+            raise AnsibleError(
+                f"email: unknown key {requested!r}, expected one of "
+                f"{', '.join(RESOLUTION_ORDER)}"
+            )
         self._kwargs = kwargs
 
         templar = getattr(self, "_templar", None)
@@ -133,16 +151,18 @@ class LookupModule(LookupBase):
                 )
             else:
                 resolved[short_key] = _render(raw, templar, variables)
+            if short_key == requested:
+                break
 
         if len(terms) == 0:
-            return [resolved]
+            return [resolved if requested is None else resolved[requested]]
 
         application_id = str(terms[0]).strip()
         overrides = self._app_email_overrides(application_id, variables)
         merged = dict(resolved)
         for key, value in overrides.items():
             merged[str(key).lower()] = _render(value, templar, variables)
-        return [merged]
+        return [merged if requested is None else merged[requested]]
 
     def _compute(
         self,

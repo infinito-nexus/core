@@ -16,4 +16,4 @@
       package_install: # nocheck: package-install removes postfix, the batch only installs
         id: postfix
         state: absent
-  when: lookup('email').external | bool
+  when: lookup('email', key='external') | bool
