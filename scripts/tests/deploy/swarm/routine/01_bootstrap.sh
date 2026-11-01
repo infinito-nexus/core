@@ -125,19 +125,24 @@ if [ -n "${CACHE_NET}" ]; then
 	read -ra all_nodes <<<"${SWARM_LAB_ALL_NODES}"
 	node_band="${#all_nodes[@]}"
 	node_octet=$((200 + INFINITO_INSTANCE * node_band))
+	pin_nodes=true
 	if [ "$((node_octet + node_band - 1))" -gt 254 ]; then
-		echo "FAILURE: INFINITO_INSTANCE=${INFINITO_INSTANCE} pushes the node band past ${cache_prefix}.254" >&2
-		exit 1
+		echo "==> INFINITO_INSTANCE=${INFINITO_INSTANCE} leaves no pinned node band in ${cache_prefix}.0/24; Docker assigns the node addresses from ${CACHE_NET}'s pool" >&2
+		pin_nodes=false
 	fi
 
 	for node in ${SWARM_LAB_NODES}; do
-		if ! connect_err="$(docker network connect --ip "${cache_prefix}.${node_octet}" "${CACHE_NET}" "${node}" 2>&1)"; then
+		connect_args=()
+		if [ "${pin_nodes}" = true ]; then
+			connect_args=(--ip "${cache_prefix}.${node_octet}")
+		fi
+		if ! connect_err="$(docker network connect "${connect_args[@]}" "${CACHE_NET}" "${node}" 2>&1)"; then
 			case "${connect_err}" in
 			*"already exists in network"* | *"already attached to network"*)
 				echo "==> ${node} already on ${CACHE_NET}; keeping its current address" >&2
 				;;
 			*)
-				echo "FAILURE: cannot pin ${node} to ${cache_prefix}.${node_octet} on ${CACHE_NET}: ${connect_err}" >&2
+				echo "FAILURE: cannot attach ${node} to ${CACHE_NET} (${connect_args[*]:-pool address}): ${connect_err}" >&2
 				exit 1
 				;;
 			esac

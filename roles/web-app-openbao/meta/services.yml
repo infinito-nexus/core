@@ -51,7 +51,7 @@ openbao:
   pids_limit: 512
   min_storage: 60MB
   image: openbao/openbao
-  version: "2.7.1"
+  version: "2.7.2"
   custom: true
   backup:
     no_stop_required: false
@@ -77,7 +77,7 @@ openbao:
 # nocheck: dynamic-flag  build-stage image, not group-gated
 auth-ldap:
   image: ghcr.io/openbao/openbao-plugin-auth-ldap
-  version: "v0.1.0"
+  version: "v0.2.0"
   enabled: false
 
 # nocheck: playwright-service-flag

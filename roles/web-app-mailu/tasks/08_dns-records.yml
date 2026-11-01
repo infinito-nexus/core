@@ -1,4 +1,23 @@
 ---
+- name: "✅ Assert the DMARC aggregate report address reaches a Mailu mailbox or alias"
+  ansible.builtin.assert:
+    that:
+      - >-
+        'mailbox' in lookup('users', MAILU_DMARC_RUA_USER).accounts
+        or (
+          lookup('users', MAILU_DMARC_RUA_USER).forward | length > 0
+          and 'mailbox' in lookup('users', lookup('users', MAILU_DMARC_RUA_USER).forward).accounts
+          and lookup('users', lookup('users', MAILU_DMARC_RUA_USER).forward).email
+            == lookup('users', lookup('users', MAILU_DMARC_RUA_USER).forward).username ~ '@' ~ MAILU_DOMAIN
+        )
+    fail_msg: >-
+      services.mailu.dmarc.rua_user '{{ MAILU_DMARC_RUA_USER }}' carries
+      neither a mailbox account nor a forward to a user with one whose email
+      is that mailbox (<username>@{{ MAILU_DOMAIN }}), so {{ MAILU_DMARC_RUA }}
+      reaches no Mailu mailbox and DMARC aggregate reports bounce or leave
+      the server.
+    quiet: true
+
 - name: "🌐 DNS (Cloudflare) for Mailu"
   include_role:
     name: sys-dns-cloudflare-records
@@ -26,7 +45,7 @@
         zone: "{{ MAILU_DOMAIN_DNS_ZONE }}"
         name: "_dmarc.{{ MAILU_DOMAIN_DNS_ZONE }}"
         solo: true
-        value: '"v=DMARC1; p=reject; ruf=mailto:{{ MAILU_DMARC_RUF }}; adkim=s; aspf=s"'
+        value: '"v=DMARC1; p=reject; rua=mailto:{{ MAILU_DMARC_RUA }}; ruf=mailto:{{ MAILU_DMARC_RUF }}; adkim=s; aspf=s"'
       - type: TXT
         zone: "{{ MAILU_DOMAIN_DNS_ZONE }}"
         name: "dkim._domainkey.{{ MAILU_DOMAIN_DNS_ZONE }}"

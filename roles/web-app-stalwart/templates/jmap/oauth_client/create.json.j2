@@ -1,0 +1,4 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:OAuthClient/set", {"create": {"webui": {{ stalwart_webui_oauth_client | to_json }} }}, "c0"]]
+}

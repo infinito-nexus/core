@@ -4,21 +4,21 @@ See also [branch.md](branch/security.md) for branch protection rules.
 
 ## Dependency Management 📦
 
-### Dependency Graph ❌
+### Dependency Graph ✅
 
-👉 Contributors may not have access to full dependency insights
+👉 Dependency insights are available under Insights → Dependency graph
 
-### Dependabot Alerts ❌
+### Dependabot Alerts ✅
 
-👉 Vulnerabilities may go unnoticed
+👉 Known vulnerabilities in dependencies are reported as Dependabot alerts
 
-### Dependabot Security Updates ❌
+### Dependabot Security Updates ✅
 
-👉 Contributors MUST update dependencies manually
+👉 Dependabot opens PRs that bump vulnerable dependencies to a fixed release
 
-### Dependabot Version Updates ❌
+### Dependabot Version Updates ✅
 
-👉 No automatic upgrade PRs
+👉 Dependabot opens upgrade PRs for the ecosystems listed in [dependabot.yml](../../../../.github/dependabot.yml)
 
 ---
 
@@ -38,27 +38,25 @@ See also [branch.md](branch/security.md) for branch protection rules.
 
 For GHCR authentication configuration see [authentication.md](../ghcr/authentication.md).
 
-### Secret Scanning ❌
+### Secret Scanning ✅
 
-👉 Secrets may accidentally be committed
+👉 Committed secrets are detected and reported as secret scanning alerts
 
-### Push Protection ❌
+### Push Protection ✅
 
-👉 Commits with secrets are NOT blocked
+👉 Pushes that contain a detected secret are blocked
 
 ---
 
 ## Summary for Contributors 📋
 
-Once enabled, you MUST:
+You MUST:
 
 - Create a PR (no direct push)
 - Get 2 approvals
 - Get CODEOWNER approval (if applicable)
 - Resolve all comments
 - Re-approve after changes
-- Keep branch up-to-date
-- Use signed commits
 - Pass code scanning & quality checks
 
 You MUST NOT:

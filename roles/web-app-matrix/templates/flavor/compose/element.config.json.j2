@@ -21,6 +21,7 @@
     "bug_report_endpoint_url": "https://element.io/bugreports/submit", {# nocheck: url #}
     "uisi_autorageshake_app": "element-auto-uisi",
     "show_labs_settings": true,
+    "force_verification": {{ MATRIX_ELEMENT_FORCE_VERIFICATION | bool | to_json }},
     "room_directory": {
         "servers": ["matrix.org", "gitter.im", "libera.chat"]
     },

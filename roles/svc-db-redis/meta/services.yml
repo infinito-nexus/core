@@ -12,7 +12,7 @@ redis:
   shared: true
   image: redis
   name: redis-central
-  version: 8.10.2-alpine
+  version: 8.10.3-alpine
   min_storage: 238MB
   backup:
     disabled: true

@@ -11,6 +11,10 @@
       `.test` domain for local/CI stacks.
     quiet: true
 
+- name: "🛡️ Refuse to replace a Stalwart that serves a store from before 1.0"
+  include_tasks: store_guard.yml
+  when: IS_STACK_HOST | bool
+
 - name: "🔴 Disable SMTP to avoid port conflicts"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
 

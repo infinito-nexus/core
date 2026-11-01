@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { safeIsEnabled, gotoOnion } = require("./personas");
+const { gotoOnion } = require("./personas");
 const {
   appBaseUrl,
   canonicalDomain,
@@ -10,16 +10,10 @@ const {
 } = require("./env");
 const { resolveTimeout } = require("./timeouts");
 
-// WebAdmin native login: the variant where Keycloak is absent and Stalwart's own
-// directory owns the credentials. Without this the sso=false variant deploys a
-// login surface no spec ever exercises, because every other spec self-skips on sso.
-// The account is Stalwart's own WebAdmin administrator (STALWART_ADMIN_USER), not the
-// platform's administrator — the latter lives in the OIDC directory and is rejected here.
-test("administrator: stalwart native login and logout (no sso)", async ({ page }) => {
-  test.skip(
-    safeIsEnabled("sso"),
-    "Native login is only exercised in the variant without Keycloak — when SSO is on the OIDC path owns the journey.",
-  );
+// The account is Stalwart's recovery admin (STALWART_ADMIN_USER), not the platform's administrator:
+// discovery sends it to Stalwart's own OAuth server even when Keycloak serves the mail domain, so this
+// journey runs with and without SSO.
+test("administrator: stalwart recovery admin native login and logout", async ({ page }) => {
   expect(stalwartAdminUsername, "STALWART_ADMIN_USERNAME must be set").toBeTruthy();
   expect(stalwartAdminPassword, "STALWART_ADMIN_PASSWORD must be set").toBeTruthy();
 
@@ -39,7 +33,14 @@ test("administrator: stalwart native login and logout (no sso)", async ({ page }
     .first()
     .click();
 
+  // Stalwart v1.0.0 asks consent for the OAuth client before the password form; v1.0.1 shows the password form directly.
+  const allow = page.getByRole("button", { name: /^allow$/i });
   const passwordField = page.locator("input[type='password'], input[name='password']").first();
+  await allow.or(passwordField).first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
+
   await passwordField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await passwordField.fill(stalwartAdminPassword);
   await page
@@ -52,9 +53,15 @@ test("administrator: stalwart native login and logout (no sso)", async ({ page }
     page.getByText(/invalid username or password/i)
   ).toBeHidden({ timeout: resolveTimeout(15_000) });
 
-  await expect(
-    page.locator("nav, .sidebar, [class*='menu'], h1, h2").filter({ hasText: /dashboard|domains|account|settings|directory/i }).first()
-  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  const dashboard = page
+    .locator("nav, .sidebar, [class*='menu'], h1, h2")
+    .filter({ hasText: /dashboard|domains|account|settings|directory/i })
+    .first();
+  await allow.or(dashboard).first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
+  if (await allow.isVisible()) {
+    await allow.click();
+  }
+  await expect(dashboard).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   if (oidcIssuerUrl) {
     expect(page.url()).not.toContain(oidcIssuerUrl);

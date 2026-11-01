@@ -1,0 +1,14 @@
+---
+- name: "🔧 Fider | Configure Keycloak as OIDC provider in database"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/configure-oidc-provider.sql"
+    named_args:
+      display_name: "{{ SOFTWARE_NAME }} SSO"
+      client_id: "{{ OIDC.CLIENT.ID }}"
+      client_secret: "{{ OIDC.CLIENT.SECRET }}"
+      authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+      token_url: "{{ OIDC.CLIENT.TOKEN_URL }}"
+      profile_url: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true

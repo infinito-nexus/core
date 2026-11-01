@@ -19,25 +19,26 @@ from . import PROJECT_ROOT
 
 
 def _load_module(rel_path: str, name: str):
-    for key in (
-        "utils.roles.applications.config",
-        "utils.roles.applications",
-        "utils",
-        "utils.cache.applications",
-        "utils.cache",
-        "utils.roles.applications.services.sso",
-        "utils.roles.applications.services",
-    ):
-        sys.modules.pop(key, None)
-    importlib.import_module("utils.roles.applications.config")
-    importlib.import_module("utils.cache.applications")
-    importlib.import_module("utils.roles.applications.services.sso")
+    with mock.patch.dict(sys.modules):
+        for key in (
+            "utils.roles.applications.config",
+            "utils.roles.applications",
+            "utils",
+            "utils.cache.applications",
+            "utils.cache",
+            "utils.roles.applications.services.sso",
+            "utils.roles.applications.services",
+        ):
+            sys.modules.pop(key, None)
+        importlib.import_module("utils.roles.applications.config")
+        importlib.import_module("utils.cache.applications")
+        importlib.import_module("utils.roles.applications.services.sso")
 
-    path = PROJECT_ROOT / rel_path
-    spec = importlib.util.spec_from_file_location(name, str(path))
-    mod = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
-    spec.loader.exec_module(mod)
+        path = PROJECT_ROOT / rel_path
+        spec = importlib.util.spec_from_file_location(name, str(path))
+        mod = importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        spec.loader.exec_module(mod)
     return mod
 
 

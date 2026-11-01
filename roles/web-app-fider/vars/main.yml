@@ -3,6 +3,7 @@
 application_id: "web-app-fider"
 
 FIDER_CONTAINER: "{{ lookup('config', application_id, 'services.fider.name') }}"
+FIDER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.fider.ports.internal.http') }}"
 
 FIDER_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
@@ -20,7 +21,7 @@ FIDER_MCP_PORT: "{{ lookup('config', application_id, 'services.fidermcp.ports.in
 FIDER_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 FIDER_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 FIDER_MCP_UPSTREAM_HOST: "{{ lookup('config', application_id, 'services.fider.name') }}"
-FIDER_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.fider.ports.internal.http') }}"
+FIDER_MCP_UPSTREAM_PORT: "{{ FIDER_INTERNAL_PORT }}"
 FIDER_MCP_UPSTREAM_URL: "http://{{ FIDER_MCP_UPSTREAM_HOST }}:{{ FIDER_MCP_UPSTREAM_PORT }}"
 FIDER_MCP_CONTRACT:
   provider: "{{ application_id }}"

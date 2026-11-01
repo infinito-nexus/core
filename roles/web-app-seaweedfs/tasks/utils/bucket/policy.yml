@@ -1,0 +1,65 @@
+---
+# Param: seaweedfs_bucket_policy_consumer - consumer role id; its bucket MUST already exist
+- name: "🔐 Converge the bucket policy of '{{ seaweedfs_bucket_policy_consumer }}'"
+  vars:
+    _seaweedfs_bucket: "{{ lookup('objstore', seaweedfs_bucket_policy_consumer, 'bucket') }}"
+    _seaweedfs_bucket_policy_url: "http://127.0.0.1:{{ SEAWEEDFS_S3_PORT_INTERNAL }}/{{ _seaweedfs_bucket }}?policy"
+    _seaweedfs_bucket_policy_stored: "{{ _seaweedfs_bucket_policy_read.stdout | seaweedfs_stored_bucket_policy }}"
+    _seaweedfs_bucket_policy_target: >-
+      {{ _seaweedfs_bucket_policy_stored | seaweedfs_bucket_policy_target(
+           _seaweedfs_bucket,
+           lookup('objstore', seaweedfs_bucket_policy_consumer, 'public') | bool) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  block:
+    - name: "🔍 Read the bucket policy of '{{ seaweedfs_bucket_policy_consumer }}'"
+      ansible.builtin.shell: >-
+        {{ SEAWEEDFS_S3_ADMIN_CURL }} -w '\n%{http_code}' {{ _seaweedfs_bucket_policy_url | quote }}
+      args:
+        executable: /bin/bash
+      environment:
+        SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_CREDENTIALS }}"
+      register: _seaweedfs_bucket_policy_read
+      changed_when: false
+      check_mode: false
+      failed_when: >-
+        _seaweedfs_bucket_policy_read.rc != 0
+        or (_seaweedfs_bucket_policy_read.stdout | seaweedfs_stored_bucket_policy) is none
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_bucket_policy_read is succeeded
+
+    - name: "🔒 Put the target bucket policy on '{{ seaweedfs_bucket_policy_consumer }}'"
+      ansible.builtin.shell: >-
+        {{ SEAWEEDFS_S3_ADMIN_CURL }} -f -X PUT --data-binary @- {{ _seaweedfs_bucket_policy_url | quote }}
+      args:
+        executable: /bin/bash
+        stdin: "{{ _seaweedfs_bucket_policy_target | to_json }}"
+      environment:
+        SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_CREDENTIALS }}"
+      register: _seaweedfs_bucket_policy_put
+      changed_when: true
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_bucket_policy_put is succeeded
+      when: >-
+        _seaweedfs_bucket_policy_target | length > 0
+        and _seaweedfs_bucket_policy_target != _seaweedfs_bucket_policy_stored
+
+    - name: "🔓 Delete the bucket policy of '{{ seaweedfs_bucket_policy_consumer }}'"
+      ansible.builtin.shell: >-
+        {{ SEAWEEDFS_S3_ADMIN_CURL }} -f -X DELETE {{ _seaweedfs_bucket_policy_url | quote }}
+      args:
+        executable: /bin/bash
+      environment:
+        SEAWEEDFS_ADMIN_CREDENTIALS: "{{ SEAWEEDFS_ADMIN_CREDENTIALS }}"
+      register: _seaweedfs_bucket_policy_delete
+      changed_when: true
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_bucket_policy_delete is succeeded
+      when: >-
+        _seaweedfs_bucket_policy_target | length == 0
+        and _seaweedfs_bucket_policy_stored | length > 0

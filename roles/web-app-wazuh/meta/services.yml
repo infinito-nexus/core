@@ -60,7 +60,7 @@ wazuh:
   lifecycle: beta
 certs_generator:
   image: wazuh/wazuh-certs-generator
-  version: "0.0.4"
+  version: "0.0.5"
   name: wazuh-certs-generator
   cpus: "0.2"
   mem_reservation: 64m

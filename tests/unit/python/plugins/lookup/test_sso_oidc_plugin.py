@@ -13,22 +13,23 @@ def _load_module(rel_path: str, name: str):
     """Import ``rel_path`` fresh, evicting sibling-test stubs of
     ``utils.roles.applications.config`` from ``sys.modules`` first.
     """
-    for key in (
-        "utils.roles.applications.config",
-        "utils.roles.applications",
-        "utils",
-        "utils.cache.applications",
-        "utils.cache",
-    ):
-        sys.modules.pop(key, None)
-    importlib.import_module("utils.roles.applications.config")
-    importlib.import_module("utils.cache.applications")
+    with mock.patch.dict(sys.modules):
+        for key in (
+            "utils.roles.applications.config",
+            "utils.roles.applications",
+            "utils",
+            "utils.cache.applications",
+            "utils.cache",
+        ):
+            sys.modules.pop(key, None)
+        importlib.import_module("utils.roles.applications.config")
+        importlib.import_module("utils.cache.applications")
 
-    path = PROJECT_ROOT / rel_path
-    spec = importlib.util.spec_from_file_location(name, str(path))
-    mod = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
-    spec.loader.exec_module(mod)
+        path = PROJECT_ROOT / rel_path
+        spec = importlib.util.spec_from_file_location(name, str(path))
+        mod = importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        spec.loader.exec_module(mod)
     return mod
 
 

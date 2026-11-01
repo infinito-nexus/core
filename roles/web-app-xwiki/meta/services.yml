@@ -56,7 +56,7 @@ xwiki:
   enabled: true # nocheck: dynamic-flag
   shared: true
   image: xwiki
-  version: 18.8.0-postgres-tomcat
+  version: 18.9.0-postgres-tomcat
   custom: true
   name: xwiki
   min_storage: 965MB

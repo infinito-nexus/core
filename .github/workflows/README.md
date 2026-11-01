@@ -23,7 +23,7 @@ flowchart TB
     subgraph orchestrator["call-orchestrator.yml jobs"]
         waitfork["wait-fork-prereq-run"] --> forkready["fork-prereqs-ready"]
 
-        lintwf["call-lint.yml: make lint + hadolint"]
+        lintwf["call-lint.yml: make lint"]
         testwf["call-test.yml: make test"]
         codeql["cron-security-codeql.yml"]
         buildci["build-ci-images: call-images-build-ci.yml"] --> dns["call-test-dns.yml"]

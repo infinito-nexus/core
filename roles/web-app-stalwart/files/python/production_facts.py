@@ -23,6 +23,7 @@ import struct
 import sys
 import time
 from pathlib import Path
+from urllib.parse import unquote
 
 TYPE_A = 1
 TYPE_CNAME = 5
@@ -313,16 +314,61 @@ def check_spf(args, resolvers, report: Report) -> None:
     report.ok(f"SPF of {args.mail_domain}: {value}")
 
 
+def dmarc_tags(record: str) -> dict[str, str]:
+    """Split a DMARC record into its ``tag=value`` pairs, tags lowercased.
+
+    Raises:
+        ValueError: a tag occurs twice, which invalidates the whole record
+            (RFC 6376 3.2 tag-list, adopted by RFC 7489 6.3).
+    """
+    tags: dict[str, str] = {}
+    for field in record.split(";"):
+        tag, separator, value = field.partition("=")
+        if not separator:
+            continue
+        tag = tag.strip().lower()
+        if tag in tags:
+            raise ValueError(f"duplicate tag {tag}=")
+        tags[tag] = value.strip()
+    return tags
+
+
+def dmarc_report_addresses(uris: str) -> list[str]:
+    """The lowercased ``mailto:`` addresses of a ``rua``/``ruf`` value.
+
+    A URI may end in a ``!<size>`` report size limit (RFC 7489 6.2), which is
+    not part of the address. The address itself may be percent-encoded and
+    followed by ``?`` header fields (RFC 6068 2).
+    """
+    addresses: list[str] = []
+    for uri in uris.split(","):
+        scheme, separator, target = uri.strip().split("!", 1)[0].partition(":")
+        if separator and scheme.lower() == "mailto":
+            addresses.append(unquote(target.split("?", 1)[0]).lower())
+    return addresses
+
+
 def check_dmarc(args, resolvers, report: Report) -> None:
-    """_dmarc TXT exists, is a DMARC1 record and declares a policy."""
+    """_dmarc TXT is a DMARC1 record with a policy and the deployed rua address."""
     name = f"_dmarc.{args.mail_domain}"
     records = [str(r) for r in query(name, TYPE_TXT, resolvers, args.timeout)]
     dmarc = [r for r in records if r.lower().startswith("v=dmarc1")]
     if not dmarc:
         report.fail(f"{name} has no v=DMARC1 TXT record")
         return
-    if "p=" not in dmarc[0].lower():
+    try:
+        tags = dmarc_tags(dmarc[0])
+    except ValueError as error:
+        report.fail(f"{name} is not a valid DMARC record, {error}: {dmarc[0]}")
+        return
+    if not tags.get("p"):
         report.fail(f"{name} declares no policy (p=): {dmarc[0]}")
+        return
+    expected = args.dmarc_rua.strip().lower()
+    if expected not in dmarc_report_addresses(tags.get("rua", "")):
+        report.fail(
+            f"{name} sends no aggregate reports to {expected} (rua=): {dmarc[0]}"
+        )
         return
     report.ok(f"DMARC of {args.mail_domain}: {dmarc[0]}")
 
@@ -488,6 +534,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--mail-domain", required=True, help="Zone carrying MX/SPF/DMARC"
+    )
+    parser.add_argument(
+        "--dmarc-rua",
+        required=True,
+        help="Mailbox the DMARC record must name as aggregate report address (rua)",
     )
     parser.add_argument(
         "--dkim-selector", default="", help="Selector published by the server"

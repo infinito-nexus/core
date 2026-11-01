@@ -1,4 +1,14 @@
 ---
+- name: "✅ Assert the DMARC aggregate report address reaches a Stalwart mailbox"
+  ansible.builtin.assert:
+    that:
+      - "'mailbox' in lookup('users', STALWART_DMARC_RUA_USER).accounts"
+    fail_msg: >-
+      services.stalwart.dmarc.rua_user '{{ STALWART_DMARC_RUA_USER }}' carries
+      no mailbox account, so Stalwart provisions no recipient for
+      {{ STALWART_DMARC_RUA }} and every DMARC aggregate report bounces.
+    quiet: true
+
 - name: "🔧 DNS (Cloudflare) for Stalwart"
   include_role:
     name: sys-dns-cloudflare-records
@@ -35,7 +45,7 @@
         zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
         name: "_dmarc.{{ STALWART_DOMAIN_DNS_ZONE }}"
         solo: true
-        value: '"v=DMARC1; p=reject; ruf=mailto:{{ STALWART_DMARC_RUF }}; adkim=s; aspf=s"'
+        value: '"v=DMARC1; p=reject; rua=mailto:{{ STALWART_DMARC_RUA }}; ruf=mailto:{{ STALWART_DMARC_RUF }}; adkim=s; aspf=s"'
       - type: TXT
         zone: "{{ STALWART_DOMAIN_DNS_ZONE }}"
         name: "{{ stalwart_dkim_selector }}._domainkey.{{ STALWART_DOMAIN_DNS_ZONE }}"

@@ -17,6 +17,15 @@
     owner: root
     group: root
 
+- name: "🛡️ PHP hardening | install interim memory ini"
+  become: true
+  stack_host_copy:
+    src: "memory-unlimited.ini"
+    dest: "{{ FILE_PHP_MEMORY_UNLIMITED_INI }}"
+    mode: "0444"
+    owner: root
+    group: root
+
 - name: "🛡️ PHP hardening | render FPM pool"
   become: true
   stack_host_template:

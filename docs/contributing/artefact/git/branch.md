@@ -17,7 +17,7 @@ The branch prefix MUST match the type of change. The [PR workflow](pull-request.
 
 ## Enforcement 🔒
 
-All rules in this document are actively enforced on `main` via GitHub branch protection. See [branch.md](../../tools/github/branch/security.md) for the full enforcement policy.
+The [PR workflow](pull-request.md) fails its validation run when the branch prefix does not match the PR scope. The ruleset on `main` does not require that run to pass, see [branch.md](../../tools/github/branch/security.md) for the rules it enforces.
 
 The naming conventions below are additionally checked locally by the lint test [test_branch_name.py](../../../../tests/lint/repository/naming/test_branch_name.py), which fails `make test-lint` when the checked-out branch uses an unknown prefix (e.g. `feat/` instead of `feature/`) or a non-kebab-case description.
 
