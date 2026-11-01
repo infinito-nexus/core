@@ -57,6 +57,8 @@ STALWART_MIGRATE_TARGET_CONFIG: "{{ [ STALWART_MIGRATE_DIR, 'target', 'config.js
 STALWART_MIGRATE_IMAGE: "{{ lookup('image', application_id, 'stalwart_migrate') }}"
 STALWART_MIGRATE_TARGET_DATABASE: "{{ lookup('database', application_id, 'name') }}_v1"
 STALWART_MIGRATE_RETIRED_DATABASE: "{{ lookup('database', application_id, 'name') }}_v016"
+STALWART_MIGRATE_ASYNC_TIME: "{{ lookup('timeout', 21600) | int }}"
+STALWART_MIGRATE_ASYNC_POLL: 60
 
 STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
 STALWART_CLAMAV_HOST: "clamav"
