@@ -24,6 +24,7 @@ ERPNEXT_API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_USER.password }}"
 ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.api_key_secret') }}"
 
 ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
+ERPNEXT_API_BOT_EXTRA_ROLES: "{{ lookup('config', application_id, 'services.erpnext.api_bot.extra_roles') }}"
 
 ERPNEXT_COMPANY_NAME: "{{ service_provider.company.titel }}"
 ERPNEXT_COMPANY_ABBR: "{{ lookup('config', application_id, 'services.erpnext.company.abbr') }}"

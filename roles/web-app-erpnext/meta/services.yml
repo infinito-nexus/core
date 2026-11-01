@@ -83,6 +83,8 @@ erpnext:
   company:
     abbr: "{{ service_provider.company.titel.split() | map('first') | join | upper }}"
   server_scripts: false
+  api_bot:
+    extra_roles: []
   run_after:
     - web-app-keycloak
     - web-app-stalwart

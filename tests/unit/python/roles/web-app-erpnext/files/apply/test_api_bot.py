@@ -18,6 +18,7 @@ def _env(**overrides):
         "API_BOT_FIRSTNAME": "ERPNext",
         "API_BOT_LASTNAME": "API Bot",
         "API_BOT_PASSWORD": "bot-password",
+        "API_BOT_EXTRA_ROLES_JSON": "[]",
         "API_KEY_SECRET": "keykeysecretsecret",
         "COUNTRY": "Germany",
         "CURRENCY": "EUR",
@@ -30,8 +31,12 @@ class TestApiBot(unittest.TestCase):
     def setUp(self) -> None:
         self.frappe = FakeFrappe()
 
-    def _run(self, **overrides) -> None:
-        run_script(SCRIPT, self.frappe, _env(**overrides))
+    def _run(self, **overrides) -> str:
+        return run_script(SCRIPT, self.frappe, _env(**overrides))
+
+    def _seed_roles(self, *roles: str) -> None:
+        for role in roles:
+            self.frappe.seed("Role", role, role_name=role)
 
     def test_fills_an_empty_system_country_and_currency(self) -> None:
         self._run()
@@ -143,6 +148,44 @@ class TestApiBot(unittest.TestCase):
         self._run(SERVER_SCRIPTS_ENABLED="false")
 
         self.assertEqual(self._roles(), ["System Manager"])
+
+    def test_grants_the_declared_extra_roles_beside_its_own(self) -> None:
+        self._seed_roles("Accounts User", "Sales User")
+
+        self._run(API_BOT_EXTRA_ROLES_JSON='["Accounts User", "Sales User"]')
+
+        self.assertEqual(
+            self._roles(), ["System Manager", "Accounts User", "Sales User"]
+        )
+
+    def test_an_extra_role_among_its_own_is_granted_once(self) -> None:
+        self._seed_roles("System Manager")
+
+        self._run(API_BOT_EXTRA_ROLES_JSON='["System Manager"]')
+
+        self.assertEqual(self._roles(), ["System Manager"])
+
+    def test_an_extra_role_the_site_lacks_is_created_empty_and_granted(self) -> None:
+        printed = self._run(API_BOT_EXTRA_ROLES_JSON='["Provisioning Bot"]')
+
+        self.assertEqual(
+            printed.splitlines(), ["CHANGED created role Provisioning Bot"]
+        )
+        self.assertTrue(self.frappe.db.exists("Role", "Provisioning Bot"))
+        self.assertEqual(self._roles(), ["System Manager", "Provisioning Bot"])
+
+        printed = self._run(API_BOT_EXTRA_ROLES_JSON='["Provisioning Bot"]')
+
+        self.assertEqual(printed, "")
+        self.assertEqual(self._roles(), ["System Manager", "Provisioning Bot"])
+
+    def test_extra_roles_that_are_not_a_list_fail_before_touching_the_site(
+        self,
+    ) -> None:
+        with self.assertRaises(TypeError):
+            self._run(API_BOT_EXTRA_ROLES_JSON='"Sales User"')
+
+        self.assertEqual(self.frappe.calls, [])
 
     def test_an_undeclared_server_scripts_value_fails_before_touching_the_site(
         self,
