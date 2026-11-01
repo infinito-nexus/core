@@ -1,9 +1,13 @@
 ---
-- name: 🔄 Ensure Docker daemon is running on host
-  ansible.builtin.service:
-    name: docker.service
-    state: restarted
-    enabled: true
+- name: 🔄 Restart the Docker daemon one host at a time and wait until it settled
+  ansible.builtin.script: "{{ role_path }}/files/shell/restart_daemon.sh"
+  args:
+    executable: /bin/bash
+  environment:
+    SWARM_NODE: "{{ (DEPLOYMENT_MODE == 'swarm') | string | lower }}"
+    SETTLE_TIMEOUT: "{{ lookup('timeout', 600) | int }}"
+  throttle: 1
+  changed_when: true
   listen: container-manager-restart
 
 - name: 💬 Ensure Docker-In-Docker DNS works
