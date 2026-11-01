@@ -7,6 +7,7 @@ umask 077
 HERE="$(dirname "$(readlink -f "$0")")"
 readonly HERE
 readonly ENV_FILE="${HERE}/migrate.env"
+readonly LOCK_FILE="${HERE}/migrate.lock"
 readonly UPGRADE_OVERRIDE="${HERE}/compose.upgrade.yml"
 readonly SOURCE_MOUNT=/migrate/source
 readonly TARGET_MOUNT=/migrate/target
@@ -222,8 +223,20 @@ phase_all() {
   phase_final
 }
 
+hold_lock() {
+  command -v flock > /dev/null || die "flock (util-linux) is missing, so a second run could not be kept out"
+  exec 9> "$LOCK_FILE"
+  flock --nonblock 9 || die "another run holds ${LOCK_FILE}; let it finish before starting $1"
+  [ -z "$(container ps --quiet --filter "ancestor=${IMAGE}")" ] \
+    || die "a ${IMAGE} container of an earlier run still runs; let it finish before starting $1"
+}
+
 case "${1:-}" in
-  upgrade | check | backup | target | prepare | sync | final | status | all)
+  status)
+    phase_status
+    ;;
+  upgrade | check | backup | target | prepare | sync | final | all)
+    hold_lock "$1"
     "phase_$1"
     ;;
   *)
