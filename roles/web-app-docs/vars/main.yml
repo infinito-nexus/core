@@ -39,6 +39,7 @@ DOCS_SNAPSHOT_PATHS:
   - SECURITY.md
   - SUPPORT.md
   - TODO.md
+  - agents
   - aliases
   - ansible.cfg
   - assets
@@ -58,7 +59,6 @@ DOCS_SNAPSHOT_PATHS:
   - pyproject.toml
   - roles
   - scripts
-  - skills
   - tasks
   - templates
   - tests
