@@ -10,7 +10,9 @@ from pathlib import Path
 
 from . import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles" / "web-app-stalwart" / "files" / "shell" / "migrate_v016.sh"
+SCRIPT = (
+    PROJECT_ROOT / "roles" / "web-app-stalwart" / "files" / "shell" / "migrate_v016.sh"
+)
 CONTAINER_STUB = r"""#!/bin/sh
 printf '%s\n' "$*" >>"$STUB_LOG"
 case "$*" in
@@ -28,7 +30,9 @@ esac
 """
 
 
-def run_final(final_rc: int, report_rc: int) -> tuple[subprocess.CompletedProcess[str], list[str]]:
+def run_final(
+    final_rc: int, report_rc: int
+) -> tuple[subprocess.CompletedProcess[str], list[str]]:
     """Run the final phase against a stubbed container CLI.
 
     Args:
