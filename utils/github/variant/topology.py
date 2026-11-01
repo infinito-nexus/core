@@ -29,17 +29,42 @@ def resolve_db_topology(raw: str | None = None) -> bool:
 
 
 def pick_topology(position: int, sweep: int) -> str:
-    """The database topology a regular swarm row deploys this sweep."""
-    return TOPOLOGIES[(position + sweep // 4) % len(TOPOLOGIES)]
+    """The database topology a regular swarm row deploys this sweep.
+
+    Reads ``position // 4``: the mode rotation fixes the parity of every
+    swarm row's position within a sweep, so the plain position would hand
+    every swarm row the same topology, and the vpn axis already reads
+    ``position // 2``.
+    """
+    return TOPOLOGIES[(position // 4 + sweep // 4) % len(TOPOLOGIES)]
 
 
 def topologies(
-    mode: str, *, enabled: bool, priority: bool, position: int, sweep: int
+    mode: str,
+    *,
+    enabled: bool,
+    priority: bool,
+    position: int,
+    sweep: int,
+    pin: str | None = None,
 ) -> tuple[str, ...]:
     """The db topologies one (row, mode) deploys: none outside swarm or with
-    the axis off, both for a priority row, the rotation's pick otherwise."""
+    the axis off, the pinned one when a selection token names it, both for
+    a priority row, the rotation's pick otherwise.
+
+    Raises:
+        SystemExit: a token pins a topology while the axis is off, which
+            would otherwise deploy a standalone row in silence.
+    """
+    if pin is not None and not enabled:
+        raise SystemExit(
+            f"a selection token pins db topology {pin!r}, but the db topology "
+            "axis is off; dispatch with db_topology=true"
+        )
     if not enabled or mode not in TOPOLOGY_MODES:
         return ("",)
+    if pin is not None:
+        return (pin,)
     if priority:
         return TOPOLOGIES
     return (pick_topology(position, sweep),)

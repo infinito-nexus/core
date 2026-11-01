@@ -347,6 +347,7 @@ This requirement covers:
 - [ ] Swarm deploy rows in the CI matrix gain a deterministic "db topology" axis, standalone or HA, assigned in `utils/github/variant/axes.py` like the existing axes. It is never random, so every red row reproduces from its sweep number.
 - [ ] The axis also selects the lab shape: 1 manager and 2 workers for standalone, 3 managers and 1 worker for HA.
 - [ ] It rotates on its own divisor (for example `sweep // 4`), so it never moves in lockstep with the tor axis (`sweep // 2`) or the mode axis. Mode, tor and topology then cover every combination over 8 sweeps.
+- [ ] Within one sweep it reads a part of the position that neither the mode rotation nor the vpn axis fixes, so the swarm rows of a single sweep deploy both topologies.
 - [ ] `utils/symbol_glossary.py` gains the glyphs 🔱 (HA) and ☝️ (standalone), shown in the row label.
 - [ ] A unit test asserts that every pairing of the topology axis with tor, mode, distro and filesystem appears within N sweeps, and that every application gets an HA row.
 - [ ] Priority Swarm rows deploy both topologies.

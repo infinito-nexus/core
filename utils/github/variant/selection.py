@@ -12,8 +12,9 @@ Two spellings are accepted, so an operator can either type the token or paste
 back the job title of the run they want repeated:
 
 * the job label CI emits (``🐳🧅🌀🦓网络应用·Nextcloud#2``) -- the glyphs carry
-  mode, onion state, distro and filesystem, the ``#`` shard the variants;
-* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs&vpn``).
+  mode, onion state, distro, filesystem, mesh and db topology, the ``#``
+  shard the variants;
+* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs&vpn~ha``).
 
 The onion state spells out as ``+tor``/``+clearnet`` rather than as a ``-tor``
 suffix: a role id may itself end in ``-tor`` (``svc-net-tor``), and a suffix
@@ -31,6 +32,7 @@ import re
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.github.variant.axes import DISTROS, FILESYSTEMS, MODES
+from utils.github.variant.topology import TOPOLOGIES
 from utils.roles.display import VARIANT_SEPARATOR, display_names
 from utils.symbol_glossary import to_emoji
 
@@ -48,6 +50,8 @@ FILESYSTEM_SEPARATOR = "/"
 
 VPN_SEPARATOR = "&"
 
+TOPOLOGY_SEPARATOR = "~"
+
 TOR_WORDS = {"tor": True, "clearnet": False}
 
 VPN_WORDS = {"vpn": True, "direct": False}
@@ -63,6 +67,7 @@ _SEPARATORS = (
     + DISTRO_SEPARATOR
     + FILESYSTEM_SEPARATOR
     + VPN_SEPARATOR
+    + TOPOLOGY_SEPARATOR
 )
 
 _TOKEN = re.compile(
@@ -72,7 +77,8 @@ _TOKEN = re.compile(
     r"(?:" + re.escape(TOR_SEPARATOR) + r"(?P<tor>[a-z]+))?"
     r"(?:" + re.escape(DISTRO_SEPARATOR) + r"(?P<distro>[a-z0-9]+))?"
     r"(?:" + re.escape(FILESYSTEM_SEPARATOR) + r"(?P<filesystem>[a-z0-9]+))?"
-    r"(?:" + re.escape(VPN_SEPARATOR) + r"(?P<vpn>[a-z]+))?$"
+    r"(?:" + re.escape(VPN_SEPARATOR) + r"(?P<vpn>[a-z]+))?"
+    r"(?:" + re.escape(TOPOLOGY_SEPARATOR) + r"(?P<topology>[a-z]+))?$"
 )
 
 _SYNTAX = (
@@ -81,6 +87,8 @@ _SYNTAX = (
     f"[{TOR_SEPARATOR}<{'|'.join(TOR_WORDS)}>]"
     f"[{DISTRO_SEPARATOR}<{'|'.join(DISTROS)}>]"
     f"[{FILESYSTEM_SEPARATOR}<{'|'.join(FILESYSTEMS)}>]"
+    f"[{VPN_SEPARATOR}<{'|'.join(VPN_WORDS)}>]"
+    f"[{TOPOLOGY_SEPARATOR}<{'|'.join(TOPOLOGIES)}>]"
 )
 
 
@@ -99,21 +107,38 @@ class Pin(NamedTuple):
     distro: str | None = None
     filesystem: str | None = None
     vpn: bool | None = None
+    topology: str | None = None
 
     @property
     def pinned(self) -> bool:
         """Whether the token narrows anything at all beyond the role name."""
         return bool(self.variants) or any(
             axis is not None
-            for axis in (self.mode, self.tor, self.distro, self.filesystem, self.vpn)
+            for axis in (
+                self.mode,
+                self.tor,
+                self.distro,
+                self.filesystem,
+                self.vpn,
+                self.topology,
+            )
         )
 
     @property
     def axes(
         self,
-    ) -> tuple[str | None, bool | None, str | None, str | None, bool | None]:
+    ) -> tuple[
+        str | None, bool | None, str | None, str | None, bool | None, str | None
+    ]:
         """What the token narrows, as the key two tokens are equal under."""
-        return (self.mode, self.tor, self.distro, self.filesystem, self.vpn)
+        return (
+            self.mode,
+            self.tor,
+            self.distro,
+            self.filesystem,
+            self.vpn,
+            self.topology,
+        )
 
 
 def describe(pin: Pin) -> str:
@@ -135,6 +160,7 @@ def describe(pin: Pin) -> str:
             if pin.vpn is not None
             else ""
         )
+        + (f"{TOPOLOGY_SEPARATOR}{pin.topology}" if pin.topology else "")
     )
 
 
@@ -142,7 +168,7 @@ def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
     """Strip whichever of *words* the text carries as a glyph, and name it."""
     found: str | None = None
     for word in words:
-        glyph = to_emoji(word)
+        glyph = _VARIATION.sub("", to_emoji(word))
         if glyph in text:
             found, text = word, text.replace(glyph, "")
     return text, found
@@ -150,15 +176,18 @@ def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
 
 def _glyphs(
     text: str,
-) -> tuple[str, str | None, bool | None, str | None, str | None, bool | None]:
+) -> tuple[
+    str, str | None, bool | None, str | None, str | None, bool | None, str | None
+]:
     """Take the label glyphs off a pasted job title and read them as axes."""
     text, mode = _word_glyph(text, MODES)
     text, onion = _word_glyph(text, TOR_WORDS)
     text, distro = _word_glyph(text, DISTROS)
     text, filesystem = _word_glyph(text, FILESYSTEMS)
     text, mesh = _word_glyph(text, VPN_WORDS)
+    text, topology = _word_glyph(text, TOPOLOGIES)
     for word in _STRIPPED_GLYPHS:
-        text = text.replace(to_emoji(word), "")
+        text = text.replace(_VARIATION.sub("", to_emoji(word)), "")
     return (
         text.strip(),
         mode,
@@ -166,6 +195,7 @@ def _glyphs(
         distro,
         filesystem,
         None if mesh is None else VPN_WORDS[mesh],
+        topology,
     )
 
 
@@ -191,9 +221,15 @@ def parse(token: str) -> Pin:
             that does not exist. A typo must abort the run rather than narrow
             it to nothing.
     """
-    text, glyph_mode, glyph_tor, glyph_distro, glyph_fs, glyph_vpn = _glyphs(
-        _VARIATION.sub("", token.strip())
-    )
+    (
+        text,
+        glyph_mode,
+        glyph_tor,
+        glyph_distro,
+        glyph_fs,
+        glyph_vpn,
+        glyph_topology,
+    ) = _glyphs(_VARIATION.sub("", token.strip()))
     match = _TOKEN.match(text)
     if match is None:
         raise SystemExit(f"unparsable selection token {token!r}; expected {_SYNTAX}")
@@ -204,6 +240,7 @@ def parse(token: str) -> Pin:
         ("distro", "distro", DISTROS),
         ("filesystem", "filesystem", FILESYSTEMS),
         ("vpn", "mesh state", VPN_WORDS),
+        ("topology", "db topology", TOPOLOGIES),
     ):
         value = match.group(group)
         if value is not None and value not in declared:
@@ -224,6 +261,7 @@ def parse(token: str) -> Pin:
         _agree(match.group("distro"), glyph_distro, token, "distro"),
         _agree(match.group("filesystem"), glyph_fs, token, "filesystem"),
         _agree(VPN_WORDS[mesh_word] if mesh_word else None, glyph_vpn, token, "mesh"),
+        _agree(match.group("topology"), glyph_topology, token, "db topology"),
     )
 
 
@@ -245,6 +283,7 @@ def covers(pin: Pin, entry: Mapping[str, Any]) -> bool:
         (pin.mode, "mode"),
         (pin.distro, "distro"),
         (pin.filesystem, "filesystem"),
+        (pin.topology, "db_topology"),
     ):
         if value is not None and entry.get(key) != value:
             return False
@@ -334,6 +373,7 @@ def apply(
                     "pin_distro": pin.distro,
                     "pin_filesystem": pin.filesystem,
                     "pin_vpn": pin.vpn,
+                    "pin_topology": pin.topology,
                 }
             )
     for index, pin in enumerate(pins):

@@ -111,6 +111,41 @@ class TestParseLabel(unittest.TestCase):
         with self.assertRaises(SystemExit):
             selection.parse(f"{to_emoji('swarm')}web-app-a@compose")
 
+    def test_a_full_swarm_job_title_pastes_back_every_axis(self) -> None:
+        """The direct and standalone glyphs carry a variation selector, which
+        the parser strips from the token before it reads the glyphs."""
+        pasted = (
+            f"{to_emoji('swarm')}{to_emoji('tor')}{to_emoji('direct')}"
+            f"{to_emoji('arch')}{to_emoji('zfs')}{to_emoji('ha')}web-app-a#0"
+        )
+        self.assertEqual(
+            selection.parse(pasted),
+            selection.Pin("web-app-a", (0,), "swarm", True, "arch", "zfs", False, "ha"),
+        )
+
+    def test_the_standalone_glyph_pins_the_standalone_topology(self) -> None:
+        pasted = f"{to_emoji('swarm')}{to_emoji('standalone')}web-app-a"
+        self.assertEqual(selection.parse(pasted).topology, "standalone")
+
+
+class TestParseTopologyAscii(unittest.TestCase):
+    def test_the_tilde_pins_the_db_topology(self) -> None:
+        self.assertEqual(
+            selection.parse("web-app-a#0@swarm+tor%arch/zfs&direct~ha"),
+            selection.Pin("web-app-a", (0,), "swarm", True, "arch", "zfs", False, "ha"),
+        )
+
+    def test_an_unknown_topology_aborts(self) -> None:
+        with self.assertRaises(SystemExit):
+            selection.parse("web-app-a~cluster")
+
+    def test_the_topology_pin_selects_only_entries_of_that_topology(self) -> None:
+        pin = selection.parse("web-app-a~ha")
+        self.assertTrue(selection.covers(pin, {"apps": "web-app-a", "db_topology": "ha"}))
+        self.assertFalse(
+            selection.covers(pin, {"apps": "web-app-a", "db_topology": "standalone"})
+        )
+
 
 class TestNames(unittest.TestCase):
     def test_the_query_filters_on_role_ids_only(self) -> None:

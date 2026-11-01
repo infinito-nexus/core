@@ -305,6 +305,7 @@ def assign(
         pin_distro = row.get("pin_distro")
         pin_filesystem = row.get("pin_filesystem")
         pin_vpn = row.get("pin_vpn")
+        pin_topology = row.get("pin_topology")
         check_pins(
             app,
             variant_csv,
@@ -366,6 +367,7 @@ def assign(
                 priority=priority,
                 position=position,
                 sweep=sweep,
+                pin=pin_topology,
             )
         ]
         for step, (mode, enabled, meshed, topology) in enumerate(staged):

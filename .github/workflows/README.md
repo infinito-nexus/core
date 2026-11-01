@@ -138,7 +138,7 @@ row would otherwise be assigned. Two spellings are accepted:
 
 | Form | Example |
 |---|---|
-| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs` |
+| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs&direct~ha` |
 | the job label, pasted back out of the failed run | `🐳🧅🌀🦓网络应用·Nextcloud#0` |
 
 | Separator | Axis | Values |
@@ -148,6 +148,8 @@ row would otherwise be assigned. Two spellings are accepted:
 | `+` | onion state | `tor`, `clearnet` |
 | `%` | distro | `arch`, `debian`, `ubuntu`, `fedora`, `centos` |
 | `/` | filesystem | `zfs`, `btrfs`, `ext4` |
+| `&` | mesh | `vpn`, `direct` |
+| `~` | db topology (needs the axis on) | `standalone`, `ha` |
 
 The onion state is spelled `+clearnet` rather than `-tor` because a role id may
 itself end in `-tor`.
@@ -234,7 +236,7 @@ reproduces by re-running the same sweep:
 | vpn (swarm rows) | `(position // 2 + sweep // 4) % 2` |
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
-| db topology (swarm rows, opt-in) | `(position + sweep // 4) % 2` over `standalone`, `ha` |
+| db topology (swarm rows, opt-in) | `(position // 4 + sweep // 4) % 2` over `standalone`, `ha` |
 
 The db topology axis is off by default because the HA lab (3 managers, 1 worker, 1 backup host) needs more runner resources than the 1+2 lab.
 Enable it with the `db_topology` dispatch input of `call-test-deploy.yml` or the `INFINITO_CI_DB_TOPOLOGY` repository variable.
@@ -243,6 +245,7 @@ While it is on, every swarm row carries `db_topology` (exported to the deploy as
 Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary-node probe.
 An HA row is never meshed, whatever the vpn axis picks: the WireGuard mesh hangs off one `svc-swarm-manager` hub, and the HA lab runs three managers.
 On `sweep // 4` the axis never moves in lockstep with mode or tor, so a row walks all eight mode/tor/topology combinations over eight sweeps.
+It reads `position // 4` because the mode rotation puts every swarm row of a sweep on one position parity and the vpn axis reads `position // 2`, so one sweep deploys both topologies across its swarm rows.
 
 The HA database stack has its own gate, `call-test-swarm-data.yml`, which injects real faults (primary container kill, node crash, node hang, node partition) into each engine's HA form and checks the write gap and acknowledged-write loss against the failover budget.
 The orchestrator runs it on every pull request, push and manual sweep when the `INFINITO_CI_SWARM_DATA` repository variable is `true`, so it inherits the entry's draft gating, job budget and superseded-run cancellation.

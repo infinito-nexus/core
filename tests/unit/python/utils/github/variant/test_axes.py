@@ -669,7 +669,7 @@ class TestEnvironmentReads(unittest.TestCase):
 
 
 _TOPOLOGY_ROWS = [
-    _row(f"web-app-t{index}", 0, ("compose", "swarm")) for index in range(12)
+    _row(f"web-app-t{index}", 0, ("compose", "swarm")) for index in range(20)
 ]
 
 
@@ -720,6 +720,40 @@ class TestDbTopologyAxis(unittest.TestCase):
                     entry["kill_primary"],
                     "true" if entry["db_topology"] == "ha" else "false",
                 )
+
+    def test_one_sweep_mixes_topologies_across_rows_of_one_parity(self) -> None:
+        for parity in (0, 1):
+            picks = {
+                topology_axis.pick_topology(position, 0)
+                for position in range(parity, 16, 2)
+            }
+            self.assertEqual(
+                picks,
+                set(topology_axis.TOPOLOGIES),
+                "the mode rotation leaves every swarm row of a sweep on one "
+                "position parity, so the topology must not read that parity",
+            )
+
+    def test_topology_does_not_follow_the_vpn_rotation(self) -> None:
+        pairs = {
+            (topology_axis.pick_topology(position, 0), (position // 2) % 2)
+            for position in range(0, 16, 2)
+        }
+        self.assertEqual(len(pairs), 4)
+
+    def test_a_pinned_topology_overrides_the_rotation(self) -> None:
+        for topology in topology_axis.TOPOLOGIES:
+            rows = [
+                _row("web-app-t0", 0, ("swarm",), pin_mode="swarm", pin_topology=topology)
+            ]
+            for sweep in range(8):
+                (entry,) = _assign(rows, sweep=sweep, tor_mode="auto", db_topology=True)
+                self.assertEqual(entry["db_topology"], topology)
+
+    def test_a_topology_pin_without_the_axis_aborts(self) -> None:
+        rows = [_row("web-app-t0", 0, ("swarm",), pin_topology="ha")]
+        with self.assertRaises(SystemExit):
+            _assign(rows, sweep=0, tor_mode="auto", db_topology=False)
 
     def test_rotates_on_its_own_divisor(self) -> None:
         self.assertEqual(
