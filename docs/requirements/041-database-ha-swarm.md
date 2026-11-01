@@ -1,4 +1,4 @@
-# 038 - Database HA on Swarm
+# 041 - Database HA on Swarm
 
 ## User Story
 
@@ -13,9 +13,9 @@ Losing a second node stops writes and never loses them on the durable tier. Surv
 
 Swarm v1 ([023](023-docker-swarm-nfs.md)) runs one manager, and every central engine (`svc-db-postgres`, `svc-db-mariadb`, `svc-db-redis`, `svc-db-openldap`) runs as one task pinned to it (`placement: manager`), on a node-local volume. Each role's `meta/services.yml` already says it stays "single-node until replication is in scope". Losing the manager loses every database.
 
-Swarm is the mode existing installs run today, and many of them will never move to Kubernetes. This requirement therefore brings database HA to Swarm first. [037](037-database-cluster-kubernetes.md) brings the same promise to Kubernetes afterwards and reuses the mode-agnostic parts built here.
+Swarm is the mode existing installs run today. This requirement brings database HA to Swarm.
 
-Swarm has no operators, so the failover pieces are off-the-shelf tools wired by the project where a safe one exists: Patroni for Postgres and Sentinel for Redis. MariaDB and OpenLDAP use the project's own writer elector; 037 reuses it for OpenLDAP only. One shared etcd coordinates Patroni and the elector. One HAProxy service per engine is the write endpoint.
+Swarm has no operators, so the failover pieces are off-the-shelf tools wired by the project where a safe one exists: Patroni for Postgres and Sentinel for Redis. MariaDB and OpenLDAP use the project's own writer elector. One shared etcd coordinates Patroni and the elector. One HAProxy service per engine is the write endpoint.
 
 This requirement covers:
 
@@ -25,9 +25,7 @@ This requirement covers:
 4. **The write endpoint and the lookup seam:** HAProxy takes over today's service names, so `host` and every application stay unchanged.
 5. **One database cluster per engine.**
 6. **Operations:** declaring a node dead, migrating existing single-instance installs, backups, security, sizing and version pins.
-7. **Tests for everything:** unit tests, lints, a deterministic CI axis that runs every Swarm deploy row against standalone or HA databases, and a failover suite shared with 037.
-
-**What 038 builds once and 037 reuses:** the lookup contract (`host` names the write endpoint, `address`/`container` mean "exec into the primary"), inventory-owned credentials, the acceptance suite's shared core, the instance list as the mode-agnostic notion of instances, and the writer elector (used by MariaDB and OpenLDAP) with a pluggable lock backend.
+7. **Tests for everything:** unit tests, lints, a deterministic CI axis that runs every Swarm deploy row against standalone or HA databases, and a failover suite.
 
 **What this requirement does not change:** a host group with one host renders today's exact standalone shape. Existing installs see no change until the administrator adds hosts.
 
@@ -35,7 +33,7 @@ This requirement covers:
 
 - **Local volumes plus engine replication, not NFS.** 023 kept database volumes local and deferred "NFS for stateful databases" because of fsync, locking and per-engine compatibility semantics. A database on one shared NFS export would also keep the NFS server as the single point of failure. Each instance therefore keeps a local volume, the engines replicate between instances, and a lost node's data is re-cloned from a live peer.
 - **Pinning per instance is not the old manager pin.** The old pin put every engine on one node. Here each instance is pinned to its own host so its local data never moves, and the engine runs on three nodes at once.
-- **Off-the-shelf failover where a safe one exists, own code only where it does not.** Patroni (Postgres) and Sentinel (Redis) are maintained upstream tools. OpenLDAP has none. For MariaDB, the free edition of replication-manager cannot run a safe redundant pair (arbitration is a paid feature), so a single instance would be a single point of failure that needs rescheduling, with no fencing of an isolated old task (see [Alternatives considered](#alternatives-considered)). MariaDB and OpenLDAP therefore use the project's writer elector, which 037 needs anyway. HAProxy is the one write-endpoint pattern for all four, and etcd the one coordination store.
+- **Off-the-shelf failover where a safe one exists, own code only where it does not.** Patroni (Postgres) and Sentinel (Redis) are maintained upstream tools. OpenLDAP has none. For MariaDB, the free edition of replication-manager cannot run a safe redundant pair (arbitration is a paid feature), so a single instance would be a single point of failure that needs rescheduling, with no fencing of an isolated old task (see [Alternatives considered](#alternatives-considered)). MariaDB and OpenLDAP therefore use the project's writer elector. HAProxy is the one write-endpoint pattern for all four, and etcd the one coordination store.
 - **Two guarantee tiers.** Postgres and MariaDB hold source data that applications cannot rebuild, so they wait for a synchronous replica and stall rather than lose a write. Redis is a cache and session store, and OpenLDAP takes few writes, so both trade a bounded loss window for availability instead of a synchronous fence.
 - **High availability is not disaster recovery.** The cluster survives one node loss. Losing the whole cluster is recovered from the last successful dump; see [Backups](#backups).
 - **Standalone stays today's code path.** Running Patroni, Sentinel or the elector at one instance would change every existing install. The HA form is therefore a separate rendering, selected only by the number of hosts in the engine group, and both forms are covered by the CI topology axis.
@@ -128,7 +126,7 @@ This requirement covers:
 - [ ] etcd is not backed up: it holds no source data. Ansible re-applies Patroni's configuration on every run, and leader keys rebuild themselves. The disaster-recovery runbook is "bootstrap an empty etcd, re-run".
 - [ ] When etcd loses quorum, Patroni keeps its primary through `failsafe_mode` where it can still reach every member, and the writer elector fails closed (MariaDB `read_only=1`, OpenLDAP `olcReadOnly: TRUE`).
 - [ ] The forget-node target removes the dead host's etcd member; the following re-run adds the replacement's member.
-- [ ] The role README states that etcd is Swarm-only infrastructure the project owns; on Kubernetes the operators and Lease objects replace it.
+- [ ] The role README states that etcd is Swarm-only infrastructure the project owns.
 
 ### The write endpoint and the lookup seam
 
@@ -138,7 +136,7 @@ This requirement covers:
   - Redis: a TCP check that logs in as a dedicated check user and expects `role:master` and `connected_slaves:[1-9]`;
   - OpenLDAP: the writer elector's `GET /writer`.
 
-  Every server uses `inter 1s fastinter 500ms downinter 1s fall 3 rise 1 on-marked-down shutdown-sessions`, with `timeout check 1s`. These timings are part of the failover budget. `fall 3` rides out a host stall of about 2.5 s: with `fall 2`, two timed-out checks during a 2 s stall marked a healthy primary down and the shutdown cut its client sessions, although the primary answered again 1 s later (deploy matrix run 40143637548, Odoo#2).
+  Every server uses `inter 1s fastinter 500ms downinter 1s fall 3 rise 1 on-marked-down shutdown-sessions`, with `timeout check 1s`. These timings are part of the failover budget. `fall 3` rides out a host stall of about 2.5 s: with `fall 2`, two timed-out checks during a 2 s stall marked a healthy primary down and the shutdown cut its client sessions, although the primary answered again 1 s later.
 - [ ] HAProxy runs 2 replicas with `max_replicas_per_node: 1`, unpinned, so it survives the loss of the node one replica runs on.
 - [ ] In HA form the write endpoint takes over today's service name and alias (`postgres`, `mariadb`, `redis-central`, `openldap`). Applications keep the same `host` and need no change.
 - [ ] Ansible reaches the primary only by exec into the current primary instance, delegated to the node it runs on. In HA form no database port is published, because Swarm ingress publishing cannot bind to `127.0.0.1`.
@@ -150,7 +148,7 @@ This requirement covers:
 - [ ] `lookup('database')` and `lookup('engine')` keep their shape in every mode. In HA form:
   - `host` is the write endpoint's name (today's name);
   - `address` and `container` resolve to the current primary at call time, through the primary resolver;
-  - `service_name` is the write endpoint's Swarm service;
+  - `service_name` raises, because the endpoint is not one engine service;
   - `reach_host` raises, because nothing is published.
 
   Standalone form keeps today's values.
@@ -159,7 +157,7 @@ This requirement covers:
 
 ### Postgres: `svc-db-postgres` with Patroni
 
-- [ ] One image serves both forms: the project's `postgres:18` + PGDG image gains `patroni` (≥ 4.1.5, exact apt version pinned in `Dockerfile.j2`) and `python3-etcd`. In HA form Patroni is the entrypoint; the standalone form runs plain `postgres` as today.
+- [ ] One image serves both forms: the project's `postgres:18` + PGDG image gains `patroni` (≥ 4.1.5, exact apt version declared in the role's `meta/services.yml` and rendered into `Dockerfile.j2`) and `python3-etcd`. In HA form Patroni is the entrypoint; the standalone form runs plain `postgres` as today.
 - [ ] Patroni settings:
   - `synchronous_mode: quorum`, `synchronous_node_count: 1`, `synchronous_mode_strict: true`, so writes stall when no synchronous standby is left instead of continuing unprotected;
   - `failsafe_mode: true`;
@@ -210,7 +208,7 @@ This requirement covers:
 - [ ] The HA form runs 3 Redis instances and 3 Sentinels, one Sentinel pinned to each instance host, each with a small pinned volume for its own configuration file.
 - [ ] Sentinel settings: quorum 2, `down-after-milliseconds 5000`, `failover-timeout 10000`, `parallel-syncs 1`, `resolve-hostnames yes`, `announce-hostnames yes`. Each instance and Sentinel announces itself by its own service name.
 - [ ] HAProxy keeps the `redis-central` alias; the ~80 `lookup('engine', 'redis', …)` uses are unchanged.
-- [ ] A start-up wrapper asks the Sentinels for the current master. If another instance is master, this instance starts as its replica. Replication stays async, with `min-replicas-to-write 1` and `min-replicas-max-lag 10` (as in 037): a partitioned old master stops taking writes within 10 s, and writes stop while no replica is connected.
+- [ ] A start-up wrapper asks the Sentinels for the current master. If another instance is master, this instance starts as its replica. Replication stays async, with `min-replicas-to-write 1` and `min-replicas-max-lag 10`: a partitioned old master stops taking writes within 10 s, and writes stop while no replica is connected.
 - [ ] Configuration has two owners in two files:
   - an Ansible-owned include (password, `maxmemory`, ACL users, persistence), re-rendered on every run;
   - a writable main `/data/redis.conf` that includes it, seeded only when absent, so Sentinel's `replicaof` rewrites persist across redeploys.
@@ -223,12 +221,12 @@ This requirement covers:
 ### OpenLDAP: `svc-db-openldap` with writer election
 
 - [ ] The HA form runs N-way multi-provider syncrepl across all instances (`olcMultiProvider: TRUE`, syncrepl to every peer). Only one instance takes writes at a time.
-- [ ] Each instance runs the writer elector, a shared Python package used by MariaDB and OpenLDAP, with a lock interface (an etcd lease on Swarm, a Kubernetes Lease for 037) and a role interface (MariaDB, OpenLDAP). It lives in `files/db-elector/`, outside the engine roles, and both images copy it at build time; its unit tests live beside that path. It runs as a second process under the image's `tini`; if it exits, slapd stops and the container restarts read-only.
+- [ ] Each instance runs the writer elector, a shared Python package used by MariaDB and OpenLDAP, with a lock interface (an etcd lease) and a role interface (MariaDB, OpenLDAP). It lives in `files/db-elector/`, outside the engine roles, and both images copy it at build time; its unit tests live beside that path. It runs as a second process under the image's `tini`; if it exits, slapd stops and the container restarts read-only.
 - [ ] The elector competes only after the instance's initial syncrepl refresh is complete (its contextCSN equals a peer's). Lease 15 s, renew deadline 10 s, retry 2 s.
   - **On winning:** set `olcReadOnly: FALSE` over `ldapi`.
   - **On losing the lease, missing the renew deadline, or SIGTERM:** set `olcReadOnly: TRUE` first, without needing the network, then release the lease.
 - [ ] The elector serves `GET /writer`: 200 only while it holds the lease and slapd is writable, 503 otherwise. HAProxy checks it and marks an instance down as soon as it answers 503 or stops answering.
-- [ ] The image is the same as 037's: slapd runs as non-root on port 1389. HAProxy listens on 389, so applications keep `ldap://openldap:389`.
+- [ ] slapd runs as non-root on port 1389. HAProxy listens on 389, so applications keep `ldap://openldap:389`.
 - [ ] Fences, in order:
   1. the old writer's own read-only switch at the renew deadline;
   2. HAProxy marking it down;
@@ -294,7 +292,7 @@ This requirement covers:
 
 ### Security
 
-- [ ] In-engine TLS is not enforced in v1, as in 037. All database traffic (application to proxy to instance, and replication) runs only over encrypted overlays.
+- [ ] In-engine TLS is not enforced in v1. All database traffic (application to proxy to instance, and replication) runs only over encrypted overlays.
 - [ ] Each engine in HA form uses three encrypted overlays:
   - the existing application-facing overlay, joined only by HAProxy, so applications reach only the write endpoint;
   - an engine-internal overlay for instances, HAProxy, Sentinels and the health routes;
@@ -314,7 +312,7 @@ This requirement covers:
   - etcd 0.5 / 256m / 512m;
   - HAProxy 0.25 / 64m / 128m;
   - Sentinel 0.1 / 32m / 64m.
-- [ ] Every new image comes from its official upstream source and is declared in the owning role's `meta/services.yml` (`image` and exact `version`): etcd (the etcd project's official image), HAProxy (the Docker official `haproxy` image), and Sentinel (the same `redis` image the role already uses). Because they are role-declared, `cron-images-mirror-all.yml` mirrors them to GHCR and the existing image-update workflow opens their bump pull requests. The Patroni apt package version is pinned in `Dockerfile.j2`.
+- [ ] Every new image comes from its official upstream source and is declared in the owning role's `meta/services.yml` (`image` and exact `version`): etcd (the etcd project's official image), HAProxy (the Docker official `haproxy` image), and Sentinel (the same `redis` image the role already uses). Because they are role-declared, `cron-images-mirror-all.yml` mirrors them to GHCR and the existing image-update workflow opens their bump pull requests. The Patroni apt package version is declared in `svc-db-postgres/meta/services.yml` and rendered into `Dockerfile.j2`.
 - [ ] A bump merges only when that engine's failover suite is green.
 - [ ] Rolling upgrades follow one rule: replicas first, then a planned handover, then the old primary or writer:
   - Postgres: `patronictl switchover`;
@@ -333,7 +331,7 @@ This requirement covers:
   - the HA arms of `lookup('database')` and `lookup('engine')`;
   - the primary resolver;
   - the validators (manager count, unique `IS_STACK_HOST`, eligible hosts, `olcServerID` collisions);
-  - the elector against both lock backends and both role backends, including the MariaDB GTID choice;
+  - the elector against its etcd lock backend and both role backends, including the MariaDB GTID choice;
   - Redis's start-up guard;
   - the backup unit's primary check;
   - the forget-node target's refusals.
@@ -357,10 +355,10 @@ This requirement covers:
 
 #### The failover suite
 
-- [ ] The failover suite has one core used by both modes: the write-continuity checker, the audit, the targets and the scenario list. Lab bring-up, checker configuration and fault injection are per-mode adapters. This requirement builds the core and the Swarm adapter; 037 adds the Kubernetes adapter.
+- [ ] The failover suite has one core: the write-continuity checker, the audit, the targets and the scenario list. Lab bring-up, checker configuration and fault injection live in a Swarm adapter.
 - [ ] A reusable workflow, `.github/workflows/call-test-swarm-data.yml`, runs:
   - **when:** inside the orchestrator (pull requests, pushes, manual sweeps, with the entry's draft gating, job budget and superseded-run cancellation) while the `INFINITO_CI_SWARM_DATA` repository variable is `true`, off by default; through `.github/workflows/cron-test-swarm-data.yml` on manual dispatch always, and nightly on the default branch only while `INFINITO_CI_SWARM_DATA_NIGHTLY` is `true`;
-  - **matrix:** two jobs per engine, each with its own lab of 3 managers, 1 spare worker, etcd and that engine, on the free `ubuntu-latest` runner. The `in-place` job deploys every variant round and runs the cases the lab heals from. The `rebuild` job deploys the first round only and runs etcd-dr, forget-reclone, standalone and migration. A full suite in one job (about 5h45m) does not fit the 355 min job limit;
+  - **matrix:** two jobs per engine, each with its own lab of 3 managers, 1 spare worker, etcd and that engine, on the free `ubuntu-26.04` hosted runner. The `in-place` job deploys every variant round and runs the cases the lab heals from. The `rebuild` job deploys the first round only and runs etcd-dr, forget-reclone, standalone and migration. A full suite in one job (about 5h45m) does not fit the 355 min job limit;
   - **lab sizes:** an inventory override used only by the suite sets lab memory limits (Postgres 768m, MariaDB 512m, OpenLDAP 256m, Redis 128m, etcd 256m, HAProxy 64m); etcd keeps its production election timeouts, and the documented production sizes stay unchanged. If the runs show out-of-memory kills or flapping elections, the suite moves to a larger hosted runner. It never runs on a self-hosted runner, because a required check would run fork pull request code in privileged containers;
   - **locally:** `make test-swarm-data engine=<name> [part=<in-place|rebuild>]`;
   - **output:** JUnit, separate from `make test`.
@@ -405,7 +403,7 @@ This requirement covers:
 - [ ] `make test` passes with every new role, lookup, schema entry and lint in place.
 - [ ] Each new role and each changed `svc-db-*` role ships a README covering the HA form, its configuration surface, its failure modes and its runbooks (forget node, migration, disaster recovery).
 - [ ] The `svc-db-*` roles keep their current lifecycle for the standalone form. Their READMEs mark the HA form as alpha until the failover suite and the HA rows of the CI topology axis are green, with Tor, at the HA size.
-- [ ] A design page under [docs/contributing/design/](../contributing/design/) documents the instance model, the write endpoint and lookup contract shared with 037, and the minimum sizing.
+- [ ] A design page under [docs/contributing/design/](../contributing/design/) documents the instance model, the write endpoint and lookup contract, and the minimum sizing.
 - [ ] This requirement is cross-linked from the implementing pull request, and the pull request is cross-linked back here per [requirements.md](../contributing/requirements.md).
 
 ## Risks to Settle During Implementation
@@ -431,11 +429,11 @@ Primary-source research could not settle these, and this effort was planned with
 
 Explicitly out of scope for this requirement, and tracked for later:
 
-- **Database HA on Kubernetes:** [037](037-database-cluster-kubernetes.md), reusing the lookup contract, the elector and the failover suite's core from this requirement.
-- **Publishing the database images to GHCR** instead of the `STACK_HOST` registry, as 037 does.
-- **Engine-native continuous backups** (WAL-G or pgBackRest point-in-time recovery, `mariadb-backup`, `slapcat`) to the shared write-only S3 target from 037, and dumping from a replica instead of the primary.
+- **Database HA on Kubernetes**, reusing the lookup contract, the elector and the failover suite's core from this requirement.
+- **Publishing the database images to GHCR** instead of the `STACK_HOST` registry.
+- **Engine-native continuous backups** (WAL-G or pgBackRest point-in-time recovery, `mariadb-backup`, `slapcat`) to a shared write-only S3 target, and dumping from a replica instead of the primary.
 - **Shrinking from HA to standalone in place.**
-- **Enforced in-engine TLS**, shared with 037. It is blocked on applications that hard-code `sslmode=disable` or `DB_SSL=false`.
+- **Enforced in-engine TLS.** It is blocked on applications that hard-code `sslmode=disable` or `DB_SSL=false`.
 - **Monitoring and alerting** for failover and replica lag.
 - **A 5-manager profile** that survives two node losses.
 - **Docker secrets for application-facing credentials** (023's deferred item).
@@ -446,7 +444,7 @@ Explicitly out of scope for this requirement, and tracked for later:
 
 ## Procedure
 
-The implementation follows the [Compose Loop](../agents/action/iteration/compose.md) for role changes and the [Workflow Loop](../agents/action/iteration/workflow.md) for workflow changes. It is delivered in six stages, each its own pull request, in this order:
+The implementation follows the [Compose Loop](../agents/action/iteration/compose.md) for role changes and the [Workflow Loop](../agents/action/iteration/workflow.md) for workflow changes. It is delivered as one pull request, built in six stages, in this order:
 
 1. The foundation: the manager-count validator, the single `IS_STACK_HOST`, the Raft checks, the instance model and its renderer, the 3+1 lab, and the failover suite's core with the Swarm adapter and its required check, which runs only the standalone scenario until the Postgres pilot lands.
 2. The coordination store, the write endpoint and the primary resolver.
@@ -459,12 +457,11 @@ The following rules apply for the entire run:
 
 - [ ] Clarifying questions are raised once, at the start, in a single batched round. Ambiguities found mid-run are resolved by the agent, recorded in the affected README, and revisited at review.
 - [ ] Every failure is fixed at its root within the run. Skips, retry-until-green loops and "follow-up" deferrals are not used.
-- [ ] One commit per stage. Each stage lands its changes and ticks its own checkboxes in this document only once `make test` and the failover workflow for everything built so far are green. The HA form stays alpha until the last stage lands. The agent does not push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md).
+- [ ] Each stage ticks its own checkboxes in this document only once `make test` and the failover workflow for everything built so far are green. The agent does not push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md).
 
 ## See Also
 
 - [023 - Docker Swarm Deployment with NFS-backed Shared Volumes](023-docker-swarm-nfs.md)
-- [037 - Database Cluster on Kubernetes](037-database-cluster-kubernetes.md)
 - [Compose Loop](../agents/action/iteration/compose.md)
 - [Workflow Loop](../agents/action/iteration/workflow.md)
 - [Per-Role Meta Layout](../contributing/design/role/services/layout.md)

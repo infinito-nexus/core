@@ -1,4 +1,4 @@
-"""Enforce the 038 instance model in every HA-capable engine role.
+"""Enforce the 041 instance model in every HA-capable engine role.
 
 Every HA-capable engine's compose template renders one service per
 instance from ``lookup('db_instances')`` and mounts the per-instance volume
