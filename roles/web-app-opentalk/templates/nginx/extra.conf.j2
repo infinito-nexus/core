@@ -5,6 +5,7 @@
 
 location /v1/ {
     proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Host $host;
@@ -18,6 +19,7 @@ location /v1/ {
 
 location /signaling {
     proxy_pass http://127.0.0.1:{{ OPENTALK_CTRL_HTTP_PORT }};
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -32,6 +34,7 @@ location /signaling {
 
 location /livekit {
     proxy_pass http://127.0.0.1:{{ OPENTALK_LIVEKIT_HTTP_PORT }};
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

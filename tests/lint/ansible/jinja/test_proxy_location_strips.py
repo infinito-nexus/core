@@ -21,6 +21,10 @@ from utils.cache.files import iter_project_files, read_text
 from . import PROJECT_ROOT
 
 _STRIPS = "roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2"
+_IDENTITY_STRIPS = (
+    "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2",
+    "roles/web-app-keycloak/templates/sso_proxy/following_directives.conf.j2",
+)
 _SERVER_BLOCK = re.compile(r"^\s*server\s*\{", re.MULTILINE)
 _LOCATION_OPEN = re.compile(r"^\s*location\b[^{]*\{\s*$")
 _PROXYING = re.compile(r"\bproxy_pass\b|lookup\('proxy_pass'|_backend\s*\}\}")
@@ -83,6 +87,31 @@ class TestProxyLocationStrips(unittest.TestCase):
                 "so X-Powered-By and the upstream HSTS leak on their path:\n"
                 + "\n".join(findings)
                 + f"\n\nFix: add `{{% include '{_STRIPS}' %}}` inside each location."
+            )
+
+    def test_proxying_locations_clear_client_identity(self) -> None:
+        """A health, API or exception path of a header-trust vhost reaches the
+        same backend as ``/``, so a forged ``X-Forwarded-User`` sent there
+        impersonates any user unless the location clears it."""
+        findings: list[str] = []
+        for path in _role_templates():
+            text = read_text(path)
+            if _SERVER_BLOCK.search(text):
+                continue
+            rel = Path(path).relative_to(PROJECT_ROOT).as_posix()
+            for line, body in _location_blocks(text.splitlines()):
+                if _PROXYING.search(body) and not any(
+                    strip in body for strip in _IDENTITY_STRIPS
+                ):
+                    findings.append(f"- {rel}:{line}")
+        if findings:
+            self.fail(
+                "These proxying locations forward a client-supplied identity "
+                "header (X-Forwarded-User, Remote-User, X-Auth-Request-*) to "
+                "their upstream:\n"
+                + "\n".join(findings)
+                + f"\n\nFix: add `{{% include '{_IDENTITY_STRIPS[0]}' %}}` inside "
+                "each location, or the SSO directives on a gated one."
             )
 
 

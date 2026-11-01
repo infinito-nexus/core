@@ -6,6 +6,7 @@ location = /logout {
     proxy_set_header   X-Forwarded-Proto $scheme;
     proxy_http_version 1.1;
 
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
     {%- set aca_origin = (lookup('tls', 'web-svc-logout', 'url.base') | regex_replace('/$', '')) ~ " always" -%}

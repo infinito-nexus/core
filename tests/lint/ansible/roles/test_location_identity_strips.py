@@ -38,6 +38,9 @@ _RULE = "location-identity-strip"
 LOCATION_DIR = PROJECT_ROOT / "roles/sys-svc-proxy/templates/location"
 
 STRIP_INCLUDE = "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2"
+UNTRUSTED_STRIP_INCLUDE = (
+    "roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2"
+)
 
 _PROXIES_RE = re.compile(r"proxy_pass|lookup\(\s*['\"]proxy_pass['\"]")
 
@@ -95,6 +98,22 @@ class TestLocationIdentityStrips(unittest.TestCase):
             "X-Forwarded-Groups",
             "X-Forwarded-Access-Token",
             "X-Forwarded-Preferred-Username",
+        ):
+            with self.subTest(header=header):
+                self.assertIn(f'proxy_set_header {header} ""', content)
+
+    def test_the_untrusted_strips_cover_every_role_trusted_header(self) -> None:
+        """Checkmk and OpenProject trust X-Remote-User, n8n Remote-Email."""
+        content = read_text(str(PROJECT_ROOT / UNTRUSTED_STRIP_INCLUDE))
+        for header in (
+            "Remote-User",
+            "Remote-Email",
+            "Remote-Groups",
+            "X-Remote-User",
+            "X-Auth-Request-User",
+            "X-Auth-Request-Preferred-Username",
+            "X-Auth-Request-Email",
+            "X-Auth-Request-Groups",
         ):
             with self.subTest(header=header):
                 self.assertIn(f'proxy_set_header {header} ""', content)
