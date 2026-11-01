@@ -38,8 +38,13 @@ trees, about 0.4 MB with every application's and user's credentials, and
 printing them at ``-v`` is neither credential debugging nor readable.
 
 Args:
-    clear: drop both carrier facts instead of rendering. Defaults to false.
-        Any other argument is an error.
+    clear: drop every carrier fact instead of rendering. Defaults to false.
+    provider_view: on a host that does not run the onion-serving mail
+        provider, also park the applications payload of the provider host's
+        view in ``_INFINITO_PROVIDER_VIEW_RENDERED`` (see
+        ``plugins.lookup.email.provider_view_carrier``), unless the parked one
+        or the provider host's own carrier still matches. Defaults to false.
+    Any other argument is an error.
 """
 
 from __future__ import annotations
@@ -51,8 +56,10 @@ from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
+from plugins.lookup.email import provider_view_carrier
 from utils.cache.carrier import (
     APPLICATIONS_RENDERED_FACT,
+    PROVIDER_VIEW_RENDERED_FACT,
     USERS_RENDERED_FACT,
     _carried_users,
     revalidate_tokens_file,
@@ -68,11 +75,11 @@ class ActionModule(ActionBase):
         result = super().run(tmp, task_vars)
         task_vars = task_vars or {}
         args = self._task.args or {}
-        unexpected = sorted(set(args) - {"clear"})
+        unexpected = sorted(set(args) - {"clear", "provider_view"})
         if unexpected:
             raise AnsibleActionFail(
                 f"applications_carrier: unknown argument(s) {', '.join(unexpected)}; "
-                "the only argument is 'clear'"
+                "the only arguments are 'clear' and 'provider_view'"
             )
 
         if boolean(args.get("clear", False)):
@@ -81,6 +88,7 @@ class ActionModule(ActionBase):
                 ansible_facts={
                     APPLICATIONS_RENDERED_FACT: None,
                     USERS_RENDERED_FACT: None,
+                    PROVIDER_VIEW_RENDERED_FACT: None,
                 },
             )
             return result
@@ -106,6 +114,11 @@ class ActionModule(ActionBase):
         users_key = carriers[USERS_RENDERED_FACT]["key"]
         if _carried_users(task_vars, (users_key[0], tuple(users_key[1]))) is not None:
             del carriers[USERS_RENDERED_FACT]
+
+        if boolean(args.get("provider_view", False)):
+            view_carrier = provider_view_carrier(task_vars, templar=self._templar)
+            if view_carrier is not None:
+                carriers[PROVIDER_VIEW_RENDERED_FACT] = view_carrier
 
         result.update(
             changed=False,

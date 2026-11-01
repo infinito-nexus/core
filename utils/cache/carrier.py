@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
 APPLICATIONS_RENDERED_FACT = "_INFINITO_APPLICATIONS_RENDERED"
 USERS_RENDERED_FACT = "_INFINITO_USERS_RENDERED"
+PROVIDER_VIEW_RENDERED_FACT = "_INFINITO_PROVIDER_VIEW_RENDERED"
 
 
 def merged_applications_cache_key(
@@ -150,3 +151,17 @@ def _carried_users(
         cache_key: The key the caller would render under.
     """
     return _carried(variables, USERS_RENDERED_FACT, "users", cache_key)
+
+
+def _carried_provider_view(
+    variables: Mapping[str, Any], cache_key: tuple[str, tuple]
+) -> dict[str, Any] | None:
+    """Return the applications payload carried in `PROVIDER_VIEW_RENDERED_FACT`
+    when its key equals *cache_key*, else ``None``.
+
+    Args:
+        variables: The play's variable scope, read for the carrier fact.
+        cache_key: The key of the mail provider host's view the caller would
+            render under.
+    """
+    return _carried(variables, PROVIDER_VIEW_RENDERED_FACT, "applications", cache_key)

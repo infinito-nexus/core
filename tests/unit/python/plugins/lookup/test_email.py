@@ -11,12 +11,12 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
-from plugins.lookup.email import RESOLUTION_ORDER, LookupModule
+from plugins.lookup.email import RESOLUTION_ORDER, LookupModule, provider_view_carrier
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
 from utils.cache import users as cache_users
-from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, PROVIDER_VIEW_RENDERED_FACT
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_META_SERVICES
 
@@ -680,6 +680,126 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
 
         self.assertEqual(renders, 0)
         self.assertEqual(result, expected)
+
+    MESH: ClassVar[dict[str, str]] = {
+        "mgr": "10.13.0.1",
+        "wrk": "10.13.0.2",
+        "wrk2": "10.13.0.3",
+    }
+
+    def _mesh_apps(self, host: str) -> dict:
+        return {
+            "svc-net-wireguard": {
+                "networks": {"interfaces": [{"host": host, "address": self.MESH[host]}]}
+            }
+        }
+
+    def _mesh_worker(self, *, host: str = "wrk", network_mode: str = "tor") -> dict:
+        """A worker with its own mesh interface in ``applications``.
+
+        Args:
+            host: the worker's inventory hostname.
+            network_mode: the manager's ``NETWORK_MODE``.
+        """
+        _write_role_config(
+            self._tmp, "svc-net-wireguard", {"wireguard": {"enabled": True}}
+        )
+        worker = self._worker(network_mode=network_mode)
+        worker["inventory_hostname"] = host
+        worker["applications"] = self._mesh_apps(host)
+        worker["hostvars"]["mgr"]["applications"] = self._mesh_apps("mgr")
+        return worker
+
+    def _park_manager_carrier(self, worker: dict) -> None:
+        worker["hostvars"]["mgr"][APPLICATIONS_RENDERED_FACT] = self._park(
+            self._provider_view(worker, applications=self._mesh_apps("mgr"))
+        )
+
+    def _park_provider_view(self, worker: dict) -> dict | None:
+        return provider_view_carrier(
+            worker,
+            templar=self.lookup._templar,
+            roles_dir=str(self._tmp / "roles"),
+        )
+
+    def test_a_mesh_worker_renders_the_provider_view_the_manager_carrier_misses(
+        self,
+    ) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        expected, _ = self._run_counting_renders(worker)
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        self._park_manager_carrier(worker)
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertEqual(renders, 1)
+        self.assertEqual(result, expected)
+
+    def test_a_mesh_worker_reads_the_provider_view_parked_for_it(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        expected, fresh_renders = self._run_counting_renders(worker)
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        self._park_manager_carrier(worker)
+        _reset_cache_for_tests()
+        worker[PROVIDER_VIEW_RENDERED_FACT] = self._park_provider_view(worker)
+
+        result, renders = self._run_counting_renders(worker)
+
+        self.assertGreater(fresh_renders, 0)
+        self.assertIsNotNone(worker[PROVIDER_VIEW_RENDERED_FACT])
+        self.assertEqual(renders, 0)
+        for key in RESOLUTION_ORDER:
+            self.assertEqual(result[key], expected[key], key)
+        self.assertEqual(result, expected)
+        self.assertFalse(result["tls"])
+        self.assertIsNone(self._park_provider_view(worker))
+
+    def test_a_provider_view_parked_for_another_view_is_never_served(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        worker = self._mesh_worker()
+        worker[APPLICATIONS_RENDERED_FACT] = self._park(worker)
+        worker[PROVIDER_VIEW_RENDERED_FACT] = self._park_provider_view(worker)
+        onion, onion_renders = self._run_counting_renders(worker)
+        dual_stack = self._mesh_worker(network_mode="")
+        other_worker = self._mesh_worker(host="wrk2")
+        expected = {
+            "dual_stack": self._run_counting_renders(dual_stack)[0],
+            "other_worker": self._run_counting_renders(other_worker)[0],
+        }
+        stale = {"dual_stack": dual_stack, "other_worker": other_worker}
+        for variables in stale.values():
+            variables[APPLICATIONS_RENDERED_FACT] = self._park(variables)
+            variables[PROVIDER_VIEW_RENDERED_FACT] = worker[PROVIDER_VIEW_RENDERED_FACT]
+
+        results = {name: self._run_counting_renders(v) for name, v in stale.items()}
+
+        self.assertEqual(onion_renders, 0)
+        self.assertFalse(onion["tls"])
+        for name, (result, renders) in results.items():
+            self.assertEqual(renders, 1, name)
+            for key in RESOLUTION_ORDER:
+                self.assertEqual(result[key], expected[name][key], (name, key))
+        self.assertTrue(results["dual_stack"][0]["tls"])
+
+    def test_the_provider_host_and_a_clearnet_provider_park_no_view(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        provider_host = self._provider_view(
+            self._mesh_worker(), applications=self._mesh_apps("mgr")
+        )
+        clearnet = self._mesh_worker()
+        clearnet["groups"] = dict(clearnet["groups"], **{"svc-net-tor": ["other"]})
+
+        with patch.object(
+            cache_applications,
+            "_render_with_templar",
+            wraps=cache_applications._render_with_templar,
+        ) as render:
+            parked = [self._park_provider_view(v) for v in (provider_host, clearnet)]
+
+        self.assertEqual(parked, [None, None])
+        self.assertEqual(render.call_count, 0)
 
 
 class _RawGetHostvars(dict):
