@@ -74,6 +74,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
           reboot:
             enabled: false
   ```
+
 - **Once-per-play idempotency:** Wraps the dispatch in
   `when: run_once_update is not defined` and writes the flag via
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are
