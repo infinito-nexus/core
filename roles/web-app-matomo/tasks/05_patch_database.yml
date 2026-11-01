@@ -5,7 +5,7 @@
 - name: "🔄 Update DB host, name, user and password"
   ansible.builtin.shell: sh -s -- {{ MATOMO_CONFIG_HOST | quote }}
   args:
-    stdin: "{{ lookup('file', 'shell/patch_database.sh') }}"
+    stdin: "{{ lookup('file', 'shell/patch/database.sh') }}"
   environment:
     PATCH_HOST: "{{ lookup('database', application_id, 'host') | sed_escape('/') }}"
     PATCH_NAME: "{{ lookup('database', application_id, 'name') | sed_escape('/') }}"
