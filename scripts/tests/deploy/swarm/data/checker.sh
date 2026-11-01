@@ -56,8 +56,8 @@ prepare() {
 			-c "CREATE TABLE IF NOT EXISTS failover_check (run text NOT NULL, seq bigint NOT NULL, PRIMARY KEY (run, seq))"
 		;;
 	mariadb)
-		mariadb -h "${HOST}" -P "${PORT}" -u "${USER}" \
-			-e "CREATE DATABASE IF NOT EXISTS ${DATABASE}; CREATE TABLE IF NOT EXISTS ${DATABASE}.failover_check (run VARCHAR(64) NOT NULL, seq BIGINT NOT NULL, PRIMARY KEY (run, seq)); CREATE USER IF NOT EXISTS 'failover_checker'@'%' IDENTIFIED BY '${PASSWORD}'; GRANT INSERT, SELECT ON ${DATABASE}.* TO 'failover_checker'@'%'" &&
+		printf '%s\n' "CREATE DATABASE IF NOT EXISTS ${DATABASE}; CREATE TABLE IF NOT EXISTS ${DATABASE}.failover_check (run VARCHAR(64) NOT NULL, seq BIGINT NOT NULL, PRIMARY KEY (run, seq)); CREATE USER IF NOT EXISTS 'failover_checker'@'%' IDENTIFIED BY '${PASSWORD}'; GRANT INSERT, SELECT ON ${DATABASE}.* TO 'failover_checker'@'%'" |
+			mariadb -h "${HOST}" -P "${PORT}" -u "${USER}" &&
 			WRITER_USER=failover_checker
 		;;
 	redis) ;;

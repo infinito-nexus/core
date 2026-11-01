@@ -8,14 +8,18 @@
 set -eu
 
 config="$1"
+script="$(mktemp)"
+trap 'rm -f "${script}"' EXIT
+
+printf '%s\n' \
+	"s/^host *=.*/host = ${PATCH_HOST}/" \
+	"s/^dbname *=.*/dbname = ${PATCH_NAME}/" \
+	"s/^username *=.*/username = ${PATCH_USERNAME}/" \
+	"s/^password *=.*/password = ${PATCH_PASSWORD}/" \
+	>"${script}"
 
 rewrite() {
-	sed "$@" \
-		-e "s/^host *=.*/host = ${PATCH_HOST}/" \
-		-e "s/^dbname *=.*/dbname = ${PATCH_NAME}/" \
-		-e "s/^username *=.*/username = ${PATCH_USERNAME}/" \
-		-e "s/^password *=.*/password = ${PATCH_PASSWORD}/" \
-		"${config}"
+	sed "$@" -f "${script}" "${config}"
 }
 
 [ "$(rewrite | cksum)" = "$(cksum <"${config}")" ] && exit 0
