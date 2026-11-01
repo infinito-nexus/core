@@ -1,4 +1,9 @@
+import hashlib
+import os
+import tempfile
 import unittest
+from pathlib import Path
+from typing import ClassVar
 from unittest.mock import patch
 
 from plugins.action.stack_host_copy import ActionModule
@@ -7,6 +12,14 @@ from plugins.action.stack_host_copy import ActionModule
 class _FakeTask:
     def __init__(self, *, args=None):
         self.args = {} if args is None else dict(args)
+        self.async_val = 0
+        self.check_mode = False
+        self.diff = False
+        self.no_log = False
+        self.action = "stack_host_copy"
+
+    def get_search_path(self):
+        return []
 
 
 class _FakeTemplar:
@@ -96,6 +109,19 @@ class TestStackHostCopy(unittest.TestCase):
 
         self.assertEqual(task.args["mode"], "0600")
 
+    def test_file_source_never_takes_the_tree_check(self):
+        task = _FakeTask(args={"src": "x", "dest": "/opt/compose/app/x"})
+        action = _make_action(task, _FakeTemplar(is_stack_host=True))
+
+        with patch(
+            "plugins.action.stack_host_copy.CopyActionModule.run",
+            return_value={"changed": True},
+        ) as super_run:
+            result = action.run(task_vars={})
+
+        super_run.assert_called_once()
+        self.assertTrue(result["changed"])
+
     def test_is_stack_host_expr_carries_trust_tag(self):
         from ansible.template import is_trusted_as_template
 
@@ -106,6 +132,247 @@ class TestStackHostCopy(unittest.TestCase):
             "The IS_STACK_HOST template expression must carry the TrustedAsTemplate "
             "tag; otherwise Ansible 2.19+ returns the literal string unchanged.",
         )
+
+
+class _FakeShell:
+    def __init__(self):
+        self.tmpdir = None
+
+    def join_path(self, *parts):
+        return os.path.join(*parts)  # noqa: PTH118 - mirrors the sh shell plugin, whose join_path keeps a trailing slash
+
+    def path_has_trailing_slash(self, path):
+        return path.endswith("/")
+
+
+class _FakeConnection:
+    def __init__(self):
+        self._shell = _FakeShell()
+
+
+class _FakeLoader:
+    def get_real_file(self, path, decrypt=True):
+        return path
+
+    def cleanup_tmp_file(self, path):
+        return None
+
+    def path_dwim_relative_stack(self, paths, dirname, needle):
+        return needle
+
+
+class _FakePlayContext:
+    no_log = False
+
+
+def _sha1(data):
+    return hashlib.sha1(data).hexdigest()  # noqa: S324 - the checksum Ansible copy compares is SHA-1
+
+
+class _FakeRemote:
+    def __init__(self, entries):
+        self.entries = dict(entries)
+        self.calls = []
+
+    def __call__(self, module_name=None, module_args=None, task_vars=None, **kwargs):
+        self.calls.append(module_name)
+        if module_name == "ansible.legacy.file_checksums":
+            return {
+                "changed": False,
+                "states": {p: self._state(p) for p in module_args["paths"]},
+            }
+        if module_name == "ansible.legacy.stat":
+            entry = self.entries.get(module_args["path"])
+            if entry is None:
+                return {"stat": {"exists": False}}
+            if entry == "dir":
+                return {"stat": {"exists": True, "isdir": True}}
+            return {
+                "stat": {"exists": True, "isdir": False, "checksum": _sha1(entry[0])}
+            }
+        if module_name == "ansible.legacy.file":
+            entry = self.entries[
+                module_args["dest"] + module_args["_original_basename"]
+            ]
+            mode = module_args["mode"]
+            return {
+                "changed": entry[1] != (mode if isinstance(mode, int) else int(mode, 8))
+            }
+        if module_name == "ansible.legacy.copy":
+            return {"changed": True}
+        raise AssertionError(f"unexpected module {module_name}")
+
+    def _state(self, path):
+        entry = self.entries.get(path)
+        if entry is None or entry == "dir":
+            return {"isreg": False, "mode": None, "checksum": None}
+        return {"isreg": True, "mode": f"{entry[1]:04o}", "checksum": _sha1(entry[0])}
+
+
+class TestStackHostCopyTree(unittest.TestCase):
+    FILES: ClassVar[dict[str, bytes]] = {
+        "favicon.ico": b"ico",
+        "icon.png": b"png",
+        "nested/icon.svg": b"<svg/>",
+    }
+    DEST = "/var/www/public_cdn/roles/app/latest/img/design/"
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.src = Path(self._tmp.name)
+        for rel, data in self.FILES.items():
+            (self.src / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.src / rel).write_bytes(data)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _synced(self, mode=0o644):
+        return {self.DEST + rel: (data, mode) for rel, data in self.FILES.items()}
+
+    def _run(self, remote, **extra):
+        task = _FakeTask(args={"src": f"{self.src}/", "dest": self.DEST, **extra})
+        action = _make_action(task, _FakeTemplar(is_stack_host=True))
+        action._connection = _FakeConnection()
+        action._loader = _FakeLoader()
+        action._play_context = _FakePlayContext()
+        action._execute_module = remote
+        action._transfer_file = lambda local, remote_path: remote_path
+        action._fixup_perms2 = lambda *a, **k: None
+        action._remove_tmp_path = lambda *a, **k: None
+        action._remote_expand_user = lambda path, **k: path
+
+        def make_tmp_path(*a, **k):
+            action._connection._shell.tmpdir = "/remote/tmp"
+            return "/remote/tmp"
+
+        action._make_tmp_path = make_tmp_path
+        return action.run(task_vars={})
+
+    def test_unchanged_tree_costs_one_remote_call(self):
+        remote = _FakeRemote(self._synced())
+
+        result = self._run(remote)
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+        self.assertEqual(result["dest"], self.DEST)
+        self.assertEqual(result["src"], f"{self.src}/")
+
+    def test_changed_file_runs_the_regular_copy(self):
+        entries = self._synced()
+        entries[self.DEST + "icon.png"] = (b"old", 0o644)
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertIn("ansible.legacy.copy", remote.calls)
+
+    def test_missing_file_runs_the_regular_copy(self):
+        entries = self._synced()
+        del entries[self.DEST + "nested/icon.svg"]
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertIn("ansible.legacy.copy", remote.calls)
+
+    def test_mode_drift_runs_the_regular_copy(self):
+        entries = self._synced()
+        entries[self.DEST + "favicon.ico"] = (b"ico", 0o600)
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertIn("ansible.legacy.file", remote.calls)
+
+    def test_directory_in_place_of_a_file_runs_the_regular_copy(self):
+        entries = self._synced()
+        entries[self.DEST + "icon.png"] = "dir"
+        remote = _FakeRemote(entries)
+
+        self._run(remote)
+
+        self.assertIn("ansible.legacy.stat", remote.calls)
+
+    def test_requested_mode_is_what_the_tree_check_compares(self):
+        remote = _FakeRemote(self._synced(mode=0o600))
+
+        result = self._run(remote, mode="0600")
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+
+    def test_attribute_args_skip_the_tree_check(self):
+        remote = _FakeRemote(self._synced())
+
+        self._run(remote, owner="root")
+
+        self.assertNotIn("ansible.legacy.file_checksums", remote.calls)
+        self.assertIn("ansible.legacy.stat", remote.calls)
+
+    def test_symbolic_mode_skips_the_tree_check(self):
+        remote = _FakeRemote(self._synced())
+
+        with patch(
+            "plugins.action.stack_host_copy.CopyActionModule.run",
+            return_value={"changed": False},
+        ) as super_run:
+            self._run(remote, mode="u=rw,g=r,o=r")
+
+        super_run.assert_called_once()
+        self.assertEqual(remote.calls, [])
+
+    def test_failed_tree_check_falls_back_to_the_regular_copy(self):
+        remote = _FakeRemote(self._synced())
+
+        def failing(module_name=None, **kwargs):
+            if module_name == "ansible.legacy.file_checksums":
+                remote.calls.append(module_name)
+                return {"failed": True, "msg": "boom"}
+            return remote(module_name=module_name, **kwargs)
+
+        result = self._run(failing)
+
+        self.assertFalse(result["changed"])
+        self.assertIn("ansible.legacy.stat", remote.calls)
+
+    def test_source_symlink_skips_the_tree_check(self):
+        (self.src / "dangling").symlink_to("/nonexistent-target")
+        remote = _FakeRemote(self._synced())
+
+        with patch(
+            "plugins.action.stack_host_copy.CopyActionModule.run",
+            return_value={"changed": False},
+        ) as super_run:
+            self._run(remote, local_follow=False)
+
+        super_run.assert_called_once()
+        self.assertEqual(remote.calls, [])
+
+    def test_empty_source_directory_skips_the_tree_check(self):
+        (self.src / "empty").mkdir()
+        remote = _FakeRemote(self._synced())
+
+        with patch(
+            "plugins.action.stack_host_copy.CopyActionModule.run",
+            return_value={"changed": False},
+        ) as super_run:
+            self._run(remote)
+
+        super_run.assert_called_once()
+        self.assertEqual(remote.calls, [])
+
+    def test_integer_mode_is_compared_as_octal(self):
+        remote = _FakeRemote(self._synced())
+
+        result = self._run(remote, mode=0o644)
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
 
 
 if __name__ == "__main__":
