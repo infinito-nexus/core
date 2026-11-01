@@ -2,7 +2,8 @@
 order and invoice for it.
 
 The site skips the setup wizard, so nothing else installs the warehouse type,
-territory, unit and opportunity type the wizard would create. An existing
+territory, unit, opportunity type and standard price lists the wizard would
+create; the price lists take the Company's currency. An existing
 Company keeps its abbreviation, country and currency and only gains the records
 it lacks; the global default company is set only while none is.
 
@@ -63,6 +64,10 @@ FIXTURES = (
     ),
     ("UOM", "Unit", {"uom_name": "Unit"}),
     ("Opportunity Type", "Sales", {"__newname": "Sales"}),
+)
+PRICE_LISTS = (
+    ("Standard Selling", {"selling": 1, "buying": 0}),
+    ("Standard Buying", {"selling": 0, "buying": 1}),
 )
 INVENTORY_KEYS = {
     "COMPANY_NAME": "service_provider.company.titel",
@@ -133,6 +138,20 @@ def ensure_company(name, abbr, country, currency):
         },
     )
     return [f"Company: {name}"]
+
+
+def ensure_price_lists(company):
+    currency = frappe.db.get_value("Company", company, "default_currency")
+    created = []
+    for name, sides in PRICE_LISTS:
+        if frappe.db.exists("Price List", name):
+            continue
+        insert(
+            "Price List",
+            {"price_list_name": name, "enabled": 1, "currency": currency, **sides},
+        )
+        created.append(f"Price List: {name}")
+    return created
 
 
 def ensure_fiscal_year(company):
@@ -232,6 +251,7 @@ def main():
         created = ensure_fixtures()
         created += ensure_company(name, abbr, country, currency)
         company_abbr = frappe.db.get_value("Company", name, "abbr")
+        created += ensure_price_lists(name)
         created += ensure_fiscal_year(name)
         created += ensure_tax_accounts(name, company_abbr)
         created += ensure_default_cash_account(name)

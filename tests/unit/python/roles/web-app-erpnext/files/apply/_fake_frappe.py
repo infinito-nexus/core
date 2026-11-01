@@ -26,6 +26,7 @@ NAME_FIELDS = {
     "Customer Group": "customer_group_name",
     "Fiscal Year": "year",
     "Item Group": "item_group_name",
+    "Price List": "price_list_name",
     "Role": "role_name",
     "Supplier Group": "supplier_group_name",
     "Territory": "territory_name",
