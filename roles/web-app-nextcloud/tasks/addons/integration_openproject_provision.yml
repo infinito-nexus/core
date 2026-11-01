@@ -36,6 +36,7 @@
       PROVISION_INPUT = JSON.parse(<<~'INPUT')
       {{ {
            'nextcloud_host': NEXTCLOUD_URL,
+           'nextcloud_base_urls': NEXTCLOUD_NETWORK_BASE_URLS,
            'storage_name': nextcloud_op_storage_name,
            'nc_op_client_secret': nextcloud_op_client_secret_current.stdout | trim,
            'rotate_op_secret': lookup('config', 'web-app-nextcloud', 'addons.integration_openproject.config.rotate_oauth_client') | bool,
