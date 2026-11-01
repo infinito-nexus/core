@@ -4,8 +4,10 @@
  * Plugin Name: Infinito.Nexus OIDC RBAC Role Mapper
  * Description: Maps the Keycloak claims delivered by
  *              daggerhart/openid-connect-generic to the WordPress role and
- *              profile of the user on every OIDC login, and keeps the
- *              IdP-managed profile fields read-only on profile.php.
+ *              profile of the user on every OIDC login, marks profile.php
+ *              and user-edit.php of an OIDC account for the shared lock
+ *              renderer, and keeps the IdP-managed fields on every other
+ *              wp_insert_user write.
  * Version:     2.2.0
  * Author:      Infinito.Nexus
  */
@@ -28,14 +30,19 @@ add_action(
     20,
     2
 );
-add_action('show_user_profile', 'infinito_oidc_lock_managed_profile_fields');
+add_filter('admin_body_class', 'infinito_oidc_lock_managed_profile_fields');
 add_action('personal_options_update', 'infinito_oidc_keep_managed_profile_fields', 1);
+add_filter('wp_pre_insert_user_data', 'infinito_oidc_keep_managed_user_data', 10, 3);
+add_filter('insert_user_meta', 'infinito_oidc_keep_managed_user_meta', 10, 3);
+add_filter('send_email_change_email', 'infinito_oidc_mail_email_change', 10, 2);
 
 const INFINITO_RBAC_OWNERSHIP_META_KEY = '_infinito_oidc_added_blog_ids';
 const INFINITO_RBAC_SUPER_ADMIN_META_KEY = '_infinito_oidc_granted_super_admin';
 const INFINITO_OIDC_SUBJECT_META_KEY = 'openid-connect-generic-subject-identity';
-const INFINITO_OIDC_READONLY_FIELDS = '#first_name, #last_name, #email, #url';
-const INFINITO_OIDC_DISABLED_FIELDS = '#display_name, #locale';
+const INFINITO_OIDC_MANAGED_PROFILE_CLASS = 'infinito-sso-managed';
+const INFINITO_OIDC_MANAGED_USER_FIELDS = array('user_email', 'user_url', 'display_name');
+const INFINITO_OIDC_MANAGED_META_FIELDS = array('first_name', 'last_name', 'locale');
+const INFINITO_OIDC_PROFILE_SYNC_HOOK = 'infinito_oidc_profile_sync_running';
 
 /**
  * @param string $name Environment variable the role renders into the container.
@@ -284,7 +291,9 @@ function infinito_oidc_sync_profile($user, $user_claim) {
     }
 
     add_filter('send_email_change_email', '__return_false');
+    add_filter(INFINITO_OIDC_PROFILE_SYNC_HOOK, '__return_true');
     $result = wp_update_user($update);
+    remove_filter(INFINITO_OIDC_PROFILE_SYNC_HOOK, '__return_true');
     remove_filter('send_email_change_email', '__return_false');
 
     if (is_wp_error($result)) {
@@ -305,22 +314,23 @@ function infinito_oidc_is_managed_user($user_id) {
 }
 
 /**
- * @param \WP_User $user The user whose own profile page renders.
+ * @param string $classes The admin body classes.
+ * @return string The classes plus the one the services.sso.profile.locked selectors match when profile.php or
+ *                user-edit.php renders an OIDC account; user-edit.php sets the global $user_id to the edited
+ *                account before admin-header.php applies this filter.
  */
-function infinito_oidc_lock_managed_profile_fields($user) {
-    if (!($user instanceof WP_User) || !infinito_oidc_is_managed_user($user->ID)) {
-        return;
+function infinito_oidc_lock_managed_profile_fields($classes) {
+    global $pagenow, $user_id;
+    if (!in_array($pagenow, array('profile.php', 'user-edit.php'), true) || !infinito_oidc_is_managed_user((int) $user_id)) {
+        return $classes;
     }
-    wp_print_inline_script_tag(sprintf(
-        'document.querySelectorAll(%s).forEach(function (field) { field.readOnly = true; });'
-        . 'document.querySelectorAll(%s).forEach(function (field) { field.disabled = true; });',
-        wp_json_encode(INFINITO_OIDC_READONLY_FIELDS),
-        wp_json_encode(INFINITO_OIDC_DISABLED_FIELDS)
-    ));
+    return $classes . ' ' . INFINITO_OIDC_MANAGED_PROFILE_CLASS;
 }
 
 /**
- * @param int $user_id The user saving their own profile; the IdP-managed fields keep their stored values.
+ * @param int $user_id The user saving their own profile; restoring the IdP-managed fields before
+ *                     send_confirmation_on_profile_email runs keeps WordPress from mailing a confirmation link to a
+ *                     submitted address.
  */
 function infinito_oidc_keep_managed_profile_fields($user_id) {
     if (!infinito_oidc_is_managed_user($user_id)) {
@@ -335,4 +345,59 @@ function infinito_oidc_keep_managed_profile_fields($user_id) {
     $_POST['email'] = wp_slash($user->user_email);
     $_POST['url'] = wp_slash($user->user_url);
     unset($_POST['display_name'], $_POST['locale']);
+}
+
+/**
+ * @param bool $update  Whether wp_insert_user updates an existing account.
+ * @param int  $user_id The account it writes.
+ * @return bool True when the write keeps the IdP-managed fields: an update of an OIDC account outside
+ *              infinito_oidc_sync_profile and outside WP-CLI, the break-glass path.
+ */
+function infinito_oidc_profile_write_is_guarded($update, $user_id) {
+    return $update
+        && !apply_filters(INFINITO_OIDC_PROFILE_SYNC_HOOK, false)
+        && !(defined('WP_CLI') && WP_CLI)
+        && infinito_oidc_is_managed_user($user_id);
+}
+
+/**
+ * @param array $data    The users-table row wp_insert_user writes.
+ * @param bool  $update  Whether it updates an existing account.
+ * @param int   $user_id The account it updates.
+ * @return array The row with the stored email, website and display name of an OIDC account.
+ */
+function infinito_oidc_keep_managed_user_data($data, $update, $user_id) {
+    if (!infinito_oidc_profile_write_is_guarded($update, $user_id)) {
+        return $data;
+    }
+    $stored = get_userdata((int) $user_id);
+    foreach (INFINITO_OIDC_MANAGED_USER_FIELDS as $field) {
+        $data[$field] = $stored->$field;
+    }
+    return $data;
+}
+
+/**
+ * @param array    $meta   The user meta wp_insert_user writes.
+ * @param \WP_User $user   The account it writes them for.
+ * @param bool     $update Whether it updates an existing account.
+ * @return array The meta with the stored first name, last name and locale of an OIDC account.
+ */
+function infinito_oidc_keep_managed_user_meta($meta, $user, $update) {
+    if (!($user instanceof WP_User) || !infinito_oidc_profile_write_is_guarded($update, $user->ID)) {
+        return $meta;
+    }
+    foreach (INFINITO_OIDC_MANAGED_META_FIELDS as $key) {
+        $meta[$key] = get_user_meta($user->ID, $key, true);
+    }
+    return $meta;
+}
+
+/**
+ * @param bool  $send Whether wp_update_user mails the email change notice.
+ * @param array $user The account before the update.
+ * @return bool False for an OIDC account: the notice is decided before the guard keeps the stored email.
+ */
+function infinito_oidc_mail_email_change($send, $user) {
+    return $send && !infinito_oidc_is_managed_user($user['ID']);
 }

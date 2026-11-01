@@ -9,12 +9,16 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\Model\NormaliseRequestDataEvent;
 use Joomla\CMS\Event\Model\PrepareFormEvent;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
+use Joomla\CMS\String\PunycodeHelper;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserHelper;
+use Joomla\Database\DatabaseInterface;
+use Joomla\Database\ParameterType;
 use Joomla\Event\Event;
 use Joomla\Event\Priority;
 use Joomla\Event\SubscriberInterface;
@@ -48,13 +52,21 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     private const JOOMLA_GROUP_SUPER = 8;
 
     private const PROFILE_FORM  = 'com_users.profile';
+    private const PROFILE_KEY   = 'profile.';
     private const MANAGED_PARAM = 'keycloak_managed';
+    private const SSO_SESSION   = 'keycloak.sso_session';
+    private const LOCK_MARKER   = 'data-infinito-sso-locked';
     private const MANAGED_FIELDS = [
         ['name', null],
+        ['username', null],
         ['email1', null],
         ['language', 'params'],
         ['timezone', 'params'],
     ];
+    private const MANAGED_COLUMNS = ['name', 'username', 'email'];
+    private const MANAGED_PARAMS  = ['language', 'timezone', self::MANAGED_PARAM];
+
+    private bool $provisioning = false;
 
     /**
      * Returns:
@@ -68,6 +80,8 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
             'onAfterRoute'                  => 'onAfterRoute',
             'onContentPrepareForm'          => ['onContentPrepareForm', Priority::MIN],
             'onContentNormaliseRequestData' => 'onContentNormaliseRequestData',
+            'onUserBeforeSave'              => 'onUserBeforeSave',
+            'onUserAfterLogin'              => 'onUserAfterLogin',
         ];
     }
 
@@ -125,7 +139,187 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         }
         foreach ($this->managedFields() as [$field, $group]) {
             $form->setFieldAttribute($field, 'readonly', 'true', $group);
+            $form->setFieldAttribute($field, self::LOCK_MARKER, 'true', $group);
         }
+    }
+
+    /**
+     * Args:
+     *   $event: onUserBeforeSave; `subject` is the stored account, `data` the one about to be stored.
+     * Raises:
+     *   RuntimeException: an API request or a site request outside the break-glass session changes a
+     *   Keycloak-managed column, parameter or plg_user_profile field of an SSO account; the provisioning write of the
+     *   callback, the console and the backend pass.
+     */
+    public function onUserBeforeSave(Event $event): void
+    {
+        if ($this->provisioning || $event->getArgument('isNew') || !$this->guardsSaves()) {
+            return;
+        }
+        $stored = (array) $event->getArgument('subject');
+        if (!self::isManagedRecord($stored['params'] ?? '')) {
+            return;
+        }
+        $next    = (array) $event->getArgument('data');
+        $changed = self::changedManagedFields(
+            $stored,
+            $next,
+            is_array($next['profile'] ?? null) ? self::storedProfile((int) ($stored['id'] ?? 0)) : [],
+            $this->managedProfileKeys()
+        );
+        if ($changed !== []) {
+            throw new \RuntimeException('plg_system_keycloak: ' . implode(', ', $changed) . ' of an SSO account come from Keycloak');
+        }
+    }
+
+    /**
+     * Args:
+     *   $event: onUserAfterLogin; the Keycloak callback signs in without $app->login(), so every login reported here
+     *   is a local one (password, LDAP, passkey, remember-me cookie), and an SSO account other than the bootstrap
+     *   administrator is signed out again and sent to Keycloak.
+     */
+    public function onUserAfterLogin(Event $event): void
+    {
+        if ($this->app === null || !($this->app->isClient('site') || $this->app->isClient('administrator'))) {
+            return;
+        }
+        Factory::getSession()->clear(self::SSO_SESSION);
+        $identity = $this->app->getIdentity();
+        if ($identity === null || $identity->guest || (int) $identity->getParam(self::MANAGED_PARAM) !== 1) {
+            return;
+        }
+        if ((string) $identity->username === $this->requireEnv(self::ENV_BOOTSTRAP_ADMIN)) {
+            return;
+        }
+        Log::add('plg_system_keycloak: refused the local sign-in of the SSO account ' . $identity->username, Log::WARNING, 'plg_system_keycloak');
+        $this->app->logout();
+        $this->app->redirect('index.php?option=keycloak&task=login');
+    }
+
+    /**
+     * Args:
+     *   $stored: the stored account as onUserBeforeSave passes it, params as JSON.
+     *   $next: the account about to be stored; `profile` holds the plg_user_profile fields the save writes.
+     *   $storedProfile: the stored plg_user_profile fields of the account by key.
+     *   $profileKeys: the plg_user_profile keys Keycloak overwrites.
+     * Returns:
+     *   string[]: the Keycloak-managed columns, parameters and profile fields whose value differs.
+     */
+    public static function changedManagedFields(array $stored, array $next, array $storedProfile, array $profileKeys): array
+    {
+        $changed = [];
+        foreach (self::MANAGED_COLUMNS as $column) {
+            if ((string) ($stored[$column] ?? '') !== (string) ($next[$column] ?? '')) {
+                $changed[] = $column;
+            }
+        }
+        $before = self::decodedParams($stored['params'] ?? '');
+        $after  = self::decodedParams($next['params'] ?? '');
+        foreach (self::MANAGED_PARAMS as $param) {
+            if ((string) ($before[$param] ?? '') !== (string) ($after[$param] ?? '')) {
+                $changed[] = 'params.' . $param;
+            }
+        }
+        $profile = is_array($next['profile'] ?? null) ? $next['profile'] : [];
+        foreach ($profileKeys as $key) {
+            if (array_key_exists($key, $profile) && self::text($storedProfile[$key] ?? '') !== self::text($profile[$key])) {
+                $changed[] = self::PROFILE_KEY . $key;
+            }
+        }
+        return $changed;
+    }
+
+    private static function text(mixed $value): string
+    {
+        return is_scalar($value) || $value === null ? (string) $value : (string) json_encode($value);
+    }
+
+    /**
+     * Args:
+     *   $userId: the account whose plg_user_profile fields are read.
+     * Returns:
+     *   array<string, mixed>: the stored fields by key, decoded as plg_user_profile decodes them.
+     */
+    private static function storedProfile(int $userId): array
+    {
+        $db    = Factory::getContainer()->get(DatabaseInterface::class);
+        $like  = self::PROFILE_KEY . '%';
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['profile_key', 'profile_value']))
+            ->from($db->quoteName('#__user_profiles'))
+            ->where($db->quoteName('user_id') . ' = :id')
+            ->where($db->quoteName('profile_key') . ' LIKE :prefix')
+            ->bind(':id', $userId, ParameterType::INTEGER)
+            ->bind(':prefix', $like, ParameterType::STRING);
+        $profile = [];
+        foreach ($db->setQuery($query)->loadRowList() as [$key, $value]) {
+            $decoded = json_decode((string) $value, true);
+            $profile[substr((string) $key, strlen(self::PROFILE_KEY))] = $decoded ?? $value;
+        }
+        return $profile;
+    }
+
+    /**
+     * Args:
+     *   $params: user params as JSON, as an array or as a Registry.
+     * Returns:
+     *   bool: whether the params mark an account Keycloak provisions.
+     */
+    public static function isManagedRecord(mixed $params): bool
+    {
+        return (int) (self::decodedParams($params)[self::MANAGED_PARAM] ?? 0) === 1;
+    }
+
+    private static function decodedParams(mixed $params): array
+    {
+        if (is_object($params) && method_exists($params, 'toArray')) {
+            return $params->toArray();
+        }
+        if (is_array($params)) {
+            return $params;
+        }
+        $decoded = json_decode((string) $params, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Returns:
+     *   bool: whether the current site session signed in through Keycloak; the callback runs on the site client, so
+     *   a backend session never does.
+     */
+    private function ssoSession(): bool
+    {
+        if ($this->app === null || !$this->app->isClient('site')) {
+            return false;
+        }
+        return (bool) Factory::getSession()->get(self::SSO_SESSION, false);
+    }
+
+    /**
+     * Returns:
+     *   bool: whether the signed-in site account edits Keycloak-managed fields as break-glass: a local session of the
+     *   bootstrap administrator or of an account holding core.admin.
+     */
+    private function breakGlassSession(): bool
+    {
+        $identity = $this->app === null ? null : $this->app->getIdentity();
+        if ($identity === null || $identity->guest || $this->ssoSession()) {
+            return false;
+        }
+        return (string) $identity->username === $this->requireEnv(self::ENV_BOOTSTRAP_ADMIN) || $identity->authorise('core.admin');
+    }
+
+    /**
+     * Returns:
+     *   bool: whether a save may not change Keycloak-managed fields: every API request and every site request outside
+     *   the break-glass session; the console and the backend may.
+     */
+    private function guardsSaves(): bool
+    {
+        if ($this->app === null) {
+            return false;
+        }
+        return $this->app->isClient('api') || ($this->app->isClient('site') && !$this->breakGlassSession());
     }
 
     public function onContentNormaliseRequestData(NormaliseRequestDataEvent $event): void
@@ -135,8 +329,9 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         if ($user === null || !is_object($data)) {
             return;
         }
-        $data->name   = $user->name;
-        $data->email1 = $user->email;
+        $data->name     = $user->name;
+        $data->username = $user->username;
+        $data->email1   = $user->email;
         foreach ($this->managedFields() as [$field, $group]) {
             if ($group !== null && isset($data->{$group}) && is_array($data->{$group})) {
                 unset($data->{$group}[$field]);
@@ -146,12 +341,13 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
 
     /**
      * Returns:
-     *   ?User: the signed-in account when its profile comes from Keycloak, null otherwise.
+     *   ?User: the signed-in account when its profile comes from Keycloak and the session is not the break-glass one,
+     *   null otherwise.
      */
     private function managedUser(): ?User
     {
         $identity = $this->app === null ? null : $this->app->getIdentity();
-        if ($identity === null || $identity->guest) {
+        if ($identity === null || $identity->guest || $this->breakGlassSession()) {
             return null;
         }
         $user = User::getInstance((int) $identity->id);
@@ -165,10 +361,19 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     private function managedFields(): array
     {
         $fields = self::MANAGED_FIELDS;
-        foreach (array_keys($this->jsonEnv(self::ENV_PROFILE_CLAIMS) + $this->jsonEnv(self::ENV_PROFILE_ADDRESS)) as $key) {
-            $fields[] = [(string) $key, 'profile'];
+        foreach ($this->managedProfileKeys() as $key) {
+            $fields[] = [$key, 'profile'];
         }
         return $fields;
+    }
+
+    /**
+     * Returns:
+     *   string[]: the plg_user_profile keys Keycloak overwrites on every login.
+     */
+    private function managedProfileKeys(): array
+    {
+        return array_map('strval', array_keys($this->jsonEnv(self::ENV_PROFILE_CLAIMS) + $this->jsonEnv(self::ENV_PROFILE_ADDRESS)));
     }
 
     /**
@@ -408,7 +613,8 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         if ($email === '') {
             $email = $username . '@kc.local';
         }
-        $name = trim($given . ' ' . $family) ?: $username;
+        $email = PunycodeHelper::emailToPunycode($email);
+        $name  = trim((string) (new InputFilter())->clean($given . ' ' . $family, 'string')) ?: $username;
 
         $mappedGroups = $this->mapGroupsToJoomla($groups);
         if ($username === $this->requireEnv(self::ENV_BOOTSTRAP_ADMIN) && !in_array(self::JOOMLA_GROUP_SUPER, $mappedGroups, true)) {
@@ -445,7 +651,9 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         );
 
         $session = Factory::getSession();
+        $session->fork();
         $session->set('user', $user);
+        $session->set(self::SSO_SESSION, true);
         $this->app->loadIdentity($user);
         $this->app->checkSession();
 
@@ -469,9 +677,11 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
 
         $session->set('user', $provisioner);
         $this->app->loadIdentity($provisioner);
+        $this->provisioning = true;
         try {
             return $operation();
         } finally {
+            $this->provisioning = false;
             $session->set('user', $previousUser);
             $this->app->loadIdentity($previousIdentity);
         }

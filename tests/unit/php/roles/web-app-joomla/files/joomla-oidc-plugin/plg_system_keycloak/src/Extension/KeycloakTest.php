@@ -39,6 +39,7 @@ namespace {
         private const TRIMMED = [
             'JOOMLA_OIDC_GROUP_MAP',
             'JOOMLA_OIDC_PROFILE_CLAIMS',
+            'JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS',
             'JOOMLA_OIDC_ISSUER_URL',
         ];
 
@@ -171,6 +172,21 @@ namespace {
             self::assertSame(array_fill_keys(['phone', 'website', 'address1', 'city', 'region', 'postal_code', 'country'], ''), $profile);
         }
 
+        public function testNameUsernameEmailAndEveryMappedProfileKeyAreManaged(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_CLAIMS=' . json_encode(self::SCALAR_CLAIMS));
+            putenv('JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS=' . json_encode(self::ADDRESS_FIELDS));
+
+            $fields = $this->call('managedFields');
+
+            foreach ([['name', null], ['username', null], ['email1', null], ['language', 'params'], ['timezone', 'params']] as $core) {
+                self::assertContains($core, $fields);
+            }
+            foreach (array_keys(self::SCALAR_CLAIMS + self::ADDRESS_FIELDS) as $key) {
+                self::assertContains([$key, 'profile'], $fields);
+            }
+        }
+
         public function testTheProfileFormIsLockedAfterEveryOtherListener(): void
         {
             $events = Keycloak::getSubscribedEvents();
@@ -178,6 +194,57 @@ namespace {
             self::assertSame(['onContentPrepareForm', Priority::MIN], $events['onContentPrepareForm']);
             self::assertSame('onAfterRoute', $events['onAfterRoute']);
             self::assertSame('onContentNormaliseRequestData', $events['onContentNormaliseRequestData']);
+            self::assertSame('onUserBeforeSave', $events['onUserBeforeSave']);
+        }
+
+        public function testEveryLocalLoginIsCheckedForAnSsoAccount(): void
+        {
+            self::assertSame('onUserAfterLogin', Keycloak::getSubscribedEvents()['onUserAfterLogin']);
+        }
+
+        public function testAnUnchangedSsoAccountHasNoChangedManagedField(): void
+        {
+            $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1,"editor":"tinymce"}'];
+            $next   = ['params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1,"editor":"none"}', 'profile' => ['phone' => '+49 40 1234', 'aboutme' => 'edited']] + $stored;
+
+            self::assertSame([], Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'aboutme' => 'old'], ['phone', 'website']));
+        }
+
+        public function testEveryManagedColumnAndParamIsReportedWhenItChanges(): void
+        {
+            $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1}'];
+            $next   = ['name' => 'Other', 'username' => 'renamed', 'email' => 'other@example.org', 'params' => '{"language":"de-DE","timezone":"Europe/Berlin"}'];
+
+            self::assertSame(
+                ['name', 'username', 'email', 'params.language', 'params.timezone', 'params.keycloak_managed'],
+                Keycloak::changedManagedFields($stored, $next, [], ['phone'])
+            );
+        }
+
+        public function testAChangedManagedProfileFieldIsReported(): void
+        {
+            $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"keycloak_managed":1}'];
+            $next   = ['profile' => ['phone' => '+49 40 9999', 'city' => 'Hamburg', 'website' => 'https://tampered.example']] + $stored;
+
+            self::assertSame(
+                ['profile.phone', 'profile.website'],
+                Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'city' => 'Hamburg'], ['phone', 'city', 'website'])
+            );
+        }
+
+        public function testASaveWithoutProfileFieldsKeepsTheStoredProfile(): void
+        {
+            $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"keycloak_managed":1}'];
+
+            self::assertSame([], Keycloak::changedManagedFields($stored, $stored, ['phone' => '+49 40 1234'], ['phone', 'city']));
+        }
+
+        public function testOnlyAnAccountCarryingTheMarkerIsManaged(): void
+        {
+            self::assertTrue(Keycloak::isManagedRecord('{"keycloak_managed":1}'));
+            self::assertTrue(Keycloak::isManagedRecord(['keycloak_managed' => '1']));
+            self::assertFalse(Keycloak::isManagedRecord('{"language":"en-GB"}'));
+            self::assertFalse(Keycloak::isManagedRecord(''));
         }
     }
 }

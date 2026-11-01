@@ -7,6 +7,22 @@ sso:
   flavor: oidc
   oidc:
     fallback_enabled: true
+  profile:
+    locked:
+      name: "#jform_name[data-infinito-sso-locked]"
+      username: "#jform_username[data-infinito-sso-locked]"
+      email: "#jform_email1[data-infinito-sso-locked]"
+      language: "#jform_params_language[data-infinito-sso-locked]"
+      timezone: "#jform_params_timezone[data-infinito-sso-locked]"
+      phone: "#jform_profile_phone[data-infinito-sso-locked]"
+      website: "#jform_profile_website[data-infinito-sso-locked]"
+      address: "#jform_profile_address1[data-infinito-sso-locked],#jform_profile_city[data-infinito-sso-locked],#jform_profile_region[data-infinito-sso-locked],#jform_profile_postal_code[data-infinito-sso-locked],#jform_profile_country[data-infinito-sso-locked]"
+    languages: [en]
+# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
 # nocheck: bond-baseline variant 0 is the OIDC-only round and variant 1 the LDAP-only round, so the directory joins the LDAP round only
 ldap:
   bond: 1

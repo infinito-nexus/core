@@ -66,6 +66,13 @@ class TestCoreMessages(unittest.TestCase):
                 title: " Service paused "
                 """,
             )
+            _write(
+                root,
+                "roles/sys-front-inj-javascript/files/profile_lock_i18n.yml",
+                """\
+                locked: " Managed by your central account. "
+                """,
+            )
 
             messages = core_messages(root)
 
@@ -80,6 +87,7 @@ class TestCoreMessages(unittest.TestCase):
                 ("menu:Community:description", "Tools to manage the community"),
                 ("logout:counter", "{done} of {total} services signed out"),
                 ("paused:title", "Service paused"),
+                ("profile_lock:locked", "Managed by your central account."),
             ],
         )
 

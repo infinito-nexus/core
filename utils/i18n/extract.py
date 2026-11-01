@@ -19,6 +19,9 @@ CATEGORIES_FILE = Path("meta") / "categories.yml"
 MENU_FILE = Path("roles") / "web-app-dashboard" / "vars" / "menu_categories.yml"
 LOGOUT_FILE = Path("roles") / "web-app-keycloak" / "files" / "logout_i18n.yml"
 PAUSED_FILE = Path("roles") / "sys-svc-app-control" / "files" / "paused_i18n.yml"
+PROFILE_LOCK_FILE = (
+    Path("roles") / "sys-front-inj-javascript" / "files" / "profile_lock_i18n.yml"
+)
 DOCS_TOOLING = Path("roles") / "web-app-docs" / "files" / "python"
 CATEGORY_FIELDS = ("title", "description")
 
@@ -89,6 +92,15 @@ def paused_context(key: str) -> str:
     return f"paused:{key}"
 
 
+def profile_lock_context(key: str) -> str:
+    """Return the ``msgctxt`` of the SSO profile lock string ``key``.
+
+    Args:
+        key: key in ``profile_lock_i18n.yml``.
+    """
+    return f"profile_lock:{key}"
+
+
 def _load(path: Path):
     return load_yaml_any(path)
 
@@ -153,6 +165,13 @@ def paused_messages(root: Path) -> list[tuple[str, str]]:
     ]
 
 
+def profile_lock_messages(root: Path) -> list[tuple[str, str]]:
+    return [
+        (profile_lock_context(key), _text(text))
+        for key, text in _load(root / PROFILE_LOCK_FILE).items()
+    ]
+
+
 def core_messages(root: Path) -> list[tuple[str, str]]:
     """Return every message of the ``core`` domain.
 
@@ -168,6 +187,7 @@ def core_messages(root: Path) -> list[tuple[str, str]]:
         *menu_messages(root),
         *logout_messages(root),
         *paused_messages(root),
+        *profile_lock_messages(root),
     ]
 
 

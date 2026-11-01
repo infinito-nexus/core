@@ -31,6 +31,7 @@ exports.register = function (shared) {
     browser,
   }) => {
     skipUnlessServiceEnabled("sso");
+    skipUnlessServiceEnabled("javascript");
     test.setTimeout(resolveTimeout(180_000));
     const { env } = shared;
     const website = `${env.wpBaseUrl}/biber-profile-${Date.now()}`;

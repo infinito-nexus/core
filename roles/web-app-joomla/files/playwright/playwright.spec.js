@@ -3,6 +3,7 @@ require("./test-oidc-fallback");
 require("./test-login-methods");
 require("./test-rbac-groups");
 require("./test-profile-sync");
+require("./test-profile-lock");
 require("./test-sso-logout");
 require("./test-ldap-login");
 require("./test-ldap-disabled");

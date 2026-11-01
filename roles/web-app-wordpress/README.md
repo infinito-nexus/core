@@ -35,7 +35,8 @@ This automated Docker Compose deployment streamlines the process by building a c
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
 - **OIDC profile sync:** Every OIDC login overwrites the WordPress first name, last name, display name, email, website and language of the user with the Keycloak claims, so Keycloak stays the source of the profile.
-- **Read-only IdP fields:** On `profile.php` of an OIDC account these fields are read-only, and saving the profile keeps their stored values.
+- **Read-only IdP fields:** On `profile.php` and `user-edit.php` of an OIDC account these fields are read-only with a translated warning as their hover title. Every write through `wp_insert_user` (the profile and user forms, `/wp/v2/users`, XML-RPC `wp.editProfile`, any plugin calling `wp_update_user`) keeps their stored values, except the profile sync of the OIDC login itself. The fields are declared in `services.sso.profile.locked` and rendered by the shared lock renderer of `sys-front-inj-javascript`.
+- **Break-glass editing:** WP-CLI (`wp user update`) is the one path that changes the IdP-managed fields of an OIDC account; the next OIDC login overwrites them again.
 - **OIDC role mapping:** Every OIDC login sets the WordPress role from the user's Keycloak role groups; a user without one is a Subscriber.
 - **Multisite RBAC:** Under Multisite, per-site groups set the role on each site, and the network-administrator group grants super-admin and revokes the super-admin rights it granted. The bootstrap administrator keeps its super-admin rights.
 - **Login methods:** `services.wordpress.login.method` declares `sso`, `native` and `registration` (see [Login Methods](../../docs/contributing/design/iam/login.md)). `sso` enables the `daggerhart-openid-connect-generic` addon. With `sso` on, `native` sets the addon's `login_type`: `auto` (the default, `wp-login.php` redirects to Keycloak) while `native` is off, `button` (form plus Keycloak button) while it is on; without `sso` the WordPress form is the only sign-in. `registration` sets `users_can_register`, or the network option `registration` (`user` or `none`) under Multisite, through WP-CLI in [`tasks/07_manager_ops.yml`](./tasks/07_manager_ops.yml). WordPress core has no second factor and the role no `ldap` service, so neither is declared.
@@ -74,13 +75,14 @@ the unified addon contract. The OIDC and WP-Discourse runtime config lives in ea
 | `infinito-s3-uploads` | `mu_plugin` | enabled with the `seaweedfs` service | none |
 
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
-`test-rbac-roles.js` / `test-multisite-rbac.js`, the profile sync by `test-profile-sync.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
+`test-rbac-roles.js` / `test-multisite-rbac.js`, the profile sync by `test-profile-sync.js`, the profile lock with its warning on `profile.php` and `user-edit.php` and against direct form, REST and XML-RPC writes by `test-profile-lock.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
 
 ## Playwright service dependencies
 
 The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/playwright.spec.js) gates its scenarios on the following shared services. Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
 
 - `oidc`: baseline admin OIDC round-trip, the three Single-Site RBAC scenarios (subscriber/editor/administrator), the Multisite scenarios (bootstrap super-admin kept, network-administrator grant and revoke, per-site Editor on the primary and on a child site only) and the profile sync and read-only scenario.
+- `javascript`: the profile lock scenarios in `test-profile-lock.js` and the read-only scenario in `test-profile-sync.js`, whose lock the shared lock renderer injects.
 - `discourse`: the WP->Discourse post round-trip scenario. Disabling Discourse skips it; front-page reachability and CSP baselines stay active.
 - `seaweedfs`: the media-library upload scenario in `test-seaweedfs.js`, which lists the role's bucket over the S3 API before and after the upload.
 
