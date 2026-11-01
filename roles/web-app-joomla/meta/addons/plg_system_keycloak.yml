@@ -4,7 +4,7 @@ required: false
 mechanism: plugin
 source: built
 # nocheck: unwatched-version  Reason: the plugin is built in this repository from files/joomla-oidc-plugin, so the version is ours and has no upstream
-version: "1.3.0"
+version: "1.4.0"
 bridges:
   - sso
 config:

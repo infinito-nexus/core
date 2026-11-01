@@ -47,6 +47,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     private const ENV_CLAIM_ADDRESS   = 'JOOMLA_OIDC_CLAIM_ADDRESS';
     private const ENV_PROFILE_CLAIMS  = 'JOOMLA_OIDC_PROFILE_CLAIMS';
     private const ENV_PROFILE_ADDRESS = 'JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS';
+    private const ENV_PROFILE_LOCKED  = 'JOOMLA_OIDC_PROFILE_LOCKED';
     private const ENV_BOOTSTRAP_ADMIN = 'JOOMLA_ADMIN_USERNAME';
 
     private const JOOMLA_GROUP_SUPER = 8;
@@ -56,15 +57,16 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
     private const MANAGED_PARAM = 'keycloak_managed';
     private const SSO_SESSION   = 'keycloak.sso_session';
     private const LOCK_MARKER   = 'data-infinito-sso-locked';
-    private const MANAGED_FIELDS = [
-        ['name', null],
-        ['username', null],
-        ['email1', null],
-        ['language', 'params'],
-        ['timezone', 'params'],
+    private const LOCKED_COLUMNS = [
+        'name'     => ['field' => 'name', 'column' => 'name'],
+        'username' => ['field' => 'username', 'column' => 'username'],
+        'email'    => ['field' => 'email1', 'column' => 'email'],
     ];
-    private const MANAGED_COLUMNS = ['name', 'username', 'email'];
-    private const MANAGED_PARAMS  = ['language', 'timezone', self::MANAGED_PARAM];
+    private const LOCKED_PARAMS = [
+        'language' => 'language',
+        'timezone' => 'timezone',
+    ];
+    private const LOCKED_ADDRESS = 'address';
 
     private bool $provisioning = false;
 
@@ -137,7 +139,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         if ($form->getName() !== self::PROFILE_FORM || $this->managedUser() === null) {
             return;
         }
-        foreach ($this->managedFields() as [$field, $group]) {
+        foreach ($this->lockedTargets()['fields'] as [$field, $group]) {
             $form->setFieldAttribute($field, 'readonly', 'true', $group);
             $form->setFieldAttribute($field, self::LOCK_MARKER, 'true', $group);
         }
@@ -147,9 +149,9 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
      * Args:
      *   $event: onUserBeforeSave; `subject` is the stored account, `data` the one about to be stored.
      * Raises:
-     *   RuntimeException: an API request or a site request outside the break-glass session changes a
-     *   Keycloak-managed column, parameter or plg_user_profile field of an SSO account; the provisioning write of the
-     *   callback, the console and the backend pass.
+     *   RuntimeException: an API request or a site request outside the break-glass session changes a column,
+     *   parameter or plg_user_profile field that JOOMLA_OIDC_PROFILE_LOCKED locks, or the keycloak_managed marker, of
+     *   an SSO account; the provisioning write of the callback, the console and the backend pass.
      */
     public function onUserBeforeSave(Event $event): void
     {
@@ -165,7 +167,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
             $stored,
             $next,
             is_array($next['profile'] ?? null) ? self::storedProfile((int) ($stored['id'] ?? 0)) : [],
-            $this->managedProfileKeys()
+            $this->lockedTargets()
         );
         if ($changed !== []) {
             throw new \RuntimeException('plg_system_keycloak: ' . implode(', ', $changed) . ' of an SSO account come from Keycloak');
@@ -201,27 +203,28 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
      *   $stored: the stored account as onUserBeforeSave passes it, params as JSON.
      *   $next: the account about to be stored; `profile` holds the plg_user_profile fields the save writes.
      *   $storedProfile: the stored plg_user_profile fields of the account by key.
-     *   $profileKeys: the plg_user_profile keys Keycloak overwrites.
+     *   $locked: lockTargets() of the locked keys.
      * Returns:
-     *   string[]: the Keycloak-managed columns, parameters and profile fields whose value differs.
+     *   string[]: the locked columns, parameters and profile fields and the keycloak_managed marker whose value
+     *   differs.
      */
-    public static function changedManagedFields(array $stored, array $next, array $storedProfile, array $profileKeys): array
+    public static function changedManagedFields(array $stored, array $next, array $storedProfile, array $locked): array
     {
         $changed = [];
-        foreach (self::MANAGED_COLUMNS as $column) {
+        foreach ($locked['columns'] as $column) {
             if ((string) ($stored[$column] ?? '') !== (string) ($next[$column] ?? '')) {
                 $changed[] = $column;
             }
         }
         $before = self::decodedParams($stored['params'] ?? '');
         $after  = self::decodedParams($next['params'] ?? '');
-        foreach (self::MANAGED_PARAMS as $param) {
+        foreach ([...$locked['params'], self::MANAGED_PARAM] as $param) {
             if ((string) ($before[$param] ?? '') !== (string) ($after[$param] ?? '')) {
                 $changed[] = 'params.' . $param;
             }
         }
         $profile = is_array($next['profile'] ?? null) ? $next['profile'] : [];
-        foreach ($profileKeys as $key) {
+        foreach ($locked['profile'] as $key) {
             if (array_key_exists($key, $profile) && self::text($storedProfile[$key] ?? '') !== self::text($profile[$key])) {
                 $changed[] = self::PROFILE_KEY . $key;
             }
@@ -329,10 +332,11 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         if ($user === null || !is_object($data)) {
             return;
         }
-        $data->name     = $user->name;
-        $data->username = $user->username;
-        $data->email1   = $user->email;
-        foreach ($this->managedFields() as [$field, $group]) {
+        $locked = $this->lockedTargets();
+        foreach ($locked['columns'] as $field => $column) {
+            $data->{$field} = $user->{$column};
+        }
+        foreach ($locked['fields'] as [$field, $group]) {
             if ($group !== null && isset($data->{$group}) && is_array($data->{$group})) {
                 unset($data->{$group}[$field]);
             }
@@ -356,24 +360,73 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
 
     /**
      * Returns:
-     *   array: [field, group] pairs of the profile form that Keycloak overwrites on every login.
+     *   array: lockTargets() of the keys JOOMLA_OIDC_PROFILE_LOCKED lists, resolved against the profile claim maps.
      */
-    private function managedFields(): array
+    private function lockedTargets(): array
     {
-        $fields = self::MANAGED_FIELDS;
-        foreach ($this->managedProfileKeys() as $key) {
-            $fields[] = [$key, 'profile'];
-        }
-        return $fields;
+        return self::lockTargets(
+            $this->lockedKeys(),
+            $this->jsonEnv(self::ENV_PROFILE_CLAIMS),
+            $this->jsonEnv(self::ENV_PROFILE_ADDRESS)
+        );
     }
 
     /**
      * Returns:
-     *   string[]: the plg_user_profile keys Keycloak overwrites on every login.
+     *   string[]: the services.sso.profile.locked keys JOOMLA_OIDC_PROFILE_LOCKED lists; anything but a non-empty
+     *   JSON list of non-empty strings raises.
      */
-    private function managedProfileKeys(): array
+    private function lockedKeys(): array
     {
-        return array_map('strval', array_keys($this->jsonEnv(self::ENV_PROFILE_CLAIMS) + $this->jsonEnv(self::ENV_PROFILE_ADDRESS)));
+        $keys = json_decode($this->requireEnv(self::ENV_PROFILE_LOCKED), true);
+        if (!is_array($keys) || $keys === [] || !array_is_list($keys)) {
+            throw new \RuntimeException('plg_system_keycloak: ' . self::ENV_PROFILE_LOCKED . ' is not a non-empty JSON list');
+        }
+        foreach ($keys as $key) {
+            if (!is_string($key) || $key === '') {
+                throw new \RuntimeException('plg_system_keycloak: ' . self::ENV_PROFILE_LOCKED . ' lists ' . json_encode($key) . ', which names no field');
+            }
+        }
+        return $keys;
+    }
+
+    /**
+     * Args:
+     *   $keys: services.sso.profile.locked keys.
+     *   $scalarClaims: plg_user_profile key => name of a string claim.
+     *   $addressFields: plg_user_profile key => member of the address claim.
+     * Returns:
+     *   array: what the keys lock: `fields` the [field, group] pairs of the profile form, `columns` form field =>
+     *   users column, `params` the user params, `profile` the plg_user_profile keys. `address` locks every key of
+     *   $addressFields; a key outside LOCKED_COLUMNS and LOCKED_PARAMS locks the $scalarClaims key of its own name.
+     * Raises:
+     *   RuntimeException: a key names no column, param or profile field the login syncs.
+     */
+    public static function lockTargets(array $keys, array $scalarClaims, array $addressFields): array
+    {
+        $targets = ['fields' => [], 'columns' => [], 'params' => [], 'profile' => []];
+        foreach ($keys as $key) {
+            if (isset(self::LOCKED_COLUMNS[$key])) {
+                ['field' => $field, 'column' => $column] = self::LOCKED_COLUMNS[$key];
+                $targets['fields'][]        = [$field, null];
+                $targets['columns'][$field] = $column;
+                continue;
+            }
+            if (isset(self::LOCKED_PARAMS[$key])) {
+                $targets['fields'][] = [self::LOCKED_PARAMS[$key], 'params'];
+                $targets['params'][] = self::LOCKED_PARAMS[$key];
+                continue;
+            }
+            $profileKeys = $key === self::LOCKED_ADDRESS ? array_keys($addressFields) : (array_key_exists($key, $scalarClaims) ? [$key] : []);
+            if ($profileKeys === []) {
+                throw new \RuntimeException('plg_system_keycloak: ' . self::ENV_PROFILE_LOCKED . ' names ' . $key . ', a field the login does not sync');
+            }
+            foreach ($profileKeys as $profileKey) {
+                $targets['fields'][]  = [(string) $profileKey, 'profile'];
+                $targets['profile'][] = (string) $profileKey;
+            }
+        }
+        return $targets;
     }
 
     /**

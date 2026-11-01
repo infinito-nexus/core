@@ -48,6 +48,7 @@ Every variable in the table is required; the plugin raises on a missing one inst
 | `JOOMLA_OIDC_CLAIM_ADDRESS`      | Structured address claim, from `OIDC.ATTRIBUTES.ADDRESS`.                                                 |
 | `JOOMLA_OIDC_PROFILE_CLAIMS`     | JSON object of `plg_user_profile` key to string claim (`phone`, `website`).                               |
 | `JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS` | JSON object of `plg_user_profile` key to member of the address claim (`address1`, `city`, `region`, `postal_code`, `country`). |
+| `JOOMLA_OIDC_PROFILE_LOCKED`     | JSON list of the `services.sso.profile.locked` keys, the fields the plugin locks (see below); `templates/env.j2` renders it from that block, not from the addon's `config:`. |
 | `JOOMLA_OIDC_END_SESSION_URL`    | RP-initiated logout endpoint at Keycloak.                                                                 |
 | `JOOMLA_ADMIN_USERNAME`          | Bootstrap administrator; the plugin keeps it in `Super Users` whatever its groups claim says.            |
 
@@ -58,8 +59,24 @@ Every login re-syncs the group memberships, name, email, frontend language and t
 The `locale` claim maps to the installed site language with the same tag, then to the first installed language with the same primary subtag (`de` resolves to `de-DE`), else to the site default.
 The `zoneinfo` claim maps to the time zone when PHP knows it, else to the site default.
 The plugin requests the `phone` and `address` scopes and writes the mapped claims into the `profile` data that the core `plg_user_profile` stores; a claim the ID token does not carry clears its field.
-Every login stores the name through the `string` input filter and the email in its punycode form, the values the com_users profile save produces, marks the account with the `keycloak_managed` user parameter, forks the session and marks it with `keycloak.sso_session`. A local sign-in clears that mark (`onUserAfterLogin`); for a marked account other than the bootstrap administrator (`JOOMLA_ADMIN_USERNAME`) it signs the account out again and sends it to `task=login`, so a marked account holds a site session through Keycloak only. The com_users profile form of a marked account renders name, username, email, frontend language, time zone and every mapped profile field read-only and marks each with `data-infinito-sso-locked` (`onContentPrepareForm`, after every other plugin), and a profile save keeps their stored values (`onContentNormaliseRequestData`); a local session of the bootstrap administrator or of an account holding `core.admin` is break-glass and edits its own profile freely. `onUserBeforeSave` throws when a site request outside the break-glass session or a web services API request changes name, username, email, language, time zone, a mapped `plg_user_profile` field or `keycloak_managed` of a marked account; the callback's own provisioning write, the console and the backend pass. The backend is break-glass only: the callback runs on the site client, so a backend session never carries `keycloak.sso_session` and its user form is not locked. The role's `services.sso.profile.locked` selectors match the marker, so the shared lock renderer adds the warning only to fields the plugin locked.
+Every login stores the name through the `string` input filter and the email in its punycode form, the values the com_users profile save produces, marks the account with the `keycloak_managed` user parameter, forks the session and marks it with `keycloak.sso_session`. A local sign-in clears that mark (`onUserAfterLogin`); for a marked account other than the bootstrap administrator (`JOOMLA_ADMIN_USERNAME`) it signs the account out again and sends it to `task=login`, so a marked account holds a site session through Keycloak only. The com_users profile form of a marked account renders the fields `JOOMLA_OIDC_PROFILE_LOCKED` names read-only and marks each with `data-infinito-sso-locked` (`onContentPrepareForm`, after every other plugin), and a profile save keeps their stored values (`onContentNormaliseRequestData`); a local session of the bootstrap administrator or of an account holding `core.admin` is break-glass and edits its own profile freely. `onUserBeforeSave` throws when a site request outside the break-glass session or a web services API request changes a locked field or `keycloak_managed` of a marked account; the callback's own provisioning write, the console and the backend pass. A field whose key `JOOMLA_OIDC_PROFILE_LOCKED` does not list stays editable; the next login still overwrites it. The backend is break-glass only: the callback runs on the site client, so a backend session never carries `keycloak.sso_session` and its user form is not locked. The role's `services.sso.profile.locked` selectors match the marker, so the shared lock renderer adds the warning only to fields the plugin locked.
 A valid com_users `user.logout` request of a signed-in site user takes the `task=logout` path below.
+
+### Locked fields
+
+`lockTargets()` resolves each key of `JOOMLA_OIDC_PROFILE_LOCKED`:
+
+| Key             | Form field (group)                 | Stored in                                                         |
+|-----------------|------------------------------------|-------------------------------------------------------------------|
+| `name`          | `name`                             | users column `name`                                               |
+| `username`      | `username`                         | users column `username`                                           |
+| `email`         | `email1`                           | users column `email`                                              |
+| `language`      | `language` (`params`)              | user param `language`                                             |
+| `timezone`      | `timezone` (`params`)              | user param `timezone`                                             |
+| `address`       | every key of `JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS` (`profile`) | those `plg_user_profile` keys                |
+| any other key   | the key itself (`profile`)         | the `plg_user_profile` key of that name in `JOOMLA_OIDC_PROFILE_CLAIMS` (`phone`, `website`) |
+
+A key that resolves to none of them, an empty list, or a value that is no JSON list of names makes the plugin raise and name the variable or the key. `keycloak_managed` stays guarded whatever the list holds.
 
 ## Routes the plugin claims
 

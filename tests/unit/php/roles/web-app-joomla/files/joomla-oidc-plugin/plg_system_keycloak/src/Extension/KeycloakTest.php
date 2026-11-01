@@ -40,8 +40,11 @@ namespace {
             'JOOMLA_OIDC_GROUP_MAP',
             'JOOMLA_OIDC_PROFILE_CLAIMS',
             'JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS',
+            'JOOMLA_OIDC_PROFILE_LOCKED',
             'JOOMLA_OIDC_ISSUER_URL',
         ];
+
+        private const LOCKED = ['name', 'username', 'email', 'language', 'timezone', 'phone', 'website', 'address'];
 
         private const SCALAR_CLAIMS = ['phone' => 'phone_number', 'website' => 'website'];
 
@@ -74,6 +77,11 @@ namespace {
             $reflection = new ReflectionMethod(Keycloak::class, $method);
 
             return $reflection->invoke($plugin, ...$arguments);
+        }
+
+        private static function locked(array $keys): array
+        {
+            return Keycloak::lockTargets($keys, self::SCALAR_CLAIMS, self::ADDRESS_FIELDS);
         }
 
         public function testAMissingVariableRaisesAndNamesIt(): void
@@ -172,19 +180,127 @@ namespace {
             self::assertSame(array_fill_keys(['phone', 'website', 'address1', 'city', 'region', 'postal_code', 'country'], ''), $profile);
         }
 
-        public function testNameUsernameEmailAndEveryMappedProfileKeyAreManaged(): void
+        public function testTheConfiguredKeysLockTheColumnsParamsAndEverySyncedProfileField(): void
+        {
+            self::assertSame(
+                [
+                    'fields' => [
+                        ['name', null],
+                        ['username', null],
+                        ['email1', null],
+                        ['language', 'params'],
+                        ['timezone', 'params'],
+                        ['phone', 'profile'],
+                        ['website', 'profile'],
+                        ['address1', 'profile'],
+                        ['city', 'profile'],
+                        ['region', 'profile'],
+                        ['postal_code', 'profile'],
+                        ['country', 'profile'],
+                    ],
+                    'columns' => ['name' => 'name', 'username' => 'username', 'email1' => 'email'],
+                    'params' => ['language', 'timezone'],
+                    'profile' => ['phone', 'website', 'address1', 'city', 'region', 'postal_code', 'country'],
+                ],
+                self::locked(self::LOCKED)
+            );
+        }
+
+        public function testTheLockedKeysAreReadFromTheEnvironment(): void
         {
             putenv('JOOMLA_OIDC_PROFILE_CLAIMS=' . json_encode(self::SCALAR_CLAIMS));
             putenv('JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS=' . json_encode(self::ADDRESS_FIELDS));
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED=' . json_encode(['email', 'website']));
 
-            $fields = $this->call('managedFields');
+            self::assertSame(self::locked(['email', 'website']), $this->call('lockedTargets'));
+        }
 
-            foreach ([['name', null], ['username', null], ['email1', null], ['language', 'params'], ['timezone', 'params']] as $core) {
-                self::assertContains($core, $fields);
+        public function testARemovedKeyUnlocksItsField(): void
+        {
+            $locked = self::locked(array_values(array_diff(self::LOCKED, ['email', 'timezone', 'phone'])));
+
+            self::assertNotContains(['email1', null], $locked['fields']);
+            self::assertNotContains(['timezone', 'params'], $locked['fields']);
+            self::assertNotContains(['phone', 'profile'], $locked['fields']);
+            self::assertArrayNotHasKey('email1', $locked['columns']);
+            self::assertNotContains('timezone', $locked['params']);
+            self::assertNotContains('phone', $locked['profile']);
+        }
+
+        public function testRemovingTheAddressUnlocksEveryAddressField(): void
+        {
+            $locked = self::locked(array_values(array_diff(self::LOCKED, ['address'])));
+
+            self::assertSame(['phone', 'website'], $locked['profile']);
+            foreach (array_keys(self::ADDRESS_FIELDS) as $key) {
+                self::assertNotContains([$key, 'profile'], $locked['fields']);
             }
-            foreach (array_keys(self::SCALAR_CLAIMS + self::ADDRESS_FIELDS) as $key) {
-                self::assertContains([$key, 'profile'], $fields);
-            }
+        }
+
+        public function testAnUnknownKeyRaisesAndNamesIt(): void
+        {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('nickname');
+
+            self::locked(['name', 'nickname']);
+        }
+
+        public function testAProfileKeyTheClaimMapsDoNotSyncRaises(): void
+        {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('website');
+
+            Keycloak::lockTargets(['website'], ['phone' => 'phone_number'], self::ADDRESS_FIELDS);
+        }
+
+        public function testAnEmptyLockedListRaises(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED=[]');
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->call('lockedKeys');
+        }
+
+        public function testALockedObjectInsteadOfAListRaises(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED=' . json_encode(['name' => '#jform_name']));
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->call('lockedKeys');
+        }
+
+        public function testALockedListThatIsNoJsonRaises(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED=name,email');
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->call('lockedKeys');
+        }
+
+        public function testALockedEntryThatIsNoNameRaises(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED=' . json_encode(['name', 3]));
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->call('lockedKeys');
+        }
+
+        public function testAMissingLockedListRaises(): void
+        {
+            putenv('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('JOOMLA_OIDC_PROFILE_LOCKED');
+
+            $this->call('lockedKeys');
         }
 
         public function testTheProfileFormIsLockedAfterEveryOtherListener(): void
@@ -207,7 +323,7 @@ namespace {
             $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1,"editor":"tinymce"}'];
             $next   = ['params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1,"editor":"none"}', 'profile' => ['phone' => '+49 40 1234', 'aboutme' => 'edited']] + $stored;
 
-            self::assertSame([], Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'aboutme' => 'old'], ['phone', 'website']));
+            self::assertSame([], Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'aboutme' => 'old'], self::locked(self::LOCKED)));
         }
 
         public function testEveryManagedColumnAndParamIsReportedWhenItChanges(): void
@@ -217,7 +333,18 @@ namespace {
 
             self::assertSame(
                 ['name', 'username', 'email', 'params.language', 'params.timezone', 'params.keycloak_managed'],
-                Keycloak::changedManagedFields($stored, $next, [], ['phone'])
+                Keycloak::changedManagedFields($stored, $next, [], self::locked(self::LOCKED))
+            );
+        }
+
+        public function testAChangeOfAnUnlockedFieldPassesWhileTheMarkerStaysGuarded(): void
+        {
+            $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"language":"en-GB","timezone":"UTC","keycloak_managed":1}'];
+            $next   = ['name' => 'Other', 'username' => 'renamed', 'email' => 'other@example.org', 'params' => '{"language":"de-DE","timezone":"Europe/Berlin"}', 'profile' => ['phone' => '+49 40 9999']];
+
+            self::assertSame(
+                ['username', 'params.keycloak_managed'],
+                Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234'], self::locked(['username', 'website']))
             );
         }
 
@@ -228,7 +355,7 @@ namespace {
 
             self::assertSame(
                 ['profile.phone', 'profile.website'],
-                Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'city' => 'Hamburg'], ['phone', 'city', 'website'])
+                Keycloak::changedManagedFields($stored, $next, ['phone' => '+49 40 1234', 'city' => 'Hamburg'], self::locked(self::LOCKED))
             );
         }
 
@@ -236,7 +363,7 @@ namespace {
         {
             $stored = ['name' => 'Biber', 'username' => 'biber', 'email' => 'biber@example.org', 'params' => '{"keycloak_managed":1}'];
 
-            self::assertSame([], Keycloak::changedManagedFields($stored, $stored, ['phone' => '+49 40 1234'], ['phone', 'city']));
+            self::assertSame([], Keycloak::changedManagedFields($stored, $stored, ['phone' => '+49 40 1234'], self::locked(self::LOCKED)));
         }
 
         public function testOnlyAnAccountCarryingTheMarkerIsManaged(): void
