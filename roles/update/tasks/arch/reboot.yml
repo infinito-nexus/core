@@ -1,71 +1,57 @@
 ---
-- name: "🛑 update (pacman) | reboot when the running kernel has no modules on disk"
-  when: not (DOCKER_IN_CONTAINER | bool)
-  vars:
-    update_module_trees: "{{ update_module_indexes.files | map(attribute='path') | map('dirname') | map('basename') | sort }}"
-    update_kernel_modules_missing: >-
-      {{ update_proc_modules.stat.exists
-         and update_module_trees | length > 0
-         and ansible_facts['kernel'] not in update_module_trees }}
-    update_mesh_up_in_play: "{{ run_once_svc_net_wireguard is defined }}"
-    update_controller_is_target: >-
-      {{ ansible_connection in ['local', 'ansible.builtin.local']
-         or (update_boot_id.content | b64decode | trim)
-            == (lookup('ansible.builtin.file', '/proc/sys/kernel/random/boot_id', errors='ignore') | trim) }}
+# include-gated: when: not (DOCKER_IN_CONTAINER | bool)
+- name: "🔍 update (pacman) | check the module index of the running kernel"
+  ansible.builtin.include_tasks: arch/module_index.yml
+
+- name: "🔍 update (pacman) | read the boot id that tells host from controller"
+  ansible.builtin.slurp:
+    src: /proc/sys/kernel/random/boot_id
+  register: update_boot_id
+
+- name: "🔁 update (pacman) | reboot into the installed kernel"
+  become: true
+  throttle: 1
+  ansible.builtin.reboot:
+    msg: "Infinito.Nexus update: the running kernel has no modules on disk after the package upgrade"
+    reboot_timeout: "{{ lookup('timeout', 1800) | int }}"
+    test_command: "systemctl is-system-running --wait | grep -qxE 'running|degraded'"
+  register: update_reboot
+  when:
+    - update_kernel_modules_missing | bool
+    - UPDATE_REBOOT_ENABLED | bool
+    - not ansible_check_mode
+    - not (update_mesh_up_in_play | bool)
+    - not (update_controller_is_target | bool)
+
+- name: "🔍 update (pacman) | re-read the kernel and its modules after the reboot"
+  when: update_reboot is changed
   block:
-    - name: "🔍 update (pacman) | check the module index of the running kernel"
-      ansible.builtin.include_tasks: arch/module_index.yml
-
-    - name: "🔍 update (pacman) | read the boot id that tells host from controller"
-      ansible.builtin.slurp:
-        src: /proc/sys/kernel/random/boot_id
-      register: update_boot_id
-
-    - name: "🔁 update (pacman) | reboot into the installed kernel"
-      become: true
-      throttle: 1
-      ansible.builtin.reboot:
-        msg: "Infinito.Nexus update: the running kernel has no modules on disk after the package upgrade"
-        reboot_timeout: "{{ lookup('timeout', 1800) | int }}"
-        test_command: "systemctl is-system-running --wait | grep -qxE 'running|degraded'"
-      register: update_reboot
-      when:
-        - update_kernel_modules_missing | bool
-        - UPDATE_REBOOT_ENABLED | bool
-        - not ansible_check_mode
-        - not (update_mesh_up_in_play | bool)
-        - not (update_controller_is_target | bool)
-
     - name: "🔍 update (pacman) | read the kernel the host booted"
       ansible.builtin.setup:
         gather_subset:
           - "!all"
           - platform
-        filter:
-          - ansible_kernel
-      when: update_reboot is changed
 
     - name: "🔍 update (pacman) | check the module index of the booted kernel"
       ansible.builtin.include_tasks: arch/module_index.yml
-      when: update_reboot is changed
 
-    - name: "🛑 update (pacman) | fail before a service restart needs a lost kernel module"
-      ansible.builtin.assert:
-        that: not (update_kernel_modules_missing | bool)
-        fail_msg: >-
-          Reboot required: the running kernel {{ ansible_facts['kernel'] }} has no module index in
-          /usr/lib/modules; only {{ update_module_trees | join(', ') }} have one.
-          No kernel module can load, so restarting Docker would fail to create its iptables chains
-          and leave every container down. Reboot into the installed kernel, then deploy again.
-          {% if update_reboot is changed -%}
-          The role rebooted the host, and it came back on this kernel: make the bootloader start an installed kernel.
-          {%- elif not (UPDATE_REBOOT_ENABLED | bool) -%}
-          The role does not reboot the host because applications.update.services.update.reboot.enabled is false.
-          {%- elif update_mesh_up_in_play | bool -%}
-          The role does not reboot the host because svc-net-wireguard brought its mesh up with wg-quick in this play, and the mesh does not come back after a reboot.
-          {%- elif update_controller_is_target | bool -%}
-          The role does not reboot the host because it runs this Ansible controller, so the reboot would kill this run.
-          {%- else -%}
-          The role does not reboot the host in check mode.
-          {%- endif %}
-        quiet: true
+- name: "🛑 update (pacman) | fail before a service restart needs a lost kernel module"
+  ansible.builtin.assert:
+    that: not (update_kernel_modules_missing | bool)
+    fail_msg: >-
+      Reboot required: the running kernel {{ ansible_facts['kernel'] }} has no module index in
+      /usr/lib/modules; only {{ update_module_trees | join(', ') }} have one.
+      No kernel module can load, so restarting Docker would fail to create its iptables chains
+      and leave every container down. Reboot into the installed kernel, then deploy again.
+      {% if update_reboot is changed -%}
+      The role rebooted the host, and it came back on this kernel: make the bootloader start an installed kernel.
+      {%- elif not (UPDATE_REBOOT_ENABLED | bool) -%}
+      The role does not reboot the host because applications.update.services.update.reboot.enabled is false.
+      {%- elif update_mesh_up_in_play | bool -%}
+      The role does not reboot the host because svc-net-wireguard brought its mesh up with wg-quick in this play, and the mesh does not come back after a reboot.
+      {%- elif update_controller_is_target | bool -%}
+      The role does not reboot the host because it runs this Ansible controller, so the reboot would kill this run.
+      {%- else -%}
+      The role does not reboot the host in check mode.
+      {%- endif %}
+    quiet: true
