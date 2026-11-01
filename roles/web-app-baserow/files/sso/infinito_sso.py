@@ -231,7 +231,9 @@ def _get_or_create_user(identity):
     )
     user = subject.user if subject else None
     if user is None:
-        if User.objects.filter(Q(email__iexact=email) | Q(username__iexact=email)).exists():
+        if User.objects.filter(
+            Q(email__iexact=email) | Q(username__iexact=email)
+        ).exists():
             raise PermissionDenied(
                 "Your email address belongs to another Baserow account."
             )

@@ -6,24 +6,25 @@
     resolve_output_prefix: WEBLATE
     resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
 
-- name: "🔎 Look up the Keycloak id Weblate links the administrator's SSO login by"
-  ansible.builtin.include_role:
-    name: web-app-keycloak
-    tasks_from: utils/directory_users.yml
-  vars:
-    application_id: web-app-keycloak
-    keycloak_directory_usernames:
-      - "{{ lookup('users', 'platform_administrator').username }}"
+- name: "🔎 Resolve the Keycloak id Weblate links the administrator's SSO login by"
   when: WEBLATE_OIDC_ENABLED | bool
+  block:
+    - name: "🔎 Look up the administrator in the Keycloak directory"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        application_id: web-app-keycloak
+        keycloak_directory_usernames:
+          - "{{ lookup('users', 'platform_administrator').username }}"
 
-- name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
-  ansible.builtin.assert:
-    that:
-      - keycloak_directory_users | length == 1
-    fail_msg: >-
-      Keycloak holds no user '{{ WEBLATE_ADMIN_USERNAME }}', so Weblate could not
-      link the administrator's SSO login to its account.
-  when: WEBLATE_OIDC_ENABLED | bool
+    - name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
+      ansible.builtin.assert:
+        that:
+          - keycloak_directory_users | length == 1
+        fail_msg: >-
+          Keycloak holds no user '{{ WEBLATE_ADMIN_USERNAME }}', so Weblate could not
+          link the administrator's SSO login to its account.
 
 - name: "👤 Let the platform administrator own the superuser Weblate bootstrapped"
   ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell can reach its user table

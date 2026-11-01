@@ -7,14 +7,16 @@ from utils.cache.yaml import load_yaml_str
 
 ROLE = PROJECT_ROOT / "roles/web-app-zammad"
 SETTINGS = ROLE / "files/ruby/apply/oidc_settings.rb"
-TASKS = ROLE / "tasks/01_manager_ops.yml"
+TASKS = ROLE / "tasks/01_manager_ops/oidc.yml"
 PATCH = ROLE / "templates/zz/oidc/group_role_mapping.rb.j2"
 OIDC_TASK = "📌 apply OIDC settings in Zammad (post-bootstrap; idempotent)"
 
 
 def oidc_task() -> dict:
     return next(
-        task for task in load_yaml_str(read_text(str(TASKS))) if task["name"] == OIDC_TASK
+        task
+        for task in load_yaml_str(read_text(str(TASKS)))
+        if task["name"] == OIDC_TASK
     )
 
 
@@ -42,21 +44,27 @@ class TestZammadOidcAccountLinking(unittest.TestCase):
             "the preferred_username Zammad receives as uid; without it create_from_hash! "
             "collides with the administrator's email and the sign-in fails"
         )
-        self.assertIn('User.find_by(login: ENV.fetch("OIDC_ADMIN_LOGIN").downcase)', source)
+        self.assertIn(
+            'User.find_by(login: ENV.fetch("OIDC_ADMIN_LOGIN").downcase)', source
+        )
         self.assertIn(
             'Authorization.find_or_initialize_by(provider: "openid_connect", uid: admin.login)',
             source,
             reason,
         )
         task = oidc_task()
-        self.assertIn("-e OIDC_ADMIN_LOGIN", task["ansible.builtin.shell"]["cmd"], reason)
+        self.assertIn(
+            "-e OIDC_ADMIN_LOGIN", task["ansible.builtin.shell"]["cmd"], reason
+        )
         self.assertEqual(
             task["environment"]["OIDC_ADMIN_LOGIN"],
             "{{ ZAMMAD_ADMINISTRATOR.username }}",
             reason,
         )
         self.assertEqual(
-            task["environment"]["OIDC_UID_FIELD"], "{{ OIDC.ATTRIBUTES.USERNAME }}", reason
+            task["environment"]["OIDC_UID_FIELD"],
+            "{{ OIDC.ATTRIBUTES.USERNAME }}",
+            reason,
         )
 
     def test_directory_accounts_link_by_login_not_by_email(self) -> None:
@@ -72,9 +80,9 @@ class TestZammadOidcAccountLinking(unittest.TestCase):
         self.assertIn(
             "super(hash, user || _zammad_oidc_directory_user(hash))", source, reason
         )
-        helper = source.split("define_method(:_zammad_oidc_directory_user)", 1)[1].split(
-            "define_method(", 1
-        )[0]
+        helper = source.split("define_method(:_zammad_oidc_directory_user)", 1)[
+            1
+        ].split("define_method(", 1)[0]
         self.assertNotIn("email", helper, reason)
 
 

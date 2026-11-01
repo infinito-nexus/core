@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 
 SCRIPT = PROJECT_ROOT / "scripts/image/build.sh"
 
@@ -59,7 +60,7 @@ class TestImageBuildLabels(unittest.TestCase):
                 text=True,
                 check=False,
             )
-            calls = log.read_text().splitlines() if log.exists() else []
+            calls = read_text(str(log)).splitlines() if log.exists() else []
         return done.returncode, calls
 
     def test_every_label_reaches_the_local_build(self):

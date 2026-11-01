@@ -17,7 +17,7 @@
 - name: "🩹 Stage the Gitea source patches into the build context of {{ application_id }}"
   stack_host_copy:
     src: "patch/{{ item }}"
-    dest: "{{ GITEA_PATCH_DIR_HOST_ABS }}/"
+    dest: "{{ [GITEA_PATCH_DIR_HOST_ABS, item | dirname] | path_join }}/"
     mode: "0644"
   loop: "{{ GITEA_PATCH_FILES }}"
   notify:

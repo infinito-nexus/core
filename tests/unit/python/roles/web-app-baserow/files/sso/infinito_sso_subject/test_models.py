@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import unittest
 
-from . import AUTH_USER_MODEL, load
+from tests.utils.django_stubs import load
+
+from . import APP, AUTH_USER_MODEL
 
 
 class TestSsoSubjectModel(unittest.TestCase):
     def setUp(self):
-        self.model = load("models.py").SsoSubject
+        self.model = load(APP, "models.py").SsoSubject
 
     def test_each_account_holds_at_most_one_subject_and_loses_it_with_the_account(
         self,

@@ -14,7 +14,9 @@ def oidc_block_settings() -> dict[str, str]:
     Returns:
         Each assigned setting name mapped to its Ruby expression.
     """
-    block = read_text(str(SETTINGS)).split('if ENV.fetch("DISCOURSE_OIDC_ENABLED") == "true"', 1)[1]
+    block = read_text(str(SETTINGS)).split(
+        'if ENV.fetch("DISCOURSE_OIDC_ENABLED") == "true"', 1
+    )[1]
     return dict(re.findall(r"^\s+SiteSetting\.(\w+) = (.+)$", block, re.MULTILINE))
 
 

@@ -54,7 +54,9 @@ class TestMastodonSsoAccountLinking(unittest.TestCase):
             reason,
         )
         self.assertIn("identity.user = user", script, reason)
-        self.assertEqual(env_values()["OIDC_UID_FIELD"], "{{ OIDC.ATTRIBUTES.USERNAME }}")
+        self.assertEqual(
+            env_values()["OIDC_UID_FIELD"], "{{ OIDC.ATTRIBUTES.USERNAME }}"
+        )
         self.assertRegex(
             read_text(str(ADMIN_TASK)),
             r"MASTODON_ADMIN_SSO_UID=\{\{ \(lookup\('users', 'platform_administrator'\)"

@@ -64,3 +64,7 @@ SSO with auto-account-creation, which collapses the chain to a single
 ## Flaky native administrator login
 
 - `files/playwright/test-native-login-administrator.js:19` failed its first attempt in the B1 compose round of 2026-11-01 on the 60 s wait for `/network` after the sign-in (`files/playwright/_shared.js:90`) and passed on retry (log `/tmp/compose-deploy-iam-15.log:312348`); options: wait for the session cookie and the post-login redirect response instead of the `/network` render, or raise the cause in Friendica's post-login page load first.
+
+## Missing smiley icon upstream
+
+- `files/playwright/test-smiley-icons.js` exempts `/addon/smiley_pack/icons/opensource/vivaldi.png` (`UPSTREAM_MISSING_ICON`), which the `smiley_pack` addon references but does not ship. The fix PR friendica/friendica-addons#1390 on GitHub was closed unmerged on 2026-11-01 because the repository moved to <https://git.friendi.ca/friendica/friendica-addons>. Open the PR again there (it needs an account on git.friendi.ca; the instance offers OpenID 2.0, which Keycloak does not provide), then put an `upstream:` directive with the new PR URL back above `UPSTREAM_MISSING_ICON`.

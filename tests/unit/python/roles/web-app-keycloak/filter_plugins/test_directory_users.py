@@ -64,7 +64,9 @@ class TestDirectoryUsers(unittest.TestCase):
 
     def test_a_user_two_overlapping_pages_both_hold_is_listed_once(self):
         pages = [[user("a", "1"), user("b", "2")], [user("b", "2"), user("c", "3")]]
-        self.assertEqual([entry["id"] for entry in self.filter(pages, [])], ["1", "2", "3"])
+        self.assertEqual(
+            [entry["id"] for entry in self.filter(pages, [])], ["1", "2", "3"]
+        )
 
     def test_a_user_without_an_address_gets_an_empty_email(self):
         entry = self.filter([[user("biber", "9", verified=False)]], [])[0]

@@ -4,10 +4,11 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-peertube"
 ADDON = ROLE / "meta/addons/peertube-plugin-auth-openid-connect.yml"
-VARS = ROLE / "vars/main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 SETTINGS = ROLE / "vars/oidc-settings.yml"
 ENABLE = ROLE / "tasks/oidc/enable.yml"
 
@@ -60,7 +61,9 @@ class TestPeertubeOidcAccountLinking(unittest.TestCase):
             reason,
         )
         install = next(
-            task for task in block["block"] if "plugin:install" in str(task.get("ansible.builtin.shell"))
+            task
+            for task in block["block"]
+            if "plugin:install" in str(task.get("ansible.builtin.shell"))
         )
         self.assertIn(
             "--plugin-version {{ PEERTUBE_OIDC_PLUGIN_VERSION | quote }}",

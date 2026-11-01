@@ -98,7 +98,7 @@
       vars:
         keycloak_directory_usernames: []
 
-    - name: "🔗 Store the SSO subject of every account whose verified email matches its Keycloak user"
+    - name: "🔗 Store the SSO subject of each account matching a verified Keycloak email"
       ansible.builtin.command:
         argv:
           - container

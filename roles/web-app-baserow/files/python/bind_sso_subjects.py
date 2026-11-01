@@ -31,7 +31,9 @@ def plan(directory, accounts, subjects, admin_username, admin_email):
     by_email = {str(account["email"]).lower(): account for account in accounts}
     bound_users = set(subjects.values())
     bind, skipped = [], []
-    entries = [{"username": admin_username, "email": admin_email, "emailVerified": True}]
+    entries = [
+        {"username": admin_username, "email": admin_email, "emailVerified": True}
+    ]
     entries += [entry for entry in directory if entry["username"] != admin_username]
     for entry in entries:
         username = entry["username"]

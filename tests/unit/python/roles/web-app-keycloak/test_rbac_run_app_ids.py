@@ -6,11 +6,11 @@ from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_RBAC, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-keycloak"
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
-RBAC = load_yaml_any(str(ROLE / "meta/rbac.yml"))
+RBAC = load_yaml_any(str(ROLE / ROLE_FILE_META_RBAC))
 
 
 def _filter_module(name):

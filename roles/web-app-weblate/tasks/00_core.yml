@@ -7,7 +7,7 @@
   vars:
     compose_handlers_flush: false
 
-- name: "📋 Stage the settings override that keeps Weblate from linking SSO logins by e-mail"
+- name: "📋 Stage the override that stops Weblate linking SSO logins by e-mail"
   stack_host_copy:
     src: python/settings_override.py
     dest: "{{ WEBLATE_SETTINGS_OVERRIDE_FILE }}"

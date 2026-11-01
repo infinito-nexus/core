@@ -522,9 +522,7 @@ class TestGetOrCreateUser(unittest.TestCase):
     def test_resolves_the_account_by_its_sso_subject_never_by_email(self):
         _wire_orm(self.mod, existing=_fake_user())
         self.mod._get_or_create_user(dict(IDENTITY))
-        _subject_lookup(self.mod).assert_called_once_with(
-            username=IDENTITY["username"]
-        )
+        _subject_lookup(self.mod).assert_called_once_with(username=IDENTITY["username"])
         self.mod.User.objects.filter.assert_not_called()
 
     def test_refuses_an_unbound_login_whose_email_belongs_to_an_account(self):

@@ -45,6 +45,12 @@
     apply:
       run_once: true
 
+- name: "🔗 Bind the existing n8n accounts to their Keycloak subject"
+  include_tasks: 02_sso.yml
+  when:
+    - N8N_SSO_ENABLED | bool
+    - IS_STACK_HOST | bool
+
 - name: "🤖 Bind the native AI surface to the platform gateway"
   include_tasks:
     file: utils/ai_gateway.yml

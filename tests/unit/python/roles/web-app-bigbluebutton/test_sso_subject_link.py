@@ -12,7 +12,9 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-bigbluebutton"
 
 
 def sso_block(env):
-    match = re.search(r"\{% if BBB_LOGIN_SSO \| bool %\}(.*?)\{% endif %\}", env, re.S)
+    match = re.search(
+        r"\{% if BBB_LOGIN_SSO \| bool %\}(.*?)\{% endif %\}", env, re.DOTALL
+    )
     return match.group(1)
 
 
@@ -20,7 +22,9 @@ class GreenlightSubjectLinkTests(unittest.TestCase):
     def setUp(self):
         self.env = read_text(str(ROLE / "templates" / "env.j2"))
         self.tasks = load_yaml_any(str(ROLE / "tasks" / "02_administrator.yml"))
-        self.ruby = read_text(str(ROLE / "files" / "ruby" / "greenlight" / "ensure_admin.rb"))
+        self.ruby = read_text(
+            str(ROLE / "files" / "ruby" / "greenlight" / "ensure_admin.rb")
+        )
 
     def test_the_email_fallback_is_off(self):
         self.assertIn("USE_EMAIL_AS_EXTERNAL_ID_FALLBACK=false\n", sso_block(self.env))
@@ -30,22 +34,29 @@ class GreenlightSubjectLinkTests(unittest.TestCase):
         self.assertIn("OPENID_CONNECT_UID_FIELD=sub\n", sso_block(self.env))
 
     def test_the_admin_subject_comes_from_the_keycloak_directory_helper(self):
-        lookup = next(task for task in self.tasks if "ansible.builtin.include_role" in task)
+        gate = next(task for task in self.tasks if "block" in task)
+        self.assertEqual(gate["when"], "BBB_LOGIN_SSO | bool")
+        lookup = next(
+            task for task in gate["block"] if "ansible.builtin.include_role" in task
+        )
         self.assertEqual(
             lookup["ansible.builtin.include_role"],
             {"name": "web-app-keycloak", "tasks_from": "utils/directory_users.yml"},
         )
         self.assertEqual(lookup["vars"]["application_id"], "web-app-keycloak")
-        self.assertEqual(lookup["when"], "BBB_LOGIN_SSO | bool")
 
     def test_the_lookup_precedes_the_admin_provisioning(self):
         names = [task["name"] for task in self.tasks]
-        lookup = next(i for i, task in enumerate(self.tasks) if "ansible.builtin.include_role" in task)
+        lookup = next(i for i, task in enumerate(self.tasks) if "block" in task)
         ensure = names.index("✅ Ensure Greenlight admin (verified, idempotent)")
         self.assertLess(lookup, ensure)
 
     def test_the_admin_provisioning_receives_the_subject_only_with_sso(self):
-        ensure = next(task for task in self.tasks if task["name"].startswith("✅ Ensure Greenlight admin"))
+        ensure = next(
+            task
+            for task in self.tasks
+            if task["name"].startswith("✅ Ensure Greenlight admin")
+        )
         argv = ensure["ansible.builtin.command"]["argv"]
         self.assertEqual(argv[argv.index("NEW_EXTERNAL_ID") - 1], "-e")
         self.assertEqual(

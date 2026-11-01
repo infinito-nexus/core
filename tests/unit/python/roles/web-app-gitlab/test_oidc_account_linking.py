@@ -5,12 +5,13 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-gitlab"
 CONFIG = ROLE / "templates/config/gitlab.yml.j2"
 SCRIPT = ROLE / "files/ruby/ensure_platform_admin.rb"
 TASK = ROLE / "tasks/utils/platform_admin.yml"
-VARS = ROLE / "vars/main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 
 
 class TestGitlabOidcAccountLinking(unittest.TestCase):

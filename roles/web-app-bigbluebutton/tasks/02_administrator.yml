@@ -13,24 +13,25 @@
   delay: 5
   changed_when: false
 
-- name: "🔎 Look up the Keycloak id Greenlight links the administrator's SSO login by"
-  ansible.builtin.include_role:
-    name: web-app-keycloak
-    tasks_from: utils/directory_users.yml
-  vars:
-    application_id: web-app-keycloak
-    keycloak_directory_usernames:
-      - "{{ lookup('users', 'platform_administrator').username }}"
+- name: "🔎 Resolve the Keycloak id Greenlight links the administrator's SSO login by"
   when: BBB_LOGIN_SSO | bool
+  block:
+    - name: "🔎 Look up the administrator in the Keycloak directory"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        application_id: web-app-keycloak
+        keycloak_directory_usernames:
+          - "{{ lookup('users', 'platform_administrator').username }}"
 
-- name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
-  ansible.builtin.assert:
-    that:
-      - keycloak_directory_users | length == 1
-    fail_msg: >-
-      Keycloak holds no user '{{ lookup('users', 'platform_administrator').username }}',
-      so Greenlight could not link the administrator's SSO login to its account.
-  when: BBB_LOGIN_SSO | bool
+    - name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
+      ansible.builtin.assert:
+        that:
+          - keycloak_directory_users | length == 1
+        fail_msg: >-
+          Keycloak holds no user '{{ lookup('users', 'platform_administrator').username }}',
+          so Greenlight could not link the administrator's SSO login to its account.
 
 - name: "✅ Ensure Greenlight admin (verified, idempotent)"
   ansible.builtin.command:

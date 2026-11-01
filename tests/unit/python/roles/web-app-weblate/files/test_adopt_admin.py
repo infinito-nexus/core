@@ -8,7 +8,9 @@ from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
-SCRIPT = PROJECT_ROOT / "roles" / "web-app-weblate" / "files" / "python" / "adopt_admin.py"
+SCRIPT = (
+    PROJECT_ROOT / "roles" / "web-app-weblate" / "files" / "python" / "adopt_admin.py"
+)
 SUBJECT = "6f1c2a9e-0000-4000-8000-00000000abcd"
 
 
@@ -63,7 +65,9 @@ class FakeWeblate:
         class UserManager:
             @staticmethod
             def filter(username):
-                return FakeRows([user for user in backend.users if user.username == username])
+                return FakeRows(
+                    [user for user in backend.users if user.username == username]
+                )
 
             @staticmethod
             def get(username):
@@ -73,7 +77,11 @@ class FakeWeblate:
             @staticmethod
             def filter(provider, uid):
                 return FakeRows(
-                    [link for link in backend.links if (link.provider, link.uid) == (provider, uid)]
+                    [
+                        link
+                        for link in backend.links
+                        if (link.provider, link.uid) == (provider, uid)
+                    ]
                 )
 
             @staticmethod
@@ -85,7 +93,9 @@ class FakeWeblate:
             "weblate.auth": {},
             "weblate.auth.models": {"User": types.SimpleNamespace(objects=UserManager)},
             "social_django": {},
-            "social_django.models": {"UserSocialAuth": types.SimpleNamespace(objects=LinkManager)},
+            "social_django.models": {
+                "UserSocialAuth": types.SimpleNamespace(objects=LinkManager)
+            },
         }
         out = {}
         for name, attrs in entries.items():

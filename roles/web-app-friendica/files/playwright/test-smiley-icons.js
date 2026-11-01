@@ -3,7 +3,6 @@ const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
 const MATOMO_TRACKER_PATH = /\/matomo\.php$/;
-// upstream: https://github.com/friendica/friendica-addons/pull/1390
 const UPSTREAM_MISSING_ICON = "/addon/smiley_pack/icons/opensource/vivaldi.png";
 
 function isTrackedRequest(request) {
