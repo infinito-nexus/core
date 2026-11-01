@@ -51,6 +51,35 @@ synthesised app-password.
 | `HANDOFF_COOKIE_MAX_AGE`          | Cookie lifetime in seconds (default `3300`, roughly 55 minutes).          |
 | `INSECURE_TLS`                    | If `true`, skip TLS verification on outbound calls (for local CA).        |
 
+## Handle form
+
+`GET` on any path for a user without a usable derived handle renders the
+form. It prefills the first label `suggestLabel` (`handle.js`) builds from
+the username, then from the local part of the e-mail address, with middle
+words cut to their initial (`kevin.veen.birkenbach` becomes
+`kevin-v-birkenbach`), and previews the full handle
+`@<label>.<PDS_HANDLE_DOMAIN>` while the user types. The input carries
+`minlength`, `maxlength` and `CHOSEN_LABEL_PATTERN`, which accept exactly
+what `chosenLabelError` accepts. The page takes its colours, font and dark
+mode from the `--design-*` variables the front proxy injects.
+
+Every rendering carries a hidden `token`: the issue time and an HMAC-SHA256
+over the Keycloak username and that time, keyed from
+`BLUESKY_BRIDGE_ENCRYPTION_KEY`, valid for one hour. `POST /sso/handle`
+answers:
+
+- **403 text** when `Origin` names a host other than `X-Forwarded-Host`
+  (or `Host`). `Origin: null` and a missing `Origin` pass this step.
+- **403 form** with a fresh token when the token is missing, belongs to
+  another username, does not verify or has expired.
+- **400 form** when `chosenLabelError` rejects the label, **409 form** when
+  the PDS reports the handle as taken.
+
+The page sets the referrer policy `same-origin` through its `meta` tag; the
+browser then sends the page's own origin as `Origin` with the `POST`.
+
+User-facing texts live in `messages.js`, keyed, with `{placeholder}` tokens.
+
 ## Forwarded identity
 
 The upstream `oauth2-proxy` MUST set `X-Forwarded-User` (or

@@ -94,8 +94,8 @@ coturn:
 # nocheck: playwright-service-flag — infrastructural sub-component (collaborative editing)
 collabora:
   bond: 1
-  shared: "{{ 'web-svc-collabora' in group_names }}"
-  enabled: "{{ 'web-svc-collabora' in group_names }}"
+  shared: "{{ OFFICE_SUITE == 'collabora' }}"
+  enabled: "{{ OFFICE_SUITE == 'collabora' }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1

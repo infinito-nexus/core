@@ -4,11 +4,13 @@ const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const {
+  CHOSEN_LABEL_PATTERN,
   PDS_HANDLE_LABEL_MAX,
   chosenLabelError,
   deriveLabel,
   fitsPds,
   prefixedLabel,
+  suggestLabel,
 } = require(path.join(PROJECT_ROOT, "roles/web-app-bluesky/files/login-broker/handle.js"));
 
 test("a username becomes its label without any prefix", () => {
@@ -38,4 +40,23 @@ test("a chosen handle must carry a hyphen and never i8-", () => {
   assert.match(chosenLabelError("kevin-"), /start or end/);
   assert.match(chosenLabelError("Kevin-Veen"), /lowercase/);
   assert.match(chosenLabelError("kevin-veen-birkenbach"), /characters/);
+});
+
+test("the browser pattern accepts exactly what chosenLabelError accepts", () => {
+  const browser = new RegExp(`^(?:${CHOSEN_LABEL_PATTERN})$`, "v");
+  const samples = [
+    "kevin-veen", "a-b", "a--b", "9-9", "kevin-v-birkenbach", "kevinveen", "i8-kevin", "kevin-i8-veen",
+    "ki8-x", "-kevin", "kevin-", "-", "Kevin-Veen", "kevin_veen", "kevin.veen", "kevin veen",
+  ];
+  for (const sample of samples) {
+    assert.equal(browser.test(sample), chosenLabelError(sample) === null, sample);
+  }
+});
+
+test("the suggested handle passes the form and keeps the name readable", () => {
+  assert.equal(suggestLabel("kevin.veen.birkenbach", "kvb"), "kevin-v-birkenbach");
+  assert.equal(suggestLabel("kevinveenbirkenbach", "kevin.veen"), "kevin-veen");
+  assert.equal(suggestLabel("christopherson-mcallisterfield", "x"), "christopherson-mca");
+  assert.equal(suggestLabel("kevinveenbirkenbach", "kevin"), "");
+  assert.equal(chosenLabelError(suggestLabel("maria.de.los.angeles.longname", "")), null);
 });

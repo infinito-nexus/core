@@ -289,13 +289,13 @@ whiteboard:
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:
   bond: 0.5
-  enabled: "{{ 'web-svc-onlyoffice' in group_names }}"
-  shared: "{{ 'web-svc-onlyoffice' in group_names }}"
+  enabled: "{{ OFFICE_SUITE == 'onlyoffice' }}"
+  shared: "{{ OFFICE_SUITE == 'onlyoffice' }}"
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 collabora:
   bond: 1
-  enabled: "{{ 'web-svc-collabora' in group_names }}"
-  shared: "{{ 'web-svc-collabora' in group_names }}"
+  enabled: "{{ OFFICE_SUITE == 'collabora' }}"
+  shared: "{{ OFFICE_SUITE == 'collabora' }}"
 # nocheck: playwright-service-flag: bridged web-conferencing partner, covered by partner role spec
 bigbluebutton:
   bond: 0.5
