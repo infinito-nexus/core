@@ -11,6 +11,8 @@ routines:
   - design
 ---
 
+# Designer
+
 Follow the instructions from AGENTS.md, then follow the `design` routine exactly (run `python -m agents.routines show design` to print its ordered steps). That routine is the source of truth; this skill only routes you there.
 
 Take the role from the operator's message when one is named. Otherwise run `make design-queue` and take the first due role: new roles first (newest first), then roles whose image version moved since their last design pass (largest gap first) or whose shared design base changed, ties broken by the most recently changed role.

@@ -1,9 +1,11 @@
 """Filter that names the headers an oauth2-proxy gate forwards for ID token claims.
 
-{{ OIDC.ATTRIBUTES | oauth2_claim_headers(['NAME']) }}
--> [{"key": "NAME", "claim": "name", "request": "X-Forwarded-Name",
-     "response": "X-Auth-Request-Name",
-     "variable": "upstream_http_x_auth_request_name"}]
+Example::
+
+    {{ OIDC.ATTRIBUTES | oauth2_claim_headers(['NAME']) }}
+    -> [{"key": "NAME", "claim": "name", "request": "X-Forwarded-Name",
+         "response": "X-Auth-Request-Name",
+         "variable": "upstream_http_x_auth_request_name"}]
 """
 
 from __future__ import annotations
