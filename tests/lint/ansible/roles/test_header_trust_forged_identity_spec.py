@@ -43,7 +43,9 @@ NOT_HEADER_TRUST: dict[str, str] = {
     ),
 }
 
-_REQUIRES_SPEC = re.compile(r"""require\(\s*['"]\./test-forged-identity(?:\.js)?['"]\s*\)""")
+_REQUIRES_SPEC = re.compile(
+    r"""require\(\s*['"]\./test-forged-identity(?:\.js)?['"]\s*\)"""
+)
 _DRIVES_PROBE = re.compile(r"\bprobeForgedIdentity\s*\(")
 
 
@@ -59,13 +61,17 @@ def unwired_roles() -> list[str]:
         if not suite.is_file():
             reason = f"has no {ROLE_FILE_PLAYWRIGHT_SPEC}"
         elif not _REQUIRES_SPEC.search(read_text(str(suite))):
-            reason = f"{ROLE_FILE_PLAYWRIGHT_SPEC} does not require ./test-forged-identity"
+            reason = (
+                f"{ROLE_FILE_PLAYWRIGHT_SPEC} does not require ./test-forged-identity"
+            )
         elif not spec.is_file():
             reason = f"has no files/playwright/{SPEC_NAME}"
         elif not _DRIVES_PROBE.search(read_text(str(spec))):
             reason = f"{SPEC_NAME} never calls probeForgedIdentity"
         if reason:
-            findings.append(f"{role}: {reason} (trusts a header in {', '.join(evidence)})")
+            findings.append(
+                f"{role}: {reason} (trusts a header in {', '.join(evidence)})"
+            )
     return findings
 
 
@@ -89,7 +95,9 @@ class TestHeaderTrustForgedIdentitySpec(unittest.TestCase):
 
     def test_every_exemption_is_still_detected(self) -> None:
         stale = sorted(set(NOT_HEADER_TRUST) - set(header_trust_roles(ROLES_DIR)))
-        self.assertEqual([], stale, "exemptions for roles the detection no longer finds")
+        self.assertEqual(
+            [], stale, "exemptions for roles the detection no longer finds"
+        )
 
     def test_the_helper_forges_every_trusted_header(self) -> None:
         content = read_text(str(HELPER))

@@ -140,7 +140,9 @@ class TestProxyLocationStrips(unittest.TestCase):
         self.assertIn("roles/sys-svc-proxy/templates/location/html.conf.j2", scanned)
         self.assertTrue(
             _renders_into_front_proxy(
-                read_text(str(PROJECT_ROOT / "roles/web-app-n8n/templates/proxy.conf.j2"))
+                read_text(
+                    str(PROJECT_ROOT / "roles/web-app-n8n/templates/proxy.conf.j2")
+                )
             )
         )
 
