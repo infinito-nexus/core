@@ -1,15 +1,10 @@
-"""Download the vulnerability databases into one shared directory.
-
-The CI ``vulnerability-db`` job fills the Actions cache with it, and a local
-deploy refreshes the host directory every stack mounts read-only, so no
-stack and no node downloads a database itself.
-"""
+"""Download the vulnerability databases into one shared directory."""
 
 from __future__ import annotations
 
 import fcntl
+import os
 import shutil
-import tempfile
 import time
 import urllib.parse
 import urllib.request
@@ -25,7 +20,7 @@ if TYPE_CHECKING:
 OSV_BUCKET = "https://osv-vulnerabilities.storage.googleapis.com"
 DOWNLOAD_TIMEOUT_SECONDS = 600
 MAX_AGE_SECONDS = 24 * 3600
-LOCK_FILE = Path(tempfile.gettempdir()) / "infinito-vulnerability-db.lock"
+LOCK_NAME = ".lock"
 
 
 def osv_url(ecosystem: str) -> str:
@@ -104,6 +99,25 @@ def stale(p: ModuleType, root: Path, engine: str, now: float) -> bool:
     )
 
 
+def hand_over(root: Path, paths: Sequence[Path]) -> None:
+    """Give *paths* and everything below them to the owner of *root*.
+
+    Args:
+        root: the shared database directory.
+        paths: what this process may have written below *root*; a path it
+            did not create is skipped.
+    """
+    if os.geteuid() != 0:
+        return
+    owner = root.stat()
+    for path in (path for path in paths if path.exists()):
+        os.chown(path, owner.st_uid, owner.st_gid)
+        tree = os.walk(path)  # nocheck: project-walk - not the repository
+        for directory, dirs, files in tree:
+            for name in (*dirs, *files):
+                os.chown(Path(directory) / name, owner.st_uid, owner.st_gid)
+
+
 def refresh(
     root: Path,
     engines: Sequence[str],
@@ -112,14 +126,15 @@ def refresh(
 ) -> list[str]:
     """Download every database of *engines* that is missing or stale.
 
-    The host-wide lock keeps two deploys from writing the shared directory
-    at once.
-
     Returns:
         The error lines of the downloads that failed.
     """
     p = pipeline()
-    with LOCK_FILE.open("w") as lock:
+    root.mkdir(parents=True, exist_ok=True)
+    lock_path = root / LOCK_NAME
+    with lock_path.open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         outdated = [engine for engine in engines if stale(p, root, engine, time.time())]
-        return fetch_databases(p, root, outdated, runner, fetch) if outdated else []
+        errors = fetch_databases(p, root, outdated, runner, fetch) if outdated else []
+        hand_over(root, [lock_path, *(root / engine for engine in outdated)])
+        return errors

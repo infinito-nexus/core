@@ -19,10 +19,6 @@ INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
 def prepare_vulnerability_db(path: Path) -> None:
     """Create the shared vulnerability database directory as the calling user.
 
-    Docker would create a missing bind source as root, and a deploy could then
-    not refresh the databases in it. A directory this user may not create is
-    left to Docker: only a deploy writes it, and that deploy fails loudly.
-
     Args:
         path: ``INFINITO_VULNERABILITY_DB_HOST_PATH``.
     """
@@ -190,7 +186,13 @@ class Compose:
         )
 
     def _prepare_vulnerability_db(self, env: dict[str, str]) -> None:
-        prepare_vulnerability_db(Path(env["INFINITO_VULNERABILITY_DB_HOST_PATH"]))
+        path = env.get("INFINITO_VULNERABILITY_DB_HOST_PATH")
+        if not path:
+            raise SystemExit(
+                "INFINITO_VULNERABILITY_DB_HOST_PATH is not set; "
+                "run 'make dotenv' to generate the .env single source of truth"
+            )
+        prepare_vulnerability_db(Path(path))
 
     def up(self, *, run_entry_init: bool = True) -> None:
         print(">>> Rendering CoreDNS Corefile from template")

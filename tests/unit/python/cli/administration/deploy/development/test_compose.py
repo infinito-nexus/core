@@ -331,6 +331,11 @@ class TestPrepareVulnerabilityDb(unittest.TestCase):
             )
         prepare.assert_called_once_with(Path("/srv/db"))
 
+    def test_a_stale_dotenv_fails_with_the_regeneration_hint(self) -> None:
+        compose = Compose(repo_root=Path("/tmp/infinito-nexus"), distro="arch")
+        with self.assertRaisesRegex(SystemExit, "make dotenv"):
+            compose._prepare_vulnerability_db({})
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

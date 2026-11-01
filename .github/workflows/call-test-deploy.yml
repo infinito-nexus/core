@@ -337,7 +337,6 @@ jobs:
       INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_PICK: ${{ matrix.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_ENFORCED: ${{ matrix.enforce_filesystem }}
-      INFINITO_VULNERABILITY_ENGINE: ${{ matrix.engine }}
       RESCHED_TIMEOUT: "120"
       SCRIPTS: scripts/tests/deploy/swarm/routine
 
@@ -377,6 +376,18 @@ jobs:
           path: build/vulnerability-db/${{ matrix.engine }}
           key: vulnerability-db-${{ matrix.engine }}-${{ needs.vulnerability-db.outputs.day }}
           fail-on-cache-miss: true
+
+      - name: "🔬 Pin the deploy to the restored databases"
+        if: ${{ !env.ACT }}
+        shell: bash
+        env:
+          ENGINE: ${{ matrix.engine }}
+        run: |
+          set -euo pipefail
+          {
+            echo "INFINITO_VULNERABILITY_ENGINE=${ENGINE}"
+            echo "INFINITO_VULNERABILITY_DB_HOST_PATH=${GITHUB_WORKSPACE}/build/vulnerability-db"
+          } >> "${GITHUB_ENV}"
 
       - name: 💾 Enlarge swap space
         if: ${{ !env.ACT }}
@@ -438,7 +449,6 @@ jobs:
           disable: ${{ format('{0} {1}', matrix.disable, inputs.disable) }}
           INFINITO_SWARM_VPN: ${{ matrix.vpn }}
           INFINITO_SWARM_MESHES: ${{ inputs.meshes }}
-          INFINITO_VULNERABILITY_DB_HOST_PATH: ${{ github.workspace }}/build/vulnerability-db
         run: ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚀 Deploy app
@@ -450,7 +460,6 @@ jobs:
           variant: ${{ matrix.variant }}
           disable: ${{ format('{0} {1}', matrix.disable, inputs.disable) }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
-          INFINITO_VULNERABILITY_DB_HOST_PATH: ${{ github.workspace }}/build/vulnerability-db
         run: ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚫 Fail on deprecation warnings

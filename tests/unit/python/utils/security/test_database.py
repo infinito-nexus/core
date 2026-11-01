@@ -96,28 +96,78 @@ class TestStale(_Root):
 
 
 class TestRefresh(_Root):
+    def _refresh(self, engines, fetched=()):
+        with mock.patch.object(
+            database, "fetch_databases", return_value=list(fetched)
+        ) as fetch:
+            errors = database.refresh(
+                self.root, engines, lambda argv: None, lambda u, d: None
+            )
+        return errors, fetch
+
     def test_only_stale_engines_are_downloaded(self):
         _touch(self.root / "grype" / "6" / "vulnerability.db", 60)
-        with (
-            mock.patch.object(database, "LOCK_FILE", self.root / "lock"),
-            mock.patch.object(database, "fetch_databases", return_value=[]) as fetch,
-        ):
-            database.refresh(
-                self.root, ["trivy", "grype"], lambda argv: None, lambda u, d: None
-            )
+        _errors, fetch = self._refresh(["trivy", "grype"])
         self.assertEqual(fetch.call_args.args[2], ["trivy"])
 
     def test_fresh_databases_download_nothing(self):
         _touch(self.root / "grype" / "6" / "vulnerability.db", 60)
-        with (
-            mock.patch.object(database, "LOCK_FILE", self.root / "lock"),
-            mock.patch.object(database, "fetch_databases") as fetch,
-        ):
-            errors = database.refresh(
-                self.root, ["grype"], lambda argv: None, lambda u, d: None
-            )
+        errors, fetch = self._refresh(["grype"])
         self.assertEqual(errors, [])
         fetch.assert_not_called()
+
+    def test_the_lock_lives_in_the_shared_directory(self):
+        self._refresh(["grype"])
+        self.assertTrue((self.root / database.LOCK_NAME).is_file())
+
+    def test_a_missing_shared_directory_is_created(self):
+        self.root = self.root / "vulnerability-db"
+        self._refresh(["grype"])
+        self.assertTrue(self.root.is_dir())
+
+    def test_a_failed_download_is_returned(self):
+        errors, _fetch = self._refresh(["grype"], ["grype database: exited 1"])
+        self.assertEqual(errors, ["grype database: exited 1"])
+
+
+class TestHandOver(_Root):
+    def _hand_over(self, euid):
+        _touch(self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", 60)
+        owner = self.root.stat()
+        with (
+            mock.patch.object(database.os, "geteuid", return_value=euid),
+            mock.patch.object(database.os, "chown") as chown,
+        ):
+            database.hand_over(self.root, [self.root / "osv"])
+        return chown, (owner.st_uid, owner.st_gid)
+
+    def test_a_root_refresh_gives_every_file_to_the_directory_owner(self):
+        chown, owner = self._hand_over(0)
+        self.assertEqual(
+            {(Path(call.args[0]), call.args[1:]) for call in chown.call_args_list},
+            {
+                (self.root / "osv", owner),
+                (self.root / "osv" / "osv-scalibr", owner),
+                (self.root / "osv" / "osv-scalibr" / "Ubuntu", owner),
+                (self.root / "osv" / "osv-scalibr" / "Ubuntu" / "all.zip", owner),
+            },
+        )
+
+    def test_an_unprivileged_refresh_changes_no_owner(self):
+        chown, _owner = self._hand_over(1000)
+        chown.assert_not_called()
+
+    def test_a_root_refresh_that_wrote_no_database_hands_over_the_lock(self):
+        with (
+            mock.patch.object(database.os, "geteuid", return_value=0),
+            mock.patch.object(database.os, "chown") as chown,
+            mock.patch.object(database, "fetch_databases", return_value=[]),
+        ):
+            database.refresh(self.root, ["grype"], lambda argv: None, lambda u, d: None)
+        self.assertEqual(
+            [Path(call.args[0]) for call in chown.call_args_list],
+            [self.root / database.LOCK_NAME],
+        )
 
 
 if __name__ == "__main__":
