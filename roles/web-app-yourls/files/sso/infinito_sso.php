@@ -15,10 +15,12 @@
  * yourls_load_plugins()), so the bridge needs no DB-backed plugin activation.
  *
  * Security: the identity header is trusted only on the gated admin path, where
- * oauth2-proxy authenticates the request and nginx overwrites the header. The
- * application port is bound to the internal container network. The bridge
- * activates only when PROXY_HEADER_SSO is truthy (wired by the role's env
- * template behind the oauth2 SSO flavor).
+ * oauth2-proxy authenticates the request and nginx overwrites the header.
+ * Anything that reaches the application port without passing openresty can
+ * forge it: that port is published on DOCKER_BIND_HOST (0.0.0.0 under
+ * DOCKER_IN_CONTAINER) and, in swarm, on every node through the routing mesh.
+ * The bridge activates only when PROXY_HEADER_SSO is truthy (wired by the
+ * role's env template behind the oauth2 SSO flavor).
  *
  * Only the X-Forwarded-* headers nginx overwrites are read; the
  * X-Auth-Request and Remote-User variants are deliberately excluded so a client
@@ -27,8 +29,8 @@
  * The header is honoured ONLY for requests under the oauth2-proxy-gated admin
  * path (PROXY_HEADER_SSO_GATED_PATH). YOURLS runs oauth2-proxy in ACL-blacklist
  * mode, so nginx overwrites the X-Forwarded-* headers on the gated admin
- * location only; on the public location they pass through untouched and could
- * be forged. Restricting the bridge to the admin path means it trusts the
+ * location only; the public location merely blanks them, so a header seen
+ * there proves nothing. Restricting the bridge to the admin path means it trusts the
  * header exactly where nginx guarantees it and unauthenticated requests are
  * bounced to Keycloak before they ever reach this upstream.
  */

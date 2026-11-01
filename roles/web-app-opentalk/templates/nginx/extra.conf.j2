@@ -2,6 +2,7 @@
 {% set opentalk_livekit_backend = lookup('proxy_pass', application_id, 'livekit', 'http', tail='/$opentalk_livekit_path$is_args$args', local_port=OPENTALK_LIVEKIT_HTTP_PORT, internal_port=OPENTALK_LIVEKIT_HTTP_PORT) %}
 location /v1/ {
     {{ opentalk_controller_backend }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
@@ -12,6 +13,7 @@ location /v1/ {
 
 location /v1/signaling/ {
     {{ opentalk_controller_backend }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -23,6 +25,7 @@ location /v1/signaling/ {
 
 location ~ ^/livekit/(?<opentalk_livekit_path>.*)$ {
     {{ opentalk_livekit_backend }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

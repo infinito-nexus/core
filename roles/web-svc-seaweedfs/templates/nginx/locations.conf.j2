@@ -20,6 +20,7 @@
     proxy_hide_header Set-Cookie;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Content-Security-Policy "sandbox; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'" always;
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
   }
 {% endif %}

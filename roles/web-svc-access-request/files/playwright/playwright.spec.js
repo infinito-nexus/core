@@ -11,6 +11,7 @@ test.beforeEach(async () => {
 
 require("./test-request-flow").register(shared);
 require("./test-delegation").register(shared);
+require("./test-forged-identity");
 
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);

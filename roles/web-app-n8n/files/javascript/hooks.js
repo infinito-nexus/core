@@ -15,13 +15,14 @@
  * user on first sign-in, and issues n8n's own session cookie directly.
  *
  * Security: the header named by N8N_FORWARD_AUTH_HEADER (Remote-Email) is
- * trusted unconditionally. This is only safe because any client-supplied
- * copy of it is blanked by
- * roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2
- * before openresty re-sets it from the oauth2-proxy auth_request response,
- * and n8n's published port is bound to the host's loopback interface
- * (DOCKER_BIND_HOST), so only openresty on the same host can reach it
- * directly — external clients cannot bypass the proxy to forge the header.
+ * trusted unconditionally, so openresty is the only trust boundary: every
+ * front-proxy location blanks a client-supplied copy through
+ * roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2,
+ * and the gated one re-sets it from the oauth2-proxy auth_request response.
+ * Anything that reaches n8n's published port without passing openresty can
+ * forge it: that port is bound to DOCKER_BIND_HOST (0.0.0.0 under
+ * DOCKER_IN_CONTAINER) and, in swarm, published on every node through the
+ * routing mesh.
  *
  * Adapted from https://github.com/PavelSozonov/n8n-community-sso (MIT
  * License, Copyright (c) 2025 n8n Community SSO Demo). Differences from

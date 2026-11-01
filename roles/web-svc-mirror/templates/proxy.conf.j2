@@ -30,6 +30,8 @@ server
     proxy_ssl_server_name on;
     proxy_ssl_name {{ origin_host }};
     proxy_set_header Host {{ origin_host }};
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 {% for redirect_source in origin_host | redirect_sources %}
     proxy_redirect {{ redirect_source }} /{{ origin_host }}/;
 {% endfor %}

@@ -7,11 +7,13 @@ as request headers. This module turns that trusted header into a real BookWyrm
 session via Django's RemoteUser machinery, auto-provisioning a local BookWyrm
 account on first sign-in.
 
-Security: the identity header is trusted unconditionally. This is only safe
-because BookWyrm is reachable exclusively through the oauth2-proxy, which
-overwrites the header on every request; the application port is bound to the
-internal container network. The bridge activates only when PROXY_HEADER_SSO is
-truthy (wired by the role's env template behind the oauth2 SSO flavor).
+Security: the identity header is trusted unconditionally, so openresty is the
+only trust boundary: every front-proxy location must clear or overwrite it.
+Anything that reaches the application port without passing openresty can
+impersonate any user, and that port is published on DOCKER_BIND_HOST (0.0.0.0
+under DOCKER_IN_CONTAINER) and, in swarm, on every node through the routing
+mesh. The bridge activates only when PROXY_HEADER_SSO is truthy (wired by the
+role's env template behind the oauth2 SSO flavor).
 
 Only the ``X-Forwarded-*`` headers nginx overwrites are read; the
 ``X-Auth-Request-*``/``Remote-User`` variants are deliberately excluded so a

@@ -5,6 +5,7 @@ location ~ ^/oidc/(redirect|auth|tokenize)$ {
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 }
 

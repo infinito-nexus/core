@@ -30,6 +30,8 @@ server
     }
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
     {{ lookup('proxy_pass', application_id, 'gateway', 'push', tail='', location=LOKI_PUSH_PATH, local_port=LOKI_GATEWAY_LOCAL_PORT, internal_port=LOKI_GATEWAY_INTERNAL_PORT) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
   }
 
   location / {
