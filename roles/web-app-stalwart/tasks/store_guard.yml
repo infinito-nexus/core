@@ -72,7 +72,7 @@
       - >-
         {{ ('label=com.docker.swarm.service.name=' ~ lookup('database', application_id, 'service_name'))
            if DEPLOYMENT_MODE == 'swarm'
-           else ('name=^' ~ lookup('database', application_id, 'container') ~ '$') }}
+           else ('name=^' ~ lookup('database', application_id, 'address') ~ '$') }}
   register: stalwart_store_engine
   changed_when: false
   when:
