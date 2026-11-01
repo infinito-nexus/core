@@ -28,3 +28,15 @@
 
 - name: "🛑 update (pacman) | reboot when the running kernel has no modules on disk"
   ansible.builtin.include_tasks: arch/reboot.yml
+  when: not (DOCKER_IN_CONTAINER | bool)
+  vars:
+    update_module_trees: "{{ update_module_indexes.files | map(attribute='path') | map('dirname') | map('basename') | sort }}"
+    update_kernel_modules_missing: >-
+      {{ update_proc_modules.stat.exists
+         and update_module_trees | length > 0
+         and ansible_facts['kernel'] not in update_module_trees }}
+    update_mesh_up_in_play: "{{ run_once_svc_net_wireguard is defined }}"
+    update_controller_is_target: >-
+      {{ ansible_connection in ['local', 'ansible.builtin.local']
+         or (update_boot_id.content | b64decode | trim)
+            == (lookup('ansible.builtin.file', '/proc/sys/kernel/random/boot_id', errors='ignore') | trim) }}
