@@ -15,11 +15,12 @@ only when actually invoked.
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import hashlib
 import os
 import threading
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -87,12 +88,11 @@ def _fingerprint_mapping(obj: Any) -> str:
     recycles the address of a freed mapping and serves its digest for an
     unrelated live one — measured at 398/400 wrong digests for short-lived
     mappings, which silently defeats every cache keyed on this function.
+    `_scoped_fingerprint` is the sound reuse: it holds the mapping itself.
     """
     if obj is None:
         return "0"
     try:
-        import hashlib
-
         data = repr(sorted(obj.items())) if isinstance(obj, Mapping) else repr(obj)
         return hashlib.md5(
             data.encode("utf-8", errors="replace"),
@@ -100,6 +100,69 @@ def _fingerprint_mapping(obj: Any) -> str:
         ).hexdigest()
     except Exception:
         return "unhashable"
+
+
+class ScopedFingerprintMutatedError(RuntimeError):
+    pass
+
+
+@contextlib.contextmanager
+def _fingerprint_scope() -> Iterator[None]:
+    """Let `_scoped_fingerprint` reuse digests until the outermost scope exits.
+
+    Raises:
+        ScopedFingerprintMutatedError: a render that finished normally reused
+            a mapping that no longer matches the digest it was served under.
+            A render that raised keeps its own error unchecked.
+    """
+    if getattr(_RENDER_GUARD, "fingerprints", None) is not None:
+        yield
+        return
+    memo: dict[int, list[Any]] = {}
+    _RENDER_GUARD.fingerprints = memo
+    try:
+        yield
+        stale = sum(
+            1
+            for held, digest, hits in memo.values()
+            if hits and _fingerprint_mapping(held) != digest
+        )
+    finally:
+        _RENDER_GUARD.fingerprints = None
+        memo.clear()
+    if stale:
+        raise ScopedFingerprintMutatedError(
+            f"{stale} mapping(s) changed in place during one render, "
+            "after their fingerprint keyed the applications/users caches"
+        )
+
+
+def _scoped_fingerprint(obj: Any) -> str:
+    """Return `_fingerprint_mapping(obj)`, once per mapping and open scope.
+
+    Args:
+        obj: the ``applications`` or ``users`` value of a variables scope.
+
+    Exception: the memo holds *obj* itself and matches it with ``is``, so a
+    freed mapping's address can never answer for another one, and the
+    scope's exit check turns an in-place write during the render into
+    `ScopedFingerprintMutatedError` instead of a stale key. Keying it on
+    ``id(obj)`` alone is the unsound memo `_fingerprint_mapping` forbids.
+    Blind spot: a mapping changed and reverted between two hits of one
+    render is served its pre-change digest, and the exit check, which sees
+    the reverted content, cannot tell; the unscoped key read before and
+    after such a revert is that same digest.
+    """
+    memo = getattr(_RENDER_GUARD, "fingerprints", None)
+    if memo is None or obj is None:
+        return _fingerprint_mapping(obj)
+    entry = memo.get(id(obj))
+    if entry is not None and entry[0] is obj:
+        entry[2] += 1
+        return entry[1]
+    digest = _fingerprint_mapping(obj)
+    memo[id(obj)] = [obj, digest, 0]
+    return digest
 
 
 def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
@@ -119,8 +182,8 @@ def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
         return ("0", "0", "", "", "")
     groups = variables.get("group_names")
     return (
-        _fingerprint_mapping(variables.get("applications")),
-        _fingerprint_mapping(variables.get("users")),
+        _scoped_fingerprint(variables.get("applications")),
+        _scoped_fingerprint(variables.get("users")),
         str(variables.get("DOMAIN_PRIMARY") or ""),
         str(variables.get("SYSTEM_EMAIL_DOMAIN") or ""),
         ",".join(sorted(str(group) for group in groups)) if groups else "",
@@ -311,13 +374,14 @@ def _render_with_templar(
             return tuple(_render_deep(item) for item in raw)
         return _render_scalar(raw)
 
-    try:
-        if hasattr(templar, "available_variables"):
-            templar.available_variables = base_variables
-        data = _render_deep(value)
-    finally:
-        if hasattr(templar, "available_variables"):
-            templar.available_variables = prev_templar_avail
+    with _fingerprint_scope():
+        try:
+            if hasattr(templar, "available_variables"):
+                templar.available_variables = base_variables
+            data = _render_deep(value)
+        finally:
+            if hasattr(templar, "available_variables"):
+                templar.available_variables = prev_templar_avail
 
     return _decrypt_ansible_encrypted_strings(data)
 
