@@ -53,7 +53,6 @@
                 'maxOutMessages': stalwart_sieve_limits.maxOutMessages | int
               }}}, 'c0']]} | to_json }}
 
-    # Under SSO a reload rebuilds the directories and opens the OIDC issuer before Keycloak runs, so x:Action answers notCreated; 11_oidc_restart.yml applies the limits then.
     - name: "🔄 Reload Stalwart's settings"
       include_tasks: jmap_call.yml
       when: not (STALWART_SSO_ENABLED | bool)
