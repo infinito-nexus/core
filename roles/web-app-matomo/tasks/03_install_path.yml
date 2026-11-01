@@ -7,7 +7,7 @@
   changed_when: false
   delegate_to: "{{ MATOMO_HOST_NODE }}"
 
-- name: "🔑 Matomo install | Realign the superuser of an existing install"
+- name: "🔑 Matomo install | Ensure the superuser of an existing install"
   include_tasks:
     file: utils/converge_superuser.yml
     apply:

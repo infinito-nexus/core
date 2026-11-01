@@ -57,16 +57,17 @@
   retries: 300
   delay: 5
 
-- name: "🔑 Realign the SuiteCRM administrator password with the declared one"
+- name: "🔑 Ensure the SuiteCRM administrator exists and accepts the declared password"
   ansible.builtin.shell:
     cmd: >-
       container exec -i --user {{ SUITECRM_WEB_USER }}
-      -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD
+      -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD -e SUITECRM_REALIGN_EMAIL
       {{ SUITECRM_CONTAINER_ADDRESS }} php
     stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
   environment:
     SUITECRM_REALIGN_USERNAME: "{{ SUITECRM_ADMIN_USERNAME }}"
     SUITECRM_REALIGN_PASSWORD: "{{ SUITECRM_ADMIN_PASSWORD }}"
+    SUITECRM_REALIGN_EMAIL: "{{ SUITECRM_ADMIN_EMAIL }}"
   register: suitecrm_admin_password_realign
   changed_when: suitecrm_admin_password_realign.stdout is search('\[CHANGED\]')
   failed_when: >-

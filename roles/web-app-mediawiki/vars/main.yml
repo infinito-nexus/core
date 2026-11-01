@@ -33,6 +33,7 @@ MEDIAWIKI_NETWORK_OBJSTORE: "{{ lookup('objstore', application_id, 'network') }}
 
 MEDIAWIKI_ADMINISTRATOR_NAME: "{{ lookup('users', 'platform_administrator').username }}"
 MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+MEDIAWIKI_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 MEDIAWIKI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
 MEDIAWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
