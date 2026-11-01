@@ -22,7 +22,7 @@ on:
         default: "."
         type: string
       images_per_hour:
-        description: "⏱️ Optional throttle: max images mirrored per hour"
+        description: "⏱️ Optional throttle: max Docker Hub copies per hour (default 150)"
         required: false
         type: string
       issues:
@@ -48,7 +48,7 @@ on:
         type: string
         default: "."
       images_per_hour:
-        description: "Optional throttle: max images mirrored per hour"
+        description: "Optional throttle: max Docker Hub copies per hour (default 150)"
         required: false
         type: string
       issues:
@@ -79,7 +79,7 @@ jobs:
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      IMAGES_PER_HOUR: ${{ github.event.inputs.images_per_hour || inputs.images_per_hour || '50' }}
+      IMAGES_PER_HOUR: ${{ github.event.inputs.images_per_hour || inputs.images_per_hour || '150' }}
 
     steps:
       - name: ⬇️ Checkout
