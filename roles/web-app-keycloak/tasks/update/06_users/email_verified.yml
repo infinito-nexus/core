@@ -1,5 +1,5 @@
 ---
-- name: "🔧 Set emailVerified=true for users holding their inventory address in realm '{{ KEYCLOAK_REALM }}'"
+- name: "🔧 Mark inventory email addresses verified in realm '{{ KEYCLOAK_REALM }}'"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/utils/rest_script.yml"
     apply:
