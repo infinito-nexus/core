@@ -37,13 +37,16 @@ def deploy_round(
     total: int,
     update_pass: bool = False,
 ) -> int:
-    """Run one deploy of the round.
+    """Reset the shared target, then run one deploy of the round.
 
     Args:
         update_pass: run it as the async update pass.
     """
     from cli.administration.deploy.development.deploy.run import pin_deploy_image
 
+    rc = reset_target()
+    if rc != 0:
+        return rc
     env = os.environ.copy()
     env["APP_ID"] = app_id
     pin_deploy_image(env)

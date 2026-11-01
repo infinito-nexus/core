@@ -202,6 +202,7 @@ def handler(args: argparse.Namespace) -> int:
             _rotate_credentials(
                 compose, inventory_dir=inv_dir, round_variants=round_variants
             )
+            compose.reset_target()
             print(f"=== {pass_label} PASS 2 (async) ===")
             rc = run_pass(
                 {

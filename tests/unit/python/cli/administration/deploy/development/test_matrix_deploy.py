@@ -533,6 +533,42 @@ class TestHandlerFullCycle(unittest.TestCase):
     @patch(
         "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
     )
+    def test_full_cycle_resets_the_target_before_every_pass(
+        self,
+        make_compose_mock: MagicMock,
+        plan_mock: MagicMock,
+        run_deploy_mock: MagicMock,
+        purge_mock: MagicMock,
+    ) -> None:
+        compose = _make_compose_mock()
+        make_compose_mock.return_value = compose
+        plan_mock.return_value = [
+            _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
+            _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
+        ]
+        events = []
+        compose.reset_target.side_effect = lambda: events.append("reset")
+        run_deploy_mock.side_effect = lambda *_a, **_k: events.append("deploy") or 0
+
+        rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(events, ["reset", "deploy"] * 4)
+
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
     def test_full_cycle_aborts_when_pass1_fails_skipping_pass2(
         self,
         make_compose_mock: MagicMock,

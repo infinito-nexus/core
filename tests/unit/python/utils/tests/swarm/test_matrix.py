@@ -44,7 +44,42 @@ class TestSharedTargetReset(unittest.TestCase):
 
 class TestSwarmDeployCommands(unittest.TestCase):
     @mock.patch.dict(
-        os.environ, {"INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0"}
+        os.environ,
+        {**TOPOLOGY, "INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0"},
+    )
+    @mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
+    @mock.patch.object(swarm_deploy, "run_step", return_value=0)
+    def test_every_pass_of_a_round_starts_on_a_reset_target(self, run, _tag):
+        for update_pass in (False, True):
+            run.reset_mock()
+            swarm_deploy.deploy_round(
+                app_id="web-app-semaphore",
+                inv_dir="/tmp/inv-0",
+                extras_path="/tmp/extras.yml",
+                round_index=0,
+                total=1,
+                update_pass=update_pass,
+            )
+            first, second = run.call_args_list
+            self.assertIn("target-reset", first.args[0])
+            self.assertIn("cli.administration.deploy.swarm", second.kwargs["cmd"])
+
+    @mock.patch.dict(os.environ, TOPOLOGY)
+    @mock.patch.object(swarm_deploy, "run_step", return_value=3)
+    def test_a_failed_reset_deploys_nothing(self, run):
+        rc = swarm_deploy.deploy_round(
+            app_id="web-app-semaphore",
+            inv_dir="/tmp/inv-0",
+            extras_path="/tmp/extras.yml",
+            round_index=0,
+            total=1,
+        )
+        self.assertEqual(rc, 3)
+        self.assertEqual(run.call_count, 1)
+
+    @mock.patch.dict(
+        os.environ,
+        {**TOPOLOGY, "INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0"},
     )
     @mock.patch(DEPLOY_IMAGE_TAG, return_value="ci-0")
     @mock.patch.object(swarm_deploy, "run_step", return_value=0)
@@ -87,6 +122,7 @@ class TestSwarmDeployImage(unittest.TestCase):
     @mock.patch.dict(
         os.environ,
         {
+            **TOPOLOGY,
             "INFINITO_IMAGE": "ghcr.io/infinito-nexus/core/arch:ci-0",
             "INFINITO_IMAGE_TAG": "latest",
         },
@@ -98,7 +134,7 @@ class TestSwarmDeployImage(unittest.TestCase):
         self.assertEqual(env["INFINITO_IMAGE_TAG"], "ci-0")
         self.assertEqual(env["INFINITO_IMAGE"], "ghcr.io/infinito-nexus/core/arch:ci-0")
 
-    @mock.patch.dict(os.environ, {"INFINITO_IMAGE": ""})
+    @mock.patch.dict(os.environ, {**TOPOLOGY, "INFINITO_IMAGE": ""})
     @mock.patch.object(
         deploy_run.subprocess,
         "run",

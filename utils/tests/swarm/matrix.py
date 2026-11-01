@@ -12,7 +12,7 @@ import time
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.storage.constrained import host_storage_constrained
-from utils.tests.swarm.deploy import deploy_backup_host, deploy_round, reset_target
+from utils.tests.swarm.deploy import deploy_backup_host, deploy_round
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import mesh_enabled
 from utils.tests.swarm.mesh import (
@@ -393,8 +393,6 @@ def main(argv: list[str] | None = None) -> int:
                 inv_dir=inv_root,
                 round_variants=round_variants,
             )
-        if rc == 0:
-            rc = reset_target()
         if rc == 0:
             rc = deploy_round(**deploy_args)
         if rc == 0:
