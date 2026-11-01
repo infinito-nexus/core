@@ -30,8 +30,10 @@ footer {
     box-shadow: var(--design-shadow-3);
 }
 
-/* Simple Icons load as <img>, which CSS color cannot reach: brightness(0) plus the mode inversion renders them in the text tone. */
-.card-img-top img[src*='//icon.'] {
+/* CSS color cannot reach an <img> logo, so every icon kind takes the same filter; raster logos are left out to keep their colors. */
+.card-img-top img[src$='.svg'],
+.card-img-top svg,
+.card-img-top i {
     filter: brightness(0) invert(var(--design-invert));
 }
 

@@ -9,7 +9,7 @@ const {
   galleryEnabled,
 } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 function baseUrl() {
@@ -107,6 +107,44 @@ exports.register = function (shared) {
       await assertToken(page, ".card", "border-top-color", "--design-border", `dashboard card divider ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: every card icon, Font Awesome and Simple Icons alike, is drawn in one tone in light and dark mode", async ({
+    page,
+  }) => {
+    skipUnlessServiceEnabled("design");
+    await openPortal(page);
+    test.skip((await page.locator(".card").count()) === 0, "this deployment renders no card");
+    const inverts = {};
+    for (const mode of ["light", "dark"]) {
+      await page.emulateMedia({ colorScheme: mode });
+      const { invert, icons } = await page.evaluate(() => ({
+        invert: Number(getComputedStyle(document.documentElement).getPropertyValue("--design-invert")),
+        icons: [...document.querySelectorAll(".card-img-top img[src$='.svg'], .card-img-top svg, .card-img-top i")]
+          .filter((icon) => icon.getClientRects().length > 0)
+          .map((icon) => ({
+            card: icon.closest(".card")?.querySelector(".card-title")?.textContent.trim(),
+            tag: icon.tagName.toLowerCase(),
+            filter: getComputedStyle(icon).filter,
+          })),
+      }));
+      inverts[mode] = invert;
+      const label = `dashboard card icons ${mode}`;
+      expect(icons.length, `${label}: no card shows an icon`).toBeGreaterThan(0);
+      if (isServiceEnabled("simpleicons")) {
+        expect(
+          icons.some((icon) => icon.tag !== "i"),
+          `${label}: no card shows a Simple Icons logo to compare with the Font Awesome icons`,
+        ).toBe(true);
+      }
+      const tone = `brightness(0) invert(${invert})`;
+      expect(
+        icons.filter((icon) => icon.filter !== tone),
+        `${label}: every icon must be drawn in the tone ${tone}, an icon in any other tone mixes colors across the cards`,
+      ).toEqual([]);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    expect(inverts, "dashboard card icons: the tone must turn light in dark mode").toEqual({ light: 0, dark: 1 });
   });
 
   test("design: the current language is filled with the primary color and its text", async ({ page }) => {
