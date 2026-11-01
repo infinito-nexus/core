@@ -11,7 +11,7 @@ from unittest.mock import patch
 from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
-from plugins.lookup.email import LookupModule
+from plugins.lookup.email import RESOLUTION_ORDER, LookupModule
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
@@ -366,6 +366,77 @@ class TestEmailLookup(unittest.TestCase):
         result = self.lookup.run([], variables=variables)[0]
         self.assertEqual(result["domain"], "mail.example.org")
 
+    def test_key_returns_the_value_the_full_mapping_carries(self) -> None:
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {
+                "mailprov": {
+                    "ports": {"public": {"smtp": 25, "smtps": 465, "submission": 587}}
+                }
+            },
+        )
+        cases = (
+            {"inventory_hostname": "host1"},
+            {"inventory_hostname": "host1", "TLS_ENABLED": True},
+            {
+                "SYSTEM_EMAIL_HOST": "smtp.example.org",
+                "SYSTEM_EMAIL_PORT": 465,
+                "SYSTEM_EMAIL_TLS": True,
+                "SYSTEM_EMAIL_TIMEOUT": "45",
+                "inventory_hostname": "host1",
+            },
+            {
+                "MAIL_PROVIDER": "web-app-mailprov",
+                "group_names": ["web-app-mailprov"],
+                "groups": {"web-app-mailprov": ["host1"]},
+                "SYSTEM_EMAIL_HOST": "mail.x.onion",
+                "TLS_ENABLED": True,
+                "DOMAIN_PRIMARY": "x.onion",
+                "inventory_hostname": "host1",
+            },
+        )
+        roles_dir = str(self._tmp / "roles")
+        for variables in cases:
+            full = self.lookup.run([], variables=variables, roles_dir=roles_dir)[0]
+            for short_key in RESOLUTION_ORDER:
+                with self.subTest(variables=variables, key=short_key):
+                    value = self.lookup.run(
+                        [], variables=variables, roles_dir=roles_dir, key=short_key
+                    )[0]
+                    self.assertEqual(value, full[short_key])
+
+    def test_key_applies_the_application_override(self) -> None:
+        _write_role_config(
+            self._tmp,
+            "web-app-x",
+            {"email": {"HOST": "smtp.app.org", "port": 587}},
+        )
+        variables = {
+            "SYSTEM_EMAIL_HOST": "smtp.global.org",
+            "SYSTEM_EMAIL_PORT": 25,
+            "inventory_hostname": "host1",
+        }
+        roles_dir = str(self._tmp / "roles")
+        full = self.lookup.run(["web-app-x"], variables=variables, roles_dir=roles_dir)[
+            0
+        ]
+        for short_key in ("host", "port", "external", "from"):
+            with self.subTest(key=short_key):
+                value = self.lookup.run(
+                    ["web-app-x"],
+                    variables=variables,
+                    roles_dir=roles_dir,
+                    key=short_key,
+                )[0]
+                self.assertEqual(value, full[short_key])
+        self.assertEqual(full["host"], "smtp.app.org")
+        self.assertEqual(full["port"], 587)
+
+    def test_unknown_key_raises(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self.lookup.run([], variables={}, key="externl")
+
 
 class TestProviderOnionIsClusterWide(unittest.TestCase):
     """In swarm only the manager is in svc-net-tor, so a worker renders the
@@ -489,6 +560,28 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         self.assertEqual(result["port"], 587)
         self.assertTrue(result["auth"])
         self.assertEqual(result["auth_mechanism"], "plain")
+
+    def test_worker_key_lookup_skips_the_provider_onion_probe(self) -> None:
+        self._seed(ports=self.STALWART_PORTS)
+        variables = self._worker(network_mode="tor")
+        roles_dir = str(self._tmp / "roles")
+
+        with patch.object(
+            LookupModule, "_provider_onion_primary", return_value=True
+        ) as probe:
+            external = self.lookup.run(
+                [], variables=variables, roles_dir=roles_dir, key="external"
+            )[0]
+            timeout = self.lookup.run(
+                [], variables=variables, roles_dir=roles_dir, key="timeout"
+            )[0]
+            probe.assert_not_called()
+            full = self._run(variables)
+            probe.assert_called()
+
+        self.assertIs(external, True)
+        self.assertEqual(external, full["external"])
+        self.assertEqual(timeout, full["timeout"])
 
     def test_tor_on_another_host_keeps_tls(self) -> None:
         self._seed(ports=self.STALWART_PORTS)
