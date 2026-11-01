@@ -100,6 +100,10 @@ one is stored when the role runs outside the service loader. A deploy that
 stops before the flush leaves it to the next deploy. Relaying stays limited to
 authenticated sessions in both modes (`STALWART_RELAY_RULE`).
 
+With SSO enabled the role creates every account without a password credential
+and sends no password update, so an account that already exists keeps the
+credentials it holds.
+
 With SSO disabled the role uses the Internal directory and the bot's derived
 account password.
 

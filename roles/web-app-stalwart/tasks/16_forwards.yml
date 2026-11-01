@@ -34,8 +34,6 @@
     fail_msg: >-
       Forwards are declared for addresses without a Stalwart account: {{ stalwart_forward_missing | join(', ') }}.
       A forward comes from services.stalwart.forwards or from a user's `forward` in the users catalogue.
-      Under SSO, an account added after the switch is never created before its first OIDC sign-in
-      (see the accounts entry in roles/web-app-stalwart/TODO.md); sign that user in once, or drop its forward.
     quiet: true
   vars:
     stalwart_forward_missing: "{{ STALWART_FORWARDS | map(attribute='address') | reject('in', stalwart_forward_account_ids) | list }}"

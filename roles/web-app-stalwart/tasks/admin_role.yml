@@ -37,8 +37,7 @@
 - name: "✅ Ensure Stalwart holds an account for every administrator"
   ansible.builtin.assert:
     that: stalwart_admin_accounts_missing | length == 0
-    fail_msg: "Stalwart holds no account on {{ STALWART_DOMAIN }} for {{ stalwart_admin_accounts_missing | join(', ') }}; they would sign in as ordinary users. An
-      administrator added or renamed after 'sso' was switched on gets no account, because the external directory rejects the create in 04_manage_user.yml."
+    fail_msg: "Stalwart holds no account on {{ STALWART_DOMAIN }} for {{ stalwart_admin_accounts_missing | join(', ') }}; they would sign in as ordinary users."
 
 - name: "🔍 Build the role set every administrator must end up with"
   ansible.builtin.set_fact:
