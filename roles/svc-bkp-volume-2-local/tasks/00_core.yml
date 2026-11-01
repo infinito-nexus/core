@@ -70,6 +70,14 @@
     group: root
     mode: "0755"
 
+- name: "📁 Ensure the node-local backup gate directory exists"
+  ansible.builtin.file:
+    path: "{{ BKP_VOLUME_2_LOCAL_HA_GATE_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
 - name: "📄 Write the local database HA instances the backup gate probes"
   ansible.builtin.copy:
     content: "{{ {'instances': BKP_VOLUME_2_LOCAL_HA_LOCAL} | to_nice_json }}"
@@ -77,10 +85,6 @@
     owner: root
     group: root
     mode: "0600"
-  register: bkp_volume_2_local_ha_gate_config
-  until: bkp_volume_2_local_ha_gate_config is succeeded
-  retries: 12
-  delay: 5
 
 - name: "▶️ Execute system service setup for '{{ system_service_id }}'"
   include_role:

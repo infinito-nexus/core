@@ -1,5 +1,7 @@
+import hashlib
 import importlib.util
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -145,12 +147,38 @@ class TestMissingDumps(TestCase):
         root, gen = self._generation({})
         files = gen / "postgres_data" / "files"
         files.mkdir(parents=True)
-        self.assertEqual(GATE.newest_generation(root, "repo"), gen)
+        self.assertEqual(GATE.newest_generation(root, "hash", "repo"), gen)
         GATE.purge_file_copies(gen, ["postgres_data"])
         self.assertFalse(files.exists())
 
 
+class TestMachineScope(TestCase):
+    def test_a_newer_generation_of_another_machine_is_ignored(self):
+        root = Path(tempfile.mkdtemp())
+        own = root / "own" / "repo" / "20261008"
+        own.mkdir(parents=True)
+        pulled = root / "other" / "repo" / "20261009"
+        pulled.mkdir(parents=True)
+        os.utime(own, (1, 1))
+        self.assertEqual(GATE.newest_generation(root, "own", "repo"), own)
+
+    def test_machine_hash_matches_sha256sum_of_the_file(self):
+        with tempfile.NamedTemporaryFile("wb", delete=False) as handle:
+            handle.write(b"0123456789abcdef0123456789abcdef\n")
+        self.assertEqual(
+            GATE.machine_hash(Path(handle.name)),
+            hashlib.sha256(b"0123456789abcdef0123456789abcdef\n").hexdigest(),
+        )
+
+
 class TestMain(TestCase):
+    def setUp(self):
+        with tempfile.NamedTemporaryFile("w", delete=False) as handle:
+            handle.write("0123456789abcdef0123456789abcdef\n")
+        patcher = mock.patch.object(GATE, "MACHINE_ID_FILE", Path(handle.name))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _config(self, instances):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
             json.dump({"instances": instances}, handle)

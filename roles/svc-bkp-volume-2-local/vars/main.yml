@@ -22,7 +22,8 @@ BKP_VOLUME_2_LOCAL_REPO_NAME: backup-docker-to-local
 BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN: "{{ [ DIR_BIN, 'baudolo-snapshot' ] | path_join }}"
 BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN: "{{ [ DIR_BIN, 'baudolo-subject-subvolume' ] | path_join }}"
 BKP_VOLUME_2_LOCAL_HA_GATE_BIN: "{{ [ DIR_BIN, 'baudolo-ha-gate' ] | path_join }}"
-BKP_VOLUME_2_LOCAL_HA_GATE_CONFIG: "{{ [ DIR_SECRETS, 'ha-instances.json' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_HA_GATE_DIR: "{{ [ '/etc', SOFTWARE_DOMAIN, 'backup' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_HA_GATE_CONFIG: "{{ [ BKP_VOLUME_2_LOCAL_HA_GATE_DIR, 'ha-instances.json' ] | path_join }}"
 BKP_VOLUME_2_LOCAL_HA_HOSTS: "{{ lookup('db_backup', 'hosts') }}"
 BKP_VOLUME_2_LOCAL_HA_LOCAL: "{{ lookup('db_backup', 'local', bin_dir=DIR_BIN) }}"
 

@@ -12,6 +12,7 @@ missing, 4 when a local instance could not be probed, 64 on bad usage,
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -29,6 +30,7 @@ FILES_DIR = "files"
 MISSING_DUMP = 3
 USAGE = 64
 TIMEOUT = 30
+MACHINE_ID_FILE = Path("/etc/machine-id")
 
 PROBE_FAILED = 4
 PROBE_REPLICA_RC = 1
@@ -112,10 +114,25 @@ def with_excluded(argv: Sequence[str], volumes: Sequence[str]) -> list[str]:
     return argv[:at] + merged + argv[end:]
 
 
-def newest_generation(backups_dir: Path, repo_name: str) -> Path | None:
-    """Return the most recently written generation of ``repo_name``."""
+def machine_hash(machine_id_file: Path) -> str:
+    """Return the directory name baudolo files this machine's backups under.
+
+    Args:
+        machine_id_file: the host's machine-id file.
+    """
+    return hashlib.sha256(machine_id_file.read_bytes()).hexdigest()
+
+
+def newest_generation(backups_dir: Path, machine: str, repo_name: str) -> Path | None:
+    """Return the most recently written generation of this machine's ``repo_name``.
+
+    Args:
+        backups_dir: the backup root holding one directory per machine.
+        machine: this machine's directory name, from ``machine_hash``.
+        repo_name: the backup repository name.
+    """
     generations = [
-        path for path in backups_dir.glob(f"*/{repo_name}/*") if path.is_dir()
+        path for path in (backups_dir / machine / repo_name).glob("*") if path.is_dir()
     ]
     return max(generations, key=lambda p: p.stat().st_mtime, default=None)
 
@@ -165,6 +182,7 @@ def main(argv: Sequence[str] | None = None, runner: Runner = _run) -> int:
     parser.add_argument("--config", required=True)
     parser.add_argument("--backups-dir", required=True)
     parser.add_argument("--repo-name", required=True)
+    parser.add_argument("--machine-id-file", default=str(MACHINE_ID_FILE))
     options = parser.parse_args(args[:split])
     command = args[split + 1 :]
     if not command:
@@ -192,14 +210,18 @@ def main(argv: Sequence[str] | None = None, runner: Runner = _run) -> int:
     if result.returncode != 0:
         return result.returncode
 
-    generation = newest_generation(Path(options.backups_dir), options.repo_name)
+    generation = newest_generation(
+        Path(options.backups_dir),
+        machine_hash(Path(options.machine_id_file)),
+        options.repo_name,
+    )
     missing = missing_dumps(generation, dump)
     if missing:
         purge_file_copies(generation, missing)
         report(
             "no SQL dump for primary volume(s) "
             + ", ".join(missing)
-            + "; refusing the file copy. Check databases.csv on this host."
+            + "; refusing the file copy. Check the consumer rows in databases.csv."
         )
         return MISSING_DUMP
     return 0
