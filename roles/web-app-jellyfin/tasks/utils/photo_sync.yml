@@ -15,7 +15,7 @@
     rbac_sync_argv: []
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/photo_sync.py') }}"
     rbac_sync_modules:
-      - { name: ldap_client.py, content: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap_client.py')) }}" }
+      - { name: ldap_client.py, content: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/client.py')) }}" }
     rbac_sync_env:
       LDAP_PHOTO_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"
       JELLYFIN_API: "{{ JELLYFIN_API }}"

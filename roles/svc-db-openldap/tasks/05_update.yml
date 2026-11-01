@@ -21,5 +21,5 @@
     state: present
     entries: >-
       {{ ldap_users_with_classes.results | map(attribute='dn')
-         | ldap_dn_entries({'objectClass': LDAP.USER.OBJECTS.AUXILIARY.values() | list}) }}
+         | ldap_dn_entries({'objectClass': OPENLDAP_USER_AUXILIARY_CLASSES}) }}
   changed_when: false

@@ -14,14 +14,15 @@ from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
-from utils.mail.provider import deployed_roles, resolve_active_provider
+from utils.mail.provider import (
+    DEFAULT_MAIL_PROVIDER,
+    active_provider,
+    provider_deployed,
+)
 from utils.networks.reachability import network, network_of
 from utils.roles.entity.name import entity_name
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
-
-# Default mail provider role; overridable per inventory via the MAIL_PROVIDER var.
-DEFAULT_MAIL_PROVIDER = "web-app-stalwart"
 
 # Declared in resolution order so each computed default sees already-resolved
 # predecessors (for example ``port`` depends on ``tls``).
@@ -161,8 +162,9 @@ class LookupModule(LookupBase):
             # group having a host so workers use the authenticated config, not
             # a localhost root sender the provider rejects
             # ("Sender address rejected: Domain not found").
-            groups = variables.get("groups") or {}
-            return bool(groups.get(self._mail_provider(variables)))
+            return provider_deployed(
+                variables, DEFAULT_MAIL_PROVIDER, Path.cwd() / "roles"
+            )
         if short_key == "environment":
             external = _as_bool(resolved.get("external"))
             tls_enabled = _as_bool(variables.get("TLS_ENABLED"))
@@ -253,13 +255,7 @@ class LookupModule(LookupBase):
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
     def _mail_provider(self, variables: dict[str, Any]) -> str:
-        value = variables.get("MAIL_PROVIDER")
-        configured = str(value).strip() if value else DEFAULT_MAIL_PROVIDER
-        return resolve_active_provider(
-            configured,
-            deployed_roles(variables.get("groups")),
-            Path.cwd() / "roles",
-        )
+        return active_provider(variables, DEFAULT_MAIL_PROVIDER, Path.cwd() / "roles")
 
     def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
         """The active provider's ``services`` block, or ``{}`` when it cannot be

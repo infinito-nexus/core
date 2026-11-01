@@ -43,6 +43,15 @@ def role_filters() -> dict:
     return module.FilterModule().filters()
 
 
+def secondary_pattern(domain: str) -> str:
+    """Render the role's secondary address pattern for a mailbox domain."""
+    env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+    env.filters["regex_escape"] = re.escape
+    return env.from_string(ROLE_VARS["KEYCLOAK_EMAIL_SECONDARY_PATTERN"]).render(
+        KEYCLOAK_EMAIL_DOMAIN=domain
+    )
+
+
 APP_URL = "https://suite.crm.example.com"
 ONION_URL = "http://suite.crm." + "a" * 56 + ".onion"
 
@@ -77,6 +86,16 @@ CONTEXT = {
     "KEYCLOAK_PROFILE_ATTRIBUTES": profile_attributes(),
     "KEYCLOAK_PROFILE_GROUPS": ROLE_VARS["KEYCLOAK_PROFILE_GROUPS"],
     "KEYCLOAK_PROFILE_MAPPER_PREFIX": ROLE_VARS["KEYCLOAK_PROFILE_MAPPER_PREFIX"],
+    "KEYCLOAK_EMAIL_POLICY": "external",
+    "KEYCLOAK_EMAIL_MAILBOX": False,
+    "KEYCLOAK_EMAIL_SMTP": False,
+    "KEYCLOAK_EMAIL_VERIFY": False,
+    "KEYCLOAK_EMAIL_SECONDARY_REQUIRED": True,
+    "KEYCLOAK_EMAIL_DOMAIN": "example.com",
+    "KEYCLOAK_EMAIL_SECONDARY_PATTERN": secondary_pattern("example.com"),
+    "KEYCLOAK_EMAIL_POLICY_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_POLICY_ATTRIBUTE"],
+    "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE"],
+    "KEYCLOAK_REGISTRATION_ALLOWED": ROLE_VARS["KEYCLOAK_REGISTRATION_ALLOWED"],
     "LDAP_ONLY": False,
     "OIDC": {
         "CLIENT": {"SECRET": "s3cret", "ID": "example.com"},
@@ -135,12 +154,14 @@ def render(
     saml_apps: list[str],
     client_apps: list[str] | None = None,
     network_urls=None,
+    overrides: dict | None = None,
 ) -> str:
     """
     Args:
         saml_apps: KEYCLOAK_SAML_APPS.
         client_apps: KEYCLOAK_DECLARED_CLIENT_APPS.
         network_urls: answer of lookup('network_urls', url); None serves one network.
+        overrides: context values replacing those of CONTEXT.
     """
 
     def lookup(name, *args, **kwargs):
@@ -168,7 +189,7 @@ def render(
         lookup=lookup,
         application_id="web-app-keycloak",
         DOMAIN_PRIMARY="example.com",
-        **CONTEXT,
+        **{**CONTEXT, **(overrides or {})},
     )
 
 
@@ -518,6 +539,155 @@ class TestLogoutTrustBoundary(unittest.TestCase):
         self.assertIn(
             "account", {client["clientId"] for client in self.realm["clients"]}
         )
+
+
+MAILBOX = {"KEYCLOAK_EMAIL_POLICY": "mailbox", "KEYCLOAK_EMAIL_MAILBOX": True}
+SMTP = {"KEYCLOAK_EMAIL_SMTP": True}
+
+
+def email_verify(context: dict) -> bool:
+    """Render the role's KEYCLOAK_EMAIL_VERIFY expression for a context."""
+    env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+    env.filters["bool"] = bool
+    rendered = env.from_string(ROLE_VARS["KEYCLOAK_EMAIL_VERIFY"]).render(**context)
+    return rendered == "True"
+
+
+def realm_for(overrides: dict, saml_apps: list[str] | None = None) -> dict:
+    context = {**CONTEXT, **overrides}
+    return json.loads(
+        render(
+            saml_apps or [],
+            overrides={**overrides, "KEYCLOAK_EMAIL_VERIFY": email_verify(context)},
+        )
+    )
+
+
+def profile_of(realm: dict) -> dict:
+    provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+    profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+    return {attribute["name"]: attribute for attribute in profile["attributes"]}
+
+
+def ldap_mappers_of(realm: dict) -> dict:
+    provider = realm["components"]["org.keycloak.storage.UserStorageProvider"][0]
+    return {
+        mapper["name"]: mapper
+        for mapper in provider["subComponents"][
+            "org.keycloak.storage.ldap.mappers.LDAPStorageMapper"
+        ]
+    }
+
+
+def email_scope_mappers_of(realm: dict) -> dict:
+    scope = next(s for s in realm["clientScopes"] if s["name"] == "email")
+    return {mapper["name"]: mapper for mapper in scope["protocolMappers"]}
+
+
+def update_email_of(realm: dict) -> dict:
+    return next(a for a in realm["requiredActions"] if a["alias"] == "UPDATE_EMAIL")
+
+
+class TestEmailPolicy(unittest.TestCase):
+    def test_an_external_realm_with_smtp_lets_the_user_change_the_primary_by_link(
+        self,
+    ) -> None:
+        realm = realm_for(SMTP)
+        email = profile_of(realm)["email"]
+        self.assertEqual(email["permissions"]["edit"], ["admin", "user"])
+        self.assertEqual(email["required"], {"roles": ["user"]})
+        self.assertTrue(realm["verifyEmail"])
+        self.assertTrue(update_email_of(realm)["enabled"])
+        self.assertEqual(update_email_of(realm)["config"], {"verifyEmail": "true"})
+        self.assertEqual(
+            ldap_mappers_of(realm)["email"]["config"]["ldap.attribute"],
+            [LDAP_USER_ATTRIBUTES["MAIL"]],
+        )
+        self.assertNotIn("mailbox", ldap_mappers_of(realm))
+        self.assertNotIn("mailbox", profile_of(realm))
+        self.assertEqual(
+            email_scope_mappers_of(realm)["email"]["config"]["user.attribute"], "email"
+        )
+        self.assertEqual(realm["attributes"]["infinitoEmailPolicy"], "external")
+
+    def test_an_external_realm_without_smtp_leaves_the_address_to_admins(
+        self,
+    ) -> None:
+        realm = realm_for({})
+        self.assertEqual(profile_of(realm)["email"]["permissions"]["edit"], ["admin"])
+        self.assertFalse(realm["verifyEmail"])
+        self.assertFalse(update_email_of(realm)["enabled"])
+
+    def test_a_mailbox_realm_keeps_the_primary_out_of_the_users_reach(self) -> None:
+        realm = realm_for({**MAILBOX, **SMTP})
+        profile = profile_of(realm)
+        self.assertEqual(profile["mailbox"]["permissions"]["edit"], ["admin"])
+        self.assertEqual(profile["mailbox"]["permissions"]["view"], ["admin", "user"])
+        self.assertEqual(profile["email"]["permissions"]["edit"], ["admin", "user"])
+        self.assertFalse(realm["verifyEmail"])
+        self.assertTrue(update_email_of(realm)["enabled"])
+        self.assertEqual(update_email_of(realm)["config"], {"verifyEmail": "true"})
+        mappers = ldap_mappers_of(realm)
+        self.assertEqual(
+            mappers["mailbox"]["config"]["ldap.attribute"],
+            [LDAP_USER_ATTRIBUTES["MAIL"]],
+        )
+        self.assertEqual(mappers["mailbox"]["config"]["read.only"], ["true"])
+        self.assertEqual(
+            mappers["mailbox"]["config"]["always.read.value.from.ldap"], ["true"]
+        )
+        self.assertEqual(
+            mappers["email"]["config"]["ldap.attribute"],
+            [LDAP_USER_ATTRIBUTES["SECONDARY_MAIL"]],
+        )
+        self.assertEqual(realm["attributes"]["infinitoEmailPolicy"], "mailbox")
+
+    def test_a_mailbox_realm_hands_apps_the_mailbox_as_verified_email(self) -> None:
+        realm = realm_for({**MAILBOX, **SMTP}, saml_apps=["web-app-suitecrm"])
+        scope = email_scope_mappers_of(realm)
+        self.assertEqual(scope["email"]["config"]["user.attribute"], "mailbox")
+        self.assertEqual(
+            scope["email verified"]["protocolMapper"], "oidc-hardcoded-claim-mapper"
+        )
+        self.assertEqual(scope["email verified"]["config"]["claim.value"], "true")
+        saml = next(c for c in realm["clients"] if c.get("protocol") == "saml")
+        saml_email = next(m for m in saml["protocolMappers"] if m["name"] == "email")
+        self.assertEqual(saml_email["protocolMapper"], "saml-user-attribute-mapper")
+        self.assertEqual(saml_email["config"]["user.attribute"], "mailbox")
+
+    def test_a_secondary_address_in_the_mailbox_domain_is_refused(self) -> None:
+        email = profile_of(realm_for({**MAILBOX, **SMTP}))["email"]
+        pattern = re.compile(email["validations"]["pattern"]["pattern"])
+        self.assertIsNone(pattern.match("biber@example.com"))
+        self.assertIsNone(pattern.match("Biber@EXAMPLE.COM"))
+        self.assertIsNotNone(pattern.match("biber@example.org"))
+        self.assertIsNotNone(pattern.match("biber@sub.example.com.evil"))
+
+    def test_the_secondary_address_is_required_only_once_registration_is_open(
+        self,
+    ) -> None:
+        closed = profile_of(realm_for({**MAILBOX, **SMTP}))["email"]
+        self.assertNotIn("required", closed)
+        opened = profile_of(
+            realm_for({**MAILBOX, **SMTP, "KEYCLOAK_REGISTRATION_ALLOWED": True})
+        )["email"]
+        self.assertEqual(opened["required"], {"roles": ["user"]})
+        switched_off = profile_of(
+            realm_for(
+                {
+                    **MAILBOX,
+                    **SMTP,
+                    "KEYCLOAK_REGISTRATION_ALLOWED": True,
+                    "KEYCLOAK_EMAIL_SECONDARY_REQUIRED": False,
+                }
+            )
+        )["email"]
+        self.assertNotIn("required", switched_off)
+
+    def test_no_policy_allows_duplicate_emails(self) -> None:
+        for overrides in ({}, SMTP, {**MAILBOX, **SMTP}):
+            with self.subTest(overrides=overrides):
+                self.assertFalse(realm_for(overrides)["duplicateEmailsAllowed"])
 
 
 if __name__ == "__main__":

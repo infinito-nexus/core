@@ -188,3 +188,18 @@
       run_once: true
       delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_UPDATE | bool
+
+- name: "⏱️ Load the RBAC sync timer that seeds mailboxes of runtime accounts"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+  when:
+    - OPENLDAP_EMAIL_MAILBOX | bool
+    - run_once_sys_ctl_mtn_rbac_sync is not defined
+
+- name: "🧹 Stop the RBAC sync timer from seeding mailboxes under the external policy"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+    tasks_from: mailbox.yml
+  vars:
+    rbac_sync_mailbox_enabled: false
+  when: not (OPENLDAP_EMAIL_MAILBOX | bool)

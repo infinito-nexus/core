@@ -1,6 +1,6 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
 
 const baseUrl = decodeDotenvQuotedValue(process.env.DECIDIM_BASE_URL || process.env.APP_BASE_URL);
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -23,6 +23,16 @@ async function dismissCookieBanner(page) {
     await acceptBtn.click().catch(() => {});
     await page.waitForLoadState("networkidle", { timeout: resolveTimeout(5000) }).catch(() => {});
   }
+}
+
+/**
+ * Returns: the administrator's Keycloak login id. Under the mailbox email policy Keycloak resolves an e-mail login against the secondary address, so the mailbox in ADMIN_EMAIL signs nobody in; its local part is the username.
+ */
+function adminKeycloakLoginId() {
+  const adminEmail = requireDotenvValue(process.env.ADMIN_EMAIL, "ADMIN_EMAIL");
+  return requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox"
+    ? adminEmail.split("@")[0]
+    : adminEmail;
 }
 
 /**
@@ -85,4 +95,4 @@ async function oidcLogin(page, username, password) {
   }
 }
 
-module.exports = { SSO_ENTRY, dismissCookieBanner, env, oidcLogin };
+module.exports = { SSO_ENTRY, adminKeycloakLoginId, dismissCookieBanner, env, oidcLogin };

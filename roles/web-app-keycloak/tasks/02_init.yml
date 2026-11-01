@@ -1,4 +1,22 @@
 ---
+- name: "✅ Assert the email policy of '{{ application_id }}' is known"
+  ansible.builtin.assert:
+    that: KEYCLOAK_EMAIL_POLICY in KEYCLOAK_EMAIL_POLICIES
+    fail_msg: >-
+      services.keycloak.email.policy is '{{ KEYCLOAK_EMAIL_POLICY }}';
+      it must be one of {{ KEYCLOAK_EMAIL_POLICIES | join(', ') }}.
+    quiet: true
+
+- name: "✅ Assert the mailbox email policy of '{{ application_id }}' has a directory"
+  ansible.builtin.assert:
+    that: not (KEYCLOAK_EMAIL_MAILBOX | bool) or (KEYCLOAK_LDAP_ENABLED | bool)
+    fail_msg: >-
+      services.keycloak.email.policy is 'mailbox', but services.ldap.enabled is
+      false: the mailbox policy keeps every address in the svc-db-openldap
+      directory. Deploy svc-db-openldap with services.ldap.enabled true, or set
+      services.keycloak.email.policy to external.
+    quiet: true
+
 - name: "🔍 Resolve reserved usernames for '{{ application_id }}' at task runtime"
   set_fact:
     KEYCLOAK_RESERVED_USERNAMES_LIST: "{{ lookup('users') | reserved_usernames }}"

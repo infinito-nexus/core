@@ -15,7 +15,10 @@ from . import PROJECT_ROOT
 SCRIPT = (
     PROJECT_ROOT / "roles" / "sys-ctl-mtn-rbac-sync" / "files" / "python" / "script.py"
 )
-LDAP_CLIENT_DIR = PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python"
+LDAP_MODULES_DIR = (
+    PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python" / "ldap"
+)
+DEPLOYED_LDAP_MODULES = {"ldap_client": "client.py", "ldap_mailbox": "mailbox.py"}
 LDAP = {
     "uri": "ldap://127.0.0.1:389",
     "users_dn": "ou=users,dc=example,dc=org",
@@ -24,11 +27,23 @@ LDAP = {
 }
 ALICE = {"username": "alice", "email": "alice@example.org", "name": "Alice Liddell"}
 CONTAINER_BIN = "/usr/bin/container"
+MAILBOX = {
+    "bind_dn": "cn=administrator,dc=example,dc=org",
+    "bind_password": "s3cr3t-bind",
+    "domain": "example.org",
+    "object_class": "infinitoMailboxUser",
+}
 
 
 def load_module():
-    if str(LDAP_CLIENT_DIR) not in sys.path:
-        sys.path.insert(0, str(LDAP_CLIENT_DIR))
+    for name, source in DEPLOYED_LDAP_MODULES.items():
+        if name not in sys.modules:
+            path = LDAP_MODULES_DIR / source
+            sys.modules[name] = types.ModuleType(name)
+            exec(
+                compile(read_text(str(path)), str(path), "exec"),
+                sys.modules[name].__dict__,
+            )
     module = types.ModuleType("rbac_sync_script")
     exec(compile(read_text(str(SCRIPT)), str(SCRIPT), "exec"), module.__dict__)
     return module
@@ -90,8 +105,39 @@ class StubDirectory:
         self.closed = True
 
 
+class MailboxDirectory:
+    def __init__(self, entries, bind_code=0, add_codes=None):
+        self.entries = entries
+        self.bind_code = bind_code
+        self.add_codes = add_codes or {}
+        self.binds = []
+        self.searches = []
+        self.added = []
+        self.closed = False
+
+    def bind(self, dn, password):
+        self.binds.append((dn, password))
+        return self.bind_code
+
+    def search(self, base, scope, search_filter, attributes):
+        self.searches.append((base, search_filter, attributes))
+        return self.entries
+
+    def add_values(self, dn, additions):
+        self.added.append((dn, additions))
+        return self.add_codes.get(dn, 0)
+
+    def close(self):
+        self.closed = True
+
+
+def connections(*directories):
+    remaining = list(directories)
+    return lambda uri: remaining.pop(0)
+
+
 class Workspace:
-    def __init__(self, hooks, ldap, files=None):
+    def __init__(self, hooks, ldap, files=None, mailbox=None, config_extra=None):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = Path(self.tmp.name)
         (self.path / "config.json").write_text(
@@ -101,9 +147,12 @@ class Workspace:
                     "timeout_seconds": 5,
                     "refresh_seconds": 100,
                     "ldap": ldap,
+                    **(config_extra or {}),
                 }
             )
         )
+        if mailbox is not None:
+            (self.path / "mailbox.json").write_text(json.dumps(mailbox))
         for item in hooks:
             hook_dir = self.path / "hooks" / item["application_id"]
             hook_dir.mkdir(parents=True)
@@ -511,6 +560,179 @@ class MainTests(unittest.TestCase):
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit):
             self.mod.main(["--directory", "/x", "--members-file", "/y"])
+
+
+class MailboxTests(unittest.TestCase):
+    def setUp(self):
+        self.mod = load_module()
+
+    def run_main(self, argv, connect, mailbox=MAILBOX, hooks=(), config_extra=None):
+        workspace = Workspace(
+            list(hooks), LDAP, mailbox=mailbox, config_extra=config_extra
+        )
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                code = self.mod.main(
+                    ["--directory", str(workspace.path), *argv],
+                    run=FakeRun({}),
+                    connect=connect,
+                    clock=lambda: 1000.0,
+                )
+        finally:
+            workspace.close()
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def test_an_account_without_mail_gets_its_mailbox_and_the_class(self):
+        seeder = MailboxDirectory(
+            [
+                ("uid=alice,ou=users", {"uid": ["alice"], "objectclass": ["person"]}),
+                (
+                    "uid=bob,ou=users",
+                    {"uid": ["bob"], "mail": ["bob@elsewhere.org"], "objectclass": []},
+                ),
+                (
+                    "uid=carol,ou=users",
+                    {
+                        "uid": ["carol"],
+                        "mail": [],
+                        "objectclass": ["person", "InfinitoMailboxUser"],
+                    },
+                ),
+            ]
+        )
+
+        code, stdout, stderr = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            seeder.added,
+            [
+                (
+                    "uid=alice,ou=users",
+                    {
+                        "objectClass": ["infinitoMailboxUser"],
+                        "mail": ["alice@example.org"],
+                    },
+                ),
+                ("uid=carol,ou=users", {"mail": ["carol@example.org"]}),
+            ],
+        )
+        self.assertEqual(seeder.binds, [(MAILBOX["bind_dn"], MAILBOX["bind_password"])])
+        self.assertEqual(seeder.searches[0][0], LDAP["users_dn"])
+        self.assertEqual(seeder.searches[0][2], ["uid", "mail", "objectClass"])
+        self.assertIn(
+            "[mailbox] CHANGED uid=alice,ou=users mail=alice@example.org", stdout
+        )
+        self.assertNotIn(MAILBOX["bind_password"], stdout + stderr)
+        self.assertTrue(seeder.closed)
+
+    def test_the_seed_runs_before_the_hooks_read_the_members(self):
+        order = []
+        seeder = MailboxDirectory([("uid=alice,ou=users", {"uid": ["alice"]})])
+        hooks_directory = StubDirectory({})
+        seeder.add_values = lambda dn, additions: order.append("seed") or 0
+        hooks_directory.search = lambda *args: order.append("members") or []
+
+        self.run_main([], connections(seeder, hooks_directory), hooks=[hook()])
+
+        self.assertEqual(order[0], "seed")
+        self.assertIn("members", order)
+
+    def test_an_entry_without_one_login_fails_the_run_but_not_the_others(self):
+        seeder = MailboxDirectory(
+            [
+                ("uid=dave,ou=users", {"uid": ["dave", "david"]}),
+                ("uid=alice,ou=users", {"uid": ["alice"]}),
+            ]
+        )
+
+        code, _, stderr = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 1)
+        self.assertIn("holds 2 values of uid", stderr)
+        self.assertEqual([dn for dn, _ in seeder.added], ["uid=alice,ou=users"])
+
+    def test_a_refused_bind_fails_the_run_and_writes_nothing(self):
+        seeder = MailboxDirectory([("uid=alice,ou=users", {"uid": ["alice"]})], 49)
+
+        code, _, stderr = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 1)
+        self.assertIn("bind answered result code 49", stderr)
+        self.assertEqual(seeder.added, [])
+        self.assertTrue(seeder.closed)
+
+    def test_an_unreachable_directory_fails_the_run_but_not_the_hooks(self):
+        hooks_directory = StubDirectory({})
+        attempts = []
+
+        def connect(uri):
+            attempts.append(uri)
+            if len(attempts) == 1:
+                raise ConnectionRefusedError("refused")
+            return hooks_directory
+
+        code, _, stderr = self.run_main([], connect, hooks=[hook()])
+
+        self.assertEqual(code, 1)
+        self.assertIn("[mailbox] FAILED ConnectionRefusedError", stderr)
+        self.assertTrue(hooks_directory.searches)
+
+    def test_a_concurrent_seed_is_no_failure(self):
+        seeder = MailboxDirectory(
+            [("uid=alice,ou=users", {"uid": ["alice"]})],
+            add_codes={"uid=alice,ou=users": 20},
+        )
+
+        code, stdout, _ = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 0)
+        self.assertIn("[mailbox] SKIPPED uid=alice,ou=users", stdout)
+
+    def test_any_other_modify_result_fails_the_run(self):
+        seeder = MailboxDirectory(
+            [("uid=alice,ou=users", {"uid": ["alice"]})],
+            add_codes={"uid=alice,ou=users": 50},
+        )
+
+        code, _, stderr = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 1)
+        self.assertIn("modify answered result code 50", stderr)
+
+    def test_without_the_mailbox_policy_the_timer_never_binds(self):
+        hooks_directory = MailboxDirectory([("uid=alice,ou=users", {"uid": ["alice"]})])
+
+        code, _, _ = self.run_main([], connections(hooks_directory), mailbox=None)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(hooks_directory.binds, [])
+        self.assertEqual(hooks_directory.added, [])
+
+    def test_only_the_mailbox_file_of_the_applied_layout_enables_the_seed(self):
+        hooks_directory = MailboxDirectory([("uid=alice,ou=users", {"uid": ["alice"]})])
+
+        code, _, _ = self.run_main(
+            [],
+            connections(hooks_directory),
+            mailbox=None,
+            config_extra={"mailbox": MAILBOX},
+        )
+
+        self.assertEqual(code, 0)
+        self.assertEqual(hooks_directory.binds, [])
+        self.assertEqual(hooks_directory.added, [])
+
+    def test_a_run_of_one_hook_never_seeds(self):
+        hooks_directory = MailboxDirectory([])
+
+        self.run_main(
+            ["--only", "web-app-weblate"], connections(hooks_directory), hooks=[hook()]
+        )
+
+        self.assertEqual(hooks_directory.binds, [])
 
 
 if __name__ == "__main__":

@@ -34,6 +34,12 @@ users:
 
 With `password_update: false`, existing LDAP users keep their current password on later runs.
 
+## Email Addresses
+
+The inventory address only seeds an entry: a deploy writes it into `mail` of an entry that holds no `mail` and never changes an address the entry already holds. A changed inventory `email` therefore does not reach an existing user. Change an existing user's address in the Keycloak console, or in the directory through LAM or phpLDAPadmin.
+
+Under the `mailbox` email policy of `web-app-keycloak`, the deploy applies the mailbox layout to every entry. It attaches `infinitoMailboxUser`, keeps the current `mail` of an entry as its `infinitoSecondaryMail` when that address lies outside `DOMAIN_PRIMARY` and the entry holds no secondary address yet, and then sets `mail` to `<uid>@<DOMAIN_PRIMARY>`. An entry without a kept address gets the inventory address as secondary address, which is seeded the same way, once.
+
 ## Developer Notes
 
 For the LDAP variable tree, DN layout, attribute SPOT, and the rules for pairing LDAP attributes with OIDC claims, see [ldap.md](../../docs/contributing/design/iam/ldap.md).

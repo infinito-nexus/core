@@ -12,7 +12,7 @@ const {
 const { decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { SSO_ENTRY, env: login, oidcLogin } = require("./_shared");
+const { SSO_ENTRY, adminKeycloakLoginId, env: login, oidcLogin } = require("./_shared");
 
 const base = decodeDotenvQuotedValue(process.env.DECIDIM_BASE_URL || process.env.APP_BASE_URL);
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
@@ -124,7 +124,7 @@ async function signIn(page, consent = true) {
   await shown(SIGN_IN_READY)(page);
   if (consent) await acceptConsent(page);
   if (!login.loginMethodNative) {
-    await oidcLogin(page, adminEmail, adminPassword);
+    await oidcLogin(page, adminKeycloakLoginId(), adminPassword);
     await expect(page).not.toHaveURL(/sign_in/, { timeout: resolveTimeout(60_000) });
     return;
   }

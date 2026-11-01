@@ -32,25 +32,42 @@ printf '%s\\n' "${@: -1}"
 """
 
 
-def lookup(name, *_args):
-    """Return what the template's two lookups resolve to.
+EXTERNAL_ADMINISTRATOR = {"email": "administrator@example.test", "secondary_email": ""}
+
+
+def rendered_script(administrator=EXTERNAL_ADMINISTRATOR) -> str:
+    """Render the alarm script.
 
     Args:
-        name: lookup plugin the template calls.
+        administrator: the record lookup('users', 'platform_administrator') answers.
     """
-    return {
-        "email": {"from": "no-reply@example.test", "timeout": "30"},
-        "users": {"email": "administrator@example.test"},
-    }[name]
 
+    def lookup(name, *_args):
+        return {
+            "email": {"from": "no-reply@example.test", "timeout": "30"},
+            "users": administrator,
+        }[name]
 
-def rendered_script() -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         undefined=StrictUndefined,
         autoescape=select_autoescape(),
     )
     return env.get_template("script.sh.j2").render(lookup=lookup, HOST_CS="utf-8")
+
+
+class TestAlmEmailRecipient(unittest.TestCase):
+    def test_the_external_policy_alerts_the_primary_address(self):
+        self.assertIn("\nTo: administrator@example.test\n", rendered_script())
+
+    def test_the_mailbox_policy_alerts_the_secondary_address(self):
+        script = rendered_script(
+            {
+                "email": "administrator@example.test",
+                "secondary_email": "admin@example.org",
+            }
+        )
+        self.assertIn("\nTo: admin@example.org\n", script)
 
 
 class TestAlmEmailScript(unittest.TestCase):

@@ -21,11 +21,14 @@
     state: directory
     mode: "0755"
 
-- name: "📋 Install the LDAP client next to the RBAC sync script"
+- name: "📋 Install the LDAP modules next to the RBAC sync script"
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap_client.py') }}"
-    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, 'ldap_client.py' ] | path_join }}"
+    src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/' ~ item.src) }}"
+    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.dest ] | path_join }}"
     mode: "0644"
+  loop:
+    - { src: client.py, dest: ldap_client.py }
+    - { src: mailbox.py, dest: ldap_mailbox.py }
 
 - name: "🧾 Write the RBAC sync configuration"
   ansible.builtin.copy:
@@ -34,6 +37,7 @@
     owner: root
     group: root
     mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "⏱️ Install the RBAC sync service and its timer"
   include_role:

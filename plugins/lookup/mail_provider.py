@@ -13,9 +13,11 @@ from typing import Any
 
 from ansible.plugins.lookup import LookupBase
 
-from utils.mail.provider import deployed_roles, resolve_active_provider
-
-DEFAULT_MAIL_PROVIDER = "web-app-stalwart"
+from utils.mail.provider import (
+    DEFAULT_MAIL_PROVIDER,
+    deployed_roles,
+    resolve_active_provider,
+)
 
 
 class LookupModule(LookupBase):

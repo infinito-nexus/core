@@ -33,9 +33,9 @@
         {
           "name": "email",
           "protocol": "saml",
-          "protocolMapper": "saml-user-property-mapper",
+          "protocolMapper": "{{ 'saml-user-attribute-mapper' if KEYCLOAK_EMAIL_MAILBOX | bool else 'saml-user-property-mapper' }}",
           "config": {
-            "user.attribute": "email",
+            "user.attribute": "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE if KEYCLOAK_EMAIL_MAILBOX | bool else 'email' }}",
             "attribute.name": "email",
             "attribute.nameformat": "Basic"
           }

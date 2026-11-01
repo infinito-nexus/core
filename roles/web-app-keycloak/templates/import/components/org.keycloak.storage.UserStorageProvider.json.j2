@@ -64,13 +64,29 @@
         "providerId": "user-attribute-ldap-mapper",
         "subComponents": {},
         "config": {
-          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MAIL }}" ],
+          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.SECONDARY_MAIL if KEYCLOAK_EMAIL_MAILBOX | bool else LDAP.USER.ATTRIBUTES.MAIL }}" ],
           "is.mandatory.in.ldap": [ "false" ],
           "read.only": [ "false" ],
           "always.read.value.from.ldap": [ "false" ],
           "user.model.attribute": [ "email" ]
         }
       },
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+      {
+        "name": "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}",
+        "providerId": "user-attribute-ldap-mapper",
+        "subComponents": {},
+        "config": {
+          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MAIL }}" ],
+          "is.mandatory.in.ldap": [ "false" ],
+          "attribute.force.default": [ "false" ],
+          "is.binary.attribute": [ "false" ],
+          "read.only": [ "true" ],
+          "always.read.value.from.ldap": [ "true" ],
+          "user.model.attribute": [ "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}" ]
+        }
+      },
+{% endif %}
 
       {
         "name": "SSH Public Key",

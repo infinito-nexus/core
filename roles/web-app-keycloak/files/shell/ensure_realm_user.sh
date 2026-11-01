@@ -14,7 +14,7 @@ set -euo pipefail
 #   KEYCLOAK_CREDENTIAL_JSON  serialized Keycloak CredentialRepresentation
 #
 # OPTIONAL:
-#   KEYCLOAK_EMAIL
+#   KEYCLOAK_EMAIL            written on create only, so a confirmed change stays
 #   KEYCLOAK_FIRSTNAME
 #   KEYCLOAK_LASTNAME
 #   KEYCLOAK_USER_ENABLED   true|false (default: true)
@@ -75,7 +75,6 @@ printf '%s' "${KEYCLOAK_CREDENTIAL_JSON}" | ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
 
   $KCADM update users/$USER_ID -r "$REALM" \
     -s "enabled=$ENABLED" \
-    -s "email=$EMAIL" \
     -s "firstName=$FIRSTNAME" \
     -s "lastName=$LASTNAME"
 

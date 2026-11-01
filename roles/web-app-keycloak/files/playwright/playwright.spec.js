@@ -56,6 +56,7 @@ const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const mapachePassword = decodeDotenvQuotedValue(process.env.MAPACHE_PASSWORD);
+const emailMailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 test.beforeEach(async ({ page }) => {
@@ -195,12 +196,15 @@ test("super administrator onboards mapache in the admin console and mapache sign
   expect(mapachePassword, "MAPACHE_PASSWORD must be set in the Playwright env file").toBeTruthy();
 
   const mapacheUsername = MAPACHE.username;
+  const mapacheEmail = emailMailbox ? `${mapacheUsername}@example.org` : `${mapacheUsername}@${domainPrimary}`;
+  const emailLabel = emailMailbox ? /^secondary email/i : /^email$/i;
   await provisionKeycloakUser(browser, {
     baseUrl: issuerBaseUrl,
     realm: realmName,
     adminUsername: superAdminUsername,
     adminPassword: superAdminPassword,
-    user: { ...MAPACHE, email: `${MAPACHE.username}@${domainPrimary}` },
+    user: { ...MAPACHE, email: mapacheEmail },
+    emailLabel,
     password: mapachePassword,
   });
 
@@ -224,6 +228,14 @@ test("super administrator onboards mapache in the admin console and mapache sign
     .toContain("/account");
 
   await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: resolveTimeout(60_000) });
+
+  if (emailMailbox) {
+    // The mailbox attribute reads LDAP `mail`, which a timer job sets after the admin console creates the user, so only the secondary address is deterministic here.
+    await expect(
+      page.getByLabel(emailLabel).first(),
+      "Under the mailbox policy the account console MUST show the external address as the secondary email"
+    ).toHaveValue(mapacheEmail, { timeout: resolveTimeout(60_000) });
+  }
 
   await keycloakSignOutFromAccountConsole(page);
 

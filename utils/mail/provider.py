@@ -23,9 +23,11 @@ from utils.roles.applications.services.registry import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 MAIL_SERVICE_KEY = "email"
+DEFAULT_MAIL_PROVIDER = "web-app-stalwart"
 
 
 def _registry(roles_dir: Path) -> dict[str, dict[str, Any]]:
@@ -98,3 +100,39 @@ def resolve_active_provider(
             return role
 
     return configured
+
+
+def active_provider(
+    variables: Mapping[str, Any], default_provider: str, roles_dir: Path
+) -> str:
+    """The mail provider role of a play.
+
+    Args:
+        variables: the play's variable scope, read for ``MAIL_PROVIDER`` and ``groups``.
+        default_provider: role used when ``MAIL_PROVIDER`` is empty.
+        roles_dir: repository ``roles/`` directory.
+
+    Returns:
+        The role :func:`resolve_active_provider` picks.
+    """
+    value = variables.get("MAIL_PROVIDER")
+    configured = str(value).strip() if value else default_provider
+    return resolve_active_provider(
+        configured, deployed_roles(variables.get("groups")), roles_dir
+    )
+
+
+def provider_deployed(
+    variables: Mapping[str, Any], default_provider: str, roles_dir: Path
+) -> bool:
+    """True when the active mail provider has a host anywhere in the inventory.
+
+    Args:
+        variables: the play's variable scope, read for ``MAIL_PROVIDER`` and ``groups``.
+        default_provider: role used when ``MAIL_PROVIDER`` is empty.
+        roles_dir: repository ``roles/`` directory.
+    """
+    groups = variables.get("groups") or {}
+    if not deployed_roles(groups):
+        return False
+    return bool(groups.get(active_provider(variables, default_provider, roles_dir)))

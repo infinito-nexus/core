@@ -57,9 +57,11 @@ LDAP:
         NEXTCLOUD_USER: "nextcloudUser" # Auxiliary Classes attach optional attributes without
         SSH_PUBLIC_KEY: "ldapPublicKey" # Allows storing SSH public keys for services like Gitea.
         INFINITO_USER: "infinitoUser"
+        INFINITO_MAILBOX_USER: "infinitoMailboxUser"
     ATTRIBUTES:
       ID: "{{ _ldap_user_id }}"
       MAIL: "mail"
+      SECONDARY_MAIL: "infinitoSecondaryMail"
       FULLNAME: "cn"
       FIRSTNAME: "givenName"
       SURNAME: "sn"

@@ -11,7 +11,7 @@
     apply:
       delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   vars:
-    rest_script: realm_settings.py
+    rest_script: realm/settings.py
     rest_script_env: {}
     rest_script_stdin: "{{ KEYCLOAK_SETTINGS_SPEC | to_json }}"
     rest_script_ok_rcs: [0, 1]

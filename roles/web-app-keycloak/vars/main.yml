@@ -160,15 +160,41 @@ KEYCLOAK_LDAP_CONNECTION_POOLING: "{{ lookup('config', application_id, 'services
 KEYCLOAK_LDAP_SYNC_CHANGES_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.changes') }}"
 KEYCLOAK_LDAP_SYNC_FULL_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.full') }}"
 
+# Keycloak finds only entries holding every class listed here, so the mailbox class joins once the mailbox layout attaches it to every entry.
 KEYCLOAK_LDAP_USER_OBJECT_CLASSES: >
   {{
     (
         (LDAP.USER.OBJECTS.STRUCTURAL | reject('equalto','posixAccount') | list)
-        + (LDAP.USER.OBJECTS.AUXILIARY | dict2items | map(attribute='value') | list)
+        + (LDAP.USER.OBJECTS.AUXILIARY | dict2items
+           | rejectattr('key', 'equalto', 'INFINITO_MAILBOX_USER')
+           | map(attribute='value') | list)
+        + ([LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER] if KEYCLOAK_EMAIL_MAILBOX | bool else [])
       ) | join(', ')
   }}
 
 KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.keycloak.users.emails_verified') }}"
+
+KEYCLOAK_EMAIL_POLICY: "{{ lookup('config', application_id, 'services.keycloak.email.policy') }}"
+KEYCLOAK_EMAIL_POLICIES: ["mailbox", "external"]
+KEYCLOAK_EMAIL_MAILBOX: "{{ KEYCLOAK_EMAIL_POLICY == 'mailbox' }}"
+KEYCLOAK_EMAIL_SWITCH: "{{ lookup('config', application_id, 'services.keycloak.email.switch') | bool }}"
+KEYCLOAK_EMAIL_SECONDARY_REQUIRED: "{{ lookup('config', application_id, 'services.keycloak.email.secondary_required') | bool }}"
+KEYCLOAK_EMAIL_SMTP: "{{ lookup('email', application_id).enabled | bool }}"
+KEYCLOAK_EMAIL_VERIFY: "{{ KEYCLOAK_EMAIL_SMTP | bool and not (KEYCLOAK_EMAIL_MAILBOX | bool) }}"
+KEYCLOAK_EMAIL_DOMAIN: "{{ DOMAIN_PRIMARY }}"
+KEYCLOAK_EMAIL_POLICY_ATTRIBUTE: "infinitoEmailPolicy"
+KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE: "mailbox"
+KEYCLOAK_EMAIL_LDAP_MAPPERS: ["email", "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}"]
+KEYCLOAK_EMAIL_SECONDARY_PATTERN: "(?i)^(?!.*@{{ KEYCLOAK_EMAIL_DOMAIN | regex_escape }}$).+$"
+KEYCLOAK_EMAIL_INVENTORY_KEY: "{{ 'secondary_email' if KEYCLOAK_EMAIL_MAILBOX | bool else 'email' }}"
+KEYCLOAK_EMAIL_INVENTORY_ADDRESSES: >-
+  {{ lookup('users_non_reserved') | dict2items | map(attribute='value')
+     | items2dict(key_name='username', value_name=KEYCLOAK_EMAIL_INVENTORY_KEY) }}
+KEYCLOAK_EMAIL_INVENTORY_SECONDARIES: >-
+  {{ lookup('users_non_reserved') | dict2items | map(attribute='value')
+     | items2dict(key_name='username', value_name='secondary_email') }}
+KEYCLOAK_RECONCILED_REQUIRED_ACTIONS: ["UPDATE_EMAIL"]
+KEYCLOAK_REGISTRATION_ALLOWED: false
 
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
@@ -230,6 +256,8 @@ KEYCLOAK_SETTINGS_SPEC:
     - realm: "{{ KEYCLOAK_REALM }}"
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"
+        loginWithEmailAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.loginWithEmailAllowed }}"
+        duplicateEmailsAllowed: "{{ KEYCLOAK_DICTIONARY_REALM.duplicateEmailsAllowed }}"
     - realm: master
       desired:
         smtpServer: "{{ KEYCLOAK_DICTIONARY_REALM.smtpServer }}"

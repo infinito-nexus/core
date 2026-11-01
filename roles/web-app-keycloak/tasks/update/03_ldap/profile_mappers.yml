@@ -60,3 +60,30 @@
   loop_control:
     label: "{{ item.name }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔄 Upsert the email address mappers of the email policy
+  keycloak_kcadm_update:
+    object_kind: "component"
+    lookup_value: "{{ item.name }}"
+    desired: >-
+      {{
+        item
+        | dict2items | rejectattr('key', 'in', ['subComponents', 'id']) | list | items2dict
+        | combine({
+            'parentId': (ldap_cmp_id | trim),
+            'providerType': 'org.keycloak.storage.ldap.mappers.LDAPStorageMapper'
+          })
+      }}
+    merge_path: "config"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ MODE_ASSERT }}"
+  loop: >-
+    {{
+      ldap_component_tpl.subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
+      | selectattr('name', 'in', KEYCLOAK_EMAIL_LDAP_MAPPERS)
+      | list
+    }}
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

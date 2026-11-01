@@ -13,6 +13,9 @@
  *       options.realm: realm the user belongs to.
  *       options.adminUsername / options.adminPassword: master-realm admin.
  *       options.user: `{ username, firstName, lastName, email }`.
+ *       options.emailLabel: RegExp matching the label of the `email`
+ *         profile field ("Email", or "Secondary email" under the mailbox
+ *         email policy).
  *       options.password: password to set on the user.
  */
 
@@ -36,14 +39,14 @@ async function openUser(page, username) {
   return exists;
 }
 
-async function createUser(page, user) {
+async function createUser(page, user, emailLabel) {
   await page
     .getByRole("button", { name: /add user|create new user/i })
     .or(page.getByRole("link", { name: /add user|create new user/i }))
     .first()
     .click({ timeout: resolveTimeout(30_000) });
   await page.getByLabel(/^username/i).first().fill(user.username);
-  await page.getByLabel(/^email$/i).first().fill(user.email);
+  await page.getByLabel(emailLabel).first().fill(user.email);
   await page.getByLabel(/^first name/i).first().fill(user.firstName);
   await page.getByLabel(/^last name/i).first().fill(user.lastName);
   await page.getByRole("button", { name: /^create$/i }).click({ timeout: resolveTimeout(30_000) });
@@ -84,14 +87,14 @@ async function setPassword(page, username, password) {
 }
 
 async function provisionKeycloakUser(browser, options) {
-  const { baseUrl, realm, adminUsername, adminPassword, user, password } = options;
+  const { baseUrl, realm, adminUsername, adminPassword, user, emailLabel, password } = options;
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
   try {
     await gotoOnion(page, `${baseUrl}/admin/master/console/#/${realm}/users`);
     await performKeycloakLoginForm(page, adminUsername, adminPassword);
     if (!(await openUser(page, user.username))) {
-      await createUser(page, user);
+      await createUser(page, user, emailLabel);
     }
     await setPassword(page, user.username, password);
     await page

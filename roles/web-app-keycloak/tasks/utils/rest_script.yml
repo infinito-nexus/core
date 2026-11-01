@@ -30,7 +30,7 @@
     - name: "📄 Keycloak REST | Stage {{ rest_script }} with its client module"
       ansible.builtin.copy:
         src: "python/{{ kc_rest_script_file }}"
-        dest: "{{ kc_rest_script_dir.path }}/{{ kc_rest_script_file }}"
+        dest: "{{ kc_rest_script_dir.path }}/{{ kc_rest_script_file | basename }}"
         mode: "0600"
       loop:
         - keycloak_admin.py
@@ -48,7 +48,7 @@
           - --net
           - --
           - python3
-          - "{{ kc_rest_script_dir.path }}/{{ rest_script }}"
+          - "{{ kc_rest_script_dir.path }}/{{ rest_script | basename }}"
         stdin: "{{ rest_script_stdin }}"
       environment: "{{ rest_script_env | combine(kc_rest_script_base_env) }}"
       vars:

@@ -25,7 +25,7 @@
     mode: "0444"
   loop:
     - { src: python/ldap_login.py, dest: "{{ HOMEASSISTANT_LDAP_LOGIN_PATH_HOST }}" }
-    - { src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap_client.py') }}", dest: "{{ HOMEASSISTANT_LDAP_CLIENT_PATH_HOST }}" }
+    - { src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/client.py') }}", dest: "{{ HOMEASSISTANT_LDAP_CLIENT_PATH_HOST }}" }
   notify: compose-up
   when: HOMEASSISTANT_LDAP_ENABLED | bool
 

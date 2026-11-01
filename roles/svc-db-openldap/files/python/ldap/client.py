@@ -1,4 +1,4 @@
-"""Speak just enough LDAPv3 to bind and search, with the standard library only."""
+"""Speak just enough LDAPv3 to bind, search and add values, with the standard library only."""
 
 import socket
 import ssl
@@ -11,11 +11,14 @@ INTEGER = 0x02
 OCTET_STRING = 0x04
 ENUMERATED = 0x0A
 SEQUENCE = 0x30
+SET = 0x31
 BIND_REQUEST = 0x60
 BIND_RESPONSE = 0x61
 SEARCH_REQUEST = 0x63
 SEARCH_RESULT_ENTRY = 0x64
 SEARCH_RESULT_DONE = 0x65
+MODIFY_REQUEST = 0x66
+MODIFY_RESPONSE = 0x67
 SIMPLE_AUTHENTICATION = 0x80
 FILTER_EQUALITY = 0xA3
 FILTER_PRESENT = 0x87
@@ -25,7 +28,9 @@ SCOPE_BASE = 0
 SCOPE_ONE_LEVEL = 1
 DEREF_NEVER = 0
 SIZE_UNLIMITED = 0
+MODIFY_ADD = 0
 SUCCESS = 0
+TYPE_OR_VALUE_EXISTS = 20
 DISCONNECTION_NOTICE_ID = 0
 
 
@@ -294,3 +299,28 @@ class Connection:
         if code != SUCCESS:
             raise DirectoryError(f"search answered result code {code}")
         return entries
+
+    def add_values(self, dn, additions):
+        """Return the result code of one modify that adds values to an entry.
+
+        Args:
+            dn: the DN of the entry.
+            additions: mapping of attribute description to the values to add.
+        """
+        changes = b"".join(
+            tlv(
+                SEQUENCE,
+                number(ENUMERATED, MODIFY_ADD)
+                + tlv(
+                    SEQUENCE,
+                    text(attribute)
+                    + tlv(SET, b"".join(text(value) for value in values)),
+                ),
+            )
+            for attribute, values in additions.items()
+        )
+        message_id = self.send(tlv(MODIFY_REQUEST, text(dn) + tlv(SEQUENCE, changes)))
+        tag, content = self.response(message_id)
+        if tag != MODIFY_RESPONSE:
+            raise DirectoryError("modify answered with another operation")
+        return result_code(content)

@@ -12,7 +12,7 @@ from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
 
-import realm_settings as m
+from realm import settings as m
 
 MASK = "**********"
 KINDS = {

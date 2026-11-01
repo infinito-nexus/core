@@ -16,7 +16,15 @@ SCRIPT = (
     / "python"
     / "ldap_login.py"
 )
-LDAP_CLIENT_DIR = PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python"
+LDAP_CLIENT = (
+    PROJECT_ROOT
+    / "roles"
+    / "svc-db-openldap"
+    / "files"
+    / "python"
+    / "ldap"
+    / "client.py"
+)
 USERS_DN = "ou=users,dc=example,dc=org"
 ADMIN_GROUP = "cn=web-app-homeassistant-administrator,ou=roles,dc=example,dc=org"
 USER_GROUP = "cn=web-app-homeassistant-user,ou=roles,dc=example,dc=org"
@@ -42,8 +50,12 @@ ARGUMENTS = [
 
 
 def load_module():
-    if str(LDAP_CLIENT_DIR) not in sys.path:
-        sys.path.insert(0, str(LDAP_CLIENT_DIR))
+    if "ldap_client" not in sys.modules:
+        sys.modules["ldap_client"] = types.ModuleType("ldap_client")
+        exec(
+            compile(read_text(str(LDAP_CLIENT)), str(LDAP_CLIENT), "exec"),
+            sys.modules["ldap_client"].__dict__,
+        )
     module = types.ModuleType("homeassistant_ldap_login")
     exec(compile(read_text(str(SCRIPT)), str(SCRIPT), "exec"), module.__dict__)
     return module

@@ -47,9 +47,11 @@ Rules:
 | Auxiliary | `NEXTCLOUD_USER` | `nextcloudUser` | Adds `nextcloudQuota` and `nextcloudEnabled` |
 | Auxiliary | `SSH_PUBLIC_KEY` | `ldapPublicKey` | Stores SSH public keys for services like Gitea |
 | Auxiliary | `INFINITO_USER` | `infinitoUser` | Allows the profile attributes `inetOrgPerson` lacks: `c`, the phonetic names and the time zone |
+| Auxiliary | `INFINITO_MAILBOX_USER` | `infinitoMailboxUser` | Allows the secondary address of the `mailbox` email policy; attached to user entries and required by the Keycloak federation only under that policy |
 
 Each entry has exactly one structural class chain.
 New auxiliary classes SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so consumers can probe them by symbolic name instead of literal string.
+Keycloak's `userObjectClasses` lists every auxiliary class it requires, and its LDAP federation finds only entries that hold all of them, so a class MUST be attached to every existing entry before Keycloak requires it.
 
 ## User Attributes 🪧
 
@@ -58,7 +60,8 @@ New auxiliary classes SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so con
 | Key | Default value | Meaning |
 |---|---|---|
 | `LDAP.USER.ATTRIBUTES.ID` | `uid` | Login identifier, paired with the OIDC `preferred_username` |
-| `LDAP.USER.ATTRIBUTES.MAIL` | `mail` | Primary email |
+| `LDAP.USER.ATTRIBUTES.MAIL` | `mail` | Primary email, seeded once from the inventory and never overwritten by a deploy; `<uid>@<DOMAIN_PRIMARY>` under the `mailbox` email policy |
+| `LDAP.USER.ATTRIBUTES.SECONDARY_MAIL` | `infinitoSecondaryMail` | Secondary email under the `mailbox` email policy, Keycloak's `email` field, seeded once and never overwritten by a deploy |
 | `LDAP.USER.ATTRIBUTES.FULLNAME` | `cn` | Display name |
 | `LDAP.USER.ATTRIBUTES.FIRSTNAME` | `givenName` | First name |
 | `LDAP.USER.ATTRIBUTES.SURNAME` | `sn` | Last name |
@@ -88,6 +91,8 @@ New auxiliary classes SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so con
 | `LDAP.USER.ATTRIBUTES.PASSWORD` | `userPassword` | Password hash |
 
 Keycloak maps every profile attribute through `KEYCLOAK_PROFILE_ATTRIBUTES` in [main.yml](../../../../roles/web-app-keycloak/vars/main.yml): one `profile:<name>` LDAP mapper and one user-profile field per entry. Contact fields are editable by the user, organization fields only by administrators. The standard OIDC claims follow from Keycloak's built-in `profile`, `phone` and `address` scopes, so an application requests `phone` or `address` when it consumes those claims.
+
+The inventory `email` of a user reaches `mail` only while the entry holds no `mail`. Editing it in the inventory changes nothing for an existing user; change the address in Keycloak or in the directory instead. See [svc-db-openldap](../../../../roles/svc-db-openldap/README.md#email-addresses) for the mailbox layout.
 
 Rules:
 

@@ -1,15 +1,21 @@
 """Run every registered RBAC hook against the current members of its role groups.
 
+Once the deploy applied the mailbox layout and wrote ``mailbox.json``, a run
+without ``--only`` first gives every account without a primary address its
+mailbox address.
+
 Args:
-    --directory: the directory that holds ``config.json`` and ``hooks/``.
+    --directory: the directory that holds ``config.json``, ``hooks/`` and,
+        under the applied mailbox layout, ``mailbox.json``.
     --only: run only the hook of this application.
     --members-file: JSON ``{role: [{username, email, name}]}`` used instead of
         a directory lookup; requires ``--only``, and a missing container is
         then an error rather than a skip.
 
 Output:
-    Every line a hook prints, prefixed with its application id; exit code 1
-    when any hook failed.
+    Every line a hook prints, prefixed with its application id, and every
+    mailbox address set, prefixed with ``[mailbox]``; exit code 1 when any
+    hook or address failed.
 """
 
 import argparse
@@ -21,12 +27,23 @@ import sys
 import time
 from pathlib import Path
 
-from ldap_client import SCOPE_ONE_LEVEL, Connection, equality, present
+from ldap_client import (
+    SCOPE_ONE_LEVEL,
+    SUCCESS,
+    TYPE_OR_VALUE_EXISTS,
+    Connection,
+    DirectoryError,
+    equality,
+    present,
+)
+from ldap_mailbox import mailbox_address, sole_login
 
 ALL_ROLES = "*"
 USERS_ROLE = "@users"
 HOOK_FILE = "hook.json"
 LAST_RUN_FILE = "last_run.json"
+MAILBOX_FILE = "mailbox.json"
+OBJECT_CLASS = "objectClass"
 
 
 def first(values):
@@ -72,6 +89,77 @@ def directory_members(connection, ldap, application_id, role):
         (member for member in members if member["username"]),
         key=lambda member: member["username"],
     )
+
+
+def mailbox_additions(dn, values, ldap, mailbox):
+    """Return the values that seed an entry's mailbox, empty for an entry that holds a primary address.
+
+    Args:
+        dn: the DN of the entry.
+        values: ``{lowercased attribute: [values]}`` of the entry.
+        ldap: the ``ldap`` block of ``config.json``.
+        mailbox: the content of ``mailbox.json``.
+
+    Raises:
+        ValueError: the entry holds no or several logins.
+    """
+    attributes = ldap["attributes"]
+    if values.get(attributes["mail"].lower()):
+        return {}
+    login = sole_login(dn, values.get(attributes["id"].lower(), []), attributes["id"])
+    additions = {}
+    classes = {value.lower() for value in values.get(OBJECT_CLASS.lower(), [])}
+    if mailbox["object_class"].lower() not in classes:
+        additions[OBJECT_CLASS] = [mailbox["object_class"]]
+    additions[attributes["mail"]] = [mailbox_address(login, mailbox["domain"])]
+    return additions
+
+
+def seed_mailboxes(connection, ldap, mailbox):
+    """Give every account without a primary address its mailbox address; return whether all succeeded.
+
+    Args:
+        connection: an open ``ldap_client.Connection``, closed afterwards.
+        ldap: the ``ldap`` block of ``config.json``.
+        mailbox: the content of ``mailbox.json``.
+    """
+    attributes = ldap["attributes"]
+    try:
+        code = connection.bind(mailbox["bind_dn"], mailbox["bind_password"])
+        if code != SUCCESS:
+            print(f"[mailbox] FAILED bind answered result code {code}", file=sys.stderr)
+            return False
+        entries = connection.search(
+            ldap["users_dn"],
+            SCOPE_ONE_LEVEL,
+            present(attributes["id"]),
+            [attributes["id"], attributes["mail"], OBJECT_CLASS],
+        )
+        succeeded = True
+        for dn, values in entries:
+            try:
+                additions = mailbox_additions(dn, values, ldap, mailbox)
+            except ValueError as error:
+                print(f"[mailbox] FAILED {error}", file=sys.stderr)
+                succeeded = False
+                continue
+            if not additions:
+                continue
+            code = connection.add_values(dn, additions)
+            address = additions[attributes["mail"]][0]
+            if code == SUCCESS:
+                print(f"[mailbox] CHANGED {dn} {attributes['mail']}={address}")
+            elif code == TYPE_OR_VALUE_EXISTS:
+                print(f"[mailbox] SKIPPED {dn} was seeded concurrently")
+            else:
+                print(
+                    f"[mailbox] FAILED {dn} modify answered result code {code}",
+                    file=sys.stderr,
+                )
+                succeeded = False
+        return succeeded
+    finally:
+        connection.close()
 
 
 def members_env(hook, members):
@@ -319,6 +407,15 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
     if not ldap:
         print("SKIPPED no directory is deployed, role groups are inventory grants")
         return 0
+    seeded = True
+    mailbox_file = directory / MAILBOX_FILE
+    if mailbox_file.is_file() and not options.only:
+        try:
+            mailbox = json.loads(mailbox_file.read_text(encoding="utf-8"))
+            seeded = seed_mailboxes(connect(ldap["uri"]), ldap, mailbox)
+        except (DirectoryError, OSError) as error:
+            print(f"[mailbox] FAILED {type(error).__name__}: {error}", file=sys.stderr)
+            seeded = False
     connection = connect(ldap["uri"])
     failed = []
     try:
@@ -351,7 +448,7 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
     if failed:
         print(f"FAILED hooks: {', '.join(failed)}", file=sys.stderr)
         return 1
-    return 0
+    return 0 if seeded else 1
 
 
 if __name__ == "__main__":

@@ -119,6 +119,96 @@ class TestLdapUserEntries(unittest.TestCase):
             },
         )
 
+    def test_class_entries_leave_mail_alone(self):
+        entries = self.m.openldap_user_class_entries(
+            USERS, "uid", "ou=users,dc=x", STRUCTURAL
+        )
+        self.assertEqual(
+            entries[0],
+            {
+                "dn": "uid=alice,ou=users,dc=x",
+                "attributes": {"objectClass": STRUCTURAL},
+            },
+        )
+
+    def test_mailbox_entries_set_every_found_entry_to_its_mailbox(self):
+        results = [
+            {"dn": "uid=alice,ou=users,dc=x", "uid": "alice"},
+            {"dn": "uid=carol,ou=users,dc=x", "uid": ["carol"]},
+        ]
+        self.assertEqual(
+            self.m.openldap_mailbox_entries(results, "uid", "mail", "example.com"),
+            [
+                {
+                    "dn": "uid=alice,ou=users,dc=x",
+                    "attributes": {"mail": "alice@example.com"},
+                },
+                {
+                    "dn": "uid=carol,ou=users,dc=x",
+                    "attributes": {"mail": "carol@example.com"},
+                },
+            ],
+        )
+
+    def test_an_entry_without_one_login_fails_the_mailbox_layout(self):
+        for result in (
+            {"dn": "uid=a,ou=users,dc=x", "uid": ["a", "b"]},
+            {"dn": "uid=a,ou=users,dc=x"},
+        ):
+            with self.subTest(result=result), self.assertRaises(AnsibleFilterError):
+                self.m.openldap_mailbox_entries([result], "uid", "mail", "example.com")
+
+    def test_secondary_entries_skip_empty_and_mailbox_domain_addresses(self):
+        results = [
+            {"dn": "uid=alice,ou=users,dc=x", "uid": "alice"},
+            {"dn": "uid=bob,ou=users,dc=x", "uid": "bob"},
+            {"dn": "uid=carol,ou=users,dc=x", "uid": "carol"},
+            {"dn": "uid=dave,ou=users,dc=x", "uid": "dave"},
+        ]
+        addresses = {
+            "alice": "alice@example.org",
+            "bob": "bob@Example.com",
+            "carol": "",
+        }
+        self.assertEqual(
+            self.m.openldap_secondary_mail_entries(
+                results, addresses, "uid", "infinitoSecondaryMail", "example.com"
+            ),
+            [
+                {
+                    "dn": "uid=alice,ou=users,dc=x",
+                    "attributes": {"infinitoSecondaryMail": "alice@example.org"},
+                }
+            ],
+        )
+
+    def test_the_current_external_address_becomes_the_secondary_one(self):
+        results = [
+            {"dn": "uid=alice,ou=users,dc=x", "mail": "alice@example.org"},
+            {"dn": "uid=bob,ou=users,dc=x", "mail": "bob@Example.com"},
+            {"dn": "uid=carol,ou=users,dc=x"},
+            {
+                "dn": "uid=dave,ou=users,dc=x",
+                "mail": ["dave@example.com", "", "dave@example.net", "d@example.org"],
+            },
+            {"dn": "uid=erin,ou=users,dc=x", "mail": ""},
+        ]
+        self.assertEqual(
+            self.m.openldap_current_mail_secondary_entries(
+                results, "mail", "infinitoSecondaryMail", "example.com"
+            ),
+            [
+                {
+                    "dn": "uid=alice,ou=users,dc=x",
+                    "attributes": {"infinitoSecondaryMail": "alice@example.org"},
+                },
+                {
+                    "dn": "uid=dave,ou=users,dc=x",
+                    "attributes": {"infinitoSecondaryMail": "dave@example.net"},
+                },
+            ],
+        )
+
     def test_passwords_are_managed_unless_the_user_opts_out(self):
         users = {
             "alice": {"password": "a-pw"},

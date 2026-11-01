@@ -7,8 +7,8 @@
 // and `require()`s one test module per test scenario.
 const { resolveTimeout } = require("./timeouts");
 
-const { expect, request } = require("@playwright/test");
-const { decodeDotenvQuotedValue, findFirstVisibleCandidate, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { expect, request, test } = require("@playwright/test");
+const { decodeDotenvQuotedValue, findFirstVisibleCandidate, gotoOnion, requireDotenvValue, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -21,6 +21,25 @@ const kcRealm     = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM       || 
 const kcAdminUser = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_USERNAME || "");
 const kcAdminPw   = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_PASSWORD || "");
 const biberOidcEmailOverride = decodeDotenvQuotedValue(process.env.BIBER_OIDC_EMAIL_OVERRIDE || "");
+
+// Mirrors egulias/email-validator DNSCheckValidation::RESERVED_DNS_TOP_LEVEL_NAMES, which pixelfed's `dns` rule rejects before any lookup.
+const DNS_RESERVED_TLDS = ["test", "example", "invalid", "localhost", "local", "intranet", "internal", "private", "corp", "home", "lan"];
+
+function emailPolicyIsMailbox() {
+  return requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
+}
+
+function skipWhenBiberMailboxFailsPixelfedValidation() {
+  if (!emailPolicyIsMailbox()) {
+    return;
+  }
+  const mailbox = requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL");
+  const tld = mailbox.split(".").pop().toLowerCase();
+  test.skip(
+    DNS_RESERVED_TLDS.includes(tld),
+    `under the mailbox email policy biber's email claim is fixed at ${mailbox}, and pixelfed's dns rule refuses the reserved TLD .${tld} on his first OIDC registration`,
+  );
+}
 
 // The OIDC self-provisioning path is exercised by the non-reserved
 // `biber` first so the bootstrapped administrator (whose name is
@@ -451,7 +470,7 @@ async function updateKeycloakUserEmail(username, newEmail, emailVerified) {
 const state = { biberOriginalKeycloakProfile: null };
 
 async function beforeAll() {
-  if (!oidcEnabled) {
+  if (!oidcEnabled || emailPolicyIsMailbox()) {
     return;
   }
   expect(kcBaseUrl,   "KEYCLOAK_BASE_URL must be set when OIDC is enabled").toBeTruthy();
@@ -501,6 +520,7 @@ module.exports = {
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
+  skipWhenBiberMailboxFailsPixelfedValidation,
   beforeAll,
   afterAll,
   beforeEach,

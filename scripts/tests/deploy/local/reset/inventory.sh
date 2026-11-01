@@ -76,6 +76,14 @@ echo ">>> Initializing inventory inside container"
     inv_dir='${INFINITO_INVENTORY_DIR}'
     INFINITO_INVENTORY_FILE='${INFINITO_INVENTORY_FILE}'
     pw_file=\"\${inv_dir}/.password\"
+    host_vars_file=\"\${inv_dir}/host_vars/localhost.yml\"
+    previous_host_vars=\"\$(mktemp)\"
+    trap 'rm -f -- \"\$previous_host_vars\"' EXIT
+    previous_args=()
+    if [[ -f \"\${host_vars_file}\" ]]; then
+      cp -- \"\${host_vars_file}\" \"\${previous_host_vars}\"
+      previous_args=(--previous-host-vars \"\${previous_host_vars}\")
+    fi
     echo \">>> Reset inventory dir \${inv_dir}\"
     rm -rf \"\${inv_dir}\"
     mkdir -p \"\${inv_dir}\"
@@ -91,7 +99,8 @@ echo ">>> Initializing inventory inside container"
       --vars '${RUNTIME_VARS_JSON}' \
       --host 'localhost' \
       --vars-file '${INFINITO_INVENTORY_VARS_FILE}' \
-      --include '${apps_csv}'
+      --include '${apps_csv}' \
+      \"\${previous_args[@]}\"
 
     echo '✅ Inventory initialized.'
   "

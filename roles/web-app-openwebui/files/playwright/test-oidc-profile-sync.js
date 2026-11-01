@@ -59,6 +59,8 @@ exports.register = function (shared) {
     const stamp = Date.now().toString(36);
     const probeFirstName = `Probe${stamp}`;
     const probeEmail = `${biberUsername}+${stamp}@${canonicalDomain}`;
+    const mailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
+    const claimedEmail = mailbox ? requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL") : probeEmail;
 
     await shared.signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
     await shared.expectSignInRequiredAfterLogout(page);
@@ -75,7 +77,12 @@ exports.register = function (shared) {
       await shared.signInViaDashboardOidc(page, biberUsername, biberPassword, "biber");
       const user = await sessionUser(page, openwebuiBaseUrl);
       expect(user.name, "Open WebUI MUST take the display name from the name claim on every login").toContain(probeFirstName);
-      expect(user.email, "Open WebUI MUST take the e-mail from the email claim on every login").toBe(probeEmail.toLowerCase());
+      expect(
+        user.email,
+        mailbox
+          ? "Under the mailbox policy the email claim MUST stay the mailbox while the secondary address changes"
+          : "Open WebUI MUST take the e-mail from the email claim on every login",
+      ).toBe(claimedEmail.toLowerCase());
 
       await shared.dismissAllOpenModals(page);
       await page

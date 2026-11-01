@@ -15,7 +15,7 @@
     rbac_sync_argv: []
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/ldap_refresh.py') }}"
     rbac_sync_modules:
-      - { name: ldap_client.py, content: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap_client.py')) }}" }
+      - { name: ldap_client.py, content: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/client.py')) }}" }
     rbac_sync_env:
       NEXTCLOUD_USER: "{{ NEXTCLOUD_DOCKER_USER }}"
       NEXTCLOUD_OCC: "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"

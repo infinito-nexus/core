@@ -19,6 +19,30 @@
   "displayDescription": group.description
 }] %}
 {% endfor %}
+{% set _email = {
+  "name": "email",
+  "displayName": "Secondary email" if KEYCLOAK_EMAIL_MAILBOX | bool else "${email}",
+  "validations": {"email": {}, "length": {"max": 255}},
+  "permissions": {"view": ["admin","user"], "edit": ["admin","user"] if KEYCLOAK_EMAIL_SMTP | bool else ["admin"]},
+  "multivalued": false
+} %}
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+{% set _ = _email.validations.update({"pattern": {
+  "pattern": KEYCLOAK_EMAIL_SECONDARY_PATTERN,
+  "error-message": "An address in " ~ KEYCLOAK_EMAIL_DOMAIN ~ " is a mailbox of this platform and cannot be the secondary address."
+}}) %}
+{% endif %}
+{% if not (KEYCLOAK_EMAIL_MAILBOX | bool) or (KEYCLOAK_EMAIL_SECONDARY_REQUIRED | bool and KEYCLOAK_REGISTRATION_ALLOWED | bool) %}
+{% set _ = _email.update({"required": {"roles": ["user"]}}) %}
+{% endif %}
+{% set _mailbox_attrs = [{
+  "name": KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE,
+  "displayName": "Mailbox",
+  "validations": {"email": {}, "length": {"max": 255}},
+  "annotations": {},
+  "permissions": {"view": ["admin","user"], "edit": ["admin"]},
+  "multivalued": false
+}] if KEYCLOAK_EMAIL_MAILBOX | bool else [] %}
 {% set _base_attrs = [
   {
     "name": "username",
@@ -34,14 +58,7 @@
     "permissions": {"view": ["admin","user"], "edit": ["admin","user"]},
     "multivalued": false
   },
-  {
-    "name": "email",
-    "displayName": "${email}",
-    "validations": {"email": {}, "length": {"max": 255}},
-    "required": {"roles": ["user"]},
-    "permissions": {"view": ["admin","user"], "edit": ["admin","user"]},
-    "multivalued": false
-  },
+  _email,
   {
     "name": "firstName",
     "displayName": "${firstName}",
@@ -87,7 +104,7 @@
   }
 ] %}
 {% set user_profile = {
-  "attributes": _base_attrs + _profile.attrs,
+  "attributes": _base_attrs + _mailbox_attrs + _profile.attrs,
   "groups": [
     {
       "name": "user-metadata",

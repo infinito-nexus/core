@@ -6,7 +6,13 @@ from utils.cache.files import read_text
 from . import PROJECT_ROOT
 
 SCRIPT = (
-    PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python" / "ldap_client.py"
+    PROJECT_ROOT
+    / "roles"
+    / "svc-db-openldap"
+    / "files"
+    / "python"
+    / "ldap"
+    / "client.py"
 )
 USERS_DN = "ou=users,dc=example,dc=org"
 BIBER_DN = "uid=biber,ou=users,dc=example,dc=org"
@@ -138,6 +144,41 @@ class LdapClientTests(unittest.TestCase):
 
         with self.assertRaises(mod.DirectoryError):
             connection.search(USERS_DN, mod.SCOPE_ONE_LEVEL, mod.present("uid"), [])
+
+    def test_add_values_matches_the_ldapv3_modify_encoding(self):
+        mod = self.mod
+        result = mod.number(mod.ENUMERATED, 0) + mod.text("") + mod.text("")
+        connection = self.connection(
+            self.response(1, mod.tlv(mod.MODIFY_RESPONSE, result))
+        )
+
+        self.assertEqual(connection.add_values("uid=b", {"mail": ["b@x"]}), 0)
+        self.assertEqual(
+            bytes(connection.socket.sent),
+            bytes.fromhex(
+                "30 22 02 01 01 66 1d 04 05 75 69 64 3d 62 30 14 30 12 0a 01 00"
+                " 30 0d 04 04 6d 61 69 6c 31 05 04 03 62 40 78"
+            ),
+        )
+
+    def test_add_values_reports_the_result_code(self):
+        mod = self.mod
+        result = mod.number(mod.ENUMERATED, 20) + mod.text("") + mod.text("")
+        connection = self.connection(
+            self.response(1, mod.tlv(mod.MODIFY_RESPONSE, result))
+        )
+
+        self.assertEqual(
+            connection.add_values(BIBER_DN, {"objectClass": ["a"], "mail": ["b"]}),
+            mod.TYPE_OR_VALUE_EXISTS,
+        )
+
+    def test_add_values_refuses_an_answer_to_another_operation(self):
+        mod = self.mod
+        connection = self.connection(self.response(1, self.done(0)))
+
+        with self.assertRaises(mod.DirectoryError):
+            connection.add_values(BIBER_DN, {"mail": ["b"]})
 
     def test_long_lengths_round_trip(self):
         mod = self.mod

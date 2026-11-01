@@ -11,6 +11,8 @@ const {
   keycloakAdminToken,
   keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
+  requireDotenvValue,
+  withLdapAttributes,
 } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -108,6 +110,23 @@ async function discourseAdminCall(page, method, path, body) {
     },
     { method, path, body },
   );
+}
+
+/**
+ * Run `body` while the directory entry of `username` holds the mailbox address the RBAC sync timer gives a user created at runtime.
+ *
+ * Args:
+ *   username: login of a user Keycloak wrote into the directory.
+ *   body: async function executed while the address holds.
+ *
+ * Returns:
+ *   the value `body` resolves to.
+ */
+async function withMailbox(username, body) {
+  const dn = requireDotenvValue(process.env.LDAP_USER_DN_TEMPLATE, "LDAP_USER_DN_TEMPLATE").replace("<uid>", username);
+  const attribute = requireDotenvValue(process.env.LDAP_MAIL_ATTRIBUTE, "LDAP_MAIL_ATTRIBUTE");
+  const address = `${username}@${requireDotenvValue(process.env.DOMAIN_PRIMARY, "DOMAIN_PRIMARY")}`;
+  return withLdapAttributes(dn, { [attribute]: address }, body);
 }
 
 async function withSignedIn(browser, username, password, body) {
@@ -234,6 +253,7 @@ exports.register = function () {
       password: `Probe-${marker}-Pw1!`,
     };
     const renamed = `renamed${marker}`;
+    const mailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
     const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
     let keycloakId = null;
     let discourseId = null;
@@ -246,25 +266,32 @@ exports.register = function () {
         env.superAdminUsername,
         env.superAdminPassword,
       );
-      const first = await withSignedIn(browser, throwaway.username, throwaway.password, currentUser);
-      expect(first.username.toLowerCase(), "the first login must create the Discourse account from the username claim").toBe(
-        throwaway.username,
-      );
-      discourseId = first.id;
+      const renameSurvivesLogin = async () => {
+        const first = await withSignedIn(browser, throwaway.username, throwaway.password, currentUser);
+        expect(first.username.toLowerCase(), "the first login must create the Discourse account from the username claim").toBe(
+          throwaway.username,
+        );
+        discourseId = first.id;
 
-      await withSignedIn(browser, env.adminUsername, env.adminPassword, async (page) => {
-        const result = await discourseAdminCall(page, "PUT", `/u/${encodeURIComponent(first.username)}/preferences/username.json`, {
-          new_username: renamed,
+        await withSignedIn(browser, env.adminUsername, env.adminPassword, async (page) => {
+          const result = await discourseAdminCall(page, "PUT", `/u/${encodeURIComponent(first.username)}/preferences/username.json`, {
+            new_username: renamed,
+          });
+          expect(result.status, `staff must be able to rename the account: ${result.text.slice(0, 200)}`).toBe(200);
         });
-        expect(result.status, `staff must be able to rename the account: ${result.text.slice(0, 200)}`).toBe(200);
-      });
 
-      const second = await withSignedIn(browser, throwaway.username, throwaway.password, currentUser);
-      expect(second.id, "the second login must reach the same Discourse account").toBe(discourseId);
-      expect(
-        second.username.toLowerCase(),
-        "auth_overrides_username=false: the next login must keep the Discourse username instead of resetting it to the claim",
-      ).toBe(renamed);
+        const second = await withSignedIn(browser, throwaway.username, throwaway.password, currentUser);
+        expect(second.id, "the second login must reach the same Discourse account").toBe(discourseId);
+        expect(
+          second.username.toLowerCase(),
+          "auth_overrides_username=false: the next login must keep the Discourse username instead of resetting it to the claim",
+        ).toBe(renamed);
+      };
+      if (mailbox) {
+        await withMailbox(throwaway.username, renameSurvivesLogin);
+      } else {
+        await renameSurvivesLogin();
+      }
     } finally {
       if (discourseId) {
         await withSignedIn(browser, env.adminUsername, env.adminPassword, (page) =>
@@ -289,26 +316,33 @@ exports.register = function () {
     skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(240_000));
     const marker = `biber${Date.now().toString(36)}`;
+    const mailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
     let markerEmail = "";
     const previous = await keycloakUpdateBiber(page.request, (user) => {
-      const domain = String(user.email || "").split("@")[1];
+      const domain = mailbox ? new URL(env.discourseBaseUrl).hostname : String(user.email || "").split("@")[1];
       if (!domain) {
         throw new Error(`Keycloak user "${env.biberUsername}" carries no email to derive a marker address from`);
       }
       markerEmail = `${marker}@${domain}`.toLowerCase();
       return { firstName: marker, email: markerEmail, emailVerified: true };
     });
+    const claimedEmail = mailbox ? requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL").toLowerCase() : markerEmail;
     try {
       await signInAs(page, env.biberUsername, env.biberPassword);
       const user = await currentUser(page);
       expect(user.name, "expected the Discourse name to follow the Keycloak given name").toContain(marker);
       const emails = await getJson(page, `/u/${encodeURIComponent(user.username)}/emails.json`, "with biber's own emails");
-      expect(emails.email, "expected the Discourse email to follow the Keycloak email").toBe(markerEmail);
+      expect(
+        emails.email,
+        mailbox
+          ? "under the mailbox policy the Discourse email MUST stay the mailbox while the secondary address changes"
+          : "expected the Discourse email to follow the Keycloak email",
+      ).toBe(claimedEmail);
       const { user: details } = await getJson(page, `/u/${encodeURIComponent(user.username)}.json`, "with biber's own profile");
       expect(details.can_edit_name, "expected the IdP-managed name to be read-only in Discourse").toBe(false);
       expect(details.can_edit_email, "expected the IdP-managed email to be read-only in Discourse").toBe(false);
     } finally {
-      await keycloakUpdateBiber(page.request, () => previous).catch((err) => {
+      await keycloakUpdateBiber(page.request, () => ({ ...previous, email: previous.email ?? "" })).catch((err) => {
         console.warn(`Restoring biber's Keycloak name and email failed: ${err}`);
       });
       await page.context().clearCookies().catch(() => {});

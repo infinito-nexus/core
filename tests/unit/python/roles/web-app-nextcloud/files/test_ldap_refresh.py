@@ -18,7 +18,15 @@ SCRIPT = (
     / "python"
     / "ldap_refresh.py"
 )
-LDAP_CLIENT_DIR = PROJECT_ROOT / "roles" / "svc-db-openldap" / "files" / "python"
+LDAP_CLIENT = (
+    PROJECT_ROOT
+    / "roles"
+    / "svc-db-openldap"
+    / "files"
+    / "python"
+    / "ldap"
+    / "client.py"
+)
 PREFIX = [
     "/usr/bin/container",
     "exec",
@@ -39,8 +47,12 @@ PARTS = ["street", "postalCode", "l", "st", "c"]
 
 
 def load_module():
-    if str(LDAP_CLIENT_DIR) not in sys.path:
-        sys.path.insert(0, str(LDAP_CLIENT_DIR))
+    if "ldap_client" not in sys.modules:
+        sys.modules["ldap_client"] = types.ModuleType("ldap_client")
+        exec(
+            compile(read_text(str(LDAP_CLIENT)), str(LDAP_CLIENT), "exec"),
+            sys.modules["ldap_client"].__dict__,
+        )
     module = types.ModuleType("nextcloud_ldap_refresh")
     exec(compile(read_text(str(SCRIPT)), str(SCRIPT), "exec"), module.__dict__)
     return module

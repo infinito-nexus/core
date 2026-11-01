@@ -8,25 +8,8 @@
   register: kc_saml_client_lookup
   changed_when: false
 
-- name: "⬇️ Read the protocol mappers of '{{ kc_saml_client_id }}'"
-  ansible.builtin.shell: >
-    {{ KEYCLOAK_EXEC_KCADM }} get clients/{{ (kc_saml_client_lookup.stdout | kcadm_json | first).id }}/protocol-mappers/models
-    -r {{ KEYCLOAK_REALM }} --format json
-  register: kc_saml_client_mappers
-  changed_when: false
-
-- name: "✅ Add the protocol mappers '{{ kc_saml_client_id }}' lacks"
-  ansible.builtin.shell: |
-    cat <<'JSON' | {{ KEYCLOAK_EXEC_KCADM }} create clients/{{ (kc_saml_client_lookup.stdout | kcadm_json | first).id }}/protocol-mappers/models -r {{ KEYCLOAK_REALM }} -f -
-    {{ kc_saml_mapper | to_json }}
-    JSON
-  loop: >-
-    {{
-      (KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', kc_saml_client_id) | list | first).protocolMappers
-      | rejectattr('name', 'in', kc_saml_client_mappers.stdout | kcadm_json | map(attribute='name') | list)
-      | list
-    }}
-  loop_control:
-    loop_var: kc_saml_mapper
-    label: "{{ kc_saml_mapper.name }}"
-  changed_when: true
+- name: "🔄 Converge the protocol mappers of '{{ kc_saml_client_id }}'"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/converge/protocol_mappers.yml"
+  vars:
+    kc_mappers_path: "clients/{{ (kc_saml_client_lookup.stdout | kcadm_json | first).id }}/protocol-mappers/models"
+    kc_mappers_desired: "{{ (KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', kc_saml_client_id) | list | first).protocolMappers }}"

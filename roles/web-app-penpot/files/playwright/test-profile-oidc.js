@@ -1,8 +1,25 @@
 const { randomUUID } = require("node:crypto");
 const { resolveTimeout } = require("./timeouts");
-const { apiFetchOnion, keycloakAdminToken } = require("./personas");
+const { apiFetchOnion, keycloakAdminToken, requireDotenvValue, withLdapAttributes } = require("./personas");
 
 const CLEANUP_DEADLINE_MS = 30_000;
+
+/**
+ * Run `body` while the directory entry of `username` holds the mailbox address the RBAC sync timer gives a user created at runtime.
+ *
+ * Args:
+ *   username: login of a user Keycloak wrote into the directory.
+ *   body: async function receiving the mailbox address.
+ *
+ * Returns:
+ *   the value `body` resolves to.
+ */
+async function withMailbox(username, body) {
+  const dn = requireDotenvValue(process.env.LDAP_USER_DN_TEMPLATE, "LDAP_USER_DN_TEMPLATE").replace("<uid>", username);
+  const attribute = requireDotenvValue(process.env.LDAP_MAIL_ATTRIBUTE, "LDAP_MAIL_ATTRIBUTE");
+  const address = `${username}@${requireDotenvValue(process.env.DOMAIN_PRIMARY, "DOMAIN_PRIMARY")}`;
+  return withLdapAttributes(dn, { [attribute]: address }, () => body(address));
+}
 
 function withDeadline(promise, label) {
   return Promise.race([
@@ -61,6 +78,7 @@ exports.register = (shared) => {
 
   test("OIDC: a first login registers the Penpot profile with the Keycloak name and e-mail claims", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
+    const mailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
     test.setTimeout(resolveTimeout(240_000));
     expect(env.keycloakBaseUrl, "KEYCLOAK_BASE_URL must be set").toBeTruthy();
     expect(env.keycloakRealm, "KEYCLOAK_REALM_NAME must be set").toBeTruthy();
@@ -86,16 +104,23 @@ exports.register = (shared) => {
     try {
       userId = await createKeycloakUser(admin.request, env, person);
 
-      await shared.penpotOidcAuthenticate(page, person.username, person.password);
-      expect(shared.onOidcRegistration(page), `a first OIDC login of ${person.username} must land on the Penpot registration form`).toBe(true);
-      const prefilled = await shared.confirmOidcRegistration(page);
-      expect(prefilled, "the registration form must carry the name claim Keycloak sent").toBe(expectedName);
-      await shared.assertAuthenticated(page);
-      registered = true;
+      const register = async (claimedEmail) => {
+        await shared.penpotOidcAuthenticate(page, person.username, person.password);
+        expect(shared.onOidcRegistration(page), `a first OIDC login of ${person.username} must land on the Penpot registration form`).toBe(true);
+        const prefilled = await shared.confirmOidcRegistration(page);
+        expect(prefilled, "the registration form must carry the name claim Keycloak sent").toBe(expectedName);
+        await shared.assertAuthenticated(page);
+        registered = true;
 
-      const profile = await shared.penpotProfile(page);
-      expect(profile.email, "the Penpot profile must carry the e-mail claim Keycloak sent").toBe(person.email);
-      expect(profile.fullname, "the Penpot profile must carry the name claim Keycloak sent").toBe(expectedName);
+        const profile = await shared.penpotProfile(page);
+        expect(profile.email, "the Penpot profile must carry the e-mail claim Keycloak sent").toBe(claimedEmail);
+        expect(profile.fullname, "the Penpot profile must carry the name claim Keycloak sent").toBe(expectedName);
+      };
+      if (mailbox) {
+        await withMailbox(person.username, register);
+      } else {
+        await register(person.email);
+      }
     } finally {
       if (registered) {
         await withDeadline(deletePenpotProfile(page, env), `deleting the Penpot profile of ${person.username}`).catch((err) =>

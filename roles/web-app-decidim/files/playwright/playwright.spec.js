@@ -64,7 +64,7 @@ test("admin can log in and out", async ({ page }) => {
     await login(page, adminEmail, adminPassword);
   } else {
     skipUnlessServiceEnabled("sso");
-    await oidcLogin(page, adminEmail, adminPassword);
+    await oidcLogin(page, shared.adminKeycloakLoginId(), adminPassword);
   }
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(

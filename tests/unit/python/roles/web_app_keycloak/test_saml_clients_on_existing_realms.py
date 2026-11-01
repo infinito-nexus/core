@@ -22,6 +22,8 @@ REALM = {
     ],
     "clientScopes": [{"name": "rbac"}],
     "smtpServer": SMTP,
+    "loginWithEmailAllowed": True,
+    "duplicateEmailsAllowed": False,
 }
 
 
@@ -72,7 +74,14 @@ class TestSettingsSpec(unittest.TestCase):
         self.assertEqual(
             realms,
             [
-                {"realm": "cymais", "desired": {"smtpServer": SMTP}},
+                {
+                    "realm": "cymais",
+                    "desired": {
+                        "smtpServer": SMTP,
+                        "loginWithEmailAllowed": True,
+                        "duplicateEmailsAllowed": False,
+                    },
+                },
                 {"realm": "master", "desired": {"smtpServer": SMTP}},
             ],
         )

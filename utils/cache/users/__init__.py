@@ -29,6 +29,10 @@ from utils.cache.base import (
 )
 from utils.cache.carrier import _carried_users, merged_users_cache_key
 from utils.cache.users import store as _store
+from utils.cache.users.email_policy import apply_email_policy as _apply_email_policy
+from utils.cache.users.email_policy import (
+    drop_mail_domain_secondaries as _drop_mail_domain_secondaries,
+)
 from utils.cache.users.placeholders import (
     substitute_primary_domain_placeholder as _substitute_primary_domain_placeholder,
 )
@@ -36,6 +40,7 @@ from utils.cache.users.placeholders import (
     substitute_scalar_placeholders as _substitute_scalar_placeholders,
 )
 from utils.cache.yaml import load_yaml as _load_yaml_cached
+from utils.mail.policy import POLICY_MAILBOX, resolve_policy
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 _USERS_DEFAULTS_CACHE: dict[str, dict[str, Any]] = {}
@@ -422,11 +427,16 @@ def get_merged_users(
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     tokens_file = _resolve_tokens_file(variables)
     snapshot = _store.snapshot(variables)
+    overrides = _resolve_override_mapping(variables, "users", templar=templar)
+    policy = resolve_policy(
+        _resolve_override_mapping(variables, "applications", templar=templar)
+    )
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(source_variables),
         _store_signature(variables, tokens_file),
         templar is not None,
+        policy,
     )
     cached = _MERGED_USERS_CACHE.get(cache_key)
     if cached is not None:
@@ -442,9 +452,11 @@ def get_merged_users(
             return carried
 
     defaults = get_user_defaults(roles_dir=roles_dir)
-    overrides = _resolve_override_mapping(variables, "users", templar=templar)
 
-    merged = _apply_account_defaults(_merge_users(defaults, overrides))
+    merged = _apply_email_policy(
+        _apply_account_defaults(_merge_users(defaults, overrides)),
+        policy == POLICY_MAILBOX,
+    )
     hydrated = _hydrate_users_tokens(
         merged,
         dict(snapshot) if snapshot is not None else _load_store_users(tokens_file),
@@ -466,11 +478,13 @@ def get_merged_users(
         materialized = _substitute_scalar_placeholders(
             materialized, variables, templar=templar
         )
-        rendered = _render_with_templar(
-            materialized,
-            templar=templar,
-            variables=variables,
-            raw_users=materialized,
+        rendered = _drop_mail_domain_secondaries(
+            _render_with_templar(
+                materialized,
+                templar=templar,
+                variables=variables,
+                raw_users=materialized,
+            )
         )
     finally:
         _RENDER_GUARD.users = False

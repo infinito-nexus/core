@@ -34,6 +34,9 @@ exports.register = function (shared) {
 
     test(`${label}: the administrator role group ${admitted ? "opens" : "keeps closed"} the Pixelfed admin dashboard`, async ({ page }) => {
       skipUnlessServiceEnabled("sso");
+      if (label === "biber") {
+        shared.skipWhenBiberMailboxFailsPixelfedValidation();
+      }
       test.setTimeout(resolveTimeout(180_000));
       const base = shared.env.pixelfedBaseUrl.replace(/\/$/, "");
 

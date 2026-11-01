@@ -63,6 +63,10 @@ keycloak:
     totp_enabled: true
   users:
     emails_verified: true
+  email:
+    policy: external
+    switch: false
+    secondary_required: true
   design:
     theme: infinito-corporate
   scopes:
