@@ -54,7 +54,10 @@ def _role_scripts(role: str):
     trees = tuple(_ROLES_DIR / role / tree for tree in ("files", "tasks"))
     for raw in sorted(iter_project_files()):
         path = Path(raw)
-        if any(tree in path.parents for tree in trees) and "playwright" not in path.parts:
+        if (
+            any(tree in path.parents for tree in trees)
+            and "playwright" not in path.parts
+        ):
             yield path
 
 
