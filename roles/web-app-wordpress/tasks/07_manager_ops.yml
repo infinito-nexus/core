@@ -30,8 +30,12 @@
 - name: "📦 Install declared mu-plugins"
   include_tasks: 04_mu_plugins.yml
 
+- name: "🏠 Reserve and archive the own sites of the site-owner members"
+  include_tasks: 05_site_owners.yml
+  when: WORDPRESS_SITE_OWNER_ENABLED | bool
+
 - name: "🔁 Iterate through WordPress plugins"
-  include_tasks: 05_enable_plugin.yml
+  include_tasks: 06_enable_plugin.yml
   loop: "{{ WORDPRESS_PLUGINS }}"
   loop_control:
     loop_var: wordpress_plugin
@@ -83,13 +87,13 @@
   when: (wp_is_multisite.stdout | trim) == '1'
 
 - name: "🔄 Update Single Side WordPress domain"
-  include_tasks: 06_update_domain.yml
+  include_tasks: 08_update_domain.yml
   when: (wp_is_multisite.stdout | trim) == '0'
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"
 
 - name: "🎨 Apply or withdraw the corporate design"
-  include_tasks: 08_design.yml
+  include_tasks: 09_design.yml
 
 - name: "📧 Verify the relay accepted WordPress's startup mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

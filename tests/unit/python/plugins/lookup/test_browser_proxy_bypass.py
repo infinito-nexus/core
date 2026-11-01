@@ -36,6 +36,28 @@ class TestBrowserProxyBypassLookup(unittest.TestCase):
             sorted([f"app.{PRIMARY}", f"auth.{PRIMARY}"]),
         )
 
+    def test_served_names_of_deployed_apps_go_direct_a_wildcard_as_its_suffix(self):
+        served = [
+            {"name": f"*.user.blog.{PRIMARY}", "application_id": "web-app-deployed"},
+            {"name": f"ann.shop.{PRIMARY}", "application_id": "web-app-deployed"},
+            {"name": f"*.user.other.{PRIMARY}", "application_id": "web-app-elsewhere"},
+        ]
+        self.assertEqual(
+            self._run(
+                ["tor", f"auth.{PRIMARY}"],
+                group_names=["svc-net-tor", "web-app-deployed"],
+                CURRENT_PLAY_SERVED_DOMAINS=served,
+            ),
+            sorted(
+                [
+                    f".user.blog.{PRIMARY}",
+                    f"ann.shop.{PRIMARY}",
+                    f"app.{PRIMARY}",
+                    f"auth.{PRIMARY}",
+                ]
+            ),
+        )
+
     def test_a_tor_only_node_bypasses_nothing(self):
         self.assertEqual(
             self._run(

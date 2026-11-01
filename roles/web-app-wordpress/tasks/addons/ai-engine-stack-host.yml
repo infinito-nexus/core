@@ -15,6 +15,17 @@
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔒 Disable the AI Engine MCP module and its bearer token on every non-main site"
+  when: WORDPRESS_MULTISITE_ENABLED | bool
+  ansible.builtin.shell:
+    cmd: >
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/ai_engine/network_mcp.php') }}"
+  register: wordpress_ai_network_mcp
+  changed_when: "'CHANGED' in wordpress_ai_network_mcp.stdout"
+
 - name: "🔎 Read back the configured AI Engine endpoint"
   ansible.builtin.shell:
     cmd: >

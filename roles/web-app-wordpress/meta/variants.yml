@@ -141,6 +141,9 @@
       - blog.{{ DOMAIN_PRIMARY }}
       - biberblog.{{ DOMAIN_PRIMARY }}
       - biber.blog.{{ DOMAIN_PRIMARY }}
+    served:
+      - parent: user.blog.{{ DOMAIN_PRIMARY }}
+        role: site-owner
   rbac:
     tenancy:
       axis: domain
@@ -148,6 +151,10 @@
     roles:
       network-administrator:
         description: Holds super-admin rights across every site of the Multisite network
+        scope: global
+      site-owner:
+        description: Administers an own site <username>.<domains.served parent>, created on the first SSO login and archived when the membership ends; a deploy
+          or the next sign-in applies a membership change
         scope: global
       mcp:
         scope: global

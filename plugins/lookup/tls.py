@@ -11,6 +11,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.domains.served import served_owners
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
     align_domain_to_consumer,
@@ -65,6 +66,7 @@ class LookupModule(LookupBase):
             domains=domains,
             applications=applications,
             redirects=redirect_targets(variables),
+            served=served_owners(variables),
             forced_mode=forced_mode,
             err_prefix="tls",
         )

@@ -34,7 +34,7 @@ test("addon video-conferencing-with-bbb: the conferencing plugin is active and a
       shared.env.adminPassword
     );
 
-    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/plugins.php`, {
+    await gotoOnion(page, shared.wpPluginsScreenUrl(""), {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });
@@ -46,8 +46,8 @@ test("addon video-conferencing-with-bbb: the conferencing plugin is active and a
     ).toBeVisible({ timeout: resolveTimeout(30_000) });
     await expect(
       row,
-      "the plugin row must offer Deactivate, which only an ACTIVE plugin does; a downloaded-but-inactive plugin adds no conferencing surface"
-    ).toContainText(/deactivate/i, { timeout: resolveTimeout(30_000) });
+      "the plugin row must offer Deactivate (Network Deactivate under Multisite), which only an ACTIVE (network-active under Multisite) plugin does; a downloaded-but-inactive plugin adds no conferencing surface"
+    ).toContainText(shared.wpActivePluginAction, { timeout: resolveTimeout(30_000) });
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

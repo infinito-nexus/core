@@ -16,7 +16,7 @@ final class WpOidcState
 
     public static array $restores = [];
 
-    public static array $blogsWhoseWriteNeverPersists = [];
+    public static array $log = [];
 
     public static function reset(): void
     {
@@ -26,24 +26,20 @@ final class WpOidcState
         self::$options = [];
         self::$switches = [];
         self::$restores = [];
-        self::$blogsWhoseWriteNeverPersists = [];
+        self::$log = [];
     }
 
     public static function blog(): int
     {
-        return self::$currentBlog ?? 0;
+        return self::$currentBlog ?? 1;
     }
-}
-
-final class WpCliHalt extends RuntimeException
-{
 }
 
 final class WP_CLI
 {
-    public static function error(string $message): void
+    public static function log(string $message): void
     {
-        throw new WpCliHalt($message);
+        WpOidcState::$log[] = $message;
     }
 }
 
@@ -55,6 +51,11 @@ function is_multisite(): bool
 function get_sites(array $args = []): array
 {
     return WpOidcState::$sites;
+}
+
+function get_current_blog_id(): int
+{
+    return WpOidcState::blog();
 }
 
 function switch_to_blog(int $blogId): void
@@ -69,20 +70,15 @@ function restore_current_blog(): void
     WpOidcState::$currentBlog = null;
 }
 
-function update_option(string $key, $value): bool
+function delete_option(string $key): bool
 {
     $blog = WpOidcState::blog();
-    if (in_array($blog, WpOidcState::$blogsWhoseWriteNeverPersists, true)) {
+    if (!array_key_exists($key, WpOidcState::$options[$blog] ?? [])) {
         return false;
     }
-    WpOidcState::$options[$blog][$key] = $value;
+    unset(WpOidcState::$options[$blog][$key]);
 
     return true;
-}
-
-function get_option(string $key, $default = false)
-{
-    return WpOidcState::$options[WpOidcState::blog()][$key] ?? $default;
 }
 
 use PHPUnit\Framework\TestCase;
@@ -93,83 +89,68 @@ final class SettingsTest extends TestCase
 
     private const OPTION = 'openid_connect_generic_settings';
 
-    private const SETTINGS = ['client_id' => 'wp', 'client_secret' => 's3cret'];
+    private const STORED = ['client_id' => 'wp', 'client_secret' => 's3cret'];
 
     protected function setUp(): void
     {
         WpOidcState::reset();
     }
 
-    private function runPayload(?string $payload): void
+    private function run_script(): void
     {
-        putenv($payload === null ? 'WP_OIDC_SETTINGS' : 'WP_OIDC_SETTINGS=' . $payload);
         include dirname(__DIR__, 7) . self::SCRIPT;
     }
 
-    private function encoded(): string
+    public function testASingleSiteLosesItsStoredCopyWithoutSwitchingBlogs(): void
     {
-        return base64_encode((string) json_encode(self::SETTINGS));
-    }
+        WpOidcState::$options[1] = [self::OPTION => self::STORED, 'blogname' => 'blog'];
 
-    public function testASingleSiteIsWrittenWithoutSwitchingBlogs(): void
-    {
-        $this->runPayload($this->encoded());
+        $this->run_script();
 
-        self::assertSame(self::SETTINGS, WpOidcState::$options[0][self::OPTION]);
+        self::assertSame(['blogname' => 'blog'], WpOidcState::$options[1]);
         self::assertSame([], WpOidcState::$switches);
+        self::assertSame(['CHANGED 1'], WpOidcState::$log);
     }
 
-    public function testEverySiteOfANetworkReceivesTheSettings(): void
+    public function testEverySiteOfANetworkLosesItsStoredCopy(): void
     {
         WpOidcState::$multisite = true;
         WpOidcState::$sites = [1, 7, 9];
+        foreach ([1, 7, 9] as $blog) {
+            WpOidcState::$options[$blog] = [self::OPTION => self::STORED];
+        }
 
-        $this->runPayload($this->encoded());
+        $this->run_script();
 
         self::assertSame([1, 7, 9], WpOidcState::$switches);
         self::assertSame([1, 7, 9], WpOidcState::$restores);
         foreach ([1, 7, 9] as $blog) {
-            self::assertSame(self::SETTINGS, WpOidcState::$options[$blog][self::OPTION]);
+            self::assertArrayNotHasKey(self::OPTION, WpOidcState::$options[$blog]);
         }
+        self::assertSame(['CHANGED 1', 'CHANGED 7', 'CHANGED 9'], WpOidcState::$log);
     }
 
-    public function testASiteWhoseWriteDoesNotPersistIsNamed(): void
+    public function testOnlyASiteThatStillStoresTheSettingsReportsAChange(): void
     {
         WpOidcState::$multisite = true;
         WpOidcState::$sites = [1, 7, 9];
-        WpOidcState::$blogsWhoseWriteNeverPersists = [7];
+        WpOidcState::$options[7] = [self::OPTION => self::STORED];
 
-        $this->expectException(WpCliHalt::class);
-        $this->expectExceptionMessageMatches('/\b7\b/');
+        $this->run_script();
 
-        $this->runPayload($this->encoded());
+        self::assertSame(['CHANGED 7'], WpOidcState::$log);
     }
 
-    public function testEverySiteIsVisitedBeforeTheFailureIsReported(): void
+    public function testASecondRunChangesNothing(): void
     {
         WpOidcState::$multisite = true;
-        WpOidcState::$sites = [1, 7, 9];
-        WpOidcState::$blogsWhoseWriteNeverPersists = [1];
+        WpOidcState::$sites = [1, 7];
+        WpOidcState::$options[1] = [self::OPTION => self::STORED];
 
-        try {
-            $this->runPayload($this->encoded());
-            self::fail('a blocked write must halt the run');
-        } catch (WpCliHalt $halt) {
-            self::assertSame([1, 7, 9], WpOidcState::$switches);
-        }
-    }
+        $this->run_script();
+        WpOidcState::$log = [];
+        $this->run_script();
 
-    public function testAPayloadThatIsNotAMapHalts(): void
-    {
-        $this->expectException(WpCliHalt::class);
-
-        $this->runPayload(base64_encode('"a string"'));
-    }
-
-    public function testAnAbsentPayloadHalts(): void
-    {
-        $this->expectException(WpCliHalt::class);
-
-        $this->runPayload(null);
+        self::assertSame([], WpOidcState::$log);
     }
 }

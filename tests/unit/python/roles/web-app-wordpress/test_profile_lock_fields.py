@@ -1,17 +1,19 @@
-"""The fields the OIDC mapper keeps are the fields the lock renderer decorates.
+"""Every ``services.sso.profile.locked`` key locks the same input on both sides.
 
-``infinito-oidc-rbac-mapper.php`` keeps the users-table columns of
-``INFINITO_OIDC_MANAGED_USER_FIELDS`` and the user meta of
-``INFINITO_OIDC_MANAGED_META_FIELDS`` on every guarded write;
-``services.sso.profile.locked`` names the profile form inputs the shared
-renderer decorates. WordPress names the inputs after the stored field except
-for the email and the website, so both lists must name the same fields.
+``templates/env.j2`` renders the keys of ``services.sso.profile.locked`` into
+``WORDPRESS_OIDC_PROFILE_LOCKED``; ``infinito-oidc-rbac-mapper.php`` resolves
+each key through ``INFINITO_OIDC_LOCKABLE_FIELDS`` to the stored field it keeps
+and the ``profile.php`` input it resets. The key's selector must name that
+input, so neither side can lock a field alone.
 """
 
 from __future__ import annotations
 
+import json
 import re
 import unittest
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -19,41 +21,75 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
-ROLE = PROJECT_ROOT / "roles/web-app-wordpress"
+APP = "web-app-wordpress"
+ROLE = PROJECT_ROOT / "roles" / APP
 MAPPER = ROLE / "files/mu-plugins/infinito-oidc-rbac-mapper.php"
 SERVICES = ROLE / ROLE_FILE_META_SERVICES
-STORED_BY_INPUT = {"email": "user_email", "url": "user_url"}
+ENV = ROLE / "templates/env.j2"
+ENV_KEY = "WORDPRESS_OIDC_PROFILE_LOCKED"
 FORM = "body.infinito-sso-managed #your-profile"
+LOCKABLE = re.compile(
+    r"const INFINITO_OIDC_LOCKABLE_FIELDS = array\((.*?)\n\);", re.DOTALL
+)
+ENTRY = re.compile(
+    r"'(\w+)' => array\('(?:column|meta)' => '\w+', 'input' => '(\w+)', "
+    r"'submit' => '(?:restore|drop)'\)"
+)
 
 
-def _kept_by_the_mapper() -> set[str]:
-    source = read_text(str(MAPPER))
-    kept: set[str] = set()
-    for constant in (
-        "INFINITO_OIDC_MANAGED_USER_FIELDS",  # nocheck: PHP constant of the mapper mu-plugin, not an env key
-        "INFINITO_OIDC_MANAGED_META_FIELDS",  # nocheck: PHP constant of the mapper mu-plugin, not an env key
-    ):
-        values = re.search(rf"const {constant} = array\((.*?)\);", source).group(1)
-        kept |= set(re.findall(r"'(\w+)'", values))
-    return kept
+def _locked() -> dict[str, str]:
+    return load_yaml_any(SERVICES)["sso"]["profile"]["locked"]
 
 
-def _decorated_by_the_renderer() -> set[str]:
-    locked = load_yaml_any(SERVICES)["sso"]["profile"]["locked"]
-    inputs = {
-        re.fullmatch(rf"{re.escape(FORM)} #(\w+)", s).group(1) for s in locked.values()
-    }
-    return {STORED_BY_INPUT.get(name, name) for name in inputs}
+def _input_by_key() -> dict[str, str]:
+    return dict(ENTRY.findall(LOCKABLE.search(read_text(str(MAPPER))).group(1)))
+
+
+def _decorated_input(selector: str) -> str:
+    return re.fullmatch(rf"{re.escape(FORM)} #(\w+)", selector).group(1)
+
+
+def _rendered_env_keys() -> list[str]:
+    line = next(
+        line
+        for line in read_text(str(ENV)).splitlines()
+        if line.startswith(f"{ENV_KEY}=")
+    )
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+
+    def lookup(name: str, *terms: str):
+        if (name, *terms) == ("config", APP, "services.sso.profile.locked"):
+            return _locked()
+        raise AssertionError(f"{ENV_KEY} renders an unexpected lookup {name}{terms}")
+
+    env.globals["lookup"] = lookup
+    env.filters["to_json"] = json.dumps
+    env.filters["dotenv_quote"] = lambda value: value
+    rendered = env.from_string(line).render(application_id=APP)
+    return json.loads(rendered.split("=", 1)[1])
 
 
 class TestProfileLockFields(unittest.TestCase):
-    def test_the_mapper_and_the_renderer_lock_the_same_fields(self):
-        self.assertEqual(_kept_by_the_mapper(), _decorated_by_the_renderer())
+    def test_every_locked_key_resets_the_input_its_selector_decorates(self):
+        inputs = _input_by_key()
+        mismatched = {
+            key: (inputs.get(key), _decorated_input(selector))
+            for key, selector in _locked().items()
+            if inputs.get(key) != _decorated_input(selector)
+        }
+        self.assertEqual({}, mismatched)
 
-    def test_the_email_and_the_name_are_kept(self):
-        self.assertLessEqual(
-            {"user_email", "first_name", "last_name"}, _kept_by_the_mapper()
+    def test_every_lockable_entry_parses(self):
+        source = LOCKABLE.search(read_text(str(MAPPER))).group(1)
+        self.assertEqual(
+            source.count("=> array("), len(_input_by_key()), "unparsed entry"
         )
+
+    def test_the_container_receives_every_locked_key(self):
+        self.assertEqual(list(_locked()), _rendered_env_keys())
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - registers add_action hooks at load and maps roles through WordPress user objects the core supplies
 /**
  * Plugin Name: Infinito.Nexus OIDC RBAC Role Mapper
  * Description: Maps the Keycloak claims delivered by
@@ -8,7 +7,7 @@
  *              and user-edit.php of an OIDC account for the shared lock
  *              renderer, and keeps the IdP-managed fields on every other
  *              wp_insert_user write.
- * Version:     2.2.0
+ * Version:     2.3.0
  * Author:      Infinito.Nexus
  */
 
@@ -40,9 +39,20 @@ const INFINITO_RBAC_OWNERSHIP_META_KEY = '_infinito_oidc_added_blog_ids';
 const INFINITO_RBAC_SUPER_ADMIN_META_KEY = '_infinito_oidc_granted_super_admin';
 const INFINITO_OIDC_SUBJECT_META_KEY = 'openid-connect-generic-subject-identity';
 const INFINITO_OIDC_MANAGED_PROFILE_CLASS = 'infinito-sso-managed';
-const INFINITO_OIDC_MANAGED_USER_FIELDS = array('user_email', 'user_url', 'display_name');
-const INFINITO_OIDC_MANAGED_META_FIELDS = array('first_name', 'last_name', 'locale');
+const INFINITO_OIDC_LOCKABLE_FIELDS = array(
+    'first_name' => array('meta' => 'first_name', 'input' => 'first_name', 'submit' => 'restore'),
+    'last_name' => array('meta' => 'last_name', 'input' => 'last_name', 'submit' => 'restore'),
+    'display_name' => array('column' => 'display_name', 'input' => 'display_name', 'submit' => 'drop'),
+    'email' => array('column' => 'user_email', 'input' => 'email', 'submit' => 'restore'),
+    'website' => array('column' => 'user_url', 'input' => 'url', 'submit' => 'restore'),
+    'language' => array('meta' => 'locale', 'input' => 'locale', 'submit' => 'drop'),
+);
 const INFINITO_OIDC_PROFILE_SYNC_HOOK = 'infinito_oidc_profile_sync_running';
+const INFINITO_RBAC_MEMBER_LABEL = '/^(?:[a-z1-9]+|[a-z1-9]{4}0[a-z1-9]+)$/';
+const INFINITO_RBAC_MEMBER_LABEL_MAX = 63;
+const INFINITO_RBAC_ILLEGAL_LABELS = array('www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files', 'blog');
+const INFINITO_RBAC_SITE_SUBJECT_META_KEY = 'infinito_site_owner_subject';
+const INFINITO_RBAC_SITE_LOGIN_META_KEY = 'infinito_site_owner_login';
 
 /**
  * @param string $name Environment variable the role renders into the container.
@@ -57,7 +67,7 @@ function infinito_oidc_env($name) {
 }
 
 /**
- * @return array Group path => array('role' => <WP role>, 'tenant' => <site domain>) or array('network' => true).
+ * @return array Group path => array('role' => <WP role>, 'tenant' => <site domain>), array('network' => true) or array('site_owner' => true).
  */
 function infinito_rbac_group_map() {
     $map = json_decode(infinito_oidc_env('WORDPRESS_RBAC_GROUP_MAP'), true, 8, JSON_THROW_ON_ERROR);
@@ -80,13 +90,14 @@ function infinito_rbac_priority() {
 /**
  * @param mixed $groups The groups claim.
  * @param array $map    The group map from infinito_rbac_group_map().
- * @return array array('global' => roles, 'per_tenant' => tenant => roles, 'network_admin' => bool).
+ * @return array array('global' => roles, 'per_tenant' => tenant => roles, 'network_admin' => bool, 'site_owner' => bool).
  */
 function infinito_rbac_parse_claim($groups, $map) {
     $parsed = array(
         'global' => array(),
         'per_tenant' => array(),
         'network_admin' => false,
+        'site_owner' => false,
     );
     if (!is_array($groups)) {
         return $parsed;
@@ -98,6 +109,10 @@ function infinito_rbac_parse_claim($groups, $map) {
         $entry = $map[$group];
         if (!empty($entry['network'])) {
             $parsed['network_admin'] = true;
+            continue;
+        }
+        if (!empty($entry['site_owner'])) {
+            $parsed['site_owner'] = true;
             continue;
         }
         if (!isset($entry['role']) || !is_string($entry['role'])) {
@@ -147,10 +162,246 @@ function infinito_rbac_apply_super_admin($user_id, $is_network_admin) {
     }
 }
 
-function infinito_rbac_apply_multisite($user, $parsed) {
+/**
+ * @param string $login A login exactly as Keycloak delivers it.
+ * @return bool True when the login names a member host: a Keycloak username that fits a DNS label and is no WordPress illegal name.
+ */
+function infinito_rbac_is_member_label($login) {
+    return strlen($login) <= INFINITO_RBAC_MEMBER_LABEL_MAX
+        && preg_match(INFINITO_RBAC_MEMBER_LABEL, $login) === 1
+        && !in_array($login, INFINITO_RBAC_ILLEGAL_LABELS, true);
+}
+
+/**
+ * @param string $login The login of the member whose own site is resolved.
+ * @return array array('domain' => <site domain>, 'url' => <site base URL>); throws when the login names no member host.
+ */
+function infinito_rbac_site_owner_site($login) {
+    if (!infinito_rbac_is_member_label($login)) {
+        throw new RuntimeException(sprintf('login %s names no site-owner host', $login));
+    }
+    $base = infinito_oidc_env('WORDPRESS_SITE_OWNER_BASE_URL');
+    $scheme = parse_url($base, PHP_URL_SCHEME);
+    $parent = parse_url($base, PHP_URL_HOST);
+    if (!is_string($scheme) || !is_string($parent)) {
+        throw new RuntimeException('WORDPRESS_SITE_OWNER_BASE_URL is no absolute URL: ' . $base);
+    }
+    $domain = $login . '.' . strtolower($parent);
+    return array('domain' => $domain, 'url' => $scheme . '://' . $domain);
+}
+
+/**
+ * @param string $domain The domain of an own site.
+ * @return \WP_Site|null The site on that domain.
+ */
+function infinito_rbac_find_site($domain) {
+    $found = get_sites(array('domain' => $domain, 'path' => '/', 'number' => 1));
+    return $found ? $found[0] : null;
+}
+
+/**
+ * @param int    $blog_id The site on the member's own domain.
+ * @param string $login   The member's login.
+ * @param string $subject The member's OIDC subject.
+ * @return bool True when the site records this subject, or records none and the deploy reserved it for this login.
+ */
+function infinito_rbac_site_matches($blog_id, $login, $subject) {
+    $recorded = (string) get_site_meta($blog_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, true);
+    if ($recorded !== '') {
+        return hash_equals($recorded, $subject);
+    }
+    return (string) get_site_meta($blog_id, INFINITO_RBAC_SITE_LOGIN_META_KEY, true) === $login;
+}
+
+/**
+ * @param array  $own     The result of infinito_rbac_site_owner_site().
+ * @param int    $user_id The user wp_insert_site() makes the administrator.
+ * @param string $key     The site meta key that marks the owner.
+ * @param string $value   The owner it records: the member's subject or reserved login.
+ * @return int Blog id of the created site; throws when WordPress creates no site or keeps no owner.
+ */
+function infinito_rbac_insert_own_site($own, $user_id, $key, $value) {
+    $created = wp_insert_site(array(
+        'domain' => $own['domain'],
+        'path' => '/',
+        'title' => $own['domain'],
+        'user_id' => $user_id,
+        'options' => array('home' => $own['url'], 'siteurl' => $own['url']),
+        'meta' => array($key => $value),
+    ));
+    if (is_wp_error($created)) {
+        throw new RuntimeException($own['domain'] . ': ' . $created->get_error_message());
+    }
+    if ((string) get_site_meta((int) $created, $key, true) !== $value) {
+        throw new RuntimeException(sprintf('site %d keeps no %s', (int) $created, $key));
+    }
+    return (int) $created;
+}
+
+/**
+ * @param int    $blog_id The site the deploy reserved for the member.
+ * @param int    $user_id The member signing in for the first time.
+ * @param string $subject The member's OIDC subject.
+ */
+function infinito_rbac_claim_reserved_site($blog_id, $user_id, $subject) {
+    update_site_meta($blog_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, $subject);
+    if ((string) get_site_meta($blog_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, true) !== $subject) {
+        throw new RuntimeException(sprintf('site %d keeps no owner subject', $blog_id));
+    }
+    foreach (get_users(array('blog_id' => $blog_id, 'fields' => 'ID')) as $member_id) {
+        if ((int) $member_id !== $user_id) {
+            remove_user_from_blog((int) $member_id, $blog_id);
+        }
+    }
+}
+
+/**
+ * @param string $login    The inventory login whose own site the deploy reserves.
+ * @param int    $owner_id The user who administers the site until its member signs in and claims it.
+ * @return bool True when this call created the site; throws when the login names no host or another account holds its domain.
+ */
+function infinito_rbac_reserve_own_site($login, $owner_id) {
+    $own = infinito_rbac_site_owner_site($login);
+    $site = infinito_rbac_find_site($own['domain']);
+    if ($site === null) {
+        infinito_rbac_insert_own_site($own, $owner_id, INFINITO_RBAC_SITE_LOGIN_META_KEY, $login);
+        return true;
+    }
+    $blog_id = (int) $site->blog_id;
+    $reserved = (string) get_site_meta($blog_id, INFINITO_RBAC_SITE_LOGIN_META_KEY, true);
+    $subject = (string) get_site_meta($blog_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, true);
+    if ($reserved === $login || ($reserved === '' && $subject !== '')) {
+        return false;
+    }
+    throw new RuntimeException(sprintf('%s is site %d of another account', $own['domain'], $blog_id));
+}
+
+/**
+ * @param string[] $members The logins of every inventory site-owner member.
+ * @return string[] The logins whose reserved site this call archived; their sessions end on every site.
+ */
+function infinito_rbac_archive_reserved_sites_of_former_members($members) {
+    $archived = array();
+    $reserved = get_sites(array(
+        'number' => 0,
+        'meta_query' => array(array('key' => INFINITO_RBAC_SITE_LOGIN_META_KEY, 'compare' => 'EXISTS')),
+    ));
+    foreach ($reserved as $site) {
+        $login = (string) get_site_meta((int) $site->blog_id, INFINITO_RBAC_SITE_LOGIN_META_KEY, true);
+        if (in_array($login, $members, true) || (int) $site->archived === 1) {
+            continue;
+        }
+        infinito_rbac_update_site((int) $site->blog_id, array('archived' => 1));
+        $user = get_user_by('login', $login);
+        if ($user instanceof WP_User) {
+            WP_Session_Tokens::get_instance((int) $user->ID)->destroy_all();
+        }
+        $archived[] = $login;
+    }
+    return $archived;
+}
+
+/**
+ * @param int   $blog_id The site to update.
+ * @param array $data    The site fields wp_update_site() writes.
+ */
+function infinito_rbac_update_site($blog_id, $data) {
+    $updated = wp_update_site($blog_id, $data);
+    if (is_wp_error($updated)) {
+        throw new RuntimeException(sprintf('site %d: %s', $blog_id, $updated->get_error_message()));
+    }
+}
+
+/**
+ * @param \WP_User $user          The user signing in.
+ * @param bool     $is_site_owner True when the groups claim names the site-owner group.
+ * @param string   $subject       The OIDC subject of the user, '' when the claim carries none.
+ * @param string   $login         The raw username claim, '' when the claim carries none.
+ * @return int Blog id of the user's own site, 0 when the user has none; throws when the step cannot complete.
+ */
+function infinito_rbac_apply_site_owner($user, $is_site_owner, $subject, $login) {
+    $user_id = (int) $user->ID;
+    if ($login !== (string) $user->user_login) {
+        throw new RuntimeException(sprintf('the username claim of user %d differs from its login', $user_id));
+    }
+    if (!infinito_rbac_is_member_label($login)) {
+        if ($is_site_owner) {
+            throw new RuntimeException(sprintf('site-owner member %s names no own site', $login));
+        }
+        return 0;
+    }
+    if ($subject === '') {
+        throw new RuntimeException(sprintf('the claims of %s carry no subject', $login));
+    }
+
+    $own = infinito_rbac_site_owner_site($login);
+    $site = infinito_rbac_find_site($own['domain']);
+    if ($site !== null && !infinito_rbac_site_matches((int) $site->blog_id, $login, $subject)) {
+        throw new RuntimeException(sprintf('%s is site %d of another account', $own['domain'], (int) $site->blog_id));
+    }
+
+    if (!$is_site_owner) {
+        if ($site === null) {
+            return 0;
+        }
+        if ((int) $site->archived !== 1) {
+            infinito_rbac_update_site((int) $site->blog_id, array('archived' => 1));
+        }
+        return (int) $site->blog_id;
+    }
+
+    if ($site === null) {
+        return infinito_rbac_insert_own_site($own, $user_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, $subject);
+    }
+
+    $blog_id = (int) $site->blog_id;
+    if ((string) get_site_meta($blog_id, INFINITO_RBAC_SITE_SUBJECT_META_KEY, true) === '') {
+        infinito_rbac_claim_reserved_site($blog_id, $user_id, $subject);
+    }
+    if ((int) $site->archived === 1) {
+        infinito_rbac_update_site($blog_id, array('archived' => 0));
+    }
+    if (!is_user_member_of_blog($user_id, $blog_id)) {
+        $added = add_user_to_blog($blog_id, $user_id, 'administrator');
+        if (is_wp_error($added)) {
+            throw new RuntimeException($own['domain'] . ': ' . $added->get_error_message());
+        }
+        return $blog_id;
+    }
+    switch_to_blog($blog_id);
+    $owner = new WP_User($user_id);
+    if (!in_array('administrator', (array) $owner->roles, true)) {
+        $owner->set_role('administrator');
+    }
+    restore_current_blog();
+    return $blog_id;
+}
+
+/**
+ * A failure on the own site is logged and skips only that site, because it
+ * must not block the sign-in to every other site of the network.
+ *
+ * @param \WP_User $user    The user signing in.
+ * @param array    $parsed  The result of infinito_rbac_parse_claim().
+ * @param string   $subject The OIDC subject of the user, '' when the claim carries none.
+ * @param string   $login   The raw username claim, '' when the claim carries none.
+ */
+function infinito_rbac_apply_multisite($user, $parsed, $subject, $login) {
     $user_id = (int) $user->ID;
 
     infinito_rbac_apply_super_admin($user_id, $parsed['network_admin']);
+    $own_blog_id = 0;
+    if (infinito_oidc_env('WORDPRESS_SITE_OWNER_ENABLED') === 'true') {
+        try {
+            $own_blog_id = infinito_rbac_apply_site_owner($user, $parsed['site_owner'], $subject, $login);
+        } catch (RuntimeException $error) {
+            error_log(sprintf(
+                'infinito-oidc-rbac-mapper: own site of user %d skipped: %s',
+                $user_id,
+                $error->getMessage()
+            ));
+        }
+    }
 
     $owned = get_user_meta($user_id, INFINITO_RBAC_OWNERSHIP_META_KEY, true);
     if (!is_array($owned)) {
@@ -160,6 +411,9 @@ function infinito_rbac_apply_multisite($user, $parsed) {
     $sites = function_exists('get_sites') ? get_sites(array('number' => 0)) : array();
     foreach ($sites as $site) {
         $blog_id = (int) $site->blog_id;
+        if ($blog_id === $own_blog_id) {
+            continue;
+        }
         $tenant = strtolower(trim($site->domain));
         $claimed_roles = isset($parsed['per_tenant'][$tenant])
             ? $parsed['per_tenant'][$tenant]
@@ -219,7 +473,9 @@ function infinito_oidc_map_rbac_role($user, $user_claim) {
     $parsed = infinito_rbac_parse_claim($groups, infinito_rbac_group_map());
 
     if (function_exists('is_multisite') && is_multisite()) {
-        infinito_rbac_apply_multisite($user, $parsed);
+        $subject = isset($user_claim['sub']) && is_string($user_claim['sub']) ? $user_claim['sub'] : '';
+        $login = infinito_oidc_claim_string($user_claim, 'WORDPRESS_OIDC_CLAIM_USERNAME');
+        infinito_rbac_apply_multisite($user, $parsed, $subject, $login);
         return;
     }
     infinito_rbac_apply_single_site($user, $parsed);
@@ -314,6 +570,34 @@ function infinito_oidc_is_managed_user($user_id) {
 }
 
 /**
+ * @return array The INFINITO_OIDC_LOCKABLE_FIELDS entries of the services.sso.profile.locked keys that
+ *               WORDPRESS_OIDC_PROFILE_LOCKED lists, by key; throws when the variable is no non-empty JSON list or
+ *               names a field the mapper cannot keep.
+ */
+function infinito_oidc_locked_fields() {
+    $keys = json_decode(infinito_oidc_env('WORDPRESS_OIDC_PROFILE_LOCKED'), true);
+    if (!is_array($keys) || $keys === array() || array_values($keys) !== $keys) {
+        throw new RuntimeException('WORDPRESS_OIDC_PROFILE_LOCKED is not a non-empty JSON list');
+    }
+    $fields = array();
+    foreach ($keys as $key) {
+        if (!is_string($key) || !isset(INFINITO_OIDC_LOCKABLE_FIELDS[$key])) {
+            throw new RuntimeException('WORDPRESS_OIDC_PROFILE_LOCKED names ' . json_encode($key) . ', a profile field the mapper cannot keep');
+        }
+        $fields[$key] = INFINITO_OIDC_LOCKABLE_FIELDS[$key];
+    }
+    return $fields;
+}
+
+/**
+ * @param string $storage `column` for users-table columns, `meta` for user meta.
+ * @return string[] The locked fields stored there.
+ */
+function infinito_oidc_locked_storage($storage) {
+    return array_column(infinito_oidc_locked_fields(), $storage);
+}
+
+/**
  * @param string $classes The admin body classes.
  * @return string The classes plus the one the services.sso.profile.locked selectors match when profile.php or
  *                user-edit.php renders an OIDC account; user-edit.php sets the global $user_id to the edited
@@ -328,7 +612,7 @@ function infinito_oidc_lock_managed_profile_fields($classes) {
 }
 
 /**
- * @param int $user_id The user saving their own profile; restoring the IdP-managed fields before
+ * @param int $user_id The user saving their own profile; restoring the locked fields before
  *                     send_confirmation_on_profile_email runs keeps WordPress from mailing a confirmation link to a
  *                     submitted address.
  */
@@ -340,11 +624,14 @@ function infinito_oidc_keep_managed_profile_fields($user_id) {
     if (!($user instanceof WP_User)) {
         return;
     }
-    $_POST['first_name'] = wp_slash($user->first_name);
-    $_POST['last_name'] = wp_slash($user->last_name);
-    $_POST['email'] = wp_slash($user->user_email);
-    $_POST['url'] = wp_slash($user->user_url);
-    unset($_POST['display_name'], $_POST['locale']);
+    foreach (infinito_oidc_locked_fields() as $field) {
+        if ($field['submit'] === 'restore') {
+            $stored = isset($field['column']) ? $field['column'] : $field['meta'];
+            $_POST[$field['input']] = wp_slash($user->$stored);
+        } else {
+            unset($_POST[$field['input']]);
+        }
+    }
 }
 
 /**
@@ -364,14 +651,14 @@ function infinito_oidc_profile_write_is_guarded($update, $user_id) {
  * @param array $data    The users-table row wp_insert_user writes.
  * @param bool  $update  Whether it updates an existing account.
  * @param int   $user_id The account it updates.
- * @return array The row with the stored email, website and display name of an OIDC account.
+ * @return array The row with the stored locked columns of an OIDC account.
  */
 function infinito_oidc_keep_managed_user_data($data, $update, $user_id) {
     if (!infinito_oidc_profile_write_is_guarded($update, $user_id)) {
         return $data;
     }
     $stored = get_userdata((int) $user_id);
-    foreach (INFINITO_OIDC_MANAGED_USER_FIELDS as $field) {
+    foreach (infinito_oidc_locked_storage('column') as $field) {
         $data[$field] = $stored->$field;
     }
     return $data;
@@ -381,13 +668,13 @@ function infinito_oidc_keep_managed_user_data($data, $update, $user_id) {
  * @param array    $meta   The user meta wp_insert_user writes.
  * @param \WP_User $user   The account it writes them for.
  * @param bool     $update Whether it updates an existing account.
- * @return array The meta with the stored first name, last name and locale of an OIDC account.
+ * @return array The meta with the stored locked meta of an OIDC account.
  */
 function infinito_oidc_keep_managed_user_meta($meta, $user, $update) {
     if (!($user instanceof WP_User) || !infinito_oidc_profile_write_is_guarded($update, $user->ID)) {
         return $meta;
     }
-    foreach (INFINITO_OIDC_MANAGED_META_FIELDS as $key) {
+    foreach (infinito_oidc_locked_storage('meta') as $key) {
         $meta[$key] = get_user_meta($user->ID, $key, true);
     }
     return $meta;
@@ -396,8 +683,9 @@ function infinito_oidc_keep_managed_user_meta($meta, $user, $update) {
 /**
  * @param bool  $send Whether wp_update_user mails the email change notice.
  * @param array $user The account before the update.
- * @return bool False for an OIDC account: the notice is decided before the guard keeps the stored email.
+ * @return bool False for an OIDC account while its email is locked: the notice is decided before the guard keeps
+ *              the stored email.
  */
 function infinito_oidc_mail_email_change($send, $user) {
-    return $send && !infinito_oidc_is_managed_user($user['ID']);
+    return $send && !(infinito_oidc_is_managed_user($user['ID']) && in_array('user_email', infinito_oidc_locked_storage('column'), true));
 }

@@ -75,6 +75,8 @@ def _render_env(objstore: dict) -> dict[str, str]:
             return objstore[terms[1]]
         if name == "database":
             return "db"
+        if (name, *terms) == ("config", APP, "services.sso.profile.locked"):
+            return SERVICES["sso"]["profile"]["locked"]
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
@@ -99,12 +101,15 @@ def _render_env(objstore: dict) -> dict[str, str]:
                     "FAMILY_NAME",
                     "WEBSITE",
                     "LOCALE",
+                    "USERNAME",
                 ),
                 "claim",
             ),
         },
         RBAC={"GROUP": {"CLAIM": "groups"}},
         WORDPRESS_RBAC_GROUP_MAP={},
+        WORDPRESS_LOGIN_SSO=False,
+        WORDPRESS_SITE_OWNER_ENABLED=False,
     )
     return dict(
         line.split("=", 1)

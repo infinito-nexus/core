@@ -13,7 +13,7 @@
          | combine({front_proxy_domain: front_proxy_probe} if (front_proxy_domain | network_of) != 'tor' else {}) }}
   vars:
     front_proxy_probe:
-      url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+      url: "{{ lookup('tls', front_proxy_domain, 'url.base') | replace('://*.', '://' ~ front_proxy_wildcard_probe_label ~ '.') }}"
       status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
   when: IS_STACK_HOST | bool

@@ -6,6 +6,7 @@ const {
   installCspViolationObserver,
   keycloakAdminSetUserAttributes,
   keycloakAdminToken,
+  requireDotenvValue,
 } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
@@ -34,12 +35,18 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("javascript");
     test.setTimeout(resolveTimeout(180_000));
     const { env } = shared;
-    const website = `${env.wpBaseUrl}/biber-profile-${Date.now()}`;
+    const website = `${env.wpBaseUrl}/biber-${Date.now().toString(36)}`;
+    expect(
+      website.length,
+      "WordPress rejects the whole profile update of a user_url over 100 characters"
+    ).toBeLessThanOrEqual(100);
+    const mailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
     const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
     let previous = null;
 
     try {
       const keycloakUser = await readKeycloakUser(adminCtx.request, env);
+      const claimedEmail = mailbox ? requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL") : keycloakUser.email;
       previous = await keycloakAdminSetUserAttributes(
         adminCtx.request,
         env.keycloakBaseUrl,
@@ -64,9 +71,12 @@ exports.register = function (shared) {
           page.locator("input#url"),
           "the Keycloak website attribute MUST reach the WordPress profile on login"
         ).toHaveValue(website, { timeout: resolveTimeout(30_000) });
-        await expect(page.locator("input#email"), "the WordPress email MUST be the Keycloak email").toHaveValue(
-          keycloakUser.email
-        );
+        await expect(
+          page.locator("input#email"),
+          mailbox
+            ? "under the mailbox policy the WordPress email MUST be the mailbox, not Keycloak's secondary address"
+            : "the WordPress email MUST be the Keycloak email"
+        ).toHaveValue(claimedEmail);
         await expect(page.locator("input#first_name")).toHaveValue(keycloakUser.firstName);
         await expect(page.locator("input#last_name")).toHaveValue(keycloakUser.lastName);
         await expect(

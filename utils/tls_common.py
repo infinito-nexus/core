@@ -195,6 +195,35 @@ def redirect_targets(variables: dict) -> dict[str, str]:
     return {norm_domain(m["source"]): norm_domain(m["target"]) for m in mappings}
 
 
+def wildcard_certificate_available(app: dict, variables: dict) -> bool:
+    """Tell whether a wildcard vhost name of one application gets a certificate.
+
+    Args:
+        app: the application's configuration, whose ``server.tls`` overrides
+            ``TLS_ENABLED`` and ``TLS_MODE``.
+        variables: host variables carrying ``TLS_ENABLED`` and ``TLS_MODE``, and
+            for ``letsencrypt`` also ``CERTBOT_FLAVOR`` and
+            ``CERTBOT_ACME_CHALLENGE_METHOD``.
+
+    Returns:
+        True without TLS and with self-signed certificates; for ``letsencrypt``
+        only with the ``wildcard`` flavor on a DNS challenge, because the HTTP
+        challenge cannot prove a wildcard.
+    """
+    enabled = resolve_enabled(app, bool(require(variables, "TLS_ENABLED", (bool, int))))
+    mode = resolve_mode(
+        app,
+        enabled,
+        as_str(require(variables, "TLS_MODE", str)),
+        err_prefix="tls_common",
+    )
+    if mode in {"off", "self_signed"}:
+        return True
+    flavor = as_str(require(variables, "CERTBOT_FLAVOR", str))
+    challenge = as_str(require(variables, "CERTBOT_ACME_CHALLENGE_METHOD", str))
+    return flavor == "wildcard" and challenge != "webroot"
+
+
 def is_domain_term(term: str, forced_mode: str, *, err_prefix: str) -> bool:
     """Tell whether a lookup term names a domain rather than an application id.
 
@@ -220,6 +249,7 @@ def resolve_term(
     domains: dict,
     applications: dict | None = None,
     redirects: dict[str, str] | None = None,
+    served: dict[str, str] | None = None,
     forced_mode: str,
     err_prefix: str,
     _following: bool = False,
@@ -245,6 +275,8 @@ def resolve_term(
       4) If that chain ends on a domain this host does not serve, such as a redirect
          to another host, and REDIRECT_SERVING_APP is in domains -> map the source to
          REDIRECT_SERVING_APP, with the source itself as primary_domain.
+      5) If term is a served name (see utils.domains.served.served_owners) -> map it to
+         the application serving it, with the name itself as primary_domain.
     """
     t = as_str(term)
     if not t:
@@ -266,6 +298,9 @@ def resolve_term(
             )
 
         app_id = resolve_app_id_for_domain(apps, t)
+        served_by = (served or {}).get(norm_domain(t))
+        if not app_id and served_by:
+            return served_by, norm_domain(t)
         if not app_id and t.lower().startswith("www."):
             bare = t[4:]
             try:

@@ -209,6 +209,13 @@ exports.register = function (shared) {
         data: { name: `profile-lock-${Date.now()}` },
         timeout: resolveTimeout(60_000),
       });
+      if (new URL(env.wpBaseUrl).protocol !== "https:") {
+        expect(created.status(), "WordPress must refuse an application password over plain HTTP").toBe(501);
+        expect((await created.json()).code, "the refusal must be the site-wide HTTPS gate, not a per-user one").toBe(
+          "application_passwords_disabled",
+        );
+        return;
+      }
       expect(created.ok(), `WordPress must issue biber an application password: ${created.status()}`).toBe(true);
       const issued = await created.json();
       passwords.uuid = issued.uuid;
@@ -281,7 +288,7 @@ exports.register = function (shared) {
 
       const editUrl = page.url();
       const form = await page.locator(PROFILE_FORM).evaluate((element) => ({
-        action: element.action,
+        action: new URL(element.getAttribute("action"), element.baseURI).href,
         fields: Object.fromEntries(new FormData(element).entries()),
       }));
       const description = `profile-lock ${Date.now()}`;

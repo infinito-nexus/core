@@ -98,6 +98,19 @@ It sets `rbac_members` to the `{username, email}` list of the role group. With O
 
 An application that reads its roles from `realm_access.roles` instead of the groups claim sets `realm_roles: true` in its `meta/rbac.yml`. [10_realm_role_grants.yml](../../../../roles/web-app-keycloak/tasks/update/10_realm_role_grants.yml) then creates one realm role `<application_id>-<role>` per declared role, `administrator` included, and grants it to the matching group. Every realm user also holds `default-roles-<realm>`, which the application can map to its lowest role so that nobody without a role group is locked out.
 
+## Hosts for role members 🏠
+
+An application gives every member of one of its roles a host below a parent domain by declaring `domains.served` next to `canonical`:
+
+```yaml
+domains:
+  served:
+    - parent: user.blog.{{ DOMAIN_PRIMARY }}
+      role: site-owner
+```
+
+[served.py](../../../../utils/domains/served.py) resolves the declaration once per play into `CURRENT_PLAY_SERVED_DOMAINS`. Where `wildcard_certificate_available` in [tls_common.py](../../../../utils/tls_common.py) holds for the application, the play serves one name `*.<parent>`; elsewhere it serves `<username>.<parent>` for every inventory user holding the role. A member is served only when `is_member_label` accepts the username. The constructor never fails on a declaration or a member; [served_domains](../../../../plugins/lookup/served_domains.py) also returns the problems, and the declaring role fails on its own. The `tls` and `cert` lookups resolve the served names to their application, the front proxy probes a wildcard name through the host `infinito-probe.<parent>`, and `CURRENT_PLAY_DOMAINS_ALL` carries them into certificates and DNS. `lookup('domains')`, tenancy and `domains.canonical` never contain them, so Keycloak registers no redirect URI for them.
+
 ## Keycloak admin console 🖥️
 
 [web-app-keycloak](../../../../roles/web-app-keycloak/meta/rbac.yml) declares `user-manager`, `auditor` and `impersonator`. [09_console_rbac.yml](../../../../roles/web-app-keycloak/tasks/update/09_console_rbac.yml) grants the matching `realm-management` client roles from `KEYCLOAK_CONSOLE_ROLE_GRANTS` to each group after the per-app mapper resync. `KEYCLOAK_RBAC_RUN_APP_IDS` always contains `web-app-keycloak`, so every run of the role provisions these groups, also an update whose `APPLICATIONS_WHITELIST` names only other applications. `realm-admin` is never granted to a group; the local bootstrap account keeps it.
