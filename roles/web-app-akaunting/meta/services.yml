@@ -45,11 +45,10 @@ akaunting:
       enabled: true
   backup:
     no_stop_required: true
-  image: php
-  version: 8.2.35-apache
-  custom: true
+  image: docker.io/akaunting/akaunting
+  version: 3.1.21
   repository: https://github.com/akaunting/docker.git
-  ref: a6328d945200f868ca2d81da95e3a19f97bec5d3
+  ref: master
   name: akaunting
   min_storage: 527MB
   company:

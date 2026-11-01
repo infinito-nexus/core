@@ -31,7 +31,7 @@
     JOB={{ AKAUNTING_SETUP_JOB | quote }}
     container service rm "$JOB" 2>/dev/null || true
     container service create --detach --restart-condition on-failure --restart-max-attempts 3 --name "$JOB" \
-      --constraint "node.id==$(container info --format '{{ "{{.Swarm.NodeID}}" }}')" \
+      --constraint node.role==manager \
       --env-file {{ lookup('container', application_id, 'files.env') | quote }} \
       --env AKAUNTING_SETUP=true \
       --mount type=volume,source={{ AKAUNTING_VOLUME | quote }},target={{ lookup('volume', 'web-app-akaunting', 'data').target }} \
