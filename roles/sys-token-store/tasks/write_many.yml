@@ -50,7 +50,7 @@
   when:
     - sys_token_store_users_merged != sys_token_store_users
     - DEPLOYMENT_MODE == 'swarm'
-  delegate_to: localhost # nocheck: localhost-become  FILE_TOKENS sits below the root-owned DIR_SECRETS
+  delegate_to: localhost
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: sys_token_store_mirrored
