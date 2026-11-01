@@ -10,6 +10,7 @@ database_password: "{{ lookup('config', application_id, 'secrets.credentials.dat
 NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+NEXTCLOUD_NETWORK_BASE_URLS: "{{ lookup('network_urls', NEXTCLOUD_URL) }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
