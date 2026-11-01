@@ -126,6 +126,24 @@
   notify: wazuh-agent-restart
   when: DEPLOYED_CODE_PROOF_CHECKOUT | length > 0
 
+- name: "🔍 Read the filesystem type of each deployed code checkout"
+  ansible.builtin.command:
+    argv: [findmnt, --noheadings, --output, FSTYPE, --target, "{{ item }}"]
+  loop: "{{ DEPLOYED_CODE_CHECKOUTS }}"
+  register: wazuh_agent_checkout_fstypes
+  changed_when: false
+  when: WAZUH_AGENT_FIM_ENABLED | bool
+
+- name: "⛔ Refuse deployed code checkouts on a network filesystem"
+  ansible.builtin.assert:
+    that: wazuh_agent_checkout_fstypes.results | network_filesystems | length == 0
+    fail_msg: >-
+      Real-time FIM cannot watch a network filesystem (no inotify events, and syscheck skips them),
+      so changes in these deployed code checkouts would never raise an alert; move them to a local path:
+      {{ wazuh_agent_checkout_fstypes.results | network_filesystems | join(', ') }}
+    quiet: true
+  when: WAZUH_AGENT_FIM_ENABLED | bool
+
 - name: "📄 Render the agent configuration"
   ansible.builtin.template: # nocheck: stack-host-template (per-host agent config, every host renders its own)
     src: ossec.conf.j2
