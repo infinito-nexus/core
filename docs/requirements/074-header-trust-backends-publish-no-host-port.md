@@ -15,8 +15,8 @@ Implements [infinito-nexus/core#1089](https://github.com/infinito-nexus/core/iss
 
 ### Header strips at openresty
 
-- [ ] Every proxying `location` that a role template renders into a front-proxy vhost includes `roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2` or the SSO `following_directives.conf.j2`. That covers health (`/healthz/ready`, `/_live_probe`), API, MCP, websocket, upload, oauth2 and ACL exception paths.
-- [ ] `roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2` blanks every header any inventoried role trusts. That includes `X-Remote-User` (Checkmk, OpenProject), `Remote-User`, `Remote-Email` and `X-Auth-Request-*`.
+- [ ] Every proxying `location` that a role template renders into a front-proxy vhost includes `roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2` or the SSO `following_directives.conf.j2`. That covers health (`/healthz/ready`, `/_live_probe`), API, MCP, websocket, upload, oauth2 and ACL exception paths. `tests/lint/ansible/jinja/test_proxy_location_strips.py::test_proxying_locations_clear_client_identity` enforces it for every role template and `files/**/*.conf` fragment, openresty vhosts with their own `server` block included.
+- [ ] `roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2` blanks every header any inventoried role trusts. That includes `X-Remote-User` (Checkmk, OpenProject), `Remote-User`, `Remote-Email` and `X-Auth-Request-*`. The header list is `TRUSTED_IDENTITY_HEADERS` in `utils/roles/header_trust.py`, checked by `tests/lint/ansible/roles/test_location_identity_strips.py`.
 - [ ] A request to `/healthz/ready` on a header-trust vhost with `X-Forwarded-Preferred-Username: administrator` sets no session cookie and logs nobody in.
 - [ ] With SSO switched off after an SSO deploy, a forged `X-Remote-User` on Checkmk logs nobody in.
 
@@ -33,8 +33,8 @@ Implements [infinito-nexus/core#1089](https://github.com/infinito-nexus/core/iss
 
 ### End-to-end checks
 
-- [ ] A shared Playwright helper under `roles/test-e2e-playwright/` forges every trusted header (`X-Forwarded-User`, `X-Forwarded-Preferred-Username`, `X-Forwarded-Email`, `X-Forwarded-Groups`, `Remote-User`, `Remote-Email`, `X-Remote-User`, `X-Auth-Request-*`) against `/`, `/healthz/ready`, each ACL exception path and each API path of a vhost. It asserts that no session cookie is set and that no logged-in page is served. `roles/web-app-postmarks/files/playwright/test-oidc-security.js` is the model.
-- [ ] Every inventoried role runs that helper in its Playwright suite, including `web-app-n8n` and `web-app-bluesky`, which have no forged-header spec today.
+- [ ] A shared Playwright helper, `probeForgedIdentity` in `roles/test-e2e-playwright/files/personas/utils/forged-identity.js`, forges every trusted header (`X-Forwarded-User`, `X-Forwarded-Preferred-Username`, `X-Forwarded-Email`, `X-Forwarded-Groups`, `Remote-User`, `Remote-Email`, `X-Remote-User`, `X-Auth-Request-*`) against `/`, `/healthz/ready`, each ACL exception path and each API path of a vhost. It asserts that no session cookie is set and that no logged-in page is served. `roles/web-app-postmarks/files/playwright/test-oidc-security.js` is the model.
+- [ ] Every inventoried role runs that helper in its Playwright suite, including `web-app-n8n` and `web-app-bluesky`, which have no forged-header spec today. Each role requires `files/playwright/test-forged-identity.js`; `tests/lint/ansible/roles/test_header_trust_forged_identity_spec.py` fails for a role that `utils/roles/header_trust.py` detects as header-trust without it.
 
 ### Documentation
 
