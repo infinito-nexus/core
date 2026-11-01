@@ -43,7 +43,7 @@ stalwart:
   placement: manager
   image: stalwartlabs/stalwart
   version: "v1.0.1"
-  webui_version: "v2.0.2"
+  webui_version: "v2.0.3"
   update:
     key: webui_version
     type: git_tags
@@ -58,6 +58,8 @@ stalwart:
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
+  dmarc:
+    rua_user: administrator
   ports:
     local:
       http: 8095

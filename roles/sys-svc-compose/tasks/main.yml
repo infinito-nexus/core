@@ -10,6 +10,7 @@
     list_or_shoot_roles:
       - sys-ctl-cln-docker
       - sys-ctl-hlth-container
+      - sys-ctl-hlth-runtime
       - sys-ctl-hlth-volumes
       - sys-ctl-rpr-container-hard
 

@@ -183,6 +183,18 @@ class TestStaticYamlDrift(unittest.TestCase):
         )
 
 
+def _file_identity(path: Path) -> tuple[int, int] | None:
+    """Return ``(inode, mtime_ns)`` of *path*, or ``None`` when it is absent.
+
+    Args:
+        path: the file to identify.
+    """
+    if not path.is_file():
+        return None
+    stat = path.stat()
+    return stat.st_ino, stat.st_mtime_ns
+
+
 class TestDotenvSmoke(unittest.TestCase):
     """End-to-end: run the generator in a temp dir and check the
     produced .env contains the expected baseline keys."""
@@ -211,6 +223,8 @@ class TestDotenvSmoke(unittest.TestCase):
             env.setdefault("PATH", os.environ.get("PATH", ""))
 
             dotenv = Path(td) / ".env"
+            repo_dotenv = PROJECT_ROOT / ".env"
+            repo_dotenv_before = _file_identity(repo_dotenv)
             result = subprocess.run(
                 [sys.executable, "-m", "cli.meta.env", "--output", str(dotenv)],
                 env=env,
@@ -225,6 +239,11 @@ class TestDotenvSmoke(unittest.TestCase):
                 f"Generator failed: {result.stderr}",
             )
 
+            self.assertEqual(
+                _file_identity(repo_dotenv),
+                repo_dotenv_before,
+                "The smoke run replaced the repository .env",
+            )
             self.assertTrue(dotenv.is_file(), "Generator did not produce .env")
             values = parse_dotenv(dotenv)
             missing = EXPECTED_BASELINE_KEYS - set(values)

@@ -17,4 +17,4 @@ if ! command -v mbake >/dev/null 2>&1; then
 	exit 127
 fi
 
-mbake format --check Makefile
+mbake format --check --config .bake.toml Makefile

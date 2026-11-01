@@ -1,17 +1,21 @@
 ---
-- name: ⏳ Wait for Gitea HTTP endpoint
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}"
-    delay: 5
-    timeout: "{{ lookup('timeout', 300) | int }}"
-
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
     resolve_service_key: gitea
     resolve_output_prefix: GITEA
     resolve_compose_cid: "{{ GITEA_CONTAINER_ADDRESS }}"
+
+- name: ⏳ Wait for Gitea HTTP endpoint
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ GITEA_LOCAL_CID | quote }}
+    {{ 10 | curl(retries=0) }} -S -o /dev/null {{ GITEA_LOOPBACK_VERSION_URL | quote }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
+  register: gitea_http_ready
+  changed_when: false
+  retries: "{{ ((lookup('timeout', 300) | int) / 5) | round(0, 'ceil') | int }}"
+  delay: 5
+  until: gitea_http_ready.rc == 0
 
 - name: "⏳ Wait for Gitea app.ini to be present after redeploy"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -48,13 +52,13 @@
   failed_when: create_admin.rc != 0 and 'user already exists' not in create_admin.stderr
 
 - name: "⏳ Wait until Gitea setup and migrations are ready"
-  uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.gitea.ports.local.http') }}/api/v1/version"
-    method: GET
-    status_code: 200
-    return_content: false
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ GITEA_LOCAL_CID | quote }}
+    {{ 10 | curl(retries=0) }} -fS -o /dev/null {{ GITEA_LOOPBACK_VERSION_URL | quote }}
+  delegate_to: "{{ GITEA_HOST_NODE }}"
   register: gitea_ready
-  until: gitea_ready.status == 200
+  changed_when: false
+  until: gitea_ready.rc == 0
   retries: 20
   delay: 5
   when: (GITEA_OIDC_ENABLED | bool) or (GITEA_LDAP_ENABLED | bool)

@@ -1,8 +1,9 @@
 # Mailu
 
-> **⚠️ Deprecated.** Mailu is superseded by [`web-app-stalwart`](../web-app-stalwart/),
-> the default email provider. The role keeps working until it is removed, but new
-> deployments MUST NOT adopt it and existing ones MUST migrate. Follow
+> **🪦 End of life.** The project no longer maintains or tests this role; use it at
+> your own risk and turn to [upstream Mailu](https://mailu.io) for support. Mailu is
+> superseded by [`web-app-stalwart`](../web-app-stalwart/), the default email
+> provider. New deployments MUST NOT adopt it and existing ones MUST migrate. Follow
 > [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
 > the mailboxes over. Until then, set `MAIL_PROVIDER: web-app-mailu` to keep routing
 > the mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu.
@@ -87,6 +88,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Customizable Webmail and Administration:** Provides a modern web interface for managing emails and administrative tasks with ease.
 - **Flexible Deployment:** Easily scale and customize using Docker Compose, with configurable settings for networking, storage, and external services.
 - **OIDC Support:** Optionally integrate with OpenID Connect for centralized authentication across your services.
+- **DMARC Reports:** The published `_dmarc` record sends aggregate reports (`rua`) to `<username>@<mail domain>` of the user key in `services.mailu.dmarc.rua_user` (`administrator` unless the inventory names another one). That user MUST carry a `mailbox` account or a `forward` to a user that carries one and whose `email` is that mailbox (`<username>@<mail domain>`), otherwise the deploy fails before any record is written.
 
 ## Quick Setup
 

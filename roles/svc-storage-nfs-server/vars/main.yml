@@ -13,7 +13,7 @@ SVC_STORAGE_NFS_SERVER_SERVICE:
     Archlinux: nfs-ganesha
 
 SVC_STORAGE_NFS_SERVER_STATE_EXPORT_OPTIONS: >-
-  rw,sync,no_subtree_check,no_root_squash,no_all_squash
+  rw,sync,insecure,no_subtree_check,no_root_squash,no_all_squash
 SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS:
   - "*"
 

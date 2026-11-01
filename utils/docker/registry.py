@@ -307,9 +307,22 @@ def _fetch_blob(image: str, digest: str) -> dict | None:
     return parsed if isinstance(parsed, dict) else None
 
 
-def _healthcheck_at(
+def config_blob(
     image: str, reference: str, os_name: str, architecture: str
 ) -> dict | None:
+    """Return the OCI config blob of ``image:reference`` from its registry.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+        os_name: platform to resolve a multi-arch index to.
+        architecture: platform to resolve a multi-arch index to.
+
+    Returns:
+        The parsed blob with ``config`` and ``history``, or ``None`` on any
+        indeterminate outcome (see :func:`fetch_manifest`) and on an index
+        without a matching platform.
+    """
     doc = fetch_manifest(image, reference)
     if doc is None:
         return None
@@ -324,7 +337,13 @@ def _healthcheck_at(
     config_digest = (doc.get("config") or {}).get("digest")
     if not isinstance(config_digest, str) or not config_digest:
         return None
-    blob = _fetch_blob(image, config_digest)
+    return _fetch_blob(image, config_digest)
+
+
+def _healthcheck_at(
+    image: str, reference: str, os_name: str, architecture: str
+) -> dict | None:
+    blob = config_blob(image, reference, os_name, architecture)
     if blob is None:
         return None
     return (blob.get("config") or {}).get("Healthcheck") or {}

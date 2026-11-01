@@ -84,6 +84,8 @@ STALWART_ADMIN_PASSWORD: "{{ lookup('users', 'stalwartadmin').password }}"
 STALWART_USERS: "{{ lookup('stalwart_users') }}"
 
 STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+STALWART_DMARC_RUA_USER: "{{ lookup('config', application_id, 'services.stalwart.dmarc.rua_user') }}"
+STALWART_DMARC_RUA: "{{ lookup('users', STALWART_DMARC_RUA_USER).username }}@{{ STALWART_DOMAIN }}"
 
 STALWART_BOT_APP_PASSWORD_DESCRIPTION: "Infinito.Nexus submission"
 STALWART_BOT_APP_PASSWORD_RETIRED_DESCRIPTION: "Infinito.Nexus submission, retired"

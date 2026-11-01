@@ -139,8 +139,8 @@ run_mbake() {
 		return 0
 	fi
 	local rc=0
-	mbake format Makefile >/dev/null 2>&1 || rc=$?
-	[[ $rc -eq 0 ]] && { mbake format Makefile >/dev/null 2>&1 || rc=$?; }
+	mbake format --config .bake.toml Makefile >/dev/null 2>&1 || rc=$?
+	[[ $rc -eq 0 ]] && { mbake format --config .bake.toml Makefile >/dev/null 2>&1 || rc=$?; }
 	if [[ $rc -eq 0 ]]; then
 		write_status mbake OK
 	else
