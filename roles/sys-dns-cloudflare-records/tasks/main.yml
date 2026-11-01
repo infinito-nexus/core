@@ -26,6 +26,6 @@
   ansible.builtin.fail:
     msg: >-
       Cloudflare records: {{ _cf_retry | length }} record(s) still failed after
-      {{ cloudflare_attempts }} attempt(s) of at most {{ cloudflare_attempt_timeout }} s each:
+      {{ cloudflare_attempts }} attempt(s) of at most {{ lookup('timeout', cloudflare_attempt_timeout | int) | int }} s each:
       {% for r in _cf_retry %}{{ r.item.type }} {{ r.item.name }} ({{ r.item.zone }}): {{ r.error }}{{ ' || ' if not loop.last }}{% endfor %}
   when: _cf_retry | length > 0

@@ -1,18 +1,15 @@
 import unittest
-from pathlib import Path
-
-import yaml
 
 from plugins.filter.async_failures import async_retry_split
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN
+
+from . import PROJECT_ROOT
 
 _DEFAULTS = (
-    Path(__file__).resolve().parents[5]
-    / "roles"
-    / "sys-dns-cloudflare-records"
-    / "defaults"
-    / "main.yml"
+    PROJECT_ROOT / "roles" / "sys-dns-cloudflare-records" / ROLE_FILE_DEFAULTS_MAIN
 )
-_ROLE = yaml.safe_load(_DEFAULTS.read_text(encoding="utf-8"))
+_ROLE = load_yaml(str(_DEFAULTS))
 _TOLERATE = _ROLE["cloudflare_tolerate"]
 _TRANSIENT = _ROLE["cloudflare_transient"]
 

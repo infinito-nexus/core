@@ -1,9 +1,8 @@
 # nocheck: comments-valid  explanatory WHY-comments in this SPOT lookup predate the stricter lint
 from __future__ import annotations
 
-from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -12,17 +11,15 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
-from utils.cache.carrier import (
-    APPLICATIONS_RENDERED_FACT,
-    PROVIDER_VIEW_RENDERED_FACT,
-    _carried_applications,
-    _carried_provider_view,
-    merged_applications_cache_key,
-)
+from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import deployed_roles, resolve_active_provider
+from utils.mail.provider_view import provider_view, view_carrier, view_id
 from utils.networks.reachability import network, network_of
 from utils.roles.entity.name import entity_name
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
@@ -97,21 +94,6 @@ def _render(
     return value
 
 
-def _provider_carrier(
-    variables: Mapping[str, Any], host: str
-) -> Mapping[str, Any] | None:
-    hostvars = variables.get("hostvars")
-    raw_get = getattr(hostvars, "raw_get", None)
-    try:
-        host_vars = raw_get(host) if callable(raw_get) else hostvars[host]
-    except (KeyError, TypeError):
-        return None
-    if not isinstance(host_vars, Mapping):
-        return None
-    carrier = host_vars.get(APPLICATIONS_RENDERED_FACT)
-    return carrier if isinstance(carrier, Mapping) else None
-
-
 def active_mail_provider(variables: Mapping[str, Any]) -> str:
     """The mail provider role this deploy relays through.
 
@@ -125,66 +107,6 @@ def active_mail_provider(variables: Mapping[str, Any]) -> str:
         deployed_roles(variables.get("groups")),
         Path.cwd() / "roles",
     )
-
-
-def provider_view(
-    variables: Mapping[str, Any], provider: str
-) -> tuple[str, dict[str, Any]] | None:
-    """This host's variables as the onion-serving provider host sees its groups.
-
-    Args:
-        variables: Ansible variables of the current host.
-        provider: the active mail provider role.
-
-    Returns:
-        ``(provider host, view)``, or ``None`` when no host of *provider*
-        is in ``svc-net-tor``.
-    """
-    groups = variables.get("groups") or {}
-    tor_hosts = set(groups.get("svc-net-tor") or [])
-    provider_hosts = [h for h in groups.get(provider) or [] if h in tor_hosts]
-    if not provider_hosts:
-        return None
-    own_groups = list(variables.get("group_names") or [])
-    fallback = own_groups + [
-        g for g in ("svc-net-tor", provider) if g not in own_groups
-    ]
-    try:
-        provider_vars = variables["hostvars"][provider_hosts[0]]
-        provider_groups = provider_vars["group_names"]
-    except (KeyError, TypeError):
-        provider_vars = {}
-        provider_groups = fallback
-    view = dict(variables)
-    view["group_names"] = list(provider_groups or fallback)
-    if provider_vars.get("NETWORK_MODE"):
-        view["NETWORK_MODE"] = provider_vars["NETWORK_MODE"]
-    return provider_hosts[0], view
-
-
-def _view_id(host: str, view: Mapping[str, Any]) -> list[str]:
-    return [str(host), str(view.get("NETWORK_MODE") or "")]
-
-
-def _view_carrier(
-    variables: Mapping[str, Any],
-    host: str,
-    view: Mapping[str, Any],
-    roles_dir: str | None,
-) -> Mapping[str, Any] | None:
-    key = merged_applications_cache_key(view, roles_dir=roles_dir)
-    if _carried_provider_view(variables, key) is not None and list(
-        variables[PROVIDER_VIEW_RENDERED_FACT].get("view") or []
-    ) == _view_id(host, view):
-        return variables[PROVIDER_VIEW_RENDERED_FACT]
-    provider = _provider_carrier(variables, host)
-    if (
-        provider is not None
-        and _carried_applications({APPLICATIONS_RENDERED_FACT: provider}, key)
-        is not None
-    ):
-        return provider
-    return None
 
 
 def provider_view_carrier(
@@ -216,7 +138,7 @@ def provider_view_carrier(
     if host == variables.get("inventory_hostname"):
         return None
     view.pop("application_id", None)
-    if _view_carrier(variables, host, view, roles_dir) is not None:
+    if view_carrier(variables, host, view, roles_dir) is not None:
         return None
     applications = ApplicationsLookup()
     applications._templar = templar
@@ -228,7 +150,7 @@ def provider_view_carrier(
         )[0]
     finally:
         templar.available_variables = previous
-    return {**carrier, "view": _view_id(host, view)}
+    return {**carrier, "view": view_id(host, view)}
 
 
 class LookupModule(LookupBase):
@@ -464,7 +386,7 @@ class LookupModule(LookupBase):
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
-        carrier = _view_carrier(variables, host, view, forwarded.get("roles_dir"))
+        carrier = view_carrier(variables, host, view, forwarded.get("roles_dir"))
         if carrier is not None:
             view[APPLICATIONS_RENDERED_FACT] = carrier
         try:

@@ -7,7 +7,7 @@ cloudflare_request_timeout: 20 # Seconds one Cloudflare HTTP socket operation ma
 cloudflare_attempt_timeout: 60 # Seconds one record job may run before async_wrapper kills it as hung
 cloudflare_attempts: 3 # Attempts per record; only hangs, timeouts, connection errors, 429 and 5xx earn another
 cloudflare_retry_delay: 10 # Seconds between two attempts
-cloudflare_collect_retries: "{{ ((cloudflare_attempt_timeout | int) / 5) | round(0, 'ceil') | int + 2 }}" # Cap on 5 s polls per job; the attempt's collect deadline ends them sooner
+cloudflare_collect_retries: "{{ ((lookup('timeout', cloudflare_attempt_timeout | int) | int) / 5) | round(0, 'ceil') | int + 2 }}" # Cap on 5 s polls per job; the attempt's collect deadline ends them sooner
 cloudflare_tolerate: # Substrings of an answer that mean the record already stands as wanted
   - "An identical record already exists"
   - "code: 81058"
