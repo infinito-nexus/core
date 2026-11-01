@@ -3,6 +3,7 @@
 - Implement working logout for all applications
 - Implement general logout button
 - Mode flip of the logout status panel: `sys-svc-webserver-core/tasks/03_directories.yml` applies the directory mode `0755` recursively to `conf.d/lua/web-app-keycloak-logout-panel.js`, and `📄 Deploy the logout status panel` in `tasks/00_core.yml` sets it back to `0644`, so that task reports `changed` and reloads the proxy on every second deploy. Options: give the task the mode the directory task enforces, or stop the directory task from recursing into files.
+- The bootstrap fallback (`tasks/utils/login_bootstrap_admin.yml`) signs in as the user `meta/users.yml` names, but Keycloak creates that master user only on an empty database, so a master realm keeps the name of its first install: `administrator` before 3c72c2002a (2026-10-08), `keycloakbootstrap` from then on. On an older realm the fallback finds no user, so a refused permanent-admin login without a captured previous password stops the deploy, and the old temporary admin stays with its old password. Options: recover through Keycloak's own `kc.sh bootstrap-admin user` with credentials passed by environment instead of a stored master user, and delete every temporary admin once the permanent admin signs in.
 
 ## Req 019 rollout: deploy gate
 
