@@ -13,10 +13,10 @@ As an operator iterating on one application, I want a deploy to build the Semaph
 ## Acceptance Criteria
 
 - [ ] A deploy in which `web-app-semaphore` takes part only as a provider of another application builds neither the runner image nor its base image and keeps the runner that is already running.
-- [ ] A deploy whose round includes `web-app-semaphore` itself builds the runner from the image of that deploy, so the foreign-server deploy and the app-control templates run the checkout of that deploy.
+- [x] A deploy whose round includes `web-app-semaphore` itself builds the runner from the image of that deploy, so the foreign-server deploy and the app-control templates run the checkout of that deploy.
 - [ ] The runner is also rebuilt when its own inputs changed since the running image: the runner Dockerfile, its build arguments, or the pinned Semaphore server image.
-- [ ] Replaced runner and base images of earlier commits are removed after a deploy that replaced them, so a series of deploys does not accumulate one base image per commit.
-- [ ] With `STORAGE_CONSTRAINED`, the storage prune of `sys-svc-compose` spares the runner base image through the `CONTAINER_PRUNE_KEEP_LABEL` label, so the runner build of the same deploy still finds it.
+- [x] Replaced runner and base images of earlier commits are removed after a deploy that replaced them, so a series of deploys does not accumulate one base image per commit.
+- [x] With `STORAGE_CONSTRAINED`, the storage prune of `sys-svc-compose` spares the runner base image through the `CONTAINER_PRUNE_KEEP_LABEL` label, so the runner build of the same deploy still finds it.
 - [ ] A redeploy of an unrelated application with `mode=update` on a stack with Semaphore is at least 300 s faster than before and leaves the free disk space unchanged within 1 GB, measured by the deploy's task profile and `df` before and after.
 - [x] A unit test asserts the build decision for the provider-only round, the own round and a changed runner input.
 - [x] `roles/web-app-semaphore/README.md` states when the runner is built and which image it runs.

@@ -267,7 +267,7 @@ Open classification:
 - [ ] Each role declares its locked fields in one config key, and one shared mechanism renders the lock and the warning for every role that uses it.
 - [ ] The warning text comes from the i18n catalog and appears in the user's language.
 - [ ] A locked field cannot be changed by submitting the form directly, not only in the rendered page.
-- [ ] Joomla renders name, username and email read-only for SSO users and still lets the break-glass administrator edit them.
+- [x] Joomla renders name, username and email read-only for SSO users and still lets the break-glass administrator edit them.
 - [ ] A field written back appears changed in Keycloak after the user saves it in the application.
 
 ### Tests

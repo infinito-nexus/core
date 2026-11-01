@@ -38,5 +38,5 @@ As a platform operator, I want the ERPNext structure that the core role, the Inf
 
 ### Coordination
 
-- [ ] Every ERPNext structure change on the store, security-check, store-i18n and IAM lines from now on names this requirement in its commit or PR description.
+- [ ] The PR of every ERPNext structure change on the store, security-check, store-i18n and IAM lines links the PRs of the other lines whose structure it relies on or changes; commits and PR descriptions name no requirement number.
 - [ ] The store and the security check document in their own repositories which core prerequisites they rely on (server-script switch, API bot roles, company bootstrap) and point at this requirement.
