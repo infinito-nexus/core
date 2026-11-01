@@ -136,7 +136,10 @@ class TestASecondRunStopsAtOnce(unittest.TestCase):
         fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
     def _calls(self) -> list[str]:
-        return self.calls.read_text().splitlines() if self.calls.exists() else []
+        if not self.calls.exists():
+            return []
+        log = self.calls.read_text()  # nocheck: cache-read  tempdir stub log
+        return log.splitlines()
 
     def test_a_free_lock_lets_the_phase_run(self):
         result = self._run("backup")

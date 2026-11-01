@@ -5,9 +5,10 @@ import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-nextcloud"
-VARS = ROLE / "vars" / "main.yml"
+VARS = ROLE / ROLE_FILE_VARS_MAIN
 PROVISION = ROLE / "tasks" / "addons" / "integration_openproject_provision.yml"
 STATE = ROLE / "tasks" / "addons" / "integration_openproject_state.yml"
 SCRIPT = (
