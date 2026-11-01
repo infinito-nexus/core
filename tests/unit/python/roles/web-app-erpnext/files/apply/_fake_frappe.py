@@ -24,6 +24,7 @@ CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles",)}
 NAME_FIELDS = {
     "Company": "company_name",
     "Fiscal Year": "year",
+    "Role": "role_name",
     "Territory": "territory_name",
     "UOM": "uom_name",
     "User": "email",

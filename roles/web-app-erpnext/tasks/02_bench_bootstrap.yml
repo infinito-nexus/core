@@ -61,7 +61,7 @@
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i
       -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
-      -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED
+      -e API_BOT_EXTRA_ROLES_JSON -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}"
@@ -74,6 +74,7 @@
     API_BOT_LASTNAME: "{{ ERPNEXT_API_BOT_USER.lastname }}"
     API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_PASSWORD }}"
     API_KEY_SECRET: "{{ ERPNEXT_API_KEY_SECRET }}"
+    API_BOT_EXTRA_ROLES_JSON: "{{ ERPNEXT_API_BOT_EXTRA_ROLES | to_json }}"
     COUNTRY: "{{ ERPNEXT_COMPANY_COUNTRY }}"
     CURRENCY: "{{ (erpnext_company_apply.stdout_lines | last | from_json).currency }}"
     SERVER_SCRIPTS_ENABLED: "{{ ERPNEXT_SERVER_SCRIPTS_ENABLED }}"
