@@ -15,4 +15,4 @@
           | map('regex_replace', '^', _roll_stack ~ '-' ~ _roll_model.ha.sidecar ~ '-') | list)
          if _roll_model.ha.sidecar else [] }}
     _roll_has_primary: "{{ _roll_model.ha.probe is not none }}"
-    _roll_backup: "{{ _roll_model.ha.backup is not none and (groups['svc-bkp-volume-2-local'] | default([]) | length) > 0 }}"
+    _roll_backup: "{{ _roll_model.ha.backup is not none and (groups[lookup('db_backup', 'role')] | default([]) | length) > 0 }}"

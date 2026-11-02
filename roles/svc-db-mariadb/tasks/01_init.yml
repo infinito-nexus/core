@@ -72,7 +72,7 @@
     - name: "🔍 Resolve the MariaDB writer"
       include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
       vars:
-        primary_application_id: "svc-db-mariadb"
+        primary_application_id: "{{ role_name }}"
         primary_output_prefix: "MARIADB"
 
     - name: "📁 Apply database, user and grant as idempotent SQL on the writer"

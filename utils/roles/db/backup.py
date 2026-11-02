@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 BACKUP_SQL = "sql"
+BACKUP_ROLE = "svc-bkp-volume-2-local"
 
 
 def backed_up_engines() -> list[str]:

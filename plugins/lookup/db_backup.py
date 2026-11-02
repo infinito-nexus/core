@@ -1,5 +1,6 @@
 """Lookup `db_backup`: the backup view of the database HA instance model.
 
+    lookup('db_backup', 'role')                          # the backup role id
     lookup('db_backup', 'hosts')                         # HA instance hosts
     lookup('db_backup', 'local', bin_dir=DIR_BIN)        # instances on inventory_hostname
     lookup('db_backup', 'local', bin_dir=DIR_BIN, host='mgr-02')
@@ -16,10 +17,14 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.db.backup import ha_instance_hosts, local_backup_instances
+from utils.roles.db.backup import (
+    BACKUP_ROLE,
+    ha_instance_hosts,
+    local_backup_instances,
+)
 from utils.roles.db.instances import DbInstancesError
 
-_KINDS = ("hosts", "local")
+_KINDS = ("role", "hosts", "local")
 
 
 class LookupModule(LookupBase):
@@ -32,6 +37,8 @@ class LookupModule(LookupBase):
         terms = terms or []
         if len(terms) != 1 or terms[0] not in _KINDS:
             raise AnsibleError(f"db_backup: expected one term out of {_KINDS}")
+        if terms[0] == "role":
+            return [BACKUP_ROLE]
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
         mode = vars_.get("DEPLOYMENT_MODE", "compose")

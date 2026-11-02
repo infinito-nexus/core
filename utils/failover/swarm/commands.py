@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.failover.checker import INTERVAL_S, TIMEOUT_S
+from utils.roles.db.backup import BACKUP_ROLE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
@@ -19,7 +20,6 @@ PROBE_SCRIPT = DATA_DIR / "probe.sh"
 CHECKER_PATH = "/failover/checker.sh"
 PROBE_PATH = "/failover/probe.sh"
 SECRET_TARGET = "failover-checker"  # noqa: S105 - docker secret mount name, not a credential
-BACKUP_ROLE = "svc-bkp-volume-2-local"
 COORDINATION_ROLE = "svc-dcs-etcd"
 MARKER_DATABASE = {"postgres": "postgres", "mariadb": "failover"}
 

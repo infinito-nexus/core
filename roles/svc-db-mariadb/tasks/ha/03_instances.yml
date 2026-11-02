@@ -79,7 +79,7 @@
 - name: "🔍 MariaDB HA | Resolve the writer"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
   vars:
-    primary_application_id: "svc-db-mariadb"
+    primary_application_id: "{{ application_id }}"
     primary_output_prefix: "MARIADB"
 
 - name: "🌱 MariaDB HA | Seed and attach the remaining instances"

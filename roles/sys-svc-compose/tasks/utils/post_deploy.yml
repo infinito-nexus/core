@@ -20,7 +20,7 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/remove_departed_instances.yml') }}"
   when:
     - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'
-    - application_id is match('^svc-(db|dcs)-')
+    - application_id in lookup('db_instances', ha_engines=true)
 
 - name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"

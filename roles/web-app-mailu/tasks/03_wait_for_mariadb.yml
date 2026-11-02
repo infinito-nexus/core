@@ -11,7 +11,7 @@
 - name: "🔍 Mailu | Resolve central DB primary node + container ID"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
   vars:
-    primary_application_id: svc-db-mariadb
+    primary_application_id: "{{ lookup('database', application_id, 'id') }}"
     primary_output_prefix: MAILU_CENTRAL_DB
   when: lookup('database', application_id, 'shared') | bool
 

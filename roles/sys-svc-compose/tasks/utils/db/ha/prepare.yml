@@ -4,7 +4,8 @@
 - name: "🔧 db_ha_prepare | load the instance model of '{{ application_id }}'"
   ansible.builtin.set_fact:
     _db_ha_prepare_form: "{{ _db_ha_prepare_model.form }}"
-    _db_ha_prepare_backup: "{{ _db_ha_prepare_model.ha.backup is not none and (groups['svc-bkp-volume-2-local'] | default([]) | length) > 0 }}"
+    _db_ha_prepare_backup_role: "{{ lookup('db_backup', 'role') }}"
+    _db_ha_prepare_backup: "{{ _db_ha_prepare_model.ha.backup is not none and (groups[lookup('db_backup', 'role')] | default([]) | length) > 0 }}"
     _db_ha_prepare_service: "{{ (application_id | get_entity_name) ~ '_' ~ (application_id | get_entity_name) }}"
     DB_HA_MIGRATING: "{{ DB_HA_MIGRATING | combine({application_id: false}) }}"
   vars:
@@ -38,13 +39,11 @@
     tasks_from: list_or_shoot.yml
   vars:
     list_or_shoot_roles:
-      - svc-bkp-volume-2-local
+      - "{{ _db_ha_prepare_backup_role }}"
   when:
     - _db_ha_prepare_form == 'ha'
     - _db_ha_prepare_backup | bool
     - DEPLOYMENT_MODE == 'swarm'
-    - groups['svc-bkp-volume-2-local'] is defined
-    - (groups['svc-bkp-volume-2-local'] | length) > 0
     - inventory_hostname in lookup('db_backup', 'hosts')
 
 - name: "🧭 db_ha_prepare | detect a standalone install to migrate"
