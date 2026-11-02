@@ -1,0 +1,34 @@
+---
+- name: "🔐 Reconcile dashboard administrator and verify HTTP login"
+  ansible.builtin.command: # nocheck: container-exec-resolver Compose-only role runs on its inventory host
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ FREELLMAPI_CONTAINER }}"
+      - node
+      - --input-type=commonjs
+      - -e
+      - "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-freellmapi/files/javascript/reconcile_admin.js')) ~ '\nmain();' }}"
+    stdin: >-
+      {{ {
+        'admin': FREELLMAPI_ADMIN,
+        'base_url': 'http://127.0.0.1:' ~ (FREELLMAPI_PORT | string),
+        'timeout_ms': (lookup('timeout', 60) | int) * 1000
+      } | to_json }}
+  register: freellmapi_admin_result
+  changed_when: freellmapi_admin_result.rc == 0 and (freellmapi_admin_result.stdout | from_json).changed | bool
+  failed_when: false
+  no_log: true
+
+- name: "✅ Require the platform administrator to authenticate"
+  ansible.builtin.assert:
+    that:
+      - freellmapi_admin_result.rc == 0
+      - (freellmapi_admin_result.stdout | from_json).ok | bool
+      - (freellmapi_admin_result.stdout | from_json).login_verified | bool
+    fail_msg: >-
+      FreeLLMAPI administrator reconciliation or HTTP login failed. Verify the
+      configured image supports its auth service API and the install has at most
+      one dashboard account. Credentials and upstream exceptions are masked.
+    success_msg: "FreeLLMAPI platform administrator credentials and HTTP login verified."

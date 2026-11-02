@@ -6,3 +6,6 @@ FREELLMAPI_CONTAINER: "{{ lookup('config', application_id, 'services.freellmapi.
 FREELLMAPI_PORT: "{{ lookup('config', application_id, 'services.freellmapi.ports.internal.http') }}"
 FREELLMAPI_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.encryption_key') }}"
 FREELLMAPI_STARTUP_CONFIG: "{{ lookup('config', application_id, 'services.freellmapi.startup_config') }}"
+FREELLMAPI_ADMIN:
+  email: "{{ lookup('users', 'platform_administrator').email }}"
+  password: "{{ lookup('users', 'platform_administrator').password }}"

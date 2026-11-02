@@ -31,14 +31,43 @@ The dashboard and API are published on `http://127.0.0.1:8106`. The container
 listens on port 3001. Its host binding is always loopback, including on hosts
 whose other applications use a broader `DOCKER_BIND_HOST`.
 
-Open the dashboard, complete the upstream first-account setup, and add the
-provider keys you want to use. Docker forwards local browser requests through a
-bridge; if setup asks for its one-time code, read it locally from the FreeLLMAPI
-container log. Under **Keys**, copy the unified API key for clients. Model
+The first dashboard account is created automatically before the HTTP listener
+starts, using `lookup('users', 'platform_administrator').email` and `.password`.
+The role requires a valid email and a password of at least eight characters.
+Log in with these credentials and add the provider keys you want to use.
+After the container starts, the role reconciles the single dashboard account
+through the installed FreeLLMAPI auth service. Redeploys update its email and
+password to the current platform administrator credentials. Matching credentials
+cause no account writes; a password change uses the upstream reset operation,
+which invalidates existing dashboard sessions. Email changes retain the account
+ID. An installation with multiple dashboard accounts fails instead of selecting
+an arbitrary account. Provider keys and routing data are preserved.
+
+Every deploy verifies the resulting credentials through `/api/auth/login` and
+the authenticated `/api/auth/me`, then removes the temporary session. Rejected
+logins fail the deploy even if the container is healthy. Credentials travel on
+standard input to an unconditionally masked task; only a fixed success/failure
+message is shown. Reconciliation relies on the pinned image's internal auth
+service exports and must be checked when changing the image version.
+Under **Keys**, copy the unified API key for clients. Model
 availability depends on your configured providers and their quotas; deploying
 this role does not supply provider accounts or bypass their limits.
 
 ## Claude Code
+
+### Through the managed LiteLLM gateway
+
+For the managed Claude and Codex setup, keep LiteLLM as the client endpoint.
+After setting up this role, save the dashboard's existing unified key as the
+vaulted `applications.svc-ai-freellmapi.secrets.credentials.unified_api_key`.
+Select both roles and deploy them: LiteLLM publishes `freellmapi/auto` and
+validates the upstream. Clients continue using LiteLLM virtual keys, not this
+upstream key. See [the LiteLLM integration](../svc-ai-litellm/README.md#optional-freellmapi-upstream)
+for automatic routing, capability declarations and protocol validation.
+Do not run FreeLLMAPI's client setup commands over the Infinito-managed client
+configuration, or configure FreeLLMAPI to forward back to LiteLLM.
+
+### Standalone access
 
 Use the unified key from the dashboard. The native Anthropic endpoint does not
 need a LiteLLM translation layer:
@@ -64,10 +93,15 @@ The existing `claude-gateway` wrapper continues to target LiteLLM.
 ## Configuration and persistence
 
 `services.freellmapi.startup_config` accepts the upstream declarative startup
-configuration as a mapping. It is empty for interactive setup. It can declare
+configuration as a mapping. It can declare
 provider `keys`, `customProviders` such as LM Studio, `models`, `fallback`, and
 `routing`. Entries with credentials belong in the encrypted inventory. The
-role passes a populated mapping as `FREEAPI_CONFIG_JSON`.
+role always passes it as `FREEAPI_CONFIG_JSON`, adding the central platform
+administrator under `admin`. An inventory-supplied `startup_config.admin` cannot
+override this identity. The rendered environment contains the administrator
+password and must retain the framework's credential-file protections.
+Upstream still ignores `admin` on already initialized installations; the
+post-start reconciliation is what handles credential changes on redeploy.
 
 Provider keys are encrypted in the `freellmapi_data` volume mounted at
 `/app/server/data`. Preserve both that volume and the vaulted
