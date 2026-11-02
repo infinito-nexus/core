@@ -97,7 +97,7 @@ class ResolveExecTargetTests(unittest.TestCase):
 _HA_ADDRESS = '"$(/usr/bin/resolve-db-primary postgres postgres)"'
 _HA_CONFIG: dict = dict(
     _BASE_CONFIG,
-    container=_HA_ADDRESS,
+    container="",
     address=_HA_ADDRESS,
     host="postgres",
     port=5432,
@@ -121,6 +121,20 @@ class HaFormTests(unittest.TestCase):
 
     def test_a_plain_container_is_not_ha(self):
         self.assertIsNone(_DB_MOD._ha_stack_engine(_BASE_CONFIG))
+
+    def test_ha_needs_the_endpoint_but_no_container(self):
+        self.assertEqual(_DB_MOD._missing_config_keys(_HA_CONFIG, ha=True), [])
+        self.assertEqual(
+            _DB_MOD._missing_config_keys(dict(_HA_CONFIG, network=""), ha=True),
+            ["network"],
+        )
+
+    def test_exec_form_needs_the_container(self):
+        self.assertEqual(_DB_MOD._missing_config_keys(_BASE_CONFIG, ha=False), [])
+        self.assertEqual(
+            _DB_MOD._missing_config_keys(dict(_BASE_CONFIG, container=""), ha=False),
+            ["container"],
+        )
 
     def test_ha_runs_the_client_helper_against_the_write_endpoint(self):
         cmd, env = _DB_MOD._build_cmd(

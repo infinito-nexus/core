@@ -107,7 +107,8 @@ _READ_ONLY_PREFIXES = ("SELECT ", "SHOW ", "EXPLAIN ", "WITH ", "VALUES ")
 _HA_RESOLVER = "resolve-db-primary"
 _HA_CLIENT = "db-client"
 _HA_REQUIRED_CONFIG_KEYS = ("host", "port", "network")
-_REQUIRED_CONFIG_KEYS = ("type", "container", "username", "name", "password")
+_EXEC_REQUIRED_CONFIG_KEYS = ("container",)
+_REQUIRED_CONFIG_KEYS = ("type", "username", "name", "password")
 
 _NAMED_ARG_RE = re.compile(r"%\(([A-Za-z_][A-Za-z0-9_]*)\)s")
 
@@ -221,6 +222,20 @@ def _ha_stack_engine(config: dict) -> tuple[str, str, str] | None:
     if len(argv) != 3 or Path(argv[0]).name != _HA_RESOLVER:
         return None
     return argv[0], argv[1], argv[2]
+
+
+def _missing_config_keys(config: dict, *, ha: bool) -> list[str]:
+    """Return the required ``database`` lookup keys that are empty.
+
+    Args:
+        config: the ``database`` lookup of the consumer.
+        ha: the address resolves an HA primary; the client then reaches the
+            write endpoint and needs no container.
+    """
+    required = _REQUIRED_CONFIG_KEYS + (
+        _HA_REQUIRED_CONFIG_KEYS if ha else _EXEC_REQUIRED_CONFIG_KEYS
+    )
+    return [key for key in required if not config.get(key)]
 
 
 def _resolve_exec_target(config: dict) -> str:
@@ -360,9 +375,13 @@ def main() -> None:
                 module.no_log_values.add(text)
 
     config = module.params["config"]
-    missing = [key for key in _REQUIRED_CONFIG_KEYS if not config.get(key)]
+    ha = _ha_stack_engine(config)
+    missing = _missing_config_keys(config, ha=ha is not None)
     if missing:
-        module.fail_json(msg=f"config missing required key(s): {', '.join(missing)}")
+        prefix = "HA config" if ha is not None else "config"
+        module.fail_json(
+            msg=f"{prefix} missing required key(s): {', '.join(missing)}"
+        )
 
     db_type = config["type"]
     if db_type not in _ENGINES:
@@ -394,14 +413,7 @@ def main() -> None:
     binaries = list(_ENGINES[db_type]["binaries"])  # type: ignore[index]
 
     exec_config = dict(config)
-    ha = _ha_stack_engine(config)
-    if ha is not None:
-        absent = [key for key in _HA_REQUIRED_CONFIG_KEYS if not config.get(key)]
-        if absent:
-            module.fail_json(
-                msg=f"HA config missing required key(s): {', '.join(absent)}"
-            )
-    else:
+    if ha is None:
         exec_config["container"] = _resolve_exec_target(config)
 
     proc = None
