@@ -15,6 +15,11 @@ CHUNK = 1 << 20
 NONCE_BYTES = 32
 DIGEST_BYTES = hashlib.sha256().digest_size
 HANDSHAKE_TIMEOUT = 10.0
+RECEIVER_LABEL = b"receiver:"
+
+
+class ReceiverRejectedError(ConnectionError):
+    pass
 
 
 def read_secret(path: str) -> bytes:
@@ -100,6 +105,25 @@ def authenticated(conn: socket.socket, secret: bytes) -> bool:
     return hmac.compare_digest(reply, answer(secret, nonce))
 
 
+def proved_receiver(conn: socket.socket, secret: bytes) -> bool:
+    """Answer the sender's challenge, so the backup only reaches a peer holding *secret*.
+
+    Args:
+        conn: accepted connection whose sender already authenticated.
+        secret: shared secret.
+    """
+    try:
+        conn.settimeout(HANDSHAKE_TIMEOUT)
+        nonce = read_exact(conn, NONCE_BYTES)
+        if len(nonce) != NONCE_BYTES:
+            return False
+        conn.sendall(answer(secret, RECEIVER_LABEL + nonce))
+    except OSError:
+        return False
+    conn.settimeout(None)
+    return True
+
+
 def receive(
     port: int,
     sink: BinaryIO,
@@ -122,7 +146,9 @@ def receive(
         while True:
             conn, peer = server.accept()
             with conn:
-                if not authenticated(conn, secret):
+                if not authenticated(conn, secret) or not proved_receiver(
+                    conn, secret
+                ):
                     sys.stderr.write(
                         f"seed_relay: rejected unauthenticated peer {peer[0]}\n"
                     )
@@ -160,10 +186,18 @@ def send(
                     "seed_relay: receiver closed before its challenge"
                 )
             conn.sendall(answer(secret, nonce))
+            challenge = secrets.token_bytes(NONCE_BYTES)
+            conn.sendall(challenge)
+            reply = read_exact(conn, DIGEST_BYTES)
         except OSError as error:
             last = error
             time.sleep(delay)
             continue
+        if not hmac.compare_digest(reply, answer(secret, RECEIVER_LABEL + challenge)):
+            conn.close()
+            raise ReceiverRejectedError(
+                f"seed_relay: {host}:{port} did not prove the shared secret"
+            )
         conn.settimeout(None)
         with conn, conn.makefile("wb") as stream:
             return pump(source, stream)

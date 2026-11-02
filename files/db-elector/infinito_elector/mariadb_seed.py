@@ -114,6 +114,7 @@ class Donor:
         self._popen = popen
         self._clock = clock
         self._running: list[subprocess.Popen] = []
+        self._used: dict[str, int] = {}
 
     def handle(self, body: bytes, peer: str) -> int:
         """Start a stream for a valid request.
@@ -132,8 +133,16 @@ class Donor:
         except ValueError:
             return 400
         secret = Path(self._secret_file).read_bytes().strip()
-        host = verify(secret, request, self._clock())
+        now = self._clock()
+        host = verify(secret, request, now)
         if host is None:
+            return 403
+        self._used = {
+            mac: stamp
+            for mac, stamp in self._used.items()
+            if abs(now - stamp) <= TOKEN_WINDOW_SECONDS
+        }
+        if request["token"] in self._used:
             return 403
         if any(process.poll() is None for process in self._running):
             return 409
@@ -158,6 +167,7 @@ class Donor:
         )
         backup.stdout.close()
         self._running = [backup, relay]
+        self._used[request["token"]] = request["stamp"]
         return 202
 
 

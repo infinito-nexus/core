@@ -98,11 +98,19 @@ class TestDonor(unittest.TestCase):
 
     def test_a_second_request_waits_for_the_running_stream(self) -> None:
         donor = self._donor("replica")
-        donor.handle(_request(), PEER)
-        self.assertEqual(donor.handle(_request(), PEER), 409)
+        donor.handle(_request(stamp=1000), PEER)
+        self.assertEqual(donor.handle(_request(stamp=1001), PEER), 409)
         for process in self.started:
             process.done = True
+        self.assertEqual(donor.handle(_request(stamp=1001), PEER), 202)
+
+    def test_a_request_that_started_a_stream_cannot_be_replayed(self) -> None:
+        donor = self._donor("replica")
         self.assertEqual(donor.handle(_request(), PEER), 202)
+        for process in self.started:
+            process.done = True
+        self.assertEqual(donor.handle(_request(), "10.0.9.66"), 403)
+        self.assertEqual(len(self.started), 2)
 
     def test_the_writer_declines_a_replica_only_request(self) -> None:
         self.assertEqual(
