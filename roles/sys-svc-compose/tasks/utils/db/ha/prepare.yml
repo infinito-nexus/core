@@ -60,18 +60,18 @@
           - inspect
           - "{{ _db_ha_prepare_service }}"
           - --format
-          - "{{ '{{.Spec.TaskTemplate.ContainerSpec.Image}}' }}"
+          - "{{ '{{index .Spec.Labels `' ~ SWARM_SERVICE_LABEL_DB_ENDPOINT ~ '`}}' }}"
       register: _db_ha_prepare_legacy
       changed_when: false
       failed_when: false
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
 
-    - name: "🔧 db_ha_prepare | a non-HAProxy service there is standalone"
+    - name: "🔧 db_ha_prepare | a service there that is not the write endpoint is standalone"
       ansible.builtin.set_fact:
         DB_HA_MIGRATING: >-
           {{ DB_HA_MIGRATING | combine({application_id: (_db_ha_prepare_legacy.rc == 0
-             and _db_ha_prepare_legacy.stdout is not search('haproxy'))}) }}
+             and (_db_ha_prepare_legacy.stdout | trim) != 'true')}) }}
 
     - name: "💾 db_ha_prepare | back up before migrating to the HA form"
       ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/pre_change_backup.yml') }}"

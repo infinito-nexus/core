@@ -22,6 +22,7 @@
 {% set service_name = 'haproxy' %}
 {% set service_replicas_forced = 2 %}
 {% set service_max_replicas_per_node = 1 %}
+{% set service_db_endpoint = true %}
 {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {{ "\n" }}
     {{ lookup('container_volumes', service_name) | indent(4) }}

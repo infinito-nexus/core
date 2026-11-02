@@ -9,9 +9,18 @@
 {% endif %}
     deploy:
       {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
+{% set _labels = [] %}
 {% if db_instance and lookup('config', application_id, 'services.' ~ service_name ~ '.ha.seeded_after_converge', false) is sameas true %}
+{% set _ = _labels.append(SWARM_SERVICE_LABEL_SEED_WAIT) %}
+{% endif %}
+{% if service_db_endpoint is defined %}
+{% set _ = _labels.append(SWARM_SERVICE_LABEL_DB_ENDPOINT) %}
+{% endif %}
+{% if _labels | length > 0 %}
       labels:
-        {{ SWARM_SERVICE_LABEL_SEED_WAIT }}: "true"
+{% for _label in _labels %}
+        {{ _label }}: "true"
+{% endfor %}
 {% endif %}
 {% set _constraints = [] %}
 {% if db_instance %}

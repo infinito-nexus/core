@@ -31,6 +31,7 @@ DB_HA_MIGRATING: {}
 SWARM_NODE_LABEL_STACK_HOST: infinito.stack_host
 SWARM_NODE_LABEL_HOST_ID: infinito.host_id
 SWARM_SERVICE_LABEL_SEED_WAIT: infinito.seed_wait
+SWARM_SERVICE_LABEL_DB_ENDPOINT: infinito.db_endpoint
 
 # Param: swarm_node_labels - extra node labels an inventory host pushes onto its swarm node
 swarm_node_labels: {}

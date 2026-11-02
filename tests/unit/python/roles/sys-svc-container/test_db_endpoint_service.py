@@ -62,6 +62,7 @@ def _render(**variables):
         "RESOURCE_PIDS_LIMIT": 512,
         "RESOURCE_MEM_RESERVATION": "512m",
         "RUNTIME": "dev",
+        "SWARM_SERVICE_LABEL_DB_ENDPOINT": "infinito.db_endpoint",
     }
     base.update(variables)
     rendered = env.get_template(TEMPLATE).render(**base)
@@ -75,6 +76,12 @@ class TestDbEndpointService(unittest.TestCase):
     def test_takes_over_the_engine_service_name(self):
         self.assertEqual(list(self.services), ["postgres"])
         self.assertEqual(self.services["postgres"]["image"], "haproxy:pinned")
+
+    def test_carries_the_write_endpoint_label(self):
+        self.assertEqual(
+            self.services["postgres"]["deploy"]["labels"],
+            {"infinito.db_endpoint": "true"},
+        )
 
     def test_two_unpinned_replicas_one_per_node(self):
         deploy = self.services["postgres"]["deploy"]

@@ -103,6 +103,8 @@ def render(application_id, model, loader=None, **variables):
         "STACK_HOST": hosts[0] if hosts else "mgr-01",
         "SWARM_NODE_LABEL_STACK_HOST": "infinito.stack_host",
         "SWARM_NODE_LABEL_HOST_ID": "infinito.host_id",
+        "SWARM_SERVICE_LABEL_SEED_WAIT": "infinito.seed_wait",
+        "SWARM_SERVICE_LABEL_DB_ENDPOINT": "infinito.db_endpoint",
         "OPENLDAP_SERVICE": "openldap",
         "REDIS_MAXMEMORY_MB": MEMORY_MB,
         "groups": {"svc-swarm-manager": hosts or ["mgr-01"]},
@@ -185,6 +187,21 @@ class TestThreeHostHa(unittest.TestCase):
                 self.assertEqual(
                     endpoint["deploy"]["placement"]["max_replicas_per_node"], 1
                 )
+                self.assertEqual(
+                    endpoint["deploy"]["labels"], {"infinito.db_endpoint": "true"}
+                )
+
+    def test_only_the_write_endpoint_carries_the_endpoint_label(self):
+        for application_id, engine in ENGINES.items():
+            with self.subTest(application_id):
+                services = render(application_id, ha_model(engine))["services"]
+                labelled = sorted(
+                    name
+                    for name, service in services.items()
+                    if "infinito.db_endpoint"
+                    in ((service.get("deploy") or {}).get("labels") or {})
+                )
+                self.assertEqual(labelled, [engine])
 
     def test_instances_mount_their_own_volume(self):
         for application_id, engine in ENGINES.items():
