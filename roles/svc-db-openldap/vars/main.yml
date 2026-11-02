@@ -71,7 +71,7 @@ OPENLDAP_HA_WRITER_PORT: "{{ lookup('config', application_id, 'services.openldap
 OPENLDAP_HA_PEER_TEMPLATE: "{{ entity_name }}-{host}:{{ OPENLDAP_HA_INSTANCE_PORT }}"
 OPENLDAP_HA_CN_CONFIG_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'cn-config'] | path_join }}"
 OPENLDAP_HA_ETCD_PASSWORD_FILE: "{{ [lookup('container', application_id, 'directories.volumes'), 'elector-etcd-password'] | path_join }}"
-OPENLDAP_HA_ETCD_PASSWORD: "{{ lookup('config', 'svc-dcs-etcd', 'secrets.credentials.ETCD_OPENLDAP_ELECTOR_PASSWORD') }}"
+OPENLDAP_HA_ETCD_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.etcd_password') }}"
 OPENLDAP_HA_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
 OPENLDAP_HA_ETCD_KEY: "{{ lookup('config', application_id, 'services.etcd.prefix') }}writer"
 OPENLDAP_HA_DATABASE_DN: "olcDatabase={1}mdb,cn=config"

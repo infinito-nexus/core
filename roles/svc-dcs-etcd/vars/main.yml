@@ -26,16 +26,16 @@ ETCD_TLS_DAYS: 3650
 ETCD_TLS_KEY_BITS: 4096
 
 ETCD_ROOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.ETCD_ROOT_PASSWORD') }}"
+ETCD_CONSUMER_CREDENTIAL: etcd_password
 ETCD_CONSUMERS: >-
   {%- set out = [] -%}
   {%- for role_id, app in lookup('applications') | dictsort -%}
     {%- set etcd = app.get('services', {}).get('etcd', {}) -%}
-    {%- if etcd.get('user') -%}
+    {%- if etcd.get('user') and (lookup('config', role_id, 'services.etcd.enabled') | bool) -%}
       {%- set _ = out.append({
         'user': etcd.user,
         'prefix': etcd.prefix,
-        'password': lookup('config', application_id,
-          'secrets.credentials.' ~ ('ETCD_' ~ (etcd.user | upper | replace('-', '_')) ~ '_PASSWORD'))}) -%}
+        'password': lookup('config', role_id, 'secrets.credentials.' ~ ETCD_CONSUMER_CREDENTIAL)}) -%}
     {%- endif -%}
   {%- endfor -%}
   {{ out }}

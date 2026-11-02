@@ -34,7 +34,7 @@ MARIADB_HA_PEER_HOSTS: >-
        lookup('config', 'svc-dcs-etcd', 'networks.local.subnet') ] | mariadb_host_masks }}
 MARIADB_ELECTOR_PWD: "{{ lookup('config', application_id, 'secrets.credentials.elector_password') }}"
 MARIADB_ELECTOR_ETCD_USER: "{{ lookup('config', application_id, 'services.etcd.user') }}"
-MARIADB_ELECTOR_ETCD_PWD: "{{ lookup('config', 'svc-dcs-etcd', 'secrets.credentials.ETCD_MARIADB_ELECTOR_PASSWORD') }}"
+MARIADB_ELECTOR_ETCD_PWD: "{{ lookup('config', application_id, 'secrets.credentials.etcd_password') }}"
 MARIADB_ELECTOR_ETCD_KEY: "{{ lookup('config', application_id, 'services.etcd.prefix') }}writer"
 MARIADB_ELECTOR_PEER_TEMPLATE: "{{ entity_name }}-{host}"
 MARIADB_HA_SOCKET: /run/mysqld/mysqld.sock

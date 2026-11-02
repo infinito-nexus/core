@@ -81,7 +81,7 @@ docker run --rm -it \
 ## Security
 
 - **TLS:** client and peer traffic use TLS. Ansible generates a dedicated coordination-store CA on the stack host and signs one member certificate whose SANs list every member, `etcd`, `localhost` and `127.0.0.1`. Peers must present a certificate from that CA (`--peer-client-cert-auth`). The peer's address is not matched against the certificate SANs (`--peer-skip-client-san-verification`): a peer connects from its task IP, which Swarm's DNS cannot reverse-resolve, so the SAN check rejects every peer; the private CA is the trust boundary. Clients authenticate by user and password, not by certificate, so the client listener carries no `--trusted-ca-file`: etcd turns any client CA into a required client certificate. A change of the member set re-signs the certificate. The CA is separate from `sys-ca-selfsigned`, which is minted only for self-signed front-end TLS and is injected into application containers as a trust anchor; etcd must not trust, or be trusted by, anything outside the database stacks.
-- **Authentication:** on, with the `root` password from the inventory. One user per consumer, each holding a role restricted to its key prefix. Each consumer declares its user and prefix under `services.etcd.user` / `services.etcd.prefix` in its own `meta/services.yml`; this role discovers them and reads the password from its credential `ETCD_<USER>_PASSWORD`. Today's consumers:
+- **Authentication:** on, with the `root` password from the inventory. One user per consumer, each holding a role restricted to its key prefix. Each consumer declares its user and prefix under `services.etcd.user` / `services.etcd.prefix` in its own `meta/services.yml`; this role discovers the consumers whose `services.etcd.enabled` is true and reads each password from the consumer's own `etcd_password` credential. Today's consumers:
 
   | User | Prefix |
   |---|---|
@@ -90,7 +90,7 @@ docker run --rm -it \
   | `openldap-elector` | `/infinito/openldap/` |
 
   Users, roles and passwords are reconciled on every deploy with `etcdctl` run through `container exec` on the first member's host.
-- **Credentials:** declared in `meta/secrets.yml` `credentials:` and delivered as `type: secret` entries in `meta/volumes.yml`, mounted under `/run/secrets/etcd/`.
+- **Credentials:** the `root` password is declared in this role's `meta/secrets.yml` and kept on the host so a rotation can still authenticate with the old one; every consumer password lives in the consumer's role. None is mounted into etcd.
 - **Network:** etcd sits on its own encrypted overlay, which only the database stacks join. No port is published.
 - **Container hardening:** read-only root filesystem, no Docker socket, every capability dropped (`cap_drop: [ALL]`) and a non-root user. The role builds a thin image on the official distroless one with `USER ${ETCD_UID}` (the uid of the `tls_key` secret in `meta/volumes.yml`, 65532), and the service sets the same `user:`. The build copies the data directory owned by that uid, so the Swarm-created data volume inherits its ownership and the image needs no shell to change it.
 
