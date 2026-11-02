@@ -91,8 +91,6 @@
 
 - name: "🔄 db_ha_rolling | roll one member at a time"
   ansible.builtin.include_tasks: db_ha_rolling_member.yml
-  vars:
-    _roll_member_file: "{{ lookup('container', application_id, 'directories.instance') }}/.roll-{{ roll_member }}.yml"
   loop: "{{ _roll_first }}"
   loop_control:
     loop_var: roll_member
@@ -110,7 +108,6 @@
   ansible.builtin.include_tasks: db_ha_rolling_member.yml
   vars:
     roll_member: "{{ _roll_primary }}"
-    _roll_member_file: "{{ lookup('container', application_id, 'directories.instance') }}/.roll-{{ _roll_primary }}.yml"
   when:
     - _roll_primary | length > 0
     - _roll_primary in _roll_changed

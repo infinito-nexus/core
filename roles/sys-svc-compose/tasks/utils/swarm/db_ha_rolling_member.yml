@@ -2,20 +2,6 @@
 # Param: roll_member   - service key of the member to move to its rendered spec
 # Param: _roll_stack   - swarm stack of the engine
 # Param: _roll_config  - registered `docker stack config` output of the engine
-- name: "📄 db_ha_rolling | stack file holding only '{{ roll_member }}'"
-  ansible.builtin.copy:
-    content: "{{ _roll_document | to_nice_yaml(indent=2) | replace('$', '$$') }}"
-    dest: "{{ _roll_member_file }}"
-    owner: root
-    group: root
-    mode: "0600"
-  vars:
-    _roll_full: "{{ _roll_config.stdout | from_yaml }}"
-    _roll_document: "{{ _roll_full | combine({'services': {roll_member: _roll_full.services[roll_member]}}) }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  run_once: true
-  delegate_to: "{{ STACK_HOST }}"
-
 - name: "🔄 db_ha_rolling | move '{{ roll_member }}' to its rendered spec"
   ansible.builtin.command:
     argv:
@@ -23,19 +9,18 @@
       - stack
       - deploy
       - --compose-file
-      - "{{ _roll_member_file }}"
+      - "-"
       - --resolve-image
       - never
       - --with-registry-auth
       - "{{ _roll_stack }}"
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    stdin: "{{ _roll_document | to_nice_yaml(indent=2) | replace('$', '$$') }}"
+  vars:
+    _roll_full: "{{ _roll_config.stdout | from_yaml }}"
+    _roll_document: "{{ _roll_full | combine({'services': {roll_member: _roll_full.services[roll_member]}}) }}"
   changed_when: true
-  run_once: true
-  delegate_to: "{{ STACK_HOST }}"
-
-- name: "🧹 db_ha_rolling | drop the single-member stack file"
-  ansible.builtin.file:
-    path: "{{ _roll_member_file }}"
-    state: absent
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 

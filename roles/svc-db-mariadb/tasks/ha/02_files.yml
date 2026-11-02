@@ -30,7 +30,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 MariaDB HA | Write the replication and etcd password files"
-  ansible.builtin.copy: # nocheck: stack-host-consumer (00_core includes this file only when IS_STACK_HOST)
+  stack_host_copy:
     content: "{{ item.password }}"
     dest: "{{ [MARIADB_HA_DIR, item.file] | path_join }}"
     mode: "0600"
