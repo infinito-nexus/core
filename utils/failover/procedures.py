@@ -16,7 +16,6 @@ from utils.failover.checker import acks_between, audit, max_write_gap_s
 from utils.failover.junit import CaseResult
 from utils.failover.procedure_kit import (
     DEMOTE_MARGIN_S,
-    FAULT_HOLD_S,
     LAG_BUILD_S,
     PARTITION_WATCH_S,
     RECOVER_S,
@@ -34,7 +33,7 @@ from utils.failover.procedure_kit import (
     watch_local_writes,
     with_checker,
 )
-from utils.failover.runner import unfinished
+from utils.failover.runner import FAULT_HOLD_S, unfinished
 from utils.failover.sampling import (
     dual_writer_detail,
     dual_writer_windows,

@@ -30,7 +30,6 @@ QUORUM_TIMEOUT_S = 600
 NAME_FILES = ("/etc/resolv.conf", "/etc/hosts")
 ARRANGE_ATTEMPTS = 6
 RAFT_ARRANGE_ATTEMPTS = 15
-POLL_S = 2.0
 
 
 def secret_name(engine: str) -> str:

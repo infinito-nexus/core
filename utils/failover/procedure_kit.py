@@ -6,7 +6,13 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
-from utils.failover.runner import collect_checker, judge_run, run_plain, unfinished
+from utils.failover.runner import (
+    WARMUP_S,
+    collect_checker,
+    judge_run,
+    run_plain,
+    unfinished,
+)
 from utils.failover.sampling import Round, Sampler, epoch_ms
 from utils.failover.scenarios import get_scenario
 
@@ -17,8 +23,6 @@ if TYPE_CHECKING:
     from utils.failover.junit import CaseResult
     from utils.failover.targets import Verdict
 
-WARMUP_S = 10
-FAULT_HOLD_S = 60
 SETTLE_S = 30
 LAG_BUILD_S = 15
 DEMOTE_MARGIN_S = 5
