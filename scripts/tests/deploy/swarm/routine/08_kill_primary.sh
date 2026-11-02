@@ -284,13 +284,8 @@ restarted_in_place() {
 	[ "${_cid}" != "$2" ]
 }
 
-# Param: $1 engine
-kill_primary_of() {
-	local _engine="$1" _dep _old _old_node _old_cid _old_service _killed_node="" _pinned=0 _new="" _deadline _stamp _write_err=""
-	if [ -z "$(instance_services "${_engine}")" ]; then
-		echo "SKIP: ${_engine} runs no HA instances for ${APP_ID}"
-		return 0
-	fi
+wait_every_engine() {
+	local _dep
 	for _dep in ${HA_DEPS}; do
 		[ -n "$(instance_services "${_dep}")" ] || continue
 		wait_full_strength "${_dep}"
@@ -299,6 +294,32 @@ kill_primary_of() {
 		fi
 	done
 	echo "==> every HA engine and etcd at full strength"
+}
+
+# Param: $1 engine, $2 node container the primary must leave, $3 primary container id
+# Prints "<node> <cid> <service>" of a primary on another node, or nothing after KILL_PRIMARY_TIMEOUT.
+move_primary_off() {
+	local _deadline _now
+	docker exec "$2" docker kill "$3" >/dev/null
+	_deadline=$(($(date +%s) + KILL_PRIMARY_TIMEOUT))
+	while [ "$(date +%s)" -lt "${_deadline}" ]; do
+		_now=$(find_primary "$1" || true)
+		if [ -n "${_now}" ] && [ "${_now%% *}" != "$2" ]; then
+			echo "${_now}"
+			return 0
+		fi
+		sleep 3
+	done
+}
+
+# Param: $1 engine
+kill_primary_of() {
+	local _engine="$1" _old _old_node _old_cid _old_service _killed_node="" _pinned=0 _new="" _deadline _stamp _write_err=""
+	if [ -z "$(instance_services "${_engine}")" ]; then
+		echo "SKIP: ${_engine} runs no HA instances for ${APP_ID}"
+		return 0
+	fi
+	wait_every_engine
 	_old=$(wait_primary "${_engine}")
 	if [ -z "${_old}" ]; then
 		echo "FAILURE: no ${_engine} primary with every replica attached within ${KILL_PRIMARY_TIMEOUT}s before the kill"
@@ -306,6 +327,21 @@ kill_primary_of() {
 	fi
 	read -r _old_node _old_cid _old_service <<<"${_old}"
 	echo "==> ${_engine} primary is ${_old_service} on ${_old_node}"
+
+	if app_pinned_to "${_old_node}" && keeps_quorum "${_old_node}"; then
+		echo "==> ${APP_ID} is pinned to ${_old_node}; moving the ${_engine} primary off it before the node kill"
+		if [ -z "$(move_primary_off "${_engine}" "${_old_node}" "${_old_cid}")" ]; then
+			echo "==> the ${_engine} primary stayed on ${_old_node} after its container was killed"
+		fi
+		wait_every_engine
+		_old=$(wait_primary "${_engine}")
+		if [ -z "${_old}" ]; then
+			echo "FAILURE: no ${_engine} primary with every replica attached within ${KILL_PRIMARY_TIMEOUT}s after moving it"
+			exit 1
+		fi
+		read -r _old_node _old_cid _old_service <<<"${_old}"
+		echo "==> ${_engine} primary is now ${_old_service} on ${_old_node}"
+	fi
 
 	if ! keeps_quorum "${_old_node}"; then
 		docker exec "${_old_node}" docker kill "${_old_cid}" >/dev/null
