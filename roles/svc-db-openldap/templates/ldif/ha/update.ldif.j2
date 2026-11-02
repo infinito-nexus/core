@@ -5,7 +5,7 @@ changetype: modify
 replace: mail
 mail: {{ user.email }}
 
-{% for oc in LDAP.USER.OBJECTS.STRUCTURAL + (LDAP.USER.OBJECTS.AUXILIARY.values() | list) %}
+{% for oc in LDAP.USER.OBJECTS.STRUCTURAL %}
 dn: {{ _dn }}
 changetype: modify
 add: objectClass

@@ -6,6 +6,7 @@ from ansible.errors import AnsibleFilterError
 
 from utils.roles.openldap_ha import (
     OpenLDAPHAError,
+    batch_result_codes,
     forbidden_bind_writes,
     render_cn_config,
     schema_drops,
@@ -41,4 +42,5 @@ class FilterModule:
             "openldap_cn_config": openldap_cn_config,
             "openldap_forbidden_bind_writes": forbidden_bind_writes,
             "openldap_schema_drops": schema_drops,
+            "openldap_batch_result_codes": batch_result_codes,
         }

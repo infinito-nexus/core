@@ -198,6 +198,19 @@ def render_cn_config(
     return "\n\n".join(entries) + "\n"
 
 
+_BATCH_RESULT = re.compile(r"^ldap_(?:add|modify): .*\((\d+)\)\s*$", re.MULTILINE)
+
+
+def batch_result_codes(stderr: str) -> list[int]:
+    """Return the LDAP result code of every entry an ``ldapadd -c`` or
+    ``ldapmodify -c`` batch refused, in order.
+
+    Args:
+        stderr: the batch's standard error.
+    """
+    return [int(code) for code in _BATCH_RESULT.findall(stderr or "")]
+
+
 def forbidden_bind_writes(ldif: str) -> list[str]:
     """Return the bind-time write features present in a ``cn=config`` dump.
 

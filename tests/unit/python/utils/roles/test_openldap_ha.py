@@ -4,6 +4,7 @@ import unittest
 from utils.roles.openldap_ha import (
     SERVER_ID_MAX,
     OpenLDAPHAError,
+    batch_result_codes,
     forbidden_bind_writes,
     render_cn_config,
     schema_drops,
@@ -169,6 +170,21 @@ class TestRenderCnConfig(unittest.TestCase):
 
     def test_deterministic(self):
         self.assertEqual(_render(), _render())
+
+
+class TestBatchResultCodes(unittest.TestCase):
+    def test_every_refused_entry_is_reported(self):
+        stderr = (
+            "ldap_add: Already exists (68)\n"
+            "ldap_modify: Object class violation (65)\n"
+            "\tadditional info: object class 'ldapPublicKey' requires attribute 'sshPublicKey'\n"
+            "ldap_modify: Type or value exists (20)\n"
+        )
+        self.assertEqual(batch_result_codes(stderr), [68, 65, 20])
+
+    def test_a_clean_batch_has_no_codes(self):
+        self.assertEqual(batch_result_codes(""), [])
+        self.assertEqual(batch_result_codes(None), [])
 
 
 class TestForbiddenBindWrites(unittest.TestCase):

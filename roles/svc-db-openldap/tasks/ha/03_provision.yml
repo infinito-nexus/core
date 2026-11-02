@@ -58,8 +58,12 @@
   args:
     stdin: "{{ lookup('template', 'ldif/ha/data.ldif.j2') }}"
   register: openldap_ha_data
-  changed_when: "'adding new entry' in openldap_ha_data.stdout"
-  failed_when: openldap_ha_data.rc not in [0, 20, 68, 65]
+  changed_when: >-
+    (openldap_ha_data.stdout | regex_findall('adding new entry') | length)
+    > (openldap_ha_data.stderr | openldap_batch_result_codes | select('equalto', 68) | list | length)
+  failed_when: >-
+    openldap_ha_data.rc not in [0, 68]
+    or (openldap_ha_data.stderr | openldap_batch_result_codes | reject('equalto', 68) | list | length > 0)
   delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
   run_once: true
   when: OPENLDAP_PROVISION_USERS | bool or OPENLDAP_PROVISION_GROUPS | bool
@@ -95,7 +99,9 @@
     stdin: "{{ lookup('template', 'ldif/ha/update.ldif.j2') }}"
   register: openldap_ha_update
   changed_when: false
-  failed_when: openldap_ha_update.rc not in [0, 20, 68, 65]
+  failed_when: >-
+    openldap_ha_update.rc not in [0, 20]
+    or (openldap_ha_update.stderr | openldap_batch_result_codes | reject('equalto', 20) | list | length > 0)
   delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
   run_once: true
   when: OPENLDAP_PROVISION_UPDATE | bool or OPENLDAP_PROVISION_USERS | bool
