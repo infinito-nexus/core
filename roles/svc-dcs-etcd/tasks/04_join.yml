@@ -35,10 +35,9 @@
 - name: "🤔 ETCD | Pick a live member and the declared members it does not know"
   ansible.builtin.set_fact:
     etcd_join_live: "{{ _live }}"
-    etcd_join_missing: >-
+    ETCD_JOINING_MEMBERS: >-
       {{ ETCD_MEMBERS
          | reject('in', _known_members) | list if _live else [] }}
-    ETCD_CLUSTER_STATE: "{{ 'existing' if _live else 'new' }}"
     etcd_cluster_root_password: "{{ etcd_previous_root_password if _by_previous | length > 0 else ETCD_ROOT_PASSWORD }}"
   vars:
     _by_current: "{{ etcd_join_probe.results | selectattr('rc', 'equalto', 0) | list }}"
@@ -59,4 +58,4 @@
   environment:
     ETCDCTL_USER: "root:{{ etcd_cluster_root_password }}"
   delegate_to: "{{ etcd_join_live.item.host }}"
-  loop: "{{ etcd_join_missing }}"
+  loop: "{{ ETCD_JOINING_MEMBERS }}"

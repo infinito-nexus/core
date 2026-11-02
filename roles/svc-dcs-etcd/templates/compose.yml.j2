@@ -23,7 +23,7 @@
       - "--initial-advertise-peer-urls=https://{{ _member }}:{{ ETCD_PEER_PORT }}"
       - "--initial-cluster={{ ETCD_INITIAL_CLUSTER }}"
       - "--initial-cluster-token={{ ETCD_CLUSTER_TOKEN }}"
-      - "--initial-cluster-state={{ ETCD_CLUSTER_STATE }}"
+      - "--initial-cluster-state={{ 'existing' if _member in ETCD_JOINING_MEMBERS else 'new' }}"
       - "--cert-file={{ ETCD_CERT_TARGET }}"
       - "--key-file={{ ETCD_KEY_TARGET }}"
       - "--peer-cert-file={{ ETCD_CERT_TARGET }}"

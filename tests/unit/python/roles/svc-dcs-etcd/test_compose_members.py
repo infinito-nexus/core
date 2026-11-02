@@ -47,7 +47,7 @@ def _env(instances):
     return env
 
 
-def _render(hosts):
+def _render(hosts, joining=()):
     """Render the compose members for *hosts*.
 
     Ansible keeps the YAML-unescaped ``\\1`` of ETCD_INITIAL_CLUSTER a regex
@@ -56,6 +56,7 @@ def _render(hosts):
 
     Args:
         hosts: inventory hosts carrying an etcd member.
+        joining: members this run registers in a live cluster.
     """
     instances = build_instances(
         "svc-dcs-etcd", hosts, deployment_mode="swarm", swarm_nodes=hosts
@@ -77,6 +78,7 @@ def _render(hosts):
         ETCD_CA_TARGET="/ca.crt",
         ETCD_CERT_TARGET="/etcd.crt",
         ETCD_KEY_TARGET="/etcd.key",
+        ETCD_JOINING_MEMBERS=list(joining),
     )
     return load_yaml_str(rendered)["services"]
 
@@ -104,6 +106,18 @@ class TestEtcdComposeMembers(unittest.TestCase):
                     f"--initial-advertise-peer-urls=https://{name}:2380",
                     service["command"],
                 )
+
+    def test_the_cluster_state_does_not_change_between_deploys(self):
+        for name, service in _render(HOSTS).items():
+            with self.subTest(member=name):
+                self.assertIn("--initial-cluster-state=new", service["command"])
+
+    def test_only_a_joining_member_starts_as_existing(self):
+        services = _render(HOSTS, joining=["etcd-mgr-02"])
+        self.assertIn(
+            "--initial-cluster-state=existing", services["etcd-mgr-02"]["command"]
+        )
+        self.assertIn("--initial-cluster-state=new", services["etcd-mgr-01"]["command"])
 
     def test_one_host_renders_single_member(self):
         services = _render(["mgr-01"])
