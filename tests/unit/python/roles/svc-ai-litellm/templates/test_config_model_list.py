@@ -221,6 +221,54 @@ class TestNoBackend(unittest.TestCase):
 
 
 class TestConfiguredRemoteModels(unittest.TestCase):
+    def test_openrouter_transport_keeps_the_upstream_namespace_and_credential_owner(
+        self,
+    ) -> None:
+        declaration = {
+            "alias": "openrouter/free",
+            "model": "openai/openrouter/free",
+            "provider": "openrouter",
+            "api_base": "https://openrouter.ai/api/v1",
+            "traits": {"local": False},
+        }
+        config = render(keys={"openrouter": "sk-or-test"}, remote_models=[declaration])
+        entry = config["model_list"][0]
+        params = entry["litellm_params"]
+        self.assertEqual(entry["model_name"], "openrouter/free")
+        self.assertEqual(params["model"], "openai/openrouter/free")
+        self.assertEqual(params["api_base"], "https://openrouter.ai/api/v1")
+        self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
+        self.assertIs(entry["model_info"]["traits"]["local"], False)
+
+    def test_explicit_endpoint_requires_an_explicit_locality(self) -> None:
+        with self.assertRaisesRegex(ValueError, "traits.local"):
+            render(
+                keys={"openrouter": "sk-or-test"},
+                remote_models=[{**BONSAI, "api_base": "https://openrouter.ai/api/v1"}],
+            )
+
+    def test_empty_endpoint_is_not_silently_replaced_by_a_vendor_default(self) -> None:
+        for value in ("", None, 123):
+            with (
+                self.subTest(value=value),
+                self.assertRaisesRegex(ValueError, "api_base"),
+            ):
+                render(
+                    keys={"openrouter": "sk-or-test"},
+                    remote_models=[
+                        {**BONSAI, "api_base": value, "traits": {"local": False}}
+                    ],
+                )
+
+    def test_shipped_openrouter_auto_uses_the_compatible_transport(self) -> None:
+        config = render(keys={"openrouter": "sk-or-test"})
+        entry = config["model_list"][0]
+        self.assertEqual(entry["litellm_params"]["model"], "openai/openrouter/auto")
+        self.assertEqual(
+            entry["litellm_params"]["api_base"], "https://openrouter.ai/api/v1"
+        )
+        self.assertIs(entry["model_info"]["traits"]["local"], False)
+
     def test_an_added_model_shares_its_provider_key(self) -> None:
         published = routes(
             render(

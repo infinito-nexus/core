@@ -49,8 +49,11 @@ litellm:
       model: anthropic/claude-sonnet-4-5
       provider: anthropic
     - alias: openrouter/auto
-      model: openrouter/openrouter/auto
+      model: openai/openrouter/auto
       provider: openrouter
+      api_base: https://openrouter.ai/api/v1
+      traits:
+        local: false
   min_storage: 1022MB
   cpus: "2.0"
   mem_reservation: 1g
