@@ -96,10 +96,6 @@
 
 - name: "🛡️ Assert the NFS client mount is active on this swarm node"
   ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
-  register: _sys_svc_compose_nfs_mounted
-  until: _sys_svc_compose_nfs_mounted.rc == 0
-  retries: 10
-  delay: 3
   changed_when: false
   when:
     - DEPLOYMENT_MODE == 'swarm'

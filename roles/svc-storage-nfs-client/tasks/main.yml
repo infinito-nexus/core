@@ -62,10 +62,6 @@
       probed-by={{ inventory_hostname }}
       probed-at={{ ansible_facts.date_time.iso8601 }}
     mode: "0644"
-  register: svc_storage_nfs_client_probe_write
-  until: svc_storage_nfs_client_probe_write is succeeded
-  retries: 12
-  delay: 5
 
 - name: "🔗 Unmount probe mount"
   ansible.posix.mount:
