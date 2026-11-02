@@ -3,7 +3,9 @@ import unittest
 import jinja2
 
 from utils import PROJECT_ROOT
+from utils.cache.applications import get_application_defaults
 from utils.cache.yaml import load_yaml_str
+from utils.roles.applications.config import get
 
 TEMPLATE = "roles/sys-svc-compose/templates/db_endpoint.yml.j2"
 
@@ -25,6 +27,8 @@ def _lookup(name, *args, **kwargs):
     if name == "applications":
         return {}
     if name == "config":
+        if args[0] == "sys-svc-compose":
+            return get(get_application_defaults(), args[0], args[1])
         return args[-1]
     if name == "container_image":
         return f'image: "{args[1]}:pinned"'

@@ -13,3 +13,9 @@ haproxy:
   version: 3.2.25-alpine
   backup:
     no_stop_required: true
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 256
+  replicas: 2
+  max_replicas_per_node: 1

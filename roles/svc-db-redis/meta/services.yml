@@ -52,11 +52,6 @@ sentinel:
   ports:
     internal:
       sentinel: 26379
-haproxy:
-  cpus: "0.25"
-  mem_reservation: 64m
-  mem_limit: 128m
-  pids_limit: 256
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5

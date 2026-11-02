@@ -1,6 +1,6 @@
 {#
   Param: service_name  the engine's service name the write endpoint takes over.
-  Param: application_id  the engine role; its meta declares the `haproxy` sizing and mounts, sys-svc-compose pins the image.
+  Param: application_id  the engine role; its meta declares the `haproxy` mounts, sys-svc-compose the image, sizing and replicas.
 #}
 {% set _db_endpoint_sysctls = lookup('db_endpoint', application_id, field='sysctls') %}
   {# nocheck: compose-structure  the write endpoint carries the engine's service name, its sizing comes from the `haproxy` meta entry #}
@@ -20,8 +20,9 @@
     {% endfor %}
     {% endif %}
 {% set service_name = 'haproxy' %}
-{% set service_replicas_forced = 2 %}
-{% set service_max_replicas_per_node = 1 %}
+{% set service_sizing_application_id = 'sys-svc-compose' %}
+{% set service_replicas_forced = lookup('config', 'sys-svc-compose', 'services.haproxy.replicas') %}
+{% set service_max_replicas_per_node = lookup('config', 'sys-svc-compose', 'services.haproxy.max_replicas_per_node') %}
 {% set service_db_endpoint = true %}
 {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {{ "\n" }}

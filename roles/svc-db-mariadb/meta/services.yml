@@ -43,11 +43,6 @@ mariadb:
       check_port: writer
       check_path: /writer
   lifecycle: beta
-haproxy:
-  cpus: "0.25"
-  mem_reservation: 64m
-  mem_limit: 128m
-  pids_limit: 256
 # nocheck: dynamic-flag  the writer elector holds its lease in etcd only while the HA form renders
 etcd:
   bond: 1

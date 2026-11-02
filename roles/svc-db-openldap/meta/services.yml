@@ -52,11 +52,6 @@ openldap:
       check_port: writer
       check_path: /writer
   lifecycle: beta
-haproxy:
-  cpus: "0.25"
-  mem_reservation: 64m
-  mem_limit: 128m
-  pids_limit: 256
 # nocheck: playwright-service-flag, dynamic-flag, variants-coverage  the writer elector joins the coordination-store overlay only in the HA form, which the instance count selects, not a variant
 etcd: # nocheck: bond-baseline coordination store joins by instance count, outside the variant topology
   bond: 1

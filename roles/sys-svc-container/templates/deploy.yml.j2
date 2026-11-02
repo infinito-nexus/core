@@ -1,5 +1,6 @@
 {% if compose_mode == 'swarm' %}
 {{ "\n" }}
+{% set _sizing_app = service_sizing_application_id | default(application_id) %}
 {% if db_instance %}
 {% set _replicas = 1 %}
 {% elif service_replicas_forced is defined %}
@@ -63,11 +64,11 @@
         condition: {{ docker_restart_policy | default(DOCKER_RESTART_POLICY) | swarm_restart_condition }}
       resources:
         limits:
-          cpus: "{{ lookup('applications') | resource_filter(application_id, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
-          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
-          pids: {{ lookup('applications') | resource_filter(application_id, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
+          cpus: "{{ lookup('applications') | resource_filter(_sizing_app, 'cpus', service_name | default(''), RESOURCE_CPUS) | string }}"
+          memory: {{ lookup('applications') | resource_filter(_sizing_app, 'mem_limit', service_name | default(''), RESOURCE_MEM_LIMIT) }}
+          pids: {{ lookup('applications') | resource_filter(_sizing_app, 'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT) }}
 {% if RUNTIME != 'github' %}
         reservations:
-          memory: {{ lookup('applications') | resource_filter(application_id, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
+          memory: {{ lookup('applications') | resource_filter(_sizing_app, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
 {% endif %}
 {% endif %}

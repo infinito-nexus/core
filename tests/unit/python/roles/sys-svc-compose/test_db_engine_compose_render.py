@@ -14,8 +14,10 @@ import jinja2
 from plugins.filter.swarm.instance_service import swarm_instance_service
 from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
+from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.applications.config import get
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 ENGINES = {
@@ -44,6 +46,8 @@ def _lookup_factory(application_id, model):
         if name == "applications":
             return {}
         if name == "config":
+            if args[0] == "sys-svc-compose":
+                return get(get_application_defaults(), args[0], args[1])
             return args[-1]
         if name == "compose_replicas":
             return f"replicas: {args[0]}" if args else "replicas: 1"
