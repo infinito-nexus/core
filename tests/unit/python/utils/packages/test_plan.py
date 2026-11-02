@@ -209,7 +209,9 @@ class TestMergePlans(unittest.TestCase):
 
     def test_bootstrap_packages_install_before_every_name(self):
         epel = {"repo": {"bootstrap_package": "epel-release"}}
-        merged = merge_plans([_plan("git"), _plan("micro", **epel), _plan("jq", **epel)])
+        merged = merge_plans(
+            [_plan("git"), _plan("micro", **epel), _plan("jq", **epel)]
+        )
         self.assertEqual(
             [_names(call) for call in merged[0]],
             [["epel-release"], ["git", "micro", "jq"]],

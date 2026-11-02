@@ -9,7 +9,7 @@ from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT / "roles/web-app-keycloak/files/python"))
 
-import rbac_reconcile as m  # noqa: E402
+import rbac_reconcile as m
 
 LDAP = "ldap-1"
 

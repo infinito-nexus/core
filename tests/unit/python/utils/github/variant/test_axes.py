@@ -744,7 +744,9 @@ class TestDbTopologyAxis(unittest.TestCase):
     def test_a_pinned_topology_overrides_the_rotation(self) -> None:
         for topology in topology_axis.TOPOLOGIES:
             rows = [
-                _row("web-app-t0", 0, ("swarm",), pin_mode="swarm", pin_topology=topology)
+                _row(
+                    "web-app-t0", 0, ("swarm",), pin_mode="swarm", pin_topology=topology
+                )
             ]
             for sweep in range(8):
                 (entry,) = _assign(rows, sweep=sweep, tor_mode="auto", db_topology=True)

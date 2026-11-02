@@ -141,7 +141,9 @@ class TestParseTopologyAscii(unittest.TestCase):
 
     def test_the_topology_pin_selects_only_entries_of_that_topology(self) -> None:
         pin = selection.parse("web-app-a~ha")
-        self.assertTrue(selection.covers(pin, {"apps": "web-app-a", "db_topology": "ha"}))
+        self.assertTrue(
+            selection.covers(pin, {"apps": "web-app-a", "db_topology": "ha"})
+        )
         self.assertFalse(
             selection.covers(pin, {"apps": "web-app-a", "db_topology": "standalone"})
         )

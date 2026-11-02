@@ -4,7 +4,7 @@ import json
 import unittest
 from typing import Any
 
-from jinja2 import Environment
+from jinja2 import Environment, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
@@ -17,7 +17,7 @@ MEMBER = json.dumps([{"Member": "postgres-1", "Role": "Leader"}])
 
 
 def _env() -> Environment:
-    env = Environment(autoescape=False)
+    env = Environment(autoescape=select_autoescape(default_for_string=False))
     env.filters["from_json"] = json.loads
     return env
 
@@ -64,7 +64,10 @@ class TestDcsRejoinDecision(unittest.TestCase):
 
     def test_nobody_answering_fails_instead_of_restarting_every_member(self) -> None:
         guard, _ = decide(
-            [{"rc": 1, "stdout": "", "stderr": "etcd unreachable"}, {"rc": 1, "stdout": ""}]
+            [
+                {"rc": 1, "stdout": "", "stderr": "etcd unreachable"},
+                {"rc": 1, "stdout": ""},
+            ]
         )
         self.assertFalse(
             guard,

@@ -114,7 +114,9 @@ class TestRoleInvocations(_TreeMixin, unittest.TestCase):
         self.assertEqual(self._invoked(tasks), {"role-b", "role-c"})
 
     def test_quoted_names_are_ignored_while_every_include_resolves(self):
-        self._write(_role_file("role-a", ROLE_FILE_VARS_MAIN), {"OTHER": "{{ 'role-c' }}"})
+        self._write(
+            _role_file("role-a", ROLE_FILE_VARS_MAIN), {"OTHER": "{{ 'role-c' }}"}
+        )
         self.assertEqual(
             self._invoked([{"include_role": {"name": "role-b"}}]), {"role-b"}
         )
@@ -156,9 +158,7 @@ class TestStageInvocations(_TreeMixin, unittest.TestCase):
             [{"include_role": {"name": "role-b"}, "when": "'role-b' in group_names"}]
         )
         self.assertEqual(
-            stage_invocations(
-                path, frozenset(ROLES), seeds=[], group_names=["role-b"]
-            ),
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=["role-b"]),
             {"role-b"},
         )
 
@@ -172,15 +172,11 @@ class TestStageInvocations(_TreeMixin, unittest.TestCase):
             ]
         )
         self.assertEqual(
-            stage_invocations(
-                path, frozenset(ROLES), seeds=[], group_names=["role-b"]
-            ),
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=["role-b"]),
             set(),
         )
         self.assertEqual(
-            stage_invocations(
-                path, frozenset(ROLES), seeds=["role-b"], group_names=[]
-            ),
+            stage_invocations(path, frozenset(ROLES), seeds=["role-b"], group_names=[]),
             {"role-b"},
         )
 

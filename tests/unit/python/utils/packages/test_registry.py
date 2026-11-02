@@ -229,15 +229,11 @@ class TestRegistry(unittest.TestCase):
         self.assertTrue(self._declaration("git").batch)
 
     def test_batch_false_keeps_the_id_out_of_the_batch(self):
-        _write_role(
-            self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}}
-        )
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}})
         self.assertFalse(self._declaration("git").batch)
 
     def test_the_batch_flag_is_no_distro_key(self):
-        _write_role(
-            self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}}
-        )
+        _write_role(self.root, "role-a", {"git": {"Debian": ["git"], "batch": False}})
         self.assertIsNone(resolve(self._declaration("git"), "arch"))
 
     def test_non_boolean_batch_raises(self):

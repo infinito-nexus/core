@@ -149,17 +149,13 @@ class TestCommands(unittest.TestCase):
         self.assertTrue(argv[-1].startswith("args=-p /x/inv-0/.password"))
 
     def test_playbook_passes_vars_as_one_json(self):
-        argv = inv.playbook_argv(
-            self.lab, "etcd-operation.yml", {"op": "move-leader"}
-        )
+        argv = inv.playbook_argv(self.lab, "etcd-operation.yml", {"op": "move-leader"})
         self.assertEqual(json.loads(argv[argv.index("-e") + 1]), {"op": "move-leader"})
         self.assertTrue(argv[-1].endswith("playbooks/etcd-operation.yml"))
         self.assertNotIn("--limit", argv)
 
     def test_playbook_limit_targets_one_host_pattern(self):
-        argv = inv.playbook_argv(
-            self.lab, "etcd-operation.yml", {}, limit="mgr-02"
-        )
+        argv = inv.playbook_argv(self.lab, "etcd-operation.yml", {}, limit="mgr-02")
         self.assertEqual(argv[argv.index("--limit") + 1], "mgr-02")
         self.assertTrue(argv[-1].endswith("etcd-operation.yml"))
 
