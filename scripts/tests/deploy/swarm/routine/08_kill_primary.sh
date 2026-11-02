@@ -252,7 +252,7 @@ replicas_attached() {
 	[ "$1" = redis ] || return 0
 	_want=$(($(instance_services "$1" | wc -l) - 1))
 	docker exec "$2" docker exec "$3" sh -c '
-		REDISCLI_AUTH=$(sed -n "s/^masterauth //p" "$REDIS_HA_INCLUDE")
+		REDISCLI_AUTH="$REDIS_PASSWORD"
 		export REDISCLI_AUTH
 		n=$(redis-cli -p "$REDIS_HA_PORT" INFO replication | sed -n "s/^connected_slaves:\([0-9]*\).*/\1/p")
 		[ "${n:-0}" -ge "$1" ]' _ "${_want}" >/dev/null 2>&1

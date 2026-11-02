@@ -32,9 +32,9 @@ class TestCommandsCarryNoCredential(unittest.TestCase):
         with self.assertRaises(ValueError):
             engines.sql("redis", "SET")
 
-    def test_redis_cli_reads_the_password_from_the_include(self):
+    def test_redis_cli_reads_the_password_from_the_container_env(self):
         argv = engines.redis_cli("SET", "k", "1")
-        self.assertIn("$REDIS_HA_INCLUDE", argv[2])
+        self.assertIn('REDISCLI_AUTH="$REDIS_PASSWORD"', argv[2])
         self.assertEqual(argv[-3:], ["SET", "k", "1"])
 
     def test_switchover_names_leader_and_candidate(self):

@@ -9,6 +9,7 @@ REDIS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_
 REDIS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_PASSWORD') }}"
 REDIS_HAPROXY_CHECK_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_HAPROXY_CHECK_PASSWORD') }}"
 REDIS_SENTINEL_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_SENTINEL_PASSWORD') }}"
+REDIS_REPLICA_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.REDIS_REPLICA_PASSWORD') }}"
 REDIS_EXPOSE_LOCAL: true
 REDIS_EXEC_SHELL: "container exec {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
 REDIS_CLI: 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning'
@@ -30,6 +31,7 @@ REDIS_SENTINEL_CLI: >-
   sh -c 'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") exec redis-cli -p "$SENTINEL_PORT" SENTINEL "$@"' sentinel
 REDIS_SENTINEL_USER: "sentinel"
 REDIS_HAPROXY_CHECK_USER: "haproxy-check"
+REDIS_REPLICA_USER: "replica"
 REDIS_SENTINEL_QUORUM: 2
 REDIS_SENTINEL_DOWN_AFTER_MS: 5000
 REDIS_SENTINEL_FAILOVER_TIMEOUT_MS: 10000

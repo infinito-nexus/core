@@ -28,7 +28,7 @@ The HA form is alpha; the role's `lifecycle: beta` in `meta/services.yml` rates 
 
 Configuration has two owners:
 
-- `infinito.conf`, rendered by Ansible on every run and delivered as a Swarm secret: the `default`, `sentinel` and `haproxy-check` ACL users, `masterauth`, `maxmemory` (60 % of `mem_limit`, against 80 % in the standalone form, `allkeys-lru`), RDB and AOF, `min-replicas-to-write 1` and `min-replicas-max-lag 10`.
+- `infinito.conf`, rendered by Ansible on every run and delivered as a Swarm secret: the `default`, `sentinel`, `haproxy-check` and `replica` ACL users (replicas authenticate to the master as `replica`, which may only `PSYNC`, `REPLCONF` and `PING`), `maxmemory` (60 % of `mem_limit`, against 80 % in the standalone form, `allkeys-lru`), RDB and AOF, `min-replicas-to-write 1` and `min-replicas-max-lag 10`.
 - `/data/redis.conf`, seeded only when absent with an `include` of the file above. Sentinel's `replicaof` rewrites persist there. On every start the wrapper drops any line the include owns, so `CONFIG REWRITE` cannot freeze an old password or limit into it.
 
 The start-up wrapper (`files/shell/ha_start.sh`) asks the Sentinels for the current master and takes the majority answer. If another instance is master, it starts as that instance's replica; if no Sentinel answers, it keeps the role in its configuration file. A fresh non-bootstrap instance is seeded as a replica of the bootstrap instance (the original host).

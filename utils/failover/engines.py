@@ -24,8 +24,7 @@ _MARIADB_STATUS = (
     '--socket="$ELECTOR_MARIADB_SOCKET" -E -e "SHOW SLAVE STATUS"'
 )
 _REDIS_CLI = (
-    'REDISCLI_AUTH=$(sed -n "s/^masterauth //p" "$REDIS_HA_INCLUDE") '
-    'exec redis-cli -p "$REDIS_HA_PORT" "$@"'
+    'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli -p "$REDIS_HA_PORT" "$@"'
 )
 _LDAP_SUFFIX = (
     "exec ldapsearch -Q -LLL -o ldif-wrap=no -Y EXTERNAL -H ldapi:/// "
