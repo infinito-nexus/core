@@ -46,11 +46,13 @@
       SET SESSION sql_log_bin = 0;
       SET @replication_pwd := '{{ MARIADB_REPLICATION_PWD }}';
       SET @elector_pwd := '{{ MARIADB_ELECTOR_PWD }}';
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'before'}) }}
       {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'after'}) }}
   environment:
     CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"
   register: _mariadb_rotate_users
-  changed_when: true
+  changed_when: _mariadb_rotate_users.stdout_lines | last == 'users changed'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: _mariadb_rotate_login.rc == 0
 
@@ -58,6 +60,7 @@
   ansible.builtin.shell: |
     set -o pipefail
     if [ -z "$(printf 'SHOW SLAVE STATUS;\n' | container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ mariadb_rotate_instance.service | quote }})" {{ MARIADB_HA_SQL }})" ]; then
+      echo "no replication to re-point"
       exit 0
     fi
     container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ mariadb_rotate_instance.service | quote }})" {{ MARIADB_HA_SQL }}
@@ -69,6 +72,7 @@
       START SLAVE;
   environment:
     CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"
-  changed_when: true
+  register: _mariadb_rotate_repoint
+  changed_when: _mariadb_rotate_repoint.stdout is not search('no replication to re-point')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: _mariadb_rotate_apply is changed

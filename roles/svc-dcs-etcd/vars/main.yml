@@ -8,7 +8,7 @@ ETCD_CLIENT_PORT: "{{ lookup('config', application_id, 'services.etcd.ports.inte
 ETCD_PEER_PORT: "{{ lookup('config', application_id, 'services.etcd.ports.internal.peer') }}"
 ETCD_INITIAL_CLUSTER: "{{ ETCD_MEMBERS | map('regex_replace', '^(.*)$', '\\1=https://\\1:' ~ ETCD_PEER_PORT) | join(',') }}"
 ETCD_CLUSTER_TOKEN: "infinito-{{ entity_name }}"
-ETCD_CLUSTER_STATE: new
+ETCD_JOINING_MEMBERS: []
 ETCD_IMAGE: "{{ lookup('config', application_id, 'services.etcd.image') }}"
 ETCD_VERSION: "{{ lookup('config', application_id, 'services.etcd.version') }}"
 ETCD_UID: "{{ lookup('volume', application_id, 'tls_key').uid }}"
@@ -52,5 +52,6 @@ ETCDCTL: >-
   etcdctl --endpoints=https://127.0.0.1:{{ ETCD_CLIENT_PORT }}
   --cacert={{ ETCD_CA_TARGET }}
 ETCD_AUTH_REQUIRED_ERROR: "user name is empty"
+ETCD_AUTH_FAILED_ERROR: "authentication failed"
 ETCD_RETRIES: 30
 ETCD_DELAY: 5

@@ -72,19 +72,41 @@
   delegate_to: "{{ ETCD_EXEC_HOST }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔑 ETCD | Reconcile passwords of existing users"
+- name: "🔍 ETCD | Check which existing users still log in with their declared password"
   ansible.builtin.shell: >
-    container exec -i -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
-    user passwd {{ item.user | quote }} --interactive=false
+    IFS= read -r ETCDCTL_USER && export ETCDCTL_USER &&
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    get --keys-only --limit 1 /
   args:
-    stdin: "{{ item.password }}"
-  environment: "{{ etcd_admin_env }}"
+    stdin: "{{ item.user }}:{{ item.password }}"
+    executable: /bin/bash
+  register: etcd_password_probe
   loop: "{{ ETCD_CONSUMERS + [{'user': 'root', 'password': ETCD_ROOT_PASSWORD}] }}"
   loop_control:
     label: "{{ item.user }}"
-  when: item.user in etcd_users.stdout_lines
+  when:
+    - etcd_auth_enabled | bool
+    - item.user in etcd_users.stdout_lines
   delegate_to: "{{ ETCD_EXEC_HOST }}"
   changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 ETCD | Reconcile passwords of existing users"
+  ansible.builtin.shell: >
+    container exec -i -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    user passwd {{ item.item.user | quote }} --interactive=false
+  args:
+    stdin: "{{ item.item.password }}"
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ etcd_password_probe.results }}"
+  loop_control:
+    label: "{{ item.item.user }}"
+  when:
+    - item.item.user in etcd_users.stdout_lines
+    - not (etcd_auth_enabled | bool) or item.stderr is search(ETCD_AUTH_FAILED_ERROR)
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 ETCD | Authenticate as root with the reconciled password"
