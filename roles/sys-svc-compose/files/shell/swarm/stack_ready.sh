@@ -121,9 +121,6 @@ waits_for_seed() {
 }
 
 # Param: $1 service
-# Succeeds while $1 is a one-shot (restart condition on-failure or none) that
-# is still working: Swarm ignores depends_on, so services waiting on it, such
-# as an app that needs its migrations, crash until it completes.
 oneshot_in_flight() {
 	local condition
 	condition=$(timeout 15 docker service inspect \

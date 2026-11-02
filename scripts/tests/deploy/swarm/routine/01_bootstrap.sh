@@ -31,9 +31,6 @@ if command -v apt-get >/dev/null 2>&1; then
 fi
 
 # Param: $1 sysctl key, $2 lowest value the lab needs
-# Every lab node shares the host kernel's inotify instances, and an HA lab's
-# extra managers exhaust the stock 128 (cAdvisor: "inotify_init: too many open
-# files"), so the limits are raised to svc-runner's and never lowered.
 raise_sysctl() {
 	local have
 	have="$(sysctl -n "$1" 2>/dev/null || echo 0)"

@@ -1,12 +1,4 @@
-"""Relay a ``mariadb-backup`` xbstream between two instances over the overlay.
-
-python3 seed_relay.py recv <port> <secret_file> [<accept_timeout_s>]   # one authenticated connection -> stdout
-python3 seed_relay.py send <host> <port> <secret_file>   # stdin -> host:port
-
-Both ends read the same swarm secret. The receiver sends a random nonce, and
-the sender must answer with HMAC-SHA256(secret, nonce) before any stream byte
-is accepted.
-"""
+"""Relay a ``mariadb-backup`` xbstream between two instances over the overlay."""
 
 from __future__ import annotations
 

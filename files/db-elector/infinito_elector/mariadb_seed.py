@@ -1,13 +1,4 @@
-"""Runtime re-seed of a diverged MariaDB instance from a healthy peer.
-
-A follower whose replication stays on error 1236 exits with
-``RESEED_EXIT_CODE``. Its entrypoint discards the data directory, asks a
-peer's elector through ``POST /seed`` to stream a ``mariadb-backup`` to it over
-``seed_relay.py``, and attaches the restored copy as a replica of that peer.
-
-python3 -m infinito_elector.mariadb_seed request          # prints the donor's host id
-python3 -m infinito_elector.mariadb_seed attach <host-id>
-"""
+"""Runtime re-seed of a diverged MariaDB instance from a healthy peer."""
 
 from __future__ import annotations
 

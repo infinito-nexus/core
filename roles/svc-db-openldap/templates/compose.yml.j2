@@ -18,7 +18,6 @@
     environment:
       OPENLDAP_HA: "true"
       OPENLDAP_HA_SEED: "{{ db_instance.legacy | bool | lower }}"
-      LDAP_PORT: "{{ OPENLDAP_HA_INSTANCE_PORT }}"
       ELECTOR_HOST_ID: "{{ db_instance.host_id }}"
       ELECTOR_PEERS: "{{ OPENLDAP_HA_HOST_IDS | join(',') }}"
       ELECTOR_PEER_TEMPLATE: "{{ OPENLDAP_HA_PEER_TEMPLATE }}"

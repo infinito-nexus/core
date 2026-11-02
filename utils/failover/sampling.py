@@ -1,9 +1,4 @@
-"""Writer sampling during faults and the pure analysis of the samples.
-
-A round asks every instance once whether it is the primary or writer (and, for
-MariaDB, its GTID position). An instance that cannot be asked counts as no
-writer: HAProxy cannot route to it either.
-"""
+"""Writer sampling during faults and the pure analysis of the samples."""
 
 from __future__ import annotations
 

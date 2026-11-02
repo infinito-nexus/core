@@ -1,8 +1,4 @@
-"""Failover targets: the per-engine budget table and its evaluation.
-
-Every value mirrors the failover budget of the database HA design; when a
-measured value differs, the design and this table change together.
-"""
+"""Failover targets: the per-engine budget table and its evaluation."""
 
 from __future__ import annotations
 

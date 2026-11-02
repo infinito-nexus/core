@@ -1,4 +1,4 @@
-{% set _dc = (LDAP.DN.ROOT | regex_search('dc=([^,]+)', '\\1')) | first | default('infinito') %}
+{% set _dc = (LDAP.DN.ROOT | regex_search('dc=([^,]+)', '\\1')) | first %}
 dn: {{ LDAP.DN.ROOT }}
 objectClass: top
 objectClass: dcObject

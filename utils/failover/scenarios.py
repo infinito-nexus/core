@@ -1,8 +1,4 @@
-"""Scenario registry of the failover suite.
-
-The order is the run order: faults the lab heals from come first, then the
-cases that redeploy, and last the ones that rebuild the engine from scratch.
-"""
+"""Scenario registry of the failover suite."""
 
 from __future__ import annotations
 

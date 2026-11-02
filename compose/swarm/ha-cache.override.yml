@@ -1,6 +1,3 @@
-# Package-cache wiring of the extra HA managers; 01_bootstrap.sh passes it only with both
-# ha.override.yml and cache.override.yml, because `extends` copies swarm-mgr-01 from
-# compose.yml alone and so leaves these managers without the cache wiring.
 ---
 x-cache: &cache
   extra_hosts:

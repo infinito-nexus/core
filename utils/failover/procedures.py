@@ -1,10 +1,4 @@
-"""Scripted failover cases: each arranges the lab, faults it, and judges the result.
-
-Every procedure takes the mode adapter, the engine and an ``Env`` of
-injectable clocks, so the ordering of its steps is unit-testable against a
-fake lab. Procedures that share state (``standalone`` seeds the marker that
-``migration`` reads back) pass it through ``Env.state``.
-"""
+"""Scripted failover cases: each arranges the lab, faults it, and judges the result."""
 
 from __future__ import annotations
 

@@ -20,10 +20,6 @@ semi_sync_master() {
     --connect-timeout=2 -N -B -e 'SELECT @@GLOBAL.rpl_semi_sync_master_enabled' 2>/dev/null
 }
 
-# Stops mariadbd: cleanly on a replica, by SIGKILL on a writer or when the role
-# is unknown. A clean shutdown commits the writes still waiting for a semi-sync
-# acknowledgement, and they become errant GTIDs no peer has; a kill leaves them
-# prepared, so recovery as a replica (init_rpl_role = SLAVE) truncates them.
 stop_db() {
   local master
   master="$(semi_sync_master || echo unknown)"

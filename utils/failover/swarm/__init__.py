@@ -1,9 +1,4 @@
-"""Swarm adapter of the failover suite: fault injection, checker service, lab sizes.
-
-Every command runs on the lab host, where each Swarm node is a DinD container
-on the lab network; node-level faults act on that container, instance-level
-faults reach into it.
-"""
+"""Swarm adapter of the failover suite: fault injection, checker service, lab sizes."""
 
 from __future__ import annotations
 

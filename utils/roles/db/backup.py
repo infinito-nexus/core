@@ -1,9 +1,4 @@
-"""Backup view of the database instance model in database HA on Swarm.
-
-Only engines that declare ``ha.backup`` in their meta take part: ``sql``
-engines are dumped by baudolo, ``files`` engines have their writer's volume
-copied as files, as in the standalone form.
-"""
+"""Backup view of the database instance model in database HA on Swarm."""
 
 from __future__ import annotations
 

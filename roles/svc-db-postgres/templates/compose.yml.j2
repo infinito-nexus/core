@@ -18,6 +18,7 @@
       DB_POSTGRES_PORT: "{{ POSTGRES_INTERNAL_PORT }}"
       DB_PATRONI_API_PORT: "{{ POSTGRES_PATRONI_PORT }}"
       DB_BOOTSTRAP_ALLOWED: "{{ db_instance.legacy | bool | lower }}"
+      DB_BOOTSTRAP_GRACE: "{{ POSTGRES_PATRONI_BOOTSTRAP_GRACE_S }}"
     {% else %}
     command:
       - "postgres"

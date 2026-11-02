@@ -1,9 +1,4 @@
-"""Engine-specific commands run inside an instance container, and their parsers.
-
-Every builder returns the argv that follows ``docker exec [--user U] <cid>``;
-none of them carries a credential, they read it from the instance's own
-mounted files or use local peer or socket authentication.
-"""
+"""Engine-specific commands run inside an instance container, and their parsers."""
 
 from __future__ import annotations
 

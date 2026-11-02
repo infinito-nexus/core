@@ -1,14 +1,4 @@
-"""Parse and audit the output of one write-continuity checker run.
-
-The checker prints one record per line; anything else is ignored, so docker
-service log prefixes (``<task>@<node> | ``) and client noise pass through:
-
-- ``start <run-id> <epoch-ms>``
-- ``ack <seq> <epoch-ms>``: the engine acknowledged the write of ``seq``
-- ``fail <seq> <epoch-ms>``: the write of ``seq`` errored or timed out
-- ``present <seq>``: ``seq`` exists in the engine after the run
-- ``done``: the dump of present sequences is complete
-"""
+"""Parse and audit the output of one write-continuity checker run."""
 
 from __future__ import annotations
 

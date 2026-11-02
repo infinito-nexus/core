@@ -4,11 +4,9 @@
 # Param: DB_REPLICATION_SUBNET - CIDR of the engine-internal overlay pg_hba admits replication from
 # Param: DB_POSTGRES_PORT / DB_PATRONI_API_PORT - ports advertised to the peers
 # Param: DB_BOOTSTRAP_ALLOWED - "true" only on the instance that may initdb a new cluster; any other empty
-#        member waits for an initialized cluster, because one that wins the race on an empty coordination
-#        store runs initdb next to a peer that still holds the data, and the two system ids never match again
+#        member waits for an initialized cluster
 # Param: DB_BOOTSTRAP_GRACE - seconds an empty bootstrap instance leaves peers with data to claim the cluster
 set -e
-# The service name also resolves on the coordination-store network, whose source addresses pg_hba rejects
 # shellcheck disable=SC2046 # hostname -I prints one address per word, each a separate argument
 address=$(python3 -c 'import ipaddress, sys; net = ipaddress.ip_network(sys.argv[1]); print(next(a for a in sys.argv[2:] if ipaddress.ip_address(a) in net))' "${DB_REPLICATION_SUBNET:?}" $(hostname -I))
 export PATRONI_POSTGRESQL_CONNECT_ADDRESS="${address}:${DB_POSTGRES_PORT:?}"
@@ -21,7 +19,7 @@ pid="$PGDATA/postmaster.pid"
 if [ -f "$pid" ] && [ ! -s "$pid" ]; then rm -f "$pid"; fi
 if [ ! -s "$PGDATA/PG_VERSION" ]; then
   if [ "${DB_BOOTSTRAP_ALLOWED:-false}" = "true" ]; then
-    sleep "${DB_BOOTSTRAP_GRACE:-20}"
+    sleep "${DB_BOOTSTRAP_GRACE:?}"
   else
     until gosu postgres patronictl -c "$2" list 2>/dev/null | head -n 1 | grep -qE 'Cluster: [^ ]+ \([0-9]+\)'; do
       echo "patroni-entrypoint: waiting for an initialized cluster before cloning" >&2

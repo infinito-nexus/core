@@ -45,6 +45,7 @@ POSTGRES_PATRONI_ETCD_CA_TARGET: "{{ lookup('volume', application_id, 'etcd_ca')
 POSTGRES_PATRONI_CONFIG_SOURCE: "{{ [lookup('container', application_id, 'directories.volumes'), 'patroni.yml'] | path_join }}"
 POSTGRES_PATRONI_CONFIG: /var/run/postgresql/patroni.yml
 POSTGRES_PATRONICTL: "patronictl -c {{ POSTGRES_PATRONI_CONFIG }}"
+POSTGRES_PATRONI_BOOTSTRAP_GRACE_S: 20
 POSTGRES_DATA_DIR: "/var/lib/postgresql/{{ POSTGRES_VERSION_MAJOR }}/docker"
 POSTGRES_BIN_DIR: "/usr/lib/postgresql/{{ POSTGRES_VERSION_MAJOR }}/bin"
 POSTGRES_REPLICATION_SUBNET: "{{ lookup('config', application_id, 'networks.internal.subnet') }}"

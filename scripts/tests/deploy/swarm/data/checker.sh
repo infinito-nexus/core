@@ -101,10 +101,6 @@ write_one() {
 DUMP_TIMEOUT_S=30
 DUMP_FILE="$(mktemp)"
 
-# Prints the sequence numbers the audit finds. Each read is bounded by
-# DUMP_TIMEOUT_S, since one over a connection the fault left half-open would
-# block forever, and lands in DUMP_FILE first, so a killed read never passes
-# as a short, complete dump.
 dump_present() {
 	case "${ENGINE}" in
 	postgres)

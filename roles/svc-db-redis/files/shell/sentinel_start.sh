@@ -1,9 +1,7 @@
 #!/bin/sh
 # Param: SENTINEL_SELF          - service name this Sentinel announces itself by
 # Param: SENTINEL_PEERS         - space-separated service names of the other Sentinels
-# Param: SENTINEL_INSTANCES     - space-separated service names of the current Redis instances; known-replica
-#                                 entries of other hosts are dropped, as Sentinel refuses to start on a
-#                                 hostname it cannot resolve
+# Param: SENTINEL_INSTANCES     - space-separated service names of the current Redis instances
 # Param: SENTINEL_MASTER_NAME   - Sentinel master name
 # Param: SENTINEL_BOOTSTRAP     - instance service that is master on a fresh cluster
 # Param: SENTINEL_AUTH_USER     - Redis ACL user Sentinel logs in as
@@ -15,9 +13,7 @@
 # Param: SENTINEL_PARALLEL_SYNCS - parallel-syncs
 # Param: SENTINEL_PORT          - Sentinel port
 # Param: REDIS_PORT             - Redis port
-# Param: SENTINEL_PEER_WAIT_S   - seconds a restarting Sentinel keeps asking its peers for the current
-#                                 master (default 120); the saved master may be stale after a failover
-#                                 and the node's DNS may not resolve the peers yet
+# Param: SENTINEL_PEER_WAIT_S   - seconds a restarting Sentinel keeps asking its peers for the current master
 set -eu
 
 : "${SENTINEL_SELF:?}" "${SENTINEL_MASTER_NAME:?}" "${SENTINEL_BOOTSTRAP:?}"
@@ -48,7 +44,7 @@ saved=$(awk -v n="$name" '$1 == "sentinel" && $2 == "monitor" && $3 == n { print
 case "$instances" in *" $saved "*) ;; *) saved="" ;; esac
 master=$(peer_master)
 if [ -z "$master" ] && [ -n "$saved" ]; then
-  deadline=$(($(date +%s) + ${SENTINEL_PEER_WAIT_S:-120}))
+  deadline=$(($(date +%s) + ${SENTINEL_PEER_WAIT_S:?}))
   while [ -z "$master" ] && [ "$(date +%s)" -lt "$deadline" ]; do
     sleep 2
     master=$(peer_master)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 : "${LDAP_HEALTHCHECK_REQUIRE_MEMBEROF:=false}"
-: "${LDAP_PORT:=389}"
+: "${LDAP_PORT:?LDAP_PORT required}"
 
 ldapsearch -x -H "ldap://127.0.0.1:${LDAP_PORT}" -s base -b "" "(objectClass=*)" dn >/dev/null 2>&1
 

@@ -34,8 +34,6 @@ else
 fi
 
 # Param: $1 availability, $2 node
-# Retries: swarm rejects a node update with "update out of sequence" when the
-# node object changed between the CLI's read and its write.
 set_availability() {
 	local _try _err
 	for _try in 1 2 3 4 5; do

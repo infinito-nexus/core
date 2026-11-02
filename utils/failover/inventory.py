@@ -1,9 +1,4 @@
-"""The lab inventory the failover suite redeploys from, and the commands it runs.
-
-Group edits keep host order (the first manager stays ``STACK_HOST``). Host
-vars are rewritten through the vault-preserving YAML handler, so encrypted
-credentials survive a change of one sizing value.
-"""
+"""The lab inventory the failover suite redeploys from, and the commands it runs."""
 
 from __future__ import annotations
 
