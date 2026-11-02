@@ -35,19 +35,22 @@
 - name: "🤔 ETCD | Pick a live member and the declared members it does not know"
   ansible.builtin.set_fact:
     etcd_join_live: "{{ _live }}"
+    etcd_join_unregistered: "{{ _unregistered }}"
     ETCD_JOINING_MEMBERS: >-
-      {{ ETCD_MEMBERS
-         | reject('in', _known_members) | list if _live else [] }}
+      {{ (_unregistered + (ETCD_MEMBERS | select('in', _unstarted_members) | list))
+         if _live else [] }}
     etcd_cluster_root_password: "{{ etcd_previous_root_password if _by_previous | length > 0 else ETCD_ROOT_PASSWORD }}"
   vars:
     _by_current: "{{ etcd_join_probe.results | selectattr('rc', 'equalto', 0) | list }}"
     _by_previous: "{{ (etcd_join_probe_previous.results | default([])) | selectattr('rc', 'defined') | selectattr('rc', 'equalto', 0) | list }}"
     _answered: "{{ _by_current + _by_previous }}"
     _live: "{{ _answered | first | default({}) }}"
-    _known_peer_urls: >-
-      {{ (_live.stdout_lines | default([]))
-         | map('split', ', ') | map(attribute=3) | list }}
-    _known_members: "{{ _known_peer_urls | map('urlsplit', 'hostname') | list }}"
+    _rows: "{{ (_live.stdout_lines | default([])) | map('split', ', ') | list }}"
+    _known_members: "{{ _rows | map(attribute=3) | map('urlsplit', 'hostname') | list }}"
+    _unstarted_members: >-
+      {{ _rows | selectattr('1', 'equalto', 'unstarted')
+         | map(attribute=3) | map('urlsplit', 'hostname') | list }}
+    _unregistered: "{{ ETCD_MEMBERS | reject('in', _known_members) | list if _live else [] }}"
 
 - name: "➕ ETCD | Register each replacement member before it starts"
   ansible.builtin.shell: >
@@ -58,4 +61,4 @@
   environment:
     ETCDCTL_USER: "root:{{ etcd_cluster_root_password }}"
   delegate_to: "{{ etcd_join_live.item.host }}"
-  loop: "{{ ETCD_JOINING_MEMBERS }}"
+  loop: "{{ etcd_join_unregistered }}"
