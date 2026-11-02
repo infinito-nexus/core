@@ -4,11 +4,14 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
-from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 PULL_TIMEOUT = 1800
 WORKERS = 4
