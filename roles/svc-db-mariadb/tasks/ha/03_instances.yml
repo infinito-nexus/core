@@ -106,8 +106,8 @@
     {{ MARIADB_HA_SQL }}
   args:
     stdin: |
-      SET @replication_pwd := '{{ MARIADB_REPLICATION_PWD }}';
-      SET @elector_pwd := '{{ MARIADB_ELECTOR_PWD }}';
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
       {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
   delegate_to: "{{ MARIADB_PRIMARY_NODE }}"
   changed_when: false

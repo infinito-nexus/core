@@ -19,9 +19,9 @@
     container exec -i -e MYSQL_PWD "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ mariadb_rotate_instance.service | quote }})" mariadb -uroot -N -B
   args:
     stdin: |
-      SET @root_pwd := '{{ MARIADB_ROOT_PWD }}';
-      SET @replication_pwd := '{{ MARIADB_REPLICATION_PWD }}';
-      SET @elector_pwd := '{{ MARIADB_ELECTOR_PWD }}';
+      SET @root_pwd := {{ MARIADB_ROOT_PWD | mariadb_sql_literal }};
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
       {{ lookup('template', role_path ~ '/templates/sql/ha/root.sql.j2') }}
       {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
   environment:
@@ -44,8 +44,8 @@
   args:
     stdin: |
       SET SESSION sql_log_bin = 0;
-      SET @replication_pwd := '{{ MARIADB_REPLICATION_PWD }}';
-      SET @elector_pwd := '{{ MARIADB_ELECTOR_PWD }}';
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
       {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'before'}) }}
       {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
       {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'after'}) }}
@@ -68,7 +68,7 @@
     executable: /bin/bash
     stdin: |
       STOP SLAVE;
-      CHANGE MASTER TO MASTER_PASSWORD = '{{ MARIADB_REPLICATION_PWD }}';
+      CHANGE MASTER TO MASTER_PASSWORD = {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
       START SLAVE;
   environment:
     CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"

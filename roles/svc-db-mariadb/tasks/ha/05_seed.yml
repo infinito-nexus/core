@@ -74,8 +74,8 @@
       {% endif %}
       CHANGE MASTER TO
         MASTER_HOST = '{{ _mariadb_seed_primary.service }}',
-        MASTER_USER = '{{ MARIADB_REPLICATION_USER }}',
-        MASTER_PASSWORD = '{{ MARIADB_REPLICATION_PWD }}',
+        MASTER_USER = {{ MARIADB_REPLICATION_USER | mariadb_sql_literal }},
+        MASTER_PASSWORD = {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }},
         MASTER_USE_GTID = slave_pos,
         MASTER_CONNECT_RETRY = 1;
       START SLAVE;

@@ -16,8 +16,8 @@
   args:
     stdin: |
       SET SESSION sql_log_bin = 0;
-      SET @replication_pwd := '{{ MARIADB_REPLICATION_PWD }}';
-      SET @elector_pwd := '{{ MARIADB_ELECTOR_PWD }}';
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
       {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
