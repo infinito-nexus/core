@@ -4,11 +4,14 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import yaml
 
 PULL_TIMEOUT = 1800
+WORKERS = 4
 
 
 def run(cmd: list[str], timeout: int = 600) -> int:
@@ -31,6 +34,36 @@ def manifest_exists(image: str) -> bool:
         stderr=subprocess.DEVNULL,
     ).returncode
     return rc == 0
+
+
+def pull_and_tag(upstream: str, image: str) -> None:
+    rc = run(["docker", "pull", upstream], timeout=PULL_TIMEOUT)
+    if rc != 0:
+        raise RuntimeError(f"docker pull {upstream} failed (rc={rc})")
+    rc = run(["docker", "tag", upstream, image])
+    if rc != 0:
+        raise RuntimeError(f"docker tag {upstream} {image} failed (rc={rc})")
+
+
+def push(image: str) -> None:
+    if manifest_exists(image):
+        print(f">>> skip push (already in registry): {image}", file=sys.stderr)
+        return
+    rc = run(["docker", "push", image])
+    if rc != 0:
+        raise RuntimeError(f"docker push {image} failed (rc={rc})")
+
+
+def in_parallel(job: Callable[..., None], arguments: list[tuple]) -> None:
+    """Run *job* for every argument tuple, ``WORKERS`` at a time.
+
+    Args:
+        job: one pull or push; raises on failure.
+        arguments: positional arguments of each call.
+    """
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        for future in [pool.submit(job, *args) for args in arguments]:
+            future.result()
 
 
 def sync(*, compose_file: Path, prefix: str) -> int:
@@ -65,12 +98,6 @@ def sync(*, compose_file: Path, prefix: str) -> int:
             upstream = image[len(prefix) :]
             if "build" in svc or manifest_exists(image) or upstream in locally_built:
                 continue
-            rc = run(["docker", "pull", upstream], timeout=PULL_TIMEOUT)
-            if rc != 0:
-                raise RuntimeError(f"docker pull {upstream} failed (rc={rc})")
-            rc = run(["docker", "tag", upstream, image])
-            if rc != 0:
-                raise RuntimeError(f"docker tag {upstream} {image} failed (rc={rc})")
             pulled.append((upstream, image))
             continue
 
@@ -90,13 +117,9 @@ def sync(*, compose_file: Path, prefix: str) -> int:
         changed = True
         if manifest_exists(new_image):
             continue
-        rc = run(["docker", "pull", image], timeout=PULL_TIMEOUT)
-        if rc != 0:
-            raise RuntimeError(f"docker pull {image} failed (rc={rc})")
-        rc = run(["docker", "tag", image, new_image])
-        if rc != 0:
-            raise RuntimeError(f"docker tag {image} {new_image} failed (rc={rc})")
         pulled.append((image, new_image))
+
+    in_parallel(pull_and_tag, list(dict.fromkeys(pulled)))
 
     if changed:
         with compose_file.open("w") as f:
@@ -104,13 +127,7 @@ def sync(*, compose_file: Path, prefix: str) -> int:
                 doc, f, sort_keys=False, default_flow_style=False
             )  # nocheck: direct-yaml
 
-    for image in targets:
-        if manifest_exists(image):
-            print(f">>> skip push (already in registry): {image}", file=sys.stderr)
-            continue
-        rc = run(["docker", "push", image])
-        if rc != 0:
-            raise RuntimeError(f"docker push {image} failed (rc={rc})")
+    in_parallel(push, [(image,) for image in dict.fromkeys(targets)])
 
     for upstream, image in dict.fromkeys(pulled):
         run(["docker", "rmi", image, upstream])

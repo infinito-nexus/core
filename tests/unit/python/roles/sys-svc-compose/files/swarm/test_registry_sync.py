@@ -86,6 +86,32 @@ class TestSwarmRegistrySync(unittest.TestCase):
         rmi = [c for c in calls if c[:2] == ["docker", "rmi"]]
         self.assertEqual(rmi, [["docker", "rmi", f"{PREFIX}nginx:1.25", "nginx:1.25"]])
 
+    def test_a_shared_external_is_pulled_and_pushed_once(self) -> None:
+        calls = self._sync(
+            {
+                "a": {"image": "nginx:1.25"},
+                "b": {"image": "nginx:1.25"},
+                "c": {"image": "redis:8"},
+            }
+        )
+        self.assertEqual(calls.count(["docker", "pull", "nginx:1.25"]), 1)
+        self.assertEqual(calls.count(["docker", "push", f"{PREFIX}nginx:1.25"]), 1)
+        self.assertIn(["docker", "push", f"{PREFIX}redis:8"], calls)
+
+    def test_a_failed_pull_fails_the_sync(self) -> None:
+        def failing_run(cmd: list[str], timeout: int = 600) -> int:
+            return 1 if cmd[:2] == ["docker", "pull"] else 0
+
+        with tempfile.TemporaryDirectory() as td:
+            cf = Path(td) / "compose.yml"
+            dump_yaml(cf, {"services": {"a": {"image": "nginx:1.25"}}})
+            with (
+                patch.object(self.m, "run", side_effect=failing_run),
+                patch.object(self.m, "manifest_exists", return_value=False),
+                self.assertRaises(RuntimeError),
+            ):
+                self.m.sync(compose_file=cf, prefix=PREFIX)
+
     def test_real_upstream_image_is_still_pulled(self) -> None:
         """A prefixed image with a genuine upstream (not locally built) must
         still be pulled + retagged; the de-prefix must not over-skip."""
