@@ -61,31 +61,9 @@ instance_location() {
 	fi
 }
 
-# Param: $1 engine, $2 node container, $3 instance container id
+# Param: $1 engine, $2 node container, $3 instance swarm service name (<stack>_<key>)
 is_primary() {
-	case "$1" in
-	postgres)
-		docker exec "$2" docker exec "$3" python3 -c \
-			'import os,urllib.request;urllib.request.urlopen("http://127.0.0.1:%s/primary" % os.environ["DB_PATRONI_API_PORT"],timeout=3)' \
-			>/dev/null 2>&1
-		;;
-	redis)
-		docker exec "$2" docker exec "$3" sh -c '
-			REDISCLI_AUTH=$(cat "$REDIS_HA_SENTINEL_PASSWORD_FILE")
-			export REDISCLI_AUTH
-			for s in $REDIS_HA_SENTINELS; do
-				m=$(timeout 3 redis-cli -h "$s" -p "$REDIS_HA_SENTINEL_PORT" --raw \
-					SENTINEL get-master-addr-by-name "$REDIS_HA_MASTER_NAME" 2>/dev/null | head -1)
-				[ -n "$m" ] && break
-			done
-			[ "${m%%.*}" = "${REDIS_HA_SELF%%.*}" ]' >/dev/null 2>&1
-		;;
-	*)
-		docker exec "$2" docker exec "$3" python3 -c \
-			'import os,urllib.request;urllib.request.urlopen("http://127.0.0.1:%s/writer" % os.environ["ELECTOR_PORT"],timeout=3)' \
-			>/dev/null 2>&1
-		;;
-	esac
+	docker exec "$2" "primary-probe-$1" "${3%%_*}" "${3#*_}" >/dev/null 2>&1
 }
 
 # Param: $1 engine
@@ -95,8 +73,7 @@ find_primary() {
 	for _svc in $(instance_services "$1"); do
 		_loc=$(instance_location "${_svc}")
 		[ -n "${_loc}" ] || continue
-		# shellcheck disable=SC2086  # _loc is "<node> <cid>", split into is_primary's args
-		if is_primary "$1" ${_loc}; then
+		if is_primary "$1" "${_loc%% *}" "${_svc}"; then
 			echo "${_loc} ${_svc}"
 			return 0
 		fi
@@ -154,9 +131,7 @@ keeps_quorum() {
 }
 
 # Param: $1 node container about to be killed
-# Succeeds when the app may only run on $1: a manager-placed app of a
-# multi-manager swarm is pinned to the stack host, the first manager, so a node
-# kill there takes the app down whatever the engine does.
+# Succeeds when the app may only run on $1.
 app_pinned_to() {
 	[ "${DEFAULT_PLACEMENT_MANAGER}" = "true" ] &&
 		[ "${#MANAGERS[@]}" -gt 1 ] &&
@@ -168,8 +143,6 @@ NAME_FILES_DIR="$(mktemp -d)"
 trap 'rm -rf "${NAME_FILES_DIR}"' EXIT
 
 # Param: $1 node container
-# `docker start` regenerates these files, dropping the resolver the deploy
-# installed, so they are saved before the kill and written back after.
 save_name_files() {
 	local _path
 	for _path in "${NAME_FILES[@]}"; do
@@ -186,8 +159,7 @@ restore_name_files() {
 }
 
 # Param: $1 node container
-# Prints how many tasks of the services pinned to $1 run there; their task
-# containers are named <service>-<node>.<slot>.<task id>.
+# Prints how many tasks of the services pinned to $1 run there.
 pinned_tasks_running() {
 	local _names
 	if ! _names=$(docker exec "$1" docker ps --filter status=running --format '{{.Names}}' 2>/dev/null); then
@@ -198,8 +170,6 @@ pinned_tasks_running() {
 }
 
 # Param: $1 node container, $2 pinned tasks it ran before the kill
-# `node ls` still reports a just-killed node Ready until swarm misses its
-# heartbeats, so the node counts as back only once its pinned tasks run again.
 restart_node() {
 	local _deadline _running
 	docker start "$1" >/dev/null
@@ -230,8 +200,6 @@ at_full_strength() {
 }
 
 # Param: $1 engine
-# Waits until the engine and etcd are back at full strength, so the kill below
-# never takes the quorum an earlier drill step already weakened.
 wait_full_strength() {
 	local _deadline
 	_deadline=$(($(date +%s) + KILL_PRIMARY_TIMEOUT))
@@ -247,9 +215,7 @@ wait_full_strength() {
 }
 
 # Param: $1 node container, $2 redis instance container id
-# Succeeds when every Sentinel answers with one and the same master. A Sentinel
-# that restarts while the master is down cannot resolve the dead master's name,
-# keeps its stale master and denies the quorum for every later failover.
+# Succeeds when every Sentinel answers with one and the same master.
 sentinels_agree() {
 	docker exec "$1" docker exec "$2" sh -c '
 		REDISCLI_AUTH=$(cat "$REDIS_HA_SENTINEL_PASSWORD_FILE")
@@ -280,8 +246,7 @@ wait_sentinels_agree() {
 }
 
 # Param: $1 engine, $2 node container, $3 primary instance container id
-# Succeeds when every other instance of a redis primary replicates from it;
-# Sentinel refuses to promote a replica that has not resynced since its restart.
+# Succeeds when every other instance of a redis primary replicates from it.
 replicas_attached() {
 	local _want
 	[ "$1" = redis ] || return 0
@@ -295,8 +260,7 @@ replicas_attached() {
 
 # Param: $1 engine
 # Prints "<node> <cid> <service>" of the primary once its replicas are attached,
-# or nothing after KILL_PRIMARY_TIMEOUT. A drain just before can leave Sentinel
-# still electing the next master for a few seconds.
+# or nothing after KILL_PRIMARY_TIMEOUT.
 wait_primary() {
 	local _deadline _primary
 	_deadline=$(($(date +%s) + KILL_PRIMARY_TIMEOUT))
@@ -312,9 +276,7 @@ wait_primary() {
 }
 
 # Param: $1 "<node> <cid> <service>" of the current primary, $2 container id that was killed
-# Succeeds when the primary runs in a container other than $2: after a
-# container kill swarm restarts the instance in place, and that fresh
-# container may win the writer role back instead of a peer.
+# Succeeds when the primary runs in a container other than $2.
 restarted_in_place() {
 	local _cid
 	[ -n "$1" ] || return 1
@@ -323,12 +285,6 @@ restarted_in_place() {
 }
 
 # Param: $1 engine
-# Waits for every HA engine, not only $1, before the kill: a node kill takes
-# down every engine instance on that node, so an engine still recovering from
-# the previous kill would face a second fault. A killed stack host, the first
-# manager, is restarted before the app check: it carries the single-host front
-# proxy, so an app replica that restarts meanwhile cannot reach the IdP through
-# it, whatever the engine does.
 kill_primary_of() {
 	local _engine="$1" _dep _old _old_node _old_cid _old_service _killed_node="" _pinned=0 _new="" _deadline _stamp _write_err=""
 	if [ -z "$(instance_services "${_engine}")" ]; then

@@ -81,6 +81,12 @@ class _FakeCluster:
         elif argv[3:6] == ["docker", "ps", "-q"]:
             service = argv[-1].split("=", 2)[-1]
             out = self.placement[service][1]
+        elif len(argv) == 6 and argv[3].endswith("/primary-probe-postgres"):
+            rc = (
+                0
+                if self.placement[f"{argv[4]}_{argv[5]}"][1] == self.primary_cid
+                else 1
+            )
         elif argv[3:5] == ["docker", "exec"] and argv[2:3] != ["-i"]:
             rc = 0 if argv[5] == self.primary_cid else 1
         return mock.Mock(returncode=rc, stdout=out, stderr="")
@@ -598,12 +604,22 @@ class TestInstanceServices(unittest.TestCase):
         self.assertFalse(swarm.is_instance_service("redis", "redis_redis"))
         self.assertFalse(swarm.is_instance_service("redis", "redis_haproxy"))
 
-    def test_primary_probe_runs_inside_the_instance_container(self):
+    def test_primary_probe_runs_the_deployed_probe_on_the_node(self):
         for engine in ("postgres", "mariadb", "redis", "openldap"):
             with self.subTest(engine):
-                argv = swarm.primary_probe_argv(engine, node="n1", container="c1")
+                argv = swarm.primary_probe_argv(
+                    engine, node="n1", service=f"{engine}_{engine}-m1"
+                )
                 self.assertEqual(
-                    argv[:6], ["docker", "exec", "n1", "docker", "exec", "c1"]
+                    argv,
+                    [
+                        "docker",
+                        "exec",
+                        "n1",
+                        f"/usr/bin/primary-probe-{engine}",
+                        engine,
+                        f"{engine}-m1",
+                    ],
                 )
 
 

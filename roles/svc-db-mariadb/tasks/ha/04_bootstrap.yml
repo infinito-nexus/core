@@ -1,7 +1,7 @@
 ---
 - name: "⏳ MariaDB HA | Wait until the bootstrap instance accepts root over its socket"
   ansible.builtin.shell: |
-    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_ha_bootstrap.service | quote }})" {{ MARIADB_HA_SQL }}
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_ha_bootstrap) }} {{ MARIADB_HA_SQL }}
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: _mariadb_ha_bootstrap_ready
@@ -12,7 +12,7 @@
 
 - name: "👤 MariaDB HA | Create HA users before any replica exists"
   ansible.builtin.shell: |
-    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_ha_bootstrap.service | quote }})" {{ MARIADB_HA_SQL }}
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_ha_bootstrap) }} {{ MARIADB_HA_SQL }}
   args:
     stdin: |
       SET SESSION sql_log_bin = 0;
@@ -24,12 +24,15 @@
 
 - name: "🏁 MariaDB HA | Let the bootstrap instance's elector compete"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_ha_bootstrap.service | quote }})" touch {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }} {{ MARIADB_HA_READY_MARKER | quote }}
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_ha_bootstrap) }} touch {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }} {{ MARIADB_HA_READY_MARKER | quote }}
   changed_when: true
 
 - name: "⏳ MariaDB HA | Wait until the bootstrap instance holds the writer lease"
-  ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_ha_bootstrap.service | quote }})" python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:{{ MARIADB_ELECTOR_PORT }}/writer', timeout=3)"
+  ansible.builtin.command:
+    argv:
+      - "{{ [DIR_BIN, MARIADB_INSTANCES.ha.probe] | path_join }}"
+      - "{{ entity_name }}"
+      - "{{ _mariadb_ha_bootstrap.service }}"
   register: _mariadb_ha_bootstrap_writer
   until: _mariadb_ha_bootstrap_writer.rc == 0
   retries: 30

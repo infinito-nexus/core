@@ -22,6 +22,7 @@ from utils.failover.swarm.commands import (
     sentinel_failover_argv,
 )
 from utils.failover.targets import RECLONE_CEILING_S
+from utils.roles.db.instances import instance_service
 from utils.roles.entity.name import get_entity_name
 
 REDIS_PREFERRED_PRIORITY = "1"
@@ -92,8 +93,13 @@ class Topology:
             if proc.returncode != 0:
                 raise RuntimeError(f"patronictl switchover: {proc.stderr.strip()}")
         elif self.engine == "redis":
-            host_id = engines.member_of(self.engine, target).split("-", 1)[1]
-            sentinel = f"{self.stack}_{self.stack}-sentinel-{host_id}"
+            member = engines.member_of(self.engine, target)
+            sidecar = instance_service(
+                engines.role_of(self.engine),
+                {"service": member, "host_id": member.split("-", 1)[1]},
+                "sentinel",
+            )
+            sentinel = f"{self.stack}_{sidecar}"
             self._set_replica_priorities(primary, target)
             self._in(sentinel, sentinel_failover_argv())
         else:

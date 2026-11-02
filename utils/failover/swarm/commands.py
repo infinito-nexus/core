@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.failover.checker import INTERVAL_S, TIMEOUT_S
+from utils.paths import read_group_path
 from utils.roles.db.backup import BACKUP_ROLE
+from utils.roles.db.instances import PRIMARY_PROBE_PREFIX
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 DATA_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm" / "data"
 LAB_SIZES = PROJECT_ROOT / "compose" / "swarm" / "failover" / "lab-sizes.yml"
@@ -48,22 +47,6 @@ def probe_service_name(engine: str) -> str:
     return f"failover-probe-{engine}"
 
 
-_PATRONI_PRIMARY = (
-    "import os,urllib.request;urllib.request.urlopen("
-    '"http://127.0.0.1:%s/primary" % os.environ["DB_PATRONI_API_PORT"],timeout=3)'
-)
-_ELECTOR_WRITER = (
-    "import os,urllib.request;urllib.request.urlopen("
-    '"http://127.0.0.1:%s/writer" % os.environ["ELECTOR_PORT"],timeout=3)'
-)
-_SENTINEL_MASTER_IS_SELF = (
-    'REDISCLI_AUTH=$(cat "$REDIS_HA_SENTINEL_PASSWORD_FILE"); export REDISCLI_AUTH; '
-    "for s in $REDIS_HA_SENTINELS; do "
-    'm=$(timeout 3 redis-cli -h "$s" -p "$REDIS_HA_SENTINEL_PORT" --raw '
-    'SENTINEL get-master-addr-by-name "$REDIS_HA_MASTER_NAME" 2>/dev/null | head -1); '
-    '[ -n "$m" ] && break; done; '
-    '[ "${m%%.*}" = "${REDIS_HA_SELF%%.*}" ]'
-)
 _SENTINEL_FAILOVER = (
     'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") '
     'exec redis-cli -p "$SENTINEL_PORT" SENTINEL FAILOVER "$SENTINEL_MASTER_NAME"'
@@ -86,21 +69,21 @@ def is_instance_service(engine: str, name: str) -> bool:
     return name.startswith(prefix) and not name.startswith(f"{prefix}sentinel-")
 
 
-def primary_probe_argv(engine: str, *, node: str, container: str) -> list[str]:
-    """Return the host command that exits 0 only inside the current primary.
+def primary_probe_argv(engine: str, *, node: str, service: str) -> list[str]:
+    """Return the host command that runs the deployed primary probe on a node.
+
+    The probe is the one the deploy installs for the engine, so the suite asks
+    the same question as ``resolve-db-primary``. It exits 0 only for the
+    current primary.
 
     Args:
         engine: engine under test.
         node: DinD container of the Swarm node running the instance.
-        container: instance container inside ``node``.
+        service: full Swarm service name of the instance, ``<stack>_<key>``.
     """
-    if engine == "postgres":
-        probe = ["python3", "-c", _PATRONI_PRIMARY]
-    elif engine == "redis":
-        probe = ["sh", "-c", _SENTINEL_MASTER_IS_SELF]
-    else:
-        probe = ["python3", "-c", _ELECTOR_WRITER]
-    return ["docker", "exec", node, "docker", "exec", container, *probe]
+    stack, key = service.split("_", 1)
+    probe = str(Path(read_group_path("DIR_BIN")) / f"{PRIMARY_PROBE_PREFIX}{engine}")
+    return ["docker", "exec", node, probe, stack, key]
 
 
 def in_container_argv(

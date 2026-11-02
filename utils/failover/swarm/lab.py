@@ -191,10 +191,10 @@ class SwarmLabBase:
         location = self._locate(service)
         if location is None:
             return None
-        node, cid = location
+        node, _cid = location
         return (
             shell.execute(
-                primary_probe_argv(self.engine, node=node, container=cid)
+                primary_probe_argv(self.engine, node=node, service=service)
             ).returncode
             == 0
         )
@@ -205,7 +205,7 @@ class SwarmLabBase:
             if location is None:
                 continue
             node, cid = location
-            probe = primary_probe_argv(self.engine, node=node, container=cid)
+            probe = primary_probe_argv(self.engine, node=node, service=service)
             if shell.execute(probe).returncode == 0:
                 return node, cid
         raise RuntimeError(f"no {self.engine} instance reports itself primary")
