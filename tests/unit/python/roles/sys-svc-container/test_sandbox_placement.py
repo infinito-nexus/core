@@ -3,6 +3,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
+from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
 
 TEMPLATES = Path(PROJECT_ROOT) / "roles" / "sys-svc-container" / "templates"
@@ -49,6 +50,7 @@ class TestSandboxPlacement(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["resource_filter"] = lambda _apps, *_a, **_k: ""
         env.filters["swarm_restart_condition"] = lambda value: value
+        env.filters["swarm_placement_constraints"] = swarm_placement_constraints
 
         def _lookup(name, *args, **kwargs):
             if name == "applications":

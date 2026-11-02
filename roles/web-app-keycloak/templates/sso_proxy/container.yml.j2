@@ -20,10 +20,9 @@
     deploy:
       placement:
         constraints:
-          - node.role == manager
-{% if (groups['svc-swarm-manager'] | default([]) | length) > 1 %}
-          - node.labels.{{ SWARM_NODE_LABEL_STACK_HOST }} == true
-{% endif %}
+{% for _constraint in 'manager' | swarm_placement_constraints(groups['svc-swarm-manager'] | default([]), SWARM_NODE_LABEL_STACK_HOST) %}
+          - {{ _constraint }}
+{% endfor %}
 {% endif %}
     {{ lookup('container_extra_hosts', extra_hosts=(
          [] if lookup('domain', 'web-app-keycloak').endswith('.onion')

@@ -27,10 +27,7 @@
 {% set _ = _constraints.append('node.labels.' ~ SWARM_NODE_LABEL_HOST_ID ~ ' == ' ~ db_instance.host) %}
 {% elif service_max_replicas_per_node is defined %}
 {% elif application_id in lookup('roles_with_placement', 'manager') %}
-{% set _ = _constraints.append('node.role == manager') %}
-{% if (groups['svc-swarm-manager'] | default([]) | length) > 1 %}
-{% set _ = _constraints.append('node.labels.' ~ SWARM_NODE_LABEL_STACK_HOST ~ ' == true') %}
-{% endif %}
+{% set _ = _constraints.extend('manager' | swarm_placement_constraints(groups['svc-swarm-manager'] | default([]), SWARM_NODE_LABEL_STACK_HOST)) %}
 {% endif %}
 {% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}
 {% if _arch != '' %}

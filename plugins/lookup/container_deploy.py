@@ -20,6 +20,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils.roles.meta_lookup import get_role_placement
 
 
@@ -68,15 +69,14 @@ class LookupModule(LookupBase):
         lines = ["deploy:", f"  {replicas}"]
         placement = get_role_placement(str(application_id))
         if placement:
-            lines += [
-                "  placement:",
-                "    constraints:",
-                f"      - node.role == {placement}",
-            ]
-            managers = (vars_.get("groups") or {}).get("svc-swarm-manager") or []
-            if placement == "manager" and len(managers) > 1:
-                label = vars_["SWARM_NODE_LABEL_STACK_HOST"]
-                if templar is not None:
-                    label = templar.template(label)
-                lines.append(f"      - node.labels.{label} == true")
+            label = vars_.get("SWARM_NODE_LABEL_STACK_HOST", "")
+            if templar is not None and label:
+                label = templar.template(label)
+            constraints = swarm_placement_constraints(
+                placement,
+                (vars_.get("groups") or {}).get("svc-swarm-manager") or [],
+                label,
+            )
+            lines += ["  placement:", "    constraints:"]
+            lines += [f"      - {constraint}" for constraint in constraints]
         return ["\n".join(lines)]

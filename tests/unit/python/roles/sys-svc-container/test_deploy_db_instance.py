@@ -2,6 +2,7 @@ import unittest
 
 import jinja2
 
+from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_str
 
@@ -31,6 +32,7 @@ def _render(**variables):
     )
     env.filters["resource_filter"] = lambda _apps, _app, _key, _svc, default: default
     env.filters["swarm_restart_condition"] = lambda value: "any"
+    env.filters["swarm_placement_constraints"] = swarm_placement_constraints
     env.globals["lookup"] = _lookup
     base = {
         "compose_mode": "swarm",

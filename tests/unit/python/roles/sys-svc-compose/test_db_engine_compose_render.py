@@ -12,6 +12,7 @@ import unittest
 import jinja2
 
 from plugins.filter.swarm.instance_service import swarm_instance_service
+from plugins.filter.swarm.placement import swarm_placement_constraints
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
@@ -86,6 +87,7 @@ def render(application_id, model, loader=None, **variables):
     env.filters["bool"] = lambda value: str(value).lower() in ("1", "true", "yes", "on")
     env.filters["quote"] = lambda value: f"'{value}'"
     env.filters["swarm_instance_service"] = swarm_instance_service
+    env.filters["swarm_placement_constraints"] = swarm_placement_constraints
     env.filters["regex_replace"] = lambda value, pattern, repl: re.sub(
         pattern, repl, value
     )
