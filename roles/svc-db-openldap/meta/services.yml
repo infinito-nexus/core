@@ -43,7 +43,7 @@ openldap:
       ldaps: 636
   ha:
     capable: true
-    primary_probe: files/db-elector/primary_probe.sh
+    primary_probe: http
     backup: files
     endpoint:
       port: ldap

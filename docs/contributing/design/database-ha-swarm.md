@@ -59,7 +59,7 @@ Kubernetes implements the same contract with operators instead of HAProxy and et
 | `reach_host` | the published local port | raises, because nothing is published |
 
 Ansible reaches a primary only by exec into it, delegated to the node it runs on.
-Every engine declares a primary probe script as `ha.primary_probe` in its `meta/services.yml` (Postgres and Redis ship their own under `files/shell/primary_probe.sh`, MariaDB and OpenLDAP share [`files/db-elector/primary_probe.sh`](../../../files/db-elector/primary_probe.sh)).
+Every engine declares its primary probe as `ha.primary_probe` in its `meta/services.yml`. Postgres, MariaDB and OpenLDAP declare `http`: they share [`http_primary_probe.sh`](../../../roles/sys-svc-compose/files/shell/resolve/http_primary_probe.sh), which asks the instance's own `ha.endpoint` check (Patroni's `/primary`, the elector's `/writer`) on its `check_port` and `check_path`. Redis asks the Sentinels and ships its own script under `files/shell/primary_probe.sh`.
 It is installed as `primary-probe-<engine>` next to `resolve-db-primary`, and `roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml` runs it against each instance on its host and requires exactly one to answer.
 A role task never treats `container` as a plain name; it uses `address` inside a shell command or `swarm/resolve/primary.yml`, enforced by [test_no_direct_db_container.py](../../../tests/lint/ansible/swarm/test_no_direct_db_container.py).
 There is no read endpoint: reads also go to the write endpoint.

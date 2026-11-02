@@ -1,4 +1,4 @@
-"""``resolve/db_primary.sh`` asks the engine's own probe about each instance
+"""``resolve/db/primary.sh`` asks the engine's own probe about each instance
 and resolves the container of the one it confirms."""
 
 from __future__ import annotations
@@ -19,7 +19,8 @@ SCRIPT = (
     / "files"
     / "shell"
     / "resolve"
-    / "db_primary.sh"
+    / "db"
+    / "primary.sh"
 )
 CONTAINER_STUB = """#!/usr/bin/env bash
 [ "$1 $2" = "service ls" ] && printf '%s\\n' pg_pg-m2 pg_pg-m1 pg_pg-m3

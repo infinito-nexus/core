@@ -24,6 +24,7 @@ SWARM_NODE_GROUP = "svc-swarm-node"
 FORM_STANDALONE = "standalone"
 FORM_HA = "ha"
 PRIMARY_PROBE_PREFIX = "primary-probe-"
+PRIMARY_PROBE_HTTP = "http"
 
 
 class DbInstancesError(ValueError):
@@ -78,8 +79,10 @@ def ha_spec(application_id: str) -> dict:
     Returns:
         ``{"capable", "coordination_store", "host_group", "probe",
         "primary_probe", "backup", "sidecar", "endpoint"}`` where ``probe`` is
-        the installed binary name of ``primary_probe`` (None without one) and
-        ``backup`` is ``"sql"``, ``"files"`` or None.
+        the installed binary name of ``primary_probe`` (None without one),
+        ``primary_probe`` is a script path or ``"http"`` for the shared
+        probe of the ``ha.endpoint`` check, and ``backup`` is ``"sql"``,
+        ``"files"`` or None.
     """
     raw = get_role_ha(application_id)
     capable = raw.get("capable") is True
@@ -101,16 +104,33 @@ def ha_spec(application_id: str) -> dict:
 
 
 def primary_probes() -> list[dict]:
-    """Return ``{"name", "src"}`` for every engine's primary probe script.
+    """Return the primary probe every HA engine installs.
 
-    ``name`` is the binary installed next to ``resolve-db-primary``; ``src``
-    is the script path relative to the repository root.
+    Returns:
+        ``{"name", "src", "application_id", "entity", "check_port",
+        "check_path"}`` per engine. ``name`` is the binary installed next to
+        ``resolve-db-primary``. A script probe carries its repository path
+        in ``src`` and None in the check fields; an ``http`` probe carries
+        None in ``src`` and the ``ha.endpoint`` check port key and path,
+        which the installed wrapper hands to the shared HTTP probe.
     """
     probes = []
     for app_id in sorted(ha_engines()):
         spec = ha_spec(app_id)
-        if spec["probe"]:
-            probes.append({"name": spec["probe"], "src": spec["primary_probe"]})
+        if not spec["probe"]:
+            continue
+        http = spec["primary_probe"] == PRIMARY_PROBE_HTTP
+        endpoint = spec["endpoint"] or {}
+        probes.append(
+            {
+                "name": spec["probe"],
+                "src": None if http else spec["primary_probe"],
+                "application_id": app_id,
+                "entity": get_entity_name(app_id),
+                "check_port": endpoint.get("check_port") if http else None,
+                "check_path": endpoint.get("check_path") if http else None,
+            }
+        )
     return probes
 
 

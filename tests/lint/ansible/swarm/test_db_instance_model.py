@@ -16,7 +16,13 @@ import unittest
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.db.backup import BACKUP_SQL
-from utils.roles.db.instances import build_instances, engine_word, ha_engines, ha_spec
+from utils.roles.db.instances import (
+    PRIMARY_PROBE_HTTP,
+    build_instances,
+    engine_word,
+    ha_engines,
+    ha_spec,
+)
 from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -115,6 +121,7 @@ class TestDbInstanceBackup(unittest.TestCase):
             spec["primary_probe"]
             for spec in (ha_spec(role) for role in sorted(ha_engines()))
             if spec["primary_probe"]
+            and spec["primary_probe"] != PRIMARY_PROBE_HTTP
             and not (PROJECT_ROOT / spec["primary_probe"]).is_file()
         ]
         self.assertEqual(missing, [], "ha.primary_probe must name a script in the repo")

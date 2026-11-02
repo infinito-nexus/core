@@ -18,6 +18,7 @@ BIN_CA_PHP_INI: "{{ [ DIR_BIN, 'ca-trust-php.ini' ] | path_join }}"
 BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}"
 BIN_RESOLVE_DB_PRIMARY: "{{ [ DIR_BIN, 'resolve-db-primary' ] | path_join }}"
 BIN_DB_CLIENT: "{{ [ DIR_BIN, 'db-client' ] | path_join }}"
+BIN_PRIMARY_PROBE_HTTP: "{{ [ DIR_BIN, 'primary-probe-http' ] | path_join }}"
 
 DIR_VAR_LIB: "/var/lib/infinito"
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
