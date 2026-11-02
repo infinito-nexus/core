@@ -2,11 +2,11 @@
 - name: "🔄 Redis | SENTINEL RESET on every remaining Sentinel"
   ansible.builtin.shell: |
     set -eu
-    if ! {{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ (entity_name ~ '-sentinel-' ~ item.host_id) | quote }} >/dev/null 2>&1; then echo absent; exit 0; fi
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ (entity_name ~ '-sentinel-' ~ item.host_id) | quote }})" sh -c 'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") exec redis-cli -p "$SENTINEL_PORT" SENTINEL RESET "*"'
+    if ! container inspect --type container {{ lookup('container_address', application_id, 'sentinel', instance=item) }} >/dev/null 2>&1; then echo absent; exit 0; fi
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=item) }} {{ REDIS_SENTINEL_CLI }} RESET '*'
   register: redis_sentinel_reset
   delegate_to: "{{ item.host }}"
   loop: "{{ REDIS_HA.instances }}"
   loop_control:
-    label: "{{ entity_name }}-sentinel-{{ item.host_id }}"
+    label: "{{ item | swarm_instance_service(application_id, 'sentinel') }}"
   changed_when: redis_sentinel_reset.stdout | trim != 'absent'

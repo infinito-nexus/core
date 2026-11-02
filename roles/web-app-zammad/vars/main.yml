@@ -19,7 +19,7 @@ ZAMMAD_WEBSOCKET_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ Z
 ZAMMAD_SCHEDULER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SCHEDULER_SERVICE ~ '.name') }}"
 ZAMMAD_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_NGINX_SERVICE ~ '.name') }}"
 ZAMMAD_SEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.name') }}"
-ZAMMAD_MEMCACHED_CONTAINER: "{{ entity_name }}-{{ ZAMMAD_MEMCACHED_SERVICE }}" # nocheck: container-var-name-lookup  composite name of the dedicated sidecar, rendered only while memcached is not shared
+ZAMMAD_MEMCACHED_CONTAINER: "{{ lookup('engine', 'memcached', application_id, 'container') }}"
 
 ZAMMAD_RAILS_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAILS_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.ports.internal.http') }}"

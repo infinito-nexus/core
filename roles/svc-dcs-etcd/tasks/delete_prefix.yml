@@ -3,7 +3,7 @@
 - name: "🗑️ ETCD | Remove every key under {{ etcd_delete_prefix }}"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=item) }}
     {{ ETCDCTL }} del --prefix {{ etcd_delete_prefix | quote }}
   environment:
     ETCDCTL_USER: "root:{{ ETCD_ROOT_PASSWORD }}"

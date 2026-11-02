@@ -3,7 +3,7 @@
 - name: "🔍 ETCD | Ask each remaining member for the member list"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=item) }}
     {{ ETCDCTL }} member list -w simple
   environment:
     ETCDCTL_USER: "root:{{ ETCD_ROOT_PASSWORD }}"
@@ -35,7 +35,7 @@
 - name: "🗑️ ETCD | Remove the forgotten member"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ etcd_forget_live.item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=etcd_forget_live.item) }}
     {{ ETCDCTL }} member remove {{ item | quote }}
   environment:
     ETCDCTL_USER: "root:{{ ETCD_ROOT_PASSWORD }}"

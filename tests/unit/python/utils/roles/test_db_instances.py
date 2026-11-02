@@ -9,6 +9,7 @@ from utils.roles.db.instances import (
     engine_hosts,
     engine_word,
     ha_exposure_conflicts,
+    instance_service,
     instance_volume_name,
     sanitize_host_id,
 )
@@ -63,6 +64,28 @@ class TestHelpers(unittest.TestCase):
     def test_sanitize_host_id(self):
         self.assertEqual(sanitize_host_id("Node_01.example.org"), "node-01-example-org")
         self.assertEqual(sanitize_host_id("--a--"), "a")
+
+    def test_instance_service_names_the_instance_and_its_sidecar(self):
+        model = build_instances(
+            "svc-db-redis",
+            NODES[:3],
+            deployment_mode="swarm",
+            swarm_nodes=NODES,
+        )
+        instance = model["instances"][1]
+        self.assertEqual(instance_service("svc-db-redis", instance), "redis-mgr-02")
+        self.assertEqual(
+            instance_service("svc-db-redis", instance, "redis"), "redis-mgr-02"
+        )
+        self.assertEqual(
+            instance_service("svc-db-redis", instance, "sentinel"),
+            "redis-sentinel-mgr-02",
+        )
+
+    def test_sidecar_of_a_standalone_instance_raises(self):
+        model = build_instances("svc-db-redis", [], deployment_mode="swarm")
+        with self.assertRaises(DbInstancesError):
+            instance_service("svc-db-redis", model["instances"][0], "sentinel")
 
 
 class TestBuildInstances(unittest.TestCase):

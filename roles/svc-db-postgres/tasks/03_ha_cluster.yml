@@ -1,9 +1,7 @@
 ---
-# Without a coordination-store registration no member answers as primary,
-# so this check has to run before the primary is resolved.
 - name: "🔍 POSTGRES | Members registered in the coordination store"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  resolved per instance, the primary is unknown until the members registered
-    container exec --user postgres "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ lookup('container_address', application_id, entity_name, instance=item) }}
     {{ POSTGRES_PATRONICTL }} list --format json
   register: postgres_dcs_members
   delegate_to: "{{ item.host }}"

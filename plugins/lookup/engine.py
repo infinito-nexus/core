@@ -11,6 +11,11 @@ rabbitmq, elasticsearch, typesense, qdrant, unbound). When the consumer declares
 ``svc-db-*`` / ``svc-dns-*`` stack with the consumer's own provisioned credentials;
 otherwise it points at the embedded sidecar inside the consumer's own stack.
 
+``address`` is the ``container exec`` target: the container name in compose
+mode, a ``resolve-container-id`` subshell in swarm mode and a primary-resolving
+subshell when the shared engine runs in HA form. ``container`` stays a plain
+name and is unavailable in HA form.
+
 See ``docs/architecture/central-engines.md``.
 """
 
@@ -33,7 +38,7 @@ from utils.roles.applications.services.engines import (
     is_engine_shared,
 )
 from utils.roles.db.instances import DbInstancesError
-from utils.roles.db.primary import ha_primary_address
+from utils.roles.db.primary import ha_primary_address, resolver_subshell
 from utils.roles.entity.name import get_entity_name
 
 _FIELDS = (
@@ -49,6 +54,7 @@ _FIELDS = (
     "prefix",
     "url",
     "container",
+    "address",
     "session_path",
 )
 
@@ -210,29 +216,46 @@ class LookupModule(LookupBase):
             or ""
         ).strip()
         container = central_name if shared else (consumer_name or f"{entity}-{engine}")
+        templar = getattr(self, "_templar", None)
+
+        def _templated(value: Any) -> str:
+            if templar is not None:
+                with contextlib.suppress(Exception):
+                    value = templar.template(value)
+            return str(value or "").strip()
+
+        deployment_mode = _templated(vars_.get("DEPLOYMENT_MODE", "compose"))
+        stack = get_entity_name(svc_id) if shared else entity
+        address = container
+        if deployment_mode == "swarm":
+            address = resolver_subshell(
+                _templated(vars_.get("BIN_RESOLVE_CONTAINER_ID", ""))
+                or "/usr/bin/resolve-container-id",
+                stack,
+                engine,
+            )
 
         if shared:
-            templar = getattr(self, "_templar", None)
-
-            def _templated(value: Any) -> str:
-                if templar is not None:
-                    with contextlib.suppress(Exception):
-                        value = templar.template(value)
-                return str(value or "").strip()
-
             try:
                 primary = ha_primary_address(
                     svc_id,
                     vars_.get("groups"),
-                    _templated(vars_.get("DEPLOYMENT_MODE", "compose")),
+                    deployment_mode,
                     bin_resolver=_templated(vars_.get("BIN_RESOLVE_DB_PRIMARY", "")),
-                    stack=get_entity_name(svc_id),
+                    stack=stack,
                     engine=engine,
                 )
             except DbInstancesError as exc:
                 raise AnsibleError(f"engine: {exc}") from exc
             if primary is not None:
-                container = primary
+                if want == "container":
+                    raise AnsibleError(
+                        f"engine: container is unavailable for {svc_id} in HA form; "
+                        "the engine has no single container, exec into 'address' "
+                        "instead"
+                    )
+                address = primary
+                container = ""
 
         resolved = {
             "engine": engine,
@@ -247,6 +270,7 @@ class LookupModule(LookupBase):
             "prefix": prefix,
             "url": url,
             "container": container,
+            "address": address,
             "session_path": (
                 redis_session_path(
                     host,

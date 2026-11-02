@@ -1,9 +1,4 @@
-"""Instance model for central database engines in database HA on Swarm.
-
-Every host listed in an engine's inventory group holds exactly one instance,
-named after and pinned to that host. One host (or any non-swarm mode) renders
-today's standalone shape unchanged.
-"""
+"""Instance model for central database engines in database HA on Swarm."""
 
 from __future__ import annotations
 
@@ -240,6 +235,28 @@ def build_instances(
             "losing either host stops writes. List 3 hosts for HA."
         )
     return {"form": FORM_HA, "instances": instances, "warnings": warnings, "ha": spec}
+
+
+def instance_service(
+    application_id: str, instance: Mapping, service_key: str | None = None
+) -> str:
+    """Return the stack service key of one instance or of its per-host sidecar.
+
+    Args:
+        application_id: engine role, e.g. ``svc-db-redis``.
+        instance: an entry of ``build_instances()["instances"]``.
+        service_key: a sidecar service key such as ``sentinel``; ``None`` or
+            the engine word names the instance itself.
+    """
+    engine = get_entity_name(application_id)
+    if not service_key or service_key == engine:
+        return instance["service"]
+    if not instance.get("host_id"):
+        raise DbInstancesError(
+            f"db_instances: {application_id} sidecar '{service_key}' needs an "
+            "HA instance with a host-id"
+        )
+    return f"{engine}-{service_key}-{instance['host_id']}"
 
 
 def engine_hosts(application_id: str, groups: Mapping[str, Sequence[str]]) -> list[str]:

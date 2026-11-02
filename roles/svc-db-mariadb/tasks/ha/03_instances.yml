@@ -17,7 +17,7 @@
 
 - name: "🔍 MariaDB HA | Read each instance's seeding state"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})" sh -c 'if test -e {{ MARIADB_HA_READY_MARKER }}; then echo ready; elif test -d {{ MARIADB_HA_DATADIR }}/mysql; then echo data; else echo empty; fi'
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} sh -c 'if test -e {{ MARIADB_HA_READY_MARKER }}; then echo ready; elif test -d {{ MARIADB_HA_DATADIR }}/mysql; then echo data; else echo empty; fi'
   register: _mariadb_ha_state
   until: _mariadb_ha_state.rc == 0
   retries: 30
@@ -53,7 +53,7 @@
 
 - name: "🏁 MariaDB HA | Let a ready minority elect a seeding writer"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})" touch {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} touch {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
   changed_when: true
   delegate_to: "{{ item.host }}"
   loop: "{{ _mariadb_ha_ready }}"
@@ -93,7 +93,7 @@
 
 - name: "🔒 MariaDB HA | Require a majority from now on"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})" rm -f {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
+    container exec {{ lookup('container_address', application_id, entity_name, instance=item) }} rm -f {{ MARIADB_HA_BOOTSTRAP_MARKER | quote }}
   changed_when: false
   delegate_to: "{{ item.host }}"
   loop: "{{ MARIADB_INSTANCES.instances }}"
@@ -101,7 +101,7 @@
     label: "{{ item.service }}"
 
 - name: "👤 MariaDB HA | Reconcile the replication and elector users on the writer"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  HA instance keys are mariadb-<host-id>, which container_address cannot name
+  ansible.builtin.shell: >
     container exec -i {{ MARIADB_PRIMARY_CID | quote }}
     {{ MARIADB_HA_SQL }}
   args:

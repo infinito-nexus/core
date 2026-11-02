@@ -42,8 +42,7 @@ ETCD_CONSUMERS: >-
 
 ETCD_EXEC_INSTANCE: "{{ ETCD_INSTANCES.instances | first }}"
 ETCD_EXEC_HOST: "{{ ETCD_EXEC_INSTANCE.host or STACK_HOST }}"
-ETCD_EXEC_ADDRESS: >-
-  "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ ETCD_EXEC_INSTANCE.service | quote }})"
+ETCD_EXEC_ADDRESS: "{{ lookup('container_address', application_id, entity_name, instance=ETCD_EXEC_INSTANCE) }}"
 ETCD_DATA_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
 ETCD_CA_TARGET: "{{ lookup('volume', application_id, 'tls_ca').target }}"
 ETCD_CERT_TARGET: "{{ lookup('volume', application_id, 'tls_cert').target }}"

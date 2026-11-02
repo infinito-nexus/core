@@ -14,6 +14,12 @@ same role-owned identity::
 
     FOO_CONTAINER: "{{ entity_name }}"
 
+A shared-capable engine (redis, memcached, …) resolves its container
+shared-aware through the engine lookup — the central provider's container
+when shared, the embedded ``<entity>-<engine>`` sidecar otherwise::
+
+    FOO_CONTAINER: "{{ lookup('engine', 'memcached', application_id, 'container') }}"
+
 Hard-coding the name (``FOO_CONTAINER: "foo"``) or composing it inline
 bypasses both: the value drifts from the role's declared identity. And if
 the var *does* use the lookup but the service has no ``name:`` field, the
@@ -58,6 +64,10 @@ _CONTAINER_VAR_RE = re.compile(
 
 _USES_NAME_LOOKUP_RE = re.compile(
     r"lookup\(\s*['\"]config['\"].*services\..*\.name", re.DOTALL
+)
+
+_USES_ENGINE_CONTAINER_RE = re.compile(
+    r"lookup\(\s*['\"]engine['\"].*['\"]container['\"]", re.DOTALL
 )
 
 _ENTITY_NAME_RE = re.compile(
@@ -127,6 +137,8 @@ class TestContainerVarNameLookup(unittest.TestCase):
 
                 value = match.group("val")
                 if _ENTITY_NAME_RE.match(value.strip().strip("\"'")):
+                    continue
+                if _USES_ENGINE_CONTAINER_RE.search(value):
                     continue
                 if not _USES_NAME_LOOKUP_RE.search(value):
                     missing_lookup.append((rel, idx + 1, match.group("name")))

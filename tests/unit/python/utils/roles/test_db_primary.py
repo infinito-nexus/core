@@ -5,7 +5,7 @@ from utils.roles.db.primary import (
     client_command,
     ha_primary_address,
     is_ha,
-    primary_address,
+    resolver_subshell,
 )
 
 NODES = ["m1", "m2", "m3"]
@@ -44,11 +44,15 @@ class TestIsHa(unittest.TestCase):
         self.assertFalse(is_ha("svc-db-postgres", None, "swarm"))
 
 
-class TestPrimaryAddress(unittest.TestCase):
+class TestResolverSubshell(unittest.TestCase):
     def test_quotes_every_part(self):
         self.assertEqual(
-            primary_address(BIN, "postgres", "postgres"),
+            resolver_subshell(BIN, "postgres", "postgres"),
             '"$(/usr/bin/resolve-db-primary postgres postgres)"',
+        )
+        self.assertEqual(
+            resolver_subshell("/usr/bin/resolve-container-id", "my stack", "svc"),
+            "\"$(/usr/bin/resolve-container-id 'my stack' svc)\"",
         )
 
 

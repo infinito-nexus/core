@@ -76,7 +76,7 @@
         primary_output_prefix: "MARIADB"
 
     - name: "📁 Apply database, user and grant as idempotent SQL on the writer"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  HA instance keys are mariadb-<host-id>, which container_address cannot name
+      ansible.builtin.shell: >
         container exec -i {{ MARIADB_PRIMARY_CID | quote }}
         {{ MARIADB_HA_SQL }}
       args:
@@ -92,7 +92,7 @@
       retries: 30
       delay: 3
       until: mariadb_ha_provision.rc == 0
-      delegate_to: "{{ MARIADB_PRIMARY_NODE | default(STACK_HOST) }}"
+      delegate_to: "{{ MARIADB_PRIMARY_NODE }}"
       run_once: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false

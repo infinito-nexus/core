@@ -2,7 +2,7 @@
 - name: "🔍 ETCD | Ask each running member for the member list"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=item) }}
     {{ ETCDCTL }} member list -w simple
   environment:
     ETCDCTL_USER: "root:{{ ETCD_ROOT_PASSWORD }}"
@@ -17,7 +17,7 @@
 - name: "🔍 ETCD | Ask again with the root password from before a rotation"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=item) }}
     {{ ETCDCTL }} member list -w simple
   environment:
     ETCDCTL_USER: "root:{{ etcd_previous_root_password }}"
@@ -52,7 +52,7 @@
 - name: "➕ ETCD | Register each replacement member before it starts"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
-    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ etcd_join_live.item.service | quote }})"
+    {{ lookup('container_address', application_id, entity_name, instance=etcd_join_live.item) }}
     {{ ETCDCTL }} member add {{ item | quote }}
     --peer-urls={{ ('https://' ~ item ~ ':' ~ ETCD_PEER_PORT) | quote }}
   environment:

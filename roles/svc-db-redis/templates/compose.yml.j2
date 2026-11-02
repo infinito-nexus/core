@@ -2,7 +2,7 @@
   {% set service_name = 'redis' %}
   {% set _db = lookup('db_instances') %}
   {% set _bootstrap = ((_db.instances | selectattr('legacy') | list) or _db.instances) | first %}
-  {% set _sentinels = _db.instances | map(attribute='host_id') | map('regex_replace', '^', entity_name ~ '-sentinel-') | list if _db.form == 'ha' else [] %}
+  {% set _sentinels = _db.instances | map('swarm_instance_service', application_id, 'sentinel') | list if _db.form == 'ha' else [] %}
   {% for db_instance in (_db.instances if _db.form == 'ha' else [none]) %}
   {# nocheck: compose-structure  HA instance key differs from the meta service name the lookups resolve #}
   {{ db_instance.service if db_instance else service_name }}:
@@ -53,7 +53,7 @@
   {% if _db.form == 'ha' %}
   {% for db_instance in _db.instances %}
   {% set service_name = 'sentinel' %}
-  {% set _self = entity_name ~ '-sentinel-' ~ db_instance.host_id %}
+  {% set _self = db_instance | swarm_instance_service(application_id, 'sentinel') %}
   {# nocheck: compose-structure  one Sentinel per instance host, keyed by host; it runs the redis image, sizing and mounts come from the `sentinel` meta entry #}
   {{ _self }}:
     {{ lookup('container_image', application_id, 'redis') }}
@@ -73,6 +73,7 @@
       SENTINEL_DOWN_AFTER_MS: "{{ REDIS_SENTINEL_DOWN_AFTER_MS }}"
       SENTINEL_FAILOVER_MS: "{{ REDIS_SENTINEL_FAILOVER_TIMEOUT_MS }}"
       SENTINEL_PARALLEL_SYNCS: "{{ REDIS_SENTINEL_PARALLEL_SYNCS }}"
+      SENTINEL_PEER_WAIT_S: "{{ REDIS_SENTINEL_PEER_WAIT_S }}"
       SENTINEL_PORT: "{{ REDIS_SENTINEL_PORT }}"
       REDIS_PORT: "{{ REDIS_HA_PORT }}"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

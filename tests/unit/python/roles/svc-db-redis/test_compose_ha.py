@@ -4,6 +4,9 @@ import unittest
 
 import jinja2
 
+from plugins.filter.swarm.instance_service import (
+    FilterModule as InstanceServiceFilters,
+)
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_str
 from utils.roles.db.instances import build_instances
@@ -48,6 +51,7 @@ def _render(hosts):
         pattern, repl, value
     )
     env.filters["quote"] = shlex.quote
+    env.filters.update(InstanceServiceFilters().filters())
     env.globals["lookup"] = lookup
     rendered = env.get_template(TEMPLATE).render(
         application_id="svc-db-redis",
@@ -64,6 +68,7 @@ def _render(hosts):
         REDIS_SENTINEL_DOWN_AFTER_MS=5000,
         REDIS_SENTINEL_FAILOVER_TIMEOUT_MS=10000,
         REDIS_SENTINEL_PARALLEL_SYNCS=1,
+        REDIS_SENTINEL_PEER_WAIT_S=120,
         REDIS_HA_START="/start",
         REDIS_HA_INCLUDE="/include.conf",
         REDIS_HA_CONF="/data/redis.conf",

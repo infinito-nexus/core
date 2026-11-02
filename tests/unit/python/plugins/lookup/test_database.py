@@ -586,11 +586,16 @@ class DatabaseLookupTests(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             self._resolve_want(self._ha_vars(), "service_name")
 
-    def test_ha_address_and_container_resolve_the_primary_at_call_time(self):
+    def test_ha_address_resolves_the_primary_at_call_time(self):
         out = self._resolve(self._ha_vars())
-        expected = '"$(/usr/bin/resolve-db-primary postgres postgres)"'
-        self.assertEqual(out["address"], expected)
-        self.assertEqual(out["container"], expected)
+        self.assertEqual(
+            out["address"], '"$(/usr/bin/resolve-db-primary postgres postgres)"'
+        )
+        self.assertEqual(out["container"], "")
+
+    def test_ha_container_raises_when_asked_directly(self):
+        with self.assertRaises(AnsibleError):
+            self._resolve_want(self._ha_vars(), "container")
 
     def test_ha_reach_host_raises(self):
         with self.assertRaises(AnsibleError):

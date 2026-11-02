@@ -115,17 +115,15 @@ def client_command(
     )
 
 
-def primary_address(bin_resolver: str, stack: str, engine: str) -> str:
-    """Return a shell expression resolving the primary's container at call time.
+def resolver_subshell(bin_resolver: str, stack: str, key: str) -> str:
+    """Return a shell expression that resolves a container id at call time.
 
     Args:
-        bin_resolver: path of the ``resolve-db-primary`` helper.
-        stack: swarm stack of the engine.
-        engine: engine word, e.g. ``postgres``.
+        bin_resolver: path of ``resolve-container-id`` or ``resolve-db-primary``.
+        stack: swarm stack of the service.
+        key: service key in that stack, or the engine word for the primary.
     """
-    return (
-        f'"$({shlex.quote(bin_resolver)} {shlex.quote(stack)} {shlex.quote(engine)})"'
-    )
+    return f'"$({shlex.quote(bin_resolver)} {shlex.quote(stack)} {shlex.quote(key)})"'
 
 
 def ha_primary_address(
@@ -153,4 +151,4 @@ def ha_primary_address(
         raise DbInstancesError(
             f"{application_id} renders its HA form but BIN_RESOLVE_DB_PRIMARY is unset"
         )
-    return primary_address(bin_resolver, stack, engine)
+    return resolver_subshell(bin_resolver, stack, engine)

@@ -1,7 +1,4 @@
 ---
-# Patroni keeps the auth token of a coordination store that was wiped and rebuilt;
-# the new store rejects it too slowly for Patroni's client to notice, so the members
-# never register again. A restart gives every member a fresh client.
 - name: "🔄 POSTGRES | Restart '{{ item.service }}' with a fresh coordination-store client"
   ansible.builtin.command:
     argv:
@@ -19,8 +16,8 @@
     label: "{{ item.service }}"
 
 - name: "⏳ POSTGRES | Wait until every member registered again"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  resolved per attempt, the restart re-created every member container
-    container exec --user postgres "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _postgres_dcs_first.service | quote }})"
+  ansible.builtin.shell: >
+    container exec --user postgres {{ lookup('container_address', application_id, entity_name, instance=_postgres_dcs_first) }}
     {{ POSTGRES_PATRONICTL }} list --format json
   register: postgres_dcs_rejoined
   delegate_to: "{{ _postgres_dcs_first.host }}"

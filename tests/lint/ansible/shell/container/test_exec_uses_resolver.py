@@ -16,13 +16,14 @@ returns the bare name in compose mode and a runtime-evaluated subshell
 (``"$(/usr/bin/resolve-container-id mattermost)"``) in swarm mode, so
 the same task body works in both deployment modes.
 
-A target that is itself the resolver subshell the lookup emits,
+A hand-written resolver subshell such as
 ``"$({{ BIN_RESOLVE_CONTAINER_ID | quote }} <stack> <service-key>)"``
-(or the ``BIN_RESOLVE_DB_PRIMARY`` equivalent), also counts as
-resolved, directly or through a vars/defaults constant whose value is
-that subshell. Swarm-only tasks use it where ``container_address``
-cannot name the service, e.g. per-host HA instance keys such as
-``mariadb-<host-id>``.
+does not count: per-host HA instance keys such as ``mariadb-<host-id>``
+go through ``container_address(..., instance=...)``. A command folded
+over several lines is read as one, so the target may sit on a later
+line. The ``<PREFIX>_LOCAL_CID`` and ``<PREFIX>_PRIMARY_CID`` facts that
+``sys-svc-compose/tasks/utils/swarm/resolve/`` sets hold a container id
+it already resolved, so they count as resolved too.
 
 ``inspect`` is covered for the same reason, and it fails less
 legibly: the bare name of a role's main service is also the name of
@@ -59,8 +60,11 @@ import yaml
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from . import PROJECT_ROOT
+
+_SAMPLE_TASKS = f"roles/x/{ROLE_FILE_TASKS_MAIN}"
 
 _RULE = "container-exec-resolver"
 
@@ -86,13 +90,20 @@ _RAW_MARKERS = re.compile(r"\{%-?\s*(?:end)?raw\s*-?%\}")
 
 _QUOTED_SPAN = re.compile(r"'[^']*'|\"[^\"]*\"")
 
+_LOOKUP_EXPR = re.compile(r"\{\{[^}]*\blookup\([^}]*\}\}")
+
 
 def _strip_format_noise(rest: str) -> str:
     """Drop ``{% raw %}`` markers and quoted spans from an ``inspect``
     tail. Go template format strings carry braces, spaces and nested
     quotes that the flag walker cannot tokenise; removing them leaves
-    ``-f``/``--format`` as valueless flags followed by the target."""
-    return _QUOTED_SPAN.sub(" ", _RAW_MARKERS.sub("", rest))
+    ``-f``/``--format`` as valueless flags followed by the target.
+    Jinja lookups keep their quoted arguments."""
+    lookups = _LOOKUP_EXPR.findall(rest)
+    stripped = _QUOTED_SPAN.sub(" ", _LOOKUP_EXPR.sub("\0", _RAW_MARKERS.sub("", rest)))
+    for expr in lookups:
+        stripped = stripped.replace("\0", expr, 1)
+    return stripped
 
 
 _JINJA_EXPR = re.compile(r"\{\{\s*(?P<expr>[^}]+?)\s*\}\}")
@@ -102,11 +113,9 @@ _DIRECT_LOOKUP = re.compile(
     r"|lookup\(\s*['\"]database['\"][^)]*['\"]address['\"]"
 )
 
-_RESOLVER_SUBSHELL = re.compile(
-    r"^\s*\"?\$\(\s*\{\{\s*(?:BIN_RESOLVE_CONTAINER_ID|BIN_RESOLVE_DB_PRIMARY)\b"
-)
-
 _VAR_REFERENCE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+_RESOLVED_CID_FACT = re.compile(r"^[A-Z][A-Z0-9_]*_(?:LOCAL|PRIMARY)_CID$")
 
 
 def _is_scan_target(rel_path: str) -> bool:
@@ -151,15 +160,13 @@ def _collect_approved_variables() -> set[str]:
         for key, value in data.items():
             if not isinstance(key, str) or not isinstance(value, str):
                 continue
-            if _DIRECT_LOOKUP.search(value) or _RESOLVER_SUBSHELL.match(value):
+            if _DIRECT_LOOKUP.search(value):
                 approved.add(key)
     return approved
 
 
 def _classify_target(token: str, approved: set[str]) -> str:
     """Decide whether *token* is OK, an unresolved Jinja, or a literal."""
-    if _RESOLVER_SUBSHELL.match(token):
-        return "ok-resolver-subshell"
     jinja = _JINJA_EXPR.search(token)
     if jinja:
         expr = jinja.group("expr").strip()
@@ -168,6 +175,8 @@ def _classify_target(token: str, approved: set[str]) -> str:
         root = re.match(r"[A-Za-z_][A-Za-z0-9_]*", expr)
         if root and root.group(0) in approved:
             return "ok-approved-var"
+        if root and _RESOLVED_CID_FACT.match(root.group(0)):
+            return "ok-resolved-cid"
         return f"unapproved-jinja:{expr}"
     if _VAR_REFERENCE.match(token):
         return f"bare-literal:{token}"
@@ -332,6 +341,23 @@ def _is_yaml_name_line(line: str) -> bool:
     return bool(_NAME_LINE.match(line))
 
 
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip())
+
+
+def _with_continuation(rest: str, lines: list[str], line_no: int) -> str:
+    """Append the lines that continue the command on *line_no*: every
+    following non-empty line indented at least as deep, with trailing
+    ``\\`` line continuations dropped."""
+    depth = _indent(lines[line_no - 1])
+    parts = [rest.rstrip().removesuffix("\\")]
+    for following in lines[line_no:]:
+        if not following.strip() or _indent(following) < depth:
+            break
+        parts.append(following.strip().removesuffix("\\"))
+    return " ".join(parts)
+
+
 def _scan_line(
     rel_path: str,
     line_no: int,
@@ -346,6 +372,8 @@ def _scan_line(
         return
     for match in _EXEC_PROLOGUE.finditer(line):
         rest = line[match.end() :]
+        if _extract_target(rest) is None:
+            rest = _with_continuation(rest, lines, line_no)
         if match.group("verb") == "inspect":
             rest = _strip_format_noise(rest)
         target = _extract_target(rest)
@@ -360,23 +388,62 @@ def _scan_line(
 
 
 class TestContainerExecUsesResolver(unittest.TestCase):
-    def test_resolver_subshell_target_is_resolved(self) -> None:
+    def test_hand_written_resolver_subshell_is_a_finding(self) -> None:
         line = (
             '    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} '
             '{{ entity_name | quote }} {{ item.service | quote }})" sh'
         )
-        target = _extract_target(line[line.index("exec") + 4 :])
-        self.assertEqual(_classify_target(target, set()), "ok-resolver-subshell")
-        self.assertEqual(
-            _classify_target(
-                "$({{ BIN_RESOLVE_DB_PRIMARY | quote }} {{ stack }} mariadb)", set()
-            ),
-            "ok-resolver-subshell",
-        )
-        self.assertFalse(
-            _classify_target("{{ BIN_RESOLVE_CONTAINER_ID }}", set()).startswith("ok-")
-        )
+        findings: list[tuple[str, int, str]] = []
+        _scan_line(_SAMPLE_TASKS, 1, line, [line], set(), findings)
+        self.assertEqual(len(findings), 1)
         self.assertFalse(_classify_target("$cid", set()).startswith("ok-"))
+
+    def test_instance_lookup_target_is_resolved(self) -> None:
+        line = (
+            "    container exec -i {{ lookup('container_address', application_id, "
+            "entity_name, instance=item) }} sh"
+        )
+        findings: list[tuple[str, int, str]] = []
+        _scan_line(_SAMPLE_TASKS, 1, line, [line], set(), findings)
+        self.assertEqual(findings, [])
+
+    def test_inspect_keeps_the_quoted_lookup_arguments(self) -> None:
+        lines = [
+            "  ansible.builtin.shell: >-",
+            "    container inspect --type container",
+            "    --format={% raw %}'{{.State.Health.Status}}'{% endraw %}",
+            "    {{ lookup('database', application_id, 'address') }}",
+        ]
+        findings: list[tuple[str, int, str]] = []
+        _scan_line(_SAMPLE_TASKS, 2, lines[1], lines, set(), findings)
+        self.assertEqual(findings, [])
+
+    def test_resolved_container_id_facts_are_resolved(self) -> None:
+        for fact in ("GITEA_LOCAL_CID", "MARIADB_PRIMARY_CID"):
+            with self.subTest(fact=fact):
+                self.assertEqual(
+                    _classify_target("{{ " + fact + " | quote }}", set()),
+                    "ok-resolved-cid",
+                )
+        self.assertFalse(
+            _classify_target("{{ GITEA_CID | quote }}", set()).startswith("ok-")
+        )
+
+    def test_target_on_a_folded_continuation_line_is_checked(self) -> None:
+        lines = [
+            "  ansible.builtin.shell: >",
+            "    container exec -e ETCDCTL_USER",
+            '    "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} etcd {{ item.service }})"',
+            "    etcdctl member list",
+            "  register: probe",
+        ]
+        findings: list[tuple[str, int, str]] = []
+        _scan_line(_SAMPLE_TASKS, 2, lines[1], lines, set(), findings)
+        self.assertEqual(len(findings), 1)
+        lines[2] = "    {{ lookup('container_address', application_id, 'etcd') }}"
+        findings = []
+        _scan_line(_SAMPLE_TASKS, 2, lines[1], lines, set(), findings)
+        self.assertEqual(findings, [])
 
     def test_every_container_exec_routes_through_resolver(self) -> None:
         approved = _collect_approved_variables()

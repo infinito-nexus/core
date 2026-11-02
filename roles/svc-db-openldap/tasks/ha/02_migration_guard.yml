@@ -2,7 +2,7 @@
 - name: "🔍 Read cn=config of a still-running standalone slapd"
   ansible.builtin.shell: |
     set -o pipefail
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ OPENLDAP_SERVICE | quote }})" ldapsearch -Q -LLL -o ldif-wrap=no -Y EXTERNAL -H ldapi:/// -b cn=config
+    container exec {{ OPENLDAP_CONTAINER_ADDRESS }} ldapsearch -Q -LLL -o ldif-wrap=no -Y EXTERNAL -H ldapi:/// -b cn=config
   args:
     executable: /bin/bash
   register: openldap_ha_legacy_config

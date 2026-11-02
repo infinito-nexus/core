@@ -4,6 +4,8 @@ import importlib
 import unittest
 from unittest import mock
 
+from ansible.errors import AnsibleError
+
 plugin_module = importlib.import_module("plugins.lookup.engine")
 
 NODES = ["m1", "m2", "m3"]
@@ -46,20 +48,37 @@ class TestEngineLookupHa(unittest.TestCase):
     def test_ha_host_keeps_the_endpoint_name(self):
         self.assertEqual(self._run(want="host"), "redis-central")
 
-    def test_ha_container_resolves_the_primary_at_call_time(self):
+    def test_ha_address_resolves_the_primary_at_call_time(self):
         self.assertEqual(
-            self._run(want="container"),
+            self._run(want="address"),
             '"$(/usr/bin/resolve-db-primary redis redis)"',
         )
 
+    def test_ha_container_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._run(want="container")
+
     def test_single_host_keeps_the_standalone_container(self):
         self.assertEqual(self._run(hosts=["m1"], want="container"), "redis-central")
+
+    def test_single_host_swarm_address_resolves_the_service(self):
+        self.assertEqual(
+            self._run(hosts=["m1"], want="address"),
+            '"$(/usr/bin/resolve-container-id redis redis)"',
+        )
+
+    def test_compose_address_is_the_container_name(self):
+        self.assertEqual(self._run(mode="compose", want="address"), "redis-central")
 
     def test_compose_mode_keeps_the_standalone_container(self):
         self.assertEqual(self._run(mode="compose", want="container"), "redis-central")
 
     def test_standalone_dict_is_unchanged_by_the_ha_arm(self):
-        self.assertEqual(self._run(hosts=["m1"]), self._run(mode="compose"))
+        swarm = self._run(hosts=["m1"])
+        compose = self._run(mode="compose")
+        swarm.pop("address")
+        compose.pop("address")
+        self.assertEqual(swarm, compose)
 
     def test_embedded_sidecar_is_never_ha(self):
         self.assertEqual(self._run(shared=False, want="container"), "foo-redis")

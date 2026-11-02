@@ -3,9 +3,9 @@
 - name: "🔀 Redis | SENTINEL FAILOVER away from {{ handover_primary }}"
   ansible.builtin.shell: |
     set -eu
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ (entity_name ~ '-sentinel-' ~ _handover_host_id) | quote }})" sh -c 'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") exec redis-cli -p "$SENTINEL_PORT" SENTINEL FAILOVER "$SENTINEL_MASTER_NAME"'
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=_handover_instance) }} {{ REDIS_SENTINEL_CLI }} FAILOVER {{ REDIS_HA_MASTER_NAME | quote }}
   vars:
-    _handover_host_id: "{{ (REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first).host_id }}"
+    _handover_instance: "{{ REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first }}"
   register: _redis_handover_failover
   until: _redis_handover_failover.rc == 0 and (_redis_handover_failover.stdout | trim) == 'OK'
   retries: 15
@@ -17,9 +17,9 @@
 - name: "⏳ Redis | Wait until Sentinel names a master other than {{ handover_primary }}"
   ansible.builtin.shell: |
     set -eu
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ (entity_name ~ '-sentinel-' ~ _handover_host_id) | quote }})" sh -c 'REDISCLI_AUTH=$(cat "$SENTINEL_PASSWORD_FILE") exec redis-cli -p "$SENTINEL_PORT" SENTINEL get-master-addr-by-name "$SENTINEL_MASTER_NAME"' | head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }'
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=_handover_instance) }} {{ REDIS_SENTINEL_CLI }} get-master-addr-by-name {{ REDIS_HA_MASTER_NAME | quote }} | head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }'
   vars:
-    _handover_host_id: "{{ (REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first).host_id }}"
+    _handover_instance: "{{ REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first }}"
   register: _redis_handover_master
   until: >-
     _redis_handover_master.rc == 0

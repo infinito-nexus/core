@@ -15,7 +15,7 @@
 - name: "🔍 MariaDB HA | Internal address of {{ mariadb_seed.item.service }}"
   ansible.builtin.shell: |
     set -o pipefail
-    container inspect --type container "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" \
+    container inspect --type container {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} \
       --format {{ ('{{ (index .NetworkSettings.Networks "' ~ entity_name ~ '_internal").IPAddress }}') | quote }}
   args:
     executable: /bin/bash
@@ -28,7 +28,7 @@
 - name: "📤 MariaDB HA | Stream a mariadb-backup seed"
   ansible.builtin.shell: |
     set -o pipefail
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_donor.service | quote }})" bash -o pipefail -c '
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_donor) }} bash -o pipefail -c '
       rm -rf /tmp/infinito-seed
       mkdir -p /tmp/infinito-seed
       mariadb-backup --defaults-extra-file={{ MARIADB_HA_ROOT_CNF }} --backup --stream=xbstream \
@@ -45,7 +45,7 @@
 
 - name: "⏳ MariaDB HA | Wait until the seeded instance accepts root"
   ansible.builtin.shell: |
-    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" {{ MARIADB_HA_SQL }}
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: _mariadb_seed_up
@@ -57,7 +57,7 @@
 
 - name: "🔍 MariaDB HA | Read the seed's GTID position"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" cat {{ [MARIADB_HA_DATADIR, 'mariadb_backup_binlog_info'] | path_join | quote }}
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} cat {{ [MARIADB_HA_DATADIR, 'mariadb_backup_binlog_info'] | path_join | quote }}
   register: _mariadb_seed_binlog_info
   changed_when: false
   delegate_to: "{{ _mariadb_seed_target.host }}"
@@ -65,7 +65,7 @@
 
 - name: "🔗 MariaDB HA | Point the seeded instance at the writer"
   ansible.builtin.shell: |
-    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" {{ MARIADB_HA_SQL }}
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
   args:
     stdin: |
       STOP SLAVE;
@@ -84,7 +84,7 @@
   changed_when: true
 
 - name: "🔍 MariaDB HA | Read the writer's binlog position"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  HA instance keys are mariadb-<host-id>, which container_address cannot name
+  ansible.builtin.shell: >
     container exec -i {{ MARIADB_PRIMARY_CID | quote }}
     {{ MARIADB_HA_SQL }}
   args:
@@ -95,7 +95,7 @@
 
 - name: "⏳ MariaDB HA | Wait until {{ _mariadb_seed_target.service }} has caught up"
   ansible.builtin.shell: |
-    container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" {{ MARIADB_HA_SQL }}
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
   args:
     stdin: "SELECT MASTER_GTID_WAIT('{{ _mariadb_seed_writer_pos.stdout | trim }}', 600);"
   register: _mariadb_seed_caught_up
@@ -106,7 +106,7 @@
 - name: "🔍 MariaDB HA | Replication errors of {{ _mariadb_seed_target.service }}"
   ansible.builtin.shell: |
     set -o pipefail
-    printf 'SHOW SLAVE STATUS\\G\n' | container exec -i "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" {{ MARIADB_HA_SQL }} | grep -E '_Running:|Last_(IO|SQL)_Error:' || true
+    printf 'SHOW SLAVE STATUS\\G\n' | container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }} | grep -E '_Running:|Last_(IO|SQL)_Error:' || true
   args:
     executable: /bin/bash
   register: _mariadb_seed_replica_errors
@@ -121,7 +121,7 @@
 
 - name: "🏁 MariaDB HA | Let {{ _mariadb_seed_target.service }}'s elector compete"
   ansible.builtin.shell: |
-    container exec "$({{ BIN_RESOLVE_CONTAINER_ID | quote }} {{ entity_name | quote }} {{ _mariadb_seed_target.service | quote }})" touch {{ MARIADB_HA_READY_MARKER | quote }}
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} touch {{ MARIADB_HA_READY_MARKER | quote }}
   delegate_to: "{{ _mariadb_seed_target.host }}"
   changed_when: true
 

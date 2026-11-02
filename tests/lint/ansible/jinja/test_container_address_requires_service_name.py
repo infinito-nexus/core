@@ -37,7 +37,7 @@ from pathlib import Path
 
 from ansible.errors import AnsibleError
 
-from plugins.lookup.container_address import _resolve_bare_name
+from plugins.lookup.container_address import _resolve_bare_name, _service_entry
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
@@ -51,7 +51,8 @@ _SCAN_PREFIXES = ("roles/", "scripts/")
 _SCAN_EXTENSIONS = (".yml", ".j2", ".py")
 
 _CALL = re.compile(
-    r"""lookup\(\s*['"]container_address['"]\s*,\s*([^,]+?)\s*,\s*([^,)]+?)\s*[,)]"""
+    r"""lookup\(\s*['"]container_address['"]\s*,\s*([^,]+?)\s*,\s*([^,)]+?)\s*"""
+    r"""(?:(,\s*instance\s*=)|[,)])"""
 )
 _LITERAL = re.compile(r"""^['"]([^'"]+)['"]$""")
 
@@ -104,8 +105,9 @@ class TestContainerAddressRequiresServiceName(unittest.TestCase):
                     key = _resolve_key(match.group(2), app)
                     if key is None:
                         continue
+                    check = _service_entry if match.group(3) else _resolve_bare_name
                     try:
-                        _resolve_bare_name(apps, app, key)
+                        check(apps, app, key)
                     except AnsibleError as exc:
                         if is_suppressed_at(
                             lines, idx + 1, _RULE, mode="same-or-above"
