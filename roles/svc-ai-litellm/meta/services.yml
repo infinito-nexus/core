@@ -18,6 +18,13 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  validation:
+    workers: 3
+    max_output_tokens: 512
+  consumer_validation:
+    retries: 2
+    delay: 60
+    max_delay: 120
   router:
     alias: auto
     remote_fallback: false

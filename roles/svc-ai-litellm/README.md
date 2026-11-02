@@ -18,3 +18,89 @@ This role deploys LiteLLM as a shared gateway container in Compose and Swarm dep
 - **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
 - **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.
+
+## Provider validation during setup
+
+Remote declarations may set an explicit `api_base`. Such entries must also set
+`traits.local` to a boolean: a remote URL must not be inferred to be a local
+backend just because it has an explicit endpoint.
+
+For OpenRouter's own router IDs, use the OpenAI-compatible transport:
+
+```yaml
+- alias: openrouter/free
+  model: openai/openrouter/free
+  provider: openrouter
+  api_base: https://openrouter.ai/api/v1
+  traits:
+    local: false
+```
+
+LiteLLM 1.77.7 resolves the provider before translating Messages requests and
+again before making the completion. Its provider resolver strips a matching
+prefix on each pass, so `openrouter/openrouter/free` loses part of the upstream
+model ID. Using the OpenAI transport preserves `openrouter/free` across both
+passes. `provider: openrouter` still selects `OPENROUTER_API_KEY`, and the
+explicit endpoint sends the request to OpenRouter. The provider validation uses
+the same endpoint as the rendered route. The client-facing alias is unchanged.
+
+`tasks/utils/validate_providers.yml` validates every declared remote model whose provider
+has a configured key, after the gateway container starts and before consumers
+are provisioned. It reads the actual provider key from that container and sends
+a direct provider request through the installed LiteLLM SDK, without the gateway
+router or its fallbacks. Missing keys, authentication failures, insufficient
+credit, denied access, unavailable models and rate limits fail the deploy.
+Providers without keys and mock models are excluded.
+
+Each check requires a nonempty text answer and requests at most
+`services.litellm.validation.max_output_tokens` (512) output tokens. This allows
+reasoning models to produce visible text after their internal reasoning and
+can incur an API charge. Provider checks run concurrently in isolated Python
+processes, keeping each SDK's redirected output and logging independent.
+It uses `services.litellm.upstream_timeout` and does not retry failed requests.
+Logs contain provider/model labels, HTTP status and a sanitized diagnostic;
+credentials and raw provider errors are never printed. A successful check proves
+that the key can make that model request at deploy time, not that future quota,
+availability or a large Claude conversation will fit. Subscription billing is
+separate and is not validated by these tasks.
+
+## Consumer validation during setup
+
+After provisioning consumer keys and warming the initial model,
+`tasks/utils/validate_consumers.yml` validates every registered consumer's own
+key against `/v1/models`, `/v1/chat/completions` and `/v1/messages`. Both inference
+formats are checked for each published chat-model alias, including enabled local
+backends and configured remote providers. Embedding aliases are excluded. With
+no chat models configured, authentication is still tested and the result marks
+inference as skipped. The automatic router alias is not added as a model probe.
+
+The checks use the real virtual keys, so they also detect gateway permissions,
+revoked keys, key budgets and translation failures that a direct provider check
+cannot detect. Every inference must return nonempty answer text in the expected
+protocol format without an error payload; an HTTP 200 or reasoning-only response
+is insufficient. Each inference uses the same configured output-token budget;
+the number of
+requests is two per consumer and chat model, plus a Responses API request to
+`/v1/responses` for each Codex model. Remote requests can incur API
+charges. `services.litellm.consumer_validation` configures bounded retries:
+`retries: 2`, `delay: 60` seconds and `max_delay: 120` seconds per wait. HTTP 429
+and adapter-wrapped HTTP 5xx responses explicitly reporting a rate limit or
+cooldown are retried. The validator honors numeric and HTTP-date `Retry-After`
+headers, waits at least the configured delay, and fails without an early retry
+when the requested wait exceeds `max_delay`. Recognized daily-quota exhaustion,
+authentication, credit and other permanent errors are not retried. Exhausted
+retries still fail deployment. Each result records attempts and seconds waited.
+Provider daily quotas remain shared across consumers; repeatedly redeploying a
+free model consumes that quota even when gateway keys are valid.
+
+`services.litellm.validation.workers` bounds concurrency to three requests by
+default. Authentication runs first; inference jobs for authenticated consumers
+then run in a thread pool. Results retain declaration order, and failures are
+reported after all jobs finish. Set workers to `1` for sequential checks.
+Concurrency does not increase provider quotas or reduce the number of probes.
+
+Keys travel on standard input in an unconditionally masked task. A following
+assertion exposes only sanitized results (consumer/model/endpoint, HTTP status,
+fixed error categories) and fails the deploy on any rejection. No key, response
+text or raw exception is logged. These checks prove gateway access, not that a
+running editor session has reloaded its connection configuration.

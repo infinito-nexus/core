@@ -76,6 +76,12 @@
   vars:
     compose_handlers_flush: true
 
+- name: "✅ Validate remote providers before configuring consumers"
+  ansible.builtin.include_tasks: utils/validate_providers.yml
+  when:
+    - IS_STACK_HOST | bool
+    - LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list | length > 0
+
 - name: "🔍 Build consumer key list"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.set_fact:

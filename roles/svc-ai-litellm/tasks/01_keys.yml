@@ -53,6 +53,9 @@
   delegate_to: "{{ LITELLM_HOST_NODE }}"
   when: LITELLM_CHAT_MODEL_SERVED | bool
 
+- name: "✅ Validate every consumer's actual gateway access"
+  ansible.builtin.include_tasks: utils/validate_consumers.yml
+
 - name: "⏱️ Rank the served models on measured generation speed"
   ansible.builtin.include_tasks: 02_speed.yml
   when:
