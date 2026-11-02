@@ -40,6 +40,8 @@ import os
 import sys
 from typing import Any
 
+from ansible.errors import AnsibleFilterError
+
 from utils import PROJECT_ROOT
 from utils.cache.applications import get_merged_applications, get_variants
 from utils.roles.applications.in_group_deps import applications_if_group_and_all_deps
@@ -47,6 +49,7 @@ from utils.roles.applications.services.registry import (
     TOPOLOGY_GATED_LOOKUPS,
     build_service_registry_from_applications,
 )
+from utils.sizes import to_bytes
 from utils.tests.swarm.force_shared_db import db_provider_service_keys, pinned_local_db
 
 _ROLES_DIR = PROJECT_ROOT / "roles"
@@ -335,7 +338,6 @@ def lightest_consumer(
     return best[2] if best else None
 
 
-_MEMORY_UNITS = {"": 1, "b": 1, "k": 1 << 10, "m": 1 << 20, "g": 1 << 30}
 _UNSIZED_CONTAINER = "256m"
 
 
@@ -361,15 +363,10 @@ def _own_memory_bytes(
         provider = (service_registry.get(key) or {}).get("role")
         if provider and provider != role:
             continue
-        raw = str(
-            entry.get("mem_reservation") or entry.get("mem_limit") or _UNSIZED_CONTAINER
-        )
-        text = raw.strip().lower().rstrip("b") or "0"
-        unit = text[-1] if text[-1] in "kmg" else ""
-        number = text[:-1] if unit else text
+        raw = entry.get("mem_reservation") or entry.get("mem_limit") or _UNSIZED_CONTAINER
         try:
-            total += int(float(number) * _MEMORY_UNITS[unit])
-        except ValueError:
+            total += to_bytes(str(raw)) or 0
+        except AnsibleFilterError:
             continue
     return total
 

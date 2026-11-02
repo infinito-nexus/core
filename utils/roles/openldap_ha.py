@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import hashlib
 import re
 from typing import TYPE_CHECKING
+
+from utils.roles.db.instances import DbInstancesError, host_hash, host_hash_map
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -33,8 +34,7 @@ def server_id(host_id: str) -> int:
     """
     if not host_id:
         raise OpenLDAPHAError("openldap_ha: host_id must be non-empty")
-    digest = hashlib.sha256(host_id.encode()).hexdigest()
-    return int(digest, 16) % SERVER_ID_MAX + 1
+    return host_hash(host_id, SERVER_ID_MAX)
 
 
 def server_ids(host_ids: Iterable[str]) -> dict[str, int]:
@@ -43,20 +43,10 @@ def server_ids(host_ids: Iterable[str]) -> dict[str, int]:
     Args:
         host_ids: host-ids of every instance in the engine group.
     """
-    found: dict[int, str] = {}
-    result: dict[str, int] = {}
-    for host_id in host_ids:
-        if host_id in result:
-            raise OpenLDAPHAError(f"openldap_ha: host-id '{host_id}' listed twice")
-        value = server_id(host_id)
-        if value in found:
-            raise OpenLDAPHAError(
-                f"openldap_ha: hosts '{found[value]}' and '{host_id}' collide on "
-                f"olcServerID {value}; rename one host"
-            )
-        found[value] = host_id
-        result[host_id] = value
-    return result
+    try:
+        return host_hash_map(host_ids, server_id)
+    except DbInstancesError as exc:
+        raise OpenLDAPHAError(f"openldap_ha olcServerID: {exc}") from exc
 
 
 def _entry(dn: str, *lines: str) -> str:

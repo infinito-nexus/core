@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from typing import TYPE_CHECKING
 
@@ -13,7 +14,7 @@ from utils.roles.meta_lookup import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Mapping, Sequence
 
 SWARM_NODE_GROUP = "svc-swarm-node"
 FORM_STANDALONE = "standalone"
@@ -235,6 +236,46 @@ def build_instances(
             "losing either host stops writes. List 3 hosts for HA."
         )
     return {"form": FORM_HA, "instances": instances, "warnings": warnings, "ha": spec}
+
+
+def host_hash(host_id: str, maximum: int) -> int:
+    """Map a host-id to a stable integer in 1..maximum.
+
+    Args:
+        host_id: sanitized host id of an instance.
+        maximum: largest value the engine accepts.
+    """
+    if not host_id:
+        raise DbInstancesError("db_instances: host_id must be non-empty")
+    return int(hashlib.sha256(host_id.encode()).hexdigest(), 16) % maximum + 1
+
+
+def host_hash_map(
+    host_ids: Iterable[str], derive: Callable[[str], int]
+) -> dict[str, int]:
+    """Return ``{host_id: derive(host_id)}`` for every host of an engine group.
+
+    Args:
+        host_ids: host-ids of every instance in the group.
+        derive: per-host value, e.g. a server id built on :func:`host_hash`.
+
+    Raises:
+        DbInstancesError: a host is listed twice or two hosts share a value.
+    """
+    owners: dict[int, str] = {}
+    result: dict[str, int] = {}
+    for host_id in host_ids:
+        if host_id in result:
+            raise DbInstancesError(f"db_instances: host-id '{host_id}' listed twice")
+        value = derive(host_id)
+        if value in owners:
+            raise DbInstancesError(
+                f"db_instances: hosts '{owners[value]}' and '{host_id}' collide on "
+                f"id {value}; rename one host"
+            )
+        owners[value] = host_id
+        result[host_id] = value
+    return result
 
 
 def instance_service(

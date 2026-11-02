@@ -9,6 +9,8 @@ from utils.roles.db.instances import (
     engine_hosts,
     engine_word,
     ha_exposure_conflicts,
+    host_hash,
+    host_hash_map,
     instance_service,
     instance_volume_name,
     sanitize_host_id,
@@ -81,6 +83,23 @@ class TestHelpers(unittest.TestCase):
             instance_service("svc-db-redis", instance, "sentinel"),
             "redis-sentinel-mgr-02",
         )
+
+    def test_host_hash_is_stable_and_in_range(self):
+        self.assertEqual(host_hash("mgr-01", 4095), host_hash("mgr-01", 4095))
+        for index in range(200):
+            self.assertTrue(1 <= host_hash(f"h{index}", 7) <= 7)
+        with self.assertRaises(DbInstancesError):
+            host_hash("", 4095)
+
+    def test_host_hash_map_rejects_repeats_and_collisions(self):
+        self.assertEqual(
+            host_hash_map(["a", "b"], {"a": 1, "b": 2}.__getitem__), {"a": 1, "b": 2}
+        )
+        with self.assertRaises(DbInstancesError):
+            host_hash_map(["a", "a"], {"a": 1}.__getitem__)
+        with self.assertRaises(DbInstancesError) as ctx:
+            host_hash_map(["a", "b"], lambda _host: 3)
+        self.assertIn("'a' and 'b'", str(ctx.exception))
 
     def test_sidecar_of_a_standalone_instance_raises(self):
         model = build_instances("svc-db-redis", [], deployment_mode="swarm")

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import hashlib
 import ipaddress
 from typing import TYPE_CHECKING
+
+from utils.roles.db.instances import host_hash, host_hash_map
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -21,10 +22,7 @@ def mariadb_server_id(host_id: str) -> int:
     Returns:
         a stable integer in 1..4294967295 derived from a hash of *host_id*.
     """
-    if not host_id:
-        raise ValueError("mariadb_server_id: host_id must be non-empty")
-    digest = hashlib.sha256(str(host_id).encode()).digest()
-    return int.from_bytes(digest[:8], "big") % SERVER_ID_MAX + 1
+    return host_hash(str(host_id), SERVER_ID_MAX)
 
 
 def mariadb_server_ids(instances: Iterable[Mapping]) -> dict[str, int]:
@@ -36,19 +34,10 @@ def mariadb_server_ids(instances: Iterable[Mapping]) -> dict[str, int]:
     Raises:
         ValueError: two hosts of the group map to the same ``server_id``.
     """
-    result: dict[str, int] = {}
-    owners: dict[int, str] = {}
-    for instance in instances:
-        host_id = str(instance["host_id"])
-        server_id = mariadb_server_id(host_id)
-        if server_id in owners:
-            raise ValueError(
-                f"mariadb_server_ids: hosts '{owners[server_id]}' and "
-                f"'{host_id}' collide on server_id {server_id}"
-            )
-        owners[server_id] = host_id
-        result[host_id] = server_id
-    return result
+    return host_hash_map(
+        [str(instance["host_id"]) for instance in instances],
+        mariadb_server_id,
+    )
 
 
 def mariadb_sql_body(value) -> str:
