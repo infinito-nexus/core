@@ -242,7 +242,7 @@ The db topology axis is off by default because the HA lab (3 managers, 1 worker,
 Enable it with the `db_topology` dispatch input of `call-test-deploy.yml` or the `INFINITO_CI_DB_TOPOLOGY` repository variable.
 While it is off, the rows, rotations and labels are those of a run without the axis, and every entry still carries `db_topology` (empty) and `kill_primary` (`false`), because the deploy workflow reads both keys.
 While it is on, every swarm row carries `db_topology` (exported to the deploy as `INFINITO_SWARM_DB_TOPOLOGY`) and its glyph (`🔱` HA, `☝️` standalone) after the filesystem glyph.
-Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary-node probe.
+Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary probe: it kills the node that holds the database primary, or only the primary container when that node also runs the manager-pinned application or a node kill would cost the Raft quorum, and the drill log says which.
 An HA row is never meshed, whatever the vpn axis picks: the WireGuard mesh hangs off one `svc-swarm-manager` hub, and the HA lab runs three managers.
 On `sweep // 4` the axis never moves in lockstep with mode or tor, so a row walks all eight mode/tor/topology combinations over eight sweeps.
 It reads `position // 4` because the mode rotation puts every swarm row of a sweep on one position parity and the vpn axis reads `position // 2`, so one sweep deploys both topologies across its swarm rows.

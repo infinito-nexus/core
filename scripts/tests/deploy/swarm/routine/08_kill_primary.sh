@@ -200,30 +200,23 @@ pinned_tasks_running() {
 # Param: $1 node container, $2 pinned tasks it ran before the kill
 # `node ls` still reports a just-killed node Ready until swarm misses its
 # heartbeats, so the node counts as back only once its pinned tasks run again.
-# A restarted manager's agent can hang registering its session with a manager
-# that restarted shortly before; the node then stays Down with no task, so its
-# Docker daemon is restarted once halfway through the timeout.
 restart_node() {
-	local _deadline _kick _running
+	local _deadline _running
 	docker start "$1" >/dev/null
 	restore_name_files "$1"
 	_deadline=$(($(date +%s) + KILL_PRIMARY_TIMEOUT))
-	_kick=$(($(date +%s) + KILL_PRIMARY_TIMEOUT / 2))
 	while [ "$(date +%s)" -lt "${_deadline}" ]; do
 		_running=$(pinned_tasks_running "$1")
 		if [ "${_running}" -ge "$2" ]; then
 			echo "==> $1 rejoined the swarm and runs its ${_running} pinned tasks again"
 			return 0
 		fi
-		if [ -n "${_kick}" ] && [ "$(date +%s)" -ge "${_kick}" ]; then
-			echo "WARNING: $1 runs ${_running} of its $2 pinned tasks $((KILL_PRIMARY_TIMEOUT / 2))s after the restart (swarm agent session hang); restarting its Docker daemon"
-			docker exec "$1" systemctl restart docker
-			_kick=""
-		fi
 		sleep 3
 	done
 	echo "FAILURE: $1 runs ${_running} of its $2 pinned tasks ${KILL_PRIMARY_TIMEOUT}s after the restart"
 	docker exec "${CTL}" docker node ls
+	docker exec "$1" docker info --format '{{json .Swarm}}'
+	docker exec "$1" journalctl -u docker --no-pager -n 80
 	exit 1
 }
 

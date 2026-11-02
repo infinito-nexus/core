@@ -352,7 +352,7 @@ This requirement covers:
 - [ ] A unit test asserts that every pairing of the topology axis with tor, mode, distro and filesystem appears within N sweeps, and that every application gets an HA row.
 - [ ] Priority Swarm rows deploy both topologies.
 - [ ] The axis is switchable because runner resources are limited: off by default, enabled by a manual `workflow_dispatch` input and by a GitHub repository variable. When it is off, every Swarm row stays standalone on today's 1+2 lab.
-- [ ] HA rows add a probe to the application round: kill the node holding the database primary, then assert the application still responds.
+- [ ] HA rows add a probe to the application round: kill the node holding the database primary, then assert the application still responds. Where that node also runs the manager-pinned application, or a node kill would cost the Raft quorum, the probe kills the primary container instead and says so. A killed node that does not rejoin within the timeout fails the probe; nothing restarts its Docker daemon.
 
 #### The failover suite
 
