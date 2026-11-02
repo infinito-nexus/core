@@ -5,6 +5,7 @@
     lookup('db_instances', 'svc-db-postgres', legacy_volume_host='mgr-01')
     lookup('db_instances', coordination_store_needed=true)   # bool
     lookup('db_instances', coordination_store=true)          # role id of the store
+    lookup('db_instances', ha_engines=true)                  # [role id], sorted
     lookup('db_instances', primary_probes=true)              # [{"name", "src"}]
     lookup('db_instances', 'svc-db-openldap', exposure_conflicts=true)  # [str]
 
@@ -33,6 +34,7 @@ from utils.roles.db.instances import (
     coordination_store,
     coordination_store_needed,
     engine_hosts,
+    ha_engines,
     ha_exposure_conflicts,
     primary_probes,
 )
@@ -69,6 +71,8 @@ class LookupModule(LookupBase):
                 return [coordination_store_needed(groups, mode)]
             if kwargs.get("coordination_store"):
                 return [coordination_store()]
+            if kwargs.get("ha_engines"):
+                return [sorted(ha_engines())]
             if kwargs.get("primary_probes"):
                 return [primary_probes()]
             if kwargs.get("exposure_conflicts"):

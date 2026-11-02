@@ -172,6 +172,19 @@ def get_role_ha(role: PathLike, *, role_name: str | None = None) -> dict:
     return raw
 
 
+def get_role_service_keys(
+    role: PathLike, *, role_name: str | None = None
+) -> frozenset[str]:
+    """Return the top-level entity keys of the role's ``meta/services.yml``.
+
+    Args:
+        role: role name (relative to ``roles/``) or absolute role directory.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+    """
+    role_dir, _name = _resolve_role(role, role_name)
+    return frozenset(_read_meta_services(role_dir) or {})
+
+
 def get_role_ports(role: PathLike, scope: str, *, role_name: str | None = None) -> dict:
     """Return ``ports.<scope>`` of the role's primary entity, or ``{}``.
 

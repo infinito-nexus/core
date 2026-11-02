@@ -28,19 +28,18 @@
   ansible.builtin.command: "docker node rm {{ _forget_node_plan.node | quote }}"
   changed_when: true
 
-- name: "🗑️ Forget node | Remove its etcd member"
+- name: "🗑️ Forget node | Let every HA engine drop the lost node"
   ansible.builtin.include_role:
-    name: svc-dcs-etcd
-    tasks_from: forget_member.yml
+    name: "{{ forget_engine }}"
+    tasks_from: utils/forget.yml
   vars:
-    application_id: svc-dcs-etcd
-    etcd_forget_member: "{{ _forget_node_plan.etcd_member }}"
-  when: lookup('db_instances', coordination_store_needed=true) | bool
-
-- name: "🔄 Forget node | Reset the Redis Sentinels"
-  ansible.builtin.include_role:
-    name: svc-db-redis
-    tasks_from: sentinel_reset.yml
-  vars:
-    application_id: svc-db-redis
-  when: lookup('db_instances', 'svc-db-redis').form == 'ha'
+    application_id: "{{ forget_engine }}"
+    forget_node_plan: "{{ _forget_node_plan }}"
+  loop: "{{ lookup('db_instances', ha_engines=true) }}"
+  loop_control:
+    loop_var: forget_engine
+  when:
+    - lookup('path_absolute', 'roles/' ~ forget_engine ~ '/tasks/utils/forget.yml') is file
+    - lookup('db_instances', forget_engine).form == 'ha'
+    - not lookup('db_instances', forget_engine).ha.coordination_store
+      or lookup('db_instances', coordination_store_needed=true)

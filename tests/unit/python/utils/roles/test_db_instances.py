@@ -220,6 +220,13 @@ class TestCoordinationStore(unittest.TestCase):
         }
         self.assertFalse(coordination_store_needed(groups, "swarm"))
 
+    def test_redis_alone_does_not_need_the_store(self):
+        groups = {
+            "svc-swarm-node": NODES,
+            "svc-db-redis": ["mgr-01", "mgr-02", "mgr-03"],
+        }
+        self.assertFalse(coordination_store_needed(groups, "swarm"))
+
     def test_never_needed_outside_swarm(self):
         groups = {"svc-db-postgres": ["mgr-01", "mgr-02", "mgr-03"]}
         self.assertFalse(coordination_store_needed(groups, "compose"))

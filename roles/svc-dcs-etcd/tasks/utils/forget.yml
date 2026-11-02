@@ -1,5 +1,5 @@
 ---
-# Param: etcd_forget_member - member name of the forgotten host, etcd-<host-id>
+# Param: forget_node_plan - plan of the forgotten node; its etcd_member names the member, etcd-<host-id>
 - name: "🔍 ETCD | Ask each remaining member for the member list"
   ansible.builtin.shell: >
     container exec -e ETCDCTL_USER
@@ -21,7 +21,7 @@
     etcd_forget_live: "{{ _live }}"
     etcd_forget_ids: >-
       {{ (_live.stdout_lines | default([]))
-         | select('search', '://' ~ etcd_forget_member ~ ':')
+         | select('search', '://' ~ forget_node_plan.etcd_member ~ ':')
          | map('split', ', ') | map(attribute=0) | list }}
   vars:
     _live: "{{ etcd_forget_probe.results | selectattr('rc', 'equalto', 0) | list | first | default({}) }}"
@@ -30,7 +30,7 @@
   ansible.builtin.assert:
     that:
       - etcd_forget_live | length > 0
-    fail_msg: "No remaining etcd member answered; cannot remove {{ etcd_forget_member }}."
+    fail_msg: "No remaining etcd member answered; cannot remove {{ forget_node_plan.etcd_member }}."
 
 - name: "🗑️ ETCD | Remove the forgotten member"
   ansible.builtin.shell: >

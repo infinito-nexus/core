@@ -11,7 +11,11 @@ import re
 from typing import TYPE_CHECKING
 
 from utils.roles.entity.name import get_entity_name
-from utils.roles.meta_lookup import get_role_ha, iter_roles_with_ha
+from utils.roles.meta_lookup import (
+    get_role_ha,
+    get_role_service_keys,
+    iter_roles_with_ha,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -36,6 +40,13 @@ def data_engines() -> frozenset[str]:
     """Return the HA-capable engines that hold data, i.e. all but the
     coordination store."""
     return frozenset(r for r in ha_engines() if not ha_spec(r)["coordination_store"])
+
+
+def coordinated_engines() -> frozenset[str]:
+    """Return the data engines that declare the coordination store's
+    service in their ``meta/services.yml``, i.e. the ones that use it."""
+    store = get_entity_name(coordination_store())
+    return frozenset(r for r in data_engines() if store in get_role_service_keys(r))
 
 
 def coordination_store() -> str:
@@ -295,7 +306,8 @@ def departed_instance_services(
 def coordination_store_needed(
     groups: Mapping[str, Sequence[str]], deployment_mode: str
 ) -> bool:
-    """Return True when at least one data engine renders its HA form.
+    """Return True when at least one engine that uses the coordination
+    store renders its HA form.
 
     Args:
         groups: Ansible ``groups``.
@@ -310,5 +322,5 @@ def coordination_store_needed(
             swarm_nodes=nodes,
         )["form"]
         == FORM_HA
-        for engine in sorted(data_engines())
+        for engine in sorted(coordinated_engines())
     )
