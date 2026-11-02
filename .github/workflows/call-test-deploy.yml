@@ -363,6 +363,11 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
+      - name: "📈 Record runner load during the drill"
+        if: ${{ matrix.mode == 'swarm' }}
+        shell: bash
+        run: ./scripts/tests/deploy/ci/runner-load.sh start /tmp/runner-load.log
+
       - name: "🚀 Drill ${{ matrix.apps }} on ${{ matrix.distro }}/${{ matrix.filesystem }}"
         if: ${{ matrix.mode == 'swarm' }}
         shell: bash
@@ -388,6 +393,11 @@ jobs:
         if: ${{ always() && matrix.mode != 'swarm' }}
         shell: bash
         run: ./scripts/tests/deploy/ci/assert_no_deprecation_warnings.sh "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: "📈 Runner load during the drill"
+        if: ${{ always() && matrix.mode == 'swarm' }}
+        shell: bash
+        run: ./scripts/tests/deploy/ci/runner-load.sh report /tmp/runner-load.log | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: "🗄️ Effective node filesystems"
         if: ${{ always() && matrix.mode == 'swarm' }}
