@@ -8,22 +8,24 @@
 - name: "📄 REDIS | Render the Ansible-owned include"
   stack_host_template:
     src: infinito.conf.j2
-    dest: "{{ [REDIS_HA_DIR, 'infinito.conf'] | path_join }}"
+    dest: "{{ lookup('volume', application_id, 'ha_include', field='source') }}"
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 REDIS | Write the Sentinel password file"
   stack_host_copy:
     content: "{{ REDIS_SENTINEL_PASSWORD }}"
-    dest: "{{ [REDIS_HA_DIR, 'sentinel.pass'] | path_join }}"
+    dest: "{{ lookup('volume', application_id, 'sentinel_password', field='source') }}"
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📄 REDIS | Copy the instance and Sentinel start-up wrappers"
   stack_host_copy:
-    src: "shell/{{ item }}"
-    dest: "{{ [REDIS_HA_DIR, item] | path_join }}"
+    src: "shell/{{ item.file }}"
+    dest: "{{ lookup('volume', application_id, item.volume, field='source') }}"
     mode: "0644"
   loop:
-    - ha_start.sh
-    - sentinel_start.sh
+    - { file: ha_start.sh, volume: ha_start }
+    - { file: sentinel_start.sh, volume: sentinel_start }
+  loop_control:
+    label: "{{ item.file }}"

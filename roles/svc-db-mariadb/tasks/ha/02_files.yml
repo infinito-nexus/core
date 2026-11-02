@@ -11,34 +11,34 @@
 - name: "📄 MariaDB HA | Render the server profile"
   stack_host_template:
     src: ha/server.cnf.j2
-    dest: "{{ [MARIADB_HA_DIR, 'ha-server.cnf'] | path_join }}"
+    dest: "{{ lookup('volume', application_id, 'ha_server_cnf', field='source') }}"
     mode: "0644"
 
 - name: "🔑 MariaDB HA | Render the root and elector option files"
   stack_host_template:
     src: ha/client.cnf.j2
-    dest: "{{ [MARIADB_HA_DIR, item.file] | path_join }}"
+    dest: "{{ lookup('volume', application_id, item.volume, field='source') }}"
     mode: "0600"
   vars:
     ha_client_user: "{{ item.user }}"
     ha_client_password: "{{ item.password }}"
   loop:
-    - { file: root.cnf, user: root, password: "{{ MARIADB_ROOT_PWD }}" }
-    - { file: elector.cnf, user: "{{ MARIADB_ELECTOR_USER }}", password: "{{ MARIADB_ELECTOR_PWD }}" }
+    - { volume: ha_root_cnf, user: root, password: "{{ MARIADB_ROOT_PWD }}" }
+    - { volume: ha_elector_cnf, user: "{{ MARIADB_ELECTOR_USER }}", password: "{{ MARIADB_ELECTOR_PWD }}" }
   loop_control:
-    label: "{{ item.file }}"
+    label: "{{ item.volume }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔑 MariaDB HA | Write the replication and etcd password files"
   stack_host_copy:
     content: "{{ item.password }}"
-    dest: "{{ [MARIADB_HA_DIR, item.file] | path_join }}"
+    dest: "{{ lookup('volume', application_id, item.volume, field='source') }}"
     mode: "0600"
   loop:
-    - { file: replication.password, password: "{{ MARIADB_REPLICATION_PWD }}" }
-    - { file: etcd.password, password: "{{ MARIADB_ELECTOR_ETCD_PWD }}" }
+    - { volume: ha_replication_password, password: "{{ MARIADB_REPLICATION_PWD }}" }
+    - { volume: ha_etcd_password, password: "{{ MARIADB_ELECTOR_ETCD_PWD }}" }
   loop_control:
-    label: "{{ item.file }}"
+    label: "{{ item.volume }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📦 MariaDB HA | Copy the writer elector into the build context"

@@ -1,7 +1,7 @@
 ---
 - name: "📖 MariaDB HA | Read the root option file the running cluster was given"
   ansible.builtin.slurp: # nocheck: stack-host-consumer (00_core includes this file only when IS_STACK_HOST)
-    src: "{{ [MARIADB_HA_DIR, 'root.cnf'] | path_join }}"
+    src: "{{ lookup('volume', application_id, 'ha_root_cnf', field='source') }}"
   register: _mariadb_previous_root_cnf
   failed_when: false
 

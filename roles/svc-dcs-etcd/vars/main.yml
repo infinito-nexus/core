@@ -14,13 +14,13 @@ ETCD_VERSION: "{{ lookup('config', application_id, 'services.etcd.version') }}"
 ETCD_UID: "{{ lookup('volume', application_id, 'tls_key').uid }}"
 
 ETCD_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
-ETCD_TLS_DIR: "{{ [ETCD_CONFIG_DIR, 'tls'] | path_join }}"
+ETCD_TLS_CA_CERT: "{{ lookup('volume', application_id, 'tls_ca', field='source') }}"
+ETCD_TLS_CERT: "{{ lookup('volume', application_id, 'tls_cert', field='source') }}"
+ETCD_TLS_KEY: "{{ lookup('volume', application_id, 'tls_key', field='source') }}"
+ETCD_TLS_DIR: "{{ ETCD_TLS_CA_CERT | dirname }}"
 ETCD_SECRETS_DIR: "{{ [ETCD_CONFIG_DIR, 'secrets'] | path_join }}"
 ETCD_TLS_CA_KEY: "{{ [ETCD_TLS_DIR, 'ca.key'] | path_join }}"
-ETCD_TLS_CA_CERT: "{{ [ETCD_TLS_DIR, 'ca.crt'] | path_join }}"
-ETCD_TLS_KEY: "{{ [ETCD_TLS_DIR, 'etcd.key'] | path_join }}"
 ETCD_TLS_CSR: "{{ [ETCD_TLS_DIR, 'etcd.csr'] | path_join }}"
-ETCD_TLS_CERT: "{{ [ETCD_TLS_DIR, 'etcd.crt'] | path_join }}"
 ETCD_TLS_CONF: "{{ [ETCD_TLS_DIR, 'etcd.cnf'] | path_join }}"
 ETCD_TLS_DAYS: 3650
 ETCD_TLS_KEY_BITS: 4096

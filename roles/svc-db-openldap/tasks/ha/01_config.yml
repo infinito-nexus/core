@@ -18,7 +18,7 @@
            LDAP.DN.ROOT,
            OPENLDAP_BIND_DN,
            OPENLDAP_SCHEMAS) }}
-    dest: "{{ [OPENLDAP_HA_CN_CONFIG_DIR, item ~ '.ldif'] | path_join }}"
+    dest: "{{ OPENLDAP_HA_CN_CONFIG_SOURCE | replace('{host_id}', item) }}"
     mode: "0644"
   loop: "{{ OPENLDAP_HA_HOST_IDS }}"
 
