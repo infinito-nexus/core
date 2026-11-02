@@ -146,9 +146,7 @@ def receive(
         while True:
             conn, peer = server.accept()
             with conn:
-                if not authenticated(conn, secret) or not proved_receiver(
-                    conn, secret
-                ):
+                if not authenticated(conn, secret) or not proved_receiver(conn, secret):
                     sys.stderr.write(
                         f"seed_relay: rejected unauthenticated peer {peer[0]}\n"
                     )
