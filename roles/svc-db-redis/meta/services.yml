@@ -37,8 +37,6 @@ redis:
       check: redis
   lifecycle: beta
 sentinel:
-  image: redis
-  version: 8.10.2-alpine
   backup:
     disabled: true
   cpus: "0.1"

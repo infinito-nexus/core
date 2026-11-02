@@ -54,9 +54,9 @@
   {% for db_instance in _db.instances %}
   {% set service_name = 'sentinel' %}
   {% set _self = entity_name ~ '-sentinel-' ~ db_instance.host_id %}
-  {# nocheck: compose-structure  one Sentinel per instance host, keyed by host; image, sizing and mounts come from the `sentinel` meta entry #}
+  {# nocheck: compose-structure  one Sentinel per instance host, keyed by host; it runs the redis image, sizing and mounts come from the `sentinel` meta entry #}
   {{ _self }}:
-    {{ lookup('container_image', application_id, 'sentinel') }}
+    {{ lookup('container_image', application_id, 'redis') }}
     command: ["sh", "{{ REDIS_SENTINEL_START }}"]
     user: redis
     read_only: true

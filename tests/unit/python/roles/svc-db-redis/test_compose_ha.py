@@ -105,8 +105,9 @@ class TestRedisComposeHa(unittest.TestCase):
         )
 
     def test_sentinels_announce_themselves_and_know_their_peers(self):
-        sentinel = _render(HOSTS)["redis-sentinel-mgr-03"]
-        self.assertEqual(sentinel["image"], "redis-sentinel")
+        services = _render(HOSTS)
+        sentinel = services["redis-sentinel-mgr-03"]
+        self.assertEqual(sentinel["image"], services["redis-mgr-03"]["image"])
         self.assertTrue(sentinel["read_only"])
         env = sentinel["environment"]
         self.assertEqual(env["SENTINEL_SELF"], "redis-sentinel-mgr-03")
