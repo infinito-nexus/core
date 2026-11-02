@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import socket
+import struct
 import tempfile
 import threading
 import unittest
@@ -104,6 +105,27 @@ class TestSeedRelay(unittest.TestCase):
             )
         thread.join(timeout=5)
         self.assertEqual(bytes(got), b"")
+
+    def test_a_receiver_that_resets_after_the_answer_is_a_rejection(self):
+        port = _free_port()
+
+        def resetting_receiver():
+            with socket.create_server(("127.0.0.1", port)) as server:
+                conn, _ = server.accept()
+                conn.sendall(b"n" * seed_relay.NONCE_BYTES)
+                seed_relay.read_exact(conn, seed_relay.DIGEST_BYTES)
+                conn.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0)
+                )
+                conn.close()
+
+        thread = threading.Thread(target=resetting_receiver, daemon=True)
+        thread.start()
+        with self.assertRaises(seed_relay.ReceiverRejectedError):
+            seed_relay.send(
+                "127.0.0.1", port, io.BytesIO(b"backup"), SECRET, delay=0.05
+            )
+        thread.join(timeout=5)
 
     def test_send_gives_up(self):
         with self.assertRaises(ConnectionError):

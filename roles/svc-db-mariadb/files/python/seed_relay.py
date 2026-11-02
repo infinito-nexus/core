@@ -184,13 +184,16 @@ def send(
                     "seed_relay: receiver closed before its challenge"
                 )
             conn.sendall(answer(secret, nonce))
-            challenge = secrets.token_bytes(NONCE_BYTES)
-            conn.sendall(challenge)
-            reply = read_exact(conn, DIGEST_BYTES)
         except OSError as error:
             last = error
             time.sleep(delay)
             continue
+        challenge = secrets.token_bytes(NONCE_BYTES)
+        try:
+            conn.sendall(challenge)
+            reply = read_exact(conn, DIGEST_BYTES)
+        except OSError:
+            reply = b""
         if not hmac.compare_digest(reply, answer(secret, RECEIVER_LABEL + challenge)):
             conn.close()
             raise ReceiverRejectedError(
