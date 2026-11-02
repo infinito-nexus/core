@@ -13,10 +13,9 @@ import re
 from typing import TYPE_CHECKING
 
 from utils.roles.db.instances import engine_word, ha_spec
-from utils.roles.meta_lookup import get_role_ports
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
 CHECK_TIMEOUT_DEFAULT = 1
 CHECK_FALL_DEFAULT = 3
@@ -38,11 +37,13 @@ class DbEndpointError(ValueError):
     pass
 
 
-def endpoint_settings(application_id: str) -> dict:
+def endpoint_settings(application_id: str, ports: Mapping[str, int]) -> dict:
     """Resolve one engine's ``ha.endpoint`` against its ``ports.internal``.
 
     Args:
         application_id: HA-capable engine role, e.g. ``svc-db-openldap``.
+        ports: the engine's merged ``ports.internal``, inventory overrides
+            included, so HAProxy and the instances agree on every port.
 
     Returns:
         ``{"engine", "port", "backend_port", "check", "check_port",
@@ -56,7 +57,6 @@ def endpoint_settings(application_id: str) -> dict:
         raise DbEndpointError(
             f"db_endpoint: {application_id} declares no ha.endpoint in meta/services.yml"
         )
-    ports = get_role_ports(application_id, "internal")
 
     def _port(field: str) -> int:
         key = endpoint.get(field)

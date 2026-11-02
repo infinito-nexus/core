@@ -34,7 +34,7 @@ class TestEndpointSettings(unittest.TestCase):
     def test_postgres_reads_its_ports_from_meta(self):
         ports = _ports("svc-db-postgres")
         self.assertEqual(
-            endpoint_settings("svc-db-postgres"),
+            endpoint_settings("svc-db-postgres", _ports("svc-db-postgres")),
             {
                 "engine": "postgres",
                 "port": ports["postgres"],
@@ -49,26 +49,26 @@ class TestEndpointSettings(unittest.TestCase):
 
     def test_engines_without_a_declared_grace_keep_the_defaults(self):
         for role in ("svc-db-mariadb", "svc-db-openldap", "svc-db-redis"):
-            settings = endpoint_settings(role)
+            settings = endpoint_settings(role, _ports(role))
             self.assertEqual(settings["check_timeout"], 1, role)
             self.assertEqual(settings["check_fall"], 3, role)
 
     def test_openldap_routes_to_the_instance_port(self):
         ports = _ports("svc-db-openldap")
-        settings = endpoint_settings("svc-db-openldap")
+        settings = endpoint_settings("svc-db-openldap", _ports("svc-db-openldap"))
         self.assertEqual(settings["port"], ports["ldap"])
         self.assertEqual(settings["backend_port"], ports["instance"])
         self.assertEqual(settings["check_port"], ports["writer"])
 
     def test_redis_check_has_no_http_fields(self):
-        settings = endpoint_settings("svc-db-redis")
+        settings = endpoint_settings("svc-db-redis", _ports("svc-db-redis"))
         self.assertEqual(settings["check"], "redis")
         self.assertIsNone(settings["check_port"])
         self.assertIsNone(settings["check_path"])
 
     def test_engine_without_endpoint_raises(self):
         with self.assertRaises(DbEndpointError):
-            endpoint_settings("svc-dcs-etcd")
+            endpoint_settings("svc-dcs-etcd", _ports("svc-dcs-etcd"))
 
 
 class TestUnprivilegedPortStart(unittest.TestCase):
@@ -92,7 +92,8 @@ class TestKeepalive(unittest.TestCase):
 
     def test_haproxy_sends_keepalives_on_both_legs(self):
         cfg = render_haproxy_cfg(
-            endpoint_settings("svc-db-postgres"), [{"service": "postgres-m1"}]
+            endpoint_settings("svc-db-postgres", _ports("svc-db-postgres")),
+            [{"service": "postgres-m1"}],
         )
         self.assertIn("    option clitcpka\n", cfg)
         self.assertIn("    option srvtcpka\n", cfg)
@@ -102,7 +103,8 @@ class TestPostgres(unittest.TestCase):
     def setUp(self):
         self.ports = _ports("svc-db-postgres")
         self.cfg = render_haproxy_cfg(
-            endpoint_settings("svc-db-postgres"), _instances("postgres")
+            endpoint_settings("svc-db-postgres", _ports("svc-db-postgres")),
+            _instances("postgres"),
         )
 
     def test_server_lines(self):
@@ -130,7 +132,8 @@ class TestElectorEngines(unittest.TestCase):
     def test_mariadb(self):
         ports = _ports("svc-db-mariadb")
         cfg = render_haproxy_cfg(
-            endpoint_settings("svc-db-mariadb"), _instances("mariadb")
+            endpoint_settings("svc-db-mariadb", _ports("svc-db-mariadb")),
+            _instances("mariadb"),
         )
         self.assertIn("    option httpchk GET /writer\n", cfg)
         self.assertIn("    timeout check 1s\n", cfg)
@@ -144,7 +147,8 @@ class TestElectorEngines(unittest.TestCase):
     def test_openldap_routes_ldap_to_slapd_instance_port(self):
         ports = _ports("svc-db-openldap")
         cfg = render_haproxy_cfg(
-            endpoint_settings("svc-db-openldap"), _instances("openldap")
+            endpoint_settings("svc-db-openldap", _ports("svc-db-openldap")),
+            _instances("openldap"),
         )
         self.assertIn("    option httpchk GET /writer\n", cfg)
         self.assertIn(f"    bind :{ports['ldap']}\n", cfg)
@@ -155,14 +159,17 @@ class TestElectorEngines(unittest.TestCase):
         )
 
     def test_http_check_needs_port_and_path(self):
-        settings = {**endpoint_settings("svc-db-mariadb"), "check_port": None}
+        settings = {
+            **endpoint_settings("svc-db-mariadb", _ports("svc-db-mariadb")),
+            "check_port": None,
+        }
         with self.assertRaises(DbEndpointError):
             render_haproxy_cfg(settings, _instances("mariadb"))
 
 
 class TestRedis(unittest.TestCase):
     def setUp(self):
-        self.settings = endpoint_settings("svc-db-redis")
+        self.settings = endpoint_settings("svc-db-redis", _ports("svc-db-redis"))
         self.cfg = render_haproxy_cfg(
             self.settings,
             _instances("redis"),
@@ -202,13 +209,18 @@ class TestRedis(unittest.TestCase):
 
 class TestErrors(unittest.TestCase):
     def test_unknown_check(self):
-        settings = {**endpoint_settings("svc-db-redis"), "check": "tcp"}
+        settings = {
+            **endpoint_settings("svc-db-redis", _ports("svc-db-redis")),
+            "check": "tcp",
+        }
         with self.assertRaises(DbEndpointError):
             render_haproxy_cfg(settings, _instances("redis"))
 
     def test_no_instances(self):
         with self.assertRaises(DbEndpointError):
-            render_haproxy_cfg(endpoint_settings("svc-db-postgres"), [])
+            render_haproxy_cfg(
+                endpoint_settings("svc-db-postgres", _ports("svc-db-postgres")), []
+            )
 
 
 if __name__ == "__main__":

@@ -1,18 +1,49 @@
 import unittest
+from unittest import mock
 
 from ansible.errors import AnsibleError
 
+from plugins.lookup import db_endpoint
 from plugins.lookup.db_endpoint import LookupModule
 from utils.roles.db.endpoint import KEEPALIVE_SYSCTLS
+from utils.roles.db.instances import engine_word
 from utils.roles.meta_lookup import get_role_ports
 
 HOSTS = ["m1", "m2", "m3"]
+ENGINES = (
+    "svc-db-postgres",
+    "svc-db-mariadb",
+    "svc-db-redis",
+    "svc-db-openldap",
+    "svc-dcs-etcd",
+)
 
 
-def _run(terms, kwargs=None, **variables):
+def _applications(overrides=None):
+    applications = {
+        app: {
+            "services": {
+                engine_word(app): {
+                    "ports": {"internal": dict(get_role_ports(app, "internal"))}
+                }
+            }
+        }
+        for app in ENGINES
+    }
+    for app, ports in (overrides or {}).items():
+        applications[app]["services"][engine_word(app)]["ports"]["internal"].update(
+            ports
+        )
+    return applications
+
+
+def _run(terms, kwargs=None, ports=None, **variables):
     lookup = LookupModule()
     lookup._templar = None
-    return lookup.run(terms, variables=variables, **(kwargs or {}))[0]
+    loader = mock.Mock()
+    loader.get.return_value.run.return_value = [_applications(ports)]
+    with mock.patch.object(db_endpoint, "lookup_loader", loader):
+        return lookup.run(terms, variables=variables, **(kwargs or {}))[0]
 
 
 class TestDbEndpointLookup(unittest.TestCase):
@@ -40,6 +71,16 @@ class TestDbEndpointLookup(unittest.TestCase):
             f"server mariadb-m1 mariadb-m1:{ports['mariadb']} check port {ports['writer']} ",
             cfg,
         )
+
+    def test_an_inventory_port_override_reaches_haproxy(self):
+        cfg = _run(
+            ["svc-db-postgres"],
+            ports={"svc-db-postgres": {"postgres": 6543}},
+            DEPLOYMENT_MODE="swarm",
+            groups={"svc-db-postgres": HOSTS, "svc-swarm-node": HOSTS},
+        )
+        self.assertIn("server postgres-m1 postgres-m1:6543 ", cfg)
+        self.assertIn("bind :6543", cfg)
 
     def test_redis_check_user_and_password(self):
         cfg = _run(

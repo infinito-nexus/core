@@ -18,6 +18,7 @@ import contextlib
 from typing import Any
 
 from ansible.errors import AnsibleError
+from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.lookup.db_instances import LookupModule as DbInstancesLookup
@@ -27,7 +28,7 @@ from utils.roles.db.endpoint import (
     endpoint_sysctls,
     render_haproxy_cfg,
 )
-from utils.roles.db.instances import FORM_HA, DbInstancesError
+from utils.roles.db.instances import FORM_HA, DbInstancesError, engine_word
 
 _FIELDS = (None, "sysctls")
 
@@ -55,8 +56,23 @@ class LookupModule(LookupBase):
                 app_id = templar.template(app_id)
         app_id = str(app_id)
 
+        applications = lookup_loader.get(
+            "applications",
+            loader=getattr(self, "_loader", None),
+            templar=templar,
+        ).run([], variables=vars_)[0]
         try:
-            settings = endpoint_settings(app_id)
+            entity = engine_word(app_id)
+            ports = applications[app_id]["services"][entity]["ports"]["internal"]
+        except DbInstancesError as exc:
+            raise AnsibleError(str(exc)) from exc
+        except (KeyError, TypeError) as exc:
+            raise AnsibleError(
+                f"db_endpoint: {app_id} has no services.<engine>.ports.internal in its "
+                "merged configuration"
+            ) from exc
+        try:
+            settings = endpoint_settings(app_id, ports)
         except (DbEndpointError, DbInstancesError) as exc:
             raise AnsibleError(str(exc)) from exc
 
