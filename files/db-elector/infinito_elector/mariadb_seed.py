@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
     from .mariadb import MariaDBRole
 
-SEED_RELAY = "/opt/infinito/seed_relay.py"
 BACKUP_DIR = "/tmp/infinito-reseed"  # noqa: S108 - mariadb-backup's scratch dir inside the container
 BINLOG_INFO = "/var/lib/mysql/mariadb_backup_binlog_info"
 TOKEN_WINDOW_SECONDS = 60
@@ -87,6 +86,7 @@ class Donor:
         role: the local instance, asked whether it may donate.
         secret_file: file holding the shared seed secret.
         seed_port: port the requesting instance receives the stream on.
+        seed_relay: path of ``seed_relay.py`` in the image.
         user: local SQL user ``mariadb-backup`` connects as.
         socket: the local server socket.
         popen: process factory, injectable for tests.
@@ -99,6 +99,7 @@ class Donor:
         role: MariaDBRole,
         secret_file: str,
         seed_port: int,
+        seed_relay: str,
         user: str,
         socket: str,
         popen: Callable[..., subprocess.Popen] = subprocess.Popen,
@@ -107,6 +108,7 @@ class Donor:
         self._role = role
         self._secret_file = secret_file
         self._port = seed_port
+        self._relay = seed_relay
         self._user = user
         self._socket = socket
         self._popen = popen
@@ -146,7 +148,7 @@ class Donor:
         relay = self._popen(
             [
                 "python3",
-                SEED_RELAY,
+                self._relay,
                 "send",
                 peer,
                 str(self._port),

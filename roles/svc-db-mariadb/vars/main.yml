@@ -41,6 +41,7 @@ MARIADB_HA_SOCKET: /run/mysqld/mysqld.sock
 MARIADB_ELECTOR_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.writer') }}"
 MARIADB_SEED_SECRET_FILE: "{{ lookup('volume', application_id, 'ha_replication_password').target }}"
 MARIADB_SEED_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.seed') }}"
+MARIADB_SEED_RELAY: "{{ [DB_ELECTOR_DIR, 'seed_relay.py'] | path_join }}"
 MARIADB_HA_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 MARIADB_HA_CONTEXT_DIR: ha
 MARIADB_HA_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), MARIADB_HA_CONTEXT_DIR] | path_join }}"

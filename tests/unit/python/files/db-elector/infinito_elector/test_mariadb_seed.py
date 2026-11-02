@@ -82,6 +82,7 @@ class TestDonor(unittest.TestCase):
             role=FakeRole(kind),
             secret_file=str(self.secret_file),
             seed_port=4444,
+            seed_relay="/opt/db-elector/seed_relay.py",
             user="mysql",
             socket="/run/mysqld/mysqld.sock",
             popen=popen,

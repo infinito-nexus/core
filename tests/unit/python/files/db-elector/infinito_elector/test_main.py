@@ -69,6 +69,13 @@ class TestParseArgs(unittest.TestCase):
                 del env[name]
                 self.assertTrue(_rejected(env))
 
+    def test_a_seed_port_needs_the_seed_relay(self) -> None:
+        env = {**COMMON, **MARIADB, "ELECTOR_SEED_PORT": "4444"}
+        self.assertTrue(_rejected(env))
+        relay = "/opt/db-elector/seed_relay.py"
+        args = _parse({**env, "ELECTOR_SEED_RELAY": relay})
+        self.assertEqual(args.seed_relay, relay)
+
     def test_openldap_settings_are_required_for_openldap(self) -> None:
         for name in OPENLDAP:
             with self.subTest(missing=name):

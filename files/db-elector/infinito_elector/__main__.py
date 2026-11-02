@@ -95,6 +95,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     add("--mariadb-socket", **_from_env("MARIADB_SOCKET", False))
     add("--mariadb-local-user", **_from_env("MARIADB_LOCAL_USER", False))
     add("--seed-port", type=int, **_from_env("SEED_PORT", False))
+    add("--seed-relay", **_from_env("SEED_RELAY", False))
     add("--replication-user", **_from_env("REPLICATION_USER", False))
     add(
         "--replication-password-file",
@@ -112,6 +113,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ]
     if missing:
         parser.error(f"engine {args.engine} requires: {', '.join(missing)}")
+    if args.seed_port and not args.seed_relay:
+        parser.error("--seed-port requires --seed-relay")
     return args
 
 
@@ -159,6 +162,7 @@ def build_donor(
         role=role,
         secret_file=args.replication_password_file,
         seed_port=args.seed_port,
+        seed_relay=args.seed_relay,
         user=args.mariadb_local_user,
         socket=args.mariadb_socket,
     ).handle

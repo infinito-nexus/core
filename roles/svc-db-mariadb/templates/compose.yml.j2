@@ -30,6 +30,7 @@
       ELECTOR_ETCD_PASSWORD_FILE: "{{ lookup('volume', application_id, 'ha_etcd_password').target }}"
       ELECTOR_PORT: "{{ MARIADB_ELECTOR_PORT }}"
       ELECTOR_SEED_PORT: "{{ MARIADB_SEED_PORT }}"
+      ELECTOR_SEED_RELAY: "{{ MARIADB_SEED_RELAY }}"
       ELECTOR_MARIADB_DEFAULTS_FILE: "{{ lookup('volume', application_id, 'ha_elector_cnf').target }}"
       ELECTOR_REPLICATION_USER: "{{ MARIADB_REPLICATION_USER }}"
       ELECTOR_REPLICATION_PASSWORD_FILE: "{{ lookup('volume', application_id, 'ha_replication_password').target }}"

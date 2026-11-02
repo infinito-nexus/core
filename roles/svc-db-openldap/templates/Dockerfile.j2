@@ -19,8 +19,8 @@ RUN rm -rf /var/lib/apt/lists/* \
  && chown -R openldap:openldap /run/slapd {{ OPENLDAP_DATA_TARGET }} {{ OPENLDAP_CONFIG_TARGET }}
 
 {% if OPENLDAP_HA | bool %}
-COPY infinito_elector /opt/elector/infinito_elector
-ENV PYTHONPATH=/opt/elector
+COPY infinito_elector {{ [DB_ELECTOR_DIR, 'infinito_elector'] | path_join }}
+ENV PYTHONPATH={{ DB_ELECTOR_DIR }}
 
 {% endif %}
 COPY entrypoint.sh /entrypoint.sh

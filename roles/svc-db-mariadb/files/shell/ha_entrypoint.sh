@@ -56,7 +56,7 @@ fi
 
 # Param: $1  optional seconds to wait for a sender; a re-seed restarts the task instead of waiting forever
 receive_seed() {
-  gosu mysql python3 /opt/infinito/seed_relay.py recv "${MARIADB_SEED_PORT}" "${ELECTOR_REPLICATION_PASSWORD_FILE:?}" "$@" | gosu mysql mbstream -x -C "$datadir"
+  gosu mysql python3 "${ELECTOR_SEED_RELAY:?}" recv "${MARIADB_SEED_PORT}" "${ELECTOR_REPLICATION_PASSWORD_FILE:?}" "$@" | gosu mysql mbstream -x -C "$datadir"
 }
 
 donor=""

@@ -33,7 +33,7 @@
       mkdir -p /tmp/infinito-seed
       mariadb-backup --defaults-extra-file={{ MARIADB_HA_ROOT_CNF }} --backup --stream=xbstream \
         --target-dir=/tmp/infinito-seed {{ "--slave-info --safe-slave-backup" if _mariadb_seed_donor.service != MARIADB_PRIMARY_INSTANCE else "" }} \
-        | python3 /opt/infinito/seed_relay.py send {{ _mariadb_seed_address.stdout | trim }} {{ MARIADB_SEED_PORT }} {{ MARIADB_SEED_SECRET_FILE }}'
+        | python3 {{ MARIADB_SEED_RELAY | quote }} send {{ _mariadb_seed_address.stdout | trim }} {{ MARIADB_SEED_PORT }} {{ MARIADB_SEED_SECRET_FILE }}'
   args:
     executable: /bin/bash
   # rationale: async; a large seed outlives the SSH timeout, and poll blocks the play until it ends
