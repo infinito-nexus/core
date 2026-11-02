@@ -9,9 +9,9 @@
       - lookup('config', application_id, 'services.litellm.freellmapi.alias') != LITELLM_ROUTER_ALIAS
       - lookup('config', application_id, 'services.litellm.freellmapi.model') | length > 0
     fail_msg: >-
-      Set svc-ai-freellmapi secrets.credentials.unified_api_key to the existing
-      dashboard unified key in the encrypted inventory. The LiteLLM upstream
-      alias must be nonempty and distinct from its router alias.
+      The token store holds no FreeLLMAPI unified key. Deploy svc-ai-freellmapi
+      before svc-ai-litellm so it persists the key its dashboard issued. The
+      LiteLLM upstream alias must be nonempty and distinct from its router alias.
     quiet: true
   when: LITELLM_FREELLMAPI_BACKEND | bool
 

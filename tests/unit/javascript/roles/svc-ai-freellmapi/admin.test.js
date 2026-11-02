@@ -102,7 +102,9 @@ test("failed email update fails loudly and can converge on the next deploy", asy
   assert.deepEqual(auth.calls, ["reset", "email"]);
 });
 
-function httpFixture(identity) {
+const issuedKey = "freellmapi-0123456789abcdef0123456789abcdef";
+
+function httpFixture(identity, apiKey = issuedKey) {
   const requests = [];
   return {
     requests,
@@ -110,18 +112,33 @@ function httpFixture(identity) {
       requests.push({ url, options });
       if (url.endsWith("/login")) return { status: 200, json: async () => ({ email: desired.email, token: "test-session" }) };
       if (url.endsWith("/me")) return { status: 200, json: async () => ({ email: identity }) };
+      if (url.endsWith("/api-key")) return { status: 200, json: async () => ({ apiKey }) };
       return { status: 200 };
     },
   };
 }
 
-test("HTTP validation authenticates, verifies the identity and removes its session", async () => {
+test("HTTP validation authenticates, reads the issued key and removes its session", async () => {
   const { validateLogin } = await modulePromise;
   const http = httpFixture(desired.email);
-  await validateLogin({ admin: desired, base_url: "http://localhost:3001/", timeout_ms: 1000 }, http.request);
-  assert.deepEqual(http.requests.map((r) => new URL(r.url).pathname), ["/api/auth/login", "/api/auth/me", "/api/auth/logout"]);
+  const apiKey = await validateLogin({ admin: desired, base_url: "http://localhost:3001/", timeout_ms: 1000 }, http.request);
+  assert.equal(apiKey, issuedKey);
+  assert.deepEqual(http.requests.map((r) => new URL(r.url).pathname), [
+    "/api/auth/login",
+    "/api/auth/me",
+    "/api/settings/api-key",
+    "/api/auth/logout",
+  ]);
   assert.deepEqual(JSON.parse(http.requests[0].options.body), desired);
   assert.equal(http.requests[1].options.headers.Authorization, "Bearer test-session");
+  assert.equal(http.requests[2].options.headers.Authorization, "Bearer test-session");
+});
+
+test("missing issued key rejects the deploy and still logs out", async () => {
+  const { validateLogin } = await modulePromise;
+  const http = httpFixture(desired.email, "");
+  await assert.rejects(validateLogin({ admin: desired, base_url: "http://localhost:3001", timeout_ms: 1000 }, http.request));
+  assert.ok(http.requests.at(-1).url.endsWith("/logout"));
 });
 
 test("wrong HTTP identity rejects the deploy and still logs out", async () => {

@@ -1,7 +1,9 @@
 const { readFileSync } = require("node:fs");
 
-function requireValue(condition) {
-  if (!condition) throw new Error("Administrator reconciliation failed");
+const RESULT_PREFIX = "FREELLMAPI_RESULT=";
+
+function requireValue(condition, stage = "reconcile") {
+  if (!condition) throw Object.assign(new Error("Administrator reconciliation failed"), { stage });
 }
 
 function reconcileAdmin(admin, auth) {
@@ -40,41 +42,67 @@ async function validateLogin(payload, request) {
     body: JSON.stringify(payload.admin),
     signal: AbortSignal.timeout(payload.timeout_ms),
   });
-  requireValue(login.status === 200);
+  requireValue(login.status === 200, `login_http_${login.status}`);
   const session = await login.json();
-  requireValue(typeof session.token === "string" && session.token.length > 0);
+  requireValue(typeof session.token === "string" && session.token.length > 0, "login_session");
+  let apiKey;
   try {
-    requireValue(session.email === payload.admin.email.trim().toLowerCase());
+    requireValue(session.email === payload.admin.email.trim().toLowerCase(), "login_identity");
     const response = await request(`${base}/api/auth/me`, {
       headers: { Authorization: `Bearer ${session.token}` },
       signal: AbortSignal.timeout(payload.timeout_ms),
     });
-    requireValue(response.status === 200);
-    requireValue((await response.json()).email === session.email);
+    requireValue(response.status === 200, `me_http_${response.status}`);
+    requireValue((await response.json()).email === session.email, "me_identity");
+    const keyResponse = await request(`${base}/api/settings/api-key`, {
+      headers: { Authorization: `Bearer ${session.token}` },
+      signal: AbortSignal.timeout(payload.timeout_ms),
+    });
+    requireValue(keyResponse.status === 200, `api_key_http_${keyResponse.status}`);
+    apiKey = (await keyResponse.json()).apiKey;
+    requireValue(typeof apiKey === "string" && /^\S{20,}$/.test(apiKey), `api_key_format_${typeof apiKey}`);
   } finally {
     const logout = await request(`${base}/api/auth/logout`, {
       method: "POST",
       headers: { Authorization: `Bearer ${session.token}` },
       signal: AbortSignal.timeout(payload.timeout_ms),
     });
-    requireValue(logout.status === 200);
+    requireValue(logout.status === 200, `logout_http_${logout.status}`);
   }
+  return apiKey;
 }
 
 async function main() {
+  const stdout = process.stdout.write.bind(process.stdout);
+  console.log = console.error;
+  console.info = console.error;
   let result;
   try {
     const payload = JSON.parse(readFileSync(0, "utf8"));
-    requireValue(Number.isInteger(payload.timeout_ms) && payload.timeout_ms > 0);
-    const auth = await import("file:///app/server/dist/services/auth.js");
+    requireValue(Number.isInteger(payload.timeout_ms) && payload.timeout_ms > 0, "payload");
+    const database = await import("file:///app/server/dist/db/index.js").catch(() => {
+      throw Object.assign(new Error("Database module import failed"), { stage: "db_import" });
+    });
+    try {
+      database.connectDb();
+    } catch {
+      requireValue(false, "db_connect");
+    }
+    const auth = await import("file:///app/server/dist/services/auth.js").catch(() => {
+      throw Object.assign(new Error("Auth module import failed"), { stage: "auth_import" });
+    });
     const changed = reconcileAdmin(payload.admin, auth);
-    await validateLogin(payload, fetch);
-    result = { ok: true, changed, login_verified: true };
-  } catch {
-    result = { ok: false, reason: "administrator_reconciliation_or_login_failed" };
+    const apiKey = await validateLogin(payload, fetch);
+    result = { ok: true, changed, login_verified: true, api_key: apiKey };
+  } catch (error) {
+    result = {
+      ok: false,
+      reason: "administrator_reconciliation_or_login_failed",
+      stage: typeof error?.stage === "string" ? error.stage : "unexpected",
+    };
     process.exitCode = 1;
   }
-  process.stdout.write(`${JSON.stringify(result)}\n`);
+  stdout(`${RESULT_PREFIX}${JSON.stringify(result)}\n`);
 }
 
-module.exports = { reconcileAdmin, validateLogin, main };
+module.exports = { reconcileAdmin, validateLogin, main, RESULT_PREFIX };

@@ -47,8 +47,10 @@ Every deploy verifies the resulting credentials through `/api/auth/login` and
 the authenticated `/api/auth/me`, then removes the temporary session. Rejected
 logins fail the deploy even if the container is healthy. Credentials travel on
 standard input to an unconditionally masked task; only a fixed success/failure
-message is shown. Reconciliation relies on the pinned image's internal auth
-service exports and must be checked when changing the image version.
+message is shown. Reconciliation runs in a separate Node process, so it opens the
+running database through the image's internal `db/index.js` `connectDb` export
+before using the auth service exports; both must be checked when changing the
+image version.
 Under **Keys**, copy the unified API key for clients. Model
 availability depends on your configured providers and their quotas; deploying
 this role does not supply provider accounts or bypass their limits.
@@ -58,11 +60,13 @@ this role does not supply provider accounts or bypass their limits.
 ### Through the managed LiteLLM gateway
 
 For the managed Claude and Codex setup, keep LiteLLM as the client endpoint.
-After setting up this role, save the dashboard's existing unified key as the
-vaulted `applications.svc-ai-freellmapi.secrets.credentials.unified_api_key`.
-Select both roles and deploy them: LiteLLM publishes `freellmapi/auto` and
-validates the upstream. Clients continue using LiteLLM virtual keys, not this
-upstream key. See [the LiteLLM integration](../svc-ai-litellm/README.md#optional-freellmapi-upstream)
+Every deploy reads the unified key FreeLLMAPI issued through the authenticated
+`/api/settings/api-key` endpoint and persists it in the token store for
+`platform_administrator`. Select both roles and deploy them: LiteLLM publishes
+`freellmapi/auto` with that key and validates the upstream. Clients continue
+using LiteLLM virtual keys, not this upstream key. Regenerating the key in the
+dashboard takes effect with the next deploy of both roles.
+See [the LiteLLM integration](../svc-ai-litellm/README.md#optional-freellmapi-upstream)
 for automatic routing, capability declarations and protocol validation.
 Do not run FreeLLMAPI's client setup commands over the Infinito-managed client
 configuration, or configure FreeLLMAPI to forward back to LiteLLM.

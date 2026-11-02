@@ -41,7 +41,7 @@ LITELLM_PROVIDER_KEYS:
   openai: "{{ lookup('config', application_id, 'secrets.credentials.openai_api_key') }}"
   anthropic: "{{ lookup('config', application_id, 'secrets.credentials.anthropic_api_key') }}"
   openrouter: "{{ lookup('config', application_id, 'secrets.credentials.openrouter_api_key') }}"
-  freellmapi: "{{ lookup('config', 'svc-ai-freellmapi', 'secrets.credentials.unified_api_key') if LITELLM_FREELLMAPI_BACKEND | bool else '' }}"
+  freellmapi: "{{ lookup('users', 'platform_administrator', {}).get('tokens', {}).get('svc-ai-freellmapi', '') if LITELLM_FREELLMAPI_BACKEND | bool else '' }}"
 LITELLM_KEYED_PROVIDERS: "{{ LITELLM_PROVIDER_KEYS | dict2items | selectattr('value') | map(attribute='key') | list }}"
 
 LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"

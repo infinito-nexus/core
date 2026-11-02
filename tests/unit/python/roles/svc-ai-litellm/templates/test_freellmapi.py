@@ -88,6 +88,18 @@ class TestFreeLLMAPI(unittest.TestCase):
         )
         self.assertEqual(key, "")
 
+    def test_enabled_integration_reads_the_key_from_the_token_store(self):
+        source = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm/vars/main.yml")
+
+        def lookup(kind, user, default):
+            self.assertEqual((kind, user), ("users", "platform_administrator"))
+            return {"tokens": {"svc-ai-freellmapi": "freellmapi-stored-fixture"}}
+
+        key = self.env.from_string(
+            source["LITELLM_PROVIDER_KEYS"]["freellmapi"]
+        ).render(lookup=lookup, LITELLM_FREELLMAPI_BACKEND=True)
+        self.assertEqual(key, "freellmapi-stored-fixture")
+
     def test_deploy_probe_uses_the_selected_alias_and_masked_input(self):
         tasks = load_yaml_any(
             PROJECT_ROOT / "roles/svc-ai-litellm/tasks/utils/validate_freellmapi.yml"

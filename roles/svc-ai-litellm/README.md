@@ -29,13 +29,12 @@ per-consumer virtual keys. The role automatically publishes `freellmapi/auto`,
 forwarding to FreeLLMAPI's internal `/v1` endpoint with its own unified key.
 LiteLLM deploys after FreeLLMAPI. No gateway flavor switch is required.
 
-First deploy FreeLLMAPI alone, log in with the platform administrator credentials
-and configure its provider pool. Copy its existing unified key from **Keys** into the encrypted
-inventory under
-`applications.svc-ai-freellmapi.secrets.credentials.unified_api_key`.
-An arbitrary generated string does not create a FreeLLMAPI account key.
-Then deploy both roles. A missing unified key fails setup with an explicit
-configuration error. Provider credentials can remain in FreeLLMAPI's existing
+The FreeLLMAPI role reads the unified key its dashboard issued and persists it
+in the token store for `platform_administrator`; LiteLLM resolves it from there.
+The key never enters the inventory. If the store holds no key, setup fails and
+asks for a FreeLLMAPI deploy first. Configure the provider pool before the
+combined deploy, because the protocol checks need a working upstream.
+Provider credentials can remain in FreeLLMAPI's existing
 declarative `services.freellmapi.startup_config`; references to central inventory
 secrets avoid duplicating the credential values.
 

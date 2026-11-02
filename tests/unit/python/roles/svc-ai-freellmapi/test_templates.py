@@ -141,10 +141,14 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
         tasks = load_yaml_any(role / "tasks/00_core.yml")
         self.assertEqual(tasks[-1]["ansible.builtin.include_tasks"], "01_admin.yml")
         self.assertTrue(tasks[-2]["vars"]["compose_handlers_flush"])
-        reconcile, check = load_yaml_any(role / "tasks/01_admin.yml")
+        reconcile, parse, check, report, persist = load_yaml_any(
+            role / "tasks/01_admin.yml"
+        )
         self.assertTrue(reconcile["no_log"])
         self.assertFalse(reconcile["failed_when"])
-        self.assertIn(".changed", reconcile["changed_when"])
+        self.assertTrue(parse["no_log"])
+        self.assertIn("FREELLMAPI_RESULT_PREFIX", parse["ansible.builtin.set_fact"]["freellmapi_admin"])
+        self.assertEqual(report["when"], "freellmapi_admin.changed | bool")
         payload = self.env.from_string(
             reconcile["ansible.builtin.command"]["stdin"]
         ).render(
@@ -157,6 +161,31 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
         )
         self.assertEqual(json.loads(payload)["admin"]["password"], "fixture-password")
         self.assertIn(
-            "(freellmapi_admin_result.stdout | from_json).login_verified | bool",
+            "freellmapi_admin.login_verified | default(false) | bool",
             check["ansible.builtin.assert"]["that"],
         )
+        self.assertTrue(persist["no_log"])
+        self.assertEqual(persist["ansible.builtin.include_role"]["name"], "sys-token-store")
+        self.assertEqual(persist["vars"]["sys_token_store_user_key"], "platform_administrator")
+        self.assertEqual(persist["vars"]["sys_token_store_app"], "{{ application_id }}")
+        self.assertEqual(persist["vars"]["sys_token_store_token"], "{{ freellmapi_admin.api_key }}")
+
+    def test_marked_result_survives_image_import_output(self):
+        from ansible.plugins.test.core import TestModule
+        from jinja2.nativetypes import NativeEnvironment
+
+        env = NativeEnvironment(undefined=jinja2.StrictUndefined)
+        env.filters.update(CoreFilters().filters())
+        env.tests.update(TestModule().tests())
+        source = load_yaml_any(PROJECT_ROOT / "roles/svc-ai-freellmapi/tasks/01_admin.yml")[1]
+        prefix = load_yaml(PROJECT_ROOT / "roles/svc-ai-freellmapi/vars/main.yml")["FREELLMAPI_RESULT_PREFIX"]
+        result = env.from_string(source["ansible.builtin.set_fact"]["freellmapi_admin"]).render(
+            FREELLMAPI_RESULT_PREFIX=prefix,
+            freellmapi_admin_result={
+                "stdout_lines": [
+                    "◇ injected env (0) from .env",
+                    prefix + json.dumps({"ok": True, "changed": False}),
+                ]
+            },
+        )
+        self.assertEqual(result, {"ok": True, "changed": False})
