@@ -19,6 +19,15 @@ codex:
   shared: true
   gateway_url: ""
   model: ""
+  initial_mode: gateway
+  reasoning_effort: medium
+  subscription_model: ""
+  context_tokens: null
+  auto_compact_tokens: null
+  editor_data_dir: ""
+  credential_timeout_ms: 5000
+  validation_timeout: 120
+  validation_output_tokens: 512
   min_storage: "500MB"
   cpus: "1.0"
   mem_reservation: "256m"
