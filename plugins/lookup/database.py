@@ -17,7 +17,7 @@ from utils.roles.applications.services.database import (
     resolve_database_service_key,
 )
 from utils.roles.db.instances import DbInstancesError
-from utils.roles.db.primary import ha_primary_address
+from utils.roles.db.primary import client_command, ha_primary_address
 from utils.roles.entity.name import get_entity_name
 
 
@@ -120,6 +120,7 @@ class LookupModule(LookupBase):
                 "image": "",
                 "version": "",
                 "reach_host": "127.0.0.1",
+                "client": "",
             }
             return [resolved if want == "all" else resolved.get(want, "")]
 
@@ -315,6 +316,16 @@ class LookupModule(LookupBase):
             "image": image,
             "version": version,
             "reach_host": reach_host,
+            "client": client_command(
+                dbtype,
+                address=address,
+                ha=primary is not None,
+                bin_client=_templated(vars_.get("BIN_DB_CLIENT", "")),
+                stack=db_stack,
+                network=network,
+                host=host,
+                port=port,
+            ),
         }
 
         return [resolved if want == "all" else resolved.get(want, "")]

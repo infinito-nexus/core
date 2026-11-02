@@ -14,6 +14,7 @@
   failed_when: >
     disc_net_disconnect.rc != 0 and
     not (disc_net_disconnect.stderr | default('') | docker_network_noop('disconnect'))
+  when: not (DISCOURSE_DATABASE_HA | bool)
 
 - name: "📦 destroy container '{{ DISCOURSE_CONTAINER }}'"
   ansible.builtin.command:

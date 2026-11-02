@@ -50,6 +50,15 @@
     owner: root
     group: root
 
+- name: 📦 Install db-client helper (HA database client through the write endpoint)
+  become: true
+  ansible.builtin.copy:
+    src: "shell/resolve/db_client.sh"
+    dest: "{{ BIN_DB_CLIENT }}"
+    mode: "0755"
+    owner: root
+    group: root
+
 - name: 📦 Install each HA engine's primary probe next to resolve-db-primary
   become: true
   ansible.builtin.copy:

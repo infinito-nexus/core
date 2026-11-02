@@ -5,9 +5,13 @@ Wraps the `container exec -i <container> <client> -v ON_ERROR_STOP=1 ...`
 pattern so role tasks don't have to spell out the exec shape by hand.
 Works for both shared mode (central `svc-db-*` container) and non-shared
 mode (per-role `<entity>-database` container) because the `container`
-field of the `database` lookup is already shared-aware. Queries are
-piped via stdin, never via the shell, so SQL content doesn't need
-shell-escaping. psql connects over TCP to 127.0.0.1 with the role's
+field of the `database` lookup is already shared-aware. In the HA form
+the primary can run on any node, so the query goes through the
+`db-client` helper beside `resolve-db-primary`, which runs the client in
+a short-lived container of the engine's image on the engine's attachable
+network and reaches the primary through the HAProxy write endpoint
+named by `host`. Queries are piped via stdin, never via the shell, so
+SQL content doesn't need shell-escaping. psql connects over TCP to 127.0.0.1 with the role's
 password: the HA engine authenticates its local socket by peer, which
 admits only the container's own OS user.
 
@@ -100,6 +104,9 @@ returns:
 """
 
 _READ_ONLY_PREFIXES = ("SELECT ", "SHOW ", "EXPLAIN ", "WITH ", "VALUES ")
+_HA_RESOLVER = "resolve-db-primary"
+_HA_CLIENT = "db-client"
+_HA_REQUIRED_CONFIG_KEYS = ("host", "port", "network")
 _REQUIRED_CONFIG_KEYS = ("type", "container", "username", "name", "password")
 
 _NAMED_ARG_RE = re.compile(r"%\(([A-Za-z_][A-Za-z0-9_]*)\)s")
@@ -109,6 +116,7 @@ _ENGINES: dict[str, dict[str, object]] = {
     "postgres": {
         "binaries": ("psql",),
         "connect_flags": ["-h", "127.0.0.1"],
+        "port_flag": "-p",
         "user_flag": "-U",
         "db_flag": "-d",
         "shared_flags": ["-v", "ON_ERROR_STOP=1"],
@@ -122,6 +130,7 @@ _ENGINES: dict[str, dict[str, object]] = {
     },
     "mariadb": {
         "binaries": ("mariadb", "mysql"),
+        "port_flag": "-P",
         "user_flag": "-u",
         "db_flag": "-D",
         "shared_flags": ["--batch"],
@@ -141,19 +150,48 @@ def _build_cmd(
     *,
     expect_rows: bool,
     binary: str | None = None,
+    ha: tuple[str, str, str] | None = None,
 ) -> tuple[list[str], dict[str, str]]:
+    """Return the client invocation and the environment it passes by name.
+
+    Args:
+        config: the ``database`` lookup of the consumer.
+        expect_rows: add the engine's tuple-only flags.
+        binary: client binary; defaults to the engine's first.
+        ha: ``(resolver, stack, engine)`` of the HA form from
+            ``_ha_stack_engine``; when set the client runs through the
+            ``db-client`` helper on ``config['network']`` and connects to
+            ``config['host']``, the write endpoint, instead of exec'ing into
+            ``config['container']``.
+    """
     engine = _ENGINES[config["type"]]
     binaries = engine["binaries"]  # type: ignore[index]
     chosen = binary if binary is not None else binaries[0]  # type: ignore[index]
-    cmd: list[str] = [
-        "container",
-        "exec",
-        "-i",
-        "-e",
-        str(engine["password_env"]),
-        config["container"],
-        str(chosen),
-        *list(engine.get("connect_flags", [])),  # type: ignore[arg-type]
+    if ha:
+        resolver, stack, engine_word = ha
+        cmd: list[str] = [
+            str(Path(resolver).with_name(_HA_CLIENT)),
+            stack,
+            engine_word,
+            str(config["network"]),
+            str(chosen),
+            "-h",
+            str(config["host"]),
+            str(engine["port_flag"]),
+            str(config["port"]),
+        ]
+    else:
+        cmd = [
+            "container",
+            "exec",
+            "-i",
+            "-e",
+            str(engine["password_env"]),
+            config["container"],
+            str(chosen),
+            *list(engine.get("connect_flags", [])),  # type: ignore[arg-type]
+        ]
+    cmd += [
         str(engine["user_flag"]),
         config["username"],
         str(engine["db_flag"]),
@@ -164,6 +202,25 @@ def _build_cmd(
         cmd.extend(list(engine["rows_flags"]))  # type: ignore[arg-type]
     env_passthrough = {str(engine["password_env"]): str(config["password"])}
     return cmd, env_passthrough
+
+
+def _ha_stack_engine(config: dict) -> tuple[str, str, str] | None:
+    """Return ``(resolver, stack, engine)`` when the address resolves an HA primary.
+
+    Args:
+        config: the ``database`` lookup; its HA ``address`` is
+            ``"$(resolve-db-primary <stack> <engine>)"``.
+    """
+    address = str(config.get("address") or "").strip()
+    inner = (
+        address[1:-1] if address.startswith('"') and address.endswith('"') else address
+    )
+    if not (inner.startswith("$(") and inner.endswith(")")):
+        return None
+    argv = shlex.split(inner[2:-1])
+    if len(argv) != 3 or Path(argv[0]).name != _HA_RESOLVER:
+        return None
+    return argv[0], argv[1], argv[2]
 
 
 def _resolve_exec_target(config: dict) -> str:
@@ -337,13 +394,21 @@ def main() -> None:
     binaries = list(_ENGINES[db_type]["binaries"])  # type: ignore[index]
 
     exec_config = dict(config)
-    exec_config["container"] = _resolve_exec_target(config)
+    ha = _ha_stack_engine(config)
+    if ha is not None:
+        absent = [key for key in _HA_REQUIRED_CONFIG_KEYS if not config.get(key)]
+        if absent:
+            module.fail_json(
+                msg=f"HA config missing required key(s): {', '.join(absent)}"
+            )
+    else:
+        exec_config["container"] = _resolve_exec_target(config)
 
     proc = None
     cmd: list[str] = []
     for index, binary in enumerate(binaries):
         cmd, env_passthrough = _build_cmd(
-            exec_config, expect_rows=expect_rows, binary=binary
+            exec_config, expect_rows=expect_rows, binary=binary, ha=ha
         )
         env = dict(os.environ)
         env.update(env_passthrough)

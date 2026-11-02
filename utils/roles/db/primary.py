@@ -17,6 +17,21 @@ from utils.roles.db.instances import (
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+CLIENTS = {
+    "postgres": {
+        "binary": "psql",
+        "password_env": "PGPASSWORD",
+        "local": ["-h", "127.0.0.1"],
+        "port_flag": "-p",
+    },
+    "mariadb": {
+        "binary": "mariadb",
+        "password_env": "MYSQL_PWD",
+        "local": [],
+        "port_flag": "-P",
+    },
+}
+
 
 def is_ha(
     application_id: str,
@@ -41,6 +56,62 @@ def is_ha(
             swarm_nodes=list(groups.get(SWARM_NODE_GROUP) or []),
         )["form"]
         == FORM_HA
+    )
+
+
+def client_command(
+    dbtype: str,
+    *,
+    address: str,
+    ha: bool,
+    bin_client: str,
+    stack: str,
+    network: str,
+    host: str,
+    port: object,
+) -> str:
+    """Return the shell prefix that runs the engine's SQL client, connected.
+
+    The caller appends user, database and client flags. The password reaches
+    the client by name from the calling environment, never on argv.
+
+    Args:
+        dbtype: engine type; one without a client returns an empty string.
+        address: exec address of the standalone engine container.
+        ha: the engine renders its HA form.
+        bin_client: path of the ``db-client`` helper, used in the HA form.
+        stack: swarm stack of the engine.
+        network: attachable engine network the write endpoint answers on.
+        host: write endpoint name.
+        port: engine port.
+    """
+    client = CLIENTS.get(dbtype)
+    if client is None:
+        return ""
+    if ha:
+        argv = [
+            bin_client,
+            stack,
+            dbtype,
+            network,
+            client["binary"],
+            "-h",
+            host,
+            client["port_flag"],
+            str(port),
+        ]
+        return " ".join(shlex.quote(str(arg)) for arg in argv)
+    local = " ".join(shlex.quote(arg) for arg in client["local"])
+    return " ".join(
+        part
+        for part in (
+            "container exec -i -e",
+            client["password_env"],
+            address,
+            client["binary"],
+            local,
+        )
+        if part
     )
 
 

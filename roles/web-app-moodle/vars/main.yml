@@ -53,7 +53,7 @@ MOODLE_IMAGE: "{{ lookup('config', application_id, 'services.moodle.image') }}"
 MOODLE_VERSION: "{{ lookup('config', application_id, 'services.moodle.version') }}"
 MOODLE_CONTAINER: "{{ lookup('config', application_id, 'services.moodle.name') }}"
 MOODLE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-MOODLE_DB_CONTAINER_ADDRESS: "{{ lookup('database', application_id, 'address') }}"
+MOODLE_DB_CLIENT: "{{ lookup('database', application_id, 'client') }}"
 MOODLE_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.nginx.name') }}"
 MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
 

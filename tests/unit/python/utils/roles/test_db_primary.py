@@ -1,7 +1,12 @@
 import unittest
 
 from utils.roles.db.instances import DbInstancesError
-from utils.roles.db.primary import ha_primary_address, is_ha, primary_address
+from utils.roles.db.primary import (
+    client_command,
+    ha_primary_address,
+    is_ha,
+    primary_address,
+)
 
 NODES = ["m1", "m2", "m3"]
 BIN = "/usr/bin/resolve-db-primary"
@@ -73,6 +78,44 @@ class TestHaPrimaryAddress(unittest.TestCase):
     def test_ha_form_requires_the_resolver(self):
         with self.assertRaises(DbInstancesError):
             self._address(NODES, bin_resolver="")
+
+
+class TestClientCommand(unittest.TestCase):
+    def _client(self, dbtype, ha):
+        return client_command(
+            dbtype,
+            address='"$(/usr/bin/resolve-container-id postgres postgres)"',
+            ha=ha,
+            bin_client="/usr/bin/db-client",
+            stack=dbtype,
+            network=dbtype,
+            host=dbtype,
+            port=5432 if dbtype == "postgres" else 3306,
+        )
+
+    def test_standalone_postgres_execs_into_the_container_over_tcp(self):
+        self.assertEqual(
+            self._client("postgres", ha=False),
+            'container exec -i -e PGPASSWORD "$(/usr/bin/resolve-container-id postgres postgres)" psql -h 127.0.0.1',
+        )
+
+    def test_standalone_mariadb_keeps_the_socket(self):
+        self.assertTrue(self._client("mariadb", ha=False).endswith(" mariadb"))
+
+    def test_ha_postgres_runs_through_the_write_endpoint(self):
+        self.assertEqual(
+            self._client("postgres", ha=True),
+            "/usr/bin/db-client postgres postgres postgres psql -h postgres -p 5432",
+        )
+
+    def test_ha_mariadb_uses_its_port_flag(self):
+        self.assertEqual(
+            self._client("mariadb", ha=True),
+            "/usr/bin/db-client mariadb mariadb mariadb mariadb -h mariadb -P 3306",
+        )
+
+    def test_an_engine_without_a_client_returns_nothing(self):
+        self.assertEqual(self._client("redis", ha=False), "")
 
 
 if __name__ == "__main__":

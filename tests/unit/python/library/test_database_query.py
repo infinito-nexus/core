@@ -94,6 +94,61 @@ class ResolveExecTargetTests(unittest.TestCase):
             self.assertEqual(_DB_MOD._resolve_exec_target(cfg), "postgres")
 
 
+_HA_ADDRESS = '"$(/usr/bin/resolve-db-primary postgres postgres)"'
+_HA_CONFIG: dict = dict(
+    _BASE_CONFIG,
+    container=_HA_ADDRESS,
+    address=_HA_ADDRESS,
+    host="postgres",
+    port=5432,
+    network="postgres",
+)
+
+
+class HaFormTests(unittest.TestCase):
+    def test_the_primary_resolver_address_names_stack_and_engine(self):
+        self.assertEqual(
+            _DB_MOD._ha_stack_engine(_HA_CONFIG),
+            ("/usr/bin/resolve-db-primary", "postgres", "postgres"),
+        )
+
+    def test_a_container_resolver_address_is_not_ha(self):
+        cfg = dict(
+            _BASE_CONFIG,
+            address='"$(/usr/bin/resolve-container-id postgres postgres)"',
+        )
+        self.assertIsNone(_DB_MOD._ha_stack_engine(cfg))
+
+    def test_a_plain_container_is_not_ha(self):
+        self.assertIsNone(_DB_MOD._ha_stack_engine(_BASE_CONFIG))
+
+    def test_ha_runs_the_client_helper_against_the_write_endpoint(self):
+        cmd, env = _DB_MOD._build_cmd(
+            _HA_CONFIG,
+            expect_rows=False,
+            ha=("/usr/bin/resolve-db-primary", "postgres", "postgres"),
+        )
+        self.assertEqual(
+            cmd[:5], ["/usr/bin/db-client", "postgres", "postgres", "postgres", "psql"]
+        )
+        self.assertEqual(cmd[cmd.index("-h") + 1], "postgres")
+        self.assertEqual(cmd[cmd.index("-p") + 1], "5432")
+        self.assertNotIn(_HA_ADDRESS, cmd)
+        self.assertEqual(env, {"PGPASSWORD": "s3cret"})
+
+    def test_ha_mariadb_uses_its_port_flag(self):
+        cfg = dict(
+            _HA_CONFIG, type="mariadb", host="mariadb", port=3306, network="mariadb"
+        )
+        cmd, _ = _DB_MOD._build_cmd(
+            cfg,
+            expect_rows=False,
+            ha=("/usr/bin/resolve-db-primary", "mariadb", "mariadb"),
+        )
+        self.assertEqual(cmd[4], "mariadb")
+        self.assertEqual(cmd[cmd.index("-P") + 1], "3306")
+
+
 class BuildCmdPostgresTests(unittest.TestCase):
     def test_postgres_includes_user_db_and_error_stop(self):
         cmd, env = _DB_MOD._build_cmd(_BASE_CONFIG, expect_rows=False)
