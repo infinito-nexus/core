@@ -155,3 +155,33 @@ def drifted_fields(
     want = rendered_view(service, config, stack)
     have = running_view(spec)
     return sorted(key for key in want if want[key] != have[key])
+
+
+def drift_report(
+    service: Mapping, config: Mapping, stack: str, spec: Mapping
+) -> list[str]:
+    """Return the drifted fields, naming the environment keys that differ.
+
+    Values are left out: the environment and the secret names carry
+    credentials and their digests.
+
+    Args:
+        service / config / stack: see ``rendered_view``.
+        spec: the running service's ``.Spec``.
+    """
+    want = rendered_view(service, config, stack)
+    have = running_view(spec)
+    report = []
+    for key in sorted(want):
+        if want[key] == have[key]:
+            continue
+        if key == "env":
+            keys = set(want["env"]) | set(have["env"])
+            report += [
+                f"env:{name}"
+                for name in sorted(keys)
+                if want["env"].get(name) != have["env"].get(name)
+            ]
+        else:
+            report.append(key)
+    return report

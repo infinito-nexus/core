@@ -42,6 +42,12 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   run_once: true
 
+- name: "🧾 db_ha_rolling | fields that make '{{ application_id }}' roll"
+  ansible.builtin.debug:
+    msg: "{{ _roll_config.stdout | swarm_drift_report(_roll_stack, _roll_running.results) }}"
+  when: _roll_changed | length > 0
+  run_once: true
+
 - name: "🔍 db_ha_rolling | probe each member of '{{ application_id }}' for the primary"
   ansible.builtin.command:
     argv:

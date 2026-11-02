@@ -2,7 +2,7 @@ import json
 import unittest
 
 from plugins.filter.swarm.drifted_members import swarm_drifted_members
-from utils.roles.swarm_drift import SwarmDriftError, drifted_fields
+from utils.roles.swarm_drift import SwarmDriftError, drift_report, drifted_fields
 
 STACK = "postgres"
 MEMBER = "postgres-m1"
@@ -125,6 +125,17 @@ class TestDriftedFields(unittest.TestCase):
             container={"Image": "m1:5000/postgres_custom:17", "Env": ["TZ=UTC"]}
         )
         self.assertEqual(drift(spec), ["env", "image"])
+
+    def test_the_report_names_env_keys_but_no_values(self):
+        spec = running_spec(
+            container={
+                "Image": "m1:5000/postgres_custom:17",
+                "Env": ["TZ=Europe/Berlin", "PATRONI_NAME=postgres-m1"],
+            }
+        )
+        report = drift_report(CONFIG["services"][MEMBER], CONFIG, STACK, spec)
+        self.assertEqual(report, ["env:TZ", "image"])
+        self.assertNotIn("UTC", " ".join(report))
 
     def test_human_sizes_are_read(self):
         service = json.loads(json.dumps(CONFIG["services"][MEMBER]))

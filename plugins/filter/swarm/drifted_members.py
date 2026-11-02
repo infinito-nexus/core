@@ -7,7 +7,7 @@ import json
 from ansible.errors import AnsibleFilterError
 
 from utils.cache.yaml import load_yaml_str
-from utils.roles.swarm_drift import SwarmDriftError, drifted_fields
+from utils.roles.swarm_drift import SwarmDriftError, drift_report, drifted_fields
 
 
 def swarm_drifted_members(stack_config: str, stack: str, inspected) -> list[str]:
@@ -41,6 +41,33 @@ def swarm_drifted_members(stack_config: str, stack: str, inspected) -> list[str]
     return drifted
 
 
+def swarm_drift_report(stack_config: str, stack: str, inspected) -> dict[str, list]:
+    """Return ``{member: drifted fields}`` for every drifted member.
+
+    Args:
+        stack_config / stack / inspected: see ``swarm_drifted_members``.
+    """
+    config = load_yaml_str(stack_config) or {}
+    services = config.get("services") or {}
+    report = {}
+    for result in inspected or []:
+        member = result.get("item")
+        if result.get("rc") != 0 or member not in services:
+            continue
+        try:
+            fields = drift_report(
+                services[member], config, stack, json.loads(result["stdout"])
+            )
+        except (SwarmDriftError, ValueError, KeyError) as exc:
+            raise AnsibleFilterError(f"swarm_drift_report: {member}: {exc}") from exc
+        if fields:
+            report[member] = fields
+    return report
+
+
 class FilterModule:
     def filters(self):
-        return {"swarm_drifted_members": swarm_drifted_members}
+        return {
+            "swarm_drifted_members": swarm_drifted_members,
+            "swarm_drift_report": swarm_drift_report,
+        }
