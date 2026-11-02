@@ -7,11 +7,9 @@ from typing import TYPE_CHECKING
 
 from utils.roles.db.instances import (
     FORM_HA,
-    SWARM_NODE_GROUP,
     DbInstancesError,
-    build_instances,
     data_engines,
-    engine_hosts,
+    engine_model,
 )
 
 if TYPE_CHECKING:
@@ -47,16 +45,7 @@ def is_ha(
     """
     if application_id not in data_engines():
         return False
-    groups = groups or {}
-    return (
-        build_instances(
-            application_id,
-            engine_hosts(application_id, groups),
-            deployment_mode=deployment_mode,
-            swarm_nodes=list(groups.get(SWARM_NODE_GROUP) or []),
-        )["form"]
-        == FORM_HA
-    )
+    return engine_model(application_id, groups, deployment_mode)["form"] == FORM_HA
 
 
 def client_command(

@@ -7,9 +7,7 @@ from typing import TYPE_CHECKING
 
 from utils.roles.db.instances import (
     FORM_HA,
-    SWARM_NODE_GROUP,
-    build_instances,
-    engine_hosts,
+    engine_model,
     engine_word,
     ha_engines,
     ha_spec,
@@ -30,15 +28,9 @@ def backed_up_engines() -> list[str]:
 def _ha_models(
     groups: Mapping[str, Sequence[str]], deployment_mode: str
 ) -> list[tuple[str, dict]]:
-    nodes = list(groups.get(SWARM_NODE_GROUP) or [])
     models = []
     for app_id in backed_up_engines():
-        model = build_instances(
-            app_id,
-            engine_hosts(app_id, groups),
-            deployment_mode=deployment_mode,
-            swarm_nodes=nodes,
-        )
+        model = engine_model(app_id, groups, deployment_mode)
         if model["form"] == FORM_HA:
             models.append((app_id, model))
     return models

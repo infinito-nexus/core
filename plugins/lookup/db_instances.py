@@ -28,12 +28,10 @@ from ansible.utils.display import Display
 
 from plugins.lookup.tor_reachable import is_reachable
 from utils.roles.db.instances import (
-    SWARM_NODE_GROUP,
     DbInstancesError,
-    build_instances,
     coordination_store,
     coordination_store_needed,
-    engine_hosts,
+    engine_model,
     ha_engines,
     ha_exposure_conflicts,
     primary_probes,
@@ -91,11 +89,10 @@ class LookupModule(LookupBase):
         except DbInstancesError as exc:
             raise AnsibleError(str(exc)) from exc
         try:
-            result = build_instances(
+            result = engine_model(
                 app_id,
-                engine_hosts(app_id, groups),
-                deployment_mode=mode,
-                swarm_nodes=list(groups.get(SWARM_NODE_GROUP, []) or []),
+                groups,
+                mode,
                 legacy_volume_host=kwargs.get("legacy_volume_host"),
             )
         except DbInstancesError as exc:

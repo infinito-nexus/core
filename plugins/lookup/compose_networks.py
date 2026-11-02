@@ -22,10 +22,8 @@ from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import render_compose_networks
 from utils.roles.db.instances import (
     FORM_HA,
-    SWARM_NODE_GROUP,
     DbInstancesError,
-    build_instances,
-    engine_hosts,
+    engine_model,
     ha_engines,
 )
 from utils.roles.entity.name import get_entity_name
@@ -40,12 +38,7 @@ def _internal_overlay(ctx: Any, application_id: str, kwargs: dict[str, Any]) -> 
         return False
     groups = resolve_var(ctx.templar, ctx.vars.get("groups", {})) or {}
     try:
-        model = build_instances(
-            application_id,
-            engine_hosts(application_id, groups),
-            deployment_mode=ctx.deployment_mode,
-            swarm_nodes=list(groups.get(SWARM_NODE_GROUP, []) or []),
-        )
+        model = engine_model(application_id, groups, ctx.deployment_mode)
     except DbInstancesError as exc:
         raise AnsibleError(str(exc)) from exc
     return model["form"] == FORM_HA

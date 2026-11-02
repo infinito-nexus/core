@@ -315,6 +315,31 @@ def engine_hosts(application_id: str, groups: Mapping[str, Sequence[str]]) -> li
     return list(groups.get(fallback) or [])
 
 
+def engine_model(
+    application_id: str,
+    groups: Mapping[str, Sequence[str]] | None,
+    deployment_mode: str,
+    *,
+    legacy_volume_host: str | None = None,
+) -> dict:
+    """Return :func:`build_instances` of one engine for the inventory groups.
+
+    Args:
+        application_id: engine role, e.g. ``svc-db-postgres``.
+        groups: Ansible ``groups``.
+        deployment_mode: ``DEPLOYMENT_MODE``.
+        legacy_volume_host: see :func:`build_instances`.
+    """
+    groups = groups or {}
+    return build_instances(
+        application_id,
+        engine_hosts(application_id, groups),
+        deployment_mode=deployment_mode,
+        swarm_nodes=list(groups.get(SWARM_NODE_GROUP) or []),
+        legacy_volume_host=legacy_volume_host,
+    )
+
+
 def _truthy(value) -> bool:
     return value is True or str(value).strip().lower() in {"true", "yes", "on", "1"}
 
@@ -400,14 +425,7 @@ def coordination_store_needed(
         groups: Ansible ``groups``.
         deployment_mode: ``DEPLOYMENT_MODE``.
     """
-    nodes = list(groups.get(SWARM_NODE_GROUP) or [])
     return any(
-        build_instances(
-            engine,
-            engine_hosts(engine, groups),
-            deployment_mode=deployment_mode,
-            swarm_nodes=nodes,
-        )["form"]
-        == FORM_HA
+        engine_model(engine, groups, deployment_mode)["form"] == FORM_HA
         for engine in sorted(coordinated_engines())
     )
