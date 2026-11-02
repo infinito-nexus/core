@@ -29,6 +29,7 @@
     dest: "{{ lookup('container', application_id, 'directories.instance') }}"
     mode: "0644"
     directory_mode: "0755"
+  when: OPENLDAP_HA | bool
 
 - name: "📄 Render the HA per-instance cn=config and elector credentials"
   include_tasks: ha/01_config.yml
