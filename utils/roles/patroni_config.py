@@ -1,10 +1,4 @@
-"""Patroni configuration of the Postgres HA form.
-
-One ``patroni.yml`` serves every instance: the member name and connect
-addresses come from ``PATRONI_*`` environment variables per instance, so the
-file is a single Swarm secret. ``dynamic_config`` is both the bootstrap DCS
-section and the payload Ansible re-applies on every run.
-"""
+"""Patroni configuration of the Postgres HA form."""
 
 from __future__ import annotations
 

@@ -1,11 +1,4 @@
-"""HAProxy write endpoint of a central database engine in HA form.
-
-One renderer for every engine and deployment mode: it takes the instance
-list from ``utils.roles.db.instances`` and returns ``haproxy.cfg`` routing the
-engine's client port to the current primary or writer only. Each engine
-declares its endpoint under ``ha.endpoint`` in ``meta/services.yml``, naming
-ports by their ``ports.internal`` keys.
-"""
+"""HAProxy write endpoint of a central database engine in HA form."""
 
 from __future__ import annotations
 

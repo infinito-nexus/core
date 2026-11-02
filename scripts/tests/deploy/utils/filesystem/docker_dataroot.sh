@@ -78,7 +78,6 @@ arm_autoclear() {
 		report "WARNING: ${loop} did not arm autoclear (AUTOCLEAR='${armed}')"
 }
 
-# Attach ${IMAGE} to a free loop device and set LOOP to it.
 claim_loop() {
 	local attempt=0 candidate attached
 	LOOP=""

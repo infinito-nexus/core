@@ -4,8 +4,6 @@
 # ships a build: context produces its <ENTITY>_custom:<tag> image only on the
 # manager; mirror it onto each worker first so swarm can re-schedule there.
 # Roles without a custom build use an upstream image present on every worker.
-# The drained node is set active again once the app has moved: in an HA lab it
-# can be a manager whose pinned database and etcd instances the drain stops.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

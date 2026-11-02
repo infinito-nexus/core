@@ -1,10 +1,4 @@
-"""Pre-flight checks for forgetting a permanently lost Swarm node.
-
-The administrator removes the host from the inventory first; forgetting then
-refuses unless the host is really gone from the inventory and Swarm reports
-the node ``down``. There is deliberately no force override: a network
-partition looks the same as a dead node.
-"""
+"""Pre-flight checks for forgetting a permanently lost Swarm node."""
 
 from __future__ import annotations
 

@@ -40,7 +40,6 @@ Runner = Callable[[Sequence[str]], subprocess.CompletedProcess]
 
 
 def report(message: str) -> None:
-    """Print on stderr, where systemd files the line in the journal."""
     print(f"baudolo-ha-gate: {message}", file=sys.stderr, flush=True)
 
 

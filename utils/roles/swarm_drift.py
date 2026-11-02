@@ -1,13 +1,4 @@
-"""Compare a rendered stack service with the running Swarm service.
-
-``docker stack deploy`` restarts every service whose spec changed, all at
-once. The database HA roll must know beforehand which instance members a
-deploy would restart, so it can roll them one at a time and hand the primary
-over first. This module answers that from ``docker stack config`` output and
-``docker service inspect --format '{{json .Spec}}'``, covering the fields a
-restart-requiring change touches: image, command, environment, resources,
-placement, secrets, configs and bind mounts.
-"""
+"""Compare a rendered stack service with the running Swarm service."""
 
 from __future__ import annotations
 

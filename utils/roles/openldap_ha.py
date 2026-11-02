@@ -1,10 +1,4 @@
-"""OpenLDAP HA form: serverID derivation and per-instance ``cn=config`` LDIF.
-
-The rendered LDIF is fed to ``slapadd -n 0`` by the image's entrypoint on
-every start, so a re-cloned instance configures itself from its Swarm config
-alone. Secrets never enter the LDIF: the entrypoint replaces the placeholders
-``@ROOT_PW_HASH@``, ``@ROOT_PW@``, ``@OPENLDAP_UID@`` and ``@OPENLDAP_GID@``.
-"""
+"""OpenLDAP HA form: serverID derivation and per-instance ``cn=config`` LDIF."""
 
 from __future__ import annotations
 
