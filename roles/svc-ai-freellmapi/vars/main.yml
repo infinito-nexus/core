@@ -1,0 +1,8 @@
+---
+application_id: svc-ai-freellmapi
+entity_name: "{{ application_id | entity_name }}"
+
+FREELLMAPI_CONTAINER: "{{ lookup('config', application_id, 'services.freellmapi.name') }}"
+FREELLMAPI_PORT: "{{ lookup('config', application_id, 'services.freellmapi.ports.internal.http') }}"
+FREELLMAPI_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.encryption_key') }}"
+FREELLMAPI_STARTUP_CONFIG: "{{ lookup('config', application_id, 'services.freellmapi.startup_config') }}"

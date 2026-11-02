@@ -1,0 +1,9 @@
+---
+freellmapi_data:
+  type: volume
+  name: freellmapi_data
+  # nocheck: nfs-false-data-loss SQLite state belongs to this compose host; preserve it through the container_backup service and retain the vaulted encryption key
+  nfs: false
+  mounts:
+    - service: freellmapi
+      target: /app/server/data

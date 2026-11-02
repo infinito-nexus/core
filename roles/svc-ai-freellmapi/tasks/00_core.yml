@@ -1,0 +1,19 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔐 Validate the persistent FreeLLMAPI encryption key"
+  ansible.builtin.assert:
+    that:
+      - FREELLMAPI_ENCRYPTION_KEY is match('^[0-9a-fA-F]{64}$')
+      - FREELLMAPI_STARTUP_CONFIG is mapping
+    fail_msg: >-
+      Set applications.svc-ai-freellmapi.secrets.credentials.encryption_key to a vaulted
+      64-character hex key and services.freellmapi.startup_config to a mapping.
+      Provision the role credentials once and preserve them across updates.
+    quiet: true
+  no_log: true
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
