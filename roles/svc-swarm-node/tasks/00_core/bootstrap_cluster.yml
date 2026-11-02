@@ -8,7 +8,8 @@
 - name: "✅ Assert svc-swarm-manager holds 1 host or an odd number of at least 3"
   ansible.builtin.assert:
     that:
-      - _svc_swarm_manager_count | int == 1 or (_svc_swarm_manager_count | int >= 3 and _svc_swarm_manager_count | int % 2 == 1)
+      - _svc_swarm_manager_count | int > 0
+      - _svc_swarm_manager_count | swarm_quorum_size_valid
     fail_msg: |
       svc-swarm-node requires 1 host, or an odd number of at least 3, in the
       `svc-swarm-manager` group, because Raft needs a majority. The first

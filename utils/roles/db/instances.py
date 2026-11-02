@@ -30,6 +30,15 @@ class DbInstancesError(ValueError):
     pass
 
 
+def is_valid_quorum_size(count: int) -> bool:
+    """Return True for 0, 1 or an odd count of at least 3.
+
+    Args:
+        count: number of members in a Raft- or etcd-style quorum group.
+    """
+    return count <= 1 or (count >= 3 and count % 2 == 1)
+
+
 def ha_engines() -> frozenset[str]:
     """Return every role whose ``meta/services.yml`` primary entity declares
     ``ha.capable: true``."""
