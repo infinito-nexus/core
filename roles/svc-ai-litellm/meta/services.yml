@@ -18,6 +18,12 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  freellmapi:
+    alias: freellmapi/auto
+    model: auto
+    include_in_auto: false
+    context: null
+    traits: {}
   validation:
     workers: 3
     max_output_tokens: 512
@@ -73,6 +79,7 @@ litellm:
       http: 4000
   run_after:
     - svc-db-postgres
+    - svc-ai-freellmapi
   lifecycle: beta
 
 postgres:
@@ -98,6 +105,12 @@ lmstudio:
   bond: 0.5
   enabled: "{{ 'svc-ai-lmstudio' in group_names }}"
   shared: "{{ 'svc-ai-lmstudio' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+freellmapi: # nocheck: gateway-backend-registered AI_FREELLMAPI_MODELS joins LITELLM_REMOTE_MODELS before the common route builder; test_freellmapi.py verifies the render
+  bond: 1
+  enabled: "{{ 'svc-ai-freellmapi' in group_names }}"
+  shared: "{{ 'svc-ai-freellmapi' in group_names }}"
 
 docs:
   bond: 0.5

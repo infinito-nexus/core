@@ -310,6 +310,8 @@ def eligible(deployments, need, exclude, catalog, today=None):
         alias = entry.get("model_name")
         if not alias or alias == exclude:
             continue
+        if ((entry.get("model_info") or {}).get("traits") or {}).get("auto") is False:
+            continue
         caps = capabilities(entry, catalog, today)
         if serves(caps, need):
             continue

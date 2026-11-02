@@ -29,6 +29,21 @@ LITELLM_LMSTUDIO_BACKEND: >-
   {{ (lookup('config', 'svc-ai-litellm', 'services.lmstudio.enabled') | bool)
      and (lookup('config', 'svc-ai-litellm', 'services.lmstudio.shared') | bool) }}
 
+LITELLM_FREELLMAPI_BACKEND: >-
+  {{ (lookup('config', 'svc-ai-litellm', 'services.freellmapi.enabled') | bool)
+     and (lookup('config', 'svc-ai-litellm', 'services.freellmapi.shared') | bool) }}
+
+AI_FREELLMAPI_MODELS: >-
+  {{ [{
+      'alias': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.alias'),
+      'model': 'openai/' ~ lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.model'),
+      'provider': 'freellmapi',
+      'api_base': lookup('container_url', 'svc-ai-freellmapi', 'freellmapi') ~ '/v1',
+      'context': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.context'),
+      'traits': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.traits')
+        | combine({'local': false, 'auto': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.include_in_auto') | bool})
+     }] if LITELLM_FREELLMAPI_BACKEND | bool else [] }}
+
 AI_LOCAL_MODELS:
   - alias: llama3.2:1b
     context: 65536
@@ -42,19 +57,19 @@ AI_LOCAL_MODELS:
     bytes: 807690688
 
 AI_MODEL_CONTEXTS: >-
-  {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')))
-     | selectattr('context', 'defined') | list | items2dict(key_name='alias', value_name='context') }}
+  {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')) + AI_FREELLMAPI_MODELS)
+     | selectattr('context', 'defined') | rejectattr('context', 'none') | list | items2dict(key_name='alias', value_name='context') }}
 
 AI_MOCK_PROVIDER: mock
 
 AI_REMOTE_ALIASES: >-
-  {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
+  {{ (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
      | selectattr('provider', 'in',
          [AI_MOCK_PROVIDER]
          + ['openai'] * (lookup('api_enabled', 'openai') | int)
          + ['anthropic'] * (lookup('api_enabled', 'anthropic') | int)
          + ['openrouter'] * (lookup('api_enabled', 'openrouter') | int))
-     | map(attribute='alias') | list }}
+     | map(attribute='alias') | list) + (AI_FREELLMAPI_MODELS | map(attribute='alias') | list) }}
 
 AI_MOCK_ALIASES: >-
   {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')

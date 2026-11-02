@@ -21,6 +21,58 @@ This role deploys LiteLLM as a shared gateway container in Compose and Swarm dep
 
 ## Provider validation during setup
 
+### Optional FreeLLMAPI upstream
+
+Select both `svc-ai-freellmapi` and `svc-ai-litellm` on the same Compose host.
+LiteLLM remains the client gateway: clients retain their existing URL and
+per-consumer virtual keys. The role automatically publishes `freellmapi/auto`,
+forwarding to FreeLLMAPI's internal `/v1` endpoint with its own unified key.
+LiteLLM deploys after FreeLLMAPI. No gateway flavor switch is required.
+
+First deploy FreeLLMAPI alone, log in with the platform administrator credentials
+and configure its provider pool. Copy its existing unified key from **Keys** into the encrypted
+inventory under
+`applications.svc-ai-freellmapi.secrets.credentials.unified_api_key`.
+An arbitrary generated string does not create a FreeLLMAPI account key.
+Then deploy both roles. A missing unified key fails setup with an explicit
+configuration error. Provider credentials can remain in FreeLLMAPI's existing
+declarative `services.freellmapi.startup_config`; references to central inventory
+secrets avoid duplicating the credential values.
+
+By default the alias is selectable explicitly but excluded from LiteLLM's
+general `auto` routing. To opt in, configure the guaranteed capabilities of
+every model FreeLLMAPI may select, for example:
+
+```yaml
+applications:
+  svc-ai-litellm:
+    services:
+      litellm:
+        freellmapi:
+          include_in_auto: true
+          context: 32768
+          traits:
+            tools: true
+```
+
+Use these values only if the configured pool supports them. The settings
+`freellmapi.alias` and `freellmapi.model` select the public alias and upstream
+model ID; their initial values are `freellmapi/auto` and `auto`.
+This pool is always classified as remote, even though its gateway container
+runs locally. The existing `router.remote_fallback` and privacy rules still
+apply. Dynamic pools are excluded from speed measurement because successive
+requests may use different models. Do not configure FreeLLMAPI to route back
+to this LiteLLM instance: that would create a forwarding cycle.
+
+Setup also sends streaming requests and tool-call/result round trips through
+LiteLLM for Chat Completions, Messages and Responses. These six checks run with
+the configured validation worker limit and add nine inference requests to the
+ordinary provider and consumer checks. Errors, missing answer text and
+unfinished streams fail deployment; sanitized results contain no keys or
+model text. The checks consume provider quota and may incur charges.
+Live compatibility depends on the installed FreeLLMAPI version and configured
+provider pool; the role remains pre-alpha until its full deploy loop is proven.
+
 Remote declarations may set an explicit `api_base`. Such entries must also set
 `traits.local` to a boolean: a remote URL must not be inferred to be a local
 backend just because it has an explicit endpoint.
