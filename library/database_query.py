@@ -379,9 +379,7 @@ def main() -> None:
     missing = _missing_config_keys(config, ha=ha is not None)
     if missing:
         prefix = "HA config" if ha is not None else "config"
-        module.fail_json(
-            msg=f"{prefix} missing required key(s): {', '.join(missing)}"
-        )
+        module.fail_json(msg=f"{prefix} missing required key(s): {', '.join(missing)}")
 
     db_type = config["type"]
     if db_type not in _ENGINES:

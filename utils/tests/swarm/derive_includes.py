@@ -363,7 +363,9 @@ def _own_memory_bytes(
         provider = (service_registry.get(key) or {}).get("role")
         if provider and provider != role:
             continue
-        raw = entry.get("mem_reservation") or entry.get("mem_limit") or _UNSIZED_CONTAINER
+        raw = (
+            entry.get("mem_reservation") or entry.get("mem_limit") or _UNSIZED_CONTAINER
+        )
         try:
             total += to_bytes(str(raw)) or 0
         except AnsibleFilterError:
