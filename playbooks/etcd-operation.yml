@@ -4,7 +4,7 @@
 # Param: failover.op            move-leader | delete-prefix (extra var)
 # Param: failover.etcd_member   member name that becomes leader, for move-leader (extra var)
 # Param: failover.engine_role   engine role whose etcd key prefix is deleted, for delete-prefix (extra var)
-- name: run one administrative etcd operation for the failover suite
+- name: "🛠️ Run one administrative etcd operation for the failover suite"
   hosts: all
   gather_facts: false
   vars:
@@ -16,13 +16,7 @@
       - "--endpoints=https://127.0.0.1:{{ etcd_client_port }}"
       - "--cacert={{ etcd_ca }}"
   tasks:
-    - name: load the project group vars (this playbook lives outside the repo root)
-      include_vars:
-        dir: "{{ playbook_dir }}/../../../group_vars/all" # nocheck: path-absolute - lab-only playbook, playbook_dir is stable
-        ignore_unknown_extensions: true
-      timeout: 60
-
-    - name: find the member container
+    - name: "🔍 Find the member container"
       command:
         argv: [docker, ps, -q, --filter, "label=com.docker.swarm.service.name={{ failover.etcd_service }}"]
       register: etcd_op_cid
@@ -30,20 +24,20 @@
       failed_when: etcd_op_cid.stdout_lines | length != 1
       timeout: 60
 
-    - name: move the etcd leader
+    - name: "👑 Move the etcd leader"
       when: failover.op == 'move-leader'
       block:
-        - name: list the members
+        - name: "📋 List the members"
           command:
             argv: "{{ ['docker', 'exec', '-e', 'ETCDCTL_USER', etcd_op_cid.stdout] + etcdctl + ['member', 'list', '-w', 'json'] }}"
           environment:
             ETCDCTL_USER: "root:{{ etcd_root_password }}"
           register: etcd_op_members
           changed_when: false
-          no_log: true
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
           timeout: 60
 
-        - name: hand the leadership to the member
+        - name: "👑 Hand the leadership to the member"
           command:
             argv: "{{ ['docker', 'exec', '-e', 'ETCDCTL_USER', etcd_op_cid.stdout] + etcdctl + ['--endpoints=' ~ etcd_op_endpoints, 'move-leader', etcd_op_target]
               }}"
@@ -60,10 +54,10 @@
           register: etcd_op_move
           changed_when: true
           failed_when: etcd_op_move.rc != 0 and 'already leader' not in etcd_op_move.stderr
-          no_log: true
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
           timeout: 120
 
-    - name: delete the engine's coordination keys
+    - name: "🗑️ Delete the engine's coordination keys"
       when: failover.op == 'delete-prefix'
       command:
         argv: "{{ ['docker', 'exec', '-e', 'ETCDCTL_USER', etcd_op_cid.stdout] + etcdctl + ['del', '--prefix', lookup('config', failover.engine_role, 'services.etcd.prefix')]
@@ -71,5 +65,5 @@
       environment:
         ETCDCTL_USER: "root:{{ etcd_root_password }}"
       changed_when: true
-      no_log: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       timeout: 120

@@ -1,7 +1,7 @@
 ---
 # Param: engine            postgres | mariadb | redis | openldap (extra var)
 # Param: failover_secret   docker secret name the checker service mounts (derived from engine)
-- name: render the failover checker connection secret
+- name: "🔐 Render the failover checker connection secret"
   hosts: svc-swarm-manager[0]
   gather_facts: false
   vars:
@@ -32,13 +32,7 @@
         BASE_DN: "{{ LDAP_DN_BASE }}"
     failover_connection: "{{ failover_connections[engine] }}"
   tasks:
-    - name: load the project group vars (this playbook lives outside the repo root)
-      include_vars:
-        dir: "{{ playbook_dir }}/../../../group_vars/all" # nocheck: path-absolute - lab-only playbook, playbook_dir is stable
-        ignore_unknown_extensions: true
-      timeout: 60
-
-    - name: drop the previous checker secret
+    - name: "🧹 Drop the previous checker secret"
       command:
         argv: [docker, secret, rm, "{{ failover_secret }}"]
       register: failover_secret_rm
@@ -46,13 +40,13 @@
       changed_when: failover_secret_rm.rc == 0
       timeout: 60
 
-    - name: create the checker secret
+    - name: "🔐 Create the checker secret"
       command:
         argv: [docker, secret, create, "{{ failover_secret }}", "-"]
         stdin: |
           {% for key, value in failover_connection.items() %}
           {{ key }}='{{ value | string | replace("'", "'\\''") }}'
           {% endfor %}
-      no_log: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: true
       timeout: 60

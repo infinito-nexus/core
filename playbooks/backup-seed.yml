@@ -3,7 +3,7 @@
 # Param: failover.engine            postgres | mariadb (extra var)
 # Param: failover.backup_instance   database instance name baudolo matches containers by (extra var)
 # Param: failover.backup_database   database holding the suite's marker table (extra var)
-- name: register the failover suite's marker database in databases.csv
+- name: "🌱 Register the failover marker database in databases.csv"
   hosts: all
   gather_facts: false
   vars:
@@ -15,13 +15,7 @@
         user: root
         password: "{{ lookup('config', 'svc-db-mariadb', 'secrets.credentials.root_password') }}"
   tasks:
-    - name: load the project group vars (this playbook lives outside the repo root)
-      include_vars:
-        dir: "{{ playbook_dir }}/../../../group_vars/all" # nocheck: path-absolute - lab-only playbook, playbook_dir is stable
-        ignore_unknown_extensions: true
-      timeout: 60
-
-    - name: seed the marker database through baudolo-seed
+    - name: "🌱 Seed the marker database through baudolo-seed"
       command:
         argv:
           - baudolo-seed
@@ -31,6 +25,6 @@
           - "{{ backup_logins[failover.engine].user }}"
           - "{{ backup_logins[failover.engine].password }}"
       changed_when: true
-      no_log: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       throttle: 1
       timeout: 120

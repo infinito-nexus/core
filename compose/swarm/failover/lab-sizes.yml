@@ -37,8 +37,3 @@ applications:
       etcd:
         mem_reservation: 256m
         mem_limit: 256m
-  web-app-mobilizon:
-    services:
-      mobilizon:
-        mem_reservation: 384m
-        mem_limit: 512m

@@ -53,7 +53,7 @@ class Topology:
         service = self._etcd_member_on(host)
         etcd_stack = get_entity_name(COORDINATION_ROLE)
         self._playbook(
-            "etcd-op.yml",
+            "etcd-operation.yml",
             {
                 "op": "move-leader",
                 "etcd_service": service,
@@ -65,7 +65,7 @@ class Topology:
     def delete_engine_keys(self) -> None:
         host = next(m for m in self.managers if m not in self._dead)
         self._playbook(
-            "etcd-op.yml",
+            "etcd-operation.yml",
             {
                 "op": "delete-prefix",
                 "etcd_service": self._etcd_member_on(host),
