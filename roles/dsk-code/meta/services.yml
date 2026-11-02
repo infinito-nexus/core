@@ -14,6 +14,7 @@ code:
       enabled: true
   lifecycle: alpha
   flavor: code-oss
+  settings: {}
   min_storage: "1GB"
   cpus: "2.0"
   mem_reservation: "512m"
