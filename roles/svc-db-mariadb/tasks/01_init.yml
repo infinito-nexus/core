@@ -92,7 +92,7 @@
       retries: 30
       delay: 3
       until: mariadb_ha_provision.rc == 0
-      delegate_to: "{{ MARIADB_PRIMARY_NODE }}"
+      delegate_to: "{{ MARIADB_PRIMARY_NODE | default(STACK_HOST) }}"
       run_once: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
