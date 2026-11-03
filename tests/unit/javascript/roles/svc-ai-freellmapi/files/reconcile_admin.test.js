@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
 
-const source = path.resolve(__dirname, "../../../../../roles/svc-ai-freellmapi/files/javascript/reconcile_admin.js");
+const source = path.resolve(__dirname, "../../../../../../roles/svc-ai-freellmapi/files/javascript/reconcile_admin.js");
 const modulePromise = Promise.resolve(require(source));
 const desired = { email: "admin@example.test", password: "new-password" };
 

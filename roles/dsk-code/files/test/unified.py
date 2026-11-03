@@ -314,6 +314,7 @@ class UnifiedClaudeCliTest(unittest.TestCase):
             item["name"]: item["value"]
             for item in editor["claudeCode.environmentVariables"]
         }
+        # nocheck: project-root-import climbs from ~/.config/infinito to the tested user's home, not to a project root
         cli_settings = config_path.parents[2] / ".claude/settings.json"
         cli = json.loads(cli_settings.read_text())
         self.assertTrue(

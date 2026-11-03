@@ -11,7 +11,7 @@
       64-character hex key and services.freellmapi.startup_config to a mapping.
       Provision the role credentials once and preserve them across updates.
     quiet: true
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 Validate platform administrator credentials for dashboard setup"
   ansible.builtin.assert:
@@ -24,7 +24,7 @@
       FreeLLMAPI first-account setup requires a platform_administrator email
       and a plaintext password of at least eight characters from the users lookup.
     quiet: true
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"

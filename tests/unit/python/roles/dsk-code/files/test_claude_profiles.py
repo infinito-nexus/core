@@ -5,14 +5,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import yaml
 from ansible.plugins.filter.core import FilterModule as CoreFilters
 from ansible.plugins.filter.mathstuff import FilterModule as MathFilters
 from jinja2.nativetypes import NativeEnvironment
 
-ROOT = Path(__file__).resolve().parents[7]
+from utils.cache.yaml import load_yaml_any
+
+from . import PROJECT_ROOT
+
 SPEC = importlib.util.spec_from_file_location(
-    "claude_profiles", ROOT / "roles/dsk-code/files/python/claude_profiles.py"
+    "claude_profiles", PROJECT_ROOT / "roles/dsk-code/files/python/claude_profiles.py"
 )
 profiles = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(profiles)
@@ -50,15 +52,17 @@ class ClaudeProfilesTest(unittest.TestCase):
         }
 
     def settings_path(self, name):
-        entries = json.loads(self.storage.read_text())["userDataProfiles"]
+        entries = json.loads(self.storage.read_text())[  # nocheck: cache-read
+            "userDataProfiles"
+        ]
         entry = next(entry for entry in entries if entry["name"] == name)
         return self.directory / "User/profiles" / entry["location"] / "settings.json"
 
     def test_second_deploy_does_not_change_profile_ids_or_settings(self):
         self.assertTrue(profiles.configure(self.directory, self.payload))
-        original = self.storage.read_bytes()
+        original = self.storage.read_bytes()  # nocheck: cache-read
         self.assertFalse(profiles.configure(self.directory, self.payload))
-        self.assertEqual(original, self.storage.read_bytes())
+        self.assertEqual(original, self.storage.read_bytes())  # nocheck: cache-read
 
     def test_local_family_and_subagent_requests_use_the_local_model(self):
         settings = profiles.profile_settings(
@@ -107,7 +111,7 @@ class ClaudeProfilesTest(unittest.TestCase):
             )
         )
         profiles.configure(self.directory, self.payload)
-        settings = json.loads(path.read_text())
+        settings = json.loads(path.read_text())  # nocheck: cache-read
         self.assertEqual(settings["claudeCode.environmentVariables"], [])
         self.assertFalse(settings["claudeCode.disableLoginPrompt"])
         self.assertEqual(settings["editor.fontSize"], 17)
@@ -121,10 +125,13 @@ class ClaudeProfilesTest(unittest.TestCase):
         default = self.directory / "User/settings.json"
         default.write_text('{"editor.fontSize": 19}')
         profiles.configure(self.directory, self.payload)
-        storage = json.loads(self.storage.read_text())
+        storage = json.loads(self.storage.read_text())  # nocheck: cache-read
         self.assertIn(other, storage["userDataProfiles"])
         self.assertEqual(storage["other-state"], "keep")
-        self.assertEqual(default.read_text(), '{"editor.fontSize": 19}')
+        self.assertEqual(
+            default.read_text(),  # nocheck: cache-read
+            '{"editor.fontSize": 19}',
+        )
 
     def test_unrelated_environment_variables_are_preserved(self):
         profiles.configure(self.directory, self.payload)
@@ -133,7 +140,10 @@ class ClaudeProfilesTest(unittest.TestCase):
         path.write_text(json.dumps({"claudeCode.environmentVariables": [extra]}))
         profiles.configure(self.directory, self.payload)
         self.assertIn(
-            extra, json.loads(path.read_text())["claudeCode.environmentVariables"]
+            extra,
+            json.loads(path.read_text())[  # nocheck: cache-read
+                "claudeCode.environmentVariables"
+            ],
         )
 
     def test_jsonc_settings_preserve_strings_and_unrelated_values(self):
@@ -158,7 +168,9 @@ class ClaudeProfilesTest(unittest.TestCase):
         self.assertEqual(path, self.settings_path("Local"))
         env = {
             item["name"]: item["value"]
-            for item in json.loads(path.read_text())["claudeCode.environmentVariables"]
+            for item in json.loads(path.read_text())[  # nocheck: cache-read
+                "claudeCode.environmentVariables"
+            ]
         }
         self.assertEqual(env["ANTHROPIC_AUTH_TOKEN"], "rotated-test-gateway-key")
 
@@ -236,7 +248,9 @@ class UnifiedClaudeTest(unittest.TestCase):
         return profiles.configure_unified(self.home, self.directory, self.payload, mode)
 
     def profile_path(self):
-        entry = json.loads(self.storage.read_text())["userDataProfiles"][0]
+        entry = json.loads(self.storage.read_text())[  # nocheck: cache-read
+            "userDataProfiles"
+        ][0]
         return self.directory / "User/profiles" / entry["location"] / "settings.json"
 
     def test_migration_removes_old_choices_without_creating_backups(self):
@@ -259,39 +273,42 @@ class UnifiedClaudeTest(unittest.TestCase):
         login = self.home / ".claude/.credentials.json"
         login.write_text("keep login")
         self.apply()
-        storage = json.loads(self.storage.read_text())
+        storage = json.loads(self.storage.read_text())  # nocheck: cache-read
         self.assertEqual([p["name"] for p in storage["userDataProfiles"]], ["Claude"])
         self.assertEqual(
             storage["profileAssociations"]["workspaces"]["file:///project"],
             storage["userDataProfiles"][0]["location"],
         )
-        self.assertEqual(history.read_text(), "keep history")
-        self.assertEqual(login.read_text(), "keep login")
-        self.assertFalse(list(self.home.rglob("*.bak")))
+        self.assertEqual(history.read_text(), "keep history")  # nocheck: cache-read
+        self.assertEqual(login.read_text(), "keep login")  # nocheck: cache-read
+        self.assertFalse(list(self.home.rglob("*.bak")))  # nocheck: project-walk
 
     def test_redeploy_is_idempotent_and_preserves_selected_subscription_mode(self):
         self.assertTrue(self.apply())
-        identity = self.storage.read_bytes()
+        identity = self.storage.read_bytes()  # nocheck: cache-read
         self.assertFalse(self.apply())
         self.apply("abo")
         self.assertFalse(self.apply())
-        self.assertEqual(json.loads(self.config.read_text())["mode"], "abo")
-        self.assertEqual(self.storage.read_bytes(), identity)
+        self.assertEqual(
+            json.loads(self.config.read_text())["mode"],  # nocheck: cache-read
+            "abo",
+        )
+        self.assertEqual(self.storage.read_bytes(), identity)  # nocheck: cache-read
 
     def test_mode_switch_updates_cli_and_editor_authentication_together(self):
         self.apply()
-        gateway = json.loads(self.settings.read_text())
+        gateway = json.loads(self.settings.read_text())  # nocheck: cache-read
         self.assertEqual(gateway["env"]["ANTHROPIC_AUTH_TOKEN"], "test-gateway-key")
         self.assertEqual(
             gateway["env"]["CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY"], "1"
         )
         self.apply("abo")
-        subscription = json.loads(self.settings.read_text())
+        subscription = json.loads(self.settings.read_text())  # nocheck: cache-read
         self.assertEqual(subscription["model"], "opus")
         self.assertNotIn("modelPicker", subscription)
         self.assertFalse(subscription["apiKeyHelper"])
         self.assertTrue(all(value == "" for value in subscription["env"].values()))
-        editor = json.loads(self.profile_path().read_text())
+        editor = json.loads(self.profile_path().read_text())  # nocheck: cache-read
         self.assertFalse(editor["claudeCode.disableLoginPrompt"])
         self.assertTrue(
             all(
@@ -301,13 +318,15 @@ class UnifiedClaudeTest(unittest.TestCase):
         )
         self.apply("gateway")
         self.assertEqual(
-            json.loads(self.settings.read_text())["env"]["ANTHROPIC_AUTH_TOKEN"],
+            json.loads(self.settings.read_text())[  # nocheck: cache-read
+                "env"
+            ]["ANTHROPIC_AUTH_TOKEN"],
             "test-gateway-key",
         )
 
     def test_gateway_picker_has_explicit_labels_and_finite_local_output_budget(self):
         self.apply()
-        settings = json.loads(self.settings.read_text())
+        settings = json.loads(self.settings.read_text())  # nocheck: cache-read
         self.assertEqual(
             settings["modelPicker"]["options"],
             self.payload["unified"]["gateway_models"],
@@ -324,8 +343,8 @@ class UnifiedClaudeTest(unittest.TestCase):
     def test_profile_extension_task_installs_claude_and_codex_but_not_disabled_addons(
         self,
     ):
-        tasks = yaml.safe_load(
-            (ROOT / "roles/dsk-code/tasks/01_claude_profiles.yml").read_text()
+        tasks = load_yaml_any(
+            PROJECT_ROOT / "roles/dsk-code/tasks/01_claude_profiles.yml"
         )
         task = next(task for task in tasks if "product(" in task.get("loop", ""))
         renderer = NativeEnvironment()
@@ -376,13 +395,22 @@ class UnifiedClaudeTest(unittest.TestCase):
         self.settings.parent.mkdir(parents=True)
         self.settings.write_text('{"manual":"discard","apiKeyHelper":"old-helper"}')
         self.apply()
-        self.assertNotIn("manual", json.loads(self.settings.read_text()))
+        self.assertNotIn(
+            "manual",
+            json.loads(self.settings.read_text()),  # nocheck: cache-read
+        )
         self.assertEqual(
-            json.loads((self.directory / "User/settings.json").read_text()),
+            json.loads(
+                (
+                    self.directory / "User/settings.json"
+                ).read_text()  # nocheck: cache-read
+            ),
             self.payload["code_settings"],
         )
         self.assertTrue(
-            json.loads(self.profile_path().read_text())["window.autoDetectColorScheme"]
+            json.loads(self.profile_path().read_text())[  # nocheck: cache-read
+                "window.autoDetectColorScheme"
+            ]
         )
 
     def test_configuration_and_all_settings_are_private(self):
@@ -392,12 +420,19 @@ class UnifiedClaudeTest(unittest.TestCase):
 
     def test_open_code_refuses_mode_change_without_partial_updates(self):
         self.apply()
-        initial = self.config.read_bytes(), self.settings.read_bytes()
+        initial = (
+            self.config.read_bytes(),  # nocheck: cache-read
+            self.settings.read_bytes(),  # nocheck: cache-read
+        )
         (self.directory / "SingletonLock").symlink_to("host-1234")
         with self.assertRaisesRegex(ValueError, "Close Code"):
             self.apply("abo")
         self.assertEqual(
-            (self.config.read_bytes(), self.settings.read_bytes()), initial
+            (
+                self.config.read_bytes(),  # nocheck: cache-read
+                self.settings.read_bytes(),  # nocheck: cache-read
+            ),
+            initial,
         )
 
     def test_overriding_owned_auth_settings_is_rejected_before_writes(self):
@@ -416,7 +451,10 @@ class UnifiedClaudeTest(unittest.TestCase):
             patch("builtins.print"),
         ):
             profiles.main()
-        self.assertEqual(json.loads(self.config.read_text())["mode"], "abo")
+        self.assertEqual(
+            json.loads(self.config.read_text())["mode"],  # nocheck: cache-read
+            "abo",
+        )
 
 
 if __name__ == "__main__":

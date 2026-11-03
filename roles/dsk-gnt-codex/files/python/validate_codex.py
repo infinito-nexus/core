@@ -45,7 +45,7 @@ def validate(program, home, timeout):
             not in (
                 "OPENAI_API_KEY",
                 "OPENAI_BASE_URL",
-                "INFINITO_GATEWAY_KEY",
+                "INFINITO_GATEWAY_KEY",  # nocheck: legacy Codex credential variable stripped from the probe environment
                 "CODEX_HOME",
             )
         }
@@ -94,7 +94,7 @@ def validate(program, home, timeout):
             }
         ).encode(),
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 — configure() validates the HTTP(S) URL before this request.
         data = json.load(response)
     if (
         data.get("object") != "response"

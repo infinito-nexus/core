@@ -13,4 +13,4 @@ fi
 : "${TEST_CONFIG_PATH:?}"
 : "${TEST_PYTHON:?}"
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec "${TEST_PYTHON}" "${here}/test_unified.py"
+exec "${TEST_PYTHON}" "${here}/unified.py"

@@ -41,7 +41,7 @@
   become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
   register: code_claude_profiles_result
   changed_when: "(code_claude_profiles_result.stdout | trim) == 'CHANGED'"
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔀 Install the managed Claude connection switch
   ansible.builtin.copy:
@@ -74,30 +74,31 @@
   register: code_claude_profile_extension
   changed_when: "'successfully installed' in (code_claude_profile_extension.stdout | lower)"
 
-- name: 🧪 Install the persistent Claude CLI regression tests
-  ansible.builtin.copy:
-    src: test/
-    dest: /usr/local/lib/infinito/tests/dsk-code/
-    owner: root
-    group: root
-    mode: "0755"
+- name: 🧪 Validate the unified Claude connection
   when: code_addons['claude-code'].config.unified | length > 0
+  block:
+    - name: 🧪 Install the persistent Claude CLI regression tests
+      ansible.builtin.copy:
+        src: test/
+        dest: /usr/local/lib/infinito/tests/dsk-code/
+        owner: root
+        group: root
+        mode: "0755"
 
-- name: ✅ Verify the deployed CLI, profile and connection switch
-  ansible.builtin.command:
-    argv:
-      - timeout
-      - "{{ lookup('role_tests', 'dsk-code', 'cli.timeout') | string }}"
-      - bash
-      - /usr/local/lib/infinito/tests/dsk-code/test.sh
-  environment:
-    TEST_UNIFIED_ENABLED: "1"
-    CLAUDE_MODE_PROGRAM: /usr/local/bin/claude-mode
-    CLAUDE_BINARY: claude
-    CODE_BINARY: "{{ code_binary }}"
-    TEST_CONFIG_PATH: "/home/{{ lookup('users', WORKSTATION_USER).username }}/.config/infinito/claude.json"
-    TEST_PYTHON: "{{ ansible_facts.python.executable }}"
-  become: true
-  become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
-  changed_when: false
-  when: code_addons['claude-code'].config.unified | length > 0
+    - name: ✅ Verify the deployed CLI, profile and connection switch
+      ansible.builtin.command:
+        argv:
+          - timeout
+          - "{{ lookup('role_tests', 'dsk-code', 'cli.timeout') | string }}"
+          - bash
+          - /usr/local/lib/infinito/tests/dsk-code/test.sh
+      environment:
+        TEST_UNIFIED_ENABLED: "1"
+        CLAUDE_MODE_PROGRAM: /usr/local/bin/claude-mode
+        CLAUDE_BINARY: claude
+        CODE_BINARY: "{{ code_binary }}"
+        TEST_CONFIG_PATH: "/home/{{ lookup('users', WORKSTATION_USER).username }}/.config/infinito/claude.json"
+        TEST_PYTHON: "{{ ansible_facts.python.executable }}"
+      become: true
+      become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+      changed_when: false

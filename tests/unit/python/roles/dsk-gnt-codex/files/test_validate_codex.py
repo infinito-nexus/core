@@ -8,7 +8,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-SOURCE = Path(__file__).resolve().parents[5] / "roles/dsk-gnt-codex/files/python"
+from . import PROJECT_ROOT
+
+SOURCE = PROJECT_ROOT / "roles/dsk-gnt-codex/files/python"
 SPEC = importlib.util.spec_from_file_location(
     "validate_codex", SOURCE / "validate_codex.py"
 )
@@ -51,19 +53,18 @@ class ValidationTests(unittest.TestCase):
             program.parent.mkdir()
             shutil.copyfile(SOURCE / "codex_mode.py", program)
             program.chmod(0o755)
-            for binary in Path.home().glob(
-                ".vscode*/extensions/openai.chatgpt-*/bin/linux-*/codex"
-            ):
-                link = (
-                    home
-                    / ".vscode-oss/extensions"
-                    / binary.parents[2].name
-                    / "bin"
-                    / binary.parent.name
-                    / "codex"
-                )
-                link.parent.mkdir(parents=True, exist_ok=True)
-                link.symlink_to(binary)
+            for extension in Path.home().glob(".vscode*/extensions/openai.chatgpt-*"):
+                for binary in extension.glob("bin/linux-*/codex"):
+                    link = (
+                        home
+                        / ".vscode-oss/extensions"
+                        / extension.name
+                        / "bin"
+                        / binary.parent.name
+                        / "codex"
+                    )
+                    link.parent.mkdir(parents=True, exist_ok=True)
+                    link.symlink_to(binary)
             payload = {
                 "gateway_url": "http://127.0.0.1:18081/v1",
                 "gateway_key": "fixture-only-key",
@@ -94,7 +95,10 @@ class ValidationTests(unittest.TestCase):
                 request.call_args.args[0].full_url,
                 payload["gateway_url"] + "/responses",
             )
-            self.assertEqual(json.loads(state.read_text())["mode"], "abo")
+            self.assertEqual(
+                json.loads(state.read_text())["mode"],  # nocheck: cache-read
+                "abo",
+            )
             response.__enter__.return_value.read.return_value = (
                 b'{"object":"response","output":[]}'
             )

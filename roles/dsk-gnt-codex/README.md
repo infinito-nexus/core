@@ -1,7 +1,22 @@
 # Codex
 
-Installs the pinned `@openai/codex` CLI and manages the connection shared by the
-CLI and Codex editor extension in `~/.codex/config.toml`.
+## Description
+
+[Codex](https://developers.openai.com/codex/) is OpenAI's coding agent. It runs as a terminal CLI and as an extension of the Code editor.
+
+## Overview
+
+This role installs the pinned `@openai/codex` CLI on a workstation and manages the connection shared by the CLI and the Codex editor extension in `~/.codex/config.toml`. The `codex-mode` switch it installs selects either the platform's model gateway or the user's own ChatGPT subscription.
+
+The local gateway may forward requests to external providers according to the chosen model. A local gateway URL does not imply local inference.
+
+## Features
+
+- **Pinned CLI:** the `@openai/codex` package is installed at the version `services.codex.npm_version` pins.
+- **One switch for CLI and editor:** `codex-mode gateway` and `codex-mode abo` move the CLI and the editor extension between the gateway and the subscription together.
+- **Credential helper:** gateway mode reads the inventory's virtual key through a command-backed helper, so the key is neither embedded in TOML nor taken from a desktop environment variable.
+- **Preserved settings:** the switch keeps `auth.json` and unrelated TOML settings, including MCP servers.
+- **Deployment validation:** a deploy that manages the connection checks both modes and sends a bounded request to the Responses API.
 
 ## Subscription and gateway
 
@@ -42,9 +57,6 @@ values matching the loaded model or `null` to leave them unmanaged. Configure
 `editor_data_dir` to detect a running editor before writing, or explicitly use
 an empty string on a host without an editor.
 
-The local gateway may forward requests to external providers according to the
-chosen model. A local gateway URL does not imply local inference.
-
 ## Deployment validation
 
 The role installs and runs a persistent validation script. It checks both modes
@@ -58,4 +70,6 @@ The CLI test repeats this validation. LiteLLM additionally checks the Responses
 endpoint for every model assigned to the Codex consumer. A successful Chat
 Completions or Anthropic Messages probe alone does not validate Codex compatibility.
 
-Configuration reference: [Codex configuration](https://developers.openai.com/codex/config-reference/).
+## Further Resources
+
+- [Codex configuration reference](https://developers.openai.com/codex/config-reference/)

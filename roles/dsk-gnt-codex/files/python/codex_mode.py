@@ -11,7 +11,7 @@ Outputs:
 """
 
 import argparse
-import datetime
+import datetime as dt
 import json
 import os
 import sys
@@ -44,7 +44,7 @@ def toml_value(value):
         return "true" if value else "false"
     if isinstance(value, (int, float)):
         return repr(value)
-    if isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+    if isinstance(value, (dt.datetime, dt.date, dt.time)):
         return value.isoformat()
     if isinstance(value, list):
         return "[" + ", ".join(toml_value(item) for item in value) + "]"

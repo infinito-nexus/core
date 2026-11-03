@@ -8,8 +8,7 @@
     {{ lookup('compose_only', 'container_name', FREELLMAPI_CONTAINER) }}
     {{ lookup('container_ports', [service_name, 'http', NETWORK_LOOPBACK_IPV4]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}
