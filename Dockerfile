@@ -37,6 +37,7 @@ RUN set -euo pipefail; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"
 
 COPY roles/dev-python/files/shell ${INFINITO_SRC_DIR}/roles/dev-python/files/shell
+COPY pyproject.toml ${INFINITO_SRC_DIR}/pyproject.toml
 COPY roles/update/files/shell/centos_mirror.sh ${INFINITO_SRC_DIR}/roles/update/files/shell/centos_mirror.sh
 COPY requirements ${INFINITO_SRC_DIR}/requirements
 COPY utils/__init__.py ${INFINITO_SRC_DIR}/utils/__init__.py
