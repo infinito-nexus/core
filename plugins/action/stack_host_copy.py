@@ -8,12 +8,14 @@ from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.parsing.convert_bool import boolean as _to_bool
+from ansible.plugins.action import copy as _copy_action
 from ansible.plugins.action.copy import ActionModule as CopyActionModule
 from ansible.plugins.action.copy import _walk_dirs
 from ansible.template import trust_as_template
 from ansible.utils.hashing import checksum
 
 _IS_STACK_HOST_EXPR = trust_as_template("{{ IS_STACK_HOST | bool }}")
+_BYTECODE_CACHE_DIR = "__pycache__"
 _TREE_CHECK_ARGS = frozenset(
     {
         "src",
@@ -41,6 +43,30 @@ def _parents(rel: str) -> list[str]:
     return [str(parent) for parent in PurePath(rel).parents if str(parent) != "."]
 
 
+def _walk_dirs_without_bytecode_caches(*args: Any, **kwargs: Any) -> dict[str, Any]:
+    """Walk a source tree like the copy action, minus CPython bytecode caches.
+
+    Args:
+        *args: Positional arguments of the copy action's ``_walk_dirs``.
+        **kwargs: Keyword arguments of the copy action's ``_walk_dirs``.
+
+    Returns:
+        The ``_walk_dirs`` result without the files, directories and symlinks
+        at or below a ``__pycache__`` directory.
+    """
+    tree = _walk_dirs(*args, **kwargs)
+    if not isinstance(tree["symlinks"], list):
+        return tree
+    return {
+        kind: [
+            entry
+            for entry in entries
+            if _BYTECODE_CACHE_DIR not in PurePath(entry[1]).parts
+        ]
+        for kind, entries in tree.items()
+    }
+
+
 class ActionModule(CopyActionModule):
     def run(
         self, tmp: Any = None, task_vars: dict[str, Any] | None = None
@@ -60,7 +86,12 @@ class ActionModule(CopyActionModule):
         unchanged = self._unchanged_tree(task_vars)
         if unchanged is not None:
             return unchanged
-        return super().run(tmp=tmp, task_vars=task_vars)
+        walk = _copy_action._walk_dirs
+        _copy_action._walk_dirs = _walk_dirs_without_bytecode_caches
+        try:
+            return super().run(tmp=tmp, task_vars=task_vars)
+        finally:
+            _copy_action._walk_dirs = walk
 
     def _unchanged_tree(self, task_vars: dict[str, Any]) -> dict[str, Any] | None:
         """Settle a directory copy whose files all match in one remote call.
@@ -96,7 +127,7 @@ class ActionModule(CopyActionModule):
             return None
         source = source if source.endswith(os.path.sep) else source + os.path.sep
         shell = self._connection._shell
-        tree = _walk_dirs(
+        tree = _walk_dirs_without_bytecode_caches(
             source,
             local_follow=_to_bool(args.get("local_follow", True), strict=False),
             trailing_slash_detector=shell.path_has_trailing_slash,

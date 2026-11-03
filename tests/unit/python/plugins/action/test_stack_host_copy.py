@@ -6,7 +6,12 @@ from pathlib import Path
 from typing import ClassVar
 from unittest.mock import patch
 
-from plugins.action.stack_host_copy import ActionModule
+from ansible.plugins.action import copy as copy_action
+
+from plugins.action.stack_host_copy import (
+    ActionModule,
+    _walk_dirs_without_bytecode_caches,
+)
 
 
 class _FakeTask:
@@ -173,9 +178,11 @@ class _FakeRemote:
     def __init__(self, entries):
         self.entries = dict(entries)
         self.calls = []
+        self.args = []
 
     def __call__(self, module_name=None, module_args=None, task_vars=None, **kwargs):
         self.calls.append(module_name)
+        self.args.append(module_args)
         if module_name == "ansible.legacy.file_checksums":
             return {
                 "changed": False,
@@ -373,6 +380,93 @@ class TestStackHostCopyTree(unittest.TestCase):
 
         self.assertFalse(result["changed"])
         self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+
+    def _add_bytecode_caches(self):
+        for rel in (
+            "__pycache__/mod.cpython-314.pyc",
+            "nested/__pycache__/mod.cpython-313.pyc",
+        ):
+            (self.src / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.src / rel).write_bytes(b"bytecode")
+
+    def test_bytecode_caches_stay_out_of_the_tree_check(self):
+        self._add_bytecode_caches()
+        remote = _FakeRemote(self._synced())
+
+        result = self._run(remote)
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+        self.assertEqual(sorted(remote.args[0]["paths"]), sorted(self._synced()))
+
+    def test_bytecode_caches_are_not_transferred(self):
+        self._add_bytecode_caches()
+        entries = self._synced()
+        entries[self.DEST + "icon.png"] = (b"old", 0o644)
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertIn("ansible.legacy.copy", remote.calls)
+        touched = [str(value) for args in remote.args for value in args.values()]
+        self.assertEqual([value for value in touched if "__pycache__" in value], [])
+
+    def test_bytecode_outside_a_cache_directory_stays_in_the_copy(self):
+        (self.src / "legacy.pyc").write_bytes(b"bytecode")
+        remote = _FakeRemote(self._synced())
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertIn(self.DEST + "legacy.pyc", remote.args[0]["paths"])
+        self.assertIn("ansible.legacy.copy", remote.calls)
+
+    def test_symlinked_root_passes_the_cache_filter_unchanged(self):
+        with tempfile.TemporaryDirectory() as links:
+            root = Path(links) / "root"
+            root.symlink_to(self.src)
+
+            filtered = _walk_dirs_without_bytecode_caches(str(root), local_follow=False)
+
+        self.assertEqual(filtered["symlinks"], (str(self.src), "root"))
+
+
+class TestStackHostCopyWalkSwap(unittest.TestCase):
+    def _action(self):
+        task = _FakeTask(args={"src": "x", "dest": "/opt/compose/app/x"})
+        return _make_action(task, _FakeTemplar(is_stack_host=True))
+
+    def test_copy_action_walks_without_caches_only_during_the_run(self):
+        original = copy_action._walk_dirs
+        seen = []
+
+        def copy_run(**kwargs):
+            seen.append(copy_action._walk_dirs)
+            return {"changed": False}
+
+        with patch(
+            "plugins.action.stack_host_copy.CopyActionModule.run",
+            side_effect=copy_run,
+        ):
+            self._action().run(task_vars={})
+
+        self.assertEqual(seen, [_walk_dirs_without_bytecode_caches])
+        self.assertIs(copy_action._walk_dirs, original)
+
+    def test_copy_action_walk_is_restored_when_the_copy_raises(self):
+        original = copy_action._walk_dirs
+
+        with (
+            patch(
+                "plugins.action.stack_host_copy.CopyActionModule.run",
+                side_effect=RuntimeError("boom"),
+            ),
+            self.assertRaises(RuntimeError),
+        ):
+            self._action().run(task_vars={})
+
+        self.assertIs(copy_action._walk_dirs, original)
 
 
 if __name__ == "__main__":
