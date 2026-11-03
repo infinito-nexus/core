@@ -251,6 +251,33 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             "/healthz/live must NOT be a static return 200 — it must check backend health",
         )
 
+    def _location_block(self, content, location):
+        start = content.index(f"location = {location} {{")
+        depth = 0
+        for index in range(start, len(content)):
+            if content[index] == "{":
+                depth += 1
+            elif content[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    return content[start : index + 1]
+        raise AssertionError(f"unterminated block for {location}")
+
+    def test_ready_probe_returns_only_the_backend_status(self):
+        content = read_text(str(self._healthz_conf_path()))
+        ready = self._location_block(content, "/healthz/ready")
+        for proxying in ("proxy_pass", "prometheus_ready_backend"):
+            with self.subTest(proxying=proxying):
+                self.assertNotIn(
+                    proxying,
+                    ready,
+                    "/healthz/ready sits outside the vhost's auth gate; proxying it "
+                    "hands the client's method, query and body to the backend and "
+                    "its page back",
+                )
+        self.assertIn('ngx.location.capture("/_ready_probe")', ready)
+        self.assertIn("internal;", self._location_block(content, "/_ready_probe"))
+
     def _prometheus_conf_path(self):
         return (
             PROJECT_ROOT
