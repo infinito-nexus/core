@@ -148,6 +148,8 @@ class Target:
         ref: the image id, or :data:`HOST_ROOT`.
         label: the image name or the host name.
         owners: ``(stack, service)`` of every container running the image.
+        owner_tags: ``((stack, service), tag)`` pairs, the image tag each
+            owner runs the image under; empty for the host.
     """
 
     key: str
@@ -155,6 +157,10 @@ class Target:
     ref: str
     label: str
     owners: tuple[tuple[str | None, str | None], ...]
+    owner_tags: tuple[tuple[tuple[str | None, str | None], str], ...]
+
+    def tag_of(self, owner: tuple[str | None, str | None]) -> str | None:
+        return dict(self.owner_tags).get(owner)
 
 
 @dataclass(frozen=True)
@@ -186,8 +192,21 @@ class Finding:
 
 @dataclass(frozen=True)
 class Suppression:
-    id: str
+    """One accepted CVE, or every finding of one image tag.
+
+    Args:
+        id: the CVE id, ``None`` for an image tag entry.
+        image_tag: the image tag, ``None`` for a CVE entry.
+        until: the last day the suppression applies.
+    """
+
+    id: str | None
+    image_tag: str | None
     until: dt.date
+
+    @property
+    def subject(self) -> str:
+        return self.id or f"image tag {self.image_tag}"
 
 
 @dataclass(frozen=True)
@@ -538,7 +557,11 @@ def scan_config(raw: Mapping) -> ScanConfig:
 def suppressions_from_json(raw: Mapping) -> Suppressions:
     def entries(items: Iterable[Mapping]) -> tuple[Suppression, ...]:
         return tuple(
-            Suppression(id=item["id"], until=dt.date.fromisoformat(item["until"]))
+            Suppression(
+                id=item["id"],
+                image_tag=item["image_tag"],
+                until=dt.date.fromisoformat(item["until"]),
+            )
             for item in items
         )
 
@@ -727,9 +750,37 @@ def threshold(finding: Finding, config: ScanConfig) -> str | None:
     return config.severity.get(finding.severity)
 
 
-def matching(rules: Sequence[Suppression], finding: Finding) -> Suppression | None:
-    """Return the suppression naming one of the finding's ids, latest first."""
-    hits = [rule for rule in rules if rule.id in finding.ids]
+def image_tag(name: str) -> str:
+    """Return the tag of an image reference, ``latest`` when it names none.
+
+    Args:
+        name: ``[registry/]repository[:tag][@digest]``.
+    """
+    repository = name.split("@", 1)[0].rsplit("/", 1)[-1]
+    _, separator, tag = repository.partition(":")
+    return tag if separator else "latest"
+
+
+def matching(
+    rules: Sequence[Suppression], finding: Finding, tag: str | None
+) -> Suppression | None:
+    """Return the suppression covering the finding, latest first.
+
+    Args:
+        rules: the suppressions of the finding's owner.
+        finding: the finding.
+        tag: the tag of the scanned image, ``None`` for the host, where no
+            image tag entry applies.
+    """
+    hits = [
+        rule
+        for rule in rules
+        if (
+            rule.id in finding.ids
+            if rule.id
+            else tag is not None and rule.image_tag == tag
+        )
+    ]
     return max(hits, key=lambda rule: rule.until) if hits else None
 
 
@@ -807,7 +858,7 @@ def verdicts(
                 rules = ()
             else:
                 rules = suppressions.containers.get(owner[0], {}).get(owner[1], ())
-            rule = matching(rules, finding)
+            rule = matching(rules, finding, target.tag_of(owner))
             judged.append(
                 Verdict(
                     finding,
@@ -847,7 +898,7 @@ def report_lines(
             continue
         if verdict.rule is not None:
             infos.append(
-                f"{verdict.where()}: suppression of {verdict.rule.id} expired on {verdict.rule.until}"
+                f"{verdict.where()}: suppression of {verdict.rule.subject} expired on {verdict.rule.until}"
             )
         (failures if verdict.action == "fail" else warnings).append(line)
     return failures, warnings, infos
@@ -1080,13 +1131,24 @@ def container_targets(containers: Iterable[Container]) -> list[Target]:
                 ref=image,
                 label=members[0].image_name,
                 owners=tuple((member.stack, member.service) for member in members),
+                owner_tags=tuple(
+                    ((member.stack, member.service), image_tag(member.image_name))
+                    for member in members
+                ),
             )
         )
     return targets
 
 
 def host_target(hostname: str) -> Target:
-    return Target(key="host", kind="host", ref=HOST_ROOT, label=hostname, owners=())
+    return Target(
+        key="host",
+        kind="host",
+        ref=HOST_ROOT,
+        label=hostname,
+        owners=(),
+        owner_tags=(),
+    )
 
 
 def _env(pairs: Mapping[str, str]) -> list[str]:

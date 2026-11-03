@@ -88,6 +88,9 @@ def targets_of(p: ModuleType, grouped: Mapping[str, Sequence[ImageRef]]) -> list
             ref=digest,
             label=refs[0].source,
             owners=tuple(sorted({(ref.role, ref.service) for ref in refs})),
+            owner_tags=tuple(
+                sorted({((ref.role, ref.service), ref.version) for ref in refs})
+            ),
         )
         for digest, refs in sorted(grouped.items())
     ]
@@ -238,7 +241,10 @@ def suppressions_of(p: ModuleType, roles: Sequence[str]):
         containers={
             role: {
                 service: tuple(
-                    p.Suppression(id=entry.id, until=entry.until) for entry in entries
+                    p.Suppression(
+                        id=entry.id, image_tag=entry.image_tag, until=entry.until
+                    )
+                    for entry in entries
                 )
                 for service, entries in role_suppressions(
                     PROJECT_ROOT / "roles", role

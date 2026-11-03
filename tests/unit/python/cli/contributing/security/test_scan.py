@@ -71,6 +71,24 @@ class TestTargets(TestCase):
         self.assertEqual(target.owners, (("web-app-a", "a"), ("web-app-b", "b")))
         self.assertEqual(target.key, "abc")
 
+    def test_each_owner_keeps_its_own_pinned_tag(self):
+        target = scan_main.targets_of(
+            P,
+            {
+                "sha256:abc": [
+                    _ref("web-app-moodle", "nginx", "library/nginx", "1.31.8-alpine"),
+                    _ref("web-app-hugo", "nginx", "library/nginx", "1.31-alpine"),
+                ]
+            },
+        )[0]
+        self.assertEqual(
+            (
+                target.tag_of(("web-app-hugo", "nginx")),
+                target.tag_of(("web-app-moodle", "nginx")),
+            ),
+            ("1.31-alpine", "1.31.8-alpine"),
+        )
+
 
 class TestSteps(TestCase):
     def setUp(self):
@@ -87,6 +105,7 @@ class TestSteps(TestCase):
             "sha256:abc",
             "docker.io/library/php:8.4.26-cli",
             (("r", "s"),),
+            ((("r", "s"), "8.4.26-cli"),),
         )
 
     def test_syft_reads_the_mirror_by_digest_without_a_daemon(self):
@@ -113,6 +132,7 @@ class TestReport(TestCase):
         "sha256:abc",
         "docker.io/library/php:8.4.26-cli",
         (("r", "s"),),
+        ((("r", "s"), "8.4.26-cli"),),
     )
 
     def _finding(self, severity):
@@ -134,7 +154,7 @@ class TestReport(TestCase):
                 finding,
                 self.target,
                 ("r", "t"),
-                P.Suppression("CVE-2026-109618", dt.date(2026, 12, 31)),
+                P.Suppression("CVE-2026-109618", None, dt.date(2026, 12, 31)),
                 True,
                 "fail",
             ),
@@ -170,7 +190,14 @@ class TestScanTree(TestCase):
                 work=root / "run",
                 excludes=(),
             )
-            target = P.Target("abc", "container", "sha256:abc", "img", (("r", "s"),))
+            target = P.Target(
+                "abc",
+                "container",
+                "sha256:abc",
+                "img",
+                (("r", "s"),),
+                ((("r", "s"), "latest"),),
+            )
             (root / "sbom" / "abc.syft.json").write_text("{}", encoding="utf-8")
             (root / "sbom" / "abc.cdx.json").write_text(
                 json.dumps({"components": []}), encoding="utf-8"

@@ -1,14 +1,20 @@
 """Lint: every CVE suppression in a role's ``meta/services.yml`` is justified and dated.
 
-An entry under ``<service>.security.suppressions`` needs ``id: CVE-YYYY-NNNN``,
-an ``until: YYYY-MM-DD`` that has not passed, and a ``# nocheck: cve <reason>``
-marker on the line directly above it::
+An entry under ``<service>.security.suppressions`` needs ``id: CVE-YYYY-NNNN``
+or an ``image_tag`` equal to the service's ``version``, an ``until:
+YYYY-MM-DD`` that has not passed, and a ``# nocheck: cve <reason>`` marker on
+the line directly above it::
 
     checkmk:
+      image: checkmk/check-mk-raw
+      version: "2.4.0p39"
       security:
         suppressions:
           # nocheck: cve the vulnerable module is not loaded by the site
           - id: CVE-2026-1234
+            until: 2026-12-31
+          # nocheck: cve upstream ships no rebuild with the fixed packages yet
+          - image_tag: "2.4.0p39"
             until: 2026-12-31
 """
 
@@ -96,7 +102,13 @@ def problems(text: str, where: str, today: dt.date) -> list[str]:
                 continue
             if parsed.until < today:
                 found.append(
-                    f"{where}: {service} suppression of {parsed.id} expired on {parsed.until}"
+                    f"{where}: {service} suppression of {parsed.subject} expired on {parsed.until}"
+                )
+            version = spec.get("version")
+            if parsed.image_tag is not None and parsed.image_tag != str(version):
+                found.append(
+                    f"{where}: {service} suppression of {parsed.subject} does not "
+                    f"match its version {version!r}"
                 )
     return found
 
@@ -167,6 +179,42 @@ class TestCheckerCases(unittest.TestCase):
     def test_a_marker_for_another_rule_does_not_count(self) -> None:
         text = VALID.replace("nocheck: cve", "nocheck: url")
         self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
+
+    def test_an_image_tag_of_the_current_version_passes(self) -> None:
+        self.assertEqual(self._problems(TAGGED), [])
+
+    def test_an_image_tag_of_an_older_version_fails(self) -> None:
+        text = TAGGED.replace('version: "2.18.6"', 'version: "2.18.7"')
+        self.assertIn(
+            "image tag 2.18.6 does not match its version '2.18.7'",
+            self._problems(text)[0],
+        )
+
+    def test_an_image_tag_without_a_version_fails(self) -> None:
+        text = TAGGED.replace('  version: "2.18.6"\n', "")
+        self.assertIn("does not match its version None", self._problems(text)[0])
+
+    def test_an_unmarked_image_tag_entry_fails(self) -> None:
+        text = TAGGED.replace(
+            "      # nocheck: cve upstream ships no rebuild yet\n", ""
+        )
+        self.assertIn("has no # nocheck: cve <reason> marker", self._problems(text)[0])
+
+    def test_an_expired_image_tag_entry_fails(self) -> None:
+        text = TAGGED.replace("2026-12-31", "2026-10-30")
+        self.assertIn("image tag 2.18.6 expired on 2026-10-30", self._problems(text)[0])
+
+
+TAGGED = """\
+app:
+  image: app
+  version: "2.18.6"
+  security:
+    suppressions:
+      # nocheck: cve upstream ships no rebuild yet
+      - image_tag: "2.18.6"
+        until: 2026-12-31
+"""
 
 
 if __name__ == "__main__":

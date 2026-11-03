@@ -21,9 +21,11 @@ def collect(group_names: list[str]) -> dict[str, dict]:
 
     Returns:
         ``{"containers": {entity: {service: [entry]}}, "host": {engine:
-        [entry]}}`` where an entry is ``{"id", "until"}``. The entity is the
-        compose project and swarm stack name, so a role's suppressions reach
-        only its own containers.
+        [entry]}}`` where an entry is ``{"id", "image_tag", "until"}``. The
+        entity is the compose project and swarm stack name, so a role's
+        suppressions reach only its own containers. The host takes the
+        ``id`` entries of the engine services only; their ``image_tag``
+        entries cover the engine's own image.
     """
     containers: dict[str, dict[str, list[dict[str, str]]]] = {}
     for role in sorted(set(group_names)):
@@ -36,7 +38,7 @@ def collect(group_names: list[str]) -> dict[str, dict]:
             }
     own = role_suppressions(ROLES_DIR, ROLE)
     host = {
-        engine: [entry.as_json() for entry in entries]
+        engine: [entry.as_json() for entry in entries if entry.id]
         for engine, entries in own.items()
         if engine in SCANNERS
     }

@@ -31,27 +31,41 @@ def _load_module():
 MODULE = _load_module()
 UNTIL = dt.date(2026, 12, 31)
 DECLARED = {
-    "web-app-checkmk": {"checkmk": [Suppression("CVE-2026-1", UNTIL)]},
+    "web-app-checkmk": {
+        "checkmk": [
+            Suppression("CVE-2026-1", None, UNTIL),
+            Suppression(None, "2.4.0p39", UNTIL),
+        ]
+    },
     "sys-ctl-hlth-runtime": {
-        "trivy": [Suppression("CVE-2026-2", UNTIL)],
-        "runtime": [Suppression("CVE-2026-3", UNTIL)],
+        "trivy": [Suppression("CVE-2026-2", None, UNTIL)],
+        "runtime": [Suppression("CVE-2026-3", None, UNTIL)],
     },
 }
 
 
-def _declared(_roles_dir, role):
-    return DECLARED.get(role, {})
+def _declared(declared):
+    return lambda _roles_dir, role: declared.get(role, {})
 
 
 class TestCollect(TestCase):
-    def _collect(self, roles):
-        with mock.patch.object(MODULE, "role_suppressions", side_effect=_declared):
+    def _collect(self, roles, declared=DECLARED):
+        with mock.patch.object(
+            MODULE, "role_suppressions", side_effect=_declared(declared)
+        ):
             return MODULE.collect(roles)
 
     def test_a_role_is_keyed_by_its_stack_name(self):
         self.assertEqual(
             self._collect(["web-app-checkmk"])["containers"],
-            {"checkmk": {"checkmk": [{"id": "CVE-2026-1", "until": "2026-12-31"}]}},
+            {
+                "checkmk": {
+                    "checkmk": [
+                        {"id": "CVE-2026-1", "image_tag": None, "until": "2026-12-31"},
+                        {"id": None, "image_tag": "2.4.0p39", "until": "2026-12-31"},
+                    ]
+                }
+            },
         )
 
     def test_a_role_without_suppressions_is_left_out(self):
@@ -60,7 +74,29 @@ class TestCollect(TestCase):
     def test_host_suppressions_come_from_the_engine_entries_only(self):
         self.assertEqual(
             self._collect([])["host"],
-            {"trivy": [{"id": "CVE-2026-2", "until": "2026-12-31"}]},
+            {"trivy": [{"id": "CVE-2026-2", "image_tag": None, "until": "2026-12-31"}]},
+        )
+
+    def test_an_engine_image_tag_entry_covers_its_image_not_the_host(self):
+        declared = {
+            "sys-ctl-hlth-runtime": {
+                "grype": [
+                    Suppression("CVE-2026-2", None, UNTIL),
+                    Suppression(None, "v0.121.0", UNTIL),
+                ]
+            }
+        }
+        collected = self._collect(["sys-ctl-hlth-runtime"], declared)
+        self.assertEqual(
+            (
+                [entry["image_tag"] for entry in collected["host"]["grype"]],
+                [
+                    entry["image_tag"]
+                    for entries in collected["containers"].values()
+                    for entry in entries["grype"]
+                ],
+            ),
+            ([None], [None, "v0.121.0"]),
         )
 
 

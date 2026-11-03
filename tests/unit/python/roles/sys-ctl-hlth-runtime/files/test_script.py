@@ -388,7 +388,11 @@ def _suppressions(containers=None, host=None):
 
 
 def _rule(cve="CVE-2026-0001", until=TODAY):
-    return SCRIPT.Suppression(id=cve, until=until)
+    return SCRIPT.Suppression(id=cve, image_tag=None, until=until)
+
+
+def _tag_rule(tag, until=TODAY):
+    return SCRIPT.Suppression(id=None, image_tag=tag, until=until)
 
 
 def _container(name, stack=None, service=None, image="sha256:img"):
@@ -498,6 +502,7 @@ class TestSourceBuiltRuntime(TestCase):
             "sha256:img",
             "roundcube:1.7.5-apache",
             (("roundcube", "roundcube"),),
+            ((("roundcube", "roundcube"), "1.7.5-apache"),),
         )
         return SCRIPT.evaluate(
             SCRIPT.parse_grype(GRYPE_PHP_RUNTIME, "img"),
@@ -755,9 +760,14 @@ class TestVerdict(TestCase):
 
 
 class TestSuppressions(TestCase):
-    def _container_target(self, owners):
+    def _container_target(self, owners, tag="2.4.0p39"):
         return SCRIPT.Target(
-            "img", "container", "sha256:img", "checkmk/check-mk-raw:2.4.0p39", owners
+            "img",
+            "container",
+            "sha256:img",
+            "checkmk/check-mk-raw:2.4.0p39",
+            owners,
+            tuple((owner, tag) for owner in owners),
         )
 
     def _evaluate(self, target, suppressions, finding=None):
@@ -842,24 +852,140 @@ class TestSuppressions(TestCase):
         failures, _warnings, _infos = self._evaluate(target, _suppressions())
         self.assertIn("unmanaged container", failures[0])
 
+    def test_an_image_tag_suppression_silences_every_finding_of_that_tag(self):
+        target = self._container_target((("checkmk", "checkmk"),))
+        failures, _warnings, infos = SCRIPT.evaluate(
+            [
+                _finding(target="img", ids=("CVE-2026-0001",)),
+                _finding(target="img", ids=("CVE-2026-0002",), severity="CRITICAL"),
+            ],
+            {target.key: target},
+            _config(severity=STRICT),
+            _suppressions({"checkmk": {"checkmk": (_tag_rule("2.4.0p39"),)}}),
+            TODAY,
+        )
+        self.assertEqual((failures, len(infos)), ([], 2))
+
+    def test_an_image_tag_suppression_of_another_tag_does_not_apply(self):
+        target = self._container_target((("checkmk", "checkmk"),))
+        failures, _warnings, infos = self._evaluate(
+            target, _suppressions({"checkmk": {"checkmk": (_tag_rule("2.4.0p38"),)}})
+        )
+        self.assertEqual((len(failures), infos), (1, []))
+
+    def test_an_expired_image_tag_suppression_fails_and_names_the_tag(self):
+        target = self._container_target((("checkmk", "checkmk"),))
+        failures, _warnings, infos = self._evaluate(
+            target,
+            _suppressions(
+                {
+                    "checkmk": {
+                        "checkmk": (
+                            _tag_rule("2.4.0p39", TODAY - dt.timedelta(days=1)),
+                        )
+                    }
+                }
+            ),
+        )
+        self.assertEqual(len(failures), 1)
+        self.assertIn("image tag 2.4.0p39 expired on 2026-10-30", infos[0])
+
+    def test_each_owner_of_a_shared_image_is_judged_by_its_own_tag(self):
+        hugo, moodle = ("hugo", "nginx"), ("moodle", "nginx")
+        target = SCRIPT.Target(
+            "img",
+            "container",
+            "sha256:img",
+            "nginx:1.31.8-alpine",
+            (hugo, moodle),
+            ((hugo, "1.31-alpine"), (moodle, "1.31.8-alpine")),
+        )
+        rule = (_tag_rule("1.31-alpine"),)
+        failures, _warnings, _infos = self._evaluate(
+            target, _suppressions({"hugo": {"nginx": rule}, "moodle": {"nginx": rule}})
+        )
+        self.assertEqual(
+            failures,
+            [
+                "trivy container moodle/nginx nginx:1.31.8-alpine: CVE-2026-0001 HIGH openssl 1.0 (fixed in 1.1)"
+            ],
+        )
+
+    def test_an_image_tag_never_suppresses_the_host(self):
+        target = SCRIPT.host_target("latest")
+        failures, _warnings, _infos = SCRIPT.evaluate(
+            [_finding()],
+            {"host": target},
+            _config(severity=STRICT),
+            _suppressions(host={"trivy": (_tag_rule("latest"),)}),
+            TODAY,
+        )
+        self.assertEqual(len(failures), 1)
+
     def test_suppressions_from_json(self):
         parsed = SCRIPT.suppressions_from_json(
             {
                 "containers": {
                     "checkmk": {
-                        "checkmk": [{"id": "CVE-2026-1", "until": "2026-12-31"}]
+                        "checkmk": [
+                            {
+                                "id": "CVE-2026-1",
+                                "image_tag": None,
+                                "until": "2026-12-31",
+                            },
+                            {
+                                "id": None,
+                                "image_tag": "2.4.0p39",
+                                "until": "2026-12-31",
+                            },
+                        ]
                     }
                 },
                 "host": {},
             }
         )
         self.assertEqual(
-            parsed.containers["checkmk"]["checkmk"][0].until,
-            dt.date(2026, 12, 31),
+            parsed.containers["checkmk"]["checkmk"],
+            (
+                SCRIPT.Suppression("CVE-2026-1", None, dt.date(2026, 12, 31)),
+                SCRIPT.Suppression(None, "2.4.0p39", dt.date(2026, 12, 31)),
+            ),
         )
 
 
+class TestImageTag(TestCase):
+    def test_cases(self):
+        cases = {
+            "checkmk/check-mk-raw:2.4.0p39": "2.4.0p39",
+            "ghcr.io/infinito-nexus/core/mirror/docker.io/penpotapp/exporter:2.18.5": "2.18.5",
+            "penpotapp/exporter:2.18.5@sha256:abc": "2.18.5",
+            "registry.local:5000/app": "latest",
+            "registry.local:5000/app:1.2": "1.2",
+            "postgres@sha256:abc": "latest",
+        }
+        self.assertEqual({name: SCRIPT.image_tag(name) for name in cases}, cases)
+
+
 class TestContainerTargets(TestCase):
+    def test_each_owner_keeps_the_tag_its_container_runs(self):
+        first = _container("a", "hugo", "nginx")
+        second = SCRIPT.Container(
+            id="id-b",
+            name="b",
+            stack="moodle",
+            service="nginx",
+            image="sha256:img",
+            image_name="nginx:1.31.8-alpine@sha256:abc",
+        )
+        (target,) = SCRIPT.container_targets([first, second])
+        self.assertEqual(
+            (target.tag_of(("hugo", "nginx")), target.tag_of(("moodle", "nginx"))),
+            ("1", "1.31.8-alpine"),
+        )
+
+    def test_the_host_has_no_image_tag(self):
+        self.assertIsNone(SCRIPT.host_target("node").tag_of((None, None)))
+
     def test_containers_of_one_image_share_a_target(self):
         targets = SCRIPT.container_targets(
             [
@@ -1109,7 +1235,12 @@ class TestCommands(TestCase):
         )
         self.host = SCRIPT.host_target("node")
         self.container = SCRIPT.Target(
-            "abc", "container", "sha256:abc", "app:1", (("app", "app"),)
+            "abc",
+            "container",
+            "sha256:abc",
+            "app:1",
+            (("app", "app"),),
+            ((("app", "app"), "1"),),
         )
 
     def test_the_host_is_mounted_read_only(self):
@@ -1357,6 +1488,7 @@ NEXTCLOUD = SCRIPT.Target(
     "sha256:abc",
     "nextcloud:31",
     (("nextcloud", "nextcloud"), ("nextcloud", "cron")),
+    ((("nextcloud", "nextcloud"), "31"), (("nextcloud", "cron"), "31")),
 )
 
 
@@ -1573,7 +1705,12 @@ class TestMetrics(TestCase):
 
     def test_label_values_are_escaped(self):
         target = SCRIPT.Target(
-            "abc", "container", "sha256:abc", 'odd"\\name\n', ((None, None),)
+            "abc",
+            "container",
+            "sha256:abc",
+            'odd"\\name\n',
+            ((None, None),),
+            (((None, None), "latest"),),
         )
         text = _outcome([_verdict(target, (None, None), action="warn")]).metrics()
         self.assertIn('image="odd\\"\\\\name\\n@sha256:abc"', text)
@@ -1701,7 +1838,11 @@ class TestMain(TestCase):
     def test_a_suppressed_finding_is_info_and_passes(self):
         suppressions = {
             "containers": {},
-            "host": {"grype": [{"id": "CVE-2026-0001", "until": "2099-12-31"}]},
+            "host": {
+                "grype": [
+                    {"id": "CVE-2026-0001", "image_tag": None, "until": "2099-12-31"}
+                ]
+            },
         }
         code, output = self._main([CRITICAL_FINDING], suppressions=suppressions)
         self.assertEqual(code, 0)
