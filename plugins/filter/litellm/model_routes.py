@@ -122,6 +122,16 @@ def litellm_model_routes(
                 "max_tokens": max_tokens,
                 "timeout": timeout,
             }
+            if "api_base" in model:
+                if not isinstance(model["api_base"], str) or not model["api_base"]:
+                    raise ValueError(
+                        "Declared model api_base must be a nonempty string"
+                    )
+                if type((model.get("traits") or {}).get("local")) is not bool:
+                    raise ValueError(
+                        "Declared models with api_base require explicit traits.local"
+                    )
+                params["api_base"] = model["api_base"]
         routes.append(
             {
                 "alias": alias,

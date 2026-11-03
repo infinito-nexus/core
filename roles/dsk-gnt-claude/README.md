@@ -6,7 +6,9 @@
 
 ## Overview
 
-The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes the gateway URL, the workstation's key and the model aliases to `/usr/local/etc/claude-gateway.env` and installs the launcher `/usr/local/bin/claude-gateway`, which exports them and then starts `claude`. A session started with `claude-gateway` sends every request through the gateway, where it is accounted; a session started with `claude` keeps the user's own login, for example a subscription, and both share `~/.claude` with its memory, skills and projects.
+The agent speaks the Anthropic Messages API, which the LiteLLM gateway serves alongside its OpenAI routes. The role writes the gateway URL, the workstation's key and the model aliases to `/usr/local/etc/claude-gateway.env` and installs the launcher `/usr/local/bin/claude-gateway`, which exports them and then starts `claude`. A session started with `claude-gateway` sends every request through the gateway, where it is accounted. Without managed connection settings, `claude` uses the user's own login, for example a subscription. Both share `~/.claude` with its memory, skills and projects.
+
+When the [unified Claude profile](../dsk-code/README.md) is enabled, `claude` follows the connection selected with `claude-mode gateway` or `claude-mode abo`. Close Code before switching and start a new Claude session afterward. `claude-gateway` always explicitly selects the gateway.
 
 The gateway mints its virtual keys from the inventory it is deployed from, and a workstation is deployed from a different one. The key is therefore an operator-supplied credential on the workstation side: mint it on the server, then put it into the workstation inventory.
 

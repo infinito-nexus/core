@@ -512,6 +512,19 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         routes = [local("home", context=99999), remote("big", context=99999)]
         self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
 
+    def test_remote_openai_endpoint_does_not_bypass_local_only_routing(self) -> None:
+        external = local(
+            "openrouter/free",
+            model="openai/openrouter/free",
+            context=99999,
+            traits={"local": False},
+        )
+        external["litellm_params"]["api_base"] = "https://openrouter.ai/api/v1"
+        routes = [local("tiny", context=10), external]
+        verdict = self.route(load(remote_fallback=True), self.SECRET, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("structured secret", verdict)
+
     def test_by_default_a_big_prompt_does_not_leave_the_cluster(self) -> None:
         routes = [local("tiny", context=10), remote("big", context=99999)]
         verdict = self.route(self.hook, self.BIG, routes)

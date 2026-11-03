@@ -1,9 +1,48 @@
+import json
+import os
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
+from utils import PROJECT_ROOT
 from utils.cache.api import declared_api, provider_enabled, resolve_api
 
 
 class TestResolveApi(unittest.TestCase):
+    def test_playbook_group_vars_preserve_inventory_credentials(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            inventory = Path(directory)
+            (inventory / "hosts.yml").write_text(
+                "all:\n  hosts:\n    api-test-host: {}\n"
+            )
+            (inventory / "group_vars").mkdir()
+            (inventory / "group_vars/all.yml").write_text(
+                "API:\n  anthropic:\n    api_key: inventory-test-key\n"
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "ansible.cli.inventory",
+                    "-i",
+                    str(inventory / "hosts.yml"),
+                    "--playbook-dir",
+                    str(PROJECT_ROOT),
+                    "--host",
+                    "api-test-host",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+                env=dict(os.environ, ANSIBLE_LOCAL_TEMP=directory),
+            )
+            variables = json.loads(result.stdout)
+            resolved = resolve_api(variables)
+            self.assertEqual(resolved["anthropic"]["api_key"], "inventory-test-key")
+            self.assertIn("github", resolved)
+
     def test_a_partial_override_keeps_the_declared_providers(self) -> None:
         declared = declared_api()
         self.assertIn("github", declared)

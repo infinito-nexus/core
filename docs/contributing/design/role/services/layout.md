@@ -142,13 +142,15 @@ credentials:
     description: "OpenAI API key; empty leaves the openai/* models unpublished"
     type:        "string"
     regex:       "\\S{20,}"
-    default:     "{{ API.openai.api_key }}"
+    default:     "{{ lookup('api', 'openai.api_key') }}"
 ```
 
-The `default:` points at the central `API` block in
-[group_vars/all/18_api.yml](../../../../../group_vars/all/18_api.yml), so an
-operator fills the provider in one place while the role keeps the shape the
-value must have.
+The `default:` resolves the inventory's central `API` mapping through the API
+lookup. Provider declarations live under `API_DECLARATIONS` in
+[group_vars/all/18_api.yml](../../../../../group_vars/all/18_api.yml). Keeping
+these mappings separate prevents playbook group variables from overwriting
+inventory credentials with empty values. The operator fills each provider once
+while the role keeps the shape the value must have.
 
 ### Write a pattern for the paste, not for the vendor 🚫
 

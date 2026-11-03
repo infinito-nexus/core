@@ -5,3 +5,7 @@ mechanism: extension
 source: upstream
 config:
   extension_id: anthropic.claude-code
+  user_data_dir: ""
+  gateway_url: ""
+  profiles: []
+  unified: {}

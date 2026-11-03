@@ -2,5 +2,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash "${here}/shared/gateway/run.sh"
+codex --version
+if [[ "${GATEWAY_ENABLED}" == "true" ]]; then
+  "${TEST_PYTHON}" /usr/local/lib/infinito/tests/dsk-gnt-codex/validate_codex.py --program "${CODEX_MODE_PROGRAM}" --home "${CODEX_USER_HOME}" --timeout "${TEST_TIMEOUT}"
+fi

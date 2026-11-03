@@ -229,7 +229,7 @@ class TestAiRemoteAliases(unittest.TestCase):
         env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
         return ast.literal_eval(
             env.from_string(self.template).render(
-                lookup=lookup, AI_MOCK_PROVIDER="mock"
+                lookup=lookup, AI_MOCK_PROVIDER="mock", AI_FREELLMAPI_MODELS=[]
             )
         )
 
