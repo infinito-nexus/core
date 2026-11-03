@@ -19,6 +19,7 @@ import os
 import shutil
 import signal
 import subprocess
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils import PROJECT_ROOT
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 DISK_FLOOR_MB = 6 * 2**10
+STORAGE_ROOTS = ("/", "/var/lib/containerd")
 MEM_FLOOR_RATIO = 0.06
 IO_STALL_CEILING_PCT = 50.0
 SAMPLE_INTERVAL_S = 10
@@ -73,11 +75,25 @@ def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
     return ABORT_RC
 
 
+def lowest_free_mb() -> tuple[int, str]:
+    """Measure the storage root closest to running full.
+
+    Returns:
+        Free MB on the fullest existing root in STORAGE_ROOTS, and that root.
+    """
+    return min(
+        (shutil.disk_usage(root).free // 2**20, root)
+        for root in STORAGE_ROOTS
+        if Path(root).is_dir()
+    )
+
+
 def sample_line(
     *,
     avail: int,
     total: int,
     free_mb: int,
+    root: str,
     mem_stall: float,
     io_stall: float,
     cpu_stall: float,
@@ -88,7 +104,8 @@ def sample_line(
     Args:
         avail: MemAvailable in MB.
         total: MemTotal in MB.
-        free_mb: free space on / in MB.
+        free_mb: free space on root in MB.
+        root: the storage root closest to running full.
         mem_stall: `full avg60` memory pressure in percent.
         io_stall: `full avg60` I/O pressure in percent.
         cpu_stall: `some avg60` CPU pressure in percent.
@@ -101,7 +118,7 @@ def sample_line(
     """
     return (
         f"=== swarm-matrix: host mem {avail}M/{total}M available, "
-        f"disk {free_mb}M free on /, stall60 {mem_stall:.1f}%, "
+        f"disk {free_mb}M free on {root}, stall60 {mem_stall:.1f}%, "
         f"io60 {io_stall:.1f}%, cpu60 {cpu_stall:.1f}%, dstate {dstate} ==="
     )
 
@@ -141,13 +158,13 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
             return int(proc.wait(timeout=SAMPLE_INTERVAL_S))
         except subprocess.TimeoutExpired:
             samples += 1
-            free_mb = shutil.disk_usage("/").free // 2**20
+            free_mb, root = lowest_free_mb()
             if free_mb < DISK_FLOOR_MB:
                 return _abort(
                     proc,
                     "=== swarm-matrix: DISK EXHAUSTION IMMINENT "
-                    f"(<{DISK_FLOOR_MB}M free on /) - aborting step ===",
-                    ["df", "-h", "/"],
+                    f"(<{DISK_FLOOR_MB}M free on {root}) - aborting step ===",
+                    ["df", "-h", *STORAGE_ROOTS],
                 )
             avail = mem_available_mb()
             total = mem_total_mb()
@@ -158,6 +175,7 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
                     avail=avail,
                     total=total,
                     free_mb=free_mb,
+                    root=root,
                     mem_stall=mem_stall_pct(),
                     io_stall=io_stall,
                     cpu_stall=cpu_stall_pct(),

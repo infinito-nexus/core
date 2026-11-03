@@ -4,7 +4,8 @@
 # spikes (e.g. peertube plugin install, issue #162) don't trip the host
 # OOM-killer, WITHOUT starving the rest of the job of disk space.
 #
-# Prefers /mnt when it is a separate partition (classic ubuntu-latest
+# Uses / when containerd already lives on /mnt (relocate_docker_dataroot.sh
+# runs first), otherwise prefers /mnt when it is a separate partition (classic ubuntu-latest
 # layout with /dev/sdb mounted at /mnt). On current public runners
 # there is no separate /mnt partition — everything lives on /, so we
 # place the swapfile there. The swap size is a hard constant, never a
@@ -46,7 +47,16 @@ root_free=$(df --output=avail -B1G / | tail -n1 | tr -d ' ')
 
 echo "Target swap: ${SWAP_GB}G. Free: / ${root_free}G, /mnt ${mnt_free}G (separate mount: $(mountpoint -q /mnt 2>/dev/null && echo yes || echo no))"
 
-if [ "$mnt_free" -ge "$MIN_FREE_GB" ]; then
+storage_on_mnt=no
+if mountpoint -q /mnt 2>/dev/null && containerd_dev="$(stat -c %d /var/lib/containerd 2>/dev/null)" &&
+	[ "$containerd_dev" = "$(stat -c %d /mnt)" ]; then
+	storage_on_mnt=yes
+fi
+
+if [ "$storage_on_mnt" = yes ] && [ "$root_free" -ge "$MIN_FREE_GB" ]; then
+	target=/swapfile
+	chosen="/ (containerd and Docker live on /mnt)"
+elif [ "$mnt_free" -ge "$MIN_FREE_GB" ]; then
 	target=/mnt/swapfile
 	chosen="/mnt (separate partition)"
 elif [ "$root_free" -ge "$MIN_FREE_GB" ]; then
