@@ -24,7 +24,7 @@ def _call(
     Args:
         snippet: bash code evaluated after sourcing; sees ``args`` as ``"$@"``.
         args: positional arguments handed to the snippet.
-        requires: value for ``INFINITO_PYTHON_REQUIRES``; ``None`` leaves it
+        requires: value for ``DEV_PYTHON_REQUIRES``; ``None`` leaves it
             unset so the script reads the repository's ``pyproject.toml``.
 
     Returns:
@@ -33,10 +33,10 @@ def _call(
     env = {
         key: value
         for key, value in os.environ.items()
-        if key != "INFINITO_PYTHON_REQUIRES"
+        if key != "DEV_PYTHON_REQUIRES"
     }
     if requires is not None:
-        env["INFINITO_PYTHON_REQUIRES"] = requires
+        env["DEV_PYTHON_REQUIRES"] = requires
     return subprocess.run(
         ["bash", "-c", f'source "$1"; shift; {snippet}', "bash", str(SCRIPT), *args],
         capture_output=True,
@@ -210,7 +210,7 @@ class TestBoundsFromRequiresPython(unittest.TestCase):
             for task in load_yaml_str(read_text(str(ROLE_TASKS)))
             if "ansible.builtin.script" in task
         )
-        expression = task["environment"]["INFINITO_PYTHON_REQUIRES"]
+        expression = task["environment"]["DEV_PYTHON_REQUIRES"]
 
         def lookup(name: str, term: str) -> str:
             return {
