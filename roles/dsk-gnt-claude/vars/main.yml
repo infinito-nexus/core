@@ -3,8 +3,8 @@ application_id: dsk-gnt-claude
 agnt_claude_package: "@anthropic-ai/claude-code"
 agnt_claude_version: "{{ lookup('config', application_id, 'services.claude.npm_version') }}"
 agnt_claude_user: "{{ lookup('users', WORKSTATION_USER).username }}"
-agnt_claude_home: "/home/{{ agnt_claude_user }}"
 agnt_claude_wrapper_path: "/usr/local/bin/claude-gateway"
+agnt_claude_env_path: "/usr/local/etc/claude-gateway.env"
 agnt_claude_gateway_url: "{{ lookup('config', application_id, 'services.claude.gateway_url') or (LITELLM_OPENAI_BASE_LOOPBACK_URL if LITELLM_USABLE | bool else '')
   }}"
 agnt_claude_anthropic_base_url: "{{ agnt_claude_gateway_url | regex_replace('/v1/?$', '') }}"
