@@ -52,6 +52,7 @@
       Reboot pending: the running kernel {{ ansible_facts['kernel'] }} is no longer installed and loads its
       modules from the tree kernel-modules-hook kept, which no package owns; installed:
       {{ update_module_trees | reject('equalto', ansible_facts['kernel']) | join(', ') }}.
-      Reboot the host into the installed kernel; during that boot linux-modules-cleanup.service deletes every module tree that neither the new kernel nor an installed package owns.
+      Reboot the host into the installed kernel; during that boot linux-modules-cleanup.service deletes every module tree that neither the new kernel nor an installed
+      package owns.
       {{ update_reboot_skip_reason }}
   when: update_kernel_reboot_pending | bool
