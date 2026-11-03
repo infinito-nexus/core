@@ -31,9 +31,7 @@ def _call(
         The completed bash process.
     """
     env = {
-        key: value
-        for key, value in os.environ.items()
-        if key != "DEV_PYTHON_REQUIRES"
+        key: value for key, value in os.environ.items() if key != "DEV_PYTHON_REQUIRES"
     }
     if requires is not None:
         env["DEV_PYTHON_REQUIRES"] = requires
