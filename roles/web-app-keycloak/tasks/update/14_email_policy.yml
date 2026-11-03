@@ -1,7 +1,7 @@
 ---
 - name: "⬇️ Read the email policy realm '{{ KEYCLOAK_REALM }}' holds"
   ansible.builtin.shell: >
-    {{ KEYCLOAK_EXEC_KCADM }} get realms/{{ KEYCLOAK_REALM }} --fields attributes --format json
+    {{ KEYCLOAK_EXEC_KCADM }} get realms/{{ KEYCLOAK_REALM }} --format json
   register: kc_email_policy_realm
   changed_when: false
 
