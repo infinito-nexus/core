@@ -1,29 +1,53 @@
+import os
+import re
 import subprocess
 import tempfile
+import tomllib
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 
 SCRIPT = PROJECT_ROOT / "roles/dev-python/files/shell/install.sh"
+ROLE_TASKS = PROJECT_ROOT / "roles/dev-python/tasks/00_core.yml"
 
 
-def _call(snippet: str, *args: str) -> subprocess.CompletedProcess:
+def _call(
+    snippet: str, *args: str, requires: str | None = None
+) -> subprocess.CompletedProcess:
     """Source install.sh without running its entrypoint, then run a snippet.
 
     Args:
         snippet: bash code evaluated after sourcing; sees ``args`` as ``"$@"``.
         args: positional arguments handed to the snippet.
+        requires: value for ``INFINITO_PYTHON_REQUIRES``; ``None`` leaves it
+            unset so the script reads the repository's ``pyproject.toml``.
 
     Returns:
         The completed bash process.
     """
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if key != "INFINITO_PYTHON_REQUIRES"
+    }
+    if requires is not None:
+        env["INFINITO_PYTHON_REQUIRES"] = requires
     return subprocess.run(
         ["bash", "-c", f'source "$1"; shift; {snippet}', "bash", str(SCRIPT), *args],
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
+
+
+def _declared_minors() -> tuple[int, int]:
+    spec = tomllib.loads(read_text(str(PROJECT_ROOT / "pyproject.toml")))["project"][
+        "requires-python"
+    ]
+    match = re.fullmatch(r">=3\.(\d+),<3\.(\d+)", spec)
+    return int(match[1]), int(match[2]) - 1
 
 
 def _bound(name: str) -> int:
@@ -160,6 +184,27 @@ class TestFindHighestPythonPackage(unittest.TestCase):
     def test_apt_keeps_the_highest_package_within_bounds(self) -> None:
         result = self.apt(self.cap - 2, self.cap - 1)
         self.assertEqual(result.stdout.strip(), f"python3.{self.cap - 1}")
+
+
+class TestBoundsFromRequiresPython(unittest.TestCase):
+    def test_the_bounds_come_from_pyproject_requires_python(self) -> None:
+        self.assertEqual(
+            (_bound("PYTHON_MIN_MINOR"), _bound("PYTHON_MAX_MINOR")),
+            _declared_minors(),
+        )
+
+    def test_the_role_hands_requires_python_to_the_remote_script(self) -> None:
+        result = _call(
+            'printf "%s %s" "$PYTHON_MIN_MINOR" "$PYTHON_MAX_MINOR"',
+            requires=">=3.12,<3.14",
+        )
+        self.assertEqual(result.stdout, "12 13")
+        self.assertIn("INFINITO_PYTHON_REQUIRES", read_text(str(ROLE_TASKS)))
+
+    def test_an_unsupported_requires_python_form_fails_loudly(self) -> None:
+        result = _call("true", requires=">=3.11")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("must read >=3.X,<3.Y", result.stderr)
 
 
 if __name__ == "__main__":

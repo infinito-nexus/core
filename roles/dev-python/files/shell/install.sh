@@ -1,12 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PYTHON_MIN_MINOR=11
-PYTHON_MAX_MINOR=14
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 DOCKER_APT_SANITIZER="${REPO_ROOT}/roles/sys-svc-container/files/shell/apt_repo.sh"
+
+python_requires_spec() {
+  if [[ -v INFINITO_PYTHON_REQUIRES ]]; then
+    printf '%s\n' "${INFINITO_PYTHON_REQUIRES}"
+    return 0
+  fi
+  local pyproject="${REPO_ROOT}/pyproject.toml"
+  if [[ ! -f "${pyproject}" ]]; then
+    echo "[ERROR] Neither INFINITO_PYTHON_REQUIRES nor ${pyproject} names the supported Python range." >&2
+    return 1
+  fi
+  sed -n -E 's/^requires-python[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "${pyproject}"
+}
+
+load_python_bounds() {
+  local spec pattern='^>=3\.([0-9]+),<3\.([0-9]+)$'
+  spec="$(python_requires_spec)"
+  if [[ ! "${spec}" =~ ${pattern} ]]; then
+    echo "[ERROR] requires-python '${spec}' must read >=3.X,<3.Y." >&2
+    return 1
+  fi
+  PYTHON_MIN_MINOR="${BASH_REMATCH[1]}"
+  PYTHON_MAX_MINOR="$((BASH_REMATCH[2] - 1))"
+}
+
+load_python_bounds
 
 log() {
   printf '>>> [dev-python] %s\n' "$*"
