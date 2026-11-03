@@ -389,15 +389,20 @@ jobs:
             echo "INFINITO_VULNERABILITY_DB_HOST_PATH=${GITHUB_WORKSPACE}/build/vulnerability-db"
           } >> "${GITHUB_ENV}"
 
+      - name: 💽 Mount the empty spare disk at /mnt
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/mount_spare_disk.sh /mnt 75
+
+      - name: 📦 Relocate containerd and the Docker data-root onto /mnt when roomier
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/relocate_docker_dataroot.sh 75
+
       - name: 💾 Enlarge swap space
         if: ${{ !env.ACT }}
         shell: bash
         run: ./scripts/github/runner/enlarge_swap.sh
-
-      - name: 📦 Relocate Docker data-root onto /mnt when roomier
-        if: ${{ !env.ACT }}
-        shell: bash
-        run: ./scripts/github/runner/relocate_docker_dataroot.sh
 
       - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
         if: ${{ !env.ACT }}
