@@ -72,6 +72,27 @@ class TestLabelledOwnershipErrors(unittest.TestCase):
         objects = [("matomo_data", "", "")]
         self.assertEqual(labelled_ownership_errors("volume", objects, DECLARED), [])
 
+    def test_a_volume_labelled_with_its_role_id_passes(self):
+        self.assertEqual(
+            labelled_ownership_errors(
+                "volume", [("matomo_data", "web-app-matomo", "")], DECLARED
+            ),
+            [],
+        )
+
+    def test_a_container_labelled_with_its_role_id_still_fails(self):
+        self.assertEqual(
+            labelled_ownership_errors(
+                "container", [("matomo", "web-app-matomo", "")], DECLARED
+            ),
+            [
+                (
+                    "container 'matomo' belongs to compose project 'web-app-matomo', "
+                    "but it is the container of web-app-matomo (entity 'matomo')"
+                )
+            ],
+        )
+
     def test_a_volume_of_a_foreign_project_fails(self):
         objects = [("matomo_data", "nextcloud", "")]
         self.assertEqual(

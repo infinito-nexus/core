@@ -55,7 +55,10 @@ def labelled_ownership_errors(
             on the host, as :func:`parse_labelled` returns them.
         declared: object name -> every ``(role id, entity)`` of the roles the
             host deploys that declare an object of that name. The object
-            passes when either label names any of these entities.
+            passes when either label names any of these entities; a volume
+            also passes on a declaring role id, the compose project older
+            deploys used, since compose reuses such a volume. A container
+            does not: compose cannot see it and fails on its name.
 
     Returns:
         One message per declared object whose labels name none of its
@@ -70,7 +73,10 @@ def labelled_ownership_errors(
             continue
         if kind == "volume" and not project and not namespace:
             continue
-        if {project, namespace} & {entity for _, entity in claims} - {""}:
+        owners_named = {entity for _, entity in claims}
+        if kind == "volume":
+            owners_named |= {role for role, _ in claims}
+        if {project, namespace} & owners_named - {""}:
             continue
         owners = " or ".join(f"{role} (entity '{entity}')" for role, entity in claims)
         held = " and ".join(
