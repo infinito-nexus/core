@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
@@ -29,7 +29,10 @@ def sync_script(source, target, staging):
     )
     body = re.search(r"sh -c '(.*)'\s*$", task["shell"], re.DOTALL).group(1)
     return (
-        Environment(undefined=StrictUndefined)
+        Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
         .from_string(body)
         .render(
             MOODLE_OIDC_PLUGIN_SOURCE_DIR=str(source),
@@ -65,7 +68,9 @@ class TestOidcPluginSync(unittest.TestCase):
     def assert_same_tree(self, left, right):
         names = self.files_in(left)
         self.assertEqual(names, self.files_in(right))
-        _, mismatch, errors = filecmp.cmpfiles(left, right, sorted(names), shallow=False)
+        _, mismatch, errors = filecmp.cmpfiles(
+            left, right, sorted(names), shallow=False
+        )
         self.assertEqual((mismatch, errors), ([], []))
 
     def sync(self):
