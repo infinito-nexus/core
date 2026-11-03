@@ -28,7 +28,7 @@ freellmapi:
   pids_limit: 512
   ports:
     local:
-      http: 8106
+      http: 7991
     internal:
       http: 3001
   startup_config: {}
