@@ -1,0 +1,24 @@
+---
+# include-gated: when: MODE_ASSERT | bool
+- name: "🔎 Resolve every clearnet domain of the deploy on the host"
+  ansible.builtin.command:
+    argv: [getent, hosts, "{{ preflight_domain }}"]
+  loop: "{{ lookup('deploy_domains', group_names) }}"
+  loop_control:
+    loop_var: preflight_domain
+  register: preflight_resolved
+  changed_when: false
+  failed_when: preflight_resolved.rc not in [0, 2]
+
+- name: "🛑 Fail when a clearnet domain of the deploy does not resolve"
+  ansible.builtin.assert:
+    that: preflight_unresolved | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_unresolved | join(', ') }} resolve to no address on this host
+      (getent hosts). Add a DNS record (or an /etc/hosts entry) for each listed domain,
+      then deploy again.
+  vars:
+    preflight_unresolved: >-
+      {{ preflight_resolved.results | selectattr('rc', 'equalto', 2)
+         | map(attribute='preflight_domain') | list }}

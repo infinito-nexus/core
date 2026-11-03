@@ -21,6 +21,7 @@ from utils.cache.yaml import load_yaml_str
 from utils.domains.default_primary import default_domain_primary
 
 DOMAIN = default_domain_primary()
+PUBLISH_HOST = "10.7.7.1"
 
 CONTAINER_LOGGING = {
     "labels": {"infinito.application": "web-app-bigbluebutton"},
@@ -138,6 +139,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
             )
         )
         expected_data = load_yaml_str(self.expected)
@@ -169,6 +171,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
                 extra_hosts=[f"auth.{DOMAIN}:host-gateway"],
             )
         )
@@ -193,6 +196,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
             )
         )
         for svc in data["services"].values():
@@ -220,6 +224,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
             )
         )["services"]
         self.assertNotIn("build", services["freeswitch"])
@@ -245,6 +250,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
                 pinned=["bbb-shared-notes-server"],
             )
         )["services"]
@@ -266,6 +272,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
             )
         )["services"]
         self.assertEqual(services["bbb-web"]["logging"], CONTAINER_LOGGING["logging"])
@@ -286,6 +293,7 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 CONTAINER_LOGGING,
+                PUBLISH_HOST,
             )
         )["services"]
         self.assertEqual(
@@ -304,7 +312,37 @@ services:
                 self.compose_repository_path,
                 self.env_file,
                 {"labels": {}},
+                PUBLISH_HOST,
             )
+
+    def test_each_container_port_published_once_on_the_publish_host(self):
+        original = """services:
+  nginx:
+    ports:
+      - "127.0.0.1:48082:48082"
+      - "127.0.0.1:48081:48081"
+      - "127.0.0.1:48087:48087"
+      - "10.7.7.1:48082:48082"
+      - "10.7.7.1:48081:48081"
+      - "10.7.7.1:48087:48087"
+  freeswitch:
+    ports:
+      - 5060:5060/udp
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(
+            services["nginx"]["ports"],
+            ["10.7.7.1:48082:48082", "10.7.7.1:48081:48081", "10.7.7.1:48087:48087"],
+        )
+        self.assertEqual(services["freeswitch"]["ports"], ["5060:5060/udp"])
 
 
 if __name__ == "__main__":

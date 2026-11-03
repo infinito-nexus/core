@@ -1,0 +1,32 @@
+---
+- name: "🔍 Check whether the container CLI is installed"
+  ansible.builtin.stat:
+    path: "{{ BIN_CONTAINER }}"
+  register: preflight_container_cli
+
+- name: "🛫 Verify the kernel modules and the clock of a host outside a container"
+  ansible.builtin.include_tasks: preflight/kernel_clock.yml
+  when: not (DOCKER_IN_CONTAINER | bool)
+
+- name: "🛫 Verify that the filesystems of the deploy have room left"
+  ansible.builtin.include_tasks: preflight/disk.yml
+  vars:
+    preflight_disk_paths: >-
+      {{ ['/'] + ([preflight_docker_root.stdout | from_json]
+                  if preflight_container_cli.stat.exists else []) }}
+
+- name: "🛫 Verify the docker objects and public ports where docker is installed"
+  when: preflight_container_cli.stat.exists
+  block:
+    - name: "🛫 Verify that every docker network belongs to its entity"
+      ansible.builtin.include_tasks: preflight/networks.yml
+
+    - name: "🛫 Verify the docker containers, volumes and address pools"
+      ansible.builtin.include_tasks: preflight/ownership.yml
+
+    - name: "🛫 Verify that no host process holds a public port of the deploy"
+      ansible.builtin.include_tasks: preflight/ports.yml
+
+- name: "🛫 Verify that the clearnet domains of the deploy resolve in assert mode"
+  ansible.builtin.include_tasks: preflight/domains.yml
+  when: MODE_ASSERT | bool

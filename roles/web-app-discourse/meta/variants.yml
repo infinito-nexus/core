@@ -3,9 +3,11 @@
 # See docs/contributing/artefact/files/role/variants.md for the file format.
 #
 # nocheck: sso-variant-tor — variant 2 exists so bigbluebutton and jitsi, both
-# clearnet-only, have a round of their own. It carries nothing else; the mastodon,
-# matrix and mattermost couplings moved to variant 1, which keeps the onion, and
-# variant 0 pairs the onion with SSO. Translate rides variant 0, whose round index
+# clearnet-only, have a round of their own. It carries nothing else; the mastodon
+# and mattermost couplings moved to variant 1, which keeps the onion, and variant 0
+# pairs the onion with SSO. Matrix rides variant 0, whose round index pairs it with
+# web-app-matrix#0, a homeserver round that keeps the onion; web-app-matrix#1 is the
+# jitsi round and drops it. Translate rides variant 0, whose round index
 # pairs it with web-svc-translate#0, the LibreTranslate round that keeps the onion,
 # so the discourse-translator addon is deployed and checked over the onion beside SSO;
 # web-svc-translate#1 and #2 drop the onion, so neither other round may carry it.
@@ -61,8 +63,8 @@
       enabled: false
       shared: false
     matrix:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     mattermost:
       enabled: false
       shared: false
@@ -115,8 +117,8 @@
       enabled: true
       shared: true
     matrix:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     mattermost:
       enabled: true
       shared: true

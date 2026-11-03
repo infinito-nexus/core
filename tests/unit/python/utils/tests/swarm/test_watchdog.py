@@ -46,6 +46,7 @@ class TestSampleLine(unittest.TestCase):
             "avail": 9324,
             "total": 15947,
             "free_mb": 38948,
+            "root": "/",
             "mem_stall": 0.0,
             "io_stall": 0.0,
             "cpu_stall": 0.0,

@@ -25,7 +25,11 @@ SIZE="${3:?SIZE is required - state the loop image size (e.g. 30G) at the call s
 IDENTITY="${4:?IDENTITY is required - state what this machine is called at the call site}"
 
 MOUNT=/mnt/docker-fs
-IMAGE=/var/tmp/docker-fs.img
+if mountpoint -q /mnt; then
+	IMAGE=/mnt/docker-fs.img
+else
+	IMAGE=/var/tmp/docker-fs.img
+fi
 POOL="infinito_ci_$(printf '%s' "${IDENTITY}" | tr -dc 'A-Za-z0-9_.:-')"
 DAEMON=/etc/docker/daemon.json
 MISC_MAJOR=10
