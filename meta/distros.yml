@@ -20,9 +20,6 @@
 #   slug               path segment inside the image reference
 #   family             ansible_facts['os_family'] the distribution reports,
 #                      consumed by the meta/packages.yml registry
-#   dev_runtime_image  upstream base image the development-environment test
-#                      matrix boots the distribution from. Not one of ours,
-#                      so it carries its own registry and tag.
 #   galaxy_platform    platform name Ansible Galaxy knows the distribution by,
 #                      used to build the canonical galaxy_info.platforms list
 #                      every role's meta/main.yml must carry. The versions
@@ -41,25 +38,20 @@ distros:
   arch:
     slug: arch
     family: Archlinux
-    dev_runtime_image: manjarolinux/base
     galaxy_platform: ArchLinux
   debian:
     slug: debian
     family: Debian
-    dev_runtime_image: debian:13
     galaxy_platform: Debian
   ubuntu:
     slug: ubuntu
     family: Debian
-    dev_runtime_image: ubuntu:latest
     galaxy_platform: Ubuntu
   fedora:
     slug: fedora
     family: RedHat
-    dev_runtime_image: fedora:latest
     galaxy_platform: Fedora
   centos:
     slug: centos
     family: RedHat
-    dev_runtime_image: quay.io/centos/centos:latest
     galaxy_platform: EL

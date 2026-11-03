@@ -1,0 +1,23 @@
+---
+# nocheck: required-by-coverage -- read by utils/distros.py and the docker updater; no role requires it
+os:
+  lifecycle: beta
+arch:
+  image: manjarolinux/base
+  # nocheck: docker-version -- Manjaro publishes rolling builds only, so Arch stays rolling
+  version: latest
+debian:
+  image: debian
+  version: "13"
+  follow: latest
+ubuntu:
+  image: ubuntu
+  version: "26.04"
+  follow: latest
+fedora:
+  image: fedora
+  version: "44"
+  follow: latest
+centos:
+  image: quay.io/centos/centos
+  version: stream10
