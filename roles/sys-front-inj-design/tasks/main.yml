@@ -45,6 +45,7 @@
 
 - name: "🖼️ Publish corporate branding assets of '{{ application_id }}' on the CDN"
   include_tasks: assets.yml
+  when: application_id not in design_assets_published
   vars:
     design_assets_dest: "{{ lookup('design', application_id).dest }}"
 

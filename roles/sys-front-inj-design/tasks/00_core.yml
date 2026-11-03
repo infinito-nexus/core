@@ -12,4 +12,8 @@
   loop_control:
     loop_var: css_file
 
+- name: 🧾 Start the run with no branding published
+  set_fact:
+    design_assets_published: []
+
 - include_tasks: utils/once/flag.yml
