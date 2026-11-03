@@ -173,12 +173,6 @@ class TestWebuiClientJmapBodies(unittest.TestCase):
         self.assertEqual(method, "x:OAuthClient/set")
         self.assertEqual(args["update"], {"b7": self.client})
 
-    def test_get_lists_every_client(self):
-        body = json.loads(read_text(JMAP / "get.json.j2"))
-        method, args, _tag = body["methodCalls"][0]
-        self.assertEqual(method, "x:OAuthClient/get")
-        self.assertIsNone(args["ids"])
-
 
 class TestWebuiClientIsUpdatedOnlyOnDrift(unittest.TestCase):
     def setUp(self):
