@@ -1,3 +1,4 @@
 ---
 application_id: update
 UPDATE_REBOOT_ENABLED: "{{ lookup('config', application_id, 'services.update.reboot.enabled') | bool }}"
+UPDATE_KERNEL_MODULES_HOOK_ENABLED: "{{ lookup('config', application_id, 'services.update.kernel_modules_hook.enabled') | bool }}"
