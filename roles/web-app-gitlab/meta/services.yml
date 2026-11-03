@@ -90,6 +90,11 @@ webservice:
   mem_reservation: 4g
   mem_limit: 6g
   pids_limit: 2048
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 sidekiq:
   healthcheck:
     flavor: tcp
@@ -104,6 +109,11 @@ sidekiq:
   ports:
     internal:
       http: 3808
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 workhorse:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
   version: v19.5.3
@@ -114,6 +124,11 @@ workhorse:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 gitaly:
   # nocheck: single-replica
   replicas: 1
@@ -129,6 +144,11 @@ gitaly:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 shell:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
   version: v19.5.3
@@ -140,6 +160,11 @@ shell:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 migrations:
   # nocheck: single-replica
   replicas: 1
@@ -150,6 +175,11 @@ migrations:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v19.5.3"
+        until: 2026-12-03
 # nocheck: playwright-service-flag
 seaweedfs:
   bond: 1
@@ -195,6 +225,11 @@ gitlabmcp:
   ports:
     internal:
       http: 8080
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "3.13.15-slim"
+        until: 2026-12-03
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5

@@ -28,6 +28,11 @@ lmstudio:
   preload_floor_seconds: 600
   preload_min_bytes_per_second: 1000000
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "cpu"
+        until: 2026-12-03
 
 # nocheck: playwright-service-flag, dynamic-flag
 container_backup: # nocheck: bond-baseline

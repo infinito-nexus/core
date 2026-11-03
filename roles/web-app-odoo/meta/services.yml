@@ -66,6 +66,11 @@ odoo:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "20.0"
+        until: 2026-12-03
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:

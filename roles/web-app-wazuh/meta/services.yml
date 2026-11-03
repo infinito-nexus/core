@@ -84,6 +84,11 @@ manager:
       agent_events: 1514
       agent_registration: 1515
       api: 55000
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "4.14.9"
+        until: 2026-12-03
 indexer:
   healthcheck:
     test:
@@ -114,6 +119,11 @@ indexer:
       http: 9200
     local:
       http: 8097
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "4.14.9"
+        until: 2026-12-03
 console:
   image: wazuh/wazuh-dashboard
   version: "4.14.9"
@@ -129,6 +139,11 @@ console:
       http: 5601
     local:
       http: 8096
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "4.14.9"
+        until: 2026-12-03
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in

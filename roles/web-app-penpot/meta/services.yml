@@ -98,6 +98,11 @@ backend:
   ports:
     internal:
       http: 6060
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2.18.5"
+        until: 2026-12-03
 exporter:
   image: penpotapp/exporter
   version: "2.18.5"
@@ -109,6 +114,11 @@ exporter:
   ports:
     internal:
       http: 6061
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "2.18.5"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

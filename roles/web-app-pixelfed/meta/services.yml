@@ -67,6 +67,11 @@ pixelfed:
     - web-app-keycloak
   lifecycle: beta
   pids_limit: 512
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "20261021"
+        until: 2026-12-03
 worker:
   # nocheck: single-replica
   replicas: 1

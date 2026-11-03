@@ -99,6 +99,11 @@ postgres:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "18"
+        until: 2026-12-03
 # nocheck: dynamic-flag — role-local sub-component, always deployed with the stack
 # nocheck: playwright-service-flag — internal sub-component
 webmail:

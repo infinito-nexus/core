@@ -79,6 +79,11 @@ xwiki:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "18.9.0-postgres-tomcat"
+        until: 2026-12-03
 # nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

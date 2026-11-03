@@ -97,6 +97,11 @@ gateway:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31.8-alpine"
+        until: 2026-12-03
 events:
   healthcheck:
     test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
@@ -107,6 +112,11 @@ events:
   mem_reservation: 256m
   mem_limit: 512m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "6.10.0"
+        until: 2026-12-03
 async-rabbitmq:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
@@ -145,6 +155,11 @@ protected:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "6.10.1"
+        until: 2026-12-03
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"

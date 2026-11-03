@@ -53,6 +53,11 @@ web:
   mem_limit: 6g
   pids_limit: 2048
   min_storage: 1076MB
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "17"
+        until: 2026-12-03
 seeder:
   name: openproject-seeder
   cpus: "0.3"

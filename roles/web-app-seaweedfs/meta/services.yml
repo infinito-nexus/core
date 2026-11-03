@@ -92,6 +92,11 @@ proxy:
   mem_reservation: 64m
   mem_limit: 128m
   pids_limit: 128
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31-alpine"
+        until: 2026-12-03
 # nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

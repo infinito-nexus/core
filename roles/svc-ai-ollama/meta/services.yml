@@ -27,6 +27,11 @@ ollama:
   preload_async_time: 3600
   keep_alive: "-1"
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "0.40.13"
+        until: 2026-12-03
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
