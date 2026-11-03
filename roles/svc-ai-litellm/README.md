@@ -13,7 +13,7 @@ This role deploys LiteLLM as a shared gateway container in Compose and Swarm dep
 - **OpenAI-compatible API:** One HTTP endpoint serves every model listed in the gateway configuration.
 - **Backend routing:** Model entries are generated for Ollama and LM Studio when those services run on the host, under the shared alias each model carries so a consumer names one model whichever local backend answers it.
 - **Remote providers:** OpenAI, Anthropic and OpenRouter each add their models when a key is configured. The keys are declared in `meta/secrets.yml` with the `type` and `regex` their value must satisfy, and default to the central `API.<provider>.api_key` entry; an unset key leaves that provider's routes unpublished.
-- **Configurable remote models:** The published remote models are the `litellm.remote_models` list in `meta/services.yml`, each entry an `alias`, the LiteLLM `model` string and its `provider`, plus an optional `context` in tokens. An inventory replaces the list through `applications.svc-ai-litellm.services.litellm.remote_models`, and a provider without a key slot aborts the deploy.
+- **Configurable remote models:** The published remote models are the `litellm.remote_models` list in `meta/services.yml`, each entry an `alias`, the LiteLLM `model` string and its `provider`, plus an optional `context` in tokens and an optional `max_output_tokens` that replaces the shared `services.litellm.max_output_tokens` bound for that route and aborts the deploy unless it is a positive integer. An inventory replaces the list through `applications.svc-ai-litellm.services.litellm.remote_models`, and a provider without a key slot aborts the deploy.
 - **Declared context windows:** A model entry carrying `context` publishes it as `model_info.max_input_tokens`, and an Ollama entry also runs with that window as `num_ctx` instead of the server's default, so a caller's prompt is not silently truncated.
 - **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
@@ -95,7 +95,7 @@ passes. `provider: openrouter` still selects `OPENROUTER_API_KEY`, and the
 explicit endpoint sends the request to OpenRouter. The provider validation uses
 the same endpoint as the rendered route. The client-facing alias is unchanged.
 
-`tasks/utils/validate_providers.yml` validates every declared remote model whose provider
+`tasks/utils/validate/providers.yml` validates every declared remote model whose provider
 has a configured key, after the gateway container starts and before consumers
 are provisioned. It reads the actual provider key from that container and sends
 a direct provider request through the installed LiteLLM SDK, without the gateway
@@ -115,10 +115,14 @@ that the key can make that model request at deploy time, not that future quota,
 availability or a large Claude conversation will fit. Subscription billing is
 separate and is not validated by these tasks.
 
+`services.litellm.validation.enabled: false` skips the provider, consumer and
+FreeLLMAPI checks and the chat-model warm-up, so a deploy completes while
+models do not answer. The gateway then publishes routes no deploy has proven.
+
 ## Consumer validation during setup
 
 After provisioning consumer keys and warming the initial model,
-`tasks/utils/validate_consumers.yml` validates every registered consumer's own
+`tasks/utils/validate/consumers.yml` validates every registered consumer's own
 key against `/v1/models`, `/v1/chat/completions` and `/v1/messages`. Both inference
 formats are checked for each published chat-model alias, including enabled local
 backends and configured remote providers. Embedding aliases are excluded. With

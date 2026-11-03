@@ -236,12 +236,10 @@ function required(string $name): string
 function main(): int
 {
     try {
-        $pdo = new PDO(
-            sprintf('mysql:host=%s;port=%s;dbname=%s', required('SUITECRM_DB_HOST'), required('SUITECRM_DB_PORT'), required('SUITECRM_DB_NAME')),
-            required('SUITECRM_DB_USER'),
-            required('SUITECRM_DB_PASSWORD'),
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-        );
+        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s', required('SUITECRM_DB_HOST'), required('SUITECRM_DB_PORT'), required('SUITECRM_DB_NAME'));
+        $dbUser = required('SUITECRM_DB_USER');
+        $dbPassword = required('SUITECRM_DB_PASSWORD');
+        $pdo = new PDO($dsn, $dbUser, $dbPassword, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
         [$code, $line] = ensure(
             new PdoUsers($pdo),

@@ -1,7 +1,7 @@
 ---
 - name: "✅ Probe FreeLLMAPI streaming and tool round trips through LiteLLM"
   ansible.builtin.shell: | # nocheck: container-exec-resolver runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate_protocols.py')) | quote }}
+    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/validate/protocols.py')) | quote }}
   args:
     stdin: >-
       {{ {
@@ -15,7 +15,7 @@
   register: litellm_freellmapi_validation
   changed_when: false
   failed_when: false
-  no_log: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ LITELLM_HOST_NODE }}"
 
 - name: "✅ Require FreeLLMAPI to support the client protocols"

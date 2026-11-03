@@ -6,13 +6,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 DOCKER_APT_SANITIZER="${REPO_ROOT}/roles/sys-svc-container/files/shell/apt_repo.sh"
 
 python_requires_spec() {
-  if [[ -v INFINITO_PYTHON_REQUIRES ]]; then
-    printf '%s\n' "${INFINITO_PYTHON_REQUIRES}"
+  if [[ -v DEV_PYTHON_REQUIRES ]]; then
+    printf '%s\n' "${DEV_PYTHON_REQUIRES}"
     return 0
   fi
   local pyproject="${REPO_ROOT}/pyproject.toml"
   if [[ ! -f "${pyproject}" ]]; then
-    echo "[ERROR] Neither INFINITO_PYTHON_REQUIRES nor ${pyproject} names the supported Python range." >&2
+    echo "[ERROR] Neither DEV_PYTHON_REQUIRES nor ${pyproject} names the supported Python range." >&2
     return 1
   fi
   sed -n -E 's/^requires-python[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "${pyproject}"

@@ -1,33 +1,33 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: ✅ Require a provisioned FreeLLMAPI key for the shared upstream
-  ansible.builtin.assert:
-    that:
-      - LITELLM_PROVIDER_KEYS.freellmapi | trim | length > 0
-      - lookup('config', application_id, 'services.litellm.freellmapi.alias') | length > 0
-      - lookup('config', application_id, 'services.litellm.freellmapi.alias') != LITELLM_ROUTER_ALIAS
-      - lookup('config', application_id, 'services.litellm.freellmapi.model') | length > 0
-    fail_msg: >-
-      The token store holds no FreeLLMAPI unified key. Deploy svc-ai-freellmapi
-      before svc-ai-litellm so it persists the key its dashboard issued. The
-      LiteLLM upstream alias must be nonempty and distinct from its router alias.
-    quiet: true
+- name: "✅ Require a usable FreeLLMAPI upstream configuration"
   when: LITELLM_FREELLMAPI_BACKEND | bool
+  block:
+    - name: ✅ Require a provisioned FreeLLMAPI key for the shared upstream
+      ansible.builtin.assert:
+        that:
+          - LITELLM_PROVIDER_KEYS.freellmapi | trim | length > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.alias') | length > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.alias') != LITELLM_ROUTER_ALIAS
+          - lookup('config', application_id, 'services.litellm.freellmapi.model') | length > 0
+        fail_msg: >-
+          The token store holds no FreeLLMAPI unified key. Deploy svc-ai-freellmapi
+          before svc-ai-litellm so it persists the key its dashboard issued. The
+          LiteLLM upstream alias must be nonempty and distinct from its router alias.
+        quiet: true
 
-- name: ✅ Require explicit FreeLLMAPI pool capabilities before automatic routing
-  ansible.builtin.assert:
-    that:
-      - lookup('config', application_id, 'services.litellm.freellmapi.context') is integer
-      - lookup('config', application_id, 'services.litellm.freellmapi.context') > 0
-      - lookup('config', application_id, 'services.litellm.freellmapi.traits') is mapping
-      - lookup('config', application_id, 'services.litellm.freellmapi.traits').get('tools') is boolean
-    fail_msg: >-
-      Set services.litellm.freellmapi.context and traits.tools to the guaranteed
-      capabilities of the configured FreeLLMAPI pool before include_in_auto=true.
-  when:
-    - LITELLM_FREELLMAPI_BACKEND | bool
-    - lookup('config', application_id, 'services.litellm.freellmapi.include_in_auto') | bool
+    - name: ✅ Require explicit FreeLLMAPI pool capabilities before automatic routing
+      ansible.builtin.assert:
+        that:
+          - lookup('config', application_id, 'services.litellm.freellmapi.context') is integer
+          - lookup('config', application_id, 'services.litellm.freellmapi.context') > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.traits') is mapping
+          - lookup('config', application_id, 'services.litellm.freellmapi.traits').get('tools') is boolean
+        fail_msg: >-
+          Set services.litellm.freellmapi.context and traits.tools to the guaranteed
+          capabilities of the configured FreeLLMAPI pool before include_in_auto=true.
+      when: lookup('config', application_id, 'services.litellm.freellmapi.include_in_auto') | bool
 
 - include_tasks: utils/load/handlers.yml
   vars:
@@ -105,9 +105,10 @@
     compose_handlers_flush: true
 
 - name: "✅ Validate remote providers before configuring consumers"
-  ansible.builtin.include_tasks: utils/validate_providers.yml
+  ansible.builtin.include_tasks: utils/validate/providers.yml
   when:
     - IS_STACK_HOST | bool
+    - LITELLM_VALIDATION_ENABLED | bool
     - LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list | length > 0
 
 - name: "🔍 Build consumer key list"
@@ -123,17 +124,18 @@
       {%- endfor -%}
       {{ out }}
 
-- name: "🔑 Provision per-consumer virtual keys"
-  ansible.builtin.include_tasks: 01_keys.yml
-  when:
-    - IS_STACK_HOST | bool
-    - LITELLM_CONSUMER_KEYS | length > 0
+- name: "🔑 Provision consumer keys and validate the FreeLLMAPI upstream"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔑 Provision per-consumer virtual keys"
+      ansible.builtin.include_tasks: 01_keys.yml
+      when: LITELLM_CONSUMER_KEYS | length > 0
 
-- name: "✅ Validate the FreeLLMAPI upstream protocols through LiteLLM"
-  ansible.builtin.include_tasks: utils/validate_freellmapi.yml
-  when:
-    - IS_STACK_HOST | bool
-    - LITELLM_FREELLMAPI_BACKEND | bool
+    - name: "✅ Validate the FreeLLMAPI upstream protocols through LiteLLM"
+      ansible.builtin.include_tasks: utils/validate/freellmapi.yml
+      when:
+        - LITELLM_VALIDATION_ENABLED | bool
+        - LITELLM_FREELLMAPI_BACKEND | bool
 
 - name: "🔁 Publish the current gateway models in Open WebUI"
   ansible.builtin.include_role:

@@ -9,11 +9,15 @@ from ansible.plugins.filter.core import FilterModule as CoreFilters
 from plugins.filter.dotenv import FilterModule
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_VARS_MAIN
+
+ROLE = PROJECT_ROOT / "roles/svc-ai-freellmapi"
+MASKED = "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 
 class TestFreeLlmApiEnvironment(unittest.TestCase):
     def test_shared_gateway_declares_the_bridge_subnet_and_compose_attachment(self):
-        networks = load_yaml(PROJECT_ROOT / "roles/svc-ai-freellmapi/meta/networks.yml")
+        networks = load_yaml(ROLE / ROLE_FILE_META_NETWORKS)
         subnet = ipaddress.ip_network(networks["local"]["subnet"], strict=True)
         self.assertTrue(subnet.is_private)
         self.assertGreater(subnet.num_addresses, 2)
@@ -112,7 +116,7 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
         self.assertEqual(config["routing"], {"strategy": "balanced"})
 
     def test_admin_credentials_are_resolved_from_the_central_users_lookup(self):
-        variables = load_yaml(PROJECT_ROOT / "roles/svc-ai-freellmapi/vars/main.yml")
+        variables = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)
         user = SimpleNamespace(
             email="central@example.test", password="central-password"
         )
@@ -137,17 +141,19 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
             )
 
     def test_every_deploy_reconciles_after_start_and_masks_the_login_input(self):
-        role = PROJECT_ROOT / "roles/svc-ai-freellmapi"
-        tasks = load_yaml_any(role / "tasks/00_core.yml")
+        tasks = load_yaml_any(ROLE / "tasks/00_core.yml")
         self.assertEqual(tasks[-1]["ansible.builtin.include_tasks"], "01_admin.yml")
         self.assertTrue(tasks[-2]["vars"]["compose_handlers_flush"])
         reconcile, parse, check, report, persist = load_yaml_any(
-            role / "tasks/01_admin.yml"
+            ROLE / "tasks/01_admin.yml"
         )
-        self.assertTrue(reconcile["no_log"])
+        self.assertEqual(reconcile["no_log"], MASKED)
         self.assertFalse(reconcile["failed_when"])
-        self.assertTrue(parse["no_log"])
-        self.assertIn("FREELLMAPI_RESULT_PREFIX", parse["ansible.builtin.set_fact"]["freellmapi_admin"])
+        self.assertEqual(parse["no_log"], MASKED)
+        self.assertIn(
+            "FREELLMAPI_RESULT_PREFIX",
+            parse["ansible.builtin.set_fact"]["freellmapi_admin"],
+        )
         self.assertEqual(report["when"], "freellmapi_admin.changed | bool")
         payload = self.env.from_string(
             reconcile["ansible.builtin.command"]["stdin"]
@@ -164,11 +170,17 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
             "freellmapi_admin.login_verified | default(false) | bool",
             check["ansible.builtin.assert"]["that"],
         )
-        self.assertTrue(persist["no_log"])
-        self.assertEqual(persist["ansible.builtin.include_role"]["name"], "sys-token-store")
-        self.assertEqual(persist["vars"]["sys_token_store_user_key"], "platform_administrator")
+        self.assertEqual(persist["no_log"], MASKED)
+        self.assertEqual(
+            persist["ansible.builtin.include_role"]["name"], "sys-token-store"
+        )
+        self.assertEqual(
+            persist["vars"]["sys_token_store_user_key"], "platform_administrator"
+        )
         self.assertEqual(persist["vars"]["sys_token_store_app"], "{{ application_id }}")
-        self.assertEqual(persist["vars"]["sys_token_store_token"], "{{ freellmapi_admin.api_key }}")
+        self.assertEqual(
+            persist["vars"]["sys_token_store_token"], "{{ freellmapi_admin.api_key }}"
+        )
 
     def test_marked_result_survives_image_import_output(self):
         from ansible.plugins.test.core import TestModule
@@ -177,9 +189,11 @@ class TestFreeLlmApiEnvironment(unittest.TestCase):
         env = NativeEnvironment(undefined=jinja2.StrictUndefined)
         env.filters.update(CoreFilters().filters())
         env.tests.update(TestModule().tests())
-        source = load_yaml_any(PROJECT_ROOT / "roles/svc-ai-freellmapi/tasks/01_admin.yml")[1]
-        prefix = load_yaml(PROJECT_ROOT / "roles/svc-ai-freellmapi/vars/main.yml")["FREELLMAPI_RESULT_PREFIX"]
-        result = env.from_string(source["ansible.builtin.set_fact"]["freellmapi_admin"]).render(
+        source = load_yaml_any(ROLE / "tasks/01_admin.yml")[1]
+        prefix = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)["FREELLMAPI_RESULT_PREFIX"]
+        result = env.from_string(
+            source["ansible.builtin.set_fact"]["freellmapi_admin"]
+        ).render(
             FREELLMAPI_RESULT_PREFIX=prefix,
             freellmapi_admin_result={
                 "stdout_lines": [

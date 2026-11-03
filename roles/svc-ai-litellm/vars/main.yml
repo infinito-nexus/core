@@ -7,6 +7,7 @@ LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.inter
 LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.master_key') }}"
 LITELLM_MAX_OUTPUT_TOKENS: "{{ lookup('config', application_id, 'services.litellm.max_output_tokens') }}"
 LITELLM_UPSTREAM_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm.upstream_timeout') }}"
+LITELLM_VALIDATION_ENABLED: "{{ lookup('config', application_id, 'services.litellm.validation.enabled') }}"
 LITELLM_ROUTER_ALIAS: "{{ lookup('config', application_id, 'services.litellm.router.alias') }}"
 LITELLM_ROUTER_REMOTE_FALLBACK: "{{ lookup('config', application_id, 'services.litellm.router.remote_fallback') }}"
 LITELLM_ROUTER_WEIGHTS: "{{ lookup('config', application_id, 'services.litellm.router.weights') }}"
@@ -45,8 +46,8 @@ LITELLM_PROVIDER_KEYS:
 LITELLM_KEYED_PROVIDERS: "{{ LITELLM_PROVIDER_KEYS | dict2items | selectattr('value') | map(attribute='key') | list }}"
 
 LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"
-LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (AI_FREELLMAPI_MODELS | map(attribute='alias') | list) + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto', AI_MOCK_PROVIDER) | map(attribute='alias') | list))
-  | join(',') }}"
+LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (AI_FREELLMAPI_MODELS | map(attribute='alias') | list) + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto',
+  AI_MOCK_PROVIDER) | map(attribute='alias') | list)) | join(',') }}"
 LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') + AI_FREELLMAPI_MODELS }}"
 LITELLM_TEST_CONTRACT:
   ollama: "{{ LITELLM_OLLAMA_BACKEND | bool }}"

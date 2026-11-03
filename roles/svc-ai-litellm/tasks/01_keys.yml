@@ -51,10 +51,13 @@
   until: litellm_warm_result.rc == 0
   changed_when: false
   delegate_to: "{{ LITELLM_HOST_NODE }}"
-  when: LITELLM_CHAT_MODEL_SERVED | bool
+  when:
+    - LITELLM_CHAT_MODEL_SERVED | bool
+    - LITELLM_VALIDATION_ENABLED | bool
 
 - name: "✅ Validate every consumer's actual gateway access"
-  ansible.builtin.include_tasks: utils/validate_consumers.yml
+  ansible.builtin.include_tasks: utils/validate/consumers.yml
+  when: LITELLM_VALIDATION_ENABLED | bool
 
 - name: "⏱️ Rank the served models on measured generation speed"
   ansible.builtin.include_tasks: 02_speed.yml

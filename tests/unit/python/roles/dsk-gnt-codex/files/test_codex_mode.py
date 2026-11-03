@@ -9,10 +9,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-SOURCE = (
-    Path(__file__).resolve().parents[5]
-    / "roles/dsk-gnt-codex/files/python/codex_mode.py"
-)
+from . import PROJECT_ROOT
+
+SOURCE = PROJECT_ROOT / "roles/dsk-gnt-codex/files/python/codex_mode.py"
 SPEC = importlib.util.spec_from_file_location("codex_mode", SOURCE)
 manager = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(manager)
@@ -38,7 +37,9 @@ class CodexModeTests(unittest.TestCase):
         }
 
     def config(self):
-        return tomllib.loads((self.home / ".codex/config.toml").read_text())
+        return tomllib.loads(
+            (self.home / ".codex/config.toml").read_text()  # nocheck: cache-read
+        )
 
     def test_gateway_uses_responses_and_private_helper(self):
         manager.configure(self.home, self.payload)
@@ -48,7 +49,8 @@ class CodexModeTests(unittest.TestCase):
         self.assertEqual(provider["auth"]["args"], ["credential"])
         self.assertNotIn("env_key", provider)
         self.assertNotIn(
-            self.payload["gateway_key"], (self.home / ".codex/config.toml").read_text()
+            self.payload["gateway_key"],
+            (self.home / ".codex/config.toml").read_text(),  # nocheck: cache-read
         )
         self.assertEqual(config["model_context_window"], 32768)
         self.assertEqual(config["model_reasoning_effort"], "medium")
@@ -74,7 +76,8 @@ class CodexModeTests(unittest.TestCase):
         self.assertNotIn("infinito", config["model_providers"])
         self.assertEqual(config["mcp_servers"]["test"]["command"], "example")
         self.assertEqual(
-            (folder / "auth.json").read_text(), '{"fixture":"saved-login"}'
+            (folder / "auth.json").read_text(),  # nocheck: cache-read
+            '{"fixture":"saved-login"}',
         )
         self.assertFalse(manager.configure(self.home, self.payload))
         manager.configure(self.home, self.payload, "gateway")
@@ -147,7 +150,11 @@ class CodexModeTests(unittest.TestCase):
             )
             self.assertEqual(result.stdout.strip(), self.payload["gateway_key"])
         self.assertEqual(
-            json.loads((self.home / ".config/infinito/codex.json").read_text())["mode"],
+            json.loads(
+                (
+                    self.home / ".config/infinito/codex.json"
+                ).read_text()  # nocheck: cache-read
+            )["mode"],
             "gateway",
         )
 

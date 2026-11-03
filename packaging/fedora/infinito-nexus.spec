@@ -35,6 +35,7 @@ Requires:       rsync
 Requires:       sudo
 Requires:       systemd
 Requires:       tar
+Requires:       zstd
 Recommends:     bind-utils
 Recommends:     shellcheck
 Recommends:     shfmt
