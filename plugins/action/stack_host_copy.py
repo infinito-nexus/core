@@ -8,12 +8,14 @@ from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.parsing.convert_bool import boolean as _to_bool
+from ansible.plugins.action import copy as _copy_action
 from ansible.plugins.action.copy import ActionModule as CopyActionModule
 from ansible.plugins.action.copy import _walk_dirs
 from ansible.template import trust_as_template
 from ansible.utils.hashing import checksum
 
 _IS_STACK_HOST_EXPR = trust_as_template("{{ IS_STACK_HOST | bool }}")
+_BYTECODE_CACHE_DIR = "__pycache__"
 _TREE_CHECK_ARGS = frozenset(
     {
         "src",
@@ -41,6 +43,30 @@ def _parents(rel: str) -> list[str]:
     return [str(parent) for parent in PurePath(rel).parents if str(parent) != "."]
 
 
+def _walk_dirs_without_bytecode_caches(*args: Any, **kwargs: Any) -> dict[str, Any]:
+    """Walk a source tree like the copy action, minus CPython bytecode caches.
+
+    Args:
+        *args: Positional arguments of the copy action's ``_walk_dirs``.
+        **kwargs: Keyword arguments of the copy action's ``_walk_dirs``.
+
+    Returns:
+        The ``_walk_dirs`` result without the files, directories and symlinks
+        at or below a ``__pycache__`` directory.
+    """
+    tree = _walk_dirs(*args, **kwargs)
+    if not isinstance(tree["symlinks"], list):
+        return tree
+    return {
+        kind: [
+            entry
+            for entry in entries
+            if _BYTECODE_CACHE_DIR not in PurePath(entry[1]).parts
+        ]
+        for kind, entries in tree.items()
+    }
+
+
 class ActionModule(CopyActionModule):
     def run(
         self, tmp: Any = None, task_vars: dict[str, Any] | None = None
@@ -60,14 +86,20 @@ class ActionModule(CopyActionModule):
         unchanged = self._unchanged_tree(task_vars)
         if unchanged is not None:
             return unchanged
-        return super().run(tmp=tmp, task_vars=task_vars)
+        walk = _copy_action._walk_dirs
+        _copy_action._walk_dirs = _walk_dirs_without_bytecode_caches
+        try:
+            return super().run(tmp=tmp, task_vars=task_vars)
+        finally:
+            _copy_action._walk_dirs = walk
 
     def _unchanged_tree(self, task_vars: dict[str, Any]) -> dict[str, Any] | None:
-        """Settle a directory copy whose files all match in one remote call.
+        """Settle a directory copy whose entries all match in one remote call.
 
-        The copy action spends a stat and a file module call per file even
-        when nothing differs; any difference, and any argument or source
-        shape not modelled here, leaves the decision to the regular copy.
+        The copy action spends a stat and a file module call per file, and a
+        file module call per directory holding no file, even when nothing
+        differs; any difference, and any argument or source shape not
+        modelled here, leaves the decision to the regular copy.
 
         Args:
             task_vars: Variables of the task, handed to the remote call.
@@ -96,20 +128,25 @@ class ActionModule(CopyActionModule):
             return None
         source = source if source.endswith(os.path.sep) else source + os.path.sep
         shell = self._connection._shell
-        tree = _walk_dirs(
+        tree = _walk_dirs_without_bytecode_caches(
             source,
             local_follow=_to_bool(args.get("local_follow", True), strict=False),
             trailing_slash_detector=shell.path_has_trailing_slash,
         )
         implicit = {parent for _, rel in tree["files"] for parent in _parents(rel)}
+        leaves = [rel for _, rel in tree["directories"] if rel not in implicit]
+        directory_mode = args.get("directory_mode")
         if (
             len(tree["files"]) < 2
             or tree["symlinks"]
-            or any(rel not in implicit for _, rel in tree["directories"])
+            or (
+                leaves and directory_mode is not None and _octal(directory_mode) is None
+            )
         ):
             return None
 
         dest = shell.join_path(dest, "")
+        directories = [shell.join_path(dest, rel) for rel in leaves]
         decrypt = _to_bool(args.get("decrypt", True), strict=False)
         wanted = {}
         for full, rel in tree["files"]:
@@ -124,7 +161,7 @@ class ActionModule(CopyActionModule):
 
         found = self._execute_module(
             module_name="ansible.legacy.file_checksums",
-            module_args={"paths": sorted(wanted)},
+            module_args={"paths": sorted([*wanted, *directories])},
             task_vars=task_vars,
         )
         states = found.get("states")
@@ -136,6 +173,13 @@ class ActionModule(CopyActionModule):
                 not state.get("isreg")
                 or state.get("checksum") != digest
                 or _octal(state.get("mode")) != mode
+            ):
+                return None
+        for path in directories:
+            state = states.get(path) or {}
+            if not state.get("isdir") or (
+                directory_mode is not None
+                and _octal(state.get("mode")) != _octal(directory_mode)
             ):
                 return None
 
