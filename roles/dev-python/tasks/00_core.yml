@@ -10,7 +10,7 @@
     SKIP_DOCKER_APT_SANITIZER: "1"
     INFINITO_PYTHON_REQUIRES: >-
       {{ lookup('file', lookup('path_absolute', 'pyproject.toml'))
-         | regex_search('(?m)^requires-python\s*=\s*"([^"]+)"', '\1')
+         | regex_search('(?m)^requires-python\\s*=\\s*"([^"]+)"', '\\1')
          | first }}
   become: true
 

@@ -6,7 +6,11 @@ import tomllib
 import unittest
 from pathlib import Path
 
+import jinja2
+from ansible.plugins.filter.core import regex_search
+
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml_str
 
 SCRIPT = PROJECT_ROOT / "roles/dev-python/files/shell/install.sh"
 ROLE_TASKS = PROJECT_ROOT / "roles/dev-python/tasks/00_core.yml"
@@ -199,7 +203,30 @@ class TestBoundsFromRequiresPython(unittest.TestCase):
             requires=">=3.12,<3.14",
         )
         self.assertEqual(result.stdout, "12 13")
-        self.assertIn("INFINITO_PYTHON_REQUIRES", read_text(str(ROLE_TASKS)))
+
+    def test_the_role_renders_requires_python_from_pyproject(self) -> None:
+        task = next(
+            task
+            for task in load_yaml_str(read_text(str(ROLE_TASKS)))
+            if "ansible.builtin.script" in task
+        )
+        expression = task["environment"]["INFINITO_PYTHON_REQUIRES"]
+
+        def lookup(name: str, term: str) -> str:
+            return {
+                "path_absolute": lambda: str(PROJECT_ROOT / term),
+                "file": lambda: read_text(term),
+            }[name]()
+
+        environment = jinja2.Environment(
+            autoescape=jinja2.select_autoescape(default_for_string=False)
+        )
+        environment.filters["regex_search"] = regex_search
+        environment.globals["lookup"] = lookup
+        spec = tomllib.loads(read_text(str(PROJECT_ROOT / "pyproject.toml")))[
+            "project"
+        ]["requires-python"]
+        self.assertEqual(environment.from_string(expression).render(), spec)
 
     def test_an_unsupported_requires_python_form_fails_loudly(self) -> None:
         result = _call("true", requires=">=3.11")
