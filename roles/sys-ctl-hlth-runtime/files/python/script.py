@@ -1738,7 +1738,7 @@ def main(argv=None) -> int:
     elif warned:
         print(
             f"⚠️ {len(warned)} vulnerability finding(s) mapped to warn; "
-            "the daily mirror scan tracks them as issues."
+            "they do not fail this check."
         )
     else:
         print(

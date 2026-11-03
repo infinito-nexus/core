@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import os
 import tempfile
 import time
@@ -80,6 +81,18 @@ class TestFetchDatabases(_Root):
         errors = database.fetch_databases(P, self.root, ["osv"], None, fetch)
         ubuntu = self.root / "osv" / "osv-scalibr" / "Ubuntu"
         self.assertIn("osv Ubuntu: timed out", errors)
+        self.assertEqual(list(ubuntu.iterdir()), [])
+
+    def test_a_truncated_chunked_osv_download_leaves_no_zip_and_is_reported(self):
+        def fetch(url, destination):
+            destination.write_bytes(b"trunc")
+            raise http.client.IncompleteRead(b"trunc", 1024)
+
+        errors = database.fetch_databases(P, self.root, ["osv"], None, fetch)
+        ubuntu = self.root / "osv" / "osv-scalibr" / "Ubuntu"
+        self.assertTrue(
+            any(error.startswith("osv Ubuntu: IncompleteRead") for error in errors)
+        )
         self.assertEqual(list(ubuntu.iterdir()), [])
 
 

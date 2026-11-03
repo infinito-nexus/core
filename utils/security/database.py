@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import fcntl
+import http.client
 import os
 import shutil
 import time
@@ -80,7 +81,7 @@ def fetch_databases(
             partial = zip_file.with_name(f"{zip_file.name}.part")
             try:
                 fetch(osv_url(zip_file.parent.name), partial)
-            except OSError as exc:
+            except (OSError, http.client.HTTPException) as exc:
                 partial.unlink(missing_ok=True)
                 errors.append(f"osv {zip_file.parent.name}: {exc}")
                 continue
