@@ -2,6 +2,33 @@
 # Configure Moodle's auth_oidc plugin (variant 0 only). Variant 1
 # disables the OIDC shared service so this file is not included.
 
+- name: "🔎 Check the auth_oidc plugin is baked into the image"
+  shell: >
+    container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} test -d {{ MOODLE_OIDC_PLUGIN_SOURCE_DIR }}
+  register: moodle_oidc_plugin_source
+  changed_when: false
+  failed_when: moodle_oidc_plugin_source.rc not in [0, 1]
+
+- name: "🛑 Refuse a Moodle image built without the auth_oidc plugin"
+  ansible.builtin.assert:
+    that:
+      - moodle_oidc_plugin_source.rc == 0
+    fail_msg: >-
+      {{ MOODLE_OIDC_PLUGIN_SOURCE_DIR }} is missing, so the Moodle image was built
+      without the auth_oidc plugin and the code volume cannot receive it.
+
+- name: "📋 Sync the auth_oidc plugin from the image into the code volume"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    sh -c 'diff -rq {{ MOODLE_OIDC_PLUGIN_SOURCE_DIR }} {{ MOODLE_OIDC_PLUGIN_DIR }} >/dev/null 2>&1 && exit 0;
+    rm -rf {{ MOODLE_OIDC_PLUGIN_SYNC_DIR }}
+    && cp -aT {{ MOODLE_OIDC_PLUGIN_SOURCE_DIR }} {{ MOODLE_OIDC_PLUGIN_SYNC_DIR }}
+    && rm -rf {{ MOODLE_OIDC_PLUGIN_DIR }}
+    && mv {{ MOODLE_OIDC_PLUGIN_SYNC_DIR }} {{ MOODLE_OIDC_PLUGIN_DIR }}
+    && echo synced'
+  register: moodle_oidc_plugin_sync
+  changed_when: "'synced' in moodle_oidc_plugin_sync.stdout"
+
 - name: "🔎 Check OIDC plugin presence"
   shell: >
     container exec --user root {{ MOODLE_CONTAINER_ADDRESS }} test -d {{ MOODLE_OIDC_PLUGIN_DIR }}
@@ -11,7 +38,7 @@
 
 - name: "🛑 Fail if OIDC plugin is missing"
   fail:
-    msg: "auth_oidc plugin not found at {{ MOODLE_OIDC_PLUGIN_DIR }} — image build is incomplete"
+    msg: "auth_oidc plugin not found at {{ MOODLE_OIDC_PLUGIN_DIR }} after the sync from {{ MOODLE_OIDC_PLUGIN_SOURCE_DIR }}"
   when: oidc_plugin_check.rc != 0
 
 - name: "▶️ Run Moodle DB upgrade for OIDC plugin"
@@ -19,7 +46,6 @@
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
   changed_when: false
-  failed_when: false
 
 - name: "🔧 Set Moodle OIDC configuration via CLI"
   include_tasks: utils/plugin_config.yml
