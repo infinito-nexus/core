@@ -16,6 +16,15 @@ mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: playwright-service-flag — session store behind every request, no Playwright surface of its own
+redis:
+  bond: 1
+  backup:
+    disabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
+  cpus: "0.25"
+  mem_reservation: 128m
 phpmyadmin:
   healthcheck:
     flavor: tcp
@@ -27,6 +36,12 @@ phpmyadmin:
   version: 5.2.3
   name: phpmyadmin
   image: phpmyadmin
+  custom: true
+  phpredis_version: 6.3.0
+  update:
+    - key: phpredis_version
+      type: git_tags
+      repository: https://github.com/phpredis/phpredis.git
   min_storage: 422MB
   autologin: false
   ports:

@@ -4,6 +4,11 @@ application_id: "web-app-phpmyadmin"
 database_host: "{{ lookup('config','svc-db-mariadb', 'services.mariadb.name') if lookup('database', application_id, 'shared') }}"
 
 PHPMYADMIN_CONTAINER: "{{ lookup('config', application_id, 'services.phpmyadmin.name') }}"
+PHPMYADMIN_IMAGE: "{{ lookup('config', application_id, 'services.phpmyadmin.image') }}"
+PHPMYADMIN_VERSION: "{{ lookup('config', application_id, 'services.phpmyadmin.version') }}"
+PHPMYADMIN_PHPREDIS_VERSION: "{{ lookup('config', application_id, 'services.phpmyadmin.phpredis_version') }}"
+PHPMYADMIN_SESSION_SAVE_PATH: "{{ lookup('engine', 'redis', application_id, 'session_path') }}"
+PHPMYADMIN_BLOWFISH_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.blowfish_secret') }}"
 PHPMAYADMIN_AUTOLOGIN_ENABLED: "{{ lookup('config', application_id, 'services.phpmyadmin.autologin') | bool }}"
 
 PHPMAYADMIN_ROOT_PASSWORD: "{{ lookup('config','svc-db-mariadb', 'secrets.credentials.root_password') }}"
