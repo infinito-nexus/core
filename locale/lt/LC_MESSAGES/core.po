@@ -1300,6 +1300,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Patvarus sistemą- paslaugų SSH agentas Wayland darbastaliai, su .ssh config sinchronizuotas iš Git"
 
+msgctxt "role:sys-os:description"
+msgid "Pins the upstream operating system images the development environment boots each distribution from"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
