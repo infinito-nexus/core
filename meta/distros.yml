@@ -51,15 +51,15 @@ distros:
   ubuntu:
     slug: ubuntu
     family: Debian
-    dev_runtime_image: ubuntu:latest
+    dev_runtime_image: ubuntu:26.04
     galaxy_platform: Ubuntu
   fedora:
     slug: fedora
     family: RedHat
-    dev_runtime_image: fedora:latest
+    dev_runtime_image: fedora:44
     galaxy_platform: Fedora
   centos:
     slug: centos
     family: RedHat
-    dev_runtime_image: quay.io/centos/centos:latest
+    dev_runtime_image: quay.io/centos/centos:stream10
     galaxy_platform: EL
