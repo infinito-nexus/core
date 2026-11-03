@@ -94,11 +94,12 @@ class ActionModule(CopyActionModule):
             _copy_action._walk_dirs = walk
 
     def _unchanged_tree(self, task_vars: dict[str, Any]) -> dict[str, Any] | None:
-        """Settle a directory copy whose files all match in one remote call.
+        """Settle a directory copy whose entries all match in one remote call.
 
-        The copy action spends a stat and a file module call per file even
-        when nothing differs; any difference, and any argument or source
-        shape not modelled here, leaves the decision to the regular copy.
+        The copy action spends a stat and a file module call per file, and a
+        file module call per directory holding no file, even when nothing
+        differs; any difference, and any argument or source shape not
+        modelled here, leaves the decision to the regular copy.
 
         Args:
             task_vars: Variables of the task, handed to the remote call.
@@ -133,14 +134,19 @@ class ActionModule(CopyActionModule):
             trailing_slash_detector=shell.path_has_trailing_slash,
         )
         implicit = {parent for _, rel in tree["files"] for parent in _parents(rel)}
+        leaves = [rel for _, rel in tree["directories"] if rel not in implicit]
+        directory_mode = args.get("directory_mode")
         if (
             len(tree["files"]) < 2
             or tree["symlinks"]
-            or any(rel not in implicit for _, rel in tree["directories"])
+            or (
+                leaves and directory_mode is not None and _octal(directory_mode) is None
+            )
         ):
             return None
 
         dest = shell.join_path(dest, "")
+        directories = [shell.join_path(dest, rel) for rel in leaves]
         decrypt = _to_bool(args.get("decrypt", True), strict=False)
         wanted = {}
         for full, rel in tree["files"]:
@@ -155,7 +161,7 @@ class ActionModule(CopyActionModule):
 
         found = self._execute_module(
             module_name="ansible.legacy.file_checksums",
-            module_args={"paths": sorted(wanted)},
+            module_args={"paths": sorted([*wanted, *directories])},
             task_vars=task_vars,
         )
         states = found.get("states")
@@ -167,6 +173,13 @@ class ActionModule(CopyActionModule):
                 not state.get("isreg")
                 or state.get("checksum") != digest
                 or _octal(state.get("mode")) != mode
+            ):
+                return None
+        for path in directories:
+            state = states.get(path) or {}
+            if not state.get("isdir") or (
+                directory_mode is not None
+                and _octal(state.get("mode")) != _octal(directory_mode)
             ):
                 return None
 

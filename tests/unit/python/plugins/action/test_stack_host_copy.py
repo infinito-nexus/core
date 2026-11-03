@@ -174,6 +174,15 @@ def _sha1(data):
     return hashlib.sha1(data).hexdigest()  # noqa: S324 - the checksum Ansible copy compares is SHA-1
 
 
+class _Dir:
+    def __init__(self, mode):
+        self.mode = mode
+
+
+def _mode_bits(mode):
+    return mode if isinstance(mode, int) else int(mode, 8)
+
+
 class _FakeRemote:
     def __init__(self, entries):
         self.entries = dict(entries)
@@ -192,28 +201,50 @@ class _FakeRemote:
             entry = self.entries.get(module_args["path"])
             if entry is None:
                 return {"stat": {"exists": False}}
-            if entry == "dir":
+            if isinstance(entry, _Dir):
                 return {"stat": {"exists": True, "isdir": True}}
             return {
                 "stat": {"exists": True, "isdir": False, "checksum": _sha1(entry[0])}
             }
+        if module_name == "ansible.legacy.file" and module_args["state"] == "directory":
+            return self._ensure_directory(module_args["path"], module_args["mode"])
         if module_name == "ansible.legacy.file":
             entry = self.entries[
                 module_args["dest"] + module_args["_original_basename"]
             ]
-            mode = module_args["mode"]
-            return {
-                "changed": entry[1] != (mode if isinstance(mode, int) else int(mode, 8))
-            }
+            return {"changed": entry[1] != _mode_bits(module_args["mode"])}
         if module_name == "ansible.legacy.copy":
             return {"changed": True}
         raise AssertionError(f"unexpected module {module_name}")
 
+    def _ensure_directory(self, path, mode):
+        entry = self.entries.get(path)
+        if entry is None:
+            return {"changed": True, "path": path}
+        if not isinstance(entry, _Dir):
+            return {"failed": True, "msg": f"{path} already exists as a file"}
+        return {
+            "changed": mode is not None and entry.mode != _mode_bits(mode),
+            "path": path,
+        }
+
     def _state(self, path):
         entry = self.entries.get(path)
-        if entry is None or entry == "dir":
-            return {"isreg": False, "mode": None, "checksum": None}
-        return {"isreg": True, "mode": f"{entry[1]:04o}", "checksum": _sha1(entry[0])}
+        if entry is None:
+            return {"isreg": False, "isdir": False, "mode": None, "checksum": None}
+        if isinstance(entry, _Dir):
+            return {
+                "isreg": False,
+                "isdir": True,
+                "mode": f"{entry.mode:04o}",
+                "checksum": None,
+            }
+        return {
+            "isreg": True,
+            "isdir": False,
+            "mode": f"{entry[1]:04o}",
+            "checksum": _sha1(entry[0]),
+        }
 
 
 class TestStackHostCopyTree(unittest.TestCase):
@@ -298,7 +329,7 @@ class TestStackHostCopyTree(unittest.TestCase):
 
     def test_directory_in_place_of_a_file_runs_the_regular_copy(self):
         entries = self._synced()
-        entries[self.DEST + "icon.png"] = "dir"
+        entries[self.DEST + "icon.png"] = _Dir(0o755)
         remote = _FakeRemote(entries)
 
         self._run(remote)
@@ -360,18 +391,120 @@ class TestStackHostCopyTree(unittest.TestCase):
         super_run.assert_called_once()
         self.assertEqual(remote.calls, [])
 
-    def test_empty_source_directory_skips_the_tree_check(self):
-        (self.src / "empty").mkdir()
-        remote = _FakeRemote(self._synced())
+    LEAVES: ClassVar[tuple[str, ...]] = (
+        ".claude",
+        ".claude/.cc-writes",
+        "nested/.claude",
+        "nested/.claude/.cc-writes",
+    )
+
+    def _add_empty_directories(self):
+        for rel in self.LEAVES:
+            (self.src / rel).mkdir(parents=True, exist_ok=True)
+
+    def _with_leaves(self, mode):
+        entries = self._synced()
+        entries.update({self.DEST + rel: _Dir(mode) for rel in self.LEAVES})
+        return entries
+
+    def _leaf_paths(self):
+        return sorted(self.DEST + rel for rel in self.LEAVES)
+
+    @staticmethod
+    def _directory_calls(remote):
+        return sorted(
+            args["path"]
+            for name, args in zip(remote.calls, remote.args, strict=True)
+            if name == "ansible.legacy.file" and args["state"] == "directory"
+        )
+
+    def test_existing_empty_directories_settle_in_one_remote_call(self):
+        self._add_empty_directories()
+        remote = _FakeRemote(self._with_leaves(0o755))
+
+        result = self._run(remote)
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+        self.assertEqual(
+            sorted(remote.args[0]["paths"]),
+            sorted([*self._synced(), *self._leaf_paths()]),
+        )
+
+    def test_unset_directory_mode_accepts_any_remote_directory_mode(self):
+        self._add_empty_directories()
+        remote = _FakeRemote(self._with_leaves(0o700))
+        regular = _FakeRemote(self._with_leaves(0o700))
+
+        settled = self._run(remote)
+        with patch.object(ActionModule, "_unchanged_tree", return_value=None):
+            copied = self._run(regular)
+
+        self.assertFalse(settled["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+        self.assertFalse(copied["changed"])
+        self.assertEqual(self._directory_calls(regular), self._leaf_paths())
+
+    def test_requested_directory_mode_settles_in_one_remote_call(self):
+        self._add_empty_directories()
+        remote = _FakeRemote(self._with_leaves(0o750))
+
+        result = self._run(remote, directory_mode="0750")
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
+
+    def test_missing_remote_directory_runs_the_regular_copy(self):
+        self._add_empty_directories()
+        entries = self._with_leaves(0o755)
+        del entries[self.DEST + "nested/.claude/.cc-writes"]
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["changed"])
+        self.assertEqual(self._directory_calls(remote), self._leaf_paths())
+
+    def test_directory_mode_drift_runs_the_regular_copy(self):
+        self._add_empty_directories()
+        remote = _FakeRemote(self._with_leaves(0o755))
+
+        result = self._run(remote, directory_mode="0750")
+
+        self.assertTrue(result["changed"])
+        self.assertEqual(self._directory_calls(remote), self._leaf_paths())
+
+    def test_file_in_place_of_a_directory_runs_the_regular_copy(self):
+        self._add_empty_directories()
+        entries = self._with_leaves(0o755)
+        entries[self.DEST + ".claude/.cc-writes"] = (b"", 0o644)
+        remote = _FakeRemote(entries)
+
+        result = self._run(remote)
+
+        self.assertTrue(result["failed"])
+        self.assertIn(self.DEST + ".claude/.cc-writes", self._directory_calls(remote))
+
+    def test_symbolic_directory_mode_with_empty_directories_skips_the_tree_check(self):
+        self._add_empty_directories()
+        remote = _FakeRemote(self._with_leaves(0o755))
 
         with patch(
             "plugins.action.stack_host_copy.CopyActionModule.run",
             return_value={"changed": False},
         ) as super_run:
-            self._run(remote)
+            self._run(remote, directory_mode="u=rwx,g=rx,o=")
 
         super_run.assert_called_once()
         self.assertEqual(remote.calls, [])
+
+    def test_symbolic_directory_mode_without_empty_directories_keeps_the_check(self):
+        remote = _FakeRemote(self._synced())
+
+        result = self._run(remote, directory_mode="u=rwx,g=rx,o=")
+
+        self.assertFalse(result["changed"])
+        self.assertEqual(remote.calls, ["ansible.legacy.file_checksums"])
 
     def test_integer_mode_is_compared_as_octal(self):
         remote = _FakeRemote(self._synced())
