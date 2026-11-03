@@ -1,8 +1,13 @@
 """Derive the mailbox address of a directory user, with the standard library only."""
 
 
+def _rdn_value(dn, id_attribute):
+    name, _, value = str(dn).split(",", 1)[0].partition("=")
+    return value.lower() if name.strip().lower() == id_attribute.lower() else None
+
+
 def sole_login(dn, logins, id_attribute):
-    """Return the one login a user entry holds.
+    """Return the one login a user entry holds besides its RDN key.
 
     Args:
         dn: the DN of the entry.
@@ -12,6 +17,9 @@ def sole_login(dn, logins, id_attribute):
     Raises:
         ValueError: the entry holds no or several logins.
     """
+    if len(logins) > 1:
+        rdn = _rdn_value(dn, id_attribute)
+        logins = [login for login in logins if str(login).lower() != rdn]
     if len(logins) > 1:
         raise ValueError(
             f"entry '{dn}' holds {len(logins)} values of {id_attribute}; "

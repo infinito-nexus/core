@@ -150,9 +150,20 @@ class TestLdapUserEntries(unittest.TestCase):
             ],
         )
 
+    def test_an_entry_whose_rdn_key_sits_beside_its_username_uses_the_username(self):
+        self.assertEqual(
+            self.m.openldap_mailbox_entries(
+                [{"dn": "uid=a,ou=users,dc=x", "uid": ["a", "b"]}],
+                "uid",
+                "mail",
+                "example.com",
+            ),
+            [{"dn": "uid=a,ou=users,dc=x", "attributes": {"mail": "b@example.com"}}],
+        )
+
     def test_an_entry_without_one_login_fails_the_mailbox_layout(self):
         for result in (
-            {"dn": "uid=a,ou=users,dc=x", "uid": ["a", "b"]},
+            {"dn": "uid=a,ou=users,dc=x", "uid": ["b", "c"]},
             {"dn": "uid=a,ou=users,dc=x"},
         ):
             with self.subTest(result=result), self.assertRaises(AnsibleFilterError):

@@ -640,10 +640,29 @@ class MailboxTests(unittest.TestCase):
         self.assertEqual(order[0], "seed")
         self.assertIn("members", order)
 
+    def test_an_entry_whose_rdn_key_sits_beside_its_username_seeds_the_username(self):
+        seeder = MailboxDirectory([("uid=dave,ou=users", {"uid": ["dave", "david"]})])
+
+        code, _, _ = self.run_main([], connections(seeder, StubDirectory({})))
+
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            seeder.added,
+            [
+                (
+                    "uid=dave,ou=users",
+                    {
+                        "objectClass": ["infinitoMailboxUser"],
+                        "mail": ["david@example.org"],
+                    },
+                )
+            ],
+        )
+
     def test_an_entry_without_one_login_fails_the_run_but_not_the_others(self):
         seeder = MailboxDirectory(
             [
-                ("uid=dave,ou=users", {"uid": ["dave", "david"]}),
+                ("uid=dave,ou=users", {"uid": ["david", "davy"]}),
                 ("uid=alice,ou=users", {"uid": ["alice"]}),
             ]
         )
