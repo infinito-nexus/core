@@ -1,2 +1,3 @@
 ---
 SIZE_PERCENT_MAXIMUM_DISK_USAGE: 90 # Disk usage in percent above which Loki refuses pushes and the pre-flight stops the deploy
+SIZE_GB_MINIMUM_DISK_FREE: 20 # Free GB a filesystem above SIZE_PERCENT_MAXIMUM_DISK_USAGE must still offer to pass the pre-flight

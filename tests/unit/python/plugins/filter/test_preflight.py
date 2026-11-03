@@ -36,13 +36,15 @@ class TestPreflightFilters(unittest.TestCase):
     def test_disk_usage_reads_df_against_the_limit(self):
         output = "Filesystem 1024-blocks Used Available Capacity Mounted on\n/dev/sda1 10 9 1 95% /\n"
         self.assertEqual(
-            preflight_disk_usage(output, ["/"], "90"),
-            ["/ lies on /, which is 95 % full (limit 90 %)"],
+            preflight_disk_usage(output, ["/"], "90", "20"),
+            [
+                "/ lies on /, which is 95 % full with 0.0 GB free (limits 90 % and 20 GB)"
+            ],
         )
 
     def test_unparsable_df_output_is_a_filter_error(self):
         with self.assertRaises(AnsibleFilterError):
-            preflight_disk_usage("header only\n", ["/"], 90)
+            preflight_disk_usage("header only\n", ["/"], 90, 20)
 
     def test_the_cgroup_files_of_non_docker_listeners_are_listed(self):
         self.assertEqual(
