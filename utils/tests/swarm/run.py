@@ -3,12 +3,28 @@ from __future__ import annotations
 import shutil
 import subprocess
 import time
+from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
 
 DISK_FLOOR_MB = 6 * 2**10
 MEM_FLOOR_RATIO = 0.06
+STORAGE_ROOTS = ("/", "/var/lib/containerd")
+SAMPLE_INTERVAL_S = 10
+
+
+def lowest_free_mb() -> tuple[int, str]:
+    """Measure the storage root closest to running full.
+
+    Returns:
+        Free MB on the fullest existing root in STORAGE_ROOTS, and that root.
+    """
+    return min(
+        (shutil.disk_usage(root).free // 2**20, root)
+        for root in STORAGE_ROOTS
+        if Path(root).is_dir()
+    )
 
 
 def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
@@ -61,22 +77,22 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
     while True:
         try:
-            return int(proc.wait(timeout=30))
+            return int(proc.wait(timeout=SAMPLE_INTERVAL_S))
         except subprocess.TimeoutExpired:
-            free_mb = shutil.disk_usage("/").free // 2**20
+            free_mb, root = lowest_free_mb()
             if free_mb < DISK_FLOOR_MB:
                 return _abort(
                     proc,
                     "=== swarm-matrix: DISK EXHAUSTION IMMINENT "
-                    f"(<{DISK_FLOOR_MB}M free on /) - aborting step ===",
-                    ["df", "-h", "/"],
+                    f"(<{DISK_FLOOR_MB}M free on {root}) - aborting step ===",
+                    ["df", "-h", *STORAGE_ROOTS],
                 )
             avail = mem_available_mb()
             total = mem_total_mb()
             stall = mem_stall_pct()
             print(
                 f"=== swarm-matrix: host mem {avail}M/{total}M available, "
-                f"disk {free_mb}M free on /, stall60 {stall:.1f}% ===",
+                f"disk {free_mb}M free on {root}, stall60 {stall:.1f}% ===",
                 flush=True,
             )
             if total and avail < total * MEM_FLOOR_RATIO:

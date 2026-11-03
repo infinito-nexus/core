@@ -18,14 +18,24 @@ date -u +'%Y-%m-%dT%H:%M:%SZ'
 echo "--- disk (bytes) ---"
 df -h / /mnt 2>/dev/null || df -h /
 
+echo "--- disk per storage root (/, /mnt, containerd root, Docker data root) ---"
+docker_root="$(docker info --format '{{.DockerRootDir}}' 2>/dev/null)" || docker_root=""
+df -h --output=source,size,used,avail,target / /mnt /var/lib/containerd ${docker_root:+"${docker_root}"} ||
+	echo "df could not read every storage root"
+
+containerd --version 2>/dev/null || echo "containerd not on PATH"
+
 echo "--- disk (inodes) ---"
 df -hi / /mnt 2>/dev/null || df -hi /
 
-echo "--- block devices ---"
-lsblk -f || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+echo "--- disks (bytes, model: Amazon EC2 NVMe Instance Storage versus Amazon Elastic Block Store) ---"
+lsblk -d -b -o NAME,SIZE,MODEL,ROTA,TYPE || echo "lsblk could not list the disks"
 
-echo "--- mounts (/, /mnt, /var/lib/docker, /mnt/docker) ---"
-mount | grep -E ' / | /mnt | /var/lib/docker | /mnt/docker ' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+echo "--- block devices ---"
+lsblk -o NAME,TYPE,SIZE,FSTYPE,FSVER,LABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINTS || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
+echo "--- mounts (/, /mnt, /var/lib/docker, /var/lib/containerd, /mnt/docker) ---"
+mount | grep -E ' / | /mnt | /var/lib/docker | /var/lib/containerd | /mnt/docker ' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 echo "--- docker ---"
 docker info 2>/dev/null |
