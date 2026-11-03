@@ -41,6 +41,7 @@ decidim:
     swarm:
       enabled: true
   image: ghcr.io/decidim/decidim
+  ca_client: true
   version: 0.31.6
   custom: true
   min_storage: 1206MB

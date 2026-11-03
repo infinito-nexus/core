@@ -1,0 +1,34 @@
+---
+# include-gated: when: preflight_container_cli.stat.exists
+- name: "🔍 List the listening sockets of the host with their processes"
+  ansible.builtin.command:
+    argv: [ss, -Htlnpu]
+  register: preflight_listeners
+  changed_when: false
+
+- name: "🔍 Read the cgroup of every host process on a public port of the deploy"
+  ansible.builtin.command:
+    argv: "{{ ['grep', '-H', '.'] + preflight_cgroup_files }}"
+  register: preflight_cgroups
+  changed_when: false
+  failed_when: >-
+    preflight_cgroups.rc not in [0, 2]
+    or preflight_cgroups.stderr_lines | reject('search', ': No such file or directory$') | list | length > 0
+  when: preflight_cgroup_files | length > 0
+  vars:
+    preflight_cgroup_files: >-
+      {{ preflight_listeners.stdout
+         | preflight_port_cgroups(lookup('public_ports', group_names)) }}
+
+- name: "🛑 Fail when a host process holds a public port of the deploy"
+  ansible.builtin.assert:
+    that: preflight_port_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_port_errors | join('; ') }}.
+      Stop and disable each listed host service (or move it to another port),
+      then deploy again; the port is the deploy's to publish.
+  vars:
+    preflight_port_errors: >-
+      {{ preflight_listeners.stdout
+         | preflight_port_conflicts(preflight_cgroups, lookup('public_ports', group_names)) }}

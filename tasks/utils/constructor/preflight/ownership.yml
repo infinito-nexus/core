@@ -1,0 +1,71 @@
+---
+# include-gated: when: preflight_container_cli.stat.exists
+- name: "🔍 List the docker containers with their project and stack labels"
+  ansible.builtin.command:
+    argv:
+      - container
+      - ps
+      - --all
+      - --format
+      - "{{ '{{.Names}}\t{{.Label \"com.docker.compose.project\"}}\t{{.Label \"com.docker.stack.namespace\"}}' }}"
+  register: preflight_containers
+  changed_when: false
+
+- name: "🛑 Fail when a declared container does not belong to its entity"
+  ansible.builtin.assert:
+    that: preflight_container_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_container_errors | join('; ') }}.
+      Stop and remove each listed container (or rename it if it is not part of this deploy),
+      then deploy again; the deploy recreates its own containers.
+  vars:
+    preflight_container_errors: "{{ lookup('docker_ownership', 'container', preflight_containers, group_names) }}"
+
+- name: "🔍 List the docker volumes with their project and stack labels"
+  ansible.builtin.command:
+    argv:
+      - container
+      - volume
+      - ls
+      - --format
+      - "{{ '{{.Name}}\t{{.Label \"com.docker.compose.project\"}}\t{{.Label \"com.docker.stack.namespace\"}}' }}"
+  register: preflight_volumes
+  changed_when: false
+
+- name: "🛑 Fail when a declared volume does not belong to its entity"
+  ansible.builtin.assert:
+    that: preflight_volume_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_volume_errors | join('; ') }}.
+      Back up each listed volume, move its data into a volume of the named entity or remove it,
+      then deploy again; compose would reuse it and hand the role another project's data.
+  vars:
+    preflight_volume_errors: "{{ lookup('docker_ownership', 'volume', preflight_volumes, group_names) }}"
+
+- name: "🔍 Check whether the docker daemon has a config file"
+  ansible.builtin.stat:
+    path: /etc/docker/daemon.json
+  register: preflight_daemon_json_file
+
+- name: "🔍 Read the docker daemon config"
+  ansible.builtin.slurp:
+    src: /etc/docker/daemon.json
+  register: preflight_daemon_json
+  when: preflight_daemon_json_file.stat.exists
+
+- name: "🛑 Fail when a docker address pool overlaps a range of the deploy"
+  ansible.builtin.assert:
+    that: preflight_pool_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_pool_errors | join('; ') }}.
+      Move default-address-pools in /etc/docker/daemon.json to {{ NETWORK_DOCKER_ADDRESS_POOLS | to_json }},
+      remove the networks docker addressed from the old pool and restart docker, then deploy again.
+  vars:
+    preflight_pool_errors: >-
+      {{ lookup('address_pool_overlaps',
+                (preflight_daemon_json.content | b64decode) if preflight_daemon_json_file.stat.exists else '{}',
+                group_names,
+                {'NETWORK_MESH_POOL': NETWORK_MESH_POOL, 'NETWORK_TOR_VIRTUAL_CIDR': NETWORK_TOR_VIRTUAL_CIDR}) }}

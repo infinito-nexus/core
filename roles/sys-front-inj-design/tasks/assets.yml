@@ -19,3 +19,7 @@
     frame_stroke: "{{ _palette.light['--design-frame'] }}"
     slots: "{{ design_branding.slots }}"
     dest: "{{ design_assets_dest }}"
+
+- name: "🧾 Record the branding of '{{ application_id }}' as published"
+  set_fact:
+    design_assets_published: "{{ design_assets_published + [application_id] }}"

@@ -13,6 +13,7 @@ import base64
 import json
 import os
 import ssl
+import urllib.error
 import urllib.request
 
 API = "https://localhost:55000"
@@ -29,11 +30,16 @@ def call(method, path, token=None, body=None, auth=None):
         )
     else:
         request.add_header("Authorization", f"Bearer {token}")
-    with urllib.request.urlopen(  # noqa: S310 - API is a module constant, so the scheme is always https
-        request,
-        context=ssl._create_unverified_context(),  # noqa: S323 - the Wazuh API answers on loopback inside the container this script is exec'd into, where its self-signed certificate has no issuer to verify and no path to intercept
-    ) as response:
-        return json.loads(response.read())["data"]
+    try:
+        with urllib.request.urlopen(  # noqa: S310 - API is a module constant, so the scheme is always https
+            request,
+            context=ssl._create_unverified_context(),  # noqa: S323 - the Wazuh API answers on loopback inside the container this script is exec'd into, where its self-signed certificate has no issuer to verify and no path to intercept
+        ) as response:
+            return json.loads(response.read())["data"]
+    except urllib.error.HTTPError as error:
+        raise RuntimeError(
+            f"{method} {path} answered HTTP {error.code}: {error.read().decode()}"
+        ) from error
 
 
 def items(path, token):

@@ -1,8 +1,11 @@
 "use strict";
 
+const { t } = require("./messages");
+
 const PDS_HANDLE_LABEL_MIN = 3;
 const PDS_HANDLE_LABEL_MAX = 18;
 const RESERVED_PREFIX = "i8-";
+const CHOSEN_LABEL_PATTERN = `(?!.*${RESERVED_PREFIX})[a-z0-9][a-z0-9\\-]*-[a-z0-9\\-]*[a-z0-9]`;
 
 /**
  * First handle label derived from a Keycloak username.
@@ -43,17 +46,34 @@ function fitsPds(label) {
  * @returns {string|null} reason shown in the form, null when acceptable
  */
 function chosenLabelError(label) {
-  if (!/^[a-z0-9-]+$/.test(label)) return "Use lowercase letters, digits and hyphens only.";
-  if (!fitsPds(label)) {
-    return `Use ${PDS_HANDLE_LABEL_MIN} to ${PDS_HANDLE_LABEL_MAX} characters.`;
-  }
-  if (!label.includes("-")) return "Include at least one hyphen (-).";
-  if (label.includes(RESERVED_PREFIX)) return `Do not use "${RESERVED_PREFIX}" anywhere in the handle.`;
-  if (label.startsWith("-") || label.endsWith("-")) return "Do not start or end the handle with a hyphen.";
+  if (!/^[a-z0-9-]+$/.test(label)) return t("label_charset");
+  if (!fitsPds(label)) return t("label_length", { min: PDS_HANDLE_LABEL_MIN, max: PDS_HANDLE_LABEL_MAX });
+  if (!label.includes("-")) return t("label_hyphen");
+  if (label.includes(RESERVED_PREFIX)) return t("label_prefix", { prefix: RESERVED_PREFIX });
+  if (label.startsWith("-") || label.endsWith("-")) return t("label_edge");
   return null;
 }
 
+/**
+ * First name that yields an acceptable label, middle words cut to their initial.
+ *
+ * @param {...string} names candidates in order, e.g. the username and the e-mail local part
+ * @returns {string} label chosenLabelError accepts, empty when no candidate yields one
+ */
+function suggestLabel(...names) {
+  for (const name of names) {
+    const parts = deriveLabel(name).split("-").filter(Boolean);
+    for (let i = 1; i < parts.length - 1 && parts.join("-").length > PDS_HANDLE_LABEL_MAX; i++) {
+      parts[i] = parts[i][0];
+    }
+    const label = parts.join("-").slice(0, PDS_HANDLE_LABEL_MAX).replace(/-+$/, "");
+    if (chosenLabelError(label) === null) return label;
+  }
+  return "";
+}
+
 module.exports = {
+  CHOSEN_LABEL_PATTERN,
   PDS_HANDLE_LABEL_MAX,
   PDS_HANDLE_LABEL_MIN,
   RESERVED_PREFIX,
@@ -61,4 +81,5 @@ module.exports = {
   deriveLabel,
   fitsPds,
   prefixedLabel,
+  suggestLabel,
 };

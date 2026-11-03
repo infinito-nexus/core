@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import shutil
 import sys
 import threading
 import unittest
@@ -166,6 +167,30 @@ class TestServer(unittest.TestCase):
 
     def test_head_sends_no_body(self) -> None:
         self.assertEqual(self._request("/latest/", "HEAD"), (200, None, ""))
+
+    def test_a_site_another_replica_just_published_is_served(self) -> None:
+        site = self.library.translations / "latest" / "de"
+        index = self.library.translations / "latest" / "languages.json"
+        (site / "html").mkdir(parents=True)
+        (site / "html" / "index.html").write_text("Hallo", encoding="utf-8")
+        index.write_text(
+            json.dumps({"known": {"de": "Deutsch"}, "translated": ["de"]}),
+            encoding="utf-8",
+        )
+        try:
+            with (
+                patch.object(library.Library, "servable", return_value=False),
+                patch.object(
+                    library.Library, "translation_servable", return_value=False
+                ),
+            ):
+                self.assertEqual(self._request("/latest/"), (200, None, "root"))
+                self.assertEqual(self._request("/latest/de/"), (200, None, "Hallo"))
+            self.assertFalse((self.library.queue / "latest").exists())
+            self.assertFalse((self.library.queue / "latest:de").exists())
+        finally:
+            shutil.rmtree(site)
+            index.unlink(missing_ok=True)
 
 
 CATALOG = """\

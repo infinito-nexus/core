@@ -1,4 +1,6 @@
 <?php
+$cfg['blowfish_secret'] = sodium_hex2bin('{{ PHPMYADMIN_BLOWFISH_SECRET }}');
+{% if PHPMYADMIN_DESIGN_ENABLED | bool %}
 {% set design = lookup('design', application_id) %}
 $cfg['ThemeDefault'] = '{{ PHPMYADMIN_THEME_NAME }}';
 {% if design.title is string %}
@@ -7,4 +9,5 @@ $cfg['TitleDefault'] = '@HTTP_HOST@ | {{ title }}';
 $cfg['TitleServer'] = '@HTTP_HOST@ / @VSERVER@ | {{ title }}';
 $cfg['TitleDatabase'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ | {{ title }}';
 $cfg['TitleTable'] = '@HTTP_HOST@ / @VSERVER@ / @DATABASE@ / @TABLE@ | {{ title }}';
+{% endif %}
 {% endif %}

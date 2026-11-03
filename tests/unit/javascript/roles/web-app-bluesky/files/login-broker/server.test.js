@@ -8,6 +8,9 @@ const { spawn } = require("node:child_process");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const SERVER = path.join(PROJECT_ROOT, "roles/web-app-bluesky/files/login-broker/server.js");
+const { CHOSEN_LABEL_PATTERN, PDS_HANDLE_LABEL_MAX, PDS_HANDLE_LABEL_MIN } = require(
+  path.join(PROJECT_ROOT, "roles/web-app-bluesky/files/login-broker/handle.js")
+);
 const DOMAIN = "example.test";
 const PUBLIC_HOST = "web.bluesky.example.test";
 const ADMIN_PASSWORD = "stub-admin-password";
@@ -115,7 +118,7 @@ function stopBroker(broker) {
 }
 
 function request(broker, { method = "GET", requestPath = "/", user, email, origin, form }) {
-  const headers = { Host: PUBLIC_HOST };
+  const headers = { Host: PUBLIC_HOST, "X-Forwarded-Host": PUBLIC_HOST };
   if (user) headers["X-Forwarded-Preferred-Username"] = user;
   if (email) headers["X-Forwarded-Email"] = email;
   if (origin) headers.Origin = origin;
@@ -134,6 +137,26 @@ function request(broker, { method = "GET", requestPath = "/", user, email, origi
     if (body) req.write(body);
     req.end();
   });
+}
+
+function formFields(html) {
+  const fields = {};
+  for (const tag of html.match(/<input\b[^>]*>/g) || []) {
+    const name = tag.match(/\bname="([^"]*)"/);
+    const value = tag.match(/\bvalue="([^"]*)"/);
+    if (name) fields[name[1]] = value ? value[1] : "";
+  }
+  return fields;
+}
+
+async function handleForm(identity) {
+  const page = await request(broker, identity);
+  assert.equal(page.status, 200);
+  return formFields(page.body);
+}
+
+function submitHandle(identity, origin, form) {
+  return request(broker, Object.assign({ method: "POST", requestPath: "/sso/handle", origin, form }, identity));
 }
 
 const ORIGIN = `https://${PUBLIC_HOST}`;
@@ -173,44 +196,79 @@ test("a username over 18 characters gets the handle form and no account", async 
   assert.equal(pds.calls.createAccount, before);
 });
 
-test("the handle form refuses a cross-origin or malformed submission", async () => {
-  const user = { user: "kevinveenbirkenbach", email: "kevin@example.test", method: "POST", requestPath: "/sso/handle" };
-  const noOrigin = await request(broker, Object.assign({ form: { handle: "kevin-veen" } }, user));
-  assert.equal(noOrigin.status, 403);
-  const foreign = await request(broker, Object.assign({ origin: "https://evil.example", form: { handle: "kevin-veen" } }, user));
+test("the handle form suggests a handle, previews it and states the rules the server checks", async () => {
+  const page = await request(broker, { user: "kevin.veen.birkenbach", email: "kvb@example.test" });
+  assert.equal(page.status, 200);
+  assert.doesNotMatch(page.body, /content="no-referrer"/);
+  assert.match(page.body, /<label for="handle">/);
+  const input = page.body.match(/<input\b[^>]*\bid="handle"[^>]*>/)[0];
+  assert.match(input, /\bvalue="kevin-v-birkenbach"/);
+  assert.match(input, new RegExp(`\\bminlength="${PDS_HANDLE_LABEL_MIN}"`));
+  assert.match(input, new RegExp(`\\bmaxlength="${PDS_HANDLE_LABEL_MAX}"`));
+  assert.ok(input.includes(`pattern="${CHOSEN_LABEL_PATTERN}"`));
+  assert.match(page.body, new RegExp(`>@kevin-v-birkenbach\\.${DOMAIN.replace(".", "\\.")}</output>`));
+  assert.ok(formFields(page.body).token);
+});
+
+test("a form submitted from the dashboard iframe with Origin null creates the chosen handle", async () => {
+  const identity = { user: "kevin.veen.birkenbach", email: "kvb@example.test" };
+  const fields = await handleForm(identity);
+  const res = await submitHandle(identity, "null", Object.assign(fields, { handle: "kevin-v-birkenbach" }));
+  assert.equal(res.status, 200, res.body);
+  assert.match(res.body, /BSKY_STORAGE/);
+  assert.equal(pds.accounts.get("did:plc:kevin-v-birkenbach").handle, `kevin-v-birkenbach.${DOMAIN}`);
+});
+
+test("a cross-site submission is refused, with or without a token", async () => {
+  const victim = { user: "victim.with.a.long.name", email: "victim@example.test" };
+  const fields = await handleForm(victim);
+  const choice = { handle: "evil-choice" };
+  const foreign = await submitHandle(victim, "https://evil.example", Object.assign({}, fields, choice));
   assert.equal(foreign.status, 403);
-  const noHyphen = await request(broker, Object.assign({ origin: ORIGIN, form: { handle: "kevinveen" } }, user));
+  const sandboxed = await submitHandle(victim, "null", choice);
+  assert.equal(sandboxed.status, 403);
+  const sameOriginWithoutToken = await submitHandle(victim, ORIGIN, choice);
+  assert.equal(sameOriginWithoutToken.status, 403);
+  const otherUser = await handleForm({ user: "attacker.with.a.long.name", email: "attacker@example.test" });
+  const borrowed = await submitHandle(victim, "null", Object.assign({}, choice, { token: otherUser.token }));
+  assert.equal(borrowed.status, 403);
+  const forged = await submitHandle(victim, "null", Object.assign({}, choice, { token: `${Math.floor(Date.now() / 1000)}.forged` }));
+  assert.equal(forged.status, 403);
+  assert.equal(pds.accounts.has("did:plc:evil-choice"), false);
+});
+
+test("the handle form refuses a cross-origin or malformed submission", async () => {
+  const identity = { user: "kevinveenbirkenbach", email: "kevin@example.test" };
+  const fields = await handleForm(identity);
+  const noOrigin = await submitHandle(identity, undefined, { handle: "kevin-veen" });
+  assert.equal(noOrigin.status, 403);
+  const foreign = await submitHandle(identity, "https://evil.example", { handle: "kevin-veen" });
+  assert.equal(foreign.status, 403);
+  const noHyphen = await submitHandle(identity, ORIGIN, Object.assign({}, fields, { handle: "kevinveen" }));
   assert.equal(noHyphen.status, 400);
   assert.match(noHyphen.body, /hyphen/);
-  const prefixed = await request(broker, Object.assign({ origin: ORIGIN, form: { handle: "i8-kevin" } }, user));
+  assert.match(noHyphen.body, /aria-invalid="true"/);
+  assert.ok(formFields(noHyphen.body).token);
+  const prefixed = await submitHandle(identity, ORIGIN, Object.assign({}, fields, { handle: "i8-kevin" }));
   assert.equal(prefixed.status, 400);
 });
 
 test("an origin with a port still matches the proxied host", async () => {
-  const res = await request(broker, {
-    user: "kevinveenbirkenbach",
-    email: "kevin@example.test",
-    method: "POST",
-    requestPath: "/sso/handle",
-    origin: `${ORIGIN}:8443`,
-    form: { handle: "kevin-veen" },
-  });
+  const identity = { user: "kevinveenbirkenbach", email: "kevin@example.test" };
+  const fields = await handleForm(identity);
+  const res = await submitHandle(identity, `${ORIGIN}:8443`, Object.assign(fields, { handle: "kevin-veen" }));
   assert.equal(res.status, 200);
   assert.match(res.body, /BSKY_STORAGE/);
   assert.equal(pds.accounts.get("did:plc:kevin-veen").handle, `kevin-veen.${DOMAIN}`);
 });
 
 test("a chosen handle another user holds is offered again, not taken over", async () => {
-  const res = await request(broker, {
-    user: "anotherverylongusername",
-    email: "other@example.test",
-    method: "POST",
-    requestPath: "/sso/handle",
-    origin: ORIGIN,
-    form: { handle: "kevin-veen" },
-  });
+  const identity = { user: "anotherverylongusername", email: "other@example.test" };
+  const fields = await handleForm(identity);
+  const res = await submitHandle(identity, ORIGIN, Object.assign(fields, { handle: "kevin-veen" }));
   assert.equal(res.status, 409);
   assert.match(res.body, /already taken/);
+  assert.ok(formFields(res.body).token);
   assert.equal(pds.calls.adminUpdatePassword.includes("did:plc:kevin-veen"), false);
 });
 

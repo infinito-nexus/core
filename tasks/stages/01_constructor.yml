@@ -70,6 +70,9 @@
   applications_carrier: {}
   when: IS_SWARM_MODE
 
+- name: "🛫 Pre-flight checks"
+  ansible.builtin.include_tasks: ./tasks/utils/constructor/preflight.yml
+
 - name: "📦 Install the packages of every role this host may run, in one run"
   package_install:
     id: "{{ _package_batch_ids }}"

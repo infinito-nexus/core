@@ -67,6 +67,16 @@ class QueueFixture(LibraryFixture):
         )
 
 
+class TestSlotFree(QueueFixture, unittest.TestCase):
+    def test_a_slot_is_free_only_while_fewer_builds_run_than_the_pool_holds(
+        self,
+    ) -> None:
+        self.assertTrue(self.library._slot_free(1))
+        self.library._in_flight.add("latest")
+        self.assertFalse(self.library._slot_free(1))
+        self.assertTrue(self.library._slot_free(2))
+
+
 class TestRequest(QueueFixture, unittest.TestCase):
     def test_the_fetch_queues_latest_behind_what_a_visitor_waits_for(self) -> None:
         self.assertEqual(self._queued(), [])

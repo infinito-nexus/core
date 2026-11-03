@@ -17,8 +17,8 @@
     label: "{{ item.mesh_name }}"
   when: (item.stdout | trim) | length == 0
 
-- name: "⏳ Wait until every interface has handshaked with the peers it awaits"
-  ansible.builtin.command: "wg show {{ awaited.key | quote }} latest-handshakes"
+- name: "⏳ Wait until every interface has a fresh handshake with the peers it awaits"
+  ansible.builtin.shell: "date +%s && wg show {{ awaited.key | quote }} latest-handshakes"
   loop: "{{ WIREGUARD_AWAITED_KEYS | dict2items }}"
   loop_control:
     loop_var: awaited
@@ -36,8 +36,9 @@
   ansible.builtin.fail:
     msg: >-
       WireGuard interface '{{ item.awaited.key }}' on {{ inventory_hostname }}
-      never completed a handshake with every peer it awaits. No deploy can
-      proceed over a partitioned mesh.
+      holds no fresh handshake with every peer it awaits: a peer never
+      handshaked, or its last handshake is older than the session lifetime
+      WireGuard accepts. No deploy can proceed over a partitioned mesh.
   loop: "{{ wireguard_handshakes.results }}"
   loop_control:
     label: "{{ item.awaited.key }}"

@@ -5,8 +5,9 @@
 {% else %}
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
 {% endif %}
+{% set _replicas_line = lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') %}
     deploy:
-      {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
+      {{ _replicas_line }}
 {% set _constraints = [] %}
 {% set _placement = ((lookup('applications') | resource_filter(application_id, 'placement', service_name | default(''), '')) or '') | trim %}
 {% if _placement %}
@@ -34,7 +35,7 @@
 {% endif %}
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}
-        delay: {{ service_update_delay | default('10s') }}
+        delay: {{ '0s' if _replicas_line == 'replicas: 1' else service_update_delay | default('10s') }}
         failure_action: continue
 {% if service_update_order is defined %}
         order: {{ service_update_order }}
