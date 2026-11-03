@@ -14,6 +14,9 @@
 - name: 🧰 Prepare shared @playwright/test install
   ansible.builtin.include_tasks: 01_setup.yml
 
+- name: ✅ Check the CA and central templates every role's run shares
+  ansible.builtin.include_tasks: 01_setup/shared_checks.yml
+
 - name: 🎲 Start the run without a network pick
   ansible.builtin.set_fact:
     _playwright_network_picks: {}
