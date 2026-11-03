@@ -13,15 +13,25 @@ from contextlib import redirect_stderr, redirect_stdout
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-import yaml
 from ansible.plugins.filter.core import FilterModule
 from jinja2 import Environment
+
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles/svc-ai-litellm"
+
+
+def flatten(tasks):
+    for task in tasks:
+        yield task
+        yield from flatten(task.get("block", []))
+
+
 SPEC = importlib.util.spec_from_file_location(
-    "validate_provider", ROLE / "files/python/validate_provider.py"
+    "validate_provider", ROLE / "files/python/validate/provider.py"
 )
 validation = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validation)
@@ -125,9 +135,7 @@ class TestValidateProvider(unittest.TestCase):
         )
 
     def test_task_passes_the_same_explicit_endpoint_to_the_provider_probe(self):
-        task = yaml.safe_load(
-            (ROLE / "tasks/utils/validate_providers.yml").read_text()
-        )[1]
+        task = load_yaml_any(ROLE / "tasks/utils/validate/providers.yml")[1]
         renderer = Environment(autoescape=False)  # noqa: S701 JSON payload, not HTML
         renderer.filters.update(FilterModule().filters())
         for base in (None, "https://openrouter.ai/api/v1"):
@@ -215,12 +223,12 @@ class TestValidateProvider(unittest.TestCase):
     def test_setup_validates_even_without_consumer_keys_and_excludes_unserved_models(
         self,
     ):
-        core = yaml.safe_load((ROLE / "tasks/00_core.yml").read_text())
+        core = list(flatten(load_yaml_any(ROLE / "tasks/00_core.yml")))
         include = next(
             task
             for task in core
             if task.get("ansible.builtin.include_tasks")
-            == "utils/validate_providers.yml"
+            == "utils/validate/providers.yml"
         )
         self.assertFalse(
             any("CONSUMER_KEYS" in condition for condition in include["when"])
@@ -231,9 +239,7 @@ class TestValidateProvider(unittest.TestCase):
             if task.get("ansible.builtin.include_tasks") == "01_keys.yml"
         )
         self.assertLess(core.index(include), provision)
-        tasks = yaml.safe_load(
-            (ROLE / "tasks/utils/validate_providers.yml").read_text()
-        )
+        tasks = load_yaml_any(ROLE / "tasks/utils/validate/providers.yml")
         task = tasks[1]
         renderer = Environment(autoescape=False)  # noqa: S701 JSON payload, not HTML
         renderer.filters.update(FilterModule().filters())
@@ -254,7 +260,7 @@ class TestValidateProvider(unittest.TestCase):
         self.assertEqual(rendered["models"], [self.declaration])
         self.assertFalse(task["changed_when"])
         self.assertNotIn("retries", task)
-        self.assertTrue(task["no_log"])
+        self.assertEqual(task["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}")
         self.assertIn(
             "litellm_provider_validation.rc == 0",
             tasks[2]["ansible.builtin.assert"]["that"],
@@ -314,9 +320,9 @@ class TestValidateProvider(unittest.TestCase):
         payload = {
             "workers": 2,
             "models": [self.declaration, dict(self.declaration, alias="second")],
-            "worker_source": (ROLE / "files/python/validate_provider.py")
-            .read_text()
-            .replace(
+            "worker_source": read_text(
+                str(ROLE / "files/python/validate/provider.py")
+            ).replace(
                 "from __future__ import annotations",
                 'from __future__ import annotations\nimport sys,types\nsys.modules["litellm"] = types.SimpleNamespace(completion=lambda **kw: types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(content="OK"))]))',
             ),

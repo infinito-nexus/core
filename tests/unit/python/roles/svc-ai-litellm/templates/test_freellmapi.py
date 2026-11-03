@@ -6,10 +6,13 @@ from jinja2 import StrictUndefined
 from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 from .test_config_model_list import render
 from .test_router_hook import load, remote
+
+ROLE = PROJECT_ROOT / "roles/svc-ai-litellm"
 
 
 class TestFreeLLMAPI(unittest.TestCase):
@@ -17,9 +20,7 @@ class TestFreeLLMAPI(unittest.TestCase):
         self.source = load_yaml(PROJECT_ROOT / "group_vars/all/16_ai.yml")
         self.env = NativeEnvironment(undefined=StrictUndefined, autoescape=False)
         self.env.filters.update(FilterModule().filters())
-        self.pool = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm/meta/services.yml")[
-            "litellm"
-        ]["freellmapi"]
+        self.pool = load_yaml(ROLE / ROLE_FILE_META_SERVICES)["litellm"]["freellmapi"]
 
     def models(self, enabled):
         def lookup(kind, *terms):
@@ -75,7 +76,7 @@ class TestFreeLLMAPI(unittest.TestCase):
         self.assertFalse(candidates[0]["_caps"]["local"])
 
     def test_key_is_never_looked_up_when_integration_is_disabled(self):
-        source = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm/vars/main.yml")
+        source = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)
 
         def forbidden(*args):
             self.fail("Disabled integration read an upstream credential")
@@ -89,7 +90,7 @@ class TestFreeLLMAPI(unittest.TestCase):
         self.assertEqual(key, "")
 
     def test_enabled_integration_reads_the_key_from_the_token_store(self):
-        source = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm/vars/main.yml")
+        source = load_yaml(ROLE / ROLE_FILE_VARS_MAIN)
 
         def lookup(kind, user, default):
             self.assertEqual((kind, user), ("users", "platform_administrator"))
@@ -102,7 +103,7 @@ class TestFreeLLMAPI(unittest.TestCase):
 
     def test_deploy_probe_uses_the_selected_alias_and_masked_input(self):
         tasks = load_yaml_any(
-            PROJECT_ROOT / "roles/svc-ai-litellm/tasks/utils/validate_freellmapi.yml"
+            PROJECT_ROOT / "roles/svc-ai-litellm/tasks/utils/validate/freellmapi.yml"
         )
         values = {
             "services.litellm.freellmapi.alias": "freellmapi/auto",
@@ -120,7 +121,7 @@ class TestFreeLLMAPI(unittest.TestCase):
         self.assertEqual(payload["model"], "freellmapi/auto")
         self.assertEqual(payload["workers"], 3)
         self.assertEqual(payload["base_url"], "http://127.0.0.1:4000")
-        self.assertTrue(tasks[0]["no_log"])
+        self.assertEqual(tasks[0]["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}")
         self.assertIn(
             "litellm_freellmapi_validation.rc == 0",
             tasks[1]["ansible.builtin.assert"]["that"],

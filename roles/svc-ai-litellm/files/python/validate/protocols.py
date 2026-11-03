@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def request(payload, key, path, body):
     return urllib.request.urlopen(  # noqa: S310 deployment-owned gateway endpoint
-        urllib.request.Request(  # noqa: S310
+        urllib.request.Request(  # noqa: S310 deployment-owned gateway endpoint
             payload["base_url"].rstrip("/") + path,
             headers={
                 "Authorization": "Bearer " + key,

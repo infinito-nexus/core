@@ -22,9 +22,10 @@ litellm:
     alias: freellmapi/auto
     model: auto
     include_in_auto: false
-    context: null
+    context:
     traits: {}
   validation:
+    enabled: true
     workers: 3
     max_output_tokens: 512
   consumer_validation:

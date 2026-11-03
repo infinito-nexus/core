@@ -9,16 +9,17 @@ import urllib.error
 from contextlib import redirect_stdout
 from unittest.mock import patch
 
-import yaml
 from ansible.plugins.filter.core import FilterModule
 from ansible.plugins.test.core import TestModule
 from jinja2 import Environment
+
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles/svc-ai-litellm"
 SPEC = importlib.util.spec_from_file_location(
-    "validate_consumers", ROLE / "files/python/validate_consumers.py"
+    "validate_consumers", ROLE / "files/python/validate/consumers.py"
 )
 validation = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validation)
@@ -404,11 +405,9 @@ class TestValidateConsumers(unittest.TestCase):
     def test_task_masks_keys_and_reports_sanitized_failure_in_a_separate_assertion(
         self,
     ):
-        tasks = yaml.safe_load(
-            (ROLE / "tasks/utils/validate_consumers.yml").read_text()
-        )
+        tasks = load_yaml_any(ROLE / "tasks/utils/validate/consumers.yml")
         probe, assertion = tasks
-        self.assertTrue(probe["no_log"])
+        self.assertEqual(probe["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}")
         self.assertFalse(probe["failed_when"])
         self.assertNotIn("CONSUMER_KEYS", probe["ansible.builtin.shell"])
         self.assertIn("LITELLM_CONSUMER_KEYS", probe["args"]["stdin"])
@@ -416,19 +415,17 @@ class TestValidateConsumers(unittest.TestCase):
             "litellm_consumer_validation.rc == 0",
             assertion["ansible.builtin.assert"]["that"],
         )
-        key_tasks = yaml.safe_load((ROLE / "tasks/01_keys.yml").read_text())
+        key_tasks = load_yaml_any(ROLE / "tasks/01_keys.yml")
         self.assertTrue(
             any(
                 task.get("ansible.builtin.include_tasks")
-                == "utils/validate_consumers.yml"
+                == "utils/validate/consumers.yml"
                 for task in key_tasks
             )
         )
 
     def test_task_model_list_only_probes_served_chat_aliases_once(self):
-        task = yaml.safe_load(
-            (ROLE / "tasks/utils/validate_consumers.yml").read_text()
-        )[0]
+        task = load_yaml_any(ROLE / "tasks/utils/validate/consumers.yml")[0]
         renderer = Environment(autoescape=False)  # noqa: S701 JSON payload, not HTML
         renderer.filters.update(FilterModule().filters())
         renderer.tests.update(TestModule().tests())

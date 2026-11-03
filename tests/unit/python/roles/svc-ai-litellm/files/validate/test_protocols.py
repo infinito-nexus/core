@@ -10,7 +10,7 @@ from . import PROJECT_ROOT
 
 SPEC = importlib.util.spec_from_file_location(
     "validate_protocols",
-    PROJECT_ROOT / "roles/svc-ai-litellm/files/python/validate_protocols.py",
+    PROJECT_ROOT / "roles/svc-ai-litellm/files/python/validate/protocols.py",
 )
 validation = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validation)

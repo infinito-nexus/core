@@ -95,7 +95,7 @@ passes. `provider: openrouter` still selects `OPENROUTER_API_KEY`, and the
 explicit endpoint sends the request to OpenRouter. The provider validation uses
 the same endpoint as the rendered route. The client-facing alias is unchanged.
 
-`tasks/utils/validate_providers.yml` validates every declared remote model whose provider
+`tasks/utils/validate/providers.yml` validates every declared remote model whose provider
 has a configured key, after the gateway container starts and before consumers
 are provisioned. It reads the actual provider key from that container and sends
 a direct provider request through the installed LiteLLM SDK, without the gateway
@@ -115,10 +115,14 @@ that the key can make that model request at deploy time, not that future quota,
 availability or a large Claude conversation will fit. Subscription billing is
 separate and is not validated by these tasks.
 
+`services.litellm.validation.enabled: false` skips the provider, consumer and
+FreeLLMAPI checks and the chat-model warm-up, so a deploy completes while
+models do not answer. The gateway then publishes routes no deploy has proven.
+
 ## Consumer validation during setup
 
 After provisioning consumer keys and warming the initial model,
-`tasks/utils/validate_consumers.yml` validates every registered consumer's own
+`tasks/utils/validate/consumers.yml` validates every registered consumer's own
 key against `/v1/models`, `/v1/chat/completions` and `/v1/messages`. Both inference
 formats are checked for each published chat-model alias, including enabled local
 backends and configured remote providers. Embedding aliases are excluded. With
