@@ -20,4 +20,5 @@ fedora:
   follow: latest
 centos:
   image: quay.io/centos/centos
+  # nocheck: docker-version -- CentOS Stream tags carry no number the updater can order
   version: stream10
