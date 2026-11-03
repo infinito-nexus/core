@@ -6,12 +6,18 @@
     resolve_output_prefix: GITLAB_RAILS
     resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
 
-- name: "👤 Ensure the platform administrator holds GitLab admin rights"
+- name: "💎 Realign root, ensure the platform administrator, converge the appearance"
   ansible.builtin.command:
     argv:
       - container
       - exec
       - -i
+      - -e
+      - GITLAB_ROOT_USERNAME
+      - -e
+      - GITLAB_ROOT_PASSWORD
+      - -e
+      - GITLAB_DESIGN_TITLE
       - -e
       - GITLAB_ADMIN_USERNAME
       - -e
@@ -24,8 +30,29 @@
       - "{{ GITLAB_RAILS_BIN }}"
       - runner
       - "-"
-    stdin: "{{ lookup('file', 'ruby/ensure_platform_admin.rb') }}"
+    stdin: |-
+      {{ lookup('file', 'ruby/run_steps.rb') }}
+      InfinitoSteps.run('realign_root_password') do
+      {{ lookup('file', 'ruby/realign_root_password.rb') }}
+      end
+      InfinitoSteps.run('ensure_platform_admin') do
+      {{ lookup('file', 'ruby/ensure_platform_admin.rb') }}
+      end
+      InfinitoSteps.run('appearance') do
+      uploads = {
+      {% if GITLAB_DESIGN_ENABLED | bool %}
+      {% for upload in gitlab_design_files.results | selectattr('content', 'defined') %}
+        {{ upload.item.field }}: [{{ upload.item.ext | to_json }}, {{ upload.content | to_json }}],
+      {% endfor %}
+      {% endif %}
+      }
+      {{ lookup('file', 'ruby/appearance.rb') }}
+      end
+      InfinitoSteps.finish
   environment:
+    GITLAB_ROOT_USERNAME: "{{ GITLAB_ROOT_USERNAME }}"
+    GITLAB_ROOT_PASSWORD: "{{ GITLAB_INIT_ROOT_PASSWORD }}"
+    GITLAB_DESIGN_TITLE: "{{ lookup('design', application_id).label if GITLAB_DESIGN_ENABLED | bool else '' }}"
     GITLAB_ADMIN_USERNAME: "{{ GITLAB_ADMIN_USERNAME }}"
     GITLAB_ADMIN_EMAIL: "{{ GITLAB_ADMIN_EMAIL }}"
     GITLAB_ADMIN_NAME: "{{ GITLAB_ADMIN_NAME }}"
