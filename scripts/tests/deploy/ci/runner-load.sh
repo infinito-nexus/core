@@ -18,6 +18,8 @@ sample() {
 case "${mode}" in
 start)
 	: >"${file}"
+	printf '%s|%s\n' "$(lscpu | sed -n 's/^Model name: *//p')" \
+		"$(openssl speed -seconds 5 -bytes 16384 sha256 2>/dev/null | awk '/^sha256 /{print $NF}')" >"${file}.hw"
 	nohup "$0" loop "${file}" >/dev/null 2>&1 &
 	;;
 loop)
@@ -27,6 +29,7 @@ loop)
 	done
 	;;
 report)
+	[ -s "${file}.hw" ] && awk -F'|' '{printf "runner cpu: %s, sha256 16k single core: %s\n", $1, $2}' "${file}.hw"
 	[ -s "${file}" ] || {
 		echo "no load samples in ${file}"
 		exit 0
