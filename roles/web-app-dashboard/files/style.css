@@ -30,7 +30,6 @@ footer {
     box-shadow: var(--design-shadow-3);
 }
 
-/* CSS color cannot reach an <img> logo, so every icon kind takes the same filter; raster logos are left out to keep their colors. */
 .card-img-top img[src$='.svg'],
 .card-img-top svg,
 .card-img-top i {
