@@ -241,7 +241,7 @@ EDGES = [
     (
         "gitlab",
         "mattermost",
-        "https://docs.gitlab.com/user/project/integrations/mattermost_notifications/",
+        "https://docs.gitlab.com/user/project/integrations/mattermost/",
         "check",
     ),
     ("gitlab", "jira", "https://docs.gitlab.com/integration/jira/", "check"),
