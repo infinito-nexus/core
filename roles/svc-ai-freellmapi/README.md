@@ -27,7 +27,7 @@ deploying it with `--id svc-ai-freellmapi`. It does not require LiteLLM or Ollam
 The role supports compose mode; swarm mode is disabled because its SQLite state
 is local to the workstation.
 
-The dashboard and API are published on `http://127.0.0.1:8106`. The container
+The dashboard and API are published on `http://127.0.0.1:7991`. The container
 listens on port 3001. Its host binding is always loopback, including on hosts
 whose other applications use a broader `DOCKER_BIND_HOST`.
 
@@ -78,7 +78,7 @@ need a LiteLLM translation layer:
 
 ```bash
 read -rsp 'FreeLLMAPI unified key: ' FREELLMAPI_TOKEN
-ANTHROPIC_BASE_URL=http://127.0.0.1:8106 \
+ANTHROPIC_BASE_URL=http://127.0.0.1:7991 \
 ANTHROPIC_AUTH_TOKEN="$FREELLMAPI_TOKEN" \
 ANTHROPIC_API_KEY='' \
 ANTHROPIC_DEFAULT_HAIKU_MODEL=auto \
