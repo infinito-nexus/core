@@ -41,6 +41,17 @@
         rest_script_changed: "^$"
         rest_script_register: kc_email_policy_captured
 
+- name: "🔎 Resolve whether realm '{{ KEYCLOAK_REALM }}' applies the mailbox layout"
+  ansible.builtin.set_fact:
+    kc_email_mailbox_layout: "{{ KEYCLOAK_EMAIL_MAILBOX | bool and KEYCLOAK_LDAP_ENABLED | bool }}"
+
+- name: "🔎 Resolve the secondary addresses the mailbox layout seeds"
+  ansible.builtin.set_fact:
+    kc_email_mailbox_secondaries: >-
+      {{ ((kc_email_policy_captured.stdout | from_json) if kc_email_policy_change == 'switch' else {})
+         | kc_email_sources(KEYCLOAK_EMAIL_INVENTORY_SECONDARIES) }}
+  when: kc_email_mailbox_layout | bool
+
 - name: "📮 Apply the mailbox layout to the directory"
   ansible.builtin.include_role:
     name: svc-db-openldap
@@ -48,9 +59,6 @@
     apply:
       delegate_to: "{{ groups['svc-db-openldap'] | first }}"
   vars:
-    openldap_mailbox_secondaries: >-
-      {{ ((kc_email_policy_captured.stdout | from_json) if kc_email_policy_change == 'switch' else {})
-         | kc_email_sources(KEYCLOAK_EMAIL_INVENTORY_SECONDARIES) }}
-  when:
-    - KEYCLOAK_EMAIL_MAILBOX | bool
-    - KEYCLOAK_LDAP_ENABLED | bool
+    application_id: svc-db-openldap
+    openldap_mailbox_secondaries: "{{ kc_email_mailbox_secondaries }}"
+  when: kc_email_mailbox_layout | bool
