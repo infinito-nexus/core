@@ -62,8 +62,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   and when the host shares its boot id with the Ansible controller (local
   connection, SSH to itself, or a controller container on the host).
   Containers (`DOCKER_IN_CONTAINER`) skip the check.
-- **Reboot switch:** `services.update.reboot.enabled` defaults to `true`.
-  Set it in the `applications` block of each host's `host_vars`; a
+- **Reboot switch:** `services.update.reboot.enabled` defaults to `false`.
+  Switch it on per host in the `applications` block of its `host_vars`; a
   `group_vars` value is replaced by any `host_vars` `applications` block:
 
   ```yaml
@@ -72,7 +72,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
       services:
         update:
           reboot:
-            enabled: false
+            enabled: true
   ```
 
 - **Once-per-play idempotency:** Wraps the dispatch in
