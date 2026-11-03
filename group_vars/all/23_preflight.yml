@@ -1,0 +1,2 @@
+---
+SIZE_PERCENT_MAXIMUM_DISK_USAGE: 90 # Disk usage in percent above which Loki refuses pushes and the pre-flight stops the deploy

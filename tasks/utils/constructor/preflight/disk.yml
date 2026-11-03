@@ -1,0 +1,27 @@
+---
+- name: "🔍 Read the root directory of the docker daemon"
+  ansible.builtin.command:
+    argv: [container, info, --format, "{{ '{{json .DockerRootDir}}' }}"]
+  register: preflight_docker_root
+  changed_when: false
+  when: preflight_container_cli.stat.exists
+
+- name: "🔍 Measure the usage of / and of the docker root directory"
+  ansible.builtin.command:
+    argv: "{{ ['df', '-P', '--'] + preflight_disk_paths }}"
+  register: preflight_df
+  changed_when: false
+
+- name: "🛑 Fail when a filesystem of the deploy is fuller than its limit"
+  ansible.builtin.assert:
+    that: preflight_disk_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_disk_errors | join('; ') }}.
+      Loki refuses log pushes above {{ SIZE_PERCENT_MAXIMUM_DISK_USAGE }} % and images fail to pull on a full disk.
+      Free space on each listed filesystem (prune unused images and volumes, rotate logs),
+      then deploy again.
+  vars:
+    preflight_disk_errors: >-
+      {{ preflight_df.stdout
+         | preflight_disk_usage(preflight_disk_paths, SIZE_PERCENT_MAXIMUM_DISK_USAGE) }}
