@@ -50,3 +50,21 @@ def split_registry_and_name(image: str) -> tuple[str | None, str] | None:
         return first, rest
 
     return None, image
+
+
+def is_dockerhub(image: str) -> bool:
+    parsed = split_registry_and_name(image)
+    if parsed is None:
+        return False
+    registry, _name = parsed
+    return registry is None or registry in DOCKER_HUB_REGISTRIES
+
+
+def dockerhub_repo(image: str) -> str:
+    parsed = split_registry_and_name(image)
+    if parsed is None:
+        raise ValueError(f"Invalid Docker image reference: {image!r}")
+    registry, name = parsed
+    if registry is not None and registry not in DOCKER_HUB_REGISTRIES:
+        raise ValueError(f"Image is not a Docker Hub reference: {image!r}")
+    return name if "/" in name else f"library/{name}"
