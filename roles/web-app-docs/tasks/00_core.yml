@@ -21,7 +21,7 @@
 
 - name: "📂 Reserve a controller file for the snapshot of '{{ application_id }}'"
   ansible.builtin.tempfile:
-    suffix: .tar.gz
+    suffix: .tar.zst
   register: docs_snapshot_archive
   delegate_to: localhost
   become: false
@@ -34,7 +34,7 @@
     -name __pycache__ -prune -o -name node_modules -prune -o -name '*.pyc' -prune -o -print0
     | LC_ALL=C sort -z
     | tar --no-recursion --null --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -T -
-    | gzip -n > {{ docs_snapshot_archive.path | quote }}
+    | zstd -q -9 -T2 --long=27 > {{ docs_snapshot_archive.path | quote }}
   args:
     chdir: "{{ lookup('path_absolute', '.') }}"
     executable: /bin/bash
@@ -46,10 +46,16 @@
 - name: "📦 Stage the snapshot into the build context of '{{ application_id }}'"
   stack_host_copy:
     src: "{{ docs_snapshot_archive.path }}"
-    dest: "{{ [DOCS_TOOLING_DIR, 'snapshot.tar.gz'] | path_join }}"
+    dest: "{{ [DOCS_TOOLING_DIR, 'snapshot.tar.zst'] | path_join }}"
   notify:
     - compose-build
     - compose-up
+
+- name: "🧹 Remove the retired gzip snapshot of '{{ application_id }}'"
+  when: IS_STACK_HOST | bool
+  ansible.builtin.file:
+    path: "{{ [DOCS_TOOLING_DIR, 'snapshot.tar.gz'] | path_join }}"
+    state: absent
 
 - name: "🧹 Remove the controller snapshot of '{{ application_id }}'"
   ansible.builtin.file:

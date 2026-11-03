@@ -26,7 +26,8 @@ ARG MERMAID_SHA256
 ADD --chmod=0644 --checksum=sha256:${MERMAID_SHA256} \
   https://cdn.jsdelivr.net/npm/mermaid@${MERMAID_VERSION}/dist/mermaid.min.js \
   /app/infinito_docs/assets/js/mermaid.min.js
-ADD ./sphinx/snapshot.tar.gz /snapshot/
+ADD ./sphinx/snapshot.tar.zst /snapshot/
+RUN test ! -e /snapshot/snapshot.tar.zst
 
 ENV PYTHONPATH=/app
 WORKDIR /app
