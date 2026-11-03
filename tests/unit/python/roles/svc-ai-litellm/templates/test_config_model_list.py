@@ -25,6 +25,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/config.yaml.j2"
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"  # nocheck: url
 REMOTE_MODELS = load_yaml(
     PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
 )["litellm"]["remote_models"]
@@ -251,7 +252,7 @@ class TestConfiguredRemoteModels(unittest.TestCase):
             "alias": "openrouter/free",
             "model": "openai/openrouter/free",
             "provider": "openrouter",
-            "api_base": "https://openrouter.ai/api/v1",
+            "api_base": OPENROUTER_BASE,
             "traits": {"local": False},
         }
         config = render(keys={"openrouter": "sk-or-test"}, remote_models=[declaration])
@@ -259,7 +260,7 @@ class TestConfiguredRemoteModels(unittest.TestCase):
         params = entry["litellm_params"]
         self.assertEqual(entry["model_name"], "openrouter/free")
         self.assertEqual(params["model"], "openai/openrouter/free")
-        self.assertEqual(params["api_base"], "https://openrouter.ai/api/v1")
+        self.assertEqual(params["api_base"], OPENROUTER_BASE)
         self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
         self.assertIs(entry["model_info"]["traits"]["local"], False)
 
@@ -267,7 +268,7 @@ class TestConfiguredRemoteModels(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "traits.local"):
             render(
                 keys={"openrouter": "sk-or-test"},
-                remote_models=[{**BONSAI, "api_base": "https://openrouter.ai/api/v1"}],
+                remote_models=[{**BONSAI, "api_base": OPENROUTER_BASE}],
             )
 
     def test_empty_endpoint_is_not_silently_replaced_by_a_vendor_default(self) -> None:
@@ -287,9 +288,7 @@ class TestConfiguredRemoteModels(unittest.TestCase):
         config = render(keys={"openrouter": "sk-or-test"})
         entry = config["model_list"][0]
         self.assertEqual(entry["litellm_params"]["model"], "openai/openrouter/auto")
-        self.assertEqual(
-            entry["litellm_params"]["api_base"], "https://openrouter.ai/api/v1"
-        )
+        self.assertEqual(entry["litellm_params"]["api_base"], OPENROUTER_BASE)
         self.assertIs(entry["model_info"]["traits"]["local"], False)
 
     def test_an_added_model_shares_its_provider_key(self) -> None:

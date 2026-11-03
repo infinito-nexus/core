@@ -22,6 +22,7 @@ from utils.cache.yaml import load_yaml_any
 from . import PROJECT_ROOT
 
 ROLE = PROJECT_ROOT / "roles/svc-ai-litellm"
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"  # nocheck: url
 
 
 def flatten(tasks):
@@ -115,7 +116,7 @@ class TestValidateProvider(unittest.TestCase):
             "provider": "openrouter",
             "alias": "openrouter/free",
             "model": "openai/openrouter/free",
-            "api_base": "https://openrouter.ai/api/v1",
+            "api_base": OPENROUTER_BASE,
         }
         with patch.dict(
             "os.environ",
@@ -127,9 +128,7 @@ class TestValidateProvider(unittest.TestCase):
         ):
             self.assertTrue(validation.validate(declaration, 60)["ok"])
         self.assertEqual(self.completion.call_args.kwargs["api_key"], "router-key")
-        self.assertEqual(
-            self.completion.call_args.kwargs["api_base"], "https://openrouter.ai/api/v1"
-        )
+        self.assertEqual(self.completion.call_args.kwargs["api_base"], OPENROUTER_BASE)
         self.assertEqual(
             self.completion.call_args.kwargs["model"], "openai/openrouter/free"
         )
@@ -138,7 +137,7 @@ class TestValidateProvider(unittest.TestCase):
         task = load_yaml_any(ROLE / "tasks/utils/validate/providers.yml")[1]
         renderer = Environment(autoescape=False)  # noqa: S701 JSON payload, not HTML
         renderer.filters.update(FilterModule().filters())
-        for base in (None, "https://openrouter.ai/api/v1"):
+        for base in (None, OPENROUTER_BASE):
             with self.subTest(base=base):
                 declaration = dict(self.declaration)
                 if base is not None:

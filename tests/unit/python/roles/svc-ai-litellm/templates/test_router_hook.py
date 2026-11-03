@@ -519,7 +519,9 @@ class TestLocalOnly(HookCase, unittest.TestCase):
             context=99999,
             traits={"local": False},
         )
-        external["litellm_params"]["api_base"] = "https://openrouter.ai/api/v1"
+        external["litellm_params"]["api_base"] = (
+            "https://openrouter.ai/api/v1"  # nocheck: url
+        )
         routes = [local("tiny", context=10), external]
         verdict = self.route(load(remote_fallback=True), self.SECRET, routes)
         self.assertIsInstance(verdict, str)
