@@ -6,10 +6,15 @@ through :class:`Library`, on the fixture its sibling module owns.
 
 from __future__ import annotations
 
+import importlib
 import json
+import os
 import unittest
+from unittest.mock import patch
 
 from .test_library import LibraryFixture
+
+sites = importlib.import_module("infinito_docs.sites")
 
 
 class SitesFixture(LibraryFixture):
@@ -44,6 +49,24 @@ class TestServable(SitesFixture, unittest.TestCase):
         self.assertFalse(self.library.translation_servable("latest", "fr"))
         self.assertEqual(self.library.translation_ref("latest", "de"), "deadbeef")
         self.assertEqual(self.library.translation_ref("latest", "fr"), "")
+
+
+class TestRecheckServable(SitesFixture, unittest.TestCase):
+    def test_a_published_site_is_found_by_listing_its_parent(self) -> None:
+        self._publish("latest")
+        self._publish("latest", "de")
+
+        with patch.object(sites.os, "listdir", wraps=os.listdir) as listdir:
+            self.assertTrue(self.library.recheck_servable("latest"))
+            self.assertTrue(self.library.recheck_servable("latest", "de"))
+            self.assertFalse(self.library.recheck_servable("latest", "fr"))
+
+        listdir.assert_any_call(self.library.sites)
+        listdir.assert_any_call(self.library.translations / "latest")
+
+    def test_a_site_without_a_parent_directory_is_not_servable(self) -> None:
+        self.assertFalse(self.library.recheck_servable("latest"))
+        self.assertFalse(self.library.recheck_servable("latest", "de"))
 
 
 class TestLanguageIndex(SitesFixture, unittest.TestCase):

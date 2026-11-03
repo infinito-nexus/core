@@ -121,6 +121,17 @@ class DocsHandler(SimpleHTTPRequestHandler):
         body = json.dumps({"version": version, "languages": languages}).encode("utf-8")
         self._send(HTTPStatus.OK, "application/json", body, head)
 
+    def _unbuilt(self, version):
+        """Whether ``version`` has no current site, after a second look at the volume.
+
+        Args:
+            version: a listed version.
+        """
+        library = self.library
+        if library.servable(version) and not library.outdated(version):
+            return False
+        return not library.recheck_servable(version) or library.outdated(version)
+
     def _version(self, path, head):
         version, slash, rest = path.lstrip("/").partition("/")
         if version not in self.library.versions():
@@ -130,7 +141,7 @@ class DocsHandler(SimpleHTTPRequestHandler):
             self._redirect(f"/{version}/")
             return
         self.library.mark_opened(version)
-        if not self.library.servable(version) or self.library.outdated(version):
+        if self._unbuilt(version):
             if self.library.failed(version):
                 self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR)
                 return
@@ -154,7 +165,8 @@ class DocsHandler(SimpleHTTPRequestHandler):
 
     def _translation(self, version, code, path, head):
         rest = path.lstrip("/").partition("/")[2].partition("/")[2]
-        if not self.library.translation_servable(version, code):
+        servable = self.library.translation_servable(version, code)
+        if not servable and not self.library.recheck_servable(version, code):
             if not self.library.translates(version, code):
                 self.send_error(HTTPStatus.NOT_FOUND)
                 return

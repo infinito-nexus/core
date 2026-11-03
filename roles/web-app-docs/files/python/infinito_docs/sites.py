@@ -8,6 +8,7 @@ which file a request maps to.
 from __future__ import annotations
 
 import json
+import os
 
 
 class Sites:
@@ -17,6 +18,31 @@ class Sites:
 
     def servable(self, version):
         return (self.sites / version / "html" / "index.html").is_file()
+
+    def recheck_servable(self, version, code=None):
+        """Look at the volume again before a site counts as unbuilt.
+
+        ``servable`` and ``translation_servable`` trust this replica's cached
+        lookups. On the swarm NFS volume a replica keeps a failed lookup until
+        the cached attributes of the parent directory expire, so a site another
+        replica just renamed into place stays invisible to it for up to a
+        minute. Listing the parent opens it, which forces the close-to-open
+        revalidation that drops the failed lookup.
+
+        Args:
+            version: ``latest``, ``deployed`` or a release tag.
+            code: ISO 639-1 code of a translated site, or None for the
+                version's own site.
+
+        Returns:
+            Whether the site is servable as the volume holds it now.
+        """
+        site = self.translations / version / code if code else self.sites / version
+        try:
+            listed = site.name in os.listdir(site.parent)
+        except FileNotFoundError:
+            return False
+        return listed and (site / "html" / "index.html").is_file()
 
     def translation_ref(self, version, code):
         """Return the ref the translated site of ``code`` was built from.
