@@ -1,0 +1,24 @@
+---
+- name: "🔍 Stat compose.yml of '{{ application_id }}'"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', application_id, 'files.compose') }}"
+    get_checksum: false
+  register: sys_svc_compose_rehash_stat
+
+- name: "🔁 Update the hashed config and secret names of '{{ application_id }}'"
+  when: sys_svc_compose_rehash_stat.stat.exists
+  block:
+    - name: "📖 Read compose.yml of '{{ application_id }}'"
+      ansible.builtin.slurp: # nocheck: stack-host-consumer (the block is gated by the stat of this same file)
+        src: "{{ lookup('container', application_id, 'files.compose') }}"
+      register: sys_svc_compose_rehash_compose
+
+    - name: "🔁 Point each hashed name of '{{ application_id }}' at its file's current content"
+      ansible.builtin.replace: # nocheck: stack-host-consumer (the block is gated by the stat of this same file)
+        path: "{{ lookup('container', application_id, 'files.compose') }}"
+        regexp: "(?<![\\w.-]){{ item.name | regex_escape }}(?![\\w.-])"
+        replace: "{{ item | compose_rehashed_name }}"
+      loop: "{{ sys_svc_compose_rehash_compose.content | b64decode | from_yaml | compose_hashed_entries }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: item.name != (item | compose_rehashed_name)
