@@ -37,7 +37,12 @@ BASE = {
 
 class TestSandboxPlacement(unittest.TestCase):
     def _render(
-        self, kata_enabled, manager_placed=False, sandbox_tier=True, **overrides
+        self,
+        kata_enabled,
+        manager_placed=False,
+        sandbox_tier=True,
+        replicas=3,
+        **overrides,
     ):
         env = Environment(
             loader=FileSystemLoader(str(TEMPLATES)),
@@ -54,7 +59,7 @@ class TestSandboxPlacement(unittest.TestCase):
             if name == "applications":
                 return {}
             if name == "compose_replicas":
-                return "replicas: 3"
+                return f"replicas: {replicas}"
             if name == "roles_with_placement":
                 return ["web-app-hermes"] if manager_placed else []
             if name == "config":
@@ -121,6 +126,22 @@ class TestSandboxPlacement(unittest.TestCase):
         """
         rendered = self._render(kata_enabled=False)
         self.assertIn("failure_action: continue", rendered)
+
+    def _update_delay(self, rendered):
+        lines = [line.strip() for line in rendered.splitlines()]
+        return [line for line in lines if line.startswith("delay:")]
+
+    def test_a_single_replica_rolls_without_a_stagger_delay(self):
+        rendered = self._render(kata_enabled=False, replicas=1)
+        self.assertEqual(self._update_delay(rendered), ["delay: 0s"])
+
+    def test_several_replicas_keep_the_stagger_delay(self):
+        for replicas, delay in ((3, "10s"), (2, "30s")):
+            with self.subTest(replicas=replicas):
+                rendered = self._render(
+                    kata_enabled=False, replicas=replicas, service_update_delay=delay
+                )
+                self.assertEqual(self._update_delay(rendered), [f"delay: {delay}"])
 
 
 if __name__ == "__main__":
