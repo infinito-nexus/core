@@ -15,6 +15,7 @@ The diagram places Operating System Images in the Infinito.Nexus cosmos: the com
 ```mermaid
 flowchart LR
     subgraph role [sys-os 💻]
+        svc_os["os"]
         svc_arch["arch"]
         svc_debian["debian"]
         svc_ubuntu["ubuntu"]
