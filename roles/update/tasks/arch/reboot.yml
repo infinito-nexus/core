@@ -12,12 +12,12 @@
   become: true
   throttle: 1
   ansible.builtin.reboot:
-    msg: "Infinito.Nexus update: the running kernel has no modules on disk after the package upgrade"
+    msg: "Infinito.Nexus update: boot the kernel the package upgrade installed"
     reboot_timeout: "{{ lookup('timeout', 1800) | int }}"
     test_command: "systemctl is-system-running --wait | grep -qxE 'running|degraded'"
   register: update_reboot
   when:
-    - update_kernel_modules_missing | bool
+    - (update_kernel_modules_missing | bool) or (update_kernel_reboot_pending | bool)
     - UPDATE_REBOOT_ENABLED | bool
     - not ansible_check_mode
     - not (update_mesh_up_in_play | bool)
@@ -43,15 +43,15 @@
       /usr/lib/modules; only {{ update_module_trees | join(', ') }} have one.
       No kernel module can load, so restarting Docker would fail to create its iptables chains
       and leave every container down. Reboot into the installed kernel, then deploy again.
-      {% if update_reboot is changed -%}
-      The role rebooted the host, and it came back on this kernel: make the bootloader start an installed kernel.
-      {%- elif not (UPDATE_REBOOT_ENABLED | bool) -%}
-      The role does not reboot the host because applications.update.services.update.reboot.enabled is false.
-      {%- elif update_mesh_up_in_play | bool -%}
-      The role does not reboot the host because svc-net-wireguard brought its mesh up with wg-quick in this play, and the mesh does not come back after a reboot.
-      {%- elif update_controller_is_target | bool -%}
-      The role does not reboot the host because it runs this Ansible controller, so the reboot would kill this run.
-      {%- else -%}
-      The role does not reboot the host in check mode.
-      {%- endif %}
+      {{ update_reboot_skip_reason }}
     quiet: true
+
+- name: "⚠️ update (pacman) | announce the reboot into the installed kernel"
+  ansible.builtin.debug:
+    msg: >-
+      Reboot pending: the running kernel {{ ansible_facts['kernel'] }} is no longer installed and loads its
+      modules from the tree kernel-modules-hook kept, which no package owns; installed:
+      {{ update_module_trees | reject('equalto', ansible_facts['kernel']) | join(', ') }}.
+      Reboot the host into the installed kernel; during that boot linux-modules-cleanup.service deletes every module tree that neither the new kernel nor an installed package owns.
+      {{ update_reboot_skip_reason }}
+  when: update_kernel_reboot_pending | bool

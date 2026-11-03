@@ -79,6 +79,16 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   `when: run_once_update is not defined` and writes the flag via
   `tasks/utils/once/flag.yml`, so repeated invocations within one play are
   no-ops.
+- **Kernel modules hook on Arch:** Before the upgrade, `arch.yml` installs [kernel-modules-hook](https://github.com/saber-nyan/kernel-modules-hook) from the official `extra` repository and enables its `linux-modules-cleanup.service`. During a kernel upgrade the package's pacman hooks keep the module tree of the running kernel in `/usr/lib/modules`, so the reboot guard passes and the deploy runs to the end. When no package owns the module tree of the running kernel, the role reboots into the installed kernel under the conditions of the reboot guard, and otherwise prints a "Reboot pending" notice that names the running and the installed kernel. On the next boot `linux-modules-cleanup.service` deletes every module tree in `/usr/lib/modules` that belongs to neither the running kernel nor an installed package, so a hand-built kernel's modules go too. `services.update.kernel_modules_hook.enabled` defaults to `true` and is set per host like the reboot switch; `false` stops the install and the enable but removes neither. Containers (`DOCKER_IN_CONTAINER`) skip it:
+
+  ```yaml
+  applications:
+    update:
+      services:
+        update:
+          kernel_modules_hook:
+            enabled: false
+  ```
 
 ## Developer Notes
 
