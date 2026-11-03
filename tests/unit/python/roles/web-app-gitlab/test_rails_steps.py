@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -110,11 +110,13 @@ def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
         the Ruby program the task feeds ``rails runner -``
     """
     task = next(
-        task
-        for task in load_yaml_any(str(TASKS))
-        if "ansible.builtin.command" in task
+        task for task in load_yaml_any(str(TASKS)) if "ansible.builtin.command" in task
     )
-    environment = Environment(trim_blocks=True, undefined=StrictUndefined)
+    environment = Environment(
+        trim_blocks=True,
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     environment.filters["bool"] = bool
     environment.filters["to_json"] = json.dumps
 
