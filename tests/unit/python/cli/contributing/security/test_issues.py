@@ -19,7 +19,9 @@ ROW = {
     "package": "php-cli",
     "installed": "8.4.26",
     "fixed": "8.4.27",
+    "suppressed_until": None,
 }
+SUPPRESSED = {**ROW, "id": "CVE-2026-109619", "suppressed_until": "2026-12-03"}
 TITLE = "🛡️ docker.io/roundcube/roundcubemail:1.7.5-apache"
 OTHER_IMAGE = "docker.io/library/nginx:1.31.8-alpine"
 
@@ -84,6 +86,12 @@ class TestSync(TestCase):
         actions = issues_main.sync({"findings": [], "errors": []}, "o/r", gh)
         self.assertEqual(actions, [f"closed #7 {TITLE}"])
 
+    def test_a_suppressed_finding_keeps_its_issue_open(self):
+        gh = FakeGh([{"number": 7, "title": TITLE, "body": "old table"}])
+        actions = issues_main.sync({"findings": [SUPPRESSED], "errors": []}, "o/r", gh)
+        self.assertEqual(gh.verbs(), [["issue", "comment"], ["issue", "edit"]])
+        self.assertNotIn(f"closed #7 {TITLE}", actions)
+
     def test_a_scan_error_closes_nothing(self):
         gh = FakeGh([{"number": 7, "title": TITLE}])
         issues_main.sync(
@@ -131,6 +139,17 @@ class TestBody(TestCase):
         high = {**ROW, "id": "CVE-2026-000001", "severity": "HIGH"}
         table = self._table(issues_main.body([high, ROW]))
         self.assertIn("| CRITICAL |", table[0])
+
+    def test_a_suppressed_cve_is_listed_after_the_failing_ones_with_its_until(self):
+        text = issues_main.body([SUPPRESSED, ROW])
+        table = self._table(text)
+        self.assertEqual(
+            (table[0].endswith("| - |"), table[1].endswith("| 2026-12-03 |")),
+            (True, True),
+        )
+        self.assertIn(
+            "carries 2 CVE(s) at the scan threshold, 1 of them suppressed.", text
+        )
 
     def test_a_large_image_stays_under_the_body_limit(self):
         rows = [{**ROW, "id": f"CVE-2026-{index:06d}"} for index in range(2000)]

@@ -9,8 +9,13 @@ import cli.contributing.security.summary.__main__ as summary_main
 from utils.cache.files import read_text
 
 
-def _row(image, cve, engine="grype"):
-    return {"image": image, "id": cve, "engine": engine}
+def _row(image, cve, engine="grype", suppressed_until=None):
+    return {
+        "image": image,
+        "id": cve,
+        "engine": engine,
+        "suppressed_until": suppressed_until,
+    }
 
 
 REPORT = {
@@ -19,6 +24,7 @@ REPORT = {
         _row("docker.io/a:1", "CVE-2026-1001", engine="trivy"),
         _row("docker.io/a:1", "CVE-2026-1002"),
         _row("docker.io/b:2", "CVE-2026-1001"),
+        _row("docker.io/d:4", "CVE-2026-1003", suppressed_until="2026-12-03"),
     ],
     "errors": ["docker.io/c:3: the mirror served no digest"],
 }
@@ -41,6 +47,12 @@ class TestCounts(TestCase):
         counts = summary_main.counts(REPORT)
         self.assertEqual((counts["findings"], counts["errors"]), (4, 1))
 
+    def test_a_suppressed_finding_is_counted_apart_from_the_failing_ones(self):
+        counts = summary_main.counts(REPORT)
+        self.assertEqual(
+            (counts["suppressed"], "docker.io/d:4" in counts["per_image"]), (1, False)
+        )
+
 
 class TestMarkdown(TestCase):
     def test_the_most_affected_image_comes_first(self):
@@ -50,7 +62,9 @@ class TestMarkdown(TestCase):
     def test_the_headline_names_the_totals(self):
         text = summary_main.markdown(summary_main.counts(REPORT))
         self.assertIn(
-            "4 failing finding(s) in 2 image(s), 2 CVE(s), 1 scan error(s).", text
+            "4 failing finding(s) in 2 image(s), 2 CVE(s), 1 suppressed finding(s), "
+            "1 scan error(s).",
+            text,
         )
 
 

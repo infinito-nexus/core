@@ -257,11 +257,13 @@ def suppressions_of(p: ModuleType, roles: Sequence[str]):
 
 
 def report_rows(verdicts: Sequence, sources: Mapping[str, str]) -> list[dict[str, Any]]:
-    """Return the failing verdicts as rows for the issue tracker."""
+    """Return every verdict as a row for the issue tracker.
+
+    A suppressed row carries the suppression's last day in
+    ``suppressed_until``; a failing row carries ``None`` there.
+    """
     rows = []
     for verdict in verdicts:
-        if verdict.suppressed:
-            continue
         finding = verdict.finding
         role, service = verdict.owner
         rows.append(
@@ -278,9 +280,17 @@ def report_rows(verdicts: Sequence, sources: Mapping[str, str]) -> list[dict[str
                 "package": finding.package,
                 "installed": finding.installed,
                 "fixed": finding.fixed,
+                "suppressed_until": (
+                    verdict.rule.until.isoformat() if verdict.suppressed else None
+                ),
             }
         )
     return rows
+
+
+def failing(rows: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    """Return the rows no suppression covers."""
+    return [row for row in rows if row["suppressed_until"] is None]
 
 
 def scan_config(p: ModuleType, workers: int):
@@ -367,11 +377,13 @@ def main(argv=None) -> int:
         )
     for error in errors:
         print(f"❌ {error}")
+    failures = failing(rows)
     print(
         f"\n{len(refs)} pinned image(s), {len(targets)} digest(s), "
-        f"{len(rows)} finding(s), {len(errors)} error(s)"
+        f"{len(failures)} failing and {len(rows) - len(failures)} suppressed "
+        f"finding(s), {len(errors)} error(s)"
     )
-    return 1 if rows or errors else 0
+    return 1 if failures or errors else 0
 
 
 if __name__ == "__main__":

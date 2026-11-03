@@ -18,12 +18,13 @@ def counts(report: Mapping[str, Any]) -> dict[str, Any]:
     """Count the failing findings of a ``make test-security`` report.
 
     Returns:
-        ``findings`` and ``errors`` totals, plus per image and per CVE the
-        distinct CVEs or images and the finding rows behind them.
+        ``findings``, ``suppressed`` and ``errors`` totals, plus per image and
+        per CVE the distinct CVEs or images and the failing rows behind them.
     """
     images: dict[str, dict[str, set[str] | int]] = {}
     cves: dict[str, dict[str, set[str] | int]] = {}
-    for row in report["findings"]:
+    failing = [row for row in report["findings"] if row["suppressed_until"] is None]
+    for row in failing:
         image = images.setdefault(row["image"], {"cves": set(), "findings": 0})
         image["cves"].add(row["id"])
         image["findings"] += 1
@@ -31,7 +32,8 @@ def counts(report: Mapping[str, Any]) -> dict[str, Any]:
         cve["images"].add(row["image"])
         cve["findings"] += 1
     return {
-        "findings": len(report["findings"]),
+        "findings": len(failing),
+        "suppressed": len(report["findings"]) - len(failing),
         "errors": len(report["errors"]),
         "per_image": {
             name: {"cves": len(entry["cves"]), "findings": entry["findings"]}
@@ -65,7 +67,8 @@ def markdown(summary: Mapping[str, Any]) -> str:
         "",
         (
             f"{summary['findings']} failing finding(s) in {len(per_image)} image(s), "
-            f"{len(per_cve)} CVE(s), {summary['errors']} scan error(s)."
+            f"{len(per_cve)} CVE(s), {summary['suppressed']} suppressed finding(s), "
+            f"{summary['errors']} scan error(s)."
         ),
         "",
     ]

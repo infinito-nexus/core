@@ -146,7 +146,29 @@ class TestReport(TestCase):
             severity,
         )
 
-    def test_only_unsuppressed_verdicts_are_reported(self):
+    def test_a_suppressed_verdict_is_reported_with_its_until_but_does_not_fail(self):
+        finding = self._finding("CRITICAL")
+        verdicts = [
+            P.Verdict(finding, self.target, ("r", "s"), None, False, "fail"),
+            P.Verdict(
+                finding,
+                self.target,
+                ("r", "t"),
+                P.Suppression(None, "8.4.26-cli", dt.date(2026, 12, 3)),
+                True,
+                "fail",
+            ),
+        ]
+        rows = scan_main.report_rows(verdicts, MIRROR_SOURCES)
+        self.assertEqual(
+            (
+                [(row["service"], row["suppressed_until"]) for row in rows],
+                [row["service"] for row in scan_main.failing(rows)],
+            ),
+            ([("s", None), ("t", "2026-12-03")], ["s"]),
+        )
+
+    def test_only_unsuppressed_verdicts_fail(self):
         finding = self._finding("CRITICAL")
         verdicts = [
             P.Verdict(finding, self.target, ("r", "s"), None, False, "fail"),
@@ -161,7 +183,10 @@ class TestReport(TestCase):
         ]
         rows = scan_main.report_rows(verdicts, MIRROR_SOURCES)
         self.assertEqual(
-            [(row["role"], row["service"], row["id"]) for row in rows],
+            [
+                (row["role"], row["service"], row["id"])
+                for row in scan_main.failing(rows)
+            ],
             [("r", "s", "CVE-2026-109618")],
         )
 

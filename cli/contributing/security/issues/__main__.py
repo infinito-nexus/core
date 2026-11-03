@@ -26,6 +26,7 @@ COLUMNS = (
     "package",
     "installed",
     "fixed",
+    "suppressed_until",
 )
 BODY_LIMIT = 60000
 
@@ -44,15 +45,20 @@ def grouped(rows: Iterable[Mapping[str, Any]]) -> dict[str, list[Mapping[str, An
 
 
 def body(rows: Sequence[Mapping[str, Any]]) -> str:
-    """Render the issue body of one image, CRITICAL rows first.
+    """Render the issue body of one image, unsuppressed and CRITICAL rows first.
 
-    The table stops before the body would exceed ``BODY_LIMIT`` and names
-    how many rows it left out.
+    A suppressed CVE stays listed with its ``suppressed_until`` day, so the
+    issue remains open while the suppression runs. The table stops before
+    the body would exceed ``BODY_LIMIT`` and names how many rows it left out.
     """
     first = rows[0]
     cves = {row["id"] for row in rows}
+    suppressed = {row["id"] for row in rows if row["suppressed_until"]}
     head = [
-        f"`{first['image']}` carries {len(cves)} CVE(s) at the scan threshold.",
+        (
+            f"`{first['image']}` carries {len(cves)} CVE(s) at the scan threshold, "
+            f"{len(suppressed)} of them suppressed."
+        ),
         "",
         f"Mirror: `{first['mirror']}@{first['digest']}`",
         "",
@@ -68,10 +74,14 @@ def body(rows: Sequence[Mapping[str, Any]]) -> str:
         ),
     ]
     table = [
-        "| " + " | ".join(str(row[column]) or "-" for column in COLUMNS) + " |"
+        "| " + " | ".join(str(row[column] or "-") for column in COLUMNS) + " |"
         for row in sorted(
             rows,
-            key=lambda r: (r["severity"] != "CRITICAL", *(str(r[c]) for c in COLUMNS)),
+            key=lambda r: (
+                r["suppressed_until"] is not None,
+                r["severity"] != "CRITICAL",
+                *(str(r[c]) for c in COLUMNS),
+            ),
         )
     ]
     budget = BODY_LIMIT - len("\n".join(head + tail)) - 200
