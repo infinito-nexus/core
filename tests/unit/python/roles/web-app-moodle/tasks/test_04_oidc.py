@@ -61,7 +61,7 @@ class TestOidcPluginSync(unittest.TestCase):
     def files_in(self, tree):
         return {
             path.relative_to(tree).as_posix()
-            for path in tree.rglob("*")
+            for path in tree.rglob("*")  # nocheck: project-walk  test tempdir
             if path.is_file()
         }
 
