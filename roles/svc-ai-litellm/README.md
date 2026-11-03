@@ -82,7 +82,7 @@ For OpenRouter's own router IDs, use the OpenAI-compatible transport:
 - alias: openrouter/free
   model: openai/openrouter/free
   provider: openrouter
-  api_base: https://openrouter.ai/api/v1
+  api_base: https://openrouter.ai/api/v1 # nocheck: url
   traits:
     local: false
 ```

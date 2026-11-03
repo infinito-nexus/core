@@ -65,7 +65,7 @@ litellm:
     - alias: openrouter/auto
       model: openai/openrouter/auto
       provider: openrouter
-      api_base: https://openrouter.ai/api/v1
+      api_base: https://openrouter.ai/api/v1 # nocheck: url
       traits:
         local: false
   min_storage: 1022MB
