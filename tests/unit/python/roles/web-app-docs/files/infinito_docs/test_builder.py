@@ -224,6 +224,23 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         rebuilt = site.read_text(encoding="utf-8")  # nocheck: cache-read
         self.assertEqual(rebuilt, "second")
 
+    def test_a_current_translation_is_not_rebuilt_on_a_repeated_request(
+        self,
+    ) -> None:
+        self._translated_repo("de")
+        _commit(self.repo, "first")
+        self.library.fetch()
+        self._drain()
+        self.assertTrue(self.library.translation_servable("latest", "de"))
+
+        self.library.request("latest", "de")
+        with patch.object(
+            builder.Builder, "_prepare", side_effect=AssertionError("rebuilt")
+        ):
+            self.library.build_language("latest", "de")
+
+        self.assertFalse((self.library.queue / "latest:de").exists())
+
     def test_a_failing_language_does_not_mark_the_version_failed(self) -> None:
         self._translated_repo("de")
         _commit(self.repo, "first")

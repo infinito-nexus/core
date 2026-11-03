@@ -319,6 +319,9 @@ class Builder:
             self.request(version)
             self.request(version, code, background=True)
             return
+        if self._translation_current(version, code, head):
+            self._dequeue(marker)
+            return
         ref = self._wanted_ref(version, head)
         work = self.scratch / f"{version}-{code}"
         src, conf = work / "src", work / "conf"

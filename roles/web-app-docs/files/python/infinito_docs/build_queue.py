@@ -143,6 +143,19 @@ class Queue:
                     return marker
                 skip.add(marker)
 
+    def _slot_free(self, slots):
+        """Whether fewer than ``slots`` markers are claimed now.
+
+        A claim taken while every slot is busy waits in the pool's own FIFO,
+        so a background build claimed early would run ahead of a visitor's
+        marker that became buildable after it.
+
+        Args:
+            slots: builds the pool runs at once.
+        """
+        with self._lock:
+            return len(self._in_flight) < slots
+
     def _claim(self, marker):
         """Claim ``marker`` for a slot when it waits and no slot holds it yet.
 
@@ -279,7 +292,8 @@ class Queue:
             time.sleep(POLL_SECONDS)
         shutil.rmtree(self.scratch, ignore_errors=True)
         next_fetch = 0.0
-        with ThreadPoolExecutor(max_workers=max(1, int(parallel))) as pool:
+        slots = max(1, int(parallel))
+        with ThreadPoolExecutor(max_workers=slots) as pool:
             if self.snapshot.is_dir():
                 self.request(DEPLOYED)
                 if self._claim(DEPLOYED):
@@ -293,7 +307,7 @@ class Queue:
                             f"fetch of {self.repository} failed: {exc}", file=sys.stderr
                         )
                     next_fetch = time.monotonic() + interval
-                marker = self.next_free()
+                marker = self.next_free() if self._slot_free(slots) else None
                 if marker is None:
                     time.sleep(POLL_SECONDS)
                     continue
