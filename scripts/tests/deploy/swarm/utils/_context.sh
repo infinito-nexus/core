@@ -117,7 +117,7 @@ has_swarm_service() {
 		--format '{{.Name}}' "${STACK_NAME}" 2>/dev/null)"; then
 		_names=""
 	fi
-	printf '%s\n' "${_names}" | grep -qxF "${SERVICE_NAME}"
+	grep -qxF "${SERVICE_NAME}" <<<"${_names}"
 }
 
 # Prints the swarm service carrying APP_ID's database. A role that pins its own
@@ -130,9 +130,9 @@ resolve_db_service() {
 	if ! _names="$(timeout 30 docker exec "${MGR}" docker service ls --format '{{.Name}}' 2>/dev/null)"; then
 		return 0
 	fi
-	if printf '%s\n' "${_names}" | grep -qxF "${STACK_NAME}_database"; then
+	if grep -qxF "${STACK_NAME}_database" <<<"${_names}"; then
 		printf '%s\n' "${STACK_NAME}_database"
-	elif printf '%s\n' "${_names}" | grep -qxF "${DB_DEP}_${DB_DEP}"; then
+	elif grep -qxF "${DB_DEP}_${DB_DEP}" <<<"${_names}"; then
 		printf '%s\n' "${DB_DEP}_${DB_DEP}"
 	fi
 }
