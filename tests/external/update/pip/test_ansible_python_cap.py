@@ -8,8 +8,8 @@ watcher.
 
 This is external because the answer lives on PyPI: the newest ``ansible``
 release, the ansible-core range it requires, and the Python classifiers of the
-newest ansible-core inside that range. It contacts ``https://pypi.org/pypi``
-only.
+newest ansible-core inside that range. It contacts only the JSON API on
+``pypi.org``.
 
 - The test fails when the cap allows a Python minor that this ansible-core
   does not support, because the bootstrap would then pick an interpreter the
@@ -37,7 +37,7 @@ from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
 
-PYPI = "https://pypi.org/pypi"
+PYPI_API = "https://pypi.org/pypi/{}"
 TIMEOUT_SECONDS = 15
 USER_AGENT = "infinito-nexus python cap check"
 CLASSIFIER = re.compile(r"^Programming Language :: Python :: 3\.(\d+)$")
@@ -59,7 +59,7 @@ def pypi_json(path: str) -> dict:
         PyPIUnavailableError: the request failed or returned no JSON.
     """
     request = urllib.request.Request(  # noqa: S310 - fixed https PyPI origin, path built from literal package names
-        f"{PYPI}/{path}", headers={"User-Agent": USER_AGENT}
+        PYPI_API.format(path), headers={"User-Agent": USER_AGENT}
     )
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310 - fixed https PyPI origin, path built from literal package names
