@@ -1074,6 +1074,8 @@ class TestComposeCaInject(unittest.TestCase):
             patch.object(self.m, "ensure_image_available") as p_ensure,
             patch.object(self.m, "docker_image_inspect") as p_inspect,
             patch.object(self.m, "docker_image_has_bin_sh") as p_has_sh,
+            patch.object(self.m, "gather_image_meta") as p_gather,
+            patch.object(self.m, "run") as p_run,
         ):
             doc = self.m.render_override(
                 services,
@@ -1097,6 +1099,36 @@ class TestComposeCaInject(unittest.TestCase):
         p_ensure.assert_not_called()
         p_inspect.assert_not_called()
         p_has_sh.assert_not_called()
+        p_gather.assert_not_called()
+        p_run.assert_not_called()
+
+    def test_render_override_wrapping_still_gathers_the_image_meta(self):
+        """The compose path needs entrypoint, cmd and /bin/sh to wrap, so it reads them."""
+        services = {"svc": {"image": "img:1"}}
+        service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}
+
+        with patch.object(
+            self.m,
+            "gather_image_meta",
+            return_value={"img:1": (True, ["/entry"], ["run"], True)},
+        ) as p_gather:
+            doc = self.m.render_override(
+                services,
+                service_to_cmd,
+                cwd=Path("/tmp"),
+                env={},
+                ca_host="/host/ca.crt",
+                wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
+                trust_name="infinito.local",
+                wrap=True,
+            )
+
+        out = doc["services"]["svc"]
+        p_gather.assert_called_once()
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
+        self.assertEqual(out.get("command"), ["/entry", "run"])
 
     def test_render_override_does_not_escape_when_not_wrapping(self):
         """
