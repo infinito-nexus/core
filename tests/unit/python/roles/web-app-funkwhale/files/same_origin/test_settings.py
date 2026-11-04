@@ -9,8 +9,7 @@ from unittest import mock
 from . import PROJECT_ROOT
 
 MODULE_PATH = (
-    PROJECT_ROOT
-    / "roles/web-app-funkwhale/files/python/same_origin/same_origin_settings.py"
+    PROJECT_ROOT / "roles/web-app-funkwhale/files/python/same_origin/settings.py"
 )
 STOCK_BACKEND = "funkwhale_api.common.storage.ASCIIS3Boto3Storage"
 

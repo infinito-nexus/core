@@ -11,8 +11,7 @@ from urllib.parse import parse_qs, quote, urlsplit
 from . import PROJECT_ROOT
 
 MODULE_PATH = (
-    PROJECT_ROOT
-    / "roles/web-app-funkwhale/files/python/same_origin/same_origin_storage.py"
+    PROJECT_ROOT / "roles/web-app-funkwhale/files/python/same_origin/storage.py"
 )
 MEDIA_URL = "https://funkwhale.example.com/media/"
 INTERNAL = "http://seaweedfs:8333"

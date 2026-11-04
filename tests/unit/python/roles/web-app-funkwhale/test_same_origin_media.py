@@ -22,7 +22,11 @@ ROLE = PROJECT_ROOT / "roles" / APP
 PROVIDER_HOST = "api.seaweedfs.s3.example.com"
 CLEARNET = "funkwhale.example.com"
 ONION = "funkwhale." + "a" * 56 + ".onion"
-MODULES = ("same_origin_settings", "same_origin_storage", "same_origin_urls")
+MODULES = {
+    "same_origin_settings": "settings",
+    "same_origin_storage": "storage",
+    "same_origin_urls": "urls",
+}
 PYTHON_SERVICES = {"api", "celeryworker", "celerybeat", "migrate"}
 
 
@@ -218,7 +222,7 @@ class TestFunkwhaleSameOriginMounts(unittest.TestCase):
                 self.assertEqual(entry["type"], "config")
                 self.assertTrue(
                     entry["source"].endswith(
-                        f"'same_origin', '{module}.py'] | path_join }}}}"
+                        f"'same_origin', '{MODULES[module]}.py'] | path_join }}}}"
                     )
                 )
                 self.assertEqual(
@@ -240,7 +244,11 @@ class TestFunkwhaleSameOriginMounts(unittest.TestCase):
             with self.subTest(module=module):
                 self.assertTrue(
                     (
-                        ROLE / "files" / "python" / "same_origin" / f"{module}.py"
+                        ROLE
+                        / "files"
+                        / "python"
+                        / "same_origin"
+                        / f"{MODULES[module]}.py"
                     ).is_file()
                 )
 

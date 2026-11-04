@@ -11,13 +11,10 @@ from unittest import mock
 from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
-from .test_same_origin_storage import EXPORT
-from .test_same_origin_storage import load as load_storage
+from .test_storage import EXPORT
+from .test_storage import load as load_storage
 
-MODULE_PATH = (
-    PROJECT_ROOT
-    / "roles/web-app-funkwhale/files/python/same_origin/same_origin_urls.py"
-)
+MODULE_PATH = PROJECT_ROOT / "roles/web-app-funkwhale/files/python/same_origin/urls.py"
 NGINX_CONF = PROJECT_ROOT / "roles/web-app-funkwhale/templates/nginx.conf.j2"
 SIGNED = (
     "http://seaweedfs:8333/funkwhale/dynamic_preferences/ui__logo/infinito%20logo.png"

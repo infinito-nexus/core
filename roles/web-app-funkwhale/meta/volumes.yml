@@ -52,7 +52,7 @@ front_nginx_conf:
 
 same_origin_settings:
   type: config
-  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_settings.py'] | path_join }}"
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'settings.py'] | path_join }}"
   mode: "0444"
   mounts:
     - service: api
@@ -70,7 +70,7 @@ same_origin_settings:
 
 same_origin_storage:
   type: config
-  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_storage.py'] | path_join }}"
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'storage.py'] | path_join }}"
   mode: "0444"
   mounts:
     - service: api
@@ -88,7 +88,7 @@ same_origin_storage:
 
 same_origin_urls:
   type: config
-  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'same_origin_urls.py'] | path_join }}"
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'urls.py'] | path_join }}"
   mode: "0444"
   mounts:
     - service: api
