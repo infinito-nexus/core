@@ -3,7 +3,8 @@ application_id: "svc-db-openldap"
 entity_name: "{{ application_id | get_entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
-OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
+OPENLDAP_SOCKET_PATH_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'run'] | path_join }}"
+OPENLDAP_SERVER_URI: "ldapi://{{ [OPENLDAP_SOCKET_PATH_HOST, 'ldapi'] | path_join | replace('/', '%2F') }}"
 
 OPENLDAP_CONFIG_URI: "ldapi:///"
 

@@ -13,6 +13,13 @@ config:
     - service: openldap
       target: /etc/ldap/slapd.d
 
+socket:
+  type: bind
+  source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'run'] | path_join }}"
+  mounts:
+    - service: openldap
+      target: /run/slapd
+
 ldif:
   type: bind
   source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'ldif'] | path_join }}"
