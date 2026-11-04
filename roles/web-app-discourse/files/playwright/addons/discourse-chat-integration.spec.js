@@ -112,7 +112,7 @@ test("discourse-chat-integration: the chat plugin is installed and offers the Ma
     );
 
     const providers = await page.evaluate(async (base) => {
-      const res = await fetch(`${base}/admin/plugins/chat-integration/providers.json`, {
+      const res = await fetch(`${base}/admin/plugins/discourse-chat-integration/providers.json`, {
         headers: { Accept: "application/json" },
         credentials: "include",
       });
@@ -139,6 +139,14 @@ test("discourse-chat-integration: the chat plugin is installed and offers the Ma
       catalogue,
       "the provider catalogue must name the Mattermost partner this deployment bridges",
     ).toMatch(/mattermost/i);
+
+    const enabledPartners = ((providers.json && providers.json.enabled_providers) || [])
+      .map((provider) => provider && provider.name)
+      .filter((name) => name === "matrix" || name === "mattermost");
+    expect(
+      enabledPartners.length,
+      `the provider of a bridged partner must be enabled so a rule can address it (catalogue: ${catalogue})`,
+    ).toBeGreaterThan(0);
   } finally {
     await page.context().clearCookies().catch(() => {});
   }

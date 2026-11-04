@@ -35,6 +35,8 @@ Addons are declared in `meta/addons/` and read at deploy time via `lookup('confi
 
 The bridged partners are co-deployed by variant 1 of [`meta/variants.yml`](./meta/variants.yml); variant 0 is the baseline round and keeps them off to stay within its host budget.
 
+`discourse-chat-integration` switches on `chat_integration_enabled` and the provider of each bridged partner the round deploys (`chat_integration_matrix_enabled`, `chat_integration_mattermost_enabled`), then reads the settings back. Channels, rules and the partner credentials (the Matrix access token, the Mattermost webhook URL) stay with the operator in the admin UI.
+
 `discourse-akismet` ships the plugin but configures nothing: the role writes no akismet site setting, and `akismet_api_key` is a SaaS credential an operator enters in the admin UI. Its spec asserts only that the plugin's settings exist.
 
 The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is intentionally pinned to literal `false` (see [TODO.md](./TODO.md)): the `jonmbake/discourse-ldap-auth` plugin breaks Discourse bootstrap on recent versions. `discourse-ldap-auth` therefore resolves to disabled until that block is flipped back to the dynamic group-membership form.
