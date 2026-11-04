@@ -37,7 +37,7 @@ async function gotoLogin(page) {
 }
 
 function onLoginSurface(page) {
-  return /login\.html|\/web\/?($|#\/?$)/.test(page.url());
+  return /\/web\/(?:index\.html)?#\/login(?:\.html)?(?:[?/]|$)/.test(page.url());
 }
 
 async function assertAuthenticated(page, label) {

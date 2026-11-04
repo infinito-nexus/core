@@ -47,7 +47,7 @@ These decisions were confirmed by the operator before implementation starts and 
 ```
 roles/web-app-checkmk/
 ├── README.md
-├── files/playwright/{_shared,playwright.spec,test-guest,test-login-oidc-biber,test-login-oidc-administrator,test-login-ldap-biber}.js
+├── files/playwright/*.js
 ├── meta/{main,info,domains,csp,services,secrets,users,rbac,variants,volumes}.yml
 ├── tasks/{main,00_core}.yml
 ├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
@@ -84,16 +84,18 @@ checkmk:
 - [ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI.
 - [ ] The site-path redirect (`/` → `/<site>/check_mk/`) works behind the proxy.
 - [x] The role emits a `Content-Security-Policy` header on the canonical surface.
-- [ ] The agent receiver (container port `8000`) is mapped to a host port (Decision #4) and reachable for TLS agent registration.
+- [x] The agent receiver (container port `8000`) is mapped to a host port (Decision #4).
+- [ ] The mapped agent receiver is reachable for TLS agent registration.
 
 ### Role layout & image
 
-- [ ] `roles/web-app-checkmk/` exists per the [Target Schema](#role-layout); image pinned to a concrete Checkmk 2.x patch (no `:latest`).
-- [ ] All `meta/*.yml` exist and pass the role-meta lint.
+- [x] `roles/web-app-checkmk/` exists per the [Target Schema](#role-layout); image pinned to a concrete Checkmk 2.x patch (no `:latest`).
+- [x] All `meta/*.yml` exist and pass the role-meta lint.
 
 ### Bootstrap
 
-- [ ] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential), `TZ` seed the site + `cmkadmin` on first run; the stack reaches a steady running state on one persistent volume.
+- [x] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential) and `TZ` reach the container env, and all site state lives on one persistent volume (`/omd/sites`).
+- [ ] On first run they seed the site + `cmkadmin`, and the stack reaches a steady running state.
 
 ### SSO / oauth2 + header auth (Decision #3)
 
@@ -107,11 +109,13 @@ checkmk:
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the AI consumers, V2 `sso` plus the AI consumers `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant); all deploy cleanly on a fresh box.
+- [x] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the AI consumers, V2 `sso` plus the AI consumers `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant).
+- [ ] All three variants deploy cleanly on a fresh box.
 
 ### Playwright
 
-- [ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state.
+- [x] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var, and no spec is a stub.
+- [ ] `make compose-playwright role=web-app-checkmk` exits 0 with a clean logged-out final state.
 
 ### Health & quality
 

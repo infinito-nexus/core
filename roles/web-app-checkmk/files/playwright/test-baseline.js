@@ -38,13 +38,13 @@ test("biber: app → universal logout", async ({ page, browser }) => {
 test("administrator: app → admin surface → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      const setup = interactivePage.getByRole("link", { name: /^setup$/i }).first();
+      const setup = interactivePage.locator("#popup_trigger_mega_menu_setup > a").first();
       if (await setup.isVisible().catch(() => false)) {
-        await setup.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(/setup|hosts|services|checkmk/i, {
-          timeout: resolveTimeout(30_000),
-        });
+        await setup.click({ timeout: resolveTimeout(30_000) });
+        await expect(
+          interactivePage.locator("#popup_menu_setup"),
+          "the Setup menu MUST open: Checkmk wires it through an inline onclick, which script-src-attr has to admit",
+        ).toBeVisible({ timeout: resolveTimeout(30_000) });
       }
     },
   });

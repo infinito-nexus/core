@@ -64,11 +64,12 @@ roles/web-app-jellyfin/
 
 - [x] `roles/web-app-jellyfin/` exists per the [Target Schema](#role-layout); image pinned to a concrete `10.x` patch (no `:latest`).
 - [x] Every `meta/*.yml` of the [Target Schema](#role-layout) exists.
-- [ ] All `meta/*.yml` pass the role-meta lint.
+- [x] All `meta/*.yml` pass the role-meta lint.
 
 ### Bootstrap
 
-- [ ] First run reaches a steady running state with `/config` + `/cache` (+ media per Q2) persisted; the initial-setup wizard is bypassed or a first admin is seeded where supported.
+- [x] `/config`, `/cache` and the media library (Decision #3) persist on named volumes, and the initial-setup wizard is driven non-interactively to seed the first administrator.
+- [ ] First run reaches a steady running state.
 
 ### Authentication (Decision #2)
 
@@ -77,11 +78,13 @@ roles/web-app-jellyfin/
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the MCP clients, V2 SSO plus the MCP clients `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant); all deploy cleanly on a fresh box.
+- [x] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the MCP clients, V2 SSO plus the MCP clients `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant).
+- [ ] All three variants deploy cleanly on a fresh box.
 
 ### Playwright
 
-- [ ] Guest + authenticated persona(s) per the [playwright contract](../contributing/artefact/files/role/playwright.specs.js.md); `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-jellyfin` exits 0 with no stub tests and a clean logged-out final state.
+- [x] Guest + authenticated persona(s) per the [playwright contract](../contributing/artefact/files/role/playwright.specs.js.md); `templates/playwright.env.j2` exposes every read env var, no spec is a stub, and the logged-out check matches the `#/login` route of the pinned web client.
+- [ ] `make compose-playwright role=web-app-jellyfin` exits 0 with a clean logged-out final state.
 
 ### Health & quality
 
