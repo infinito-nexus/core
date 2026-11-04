@@ -45,6 +45,7 @@ flowchart LR
 | Mutating tools stay off | the MCP long-lived token belongs to a dedicated account pinned to Home Assistant's `system-read-only` group; `ensure_service_account` re-asserts `group_ids` through `config/auth/update` on every run, so an account promoted by hand is demoted again |
 | The endpoint refuses an anonymous caller | [test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js) |
 | The stored bearer still authenticates | `tasks/utils/mcp/probe.yml`, which hard-fails the deploy when the hub rejects it |
+| An MCP client discovers the hub through `roles_with_service` and may call its entity-state tool and only read tools | [test_mcp_discovery.py](../../tests/unit/python/roles/web-app-homeassistant/test_mcp_discovery.py), which runs `lookup('mcp_servers')` as `web-app-hermes` against the shipped metadata |
 | The advertised tool contract matches what the hub serves | [files/test/test.sh](../../roles/web-app-homeassistant/files/test/test.sh), which drives the shared MCP contract harness inside the provider's own network |
 | The pinned image runs on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
 
@@ -54,7 +55,7 @@ flowchart LR
 - [x] The native `mcp_server` integration is enabled and declared in `meta/services.yml` as `direction: server`, `implementation: native`, `transport: streamable_http`, conforming to the [050](050-mcp-role-integration.md) schema and lint.
 - [x] The MCP endpoint is authenticated; an unauthenticated probe is rejected, and the credential lives in the platform token store (`meta/mcp.yml` `credential.source: token_store`, written by `sys-token-store`), never in a README, an env file or a Playwright trace. *(Revised: 050 and 035 moved MCP bearers out of `meta/secrets.yml` into the token store after this criterion was written.)*
 - [x] Only entities explicitly exposed to Assist are reachable via MCP; mutating tools are off unless the operator opts in.
-- [ ] An MCP client (e.g. `web-app-hermes` from [032](032-agent-employees-firecracker.md)) discovers the role via `roles_with_service` and reads an exposed entity's state through MCP.
+- [ ] An MCP client (e.g. `web-app-hermes` from [032](032-agent-employees-firecracker.md)) discovers the role via `roles_with_service` and reads an exposed entity's state through MCP. *Discovery is proven by [test_mcp_discovery.py](../../tests/unit/python/roles/web-app-homeassistant/test_mcp_discovery.py): `lookup('mcp_servers')`, run as `web-app-hermes` against the shipped metadata, selects the hub at its container endpoint `http://homeassistant:8123/api/mcp` with the token `tasks/utils/mcp/provision.yml` stores, and the tool filter Hermes renders leaves `GetDateTime`, `GetLiveContext` and `todo_get_items` callable. The read of an exposed entity's state still needs a deploy with both roles, in which Hermes calls `GetLiveContext` and receives the state of an exposed entity.*
 - [x] The role is added to 050's MCP audit as a `server` role.
 - [x] The role runs on `arm64`.
 - [ ] The role comes up green in both compose and swarm modes.
