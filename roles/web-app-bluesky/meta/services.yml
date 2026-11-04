@@ -74,6 +74,7 @@ view:
   mem_limit: 256m
   pids_limit: 256
 pds:
+  name: bluesky-pds
   image: ghcr.io/bluesky-social/pds
   version: 0.4.66
   min_storage: 290MB

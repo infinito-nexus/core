@@ -6,8 +6,9 @@ http_port: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.po
 DASHBOARD_ASSET_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.asset.enabled') }}"
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
-DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
-  string) ~ '/' }}"
+DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "http://127.0.0.1:{{ lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.internal.http') }}/"
+DASHBOARD_SIMPLEICONS_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-svc-simpleicons', 'simpleicons') }}"
+DASHBOARD_INTERNAL_URL: "http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.internal.http') }}/"
 
 DASHBOARD_JS_CDN_URL: "{{ lookup('tls', 'web-svc-cdn', 'url.base') }}"
 DASHBOARD_JS_FILES: >-

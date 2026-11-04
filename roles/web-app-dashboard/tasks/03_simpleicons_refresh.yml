@@ -1,38 +1,6 @@
 ---
-- name: ⏳ Wait for a known Simple Icons asset before rebuilding dashboard cards
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
-    status_code: 200
-    validate_certs: false
-  register: simpleicons_http
-  retries: 60
-  delay: 5
-  until: simpleicons_http.status == 200
-
-- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}{{ item }}.svg"
-    method: HEAD
-    status_code: [200, 404]
-    validate_certs: false
-  register: dashboard_simpleicons_probe
-  loop: "{{ portfolio_cards | simpleicon_slugs }}"
-  loop_control:
-    label: "{{ item }}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  changed_when: false
-
 - name: 🔄 Reload docker cards once Simple Icons is reachable
-  set_fact:
-    portfolio_cards: >-
-      {{ portfolio_cards | add_simpleicon_source(
-           dashboard_simpleicons_probe.results
-             | selectattr('status', 'equalto', 200)
-             | map(attribute='item')
-             | list,
-           DASHBOARD_SIMPLEICONS_URL_BASE) }}
-  changed_when: false
+  include_tasks: _simpleicons_probe.yml
 
 - name: 🐳 Regroup docker cards after Simple Icons refresh
   set_fact:

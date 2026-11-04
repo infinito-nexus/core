@@ -1,33 +1,44 @@
 ---
+- name: "🔍 Resolve the PDS hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: pds
+    resolve_output_prefix: BLUESKY_PDS
+    resolve_compose_cid: "{{ BLUESKY_PDS_CONTAINER_ADDRESS }}"
+
+- name: "🔍 Resolve the PDS network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: BLUESKY_PDS
+
 - name: "⏳ Wait for PDS XRPC to come up at {{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
-  uri_retry:
-    url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
-    method: GET
-    status_code: 200
-    validate_certs: false
+  ansible.builtin.command:
+    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
   register: bluesky_pds_health
   retries: 30
   delay: 2
-  until: bluesky_pds_health.status == 200
+  until: bluesky_pds_health.rc == 0 and (bluesky_pds_health.stdout | from_json).status == 200
+  changed_when: false
+  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
+  become: true
 
 - name: "📁 Create native PDS administrator account (idempotent)"
-  uri_retry:
-    url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
-    method: POST
-    headers:
-      Content-Type: application/json
-    body_format: json
-    body:
-      handle: "{{ BLUESKY_ADMIN_HANDLE }}"
-      email: "{{ BLUESKY_ADMIN_EMAIL }}"
-      password: "{{ BLUESKY_ADMIN_PASSWORD }}"
-    status_code: [200, 400]
-    validate_certs: false
-    return_content: true
+  ansible.builtin.command:
+    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json) }}"
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
   register: bluesky_admin_create
-  changed_when:
-    - bluesky_admin_create.status == 200
-  failed_when:
-    - bluesky_admin_create.status != 200
-    - "'Handle already taken' not in (bluesky_admin_create.content | default(''))"
+  changed_when: bluesky_admin_create.rc == 0 and (bluesky_admin_create.stdout | from_json).status == 200
+  failed_when: >-
+    bluesky_admin_create.rc != 0
+    or ((bluesky_admin_create.stdout | from_json).status != 200
+        and 'Handle already taken' not in (bluesky_admin_create.stdout | from_json).content)
+  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -63,8 +63,9 @@
   include_tasks:
     file: 07_config.yml
     apply:
-      delegate_to: "{{ STACK_HOST }}"
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
       run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📄 Matomo | Re-render consumer injections after the final compose flush"
   include_tasks: 08_reinject_consumers.yml

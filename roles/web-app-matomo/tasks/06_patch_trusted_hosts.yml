@@ -16,6 +16,6 @@
     CFG: "{{ MATOMO_CONFIG_HOST }}"
     DOMAIN: "{{ lookup('domain', 'web-app-matomo') }}"
     SERVICE: "{{ MATOMO_SERVICE }}"
-    LOCAL: "{{ DOCKER_REACH_HOST }}:{{ http_port }}"
+    LOCAL: "{{ MATOMO_LOCAL_HOST }}"
   delegate_to: "{{ MATOMO_HOST_NODE }}"
   notify: compose-up

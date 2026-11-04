@@ -2,7 +2,7 @@
 # Env: CFG     Path to config.ini.php on the matomo_data volume (host bind path).
 # Env: DOMAIN  Public canonical domain to land in the first trusted_hosts slot.
 # Env: SERVICE Stack-internal service name (added as a trusted host).
-# Env: LOCAL   host:port the role uses for in-host probes (added as a trusted host).
+# Env: LOCAL   host:port the role uses for in-container API calls (added as a trusted host).
 set -eu
 
 ensure_host() {
