@@ -38,12 +38,12 @@ import re
 import unittest
 
 from utils.cache.files import read_text
+from utils.roles import lifecycle
 from utils.roles.meta_lookup import get_role_lifecycle
 
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
-_EOL = "eol"
 _README = "README.md"
 _PREFIX = "> **End of life.**"
 _PREFIX_RE = re.compile(r"^>\s?\*\*End of life\.\*\*")
@@ -118,8 +118,9 @@ class TestEolReadmeBanner(unittest.TestCase):
     def test_every_eol_role_readme_carries_the_banner(self) -> None:
         offenders: list[str] = []
 
+        labelled = lifecycle.load().with_action(lifecycle.EOL_LABEL)
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
-            if get_role_lifecycle(role_dir) != _EOL:
+            if get_role_lifecycle(role_dir) not in labelled:
                 continue
             readme = role_dir / _README
             if not readme.is_file():

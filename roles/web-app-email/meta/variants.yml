@@ -1,0 +1,21 @@
+---
+- services:
+    stalwart:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    docs:
+      enabled: true
+      shared: true
+- services:
+    stalwart:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false
+    docs:
+      enabled: false
+      shared: false

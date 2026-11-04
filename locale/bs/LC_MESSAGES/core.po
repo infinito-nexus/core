@@ -1355,6 +1355,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Machinačka premetevnica bez webnog dijela za pipeline koje ju direktno pozivaju"
 
+msgctxt "role:web-app-email:description"
+msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
+msgstr ""
+
 msgctxt "rbac:web-app-mailu:domain-manager:description"
 msgid "Mailu domain manager of the mail domain (manages its users, aliases and relays)"
 msgstr ""

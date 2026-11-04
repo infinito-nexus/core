@@ -21,12 +21,32 @@
     replace: "#DownloadUser ="
   when: "'DisableSandbox' in (update_pacman_conf.content | b64decode).splitlines()"
 
-- name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
-  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
+- name: "🔄 update (pacman) | refresh the pacman package databases"
+  community.general.pacman: # nocheck: dynamic-package - database refresh, not a package install
     update_cache: true
+
+- name: "🧷 update (pacman) | keep the running kernel's modules across the upgrade"
+  when:
+    - UPDATE_KERNEL_MODULES_HOOK_ENABLED | bool
+    - not (DOCKER_IN_CONTAINER | bool)
+  block:
+    - name: "📦 update (pacman) | install kernel-modules-hook before the upgrade"
+      become: true
+      package_install: # nocheck: package-install the hook must be in place before the pacman upgrade, which runs ahead of the batch
+        id: kernel-modules-hook
+
+    - name: "🧹 update (pacman) | enable the boot-time cleanup of kept module trees"
+      become: true
+      ansible.builtin.systemd:
+        name: linux-modules-cleanup.service
+        enabled: true
+      when: not ansible_check_mode
+
+- name: "🔄 update (pacman) | upgrade all installed packages"
+  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
     upgrade: true
 
-- name: "🛑 update (pacman) | reboot when the running kernel has no modules on disk"
+- name: "🛑 update (pacman) | reboot or guard when the running kernel was upgraded"
   ansible.builtin.include_tasks: arch/reboot.yml
   when: not (DOCKER_IN_CONTAINER | bool)
   vars:
@@ -35,8 +55,21 @@
       {{ update_proc_modules.stat.exists
          and update_module_trees | length > 0
          and ansible_facts['kernel'] not in update_module_trees }}
+    update_kernel_reboot_pending: "{{ update_kernel_owner is not skipped and update_kernel_owner.rc == 1 }}"
     update_mesh_up_in_play: "{{ run_once_svc_net_wireguard is defined }}"
     update_controller_is_target: >-
       {{ ansible_connection in ['local', 'ansible.builtin.local']
          or (update_boot_id.content | b64decode | trim)
             == (lookup('ansible.builtin.file', '/proc/sys/kernel/random/boot_id', errors='ignore') | trim) }}
+    update_reboot_skip_reason: >-
+      {% if update_reboot is changed -%}
+      The role rebooted the host, and it came back on this kernel: make the bootloader start an installed kernel.
+      {%- elif not (UPDATE_REBOOT_ENABLED | bool) -%}
+      The role does not reboot the host because applications.update.services.update.reboot.enabled is false.
+      {%- elif update_mesh_up_in_play | bool -%}
+      The role does not reboot the host because svc-net-wireguard brought its mesh up with wg-quick in this play, and the mesh does not come back after a reboot.
+      {%- elif update_controller_is_target | bool -%}
+      The role does not reboot the host because it runs this Ansible controller, so the reboot would kill this run.
+      {%- else -%}
+      The role does not reboot the host in check mode.
+      {%- endif %}

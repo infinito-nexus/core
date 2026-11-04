@@ -23,9 +23,13 @@ from utils import PROJECT_ROOT
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.mail.provider import MAIL_SERVICE_KEY, MAIL_WRAPPER, PROVIDER_KEY
 
 from .loaders import load_yaml_file
 
+DERIVED_VARIABLES = {
+    "MAIL_PROVIDER": f"applications.{MAIL_WRAPPER}.services.{MAIL_SERVICE_KEY}.{PROVIDER_KEY}",
+}
 _RULE = "inventory-variable"
 _NAME = r"([A-Za-z_][A-Za-z0-9_]*)"
 _HOOK = re.compile(rf"\b{_NAME}\s+is\s+(?:not\s+)?defined|\b{_NAME}\s*\|\s*default\(")
@@ -96,7 +100,8 @@ def validate_inventory_variables(
 
     Returns:
         One message per unread key of ``host_vars/**`` and ``group_vars/**``
-        that carries no ``inventory-variable`` marker.
+        that carries no ``inventory-variable`` marker, and one per key of
+        ``DERIVED_VARIABLES``, marker or not.
     """
     root = Path(inv_dir)
     errs: list[str] = []
@@ -110,6 +115,12 @@ def validate_inventory_variables(
         lines = read_text(str(path)).splitlines()
         for key in data:
             name = str(key)
+            if name in DERIVED_VARIABLES:
+                errs.append(
+                    f"{path}: '{name}' is derived and must not be set by hand; "
+                    f"set {DERIVED_VARIABLES[name]} instead"
+                )
+                continue
             if (name in known and name not in moved) or name.startswith("ansible_"):
                 continue
             number = next(

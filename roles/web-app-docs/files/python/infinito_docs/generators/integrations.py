@@ -5,12 +5,6 @@ A role reaches an infinito-native provider through a top-level key in its
 one of its ``meta/addons/*.yml``. Both sides are read from the roles here, and
 the axis comes from :func:`utils.roles.order.find_roles`, so a new role, a new
 service key or a new add-on reaches the page on the next build.
-
-A declared edge is not a live one. A target whose primary entity carries
-``lifecycle: eol`` is marked, because the integration stays in the tree while
-its flag is held at a literal ``false``; without the mark the page advertises a
-partner no deployment can reach. The policy is
-``docs/contributing/design/role/services/lifecycle.md``.
 """
 
 from __future__ import annotations
@@ -26,13 +20,18 @@ try:
 except ImportError:
     from utils.roles.entity.name import get_entity_name as entity_name
 
+try:
+    from utils.roles.lifecycle import EOL_LABEL
+    from utils.roles.lifecycle import load as load_lifecycle
+except ImportError:
+    EOL_LABEL = None
+
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 from utils.roles.order import find_roles
 
 AXIS_PREFIXES = ["web-app-", "web-svc-"]
 GROUP_MEMBER = re.compile(r"'([a-z0-9-]+)' in group_names")
-EOL = "eol"
 EOL_MARK = " (end of life)"
 
 EOL_NOTE = """\
@@ -131,16 +130,19 @@ def service_targets(roles_dir: Path, roles: list[str]) -> dict[str, str]:
 
 
 def eol_roles(roles_dir: Path, roles: list[str]) -> set[str]:
-    """Return the roles on the axis whose primary entity is ``lifecycle: eol``.
+    """Return the roles on the axis whose status carries the ``eol-label`` action.
 
     Args:
         roles_dir: directory holding the role folders.
         roles: the role names on the axis.
     """
+    labelled = (
+        load_lifecycle().with_action(EOL_LABEL) if EOL_LABEL else frozenset({"eol"})
+    )
     return {
         role
         for role in roles
-        if get_role_lifecycle(Path(roles_dir) / role, role_name=role) == EOL
+        if get_role_lifecycle(Path(roles_dir) / role, role_name=role) in labelled
     }
 
 

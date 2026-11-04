@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via Stalwart are wired when their providers are present.
+This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.io/zammad/zammad` image (Rails app, WebSocket, scheduler, nginx, plus a one-shot init container that bypasses the setup wizard via `auto_wizard.json`). Search is provided by a bundled Elasticsearch container; PostgreSQL, Redis and Memcached are consumed from the central `svc-db-*` providers via `sys-stk-full`. Authentication uses direct OpenID Connect against the shared Keycloak client; LDAP federation and SMTP/IMAP via the mail server ([web-app-email](../web-app-email/)) are wired when their providers are present.
 
 ## Features
 
@@ -17,7 +17,7 @@ This role deploys Zammad as an Infinito.Nexus web app using the upstream `ghcr.i
 - **LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP.
 - **LDAP role groups:** the LDAP import maps the RBAC role groups `cn=web-app-zammad-<role>` under the roles OU onto the same Zammad roles as `ZAMMAD_RBAC_ROLE_GRANTS` (`ZAMMAD_LDAP_GROUP_ROLE_MAP`). A directory user in none of them gets Zammad's signup role (`Customer`), so any directory user can open tickets. The import is the leading source for the roles of every directory user: it runs at deploy, on Zammad's own LDAP schedule and from the admin panel's LDAP integration.
 - **LDAP profile fields:** the import copies the login, first name, last name, email, phone, mobile, department, street, postal code, city, country and description (into `note`) from the `LDAP.USER.ATTRIBUTES` keys (`ZAMMAD_LDAP_USER_ATTRIBUTES`). Zammad keeps street, zip, city and country as inactive user attributes, so the API returns them but the user form does not show them.
-- **Mail-to-ticket:** When `web-app-stalwart` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
+- **Mail-to-ticket:** When `web-app-email` is present, the `helpdesk` mailbox is auto-provisioned and Zammad polls it to create tickets from incoming mail.
 - **Server-name alias:** `zammad.helpdesk.{{ DOMAIN_PRIMARY }}` is a true vhost alias of `helpdesk.{{ DOMAIN_PRIMARY }}` (not a 301 redirect).
 - **Bundled Elasticsearch:** Search engine ships with the role until a central `svc-db-elasticsearch` exists. Its disk watermarks follow the disk size (85 / 90 / 95 % used, requiring at most 200 / 150 / 100 GB free, `services.search.watermark`); the CI and development variants lower those caps to 10 / 5 / 2 GB.
 - **Search allocation precheck:** [search_allocation_precheck.sh](files/shell/search_allocation_precheck.sh) creates a one-shard probe index named after the container and fails with the answer of `_cluster/allocation/explain`, which names the disk watermark when the data disk is too full, unless Elasticsearch allocates it. `init` runs it in front of `zammad-init`. In compose, the one-shot `precheck` service runs it first and `init` depends on that service, so `compose up` stops on a refusal. Swarm renders no `precheck` service, because `depends_on` does not gate `init` there. Instead the deploy waits until the newest `init` task is `Complete`: a refusing Elasticsearch leaves it `Failed`, the wait stops the deploy, and `docker service logs` of `init` carries the explanation. An `init` the stack deploy did not restart is already `Complete` and passes at once.
@@ -32,7 +32,7 @@ Zammad's cross-role integrations are declared in `meta/addons/`, one file per ad
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
 | `openid_connect` | `module` | enabled whenever the `sso` service is present (`web-app-keycloak` co-deployed) | `sso` → `web-app-keycloak` |
-| `email_channel` | `bridge` | enabled whenever the `email` service is present (`web-app-mailu` co-deployed) | `email` → `web-app-mailu` |
+| `email_channel` | `bridge` | enabled whenever the `email` service is present (`web-app-email` co-deployed) | `email` → `web-app-email` |
 
 Both units ship with the Zammad image. [`tasks/01_manager_ops.yml`](./tasks/01_manager_ops.yml) applies [`files/ruby/apply/oidc_settings.rb`](./files/ruby/apply/oidc_settings.rb) and [`files/ruby/apply/email_channel.rb`](./files/ruby/apply/email_channel.rb) under the same service flags the addons declare, so each addon's `enabled` is a declaration of what that provisioning already gates on. Coupling is asserted by [files/playwright/addons/openid_connect.spec.js](./files/playwright/addons/openid_connect.spec.js) and [files/playwright/addons/email_channel.spec.js](./files/playwright/addons/email_channel.spec.js).
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -86,6 +87,40 @@ class TestProgress(unittest.TestCase):
                 "/w/src/roles",
             ],
         )
+
+
+class TestLifecycleDiagramStep(unittest.TestCase):
+    def _checkout(self, *, spot: bool, generator: bool) -> Path:
+        root = Path(self._tmp.name) / f"src-{spot}-{generator}"
+        if spot:
+            path = root.joinpath(*builders.LIFECYCLE_SPOT)
+            path.parent.mkdir(parents=True)
+            path.write_text("statuses: {}\n", encoding="utf-8")
+        if generator:
+            package = root.joinpath(*builders.LIFECYCLE_MODULE.split("."))
+            package.mkdir(parents=True)
+            (package / "__main__.py").write_text("", encoding="utf-8")
+        root.mkdir(exist_ok=True)
+        return root
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_a_new_checkout_renders_the_diagram_last(self) -> None:
+        commands = builders.generate_commands(self._checkout(spot=True, generator=True))
+        self.assertEqual(
+            [sys.executable, "-P", "-m", builders.LIFECYCLE_MODULE], commands[-1]
+        )
+
+    def test_an_old_checkout_builds_unchanged(self) -> None:
+        reference = builders.generate_commands(Path("/w/src"))
+        for spot, generator in ((False, False), (True, False), (False, True)):
+            with self.subTest(spot=spot, generator=generator):
+                root = self._checkout(spot=spot, generator=generator)
+                modules = [c[3] for c in builders.generate_commands(root)[1:]]
+                self.assertNotIn(builders.LIFECYCLE_MODULE, modules)
+                self.assertEqual(len(reference), len(modules) + 1)
 
 
 class TestSnapshotCoversEveryGeneratorInput(unittest.TestCase):

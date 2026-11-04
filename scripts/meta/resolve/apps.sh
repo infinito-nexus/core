@@ -19,7 +19,7 @@ set -euo pipefail
 #   INFINITO_DISTROS               distro pool the rows are spread over; empty: all
 #   INFINITO_DOCKER_FILESYSTEM_ALLOWED  filesystem pool; empty: all
 #   INFINITO_ARCHITECTURES         architecture pool; empty: amd64 and arm64
-#   INFINITO_LIFECYCLES            lifecycle envelope for discovery
+#   INFINITO_LIFECYCLES            lifecycle envelope for discovery; default from the run's context in meta/lifecycle.yml
 #   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
 #   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
 #   INFINITO_APP_DISCOVERY_RUNNER  host|docker

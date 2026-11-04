@@ -10,13 +10,18 @@
   --popover-foreground: var(--design-text);
   --content-background: var(--design-surface-1);
   --primary: var(--design-primary);
+  --primary-hover: var(--design-primary-hover);
   --primary-foreground: var(--design-on-primary);
   --secondary: var(--design-surface-3);
   --secondary-foreground: var(--design-text);
   --muted: var(--design-surface-3);
   --muted-foreground: var(--design-text-muted);
+  --dim: var(--design-text-muted);
+  --field: var(--design-surface-2);
   --accent: var(--design-surface-active);
   --accent-foreground: var(--design-text);
+  --highlight: var(--design-surface-active);
+  --highlight-foreground: var(--design-text);
   --destructive: var(--design-danger);
   --destructive-foreground: var(--design-on-danger);
   --border: var(--design-border);
@@ -54,10 +59,24 @@
 }
 .hover\:bg-accent:hover,
 .hover\:bg-accent\/50:hover,
+.hover\:bg-muted:hover,
 .hover\:bg-muted\/50:hover,
 .hover\:bg-secondary\/80:hover,
 .focus\:bg-accent:focus {
   background-color: var(--design-surface-hover);
+}
+.bg-background\/80 {
+  background-color: var(--design-surface-2);
+}
+#root main {
+  background-color: var(--design-surface-1);
+}
+[cmdk-item][data-selected=true] {
+  background-color: var(--design-surface-active);
+}
+[data-slot=tooltip-content] {
+  color: var(--design-on-primary);
+  background-color: var(--design-primary);
 }
 html:has(> body > .card > #login-form) {
   --bg: var(--design-surface-1);

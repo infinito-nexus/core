@@ -26,8 +26,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 javascript:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -87,8 +87,7 @@ keycloak:
     service_key: keycloak
   run_after:
     - web-app-matomo
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag

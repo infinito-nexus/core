@@ -138,7 +138,6 @@ def _suppressed_inline_flags(file_path: Path) -> set[tuple[str, str]]:
     return result
 
 
-_MAIL_PROVIDER_INDIRECTION = "MAIL_PROVIDER in group_names"
 _OFFICE_SUITE_KEYS = ("collabora", "onlyoffice")
 _OFFICE_SUITE_INDIRECTION = "OFFICE_SUITE =="
 
@@ -184,9 +183,9 @@ class TestServicesDynamicFlags(unittest.TestCase):
                 if service_key == own_entity:
                     continue
 
-                expected_role = covered_key_to_role.get(
+                expected_role = primary_key_to_role.get(
                     service_key,
-                    primary_key_to_role.get(service_key),
+                    covered_key_to_role.get(service_key),
                 )
 
                 for flag in ("enabled", "shared"):
@@ -204,12 +203,6 @@ class TestServicesDynamicFlags(unittest.TestCase):
                             f"`{service_key}:` for legitimate exceptions like "
                             f"databases)."
                         )
-                        continue
-                    if (
-                        service_key == "email"
-                        and isinstance(value, str)
-                        and _MAIL_PROVIDER_INDIRECTION in value
-                    ):
                         continue
                     if (
                         service_key in _OFFICE_SUITE_KEYS

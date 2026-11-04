@@ -31,8 +31,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 TESTED_LIFECYCLES = tested_lifecycles()
-"""Lifecycle stages the CI test-deploy discovery exercises, sourced from the
-``INFINITO_LIFECYCLES`` value in ``default.env`` (the single source)."""
+"""Lifecycle stages some CI trigger context deploys, the union of the
+``ci-deploy`` lists in ``meta/lifecycle.yml``."""
 
 
 class ComplexityRow(NamedTuple):

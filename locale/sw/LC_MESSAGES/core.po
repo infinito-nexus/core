@@ -1371,6 +1371,10 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Injini ya tafsiri ya mashine bila uso wa wavuti, kwa mabomba ambayo huita moja kwa moja"
 
+msgctxt "role:web-app-email:description"
+msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
+msgstr ""
+
 msgctxt "rbac:web-app-mailu:domain-manager:description"
 msgid "Mailu domain manager of the mail domain (manages its users, aliases and relays)"
 msgstr ""

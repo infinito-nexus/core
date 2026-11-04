@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
 from utils.docker.image.pin import pull_reference
+from utils.roles import lifecycle
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import is_maintained
 
@@ -39,7 +40,6 @@ _MIRRORABLE_REGISTRIES = frozenset(
         "registry.gitlab.com",
     }
 )
-RETIRED = "eol"
 
 
 @dataclass(frozen=True)
@@ -233,11 +233,8 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     can never be mirrored.
 
     Two kinds of role are left out. One the updaters do not maintain
-    (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits
-    outside the lifecycle envelope ``default.env`` tests, so no deploy can reach
-    its images, and its upstream is free to withdraw them. MinIO's quay tags
-    answer 401 to anonymous pulls and exist nowhere else, which failed the
-    mirror job on every run while nothing could have consumed the result.
+    (``is_maintained``), and one whose lifecycle status lacks the
+    ``image-mirror`` action in ``meta/lifecycle.yml``.
 
     See docs/contributing/artefact/image.md for the full format reference.
     """
@@ -253,7 +250,9 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
         if not isinstance(services, dict):
             continue
 
-        if role_lifecycle(services) == RETIRED:
+        if role_lifecycle(services) in lifecycle.load().without_action(
+            lifecycle.IMAGE_MIRROR
+        ):
             continue
 
         for service_name, service in services.items():

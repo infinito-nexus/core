@@ -1,5 +1,4 @@
 import unittest
-from pathlib import Path
 from unittest import mock
 
 from utils.cache.yaml import load_yaml_any
@@ -8,8 +7,8 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
-ROLES = Path("/nonexistent/roles")
-SERVICES = PROJECT_ROOT / "roles" / "web-app-keycloak" / ROLE_FILE_META_SERVICES
+ROLES = PROJECT_ROOT / "roles"
+SERVICES = ROLES / "web-app-keycloak" / ROLE_FILE_META_SERVICES
 
 
 def _variables(*deployed):
@@ -61,7 +60,7 @@ class TestDefaultPolicy(unittest.TestCase):
 
     def test_without_the_provider_addresses_stay_external(self):
         with mock.patch(
-            "utils.mail.provider.declaring_roles", return_value=["web-app-stalwart"]
+            "utils.mail.provider.provider_roles", return_value=["web-app-stalwart"]
         ):
             self.assertEqual(
                 policy.default_policy(

@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 
+from utils.roles import lifecycle
 from utils.roles.entity.name import get_entity_name
 from utils.update_check import network, storage
 from utils.update_check.common import AREAS, FAIL, OK, WARN, Report
@@ -79,14 +80,15 @@ def _inventory(report, applications, group_names, deployed, schemas, rc, output)
                 group,
                 "no application role of this name in the current code",
             )
+    statuses = lifecycle.load()
     for app in deployed:
         primary = (applications[app].get("services") or {}).get(get_entity_name(app))
-        lifecycle = (primary or {}).get("lifecycle")
-        if isinstance(lifecycle, dict):
-            lifecycle = lifecycle.get("stage")
-        if lifecycle == "eol":
+        status = (primary or {}).get("lifecycle")
+        if isinstance(status, dict):
+            status = status.get("stage")
+        if status in statuses.with_action(lifecycle.UPDATE_CHECK_FAIL):
             report.add(FAIL, "inventory", app, "role is end of life")
-        elif lifecycle == "deprecated":
+        elif status in statuses.with_action(lifecycle.UPDATE_CHECK_WARN):
             report.add(WARN, "inventory", app, "role is deprecated")
         if app not in schemas:
             continue

@@ -12,7 +12,6 @@ from utils.cache.yaml import load_yaml_any
 from utils.mail.policy import POLICY_EXTERNAL
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
-ROLES = Path("/nonexistent/roles")
 REPO_ROLES = PROJECT_ROOT / "roles"
 KEYCLOAK_VARIANTS = REPO_ROLES / "web-app-keycloak" / ROLE_FILE_META_VARIANTS
 HOST_VARS = "# operator note\nansible_host: 10.0.0.1\n"
@@ -36,7 +35,13 @@ def _email(path):
 
 class TestApplyEmailPolicy(unittest.TestCase):
     def _apply(
-        self, tmp, apps, new_inventory, content=HOST_VARS, roles=ROLES, variant=None
+        self,
+        tmp,
+        apps,
+        new_inventory,
+        content=HOST_VARS,
+        roles=REPO_ROLES,
+        variant=None,
     ):
         host_vars = Path(tmp) / "host.yml"
         host_vars.write_text(content, encoding="utf-8")
@@ -185,7 +190,7 @@ class TestCarryEmailPolicy(unittest.TestCase):
                 host_vars_file=host_vars,
                 application_ids=MAIL_APPS,
                 host="host",
-                roles_dir=ROLES,
+                roles_dir=REPO_ROLES,
                 new_inventory=True,
                 keycloak_variant=None,
             )

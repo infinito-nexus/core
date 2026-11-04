@@ -176,6 +176,9 @@ def discover_role_services(
         base_entry["overlay"] = overlay
     if provides:
         base_entry["provides"] = provides
+    provider = _normalized_name(primary_entry.get("provider"))
+    if provider:
+        base_entry["provider"] = provider
 
     discovered: dict[str, dict[str, Any]] = {primary_id: base_entry}
     for alias_key, alias_entry in sorted(alias_entries.items()):
@@ -251,6 +254,14 @@ def expand_service_tokens(tokens: list[str], roles_dir: Path) -> list[str]:
             out.extend(role_to_keys[token])
         else:
             out.append(token)
+    disabled_roles = {
+        role for key in out if (role := (registry.get(key) or {}).get("role"))
+    }
+    out.extend(
+        key
+        for key, entry in registry.items()
+        if "canonical" not in entry and entry.get("provider", "") in disabled_roles
+    )
     return list(dict.fromkeys(out))
 
 

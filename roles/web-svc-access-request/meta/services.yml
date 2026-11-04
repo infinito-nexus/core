@@ -43,8 +43,8 @@ sso:
     any_email: true
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: logout  the service keeps no session of its own; the oauth2-proxy gate's sign-out ends it
 logout:

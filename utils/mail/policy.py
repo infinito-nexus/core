@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
-from utils.mail.provider import DEFAULT_MAIL_PROVIDER, provider_deployed
+from utils.mail.provider import provider_deployed
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,7 +29,8 @@ def default_policy(variables: Mapping[str, Any], roles_dir: Path) -> str:
     """The policy a new inventory records.
 
     Args:
-        variables: the play's variable scope, read for ``MAIL_PROVIDER`` and ``groups``.
+        variables: the play's variable scope, read for a rendered
+            ``MAIL_PROVIDER``, ``applications`` and ``groups``.
         roles_dir: repository ``roles/`` directory.
 
     Returns:
@@ -42,7 +43,7 @@ def default_policy(variables: Mapping[str, Any], roles_dir: Path) -> str:
     if (
         groups.get(POLICY_APPLICATION)
         and groups.get(DIRECTORY_ROLE)
-        and provider_deployed(variables, DEFAULT_MAIL_PROVIDER, roles_dir)
+        and provider_deployed(variables, roles_dir)
     ):
         return POLICY_MAILBOX
     return POLICY_EXTERNAL

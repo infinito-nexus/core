@@ -137,6 +137,35 @@ function literal(text) {
 
 /**
  * Args:
+ *   page: Playwright page that shows the element.
+ *   selector: element whose edge is drawn as one inset box-shadow instead of a border.
+ *   token: design custom property the edge must be drawn in.
+ *   label: prefix of the failure message.
+ */
+async function assertInsetEdge(page, selector, token, label) {
+  const expected = await tokenValue(page, token, "color");
+  let actual = "";
+  const read = async () => {
+    actual = await page
+      .locator(selector)
+      .first()
+      .evaluate((element) => {
+        const shadow = getComputedStyle(element).boxShadow;
+        const edge = /^((?:rgba?|oklab|oklch|lab|lch|color)\([^)]*\)) [^,]* inset$/.exec(shadow);
+        return edge ? edge[1] : shadow;
+      });
+    return actual;
+  };
+  try {
+    await expect.poll(read, { message: `${label}: ${selector} inset box-shadow edge must equal ${token}` }).toBe(expected);
+  } catch (error) {
+    const seen = actual || `no element matched ${selector}`;
+    throw new Error(`${label}: ${selector} inset box-shadow edge is ${seen}, expected ${token} = ${expected}`, { cause: error });
+  }
+}
+
+/**
+ * Args:
  *   page: Playwright page of the web administration whose document title is checked.
  *   label: page name the failure messages carry.
  */
@@ -612,7 +641,8 @@ test("design: the web administration sign-in takes surface, primary action and t
     await shown(WEBUI_USERNAME)(page);
     await assertToken(page, "body", "background-color", "--design-surface-2", `sign-in ${mode}`);
     await assertToken(page, WEBUI_USERNAME, "color", "--design-text", `sign-in ${mode}`);
-    await assertToken(page, WEBUI_USERNAME, "border-top-color", "--design-border-strong", `sign-in ${mode}`);
+    await page.locator(WEBUI_USERNAME).blur();
+    await assertInsetEdge(page, WEBUI_USERNAME, "--design-border-strong", `sign-in ${mode}`);
     await page.locator(WEBUI_USERNAME).fill("administrator");
     await assertToken(page, WEBUI_CONTINUE, "background-color", "--design-primary", `sign-in ${mode}`);
     await assertToken(page, WEBUI_CONTINUE, "color", "--design-on-primary", `sign-in ${mode}`);
@@ -648,7 +678,7 @@ test("design: the signed-in web administration takes surfaces and text from the 
     await assertToken(page, WEBUI_SIDEBAR, "background-color", "--design-surface-2", `shell ${mode}`);
     await assertToken(page, "main", "background-color", "--design-surface-1", `shell ${mode}`);
     await assertToken(page, WEBUI_HEADING, "color", "--design-text", `shell ${mode}`);
-    await assertToken(page, unselected, "color", "--design-text", `shell ${mode}`);
+    await assertToken(page, unselected, "color", "--design-text-muted", `shell ${mode}`);
     expect(
       await computed(page, selected, "background-color"),
       `the selected sidebar entry must stand out from an unselected one ${mode}`,
