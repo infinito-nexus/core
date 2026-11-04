@@ -110,7 +110,7 @@ class StageWithoutSignalsTests(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
         self.src = Path(self._tmp.name) / "src"
         self.dest = Path(self._tmp.name) / "dest"
-        _tree(self.src, {"README.md": "readme\n", "roles/a/tasks/main.yml": "- x\n"})
+        _tree(self.src, {"README.md": "readme\n", "pkg/a/data.yml": "- x\n"})
 
     def test_the_harness_refuses_every_signal(self):
         result = _run_without_signals(["bash", "-c", "kill -0 $$"])
@@ -122,19 +122,19 @@ class StageWithoutSignalsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(
             filecmp.cmp(
-                self.src / "roles/a/tasks/main.yml",
-                self.dest / "roles/a/tasks/main.yml",
+                self.src / "pkg/a/data.yml",
+                self.dest / "pkg/a/data.yml",
                 shallow=False,
             )
         )
 
     def test_a_name_pattern_drops_matches_at_every_depth(self):
-        _tree(self.src, {".git/HEAD": "ref\n", "roles/a/.git": "gitdir\n"})
+        _tree(self.src, {".git/HEAD": "ref\n", "pkg/a/.git": "gitdir\n"})
         result = _stage(self.src, self.dest, ".git")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse((self.dest / ".git").exists())
-        self.assertFalse((self.dest / "roles/a/.git").exists())
-        self.assertTrue((self.dest / "roles/a/tasks/main.yml").is_file())
+        self.assertFalse((self.dest / "pkg/a/.git").exists())
+        self.assertTrue((self.dest / "pkg/a/data.yml").is_file())
 
     def test_a_path_pattern_drops_only_that_subtree(self):
         _tree(
