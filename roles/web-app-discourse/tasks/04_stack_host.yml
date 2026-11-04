@@ -20,3 +20,7 @@
 - name: "📈 Render Mermaid fences as diagrams"
   include_tasks: addons/discourse-mermaid.yml
   when: DISCOURSE_MERMAID_ENABLED | bool
+
+- name: "💬 Hand topic notifications to the bridged chat partners"
+  include_tasks: addons/discourse-chat-integration.yml
+  when: DISCOURSE_CHAT_INTEGRATION_ENABLED | bool

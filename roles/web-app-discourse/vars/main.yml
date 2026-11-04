@@ -53,6 +53,10 @@ DISCOURSE_MERMAID_ENABLED: "{{ lookup('config', application_id, 'addons.discours
 DISCOURSE_MERMAID_REPOSITORY: "{{ lookup('config', application_id, 'addons.discourse-mermaid.config.repository') }}"
 DISCOURSE_MERMAID_REF: "{{ lookup('config', application_id, 'addons.discourse-mermaid.config.ref') }}"
 
+DISCOURSE_CHAT_INTEGRATION_ENABLED: "{{ lookup('config', application_id, 'addons.discourse-chat-integration.enabled') | bool }}"
+DISCOURSE_CHAT_INTEGRATION_SETTINGS: "{{ ['chat_integration_enabled'] + (['chat_integration_matrix_enabled'] if lookup('config', application_id, 'services.matrix.enabled')
+  | bool else []) + (['chat_integration_mattermost_enabled'] if lookup('config', application_id, 'services.mattermost.enabled') | bool else []) }}"
+
 DISCOURSE_AI_LLM_DISPLAY_NAME: "{{ lookup('config', application_id, 'addons.discourse-ai.config.display_name') }}"
 DISCOURSE_AI_MAX_PROMPT_TOKENS: "{{ lookup('config', application_id, 'addons.discourse-ai.config.max_prompt_tokens') | int }}"
 
