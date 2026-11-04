@@ -1,0 +1,31 @@
+---
+- services:
+    docs:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: true
+      shared: true
+    matomo:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+- services:
+    docs:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true
