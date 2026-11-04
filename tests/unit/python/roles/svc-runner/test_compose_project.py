@@ -11,6 +11,11 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.networks.ownership import PROJECT_LABEL, ownership_errors
 from utils.roles.entity.name import entity_name
+from utils.roles.mapping import (
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles" / "svc-runner"
 WRAPPER = PROJECT_ROOT / "roles" / "sys-svc-compose" / "files" / "python" / "compose.py"
@@ -26,11 +31,11 @@ def _load_wrapper():
 
 class TestRunnerComposeProject(unittest.TestCase):
     def setUp(self):
-        self.application_id = load_yaml_any(str(ROLE / "vars" / "main.yml"))[
+        self.application_id = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))[
             "application_id"
         ]
         self.entity = entity_name(self.application_id)
-        configured = load_yaml_any(str(ROLE / "meta" / "services.yml"))["runner"][
+        configured = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))["runner"][
             "install_dir"
         ]
         scratch = tempfile.TemporaryDirectory()
@@ -81,7 +86,7 @@ class TestRunnerComposeProject(unittest.TestCase):
         self.assertEqual(self.deployed_project(), self.entity)
 
     def test_network_of_the_stack_passes_the_preflight(self):
-        subnet = load_yaml_any(str(ROLE / "meta" / "networks.yml"))["local"]["subnet"]
+        subnet = load_yaml_any(str(ROLE / ROLE_FILE_META_NETWORKS))["local"]["subnet"]
         network = {
             "Name": self.entity,
             "Labels": {PROJECT_LABEL: self.deployed_project()},
