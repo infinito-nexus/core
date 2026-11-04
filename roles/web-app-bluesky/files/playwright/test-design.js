@@ -9,6 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
+const { NOTIFICATIONS_SCREEN } = require("./_appview");
 const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -557,7 +558,7 @@ exports.register = function (shared) {
         },
       },
       { name: "explore", url: `${base}/search`, prepare: ready('[data-testid="searchScreen"]') },
-      { name: "notifications", url: `${base}/notifications`, prepare: ready('[data-testid="notificationsScreen"]') },
+      { name: "notifications", url: `${base}/notifications`, prepare: ready(NOTIFICATIONS_SCREEN) },
       { name: "feeds", url: `${base}/feeds`, prepare: ready('[data-testid="FeedsScreen"]') },
       { name: "lists", url: `${base}/lists`, prepare: ready('[data-testid="listsScreen"]') },
       { name: "settings", url: `${base}/settings`, prepare: ready(SETTINGS) },
