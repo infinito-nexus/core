@@ -8,6 +8,7 @@ services:
     container_name: infinito-registry-cache
     environment:
       ENABLE_MANIFEST_CACHE: "true"
+      MANIFEST_CACHE_SECONDARY_TIME: "24h"
       AUTH_REGISTRIES: ""
       CACHE_MAX_SIZE: "${INFINITO_CACHE_REGISTRY_MAX_SIZE:?Run 'make dotenv' to generate the .env single source of truth}"
       DISABLE_IPV6: "true"
