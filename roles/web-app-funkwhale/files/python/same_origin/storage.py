@@ -10,7 +10,7 @@ from storages.utils import clean_name
 
 PUBLIC_PREFIXES = ("attachments/", "__sized__/", "dynamic_preferences/")
 TOKENED_PREFIXES = ("portability/",)
-TOKEN_SALT = "same_origin_storage.token"  # noqa: S105
+TOKEN_SALT = "same_origin_storage.token"  # noqa: S105 - signing salt namespace, not a credential
 
 
 def is_key(name: str) -> bool:
