@@ -221,6 +221,6 @@ if ( file_exists( "$IP/extensions/AWS/vendor/autoload.php" ) ) {
 }
 {% endif %}
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 require_once '{{ MEDIAWIKI_LOCAL_PATH }}/debug.php';
 {% endif %}

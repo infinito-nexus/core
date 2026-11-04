@@ -102,7 +102,7 @@
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
     bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    state: "{{ 'exact' if MODE_CLEANUP | bool else 'present' }}"
+    state: "{{ 'exact' if CLEANUP | bool else 'present' }}"
     entries: >-
       {{ OPENLDAP_USERS | openldap_user_class_entries(LDAP.USER.ATTRIBUTES.ID,
                                                       LDAP.DN.OU.USERS,

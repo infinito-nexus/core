@@ -20,7 +20,8 @@
       a service was loaded outside the constructor service-loader path.
   when:
     - MAIL_PROVIDER in group_names
-    - MODE_ASSERT_LOCAL | bool
+    - lookup('validate', 'sys-svc-mail') | bool
+    - IS_STACK_HOST | bool
 
 - name: 🔧 Setup emails via localhost
   include_role:

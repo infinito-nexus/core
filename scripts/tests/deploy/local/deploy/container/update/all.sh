@@ -32,7 +32,6 @@ cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--diff
 	-vv
 	--password-file "${INFINITO_INVENTORY_PASSWORD_FILE}" # nocheck: driver-injected-per-invocation
-	-e ASYNC_ENABLED=false
 	-e SYS_SERVICE_ALL_ENABLED=false
 	-e SYS_SERVICE_DEFAULT_STATE=started
 )

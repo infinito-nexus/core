@@ -77,10 +77,10 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=_env_full_cycle(),
         help=(
             "After each round's regular deploy, immediately re-run the "
-            "deploy with `-e ASYNC_ENABLED=true` (the async update pass). "
+            "deploy with `-e DEPLOY_IS_UPDATE=true` (the update pass). "
             "Pass 1 + Pass 2 stay co-located on the SAME variant so the "
-            "async re-deploy always runs against the host state the "
-            "matching sync deploy just produced. Defaults to the "
+            "re-deploy always runs against the host state the "
+            "matching first deploy just produced. Defaults to the "
             "full_cycle environment variable (true|false) when set."
         ),
     )
@@ -192,7 +192,7 @@ def handler(args: argparse.Namespace) -> int:
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
         compose.reset_target()
-        print(f"=== {pass_label} PASS 1 (sync) ===")
+        print(f"=== {pass_label} PASS 1 (initial) ===")
         rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:
             return rc
@@ -203,10 +203,10 @@ def handler(args: argparse.Namespace) -> int:
                 compose, inventory_dir=inv_dir, round_variants=round_variants
             )
             compose.reset_target()
-            print(f"=== {pass_label} PASS 2 (async) ===")
+            print(f"=== {pass_label} PASS 2 (update) ===")
             rc = run_pass(
                 {
-                    "ASYNC_ENABLED": True,
+                    "DEPLOY_IS_UPDATE": True,
                     "VARIANT_INDEX": round_index,
                     "PRIMARY_APPS": primary_app_ids,
                 }

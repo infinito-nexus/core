@@ -24,7 +24,7 @@
         - target
         - source
       to non‑empty values in your configuration file.
-  when: MODE_ASSERT | bool
+  when: lookup('validate') | bool
 
 - include_role:
     name: sys-service

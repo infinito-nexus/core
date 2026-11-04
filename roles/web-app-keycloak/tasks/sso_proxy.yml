@@ -25,7 +25,7 @@
       app does not appear in lookup('sso_proxy_consumers'). Either the
       consumer's services.sso.flavor is not 'oauth2', or sso.enabled is
       falsy. Fix the consumer's meta/services.yml.
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'web-app-keycloak') | bool
 
 - name: "📄 SSO-proxy | render core config for '{{ sso_proxy_application_id }}'"
   stack_host_template:

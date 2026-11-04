@@ -23,7 +23,7 @@
     --cert-name {{ lookup('cert', domain, 'cert_id') | quote }}
     {% endif %}
     {% endif %}
-    {{ '--test-cert' if MODE_DUMMY | bool else '' }}
+    {{ '--test-cert' if DUMMY | bool else '' }}
   register: certbot_result
   changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
   when: not cert_check.exists

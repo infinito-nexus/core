@@ -106,9 +106,9 @@ def run_ansible_playbook(
         print(f"\n[ERROR] {exc}\n", file=sys.stderr)
         sys.exit(1)
 
-    if modes.get("MODE_ASSERT") is False:
+    if modes.get("VALIDATE") is False:
         print(
-            "\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n",
+            "\n🔍 Inventory assertion explicitly disabled (VALIDATE=false)\n",
             flush=True,
         )
     else:
@@ -144,7 +144,7 @@ def run_ansible_playbook(
     if diff:
         cmd.append("--diff")
 
-    if modes.get("MODE_DEBUG", False):
+    if modes.get("DEBUG", False):
         verbose = max(verbose, 3)
 
     if verbose:

@@ -5,7 +5,7 @@
   ansible.builtin.assert:
     that: ["lookup('api', 'cloudflare.api_token') | length > 0"]
   no_log: "{{ cloudflare_no_log | bool }}"
-  when: MODE_ASSERT | bool
+  when: lookup('validate', 'sys-dns-cloudflare-records') | bool
 
 - name: 🗂️ Queue every Cloudflare record for the first attempt
   ansible.builtin.set_fact:

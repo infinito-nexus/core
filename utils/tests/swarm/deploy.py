@@ -40,7 +40,7 @@ def deploy_round(
     """Reset the shared target, then run one deploy of the round.
 
     Args:
-        update_pass: run it as the async update pass.
+        update_pass: run it as the update pass.
     """
     from cli.administration.deploy.development.deploy.run import pin_deploy_image
 
@@ -75,12 +75,12 @@ def deploy_round(
         f"variants=[{round_index}] apps=['{app_id}']"
     )
     if update_pass:
-        cmd += ["-e", "ASYNC_ENABLED=true"]
+        cmd += ["-e", "DEPLOY_IS_UPDATE=true"]
         label = f"update pass (round {round_index + 1}/{total})"
-        print(f"=== {pass_label} PASS 2 (async) ===", flush=True)
+        print(f"=== {pass_label} PASS 2 (update) ===", flush=True)
     else:
         label = f"deploy round {round_index + 1}/{total}"
-        print(f"=== {pass_label} PASS 1 (sync) ===", flush=True)
+        print(f"=== {pass_label} PASS 1 (initial) ===", flush=True)
     return run_step(env=env, cmd=cmd, label=label)
 
 

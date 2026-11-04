@@ -1,7 +1,7 @@
 ---
-- name: "🧹 Cleanup Mastodon caches when MODE_CLEANUP is true"
+- name: "🧹 Cleanup Mastodon caches when CLEANUP is true"
   include_tasks: 04_cleanup.yml
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool
 
 - name: "📂 Include administrator routines for '{{ application_id }}'"
   include_tasks:

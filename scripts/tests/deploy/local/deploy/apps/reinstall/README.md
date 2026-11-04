@@ -13,7 +13,7 @@ Use this flow when stale container state or cross-application entities (for exam
 
 - Runs `development down` followed by `development up --when-down` to remove and re-create containers.
 - Purges shared entities relevant to the deploy (for example `matomo`).
-- Bakes a fresh inventory with `ASYNC_ENABLED=false` and `RUNTIME=dev`.
-- Set `full_cycle=true` on `make compose-deploy` to run a second async pass after the initial sync pass.
+- Bakes a fresh inventory with `RUNTIME=dev`.
+- Set `full_cycle=true` on `make compose-deploy` to run the update pass after the first pass.
 
 For the non-destructive equivalent, see [initialize/](../initialize/README.md).

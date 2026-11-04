@@ -128,9 +128,9 @@ MOODLE_EGRESS_WEB_PORTS:
 MOODLE_EGRESS_ALLOWED_PORTS: "{{ MOODLE_EGRESS_WEB_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else []) }}"
 MOODLE_DEBUG_SETTINGS:
   - name: debug
-    value: "{{ (MODE_DEBUG | bool) | ternary('32767', '0') }}"
+    value: "{{ (lookup('debug') | bool) | ternary('32767', '0') }}"
   - name: debugdisplay
-    value: "{{ (MODE_DEBUG | bool) | ternary('1', '0') }}"
+    value: "{{ (lookup('debug') | bool) | ternary('1', '0') }}"
 MOODLE_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [MOODLE_MCP_SERVICE_KEY] + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('hostname')]
   if MOODLE_LITELLM_ENABLED | bool else []) }}"
 

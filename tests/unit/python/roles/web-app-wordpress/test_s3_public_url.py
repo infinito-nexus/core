@@ -77,6 +77,8 @@ def _render_env(objstore: dict) -> dict[str, str]:
             return "db"
         if (name, *terms) == ("config", APP, "services.sso.profile.locked"):
             return SERVICES["sso"]["profile"]["locked"]
+        if (name, *terms) == ("debug",):
+            return False
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
@@ -90,7 +92,6 @@ def _render_env(objstore: dict) -> dict[str, str]:
         HOST_TIMEZONE="UTC",
         WORDPRESS_MCP_SERVICE_KEY="wordpress",
         WORDPRESS_NETWORK_BASE_URLS="",
-        MODE_DEBUG=False,
         OIDC={
             "CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"},
             "ATTRIBUTES": dict.fromkeys(

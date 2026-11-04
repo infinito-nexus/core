@@ -50,7 +50,7 @@
       forceExternalLinks();
     };
 
-    {% if MODE_DEBUG | bool %}
+    {% if lookup('debug', 'sys-front-inj-dashboard') | bool %}
     try { console.log("[iframe-sync] initIframeHandler installed."); } catch (e) {}
     {% endif %}
   }

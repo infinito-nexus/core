@@ -2,7 +2,7 @@
 # Verify time by time, that this rules are valid:
 # https://docs.nextcloud.com/server/latest/admin_manual/installation/nginx.html
 worker_processes {{ WEBSERVER_WORKER_PROCESSES }};
-error_log   /proc/self/fd/2 {% if MODE_DEBUG | bool %}debug{% else %}warn{% endif %};
+error_log   /proc/self/fd/2 {% if lookup('debug') | bool %}debug{% else %}warn{% endif %};
 pid        /var/run/nginx.pid;
 events {
     worker_connections {{ WEBSERVER_WORKER_CONNECTIONS }};

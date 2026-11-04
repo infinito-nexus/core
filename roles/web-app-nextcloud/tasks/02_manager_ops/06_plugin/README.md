@@ -40,7 +40,7 @@ An addon MAY set `config.background_install: true`. `recognize` sets it.
 4. The `always` section of the install block joins every job with `async_status`. The filter `nextcloud_background_lost` fails the join on the exit codes of the `killed` state.
 5. Each joined plugin runs [02_install.yml](./02_install.yml): `occ app:install` answers `already installed` once the job placed the app, so the stage enables and configures it. When the job failed before it placed the app, the stage installs it with its own retries.
 
-The job runs in every mode, `ASYNC_ENABLED` included. Its limit `NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME` in [vars/main.yml](../../../vars/main.yml) is 7 days, the default of `SYS_TIMEOUT_CONTAINER_EXEC`.
+The job runs in every mode. Its limit `NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME` in [vars/main.yml](../../../vars/main.yml) is 7 days, the default of `SYS_TIMEOUT_CONTAINER_EXEC`.
 
 ## Pipeline stages
 

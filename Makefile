@@ -241,7 +241,7 @@ compose-app-restart:
 # Param purge: true | false (default: false) — purge entities before deploy
 # Param bundles: comma-separated bundle names; overrides apps when set
 # Param disable: comma-separated service names to render as disabled
-# Param full_cycle: true | false — when true, also run the async update pass
+# Param full_cycle: true | false — when true, also run the update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 # Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)

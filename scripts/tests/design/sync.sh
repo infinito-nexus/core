@@ -24,5 +24,5 @@ if [[ -n "${base:-}" ]]; then
 fi
 extra+="}"
 
-cmd="\"\${INFINITO_VENV_DIR}/bin/ansible-playbook\" -i '${inv_dir}/devices.yml' playbook-sync.yml -l localhost --vault-password-file '${inv_dir}/.password' -e '${extra}' -e ASYNC_ENABLED=false" \
+cmd="\"\${INFINITO_VENV_DIR}/bin/ansible-playbook\" -i '${inv_dir}/devices.yml' playbook-sync.yml -l localhost --vault-password-file '${inv_dir}/.password' -e '${extra}'" \
 	bash scripts/tests/deploy/local/exec/container.sh

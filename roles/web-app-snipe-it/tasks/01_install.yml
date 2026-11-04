@@ -48,7 +48,7 @@
     stdin: "{{ SNIPE_IT_APP_KEY }}"
   register: snipeit_demo_seed
   changed_when: true
-  when: MODE_DEMO | bool
+  when: DEMO | bool
 
 - name: "⚙️ Create the Snipe-IT settings row when none exists"
   ansible.builtin.shell:

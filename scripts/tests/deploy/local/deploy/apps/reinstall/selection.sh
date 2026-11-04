@@ -60,8 +60,8 @@ deploy_args=(
 	--debug
 )
 
-echo ">>> init inventory (ASYNC_ENABLED=false, RUNTIME=dev baked)"
-INIT_VARS_BASE='"ASYNC_ENABLED": false, "RUNTIME": "dev"'
+echo ">>> init inventory (RUNTIME=dev baked)"
+INIT_VARS_BASE='"RUNTIME": "dev"'
 if [[ -n "${INIT_VARS_EXTRA:-}" ]]; then
 	INIT_VARS="{${INIT_VARS_BASE}, ${INIT_VARS_EXTRA}}"
 else
@@ -73,12 +73,12 @@ fi
 	--vars "${INIT_VARS}"
 
 if [[ "${full_cycle:-false}" == "true" ]]; then
-	echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, full_cycle=true)"
+	echo ">>> deploy (PASS 1 + PASS 2 update per variant, full_cycle=true)"
 	deploy_with_cache_retry "deploy-${apps//[^A-Za-z0-9._-]/-}-full-cycle" -- \
 		"${PYTHON}" -m cli.administration.deploy.development deploy \
 		"${deploy_args[@]}" --full-cycle
 else
-	echo ">>> deploy (PASS 1 sync only, full_cycle=false)"
+	echo ">>> deploy (PASS 1 only, full_cycle=false)"
 	deploy_with_cache_retry "deploy-${apps//[^A-Za-z0-9._-]/-}" -- \
 		"${PYTHON}" -m cli.administration.deploy.development deploy \
 		"${deploy_args[@]}"

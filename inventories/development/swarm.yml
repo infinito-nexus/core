@@ -4,8 +4,8 @@
 # in-cluster simulated containers use; the host-network DNS-resolver
 # SPOT does not apply inside act-DinD nested containers.
 ---
-ASYNC_ENABLED: true
-MODE_DEBUG: true
+DEPLOY_IS_UPDATE: true
+DEBUG: true
 TLS_MODE: "self_signed"
 
 networks:

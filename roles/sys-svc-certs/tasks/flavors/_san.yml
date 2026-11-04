@@ -20,7 +20,7 @@
     {% else %}
     --letsencrypt-webroot-path "{{ LETSENCRYPT_WEBROOT_PATH }}"
     {% endif %}
-    {{ '--mode-test' if MODE_DUMMY | bool else '' }}
+    {{ '--mode-test' if DUMMY | bool else '' }}
   register: certbundle_result
   changed_when: >
     ('certificate not yet due for renewal' not in (certbundle_result.stdout | lower | default('')))

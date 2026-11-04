@@ -16,7 +16,7 @@
       - "database_consumer_id={{ _sys_stk_backend_database_consumer_id }}"
       - "database_enabled={{ _sys_stk_backend_database_enabled }}"
       - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'sys-stk-backend') | bool
 
 - name: "🧩 For '{{ application_id }}': Load central RDBMS"
   include_role:

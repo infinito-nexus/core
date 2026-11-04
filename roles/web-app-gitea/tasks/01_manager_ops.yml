@@ -56,7 +56,7 @@
 
 - name: ▶️ Execute Cleanup Routines
   include_tasks: 03_cleanup.yml
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool
 
 - name: "🔌 Provision the MCP surface"
   include_tasks: utils/mcp.yml

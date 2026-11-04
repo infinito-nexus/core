@@ -47,7 +47,7 @@
     bundle exec rails db:seed
   register: decidim_demo_seed
   changed_when: true
-  when: MODE_DEMO | bool
+  when: DEMO | bool
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "🚪 Decidim | Converge the local sign-in and sign-up of the organization"

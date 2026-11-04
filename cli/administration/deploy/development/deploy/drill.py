@@ -1,4 +1,4 @@
-"""Recover drill between the sync and async pass of the first round."""
+"""Recover drill between the first and the update pass of the first round."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ def _maybe_recover_drill(compose, plan_index: int) -> None:
     """Verify recovery between PASS 1 and PASS 2 of the first round: seed a
     backup tree and `recover full` it back on this single host. Gated by
     INFINITO_RECOVER_DRILL (off by default); raises on drill failure so the
-    deploy fails fast before the async pass. Host mode is exempt: the drill
+    deploy fails fast before the update pass. Host mode is exempt: the drill
     verifies container backup trees, which host roles do not produce."""
     if plan_index != 0:
         return

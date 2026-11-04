@@ -176,5 +176,5 @@
     {{ role_path }}/files/archive_playwright_reports.sh
     {{ _playwright_pass_reports_dir | quote }}
     {{ VARIANT_INDEX | int }}
-    {{ ASYNC_ENABLED | bool | string | lower }}
+    {{ DEPLOY_IS_UPDATE | bool | string | lower }}
   changed_when: true

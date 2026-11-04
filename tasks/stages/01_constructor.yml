@@ -19,7 +19,7 @@
   changed_when: false
   failed_when: dns_check.rc != 0
   when:
-    - MODE_ASSERT | bool
+    - VALIDATE | bool
     - not (DOMAIN_PRIMARY is search('\.onion$'))
 
 - name: 🔀 Merge variables
@@ -60,7 +60,7 @@
   ansible.builtin.include_role:
     name: sys-cleanup
   when:
-    - MODE_CLEANUP | bool
+    - CLEANUP | bool
     - DOCKER_IN_CONTAINER | bool
 
 - name: "📍 Place the shared services and the proxy on their hosts"

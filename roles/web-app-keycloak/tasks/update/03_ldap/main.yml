@@ -14,7 +14,7 @@
     merge_path: "config"
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     realm: "{{ KEYCLOAK_REALM }}"
-    assert_mode: "{{ MODE_ASSERT }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ⬇️ Fetch components (JSON)
@@ -44,7 +44,9 @@
   assert:
     that: ["ldap_cmp_id not in ['', 'null']"]
     fail_msg: "LDAP component '{{ KEYCLOAK_LDAP_CMP_NAME }}' not found in Keycloak."
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - KEYCLOAK_VALIDATE_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: ⬇️ Pull LDAP component from dictionary (by name)
   set_fact:
@@ -62,7 +64,9 @@
       - ldap_component_tpl | length > 0
       - (ldap_component_tpl.subComponents | default({})) | length > 0
     fail_msg: "LDAP component '{{ KEYCLOAK_LDAP_CMP_NAME }}' not found in KEYCLOAK_DICTIONARY_REALM."
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - KEYCLOAK_VALIDATE_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: 📤 Extract mapper 'ldap-roles' from template (raw)
   set_fact:
@@ -81,7 +85,9 @@
   assert:
     that: ["desired_group_mapper_raw | length > 0"]
     fail_msg: "'ldap-roles' mapper not found in dictionary under LDAP component."
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - KEYCLOAK_VALIDATE_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: 🔨 Build clean mapper payload (drop id/subComponents)
   set_fact:
@@ -225,6 +231,6 @@
     merge_path: "config"
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     realm: "{{ KEYCLOAK_REALM }}"
-    assert_mode: "{{ MODE_ASSERT }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify: sync-ldap-groups

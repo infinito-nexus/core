@@ -29,7 +29,7 @@ The target carries no container engine and no SSH host key of its own: a deploy 
 make compose-target-reset
 ```
 
-`make compose-up` runs it after the stack is up, and `python -m cli.administration.deploy.development deploy` runs it before every pass of every round, so the async pass of a full cycle starts on a bare target too. The swarm matrix runs the same reset before every pass of every swarm round ([deploy.py](../../utils/tests/swarm/deploy.py) `deploy_round`), with the lab network and the swarm nodes:
+`make compose-up` runs it after the stack is up, and `python -m cli.administration.deploy.development deploy` runs it before every pass of every round, so the update pass of a full cycle starts on a bare target too. The swarm matrix runs the same reset before every pass of every swarm round ([deploy.py](../../utils/tests/swarm/deploy.py) `deploy_round`), with the lab network and the swarm nodes:
 
 ```bash
 python -m cli.administration.deploy.development target-reset \

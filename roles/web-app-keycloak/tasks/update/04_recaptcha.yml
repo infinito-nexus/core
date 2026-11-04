@@ -14,7 +14,9 @@
     that:
       - kc_recaptcha_cfg | length > 0
     fail_msg: "Google reCAPTCHA config not found in KEYCLOAK_DICTIONARY_REALM.authenticatorConfig."
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - KEYCLOAK_VALIDATE_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: "⬇️ Fetch executions of 'registration form' flow"
   shell: >

@@ -15,7 +15,7 @@
   loop: "{{ group_names }}"
   loop_control:
     loop_var: group_name
-  when: MODE_ASSERT | bool
+  when: VALIDATE | bool
 
 - name: 🔀 Merge current play applications
   ansible.builtin.set_fact:

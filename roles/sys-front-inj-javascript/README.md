@@ -23,4 +23,4 @@ This role injects a custom JavaScript snippet into Nginx-served HTML responses v
   `templates/profile_lock.js.j2` renders every input matched by the role's `services.sso.profile.locked` selectors read-only and shows the `locked` text of `files/profile_lock_i18n.yml` in the page language as its hover title. `templates/profile_lock_catalogue.json.j2` cuts the catalogue to the role's `services.sso.profile.languages`; the Playwright env of a role renders the same file. A role includes the renderer from its own `templates/javascript.js.j2`; see [javascript.js.md](../../docs/contributing/artefact/files/role/javascript.js.md#sso-profile-lock-).
 
 - **Debug Mode**  
-  Supports an `MODE_DEBUG` flag that appends optional `console.log` statements for easier troubleshooting in staging or development.
+  Supports a `DEBUG` flag that appends optional `console.log` statements for easier troubleshooting in staging or development.

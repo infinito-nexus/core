@@ -16,7 +16,7 @@ Deploy [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the snapshot tree bounde
 ```mermaid
 flowchart TD
     TIMER["systemd timer<br>SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL (01:30)"] --> UNIT
-    PRELOAD["sys-service-loader preload<br>MODE_BACKUP, run_after svc-storage-nfs-server<br>(force_flush_instant + state started)"] --> UNIT
+    PRELOAD["sys-service-loader preload<br>BACKUP, run_after svc-storage-nfs-server<br>(force_flush_instant + state started)"] --> UNIT
     UNIT["svc-bkp-nfs-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> SCRIPT["ExecStart: script.sh &lt;export_base&gt; &lt;backups_dir&gt;<br>backup-nfs-to-local &lt;state&gt;/backup &lt;state&gt;/&lt;backup-disabled volume&gt;..."]
     SCRIPT -->|export_base missing| ALARM["ERROR exit 1<br>OnFailure alarm"]

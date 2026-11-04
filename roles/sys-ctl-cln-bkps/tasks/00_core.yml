@@ -38,8 +38,8 @@
     system_service_copy_files: true
     system_service_force_linear_sync: false
 
-    system_service_tpl_timeout_start_sec: "{{ '120s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
-    system_service_tpl_runtime: "{{ '300s' if ((DOCKER_IN_CONTAINER|bool) and (MODE_DEBUG|bool)) else omit }}"
+    system_service_tpl_timeout_start_sec: "{{ '120s' if ((DOCKER_IN_CONTAINER | bool) and (lookup('debug', 'sys-ctl-cln-bkps') | bool)) else omit }}"
+    system_service_tpl_runtime: "{{ '300s' if ((DOCKER_IN_CONTAINER | bool) and (lookup('debug', 'sys-ctl-cln-bkps') | bool)) else omit }}"
 
 - meta: flush_handlers
 

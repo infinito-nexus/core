@@ -38,6 +38,8 @@
 
 - name: "✅ Verify that '{{ role_name }}' works"
   include_tasks: 01_assert.yml
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - lookup('validate') | bool
+    - IS_STACK_HOST | bool
 
 - include_tasks: utils/once/flag.yml

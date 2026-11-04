@@ -34,7 +34,7 @@ distribution.defaultUI=org.xwiki.platform:xwiki-platform-distribution-flavor-mai
 distribution.skip=false
 distribution.wizard.enabled=true
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 # Root logger
 logging.rootLogger=DEBUG, console
 

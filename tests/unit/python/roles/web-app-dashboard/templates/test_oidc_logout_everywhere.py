@@ -206,6 +206,8 @@ CLIENT_ID = _services("services.sso.oidc.clients.dashboard")
 def _lookup(name, *args, **_kwargs):
     if name == "config" and args[1] == "services.tor.enabled":
         return False
+    if name == "debug" and not args:
+        return False
     if name == "tls":
         return DASHBOARD.rstrip("/")
     if name == "asset":
@@ -223,7 +225,6 @@ def _context() -> dict:
         "lookup": _lookup,
         "application_id": "web-app-dashboard",
         "domain": "dashboard.example.test",
-        "MODE_DEBUG": False,
         "ORGANIZATION": "Example",
         "DOMAIN_PRIMARY": "example.test",
         "OIDC": {

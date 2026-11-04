@@ -29,4 +29,4 @@
 
 - name: "🛫 Verify that the clearnet domains of the deploy resolve in assert mode"
   ansible.builtin.include_tasks: preflight/domains.yml
-  when: MODE_ASSERT | bool
+  when: VALIDATE | bool

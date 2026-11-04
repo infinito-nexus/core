@@ -159,7 +159,7 @@ class TestComposeDecommission(unittest.TestCase):
             "ansible_python_interpreter": sys.executable,
             "DIR_COMPOSITIONS": f"{root}/",
             "BIN_COMPOSE": str(self.fake_compose),
-            "MODE_CLEANUP": True,
+            "CLEANUP": True,
             "DEPLOYMENT_MODE": "compose",
             "IS_COMPOSE_MODE": True,
             "APPLICATIONS_WHITELIST": [],
@@ -271,7 +271,7 @@ class TestComposeDecommission(unittest.TestCase):
         root, open_values = self._open_host()
         gated = {
             "whitelisted": {"APPLICATIONS_WHITELIST": ["web-app-grouped"]},
-            "cleanup_off": {"MODE_CLEANUP": False},
+            "cleanup_off": {"CLEANUP": False},
             "swarm": {"DEPLOYMENT_MODE": "swarm", "IS_COMPOSE_MODE": False},
         }
         hosts = {"open": open_values}

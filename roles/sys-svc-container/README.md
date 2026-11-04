@@ -8,8 +8,8 @@ It is part of the [Infinito.Nexus Project](https://s.infinito.nexus/code), maint
 ## Overview
 
 The role ensures that Docker and Docker Compose are present, integrates essential backup, repair, and health check roles, and supports cleanup or full reset modes for a fresh Docker environment.  
-When enabled via `MODE_CLEANUP` or `MODE_RESET`, it will automatically prune unused Docker resources.  
-`MODE_RESET` additionally restarts the Docker service after cleanup.
+When enabled via `CLEANUP` or `RESET`, it will automatically prune unused Docker resources.  
+`RESET` additionally restarts the Docker service after cleanup.
 
 ## Features
 
@@ -20,15 +20,15 @@ When enabled via `MODE_CLEANUP` or `MODE_RESET`, it will automatically prune unu
   Includes backup, repair, and health check sub-roles
   
 - **Cleanup & Reset Modes**  
-  - `MODE_CLEANUP`: Removes unused Docker containers, networks, images, and volumes.  
-  - `MODE_RESET`: Performs cleanup and restarts the Docker service.
+  - `CLEANUP`: Removes unused Docker containers, networks, images, and volumes.  
+  - `RESET`: Performs cleanup and restarts the Docker service.
 
 - **Handler Integration**  
   Restart handler ensures the Docker daemon is reloaded when necessary.
 
 - **Image Pre-Pull**  
   [start.yml](tasks/utils/prepull/start.yml) pulls the images the deploy of the host runs, as listed by the `update_pull_images` filter, that the host does not hold yet under the pinned reference ([pull.yml](tasks/utils/prepull/pull.yml)), three at a time in a background job right before the shared services load; with nothing missing no job starts.
-  It runs whatever `ASYNC_ENABLED` says, when `STORAGE_CONSTRAINED` and `MODE_RESET` are false and the host is a stack host, so never on a swarm worker.
+  It runs when `STORAGE_CONSTRAINED` and `RESET` are false and the host is a stack host, so never on a swarm worker.
   [reap.yml](tasks/utils/prepull/reap.yml) collects the job before the E2E run, or at the start of the destructor on a host without a server stage, and prints the pulls that failed.
   A failed pull or the time limit of `SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME` does not fail the deploy, and each app still pulls its images itself.
 

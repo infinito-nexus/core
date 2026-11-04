@@ -101,7 +101,7 @@
 - name: 📊 Collect host disk diagnostics before Playwright
   ansible.builtin.script: "{{ role_path }}/files/dump_disk_diagnostics.sh"
   changed_when: false
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'test-e2e-playwright') | bool
 
 - name: 🎲 Pick the network this role is tested on
   ansible.builtin.set_fact:

@@ -148,11 +148,11 @@ exports.register = function (shared) {
     page,
   }) => {
     const deployEnabled = strictFlag(process.env.SEMAPHORE_DEPLOY_ENABLED, "SEMAPHORE_DEPLOY_ENABLED");
-    const updatePass = strictFlag(process.env.ASYNC_ENABLED, "ASYNC_ENABLED");
+    const updatePass = strictFlag(process.env.DEPLOY_IS_UPDATE, "DEPLOY_IS_UPDATE");
     test.skip(!deployEnabled, "SEMAPHORE_DEPLOY_ENABLED=false: the inventory declares no services.semaphore.deploy");
     test.skip(
       updatePass,
-      "ASYNC_ENABLED=true: the shared target is reset once per round, before the sync pass, whose run of this scenario claimed it",
+      "DEPLOY_IS_UPDATE=true: the shared target is reset once per round, before the first pass, whose run of this scenario claimed it",
     );
     shared.skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(SETUP_MS + DEPLOY_RUN_MS + TARGET_ANSWER_MS));

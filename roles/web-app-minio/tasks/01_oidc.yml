@@ -154,8 +154,8 @@
   register: minio_policy_create
   changed_when: false
   # rationale: async; consumed only by the STS playwright spec, reaped at the end of this file
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"
 
 - name: "⏳ Reap the MinIO policy job"
   ansible.builtin.include_tasks: utils/async/reap.yml

@@ -3,7 +3,7 @@
   assert:
     that:
       - system_service_scope == 'system'
-      - not (MODE_ASSERT | bool) or '@' not in system_service_id
+      - not (lookup('validate', 'sys-service') | bool) or '@' not in system_service_id
     fail_msg: "{{ system_service_timer_scope_msg if system_service_scope != 'system' else system_service_timer_id_msg }}"
   vars:
     system_service_timer_scope_msg: >-

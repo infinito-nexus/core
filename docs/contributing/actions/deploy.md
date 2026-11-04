@@ -21,7 +21,7 @@ Use `mode=reinstall` to bring up a clean slate (cycles the dev stack and purges 
 make compose-deploy mode=reinstall apps="<role> <role>" full_cycle=true
 ```
 
-- `full_cycle=true` adds the async update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
+- `full_cycle=true` adds the update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
 - The router runs init, then deploy. Init materialises the inventory under `${INFINITO_INVENTORY_DIR}` (resolved by `make dotenv` via [resolve.sh](../../../scripts/inventory/resolve.sh); see [variables.md](../environment/variables.md)).
 - For roles with a `roles/<role>/meta/variants.yml` the init step produces one inventory folder per variant; the deploy step iterates them. Folder layout, round semantics, cleanup rules, and the link to the file-format reference live in [variants.md](../design/variants.md).
 

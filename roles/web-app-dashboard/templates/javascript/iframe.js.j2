@@ -26,6 +26,6 @@ window.addEventListener("message", function(event) {
   }
 });
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 console.log("[iframe-sync] Listener for iframe messages is active.");
 {% endif %}

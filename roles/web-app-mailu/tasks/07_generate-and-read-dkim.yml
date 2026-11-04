@@ -61,4 +61,4 @@
 - name: 🐛 Debug Mailu DKIM public key
   debug:
     msg: "Mailu DKIM public key: {{ mailu_dkim_public_key }}"
-  when: MODE_DEBUG | bool
+  when: lookup('debug') | bool

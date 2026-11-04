@@ -11,8 +11,7 @@
 # between rounds. This file holds only the cross-cutting environment
 # knobs.
 MASK_CREDENTIALS_IN_LOGS: false
-ASYNC_ENABLED: false
-MODE_DEBUG: true
+DEBUG: true
 ENVIRONMENT: development
 TLS_ENABLED: true
 TLS_MODE: "self_signed"

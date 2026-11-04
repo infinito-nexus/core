@@ -153,7 +153,7 @@
         raise
     EOF
   changed_when: false
-  when: MODE_DEBUG | bool
+  when: lookup('debug') | bool
 
 - name: "📂 Include Schemas (if enabled)"
   include_tasks:

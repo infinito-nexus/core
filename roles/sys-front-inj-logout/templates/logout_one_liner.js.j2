@@ -5,6 +5,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     initLogoutPatch(
         '{{ logout_target }}',
-        {{ MODE_DEBUG | lower }}
+        {{ lookup('debug', 'sys-front-inj-logout') | lower }}
     );
 });

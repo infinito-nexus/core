@@ -54,7 +54,7 @@
       PDS_HANDLE_DOMAIN: "{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
       PDS_ADMIN_PASSWORD: "{{ BLUESKY_ADMIN_PASSWORD | replace('$', '$$') }}"
       BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ BLUESKY_BRIDGE_ENCRYPTION_KEY }}"
-      INSECURE_TLS: "{{ MODE_DEBUG | string | lower }}"
+      INSECURE_TLS: "{{ lookup('debug') | string | lower }}"
       OIDC_NAME_CLAIM: "{{ OIDC.ATTRIBUTES.NAME }}"
       SITE_TITLE: {{ lookup('design', application_id).label | replace('$', '$$') | to_json }}
     healthcheck:

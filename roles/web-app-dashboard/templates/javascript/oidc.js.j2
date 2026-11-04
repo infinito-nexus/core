@@ -13,7 +13,7 @@ const KC_MIRROR_BASE = null;
 {% endif %}
 const KC_JS_ASSET_URL = "{{ lookup('asset', application_id, 'keycloak-js', 'lib/keycloak.js') }}";
 
-const DEBUG = {{ MODE_DEBUG | string | lower }};
+const DEBUG = {{ lookup('debug') | string | lower }};
 // Exception: Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
 // collides with dashboard-embedded OIDC flows, so the explicit token refresh below replaces it.
 const KEYCLOAK_IFRAME_POLLING_ENABLED = false;

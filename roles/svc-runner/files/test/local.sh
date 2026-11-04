@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # nocheck: raw-docker
-# svc-runner checks: container health, DooD socket, and (sync pass only) a
+# svc-runner checks: container health, DooD socket, and (first pass only) a
 # variant-0 nested web-app-dashboard deploy in a sealed throwaway dockerd.
 # No GitHub/GHCR.
 set -euo pipefail
@@ -28,8 +28,8 @@ if ! docker exec "${RUNNER_PROJECT_PREFIX}-1" docker version >/dev/null 2>&1; th
 fi
 echo "OK: DooD socket accessible inside ${RUNNER_PROJECT_PREFIX}-1"
 
-if [[ "${ASYNC_ENABLED:-false}" == "true" ]]; then
-    echo "Skipping full deploy on async pass (validated on sync pass)"
+if [[ "${DEPLOY_IS_UPDATE:-false}" == "true" ]]; then
+    echo "Skipping full deploy on the update pass (validated on the first pass)"
     echo "ALL LOCAL CHECKS PASSED (DinD)"
     exit 0
 fi

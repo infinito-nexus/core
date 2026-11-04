@@ -5,7 +5,7 @@
 - name: "📥 Pre-pull the images of this deploy in the background"
   when:
     - not (STORAGE_CONSTRAINED | bool)
-    - not (MODE_RESET | bool)
+    - not (RESET | bool)
     - IS_STACK_HOST | bool
   block:
     - name: "🧮 Derive the images the deploy of the host runs"

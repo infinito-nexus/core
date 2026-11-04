@@ -68,13 +68,13 @@ DOCKER_PUBLIC_BIND_HOST: "{{ '0.0.0.0' if DOCKER_IN_CONTAINER | bool else networ
 DOCKER_REACH_HOST: "127.0.0.1" # Default localhost, will be overwritten if DOCKER_IN_CONTAINER with Docker Bridge Gateway
 BUILDKIT_ENABLED: true # When falsy the compose wrapper forces the legacy builder (DOCKER_BUILDKIT=0); needed in offline/sandbox-blocked registries
 
-ASYNC_ENABLED: "{{ not MODE_DEBUG | bool }}" # Activate async, deactivated for debugging
-ASYNC_TIME: "{{ 300 if ASYNC_ENABLED | bool else omit }}" # Run for max 5min
-ASYNC_POLL: "{{ 0 if ASYNC_ENABLED | bool else 10 }}" # Don't wait for task
+ASYNC_TIME: 300 # Run for max 5min
+ASYNC_POLL: 0 # Don't wait for task
 
 APPLICATIONS_WHITELIST: [] # nocheck: unused-var
 
 PRIMARY_APPS: [] # Apps this deploy was asked for; the rest of the round is their dependency closure.
+DEPLOY_IS_UPDATE: false # True on the second deploy of a full-cycle round, which runs again on the state the first one left
 
 RBAC:
   GROUP:

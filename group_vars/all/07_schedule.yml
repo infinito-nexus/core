@@ -2,7 +2,7 @@
 # Service Timers
 
 # # Meta
-SYS_TIMER_ALL_ENABLED: "{{ MODE_DEBUG }}" # Runtime Variables for Process Control - Activates all timers, independend if the handlers had been triggered
+SYS_TIMER_ALL_ENABLED: "{{ DEBUG }}" # Runtime Variables for Process Control - Activates all timers, independend if the handlers had been triggered
 
 HOURS_SERVER_AWAKE: "6..23" # Ours in which the server is "awake" (100% working). Rest of the time is reserved for maintanance
 RANDOMIZED_DELAY_SEC: "5min" # Random delay for systemd timers to avoid peak loads.

@@ -20,11 +20,11 @@ This role installs and configures Nginx HTTP and stream modules with performance
 - **Configurable reset and cleanup** modes to purge and recreate directories.
 - **Custom `NGINX.conf`** template with sensible defaults for performance and security.
 - **Stream proxy support**: includes `stream` block for TCP/UDP proxies.
-- **Cache directory management**: cleanup and recreation based on `MODE_CLEANUP`.
+- **Cache directory management**: cleanup and recreation based on `CLEANUP`.
 
 ## Debugging Tips
 
 - **General logs**: `journalctl -f -u NGINX`
 - **Filter by host**: `journalctl -u NGINX -f | grep "{{ inventory_hostname }}"`
-- **Enable detailed format**: set `MODE_DEBUG: true` and reload NGINX.
+- **Enable detailed format**: set `applications.sys-svc-webserver-core.services.svc-webserver-core.debug.enabled: true` (it falls back to `DEBUG` via `lookup('debug')`) and reload NGINX.
 - **Redacted request path**: both access log formats write the path without query string, Referer or basic-auth user. Path segments after a password-reset, e-mail confirmation, e-mail login or account activation route (e.g. `/password/reset/`, `/confirm-email/`) are written as `[redacted]`; extend the `$infinito_access_log_path` map in [nginx.conf.j2](./templates/nginx.conf.j2) for further token routes.

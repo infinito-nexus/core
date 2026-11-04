@@ -69,9 +69,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": True,
-            "MODE_ASSERT": True,
-            "MODE_DEBUG": True,
+            "CLEANUP": True,
+            "VALIDATE": True,
+            "DEBUG": True,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -104,7 +104,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertFalse(
             was_called(["make", "clean"]),
-            "MODE_CLEANUP tidies the deployed system, so it must not git-clean "
+            "CLEANUP tidies the deployed system, so it must not git-clean "
             "the control checkout and delete the inventory being deployed",
         )
         self.assertTrue(was_called(["make", "setup"]), "Expected 'make setup'")
@@ -150,7 +150,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         modes_index = len(last_cmd) - 1 - last_cmd[::-1].index("-e")
         self.assertEqual(
             json.loads(last_cmd[modes_index + 1]),
-            {"MODE_CLEANUP": True, "MODE_ASSERT": True, "MODE_DEBUG": True},
+            {"CLEANUP": True, "VALIDATE": True, "DEBUG": True},
         )
 
         self.assertIn("--vault-password-file", last_cmd)
@@ -160,7 +160,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertTrue(
             any(arg.startswith("-vvv") for arg in last_cmd),
-            "Expected at least -vvv because MODE_DEBUG=True",
+            "Expected at least -vvv because DEBUG=True",
         )
 
         self.assertNotIn("text", last_kw)
@@ -180,9 +180,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -193,7 +193,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             "-e",
             "APPLICATIONS_WHITELIST=override-app",
             "-e",
-            "MODE_DEBUG=true",
+            "DEBUG=true",
         ]
 
         with unittest.mock.patch(
@@ -238,9 +238,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         with (
@@ -280,7 +280,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 any("validate/__main__.py" in part for part in call_cmd)
                 for call_cmd, _kw in calls
             ),
-            "Inventory validation should be skipped when MODE_ASSERT is False",
+            "Inventory validation should be skipped when VALIDATE is False",
         )
 
     @unittest.mock.patch("subprocess.run")
@@ -303,9 +303,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 inventory_validator_path="/repo/cli/administration/inventory/validate/__main__.py",
                 inventory="/etc/inventories/github-ci/devices.yml",
                 modes={
-                    "MODE_CLEANUP": False,
-                    "MODE_ASSERT": True,
-                    "MODE_DEBUG": False,
+                    "CLEANUP": False,
+                    "VALIDATE": True,
+                    "DEBUG": False,
                 },
                 limit=None,
                 allowed_applications=None,
@@ -391,7 +391,7 @@ class TestDeployAnsiblePlaybook(unittest.TestCase):
                 playbook_path=f"{repo_root}/playbook.yml",
                 inventory_validator_path=f"{repo_root}/validate/__main__.py",
                 inventory=f"{repo_root}/devices.yml",
-                modes={"MODE_ASSERT": True},
+                modes={"VALIDATE": True},
                 skip_build=False,
             )
         self.assertEqual(ctx.exception.code, 1)

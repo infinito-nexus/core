@@ -500,7 +500,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-0",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 0,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -509,7 +509,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -633,7 +633,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },

@@ -4,7 +4,7 @@
     msg:
       application_id: "{{ application_id | default('undefined') }}"
       load_app_id: "{{ load_app_id }}"
-  when: MODE_DEBUG | bool
+  when: DEBUG | bool
 
 - name: "📥 Loading {{ load_app_id }}'"
   include_role:

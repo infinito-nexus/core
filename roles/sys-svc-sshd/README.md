@@ -19,7 +19,7 @@ Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `"no"`) sets `PermitRoo
 ## Features
 
 - **Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides.
-- **Security Defaults:** Disables password authentication and root login; enforces public-key authentication; conditionally sets `LogLevel` to `DEBUG3` when `MODE_DEBUG` is true.
+- **Security Defaults:** Disables password authentication and root login; enforces public-key authentication; conditionally sets `LogLevel` to `DEBUG3` when `services.svc-sshd.debug.enabled` is true, which falls back to `DEBUG` via `lookup('debug')`.
 - **Systemd Integration:** Handles daemon reload and service restart seamlessly on configuration changes.
 - **Idempotency:** Ensures tasks run only once per play by setting the `run_once_sys_svc_sshd` fact.
 

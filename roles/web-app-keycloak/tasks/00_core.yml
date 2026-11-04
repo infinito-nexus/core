@@ -3,7 +3,7 @@
 
 - name: "📂 Load cleanup routine for '{{ application_id }}'"
   include_tasks: 01_cleanup.yml
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool
 
 - name: "📂 Load init routine for '{{ application_id }}'"
   include_tasks: 02_init.yml

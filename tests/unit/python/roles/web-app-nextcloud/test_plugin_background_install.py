@@ -176,9 +176,6 @@ class TestBackgroundJob(unittest.TestCase):
             self.job["async"], "{{ NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME }}"
         )
         self.assertEqual(self.job["poll"], 0)
-        self.assertNotIn(
-            "ASYNC_ENABLED", str(self.job["async"]) + str(self.job["poll"])
-        )
 
     def test_the_gate_reads_the_job_file_first_then_the_schema_state(self):
         script = self.job["ansible.builtin.shell"]

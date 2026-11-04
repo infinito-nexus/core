@@ -32,7 +32,7 @@
 #   `cli/administration/deploy/development/deploy.py` when the matrix
 #   orchestrator runs. Defaults to 0 for dev / non-matrix invocations so
 #   per-(variant, pass) artifact archiving still produces a valid
-#   `variant-0/<sync|async>/` slot.
+#   `variant-0/<initial|update>/` slot.
 test_e2e_playwright_run_timeout: 3600
 
 test_e2e_playwright_test_timeout: 300000

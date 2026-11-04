@@ -26,7 +26,7 @@ config:
     link_existing_users: true
     redirect_on_logout: true
     redirect_user_back: true
-    enable_logging: "{{ MODE_DEBUG }}"
+    enable_logging: "{{ lookup('debug', 'web-app-wordpress') }}"
     no_sslverify: false
     http_request_timeout: 5
     identity_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"

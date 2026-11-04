@@ -22,7 +22,7 @@
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 01_reset.yml
-  when: MODE_RESET | bool
+  when: RESET | bool
 
 - name: "📁 create {{ DIR_COMPOSITIONS }}"
   file:

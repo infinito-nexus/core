@@ -1,5 +1,5 @@
 ---
-# include-gated: when: MODE_ASSERT | bool
+# include-gated: when: VALIDATE | bool
 - name: "🔎 Resolve every clearnet domain of the deploy on the host"
   ansible.builtin.command:
     argv: [getent, hosts, "{{ preflight_domain }}"]

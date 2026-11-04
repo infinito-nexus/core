@@ -51,8 +51,8 @@ system_service_copy_files: true # When set to false file copying will be skipped
 system_service_timer_enabled: false # When set to true timer will be loaded
 system_service_state: "{{ SYS_SERVICE_DEFAULT_STATE }}"
 
-system_service_async: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_TIME }}"
-system_service_poll: "{{ omit if (system_service_force_linear_sync | bool or not ASYNC_ENABLED | bool) else ASYNC_POLL }}"
+system_service_async: "{{ omit if system_service_force_linear_sync | bool else ASYNC_TIME }}"
+system_service_poll: "{{ omit if system_service_force_linear_sync | bool else ASYNC_POLL }}"
 
 system_service_script_base: "{{ system_service_script_src | basename | regex_replace('\\.j2$', '') }}"
 system_service_script_type: "{{ system_service_script_base | filetype }}"

@@ -20,7 +20,9 @@
 
 - name: 📂 Include assert routines
   include_tasks: "06_assert.yml"
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - lookup('validate') | bool
+    - IS_STACK_HOST | bool
 
 - name: ♻️ Reset Admin Password
   include_tasks: 07_reset_admin_password.yml

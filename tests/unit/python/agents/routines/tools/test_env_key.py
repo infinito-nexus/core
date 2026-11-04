@@ -10,10 +10,10 @@ from agents.routines.tools.env_key import both_value_runs
 class TestEnvKey(unittest.TestCase):
     def test_two_runs_true_then_false(self) -> None:
         self.assertEqual(
-            both_value_runs("ASYNC_ENABLED"),
+            both_value_runs("DEBUG"),
             [
-                {"key": "ASYNC_ENABLED", "value": "true"},
-                {"key": "ASYNC_ENABLED", "value": "false"},
+                {"key": "DEBUG", "value": "true"},
+                {"key": "DEBUG", "value": "false"},
             ],
         )
 

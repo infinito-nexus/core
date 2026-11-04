@@ -131,7 +131,7 @@ def _reset_credentials(
             "administrator",
         ],
         env=os.environ.copy(),
-        label="reset credentials (rotation gate before the async pass)",
+        label="reset credentials (rotation gate before the update pass)",
     )
 
 

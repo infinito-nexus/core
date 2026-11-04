@@ -15,7 +15,7 @@ The remote side must expose a chrooted SSH/SFTP endpoint that publishes its back
 ```mermaid
 flowchart TD
     TIMER["systemd timer<br>SYS_SCHEDULE_BACKUP_REMOTE_TO_LOCAL"] --> UNIT
-    FORCE["sys-service-terminator (end of play)<br>MODE_BACKUP, force_flush_final<br>(runs after every provider was snapshotted in the preload pass)"] --> UNIT
+    FORCE["sys-service-terminator (end of play)<br>BACKUP, force_flush_final<br>(runs after every provider was snapshotted in the preload pass)"] --> UNIT
     UNIT["svc-bkp-remote-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> SCRIPT["ExecStart: script.sh<br>loops every provider host"]
     SCRIPT --> PULL["pull_specific_host.py &lt;host&gt; --folder &lt;backups_dir&gt;"]

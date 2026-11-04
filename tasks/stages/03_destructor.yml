@@ -33,7 +33,7 @@
         name: sys-svc-compose
         tasks_from: decommission.yml
       when:
-        - MODE_CLEANUP | bool
+        - CLEANUP | bool
         - IS_COMPOSE_MODE | bool
         - lookup('deployment').whitelist | length == 0
   always:

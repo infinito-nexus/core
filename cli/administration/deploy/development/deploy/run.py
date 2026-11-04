@@ -98,7 +98,7 @@ def _run_deploy(
         "-p",
         pw_file,
         "-vv",
-        "--assert",
+        "--validate",
         "true",
         "--diff",
         "--skip-pull",

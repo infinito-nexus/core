@@ -15,13 +15,14 @@ TEMPLATE = (
     PROJECT_ROOT / "roles" / "svc-storage-nfs-server" / "templates" / "ganesha.conf.j2"
 )
 DEBUG_RUN_LEVELS = {"INIT": "FULL_DEBUG", "DISPATCH": "DEBUG"}
+APPLICATION_ID = "svc-storage-nfs-server"
 
 
-def _render(*, mode_debug: bool) -> str:
+def _render(*, debug_enabled: bool) -> str:
     """Render ganesha.conf.
 
     Args:
-        mode_debug: the MODE_DEBUG value of the deploy.
+        debug_enabled: what lookup('debug') answers for the role.
     """
     env = Environment(
         trim_blocks=True,
@@ -31,14 +32,16 @@ def _render(*, mode_debug: bool) -> str:
     )
     env.filters["bool"] = bool
 
-    def lookup(kind: str) -> str:
-        if kind == "nfs_export_base":
+    def lookup(kind: str, *terms: str) -> str | bool:
+        if kind == "nfs_export_base" and not terms:
             return "/srv/nfs"
-        raise AssertionError(f"unexpected lookup: {kind}")
+        if kind == "debug" and not terms:
+            return debug_enabled
+        raise AssertionError(f"unexpected lookup: {kind} {terms}")
 
     return env.from_string(read_text(str(TEMPLATE))).render(
         lookup=lookup,
-        MODE_DEBUG=mode_debug,
+        application_id=APPLICATION_ID,
         SVC_STORAGE_NFS_SERVER_MINOR_VERSIONS="0, 1, 2",
         svc_storage_nfs_server_allowed_ips=["192.168.244.10"],
         STORAGE_NFS_STATE_PATH="/srv/nfs/infinito-state",
@@ -61,7 +64,7 @@ def _component_levels(rendered: str) -> dict[str, str]:
 class TestGaneshaLogLevels(unittest.TestCase):
     def test_debug_runs_raise_exactly_the_startup_components(self):
         self.assertEqual(
-            _component_levels(_render(mode_debug=True)),
+            _component_levels(_render(debug_enabled=True)),
             DEBUG_RUN_LEVELS,
             "a debug run raises INIT and DISPATCH only: nfs_Init_svc(), which binds "
             "2049, logs under DISPATCH, so a wedged startup stays describable; a "
@@ -71,10 +74,10 @@ class TestGaneshaLogLevels(unittest.TestCase):
         )
 
     def test_regular_runs_render_no_log_block(self):
-        rendered = _render(mode_debug=False)
+        rendered = _render(debug_enabled=False)
         self.assertIsNone(
             re.search(r"^\s*LOG\s*\{", rendered, re.MULTILINE),
-            "outside MODE_DEBUG ganesha keeps the -N NIV_EVENT level of its "
+            "outside a debug run ganesha keeps the -N NIV_EVENT level of its "
             "command line for every component",
         )
 

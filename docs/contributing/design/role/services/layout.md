@@ -76,6 +76,28 @@ matomo:
 data: matomo_data
 ```
 
+## Mode Switches: `debug` and `validate` 🎚️
+
+A role never reads the global modes `DEBUG` or `VALIDATE` from [01_modes.yml](../../../../../group_vars/all/01_modes.yml) itself.
+Its code calls `lookup('debug')` or `lookup('validate')` instead.
+The lookup resolves the role from `application_id`, reads `services.<entity>.<switch>.enabled` of the role's primary entity, and falls back to the global mode when that key is unset.
+It always returns a real boolean, so a string extra-var such as `-e DEBUG=false` stays false.
+A role without `application_id`, and any file that runs in another role's context (handlers, `meta/addons/`, tasks included by other roles), names the role literally: `lookup('debug', 'sys-svc-sshd')`.
+
+A role needs no declaration for either switch.
+A `debug` or `validate` block on the primary entity is an optional override that holds exactly `enabled`, with a literal or a template that does not read the global:
+
+```yaml
+# roles/web-app-joomla/meta/services.yml
+joomla:
+  debug:
+    enabled: false
+```
+
+A host overrides one role in the inventory at `applications.<role>.services.<entity>.debug.enabled`, which wins over `meta/services.yml`.
+An override for a switch whose lookup the role never calls is dead config and fails the lint.
+[test_role_mode_switches.py](../../../../../tests/lint/ansible/variables/test_role_mode_switches.py) enforces the rule, and the lookups live in [debug.py](../../../../../plugins/lookup/debug.py) and [validate.py](../../../../../plugins/lookup/validate.py).
+
 ## Schema Format: `meta/secrets.yml` 🗝️
 
 `meta/secrets.yml` consolidates two structures under the `credentials:` top-level key:

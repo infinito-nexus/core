@@ -20,12 +20,14 @@ REDACTED_PATH = "$infinito_access_log_path"
 
 MODES = {"debug": True, "production": False}
 
+DEBUG_SWITCH = ("sys-svc-webserver-core",)
+
 
 def render(debug: bool) -> str:
     """Return the rendered nginx.conf.
 
     Args:
-        debug: the value of ``MODE_DEBUG``.
+        debug: what lookup('debug', 'sys-svc-webserver-core') answers.
     """
     env = Environment(
         loader=FileSystemLoader(str(PROJECT_ROOT)),
@@ -33,17 +35,24 @@ def render(debug: bool) -> str:
         autoescape=select_autoescape(),
     )
     env.filters["bool"] = bool
+
+    def lookup(kind: str, *terms: str) -> object:
+        if kind == "nginx" and len(terms) == 1:
+            return (
+                ["/etc/nginx/conf.d/http/"]
+                if terms[0].endswith("http_includes")
+                else f"/var/lib/nginx/{terms[0]}"
+            )
+        if kind == "debug" and terms == DEBUG_SWITCH:
+            return debug
+        raise AssertionError(f"unexpected lookup: {kind} {terms}")
+
     return env.get_template(TEMPLATE).render(
-        MODE_DEBUG=debug,
         IS_SWARM_MODE=False,
         WEBSERVER_PROXY_WORKER_PROCESSES=1,
         WEBSERVER_PROXY_WORKER_CONNECTIONS=256,
         WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE=512,
-        lookup=lambda _kind, key: (
-            ["/etc/nginx/conf.d/http/"]
-            if key.endswith("http_includes")
-            else f"/var/lib/nginx/{key}"
-        ),
+        lookup=lookup,
     )
 
 

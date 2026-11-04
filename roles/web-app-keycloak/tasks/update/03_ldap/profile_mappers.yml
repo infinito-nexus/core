@@ -50,7 +50,7 @@
     merge_path: "config"
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     realm: "{{ KEYCLOAK_REALM }}"
-    assert_mode: "{{ MODE_ASSERT }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
   loop: >-
     {{
       ldap_component_tpl.subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']
@@ -77,7 +77,7 @@
     merge_path: "config"
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     realm: "{{ KEYCLOAK_REALM }}"
-    assert_mode: "{{ MODE_ASSERT }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
   loop: >-
     {{
       ldap_component_tpl.subComponents['org.keycloak.storage.ldap.mappers.LDAPStorageMapper']

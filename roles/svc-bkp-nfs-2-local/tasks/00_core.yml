@@ -17,7 +17,7 @@
   vars:
     system_service_timer_enabled: true
     system_service_force_linear_sync: true
-    system_service_force_flush_instant: "{{ MODE_BACKUP | bool }}"
+    system_service_force_flush_instant: "{{ BACKUP | bool }}"
     system_service_force_flush_final: false
-    system_service_state: "{{ 'started' if MODE_BACKUP | bool else omit }}"
+    system_service_state: "{{ 'started' if BACKUP | bool else omit }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL }}"

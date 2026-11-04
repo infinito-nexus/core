@@ -10,8 +10,8 @@ A Laravel task MAY seed a named class that is safe to repeat::
 
     php artisan db:seed --class=Database\\Seeders\\RolesSeeder --force
 
-A task whose own or enclosing ``when:`` carries ``MODE_DEMO | bool`` or bare
-``MODE_DEMO`` as an ``and`` term, without ``or``, is allowed. A Rails task whose
+A task whose own or enclosing ``when:`` carries ``DEMO | bool`` or bare
+``DEMO`` as an ``and`` term, without ``or``, is allowed. A Rails task whose
 seeds are safe in production carries ``# nocheck: default-seeder <reason>`` on,
 or directly above, the line where its command value starts: a block scalar's
 ``key: >`` line, an inline string, or the first ``argv:`` item. The marker
@@ -55,7 +55,7 @@ _RAILS_SEED = re.compile(
 _COMMAND_SEPARATOR = re.compile(r"\n|;|&&|\|\|")
 _OR = re.compile(r"\bor\b")
 _AND = re.compile(r"\band\b")
-_DEMO_TERM = re.compile(r"\(?\s*MODE_DEMO\s*(?:\|\s*bool\s*)?\)?")
+_DEMO_TERM = re.compile(r"\(?\s*DEMO\s*(?:\|\s*bool\s*)?\)?")
 _DEFAULT_SEEDER = "DatabaseSeeder"
 _NESTED_TASK_KEYS = ("block", "rescue", "always")
 _TASK_DIRS = frozenset({"tasks", "handlers"})
@@ -150,14 +150,14 @@ def _texts(node: yaml.Node) -> Iterator[tuple[str, int]]:
 
 
 def _requires_demo(when: yaml.Node | None) -> bool:
-    """Report whether a ``when:`` value requires ``MODE_DEMO``.
+    """Report whether a ``when:`` value requires ``DEMO``.
 
     Args:
         when: the composed ``when:`` value of a task or block, or ``None``.
 
     Returns:
-        ``True`` when one condition without ``or`` carries ``MODE_DEMO | bool``
-        or bare ``MODE_DEMO`` as one of its ``and`` terms.
+        ``True`` when one condition without ``or`` carries ``DEMO | bool``
+        or bare ``DEMO`` as one of its ``and`` terms.
     """
     if isinstance(when, yaml.ScalarNode):
         conditions = [when.value]
@@ -182,7 +182,7 @@ def _offending_tasks(
     Args:
         tasks: a composed file root or ``block``/``rescue``/``always`` value.
         lines: the lines of the task file.
-        gated: whether an enclosing block's ``when:`` requires ``MODE_DEMO``.
+        gated: whether an enclosing block's ``when:`` requires ``DEMO``.
 
     Returns:
         An iterator over offending task names, nested tasks included.
@@ -270,7 +270,7 @@ class TestNoDefaultDatabaseSeeder(unittest.TestCase):
             "upstream ships for development data and which may truncate "
             "production tables or create known logins:\n  "
             + "\n  ".join(offenders)
-            + "\n\nFix: drop the seed, or gate it on `when: MODE_DEMO | bool`. "
+            + "\n\nFix: drop the seed, or gate it on `when: DEMO | bool`. "
             "Laravel: name a seeder class that is safe to repeat with "
             "`artisan db:seed --class=<Seeder>` / "
             "`artisan migrate --seed --seeder=<Seeder>`. Rails seeds verified "
@@ -346,11 +346,11 @@ class TestNoDefaultDatabaseSeeder(unittest.TestCase):
 
     def test_a_mode_demo_gate_allows_the_default_seeds(self) -> None:
         gates = (
-            "MODE_DEMO | bool",
-            "MODE_DEMO|bool",
-            "MODE_DEMO",
-            "ENVIRONMENT == 'production' and MODE_DEMO | bool",
-            ["ENVIRONMENT == 'production'", "MODE_DEMO | bool"],
+            "DEMO | bool",
+            "DEMO|bool",
+            "DEMO",
+            "ENVIRONMENT == 'production' and DEMO | bool",
+            ["ENVIRONMENT == 'production'", "DEMO | bool"],
         )
         for when in gates:
             with self.subTest(gated=when):
@@ -363,7 +363,7 @@ class TestNoDefaultDatabaseSeeder(unittest.TestCase):
             {
                 "block": [{"name": "r", "shell": "bin/rails db:seed"}],
                 "rescue": [{"name": "l", "shell": "php artisan db:seed --force"}],
-                "when": "MODE_DEMO | bool",
+                "when": "DEMO | bool",
             }
         ]
         self.assertEqual(self._offenders(block), [])
@@ -372,10 +372,10 @@ class TestNoDefaultDatabaseSeeder(unittest.TestCase):
         gates = (
             None,
             "ENVIRONMENT == 'production'",
-            "not MODE_DEMO | bool",
-            "not MODE_DEMO",
-            "MODE_DEMO | bool or ENVIRONMENT == 'development'",
-            ["ENVIRONMENT == 'production'", "not MODE_DEMO | bool"],
+            "not DEMO | bool",
+            "not DEMO",
+            "DEMO | bool or ENVIRONMENT == 'development'",
+            ["ENVIRONMENT == 'production'", "not DEMO | bool"],
         )
         for when in gates:
             with self.subTest(ungated=when):
