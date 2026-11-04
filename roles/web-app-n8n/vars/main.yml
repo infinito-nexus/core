@@ -3,7 +3,6 @@ application_id: "web-app-n8n"
 entity_name: "{{ application_id | get_entity_name }}"
 
 N8N_CONTAINER: "{{ lookup('config', application_id, 'services.n8n.name') }}"
-N8N_HTTP_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.local.http') }}"
 N8N_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.n8n.ports.internal.http') }}"
 
 N8N_HOSTNAME: "{{ lookup('domain', application_id) }}"
@@ -12,7 +11,7 @@ N8N_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.en
 N8N_OWNER_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.owner_password') }}"
 N8N_NODE_MODULES: /usr/local/lib/node_modules/n8n/node_modules
 
-N8N_INTERNAL_API_URL: "http://{{ DOCKER_REACH_HOST }}:{{ N8N_HTTP_PORT }}"
+N8N_NETNS_API_URL: "http://127.0.0.1:{{ N8N_INTERNAL_PORT }}"
 
 N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 
