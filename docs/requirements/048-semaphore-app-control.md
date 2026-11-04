@@ -19,8 +19,8 @@ As a platform operator, I want members of the `operator` role group to pause and
 ## Acceptance Criteria
 
 - [ ] Every invokable role's `meta/services.yml` declares `semaphore` with `enabled`, `shared`, `control` and `status`, where `enabled` and `shared` are `"{{ 'web-app-semaphore' in group_names }}"`, `control` is a literal boolean and `status` is `started` or `stopped`.
-- [ ] `web-app-keycloak`, `svc-db-postgres`, `svc-db-openldap`, `svc-prx-openresty` and `web-app-gitea` declare `semaphore` with `enabled: false`, `control: false` and `status: started`, each carrying a `# nocheck:` reason. In `web-app-semaphore` the `semaphore` entry is the Semaphore container itself: `enabled` stays the container flag, and the entry adds `shared`, `control: false` and `status: started`, carrying a `# nocheck:` reason.
-- [ ] A lint fails for an invokable role whose `meta/services.yml` lacks the `semaphore` entry, whose `control` is not a literal boolean, or whose `status` is neither `started` nor `stopped`, unless the entry carries a `# nocheck:` reason, and it is observed failing on a role with the entry removed and on a role with `status: paused`.
+- [x] `web-app-keycloak`, `svc-db-postgres`, `svc-db-openldap`, `svc-prx-openresty` and `web-app-gitea` declare `semaphore` with `enabled: false`, `control: false` and `status: started`, each carrying a `# nocheck:` reason. In `web-app-semaphore` the `semaphore` entry is the Semaphore container itself: `enabled` stays the container flag, and the entry adds `shared`, `control: false` and `status: started`, carrying a `# nocheck:` reason.
+- [x] A lint fails for an invokable role whose `meta/services.yml` lacks the `semaphore` entry, whose `control` is not a literal boolean, or whose `status` is neither `started` nor `stopped`, unless the entry carries a `# nocheck:` reason, and it is observed failing on a role with the entry removed and on a role with `status: paused`.
 - [ ] A deploy that creates an application with `status: stopped` leaves it paused (no running instance, the paused page on its vhosts), and one with `status: started` leaves it running.
 - [ ] A redeploy of an application keeps the state Semaphore last set for it; `status` decides only the state the application is created in.
 - [ ] `roles/web-app-semaphore/meta/rbac.yml` declares an `operator` role, and the RBAC reconcile grants its members the project role `task_runner` in the provisioned project.
@@ -30,12 +30,12 @@ As a platform operator, I want members of the `operator` role group to pause and
 - [ ] In swarm, `stop <application>` scales every service of the application's stack to 0 replicas; `start <application>` restores the replicas declared in `meta/services.yml`.
 - [ ] While an application is paused, each of its vhosts answers HTTP 503 with the paused page: the animated beaver sleeping behind a pause sign, the notice that the service is paused, and every contact channel declared in `service_provider.contact`.
 - [ ] The paused page renders in the visitor's language from `Accept-Language`, and every string on it comes from the `core` `.po` catalogs.
-- [ ] `stop all` and `start all` act on exactly the applications with `control: true` and never touch the control-plane roles.
-- [ ] The development stack's `compose.yml` defines a `target` service that `make compose-up` and CI start by default, and one shared script resets it to a bare systemd and sshd machine before each use, in compose and swarm rounds.
-- [ ] The `web-app-docs` instruction replay deploys onto the shared `target` service, and the role no longer ships its own target machine, ssh setup or resolver.
+- [x] `stop all` and `start all` act on exactly the applications with `control: true` and never touch the control-plane roles.
+- [x] The development stack's `compose.yml` defines a `target` service that `make compose-up` and CI start by default, and one shared script resets it to a bare systemd and sshd machine before each use, in compose and swarm rounds.
+- [x] The `web-app-docs` instruction replay deploys onto the shared `target` service, and the role no longer ships its own target machine, ssh setup or resolver.
 - [ ] A Semaphore deploy template deploys Infinito.Nexus from an inventory repository to the hosts that inventory lists; the repository URL and its deploy key are mandatory inventory values, and a private repository is the default.
 - [ ] The Semaphore test variant deploys `web-app-gitea` with a private inventory repository that targets the `target` service, and binds it to the deploy template through a deploy key.
 - [ ] A Playwright spec signs in as a member of `operator`, runs `stop <application>`, asserts the 503 paused page in the browser's language, runs `start <application>`, and asserts the application answers again, in compose and in swarm.
 - [ ] A Playwright spec asserts that an account without the `operator` role can neither see nor run the stop and start templates.
 - [ ] A Playwright spec signs in as `administrator`, runs the deploy template against the `target` service, and asserts that the deployed application answers on the target.
-- [ ] `roles/web-app-semaphore/README.md` documents the control flag, the templates, the runner and the foreign-server deploy, and its `TODO.md` no longer lists the missing `operator` role.
+- [x] `roles/web-app-semaphore/README.md` documents the control flag, the templates, the runner and the foreign-server deploy, and its `TODO.md` no longer lists the missing `operator` role.

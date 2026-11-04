@@ -85,6 +85,10 @@ exports.register = function (shared) {
       await expect(page).toHaveTitle(texts.title);
       await expect(page.locator("main h1"), `${label}: the paused heading in "${language}"`).toHaveText(texts.heading);
       await expect(page.locator("main > p"), `${label}: the paused notice in "${language}"`).toHaveText(texts.notice);
+      await expect(
+        page.locator("main dl dd"),
+        `${label}: the paused page must list every contact channel of service_provider.contact`,
+      ).toHaveText(shared.env.pausedContacts);
       const beaver = page.locator("svg.scene .beaver");
       await expect(beaver, `${label}: the paused page must show the sleeping beaver`).toBeVisible();
       await expect

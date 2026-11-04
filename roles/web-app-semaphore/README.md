@@ -10,6 +10,9 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
 
 ## Features
 
+- **Pinned image:**
+  `services.semaphore.image` and `services.semaphore.version` in [meta/services.yml](./meta/services.yml) pin the server to a concrete `semaphoreui/semaphore` release, never `latest`. The `🐳 Update Docker image versions` job of [cron-update.yml](../../.github/workflows/cron-update.yml) raises the pin in an update pull request. The next deploy starts the new server, which migrates the schema on start, and because the runner copies the `semaphore` binary of that image, the new pin rebuilds the runner as well (see **Runner build**).
+
 - **Central PostgreSQL:**
   `SEMAPHORE_DB_DIALECT=postgres` against the shared `svc-db-postgres` (or a per-role engine when not shared), with centralised backup and monitoring.
 
@@ -66,6 +69,9 @@ The role deploys the Semaphore server and a dedicated task runner and wires them
 
 - **Paused page:**
   While an application is paused, nginx answers every one of its vhosts with HTTP 503 and a self-contained page with a beaver sleeping behind a pause sign, the paused notice and the contact channels of `service_provider.contact`. The page is rendered from the `core` gettext catalogs in every language they translate, picked from `Accept-Language`, with English as the fallback.
+
+- **Variants:**
+  [meta/variants.yml](./meta/variants.yml) defines three variants, each with `tor` on. Variant 0 enables every service but `docs` and adds `web-app-gitea` and the `deploy` block of the foreign-server deploy (see **Test variant**). Variant 1 disables every service but `docs`, whose round replays the instructions of this README. Variant 2 enables `ldap` only, so the login form binds against the directory. Variants 0 and 2 also deploy `web-app-lam`, the application the app-control specs pause and resume.
 
 ## Foreign-Server Deploy
 

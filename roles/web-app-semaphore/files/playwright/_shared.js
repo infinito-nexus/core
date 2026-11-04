@@ -46,6 +46,9 @@ const pausedLanguage      = requireDotenvValue(process.env.APP_CONTROL_PAUSED_LA
 const pausedCatalogue     = JSON.parse(
   requireDotenvValue(process.env.APP_CONTROL_PAUSED_CATALOGUE_JSON, "APP_CONTROL_PAUSED_CATALOGUE_JSON"),
 );
+const pausedContacts      = JSON.parse(
+  requireDotenvValue(process.env.APP_CONTROL_PAUSED_CONTACTS_JSON, "APP_CONTROL_PAUSED_CONTACTS_JSON"),
+);
 
 const ROLE_GROUPS = {
   operator: { path: operatorGroupPath, dn: operatorGroupDn },
@@ -554,6 +557,7 @@ module.exports = {
     appControlTargetUrl,
     pausedLanguage,
     pausedCatalogue,
+    pausedContacts,
   },
   LOGIN_PATH,
   RBAC_SYNC_CONVERGENCE_MS,

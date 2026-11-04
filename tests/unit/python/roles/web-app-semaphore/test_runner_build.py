@@ -23,6 +23,7 @@ from ansible.plugins.loader import filter_loader, lookup_loader
 from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
+from plugins.filter.docker.build_digest import docker_build_digest
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
@@ -93,6 +94,7 @@ def resolve(
     dockerfile=DOCKERFILE_TEXT,
     scripts=None,
     server_version=SERVER_VERSION,
+    uid=1001,
     image_build=True,
     listed=(),
 ) -> dict:
@@ -110,6 +112,7 @@ def resolve(
         scripts: ``{name: text}`` of ``files/shell/repository``, ``SCRIPTS``
             when None.
         server_version: pinned version of the Semaphore server image.
+        uid: UID the runner token volume declares for the runner user.
         image_build: ``SOFTWARE_IMAGE_BUILD`` of the deploy.
         listed: the image tags ``container image ls`` lists on the stack host.
 
@@ -136,7 +139,7 @@ def resolve(
             lambda _pattern: sorted(p for p in texts if p.startswith(SCRIPTS_DIR)),
             many=True,
         ),
-        "volume": _Stub(lambda _app, _name: {"uid": 1001, "gid": 1001}),
+        "volume": _Stub(lambda _app, _name: {"uid": uid, "gid": 1001}),
         "deployment": _Stub(lambda: {"primary": primary}),
         "image": _Stub(lambda _app, _service, version: f"semaphore_custom:{version}"),
     }
@@ -288,6 +291,22 @@ class TestRounds(unittest.TestCase):
     def test_a_new_server_image_rebuilds_in_a_provider_round(self) -> None:
         provider = self.provider(server_version="v2.19.18")
         self.assertEqual(provider["SEMAPHORE_RUNNER_IMAGE_TAG"], NEW)
+
+    def test_a_changed_build_argument_rebuilds_in_a_provider_round(self) -> None:
+        provider = self.provider(uid=1002)
+        self.assertEqual(provider["SEMAPHORE_RUNNER_IMAGE_TAG"], NEW)
+
+    def test_a_changed_input_changes_the_build_section_under_one_tag(self) -> None:
+        kept = docker_build_digest(self.compose)
+        for name, changed in (
+            ("dockerfile", {"dockerfile": DOCKERFILE_TEXT + "USER 1001\n"}),
+            ("script", {"scripts": {**SCRIPTS, "deploy.sh": "echo new\n"}}),
+            ("server image", {"server_version": "v2.19.18"}),
+            ("build argument", {"uid": 1002}),
+        ):
+            with self.subTest(input=name):
+                own = resolve(primary=[ROLE], tag=OLD, **changed)
+                self.assertNotEqual(docker_build_digest(rendered(own)), kept)
 
     def test_lost_images_rebuild_in_a_provider_round(self) -> None:
         self.assertEqual(self.provider(held=False)["SEMAPHORE_RUNNER_IMAGE_TAG"], NEW)

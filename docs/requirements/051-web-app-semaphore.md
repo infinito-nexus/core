@@ -126,7 +126,7 @@ V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `
 
 ### Role layout & image
 
-- [ ] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
+- [x] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
 - [x] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
 - [ ] `meta/info.yml`, `domains.yml`, `csp.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
 
@@ -160,8 +160,8 @@ V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `
 
 ### Playwright (per [playwright.spec.js contract](../contributing/artefact/files/role/playwright.specs.js.md))
 
-- [ ] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; an empty-credentials submission on Semaphore's own login form is rejected by that form.
-- [ ] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`.
+- [x] `files/playwright/test-guest.js`: guest never reaches an authenticated surface; an empty-credentials submission on Semaphore's own login form is rejected by that form.
+- [x] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`.
 - [x] `files/playwright/test-login-ldap-biber.js`: LDAP login path, gated on `skipUnlessServiceEnabled('ldap')`.
 - [x] `files/playwright/test-login-native-administrator.js`: break-glass local admin login, gated to **ldap-disabled** (Semaphore forces LDAP-only form auth when ldap is enabled); the skip carries a reason naming `LDAP_SERVICE_ENABLED`.
 - [x] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable.
@@ -174,7 +174,7 @@ V1 = every service enabled, `sso` and `ldap` included; V2 = every dynamic flag `
 
 ### Documentation
 
-- [ ] `roles/web-app-semaphore/README.md` documents image + bump policy, the chosen DB backend, OIDC + LDAP wiring, the variant matrix, the admin-bootstrap path, and the runner topology.
+- [x] `roles/web-app-semaphore/README.md` documents image + bump policy, the chosen DB backend, OIDC + LDAP wiring, the variant matrix, the admin-bootstrap path, and the runner topology.
 - [x] This requirement file is cross-linked from the implementing PR (per [requirements.md#cross-linking](../contributing/requirements.md#cross-linking)). Implementing PR: [#356](https://github.com/infinito-nexus/core/pull/356), which links this file under its former name `028-web-app-semaphore.md`.
 
 ## Validation Apps
