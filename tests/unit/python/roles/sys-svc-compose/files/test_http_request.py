@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import io
 import json
-import runpy
 import unittest
 import urllib.error
 import urllib.request
@@ -32,9 +32,10 @@ def _run(
     env = {
         "HTTP_METHOD": method,
         "HTTP_URL": URL,
-        "HTTP_BODY": body,
         "HTTP_PROXY": "http://proxy.invalid:3128",
     }
+    encoded = base64.b64encode(body.encode()).decode()
+    program = f"BODY_B64 = {json.dumps(encoded)}\n" + SCRIPT_PATH.read_text()
     opener_factory = build_opener or MagicMock()
     opener_factory.return_value = MagicMock(open=urlopen)
     with (
@@ -42,7 +43,7 @@ def _run(
         patch("urllib.request.build_opener", opener_factory),
         contextlib.redirect_stdout(stdout),
     ):
-        runpy.run_path(str(SCRIPT_PATH))
+        exec(compile(program, "<stdin>", "exec"), {"__name__": "__main__"})
     return json.loads(stdout.getvalue())
 
 

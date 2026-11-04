@@ -18,11 +18,10 @@
 - name: "🔎 Probe n8n owner account via single login attempt"
   ansible.builtin.command:
     argv: "{{ N8N_NETNS_PYTHON }}"
-    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/sys-svc-compose/files/python/http_request.py')) }}"
+    stdin: "{{ lookup('http_request_program', {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json) }}"
   environment:
     HTTP_METHOD: POST
     HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/login"
-    HTTP_BODY: "{{ {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json }}"
   register: n8n_owner_probe
   until: n8n_owner_probe.rc == 0 and 'json' in (n8n_owner_probe.stdout | from_json).content_type
   retries: 4
@@ -40,17 +39,16 @@
 - name: "🔧 Initialise n8n owner account (first-time only)"
   ansible.builtin.command:
     argv: "{{ N8N_NETNS_PYTHON }}"
-    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/sys-svc-compose/files/python/http_request.py')) }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/owner/setup"
-    HTTP_BODY: >-
-      {{ {
+    stdin: >-
+      {{ lookup('http_request_program', {
         'email': N8N_OWNER_EMAIL,
         'firstName': lookup('users', 'administrator').firstname | replace('.', ' ') | trim,
         'lastName': lookup('users', 'administrator').lastname | replace('.', ' ') | trim,
         'password': N8N_OWNER_PASSWORD,
-      } | to_json }}
+      } | to_json) }}
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/owner/setup"
   register: n8n_owner_setup
   changed_when: n8n_owner_setup.rc == 0 and (n8n_owner_setup.stdout | from_json).status in [200, 201]
   failed_when: n8n_owner_setup.rc != 0 or (n8n_owner_setup.stdout | from_json).status not in [200, 201, 400]
@@ -106,11 +104,10 @@
     - name: "🔎 Confirm the owner signs in with the deployed password"
       ansible.builtin.command:
         argv: "{{ N8N_NETNS_PYTHON }}"
-        stdin: "{{ lookup('file', lookup('path_absolute', 'roles/sys-svc-compose/files/python/http_request.py')) }}"
+        stdin: "{{ lookup('http_request_program', {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json) }}"
       environment:
         HTTP_METHOD: POST
         HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/login"
-        HTTP_BODY: "{{ {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json }}"
       register: n8n_owner_confirm
       changed_when: false
       failed_when: n8n_owner_confirm.rc != 0 or (n8n_owner_confirm.stdout | from_json).status != 200

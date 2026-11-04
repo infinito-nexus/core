@@ -1,9 +1,11 @@
 """Send one HTTP request and print the answer as JSON.
 
+Args (module global, prepended on stdin by lookup('http_request_program')):
+    BODY_B64: base64 of the JSON request body; an empty body sends none.
+
 Args (environment):
     HTTP_METHOD: request method.
     HTTP_URL: absolute http:// URL.
-    HTTP_BODY: JSON request body; an empty string sends none.
 
 Output:
     ``{"status": int, "content_type": str, "content": str}`` on stdout. An
@@ -11,13 +13,14 @@ Output:
     Proxy variables of the environment are ignored.
 """
 
+import base64
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
 
-body = os.environ["HTTP_BODY"]
+body = base64.b64decode(globals()["BODY_B64"]).decode()
 request = urllib.request.Request(  # noqa: S310 - caller-fixed http:// URL inside the app's own namespace
     os.environ["HTTP_URL"],
     data=body.encode() if body else None,
