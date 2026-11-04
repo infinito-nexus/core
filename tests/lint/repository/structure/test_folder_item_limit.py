@@ -1,7 +1,8 @@
 """Warn about folders that grow beyond the readability/modularity limit.
 
-This lint test scans git-tracked repository files and counts the
-immediate items of each folder. Ignored files are skipped by design.
+This lint test scans git-tracked repository files and the placed custom roles
+and counts the immediate items of each folder. Other ignored files are skipped
+by design.
 Folders with more than 12 direct items are reported as non-blocking warnings
 so that large directories stay easy to scan and keep a clear module boundary.
 
@@ -13,14 +14,13 @@ affected folders.
 from __future__ import annotations
 
 import os
-import subprocess
 import unittest
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
 from utils.annotations.message import warning
-from utils.cache.files import iter_project_files
+from utils.cache.files import iter_project_files, repository_files
 
 from . import PROJECT_ROOT
 
@@ -54,24 +54,15 @@ class FolderFinding:
 
 
 def _tracked_paths(root: Path) -> list[Path]:
-    """Return tracked file paths.
+    """Return the tracked file paths and the files of every placed custom role.
 
     Tracked paths already exclude ignored files. If git is unavailable, fall
     back to a filesystem walk and apply a light safety filter.
     """
     try:
-        output = subprocess.check_output(
-            ["git", "-C", str(root), "ls-files", "-z"],
-            stderr=subprocess.STDOUT,
-        )
+        rel_paths = repository_files()
     except Exception:
         return [Path(p) for p in iter_project_files()]
-
-    rel_paths = [
-        rel_path
-        for rel_path in output.decode("utf-8", errors="replace").split("\0")
-        if rel_path
-    ]
     return [root / rel_path for rel_path in rel_paths]
 
 

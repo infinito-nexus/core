@@ -167,6 +167,16 @@ class TestValidateInventory(unittest.TestCase):
         result = self.run_script(expected_code=0)
         self.assertIn("Inventory directory is valid against defaults", result.stdout)
 
+    def test_a_partial_swarm_override_fails(self):
+        (self.inventory_dir / "group_vars").mkdir()
+        (self.inventory_dir / "group_vars" / "all.yml").write_text(
+            dump_yaml_str({"swarm": {"network": {"encryption": False}}}),
+            encoding="utf-8",
+        )
+
+        result = self.run_script(expected_code=1)
+        self.assertIn("'swarm.registry.host' is missing", result.stdout)
+
     def test_variants_only_key_is_accepted(self):
         """Regression for web-opt-rdr-www failure on run 26428083128:
         variants.yml declares service-keys absent from meta/services.yml,

@@ -125,7 +125,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 
   This 3-node topology (1 manager + 2 workers) is also the minimum exercised by the CI pilot workflow — see [CI: pilot validation workflow](#ci-pilot-validation-workflow). Any host in `svc-swarm-manager` MUST also be in `svc-swarm-node`. A deploy with a host in `svc-swarm-manager` but missing from `svc-swarm-node` MUST fail at inventory-validation time.
 
-- [ ] All blocks above (`storage`, `swarm`) have schema validation entries in the relevant role's `meta/secrets.yml`. A missing or malformed block fails the deploy at variable-load time with a precise error, not at runtime.
+- [x] All blocks above (`storage`, `swarm`) are validated against their `group_vars/all` defaults by the inventory validator (`cli/administration/inventory/validate/swarm_storage.py`), which the deploy runs before the playbook starts. An inventory block of the wrong shape or type, an unknown `storage.backend`, or a block that misses a key the deploy reads without a fallback fails the deploy there with a message naming the file and the key, not at runtime. `meta/secrets.yml` holds credentials only, so it carries no entry for them.
 
 ### Cluster validation
 
